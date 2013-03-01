@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<resource>
+  <object class="wxPanel" name="ID_CONTROL_PANEL">
+    <object class="wxBoxSizer">
+      <orient>wxHORIZONTAL</orient>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_OPEN_SHAPE_FILE">
+          <bitmap>ToolBar-open-folder.png</bitmap>
+          <disabled>ToolBar-open-folder_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_CLOSE_ALL">
+          <bitmap>ToolBar-close-folder.png</bitmap>
+          <disabled>ToolBar-close-folder_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="spacer">
+        <size>15,5d</size>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_EXPORT_MEAN_CENTERS">
+          <bitmap>ToolBarBitmaps_36.png</bitmap>
+          <disabled>ToolBarBitmaps_36_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_EXPORT_CENTROIDS">
+          <bitmap>ToolBarBitmaps_2.png</bitmap>
+          <disabled>ToolBarBitmaps_2_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_TOOLS_WEIGHTS_OPEN">
+          <bitmap>ToolBarBitmaps_3.png</bitmap>
+          <disabled>ToolBarBitmaps_3_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_TOOLS_WEIGHTS_CREATE">
+          <bitmap>ToolBarBitmaps_4.png</bitmap>
+          <disabled>ToolBarBitmaps_4_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_TOOLS_WEIGHTS_CHAR">
+          <bitmap>ToolBarBitmaps_5.png</bitmap>
+          <disabled>ToolBarBitmaps_5_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_NEW_MAP_LAYER">
+          <bitmap>ToolBarBitmaps_6.png</bitmap>
+          <disabled>ToolBarBitmaps_6_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_DUPLICATE_MAP">
+          <bitmap>ToolBarBitmaps_9.png</bitmap>
+          <disabled>ToolBarBitmaps_9_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_SET_DEFAULT_VARIABLE_SETTINGS">
+          <bitmap>ToolBarBitmaps_10.png</bitmap>
+          <disabled>ToolBarBitmaps_10_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_BOX">
+          <bitmap>ToolBarBitmaps_14.png</bitmap>
+          <disabled>ToolBarBitmaps_14_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_HIST">
+          <bitmap>ToolBarBitmaps_12.png</bitmap>
+          <disabled>ToolBarBitmaps_12_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_SCATTERPLOT">
+          <bitmap>ToolBarBitmaps_13.png</bitmap>
+          <disabled>ToolBarBitmaps_13_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_PCP">
+          <bitmap>ToolBarBitmaps_15.png</bitmap>
+          <disabled>ToolBarBitmaps_15_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_CC">
+          <bitmap>ToolBarBitmaps_17.png</bitmap>
+          <disabled>ToolBarBitmaps_17_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_3DP">
+          <bitmap>ToolBarBitmaps_16.png</bitmap>
+          <disabled>ToolBarBitmaps_16_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_TABLE">
+          <bitmap>ToolBarBitmaps_18.png</bitmap>
+          <disabled>ToolBarBitmaps_18_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_MSPL">
+          <bitmap>ToolBarBitmaps_19.png</bitmap>
+          <disabled>ToolBarBitmaps_19_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_GMORAN">
+          <bitmap>ToolBarBitmaps_20.png</bitmap>
+          <disabled>ToolBarBitmaps_20_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_MORAN_EBRATE">
+          <bitmap>ToolBarBitmaps_21.png</bitmap>
+          <disabled>ToolBarBitmaps_21_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_UNI_LISA">
+          <bitmap>ToolBarBitmaps_22.png</bitmap>
+          <disabled>ToolBarBitmaps_22_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_MULTI_LISA">
+          <bitmap>ToolBarBitmaps_23.png</bitmap>
+          <disabled>ToolBarBitmaps_23_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="IDM_LISA_EBRATE">
+          <bitmap>ToolBarBitmaps_24.png</bitmap>
+          <disabled>ToolBarBitmaps_24_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAPANALYSIS_CHOROPLETH_QUANTILE">
+          <bitmap>ToolBarBitmaps_25.png</bitmap>
+          <disabled>ToolBarBitmaps_25_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+          <bitmap>ToolBarBitmaps_26.png</bitmap>
+          <disabled>ToolBarBitmaps_26_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+          <bitmap>ToolBarBitmaps_27.png</bitmap>
+          <disabled>ToolBarBitmaps_27_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAP_HINGE_15">
+          <bitmap>ToolBarBitmaps_28.png</bitmap>
+          <disabled>ToolBarBitmaps_28_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAP_HINGE_30">
+          <bitmap>ToolBarBitmaps_29.png</bitmap>
+          <disabled>ToolBarBitmaps_29_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_SHOW_CARTOGRAM_MAP">
+          <bitmap>ToolBarBitmaps_30.png</bitmap>
+          <disabled>ToolBarBitmaps_30_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_THEMATICMAP_MAPMOVIE_SINGLE">
+          <bitmap>ToolBarBitmaps_31.png</bitmap>
+          <disabled>ToolBarBitmaps_31_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBitmapButton" name="ID_MAPANALYSIS_MAPMOVIE">
+          <bitmap>ToolBarBitmaps_32.png</bitmap>
+          <disabled>ToolBarBitmaps_32_disabled.png</disabled>
+          <style>wxNO_BORDER</style>
+        </object>
+      </object>
+    </object>
+  </object>
+</resource>
