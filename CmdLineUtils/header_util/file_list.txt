@@ -1,0 +1,6 @@
+./foo_dir/a_dir/file1.h
+
+foo_dir/a_dir/file2.h
+foo_dir/a_dir/bogus.h
+foo_dir/b_dir/file1.cpp
+

@@ -1,0 +1,1658 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="88">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="f1" displayName="DialogTools" projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Explore" projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="kNN" projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="Regression" projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="ShapeOperations" projectFiles="true">
+      </logicalFolder>
+      <logicalFolder name="f6" displayName="Thiessen" projectFiles="true">
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="f1" displayName="DataViewer" projectFiles="true">
+        <itemPath>DataViewer/DataViewer.cpp</itemPath>
+        <itemPath>DataViewer/DataViewer.h</itemPath>
+        <itemPath>DataViewer/DataViewerAddColDlg.cpp</itemPath>
+        <itemPath>DataViewer/DataViewerAddColDlg.h</itemPath>
+        <itemPath>DataViewer/DataViewerDeleteColDlg.cpp</itemPath>
+        <itemPath>DataViewer/DataViewerDeleteColDlg.h</itemPath>
+        <itemPath>DataViewer/DataViewerEditFieldPropertiesDlg.cpp</itemPath>
+        <itemPath>DataViewer/DataViewerEditFieldPropertiesDlg.h</itemPath>
+        <itemPath>DataViewer/DataViewerResizeColDlg.cpp</itemPath>
+        <itemPath>DataViewer/DataViewerResizeColDlg.h</itemPath>
+        <itemPath>DataViewer/DbfGridTableBase.cpp</itemPath>
+        <itemPath>DataViewer/DbfGridTableBase.h</itemPath>
+        <itemPath>DataViewer/MergeTableDlg.cpp</itemPath>
+        <itemPath>DataViewer/MergeTableDlg.h</itemPath>
+        <itemPath>DataViewer/TableState.cpp</itemPath>
+        <itemPath>DataViewer/TableState.h</itemPath>
+        <itemPath>DataViewer/TableStateObserver.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="DialogTools" displayName="DialogTools" projectFiles="true">
+        <itemPath>DialogTools/3DControlPan.cpp</itemPath>
+        <itemPath>DialogTools/3DControlPan.h</itemPath>
+        <itemPath>DialogTools/ASC2SHPDlg.cpp</itemPath>
+        <itemPath>DialogTools/ASC2SHPDlg.h</itemPath>
+        <itemPath>DialogTools/AddIdVariable.cpp</itemPath>
+        <itemPath>DialogTools/AddIdVariable.h</itemPath>
+        <itemPath>DialogTools/Bnd2ShpDlg.cpp</itemPath>
+        <itemPath>DialogTools/Bnd2ShpDlg.h</itemPath>
+        <itemPath>DialogTools/CatClassifDlg.cpp</itemPath>
+        <itemPath>DialogTools/CatClassifDlg.h</itemPath>
+        <itemPath>DialogTools/CreateGridDlg.cpp</itemPath>
+        <itemPath>DialogTools/CreateGridDlg.h</itemPath>
+        <itemPath>DialogTools/CreateSpTmProjectDlg.cpp</itemPath>
+        <itemPath>DialogTools/CreateSpTmProjectDlg.h</itemPath>
+        <itemPath>DialogTools/CreatingWeightDlg.cpp</itemPath>
+        <itemPath>DialogTools/CreatingWeightDlg.h</itemPath>
+        <itemPath>DialogTools/DataMovieDlg.cpp</itemPath>
+        <itemPath>DialogTools/DataMovieDlg.h</itemPath>
+        <itemPath>DialogTools/ExportCsvDlg.cpp</itemPath>
+        <itemPath>DialogTools/ExportCsvDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcBinDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcBinDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcLagDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcLagDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcRateDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcRateDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcSheetDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcSheetDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcSpecialDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcSpecialDlg.h</itemPath>
+        <itemPath>DialogTools/FieldNewCalcUniDlg.cpp</itemPath>
+        <itemPath>DialogTools/FieldNewCalcUniDlg.h</itemPath>
+        <itemPath>DialogTools/GetisOrdChoiceDlg.cpp</itemPath>
+        <itemPath>DialogTools/GetisOrdChoiceDlg.h</itemPath>
+        <itemPath>DialogTools/HistIntervalDlg.cpp</itemPath>
+        <itemPath>DialogTools/HistIntervalDlg.h</itemPath>
+        <itemPath>DialogTools/ImportCsvDlg.cpp</itemPath>
+        <itemPath>DialogTools/ImportCsvDlg.h</itemPath>
+        <itemPath>DialogTools/LisaWhat2OpenDlg.cpp</itemPath>
+        <itemPath>DialogTools/LisaWhat2OpenDlg.h</itemPath>
+        <itemPath>DialogTools/MapQuantileDlg.cpp</itemPath>
+        <itemPath>DialogTools/MapQuantileDlg.h</itemPath>
+        <itemPath>DialogTools/OpenSpaceTimeDlg.cpp</itemPath>
+        <itemPath>DialogTools/OpenSpaceTimeDlg.h</itemPath>
+        <itemPath>DialogTools/PCPDlg.cpp</itemPath>
+        <itemPath>DialogTools/PCPDlg.h</itemPath>
+        <itemPath>DialogTools/PermutationCounterDlg.cpp</itemPath>
+        <itemPath>DialogTools/PermutationCounterDlg.h</itemPath>
+        <itemPath>DialogTools/ProgressDlg.cpp</itemPath>
+        <itemPath>DialogTools/ProgressDlg.h</itemPath>
+        <itemPath>DialogTools/RandomizationDlg.cpp</itemPath>
+        <itemPath>DialogTools/RandomizationDlg.h</itemPath>
+        <itemPath>DialogTools/RangeSelectionDlg.cpp</itemPath>
+        <itemPath>DialogTools/RangeSelectionDlg.h</itemPath>
+        <itemPath>DialogTools/RegressionDlg.cpp</itemPath>
+        <itemPath>DialogTools/RegressionDlg.h</itemPath>
+        <itemPath>DialogTools/RegressionReportDlg.cpp</itemPath>
+        <itemPath>DialogTools/RegressionReportDlg.h</itemPath>
+        <itemPath>DialogTools/SHP2ASCDlg.cpp</itemPath>
+        <itemPath>DialogTools/SHP2ASCDlg.h</itemPath>
+        <itemPath>DialogTools/SaveSelectionDlg.cpp</itemPath>
+        <itemPath>DialogTools/SaveSelectionDlg.h</itemPath>
+        <itemPath>DialogTools/SaveToTableDlg.cpp</itemPath>
+        <itemPath>DialogTools/SaveToTableDlg.h</itemPath>
+        <itemPath>DialogTools/SelectWeightDlg.cpp</itemPath>
+        <itemPath>DialogTools/SelectWeightDlg.h</itemPath>
+        <itemPath>DialogTools/Statistics.cpp</itemPath>
+        <itemPath>DialogTools/Statistics.h</itemPath>
+        <itemPath>DialogTools/TimeChooserDlg.cpp</itemPath>
+        <itemPath>DialogTools/TimeChooserDlg.h</itemPath>
+        <itemPath>DialogTools/TimeVariantImportDlg.cpp</itemPath>
+        <itemPath>DialogTools/TimeVariantImportDlg.h</itemPath>
+        <itemPath>DialogTools/VariableSettingsDlg.cpp</itemPath>
+        <itemPath>DialogTools/VariableSettingsDlg.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Explore" displayName="Explore" projectFiles="true">
+        <itemPath>Explore/3DPlotView.cpp</itemPath>
+        <itemPath>Explore/3DPlotView.h</itemPath>
+        <itemPath>Explore/BoxNewPlotView.cpp</itemPath>
+        <itemPath>Explore/BoxNewPlotView.h</itemPath>
+        <itemPath>Explore/CartogramNewView.cpp</itemPath>
+        <itemPath>Explore/CartogramNewView.h</itemPath>
+        <itemPath>Explore/CatClassifManager.cpp</itemPath>
+        <itemPath>Explore/CatClassifManager.h</itemPath>
+        <itemPath>Explore/CatClassifState.cpp</itemPath>
+        <itemPath>Explore/CatClassifState.h</itemPath>
+        <itemPath>Explore/CatClassifStateObserver.h</itemPath>
+        <itemPath>Explore/CatClassification.cpp</itemPath>
+        <itemPath>Explore/CatClassification.h</itemPath>
+        <itemPath>Explore/ConditionalHistogramView.cpp</itemPath>
+        <itemPath>Explore/ConditionalHistogramView.h</itemPath>
+        <itemPath>Explore/ConditionalMapView.cpp</itemPath>
+        <itemPath>Explore/ConditionalMapView.h</itemPath>
+        <itemPath>Explore/ConditionalNewView.cpp</itemPath>
+        <itemPath>Explore/ConditionalNewView.h</itemPath>
+        <itemPath>Explore/ConditionalScatterPlotView.cpp</itemPath>
+        <itemPath>Explore/ConditionalScatterPlotView.h</itemPath>
+        <itemPath>Explore/ConnectivityHistView.cpp</itemPath>
+        <itemPath>Explore/ConnectivityHistView.h</itemPath>
+        <itemPath>Explore/GStatCoordinator.cpp</itemPath>
+        <itemPath>Explore/GStatCoordinator.h</itemPath>
+        <itemPath>Explore/Geom3D.cpp</itemPath>
+        <itemPath>Explore/Geom3D.h</itemPath>
+        <itemPath>Explore/GetisOrdMapNewView.cpp</itemPath>
+        <itemPath>Explore/GetisOrdMapNewView.h</itemPath>
+        <itemPath>Explore/HistogramView.cpp</itemPath>
+        <itemPath>Explore/HistogramView.h</itemPath>
+        <itemPath>Explore/LisaCoordinator.cpp</itemPath>
+        <itemPath>Explore/LisaCoordinator.h</itemPath>
+        <itemPath>Explore/LisaCoordinatorObserver.h</itemPath>
+        <itemPath>Explore/LisaMapNewView.cpp</itemPath>
+        <itemPath>Explore/LisaMapNewView.h</itemPath>
+        <itemPath>Explore/LisaScatterPlotView.cpp</itemPath>
+        <itemPath>Explore/LisaScatterPlotView.h</itemPath>
+        <itemPath>Explore/MapNewView.cpp</itemPath>
+        <itemPath>Explore/MapNewView.h</itemPath>
+        <itemPath>Explore/PCPNewView.cpp</itemPath>
+        <itemPath>Explore/PCPNewView.h</itemPath>
+        <itemPath>Explore/ScatterNewPlotView.cpp</itemPath>
+        <itemPath>Explore/ScatterNewPlotView.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Generic" displayName="Generic" projectFiles="true">
+        <itemPath>Generic/HighlightState.cpp</itemPath>
+        <itemPath>Generic/HighlightState.h</itemPath>
+        <itemPath>Generic/HighlightStateObserver.h</itemPath>
+        <itemPath>Generic/MyShape.cpp</itemPath>
+        <itemPath>Generic/MyShape.h</itemPath>
+        <itemPath>Generic/Observable.h</itemPath>
+        <itemPath>Generic/Observer.h</itemPath>
+        <itemPath>Generic/TestMapView.cpp</itemPath>
+        <itemPath>Generic/TestMapView.h</itemPath>
+        <itemPath>Generic/TestScrollWinView.cpp</itemPath>
+        <itemPath>Generic/TestScrollWinView.h</itemPath>
+        <itemPath>Generic/TestTableView.cpp</itemPath>
+        <itemPath>Generic/TestTableView.h</itemPath>
+        <itemPath>Generic/macro_cleaner.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="kNN" displayName="kNN" projectFiles="true">
+        <itemPath>kNN/ANN.cpp</itemPath>
+        <itemPath>kNN/ANN.h</itemPath>
+        <itemPath>kNN/ANNperf.h</itemPath>
+        <itemPath>kNN/ANNx.h</itemPath>
+        <itemPath>kNN/kNN.cpp</itemPath>
+        <itemPath>kNN/kd_pr_search.cpp</itemPath>
+        <itemPath>kNN/kd_pr_search.h</itemPath>
+        <itemPath>kNN/kd_search.cpp</itemPath>
+        <itemPath>kNN/kd_search.h</itemPath>
+        <itemPath>kNN/kd_split.cpp</itemPath>
+        <itemPath>kNN/kd_split.h</itemPath>
+        <itemPath>kNN/kd_tree.cpp</itemPath>
+        <itemPath>kNN/kd_tree.h</itemPath>
+        <itemPath>kNN/kd_util.cpp</itemPath>
+        <itemPath>kNN/kd_util.h</itemPath>
+        <itemPath>kNN/pr_queue.h</itemPath>
+        <itemPath>kNN/pr_queue_k.h</itemPath>
+        <itemPath>kNN/values.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="rc" displayName="rc" projectFiles="true">
+        <itemPath>rc/MyAppResources.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Regression" displayName="Regression" projectFiles="true">
+        <itemPath>Regression/DenseMatrix.cpp</itemPath>
+        <itemPath>Regression/DenseMatrix.h</itemPath>
+        <itemPath>Regression/DenseVector.cpp</itemPath>
+        <itemPath>Regression/DenseVector.h</itemPath>
+        <itemPath>Regression/DiagnosticReport.cpp</itemPath>
+        <itemPath>Regression/DiagnosticReport.h</itemPath>
+        <itemPath>Regression/Link.h</itemPath>
+        <itemPath>Regression/Lite2.h</itemPath>
+        <itemPath>Regression/ML_im.cpp</itemPath>
+        <itemPath>Regression/ML_im.h</itemPath>
+        <itemPath>Regression/PowerLag.cpp</itemPath>
+        <itemPath>Regression/PowerLag.h</itemPath>
+        <itemPath>Regression/PowerSymLag.cpp</itemPath>
+        <itemPath>Regression/PowerSymLag.h</itemPath>
+        <itemPath>Regression/SparseMatrix.cpp</itemPath>
+        <itemPath>Regression/SparseMatrix.h</itemPath>
+        <itemPath>Regression/SparseRow.cpp</itemPath>
+        <itemPath>Regression/SparseRow.h</itemPath>
+        <itemPath>Regression/SparseVector.cpp</itemPath>
+        <itemPath>Regression/SparseVector.h</itemPath>
+        <itemPath>Regression/Weights.cpp</itemPath>
+        <itemPath>Regression/Weights.h</itemPath>
+        <itemPath>Regression/blaswrap.h</itemPath>
+        <itemPath>Regression/f2c.h</itemPath>
+        <itemPath>Regression/mix.cpp</itemPath>
+        <itemPath>Regression/mix.h</itemPath>
+        <itemPath>Regression/polym.h</itemPath>
+        <itemPath>Regression/smile.h</itemPath>
+        <itemPath>Regression/smile2.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="ShapeOperations"
+                     displayName="ShapeOperations"
+                     projectFiles="true">
+        <itemPath>ShapeOperations/AbstractShape.cpp</itemPath>
+        <itemPath>ShapeOperations/AbstractShape.h</itemPath>
+        <itemPath>ShapeOperations/BasePoint.cpp</itemPath>
+        <itemPath>ShapeOperations/BasePoint.h</itemPath>
+        <itemPath>ShapeOperations/Box.cpp</itemPath>
+        <itemPath>ShapeOperations/Box.h</itemPath>
+        <itemPath>ShapeOperations/CsvFileUtils.cpp</itemPath>
+        <itemPath>ShapeOperations/CsvFileUtils.h</itemPath>
+        <itemPath>ShapeOperations/DBF.cpp</itemPath>
+        <itemPath>ShapeOperations/DBF.h</itemPath>
+        <itemPath>ShapeOperations/DbfFile.cpp</itemPath>
+        <itemPath>ShapeOperations/DbfFile.h</itemPath>
+        <itemPath>ShapeOperations/DorlingCartogram.cpp</itemPath>
+        <itemPath>ShapeOperations/DorlingCartogram.h</itemPath>
+        <itemPath>ShapeOperations/GalWeight.cpp</itemPath>
+        <itemPath>ShapeOperations/GalWeight.h</itemPath>
+        <itemPath>ShapeOperations/GeodaWeight.cpp</itemPath>
+        <itemPath>ShapeOperations/GeodaWeight.h</itemPath>
+        <itemPath>ShapeOperations/GwtWeight.cpp</itemPath>
+        <itemPath>ShapeOperations/GwtWeight.h</itemPath>
+        <itemPath>ShapeOperations/Randik.cpp</itemPath>
+        <itemPath>ShapeOperations/Randik.h</itemPath>
+        <itemPath>ShapeOperations/RateSmoothing.cpp</itemPath>
+        <itemPath>ShapeOperations/RateSmoothing.h</itemPath>
+        <itemPath>ShapeOperations/ShapeFile.cpp</itemPath>
+        <itemPath>ShapeOperations/ShapeFile.h</itemPath>
+        <itemPath>ShapeOperations/ShapeFileHdr.cpp</itemPath>
+        <itemPath>ShapeOperations/ShapeFileHdr.h</itemPath>
+        <itemPath>ShapeOperations/ShapeFileTriplet.cpp</itemPath>
+        <itemPath>ShapeOperations/ShapeFileTriplet.h</itemPath>
+        <itemPath>ShapeOperations/ShapeFileTypes.h</itemPath>
+        <itemPath>ShapeOperations/ShapeUtils.cpp</itemPath>
+        <itemPath>ShapeOperations/ShapeUtils.h</itemPath>
+        <itemPath>ShapeOperations/ShpFile.cpp</itemPath>
+        <itemPath>ShapeOperations/ShpFile.h</itemPath>
+        <itemPath>ShapeOperations/VoronoiUtils.cpp</itemPath>
+        <itemPath>ShapeOperations/VoronoiUtils.h</itemPath>
+        <itemPath>ShapeOperations/WeightsManager.cpp</itemPath>
+        <itemPath>ShapeOperations/WeightsManager.h</itemPath>
+        <itemPath>ShapeOperations/shp.cpp</itemPath>
+        <itemPath>ShapeOperations/shp.h</itemPath>
+        <itemPath>ShapeOperations/shp2cnt.cpp</itemPath>
+        <itemPath>ShapeOperations/shp2cnt.h</itemPath>
+        <itemPath>ShapeOperations/shp2gwt.cpp</itemPath>
+        <itemPath>ShapeOperations/shp2gwt.h</itemPath>
+      </logicalFolder>
+      <itemPath>FramesManager.cpp</itemPath>
+      <itemPath>FramesManager.h</itemPath>
+      <itemPath>FramesManagerObserver.h</itemPath>
+      <itemPath>GenGeomAlgs.cpp</itemPath>
+      <itemPath>GenGeomAlgs.h</itemPath>
+      <itemPath>GenUtils.cpp</itemPath>
+      <itemPath>GenUtils.h</itemPath>
+      <itemPath>GeneralWxUtils.cpp</itemPath>
+      <itemPath>GeneralWxUtils.h</itemPath>
+      <itemPath>GeoDaConst.cpp</itemPath>
+      <itemPath>GeoDaConst.h</itemPath>
+      <itemPath>NewTableViewer.cpp</itemPath>
+      <itemPath>NewTableViewer.h</itemPath>
+      <itemPath>GeoDa.cpp</itemPath>
+      <itemPath>GeoDa.h</itemPath>
+      <itemPath>Project.cpp</itemPath>
+      <itemPath>Project.h</itemPath>
+      <itemPath>TemplateCanvas.cpp</itemPath>
+      <itemPath>TemplateCanvas.h</itemPath>
+      <itemPath>TemplateFrame.cpp</itemPath>
+      <itemPath>TemplateFrame.h</itemPath>
+      <itemPath>TemplateLegend.cpp</itemPath>
+      <itemPath>TemplateLegend.h</itemPath>
+      <itemPath>logger.cpp</itemPath>
+      <itemPath>logger.h</itemPath>
+      <itemPath>nullstream.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU|GNU</compilerSet>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>/usr/local/lib/wx/include/gtk2-unicode-static-2.9</pElem>
+            <pElem>/usr/local/include/wx-2.9</pElem>
+            <pElem>/usr/local/include/boost</pElem>
+          </incDir>
+          <commandLine>-pthread -g</commandLine>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
+            <Elem>_FILE_OFFSET_BITS=64</Elem>
+            <Elem>_LARGE_FILES</Elem>
+            <Elem>__WXDEBUG__</Elem>
+            <Elem>__WXGTK__</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>/usr/local/lib</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerOptionItem>-pthread</linkerOptionItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/lapack.a</linkerLibFileItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/blas.a</linkerLibFileItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/F2CLIBS/libf2c.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_gl-2.9.a</linkerLibFileItem>
+            <linkerLibLibItem>GL</linkerLibLibItem>
+            <linkerLibLibItem>GLU</linkerLibLibItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_xrc-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_qa-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu_net-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_html-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_adv-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_core-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu_xml-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxtiff-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxjpeg-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxregexu-2.9.a</linkerLibFileItem>
+            <linkerLibLibItem>expat</linkerLibLibItem>
+            <linkerOptionItem>-pthread</linkerOptionItem>
+            <linkerLibLibItem>gtk-x11-2.0</linkerLibLibItem>
+            <linkerLibLibItem>gdk-x11-2.0</linkerLibLibItem>
+            <linkerLibLibItem>atk-1.0</linkerLibLibItem>
+            <linkerLibLibItem>gio-2.0</linkerLibLibItem>
+            <linkerLibLibItem>pangoft2-1.0</linkerLibLibItem>
+            <linkerLibLibItem>pangocairo-1.0</linkerLibLibItem>
+            <linkerLibLibItem>gdk_pixbuf-2.0</linkerLibLibItem>
+            <linkerLibLibItem>cairo</linkerLibLibItem>
+            <linkerLibLibItem>pango-1.0</linkerLibLibItem>
+            <linkerLibLibItem>freetype</linkerLibLibItem>
+            <linkerLibLibItem>fontconfig</linkerLibLibItem>
+            <linkerLibLibItem>gobject-2.0</linkerLibLibItem>
+            <linkerLibLibItem>gthread-2.0</linkerLibLibItem>
+            <linkerLibLibItem>rt</linkerLibLibItem>
+            <linkerLibLibItem>glib-2.0</linkerLibLibItem>
+            <linkerLibLibItem>X11</linkerLibLibItem>
+            <linkerLibLibItem>SM</linkerLibLibItem>
+            <linkerLibLibItem>png</linkerLibLibItem>
+            <linkerLibLibItem>z</linkerLibLibItem>
+            <linkerLibLibItem>dl</linkerLibLibItem>
+            <linkerLibLibItem>m</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="DataViewer/DataViewer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerAddColDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerAddColDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerDeleteColDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerDeleteColDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerEditFieldPropertiesDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerEditFieldPropertiesDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerResizeColDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerResizeColDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DbfGridTableBase.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DbfGridTableBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/MergeTableDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/MergeTableDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/TableState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/TableState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/TableStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/3DControlPan.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/3DControlPan.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ASC2SHPDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ASC2SHPDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/AddIdVariable.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/AddIdVariable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/Bnd2ShpDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/Bnd2ShpDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CatClassifDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CatClassifDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateGridDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateGridDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateSpTmProjectDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/CreateSpTmProjectDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreatingWeightDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CreatingWeightDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/DataMovieDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/DataMovieDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ExportCsvDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ExportCsvDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcBinDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcBinDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcLagDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcLagDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcRateDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcRateDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSheetDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSheetDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSpecialDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSpecialDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcUniDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcUniDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/GetisOrdChoiceDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/GetisOrdChoiceDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/HistIntervalDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/HistIntervalDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ImportCsvDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ImportCsvDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/LisaWhat2OpenDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/LisaWhat2OpenDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/MapQuantileDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/MapQuantileDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/OpenSpaceTimeDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/OpenSpaceTimeDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/PCPDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/PCPDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/PermutationCounterDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/PermutationCounterDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/ProgressDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ProgressDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RandomizationDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RandomizationDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RangeSelectionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RangeSelectionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionReportDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionReportDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SHP2ASCDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SHP2ASCDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveSelectionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveSelectionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveToTableDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveToTableDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SelectWeightDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SelectWeightDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/Statistics.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/Statistics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeChooserDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeChooserDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeVariantImportDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/TimeVariantImportDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/VariableSettingsDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/VariableSettingsDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/3DPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/3DPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/BoxNewPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/BoxNewPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CartogramNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CartogramNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassification.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassification.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalHistogramView.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConditionalHistogramView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalMapView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalMapView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalScatterPlotView.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConditionalScatterPlotView.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConnectivityHistView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConnectivityHistView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/GStatCoordinator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/GStatCoordinator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/Geom3D.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/Geom3D.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/GetisOrdMapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/GetisOrdMapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/HistogramView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/HistogramView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinatorObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaMapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaMapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaScatterPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaScatterPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/MapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/MapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/PCPNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/PCPNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ScatterNewPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ScatterNewPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FramesManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="FramesManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FramesManagerObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GenGeomAlgs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GenGeomAlgs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GenUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GenUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeneralWxUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeneralWxUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/HighlightState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Generic/HighlightState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/HighlightStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/MyShape.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Generic/MyShape.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/Observable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/Observer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestMapView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestScrollWinView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestTableView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/macro_cleaner.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeoDaConst.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeoDaConst.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="NewTableViewer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="NewTableViewer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeoDa.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeoDa.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Project.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Project.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DenseMatrix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DenseMatrix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DenseVector.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DenseVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DiagnosticReport.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DiagnosticReport.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Link.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Lite2.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/ML_im.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/ML_im.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/PowerLag.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/PowerLag.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/PowerSymLag.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/PowerSymLag.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseMatrix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseMatrix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseRow.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseRow.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseVector.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Weights.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/Weights.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/blaswrap.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/f2c.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/mix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/mix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/polym.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/smile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/smile2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/AbstractShape.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/AbstractShape.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/BasePoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/BasePoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Box.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Box.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/CsvFileUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/CsvFileUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DBF.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DBF.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DbfFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DbfFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DorlingCartogram.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="ShapeOperations/DorlingCartogram.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GalWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GalWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GeodaWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GeodaWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GwtWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GwtWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Randik.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Randik.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/RateSmoothing.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/RateSmoothing.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileHdr.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileHdr.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTriplet.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTriplet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTypes.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShpFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShpFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/VoronoiUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/VoronoiUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/WeightsManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/WeightsManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2cnt.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2cnt.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2gwt.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2gwt.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateCanvas.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateCanvas.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateFrame.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateFrame.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateLegend.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateLegend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANN.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/ANN.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANNperf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANNx.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kNN.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_pr_search.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_pr_search.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_search.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_search.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_split.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_split.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_tree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_tree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_util.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/pr_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/pr_queue_k.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/values.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="logger.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="nullstream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="rc/MyAppResources.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU|GNU</compilerSet>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>0</developmentMode>
+          <incDir>
+            <pElem>/usr/local/lib/wx/include/gtk2-unicode-static-2.9</pElem>
+            <pElem>/usr/local/include/wx-2.9</pElem>
+            <pElem>/usr/local/include/boost</pElem>
+          </incDir>
+          <commandLine>-pthread</commandLine>
+          <preprocessorList>
+            <Elem>_FILE_OFFSET_BITS=64</Elem>
+            <Elem>_LARGE_FILES</Elem>
+            <Elem>__WXGTK__</Elem>
+          </preprocessorList>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>/usr/local/lib</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerOptionItem>-pthread</linkerOptionItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/lapack.a</linkerLibFileItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/blas.a</linkerLibFileItem>
+            <linkerLibFileItem>${HOME}/CLAPACK-3.2/F2CLIBS/libf2c.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_gl-2.9.a</linkerLibFileItem>
+            <linkerLibLibItem>GL</linkerLibLibItem>
+            <linkerLibLibItem>GLU</linkerLibLibItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_xrc-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_qa-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu_net-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_html-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_adv-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_gtk2u_core-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu_xml-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwx_baseu-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxtiff-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxjpeg-2.9.a</linkerLibFileItem>
+            <linkerLibFileItem>/usr/local/lib/libwxregexu-2.9.a</linkerLibFileItem>
+            <linkerLibLibItem>expat</linkerLibLibItem>
+            <linkerOptionItem>-pthread</linkerOptionItem>
+            <linkerLibLibItem>gtk-x11-2.0</linkerLibLibItem>
+            <linkerLibLibItem>gdk-x11-2.0</linkerLibLibItem>
+            <linkerLibLibItem>atk-1.0</linkerLibLibItem>
+            <linkerLibLibItem>gio-2.0</linkerLibLibItem>
+            <linkerLibLibItem>pangoft2-1.0</linkerLibLibItem>
+            <linkerLibLibItem>pangocairo-1.0</linkerLibLibItem>
+            <linkerLibLibItem>gdk_pixbuf-2.0</linkerLibLibItem>
+            <linkerLibLibItem>cairo</linkerLibLibItem>
+            <linkerLibLibItem>pango-1.0</linkerLibLibItem>
+            <linkerLibLibItem>freetype</linkerLibLibItem>
+            <linkerLibLibItem>fontconfig</linkerLibLibItem>
+            <linkerLibLibItem>gobject-2.0</linkerLibLibItem>
+            <linkerLibLibItem>gthread-2.0</linkerLibLibItem>
+            <linkerLibLibItem>rt</linkerLibLibItem>
+            <linkerLibLibItem>glib-2.0</linkerLibLibItem>
+            <linkerLibLibItem>X11</linkerLibLibItem>
+            <linkerLibLibItem>SM</linkerLibLibItem>
+            <linkerLibLibItem>png</linkerLibLibItem>
+            <linkerLibLibItem>z</linkerLibLibItem>
+            <linkerLibLibItem>dl</linkerLibLibItem>
+            <linkerLibLibItem>m</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="DataViewer/DataViewer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerAddColDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerAddColDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerDeleteColDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerDeleteColDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerEditFieldPropertiesDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerEditFieldPropertiesDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerResizeColDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DataViewerResizeColDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DataViewer/DbfGridTableBase.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/DbfGridTableBase.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/MergeTableDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/MergeTableDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/TableState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DataViewer/TableState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DataViewer/TableStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/3DControlPan.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/3DControlPan.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ASC2SHPDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ASC2SHPDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/AddIdVariable.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/AddIdVariable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/Bnd2ShpDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/Bnd2ShpDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CatClassifDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CatClassifDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateGridDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateGridDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreateSpTmProjectDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/CreateSpTmProjectDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/CreatingWeightDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/CreatingWeightDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/DataMovieDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/DataMovieDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ExportCsvDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ExportCsvDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcBinDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcBinDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcLagDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcLagDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcRateDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcRateDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSheetDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSheetDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSpecialDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcSpecialDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcUniDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/FieldNewCalcUniDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/GetisOrdChoiceDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/GetisOrdChoiceDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/HistIntervalDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/HistIntervalDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/ImportCsvDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ImportCsvDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/LisaWhat2OpenDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/LisaWhat2OpenDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/MapQuantileDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/MapQuantileDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/OpenSpaceTimeDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/OpenSpaceTimeDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/PCPDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/PCPDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/PermutationCounterDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/PermutationCounterDlg.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/ProgressDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/ProgressDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RandomizationDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RandomizationDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RangeSelectionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RangeSelectionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionReportDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/RegressionReportDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SHP2ASCDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SHP2ASCDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveSelectionDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveSelectionDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveToTableDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SaveToTableDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/SelectWeightDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/SelectWeightDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/Statistics.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/Statistics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeChooserDlg.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeChooserDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/TimeVariantImportDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/TimeVariantImportDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="DialogTools/VariableSettingsDlg.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="DialogTools/VariableSettingsDlg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/3DPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/3DPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/BoxNewPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/BoxNewPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CartogramNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CartogramNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassifStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/CatClassification.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/CatClassification.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalHistogramView.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConditionalHistogramView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalMapView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalMapView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ConditionalScatterPlotView.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConditionalScatterPlotView.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Explore/ConnectivityHistView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ConnectivityHistView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/GStatCoordinator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/GStatCoordinator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/Geom3D.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/Geom3D.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/GetisOrdMapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/GetisOrdMapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/HistogramView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/HistogramView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinator.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaCoordinatorObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaMapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaMapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/LisaScatterPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/LisaScatterPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/MapNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/MapNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/PCPNewView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/PCPNewView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Explore/ScatterNewPlotView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Explore/ScatterNewPlotView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FramesManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="FramesManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="FramesManagerObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GenGeomAlgs.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GenGeomAlgs.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GenUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GenUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeneralWxUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeneralWxUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/HighlightState.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Generic/HighlightState.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/HighlightStateObserver.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/MyShape.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Generic/MyShape.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/Observable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/Observer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestMapView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestScrollWinView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Generic/TestScrollWinView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/TestTableView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Generic/macro_cleaner.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeoDaConst.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeoDaConst.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="NewTableViewer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="NewTableViewer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="GeoDa.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="GeoDa.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Project.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Project.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DenseMatrix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DenseMatrix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DenseVector.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DenseVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/DiagnosticReport.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/DiagnosticReport.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Link.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Lite2.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/ML_im.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/ML_im.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/PowerLag.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/PowerLag.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/PowerSymLag.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/PowerSymLag.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseMatrix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseMatrix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseRow.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseRow.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/SparseVector.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/SparseVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/Weights.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/Weights.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/blaswrap.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/f2c.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/mix.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Regression/mix.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/polym.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/smile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Regression/smile2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/AbstractShape.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/AbstractShape.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/BasePoint.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/BasePoint.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Box.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Box.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/CsvFileUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/CsvFileUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DBF.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DBF.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DbfFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DbfFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/DorlingCartogram.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="ShapeOperations/DorlingCartogram.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GalWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GalWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GeodaWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GeodaWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GwtWeight.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/GwtWeight.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Randik.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/Randik.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/RateSmoothing.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/RateSmoothing.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileHdr.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileHdr.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTriplet.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTriplet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeFileTypes.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShapeUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShpFile.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/ShpFile.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/VoronoiUtils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/VoronoiUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/WeightsManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/WeightsManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2cnt.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2cnt.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2gwt.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ShapeOperations/shp2gwt.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateCanvas.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateCanvas.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateFrame.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateFrame.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TemplateLegend.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="TemplateLegend.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANN.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/ANN.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANNperf.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/ANNx.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kNN.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_pr_search.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_pr_search.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_search.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_search.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_split.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_split.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_tree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_tree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/kd_util.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="kNN/kd_util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/pr_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/pr_queue_k.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="kNN/values.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="logger.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="nullstream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="rc/MyAppResources.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
