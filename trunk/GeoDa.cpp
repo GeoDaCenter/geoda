@@ -148,7 +148,7 @@ IMPLEMENT_APP(MyApp)
 	//ExitMainLoop(); // This will force the program to exit immediately
 //}
 
-#include "rc/oGeoDaIcon-16x16.xpm"
+#include "rc/GeoDaIcon-16x16.xpm"
 
 bool MyApp::OnInit(void)
 {
@@ -989,7 +989,7 @@ wxFrame(NULL, -1, title, pos, size, style)
 {
 	LOG_MSG("Entering MyFrame::MyFrame");
 	
-	SetIcon(wxIcon(oGeoDaIcon_16x16_xpm));
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
 
 	wxToolBar* tb1;

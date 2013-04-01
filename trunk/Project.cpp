@@ -116,14 +116,36 @@ bool Project::OpenShpFile(wxFileName shp_fname_s)
 	m_shp_fname.SetExt("shp");
 	std::string m_shp_str(m_shp_fname.GetFullPath().mb_str());
 	
-	Shapefile::populateIndex(m_shx_str, index_data);
+	bool success;
+	
+	success = Shapefile::populateIndex(m_shx_str, index_data);
 	//std::ostringstream index_strm;
 	//Shapefile::printIndex(index_data, index_strm);
 	//wxString msg1(index_strm.str().c_str(), wxConvUTF8);
 	//LOG_MSG(msg1);
 	
-	Shapefile::populateMain(index_data, m_shp_str, main_data);
+	if (success) {	
+		success = Shapefile::populateMain(index_data, m_shp_str, main_data);
 
+		if (index_data.header.shape_type == POLYGON_Z) {
+			index_data.header.shape_type = POLYGON;
+		} else if (index_data.header.shape_type == POLYGON_M) {
+			index_data.header.shape_type = POLYGON;
+		} else if (index_data.header.shape_type == POINT_Z) {
+			index_data.header.shape_type = POINT;
+		} else if (index_data.header.shape_type == POINT_M) {
+			index_data.header.shape_type = POINT;
+		} else if (index_data.header.shape_type == POLY_LINE_Z) {
+			index_data.header.shape_type = POLY_LINE;
+		} else if (index_data.header.shape_type == POLY_LINE_M) {
+			index_data.header.shape_type = POLY_LINE;
+		}
+	}
+	
+	if (!success) {
+		// display a failure window if unsupported shapefile type encountered
+		return false;
+	}
 	
     //std::ostringstream main_strm;
 	//Shapefile::printMain(main_data, main_strm);

@@ -449,7 +449,20 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		col_c = horiz_cat_data.categories[var_info[HOR_VAR].time].id_to_cat[i];
 		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
 	}
-
+	if (selectable_shps_type == polygons) {
+		int proj_to_pnt_cnt = 0;
+		for (int i=0; i<num_obs; i++) {
+			if (((MyPolygon*) selectable_shps[i])->all_points_same) {
+				proj_to_pnt_cnt++;
+			}
+		}
+		double perc = proj_to_pnt_cnt*100;
+		perc /= (double) num_obs;
+		wxString s;
+		s << "ResizeSelectableShps: " << proj_to_pnt_cnt << "/" << num_obs;
+		s << ", " << perc << "% project to single point";
+		LOG_MSG(s);
+	}
 	
 	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();	

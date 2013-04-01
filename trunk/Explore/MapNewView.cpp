@@ -710,7 +710,7 @@ void MapNewCanvas::CreateAndUpdateCategories()
 			for (int i=0; i<num_obs; i++) {
 				if (P[i] <= 0) {
 					map_valid[t] = false;
-					map_error_message[t] = "Error: Base values contain "
+					map_error_message[t] = "Error: Base values contain"
 						" non-positive numbers. Cannot perform smoothing.";
 					continue;
 				}

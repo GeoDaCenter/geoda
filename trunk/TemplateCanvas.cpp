@@ -262,6 +262,7 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
 	//LOG_MSG("Entering TemplateCanvas::ResizeSelectableShps");
+	wxStopWatch sw;
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 	if (vs_w <= 0 && vs_h <= 0) {
 		GetVirtualSize(&vs_w, &vs_h);
@@ -295,15 +296,36 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	//LOG_MSG(msg);
 	BOOST_FOREACH( MyShape* ms, background_shps ) {
 		ms->applyScaleTrans(last_scale_trans);
-	}	
+	}
 	BOOST_FOREACH( MyShape* ms, selectable_shps ) {
 		ms->applyScaleTrans(last_scale_trans);
 	}
+	LOG_MSG(wxString::Format("ResizeSelectableShps scale shapes: %ld ms",
+							 sw.Time()));
+	//if (selectable_shps_type == polygons) {
+		//int proj_to_pnt_cnt = 0;
+		//for (int i=0; i<num_obs; i++) {
+		//	if (((MyPolygon*) selectable_shps[i])->all_points_same) {
+		//		proj_to_pnt_cnt++;
+		//	}
+		//}
+		//double perc = proj_to_pnt_cnt*100;
+		//perc /= (double) num_obs;
+		//wxString s;
+		//s << "ResizeSelectableShps: " << proj_to_pnt_cnt << "/" << num_obs;
+		//s << ", " << perc << "% project to single point";
+		//LOG_MSG(s);
+		// MMM: should keep track of this percentage and use it as
+		// a cuttoff to decide if it is worth it to keep track
+		// of dirty/non-dirty in during rendering.
+	//}
 	BOOST_FOREACH( MyShape* ms, foreground_shps ) {
 		ms->applyScaleTrans(last_scale_trans);
 	}
 	layer0_valid = false;
 	Refresh();
+	LOG_MSG(wxString::Format("ResizeSelectableShps run time: %ld ms",
+							 sw.Time()));
 	//LOG_MSG("Exiting TemplateCanvas::ResizeSelectableShps");
 }
 
@@ -639,6 +661,11 @@ void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
 	if (!draw_sel_shps_by_z_val) {
 		DrawHighlightedShapes_gen_dc(dc, disable_crosshatch_brush);
 	}
+	
+	BOOST_FOREACH( MyShape* shp, foreground_shps ) {
+		shp->paintSelf(dc);
+	}
+	
 }
 
 void TemplateCanvas::DrawLayers()
@@ -754,17 +781,20 @@ void TemplateCanvas::DrawSelectableShapesByZVal(wxDC &dc,
 void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	//LOG_MSG("In TemplateCanvas::DrawSelectableShapes");
+	wxStopWatch sw;
 	if (use_category_brushes) {
 #ifdef __WXMAC__
 		DrawSelectableShapes_gc(dc);
 #else
 		DrawSelectableShapes_dc(dc);
 #endif
-		return;
+	} else {
+		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+			selectable_shps[i]->paintSelf(dc);
+		}
 	}
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		selectable_shps[i]->paintSelf(dc);
-	}
+	LOG_MSG(wxString::Format("DrawSelectableShapes render time: "
+							 "%ld ms", sw.Time()));
 }
 
 // draw unhighlighted selectable shapes with wxGraphicsContext
@@ -776,7 +806,11 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 	gc->SetBrush(wxBrush(selectable_fill_color));
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
+		int dirty_cnt = 0;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		wxDouble r = GeoDaConst::my_point_click_radius;
 		wxGraphicsPath path = gc->CreatePath();
@@ -789,13 +823,19 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 			wxGraphicsPath path = gc->CreatePath();
 			for (int i=0, iend=ids.size(); i<iend; i++) {
 				p = (MyPoint*) selectable_shps[ids[i]];
-				path.AddCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					path.AddCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 			//gc->FillPath(path, wxWINDING_RULE);
 			//if (selectable_outline_visible)	gc->StrokePath(path);
 			gc->StrokePath(path);
 		}
 	} else if (selectable_shps_type == polygons) {
+		std::vector<bool> dirty(w*h, false);
+		int dirty_cnt = 0;
+		int poly_pts_cnt = 0;
 		MyPolygon* p;
 		if (!selectable_outline_visible) gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		for (int cat=0; cat<num_cats; cat++) {
@@ -806,19 +846,38 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 			wxGraphicsPath path = gc->CreatePath();
 			for (int i=0, iend=ids.size(); i<iend; i++) {
 				p = (MyPolygon*) selectable_shps[ids[i]];
-				for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-					path.MoveToPoint(p->points[s]);
-					for (int pt=s+1; pt<t && pt<p->n; pt++) {
-						path.AddLineToPoint(p->points[pt]);
+				if (p->all_points_same) {
+					if (!dirty[p->center.x + p->center.y*w]) {
+						//path.AddCircle(p->center.x, p->center.y, 0.2);
+						dirty[p->center.x + p->center.y*w] = true;
+					} else {
+						dirty_cnt++;
 					}
-					path.CloseSubpath();
-					s = t;
-					if (c+1 < p->n_count) t += p->count[c+1];
+				} else {
+					for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
+						path.MoveToPoint(p->points[s]);
+						dirty[p->points[s].x + p->points[s].y*w] = true;
+						for (int pt=s+1; pt<t && pt<p->n; pt++) {
+							path.AddLineToPoint(p->points[pt]);
+							dirty[p->points[pt].x + p->points[pt].y*w] = true;
+							poly_pts_cnt++;
+						}
+						path.CloseSubpath();
+						s = t;
+						if (c+1 < p->n_count) t += p->count[c+1];
+					}
 				}
 			}
 			gc->FillPath(path, wxWINDING_RULE);
 			if (selectable_outline_visible)	gc->StrokePath(path);
 		}
+		double p_dirty_cnt = (double) dirty_cnt * 100 / (double) num_obs;
+		wxString s;
+		s << "dirty_cnt: " << dirty_cnt << ", " << p_dirty_cnt << "%";
+		LOG_MSG(s);
+		s = "Polygon points drawn: ";
+		s << poly_pts_cnt;
+		LOG_MSG(s);
 	} else if (selectable_shps_type == circles) {
 		// Only Cartogram map uses this currently
 		MyCircle* c;
@@ -886,7 +945,11 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 	dc.SetBrush(wxBrush(selectable_fill_color));
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
+		int dirty_cnt = 0;
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		wxDouble r = GeoDaConst::my_point_click_radius;
 		MyPoint* p;
@@ -896,10 +959,14 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 			std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
 				p = (MyPoint*) selectable_shps[ids[i]];
-				dc.DrawCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 		}
 	} else if (selectable_shps_type == polygons) {
+		std::vector<bool> dirty(w*h, false);
 		MyPolygon* p;
 		for (int cat=0; cat<num_cats; cat++) {
 			if (selectable_outline_visible) {
@@ -909,10 +976,18 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 			std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
 				p = (MyPolygon*) selectable_shps[ids[i]];
-				if (p->n_count > 1) {
-					dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+				if (p->all_points_same) {
+					if (!dirty[p->center.x + p->center.y*w]) {
+						dc.DrawPoint(p->center.x, p->center.y);
+						dirty[p->center.x + p->center.y*w] = true;
+					}
 				} else {
-					dc.DrawPolygon(p->n, p->points);
+					dirty[p->points[0].x + p->points[0].y*w] = true;
+					if (p->n_count > 1) {
+						dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+					} else {
+						dc.DrawPolygon(p->n, p->points);
+					}
 				}
 			}
 		}
@@ -985,7 +1060,11 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 	wxBrush hc_brush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
 	wxPen hc_pen(highlight_color);
 	
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
 		MyPoint* p;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		gc->SetPen(wxPen(highlight_color));
@@ -994,25 +1073,41 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 			if (hs[i]) {
 				p = (MyPoint*) selectable_shps[i];
-				path.AddCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					path.AddCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 		}
 		gc->StrokePath(path);
 	} else if (selectable_shps_type == polygons) {
+		std::vector<bool> dirty(w*h, false);
+		int dirty_cnt = 0;
 		MyPolygon* p;
 		if (!selectable_outline_visible) gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		wxGraphicsPath path = gc->CreatePath();
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 			if (!hs[i]) continue;
 			p = (MyPolygon*) selectable_shps[i];
-			for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-				path.MoveToPoint(p->points[s]);
-				for (int pt=s+1; pt<t && pt<p->n; pt++) {
-					path.AddLineToPoint(p->points[pt]);
+			if (p->all_points_same) {
+				if (!dirty[p->center.x + p->center.y*w]) {
+					path.AddCircle(p->center.x, p->center.y, 0.2);
+					dirty[p->center.x + p->center.y*w] = true;
+				} else {
+					dirty_cnt++;
 				}
-				path.CloseSubpath();
-				s = t;
-				if (c+1 < p->n_count) t += p->count[c+1];
+			} else {
+				for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
+					path.MoveToPoint(p->points[s]);
+					dirty[p->points[s].x + p->points[s].y*w] = true;
+					for (int pt=s+1; pt<t && pt<p->n; pt++) {
+						path.AddLineToPoint(p->points[pt]);
+						dirty[p->points[pt].x + p->points[pt].y*w] = true;
+					}
+					path.CloseSubpath();
+					s = t;
+					if (c+1 < p->n_count) t += p->count[c+1];
+				}
 			}
 		}
 		gc->SetBrush(hc_brush);
@@ -1099,7 +1194,11 @@ void TemplateCanvas::DrawHighlightedShapes_gen_dc(wxDC &dc,
 	}
 	dc.SetBrush(hc_brush);
 
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
 		MyPoint* p;
 		dc.SetPen(hc_pen);
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -1107,18 +1206,30 @@ void TemplateCanvas::DrawHighlightedShapes_gen_dc(wxDC &dc,
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 			if (hs[i]) {
 				p = (MyPoint*) selectable_shps[i];
-				dc.DrawCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 		}
 	} else if (selectable_shps_type == polygons) {
+		std::vector<bool> dirty(w*h, false);
 		MyPolygon* p;
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 			if (!hs[i]) continue;
 			p = (MyPolygon*) selectable_shps[i];
-			if (p->n_count > 1) {
-				dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+			if (p->all_points_same) {
+				if (!dirty[p->center.x + p->center.y*w]) {
+					dc.DrawPoint(p->center.x, p->center.y);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			} else {
-				dc.DrawPolygon(p->n, p->points);
+				dirty[p->points[0].x + p->points[0].y*w] = true;
+				if (p->n_count > 1) {
+					dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+				} else {
+					dc.DrawPolygon(p->n, p->points);
+				}
 			}
 		}
 	} else if (selectable_shps_type == circles) {
@@ -1179,10 +1290,14 @@ void TemplateCanvas::DrawNewSelShapes_gc(wxMemoryDC &dc)
 	}
 	dc.SetBrush(hc_brush);	
 	
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
 		MyPoint* p;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		gc->SetPen(hc_pen);
@@ -1190,7 +1305,10 @@ void TemplateCanvas::DrawNewSelShapes_gc(wxMemoryDC &dc)
 		wxDouble r = GeoDaConst::my_point_click_radius;
 		for (int i=0; i<total; i++) {
 			p = (MyPoint*) selectable_shps[nh[i]];
-			path.AddCircle(p->center.x, p->center.y, r);
+			if (!dirty[p->center.x + p->center.y*w]) {
+				path.AddCircle(p->center.x, p->center.y, r);
+				dirty[p->center.x + p->center.y*w] = true;
+			}
 		}
 		gc->StrokePath(path);
 	} else if (selectable_shps_type == polygons) {
@@ -1199,14 +1317,18 @@ void TemplateCanvas::DrawNewSelShapes_gc(wxMemoryDC &dc)
 		wxGraphicsPath path = gc->CreatePath();
 		for (int i=0; i<total; i++) {
 			p = (MyPolygon*) selectable_shps[nh[i]];
-			for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-				path.MoveToPoint(p->points[s]);
-				for (int pt=s+1; pt<t && pt<p->n; pt++) {
-					path.AddLineToPoint(p->points[pt]);
+			if (p->all_points_same) {
+				path.AddCircle(p->center.x, p->center.y, 0.2);
+			} else {
+				for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
+					path.MoveToPoint(p->points[s]);
+					for (int pt=s+1; pt<t && pt<p->n; pt++) {
+						path.AddLineToPoint(p->points[pt]);
+					}
+					path.CloseSubpath();
+					s = t;
+					if (c+1 < p->n_count) t += p->count[c+1];
 				}
-				path.CloseSubpath();
-				s = t;
-				if (c+1 < p->n_count) t += p->count[c+1];
 			}
 		}
 		gc->SetBrush(hc_brush);
@@ -1270,26 +1392,37 @@ void TemplateCanvas::DrawNewSelShapes_dc(wxMemoryDC &dc)
 	}
 	dc.SetBrush(hc_brush);
 	
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
 		dc.SetPen(hc_pen);
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		MyPoint* p;
 		wxDouble r = GeoDaConst::my_point_click_radius;
 		for (int i=0; i<total; i++) {
 			p = (MyPoint*) selectable_shps[nh[i]];
-			dc.DrawCircle(p->center.x, p->center.y, r);
+			if (!dirty[p->center.x + p->center.y*w]) {
+				dc.DrawCircle(p->center.x, p->center.y, r);
+				dirty[p->center.x + p->center.y*w] = true;
+			}
 		}
 	} else if (selectable_shps_type == polygons) {
 		MyPolygon* p;
 		for (int i=0; i<total; i++) {
 			p = (MyPolygon*) selectable_shps[nh[i]];
-			if (p->n_count > 1) {
-				dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+			if (p->all_points_same) {
+				dc.DrawPoint(p->center.x, p->center.y);
 			} else {
-				dc.DrawPolygon(p->n, p->points);
+				if (p->n_count > 1) {
+					dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+				} else {
+					dc.DrawPolygon(p->n, p->points);
+				}
 			}
 		}
 	} else if (selectable_shps_type == circles) {
@@ -1353,7 +1486,11 @@ void TemplateCanvas::EraseNewUnSelShapes_gc(wxMemoryDC &dc)
 		scratch[cat][total_in_cat[cat]++] = nuh[i];
 	}
 	
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	if (selectable_shps_type == points) {
+		std::vector<bool> dirty(w*h, false);
 		MyPoint* p;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		wxDouble r = GeoDaConst::my_point_click_radius;
@@ -1366,7 +1503,10 @@ void TemplateCanvas::EraseNewUnSelShapes_gc(wxMemoryDC &dc)
 			wxGraphicsPath path = gc->CreatePath();
 			for (int i=0, iend=total_in_cat[cat]; i<iend; i++) {
 				p = (MyPoint*) selectable_shps[scratch[cat][i]];
-				path.AddCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					path.AddCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 			gc->StrokePath(path);
 		}
@@ -1380,14 +1520,18 @@ void TemplateCanvas::EraseNewUnSelShapes_gc(wxMemoryDC &dc)
 			wxGraphicsPath path = gc->CreatePath();
 			for (int i=0, iend=total_in_cat[cat]; i<iend; i++) {
 				p = (MyPolygon*) selectable_shps[scratch[cat][i]];
-				for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-					path.MoveToPoint(p->points[s]);
-					for (int pt=s+1; pt<t && pt<p->n; pt++) {
-						path.AddLineToPoint(p->points[pt]);
+				if (p->all_points_same) {
+					path.AddCircle(p->center.x, p->center.y, 0.2);
+				} else {
+					for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
+						path.MoveToPoint(p->points[s]);
+						for (int pt=s+1; pt<t && pt<p->n; pt++) {
+							path.AddLineToPoint(p->points[pt]);
+						}
+						path.CloseSubpath();
+						s = t;
+						if (c+1 < p->n_count) t += p->count[c+1];
 					}
-					path.CloseSubpath();
-					s = t;
-					if (c+1 < p->n_count) t += p->count[c+1];
 				}
 			}
 			gc->FillPath(path, wxWINDING_RULE);
@@ -1449,15 +1593,22 @@ void TemplateCanvas::EraseNewUnSelShapes_dc(wxMemoryDC &dc)
 		scratch[cat][total_in_cat[cat]++] = nuh[i];
 	}
 	
+	int w = layer0_bm->GetWidth();
+	int h = layer0_bm->GetHeight();
+	
 	if (selectable_shps_type == points) {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		std::vector<bool> dirty(w*h, false);
 		MyPoint* p;
 		wxDouble r = GeoDaConst::my_point_click_radius;
 		for (int cat=0; cat<num_cats; cat++) {
 			dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
 			for (int i=0, iend=total_in_cat[cat]; i<iend; i++) {
 				p = (MyPoint*) selectable_shps[scratch[cat][i]];
-				dc.DrawCircle(p->center.x, p->center.y, r);
+				if (!dirty[p->center.x + p->center.y*w]) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+					dirty[p->center.x + p->center.y*w] = true;
+				}
 			}
 		}
 	} else if (selectable_shps_type == polygons) {
@@ -1469,10 +1620,14 @@ void TemplateCanvas::EraseNewUnSelShapes_dc(wxMemoryDC &dc)
 			}
 			for (int i=0, iend=total_in_cat[cat]; i<iend; i++) {
 				p = (MyPolygon*) selectable_shps[scratch[cat][i]];
-				if (p->n_count > 1) {
-					dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+				if (p->all_points_same) {
+					dc.DrawPoint(p->center.x, p->center.y);
 				} else {
-					dc.DrawPolygon(p->n, p->points);
+					if (p->n_count > 1) {
+						dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+					} else {
+						dc.DrawPolygon(p->n, p->points);
+					}
 				}
 			}
 		}

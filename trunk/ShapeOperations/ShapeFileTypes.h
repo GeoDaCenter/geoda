@@ -22,10 +22,20 @@
 
 namespace ShapeFileTypes {
 	enum ShapeType { // constants describing types of the Shapefiles
-		SPOINT      = 1,
-		ARC         = 3,
+		NULL_SHAPE = 0,
+		SPOINT      = 1, // POINT
+		ARC         = 3, // POLY_LINE
 		POLYGON     = 5,
-		MULTIPOINT  = 8
+		MULTIPOINT  = 8, // MULTI_POINT
+		POINT_Z = 11,
+		ARC_Z = 13, // POLY_LINE_Z
+		POLYGON_Z = 15,
+		MULTIPOINT_Z = 18, // MULTI_POINT_Z
+		POINT_M = 21,
+		ARC_M = 23, // POLY_LINE_M
+		POLYGON_M = 25,
+		MULTIPOINT_M = 28, // MULTI_POINT_MÏ
+		MULTI_PATCH = 31
 	};
 }
 

@@ -31,7 +31,7 @@
 #include "TemplateFrame.h"
 #include "TemplateCanvas.h"
 #include "TemplateLegend.h"
-#include "rc/oGeoDaIcon-16x16.xpm"
+#include "rc/GeoDaIcon-16x16.xpm"
 #include "GeneralWxUtils.h"
 #include "GeoDa.h"
 #include "Project.h"
@@ -55,7 +55,7 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 	frames_manager(project_s->GetFramesManager()),
 	is_status_bar_visible(false)
 {
-	SetIcon(wxIcon(oGeoDaIcon_16x16_xpm));
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);
 }
 
@@ -395,7 +395,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxBitmap bitmap( sz.x, sz.y );
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
@@ -413,7 +413,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxBitmap bitmap( sz.x, sz.y );
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
@@ -541,7 +541,7 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 	
 	wxMemoryDC dc;
 	dc.SelectObject( bitmap );
-	dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0);
+	dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
 	dc.SelectObject( wxNullBitmap );
 
 	if ( !wxTheClipboard->Open() ) {

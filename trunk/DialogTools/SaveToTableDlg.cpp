@@ -151,7 +151,8 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 	int col = dlg.GetColId();
 
 	GeoDaConst::FieldType type = grid_base->GetColType(col);
-	if (type != data[col].type && data[col].type == GeoDaConst::long64_type &&
+	if (type != data[obj_id].type &&
+		data[obj_id].type == GeoDaConst::long64_type &&
 		type != GeoDaConst::double_type) return;
 	// reinitialize all field lists, but set list corresponding to button
 	// to newly created field

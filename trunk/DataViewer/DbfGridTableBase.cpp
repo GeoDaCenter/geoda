@@ -400,6 +400,7 @@ void DbfColContainer::GetVec(std::vector<double>& vec, int time)
 {
 	if (type != GeoDaConst::double_type &&
 		type != GeoDaConst::long64_type) return;
+	if (!vector_valid && IsRawDataAlloc()) CopyRawDataToVector();
 	if (vec.size() != size) vec.resize(size);
 	if (time < 0 || time >= time_steps) time = 0;
 	if (type == GeoDaConst::double_type) {
@@ -424,6 +425,7 @@ void DbfColContainer::GetVec(std::vector<wxInt64>& vec, int time)
 {
 	if (type != GeoDaConst::double_type &&
 		type != GeoDaConst::long64_type) return;
+	if (!vector_valid && IsRawDataAlloc()) CopyRawDataToVector();
 	if (vec.size() != size) vec.resize(size);
 	if (time < 0 || time >= time_steps) time = 0;
 	if (type == GeoDaConst::long64_type) {
@@ -458,9 +460,11 @@ void DbfColContainer::GetVec(d_array_type& data)
 {
 	if (type != GeoDaConst::double_type &&
 		type != GeoDaConst::long64_type) return;
+	if (!vector_valid && IsRawDataAlloc()) CopyRawDataToVector();
 	if (data.shape()[0] != time_steps || data.shape()[1] != size) {
 		data.resize(boost::extents[time_steps][size]);
 	}
+	if (!vector_valid && IsRawDataAlloc()) CopyRawDataToVector();
 	if (type == GeoDaConst::long64_type) {
 		if (vector_valid) {
 			for (int t=0; t<time_steps; t++) {
@@ -488,6 +492,7 @@ void DbfColContainer::GetVec(l_array_type& data)
 {
 	if (type != GeoDaConst::double_type &&
 		type != GeoDaConst::long64_type) return;
+	if (!vector_valid && IsRawDataAlloc()) CopyRawDataToVector();
 	if (data.shape()[0] != time_steps || data.shape()[1] != size) {
 		data.resize(boost::extents[time_steps][size]);
 	}

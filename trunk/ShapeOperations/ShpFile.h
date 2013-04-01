@@ -251,13 +251,14 @@ namespace Shapefile {
 	
 	/** The following are helper functions for populateMain. */
 	bool populatePolygonMainRecords(std::vector<MainRecord>& mr,
-									std::ifstream& file);
+									std::ifstream& file,
+									bool skip_m=true, bool skip_z=true);
 	bool populatePolyLineMainRecords(std::vector<MainRecord>& mr,
-									 std::ifstream& file);
+									 std::ifstream& file,
+									 bool skip_m=true, bool skip_z=true);
 	bool populatePointMainRecords(std::vector<MainRecord>& mr,
-								  std::ifstream& file);
-	bool populatePolygonContents(PolygonContents& pc, int rec_id,
-								 Index& index, std::ifstream& main_f);
+								  std::ifstream& file,
+								  bool skip_m=true, bool skip_z=true);
 }
 
 #endif

@@ -135,7 +135,12 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 	shp.read(hs, 2*GeoDaConst::ShpHeaderSize);
 	ShapeFileHdr        hd(hs);
 
-	if (ShapeFileTypes::ShapeType(hd.FileShape()) == ShapeFileTypes::POLYGON)  
+	if ((ShapeFileTypes::ShapeType(hd.FileShape())
+		 == ShapeFileTypes::POLYGON) ||
+		(ShapeFileTypes::ShapeType(hd.FileShape())
+		 == ShapeFileTypes::POLYGON_Z) ||
+		(ShapeFileTypes::ShapeType(hd.FileShape())
+		 == ShapeFileTypes::POLYGON_M))
 	{
 		Box pBox;
 		for (long rec= 0; rec < n; ++rec)  
