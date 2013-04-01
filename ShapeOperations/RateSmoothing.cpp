@@ -19,6 +19,7 @@
 
 #include "GalWeight.h"
 #include "RateSmoothing.h"
+#include "../logger.h"
 
 bool GeoDaAlgs::RateStandardizeEB(const int obs, const double* P,
 								  const double* E, double* m_results,
@@ -115,8 +116,7 @@ void GeoDaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 	double* pi_raw = new double[obs];
 	double SP=0, SE=0;
 	int i = 0;
-	for (i=0;i<obs;i++) 
-	{
+	for (i=0; i<obs; i++) {
 		SP += P[i];
 		SE += E[i];
 		pi_raw[i] = 0;
@@ -127,15 +127,17 @@ void GeoDaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 	if (SP>0) theta1 = SE/SP;
 	double pbar = SP / obs;
 	double q1=0, w;
-	for (i=0;i<obs;i++) 
+	for (i=0; i<obs; i++) { 
 		q1 += P[i]*(pi_raw[i]-theta1)*(pi_raw[i]-theta1);
+	}
 	theta2 = (q1/SP) - (theta1/pbar);
 	
 	if (theta2 < 0) theta2 = 0.0;
-	for (i=0; i<obs; i++) 
-	{
+	// MMM: we should display a warning dialog when the
+	// estimate for the variance, thata2, is negative
+	for (i=0; i<obs; i++) {
 		q1 = (theta2 + (theta1/P[i]));
-		w=1; if (q1> 0) w = theta2 / q1;
+		w = (q1 > 0) ? theta2 / q1 : 1;
 		m_results[i] = (w * pi_raw[i]) + ((1-w) * theta1);
 	}
 	delete [] pi_raw;
@@ -159,7 +161,6 @@ bool GeoDaAlgs::RateSmoother_SEBS(int obs, GalElement* m_gal, double *P,
 	for (int i=0; i<obs; i++) {
 		int  nbr = m_gal[i].Size();
 		long* dt = m_gal[i].dt();
-		
 		
 		double SP=P[i], SE=E[i];
 		

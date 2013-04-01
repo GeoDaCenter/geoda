@@ -328,6 +328,7 @@ protected:
 public:
 	void RenderToDC(wxDC &dc, bool disable_crosshatch_brush = true);
 	const wxBitmap* GetLayer1() { return layer1_bm; }
+	const wxBitmap* GetLayer2() { return layer2_bm; }
 	void deleteLayerBms();
 	void resizeLayerBms(int width, int height);
 	void invalidateBms();

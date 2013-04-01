@@ -224,6 +224,10 @@ public:
 	static wxRealPoint CalculateCentroid(int n, wxRealPoint* pts);
 	virtual void paintSelf(wxDC& dc);
 public:
+	// All values in points array are the same.  Can render render
+	// as a single point at points[0]
+	bool all_points_same;
+	
 	wxPoint* points;
 	int n; // size of points array
 	int n_count; // size of count array
@@ -235,6 +239,8 @@ public:
 	// (pc == 0 && points_o !=0 ) || (pc != 0 && points_o ==0 )
 	Shapefile::PolygonContents* pc;
 	wxRealPoint* points_o;
+	wxRealPoint bb_ll_o; // bounding box lower left
+	wxRealPoint bb_ur_o; // bounding box upper right
 	//wxRegion region;
 };
 
@@ -286,7 +292,7 @@ public:
 public:
 	//wxPoint center; // inherited from MyShape
 	double degs_rot_cc_from_horiz;
-	int length; // lenght in pixels
+	int length; // length in pixels
 protected:
 	//wxRealPoint center_o; // inherited from MyShape
 };

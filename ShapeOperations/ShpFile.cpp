@@ -60,111 +60,8 @@ int Shapefile::calcNumIndexHeaderRecords(const Shapefile::Header& header)
 }
 
 bool Shapefile::populatePointMainRecords(std::vector<MainRecord>& mr,
-					 std::ifstream& file)
-{
-  bool success = true;
-  wxInt32 integer32;
-  wxInt32* integer32p = &integer32;
-  wxFloat64 float64;
-  wxFloat64* float64p = &float64;
-  int start_seek_pos = 100; // beginning of data
-  file.seekg(start_seek_pos, std::ios::beg);
-  int total_records = mr.size();
-  int rec_num;
-  for (int i=0; i<total_records && success; i++) {
-    file.read((char*) integer32p, 4);
-    rec_num = myINT_SWAP_ON_LE(integer32);
-    if (rec_num < 1 || rec_num > total_records || 
-	mr[rec_num-1].header.record_number != 0) {
-      success = false;
-    } else { // we have a non-duplicated, valid record number
-      mr[rec_num-1].header.record_number = rec_num;
-      file.read((char*) integer32p, 4);
-      mr[rec_num-1].header.content_length = myINT_SWAP_ON_LE(integer32);
-      
-      PointContents* pc = dynamic_cast<PointContents*>(mr[rec_num-1].contents_p);
-      file.read((char*) integer32p, 4);
-      pc->shape_type = myINT_SWAP_ON_BE(integer32);
-
-      file.read((char*) float64p, 8);
-      pc->x =  myDOUBLE_SWAP_ON_BE(float64);
-
-      file.read((char*) float64p, 8);
-      pc->y =  myDOUBLE_SWAP_ON_BE(float64);
-    }
-  }
-  return success;
-}
-
-
-bool Shapefile::populatePolyLineMainRecords(std::vector<MainRecord>& mr,
-					   std::ifstream& file)
-{
-  bool success = true;
-  wxInt32 integer32;
-  wxInt32* integer32p = &integer32;
-  wxFloat64 float64;
-  wxFloat64* float64p = &float64;
-  int start_seek_pos = 100; // beginning of data
-  file.seekg(start_seek_pos, std::ios::beg);
-  int total_records = mr.size();
-  int rec_num;
-  for (int i=0; i<total_records && success; i++) {
-    file.read((char*) integer32p, 4);
-    rec_num = myINT_SWAP_ON_LE(integer32);
-    if (rec_num < 1 || rec_num > total_records || 
-	mr[rec_num-1].header.record_number != 0) {
-      success = false;
-    } else { // we have a non-duplicated, valid record number
-      mr[rec_num-1].header.record_number = rec_num;
-      file.read((char*) integer32p, 4);
-      mr[rec_num-1].header.content_length = myINT_SWAP_ON_LE(integer32);
-      
-      PolyLineContents* pc =
-	dynamic_cast<PolyLineContents*>(mr[rec_num-1].contents_p);
-      file.read((char*) integer32p, 4);
-      pc->shape_type = myINT_SWAP_ON_BE(integer32);
-
-      file.read((char*) float64p, 8);
-      pc->box[0] =  myDOUBLE_SWAP_ON_BE(float64);
-
-      file.read((char*) float64p, 8);
-      pc->box[1] =  myDOUBLE_SWAP_ON_BE(float64);
-
-      file.read((char*) float64p, 8);
-      pc->box[2] =  myDOUBLE_SWAP_ON_BE(float64);
-
-      file.read((char*) float64p, 8);
-      pc->box[3] =  myDOUBLE_SWAP_ON_BE(float64);
-
-      file.read((char*) integer32p, 4);
-      pc->num_parts = myINT_SWAP_ON_BE(integer32);
-      pc->parts.resize(pc->num_parts);
-
-      file.read((char*) integer32p, 4);
-      pc->num_points = myINT_SWAP_ON_BE(integer32);
-      pc->points.resize(pc->num_points);
-      
-      for (int j=0; j < pc->num_parts; j++) {
-	file.read((char*) integer32p, 4);
-	pc->parts[j] = myINT_SWAP_ON_BE(integer32);
-      }
-
-      for (int j=0; j < pc->num_points; j++) {
-	file.read((char*) float64p, 8);
-	pc->points[j].x =  myDOUBLE_SWAP_ON_BE(float64);
-
-	file.read((char*) float64p, 8);
-	pc->points[j].y =  myDOUBLE_SWAP_ON_BE(float64);
-      }
-
-    }
-  }
-  return success;
-}
-
-bool Shapefile::populatePolygonMainRecords(std::vector<MainRecord>& mr,
-										   std::ifstream& file)
+										 std::ifstream& file,
+										 bool skip_m, bool skip_z)
 {
 	bool success = true;
 	wxInt32 integer32;
@@ -185,8 +82,52 @@ bool Shapefile::populatePolygonMainRecords(std::vector<MainRecord>& mr,
 			mr[rec_num-1].header.record_number = rec_num;
 			file.read((char*) integer32p, 4);
 			mr[rec_num-1].header.content_length = myINT_SWAP_ON_LE(integer32);
-			PolygonContents* pc = 
-				dynamic_cast<PolygonContents*>(mr[rec_num-1].contents_p);
+			
+			PointContents* pc = 
+				dynamic_cast<PointContents*>(mr[rec_num-1].contents_p);
+			file.read((char*) integer32p, 4);
+			pc->shape_type = myINT_SWAP_ON_BE(integer32);
+			
+			file.read((char*) float64p, 8);
+			pc->x =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			file.read((char*) float64p, 8);
+			pc->y =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			if (skip_z) file.read((char*) float64p, 8);
+			if (skip_m) file.read((char*) float64p, 8);
+		}
+	}
+	return success;
+}
+
+
+bool Shapefile::populatePolyLineMainRecords(std::vector<MainRecord>& mr,
+											std::ifstream& file,
+											bool skip_m, bool skip_z)
+{
+	bool success = true;
+	wxInt32 integer32;
+	wxInt32* integer32p = &integer32;
+	wxFloat64 float64;
+	wxFloat64* float64p = &float64;
+	int start_seek_pos = 100; // beginning of data
+	file.seekg(start_seek_pos, std::ios::beg);
+	int total_records = mr.size();
+	int rec_num;
+	for (int i=0; i<total_records && success; i++) {
+		file.read((char*) integer32p, 4);
+		rec_num = myINT_SWAP_ON_LE(integer32);
+		if (rec_num < 1 || rec_num > total_records || 
+			mr[rec_num-1].header.record_number != 0) {
+			success = false;
+		} else { // we have a non-duplicated, valid record number
+			mr[rec_num-1].header.record_number = rec_num;
+			file.read((char*) integer32p, 4);
+			mr[rec_num-1].header.content_length = myINT_SWAP_ON_LE(integer32);
+			
+			PolyLineContents* pc =
+			dynamic_cast<PolyLineContents*>(mr[rec_num-1].contents_p);
 			file.read((char*) integer32p, 4);
 			pc->shape_type = myINT_SWAP_ON_BE(integer32);
 			
@@ -221,6 +162,103 @@ bool Shapefile::populatePolygonMainRecords(std::vector<MainRecord>& mr,
 				
 				file.read((char*) float64p, 8);
 				pc->points[j].y =  myDOUBLE_SWAP_ON_BE(float64);
+			}
+			
+			if (skip_z) {
+				file.read((char*) float64p, 8); // bounding z range
+				file.read((char*) float64p, 8); // bounding z range
+				for (int j=0; j < pc->num_points; j++) {
+					file.read((char*) float64p, 8); // read z value
+				}
+			}
+			
+			if (skip_m) {
+				file.read((char*) float64p, 8); // bounding m range
+				file.read((char*) float64p, 8); // bounding m range
+				for (int j=0; j < pc->num_points; j++) {
+					file.read((char*) float64p, 8); // read m value
+				}
+			}
+		}
+	}
+	return success;
+}
+
+bool Shapefile::populatePolygonMainRecords(std::vector<MainRecord>& mr,
+										   std::ifstream& file,
+										   bool skip_m, bool skip_z)
+{
+	bool success = true;
+	wxInt32 integer32;
+	wxInt32* integer32p = &integer32;
+	wxFloat64 float64;
+	wxFloat64* float64p = &float64;
+	int start_seek_pos = 100; // beginning of data
+	file.seekg(start_seek_pos, std::ios::beg);
+	int total_records = mr.size();
+	int rec_num;
+	for (int i=0; i<total_records && success; i++) {
+		file.read((char*) integer32p, 4);
+		rec_num = myINT_SWAP_ON_LE(integer32);
+		if (rec_num < 1 || rec_num > total_records || 
+			mr[rec_num-1].header.record_number != 0) {
+			success = false;
+		} else { // we have a non-duplicated, valid record number
+			mr[rec_num-1].header.record_number = rec_num;
+			file.read((char*) integer32p, 4);
+			mr[rec_num-1].header.content_length = myINT_SWAP_ON_LE(integer32);
+			PolygonContents* pc = 
+			dynamic_cast<PolygonContents*>(mr[rec_num-1].contents_p);
+			file.read((char*) integer32p, 4);
+			pc->shape_type = myINT_SWAP_ON_BE(integer32);
+			
+			file.read((char*) float64p, 8);
+			pc->box[0] =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			file.read((char*) float64p, 8);
+			pc->box[1] =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			file.read((char*) float64p, 8);
+			pc->box[2] =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			file.read((char*) float64p, 8);
+			pc->box[3] =  myDOUBLE_SWAP_ON_BE(float64);
+			
+			file.read((char*) integer32p, 4);
+			pc->num_parts = myINT_SWAP_ON_BE(integer32);
+			pc->parts.resize(pc->num_parts);
+			
+			file.read((char*) integer32p, 4);
+			pc->num_points = myINT_SWAP_ON_BE(integer32);
+			pc->points.resize(pc->num_points);
+			
+			for (int j=0; j < pc->num_parts; j++) {
+				file.read((char*) integer32p, 4);
+				pc->parts[j] = myINT_SWAP_ON_BE(integer32);
+			}
+			
+			for (int j=0; j < pc->num_points; j++) {
+				file.read((char*) float64p, 8);
+				pc->points[j].x =  myDOUBLE_SWAP_ON_BE(float64);
+				
+				file.read((char*) float64p, 8);
+				pc->points[j].y =  myDOUBLE_SWAP_ON_BE(float64);
+			}
+			
+			if (skip_z) {
+				file.read((char*) float64p, 8); // bounding z range
+				file.read((char*) float64p, 8); // bounding z range
+				for (int j=0; j < pc->num_points; j++) {
+					file.read((char*) float64p, 8); // read z value
+				}
+			}
+			
+			if (skip_m) {
+				file.read((char*) float64p, 8); // bounding m range
+				file.read((char*) float64p, 8); // bounding m range
+				for (int j=0; j < pc->num_points; j++) {
+					file.read((char*) float64p, 8); // read m value
+				}
 			}
 		}
 	}
@@ -817,151 +855,75 @@ void Shapefile::printMain(const Shapefile::Main& main_s, std::ostream& s,
 }
 
 bool Shapefile::populateMain(const Index& index_s, const std::string& fname,
-			     Main& main_s)
+							 Main& main_s)
 {
-  using namespace Shapefile;
-  bool success = populateHeader(fname, main_s.header);
-  if (!success) return false;
-  
-  std::ifstream file;
-  file.open(fname.c_str(), std::ios::in | std::ios::binary);
-  if (!(file.is_open() && file.good())) {
-    return false;
-  }
-
-  if ( main_s.header.shape_type == POINT ||
-       main_s.header.shape_type == POLY_LINE ||
-       main_s.header.shape_type == POLYGON ) {
-
-    // Allocate memory as needed and put all records in their proper sorted
-	// order.
-    main_s.records.resize(index_s.records.size());
-    if (main_s.header.shape_type == POINT) {
-      for (int i=0, iend=main_s.records.size(); i<iend; i++) 
-	main_s.records[i].contents_p = new PointContents();
-      populatePointMainRecords(main_s.records, file);
-    } else if ( main_s.header.shape_type == POLY_LINE ) {
-      for (int i=0, iend=main_s.records.size(); i<iend; i++)
-	main_s.records[i].contents_p = new PolyLineContents();
-      populatePolyLineMainRecords(main_s.records, file);      
-    } else if ( main_s.header.shape_type == POLYGON ) {
-      for (int i=0, iend=main_s.records.size(); i<iend; i++)
-	main_s.records[i].contents_p = new PolygonContents();
-      populatePolygonMainRecords(main_s.records, file);
-    }
-    
-  } else {
-    success = false;
-  }
-  
-  file.close();
-  return success;
-}
-
-/** the main_f file stream must be open already. */
-bool Shapefile::populatePolygonContents(PolygonContents& pc, int rec_id,
-										Index& index, std::ifstream& main_f)
-{
-	using namespace std;
-	if ( 0 > rec_id || rec_id >= calcNumIndexHeaderRecords(index.header) ) {
-		cout << "Error: rec_id " << rec_id << " is out of range (0,";
-		cout << calcNumIndexHeaderRecords(index.header) << ")." << endl;
-		return false;
-	}
-	if (!(main_f.is_open() && main_f.good())) {
-		cout << "Error: main_f file stream not open or on bad state." << endl;
+	using namespace Shapefile;
+	bool success = populateHeader(fname, main_s.header);
+	if (!success) return false;
+	
+	std::ifstream file;
+	file.open(fname.c_str(), std::ios::in | std::ios::binary);
+	if (!(file.is_open() && file.good())) {
 		return false;
 	}
 	
-	// offset in bytes (rather than 16-bit words)
-	int rec_offset = index.records[rec_id].offset * 2;
-	//cout << "rec_offset: " << rec_offset << endl;
-	// content length in 16-bit words
-	int rec_content_len = index.records[rec_id].content_length;
-	//cout << "rec_content_len: " << rec_content_len << endl;
+	bool skip_m = false;
+	bool skip_z = false;
 	
-	int start_seek_pos = rec_offset; // beginning of record data
-	
-	wxInt32 integer32;
-	wxInt32* integer32p = &integer32;
-	wxFloat64 float64;
-	wxFloat64* float64p = &float64;
-	
-	/*
-	char char8;
-	char* char8p = &char8;
-	cout.unsetf(ios::dec | ios::oct);
-	cout.setf(ios::hex | ios::uppercase | ios::showbase);
-	main_f.seekg(start_seek_pos, std::ios::beg);
-	main_f.read(char8p, 1); integer32 = (unsigned char) char8;
-	cout << "first byte val: " << integer32 << endl; 
-	main_f.read(char8p, 1); integer32 = (unsigned char) char8;
-	cout << "second byte val: " << integer32 << endl;
-	main_f.read(char8p, 1); integer32 = (unsigned char) char8;
-	cout << "third byte val: " << integer32 << endl;
-	main_f.read(char8p, 1); integer32 = (unsigned char) char8;
-	cout << "forth byte val: " << integer32 << endl;
-	cout.unsetf(ios::hex | ios::uppercase | ios::showbase);
-	cout.setf(ios::dec);
-	*/
-	 
-	main_f.seekg(start_seek_pos, std::ios::beg);
-	wxInt32 m_rec_num;
-	main_f.read((char*) integer32p, 4);
-	m_rec_num = myINT_SWAP_ON_LE(integer32);
-	if (m_rec_num-1 != rec_id) {
-		cout << "Error: read record id " << m_rec_num-1 << " does not match ";
-		cout << "requested id " << rec_id << "." << endl;
-		return false;
-	}
-	main_f.read((char*) integer32p, 4);
-	wxInt32 m_content_length = myINT_SWAP_ON_LE(integer32);
-	if (m_content_length != rec_content_len) {
-		cout << "Error: read content length " << m_content_length;
-		cout << " does not match ";
-		cout << "requested content length " << rec_content_len << "." << endl;
-		return false;
+	if (main_s.header.shape_type == POLYGON_Z) {
+		skip_m = true;
+		skip_z = true;
+		main_s.header.shape_type = POLYGON;
+	} else if (main_s.header.shape_type == POLYGON_M) {
+		skip_m = true;
+		main_s.header.shape_type = POLYGON;
+	} else if (main_s.header.shape_type == POINT_Z) {
+		skip_m = true;
+		skip_z = true;
+		main_s.header.shape_type = POINT;
+	} else if (main_s.header.shape_type == POINT_M) {
+		skip_m = true;
+		main_s.header.shape_type = POINT;
+	} else if (main_s.header.shape_type == POLY_LINE_Z) {
+		skip_m = true;
+		skip_z = true;
+		main_s.header.shape_type = POLY_LINE;
+	} else if (main_s.header.shape_type == POLY_LINE_M) {
+		skip_m = true;
+		main_s.header.shape_type = POLY_LINE;
 	}
 	
-	main_f.read((char*) integer32p, 4);
-	pc.shape_type = myINT_SWAP_ON_BE(integer32);
-			
-	main_f.read((char*) float64p, 8);
-	pc.box[0] =  myDOUBLE_SWAP_ON_BE(float64);
-			
-	main_f.read((char*) float64p, 8);
-	pc.box[1] =  myDOUBLE_SWAP_ON_BE(float64);
+	if ( main_s.header.shape_type == POINT ||
+		main_s.header.shape_type == POLY_LINE ||
+		main_s.header.shape_type == POLYGON ) {
 		
-	main_f.read((char*) float64p, 8);
-	pc.box[2] =  myDOUBLE_SWAP_ON_BE(float64);
-			
-	main_f.read((char*) float64p, 8);
-	pc.box[3] =  myDOUBLE_SWAP_ON_BE(float64);
-			
-	main_f.read((char*) integer32p, 4);
-	pc.num_parts = myINT_SWAP_ON_BE(integer32);
-	pc.parts.resize(pc.num_parts);
-			
-	main_f.read((char*) integer32p, 4);
-	pc.num_points = myINT_SWAP_ON_BE(integer32);
-	pc.points.resize(pc.num_points);
-			
-	for (int j=0; j < pc.num_parts; j++) {
-		main_f.read((char*) integer32p, 4);
-		pc.parts[j] = myINT_SWAP_ON_BE(integer32);
+		// Allocate memory as needed and put all records in their proper sorted
+		// order.
+		main_s.records.resize(index_s.records.size());
+		if (main_s.header.shape_type == POINT) {
+			for (int i=0, iend=main_s.records.size(); i<iend; i++) {
+				main_s.records[i].contents_p = new PointContents();
+			}
+			populatePointMainRecords(main_s.records, file, skip_m, skip_z);
+		} else if ( main_s.header.shape_type == POLY_LINE ) {
+			for (int i=0, iend=main_s.records.size(); i<iend; i++) {
+				main_s.records[i].contents_p = new PolyLineContents();
+			}
+			populatePolyLineMainRecords(main_s.records, file, skip_m, skip_z);      
+		} else if ( main_s.header.shape_type == POLYGON ) {
+			for (int i=0, iend=main_s.records.size(); i<iend; i++) {
+				main_s.records[i].contents_p = new PolygonContents();
+			}
+			populatePolygonMainRecords(main_s.records, file, skip_m, skip_z);
+		}
+		
+	} else {
+		success = false;
 	}
-			
-	for (int j=0; j < pc.num_points; j++) {
-		main_f.read((char*) float64p, 8);
-		pc.points[j].x =  myDOUBLE_SWAP_ON_BE(float64);
-				
-		main_f.read((char*) float64p, 8);
-		pc.points[j].y =  myDOUBLE_SWAP_ON_BE(float64);
-	}
-			
-	return true;
+	
+	file.close();
+	return success;
 }
-
 
 /** The following could define a run-time and relatively robust endianess test */
 //bool isBigEndian() {

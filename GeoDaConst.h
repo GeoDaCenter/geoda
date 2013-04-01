@@ -221,9 +221,9 @@ public:
 	static const int default_virtual_screen_marg_bottom = 20;
 	static const int shps_min_width = 100;
 	static const int shps_min_height = 100;
-	static const int shps_max_width = 6000;
-	static const int shps_max_height = 6000;
-	static const int shps_max_area = 10000000; // 10 million or 3162 squared
+	static const int shps_max_width = 12000;
+	static const int shps_max_height = 12000;
+	static const int shps_max_area = 50000000; // 50 million
 	
 	static const wxColour selectable_outline_color; // black
 	static const wxColour selectable_fill_color; // forest green

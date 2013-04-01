@@ -23,6 +23,7 @@
 		DD4E8B86164818A70014F1E7 /* ConnectivityHistView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD4E8B84164818A70014F1E7 /* ConnectivityHistView.cpp */; };
 		DD575B471231B73800AA0C11 /* GeoDaConst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD575B461231B73800AA0C11 /* GeoDaConst.cpp */; };
 		DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD579B68160BDAFE00BF8D53 /* DorlingCartogram.cpp */; };
+		DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */ = {isa = PBXBuildFile; fileRef = DD5A579616E53EC40047DBB1 /* GeoDa.icns */; };
 		DD5FA1DA0F320DD50055A0E5 /* ShapeFileHdr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD5FA1D90F320DD50055A0E5 /* ShapeFileHdr.cpp */; };
 		DD5FA2360F3231940055A0E5 /* shp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD5FA2350F3231940055A0E5 /* shp.cpp */; };
 		DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD60546616A83EEF0004BF02 /* CatClassifManager.cpp */; };
@@ -87,7 +88,6 @@
 		DD7976F50F1D2D3100496A84 /* shp2cnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7976EB0F1D2D3100496A84 /* shp2cnt.cpp */; };
 		DD7976F60F1D2D3100496A84 /* shp2gwt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7976EE0F1D2D3100496A84 /* shp2gwt.cpp */; };
 		DD79792A0F1E6CDB00496A84 /* MyAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7979290F1E6CDB00496A84 /* MyAppResources.cpp */; };
-		DD7979460F1E8F3B00496A84 /* oGeoDa.icns in Resources */ = {isa = PBXBuildFile; fileRef = DD7979450F1E8F3B00496A84 /* oGeoDa.icns */; };
 		DD7B5E60112606F400B6D0B0 /* HighlightState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7B5E5E112606F400B6D0B0 /* HighlightState.cpp */; };
 		DD7D5C711427F89B00DCFE5C /* LisaCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7D5C6F1427F89B00DCFE5C /* LisaCoordinator.cpp */; };
 		DD7E91D3151A8F3A001AAC4C /* LisaScatterPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD7E91D2151A8F3A001AAC4C /* LisaScatterPlotView.cpp */; };
@@ -194,6 +194,7 @@
 		DD575B461231B73800AA0C11 /* GeoDaConst.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoDaConst.cpp; sourceTree = "<group>"; };
 		DD579B68160BDAFE00BF8D53 /* DorlingCartogram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DorlingCartogram.cpp; sourceTree = "<group>"; };
 		DD579B69160BDAFE00BF8D53 /* DorlingCartogram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DorlingCartogram.h; sourceTree = "<group>"; };
+		DD5A579616E53EC40047DBB1 /* GeoDa.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = GeoDa.icns; sourceTree = "<group>"; };
 		DD5BD6E0125CCC07006E4E87 /* TestTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestTableView.h; path = Generic/TestTableView.h; sourceTree = "<group>"; };
 		DD5BD6E1125CCC07006E4E87 /* TestTableView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestTableView.cpp; path = Generic/TestTableView.cpp; sourceTree = "<group>"; };
 		DD5FA1D80F320DD50055A0E5 /* ShapeFileHdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeFileHdr.h; sourceTree = "<group>"; };
@@ -328,7 +329,6 @@
 		DD7976EE0F1D2D3100496A84 /* shp2gwt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shp2gwt.cpp; sourceTree = "<group>"; };
 		DD7976EF0F1D2D3100496A84 /* shp2gwt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shp2gwt.h; sourceTree = "<group>"; };
 		DD7979290F1E6CDB00496A84 /* MyAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyAppResources.cpp; sourceTree = "<group>"; };
-		DD7979450F1E8F3B00496A84 /* oGeoDa.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = oGeoDa.icns; sourceTree = "<group>"; };
 		DD7B5E5E112606F400B6D0B0 /* HighlightState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HighlightState.cpp; path = Generic/HighlightState.cpp; sourceTree = "<group>"; };
 		DD7B5E5F112606F400B6D0B0 /* HighlightState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HighlightState.h; path = Generic/HighlightState.h; sourceTree = "<group>"; };
 		DD7D5C6F1427F89B00DCFE5C /* LisaCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LisaCoordinator.cpp; sourceTree = "<group>"; };
@@ -465,8 +465,6 @@
 		DD7974650F1D1B0700496A84 = {
 			isa = PBXGroup;
 			children = (
-				DD64925A16DFF63400B3B0AB /* GeoDa.cpp */,
-				DD64925B16DFF63400B3B0AB /* GeoDa.h */,
 				DD972054150A6EE4000206F4 /* CmdLineUtils */,
 				DDDFB96D134B6B73005EF636 /* DataViewer */,
 				DDD4BBDD108521D30006F2D2 /* Generic */,
@@ -479,6 +477,8 @@
 				DD7976E10F1D2D3100496A84 /* ShapeOperations */,
 				DD64A2870F20FE06006B1E6D /* GeneralWxUtils.h */,
 				DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */,
+				DD64925B16DFF63400B3B0AB /* GeoDa.h */,
+				DD64925A16DFF63400B3B0AB /* GeoDa.cpp */,
 				DDAE6F4111A5A07C00BF5EEC /* GeoDaConst.h */,
 				DD575B461231B73800AA0C11 /* GeoDaConst.cpp */,
 				DDD13F040F2F8BE1009F7F13 /* GenGeomAlgs.h */,
@@ -675,6 +675,7 @@
 		DD7976070F1D2C5E00496A84 /* rc */ = {
 			isa = PBXGroup;
 			children = (
+				DD5A579616E53EC40047DBB1 /* GeoDa.icns */,
 				DDB056DA13554F080044C441 /* MyDataViewerAppRes.cpp */,
 				DDB056D813554EEC0044C441 /* data_viewer_dialogs.xrc */,
 				DD7976200F1D2C5E00496A84 /* dialogs.xrc */,
@@ -682,7 +683,6 @@
 				DD7976270F1D2C5E00496A84 /* menus.xrc */,
 				DD563E061064237C0070781C /* release-notes.txt */,
 				DD7979290F1E6CDB00496A84 /* MyAppResources.cpp */,
-				DD7979450F1E8F3B00496A84 /* oGeoDa.icns */,
 			);
 			path = rc;
 			sourceTree = "<group>";
@@ -910,7 +910,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DD7979460F1E8F3B00496A84 /* oGeoDa.icns in Resources */,
+				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				DD6B74CC141ABC890026D223 /* menus.xrc in Resources */,
 				DD6B74CD141ABC8C0026D223 /* toolbar.xrc in Resources */,
 				DD6B74CF141ABCAD0026D223 /* data_viewer_dialogs.xrc in Resources */,

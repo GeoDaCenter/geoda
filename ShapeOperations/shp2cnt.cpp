@@ -232,7 +232,12 @@ void ReadBoxes(const wxString& fname)
 	char          hs[ 2*GeoDaConst::ShpHeaderSize ];
 	shp.read(hs, 2*GeoDaConst::ShpHeaderSize);
 	ShapeFileHdr hd(hs);
-	if (ShapeFileTypes::ShapeType(hd.FileShape()) != ShapeFileTypes::POLYGON)  
+	if ((ShapeFileTypes::ShapeType(hd.FileShape())
+		 != ShapeFileTypes::POLYGON) &&
+		(ShapeFileTypes::ShapeType(hd.FileShape())
+		 != ShapeFileTypes::POLYGON_Z) &&
+		(ShapeFileTypes::ShapeType(hd.FileShape())
+		 != ShapeFileTypes::POLYGON_M))
 	{
 		//      cout << hs << endl;
 		//	  cout << hd.FileShape() << endl;

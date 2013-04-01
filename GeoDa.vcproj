@@ -181,11 +181,11 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\GeoDa.rc"
+				RelativePath=".\rc\GeoDa.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\rc\oGeoDa.ico"
+				RelativePath=".\GeoDa.rc"
 				>
 			</File>
 			<File
@@ -277,15 +277,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rc\GeoDaIcon-16x16.xpm"
+				>
+			</File>
+			<File
 				RelativePath=".\rc\menus.xrc"
 				>
 			</File>
 			<File
 				RelativePath=".\rc\MyAppResources.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rc\oGeoDaIcon-16x16.xpm"
 				>
 			</File>
 			<File

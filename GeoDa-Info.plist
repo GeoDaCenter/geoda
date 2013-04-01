@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>oGeoDa.icns</string>
+	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>edu.asu.geodacenter.${PRODUCT_NAME:identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

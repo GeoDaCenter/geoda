@@ -704,7 +704,7 @@ All Rights Reserved</label>
           <orient>wxHORIZONTAL</orient>
           <object class="sizeritem">
             <object class="wxStaticText" name="ID_STATICTEXT">
-              <label>GeoDa 1.3.26, February 28, 2013</label>
+              <label>GeoDa 1.4.0, April 1, 2013</label>
               <style>wxALIGN_CENTRE</style>
             </object>
             <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>

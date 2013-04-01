@@ -56,7 +56,7 @@ namespace GeoDa
 			
 			using phoenix::push_back;
 			
-			text = lexeme[+(char_ - (char_('\"') | char_(',')))   [_val += _1]];
+			text = lexeme[*(char_ - (char_('\"') | char_(',')))   [_val += _1]];
 			non_escaped %= text;
 			escaped = "\"" >> *( text [_val += _1]
 								| char_(',') [_val += _1] 

@@ -201,7 +201,9 @@ bool GeoDa::FillStringTableFromCsv(const std::string& csv_fname,
 			
 			bool r = phrase_parse(iter, end, csv_record, space, v);
 			if (!r || iter != end) {
-				err_msg << "Problem parsing CSV file line " << row << ".";
+				int line_no = row+1;
+				if (first_row_field_names) line_no++;
+				err_msg << "Problem parsing CSV file line " << line_no << ".";
 				file.close();
 				return false;
 			}

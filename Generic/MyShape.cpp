@@ -707,7 +707,8 @@ void MyRectangle::paintSelf(wxDC& dc)
 MyPolygon::MyPolygon(const MyPolygon& s)
 	: MyShape(s), //region(s.region),
 	n(s.n), pc(s.pc), points_o(s.points_o),
-	n_count(s.n_count)
+	n_count(s.n_count), all_points_same(s.all_points_same),
+	bb_ll_o(s.bb_ll_o), bb_ur_o(s.bb_ur_o)
 {
 	points = new wxPoint[n];
 	for (int i=0; i<n; i++) {
@@ -731,7 +732,7 @@ MyPolygon::MyPolygon(const MyPolygon& s)
  memory for the original set of points is also maintained internally and
  will be deleted when the constructor is called. */
 MyPolygon::MyPolygon(int n_s, wxRealPoint* points_o_s)
-	: n(n_s), pc(0), n_count(1)
+	: n(n_s), pc(0), n_count(1), all_points_same(false)
 {
 	count = new int[1];
 	count[0] = n_s;
@@ -749,6 +750,14 @@ MyPolygon::MyPolygon(int n_s, wxRealPoint* points_o_s)
 	center_o = MyShapeAlgs::calculateMeanCenter(n, points_o);
 	center.x = (int) center_o.x;
 	center.y = (int) center_o.y;
+	bb_ll_o = center_o;
+	bb_ur_o = center_o;
+	for (int i=0; i<n; i++) {
+		if (points_o[i].x < bb_ll_o.x) bb_ll_o.x = points_o[i].x;
+		if (points_o[i].x > bb_ur_o.x) bb_ur_o.x = points_o[i].x;
+		if (points_o[i].y < bb_ll_o.y) bb_ll_o.y = points_o[i].y;
+		if (points_o[i].y > bb_ur_o.y) bb_ur_o.y = points_o[i].y;
+	}
 	//region = wxRegion(n, points);
 }
 
@@ -756,7 +765,7 @@ MyPolygon::MyPolygon(int n_s, wxRealPoint* points_o_s)
  part might contain holes.  Only a pointer to the original data is
  kept, and this memory is not deleted in the destructor. */
 MyPolygon::MyPolygon(Shapefile::PolygonContents* pc_s)
-  : n(0), points_o(0), pc(pc_s), points(0)
+  : n(0), points_o(0), pc(pc_s), points(0), all_points_same(false)
 {
 	assert(pc);
 	count = new int[pc->num_parts];
@@ -772,6 +781,14 @@ MyPolygon::MyPolygon(Shapefile::PolygonContents* pc_s)
 	center_o = MyShapeAlgs::calculateMeanCenter(pc->points);
 	center.x = (int) center_o.x;
 	center.y = (int) center_o.y;
+	bb_ll_o = center_o;
+	bb_ur_o = center_o;
+	for (int i=0; i<n; i++) {
+		if (pc->points[i].x < bb_ll_o.x) bb_ll_o.x = pc->points[i].x;
+		if (pc->points[i].x > bb_ur_o.x) bb_ur_o.x = pc->points[i].x;
+		if (pc->points[i].y < bb_ll_o.y) bb_ll_o.y = pc->points[i].y;
+		if (pc->points[i].y > bb_ur_o.y) bb_ur_o.y = pc->points[i].y;
+	}
 	//region = wxRegion(n, points);
 }
 
@@ -794,7 +811,11 @@ MyPolygon::~MyPolygon()
 
 bool MyPolygon::pointWithin(const wxPoint& pt)
 {
-	return MyShapeAlgs::pointInPolygon(pt, n, points);
+	if (all_points_same) {
+		return pt == center;
+	} else {
+		return MyShapeAlgs::pointInPolygon(pt, n, points);
+	}
 	//return region.Contains(pt) != wxOutRegion;
 }
 
@@ -809,14 +830,21 @@ bool MyPolygon::regionIntersect(const wxRegion& r)
 void MyPolygon::applyScaleTrans(const MyScaleTrans& A)
 {
 	MyShape::applyScaleTrans(A); // apply affine transform to base class
+	all_points_same = true;
+	wxPoint tpt;
+	A.transform(bb_ll_o, &tpt);
+	if (tpt == center) A.transform(bb_ur_o, &tpt);
+	if (tpt == center) return;
 	if (points_o) {
 		for (int i=0; i<n; i++) {
 			A.transform(points_o[i], &(points[i]));
+			if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
 			A.transform(pc->points[i], &(points[i]));
+			if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}

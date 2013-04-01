@@ -1,6 +1,39 @@
-GeoDa 1.3.26 Release Notes
+GeoDa 1.4.0 Release Notes
+Overview of Changes since 1.2.0:
+- All views now support Space-Time data.
+- Conditional Plot completely re-designed to support row/column
+  breakpoints by theme, or by new Custom Categories dialog where
+  number of row/columns and break points can be changed dynamically.
+- New Custom Categories feature added.  In addition to existing
+  built-in categories (Quantile, Percentile, etc), user can easily
+  create new custom categories based on existing categories.  User can
+  dynamically modify: number of categories, break-points, title, and
+  colors.  Multiple views can share the same custom category and all
+  will be automatically updated together as changes are made.
+- New Animator dialog feature.  This replaces the older Map Movie
+  dialog.  Animator allows data selection to be animated across all
+  views and for any variable.
+- New Thiessen Polygons submenu for point Maps and rewritten Thiessen
+  Polygon functionality to address all existing bugs and to increase
+  performance.
+- New Cartogram maps.  Performance greatly improved with multi-core
+  support for space-time cartograms.
+- Numerous performance enhancement and bug fixes
 
-Changes since 1.3.25
+Changes since 1.3.28
+- Empty values in CSV file supported.
+
+Changes since 1.3.27
+- added support for reading Point and Polygon Shapefiles with
+  "Measure" data and "Z-value" data.
+- Fixed a bug where Scatterplot regression lines were not showing up
+  in "Save Image As" or "Save to Clipboard."
+- Added Map and Scatterplot rendering optimizations for large
+  datafiles.  This should greatly speed up linking/brushing and window
+  resizing for Shapefiles with 100 to 500 thousand observations.
+
+Changes since 1.3.26
+- Updated GeoDa icons
 - Renamed program from OpenGeoDa to GeoDa
 
 Changes since 1.3.24
