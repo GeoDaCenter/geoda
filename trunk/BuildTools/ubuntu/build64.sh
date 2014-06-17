@@ -67,10 +67,12 @@ install_library()
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
+
+    if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+    fi
+
     if ! [ -d "$LIB_NAME" ] ; then
-	if ! [ -f "$LIB_FILENAME" ] ; then
-            curl -O $LIB_URL
-	fi
         tar -xf $LIB_FILENAME
     fi
 
