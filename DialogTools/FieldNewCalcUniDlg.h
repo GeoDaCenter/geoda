@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,7 +27,7 @@
 #include <wx/textctrl.h>
 
 class Project;
-class DbfGridTableBase;
+class TableInterface;
 class FieldNewCalcSpecialDlg;
 class FieldNewCalcBinDlg;
 class FieldNewCalcLagDlg;
@@ -82,7 +82,8 @@ public:
 	bool m_valid_const;
 	int m_var_sel;
     wxTextCtrl* m_text;
-	DbfGridTableBase* grid_base;
+	Project* project;
+	TableInterface* table_int;
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items
 	// in the fields dropdown are in the order displayed

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -31,9 +31,10 @@
 #include <wx/string.h>
 #include "Explore/CatClassification.h"
 #include "Generic/HighlightStateObserver.h"
-#include "Generic/MyShape.h"
+#include "Generic/GdaShape.h"
+//#include "ShapeOperations/QuadTree.h"
 
-typedef boost::multi_array<MyShape*, 2> shp_array_type;
+typedef boost::multi_array<GdaShape*, 2> shp_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
 class CatClassifManager;
@@ -152,11 +153,13 @@ public:
 
 	void OnKeyEvent(wxKeyEvent& event);
 	
+	virtual void OnScrollChanged(wxScrollWinEvent& event);
+						 
 	void OnSize(wxSizeEvent& event);
 	
 	/** Where all the drawing action happens.  Should do something similar
 	 to the update() method. */
-	void OnPaint(wxPaintEvent& event);
+	virtual void OnPaint(wxPaintEvent& event);
 	
 	/** This function is needed to handle the Erase Background WX event.  It
 	 does nothing, since we handle the Paint event ourselves and draw the
@@ -164,7 +167,7 @@ public:
 	void OnEraseBackground(wxEraseEvent& event);
 	
 	/** The function handles all mouse events. */
-	void OnMouseEvent(wxMouseEvent& event);
+	virtual void OnMouseEvent(wxMouseEvent& event);
 	
 	/** This function handles possible WX Mouse Capture Lost events. */
 	void OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
@@ -188,7 +191,7 @@ public:
 	
 	static void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
 	
-	virtual void DrawMySelShape(int i, wxDC& dc);
+	virtual void DrawGdaSelShape(int i, wxDC& dc);
 		
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
@@ -214,14 +217,14 @@ public:
 	
 	virtual wxString GetCanvasTitle();
 	
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	
 	virtual void TimeSyncVariableToggle(int var_index) {}
 	virtual void FixedScaleVariableToggle(int var_index) {}
 	virtual void PlotsPerView(int plots_per_view) {}
 	virtual void PlotsPerViewOther() {}
 	virtual void PlotsPerViewAll() {}
-	/** Resize the selectable_shps MyShape objects based on the
+	/** Resize the selectable_shps GdaShape objects based on the
 	 current screen size, the virtual screen size, fixed_aspect_ratio_mode,
 	 fit_to_window_mode and virtual_screen_marg_left,
 	 virtual_screen_marg_right, virtual_screen_marg_top,
@@ -235,7 +238,12 @@ public:
 	 to get the current virtual screen size. */
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
-	virtual void ApplyLastResizeToShp(MyShape* s) {
+	
+	virtual void ZoomShapes(bool is_zoomin = true);
+	virtual void PanShapes();
+	virtual void ResetShapes();
+	
+	virtual void ApplyLastResizeToShp(GdaShape* s) {
 		s->applyScaleTrans(last_scale_trans); }
 	
 	virtual void SetBrushType(BrushType brush) { brushtype = brush; }
@@ -258,8 +266,9 @@ public:
 	/** generic function to create and initialized the selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
 	    screen size. */
-	static void CreateSelShpsFromProj(std::vector<MyShape*>& selectable_shps,
-									  Project* project);
+	//static void CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+	void CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+                               Project* project);
 	
 	/** convert mouse coordiante point to original observation-coordinate
 	 points.  This is an inverse of the affine transformation that converts
@@ -279,14 +288,14 @@ protected:
 	 views in GeoDa are linked. */
 	HighlightState* highlight_state;
 
-	std::list<MyShape*> background_shps;
+	std::list<GdaShape*> background_shps;
 	/** This is an array of selectable objects.  In a map, these would
 	 be the various observation regions or points, while in a histogram
 	 these would be the bars of the histogram. This array of shapes is drawn
 	 after the background_shps multi-set. */
-	std::vector<MyShape*> selectable_shps;
+	std::vector<GdaShape*> selectable_shps;
 	SelectableShpType selectable_shps_type;
-	std::list<MyShape*> foreground_shps;
+	std::list<GdaShape*> foreground_shps;
 	// corresponds to the selectable color categories: generally between
 	// 1 and 10 permitted.  Selectable shape drawing routines use brushes
 	// from this list.
@@ -298,6 +307,9 @@ protected:
 	// only used when draw_sel_shps_by_z_val is selected
 	std::vector<i_array_type> z_val_order;
 	
+	// quad tree for points data
+	//QuadTree* qtree;
+	
 public:
 	CatClassifData cat_data;	
 	
@@ -305,17 +317,29 @@ protected:
 	wxPoint GetActualPos(const wxMouseEvent& event);
 	wxPoint sel_poly_pts[100];  // for UpdateSelectRegion and UpdateSelection
 	int n_sel_poly_pts;         // for UpdateSelectRegion and UpdateSelection
-	MySelRegion sel_region;		// for UpdateSelectRegion and UpdateSelection
+	GdaSelRegion sel_region;	// for UpdateSelectRegion and UpdateSelection
 	bool remember_shiftdown;    // used by OnMouseEvent
 	wxPoint diff;               // used by OnMouseEvent
 	wxPoint prev;	            // used by OnMouseEvent
 	wxPoint sel1;
 	wxPoint sel2;
-	wxPoint scroll_diff;
-	MyScaleTrans last_scale_trans;
+	GdaScaleTrans last_scale_trans;
 	std::vector<int> hover_obs; // list of obs mouse is hovering over
 	int total_hover_obs; // total obs in list
 	int max_hover_obs;
+	// preserve current map bounding box for zoom/pan
+	bool is_pan_zoom;
+	bool is_scrolled;
+	int  prev_scroll_pos_x;
+	int  prev_scroll_pos_y;
+	double current_map_x_min;
+	double current_map_y_min;
+	double current_map_x_max;
+	double current_map_y_max;
+	double ext_shps_orig_xmin;
+	double ext_shps_orig_ymin;
+	double ext_shps_orig_xmax;
+	double ext_shps_orig_ymax;
 	
 protected:
 	wxBitmap* layer0_bm; // background items + unhighlighted obs

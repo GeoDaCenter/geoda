@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,7 @@
 #include "../Project.h"
 #include <boost/foreach.hpp>
 #include "../ShapeOperations/ShapeUtils.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 
 IMPLEMENT_CLASS(TestMapFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(TestMapFrame, TemplateFrame)
@@ -51,15 +51,15 @@ TestMapCanvas::TestMapCanvas(wxWindow *parent,
 	using namespace Shapefile;
 	
 	LOG_MSG("Entering TestMapCanvas::TestMapCanvas");
-	Project* project = MyFrame::GetProject();
-	highlight_state = &(project->highlight_state);
+	Project* project = GdaFrame::GetProject();
+	highlight_state = &(project->GetHighlightState());
 	shps_orig_xmin = project->main_data.header.bbox_x_min;
 	shps_orig_ymin = project->main_data.header.bbox_y_min;
 	shps_orig_xmax = project->main_data.header.bbox_x_max;
 	shps_orig_ymax = project->main_data.header.bbox_y_max;
 	
 	double scale_x, scale_y, trans_x, trans_y;
-	MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 								   shps_orig_xmax, shps_orig_ymax,
 								   virtual_screen_marg_top,
 								   virtual_screen_marg_bottom,
@@ -80,10 +80,10 @@ TestMapCanvas::TestMapCanvas(wxWindow *parent,
 	
 	CreateSelShpsFromProj(selectable_shps, project);
 	ResizeSelectableShps();
-	wxBrush t_brush(GeoDaConst::map_default_fill_colour);
-	wxPen t_pen(GeoDaConst::map_default_outline_colour,
-				GeoDaConst::map_default_outline_width);
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) {
+	wxBrush t_brush(GdaConst::map_default_fill_colour);
+	wxPen t_pen(GdaConst::map_default_outline_colour,
+				GdaConst::map_default_outline_width);
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) {
 		shp->pen = t_pen;
 		shp->brush = t_brush;
 	}
@@ -105,6 +105,10 @@ TestMapCanvas::~TestMapCanvas()
 void TestMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering TestMapCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((TestMapFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu =
 		wxXmlResource::Get()->LoadMenu("ID_TESTMAP_VIEW_MENU_CONTEXT");
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -160,7 +164,7 @@ void TestMapFrame::OnMenuClose(wxCommandEvent& event)
 void TestMapFrame::MapMenus()
 {
 	LOG_MSG("In TestMapFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_TESTMAP_VIEW_MENU_CONTEXT");

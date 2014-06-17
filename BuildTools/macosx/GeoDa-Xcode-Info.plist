@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildMachineOSBuild</key>
+	<string>10K549</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIconFile</key>
+	<string>GeoDa.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>edu.asu.geodacenter.GeoDa</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>DTCompiler</key>
+	<string>4.2</string>
+	<key>DTPlatformBuild</key>
+	<string>10M2518</string>
+	<key>DTPlatformVersion</key>
+	<string>PG</string>
+	<key>DTSDKBuild</key>
+	<string>10K549</string>
+	<key>DTSDKName</key>
+	<string></string>
+	<key>DTXcode</key>
+	<string>0400</string>
+	<key>DTXcodeBuild</key>
+	<string>10M2518</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+	  <dict>
+	    <key>CFBundleTypeExtensions</key>
+	    <array>
+	      <string>gda</string>
+	    </array>
+	    <key>CFBundleTypeIconFile</key>
+            <string>GeoDa</string>
+            <key>CFBundleTypeName</key>
+            <string>GeoDa project file</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+	    <key>LSHandlerRank</key>
+	    <string>Owner</string>
+	  </dict>
+	</array>
+</dict>
+</plist>

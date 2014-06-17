@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,11 +26,11 @@
 #include <vector>
 #include "../ShapeOperations/DbfFile.h"
 
-class DbfGridTableBase;
+class TableInterface;
 
 class AddIdVariable: public wxDialog {
 public:
-	AddIdVariable(DbfGridTableBase* grid_base,
+	AddIdVariable(TableInterface* table_int,
 				  wxWindow* parent, wxWindowID id = -1,
 				  const wxString& caption = "Add New ID Variable",
 				  const wxPoint& pos = wxDefaultPosition,
@@ -47,8 +47,8 @@ private:
 	wxTextCtrl *new_id_var;
 	wxListBox *existing_vars_list;
 	std::vector<DbfFieldDesc> fields;
-	DbfGridTableBase* grid_base;
-	
+	TableInterface* table_int;
+    
 	DECLARE_EVENT_TABLE();
 };
 

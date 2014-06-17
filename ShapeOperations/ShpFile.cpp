@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -16,10 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <wx/wxprec.h>
+
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
 
 #include <sstream>
 #include <boost/functional/hash.hpp>
 #include "ShpFile.h"
+#include "../GenUtils.h"
+
 
 bool Shapefile::operator==(Point const& a, Point const& b)
 {
@@ -266,14 +273,15 @@ bool Shapefile::populatePolygonMainRecords(std::vector<MainRecord>& mr,
 }
 
 
-bool Shapefile::populateIndex(const std::string& fname,
+bool Shapefile::populateIndex(const wxString& fname,
 							  Shapefile::Index& index_s)
 {
   bool success = populateHeader(fname, index_s.header);
   if (!success) return false;
 
   std::ifstream file;
-  file.open(fname.c_str(), std::ios::in | std::ios::binary);
+  file.open(GET_ENCODED_FILENAME(fname), std::ios::in | std::ios::binary);
+
   if (!(file.is_open() && file.good())) {
     return false;
   }
@@ -300,11 +308,12 @@ bool Shapefile::populateIndex(const std::string& fname,
   return true;
 }
 
-bool Shapefile::populateHeader(const std::string& fname,
+bool Shapefile::populateHeader(const wxString& fname,
 							   Shapefile::Header& header)
 {
   std::ifstream file;
-  file.open(fname.c_str(), std::ios::in | std::ios::binary);
+  file.open(GET_ENCODED_FILENAME(fname), std::ios::in | std::ios::binary);
+
   if (!(file.is_open() && file.good())) {
     return false;
   }
@@ -359,7 +368,7 @@ bool Shapefile::populateHeader(const std::string& fname,
 
 bool Shapefile::writeHeader(std::ofstream& out_file,
 							const Shapefile::Header& header,
-							std::string& err_msg)
+							wxString& err_msg)
 {
 	if (!(out_file.is_open() && out_file.good())) {
 		err_msg += "Problem writing shapefile header";
@@ -445,8 +454,8 @@ bool Shapefile::writeHeader(std::ofstream& out_file,
 }
 
 
-bool Shapefile::writePointIndexFile(const std::string& fname,
-									const Index& index, std::string& err_msg)
+bool Shapefile::writePointIndexFile(const wxString& fname,
+									const Index& index, wxString& err_msg)
 {
 	if (index.header.shape_type != Shapefile::POINT) {
 		err_msg += "Not a Point Shapefile";
@@ -454,7 +463,8 @@ bool Shapefile::writePointIndexFile(const std::string& fname,
 	}
 	
 	std::ofstream out_file;
-	out_file.open(fname.c_str(), std::ios::out | std::ios::binary);
+	out_file.open(GET_ENCODED_FILENAME(fname), std::ios::out | std::ios::binary);
+
 	if (!(out_file.is_open() && out_file.good())) {
 		err_msg += "Problem opening \"" + fname + "\"";
 		return false;
@@ -484,8 +494,8 @@ bool Shapefile::writePointIndexFile(const std::string& fname,
 	return true;
 }
 
-bool Shapefile::writePointMainFile(const std::string& fname,
-								   const Main& main, std::string& err_msg)
+bool Shapefile::writePointMainFile(const wxString& fname,
+								   const Main& main, wxString& err_msg)
 {
 	if (main.header.shape_type != Shapefile::POINT) {
 		err_msg += "Not a Point Shapefile";
@@ -493,7 +503,8 @@ bool Shapefile::writePointMainFile(const std::string& fname,
 	}
 	
 	std::ofstream out_file;
-	out_file.open(fname.c_str(), std::ios::out | std::ios::binary);
+	out_file.open(GET_ENCODED_FILENAME(fname),std::ios::out | std::ios::binary);
+
 	if (!(out_file.is_open() && out_file.good())) {
 		err_msg += "Problem opening \"" + fname + "\"";
 		return false;
@@ -534,8 +545,8 @@ bool Shapefile::writePointMainFile(const std::string& fname,
 	return true;
 }
 
-bool Shapefile::writePolygonIndexFile(const std::string& fname,
-									  const Index& index, std::string& err_msg)
+bool Shapefile::writePolygonIndexFile(const wxString& fname,
+									  const Index& index, wxString& err_msg)
 {
 	if (index.header.shape_type != Shapefile::POLYGON) {
 		err_msg += "Not a Polygon Shapefile";
@@ -543,7 +554,8 @@ bool Shapefile::writePolygonIndexFile(const std::string& fname,
 	}
 	
 	std::ofstream out_file;
-	out_file.open(fname.c_str(), std::ios::out | std::ios::binary);
+	out_file.open(GET_ENCODED_FILENAME(fname),std::ios::out | std::ios::binary);
+
 	if (!(out_file.is_open() && out_file.good())) {
 		err_msg += "Problem opening \"" + fname + "\"";
 		return false;
@@ -573,8 +585,8 @@ bool Shapefile::writePolygonIndexFile(const std::string& fname,
 	return true;
 }
 
-bool Shapefile::writePolygonMainFile(const std::string& fname,
-									 const Main& main, std::string& err_msg)
+bool Shapefile::writePolygonMainFile(const wxString& fname,
+									 const Main& main, wxString& err_msg)
 {
 	if (main.header.shape_type != Shapefile::POLYGON) {
 		err_msg += "Not a Polygon Shapefile";
@@ -582,7 +594,8 @@ bool Shapefile::writePolygonMainFile(const std::string& fname,
 	}
 	
 	std::ofstream out_file;
-	out_file.open(fname.c_str(), std::ios::out | std::ios::binary);
+	out_file.open(GET_ENCODED_FILENAME(fname),std::ios::out | std::ios::binary);
+
 	if (!(out_file.is_open() && out_file.good())) {
 		err_msg += "Problem opening \"" + fname + "\"";
 		return false;
@@ -854,7 +867,7 @@ void Shapefile::printMain(const Shapefile::Main& main_s, std::ostream& s,
   }
 }
 
-bool Shapefile::populateMain(const Index& index_s, const std::string& fname,
+bool Shapefile::populateMain(const Index& index_s, const wxString& fname,
 							 Main& main_s)
 {
 	using namespace Shapefile;
@@ -862,7 +875,8 @@ bool Shapefile::populateMain(const Index& index_s, const std::string& fname,
 	if (!success) return false;
 	
 	std::ifstream file;
-	file.open(fname.c_str(), std::ios::in | std::ios::binary);
+	file.open(GET_ENCODED_FILENAME(fname),std::ios::in | std::ios::binary);
+	
 	if (!(file.is_open() && file.good())) {
 		return false;
 	}

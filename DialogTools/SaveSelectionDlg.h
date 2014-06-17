@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,7 +27,7 @@
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
 
-class DbfGridTableBase;
+class TableInterface;
 class Project;
 
 class SaveSelectionDlg: public wxDialog
@@ -54,7 +54,7 @@ public:
 private:
 	void FillColIdMap();
 	void InitField();
-	void InitTime();	
+	void InitTime();
 	
 	wxChoice* m_save_field_choice;
 	wxChoice* m_save_field_choice_tm;
@@ -71,7 +71,7 @@ private:
 	// col_id_map[i] is a map from the i'th item in the fields drop-down
 	// to the actual col_id_map.  Items in the fields dropdown are in the
 	// order displayed in wxGrid
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	Project* project;
 	std::vector<int> col_id_map;
 	

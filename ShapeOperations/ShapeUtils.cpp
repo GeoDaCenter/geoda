@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -462,8 +462,8 @@ void ShapeUtils::populatePointShpFile(const std::vector<double>& x,
 	}
 }
 
-void ShapeUtils::convertMyPolygonsToShpFile(
-						const std::vector<MyPolygon*>& voronoi_polygons,
+void ShapeUtils::convertGdaPolygonsToShpFile(
+						const std::vector<GdaPolygon*>& voronoi_polygons,
 						const double& voronoi_bb_xmin,
 						const double& voronoi_bb_ymin,
 						const double& voronoi_bb_xmax,
@@ -516,7 +516,7 @@ void ShapeUtils::convertMyPolygonsToShpFile(
 		index.records[i].content_length = main.records[i].header.content_length;
 		
 		Shapefile::PolygonContents* pc = new Shapefile::PolygonContents;
-		MyShapeAlgs::getBoundingBoxOrig(voronoi_polygons[i], pc->box[0],
+		GdaShapeAlgs::getBoundingBoxOrig(voronoi_polygons[i], pc->box[0],
 										pc->box[1], pc->box[2], pc->box[3]);
 		//LOG_MSG(wxString::Format("polygon %d bounding box:", i));
 		//LOG_MSG(wxString::Format("    %f, %f", pc->box[0], pc->box[1]));

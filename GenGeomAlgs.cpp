@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -41,13 +41,17 @@ double GenGeomAlgs::ComputeArcDist(double long1, double lat1,
 								   double long2, double lat2)
 {
 	//const double pi = 3.141592653589;
+	const double R_earth_mi = 6371.0 / 1.609344;
 	const double rad = 0.017453292519938; // rad = pi/180.0
 	double rlat1 = (90.0 - lat1) *rad;
 	double rlat2 = (90.0 - lat2) *rad;
 	double rlong = (long2-long1) *rad;
 	double drad = cos(rlong)*sin(rlat1)*sin(rlat2) + cos(rlat1)*cos(rlat2);
-	double dist = acos(drad)*3959.0;  // approx radius of earth in miles
-	return dist;  // in miles
+	// 6371.0 / 1.609344 = approx radius of earth in miles
+	// 6371 is Earth radius in km and the conversion to (Statue) miles is
+	// given by 1 mi = 1.609344 km
+	double dist = acos(drad) * R_earth_mi;
+	return dist;  // in miles.
 }
 
 /*

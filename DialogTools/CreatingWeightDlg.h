@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,13 +29,18 @@
 #include <wx/spinbutt.h>
 #include <wx/spinctrl.h>
 #include <wx/textctrl.h>
+#include "../DataViewer/TableStateObserver.h"
 
 class wxSpinButton;
 class GalElement;
 class GwtElement;
 class Project;
+class TableInterface;
+class TableState;
 
-class CreatingWeightDlg: public wxDialog
+/** NOTE: CreatingWeightDlg is still modal even though it is a
+ TableStateObserver. The plan is to make it non-modal in the future.*/
+class CreatingWeightDlg: public wxDialog, public TableStateObserver
 {
 public:
     CreatingWeightDlg(wxWindow* parent,
@@ -52,8 +57,12 @@ public:
 				long style = wxCAPTION|wxSYSTEM_MENU );
     void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
-    void OnIdVariableSelected( wxCommandEvent& event );
+    
     void OnDistanceMetricSelected(wxCommandEvent& event );
+	void SetDistMetricEuclid(bool update_sel);
+	void SetDistMetricArcMiles(bool update_sel);
+	void SetDistMetricArcKms(bool update_sel);
+	void OnIdVariableSelected( wxCommandEvent& event );
     void OnXSelected(wxCommandEvent& event );
     void OnYSelected(wxCommandEvent& event );
 	void OnXTmSelected(wxCommandEvent& event );
@@ -69,9 +78,17 @@ public:
     void OnCSpinKnnUpdated( wxSpinEvent& event );
     void OnCreateClick( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
+    void OnPrecisionThresholdCheck( wxCommandEvent& event );
 
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
+	
+private:
 	bool all_init;
-    wxChoice* m_field;
+    wxChoice* m_id_field;
     wxRadioButton* m_radio2;
     wxTextCtrl* m_contiguity;
     wxSpinButton* m_spincont;
@@ -84,6 +101,8 @@ public:
 	wxChoice* m_Y_time;
     wxRadioButton* m_radio3;
     wxTextCtrl* m_threshold;
+    wxCheckBox* m_cbx_precision_threshold;
+    wxTextCtrl* m_txt_precision_threshold;
     wxSlider* m_sliderdistance;
     wxRadioButton* m_radio4;
     wxCheckBox* m_radio9;
@@ -91,9 +110,8 @@ public:
     wxSpinButton* m_spinneigh;
 
 	Project* project;
-	DbfGridTableBase*   grid_base;
-	bool				m_is_table_only;
-	bool				m_is_space_time;
+	TableInterface* table_int;
+	TableState* table_state;
 	
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items
@@ -108,8 +126,10 @@ public:
 	double				m_threshold_val;
 	double				m_thres_val_valid;
 	const double		m_thres_delta_factor;
+	bool				m_cbx_precision_threshold_first_click; 
 	
 	int					m_method;  // 1 == Euclidean Dist, 2 = Arc Dist
+	bool				m_arc_in_km; // true if Arc Dist in km, else miles
 	std::vector<double>	m_XCOO;
 	std::vector<double>	m_YCOO;
 
@@ -126,10 +146,9 @@ public:
 	void ClearRadioButtons();
 	void InitFields();
 	void InitDlg();
-	void UpdateFieldNamesTm();
 	bool CheckID(const wxString& id);
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
-    bool Shp2GalProgress(GalElement *gl, GwtElement *gw,
+    bool Shp2GalProgress(GalElement *gal, GwtElement *gwt,
 						 const wxString& ifn, const wxString& ofn,
 						 const wxString& idd,
 						 const std::vector<wxInt64>& id_vec);

@@ -1,5 +1,153 @@
+GeoDa 1.6.0 Release Notes
+
+Changes since 1.5.43:
+- More helpful messages concerning the Project
+ file are added when using Save, Save As, Close
+ and Exit.
+
+Changes since 1.5.42:
+- Fixed a problem with scroll bars in Windows
+- Added Arc Distance (km) in Weights Creation
+- Updated radius-of-Earth constant to 6371 km
+- Fixed missing zoom/pan icons in Windows
+
+Changes since 1.5.37:
+- Fixed a mismatch between Custom Category labels
+  and Map legend.
+
+Changes since 1.5.36:
+- Added separate Associated Variable and Preview
+  Variable choices to Custom Categories.
+- Removed ability to see regression statistics in
+  Moran's I scatterplot.
+
+Changes since 1.5.35:
+- Fixed a bug in Conditional Scatterplot.
+
+Changes since 1.5.34:
+- Added support for data sources with undefined/null
+  polygons/point for some observations.
+- Undefined map objects will be recorded in the table
+  as blank (undefined) numbers when saving mean
+  centers/centroids to the table.
+
+Changes since 1.5.33:
+- Enabled "Display Statistics" by default in all views
+- Replaced "Show Regression of Selected" and
+  "Show Regression of Selected Excluded" with single menu
+  item "Regimes Regression".
+- Fixed bug where could not Export to a project with geometry
+  layer after creating a point geometry layer from CSV/dBase
+  table-only projects.
+
+Changes since 1.5.32:
+- Removed "Numer of Categories" dialog everywhere.
+- Added new Save As dialogs.
+- Fixed a crash when saving ints to CSV.
+- Fixed a crash in dBase int field initialization.
+- Various small bug fixes.
+
+Overview of Changes Since Major Release 1.4:
+
+Major New Data Sources Supported
+- ESRI ArcSDE database
+- Oracle / Oracle Spatial database
+- PostgreSQL / PostGIS database
+- MySQL with Spatial Extensions database
+- SQLite / Spatialite database
+- ESRI File Geodatabase
+- ESRI Personal Geodatabase
+- WFS (Web Feature Service)
+- GeoJSON
+- GML
+- KML
+- Mapinfo
+- MS Excel (read only)
+- US Census TIGER/line
+
+New Native OS Support and Installers
+- Windows 64-bit for Windows 7, 8, and 8.1
+- Mac OSX 64-bit for 10.6.8 or later
+- CentOS 64-bit for 6.0 or later
+- continued support for Windows 32-bit, and
+ Ubuntu 32-bit and 64-bit.
+- all OSes now support full 64-bit memory
+ access for the first time.
+- Windows, Mac and Linux native installers
+
+Other Changes
+- Project file added to remember data source connection
+ details as well as variable order, time grouping, recently
+ used weights, recently used variables, custom categories.
+- Redesigned Custom Category Editor.
+- Highly streamlined and flexible space-time grouping
+ including support for missing time periods in various
+ time-series variables.
+- Dynamic space-time grouping from within Table.
+- Almost all dialogs are non-blocking and update/sync
+ in real-time.
+- New Time period editor.
+- Easy Import, Export and Merge between data sources.
+- Added Windows, Mac and Linux simple installers.
+- Ported to newest/major wxWidgets 3.0 library.
+- Integration with GDAL/OGR.
+- Rewritten/enhanced Variable Group.
+- Rewritten/enhanced Variable Property editors.
+- Better support for international characters in filenames
+and in data.
+- LISA and Getis-Ord can now be given a user-supplied
+ seed value for the pseudo random number generator.
+- Project Information dialog under File menu added.
+- White Test is disabled by default in Regression.
+- Double-clicking on GeoDa project files with "gda" file
+  name extension opens that project in GeoDa.  Works on
+  all platforms.  If another copy of GeoDa is currently running,
+  a request is made to open project in currently-running instance.
+- Program is completely independent of ESRI Shapefile
+ format: GeoDa works with all of the new data formats
+ natively for every type of operation.
+
+GeoDa 1.4.6 Release Notes: 
+Changes since 1.4.5:
+- Fixed a big in all conditional plots when a time-variant variable
+ is chosen for the vertical axis and a time-invariant variable is
+ chosen for the horizontal axis.
+- Improved Table row selection highlighting.
+
+Changes since 1.4.4:
+- Fixed a problem with Save As for Table Only projects
+
+Changes since 1.4.3:
+- Fixed a problem where some views wouldn't refresh unless clicked
+ on with mouse.
+
+Changes since 1.4.2:
+- Regression: Moran's I z-val is computed automatically when a weights
+ file is selected.  Because of the big speed increase, the checkbox to
+ disable the calculation is removed.
+
+Changes since 1.4.1:
+- Regression: Moran's I z-val for OLS now supports non-symmetric
+weights.  Also, massive performance improvement: there is essentially
+no time penalty to run Moran's I z-val calculation: 163K obs with
+6 nearest-neighbors weights finishes in 11 seconds.
+- Regression: small improvements to the GUI.  View button has been
+removed and results are automatically shown with calculation finishes.
+- Map zoom improvements: fixed a bug with zoom on Mac.  Unlimited zooming
+now supported.
+- Table: Table column widths are automatically set to better fit data.
+
+Changes since 1.4.0:
+- Fixed a potential crash and a bug related to creating
+contiguity weights directly from a point shape file
+- Table values from some illegally formatted DBF data will display
+properly rather than being cut off according to the DBF field
+specifications.
+- Fixed a false warning message in Regression that occurs when a
+negative variance is detected for a particular test.
+
 GeoDa 1.4.0 Release Notes
-Overview of Changes since 1.2.0:
+Overview of Changes Since Major Release 1.2:
 - All views now support Space-Time data.
 - Conditional Plot completely re-designed to support row/column
   breakpoints by theme, or by new Custom Categories dialog where
@@ -20,6 +168,7 @@ Overview of Changes since 1.2.0:
   support for space-time cartograms.
 - Numerous performance enhancement and bug fixes
 
+GeoDa 1.3.29 Release Notes:
 Changes since 1.3.28
 - Empty values in CSV file supported.
 

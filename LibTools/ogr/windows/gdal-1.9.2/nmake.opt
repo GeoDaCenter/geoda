@@ -1,0 +1,641 @@
+# $Id: nmake.opt 24437 2012-05-17 20:24:55Z rouault $
+#
+# nmake.opt - main configuration file for NMAKE makefiles.
+#
+# Usage examples (see details below):
+# nmake -f makefile.vc
+# nmake -f makefile.vc MSVC_VER=1400
+# nmake -f makefile.vc MSVC_VER=1500 DEBUG=1
+# nmake -f makefile.vc MSVC_VER=1600 DEBUG=1 ANALYZE=1
+#
+###############################################################################
+# For convenience, user may put custom settings in a local settings file
+# named nmake.local, or a name defined by the EXT_NMAKE_OPT option.
+
+!IF EXIST("$(GDAL_ROOT)\nmake.local")
+!INCLUDE $(GDAL_ROOT)\nmake.local
+!ENDIF
+
+# nmake -f makefile.vc EXT_NMAKE_OPT=mynmake.opt
+!IFDEF EXT_NMAKE_OPT
+!INCLUDE $(EXT_NMAKE_OPT)
+!ENDIF
+
+###############################################################################
+# Check version of Visual C++ compiler:
+# nmake -f makefile.vc MSVC_VER=xxxx
+# where xxxx is one of following:
+# 1700 = 11.0(2011)
+# 1600 = 10.0(2010)
+# 1500 = 9.0 (2008)
+# 1400 = 8.0 (2005) - specific compilation flags, different from older VC++
+# 1310 = 7.1 (2003)
+# 1300 = 7.0 (2002)
+# 1200 = 6.0
+!IFNDEF MSVC_VER
+#assume msvc VS2008.
+MSVC_VER=1600
+!ENDIF
+
+###############################################################################
+# Optional use of Visual Leak Detector (VLD) by Dan Moulding, available at
+# http://dmoulding.googlepages.com/vld
+# Uncomment this line to use VLD in debug configuration only:
+#MSVC_VLD_DIR="C:\Program Files\Visual Leak Detector"
+
+###############################################################################
+# Location to install .exe, .dll and python stuff
+# Edit as required. GDAL_HOME is used for convenience here,
+# but this particular relative organization is not mandatory.
+# But the paths *should* be absolute (relative paths mess up in submakefiles).
+
+!IFNDEF GDAL_HOME
+GDAL_HOME = "C:\gdal\build"
+!ENDIF
+!IFNDEF BINDIR
+BINDIR = $(GDAL_HOME)\bin
+!ENDIF
+!IFNDEF PLUGINDIR
+PLUGINDIR = $(BINDIR)\gdalplugins
+!ENDIF
+!IFNDEF LIBDIR
+LIBDIR = $(GDAL_HOME)\lib
+!ENDIF
+!IFNDEF INCDIR
+INCDIR = $(GDAL_HOME)\include
+!ENDIF
+!IFNDEF DATADIR
+DATADIR = $(GDAL_HOME)\data
+!ENDIF
+!IFNDEF HTMLDIR
+HTMLDIR = $(GDAL_HOME)\html
+!ENDIF
+
+# Set this to the installed directory containing python.  If you don't
+# have python just let it point to a directory that does not exist (as now).
+!IFNDEF PYDIR 
+PYDIR   =	"C:\Software\Python24"
+!ENDIF
+
+# Set the location of your SWIG installation
+!IFNDEF SWIG
+SWIG = swig.exe
+!ENDIF
+
+# SWIG Java settings
+!IFNDEF JAVA_HOME
+JAVA_HOME = c:\j2sdk1.4.2_12
+!ENDIF
+!IFNDEF ANT_HOME
+ANT_HOME=c:\programmi\apache-ant-1.7.0
+!ENDIF
+JAVADOC=$(JAVA_HOME)\bin\javadoc
+JAVAC=$(JAVA_HOME)\bin\javac
+JAVA=$(JAVA_HOME)\bin\java
+JAR=$(JAVA_HOME)\bin\jar
+JAVA_INCLUDE=-I$(JAVA_HOME)\include -I$(JAVA_HOME)\include\win32
+
+# Compilation flags
+
+# Enable code analyzis on request
+# http://msdn.microsoft.com/en-us/library/ms173498.aspx
+!IFDEF ANALYZE
+CXX_ANALYZE_FLAGS=/analyze
+!ELSE
+CXX_ANALYZE_FLAGS=
+!ENDIF
+
+!IFNDEF OPTFLAGS
+!IF $(MSVC_VER) >= 1400
+!IFNDEF DEBUG
+OPTFLAGS= $(CXX_ANALYZE_FLAGS) /nologo /MT /EHsc /Ox /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DNDEBUG
+!ELSE
+OPTFLAGS= $(CXX_ANALYZE_FLAGS) /nologo /MT /EHsc /Zi /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /Fd$(GDAL_ROOT)\gdal$(VERSION).pdb /DDEBUG
+!ENDIF
+!ELSE
+!IFNDEF DEBUG
+OPTFLAGS=	/nologo /MT /EHsc /GR /Ox /DNDEBUG
+!ELSE
+OPTFLAGS=	/nologo /MT /EHsc /GR /Zi /Fd$(GDAL_ROOT)\gdal$(VERSION).pdb  /DDEBUG
+!ENDIF
+!ENDIF  #MSVC_VER
+!ENDIF  # OPTFLAGS
+
+# 
+# Set flags controlling warnings level, and supression of some warnings.
+# 
+!IFNDEF WARNFLAGS
+WARNFLAGS =	/W4 /wd4127 /wd4251 /wd4275 /wd4786 /wd4100 /wd4245 /wd4206 /wd4018 /wd4389
+!ENDIF
+
+# The followin are extra disables that can be applied to external source
+# not under our control that we wish to use less stringent warnings with.
+!IFNDEF SOFTWARNFLAGS
+SOFTWARNFLAGS= /wd4244 /wd4702 /wd4701 /wd4013 /wd4706 /wd4057 /wd4210 /wd4305
+!ENDIF
+
+# Linker debug options
+!IFDEF DEBUG
+LDEBUG= /debug
+!ENDIF
+
+# Uncomment the following if you are building for 64-bit windows
+# (x64). You'll need to have PATH, INCLUDE and LIB set up for 64-bit
+# compiles.
+#WIN64=YES
+
+# If you don't want some entry points to have STDCALL conventions, 
+# comment out the following and add -DCPL_DISABLE_STDCALL in OPTFLAGS.
+# This option has no effect on 64-bit windows.
+STDCALL=YES
+
+# Version number embedded in DLL name. 
+VERSION =	19
+
+# Comment the following out if you want PAM supported disabled
+# by default.  
+PAM_SETTING=-DPAM_ENABLED
+
+# Uncomment the following to link OGR utilities against main GDAL DLL
+# instead of statically linking against OGR libraries.
+#DLLBUILD=1
+
+# Enable all OGR formats, or only raster formats?  Comment out to disable
+# vector formats. 
+INCLUDE_OGR_FRMTS = YES
+
+# Location of Visual C++ directory (only required for following SETARGV stuff)
+#VCDIR   = 	"D:\Software\VStudio\VC98"
+
+# Enable the following if VCDIR set properly, and you want the utility
+# programs to be able to expand wildcards. 
+#SETARGV =	$(VCDIR)\lib\setargv.obj
+
+# Uncomment to build with libiconv library to support extended character
+# recoding capabilities. GDAL's internal stub implementation supports
+# latin1<->utf-8 translations only.
+# Depending on your libiconv build you may need to set ICONV_CONST macro to
+# const or leave it empty. Take a look on your iconv() declaration in iconv.h.
+# If the second parameter declared as const char** then you need to define
+# ICONV_CONST=const otherwise leave it empty.
+#LIBICONV_DIR = "C:\Program Files\GnuWin32"
+#LIBICONV_INCLUDE = -I$(LIBICONV_DIR)\include
+#LIBICONV_LIBRARY = $(LIBICONV_DIR)\lib\libiconv.lib
+#LIBICONV_CFLAGS = -DICONV_CONST=const
+
+# Comment out the following to disable BSB support.
+BSB_SUPPORTED = 1
+
+# Comment out the following to disable ODBC support.
+#ODBC_SUPPORTED = 1
+
+# Comment out the following to disable JPEG support.
+JPEG_SUPPORTED = 1
+
+# This will enable 12bit libjpeg - use only with internal jpeg builds.
+JPEG12_SUPPORTED = 1
+
+#if using an external jpeg library uncomment the follwing lines
+#JPEG_EXTERNAL_LIB = 1
+#JPEGDIR = c:/projects/jpeg-6b
+#JPEG_LIB = $(JPEGDIR)/libjpeg.lib
+
+#if using an external png library uncomment the follwing lines
+#PNG_EXTERNAL_LIB = 1
+#PNGDIR = c:/projects/libpng-1.0.8
+#PNG_LIB = $(PNGDIR)/libpng.lib
+
+# if using an external libtiff library
+#TIFF_INC =	-Ic:/warmerda/libtiff/libtiff
+#TIFF_LIB =	c:/warmerda/libtiff/libtiff/libtiff_i.lib
+# uncomment following line, if you have libtiff version >= 4.0 to
+# enable BigTIFF support
+#TIFF_OPTS=	-DBIGTIFF_SUPPORT
+
+# if using an external libgeotiff library
+#GEOTIFF_INC =   -Ic:/warmerda/libgeotiff -Ic:/warmerda/libgeotiff/libxtiff
+#GEOTIFF_LIB =   C:/warmerda/libgeotiff/geotiff_i.lib
+
+# Uncomment out the following lines to enable LibKML support.
+#LIBKML_DIR = C:/Dev/libkml
+#LIBKML_INCLUDE = -I$(LIBKML_DIR)/src -I$(LIBKML_DIR)/third_party/boost_1_34_1
+#LIBKML_LIBRARY = $(LIBKML_DIR)/msvc/Release
+#LIBKML_LIBS =	$(LIBKML_LIBRARY)/libkmlbase.lib \
+#		$(LIBKML_LIBRARY)/libkmlconvenience.lib \
+#		$(LIBKML_LIBRARY)/libkmldom.lib \
+#		$(LIBKML_LIBRARY)/libkmlengine.lib \
+#		$(LIBKML_LIBRARY)/libkmlregionator.lib \
+#		$(LIBKML_LIBRARY)/libkmlxsd.lib \
+#		$(LIBKML_LIBRARY)/minizip_static.lib \
+#		$(LIBKML_DIR)/third_party\expat.win32/libexpat.lib \
+#		$(LIBKML_DIR)/third_party\uriparser-0.7.5.win32/release/uriparser.lib \
+#		$(LIBKML_DIR)/third_party\zlib-1.2.3.win32/lib/minizip.lib \
+#		$(LIBKML_DIR)/third_party\zlib-1.2.3.win32/lib/zlib.lib
+							
+# Uncomment the following and update to enable ECW read support with the 
+# 4.1+ readonly SDK
+#ECWDIR  = 	"c:/Program Files/ERDAS/ERDAS ECW JPEG2000 Read SDK"
+#ECWFLAGS =	-DECWSDK_VERSION=41 \
+#		-I$(ECWDIR)\include \
+#		-I$(ECWDIR)\include/NCSECW/api -I$(ECWDIR)\include/NCSECW/jp2 \
+#		-I$(ECWDIR)\include/NCSECW/ecw
+#ECWLIB  = 	$(ECWDIR)\lib\vc90\win32\NCSEcw4_RO.lib \
+#		$(ECWDIR)\lib\vc90\win32\NCSUtil4.lib \
+#		$(ECWDIR)\lib\vc90\win32\NCScnet4.lib
+
+# To add Write support, use the write SDK, change NCSEcw4_RO.lib to 
+# NCSEcw4.lib, and add -DHAVE_COMPRESS to ECWFLAGS.  The ECWDIR setting will
+# also need some adjustment. 
+
+# To build ECW support as a plugin uncomment the following, and make sure
+# to do "nmake /f makefile.vc plugin" in gdal/frmts/ecw and copy the two
+# resulting DLLs to an appropriate place.
+#ECW_PLUGIN = YES
+
+# Uncomment the following and update to enable ECW support with the 3.3 SDK.
+# Significant adaption may be needed.
+#ECWDIR  = 	C:\warmerda\libecwj2-3.3
+#ECWLIB  = 	$(ECWDIR)\Source\NCSBuildQmake\Debug\libecwj2.lib
+#ECWFLAGS = 	-DECWSDK_VERSION=33 \
+#		-I$(ECWDIR)\include -I$(ECWDIR)/Source/include \
+#		/D_MBCS /D_UNICODE /DUNICODE /D_WINDOWS \
+#		/DLIBECWJ2 /DWIN32 /D_WINDLL -DNO_X86_MMI
+
+# DWG support using the Open Design Alliance Teigha Libraries
+
+#TD_BASE = C:\warmerda\pkg\td_vc9
+#TD_FLAGS = -D_TOOLKIT_IN_DLL_
+#TD_INCLUDE = -I$(TD_BASE)\TD\Include -I$(TD_BASE)\TD\Extensions\ExServices
+#TD_LIBDIR = $(TD_BASE)\lib\vc9dll
+
+# DWG/DXF support via DWGdirect from Open Design Alliance
+
+#DWGDIRECT=C:\warmerda\DWGdirect
+#DWG_LIB_DIR=$(DWGDIRECT)\lib\VC6MD
+#DWG_LIB=$(DWG_LIB_DIR)\DD_AcisBuilder_dll.lib $(DWG_LIB_DIR)\DD_AcisRenderer_dll.lib $(DWG_LIB_DIR)\DD_Alloc_dll.lib $(DWG_LIB_DIR)\DD_BmpExport_dll.lib $(DWG_LIB_DIR)\DD_Br_dll.lib $(DWG_LIB_DIR)\DD_Db_dll.lib $(DWG_LIB_DIR)\DD_DwfExport_dll.lib $(DWG_LIB_DIR)\DD_DwfImport_dll.lib $(DWG_LIB_DIR)\DD_Ge_dll.lib $(DWG_LIB_DIR)\DD_Gi_dll.lib $(DWG_LIB_DIR)\DD_Gs_dll.lib $(DWG_LIB_DIR)\DD_ModelerGeometry_dll.lib $(DWG_LIB_DIR)\DD_Root_dll.lib $(DWG_LIB_DIR)\DD_Sm_dll.lib $(DWG_LIB_DIR)\DD_SpatialIndex_dll.lib $(DWG_LIB_DIR)\DD_VC6MD_OleDataAccess_dll.lib
+
+# Uncomment the following and update to enable OGDI support.
+#OGDIDIR =	D:\warmerda\iii\devdir
+#OGDIVER =	31
+#OGDILIB =	$(OGDIDIR)\lib\$(TARGET)\ogdi$(OGDIVER).lib \
+#		$(OGDIDIR)\lib\$(TARGET)\zlib_ogdi$(OGDIVER).lib
+
+# Uncomment for Expat support (required for KML, GPX and GeoRSS read support).
+#EXPAT_DIR = "C:\Program Files\Expat 2.0.1"
+#EXPAT_INCLUDE = -I$(EXPAT_DIR)/source/lib
+#EXPAT_LIB = $(EXPAT_DIR)/bin/libexpat.lib
+
+# Uncomment for Xerces based GML and ILI support.
+XERCES_DIR = "C:\xerces-c\Build\Win32\VC10\Static Release"
+XERCES_INCLUDE = -I C:\xerces-c\src -I C:\xerces-c\src\xercesc
+XERCES_LIB = $(XERCES_DIR)\xerces-c_static_3.lib
+
+# Uncomment the following for Interlis support.  Note that a Xercex 2.x
+# is also required (see above).  Also, Interlis support only works with
+# Visual Studio.NET or newer, not VC6.
+#ILI_ENABLED = YES
+
+# Uncomment for JasPer based JPEG2000 support
+#JASPER_DIR = d:\projects\jasper-1.700.2.uuid
+#JASPER_INCLUDE = -I$(JASPER_DIR)\src\libjasper\include -DJAS_WIN_MSVC_BUILD
+#JASPER_LIB = $(JASPER_DIR)\src\msvc\Win32_Release\libjasper.lib
+# Uncomment the following line if you have patched UUID-enabled version
+# of JasPer from ftp://ftp.remotesensing.org/gdal/
+#JASPER_INCLUDE = $(JASPER_INCLUDE) -DHAVE_JASPER_UUID
+
+# Uncommment and adjust paths if you have Kakadu 6.0 or newer
+#KAKDIR = 	\warmerda\pkg\kakadu-6.2.1
+#KAKLIB =	$(KAKDIR)\lib_x86\kdu_v62R.lib
+#KAKSRC =	$(KAKDIR)\vt_2_1-00256N
+
+# Uncomment the following and update to enable NCSA HDF Release 4 support.
+#HDF4_PLUGIN = NO
+#HDF4_DIR =	D:\warmerda\HDF41r5
+#HDF4_LIB =	/LIBPATH:$(HDF4_DIR)\lib Ws2_32.lib
+
+# Uncomment the following and update to enable NCSA HDF Release 5 support.
+#HDF5_PLUGIN = NO
+#HDF5_DIR =	c:\warmerda\supportlibs\hdf5\5-164-win
+#HDF5_LIB =	$(HDF5_DIR)\dll\hdf5dll.lib 
+
+# Uncomment the following for MrSID support.  Only MRSID_DIR is required,
+# which may point to a MrSID Raster SDK, Lidar SDK, or the combined SDK, and
+# will auto-configure the mrsid and/or mrsid_lidar drivers as appropriate.
+# Other configuration options can be specified to control specific features
+# that may be available.  See comments at the top of frmts/mrsid/nmake.opt
+# for more details.
+#MRSID_DIR =	d:\projects\mrsid
+#MRSID_JP2 =    YES
+
+!IF DEFINED(MRSID_DIR) || DEFINED(MRSID_RASTER_DIR) || DEFINED(MRSID_LIDAR_DIR)
+!IF EXIST(frmts\mrsid\nmake.opt)
+!INCLUDE frmts\mrsid\nmake.opt
+!ENDIF
+!ENDIF
+
+# PCIDSK Libraries - default configuration uses internal implementation
+PCIDSK_SETTING=INTERNAL
+# Replace with these to use an external build.
+#PCIDSK_SETTING=EXTERNAL
+#PCIDSK_INCLUDE=-I\warmerda\pcidsk\src
+#PCIDSK_LIB=\warmerda\pcidsk\src\pcidsk.lib
+# Use the following alternative to use the old PCIDSK implementation
+#PCIDSK_SETTING=OLD
+
+# PostGIS Libraries
+PG_INC_DIR1 = C:\postgresql\src\include
+PG_INC_DIR2 = C:\postgresql\src\interfaces\libpq
+PG_LIB = C:\postgresql\src\interfaces\libpq\Release\libpq.lib \
+crypt32.lib dnsapi.lib secur32.lib shfolder.lib
+
+# MySQL Libraries
+# NOTE: Need /MT instead of /MD, also enable /EHsc switch. 
+#MYSQL_INC_DIR = D:\Software\MySQLServer4.1\include
+#MYSQL_LIB = D:\Software\MySQLServer4.1\lib\opt\libmysql.lib advapi32.lib
+
+# SQLite Libraries
+#SQLITE_INC=-IN:\pkg\sqlite-win32
+#SQLITE_LIB=N:\pkg\sqlite-win32\sqlite3_i.lib
+# For spatialite support, try this instead (assuming you grab the libspatialite-amalgamation-2.3.1 and installed it in osgeo4w):
+# The -DSPATIALITE_AMALGAMATION, which cause "spatialite/sqlite3.h" to be included instead of "sqlite3.h" might not be necessary
+# depending on the layout of the include directories. In case of compilation errors, remove it.
+SQLITE_INC=-IC:\libspatialite\src\headers -IC:\sqlite-amalgamation -DHAVE_SPATIALITE -DSPATIALITE_AMALGAMATION
+SQLITE_LIB=C:\libspatialite\spatialite.lib
+
+# Informix Data Blade
+#INFORMIXDIR="C:\Program Files\IBM\Informix\Client-SDK"
+#IDB_INC=-I$(INFORMIXDIR)\incl\cpp -I$(INFORMIXDIR)\incl\dmi \
+#	-I$(INFORMIXDIR)\incl\esql
+#IDB_LIB=$(INFORMIXDIR)\lib\cpp\libthc++.lib \
+#	$(INFORMIXDIR)\lib\dmi\libthdmi.lib $(INFORMIXDIR)\lib\isqlt09a.lib
+
+# Uncomment the following and update to enable FME support.
+#FME_DIR =	d:\Software\fme
+
+# Uncomment the following to enable FITS format support
+#FITS_PLUGIN = NO
+#FITS_INC_DIR =	c:\dev32\usr\include\cfitsio
+#FITS_LIB =	c:\dev32\usr\lib\cfitsio.lib
+
+# Comment out to disable GRIB support.
+GRIB_SETTING=yes
+
+# Uncomment the following to enable NetCDF format.
+#NETCDF_PLUGIN = NO
+#NETCDF_SETTING=yes
+#NETCDF_LIB=C:\Software\netcdf\lib\netcdf.lib
+#NETCDF_INC_DIR=C:\Software\netcdf\include
+
+# Uncomment the following to add NC4 and HDF4 support
+#NETCDF_HAS_NC4 = yes
+#NETCDF_HAS_HDF4 = yes
+
+# PROJ.4 stuff
+# Uncomment the following lines to link PROJ.4 library statically. Otherwise
+# it will be linked dynamically during runtime.
+PROJ_FLAGS = -DPROJ_STATIC
+PROJ_INCLUDE = -I C:\proj\src
+PROJ_LIBRARY = C:\proj\src\proj.lib
+
+# Add ORACLE support.
+# Uncomment the following line to enable OCI Oracle Spatial support.
+ORACLE_HOME = C:\instantclient
+# Uncomment the following if you prefer to build OCI support as a plugin.
+#OCI_PLUGIN = YES
+
+!IFDEF ORACLE_HOME
+OCI_LIB =	$(ORACLE_HOME)\sdk\lib\msvc\ociw32.lib \
+		$(ORACLE_HOME)\sdk\lib\msvc\oci.lib
+OCI_INCLUDE = -I$(ORACLE_HOME)\sdk\include
+!ENDIF
+
+#SDE_ENABLED = YES
+#SDE_VERSION=91
+#SDE_PLUGIN = NO
+#SDE_SDK = C:\arcgis\arcsde
+#SDE_INC = $(SDE_SDK)\include 
+#SDE_LIB = $(SDE_SDK)\lib\pe$(SDE_VERSION).lib \
+#          $(SDE_SDK)\lib\sde$(SDE_VERSION).lib $(SDE_SDK)\lib\sg$(SDE_VERSION).lib      
+
+
+#FGDB_ENABLED = YES
+#FGDB_PLUGIN = YES
+#FGDB_SDK = C:\Users\rburhum\Desktop\FileGDB_API_VS2008_1_0beta3
+#FGDB_INC = $(FGDB_SDK)\include 
+#FGDB_LIB = $(FGDB_SDK)\lib\FileGDBAPI.lib
+
+
+#uncomment to use ArcObjects
+#ARCOBJECTS_ENABLED = YES
+#ARCOBJECTS_PLUGIN = YES
+#ARCOBJECTS_SDK = C:\PROGRA~2\ArcGIS\com
+#ARCOBJECTS_INC = $(ARCOBJECTS_SDK)\..\include
+#
+#Interestingly, since this is a COM application, we don't link against external libraries,
+#but we still need to link the app, so we put the generic user32.lib to force the linking process
+#ARCOBJECTS_LIB = user32.lib
+
+
+# Uncomment to use libcurl (DLL by default)
+# The cURL library is used for WCS, WMS, GeoJSON, SRS call importFromUrl(), WFS, GFT, CouchDB, /vsicurl/ etc.
+CURL_DIR=C:\curl\builds\libcurl-vc10-x86-release-static-ipv6-spnego
+CURL_INC = -I$(CURL_DIR)\include
+CURL_LIB = $(CURL_DIR)\lib\libcurl_a.lib
+CURL_CFLAGS = -DCURL_STATICLIB
+
+# Uncomment for DODS / OPeNDAP support
+#DODS_DIR = C:\libdap3.6.2
+#DODS_LIB = $(DODSDIR)\lib\libdapMD.lib
+# Uncomment for libdap >= 3.9
+#DODS_FLAGS = -DLIBDAP_39
+
+# Uncomment for GEOS support
+GEOS_DIR = C:\geos
+GEOS_CFLAGS = -I$(GEOS_DIR)/capi -I$(GEOS_DIR)/include -DHAVE_GEOS
+GEOS_LIB = $(GEOS_DIR)/src/geos.lib
+
+# Uncomment for SOSI support
+#SOSI_ENABLED = YES
+#SOSI_INC_DIR = e:/sosi
+#SOSI_LIBS = e:/sosi/FYBA.lib e:/sosi/GM.lib e:/sosi/UT.lib
+
+# Uncomment for OpenJpeg support
+#OPENJPEG_ENABLED = YES
+#OPENJPEG_CFLAGS = -IC:\openjpeg\libopenjpeg
+#OPENJPEG_LIB = C:\openjpeg\bin\Release\openjpeg.lib
+
+# Uncomment for PDF support
+# Uncomment POPPLER_BASE_STREAM_HAS_TWO_ARGS = YES for Poppler >= 0.16.0
+# Uncomment POPPLER_0_20_OR_LATER = YES for Poppler >= 0.20.0
+#POPPLER_ENABLED = YES
+#POPPLER_CFLAGS = -Ie:/kde/include -Ie:/kde/include/poppler
+#POPPLER_HAS_OPTCONTENT = YES
+#POPPLER_BASE_STREAM_HAS_TWO_ARGS = YES
+#POPPLER_0_20_OR_LATER = YES
+#POPPLER_LIBS = e:/kde/lib/poppler.lib e:/kde/lib/freetype.lib e:/kde/lib/liblcms-1.lib advapi32.lib gdi32.lib
+
+# Uncomment for PDF support
+#PODOFO_ENABLED = YES
+#PODOFO_CFLAGS = -Ie:/podofo-svn/install/include -Ie:/podofo-svn/install/include/podofo
+#PODOFO_LIBS = e:/podofo-svn/install/lib/podofo.lib E:/release-1500-dev/release-1500/lib/freetype239.lib gdi32.lib
+
+# Uncomment for LZMA TIFF support
+#LZMA_CFLAGS = -IC:/gdal_trunk/xz-5.0.0-windows/include
+#LZMA_LIBS = C:/gdal_trunk/xz-5.0.0-windows/bin_i486/liblzma.lib
+
+# Uncomment for WEBP support
+#WEBP_ENABLED = YES
+#WEBP_CFLAGS = -IE:/libwebp-0.1-windows/dev/Include
+#WEBP_LIBS = e:/libwebp-0.1-windows/dev/lib/libwebp_a.lib
+
+# Uncomment for freexl support
+#
+# Note: Currently there is no MSVC makefile to build freexl.
+# Here's the procedure I've followed (from root of freexl source tree)
+# cl /c src/freexl.c /Iheaders /IE:\release-1500-dev\release-1500\include /DDLL_EXPORT
+# link /dll E:\release-1500-dev\release-1500\lib\iconv.lib freexl.obj /out:freexl.dll /implib:freexl_i.lib
+#
+FREEXL_CFLAGS = -DUSING_STATIC_LIBICONV -IC:\freexl\headers
+FREEXL_LIBS = C:\freexl\freexl.lib
+
+# Uncomment for libgta support
+#
+#GTA_CFLAGS = -IC:/gdal_trunk/libgta-1.0.0-w32/include -IC:/gdal_trunk/libgta-1.0.0-w32/include/gta
+#GTA_LIBS = C:/gdal_trunk/libgta-1.0.0-w32/lib/libgta.dll.a
+
+# Any extra libraries needed on this platform?
+ADD_LIBS	= 
+
+# Comment out the following if you want to build with Python support, but
+# you don't have Numeric Python installed (with include files).  Numeric
+# integration may not work.  This only appears to the old generation 
+# bindings. 
+#HAVE_NUMPY=1
+
+########### END OF STUFF THAT NORMALLY NEEDS TO BE UPDATED ##################
+
+
+# Location of MS Data Access SDK (not really needed anymore I think)
+#MSDASDK =	D:\Software\MDAC_2.6
+
+GDAL_DLL =	gdal$(VERSION).dll
+
+INC	=	-I$(GDAL_ROOT)\port -I$(GDAL_ROOT)\ogr -I$(GDAL_ROOT)\gcore \
+		-I$(GDAL_ROOT)\alg -I$(GDAL_ROOT)\ogr\ogrsf_frmts
+
+!IFDEF MSVC_VLD_DIR
+MSVC_VLD_FLAGS=-DMSVC_USE_VLD=1 -I$(MSVC_VLD_DIR)\include
+MSVC_VLD_LIB=/LIBPATH:$(MSVC_VLD_DIR)/lib
+!ENDIF
+
+!IFDEF INCLUDE_OGR_FRMTS
+OGR_FLAG = -DOGR_ENABLED
+!ENDIF
+
+#LINKER_FLAGS =	/NODEFAULTLIB:LIBC 
+LINKER_FLAGS = $(MSVC_VLD_LIB) $(LDEBUG)
+
+
+CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS)
+MAKE	=	nmake /nologo
+
+CC	=	cl -DXERCES_STATIC_LIBRARY
+
+
+INSTALL	=	xcopy /y /r /d /f
+
+CPLLIB	=    $(GDAL_ROOT)/port/cpl.lib
+
+!IFDEF DLLBUILD
+GDALLIB	=    $(GDAL_ROOT)/gdal_i.lib
+!ELSE
+GDALLIB	=    $(GDAL_ROOT)/gdal.lib
+!ENDIF
+
+!IFDEF ODBC_SUPPORTED
+#ODBCLIB = odbc32.lib odbccp32.lib user32.lib
+!ENDIF
+
+!IF DEFINED(MRSID_DIR) || DEFINED(MRSID_RASTER_DIR) || DEFINED(MRSID_LIDAR_DIR)
+!IF "$(MRSID_PLUGIN)" != "YES"
+MRSID_LIB_LINK = $(MRSID_LIB)
+!ELSE
+MRSID_LIB_LINK=
+!ENDIF
+!ENDIF
+
+!IFDEF ECWDIR
+!IF "$(ECW_PLUGIN)" != "YES"
+ECW_LIB_LINK= $(ECWLIB)
+!ELSE
+ECW_LIB_LINK=
+!ENDIF
+!ENDIF
+
+!IFDEF FITS_LIB
+!IF "$(FITS_PLUGIN)" != "YES"
+FITS_LIB_LINK = $(FITS_LIB)
+!ELSE
+FITS_LIB_LINK =
+!ENDIF
+!ENDIF
+
+!IFDEF NETCDF_LIB
+!IF "$(NETCDF_PLUGIN)" != "YES"
+NETCDF_LIB_LINK = $(NETCDF_LIB)
+!ELSE
+NETCDF_LIB_LINK =
+!ENDIF
+!ENDIF
+
+!IFDEF HDF4_LIB
+!IF "$(HDF4_PLUGIN)" != "YES"
+HDF4_LIB_LINK = $(HDF4_LIB)
+!ELSE
+HDF4_LIB_LINK =
+!ENDIF
+!ENDIF
+
+!IFDEF HDF5_LIB
+!IF "$(HDF5_PLUGIN)" != "YES"
+HDF5_LIB_LINK = $(HDF5_LIB)
+!ELSE
+HDF5_LIB_LINK =
+!ENDIF
+!ENDIF
+
+!IFDEF FGDB_LIB
+!IF "$(FGDB_PLUGIN)" != "YES"
+FGDB_LIB_LINK = $(FGDB_LIB)
+!ELSE
+FGDB_LIB_LINK =
+!ENDIF
+!ENDIF
+
+!IFDEF XERCES_DIR
+NAS_ENABLED = YES
+!ENDIF
+
+# Under win64, symbols for function names lack the underscore prefix
+# present on win32. Also the STDCALL calling convention is not used.
+!IFDEF WIN64
+!UNDEF STDCALL
+!ELSE
+SYM_PREFIX=_
+!ENDIF
+
+EXTERNAL_LIBS =	$(OGDILIB) $(XERCES_LIB) $(EXPAT_LIB) $(OCI_LIB) $(PG_LIB) \
+	$(ECW_LIB_LINK) $(HDF4_LIB_LINK) $(FME_LIB) $(MRSID_LIB_LINK) \
+	$(FITS_LIB_LINK) $(JPEG_LIB) $(NETCDF_LIB_LINK) $(PROJ4_LIB) \
+	$(GEOTIFF_LIB) $(TIFF_LIB) $(PROJ_LIBRARY) $(SQLITE_LIB) \
+	$(MYSQL_LIB) $(GEOS_LIB) $(HDF5_LIB_LINK) $(SDE_LIB) $(ARCOBJECTS_LIB) $(DWG_LIB) \
+	$(IDB_LIB) $(CURL_LIB) $(DODS_LIB) $(KAKLIB) $(PCIDSK_LIB) \
+	$(ODBCLIB) $(JASPER_LIB) $(PNG_LIB) $(ADD_LIBS) $(OPENJPEG_LIB) \
+	$(MRSID_LIDAR_LIB) $(LIBKML_LIBS) $(SOSI_LIBS) $(POPPLER_LIBS) $(PODOFO_LIBS) $(LZMA_LIBS) \
+	$(LIBICONV_LIBRARY) $(WEBP_LIBS) $(FGDB_LIB_LINK) $(FREEXL_LIBS) $(GTA_LIBS)
+		
+.c.obj:	
+	$(CC) $(CFLAGS) /c $*.c
+
+.cpp.obj:	
+	$(CC) $(CFLAGS) /c $*.cpp

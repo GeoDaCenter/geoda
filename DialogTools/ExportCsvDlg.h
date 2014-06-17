@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,7 @@
 #include "../ShapeOperations/DbfFile.h"
 
 class Project;
-class DbfGridTableBase;
+class TableInterface;
 
 class ExportCsvDlg: public wxDialog 
 {
@@ -42,7 +42,7 @@ public:
 private:
 	bool all_init;
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	
 	wxCheckBox* include_var_names_cb;
 	

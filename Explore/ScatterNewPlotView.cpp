@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,10 +30,10 @@
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
-#include "../DialogTools/MapQuantileDlg.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -58,8 +58,8 @@ ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
 										   const wxSize& size)
 : TemplateCanvas(parent, pos, size, false, true),
 project(project_s), num_obs(project_s->GetNumRecords()),
-num_cats(1), num_time_vals(1),
-highlight_state(project_s->highlight_state), custom_classif_state(0),
+num_categories(1), num_time_vals(1),
+highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
 is_bubble_plot(false), axis_scale_x(), axis_scale_y(),
 standardized(false), reg_line(0), stats_table(0),
 reg_line_selected(0), reg_line_selected_slope(0),
@@ -68,7 +68,7 @@ reg_line_excluded(0), reg_line_excluded_slope(0),
 reg_line_excluded_infinite_slope(false), reg_line_excluded_defined(false),
 x_axis_through_origin(0), y_axis_through_origin(0),
 show_origin_axes(true), display_stats(false),
-show_reg_selected(false), show_reg_excluded(false),
+show_reg_selected(true), show_reg_excluded(true),
 sse_c(0), sse_sel(0), sse_unsel(0),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
@@ -80,10 +80,10 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 	template_frame = t_frame;
 	use_category_brushes = true;
 	draw_sel_shps_by_z_val = false;
-	highlight_color = GeoDaConst::scatterplot_regression_selected_color;
+	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color =
-		GeoDaConst::scatterplot_regression_excluded_color;
-	selectable_outline_color = GeoDaConst::scatterplot_regression_color;
+		GdaConst::scatterplot_regression_excluded_color;
+	selectable_outline_color = GdaConst::scatterplot_regression_color;
 		
 	shps_orig_xmin = 0;
 	shps_orig_ymin = 0;
@@ -96,6 +96,7 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 	
 	UpdateDisplayLinesAndMargins();
 	all_init = true;
+		
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 	LOG_MSG("Exiting ScatterNewPlotCanvas::ScatterNewPlotCanvas");
@@ -114,9 +115,9 @@ ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
 										   const wxSize& size)
 : TemplateCanvas(parent, pos, size, false, true),
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
-num_cats(is_bubble_plot ? 1 : 3), num_time_vals(1),
+num_categories(is_bubble_plot ? 1 : 3), num_time_vals(1),
 data(v_info.size()),
-highlight_state(project_s->highlight_state), custom_classif_state(0),
+highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
 is_bubble_plot(is_bubble_plot_s),
 axis_scale_x(), axis_scale_y(),
 standardized(standardized_s), reg_line(0), stats_table(0),
@@ -125,8 +126,8 @@ reg_line_selected_infinite_slope(false), reg_line_selected_defined(false),
 reg_line_excluded(0), reg_line_excluded_slope(0),
 reg_line_excluded_infinite_slope(false), reg_line_excluded_defined(false),
 x_axis_through_origin(0), y_axis_through_origin(0),
-show_origin_axes(true), display_stats(false),
-show_reg_selected(false), show_reg_excluded(false),
+show_origin_axes(true), display_stats(!is_bubble_plot_s),
+show_reg_selected(!is_bubble_plot_s), show_reg_excluded(!is_bubble_plot_s),
 sse_c(0), sse_sel(0), sse_unsel(0),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
@@ -138,22 +139,23 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
 	template_frame = t_frame;
 	
-	DbfGridTableBase* grid_base = project->GetGridBase();
-
-	for (int i=0; i<var_info.size(); i++) {
-		grid_base->GetColData(col_ids[i], data[i]);
+	TableInterface* table_int = project->GetTableInt();
+	for (size_t i=0; i<var_info.size(); i++) {
+		template_frame->AddGroupDependancy(var_info[i].name);
+		table_int->GetColData(col_ids[i], data[i]);
 	}
 	
 	if (!is_bubble_plot) {
-		highlight_color = GeoDaConst::scatterplot_regression_selected_color;
+		highlight_color = GdaConst::scatterplot_regression_selected_color;
 		selectable_fill_color =
-			GeoDaConst::scatterplot_regression_excluded_color;
-		selectable_outline_color = GeoDaConst::scatterplot_regression_color;
+			GdaConst::scatterplot_regression_excluded_color;
+		selectable_outline_color = GdaConst::scatterplot_regression_color;
 	}
 	
 	if (is_bubble_plot) {
-		GeoDa::dbl_int_pair_vec_type v_sorted(num_obs);
-		int times = var_info[2].is_time_variant ? grid_base->time_steps : 1;
+		Gda::dbl_int_pair_vec_type v_sorted(num_obs);
+		int times = var_info[2].is_time_variant ? 
+			project->GetTableInt()->GetTimeSteps() : 1;
 		obs_id_to_z_val_order.resize(boost::extents[times][num_obs]);
 		
 		for (int t=0; t<times; t++) {
@@ -162,7 +164,7 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 				v_sorted[i].second = i;
 			}
 			std::sort(v_sorted.begin(), v_sorted.end(),
-					  GeoDa::dbl_int_pair_cmp_greater);
+					  Gda::dbl_int_pair_cmp_greater);
 			for (int i=0; i<num_obs; i++) {
 				obs_id_to_z_val_order[t][v_sorted[i].second] = i;
 			}
@@ -181,13 +183,13 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 	use_category_brushes = true;
 	draw_sel_shps_by_z_val = is_bubble_plot;
 	UpdateDisplayLinesAndMargins();
-
+	
 	if (is_bubble_plot) {
-		ChangeThemeType(CatClassification::stddev);
+		ChangeThemeType(CatClassification::stddev, 6);
 	} else {
 		ref_var_index = -1;
 		num_time_vals = 1;
-		for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
+		for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
 			if (var_info[i].is_ref_variable) ref_var_index = i;
 		}
 		if (ref_var_index != -1) {
@@ -212,6 +214,13 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 	}
 	
 	all_init = true;
+	
+	if (!is_bubble_plot_s) {
+		UpdateDisplayStats();
+		UpdateDisplayLinesAndMargins();
+		ResizeSelectableShps();
+	}
+	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 	LOG_MSG("Exiting ScatterNewPlotCanvas::ScatterNewPlotCanvas");
@@ -228,6 +237,10 @@ ScatterNewPlotCanvas::~ScatterNewPlotCanvas()
 void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((ScatterNewPlotFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu;
 	if (is_bubble_plot) {
 		optMenu = wxXmlResource::Get()->
@@ -251,12 +264,12 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-				menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -266,14 +279,14 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Fixed x-axis scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	if (var_info[1].is_time_variant) {
 		wxString s;
 		s << "Fixed y-axis scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
 		mi->Check(var_info[1].fixed_scale);
 	}
 	
@@ -289,12 +302,36 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
 	
+	// We have replaced the following seperate menu items:
+	//
+	//<object class="wxMenuItem" name="ID_VIEW_REGRESSION_SELECTED">
+	//  <label>Show Regression of Selected</label>
+	//  <checkable>1</checkable>
+	//  <checked>0</checked>
+    //</object>
+    //<object class="wxMenuItem" name="ID_VIEW_REGRESSION_SELECTED_EXCLUDED">
+	//  <label>Show Regression of Selected Excluded</label>
+	//  <checkable>1</checkable>
+	//  <checked>0</checked>
+    //</object>
+	//
+	// with:
+	//
+	//<object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+	//  <label>Regimes Regression</label>
+	//  <checkable>1</checkable>
+	//  <checked>0</checked>
+    //</object>
+    
+	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_STANDARDIZED_DATA"),
 								  IsStandardized());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_ORIGINAL_DATA"),
 								  !IsStandardized());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGRESSION_SELECTED"),
 								  IsRegressionSelected());
+	
+	
 	GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"),
 								  IsRegressionExcluded());
@@ -304,10 +341,40 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  IsShowOriginAxes());
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
-								  GetCcType() == CatClassification::no_theme);	
-	GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_MAPANALYSIS_CHOROPLETH_QUANTILE"),
-								  GetCcType() == CatClassification::quantile);
+								  GetCcType() == CatClassification::no_theme);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 10);
+	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 								  GetCcType() == CatClassification::percentile);
@@ -320,10 +387,90 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_EQUAL_INTERVALS"),
-								  GetCcType() ==CatClassification::equal_intervals);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_NATURAL_BREAKS"),
-								  GetCcType() == CatClassification::natural_breaks);
+    
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 10);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 10);
 }
 
 /**
@@ -355,7 +502,6 @@ void ScatterNewPlotCanvas::update(HighlightState* o)
 
 wxString ScatterNewPlotCanvas::GetCanvasTitle()
 {
-	DbfGridTableBase* gb = project->GetGridBase();
 	wxString s(is_bubble_plot ? "Bubble Chart" : "Scatter Plot");	
 	s << " - x: " << GetNameWithTime(0) << ", y: " << GetNameWithTime(1);
 	if (is_bubble_plot) {
@@ -384,10 +530,10 @@ wxString ScatterNewPlotCanvas::GetCategoriesTitle()
 
 wxString ScatterNewPlotCanvas::GetNameWithTime(int var)
 {
-	if (var < 0 || var >= var_info.size()) return wxEmptyString;
+	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -398,7 +544,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		GeoDa::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[3].is_time_variant ? t : 0;
@@ -408,12 +554,14 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 		}
 		if (cats_valid[var_info[0].time]) { // only sort data with valid data
 			std::sort(cat_var_sorted.begin(), cat_var_sorted.end(),
-					  GeoDa::dbl_int_pair_cmp_less);
+					  Gda::dbl_int_pair_cmp_less);
 		}
 		
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
 										 cat_classif_def);
+		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
+										  temp_cat_labels,
 										  cat_var_sorted,
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
@@ -422,9 +570,13 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 			cat_classif_def.colors[i] = cat_data.GetCategoryColor(time, i);
 			cat_classif_def.names[i] = cat_data.GetCategoryLabel(time, i);
 		}
+		int col = project->GetTableInt()->FindColId(var_info[3].name);
+		int tm = var_info[3].time;
+		cat_classif_def.assoc_db_fld_name = 
+			project->GetTableInt()->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = MyFrame::theFrame->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[3].name,
@@ -452,10 +604,11 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
  category classification. */
 void ScatterNewPlotCanvas::ChangeThemeType(
 						CatClassification::CatClassifType new_theme,
-									const wxString& custom_classif_title)
+						int num_categories_s,
+						const wxString& custom_classif_title)
 {
-	// User has already chosen theme variable on startup, so no need
-	// to ever ask for theme variable.
+	num_categories = num_categories_s;
+	
 	if (new_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
 		if (!ccm) return;
@@ -515,7 +668,7 @@ void ScatterNewPlotCanvas::OnSaveCategories()
 void ScatterNewPlotCanvas::SetHighlightColor(wxColour color)
 {	
 	highlight_color = color;
-	//GeoDaConst::scatterplot_reg_selected_pen->SetColour(highlight_color);
+	//GdaConst::scatterplot_reg_selected_pen->SetColour(highlight_color);
 	UpdateRegSelectedLine();
 	UpdateDisplayStats();
 	TemplateCanvas::SetHighlightColor(color);
@@ -525,7 +678,7 @@ void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 {
 	if (!is_bubble_plot) {
 		selectable_fill_color = color;
-		//GeoDaConst::scatterplot_reg_excluded_pen->
+		//GdaConst::scatterplot_reg_excluded_pen->
 		//	SetColour(selectable_fill_color);
 		for (int t=0; t<cat_data.GetCanvasTmSteps(); t++) {
 			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
@@ -540,7 +693,7 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
 {
 	if (!is_bubble_plot) {
 		selectable_outline_color = color;
-		//GeoDaConst::scatterplot_reg_pen->SetColour(selectable_outline_color);
+		//GdaConst::scatterplot_reg_pen->SetColour(selectable_outline_color);
 		if (reg_line) {
 			reg_line->setPen(selectable_outline_color);
 		}
@@ -556,16 +709,16 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
 	wxSize size(GetVirtualSize());
 	double scale_x, scale_y, trans_x, trans_y;
-	MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 								   shps_orig_xmax, shps_orig_ymax,
 								   virtual_screen_marg_top,
 								   virtual_screen_marg_bottom,
@@ -688,7 +841,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 			for (int i=0; i<num_obs; i++) {
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
-				selectable_shps[i] = new MyCircle(pt, rad_mn);
+				selectable_shps[i] = new GdaCircle(pt, rad_mn);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
@@ -698,39 +851,39 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 				double r = sqrt(area_z/pi);
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
-				selectable_shps[i] = new MyCircle(pt, r);
+				selectable_shps[i] = new GdaCircle(pt, r);
 			}
 		}
 	} else {
 		selectable_shps_type = points;
 		for (int i=0; i<num_obs; i++) {
 			selectable_shps[i] = 
-			new MyPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 									(Y[i] - axis_scale_y.scale_min) * scaleY));
 		}
 	}
 	
 	// create axes
-	x_baseline = new MyAxis(GetNameWithTime(0), axis_scale_x,
+	x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
 							wxRealPoint(0,0), wxRealPoint(100, 0));
-	x_baseline->setPen(*GeoDaConst::scatterplot_scale_pen);
+	x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 	background_shps.push_back(x_baseline);
-	y_baseline = new MyAxis(GetNameWithTime(1), axis_scale_y,
+	y_baseline = new GdaAxis(GetNameWithTime(1), axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, 100));
-	y_baseline->setPen(*GeoDaConst::scatterplot_scale_pen);
+	y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 	background_shps.push_back(y_baseline);
 	
 	// create optional axes through origin
-	x_axis_through_origin = new MyPolyLine(0,50,100,50);
+	x_axis_through_origin = new GdaPolyLine(0,50,100,50);
 	x_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
-	y_axis_through_origin = new MyPolyLine(50,0,50,100);
+	y_axis_through_origin = new GdaPolyLine(50,0,50,100);
 	y_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
 	background_shps.push_back(x_axis_through_origin);
 	background_shps.push_back(y_axis_through_origin);
 	UpdateAxesThroughOrigin();
 	
 	// show regression lines
-	reg_line = new MyPolyLine(0,100,0,100);
+	reg_line = new GdaPolyLine(0,100,0,100);
 	double cc_degs_of_rot;
 	double reg_line_slope;
 	bool reg_line_infinite_slope;
@@ -740,10 +893,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 					   reg_line_defined, a, b, cc_degs_of_rot,
 					   axis_scale_x, axis_scale_y,
 					   regressionXY, wxPen(selectable_outline_color));
-	reg_line_selected = new MyPolyLine(0,100,0,100);
+	reg_line_selected = new GdaPolyLine(0,100,0,100);
 	reg_line_selected->setPen(*wxTRANSPARENT_PEN);
 	reg_line_selected->setBrush(*wxTRANSPARENT_BRUSH);
-	reg_line_excluded = new MyPolyLine(0,100,0,100);
+	reg_line_excluded = new GdaPolyLine(0,100,0,100);
 	reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
 	reg_line_excluded->setBrush(*wxTRANSPARENT_BRUSH);
 
@@ -762,10 +915,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	if (IsRegressionSelected()) UpdateRegSelectedLine();
 	if (IsRegressionExcluded()) UpdateRegExcludedLine();
 
-	chow_test_text = new MyText();
+	chow_test_text = new GdaShapeText();
 	chow_test_text->hidden = true;
 	foreground_shps.push_back(chow_test_text);
-	stats_table = new MyTable();
+	stats_table = new GdaShapeTable();
 	stats_table->hidden = true;
 	foreground_shps.push_back(stats_table);
 	if (!is_bubble_plot) {
@@ -783,12 +936,12 @@ void ScatterNewPlotCanvas::PopCanvPreResizeShpsHook()
 {
 }
 
-void ScatterNewPlotCanvas::TitleOrTimeChange()
+void ScatterNewPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering ScatterNewPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -819,26 +972,27 @@ void ScatterNewPlotCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting ScatterNewPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting ScatterNewPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void ScatterNewPlotCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) is_any_time_variant = true;
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
+	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
 		if (var_info[i].is_ref_variable) ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
@@ -866,10 +1020,11 @@ void ScatterNewPlotCanvas::VarInfoAttributeChange()
 			for (int i=0; i<num_obs; i++) z_data[tt][i] = data[2][t][i];
 		}
 	}
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
-/** Update Categories based on num_time_vals, num_cats and ref_var_index */
+/** Update Categories based on num_time_vals, num_categories and ref_var_index
+ */
 void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 {
 	cats_valid.resize(num_time_vals);
@@ -883,11 +1038,11 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 			CatClassification::ChangeNumCats(1, cat_classif_def);
 			cat_classif_def.color_scheme =
 				CatClassification::custom_color_scheme;
-			cat_classif_def.colors[0] = GeoDaConst::map_default_fill_colour;
+			cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		}
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0, GeoDaConst::map_default_fill_colour);
+			cat_data.SetCategoryColor(t, 0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
@@ -920,7 +1075,7 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Everything below assumes that GetCcType() != no_theme
-	std::vector<GeoDa::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
 	for (int t=0; t<num_time_vals; t++) {
 		// Note: need to be careful here: what about when a time variant
 		// variable is not synced with time?  time_min should reflect this,
@@ -937,37 +1092,12 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++) {
 		if (cats_valid[t]) { // only sort data with valid data
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
-					  GeoDa::dbl_int_pair_cmp_less);
-		}
-	}
-	
-	int num_cats = 1;
-	if (GetCcType() == CatClassification::quantile ||
-		GetCcType() == CatClassification::natural_breaks ||
-		GetCcType() == CatClassification::equal_intervals) {
-		// Need to ask user for number of categories
-		
-		wxString title;
-		if (GetCcType() == CatClassification::quantile) {
-			title = "Quantile";
-		} else if (GetCcType() == CatClassification::natural_breaks) {
-			title = "Natural Breaks";
-		} else if (GetCcType() == CatClassification::equal_intervals) {
-			title = "Equal Intervals";
-		}
-		
-		MapQuantileDlg dlg(this, 1, CatClassification::max_num_classes,
-						   4, title);
-		dlg.SetTitle(title);
-		if (dlg.ShowModal() != wxID_OK) {
-			num_cats = 4;
-		} else {
-			num_cats = dlg.classes;
+					  Gda::dbl_int_pair_cmp_less);
 		}
 	}
 	
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		CatClassification::ChangeNumCats(num_cats, cat_classif_def);
+		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
@@ -1166,6 +1296,7 @@ void ScatterNewPlotCanvas::ShowAxesThroughOrigin(bool show_origin_axes_s)
 	LOG_MSG("In ScatterNewPlotCanvas::ShowAxesThroughOrigin");
 	show_origin_axes = show_origin_axes_s;
 	UpdateAxesThroughOrigin();
+	Refresh();
 }
 
 void ScatterNewPlotCanvas::CalcStatsFromSelected()
@@ -1428,7 +1559,7 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 
 /** reg_line, slope, infinite_slope and regression_defined are all return
  values. */
-void ScatterNewPlotCanvas::CalcRegressionLine(MyPolyLine& reg_line,
+void ScatterNewPlotCanvas::CalcRegressionLine(GdaPolyLine& reg_line,
 											  double& slope,
 											  bool& infinite_slope,
 											  bool& regression_defined,
@@ -1500,7 +1631,7 @@ void ScatterNewPlotCanvas::CalcRegressionLine(MyPolyLine& reg_line,
 	reg_b.x = (reg_b.x - axis_scale_x.scale_min) * scaleX;
 	reg_b.y = (reg_b.y - axis_scale_y.scale_min) * scaleY;
 	
-	reg_line = MyPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
+	reg_line = GdaPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
 	cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
 											 reg_b.x, reg_b.y);
 	
@@ -1528,7 +1659,7 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		if (show_reg_excluded) rows++;
 		int cols = 10;
 		std::vector<wxString> vals(rows*cols);
-		std::vector<MyTable::CellAttrib> attributes(rows*cols);
+		std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
 		int i=0; int j=0;
 		for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 			attributes[k].color = *wxBLACK;
@@ -1594,11 +1725,11 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		}
 		int x_nudge = (virtual_screen_marg_left-virtual_screen_marg_right)/2;
 		
-		stats_table->operator=(MyTable(vals, attributes, rows, cols,
-									   *GeoDaConst::small_font,
+		stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
+									   *GdaConst::small_font,
 									   wxRealPoint(50, 0),
-									   MyText::h_center, MyText::top,
-									   MyText::h_center, MyText::v_center,
+									   GdaShapeText::h_center, GdaShapeText::top,
+									   GdaShapeText::h_center, GdaShapeText::v_center,
 									   3, 8, -x_nudge, 45)); //62));
 		stats_table->setPen(*wxBLACK_PEN);
 		stats_table->hidden = false;
@@ -1609,9 +1740,9 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 			stats_table->GetSize(dc, table_w, table_h);
 			ComputeChowTest();
 			wxString s = chow_test_text->getText();
-			chow_test_text->operator=(MyText(s, *GeoDaConst::small_font,
+			chow_test_text->operator=(GdaShapeText(s, *GdaConst::small_font,
 											 wxRealPoint(50,0), 0,
-											 MyText::h_center, MyText::v_center,
+											 GdaShapeText::h_center, GdaShapeText::v_center,
 											 -x_nudge,
 											 table_h+62)); //117));
 			chow_test_text->setPen(*wxBLACK_PEN);
@@ -1640,16 +1771,16 @@ void ScatterNewPlotCanvas::UpdateAxesThroughOrigin()
 		axis_scale_y.scale_min < 0 && 0 < axis_scale_y.scale_max) {
 		double y_inter = 100.0 * ((-axis_scale_y.scale_min) /
 			(axis_scale_y.scale_max-axis_scale_y.scale_min));
-		x_axis_through_origin->operator=(MyPolyLine(0,y_inter,100,y_inter));
-		x_axis_through_origin->setPen(*GeoDaConst::scatterplot_origin_axes_pen);
+		x_axis_through_origin->operator=(GdaPolyLine(0,y_inter,100,y_inter));
+		x_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
 		ApplyLastResizeToShp(x_axis_through_origin);
 	}
 	if (show_origin_axes &&
 		axis_scale_x.scale_min < 0 && 0 < axis_scale_x.scale_max) {
 		double x_inter = 100.0 * ((-axis_scale_x.scale_min) /
 			(axis_scale_x.scale_max-axis_scale_x.scale_min));
-		y_axis_through_origin->operator=(MyPolyLine(x_inter,0,x_inter,100));
-		y_axis_through_origin->setPen(*GeoDaConst::scatterplot_origin_axes_pen);
+		y_axis_through_origin->operator=(GdaPolyLine(x_inter,0,x_inter,100));
+		y_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
 		ApplyLastResizeToShp(y_axis_through_origin);
 	}
 	layer0_valid = false;
@@ -1883,16 +2014,25 @@ is_bubble_plot(is_bubble_plot_s)
 	
 	wxSplitterWindow* splitter_win = 0;
 	if (is_bubble_plot) {
-		splitter_win = new wxSplitterWindow(this);
+		splitter_win = new wxSplitterWindow(this,-1,
+                                            wxDefaultPosition, wxDefaultSize,
+                                            wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 		splitter_win->SetMinimumPaneSize(10);
 	}
-		
+	wxPanel* rpanel = NULL;
+    wxPanel* lpanel = NULL;
+    
 	if (is_bubble_plot) {
-		template_canvas = new ScatterNewPlotCanvas(splitter_win, this, project,
+        rpanel = new wxPanel(splitter_win);
+		template_canvas = new ScatterNewPlotCanvas(rpanel, this, project,
 												   var_info, col_ids,
 												   is_bubble_plot,
 												   false, wxDefaultPosition,
 												   wxSize(width,height));
+        wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+        rbox->Add(template_canvas, 1, wxEXPAND);
+        rpanel->SetSizer(rbox);
+        
 	} else {
 		template_canvas = new ScatterNewPlotCanvas(this, this, project,
 												   var_info, col_ids,
@@ -1905,12 +2045,18 @@ is_bubble_plot(is_bubble_plot_s)
 	SetTitle(template_canvas->GetCanvasTitle());
 	
 	if (is_bubble_plot) {
-		template_legend = new ScatterNewPlotLegend(splitter_win,
+        lpanel = new wxPanel(splitter_win);
+		template_legend = new ScatterNewPlotLegend(lpanel,
 												   template_canvas,
 												   wxPoint(0,0), wxSize(0,0));
 		
-		splitter_win->SplitVertically(template_legend, template_canvas,
-								GeoDaConst::bubble_chart_default_legend_width);
+		splitter_win->SplitVertically(lpanel, rpanel,
+								GdaConst::bubble_chart_default_legend_width);
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+        SetSizer(sizer);
+        splitter_win->SetSize(wxSize(width,height));
+        SetAutoLayout(true);
 	}
 	
 	Show(true);
@@ -1936,7 +2082,7 @@ void ScatterNewPlotFrame::OnActivate(wxActivateEvent& event)
 void ScatterNewPlotFrame::MapMenus()
 {
 	LOG_MSG("In ScatterNewPlotFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
 	if (is_bubble_plot) {
@@ -1958,7 +2104,7 @@ void ScatterNewPlotFrame::MapMenus()
 void ScatterNewPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("ScatterNewPlotFrame::UpdateOptionMenuItems: Options "
@@ -1979,18 +2125,13 @@ void ScatterNewPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void ScatterNewPlotFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void ScatterNewPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In ScatterNewPlotFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In ScatterNewPlotFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
 	if (template_legend) template_legend->Refresh();
-}
-
-void ScatterNewPlotFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void ScatterNewPlotFrame::OnViewStandardizedData(wxCommandEvent& event)
@@ -2004,6 +2145,22 @@ void ScatterNewPlotFrame::OnViewOriginalData(wxCommandEvent& event)
 {
 	LOG_MSG("In ScatterNewPlotFrame::OnViewOriginalData");
 	((ScatterNewPlotCanvas*) template_canvas)->ViewOriginalData();
+	UpdateOptionMenuItems();
+}
+
+void ScatterNewPlotFrame::OnViewRegimesRegression(wxCommandEvent& event)
+{
+	LOG_MSG("In ScatterNewPlotFrame::OnViewRegimesRegression");
+	ScatterNewPlotCanvas* t = (ScatterNewPlotCanvas*) template_canvas;
+	bool r_sel = t->IsRegressionSelected();
+	bool r_exl = t->IsRegressionExcluded();
+	if (!r_sel || !r_exl) {
+		t->ViewRegressionSelected(true);
+		t->ViewRegressionSelectedExcluded(true);
+	} else {
+		t->ViewRegressionSelected(false);
+		t->ViewRegressionSelectedExcluded(false);
+	}
 	UpdateOptionMenuItems();
 }
 
@@ -2047,68 +2204,70 @@ void ScatterNewPlotFrame::OnNewCustomCatClassifA()
 
 void ScatterNewPlotFrame::OnCustomCatClassifA(const wxString& cc_title)
 {
-	ChangeThemeType(CatClassification::custom, cc_title);
+	ChangeThemeType(CatClassification::custom, 4, cc_title);
 }
 
-void ScatterNewPlotFrame::OnThemeless(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnThemeless()
 {
-	ChangeThemeType(CatClassification::no_theme);
+	ChangeThemeType(CatClassification::no_theme, 1);
 }
 
-void ScatterNewPlotFrame::OnHinge15(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnHinge15()
 {
-	ChangeThemeType(CatClassification::hinge_15);
+	ChangeThemeType(CatClassification::hinge_15, 6);
 }
 
-void ScatterNewPlotFrame::OnHinge30(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnHinge30()
 {
-	ChangeThemeType(CatClassification::hinge_30);
+	ChangeThemeType(CatClassification::hinge_30, 6);
 }
 
-void ScatterNewPlotFrame::OnQuantile(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnQuantile(int num_cats)
 {
-	ChangeThemeType(CatClassification::quantile);
+	ChangeThemeType(CatClassification::quantile, num_cats);
 }
 
-void ScatterNewPlotFrame::OnPercentile(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnPercentile()
 {
-	ChangeThemeType(CatClassification::percentile);
+	ChangeThemeType(CatClassification::percentile, 6);
 }
 
-void ScatterNewPlotFrame::OnStdDevMap(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnStdDevMap()
 {
-	ChangeThemeType(CatClassification::stddev);
+	ChangeThemeType(CatClassification::stddev, 6);
 }
 
-void ScatterNewPlotFrame::OnUniqueValues(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnUniqueValues()
 {
-	ChangeThemeType(CatClassification::unique_values);
+	ChangeThemeType(CatClassification::unique_values, 6);
 }
 
-void ScatterNewPlotFrame::OnNaturalBreaks(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnNaturalBreaks(int num_cats)
 {
-	ChangeThemeType(CatClassification::natural_breaks);
+	ChangeThemeType(CatClassification::natural_breaks, num_cats);
 }
 
-void ScatterNewPlotFrame::OnEqualIntervals(wxCommandEvent& event)
+void ScatterNewPlotFrame::OnEqualIntervals(int num_cats)
 {
-	ChangeThemeType(CatClassification::equal_intervals);
+	ChangeThemeType(CatClassification::equal_intervals, num_cats);
+}
+
+void ScatterNewPlotFrame::OnSaveCategories()
+{
+	((ScatterNewPlotCanvas*) template_canvas)->OnSaveCategories();
 }
 
 void ScatterNewPlotFrame::ChangeThemeType(
 								CatClassification::CatClassifType new_theme,
+								int num_categories,
 								const wxString& custom_classif_title)
 {
 	((ScatterNewPlotCanvas*) template_canvas)->
-		ChangeThemeType(new_theme, custom_classif_title);
+		ChangeThemeType(new_theme, num_categories, custom_classif_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
 	if (template_legend) template_legend->Refresh();
 }
 
-void ScatterNewPlotFrame::OnSaveCategories(wxCommandEvent& event)
-{
-	((ScatterNewPlotCanvas*) template_canvas)->OnSaveCategories();
-}
 
 

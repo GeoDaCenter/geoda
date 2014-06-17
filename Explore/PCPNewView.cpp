@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -32,10 +32,10 @@
 #include <wx/xrc/xmlres.h>
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
-#include "../DialogTools/MapQuantileDlg.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -60,20 +60,20 @@ PCPNewCanvas::PCPNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), num_vars(v_info.size()),
 data(v_info.size()),
-highlight_state(project_s->highlight_state), custom_classif_state(0),
+highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
-num_cats(6), remember_num_cats(true), all_init(false)
+num_categories(6), all_init(false)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering PCPNewCanvas::PCPNewCanvas");
 	template_frame = t_frame;	
-	DbfGridTableBase* grid_base = project->GetGridBase();
+	TableInterface* table_int = project->GetTableInt();
 
 	LOG(var_info.size());
 	
-	//std::vector< std::vector<GeoDa::dbl_int_pair_vec_type> > data_sorted;
+	//std::vector< std::vector<Gda::dbl_int_pair_vec_type> > data_sorted;
 	//std::vector< std::vector<HingeStats> > hinge_stats;
 	//data_sorted.resize(v_info.size());
 	//hinge_stats.resize(v_info.size());
@@ -81,7 +81,7 @@ num_cats(6), remember_num_cats(true), all_init(false)
 	
 	std::vector<double> temp_vec(num_obs);
 	for (int v=0; v<num_vars; v++) {
-		grid_base->GetColData(col_ids[v], data[v]);
+		table_int->GetColData(col_ids[v], data[v]);
 		int data_times = data[v].shape()[0];
 		data_stats[v].resize(data_times);
 		//hinge_stats[v].resize(data_times);
@@ -95,7 +95,7 @@ num_cats(6), remember_num_cats(true), all_init(false)
 			}
 			//std::sort(data_sorted[v][t].begin(),
 			//		  data_sorted[v][t].end(),
-			//		  GeoDa::dbl_int_pair_cmp_less);
+			//		  Gda::dbl_int_pair_cmp_less);
 			//hinge_stats[v][t].CalculateHingeStats(data_sorted[v][t]);
 			data_stats[v][t].CalculateFromSample(temp_vec);
 			double min = data_stats[v][t].min;
@@ -118,6 +118,11 @@ num_cats(6), remember_num_cats(true), all_init(false)
 		}
 	}
 	
+	template_frame->ClearAllGroupDependencies();
+	for (int i=0, sz=var_info.size(); i<sz; ++i) {
+		template_frame->AddGroupDependancy(var_info[i].name);
+	}
+	
 	control_labels.resize(num_vars);
 	control_circs.resize(num_vars);
 	control_lines.resize(num_vars);
@@ -135,15 +140,15 @@ num_cats(6), remember_num_cats(true), all_init(false)
 	}
 	 */
 	
-	selectable_fill_color = GeoDaConst::pcp_line_color;
-	//highlight_color = GeoDaConst::highlight_color;
+	selectable_fill_color = GdaConst::pcp_line_color;
+	//highlight_color = GdaConst::highlight_color;
 	highlight_color = wxColour(68, 244, 136); // light mint green
 	
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = true;
 	selectable_shps_type = polylines;
 	
-	ChangeThemeType(CatClassification::stddev);
+	ChangeThemeType(CatClassification::stddev, 6);
 	
 	/*
 	VarInfoAttributeChange();
@@ -160,6 +165,9 @@ num_cats(6), remember_num_cats(true), all_init(false)
 	*/
 	
 	all_init = true;
+	
+	DisplayStatistics(true);
+	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 	LOG_MSG("Exiting PCPNewCanvas::PCPNewCanvas");
@@ -176,6 +184,10 @@ PCPNewCanvas::~PCPNewCanvas()
 void PCPNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering PCPNewCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((PCPNewFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS");
@@ -194,12 +206,12 @@ void PCPNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-			menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -210,7 +222,7 @@ void PCPNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Fixed scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	 */
@@ -239,9 +251,39 @@ void PCPNewCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);	
-	GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_MAPANALYSIS_CHOROPLETH_QUANTILE"),
-								  GetCcType() == CatClassification::quantile);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 10);
+	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 								  GetCcType() == CatClassification::percentile);
@@ -254,17 +296,96 @@ void PCPNewCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_EQUAL_INTERVALS"),
-								  GetCcType() ==CatClassification::equal_intervals);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_NATURAL_BREAKS"),
-								  GetCcType() == CatClassification::natural_breaks);
+    // since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 10);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 10);
 	
 	//if (var_info[0].is_time_variant) {
 	//	GeneralWxUtils::CheckMenuItem(menu,
-	//								  GeoDaConst::ID_TIME_SYNC_VAR1,
+	//								  GdaConst::ID_TIME_SYNC_VAR1,
 	//								  var_info[0].sync_with_global_time);
 	//	GeneralWxUtils::CheckMenuItem(menu,
-	//								  GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
+	//								  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 	//								  var_info[0].fixed_scale);
 	//}
 }
@@ -312,10 +433,10 @@ wxString PCPNewCanvas::GetCategoriesTitle()
 
 wxString PCPNewCanvas::GetNameWithTime(int var)
 {
-	if (var < 0 || var >= var_info.size()) return wxEmptyString;
+	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -326,7 +447,7 @@ void PCPNewCanvas::NewCustomCatClassif()
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		GeoDa::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[theme_var].is_time_variant ? t : 0;
@@ -337,12 +458,14 @@ void PCPNewCanvas::NewCustomCatClassif()
 		 // only sort data with valid data
 		if (cats_valid[var_info[theme_var].time]) {
 			std::sort(cat_var_sorted.begin(), cat_var_sorted.end(),
-					  GeoDa::dbl_int_pair_cmp_less);
+					  Gda::dbl_int_pair_cmp_less);
 		}
 		
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
 										 cat_classif_def);
+		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
+										  temp_cat_labels,
 										  cat_var_sorted,
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
@@ -351,9 +474,13 @@ void PCPNewCanvas::NewCustomCatClassif()
 			cat_classif_def.colors[i] = cat_data.GetCategoryColor(time, i);
 			cat_classif_def.names[i] = cat_data.GetCategoryLabel(time, i);
 		}
+		int col = project->GetTableInt()->FindColId(var_info[theme_var].name);
+		int tm = var_info[theme_var].time;
+		cat_classif_def.assoc_db_fld_name = 
+			project->GetTableInt()->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = MyFrame::theFrame->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[0].name, var_info[0].time);
@@ -380,8 +507,11 @@ void PCPNewCanvas::NewCustomCatClassif()
  category classification. */
 void PCPNewCanvas::ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
+						int num_categories_s,
 						const wxString& custom_classif_title)
 {
+	num_categories = num_categories_s;
+	
 	if (new_cat_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
 		if (!ccm) return;
@@ -440,11 +570,11 @@ void PCPNewCanvas::OnSaveCategories()
 void PCPNewCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering PCPNewCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
 	double x_min = 0;
@@ -473,7 +603,7 @@ void PCPNewCanvas::PopulateCanvas()
 	
 	wxSize size(GetVirtualSize());
 	double scale_x, scale_y, trans_x, trans_y;
-	MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 								   shps_orig_xmax, shps_orig_ymax,
 								   virtual_screen_marg_top,
 								   virtual_screen_marg_bottom,
@@ -489,7 +619,7 @@ void PCPNewCanvas::PopulateCanvas()
 	
 	selectable_shps.resize(num_obs);
 	
-	MyShape* s = 0;
+	GdaShape* s = 0;
 	wxRealPoint* pts = new wxRealPoint[num_vars];
 	double std_fact = 1;
 	if (overall_abs_max_std_exists) std_fact = 100.0/(2.0*overall_abs_max_std);
@@ -515,33 +645,33 @@ void PCPNewCanvas::PopulateCanvas()
 			}
 			pts[v].y = 100.0-(nvf*((double) v));
 		}
-		selectable_shps[i] = new MyPolyLine(num_vars, pts);
+		selectable_shps[i] = new GdaPolyLine(num_vars, pts);
 	}
-	wxPen control_line_pen(GeoDaConst::pcp_horiz_line_color);
+	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
 	control_line_pen.SetWidth(2);
 	for (int v=0; v<num_vars; v++) {
 		int y_del = display_stats ? -8 : 0;
 		int vv = var_order[v];
 		int t = var_info[vv].time;
 		double y_pos = 100.0-(nvf*((double) v));
-		s = new MyPolyLine(0, y_pos, 100, y_pos);
+		s = new GdaPolyLine(0, y_pos, 100, y_pos);
 		s->setPen(control_line_pen);
 		background_shps.push_back(s);
-		control_lines[v] = (MyPolyLine*) s;
-		s = new MyRay(wxRealPoint(0, y_pos), 180, 10);
+		control_lines[v] = (GdaPolyLine*) s;
+		s = new GdaRay(wxRealPoint(0, y_pos), 180, 10);
 		s->setPen(control_line_pen);
 		background_shps.push_back(s);
-		s = new MyCircle(wxRealPoint(0, y_pos), 3.0);
+		s = new GdaCircle(wxRealPoint(0, y_pos), 3.0);
 		s->setNudge(-10, 0);
 		s->setPen(control_line_pen);
 		s->setBrush(*wxWHITE_BRUSH);
 		background_shps.push_back(s);
-		control_circs[v] = (MyCircle*) s;
-		s = new MyText(GetNameWithTime(vv), *GeoDaConst::small_font,
-					   wxRealPoint(0, y_pos), 0, MyText::right,
-					   MyText::v_center, -25, 0+y_del);
+		control_circs[v] = (GdaCircle*) s;
+		s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
+					   wxRealPoint(0, y_pos), 0, GdaShapeText::right,
+					   GdaShapeText::v_center, -25, 0+y_del);
 		background_shps.push_back(s);
-		control_labels[v] = (MyText*) s;
+		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
 		double t_min = data_stats[vv][t].min;
 		double t_max = data_stats[vv][t].max;
@@ -565,8 +695,8 @@ void PCPNewCanvas::PopulateCanvas()
 		if (display_stats) {
 			m << "[" << GenUtils::DblToStr(t_min, 4);
 			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
-			s = new MyText(m, *GeoDaConst::small_font, wxRealPoint(0, y_pos), 0,
-						   MyText::right, MyText::v_center, -25, 15+y_del);
+			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
+						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
 			background_shps.push_back(s);
 			int cols = 2;
 			int rows = 2;
@@ -575,10 +705,10 @@ void PCPNewCanvas::PopulateCanvas()
 			vals[1] << GenUtils::DblToStr(t_mean, 4);
 			vals[2] << "s.d.";
 			vals[3] << GenUtils::DblToStr(t_sd, 4);
-			std::vector<MyTable::CellAttrib> attribs(0); // undefined
-			s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
-							wxRealPoint(0, y_pos), MyText::right,
-							MyText::top, MyText::right, MyText::v_center,
+			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+							wxRealPoint(0, y_pos), GdaShapeText::right,
+							GdaShapeText::top, GdaShapeText::right, GdaShapeText::v_center,
 							3, 7, -25, 25+y_del);
 			background_shps.push_back(s);
 		}
@@ -586,12 +716,12 @@ void PCPNewCanvas::PopulateCanvas()
 	if (standardized) {
 		// add dotted lines and labels for sd and mean
 		// add dotted line for mean in center
-		s = new MyPolyLine(50, 0, 50, 100);
-		s->setPen(*GeoDaConst::scatterplot_origin_axes_pen);
+		s = new GdaPolyLine(50, 0, 50, 100);
+		s->setPen(*GdaConst::scatterplot_origin_axes_pen);
 		background_shps.push_back(s);
-		s = new MyText(wxString::Format("%d", 0),
-					   *GeoDaConst::small_font, wxRealPoint(50, 0), 0,
-					   MyText::h_center, MyText::v_center, 0, 12);
+		s = new GdaShapeText(wxString::Format("%d", 0),
+					   *GdaConst::small_font, wxRealPoint(50, 0), 0,
+					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
 		background_shps.push_back(s);
 		int sd_abs = overall_abs_max_std;
 		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
@@ -601,19 +731,19 @@ void PCPNewCanvas::PopulateCanvas()
 			double sd_m = (double) -i;
 			sd_m += overall_abs_max_std;
 			sd_m *= std_fact;
-			s = new MyPolyLine(sd_p, 0, sd_p, 100);
-			s->setPen(*GeoDaConst::scatterplot_origin_axes_pen);
+			s = new GdaPolyLine(sd_p, 0, sd_p, 100);
+			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
 			background_shps.push_back(s);
-			s = new MyText(wxString::Format("%d", i),
-						   *GeoDaConst::small_font, wxRealPoint(sd_p, 0), 0,
-						   MyText::h_center, MyText::v_center, 0, 12);
+			s = new GdaShapeText(wxString::Format("%d", i),
+						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
+						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
 			background_shps.push_back(s);
-			s = new MyPolyLine(sd_m, 0, sd_m, 100);
-			s->setPen(*GeoDaConst::scatterplot_origin_axes_pen);
+			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
+			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
 			background_shps.push_back(s);
-			s = new MyText(wxString::Format("%d", -i),
-						   *GeoDaConst::small_font, wxRealPoint(sd_m, 0), 0,
-						   MyText::h_center, MyText::v_center, 0, 12);
+			s = new GdaShapeText(wxString::Format("%d", -i),
+						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
+						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
 			background_shps.push_back(s);
 		}
 	}
@@ -625,12 +755,12 @@ void PCPNewCanvas::PopulateCanvas()
 	LOG_MSG("Exiting PCPNewCanvas::PopulateCanvas");
 }
 
-void PCPNewCanvas::TitleOrTimeChange()
+void PCPNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering PCPNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering PCPNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -655,26 +785,27 @@ void PCPNewCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting PCPNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting PCPNewCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void PCPNewCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) is_any_time_variant = true;
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
+	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
 		if (var_info[i].is_ref_variable) ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
@@ -682,10 +813,10 @@ void PCPNewCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
-/** Update Categories based on num_time_vals, num_cats and ref_var_index */
+/** Update Categories based on num_time_vals, num_categories and ref_var_index */
 void PCPNewCanvas::CreateAndUpdateCategories()
 {
 	cats_valid.resize(num_time_vals);
@@ -697,10 +828,10 @@ void PCPNewCanvas::CreateAndUpdateCategories()
 		// 1 = #cats
 		CatClassification::ChangeNumCats(1, cat_classif_def);
 		cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-		cat_classif_def.colors[0] = GeoDaConst::map_default_fill_colour;
+		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0,GeoDaConst::map_default_fill_colour);
+			cat_data.SetCategoryColor(t, 0,GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
@@ -713,7 +844,7 @@ void PCPNewCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Everything below assumes that GetCcType() != no_theme
-	std::vector<GeoDa::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
 	for (int t=0; t<num_time_vals; t++) {
 		// Note: need to be careful here: what about when a time variant
 		// variable is not synced with time?  time_min should reflect this,
@@ -731,38 +862,12 @@ void PCPNewCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++) {
 		if (cats_valid[t]) { // only sort data with valid data
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
-					  GeoDa::dbl_int_pair_cmp_less);
-		}
-	}
-	
-	if (!remember_num_cats &&
-		(GetCcType() == CatClassification::quantile ||
-		 GetCcType() == CatClassification::natural_breaks ||
-		 GetCcType() == CatClassification::equal_intervals)) {
-		// Need to ask user for number of categories
-		
-		wxString title;
-		if (GetCcType() == CatClassification::quantile) {
-			title = "Quantile";
-		} else if (GetCcType() == CatClassification::natural_breaks) {
-			title = "Natural Breaks";
-		} else if (GetCcType() == CatClassification::equal_intervals) {
-			title = "Equal Intervals";
-		}
-		
-		MapQuantileDlg dlg(this, 1, CatClassification::max_num_classes,
-						   4, title);
-		dlg.SetTitle(title);
-		if (dlg.ShowModal() != wxID_OK) {
-			num_cats = 4;
-		} else {
-			num_cats = dlg.classes;
-			remember_num_cats = true;
+					  Gda::dbl_int_pair_cmp_less);
 		}
 	}
 	
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		CatClassification::ChangeNumCats(num_cats, cat_classif_def);
+		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
@@ -971,7 +1076,7 @@ void PCPNewCanvas::VarLabelClicked()
 	msg << GetNameWithTime(v);
 	LOG_MSG(msg);
 	theme_var = v;
-	ChangeThemeType(GetCcType());
+	ChangeThemeType(GetCcType(), GetNumCats());
 	TemplateLegend* tl = template_frame->GetTemplateLegend();
 	if (tl) tl->Refresh();
 }
@@ -1116,7 +1221,6 @@ PCPNewLegend::~PCPNewLegend()
     LOG_MSG("In PCPNewLegend::~PCPNewLegend");
 }
 
-
 IMPLEMENT_CLASS(PCPNewFrame, TemplateFrame)
 	BEGIN_EVENT_TABLE(PCPNewFrame, TemplateFrame)
 	EVT_ACTIVATE(PCPNewFrame::OnActivate)
@@ -1137,25 +1241,40 @@ PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
 	GetClientSize(&width, &height);
 
 	wxSplitterWindow* splitter_win = 0;
-	splitter_win = new wxSplitterWindow(this);
+	splitter_win = new wxSplitterWindow(this,-1,
+                                        wxDefaultPosition, wxDefaultSize,
+                                        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
-	template_canvas = new PCPNewCanvas(splitter_win, this, project,
+    wxPanel* rpanel = new wxPanel(splitter_win);
+	template_canvas = new PCPNewCanvas(rpanel, this, project,
 									   var_info, col_ids,
 									   wxDefaultPosition,
 									   wxSize(width,height));
 
 	template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
+    
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	
-	template_legend = new PCPNewLegend(splitter_win,
-									   template_canvas,
+    wxPanel* lpanel = new wxPanel(splitter_win);
+	template_legend = new PCPNewLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
+	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+	splitter_win->SplitVertically(lpanel, rpanel,
+								GdaConst::bubble_chart_default_legend_width);
 	
-	splitter_win->SplitVertically(template_legend, template_canvas,
-								GeoDaConst::bubble_chart_default_legend_width);
-	
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
 	Show(true);
 	LOG_MSG("Exiting PCPNewFrame::PCPNewFrame");
 }
@@ -1179,7 +1298,7 @@ void PCPNewFrame::OnActivate(wxActivateEvent& event)
 void PCPNewFrame::MapMenus()
 {
 	LOG_MSG("In PCPNewFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS");
@@ -1195,7 +1314,7 @@ void PCPNewFrame::MapMenus()
 void PCPNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("PCPNewFrame::UpdateOptionMenuItems: Options "
@@ -1215,17 +1334,12 @@ void PCPNewFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void PCPNewFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void PCPNewFrame::update(TimeState* o)
 {
-	LOG_MSG("In PCPNewFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In PCPNewFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
-}
-
-void PCPNewFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void PCPNewFrame::OnNewCustomCatClassifA()
@@ -1235,7 +1349,7 @@ void PCPNewFrame::OnNewCustomCatClassifA()
 
 void PCPNewFrame::OnCustomCatClassifA(const wxString& cc_title)
 {
-	ChangeThemeType(CatClassification::custom, cc_title);
+	ChangeThemeType(CatClassification::custom, 4, cc_title);
 }
 
 void PCPNewFrame::OnShowAxes(wxCommandEvent& event)
@@ -1270,65 +1384,67 @@ void PCPNewFrame::OnViewStandardizedData(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::OnThemeless(wxCommandEvent& event)
+void PCPNewFrame::OnThemeless()
 {
-	ChangeThemeType(CatClassification::no_theme);
+	ChangeThemeType(CatClassification::no_theme, 1);
 }
 
-void PCPNewFrame::OnHinge15(wxCommandEvent& event)
+void PCPNewFrame::OnHinge15()
 {
-	ChangeThemeType(CatClassification::hinge_15);
+	ChangeThemeType(CatClassification::hinge_15, 6);
 }
 
-void PCPNewFrame::OnHinge30(wxCommandEvent& event)
+void PCPNewFrame::OnHinge30()
 {
-	ChangeThemeType(CatClassification::hinge_30);
+	ChangeThemeType(CatClassification::hinge_30, 6);
 }
 
-void PCPNewFrame::OnQuantile(wxCommandEvent& event)
+void PCPNewFrame::OnQuantile(int num_cats)
 {
-	ChangeThemeType(CatClassification::quantile);
+	ChangeThemeType(CatClassification::quantile, num_cats);
 }
 
-void PCPNewFrame::OnPercentile(wxCommandEvent& event)
+void PCPNewFrame::OnPercentile()
 {
-	ChangeThemeType(CatClassification::percentile);
+	ChangeThemeType(CatClassification::percentile, 6);
 }
 
-void PCPNewFrame::OnStdDevMap(wxCommandEvent& event)
+void PCPNewFrame::OnStdDevMap()
 {
-	ChangeThemeType(CatClassification::stddev);
+	ChangeThemeType(CatClassification::stddev, 6);
 }
 
-void PCPNewFrame::OnUniqueValues(wxCommandEvent& event)
+void PCPNewFrame::OnUniqueValues()
 {
-	ChangeThemeType(CatClassification::unique_values);
+	ChangeThemeType(CatClassification::unique_values, 6);
 }
 
-void PCPNewFrame::OnNaturalBreaks(wxCommandEvent& event)
+void PCPNewFrame::OnNaturalBreaks(int num_cats)
 {
-	ChangeThemeType(CatClassification::natural_breaks);
+	ChangeThemeType(CatClassification::natural_breaks, num_cats);
 }
 
-void PCPNewFrame::OnEqualIntervals(wxCommandEvent& event)
+void PCPNewFrame::OnEqualIntervals(int num_cats)
 {
-	ChangeThemeType(CatClassification::equal_intervals);
+	ChangeThemeType(CatClassification::equal_intervals, num_cats);
+}
+
+void PCPNewFrame::OnSaveCategories()
+{
+	((PCPNewCanvas*) template_canvas)->OnSaveCategories();
 }
 
 void PCPNewFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
+								  int num_categories,
 								  const wxString& custom_classif_title)
 {
-	((PCPNewCanvas*) template_canvas)->ForgetNumCats();
 	((PCPNewCanvas*) template_canvas)->ChangeThemeType(new_theme,
+													   num_categories,
 													   custom_classif_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
 	if (template_legend) template_legend->Refresh();
 }
 
-void PCPNewFrame::OnSaveCategories(wxCommandEvent& event)
-{
-	((PCPNewCanvas*) template_canvas)->OnSaveCategories();
-}
 
 

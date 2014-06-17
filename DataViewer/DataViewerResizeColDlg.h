@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,13 +23,13 @@
 #include <wx/grid.h>
 #include <wx/textctrl.h>
 #include <wx/dialog.h>
-#include "DbfGridTableBase.h"
+#include "TableInterface.h"
 
 class DataViewerResizeColDlg: public wxDialog
 {
 public:
     DataViewerResizeColDlg(wxGrid* grid,
-						   DbfGridTableBase* grid_base,
+						   TableInterface* table_int,
 						   wxWindow* parent );
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
@@ -38,7 +38,7 @@ public:
 	wxTextCtrl* m_col_width;
 	int width;
 	wxGrid* grid;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	
 	
 private:

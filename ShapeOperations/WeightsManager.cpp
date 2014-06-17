@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,20 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/foreach.hpp>
 #include <wx/msgdlg.h>
 #include "../DialogTools/ProgressDlg.h"
 #include "../GenUtils.h"
+#include "../DataViewer/TableInterface.h"
 #include "GalWeight.h"
 #include "GwtWeight.h"
 #include "WeightsManager.h"
+#include "../Project.h"
+#include "../SaveButtonManager.h"
 #include "../logger.h"
 
-const int MAX_OPEN_WEIGHTS = 30;
+const int MAX_OPEN_WEIGHTS = 50;
 
-WeightsManager::WeightsManager(int obs)
-: observations(obs), current_weight(-1), num_weights(0),
-is_default_weight_set(false),
-weights(MAX_OPEN_WEIGHTS)
+WeightsManager::WeightsManager(Project* _project)
+: observations(_project->GetNumRecords()), current_weight(-1), num_weights(0),
+is_default_weight_set(false), weights(MAX_OPEN_WEIGHTS), project(_project)
 {
 }
 
@@ -49,6 +52,58 @@ bool WeightsManager::clean()
 	current_weight = -1;
 	num_weights = 0;
 	return true;
+}
+
+void WeightsManager::InitFromMetaInfo(std::list<WeightsMetaInfo> wmi_list,
+									  TableInterface* table_int)
+{
+	// Reorder so that if a default value exists, it gets added last
+	WeightsMetaInfo default_item;
+	bool default_found = false;
+	
+	std::list<WeightsMetaInfo> new_list;
+	BOOST_FOREACH(const WeightsMetaInfo& wmi, wmi_list) {
+		if (!default_found && wmi.is_default) {
+			default_item = wmi;
+			default_found = true;
+		} else {
+			new_list.push_back(wmi);
+		}
+	}
+	if (default_found) new_list.push_back(default_item);
+	
+	BOOST_FOREACH(const WeightsMetaInfo& wmi, new_list) {
+		if (num_weights >= MAX_OPEN_WEIGHTS) return;
+		wxFileName t_fn(wmi.filename);
+		wxString ext = t_fn.GetExt().Lower();
+		if (ext != "gal" && ext != "gwt") {
+			LOG_MSG("File extention not gal or gwt");
+		} else {
+			if (ext == "gal") {
+				GalElement* tempGal=WeightUtils::ReadGal(wmi.filename,
+														 table_int);
+				if (tempGal != 0) {
+					GalWeight* w = new GalWeight();
+					w->num_obs = observations;
+					w->wflnm = wmi.filename;
+					w->title = wmi.title;
+					w->gal = tempGal;
+					if (!AddWeightFile(w, wmi.is_default)) delete w;
+				}
+			} else { // ext == "gwt"
+				GalElement* tempGal=WeightUtils::ReadGwtAsGal(wmi.filename,
+															  table_int);
+				if (tempGal != 0) {
+					GalWeight* w = new GalWeight();
+					w->num_obs = observations;
+					w->wflnm = wmi.filename;
+					w->title = wmi.title;
+					w->gal = tempGal;
+					if (!AddWeightFile(w, wmi.is_default)) delete w;
+				}
+			}
+		}
+	}
 }
 
 bool WeightsManager::AddWeightFile(GeoDaWeight* weight, bool set_as_default)
@@ -75,6 +130,9 @@ bool WeightsManager::AddWeightFile(GeoDaWeight* weight, bool set_as_default)
 		weights.at(num_weights) = weight;
 		current_weight = num_weights;
 		num_weights++;
+		if (project->GetSaveButtonManager()) {
+			project->GetSaveButtonManager()->SetMetaDataSaveNeeded(true);
+		}
 	} else {
 		wxMessageBox(wxString::Format("Error: Can't open more than %d weight "
 									  "files.", MAX_OPEN_WEIGHTS));
@@ -135,6 +193,14 @@ wxString WeightsManager::GetWFilename(int pos)
 	return w->wflnm;
 }
 
+wxString WeightsManager::GetWTitle(int pos)
+{
+	if ((pos < 0) || (pos >= num_weights)) return wxEmptyString;
+	GeoDaWeight* w = weights.at(pos);
+	if (!w) return wxEmptyString;
+	return w->GetTitle();
+}
+
 bool WeightsManager::SetCurrWeightInd(int pos)
 {
 	if ((pos < 0) || (pos >= num_weights)) return false;
@@ -147,9 +213,9 @@ wxString WeightsManager::GetCurrWFilename()
 	return GetWFilename(current_weight);
 }
 
-wxString WeightsManager::GetCurrWeightTitle()
+wxString WeightsManager::GetCurrWTitle()
 {
-	return GenUtils::GetFileName(GetCurrWFilename());
+	return GetWTitle(current_weight);
 }
 
 bool WeightsManager::IsWSymmetric(int pos)

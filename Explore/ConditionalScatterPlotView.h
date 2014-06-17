@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,7 @@ class ConditionalScatterPlotCanvas;
 
 typedef boost::multi_array<SampleStatistics, 2> stats_array_type;
 typedef boost::multi_array<SimpleLinearRegression, 2> slr_array_type;
-typedef boost::multi_array<MyPolyLine, 2> polyline_array_type;
+typedef boost::multi_array<GdaPolyLine, 2> polyline_array_type;
 
 class ConditionalScatterPlotCanvas : public ConditionalNewCanvas {
 	DECLARE_CLASS(ConditionalScatterPlotCanvas)
@@ -54,7 +54,7 @@ protected:
 	virtual void CalcCellsRegression();
 	
 public:
-	static void CalcRegressionLine(MyPolyLine& reg_line, double& slope,
+	static void CalcRegressionLine(GdaPolyLine& reg_line, double& slope,
 								   bool& infinite_slope,
 								   bool& regression_defined,
 								   wxRealPoint& reg_a, wxRealPoint& reg_b,
@@ -118,10 +118,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	void OnDisplayAxesScaleValues(wxCommandEvent& event);
 	void OnDisplaySlopeValues(wxCommandEvent& event);

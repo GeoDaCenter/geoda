@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,7 @@
 class ConditionalMapFrame;
 class ConditionalMapCanvas;
 class ConditionalMapLegend;
-class DbfGridTableBase;
+class TableInterface;
 
 class ConditionalMapCanvas : public ConditionalNewCanvas {
 	DECLARE_CLASS(ConditionalMapCanvas)
@@ -46,33 +46,39 @@ public:
 	virtual void NewCustomCatClassifMap();
 	virtual void ChangeCatThemeType(
 						CatClassification::CatClassifType new_theme,
-						bool prompt_num_cats = true,
+						int num_categories,
 						const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
 	virtual void DrawLayer0();
-	
+	virtual void ZoomShapes(bool is_zoomin = true);
+	virtual void OnMouseEvent(wxMouseEvent& event);
+	virtual void OnScrollChanged(wxScrollWinEvent& event);
+	virtual void OnPaint(wxPaintEvent& event);
+	virtual void OnSize(wxSizeEvent& event);
+    
 protected:
 	virtual void PopulateCanvas();
 	
 public:
-	virtual void CreateAndUpdateCategories(bool prompt_num_cats = true);
+	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
 	
 	CatClassifDef cat_classif_def_map;
 	CatClassification::CatClassifType GetCatType();
 	void SetCatType(CatClassification::CatClassifType cc_type);
+	int GetNumCats() { return num_categories; }
 
 protected:
 	CatClassifState* cc_state_map;
-	int num_cats; // current number of categories
-	std::vector<GeoDa::dbl_int_pair_vec_type> cat_var_sorted;
+	int num_categories; // current number of categories
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	std::vector<bool> map_valid;
 	std::vector<wxString> map_error_message;
 	
@@ -114,27 +120,26 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 
-	void OnThemeless(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
-	void OnPercentile(wxCommandEvent& event);
-	void OnHinge15(wxCommandEvent& event);
-	void OnHinge30(wxCommandEvent& event);
-	void OnStdDevMap(wxCommandEvent& event);
-	void OnUniqueValues(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
-	void OnSaveCategories(wxCommandEvent& event);
+	virtual void OnThemeless();
+	virtual void OnQuantile(int num_cats);
+	virtual void OnPercentile();
+	virtual void OnHinge15();
+	virtual void OnHinge30();
+	virtual void OnStdDevMap();
+	virtual void OnUniqueValues();
+	virtual void OnNaturalBreaks(int num_cats);
+	virtual void OnEqualIntervals(int num_cats);
+	virtual void OnSaveCategories();
 	
 	virtual void ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
+						int num_categories,
 						const wxString& custom_classif_title = wxEmptyString);
 		
     DECLARE_EVENT_TABLE()

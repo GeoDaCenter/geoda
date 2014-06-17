@@ -1,0 +1,8 @@
+This is a minimal version of libiconv 1.14.  Since there are
+no Microsoft Visual Studio makefile or project files included,
+we have provided a copy here following the instructions
+provided from
+http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
+
+To build the library, open the MSVC10 solution file, select
+target as Release and then build.

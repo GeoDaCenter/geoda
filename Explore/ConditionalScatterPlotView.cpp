@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,11 +27,8 @@
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
-#include "../DialogTools/MapQuantileDlg.h"
-#include "../DialogTools/SaveToTableDlg.h"
-#include "../DialogTools/VariableSettingsDlg.h"
-#include "../GeoDaConst.h"
+#include "../DataViewer/TableInterface.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../FramesManager.h"
@@ -63,7 +60,7 @@ ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas(wxWindow *parent,
 					   false, true, pos, size),
 full_map_redraw_needed(true),
 X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()),
-display_axes_scale_values(true), display_slope_values(false)
+display_axes_scale_values(true), display_slope_values(true)
 {
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas");
 	
@@ -78,10 +75,10 @@ display_axes_scale_values(true), display_slope_values(false)
 	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4);
 	axis_scale_y.SkipEvenTics();
 	
-	highlight_color = GeoDaConst::scatterplot_regression_selected_color;
+	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color =
-		GeoDaConst::scatterplot_regression_excluded_color;
-	selectable_outline_color = GeoDaConst::scatterplot_regression_color;
+		GdaConst::scatterplot_regression_excluded_color;
+	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	
 	shps_orig_xmin = 0;
 	shps_orig_ymin = 0;
@@ -133,6 +130,10 @@ ConditionalScatterPlotCanvas::~ConditionalScatterPlotCanvas()
 void ConditionalScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((ConditionalScatterPlotFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_COND_SCATTER_PLOT_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
@@ -187,10 +188,10 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
 	// which are made in ScaterNewPlotView
-	MyScaleTrans **st;
-	st = new MyScaleTrans*[vert_num_cats];
+	GdaScaleTrans **st;
+	st = new GdaScaleTrans*[vert_num_cats];
 	for (int i=0; i<vert_num_cats; i++) {
-		st[i] = new MyScaleTrans[horiz_num_cats];
+		st[i] = new GdaScaleTrans[horiz_num_cats];
 	}
 	
 	// Total width height:  vs_w   vs_h
@@ -245,7 +246,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			double mb = marg_bottom + ((d_rows-1)-row)*(pad+del_height);
 			
 			double s_x, s_y, t_x, t_y;
-			MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+			GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 										   shps_orig_xmax, shps_orig_ymax,
 										   mt, mb, ml, mr,
 										   vs_w, vs_h, fixed_aspect_ratio_mode,
@@ -263,31 +264,31 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			
 			wxRealPoint ll(shps_orig_xmin, shps_orig_ymin);
 			wxRealPoint ur(shps_orig_xmax, shps_orig_ymax);
-			bin_extents[(vert_num_cats-1)-row][col] = MyRectangle(ll, ur);
+			bin_extents[(vert_num_cats-1)-row][col] = GdaRectangle(ll, ur);
 			bin_extents[(vert_num_cats-1)-row][col].applyScaleTrans(
 											st[(vert_num_cats-1)-row][col]);
 		}
 	}
 	
-	BOOST_FOREACH( MyShape* shp , foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp , foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	for (int row=0; row<vert_num_cats; row++) {
 		for (int col=0; col<horiz_num_cats; col++) {
-			MyPolyLine* p = new MyPolyLine(reg_line[row][col]);
+			GdaPolyLine* p = new GdaPolyLine(reg_line[row][col]);
 			p->applyScaleTrans(st[row][col]);
 			foreground_shps.push_back(p);
 			
-			MyAxis* x_ax = new MyAxis("", axis_scale_x,
+			GdaAxis* x_ax = new GdaAxis("", axis_scale_x,
 									  wxRealPoint(0,0), wxRealPoint(100, 0));
 			if (!display_axes_scale_values) x_ax->hideScaleValues(true);
-			x_ax->setPen(*GeoDaConst::scatterplot_scale_pen);
+			x_ax->setPen(*GdaConst::scatterplot_scale_pen);
 			x_ax->applyScaleTrans(st[row][col]);
 			foreground_shps.push_back(x_ax);
 			
-			MyAxis* y_ax = new MyAxis("", axis_scale_y,
+			GdaAxis* y_ax = new GdaAxis("", axis_scale_y,
 									  wxRealPoint(0,0), wxRealPoint(0, 100));
 			if (!display_axes_scale_values) y_ax->hideScaleValues(true);
-			y_ax->setPen(*GeoDaConst::scatterplot_scale_pen);
+			y_ax->setPen(*GdaConst::scatterplot_scale_pen);
 			y_ax->applyScaleTrans(st[row][col]);
 			foreground_shps.push_back(y_ax);
 			
@@ -301,10 +302,10 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 						   stats_x[row][col].sample_size >= 3) {
 					s << "*";
 				}
-				MyText* t = new MyText(s, *GeoDaConst::small_font,
+				GdaShapeText* t = new GdaShapeText(s, *GdaConst::small_font,
 									   wxRealPoint(50, 100), 0,
-									   MyText::h_center, MyText::v_center);
-				t->setPen(*GeoDaConst::scatterplot_scale_pen);
+									   GdaShapeText::h_center, GdaShapeText::v_center);
+				t->setPen(*GdaConst::scatterplot_scale_pen);
 				t->applyScaleTrans(st[row][col]);
 				foreground_shps.push_back(t);
 			}
@@ -319,7 +320,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
 	}
 	
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	
 	double bg_xmin = marg_left;
@@ -346,7 +347,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	int label_offset = 12;
 	if (display_axes_scale_values) label_offset = 2+25;
-	MyShape* s;
+	GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 	for (int row=0; row<vert_num_cats-1; row++) {
 		double b;
@@ -357,8 +358,8 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			b = cat_classif_def_vert.breaks[row];
 		}
 		wxString t(GenUtils::DblToStr(b));
-		s = new MyText(t, *GeoDaConst::small_font, v_brk_ref[row], 90,
-					   MyText::h_center, MyText::bottom, -label_offset, 0);
+		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+					   GdaShapeText::h_center, GdaShapeText::bottom, -label_offset, 0);
 		background_shps.push_back(s);
 	}
 	
@@ -375,23 +376,23 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		vert_label << ",   ";
 	}
 	vert_label << "dep. var: " << GetNameWithTime(DEP_VAR);
-	s = new MyText(vert_label, *GeoDaConst::small_font,
+	s = new GdaShapeText(vert_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0), 90,
-				   MyText::h_center, MyText::bottom, -(label_offset+18), 0);
+				   GdaShapeText::h_center, GdaShapeText::bottom, -(label_offset+18), 0);
 	background_shps.push_back(s);
 	
-	int rt = var_info[HOR_VAR].time;
+	int ht = var_info[HOR_VAR].time;
 	for (int col=0; col<horiz_num_cats-1; col++) {
 		double b;
 		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(vt, col)) continue;
-			b = horiz_cat_data.GetBreakVal(vt, col);
+			if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
+			b = horiz_cat_data.GetBreakVal(ht, col);
 		} else {
 			b = cat_classif_def_horiz.breaks[col];
 		}
 		wxString t(GenUtils::DblToStr(b));
-		s = new MyText(t, *GeoDaConst::small_font, h_brk_ref[col], 0,
-					   MyText::h_center, MyText::top, 0, label_offset);
+		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+					   GdaShapeText::h_center, GdaShapeText::top, 0, label_offset);
 		background_shps.push_back(s);
 	}
 	
@@ -408,12 +409,12 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		horiz_label << ",   ";
 	}
 	horiz_label << "ind. var: " << GetNameWithTime(IND_VAR);
-	s = new MyText(horiz_label, *GeoDaConst::small_font,
+	s = new GdaShapeText(horiz_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin+(bg_xmax-bg_xmin)/2.0, bg_ymin), 0,
-				   MyText::h_center, MyText::top, 0, (label_offset+18));
+				   GdaShapeText::h_center, GdaShapeText::top, 0, (label_offset+18));
 	background_shps.push_back(s);
 	
-	MyScaleTrans::calcAffineParams(marg_left, marg_bottom,
+	GdaScaleTrans::calcAffineParams(marg_left, marg_bottom,
 								   scn_w-marg_right,
 								   scn_h-marg_top,
 								   marg_top, marg_bottom,
@@ -429,7 +430,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	last_scale_trans.max_scale =
 	GenUtils::max<double>(last_scale_trans.scale_x,
 						  last_scale_trans.scale_y);
-	BOOST_FOREACH( MyShape* ms, background_shps ) {
+	BOOST_FOREACH( GdaShape* ms, background_shps ) {
 		ms->applyScaleTrans(last_scale_trans);
 	}
 	
@@ -445,7 +446,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 void ConditionalScatterPlotCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
 	selectable_shps.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
@@ -456,7 +457,7 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 	double scaleY = 100.0 / (axis_scale_y.scale_range);	
 	for (int i=0; i<num_obs; i++) {
 		selectable_shps[i] = 
-		new MyPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+		new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 								(Y[i] - axis_scale_y.scale_min) * scaleY));
 	}
 	CalcCellsRegression();
@@ -566,7 +567,7 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 
 /** reg_line, slope, infinite_slope and regression_defined are all return
  values. */
-void ConditionalScatterPlotCanvas::CalcRegressionLine(MyPolyLine& reg_line,
+void ConditionalScatterPlotCanvas::CalcRegressionLine(GdaPolyLine& reg_line,
 											double& slope,
 											bool& infinite_slope,
 											bool& regression_defined,
@@ -638,7 +639,7 @@ void ConditionalScatterPlotCanvas::CalcRegressionLine(MyPolyLine& reg_line,
 	reg_b.x = (reg_b.x - axis_scale_x.scale_min) * scaleX;
 	reg_b.y = (reg_b.y - axis_scale_y.scale_min) * scaleY;
 	
-	reg_line = MyPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
+	reg_line = GdaPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
 	cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
 											 reg_b.x, reg_b.y);
 	
@@ -833,7 +834,7 @@ void ConditionalScatterPlotFrame::OnActivate(wxActivateEvent& event)
 void ConditionalScatterPlotFrame::MapMenus()
 {
 	LOG_MSG("In ConditionalScatterPlotFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_COND_SCATTER_PLOT_VIEW_MENU_OPTIONS");
@@ -849,7 +850,7 @@ void ConditionalScatterPlotFrame::MapMenus()
 void ConditionalScatterPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("ConditionalScatterPlotFrame::UpdateOptionMenuItems: "
@@ -870,17 +871,12 @@ void ConditionalScatterPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void  ConditionalScatterPlotFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void  ConditionalScatterPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConditionalScatterPlotFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In ConditionalScatterPlotFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
-}
-
-void ConditionalScatterPlotFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void ConditionalScatterPlotFrame::OnDisplayAxesScaleValues(wxCommandEvent& ev)

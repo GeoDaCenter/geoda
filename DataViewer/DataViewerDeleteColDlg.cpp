@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,6 +25,7 @@
 
 #include <wx/xrc/xmlres.h>
 #include "DataViewerDeleteColDlg.h"
+#include "../GdaException.h"
 
 BEGIN_EVENT_TABLE( DataViewerDeleteColDlg, wxDialog )
 	EVT_BUTTON( XRCID("ID_DELETE_BUTTON"), DataViewerDeleteColDlg::OnDelete )
@@ -35,9 +36,9 @@ DataViewerDeleteColDlg::DataViewerDeleteColDlg( )
 {
 }
 
-DataViewerDeleteColDlg::DataViewerDeleteColDlg( DbfGridTableBase* grid_base_s,
+DataViewerDeleteColDlg::DataViewerDeleteColDlg( TableInterface* table_int_s,
 											   wxWindow* parent)
-: grid_base(grid_base_s)
+: table_int(table_int_s)
 {
 	SetParent(parent);
     CreateControls();
@@ -65,12 +66,20 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 		return;
 	}
 	int col_del_pos = col_id_map[m_field->GetSelection()];
-	wxString del_name = grid_base->col_data[col_del_pos]->name;
+	wxString del_name = table_int->GetColName(col_del_pos);
 	
-	grid_base->DeleteCol(col_del_pos);
-	InitFieldChoices();
-	m_del_button->Enable(false);
-	m_message->SetLabelText("Deleted " + del_name.Upper());
+	try{
+		table_int->DeleteCol(col_del_pos);
+		InitFieldChoices();
+		m_del_button->Enable(false);
+		m_message->SetLabelText("Deleted " + del_name.Upper());
+	} catch (GdaException e) {
+		wxString msg;
+		msg << e.what();
+		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
+		return;
+	}
 }
 
 void DataViewerDeleteColDlg::OnChoice( wxCommandEvent& ev )
@@ -78,8 +87,8 @@ void DataViewerDeleteColDlg::OnChoice( wxCommandEvent& ev )
 	m_message->SetLabelText("");
 	if (m_field->GetSelection() != wxNOT_FOUND) {
 		int col_del_pos = col_id_map[m_field->GetSelection()];
-		wxString del_name = grid_base->col_data[col_del_pos]->name;
-		m_del_button->Enable(!grid_base->IsSpaceTimeIdField(del_name));
+		wxString del_name = table_int->GetColName(col_del_pos);
+		m_del_button->Enable(true);
 	}
 }
 
@@ -87,8 +96,9 @@ void DataViewerDeleteColDlg::InitFieldChoices()
 {
 	col_id_map.clear();
 	m_field->Clear();
-	grid_base->FillColIdMap(col_id_map);
-	for (int i=0, iend=grid_base->GetNumberCols(); i<iend; i++) {
-		m_field->Append(grid_base->col_data[col_id_map[i]]->name.Upper());
-	}	
+	table_int->FillColIdMap(col_id_map);
+	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
+		m_field->Append(table_int->GetColName(col_id_map[i]).Upper());
+	}
+	m_field->SetSelection(-1);
 }

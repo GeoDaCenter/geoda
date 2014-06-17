@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,11 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/grid.h>
 #include <wx/wxprec.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include "../Project.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "FieldNewCalcSheetDlg.h"
@@ -125,13 +126,5 @@ void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 			pRate->InitFieldChoices();			
 			break;
 	}
-
-	if (project->GetGridBase()->GetView()) {
-		project->GetGridBase()->GetView()->Refresh();
-	}
-	GeneralWxUtils::EnableMenuItem(MyFrame::theFrame->GetMenuBar(),
-								   XRCID("ID_SAVE_PROJECT"),
-							project->GetGridBase()->ChangedSinceLastSave() &&
-								   project->IsAllowEnableSave());
 }
 

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,7 +35,7 @@ typedef boost::multi_array<double, 2> d_array_type;
 class LisaWorkerThread : public wxThread
 {
 public:
-	LisaWorkerThread(int obs_start, int obs_end,
+	LisaWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
 					 LisaCoordinator* lisa_coord,
 					 wxMutex* worker_list_mutex,
 					 wxCondition* worker_list_empty_cond,
@@ -46,6 +46,7 @@ public:
 
 	int obs_start;
 	int obs_end;
+	uint64_t seed_start;
 	int thread_id;
 	
 	LisaCoordinator* lisa_coord;
@@ -60,7 +61,7 @@ public:
 	enum LisaType { univariate, bivariate, eb_rate_standardized }; // #9
 	
 	LisaCoordinator(const GalWeight* gal_weights,
-					DbfGridTableBase* grid_base,
+					TableInterface* table_int,
 					const std::vector<GeoDaVarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					LisaType lisa_type, bool calc_significances = true);
@@ -74,6 +75,11 @@ public:
 	void SetSignificanceFilter(int filter_id);
 	int GetSignificanceFilter() { return significance_filter; }
 	int permutations; // any number from 9 to 99999, 99 will be default
+	
+	uint64_t GetLastUsedSeed() { return last_seed_used; }
+	void SetLastUsedSeed(uint64_t seed) { last_seed_used = seed; }
+	bool IsReuseLastSeed() { return reuse_last_seed; }
+	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
 
 protected:
 	// The following seven are just temporary pointers into the corresponding
@@ -133,7 +139,7 @@ public:
 	std::list<LisaCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(int obs_start, int obs_end);
+	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
 
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -149,6 +155,8 @@ protected:
 	std::vector<bool> has_isolates;
 	bool row_standardize;
 	bool calc_significances; // if false, then p-vals will never be needed
+	uint64_t last_seed_used;
+	bool reuse_last_seed;
 };
 
 #endif

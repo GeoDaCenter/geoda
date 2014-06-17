@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -82,7 +82,7 @@ elements(els), cells(cls)  {
 	lastIndex= new int [ elements ];
 	int cnt;
 	for (cnt= 0; cnt < cells; ++cnt)
-        cell [ cnt ] = GeoDaConst::EMPTY;
+        cell [ cnt ] = GdaConst::EMPTY;
 	Refs= new RefPtr [ elements ];
 	for (cnt= 0; cnt < elements; ++cnt)
         Refs[cnt]= NULL;
@@ -151,7 +151,7 @@ void PartitionM::include(const int incl)  {
 	for (cnt= lower; cnt <= upper; ++cnt)  {
 		int old= cell [ cnt ];            // first element in the cell
 		cell [ cnt ] = incl;              // new first element in the cell
-		if (old != GeoDaConst::EMPTY)  {  // the cell was not empty
+		if (old != GdaConst::EMPTY)  {  // the cell was not empty
 			rptr[cnt-lower].next = old; // OLD is the next element after incl in the list
 			Refs[old][cnt-cellIndex[old]].prev= incl;    // incl is preceeding OLD in the list
 		};
@@ -171,7 +171,7 @@ void PartitionM::remove(const int del)  {
 			cell[ cnt ]= cRef.next;
 		else
 			Refs[cRef.prev][ cnt-cellIndex[cRef.prev] ].next= cRef.next;
-		if (cRef.next != GeoDaConst::EMPTY)  // this is not the last element in the list
+		if (cRef.next != GdaConst::EMPTY)  // this is not the last element in the list
 			Refs[cRef.next][cnt-cellIndex[cRef.next]].prev= cRef.prev;
 	};
 	delete [] Refs[del];
@@ -197,11 +197,11 @@ static PartitionM * gY;
 void ReadOffsets(const wxString& fname)  
 {
 	iShapeFile    shx(wxString(fname), "shx");
-	char          hs[ 2*GeoDaConst::ShpHeaderSize ];
-	shx.read((char *) &hs[0], 2*GeoDaConst::ShpHeaderSize);
+	char          hs[ 2*GdaConst::ShpHeaderSize ];
+	shx.read((char *) &hs[0], 2*GdaConst::ShpHeaderSize);
 	ShapeFileHdr        hd(hs);
 	long          offset, contents;
-	gRecords= (hd.Length() - GeoDaConst::ShpHeaderSize) / 4;
+	gRecords= (hd.Length() - GdaConst::ShpHeaderSize) / 4;
 	gOffset= new long [ gRecords ];
 	
 	for (long rec= 0; rec < gRecords; ++rec)  
@@ -217,9 +217,9 @@ void ReadOffsets(const wxString& fname)
 bool IsLineShapeFile(const wxString& fname)
 {
 	iShapeFile   shp(fname, "shp");
-	char         hs[ 2*GeoDaConst::ShpHeaderSize ];
+	char         hs[ 2*GdaConst::ShpHeaderSize ];
 	
-	shp.read(hs, 2 * GeoDaConst::ShpHeaderSize);
+	shp.read(hs, 2 * GdaConst::ShpHeaderSize);
 	ShapeFileHdr       head(hs);
 	
 	shp.Recl(head.FileShape());
@@ -229,8 +229,8 @@ bool IsLineShapeFile(const wxString& fname)
 void ReadBoxes(const wxString& fname)  
 {
 	iShapeFile   shp(fname, "shp");
-	char          hs[ 2*GeoDaConst::ShpHeaderSize ];
-	shp.read(hs, 2*GeoDaConst::ShpHeaderSize);
+	char          hs[ 2*GdaConst::ShpHeaderSize ];
+	shp.read(hs, 2*GdaConst::ShpHeaderSize);
 	ShapeFileHdr hd(hs);
 	if ((ShapeFileTypes::ShapeType(hd.FileShape())
 		 != ShapeFileTypes::POLYGON) &&
@@ -294,10 +294,11 @@ inline bool Intersect(const Box &a, const Box &b)
     return true;
 }
 
-GalElement* MakeContiguity(const wxString& fname, const int crit)  
+GalElement* MakeContiguity(Shapefile::Main& main, const int crit,
+                           double precision_threshold=0.0)
 {
+	using namespace Shapefile;
 	int curr;
-	iShapeFile    shp(fname, "shp");
 	GalElement * gl= new GalElement [ gRecords ];
 	
 	if (!gl) return NULL;
@@ -305,40 +306,44 @@ GalElement* MakeContiguity(const wxString& fname, const int crit)
 	//  cout << "total steps= " << gMinX.Cells() << endl;
 	for (int step= 0; step < gMinX.Cells(); ++step) {
 		// include all elements from xmin[step]
-		for (curr= gMinX.first(step); curr != GeoDaConst::EMPTY;
+		for (curr= gMinX.first(step); curr != GdaConst::EMPTY;
 			 curr= gMinX.tail(curr)) gY->include(curr);
 		
 		// test each element in xmax[step]
-		for (curr= gMaxX.first(step); curr != GeoDaConst::EMPTY;
+		for (curr= gMaxX.first(step); curr != GdaConst::EMPTY;
 			 curr= gMaxX.tail(curr))  {
-			PolygonPartition testPoly;
-			shp.seekg(gOffset[curr]+12, ios::beg);
-			testPoly.ReadShape(shp); // load in the memory
+			PolygonContents* ply = dynamic_cast<PolygonContents*> (
+												main.records[curr].contents_p);
+			PolygonPartition testPoly(ply);
 			testPoly.MakePartition();
 			
 			// form a list of neighbors
 			for (int cell=gY->lowest(curr); cell <= gY->upmost(curr); ++cell) {
 				int potential = gY->first( cell );
-				while (potential != GeoDaConst::EMPTY) {
+				while (potential != GdaConst::EMPTY) {
 					if (potential != curr) Neighbors.Push( potential );
 					potential = gY->tail(potential, cell);
 				}
 			}
 			
 			// test each potential neighbor
-			for (int nbr = Neighbors.Pop(); nbr != GeoDaConst::EMPTY;
+			for (int nbr = Neighbors.Pop(); nbr != GdaConst::EMPTY;
 				 nbr = Neighbors.Pop()) {
-				if (Intersect(gBox[curr], gBox[nbr])) {
-					PolygonPartition nbrPoly;
-					shp.seekg(gOffset[nbr]+12, ios::beg);
-					nbrPoly.ReadShape(shp);
+				PolygonContents* nbr_ply = dynamic_cast<PolygonContents*> (
+												main.records[nbr].contents_p);
+				if (ply->intersect(nbr_ply)) {
+					
+					PolygonPartition nbrPoly(nbr_ply);
+					//shp.seekg(gOffset[nbr]+12, ios::beg);
+					//nbrPoly.ReadShape(shp);
 					
 					if (curr == 0 && nbr == 0) {
 						
 					}
 					
 					// run sweep with testPoly as a host and nbrPoly as a guest
-					int related = testPoly.sweep(nbrPoly, crit);
+					int related = testPoly.sweep(nbrPoly, crit,
+                                                 precision_threshold);
 					if (related) Related.Push(nbr);
 				}
 			}
@@ -419,10 +424,17 @@ GalElement * MakeFull(GalElement *half)
 			full[cnt].Push(val);
 			full[val].Push(cnt);
 		};
+    bool isGalEmpty = false;
     for (cnt= 0; cnt < gRecords; ++cnt)  {
-		if (full[cnt].Size() > 1)
+		if (full[cnt].Size() > 1) {
+            isGalEmpty = true;
 			ValueSort(full[cnt].dt(), 0, full[cnt].Size()-1);
+        }
     };
+    if (isGalEmpty == false) {
+        delete [] full;
+        full = NULL;
+    }
 	delete [] Count;
 	Count = NULL;
     return full;
@@ -430,32 +442,30 @@ GalElement * MakeFull(GalElement *half)
 
 
 bool SaveGal(const GalElement *full, 
-			 const wxString& ifname, 
+			 const wxString& layer_name, 
 			 const wxString& ofname, 
 			 const wxString& vname,
 			 const std::vector<wxInt64>& id_vec)
 {
-	LOG_MSG("Entering SaveGal, (5 args)");
-	if (full == NULL  || ifname.empty() || ofname.empty() ||
-		vname.empty() || id_vec.size() == 0) {
+	LOG_MSG("Entering SaveGal");
+	if (full == NULL || ofname.empty() || vname.empty() || id_vec.size() == 0) {
 		return false;
 	}
 	int Obs = (int) id_vec.size();
 	
-	wxString fn = ifname;
-	wxString fngal = ofname;
+	wxFileName galfn(ofname);
+    galfn.SetExt("gal");
+    wxString gal_ofn(galfn.GetFullPath());
+    std::ofstream out;
+	out.open(GET_ENCODED_FILENAME(gal_ofn));
 	
-	// cut out the extension. ".shp"
-	fn = fn.substr(0,fn.length()-4);
-	fngal = fngal.substr(0,fngal.length()-4);
+    if (!(out.is_open() && out.good())) {
+        return false;
+    }
 	
-	fngal += ".gal";
-	ofstream out(fngal.mb_str());
+	LOG_MSG(layer_name);
 	
-	wxString local = GenUtils::GetTheFileTitle(fn);
-	LOG_MSG(local);
-	
-	out << "0 " << Obs << " " << local.c_str();
+	out << "0 " << Obs << " " << layer_name.c_str();
 	out << " " << vname.c_str() << endl;
 	
 	for (int cnt= 0; cnt < Obs; ++cnt) {
@@ -468,32 +478,51 @@ bool SaveGal(const GalElement *full,
 		out << endl;
 	}
 
-	LOG_MSG("Exiting SaveGal, (5 args)");
+	LOG_MSG("Exiting SaveGal");
 	return true;
 }
 
-GalElement* shp2gal(const wxString& fname, int criteria, bool save)  
+
+GalElement* shp2gal(Shapefile::Main& main, int criteria, bool save,
+                    double precision_threshold)
 {
+	using namespace Shapefile;
+	
 	GalElement * full;
-	ReadOffsets(fname);
-	ReadBoxes(fname);
+	//ReadOffsets(fname);
+	//ReadBoxes(fname);
+	gRecords = main.records.size();
+	double shp_min_x = (double)main.header.bbox_x_min;
+	double shp_max_x = (double)main.header.bbox_x_max;
+	double shp_min_y = (double)main.header.bbox_y_min;
+	double shp_max_y = (double)main.header.bbox_y_max;
+	double shp_x_len = shp_max_x - shp_min_x;
+	double shp_y_len = shp_max_y - shp_min_y;
 	
 	long gx, gy, cnt, total=0;
 	gx= gRecords / 8 + 2;
 	
-	gMinX.alloc(gRecords, gx, gBigBox._max().x - gBigBox._min().x );
-	gMaxX.alloc(gRecords, gx, gBigBox._max().x - gBigBox._min().x );
+	gMinX.alloc(gRecords, gx, shp_x_len );
+	gMaxX.alloc(gRecords, gx, shp_x_len );
+	
+	
+	
 	for (cnt= 0; cnt < gRecords; ++cnt) {
-		gMinX.include( cnt, gBox[cnt]._min().x - gBigBox._min().x );
-		gMaxX.include( cnt, gBox[cnt]._max().x - gBigBox._min().x );
+		PolygonContents* ply = dynamic_cast<PolygonContents*> (
+											main.records[cnt].contents_p);
+		
+		gMinX.include( cnt, ply->box[0] - shp_min_x );
+		gMaxX.include( cnt, ply->box[2] - shp_min_x );
 	}
 	
 	gy= (int)(sqrt((long double)gRecords) + 2);
 	do {
-		gY= new PartitionM(gRecords, gy, gBigBox._max().y - gBigBox._min().y );
-		for (cnt= 0; cnt < gRecords; ++cnt)
-			gY->initIx( cnt, gBox[cnt]._min().y - gBigBox._min().y, 
-					   gBox[cnt]._max().y - gBigBox._min().y );
+		gY= new PartitionM(gRecords, gy, shp_y_len );
+		for (cnt= 0; cnt < gRecords; ++cnt) {
+			PolygonContents* ply = dynamic_cast<PolygonContents*> (
+											main.records[cnt].contents_p);
+			gY->initIx( cnt, ply->box[1] - shp_min_y, ply->box[3] - shp_min_y );
+		}
 		total= gY->Sum();
 		if (total > gRecords * 8) {
 			delete gY;
@@ -502,8 +531,8 @@ GalElement* shp2gal(const wxString& fname, int criteria, bool save)
 		}
 	} while ( total == 0);
 	
-	GalElement * gl= MakeContiguity(fname, criteria);
-	
+	GalElement * gl= MakeContiguity(main, criteria, precision_threshold);
+    
 	if (gY) delete gY; gY = 0;
 	if (gOffset) delete [] gOffset; gOffset = 0;
 	if (gBox) delete [] gBox; gBox = 0;
@@ -515,8 +544,7 @@ GalElement* shp2gal(const wxString& fname, int criteria, bool save)
 
 // Lag: True; otherwise Cumulative
 GalElement *HOContiguity(const int p, long obs, GalElement *W, bool Lag)
-{
-	
+{	
 	if (obs	< 1 || p <= 1 || p > obs-1) return NULL;
 	
 	int j, QueueCnt, c, irow, CurrIx, LastIx;
@@ -581,46 +609,6 @@ GalElement *HOContiguity(const int p, long obs, GalElement *W, bool Lag)
 	return HO;
 }
 
-void DevFromMean(int nObs, DataPoint* RawData)
-{
-	double sum = 0;
-	int cnt = 0 ;
-	
-	double sumY = 0.0, sumX = 0.0;
-	for (cnt= 0; cnt < nObs; ++cnt) 
-	{
-		sumY += RawData[cnt].vertical;
-		sumX += RawData[cnt].horizontal;
-	}
-	const double meanY = sumY / nObs;
-	const double meanX = sumX / nObs;
-	for (cnt= 0; cnt < nObs; ++cnt)
-	{
-		RawData[cnt].vertical   -= meanY;
-		RawData[cnt].horizontal -= meanX;
-	}
-}
-
-double* DevFromMeanR(int nObs, double* RawData)
-{
-	double        sum= 0;
-	double *d = new double[nObs];
-	double sumX = 0.0;
-	int cnt = 0;
-	for (cnt= 0; cnt < nObs; ++cnt) 
-	{
-		sumX += RawData[cnt];
-	}
-	
-	const double  meanX = sumX / nObs;
-	for (cnt= 0; cnt < nObs; ++cnt)
-	{
-		d[cnt] = RawData[cnt] - meanX;
-	}
-	
-	return d;
-}
-
 void DevFromMean(int nObs, double* RawData)
 {
 	double sumX = 0.0;
@@ -633,26 +621,5 @@ void DevFromMean(int nObs, double* RawData)
 	for (cnt= 0; cnt < nObs; ++cnt)
 	{
 		RawData[cnt] -= meanX;
-	}
-}
-
-void DevFromMean(int nObs, double** RawData,
-				 int deps, int startfrom)
-{
-	int i = 0, cnt = 0;
-	for (i=startfrom;i<deps;i++)
-	{
-		double        sum= 0;
-		double sumX = 0.0;
-		for (cnt= 0; cnt < nObs; ++cnt) 
-		{
-			sumX += RawData[i][cnt];
-		}
-		
-		const double  meanX = sumX / nObs;
-		for (cnt= 0; cnt < nObs; ++cnt)
-		{
-			RawData[i][cnt] -= meanX;
-		}
 	}
 }

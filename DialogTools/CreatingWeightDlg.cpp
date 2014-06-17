@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,7 +35,8 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TableState.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
@@ -73,6 +74,8 @@ BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
     EVT_SPIN( XRCID("IDC_SPIN_KNN"), CreatingWeightDlg::OnCSpinKnnUpdated )
     EVT_BUTTON( XRCID("wxID_OK"), CreatingWeightDlg::OnCreateClick )
     EVT_BUTTON( XRCID("wxID_CLOSE"), CreatingWeightDlg::OnCloseClick )
+    EVT_CHECKBOX( XRCID("IDC_PRECISION_CBX"),
+                 CreatingWeightDlg::OnPrecisionThresholdCheck)
 END_EVENT_TABLE()
 
 
@@ -84,11 +87,11 @@ CreatingWeightDlg::CreatingWeightDlg(wxWindow* parent,
 									 const wxSize& size,
 									 long style )
 : all_init(false), m_thres_delta_factor(1.00001),
-m_method(1), m_thres_val_valid(false), m_threshold_val(0.01),
-project(project_s), grid_base(project_s->GetGridBase()),
+m_method(1), m_arc_in_km(false), m_thres_val_valid(false),
+m_threshold_val(0.01),
+project(project_s), table_int(project_s->GetTableInt()),
 m_num_obs(project_s->GetNumRecords()),
-m_is_table_only(project_s->IsTableOnlyProject()),
-m_is_space_time(project_s->GetGridBase()->IsTimeVariant())
+m_cbx_precision_threshold_first_click(true)
 {
 	Create(parent, id, caption, pos, size, style);
 	all_init = true;
@@ -98,12 +101,14 @@ bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
 								const wxString& caption, const wxPoint& pos,
 								const wxSize& size, long style )
 {
-    m_field = 0;
+    m_id_field = 0;
     m_radio2 = 0;
     m_contiguity = 0;
     m_spincont = 0;
     m_radio1 = 0;
     m_include_lower = 0;
+    m_txt_precision_threshold = 0;
+    m_cbx_precision_threshold = 0;
     m_distance_metric = 0;
     m_X = 0;
     m_Y = 0;
@@ -129,10 +134,11 @@ void CreatingWeightDlg::CreateControls()
 {    
     wxXmlResource::Get()->LoadDialog(this, GetParent(),
 									 "IDD_WEIGHTS_FILE_CREATION");
-    m_field = XRCCTRL(*this, "IDC_IDVARIABLE", wxChoice);
+    m_id_field = XRCCTRL(*this, "IDC_IDVARIABLE", wxChoice);
     m_contiguity = XRCCTRL(*this, "IDC_EDIT_ORDEROFCONTIGUITY", wxTextCtrl);
     m_spincont = XRCCTRL(*this, "IDC_SPIN_ORDEROFCONTIGUITY", wxSpinButton);
     m_include_lower = XRCCTRL(*this, "IDC_CHECK1", wxCheckBox);
+    m_cbx_precision_threshold= XRCCTRL(*this, "IDC_PRECISION_CBX", wxCheckBox);
     m_distance_metric = XRCCTRL(*this, "IDC_DISTANCE_METRIC", wxChoice);
     m_X = XRCCTRL(*this, "IDC_XCOORDINATES", wxChoice);
     m_Y = XRCCTRL(*this, "IDC_YCOORDINATES", wxChoice);
@@ -141,6 +147,8 @@ void CreatingWeightDlg::CreateControls()
 	m_X_time->Show(false);
 	m_Y_time->Show(false);
     m_threshold = XRCCTRL(*this, "IDC_THRESHOLD_EDIT", wxTextCtrl);
+    m_txt_precision_threshold = XRCCTRL(*this, "IDC_PRECISION_THRESHOLD_EDIT",
+                                    wxTextCtrl);
     m_sliderdistance = XRCCTRL(*this, "IDC_THRESHOLD_SLIDER", wxSlider);
     m_radio2 = XRCCTRL(*this, "IDC_RADIO_QUEEN", wxRadioButton);
     m_radio1 = XRCCTRL(*this, "IDC_RADIO_ROOK", wxRadioButton);
@@ -155,15 +163,15 @@ void CreatingWeightDlg::CreateControls()
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 {
 	LOG_MSG("Entering CreatingWeightDlg::OnCreateNewIdClick");
-	
-	AddIdVariable dlg(grid_base, this);
+
+	AddIdVariable dlg(table_int, this);
     if (dlg.ShowModal() == wxID_OK) {
 		// We know that the new id has been added to the the table in memory
-		m_field->Insert(dlg.GetIdVarName(), 0);
-		m_field->SetSelection(0);
-		EnableDistanceRadioButtons(m_field->GetSelection() != wxNOT_FOUND);
-		EnableContiguityRadioButtons((m_field->GetSelection() != wxNOT_FOUND)
-									 && !m_is_table_only);
+		m_id_field->Insert(dlg.GetIdVarName(), 0);
+		m_id_field->SetSelection(0);
+		EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
+		EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND)
+									 && !project->IsTableOnlyProject());
 		UpdateCreateButtonState();
 	} else {
 		// A new id was not added to the dbf file, so do nothing.
@@ -195,7 +203,6 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			msg << "a valid number.";
 			wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
-			event.Skip();
 			return;
 		}
 		if (m_threshold_val*m_thres_delta_factor < m_thres_min) {
@@ -207,17 +214,12 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			msg << "Press Yes to proceed anyhow, press No to abort.";
 			wxMessageDialog dlg(this, msg, "Warning",
 								wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-			if (dlg.ShowModal() != wxID_YES) {
-				event.Skip();
-				return;
-			}
-		}	
+			if (dlg.ShowModal() != wxID_YES) return;
+		}
 	}
 	
 	wxString wildcard;
-	wxString defaultDir(project->GetMainDir());
-	wxString defaultFile(project->GetMainName());
-	LOG(defaultDir);
+	wxString defaultFile(project->GetProjectTitle());
 	LOG(defaultFile);
 	if (IsSaveAsGwt()) {
 		defaultFile += ".gwt";
@@ -229,7 +231,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 	
 	wxFileDialog dlg(this,
                      "Choose an output weights file name.",
-                     defaultDir,
+                     "",
 					 defaultFile,
 					 wildcard,
 					 wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -239,16 +241,16 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 	outputfile = dlg.GetPath();
 	
 	wxString id = wxEmptyString;
-	if ( m_field->GetSelection() != wxNOT_FOUND ) {
-		id = m_field->GetString(m_field->GetSelection());
+	if ( m_id_field->GetSelection() != wxNOT_FOUND ) {
+		id = m_id_field->GetString(m_id_field->GetSelection());
 	} else {
 		return; // we must have key id variable
 	}
 	
-	if ((m_field->GetSelection() != wxNOT_FOUND) && !CheckID(id)) return;
+	if ((m_id_field->GetSelection() != wxNOT_FOUND) && !CheckID(id)) return;
 	std::vector<wxInt64> id_vec(m_num_obs);
-	int col = grid_base->FindColId(id);
-	grid_base->col_data[col]->GetVec(id_vec, 0);
+	int col = table_int->FindColId(id);
+	table_int->GetColData(col, 0, id_vec);
 	
 	int m_ooC = m_spincont->GetValue();
 	int m_kNN = m_spinneigh->GetValue();
@@ -258,8 +260,6 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
     GalElement *Hgal = 0;
 	GwtElement *gwt = 0;
 	bool done = false;
-
-	m_method = m_distance_metric->GetSelection() + 1;
 	
 	wxString str_X = m_X->GetString(m_X->GetSelection());
 	wxString str_Y = m_Y->GetString(m_Y->GetSelection());
@@ -272,16 +272,29 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 		{
 			double t_val = m_threshold_val;
 			if (t_val <= 0) t_val = std::numeric_limits<float>::min();
+			if (m_method == 2 && m_arc_in_km) {
+				t_val /= 1.609344; // convert km to mi
+			}
 			if (t_val > 0) {
 				gwt = shp2gwt(m_num_obs, m_XCOO, m_YCOO,
 							  t_val * m_thres_delta_factor,
 							  1, m_method);
-				if (gwt == 0) return;
+				if (gwt == 0) {
+					wxString m;
+					m << "No weights file was created due to all observations ";
+					m << "being isolates for the specified threshold value.  ";
+					m << "Increase the threshold to create a ";
+					m << "non-empty weights file.";
+					wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+					dlg.ShowModal();
+					return;
+				}
 				
-				Shp2GalProgress(0, gwt, project->GetFullShpName(),
-								outputfile, id, id_vec);
+				Shp2GalProgress(0, gwt,
+								project->GetProjectTitle(), outputfile,
+								id, id_vec);
+				if (gwt) delete [] gwt; gwt = 0;
 				done = true;
-				event.Skip();
 			}
 		}
 			break;
@@ -292,12 +305,11 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				gwt = DynKNN(m_XCOO, m_YCOO, m_kNN+1, m_method);
 				if (gwt==0) return;
 				
-				Shp2GalProgress(0, gwt, project->GetFullShpName(), outputfile,
+				Shp2GalProgress(0, gwt,
+								project->GetProjectTitle(), outputfile,
 								id, id_vec);
+				if (gwt) delete [] gwt; gwt = 0;
 				done = true;
-				event.Skip();
-				delete [] gwt;
-				gwt = 0;
 			} else {
 				wxString s = wxString::Format("Error: Maximum # of neighbors "
 											  "(%d) exceeded.",
@@ -316,7 +328,13 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 					project->DisplayPointDupsWarning();
 				}
 				
-				gal = project->GetVoronoiRookNeighborGal();
+				std::vector<std::set<int> > nbr_map;
+				if (is_rook) {
+					project->GetVoronoiRookNeighborMap(nbr_map);
+				} else {
+					project->GetVoronoiQueenNeighborMap(nbr_map);
+				}
+				gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
 				if (!gal) {
 					wxString msg("There was a problem generating voronoi "
 								 "contiguity neighbors.  Please report this.");
@@ -327,23 +345,67 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 					break;
 				}
 			} else {
-				gal = shp2gal(project->GetFullShpName(),
-							  (is_rook ? 1 : 0), true);
+                double precision_threshold = 0.0;
+                if ( m_cbx_precision_threshold->IsChecked()) {
+                    if (!m_txt_precision_threshold->IsEmpty()) {
+                        wxString prec_thres =
+                            m_txt_precision_threshold->GetValue();
+                        double value;
+                        if ( prec_thres.ToDouble(&value) )
+                            precision_threshold = value;
+                    } else {
+                        precision_threshold = 0.0;
+                    }
+                }
+				gal = shp2gal(project->main_data, (is_rook ? 1 : 0), true,
+                              precision_threshold);
 			}
 			
-			if (!gal) break;
+			if (!gal) {
+                // could be an empty weights file, and should prompt user
+                // to setup Precision Threshold
+                wxString msg("GeoDa can't find weights information from "
+                             "shapes.  You can try to set precision "
+                             "threshold value to find neighbor shapes "
+                             "using fuzzy matching approach.");
+                wxMessageDialog dlg(NULL, msg,
+                                    "Empty Contiguity Weights Created",
+                                    wxOK | wxICON_WARNING);
+                dlg.ShowModal();
+                
+                m_cbx_precision_threshold->SetValue(true);
+                m_txt_precision_threshold->Enable(true);
+                // give a suggested value
+                double shp_min_x = (double)project->main_data.header.bbox_x_min;
+                double shp_max_x = (double)project->main_data.header.bbox_x_max;
+                double shp_min_y = (double)project->main_data.header.bbox_y_min;
+                double shp_max_y = (double)project->main_data.header.bbox_y_max;
+                double shp_x_len = shp_max_x - shp_min_x;
+                double shp_y_len = shp_max_y - shp_min_y;
+                double pixel_len = MIN(shp_x_len, shp_y_len) / 4096.0; // 4K LCD
+                double suggest_precision = pixel_len * 10E-7;
+                // round it to power of 10
+                suggest_precision = log10(suggest_precision);
+                suggest_precision = ceil(suggest_precision);
+                suggest_precision = pow(10, suggest_precision);
+                wxString tmpTxt;
+                tmpTxt << suggest_precision;
+                m_txt_precision_threshold->SetValue(tmpTxt);
+                break;
+            }
 			if (m_ooC > 1) {
 				Hgal = HOContiguity(m_ooC, m_num_obs, gal, m_check1);
-				Shp2GalProgress(Hgal, 0, project->GetFullShpName(), outputfile,
+				Shp2GalProgress(Hgal, 0,
+								project->GetProjectTitle(), outputfile,
 								id, id_vec);
-				done = true;
-				event.Skip();
 			} else {
- 		        Shp2GalProgress(gal, 0, project->GetFullShpName(), outputfile,
+ 		        Shp2GalProgress(gal, 0,
+								project->GetProjectTitle(), outputfile,
 								id, id_vec);
-				done = true;
-				event.Skip();
 			}
+			if (Hgal) delete [] Hgal; Hgal = 0;
+			if (gal) delete [] gal; gal = 0;
+			done = true;
 		}
 			break;
 
@@ -352,6 +414,32 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 	};
 	
 	FindWindow(XRCID("wxID_CLOSE"))->Enable(true);
+}
+
+void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
+{
+	if (m_cbx_precision_threshold_first_click) {
+		// Show a warning message regarding the use of this function
+		wxString msg;
+		msg << "Precision threshold should normally be set to 0.  ";
+		msg << "For data sources with neighboring polygons whose vertex ";
+		msg << "coordinates do not match exactly, a very small positive ";
+		msg << "threshold value can be chosen so that neighboring polygons ";
+		msg << "are correctly identified.  This is an advanced option. ";
+		msg << "It is important to visually verify the resulting weights ";
+		msg << "to ensure there are no false-positives.";
+		wxMessageDialog dlg(NULL, msg, "About Precision Threshold",
+							wxOK | wxICON_INFORMATION);
+		dlg.ShowModal();
+		m_cbx_precision_threshold_first_click = false;
+	}
+    if ( m_cbx_precision_threshold->IsChecked() ) {
+        m_txt_precision_threshold->Enable(true);
+        m_cbx_precision_threshold->SetValue(true);
+    } else {
+        m_txt_precision_threshold->Enable(false);
+        m_cbx_precision_threshold->SetValue(false);
+    }
 }
 
 void CreatingWeightDlg::OnCRadioRookSelected( wxCommandEvent& event )
@@ -364,6 +452,12 @@ void CreatingWeightDlg::OnCRadioQueenSelected( wxCommandEvent& event )
 	SetRadioBtnAndAssocWidgets(6);
 }
 
+void CreatingWeightDlg::update(TableState* o)
+{
+	LOG_MSG("In CreatingWeightDlg::update(TableState* o)");
+	Refresh();
+}
+
 void CreatingWeightDlg::EnableThresholdControls( bool b )
 {
 	// This either enable the Threshold distance controls.  This does not
@@ -371,11 +465,11 @@ void CreatingWeightDlg::EnableThresholdControls( bool b )
 	FindWindow(XRCID("IDC_STATIC1"))->Enable(b);
 	FindWindow(XRCID("IDC_STATIC2"))->Enable(b);
 	FindWindow(XRCID("IDC_STATIC3"))->Enable(b);
-	FindWindow(XRCID("IDC_XCOORDINATES"))->Enable(b);
-	FindWindow(XRCID("IDC_YCOORDINATES"))->Enable(b);
-	FindWindow(XRCID("IDC_DISTANCE_METRIC"))->Enable(b);
-	FindWindow(XRCID("IDC_THRESHOLD_SLIDER"))->Enable(b);
-	FindWindow(XRCID("IDC_THRESHOLD_EDIT"))->Enable(b);
+	m_X->Enable(b);
+	m_Y->Enable(b);
+	m_distance_metric->Enable(b);
+	m_sliderdistance->Enable(b);
+	m_threshold->Enable(b);
 	UpdateTmSelEnableState();
 	if (!b) {
 		m_X_time->Disable();
@@ -386,18 +480,18 @@ void CreatingWeightDlg::EnableThresholdControls( bool b )
 void CreatingWeightDlg::UpdateTmSelEnableState()
 {
 	int m_x_sel = m_X->GetSelection();
-	if (!m_is_table_only) m_x_sel -= 2;
-	if (m_is_space_time && m_x_sel >= 0) {
+	if (!project->IsTableOnlyProject()) m_x_sel -= 2;
+	if (table_int->IsTimeVariant() && m_x_sel >= 0) {
 		int col = col_id_map[m_x_sel];
-		m_X_time->Enable(grid_base->IsColTimeVariant(col));
+		m_X_time->Enable(table_int->IsColTimeVariant(col));
 	} else {
 		m_X_time->Disable();
 	}
 	int m_y_sel = m_Y->GetSelection();
-	if (!m_is_table_only) m_y_sel -= 2;
-	if (m_is_space_time && m_y_sel >= 0) {
+	if (!project->IsTableOnlyProject()) m_y_sel -= 2;
+	if (table_int->IsTimeVariant() && m_y_sel >= 0) {
 		int col = col_id_map[m_y_sel];
-		m_Y_time->Enable(grid_base->IsColTimeVariant(col));
+		m_Y_time->Enable(table_int->IsColTimeVariant(col));
 	} else {
 		m_Y_time->Disable();
 	}
@@ -410,13 +504,14 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(int radio)
 	
 	// Disable everything to begin.	
 	FindWindow(XRCID("IDC_STATIC_OOC1"))->Enable(false);
-	FindWindow(XRCID("IDC_EDIT_ORDEROFCONTIGUITY"))->Enable(false);
-	FindWindow(XRCID("IDC_SPIN_ORDEROFCONTIGUITY"))->Enable(false);
-	FindWindow(XRCID("IDC_CHECK1"))->Enable(false);
+	m_contiguity->Enable(false);
+	m_spincont->Enable(false);
+    m_cbx_precision_threshold->Enable(false);
+	m_include_lower->Enable(false);
 	EnableThresholdControls(false);
 	FindWindow(XRCID("IDC_STATIC_KNN"))->Enable(false);
-	FindWindow(XRCID("IDC_EDIT_KNN"))->Enable(false);
-    FindWindow(XRCID("IDC_SPIN_KNN"))->Enable(false);
+	m_neighbors->Enable(false);
+    m_spinneigh->Enable(false);
 
 	if ((radio == 7) || (radio == 3) || (radio == 4) ||
 		(radio == 5) || (radio == 6)) {
@@ -430,9 +525,10 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(int radio)
 		case 6: // queen
 		case 5: { // rook
 			FindWindow(XRCID("IDC_STATIC_OOC1"))->Enable(true);
-			FindWindow(XRCID("IDC_EDIT_ORDEROFCONTIGUITY"))->Enable(true);
-			FindWindow(XRCID("IDC_SPIN_ORDEROFCONTIGUITY"))->Enable(true);
-			FindWindow(XRCID("IDC_CHECK1"))->Enable(true);
+			m_contiguity->Enable(true);
+			m_spincont->Enable(true);
+            m_cbx_precision_threshold->Enable(true);
+			m_include_lower->Enable(true);
 		}
 			break;
 		case 3: { // threshold distance
@@ -443,16 +539,14 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(int radio)
 			FindWindow(XRCID("IDC_STATIC1"))->Enable(true);
 			FindWindow(XRCID("IDC_STATIC2"))->Enable(true);
 			FindWindow(XRCID("IDC_STATIC3"))->Enable(true);
-			FindWindow(XRCID("IDC_XCOORDINATES"))->Enable(true);
-			FindWindow(XRCID("IDC_YCOORDINATES"))->Enable(true);
-			m_distance_metric->Enable(true);
-			m_distance_metric->SetSelection(0);
-			m_method = 1;
+			m_X->Enable(true);
+			m_Y->Enable(true);
+			SetDistMetricEuclid(true);
 			m_distance_metric->Enable(false);
 			
 			FindWindow(XRCID("IDC_STATIC_KNN"))->Enable(true);
-			FindWindow(XRCID("IDC_EDIT_KNN"))->Enable(true);
-			FindWindow(XRCID("IDC_SPIN_KNN"))->Enable(true);
+			m_neighbors->Enable(true);
+			m_spinneigh->Enable(true);
 			UpdateTmSelEnableState();
 		}
 			break;
@@ -504,31 +598,35 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	}
 	if (v1 != wxEmptyString || v1 != wxEmptyString) {
 		if (v1 != wxEmptyString) {
-			int x_sel = (m_is_table_only ? 
+			int x_sel = (project->IsTableOnlyProject() ? 
 						 m_X->GetSelection() : m_X->GetSelection()-2);
 			int col_id = col_id_map[x_sel];
 			int tm = 0;
-			if (m_is_space_time &&
-				grid_base->IsColTimeVariant(col_id)) {
+			if (table_int->IsTimeVariant() &&
+				table_int->IsColTimeVariant(col_id)) {
 				tm = m_X_time->GetSelection();
 			}
-			grid_base->col_data[col_id]->GetVec(m_XCOO, tm);
+			table_int->GetColData(col_id, tm, m_XCOO);
 		}
 		if (v2 != wxEmptyString) {
-			int y_sel = (m_is_table_only ? 
+			int y_sel = (project->IsTableOnlyProject() ? 
 						 m_Y->GetSelection() : m_Y->GetSelection()-2);
 			int col_id = col_id_map[y_sel];
 			int tm = 0;
-			if (m_is_space_time &&
-				grid_base->IsColTimeVariant(col_id)) {
+			if (table_int->IsTimeVariant() &&
+				table_int->IsColTimeVariant(col_id)) {
 				tm = m_Y_time->GetSelection();
 			}
-			grid_base->col_data[col_id]->GetVec(m_YCOO, tm);
+			table_int->GetColData(col_id, tm, m_YCOO);
 		}
 	}
 	
 	m_thres_min = ComputeCutOffPoint(m_XCOO, m_YCOO, m_method);
 	m_thres_max = ComputeMaxDistance(m_XCOO, m_YCOO, m_method);
+	if (m_method == 2 && m_arc_in_km) {
+		m_thres_min *= 1.609344; // convert mi to km
+		m_thres_max *= 1.609344;
+	}
 	LOG(m_thres_min);
 	LOG(m_thres_max);
 	m_threshold_val = (m_sliderdistance->GetValue() *
@@ -584,7 +682,6 @@ void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
 void CreatingWeightDlg::OnCRadioGeoDaLSelected( wxCommandEvent& event )
 {
 	// do nothing for now, perhaps will force save as GAL in future.
-    event.Skip();
 }
 
 void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
@@ -614,7 +711,7 @@ void CreatingWeightDlg::UpdateCreateButtonState()
 	bool enable = true;
 
 	// Check that a Weights File ID variable is selected.
-	if (m_field->GetSelection() == wxNOT_FOUND) enable = false;
+	if (m_id_field->GetSelection() == wxNOT_FOUND) enable = false;
 	// Check that a weight type radio button choice is selected.
 	if (m_radio == -1) enable = false;
 	if (m_X->GetSelection() == wxNOT_FOUND ||
@@ -647,11 +744,11 @@ void CreatingWeightDlg::ClearRadioButtons()
 void CreatingWeightDlg::ResetThresXandYCombo()
 {
 	m_X->Clear();
-	if (!m_is_table_only) {
+	m_Y->Clear();
+	if (!project->IsTableOnlyProject()) {
 		m_X->Append("<X-Centroids>");
 		m_X->Append("<X-Mean-Centers>");
 		m_X->SetSelection(0);
-		m_Y->Clear();
 		m_Y->Append("<Y-Centroids>");
 		m_Y->Append("<Y-Mean-Centers>");
 		m_Y->SetSelection(0);
@@ -660,83 +757,48 @@ void CreatingWeightDlg::ResetThresXandYCombo()
 
 void CreatingWeightDlg::InitFields()
 {
-	m_field->Clear();
+	m_id_field->Clear();
 	m_X_time->Clear();
 	m_Y_time->Clear();
 	ResetThresXandYCombo();
 	
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int col = col_id_map[i];
-		if (m_is_space_time && grid_base->IsColTimeVariant(col)) {
-			wxString t;
-			t << " (" << grid_base->time_ids[0] << ")";
-			m_X->Append(grid_base->col_data[col_id_map[i]]->name + t);
-			m_Y->Append(grid_base->col_data[col_id_map[i]]->name + t);
-		} else {
-			m_X->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_Y->Append(grid_base->col_data[col_id_map[i]]->name);
-		}
-		if (!m_is_space_time &&
-			grid_base->col_data[col_id_map[i]]->type
-				== GeoDaConst::long64_type) {
-			m_field->Append(grid_base->col_data[col_id_map[i]]->name);
+		
+		m_X->Append(table_int->GetColName(col));
+		m_Y->Append(table_int->GetColName(col));
+		
+		if (table_int->GetColType(col) == GdaConst::long64_type) {
+			if (!table_int->IsColTimeVariant(col)) {
+				m_id_field->Append(table_int->GetColName(col));
+			}
 		}
 	}
-	if (m_is_space_time) {
-		m_field->Append(grid_base->GetSpTblSpColName());
-		m_field->SetSelection(0);
-		EnableDistanceRadioButtons(true);
-		EnableContiguityRadioButtons(true && !m_is_table_only);
-		UpdateCreateButtonState();
-		FindWindow(XRCID("ID_CREATE_ID"))->Enable(false);
-			
-		for (int i=0; i<grid_base->time_steps; i++) {
-			wxString t;
-			t << grid_base->time_ids[i];
-			m_X_time->Append(t);
-			m_Y_time->Append(t);
+	m_id_field->SetSelection(-1);
+	
+	if (table_int->IsTimeVariant()) {
+		std::vector<wxString> tm_strs;
+		table_int->GetTimeStrings(tm_strs);
+		for (int t=0, sz=tm_strs.size(); t<sz; ++t) {
+			m_X_time->Append(tm_strs[t]);
+			m_Y_time->Append(tm_strs[t]);
 		}
-		m_X_time->SetSelection(0);
-		m_Y_time->SetSelection(0);
 	}
 	
-	if (!m_is_table_only) {
+	if (!project->IsTableOnlyProject()) {
 		m_X->SetSelection(0);
 		m_Y->SetSelection(0);
 	}
+	
 	m_X_time->Disable();
 	m_Y_time->Disable();
-}
-
-void CreatingWeightDlg::UpdateFieldNamesTm()
-{
-	if (!m_is_space_time) return;
-	int x_sel = m_X->GetSelection();
-	int y_sel = m_Y->GetSelection();
-	ResetThresXandYCombo();
-	wxString x_tm_str;
-	x_tm_str << " (" << grid_base->time_ids[m_X_time->GetSelection()] << ")";
-	wxString y_tm_str;
-	y_tm_str << " (" << grid_base->time_ids[m_Y_time->GetSelection()] << ")";
-	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-		int col = col_id_map[i];
-		if (grid_base->IsColTimeVariant(col)) {
-			m_X->Append(grid_base->col_data[col_id_map[i]]->name + x_tm_str);
-			m_Y->Append(grid_base->col_data[col_id_map[i]]->name + y_tm_str);
-		} else {
-			m_X->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_Y->Append(grid_base->col_data[col_id_map[i]]->name);
-		}
-	}
-	m_X->SetSelection(x_sel);
-	m_Y->SetSelection(y_sel);
 }
 
 bool CreatingWeightDlg::CheckID(const wxString& id)
 {
 	std::vector<wxInt64> id_vec(m_num_obs);
-	int col = grid_base->FindColId(id);
-	grid_base->col_data[col]->GetVec(id_vec, 0);
+	int col = table_int->FindColId(id);
+	table_int->GetColData(col, 0, id_vec);
 	std::set<wxInt64> id_set;
 	for (int i=0, iend=id_vec.size(); i<iend; i++) {
 		id_set.insert(id_vec[i]);
@@ -752,7 +814,7 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
 
 void CreatingWeightDlg::InitDlg()
 {
-	m_field->Clear();
+	m_id_field->Clear();
 	m_contiguity->SetValue( "1");
 	ResetThresXandYCombo();
 	m_sliderdistance->SetRange(0, 100);
@@ -764,11 +826,12 @@ void CreatingWeightDlg::InitDlg()
 	m_neighbors->SetValue( "4");
 	FindWindow(XRCID("wxID_OK"))->Enable(false);
 	FindWindow(XRCID("ID_ID_VAR_STAT_TXT"))->Enable(false);
-	FindWindow(XRCID("IDC_IDVARIABLE"))->Enable(false);
+	m_id_field->Enable(false);
 	FindWindow(XRCID("ID_CREATE_ID"))->Enable(false);
 	m_distance_metric->Clear();
-	m_distance_metric->Append("<Euclidean Distance>");
-	m_distance_metric->Append("<Arc Distance (miles)>");
+	m_distance_metric->Append("Euclidean Distance");
+	m_distance_metric->Append("Arc Distance (mi)");
+	m_distance_metric->Append("Arc Distance (km)");
 	m_distance_metric->SetSelection(0);
 	ClearRadioButtons();
 	SetRadioBtnAndAssocWidgets(-1);
@@ -777,12 +840,14 @@ void CreatingWeightDlg::InitDlg()
 	
 	// Previously from OpenShapefile:
 	FindWindow(XRCID("ID_ID_VAR_STAT_TXT"))->Enable(true);
-	FindWindow(XRCID("IDC_IDVARIABLE"))->Enable(true);
+	m_id_field->Enable(true);
 	FindWindow(XRCID("ID_CREATE_ID"))->Enable(true);
 	FindWindow(XRCID("wxID_OK"))->Enable(false);
+    m_cbx_precision_threshold->Enable(false);
+    m_txt_precision_threshold->Enable(false);
 	
 	col_id_map.clear();
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 	
 	InitFields();
 	int sl_x, sl_y;
@@ -790,8 +855,8 @@ void CreatingWeightDlg::InitDlg()
 	wxSize sl_size = m_sliderdistance->GetSize();
 	m_sliderdistance->SetSize(sl_x, sl_y, 500, sl_size.GetHeight());
 	
-	m_X_time->Show(m_is_space_time);
-	m_Y_time->Show(m_is_space_time);
+	m_X_time->Show(table_int->IsTimeVariant());
+	m_Y_time->Show(table_int->IsTimeVariant());
 	m_spincont->SetRange(1, (int) m_num_obs / 2);
 	m_spinneigh->SetRange(1, (int) m_num_obs - 1);
 	
@@ -852,32 +917,66 @@ void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 
 void CreatingWeightDlg::OnXTmSelected(wxCommandEvent& event )
 {
-	UpdateFieldNamesTm();
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnYTmSelected(wxCommandEvent& event )
 {
-	UpdateFieldNamesTm();
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnDistanceMetricSelected(wxCommandEvent& event )
 {
-	m_method = m_distance_metric->GetSelection() + 1;
-	UpdateThresholdValues();
+	wxString s = m_distance_metric->GetStringSelection();
+	if (s == "Euclidean Distance") {
+		SetDistMetricEuclid(false);
+		UpdateThresholdValues();
+	} else if (s == "Arc Distance (mi)") {
+		SetDistMetricArcMiles(false);
+		UpdateThresholdValues();
+	} else if (s == "Arc Distance (km)") {
+		SetDistMetricArcKms(false);
+		UpdateThresholdValues();
+	}
 }
+
+void CreatingWeightDlg::SetDistMetricEuclid(bool update_sel)
+{
+	if (update_sel) m_distance_metric->SetSelection(0);
+	m_method = 1;
+	m_arc_in_km = false;
+}
+
+void CreatingWeightDlg::SetDistMetricArcMiles(bool update_sel)
+{
+	if (update_sel) m_distance_metric->SetSelection(1);
+	m_method = 2;
+	m_arc_in_km = false;
+}
+
+void CreatingWeightDlg::SetDistMetricArcKms(bool update_sel)
+{
+	if (update_sel) m_distance_metric->SetSelection(2);
+	m_method = 2;
+	m_arc_in_km = true;
+}
+
 
 void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
 {
-	EnableDistanceRadioButtons(m_field->GetSelection() != wxNOT_FOUND);
-	EnableContiguityRadioButtons((m_field->GetSelection() != wxNOT_FOUND) &&
-								 !m_is_table_only);
+	EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
+	EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND) &&
+								 !project->IsTableOnlyProject());
 	UpdateCreateButtonState();	
 }
 
-bool CreatingWeightDlg::Shp2GalProgress(GalElement *gl, GwtElement *gw,
-										const wxString& ifn,
+/** layer_name: layer name
+ * ofn: output file name
+ * idd: id column name
+ * id: id column vector
+ */
+bool CreatingWeightDlg::Shp2GalProgress(GalElement *gal, GwtElement *gwt,
+										const wxString& layer_name,
 										const wxString& ofn,
 										const wxString& idd,
 										const std::vector<wxInt64>& id_vec)
@@ -888,12 +987,12 @@ bool CreatingWeightDlg::Shp2GalProgress(GalElement *gl, GwtElement *gw,
 	bool success = false;
 	bool flag = false;
 	bool geodaL=true; // always save as "Legacy" format.
-	if (gl) // gal
-		flag = SaveGal(gl, ifn, ofn, idd, id_vec);
+	if (gal) // gal
+		flag = SaveGal(gal, layer_name, ofn, idd, id_vec);
 	else if (m_radio == 3) // binary distance
-		flag = WriteGwt(gw, ifn, ofn, idd, id_vec, 1, geodaL );
+		flag = WriteGwt(gwt, layer_name, ofn, idd, id_vec, 1, geodaL );
 	else if (m_radio == 4) // kNN
-		flag = WriteGwt(gw, ifn, ofn, idd, id_vec, -2, geodaL);
+		flag = WriteGwt(gwt, layer_name, ofn, idd, id_vec, -2, geodaL);
 	else flag = false;
 
 	if (!flag) {
@@ -921,7 +1020,7 @@ bool CreatingWeightDlg::Shp2GalProgress(GalElement *gl, GwtElement *gw,
 			
 			int obs = w_manager->GetNumObservations();
 			if (ext == "gal") {
-				GalElement* tempGal=WeightUtils::ReadGal(ofn, grid_base);
+				GalElement* tempGal=WeightUtils::ReadGal(ofn, table_int);
 				if (tempGal != 0) {
 					GalWeight* w = new GalWeight();
 					w->num_obs = obs;
@@ -933,7 +1032,7 @@ bool CreatingWeightDlg::Shp2GalProgress(GalElement *gl, GwtElement *gw,
 					}
 				}
 			} else { // ext == "gwt"
-				GalElement* tempGal=WeightUtils::ReadGwtAsGal(ofn, grid_base);
+				GalElement* tempGal=WeightUtils::ReadGwtAsGal(ofn, table_int);
 				if (tempGal != 0) {
 					GalWeight* w = new GalWeight();
 					w->num_obs = obs;
@@ -947,10 +1046,7 @@ bool CreatingWeightDlg::Shp2GalProgress(GalElement *gl, GwtElement *gw,
 			}
 		}
 	}
-	
-	if (gl) delete [] gl;
-	if (gw) delete [] gw;
-	
+		
 	FindWindow(XRCID("wxID_OK"))->Enable(true);
 	FindWindow(XRCID("wxID_CLOSE"))->Enable(true);
 	return success;

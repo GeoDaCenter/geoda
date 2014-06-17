@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,7 +21,7 @@
 #include <boost/algorithm/string.hpp>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../logger.h"
 #include "ImportCsvDlg.h"
 

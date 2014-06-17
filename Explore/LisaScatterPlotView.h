@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,7 @@
 #ifndef __GEODA_CENTER_LISA_SCATTER_PLOT_VIEW_H__
 #define __GEODA_CENTER_LISA_SCATTER_PLOT_VIEW_H__
 
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "ScatterNewPlotView.h"
 #include "LisaCoordinatorObserver.h"
 
@@ -41,7 +41,7 @@ public:
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void SyncVarInfoFromCoordinator();
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
@@ -68,7 +68,7 @@ public:
     LisaScatterPlotFrame(wxFrame *parent, Project* project,
 					LisaCoordinator* lisa_coordinator,
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GeoDaConst::scatterplot_default_size,
+					const wxSize& size = GdaConst::scatterplot_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
 	

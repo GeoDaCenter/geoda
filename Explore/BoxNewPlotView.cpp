@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,9 +29,10 @@
 #include <wx/dcmemory.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DialogTools/MapQuantileDlg.h"
-#include "../DataViewer/DbfGridTableBase.h"
-#include "../GeoDaConst.h"
+#include "../DialogTools/NumCategoriesDlg.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -70,17 +71,17 @@ BoxNewPlotCanvas::BoxNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
 : TemplateCanvas(parent, pos, size, false, true),
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), data(v_info.size()),
-highlight_state(project_s->highlight_state),
+highlight_state(project_s->GetHighlightState()),
 vert_axis(0), display_stats(false), show_axes(true),
 hinge_15(true)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering BoxNewPlotCanvas::BoxNewPlotCanvas");
 	template_frame = t_frame;	
-	DbfGridTableBase* grid_base = project->GetGridBase();
+	TableInterface* table_int = project->GetTableInt();
 	
 	sel_scratch.resize(num_obs);
-	grid_base->GetColData(col_ids[0], data[0]);
+	table_int->GetColData(col_ids[0], data[0]);
 	int data0_times = data[0].shape()[0];
 	hinge_stats.resize(data0_times);
 	data_stats.resize(data0_times);
@@ -92,20 +93,25 @@ hinge_15(true)
 			data_sorted[t][i].second = i;
 		}
 		std::sort(data_sorted[t].begin(), data_sorted[t].end(),
-				  GeoDa::dbl_int_pair_cmp_less);
+				  Gda::dbl_int_pair_cmp_less);
 		hinge_stats[t].CalculateHingeStats(data_sorted[t]);
 		data_stats[t].CalculateFromSample(data_sorted[t]);
 	}
 
+	template_frame->ClearAllGroupDependencies();
+	for (int i=0, sz=var_info.size(); i<sz; ++i) {
+		template_frame->AddGroupDependancy(var_info[i].name);
+	}	
+
 	max_plots = GenUtils::min<int>(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
-								   project->GetGridBase()->GetTimeSteps() : 1);
+								   project->GetTableInt()->GetTimeSteps() : 1);
 	cur_num_plots = max_plots;
 	cur_first_ind = var_info[0].time_min;
 	cur_last_ind = var_info[0].time_max;
 	
 	// NOTE: define Box Plot defaults
-	selectable_fill_color = GeoDaConst::map_default_fill_colour;
-	highlight_color = GeoDaConst::highlight_color;
+	selectable_fill_color = GdaConst::map_default_fill_colour;
+	highlight_color = GdaConst::highlight_color;
 	
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = false;
@@ -114,6 +120,7 @@ hinge_15(true)
 	ref_var_index = var_info[0].is_time_variant ? 0 : -1;
 	VarInfoAttributeChange();
 	PopulateCanvas();
+	DisplayStatistics(true);
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
@@ -130,6 +137,10 @@ BoxNewPlotCanvas::~BoxNewPlotCanvas()
 void BoxNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering BoxNewPlotCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((BoxNewPlotFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_BOX_NEW_PLOT_VIEW_MENU_OPTIONS");
@@ -150,7 +161,7 @@ void BoxNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Synchronize " << var_info[0].name << " with Time Control";
 		wxMenuItem* mi =
-		menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+0, s, s);
+		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
 		mi->Check(var_info[0].sync_with_global_time);
 	}
 	
@@ -159,35 +170,35 @@ void BoxNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Fixed scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	
 	wxMenu* menu3 = new wxMenu(wxEmptyString);
 	{
-		int mppv = GeoDaConst::max_plots_per_view_menu_items;
+		int mppv = GdaConst::max_plots_per_view_menu_items;
 		int mp = GenUtils::min<int>(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			wxString s;
 			s << i+1;
 			wxMenuItem* mi =
-			menu3->AppendCheckItem(GeoDaConst::ID_PLOTS_PER_VIEW_1+i, s, s);
+			menu3->AppendCheckItem(GdaConst::ID_PLOTS_PER_VIEW_1+i, s, s);
 			mi->Check(i+1 == cur_num_plots);
 		}
 		if (max_plots > 10) {
 			wxString s;
 			s << "Other...";
 			wxMenuItem* mi =
-			menu3->AppendCheckItem(GeoDaConst::ID_PLOTS_PER_VIEW_OTHER, s, s);
+			menu3->AppendCheckItem(GdaConst::ID_PLOTS_PER_VIEW_OTHER, s, s);
 		}
 		wxString s;
-		if (project->GetGridBase()->GetTimeSteps() <= MAX_BOX_PLOTS) {
+		if (project->GetTableInt()->GetTimeSteps() <= MAX_BOX_PLOTS) {
 			s << "All";
 		} else {
 			s << MAX_BOX_PLOTS << " (max plots allowed)";
 		}
 		wxMenuItem* mi =
-		menu3->AppendCheckItem(GeoDaConst::ID_PLOTS_PER_VIEW_ALL, s, s);
+		menu3->AppendCheckItem(GdaConst::ID_PLOTS_PER_VIEW_ALL, s, s);
 		mi->Check(cur_num_plots == max_plots);
 	}
 	
@@ -217,20 +228,20 @@ void BoxNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	
 	if (var_info[0].is_time_variant) {
 		GeneralWxUtils::CheckMenuItem(menu,
-									  GeoDaConst::ID_TIME_SYNC_VAR1,
+									  GdaConst::ID_TIME_SYNC_VAR1,
 									  var_info[0].sync_with_global_time);
 		GeneralWxUtils::CheckMenuItem(menu,
-									  GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
+									  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 									  var_info[0].fixed_scale);
-		int mppv = GeoDaConst::max_plots_per_view_menu_items;
+		int mppv = GdaConst::max_plots_per_view_menu_items;
 		int mp = GenUtils::min<int>(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			GeneralWxUtils::CheckMenuItem(menu,
-										  GeoDaConst::ID_PLOTS_PER_VIEW_1+i,
+										  GdaConst::ID_PLOTS_PER_VIEW_1+i,
 										  i+1 == cur_num_plots);
 		}
 		GeneralWxUtils::CheckMenuItem(menu,
-									  GeoDaConst::ID_PLOTS_PER_VIEW_ALL,
+									  GdaConst::ID_PLOTS_PER_VIEW_ALL,
 									  cur_num_plots == max_plots);
 	}
 }
@@ -238,7 +249,7 @@ void BoxNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 void BoxNewPlotCanvas::DetermineMouseHoverObjects()
 {
 	total_hover_obs = 0;
-	const double r2 = GeoDaConst::my_point_click_radius;
+	const double r2 = GdaConst::my_point_click_radius;
 	
 	for (int i=0; i<num_obs; i++) sel_scratch[i] = false;
 	for (int t=0; t<cur_num_plots; t++) {
@@ -254,9 +265,9 @@ void BoxNewPlotCanvas::DetermineMouseHoverObjects()
 }
 
 // The following function assumes that the set of selectable objects
-// being selected against are all points.  Since all MyShape objects
+// being selected against are all points.  Since all GdaShape objects
 // define a center point, this is also the default function for
-// all MyShape selectable objects.
+// all GdaShape selectable objects.
 void BoxNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
 	//LOG_MSG("Entering BoxNewPlotCanvas::UpdateSelectionPoints");
@@ -310,12 +321,12 @@ void BoxNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 void BoxNewPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	LOG_MSG("In BoxNewPlotCanvas::DrawSelectableShapes");
-	int radius = GeoDaConst::my_point_click_radius;
+	int radius = GdaConst::my_point_click_radius;
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
 		int ind_base = (t-cur_first_ind)*num_obs;
-		dc.SetPen(GeoDaConst::boxplot_point_color);
+		dc.SetPen(GdaConst::boxplot_point_color);
 		dc.SetBrush(*wxWHITE_BRUSH);
 		for (int i=0; i<min_IQR; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
@@ -327,11 +338,11 @@ void BoxNewPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 		}
 		int iqr_s = GenUtils::max<double>(min_IQR, 0);
 		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
-		dc.SetPen(GeoDaConst::boxplot_q1q2q3_color);
-		dc.SetBrush(GeoDaConst::boxplot_q1q2q3_color);
+		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
+		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
-			MyRectangle* rec = (MyRectangle*) selectable_shps[ind];
+			GdaRectangle* rec = (GdaRectangle*) selectable_shps[ind];
 			dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 							 rec->upper_right.x - rec->lower_left.x,
 							 rec->upper_right.y - rec->lower_left.y);
@@ -366,7 +377,7 @@ void BoxNewPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		for (int i=iqr_s; i<=iqr_t; i++) {
 			if (!hs[data_sorted[t][i].second]) continue;
 			int ind = ind_base + data_sorted[t][i].second;
-			MyRectangle* rec = (MyRectangle*) selectable_shps[ind];
+			GdaRectangle* rec = (GdaRectangle*) selectable_shps[ind];
 			dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 							 rec->upper_right.x - rec->lower_left.x,
 							 rec->upper_right.y - rec->lower_left.y);
@@ -394,7 +405,6 @@ void BoxNewPlotCanvas::update(HighlightState* o)
 
 wxString BoxNewPlotCanvas::GetCanvasTitle()
 {
-	DbfGridTableBase* gb = project->GetGridBase();
 	wxString s("Box Plot (Hinge=");
 	if (hinge_15) s << "1.5): ";
 	else s << "3.0): ";
@@ -402,8 +412,8 @@ wxString BoxNewPlotCanvas::GetCanvasTitle()
 		s << GetNameWithTime(0);
 	} else {
 		s << var_info[0].name << " (";
-		s << gb->GetTimeString(cur_first_ind) << "-";
-		s << gb->GetTimeString(cur_last_ind) << ")";
+		s << project->GetTableInt()->GetTimeString(cur_first_ind) << "-";
+		s << project->GetTableInt()->GetTimeString(cur_last_ind) << ")";
 	}
 	return s;
 }
@@ -413,7 +423,7 @@ wxString BoxNewPlotCanvas::GetNameWithTime(int var)
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -422,12 +432,12 @@ wxString BoxNewPlotCanvas::GetNameWithTime(int var)
 wxString  BoxNewPlotCanvas::GetNameWithTime(int var, int time)
 {
 	if (var < 0 || var >= var_info.size() || 
-		time < 0 || time >= project->GetGridBase()->GetTimeSteps()) {
+		time < 0 || time >= project->GetTableInt()->GetTimeSteps()) {
 		return wxEmptyString;
 	}
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(time);
+		s << " (" << project->GetTableInt()->GetTimeString(time);
 		s << ")";
 	}
 	return s;
@@ -436,21 +446,21 @@ wxString  BoxNewPlotCanvas::GetNameWithTime(int var, int time)
 wxString  BoxNewPlotCanvas::GetTimeString(int var, int time)
 {
 	if (var < 0 || var >= var_info.size() || 
-		time < 0 || time >= project->GetGridBase()->GetTimeSteps() ||
+		time < 0 || time >= project->GetTableInt()->GetTimeSteps() ||
 		!var_info[var].is_time_variant) {
 		return wxEmptyString;
 	}
-	return project->GetGridBase()->GetTimeString(time);
+	return project->GetTableInt()->GetTimeString(time);
 }
 
 void BoxNewPlotCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering BoxNewPlotCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
 	double x_min = 0;
@@ -463,7 +473,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 	shps_orig_ymin = 0;
 	shps_orig_ymax = 100;
 	
-	MyShape* s = 0;
+	GdaShape* s = 0;
 	int table_w=0, table_h=0;
 	if (display_stats) {
 		int cols = 1;
@@ -477,13 +487,13 @@ void BoxNewPlotCanvas::PopulateCanvas()
 		vals[5] << "IQR";
 		vals[6] << "mean";
 		vals[7] << "s.d.";
-		std::vector<MyTable::CellAttrib> attribs(0); // undefined
-		s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
-						wxRealPoint(0, 0), MyText::h_center, MyText::top,
-						MyText::right, MyText::v_center, 3, 10, -45, 30);
+		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
+						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -45, 30);
 		background_shps.push_back(s);
 		wxClientDC dc(this);
-		((MyTable*) s)->GetSize(dc, table_w, table_h);
+		((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
 	}
 	
 	virtual_screen_marg_top = 25;
@@ -493,7 +503,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 	
 	wxSize size(GetVirtualSize());
 	double scale_x, scale_y, trans_x, trans_y;
-	MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 								   shps_orig_xmax, shps_orig_ymax,
 								   virtual_screen_marg_top,
 								   virtual_screen_marg_bottom,
@@ -530,7 +540,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 		axis_scale = AxisScale(y_min, y_max);
 		y_min = axis_scale.scale_min;
 		y_max = axis_scale.scale_max;
-		vert_axis = new MyAxis(var_info[0].name, axis_scale,
+		vert_axis = new GdaAxis(var_info[0].name, axis_scale,
 							   wxRealPoint(0,0), wxRealPoint(0, 100), -20, 0);
 		background_shps.push_back(vert_axis);
 	}
@@ -573,42 +583,42 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
 			vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
 
-			std::vector<MyTable::CellAttrib> attribs(0); // undefined
-			s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
-							wxRealPoint(xM, 0), MyText::h_center, MyText::top,
-							MyText::h_center, MyText::v_center, 3, 10, 0, 30);
+			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+							wxRealPoint(xM, 0), GdaShapeText::h_center, GdaShapeText::top,
+							GdaShapeText::h_center, GdaShapeText::v_center, 3, 10, 0, 30);
 			background_shps.push_back(s);
 		}
 		
-		s = new MyPolyLine(xM-plot_width_const/3.0, (y0-y_min)*scaleY,
+		s = new GdaPolyLine(xM-plot_width_const/3.0, (y0-y_min)*scaleY,
 						   xM+plot_width_const/3.0, (y0-y_min)*scaleY);
 		background_shps.push_back(s);
-		s = new MyPolyLine(xM-plot_width_const/3.0, (y1-y_min)*scaleY,
+		s = new GdaPolyLine(xM-plot_width_const/3.0, (y1-y_min)*scaleY,
 						   xM+plot_width_const/3.0, (y1-y_min)*scaleY);
 		background_shps.push_back(s);
-		s = new MyPolyLine(orig_x_pos[t-cur_first_ind], (y0-y_min)*scaleY,
+		s = new GdaPolyLine(orig_x_pos[t-cur_first_ind], (y0-y_min)*scaleY,
 						   orig_x_pos[t-cur_first_ind], (y1-y_min)*scaleY);
 		background_shps.push_back(s);
-		//s = new MyRectangle(wxRealPoint(x0, (hinge_stats[t].Q1-y_min)*scaleY),
+		//s = new GdaRectangle(wxRealPoint(x0, (hinge_stats[t].Q1-y_min)*scaleY),
 		//					wxRealPoint(x1, (hinge_stats[t].Q3-y_min)*scaleY));
 		//background_shps.push_back(s);
-		s = new MyCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
+		s = new GdaCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
 						 5.0);
-		s->setPen(GeoDaConst::boxplot_point_color);
-		s->setBrush(GeoDaConst::boxplot_mean_point_color);
+		s->setPen(GdaConst::boxplot_point_color);
+		s->setBrush(GdaConst::boxplot_mean_point_color);
 		foreground_shps.push_back(s);
 		double y0m = (hinge_stats[t].Q2-y_min)*scaleY - 0.2;
 		double y1m = (hinge_stats[t].Q2-y_min)*scaleY + 0.2;
-		s = new MyRectangle(wxRealPoint(x0, y0m), wxRealPoint(x1, y1m));
-		s->setPen(GeoDaConst::boxplot_median_color);
-		s->setBrush(GeoDaConst::boxplot_median_color);
+		s = new GdaRectangle(wxRealPoint(x0, y0m), wxRealPoint(x1, y1m));
+		s->setPen(GdaConst::boxplot_median_color);
+		s->setBrush(GdaConst::boxplot_median_color);
 		foreground_shps.push_back(s);
 		
 		wxString plot_label(var_info[0].is_time_variant ?
 							GetTimeString(0, t) : GetNameWithTime(0));
-		s = new MyText(plot_label, *GeoDaConst::small_font,
+		s = new GdaShapeText(plot_label, *GdaConst::small_font,
 					   wxRealPoint(orig_x_pos[t-cur_first_ind], 0), 0,
-					   MyText::h_center, MyText::v_center, 0, 18);
+					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 18);
 		background_shps.push_back(s);
 		
 		for (int i=0; i<hinge_stats[t].min_IQR_ind; i++) {
@@ -617,8 +627,8 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			//LOG_MSG(wxString::Format("data_sorted[%d][%d].first = %f", t, i,
 			//						 data_sorted[t][i].first));
 			selectable_shps[ind] =
-				new MyPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GeoDaConst::boxplot_point_color);
+				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
+			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 		}
 		for (int i=hinge_stats[t].max_IQR_ind+1; i<num_obs; i++) {
@@ -628,12 +638,12 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			//	LOG_MSG(wxString::Format("data_sorted[%d][%d].first = %f", t, i,
 			//						 data_sorted[t][i].first));
 			//	selectable_shps[ind] =
-			//		new MyPoint(orig_x_pos[t-cur_first_ind] + 5,
+			//		new GdaPoint(orig_x_pos[t-cur_first_ind] + 5,
 			//					(val-y_min)*scaleY);
 			//} else {
 			selectable_shps[ind] =
-				new MyPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GeoDaConst::boxplot_point_color);
+				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
+			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 			//}
 		}
@@ -642,10 +652,10 @@ void BoxNewPlotCanvas::PopulateCanvas()
 					   data_sorted[t][hinge_stats[t].min_IQR_ind].second);
 			double y0 = (hinge_stats[t].Q1 - y_min) * scaleY;
 			double y1 = (hinge_stats[t].Q3 - y_min) * scaleY;
-			selectable_shps[ind] = new MyRectangle(wxRealPoint(x0r, y0),
+			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 												   wxRealPoint(x1r, y1));
-			selectable_shps[ind]->setPen(GeoDaConst::boxplot_q1q2q3_color);
-			selectable_shps[ind]->setBrush(GeoDaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
 		} else {
 			int minIQR = hinge_stats[t].min_IQR_ind;
 			int maxIQR = hinge_stats[t].max_IQR_ind;
@@ -659,12 +669,12 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			} else {
 				y1 = (data_sorted[t][minIQR+1].first - y_min)*scaleY;
 			}
-			selectable_shps[ind] = new MyRectangle(wxRealPoint(x0r, y0),
+			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 												   wxRealPoint(x1r, y1));
 			//selectable_shps[ind]->pen = *wxGREEN_PEN;
 			//selectable_shps[ind]->brush = *wxGREEN_BRUSH;
-			selectable_shps[ind]->setPen(GeoDaConst::boxplot_q1q2q3_color);
-			selectable_shps[ind]->setBrush(GeoDaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
 			ind = (t-cur_first_ind)*num_obs + data_sorted[t][maxIQR].second;
 			if (maxIQR < num_obs) {
 				y0 = (((data_sorted[t][maxIQR].first +
@@ -673,12 +683,12 @@ void BoxNewPlotCanvas::PopulateCanvas()
 				y0 = (data_sorted[t][maxIQR-1].first - y_min)*scaleY;
 			}
 			y1 = (hinge_stats[t].Q3 - y_min) * scaleY;
-			selectable_shps[ind] = new MyRectangle(wxRealPoint(x0r, y0),
+			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 												   wxRealPoint(x1r, y1));
 			//selectable_shps[ind]->pen = *wxCYAN_PEN;
 			//selectable_shps[ind]->brush = *wxCYAN_BRUSH;
-			selectable_shps[ind]->setPen(GeoDaConst::boxplot_q1q2q3_color);
-			selectable_shps[ind]->setBrush(GeoDaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
+			selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
 			//LOG(data_sorted[t][maxIQR].first);
 			//LOG(data_sorted[t][maxIQR-1].first);
 			//LOG(hinge_stats[t].Q3);
@@ -690,10 +700,10 @@ void BoxNewPlotCanvas::PopulateCanvas()
 						data_sorted[t][i-1].first)/2.0) - y_min)*scaleY;
 				y1 = (((data_sorted[t][i].first +
 						data_sorted[t][i+1].first)/2.0) - y_min)*scaleY;
-				selectable_shps[ind] = new MyRectangle(wxRealPoint(x0r, y0),
+				selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 													   wxRealPoint(x1r, y1));
-				selectable_shps[ind]->setPen(GeoDaConst::boxplot_q1q2q3_color);
-				selectable_shps[ind]->setBrush(GeoDaConst::boxplot_q1q2q3_color);
+				selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
+				selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
 				//if (ind % 2 == 0) {
 				//	selectable_shps[ind]->pen = *wxBLUE_PEN;
 				//	selectable_shps[ind]->brush = *wxBLUE_BRUSH;
@@ -710,14 +720,14 @@ void BoxNewPlotCanvas::PopulateCanvas()
 	LOG_MSG("Exiting BoxNewPlotCanvas::PopulateCanvas");
 }
 
-void BoxNewPlotCanvas::TitleOrTimeChange()
+void BoxNewPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering BoxNewPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	var_info[0].time = project->GetGridBase()->curr_time_step;
+	var_info[0].time = project->GetTimeState()->GetCurrTime();
 	
-	int time_steps = project->GetGridBase()->GetTimeSteps();
+	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
 	start = GenUtils::max(start, 0);
@@ -731,14 +741,14 @@ void BoxNewPlotCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting BoxNewPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting BoxNewPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void BoxNewPlotCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -746,6 +756,7 @@ void BoxNewPlotCanvas::VarInfoAttributeChange()
 	if (var_info[0].sync_with_global_time) {
 		is_any_sync_with_global_time = true;
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
 	if (var_info[0].is_ref_variable) ref_var_index = 0;
@@ -754,7 +765,7 @@ void BoxNewPlotCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
 void BoxNewPlotCanvas::TimeSyncVariableToggle(int var_index)
@@ -780,7 +791,7 @@ void BoxNewPlotCanvas::PlotsPerView(int plots_per_view)
 {
 	if (plots_per_view == cur_num_plots) return;
 	cur_num_plots = plots_per_view;
-	int time_steps = project->GetGridBase()->GetTimeSteps();
+	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
 	start = GenUtils::max(start, 0);
@@ -798,10 +809,10 @@ void BoxNewPlotCanvas::PlotsPerViewOther()
 	// ask user for custom number of plots.  This dialog only appears
 	// when GetTimeSteps() > 10
 	wxString title("Plots Per View"); 
-	MapQuantileDlg dlg(this, 1, max_plots, 11, title, "Plots Per View");
+	NumCategoriesDlg dlg(this, 1, max_plots, 11, title, "Plots Per View");
 	dlg.SetTitle(title);
-	if (dlg.ShowModal() != wxID_OK) return;
-	else PlotsPerView(dlg.classes);
+	dlg.ShowModal();
+	PlotsPerView(dlg.GetNumCategories());
 }
 
 void BoxNewPlotCanvas::PlotsPerViewAll()
@@ -921,7 +932,7 @@ void BoxNewPlotFrame::OnActivate(wxActivateEvent& event)
 void BoxNewPlotFrame::MapMenus()
 {
 	LOG_MSG("In BoxNewPlotFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_BOX_NEW_PLOT_VIEW_MENU_OPTIONS");
@@ -935,7 +946,7 @@ void BoxNewPlotFrame::MapMenus()
 void BoxNewPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("BoxNewPlotFrame::UpdateOptionMenuItems: Options "
@@ -955,17 +966,12 @@ void BoxNewPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void BoxNewPlotFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void BoxNewPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In BoxNewPlotFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In BoxNewPlotFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
-}
-
-void BoxNewPlotFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void BoxNewPlotFrame::OnShowAxes(wxCommandEvent& event)

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,10 +34,11 @@
 #include "AbstractShape.h"
 #include "BasePoint.h"
 #include "Box.h"
+#include "ShpFile.h"
 #include "ShapeFile.h"
 #include "ShapeFileHdr.h"
 #include "ShapeFileTypes.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenGeomAlgs.h"
 #include "../GenUtils.h"
 using namespace std;
@@ -221,15 +222,14 @@ class PartitionP : public BasePartition  {
     }
     void remove(const int del);
     void cleanup(const BasePartition &p, const int cl)  {
-		for (int cnt= p.first(cl); cnt != GeoDaConst::EMPTY; cnt= p.tail(cnt))
+		for (int cnt= p.first(cl); cnt != GdaConst::EMPTY; cnt= p.tail(cnt))
 			remove(cnt);
     }
 };
 
 
 /**
- PolygonPartition
- */
+ old PolygonPartition
 class PolygonPartition : public PolygonShape
 {
 	private :	
@@ -257,9 +257,58 @@ class PolygonPartition : public PolygonShape
     bool edge(const PolygonPartition &p, const int host, const int guest);
     int sweep(PolygonPartition & guest, const int criteria= 0);
 };
+*/
+class PolygonPartition 
+{
+	protected :
+	Shapefile::PolygonContents     *poly;	
+
+	BasePartition       pX;
+    PartitionP          pY;
+    int *               nbrPoints;
+	
+    int prev(const int pt) const  
+	{
+        int ix= nbrPoints[pt];
+        return (ix >= 0) ? pt-1 : -ix;
+    }
+    int succ(const int pt) const  
+	{
+        int ix= nbrPoints[pt];
+        return (ix >= 0) ? ix : pt+1;
+    }
+	
+	public :	
+	int                 NumPoints;
+    int                 NumParts;
+	
+    PolygonPartition(Shapefile::PolygonContents* _poly)
+	: pX(), pY(), nbrPoints(NULL) {
+        poly = _poly;
+        NumPoints = poly->num_points;
+        NumParts = poly->num_parts;
+    }
+    ~PolygonPartition();
+	
+    Shapefile::Point* GetPoint(const int i){ return &poly->points[i];}
+    int GetPart(int i){ return (int)poly->parts[i]; }
+    double GetMinX(){ return (double)poly->box[0]; }
+    double GetMinY(){ return (double)poly->box[1]; }
+    double GetMaxX(){ return (double)poly->box[2]; }
+    double GetMaxY(){ return (double)poly->box[3]; }
+	
+    int  MakePartition(int mX= 0, int mY= 0);
+    void MakeSmallPartition(const int mX, const double Start,
+							const double Stop);
+    void MakeNeighbors();
+    bool edge(PolygonPartition &p, const int host, const int guest);
+    int sweep(PolygonPartition & guest, const int criteria= 0,
+              double precision_threshold=0.0);
+};
+
 
 /** BoundaryShape */
-class BoundaryShape : public virtual PolygonPartition 
+class BoundaryShape : public virtual PolygonShape 
 {
 public:
 	long int GetNumPoints() {return NumPoints;}

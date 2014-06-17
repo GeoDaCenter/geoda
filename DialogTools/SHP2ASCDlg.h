@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,6 +20,9 @@
 #ifndef __GEODA_CENTER_SHP_2_ASC_DLG_H__
 #define __GEODA_CENTER_SHP_2_ASC_DLG_H__
 
+#include "../ShapeOperations/OGRDatasourceProxy.h"
+#include "../ShapeOperations/OGRLayerProxy.h"
+
 class SHP2ASCDlg: public wxDialog
 {    
     DECLARE_EVENT_TABLE()
@@ -31,6 +34,7 @@ public:
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );
+    ~SHP2ASCDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
 				const wxString& caption = "Exporting Shape to Boundary",
@@ -38,6 +42,8 @@ public:
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );
 
+    bool CreateASCBoundary(wxString oasc, wxString orasc, int field,
+                           int type, bool isR);
     void CreateControls();
 
     void OnOkAddClick( wxCommandEvent& event );
@@ -49,6 +55,7 @@ public:
     void OnCRadio4Selected( wxCommandEvent& event );
     void OnCOpenIshpClick( wxCommandEvent& event );
 
+private:
     wxTextCtrl* m_inputfile;
     wxTextCtrl* m_outputfile;
     wxChoice* m_X;
@@ -60,6 +67,9 @@ public:
 
 	int type;
 	wxString fn;
+    
+    OGRDatasourceProxy* ogr_ds;
+    OGRLayerProxy* ogr_layer;
 };
 
 #endif

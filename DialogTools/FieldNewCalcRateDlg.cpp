@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,9 +23,11 @@
 #include <wx/msgdlg.h>
 #include "../ShapeOperations/RateSmoothing.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../GenUtils.h"
 #include "../Project.h"
 #include "../ShapeOperations/WeightsManager.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "SelectWeightDlg.h"
 #include "FieldNewCalcSpecialDlg.h"
@@ -61,8 +63,8 @@ FieldNewCalcRateDlg::FieldNewCalcRateDlg(Project* project_s,
 										 const wxPoint& pos, const wxSize& size,
 										 long style )
 : all_init(false), project(project_s),
-grid_base(project_s->GetGridBase()), w_manager(project_s->GetWManager()),
-is_space_time(project_s->GetGridBase()->IsTimeVariant())
+table_int(project_s->GetTableInt()), w_manager(project_s->GetWManager()),
+is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
     CreateControls();
@@ -139,7 +141,11 @@ void FieldNewCalcRateDlg::Apply()
 	const int w = m_weight->GetSelection();
 	const int cop1 = col_id_map[m_event->GetSelection()];
 	const int cop2 = col_id_map[m_base->GetSelection()];
-		
+	
+	TableState* ts = project->GetTableState();
+	wxString grp_nm = table_int->GetColName(result_col);
+	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	
 	if (is_space_time && !IsAllTime(result_col, m_result_tm->GetSelection()) &&
 		(IsAllTime(cop1, m_event_tm->GetSelection()) ||
 		 IsAllTime(cop2, m_base_tm->GetSelection())))
@@ -170,21 +176,23 @@ void FieldNewCalcRateDlg::Apply()
 
 	std::vector<int> time_list;
 	if (IsAllTime(result_col, m_result_tm->GetSelection())) {
-		time_list.resize(grid_base->time_steps);
-		for (int i=0; i<grid_base->time_steps; i++) time_list[i] = i;
+		int ts = project->GetTableInt()->GetTimeSteps();
+		time_list.resize(ts);
+		for (int i=0; i<ts; i++) time_list[i] = i;
 	} else {
 		int tm = IsTimeVariant(result_col) ? m_result_tm->GetSelection() : 0;
 		time_list.resize(1);
 		time_list[0] = tm;
 	}
 	
-	const int obs = grid_base->GetNumberRows();
+	const int obs = table_int->GetNumberRows();
 	
 	bool Event_undefined = false;
 	if (IsAllTime(cop1, m_event_tm->GetSelection())) {
 		b_array_type undefined;
-		grid_base->col_data[cop1]->GetUndefined(undefined);
-		for (int t=0; t<grid_base->time_steps && !Event_undefined; t++) {
+		table_int->GetColUndefined(cop1, undefined);
+		int ts = project->GetTableInt()->GetTimeSteps();
+		for (int t=0; t<ts && !Event_undefined; t++) {
 			for (int i=0; i<obs && !Event_undefined; i++) {
 				if (undefined[t][i]) Event_undefined = true;
 			}
@@ -192,7 +200,7 @@ void FieldNewCalcRateDlg::Apply()
 	} else {
 		std::vector<bool> undefined(obs);
 		int tm = IsTimeVariant(cop1) ? m_event_tm->GetSelection() : 0;
-		grid_base->col_data[cop1]->GetUndefined(undefined, tm);
+		table_int->GetColUndefined(cop1, tm, undefined);
 		for (int i=0; i<obs && !Event_undefined; i++) {
 			if (undefined[i]) Event_undefined = true;
 		}		
@@ -208,8 +216,9 @@ void FieldNewCalcRateDlg::Apply()
 	bool Base_undefined = false;
 	if (IsAllTime(cop2, m_base_tm->GetSelection())) {
 		b_array_type undefined;
-		grid_base->col_data[cop2]->GetUndefined(undefined);
-		for (int t=0; t<grid_base->time_steps && !Base_undefined; t++) {
+		table_int->GetColUndefined(cop2, undefined);
+		int ts = project->GetTableInt()->GetTimeSteps();
+		for (int t=0; t<ts && !Base_undefined; t++) {
 			for (int i=0; i<obs && !Base_undefined; i++) {
 				if (undefined[t][i]) Base_undefined = true;
 			}
@@ -217,7 +226,7 @@ void FieldNewCalcRateDlg::Apply()
 	} else {
 		std::vector<bool> undefined(obs);
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
-		grid_base->col_data[cop2]->GetUndefined(undefined, tm);
+		table_int->GetColUndefined(cop2, tm, undefined);
 		for (int i=0; i<obs && !Base_undefined; i++) {
 			if (undefined[i]) Base_undefined = true;
 		}
@@ -233,8 +242,9 @@ void FieldNewCalcRateDlg::Apply()
 	bool Base_non_positive = false;
 	if (IsAllTime(cop2, m_base_tm->GetSelection())) {
 		d_array_type data;
-		grid_base->col_data[cop2]->GetVec(data);
-		for (int t=0; t<grid_base->time_steps && !Base_non_positive; t++) {
+		table_int->GetColData(cop2, data);
+		int ts = project->GetTableInt()->GetTimeSteps();
+		for (int t=0; t<ts && !Base_non_positive; t++) {
 			for (int i=0; i<obs && !Base_non_positive; i++) {
 				if (data[t][i] <= 0) Base_non_positive = true;
 			}
@@ -242,7 +252,7 @@ void FieldNewCalcRateDlg::Apply()
 	} else {
 		std::vector<double> data(obs);
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
-		grid_base->col_data[cop2]->GetVec(data, tm);
+		table_int->GetColData(cop2, tm, data);
 		for (int i=0; i<obs && !Base_non_positive; i++) {
 			if (data[i] <= 0) Base_non_positive = true;
 		}
@@ -264,22 +274,22 @@ void FieldNewCalcRateDlg::Apply()
 
 	if (!IsAllTime(cop2, m_base_tm->GetSelection())) {
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
-		grid_base->col_data[cop2]->GetVec(data, tm);
+		table_int->GetColData(cop2, tm, data);
 		for (int i=0; i<obs; i++) B[i] = data[i];
 	}
 	if (!IsAllTime(cop1, m_event_tm->GetSelection())) {
 		int tm = IsTimeVariant(cop1) ? m_event_tm->GetSelection() : 0;
-		grid_base->col_data[cop1]->GetVec(data, tm);
+		table_int->GetColData(cop1, tm, data);
 		for (int i=0; i<obs; i++) E[i] = data[i];
 	}
 	
 	for (int t=0; t<time_list.size(); t++) {
 		if (IsAllTime(cop2, m_base_tm->GetSelection())) {
-			grid_base->col_data[cop2]->GetVec(data, time_list[t]);
+			table_int->GetColData(cop2, time_list[t], data);
 			for (int i=0; i<obs; i++) B[i] = data[i];
 		}
 		if (IsAllTime(cop1, m_event_tm->GetSelection())) {
-			grid_base->col_data[cop1]->GetVec(data, time_list[t]);
+			table_int->GetColData(cop1, time_list[t], data);
 			for (int i=0; i<obs; i++) E[i] = data[i];
 		}
 		for (int i=0; i<obs; i++) r[i] = -9999;
@@ -287,35 +297,35 @@ void FieldNewCalcRateDlg::Apply()
 		std::vector<bool> undef_r;
 		switch (op) {
 			case 0:
-				GeoDaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
+				GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
 				break;
 			case 1:
-				GeoDaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
+				GdaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
 				break;
 			case 2:
-				GeoDaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
+				GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
 				break;
 			case 3:
-				has_undefined = GeoDaAlgs::RateSmoother_SRS(obs, W, B, E, r,
+				has_undefined = GdaAlgs::RateSmoother_SRS(obs, W, B, E, r,
 															undef_r);
 				break;
 			case 4:
-				has_undefined = GeoDaAlgs::RateSmoother_SEBS(obs, W, B, E, r,
+				has_undefined = GdaAlgs::RateSmoother_SEBS(obs, W, B, E, r,
 															 undef_r);
 				break;
 			case 5:
-				GeoDaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
+				GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
 				break;
 			default:
 				break;
 		}
 	
 		for (int i=0; i<obs; i++) data[i] = r[i];
-		grid_base->col_data[result_col]->SetFromVec(data, time_list[t]);
-		grid_base->col_data[result_col]->SetUndefined(undef_r, time_list[t]);
+		table_int->SetColData(result_col, time_list[t], data);
+		table_int->SetColUndefined(result_col, time_list[t], undef_r);
+
 	}
 	
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
 	if (B) delete [] B; B = NULL;
 	if (E) delete [] E; E = NULL;
 	if (r) delete [] r; r = NULL;
@@ -351,7 +361,7 @@ void FieldNewCalcRateDlg::InitFieldChoices()
 	m_base->Clear();
 	m_weight->Clear();
 	
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 	
 	wxString r_tm, event_tm, base_tm;
 	if (is_space_time) {
@@ -361,14 +371,14 @@ void FieldNewCalcRateDlg::InitFieldChoices()
 	}
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		if (is_space_time &&
-			grid_base->col_data[col_id_map[i]]->time_steps > 1) {			
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name + r_tm);
-			m_event->Append(grid_base->col_data[col_id_map[i]]->name +event_tm);
-			m_base->Append(grid_base->col_data[col_id_map[i]]->name + base_tm);
+			table_int->GetColTimeSteps(col_id_map[i]) > 1) {			
+			m_result->Append(table_int->GetColName(col_id_map[i]) + r_tm);
+			m_event->Append(table_int->GetColName(col_id_map[i]) +event_tm);
+			m_base->Append(table_int->GetColName(col_id_map[i]) + base_tm);
 		} else {
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_event->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_base->Append(grid_base->col_data[col_id_map[i]]->name);
+			m_result->Append(table_int->GetColName(col_id_map[i]));
+			m_event->Append(table_int->GetColName(col_id_map[i]));
+			m_base->Append(table_int->GetColName(col_id_map[i]));
 		}
 	}
 	
@@ -406,14 +416,14 @@ void FieldNewCalcRateDlg::UpdateOtherPanels()
 bool FieldNewCalcRateDlg::IsTimeVariant(int col_id)
 {
 	if (!is_space_time) return false;
-	return (grid_base->IsColTimeVariant(col_id));
+	return (table_int->IsColTimeVariant(col_id));
 }
 
 bool FieldNewCalcRateDlg::IsAllTime(int col_id, int tm_sel)
 {
 	if (!is_space_time) return false;
-	if (!grid_base->IsColTimeVariant(col_id)) return false;
-	return tm_sel == grid_base->time_steps;
+	if (!table_int->IsColTimeVariant(col_id)) return false;
+	return tm_sel == project->GetTableInt()->GetTimeSteps();
 }
 
 void FieldNewCalcRateDlg::OnRateResultUpdated( wxCommandEvent& event )
@@ -470,11 +480,11 @@ void FieldNewCalcRateDlg::OnOpenWeightClick( wxCommandEvent& event )
 
 void FieldNewCalcRateDlg::OnAddColumnClick( wxCommandEvent& event )
 {
-	DataViewerAddColDlg dlg(grid_base, this);
+	DataViewerAddColDlg dlg(project, this);
 	if (dlg.ShowModal() != wxID_OK) return;
 	InitFieldChoices();
 	wxString sel_str = dlg.GetColName();
-	if (grid_base->col_data[dlg.GetColId()]->time_steps > 1) {
+	if (table_int->GetColTimeSteps(dlg.GetColId()) > 1) {
 		sel_str << " (" << m_result_tm->GetStringSelection() << ")";
 	}
 	m_result->SetSelection(m_result->FindString(sel_str));
@@ -492,13 +502,13 @@ void FieldNewCalcRateDlg::OnMethodChange( wxCommandEvent& event )
 void FieldNewCalcRateDlg::InitTime(wxChoice* time_list)
 {
 	time_list->Clear();
-	for (int i=0; i<grid_base->time_steps; i++) {
+	for (int i=0; i<project->GetTableInt()->GetTimeSteps(); i++) {
 		wxString t;
-		t << grid_base->time_ids[i];
+		t << project->GetTableInt()->GetTimeString(i);
 		time_list->Append(t);
 	}
 	time_list->Append("all times");
-	time_list->SetSelection(grid_base->time_steps);
+	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
 	time_list->Disable();
 	time_list->Show(is_space_time);
 }

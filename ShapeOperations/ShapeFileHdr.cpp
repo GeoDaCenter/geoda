@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -18,7 +18,7 @@
  */
 
 #include "ShapeFileHdr.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenUtils.h"
 #include "../logger.h"
 
@@ -28,7 +28,7 @@
 
 ShapeFileHdr::ShapeFileHdr(const ShapeFileTypes::ShapeType FileShape)
 	: FileCode(kFileCode), Version(kVersion),
-	  FileLength(GeoDaConst::ShpHeaderSize), fShape(FileShape)
+	  FileLength(GdaConst::ShpHeaderSize), fShape(FileShape)
 {
 }
 
@@ -123,7 +123,7 @@ void ShapeFileHdr::MakeBuffer(char* s) const
 	
 	wxInt32 *ptr= (wxInt32 *) s;
 	int cp;
-	for (cp= 0; cp < GeoDaConst::ShpHeaderSize/2; ++cp) ptr[cp]= 0;
+	for (cp= 0; cp < GdaConst::ShpHeaderSize/2; ++cp) ptr[cp]= 0;
 #ifdef WORDS_BIGENDIAN
 	hr->f[0] = FileCode;
 	hr->f[6] = FileLength;
@@ -170,19 +170,19 @@ void ShapeFileHdr::Replace (const wxString& fname, const wxInt32& recs)
 	FILE *shp = fopen(
 		GenUtils::swapExtension(fname, "shp"), "rb+");
 	fseek(shp, 0, SEEK_SET);
-	fwrite((char*)&buf, sizeof(char), GeoDaConst::ShpHeaderSize * 2, shp);
+	fwrite((char*)&buf, sizeof(char), GdaConst::ShpHeaderSize * 2, shp);
 	fclose(shp);
 	
 	// update *.shx file
 	FILE *shx = fopen(
 		GenUtils::swapExtension(fname, "shx"), "rb+");
 #ifdef WORDS_BIGENDIAN
-	buf.f[6] = GeoDaConst::ShpHeaderSize + 4 * recs;
+	buf.f[6] = GdaConst::ShpHeaderSize + 4 * recs;
 #else
-	buf.f[6]= GenUtils::Reverse(GeoDaConst::ShpHeaderSize + 4 * recs);
+	buf.f[6]= GenUtils::Reverse(GdaConst::ShpHeaderSize + 4 * recs);
 #endif
 	fseek(shx, 0, SEEK_SET);
-	fwrite((char*)&buf, sizeof(char), GeoDaConst::ShpHeaderSize * 2, shx);
+	fwrite((char*)&buf, sizeof(char), GdaConst::ShpHeaderSize * 2, shx);
 	fclose(shx);
 	
 	// update *.dbf file
@@ -206,7 +206,7 @@ ShapeFileHdr& operator<<(ShapeFileHdr& hd, const AbstractShape& s)
 {
 	Box bo;
 	bo = hd.BoundingBox();
-	if (hd.Length() == GeoDaConst::ShpHeaderSize) { 
+	if (hd.Length() == GdaConst::ShpHeaderSize) { 
 		hd.SetFileBox(s.ShapeBox());
 	} else {
 		bo += s.ShapeBox();
@@ -220,8 +220,8 @@ ShapeFileHdr& operator<<(ShapeFileHdr& hd, const AbstractShape& s)
 
 oShapeFile& operator<<(oShapeFile& s, const ShapeFileHdr& hd)
 {
-	char buf[GeoDaConst::ShpHeaderSize*2];
+	char buf[GdaConst::ShpHeaderSize*2];
 	hd.MakeBuffer(buf);
-	s.write(buf, 2*GeoDaConst::ShpHeaderSize);
+	s.write(buf, 2*GdaConst::ShpHeaderSize);
 	return s;
 }

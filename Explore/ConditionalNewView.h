@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,16 +27,16 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class CatClassifState;
 class ConditionalNewFrame;
 class ConditionalNewCanvas;
 class ConditionalNewLegend;
-class DbfGridTableBase;
+class TableInterface;
 
 typedef boost::multi_array<double, 2> d_array_type;
-typedef boost::multi_array<MyRectangle, 2> rec_array_type;
+typedef boost::multi_array<GdaRectangle, 2> rec_array_type;
 
 class ConditionalNewCanvas
 	: public TemplateCanvas, public CatClassifStateObserver
@@ -64,20 +64,19 @@ public:
 	virtual void NewCustomCatClassifHoriz();
 	virtual void ChangeThemeType(int var_id,
 						CatClassification::CatClassifType new_theme,
-						bool prompt_num_cats = true,
+						int num_categories,
 						const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 		
 protected:
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	
 public:
-	virtual void CreateAndUpdateCategories(int var_id,
-										   bool prompt_num_cats = true);
+	virtual void CreateAndUpdateCategories(int var_id);
 	virtual void UpdateNumVertHorizCats();
 	virtual void UserChangedCellCategories() {}
 	
@@ -86,11 +85,14 @@ public:
 	CatClassifDef cat_classif_def_horiz;
 	CatClassifDef cat_classif_def_vert;
 	CatClassification::CatClassifType GetCatType(int var_id);
-	void SetCatType(int var_id, CatClassification::CatClassifType cc_type);
+	void SetCatType(int var_id, CatClassification::CatClassifType cc_type,
+					int num_categories);
+	int GetHorizNumCats() { return horiz_num_cats; }
+	int GetVertNumCats() { return vert_num_cats; }
 
 protected:
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	HighlightState* highlight_state;
 	CatClassifState* cc_state_vert;
 	CatClassifState* cc_state_horiz;
@@ -108,8 +110,8 @@ protected:
 	
 	int horiz_num_cats; // number of horizontal categories
 	int vert_num_cats; // number of vertical categories
-	std::vector<GeoDa::dbl_int_pair_vec_type> horiz_var_sorted;
-	std::vector<GeoDa::dbl_int_pair_vec_type> vert_var_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> horiz_var_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> vert_var_sorted;
 	CatClassifData horiz_cat_data;
 	CatClassifData vert_cat_data;
 	std::vector<bool> horiz_cats_valid;
@@ -144,10 +146,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	virtual void OnNewCustomCatClassifA(); // Map Theme
 	virtual void OnNewCustomCatClassifB(); // Horizontal Cats
@@ -158,9 +158,11 @@ public:
 	
 	virtual void ChangeVertThemeType(
 								CatClassification::CatClassifType new_theme,
+								int num_categories,
 								const wxString& cc_title = wxEmptyString);
 	virtual void ChangeHorizThemeType(
 								CatClassification::CatClassifType new_theme,
+								int num_categories,
 								const wxString& cc_title = wxEmptyString);
 	
     DECLARE_EVENT_TABLE()

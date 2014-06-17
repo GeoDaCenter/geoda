@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,12 +26,13 @@
 #include <wx/listbox.h>
 #include "../GenUtils.h"
 
-class DbfGridTableBase;
+class Project;
+class TableInterface;
 
 class PCPDlg: public wxDialog
 {    
 public:
-    PCPDlg(DbfGridTableBase* grid_base, wxWindow* parent,
+    PCPDlg(Project* project, wxWindow* parent,
 		   wxWindowID id = wxID_ANY, 
 		   const wxString& title = "Parallel Coordinate Plot", 
 		   const wxPoint& pos = wxDefaultPosition, 
@@ -71,7 +72,8 @@ protected:
 	// 0->2, 1->1, 2->0, 3->5, 4->3, 5->4.  Numeric fields only.
 	std::vector<int> col_id_map;
 	
-	DbfGridTableBase* grid_base;
+	Project* project;
+	TableInterface* table_int;
 	
 	DECLARE_EVENT_TABLE();
 };

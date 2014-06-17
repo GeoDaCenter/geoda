@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,22 +20,28 @@
 #ifndef __GEODA_CENTER_WEIGHTS_MANAGER_H__
 #define __GEODA_CENTER_WEIGHTS_MANAGER_H__
 
+#include <list>
 #include <vector>
+#include "WeightsManPtree.h"
 class GeoDaWeight;
 class GalWeight;
 class GwtWeight;
 class GalElement;
 class GwtElement;
 class ProgressDlg;
+class TableInterface;
+class Project;
 
 /** WeightsManager is a manager for all of the currently opened weights files
  associated with a Project instance. */
 class WeightsManager
 {
 public:	
-	WeightsManager(int obs);
+	WeightsManager(Project* project);
 	virtual ~WeightsManager();
 	bool clean();
+	void InitFromMetaInfo(std::list<WeightsMetaInfo> wmi_list,
+						  TableInterface* table_int);
 	int GetNumObservations() { return observations; }
 	GeoDaWeight* GetWeight(int pos);
 	GeoDaWeight* GetCurrWeight();
@@ -46,12 +52,13 @@ public:
 	bool AddWeightFile(GeoDaWeight* weight, bool set_as_default = false);
 	int GetNumWeights() { return num_weights; }
 	wxString GetWFilename(int pos);
+	wxString GetWTitle(int pos);
 	int GetCurrWeightInd() { return current_weight; }
 	bool SetCurrWeightInd(int pos);
 	bool IsDefaultWeight() { return is_default_weight_set; }
 	void SetDefaultWeight(bool s) { is_default_weight_set = s; }
 	wxString GetCurrWFilename();
-	wxString GetCurrWeightTitle();
+	wxString GetCurrWTitle();
 	bool IsWSymmetric(int pos);
 	void SetWSymmetric(int pos, bool symmetric);
 	bool IsWSymmetricValid(int pos);
@@ -66,6 +73,7 @@ private:
 	static void DumpGal(GalWeight* w);
 	static void DumpGwt(GwtWeight* w);
 	
+	Project* project;
 	std::vector<GeoDaWeight*> weights;
 	int num_weights; // number of non-null weights
 	int current_weight; // current weight index, -1 indicates none

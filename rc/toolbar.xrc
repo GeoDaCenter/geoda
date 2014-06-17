@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <resource>
   <object class="wxToolBar" name="ToolBar">
-    <object class="tool" name="ID_OPEN_CHOICES">
+    <object class="tool" name="ID_NEW_PROJECT">
+      <bitmap>ToolBar-new-project.png</bitmap>
+      <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
+      <tooltip>New Project</tooltip>
+    </object>
+    <object class="tool" name="ID_OPEN_PROJECT">
       <bitmap>ToolBar-open-folder.png</bitmap>
       <bitmap2>ToolBar-open-folder_disabled.png</bitmap2>
       <tooltip>Open Project</tooltip>
     </object>
-    <object class="tool" name="ID_CLOSE_ALL">
+    <object class="tool" name="ID_CLOSE_PROJECT">
       <bitmap>ToolBar-close-folder.png</bitmap>
       <bitmap2>ToolBar-close-folder_disabled.png</bitmap2>
-      <tooltip>Close All</tooltip>
+      <tooltip>Close Project</tooltip>
+    </object>
+    <object class="tool" name="ID_SAVE_PROJECT">
+      <bitmap>ToolBar-save-project.png</bitmap>
+      <bitmap2>ToolBar-save-project_disabled.png</bitmap2>
+      <tooltip>Save Project</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
-      <bitmap>ToolBarBitmaps_18.png</bitmap>
-      <bitmap2>ToolBarBitmaps_18_disabled.png</bitmap2>
+      <bitmap>ToolBar-table.png</bitmap>
+      <bitmap2>ToolBar-table_disabled.png</bitmap2>
       <tooltip>Open Table</tooltip>
     </object>
     <object class="tool" name="ID_SET_DEFAULT_VARIABLE_SETTINGS">
@@ -39,22 +49,22 @@
       <tooltip>Connectivity Histogram</tooltip>
     </object>
     <object class="separator"/>
-	<object class="tool" name="ID_SHOW_TIME_CHOOSER">
+    <object class="tool" name="ID_SHOW_TIME_CHOOSER">
       <bitmap>ToolBarBitmaps_42.png</bitmap>
       <bitmap2>ToolBarBitmaps_42_disabled.png</bitmap2>
       <tooltip>Time Control</tooltip>
     </object>
-	<object class="tool" name="ID_SHOW_DATA_MOVIE">
-      <bitmap>ToolBarBitmaps_31.png</bitmap>
-      <bitmap2>ToolBarBitmaps_31_disabled.png</bitmap2>
+    <object class="tool" name="ID_SHOW_DATA_MOVIE">
+      <bitmap>ToolBar-movie.png</bitmap>
+      <bitmap2>ToolBar-movie_disabled.png</bitmap2>
       <tooltip>Animation</tooltip>
     </object>
-	<object class="tool" name="ID_SHOW_CAT_CLASSIF">
+    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
       <bitmap>ToolBarBitmaps_44.png</bitmap>
       <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
       <tooltip>Category Editor</tooltip>
     </object>
-	<object class="separator"/>
+    <object class="separator"/>
     <object class="tool" name="ID_MAP_CHOICES">
       <bitmap>ToolBarBitmaps_MapChoices2.png</bitmap>
       <bitmap2>ToolBarBitmaps_MapChoices2_disabled.png</bitmap2>
@@ -87,8 +97,8 @@
       <tooltip>Bubble Chart</tooltip>
     </object>
     <object class="tool" name="IDM_3DP">
-      <bitmap>ToolBarBitmaps_16.png</bitmap>
-      <bitmap2>ToolBarBitmaps_16_disabled.png</bitmap2>
+      <bitmap>ToolBar-3D.png</bitmap>
+      <bitmap2>ToolBar-3D_disabled.png</bitmap2>
       <tooltip>3D Scatter Plot</tooltip>
     </object>
     <object class="tool" name="IDM_PCP">
@@ -117,8 +127,8 @@
       <bitmap2>ToolBarBitmaps_37_disabled.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>
     </object>
-	<object class="separator"/>
-	<object class="tool" name="ID_REGRESSION_CLASSIC">
+    <object class="separator"/>
+    <object class="tool" name="ID_REGRESSION_CLASSIC">
       <bitmap>ToolBarBitmaps_43.png</bitmap>
       <bitmap2>ToolBarBitmaps_43_disabled.png</bitmap2>
       <tooltip>Regression</tooltip>

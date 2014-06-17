@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,11 +22,11 @@
 
 #include <fstream>
 #include <vector>
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "GeodaWeight.h"
 
 class GalElement;
-class DbfGridTableBase;
+class TableInterface;
 struct DataPoint;
 
 struct GwtNeighbor
@@ -43,8 +43,7 @@ public:
     GwtNeighbor* data; // list neighborhood
 	
 public:
-    GwtElement(const long sz=0) : data(0), nbrs(0) {
-        if (sz > 0) data = new GwtNeighbor[sz]; }
+    GwtElement() : data(0), nbrs(0) {}
     virtual ~GwtElement() {
         if (data) delete [] data;
         nbrs = 0; }
@@ -58,7 +57,7 @@ public:
     bool empty() const { return data == 0; }
     void Push(const GwtNeighbor &elt) { data[nbrs++] = elt; }
     GwtNeighbor Pop() {
-        if (!nbrs) return GwtNeighbor(GeoDaConst::EMPTY);
+        if (!nbrs) return GwtNeighbor(GdaConst::EMPTY);
         return data[--nbrs]; }
     long Size() const { return nbrs; }
     GwtNeighbor elt(const long where) const { return data[where]; }
@@ -87,8 +86,8 @@ public:
 
 namespace WeightUtils {
 	GalElement* ReadGwtAsGal(const wxString& w_fname,
-							DbfGridTableBase* grid_base);
-	GwtElement* ReadGwt(const wxString& w_fname, DbfGridTableBase* grid_base);
+							TableInterface* table_int);
+	GwtElement* ReadGwt(const wxString& w_fname, TableInterface* table_int);
 	GalElement* Gwt2Gal(GwtElement* Gwt, long obs);
 }
 

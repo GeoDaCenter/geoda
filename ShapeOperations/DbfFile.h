@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,13 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <wx/string.h>
-#include <wx/txtstrm.h>
-#include <wx/sstream.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <set>
+#include <utility>
 #include <vector>
+#include <wx/string.h>
+#include <wx/txtstrm.h>
+#include <wx/sstream.h>
+#include "../GdaConst.h"
 
 #ifndef __GEODA_CENTER_DBF_FILE_H__
 #define __GEODA_CENTER_DBF_FILE_H__
@@ -58,6 +61,8 @@ class DbfFileReader
   std::vector<DbfFieldDesc> getFieldDescs();
   DbfFieldDesc getFieldDesc(int field);
   DbfFieldDesc getFieldDesc(const wxString& f_name);
+  void getFieldTypes(std::map<wxString,GdaConst::FieldType>& field_type_map);
+  void getFieldList(std::vector<wxString>& field_list);
   bool getFieldValsLong(int field, std::vector<wxInt64>& vals);
   bool getFieldValsLong(const wxString& f_name, std::vector<wxInt64>& vals);
   bool getFieldValsDouble(int field, std::vector<double>& vals);

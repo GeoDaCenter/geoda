@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/functional/hash.hpp>
 #include "ShpFile.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 // note: might want to use model::multi_polygon
 
@@ -93,8 +93,8 @@ namespace ShapeUtils {
 	void populatePointShpFile(const std::vector<double>& x,
 							  const std::vector<double>& y,
 							  Shapefile::Index& index, Shapefile::Main& main);
-	void convertMyPolygonsToShpFile(
-							const std::vector<MyPolygon*>& voronoi_polygons,
+	void convertGdaPolygonsToShpFile(
+							const std::vector<GdaPolygon*>& voronoi_polygons,
 							const double& voronoi_bb_xmin,
 							const double& voronoi_bb_ymin,
 							const double& voronoi_bb_xmax,

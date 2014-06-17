@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,8 +28,8 @@
 #include "../ShapeOperations/shp2cnt.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
-#include "../GeoDaConst.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
+#include "../GdaConst.h"
 #include "../logger.h"
 #include "RandomizationDlg.h"
 
@@ -256,8 +256,8 @@ void RandomizationDlg::Draw(wxDC* dc)
 		freq[i] = int(df);
 	}
 
-	wxColour color = (count_greater ? GeoDaConst::outliers_colour :
-					  GeoDaConst::textColor);
+	wxColour color = (count_greater ? GdaConst::outliers_colour :
+					  GdaConst::textColor);
 	for (int i=0; i < thresholdBin; i++) {
 		if (freq[i] > 0) {
 			int xx = Top + Height - freq[i];
@@ -267,8 +267,8 @@ void RandomizationDlg::Draw(wxDC* dc)
 		}
 	}
 
-	color = (!count_greater ? GeoDaConst::outliers_colour :
-			 GeoDaConst::textColor);
+	color = (!count_greater ? GdaConst::outliers_colour :
+			 GdaConst::textColor);
 	for (int i=thresholdBin+1; i < bins; i++) {
 		if (freq[i] > 0) {
 			int xx = Top + Height - freq[i];
@@ -280,10 +280,10 @@ void RandomizationDlg::Draw(wxDC* dc)
 	
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
-				  GeoDaConst::highlight_color );
+				  GdaConst::highlight_color );
 
 	wxPen drawPen(*wxBLACK_PEN);
-	drawPen.SetColour(GeoDaConst::textColor);
+	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
 
 	//dc->DrawLine(Left, Top, Left, Top+Height); // Vertical axis
@@ -300,7 +300,7 @@ void RandomizationDlg::Draw(wxDC* dc)
 	nf.SetPointSize(fs);
 	dc->SetFont(nf);
 	
-	drawPen.SetColour(GeoDaConst::textColor);
+	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
 	double zval = 0;
 	if (MSdev != 0) zval = (Moran-MMean)/MSdev;

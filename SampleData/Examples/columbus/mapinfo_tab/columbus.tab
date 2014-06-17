@@ -1,0 +1,27 @@
+!table
+!version 300
+!charset Neutral
+
+Definition Table
+  Type NATIVE Charset "Neutral"
+  Fields 20
+    AREA Float ;
+    PERIMETER Float ;
+    COLUMBUS_ Integer ;
+    COLUMBUS_I Integer ;
+    POLYID Integer ;
+    NEIG Integer ;
+    HOVAL Float ;
+    INC Float ;
+    CRIME Float ;
+    OPEN Float ;
+    PLUMB Float ;
+    DISCBD Float ;
+    X Float ;
+    Y Float ;
+    NSA Float ;
+    NSB Float ;
+    EW Float ;
+    CP Float ;
+    THOUS Float ;
+    NEIGNO Float ;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -44,7 +44,7 @@ public:
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
@@ -67,7 +67,7 @@ public:
 					bool isClusterMap, bool isBivariate,
 					bool isEBRate,
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GeoDaConst::map_default_size,
+					const wxSize& size = GdaConst::map_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaMapNewFrame();
 	
@@ -82,6 +82,9 @@ public:
 	void OnRan499Per(wxCommandEvent& event);
 	void OnRan999Per(wxCommandEvent& event);
 	void OnRanOtherPer(wxCommandEvent& event);
+	
+	void OnUseSpecifiedSeed(wxCommandEvent& event);
+	void OnSpecifySeedDlg(wxCommandEvent& event);
 	
 	void SetSigFilterX(int filter);
 	void OnSigFilter05(wxCommandEvent& event);

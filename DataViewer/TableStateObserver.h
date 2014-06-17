@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,11 +20,22 @@
 #ifndef __GEODA_CENTER_TABLE_STATE_OBSERVER_H__
 #define __GEODA_CENTER_TABLE_STATE_OBSERVER_H__
 
+#include <wx/string.h>
 class TableState;  // forward declaration
 
 class TableStateObserver {
 public:
 	virtual void update(TableState* o) = 0;
+	
+	/** This method is only here temporarily until all observer classes
+	 support dynamic time changes such as swap, rename and add/remove. */
+	virtual bool AllowTimelineChanges() = 0;
+	
+	/** Does this observer allow data modifications to named group. */
+	virtual bool AllowGroupModify(const wxString& grp_nm) = 0;
+	
+	/** Does this observer allow Table/Geometry row additions and deletions. */
+	virtual bool AllowObservationAddDelete() = 0;
 };
 
 #endif

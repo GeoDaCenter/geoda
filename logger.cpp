@@ -56,5 +56,6 @@ logger_t & logger()
 	return *ans;
 }
 
-#endif // !CLEANLOG
+#endif
+// !CLEANLOG
 

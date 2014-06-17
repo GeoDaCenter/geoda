@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,10 +24,11 @@
 #include <set>
 #include <vector>
 
-class MyPolygon;
+class GdaPolygon;
+class GdaShape;
 class GalElement;
 
-namespace GeoDa {
+namespace Gda {
 	namespace VoronoiUtils {
 		
 		void FindPointDuplicates(const std::vector<double>& x,
@@ -35,7 +36,7 @@ namespace GeoDa {
 								 std::list<std::list<int> >& duplicates);
 		bool MakePolygons(const std::vector<double>& x,
 						  const std::vector<double>& y,
-						  std::vector<MyPolygon*> &polys,
+						  std::vector<GdaShape*> &polys,
 						  double& voronoi_bb_xmin, double& voronoi_bb_ymin,
 						  double& voronoi_bb_xmax, double& voronoi_bb_ymax);
 		bool PointsToContiguity(const std::vector<double>& x,

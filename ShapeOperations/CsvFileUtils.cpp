@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@
     escape out " chars with a second ".
  Eg.  6" -> "6"""  or 1,2,3 -> "1,2,3"
  3. Each string chunk is seperated by , chars. */
-void GeoDa::StringsToCsvRecord(const std::vector<std::string>& strings,
+void Gda::StringsToCsvRecord(const std::vector<std::string>& strings,
 							   std::string& record)
 {
 	using namespace std;
@@ -66,7 +66,7 @@ void GeoDa::StringsToCsvRecord(const std::vector<std::string>& strings,
 	record = ss.str();
 }
 
-std::istream& GeoDa::safeGetline(std::istream& is, std::string& t)
+std::istream& Gda::safeGetline(std::istream& is, std::string& t)
 {
     t.clear();
 	
@@ -96,7 +96,7 @@ std::istream& GeoDa::safeGetline(std::istream& is, std::string& t)
     }
 }
 
-bool GeoDa::GetCsvStats(const std::string& csv_fname,
+bool Gda::GetCsvStats(const std::string& csv_fname,
 						int& num_rows, int& num_cols,
 						std::vector<std::string>& first_row,
 						wxString& err_msg)
@@ -109,7 +109,7 @@ bool GeoDa::GetCsvStats(const std::string& csv_fname,
 		return false;
 	}
 	
-	typedef GeoDa::csv_record_grammar<string::const_iterator> csv_rec_gram;
+	typedef Gda::csv_record_grammar<string::const_iterator> csv_rec_gram;
 	csv_rec_gram csv_record; // CSV grammar instance
 	using boost::spirit::ascii::space;
 	
@@ -121,7 +121,7 @@ bool GeoDa::GetCsvStats(const std::string& csv_fname,
 	bool blank_line_seen_once = false;
 	
 	// Parse the first line
-	GeoDa::safeGetline(file, line);
+	Gda::safeGetline(file, line);
 	if (line.empty()) {
 		err_msg << "First line of CSV is empty";
 		file.close();
@@ -142,7 +142,7 @@ bool GeoDa::GetCsvStats(const std::string& csv_fname,
 	// count remaining number of non-blank lines in file
 	while ( !file.eof() && file.good() && !done ) {
 		int pos = file.tellg();
-		GeoDa::safeGetline(file, line);
+		Gda::safeGetline(file, line);
 		if (!line.empty()) num_rows++;
 		if (pos == file.tellg()) done = true;
 	}
@@ -153,7 +153,7 @@ bool GeoDa::GetCsvStats(const std::string& csv_fname,
 
 /** If first_row_field_names is true, then first row of data will be ignored
  */
-bool GeoDa::FillStringTableFromCsv(const std::string& csv_fname,
+bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 								   std_str_array_type& string_table,
 								   bool first_row_field_names,
 								   wxString& err_msg)
@@ -165,7 +165,7 @@ bool GeoDa::FillStringTableFromCsv(const std::string& csv_fname,
 	int num_cols = 0;
 	std::vector<std::string> first_row;
 	wxString stats_err_msg;
-	bool success = GeoDa::GetCsvStats(csv_fname, num_rows, num_cols, first_row,
+	bool success = Gda::GetCsvStats(csv_fname, num_rows, num_cols, first_row,
 									  stats_err_msg);
 	if (!success) {
 		err_msg = stats_err_msg;
@@ -182,18 +182,18 @@ bool GeoDa::FillStringTableFromCsv(const std::string& csv_fname,
 	}
 	
 	vector<string> v;
-	typedef GeoDa::csv_record_grammar<string::const_iterator> csv_rec_gram;
+	typedef Gda::csv_record_grammar<string::const_iterator> csv_rec_gram;
 	csv_rec_gram csv_record; // CSV grammar instance
 	using boost::spirit::ascii::space;
 	
 	int row = 0;
 	string line;
 	// skip first row if these are field names
-	if (first_row_field_names) GeoDa::safeGetline(file, line);
+	if (first_row_field_names) Gda::safeGetline(file, line);
 	bool done = false;
 	while ( !file.eof() && file.good() && !done && row < num_rows ) {
 		int pos = file.tellg();
-		GeoDa::safeGetline(file, line);
+		Gda::safeGetline(file, line);
 		if (!line.empty()) {
 			v.clear();
 			string::const_iterator iter = line.begin();
@@ -234,7 +234,7 @@ bool GeoDa::FillStringTableFromCsv(const std::string& csv_fname,
 	return true;
 }
 
-bool GeoDa::ConvertColToLongs(const std_str_array_type& string_table,
+bool Gda::ConvertColToLongs(const std_str_array_type& string_table,
 							  int col, std::vector<wxInt64>& v,
 							  std::vector<bool>& undef,
 							  int& failed_index)
@@ -268,7 +268,7 @@ bool GeoDa::ConvertColToLongs(const std_str_array_type& string_table,
 	return true;
 }
 
-bool GeoDa::ConvertColToDoubles(const std_str_array_type& string_table,
+bool Gda::ConvertColToDoubles(const std_str_array_type& string_table,
 								int col, std::vector<double>& v,
 								std::vector<bool>& undef,
 								int& failed_index)

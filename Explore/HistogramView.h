@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,9 +26,9 @@
 #include "CatClassification.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class HistogramCanvas;
 class HistogramFrame;
@@ -58,7 +58,7 @@ public:
 	
 protected:
 	virtual void PopulateCanvas();
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	
 public:
@@ -82,7 +82,7 @@ protected:
 	int num_time_vals;
 	int ref_var_index;
 	std::vector<GeoDaVarInfo> var_info;
-	std::vector<GeoDa::dbl_int_pair_vec_type> data_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	std::vector<HingeStats> hinge_stats;
 	bool is_any_time_variant;
@@ -90,8 +90,8 @@ protected:
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
-	MyAxis* x_axis;
-	MyAxis* y_axis;
+	GdaAxis* x_axis;
+	GdaAxis* y_axis;
 	bool scale_x_over_time;
 	bool scale_y_over_time;
 
@@ -131,7 +131,7 @@ public:
 				   const std::vector<int>& col_ids,
 				   const wxString& title = "Histogram",
 				   const wxPoint& pos = wxDefaultPosition,
-				   const wxSize& size = GeoDaConst::hist_default_size,
+				   const wxSize& size = GdaConst::hist_default_size,
 				   const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~HistogramFrame();
 	
@@ -141,10 +141,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);

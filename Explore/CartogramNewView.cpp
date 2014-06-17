@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,13 +26,11 @@
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
-#include "../DialogTools/MapQuantileDlg.h"
 #include "../DialogTools/SelectWeightDlg.h"
-#include "../DialogTools/SaveToTableDlg.h"
-#include "../DialogTools/VariableSettingsDlg.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../FramesManager.h"
@@ -105,10 +103,10 @@ CartogramNewCanvas::CartogramNewCanvas(wxWindow *parent,
 : TemplateCanvas(parent, pos, size, true, true),
 project(project_s), num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
-num_cats(6),
-highlight_state(project_s->highlight_state), custom_classif_state(0),
+num_categories(6),
+highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
 data(v_info.size()), var_info(v_info),
-grid_base(project_s->GetGridBase()), gal_weight(0),
+table_int(project_s->GetTableInt()), gal_weight(0),
 full_map_redraw_needed(true),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 improve_table(6), realtime_updates(false), all_init(false)
@@ -120,13 +118,15 @@ improve_table(6), realtime_updates(false), all_init(false)
 	cat_classif_def.cat_classif_type = CatClassification::no_theme;
 	cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
 	CatClassification::ChangeNumCats(1, cat_classif_def);
-	cat_classif_def.colors[0] = GeoDaConst::map_default_fill_colour;
+	cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 	
-	for (int i=0; i<var_info.size(); i++) {
-		grid_base->GetColData(col_ids[i], data[i]);
+	template_frame->ClearAllGroupDependencies();
+	for (size_t i=0; i<var_info.size(); i++) {
+		template_frame->AddGroupDependancy(var_info[i].name);
+		table_int->GetColData(col_ids[i], data[i]);
 	}
 	
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
 			is_any_time_variant = true;
 			num_time_vals = 1 + var_info[i].time_max - var_info[i].time_min;
@@ -143,12 +143,12 @@ improve_table(6), realtime_updates(false), all_init(false)
 	
 	cart_nbr_info = new CartNbrInfo(project->GetVoronoiRookNeighborGal(),
 									num_obs);
-	int num_cart_times = (grid_base->IsColTimeVariant(col_ids[RAD_VAR]) ?
-						  grid_base->GetTimeSteps() : 1);
+	int num_cart_times = (table_int->IsColTimeVariant(col_ids[RAD_VAR]) ?
+						  project->GetTableInt()->GetTimeSteps() : 1);
 	carts.resize(num_cart_times);
 	num_improvement_iters.resize(num_cart_times);
 	for (int t=0; t<num_cart_times; t++) {
-		grid_base->GetColData(col_ids[RAD_VAR], t, orig_data);
+		table_int->GetColData(col_ids[RAD_VAR], t, orig_data);
 		carts[t] = new DorlingCartogram(cart_nbr_info, orig_x,
 										orig_y, orig_data,
 										var_info[RAD_VAR].min_over_time,
@@ -193,7 +193,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	max_out_x += max_rad;
 	max_out_y += max_rad;
 	
-	selectable_fill_color = GeoDaConst::map_default_fill_colour;
+	selectable_fill_color = GdaConst::map_default_fill_colour;
 
 	// Note: the shps_orig min/max will depend on the bubble sizes
 	virtual_screen_marg_top = 25;
@@ -206,7 +206,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	shps_orig_ymax = max_out_y;
 	
 	double scale_x, scale_y, trans_x, trans_y;
-	MyScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 								   shps_orig_xmax, shps_orig_ymax,
 								   virtual_screen_marg_top,
 								   virtual_screen_marg_bottom,
@@ -220,13 +220,13 @@ improve_table(6), realtime_updates(false), all_init(false)
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 
 	selectable_shps_type = circles;
-	highlight_color = GeoDaConst::map_default_highlight_colour;
+	highlight_color = GdaConst::map_default_highlight_colour;
 
 	use_category_brushes = true;
 	if (num_obs >= 6) {
-		ChangeThemeType(CatClassification::hinge_15);
+		ChangeThemeType(CatClassification::hinge_15, 6);
 	} else {
-		ChangeThemeType(CatClassification::unique_values);
+		ChangeThemeType(CatClassification::unique_values, 6);
 	}
 	
 	all_init = true;
@@ -238,7 +238,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 CartogramNewCanvas::~CartogramNewCanvas()
 {
 	LOG_MSG("Entering CartogramNewCanvas::~CartogramNewCanvas");
-	for (int i=0; i<carts.size(); i++) if (carts[i]) delete carts[i];
+	for (size_t i=0; i<carts.size(); i++) if (carts[i]) delete carts[i];
 	if (cart_nbr_info) delete cart_nbr_info;
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
@@ -248,6 +248,10 @@ CartogramNewCanvas::~CartogramNewCanvas()
 void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering CartogramNewCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((CartogramNewFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
@@ -265,12 +269,12 @@ void CartogramNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-				menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -289,9 +293,39 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);	
-	GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_MAPANALYSIS_CHOROPLETH_QUANTILE"),
-								  GetCcType() == CatClassification::quantile);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
+								  (GetCcType() == CatClassification::quantile)
+								  && GetNumCats() == 10);
+	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 								  GetCcType() == CatClassification::percentile);
@@ -304,13 +338,93 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_EQUAL_INTERVALS"),
-								  GetCcType() ==CatClassification::equal_intervals);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_NATURAL_BREAKS"),
-								  GetCcType() == CatClassification::natural_breaks);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
+								  (GetCcType() ==
+								   CatClassification::equal_intervals)
+								  && GetNumCats() == 10);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
+								  (GetCcType() ==
+								   CatClassification::natural_breaks)
+								  && GetNumCats() == 10);
 	
 	std::vector<wxString> txt(6);
-	for (int i=0; i<txt.size(); i++) {
+	for (size_t i=0; i<txt.size(); i++) {
 		int seconds = (int) improve_table[i].first;
 		txt[i] << improve_table[i].second << " more iterations, ~";
 		if (seconds < 120) {
@@ -368,10 +482,10 @@ wxString CartogramNewCanvas::GetCanvasTitle()
 
 wxString CartogramNewCanvas::GetNameWithTime(int var)
 {
-	if (var < 0 || var >= var_info.size()) return wxEmptyString;
+	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -400,7 +514,9 @@ void CartogramNewCanvas::NewCustomCatClassif()
 		int tht = var_info[THM_VAR].time;
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
 										 cat_classif_def);
+		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
+										  temp_cat_labels,
 										  cat_var_sorted[tht],
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
@@ -409,9 +525,11 @@ void CartogramNewCanvas::NewCustomCatClassif()
 			cat_classif_def.colors[i] = cat_data.GetCategoryColor(time, i);
 			cat_classif_def.names[i] = cat_data.GetCategoryLabel(time, i);
 		}
+		int col = table_int->FindColId(var_info[THM_VAR].name);
+		cat_classif_def.assoc_db_fld_name = table_int->GetColName(col, tht);
 	}
 	
-	CatClassifFrame* ccf = MyFrame::theFrame->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[THM_VAR].name,
@@ -439,10 +557,11 @@ void CartogramNewCanvas::NewCustomCatClassif()
  category classification. */
 void CartogramNewCanvas::ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
+						int num_categories_s,
 						const wxString& custom_classif_title)
 {
-	// User has already chosen theme variable on startup, so no need
-	// to ever ask for theme variable.
+	num_categories = num_categories_s;
+	
 	if (new_cat_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
 		if (!ccm) return;
@@ -491,7 +610,7 @@ void CartogramNewCanvas::update(CatClassifState* o)
 void CartogramNewCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering CartogramNewCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 
 	int canvas_ts = cat_data.GetCurrentCanvasTmStep();
@@ -500,19 +619,19 @@ void CartogramNewCanvas::PopulateCanvas()
 	// Note: only need to delete selectable shapes if the cartogram
 	// relative positions change.  Otherwise, just reuse.
 	if (full_map_redraw_needed) {
-		BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+		BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 		selectable_shps.clear();
 	}
 	
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 
 	if (map_valid[canvas_ts]) {
 		if (full_map_redraw_needed) {
 			int cur_cart_ts = var_info[RAD_VAR].time;
-			MyCircle* c;
+			GdaCircle* c;
 			for (int i=0; i<num_obs; i++) {
-				c = new MyCircle(wxRealPoint(carts[cur_cart_ts]->output_x[i],
+				c = new GdaCircle(wxRealPoint(carts[cur_cart_ts]->output_x[i],
 											 carts[cur_cart_ts]->output_y[i]),
 								 carts[cur_cart_ts]->output_radius[i], true);
 				selectable_shps.push_back(c);
@@ -524,8 +643,8 @@ void CartogramNewCanvas::PopulateCanvas()
 								 (shps_orig_xmax-shps_orig_xmin)/2.0,
 								 shps_orig_ymin+ 
 								 (shps_orig_ymax-shps_orig_ymin)/2.0);
-		MyText* txt_shp = new MyText(map_error_message[canvas_ts],
-									 *GeoDaConst::medium_font, cntr_ref_pnt);
+		GdaShapeText* txt_shp = new GdaShapeText(map_error_message[canvas_ts],
+									 *GdaConst::medium_font, cntr_ref_pnt);
 		background_shps.push_back(txt_shp);
 	}
 	
@@ -534,12 +653,12 @@ void CartogramNewCanvas::PopulateCanvas()
 	LOG_MSG("Exiting CartogramNewCanvas::PopulateCanvas");
 }
 
-void CartogramNewCanvas::TitleOrTimeChange()
+void CartogramNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering CartogramNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering CartogramNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -555,7 +674,7 @@ void CartogramNewCanvas::TitleOrTimeChange()
 		ref_time = cts;
 	}
 	int cur_rad_time = var_info[RAD_VAR].time;
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].sync_with_global_time) {
 			var_info[i].time = ref_time + var_info[i].ref_time_offset;
 		}
@@ -566,34 +685,35 @@ void CartogramNewCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting CartogramNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting CartogramNewCanvas::TimeChange");
 }
 
 void CartogramNewCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) is_any_time_variant = true;
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
+	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
 		if (var_info[i].is_ref_variable) ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
-/** Update Categories based on num_time_vals, num_cats and ref_var_index.
+/** Update Categories based on num_time_vals, num_categories and ref_var_index.
  This method populates cat_var_sorted from data array. */
 void CartogramNewCanvas::CreateAndUpdateCategories()
 {
@@ -607,10 +727,10 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		// 1 = #cats
 		CatClassification::ChangeNumCats(1, cat_classif_def);
 		cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-		cat_classif_def.colors[0] = GeoDaConst::map_default_fill_colour;
+		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0,GeoDaConst::map_default_fill_colour);
+			cat_data.SetCategoryColor(t, 0,GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
@@ -640,11 +760,11 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	
 	// Sort each vector in ascending order
 	std::sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
-			  GeoDa::dbl_int_pair_cmp_less);
+			  Gda::dbl_int_pair_cmp_less);
 	if (var_info[THM_VAR].sync_with_global_time) {
 		for (int t=1; t<num_time_vals; t++) {
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
-					  GeoDa::dbl_int_pair_cmp_less);
+					  Gda::dbl_int_pair_cmp_less);
 		}
 	} else {
 		// just copy first sorted results
@@ -653,33 +773,8 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		}
 	}
 	
-	int num_cats = 1;
-	if (GetCcType() == CatClassification::quantile ||
-		GetCcType() == CatClassification::natural_breaks ||
-		GetCcType() == CatClassification::equal_intervals) {
-		// Need to ask user for number of categories
-		
-		wxString title;
-		if (GetCcType() == CatClassification::quantile) {
-			title = "Quantile Map";
-		} else if (GetCcType() == CatClassification::natural_breaks) {
-			title = "Natural Breaks";
-		} else if (GetCcType() == CatClassification::equal_intervals) {
-			title = "Equal Intervals";
-		}
-		
-		MapQuantileDlg dlg(this, 1, CatClassification::max_num_classes,
-						   4, title);
-		dlg.SetTitle(title);
-		if (dlg.ShowModal() != wxID_OK) {
-			num_cats = 4;
-		} else {
-			num_cats = dlg.classes;
-		}
-	}
-	
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		CatClassification::ChangeNumCats(num_cats, cat_classif_def);
+		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
@@ -898,7 +993,7 @@ void CartogramNewCanvas::UpdateImproveLevelTable()
 {
 	// as a standard, will have entries for 100, 500 and 1000 iterations
 	// also 5, 30 and 60 seconds
-	//GeoDa::dbl_int_pair_vec_type improve_table; // already size 6
+	//Gda::dbl_int_pair_vec_type improve_table; // already size 6
 	
 	improve_table[0].first = 5.0; // seconds
 	improve_table[0].second = EstItersGivenTime(improve_table[0].first);
@@ -940,7 +1035,7 @@ void CartogramNewCanvas::UpdateImproveLevelTable()
 	improve_table[5].first = EstSecondsGivenIters(improve_table[5].second);
 
 	std::sort(improve_table.begin(), improve_table.end(),
-			  GeoDa::dbl_int_pair_cmp_second_less);	
+			  Gda::dbl_int_pair_cmp_second_less);	
 }
 
 
@@ -975,23 +1070,39 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
 	LOG(width);
 	LOG(height);
 		
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this);
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+        wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
-	template_canvas = new CartogramNewCanvas(splitter_win, this, project,
+    wxPanel* rpanel = new wxPanel(splitter_win);
+	template_canvas = new CartogramNewCanvas(rpanel, this, project,
 											 var_info, col_ids,
 											 wxDefaultPosition,
-											 wxSize(width,height));
+											 wxDefaultSize);
 	SetTitle(template_canvas->GetCanvasTitle());
 	template_canvas->SetScrollRate(1,1);
-	DisplayStatusBar(true);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
 	
-	template_legend = new CartogramNewLegend(splitter_win, template_canvas,
+    wxPanel* lpanel = new wxPanel(splitter_win);
+	template_legend = new CartogramNewLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
-	
-	splitter_win->SplitVertically(template_legend, template_canvas,
-								  GeoDaConst::map_default_legend_width);
-	
+	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+	splitter_win->SplitVertically(lpanel, rpanel,
+                                  GdaConst::map_default_legend_width);
+    
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
+
+    DisplayStatusBar(true);
 	Show(true);
 	LOG_MSG("Exiting CartogramNewFrame::CartogramNewFrame");
 }
@@ -1015,7 +1126,7 @@ void CartogramNewFrame::OnActivate(wxActivateEvent& event)
 void CartogramNewFrame::MapMenus()
 {
 	LOG_MSG("In CartogramNewFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
@@ -1031,7 +1142,7 @@ void CartogramNewFrame::MapMenus()
 void CartogramNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("CartogramNewFrame::UpdateOptionMenuItems: "
@@ -1053,18 +1164,13 @@ void CartogramNewFrame::UpdateContextMenuItems(wxMenu* menu)
 	
 }
 
-/** Implementation of FramesManagerObserver interface */
-void  CartogramNewFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void  CartogramNewFrame::update(TimeState* o)
 {
-	LOG_MSG("In CartogramNewFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In CartogramNewFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
 	if (template_legend) template_legend->Refresh();
-}
-
-void CartogramNewFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void CartogramNewFrame::OnNewCustomCatClassifA()
@@ -1074,65 +1180,66 @@ void CartogramNewFrame::OnNewCustomCatClassifA()
 
 void CartogramNewFrame::OnCustomCatClassifA(const wxString& cc_title)
 {
-	ChangeThemeType(CatClassification::custom, cc_title);
+	ChangeThemeType(CatClassification::custom, 4, cc_title);
 }
 
-void CartogramNewFrame::OnThemeless(wxCommandEvent& event)
+void CartogramNewFrame::OnThemeless()
 {
-	ChangeThemeType(CatClassification::no_theme);
+	ChangeThemeType(CatClassification::no_theme, 1);
 }
 
-void CartogramNewFrame::OnHinge15(wxCommandEvent& event)
+void CartogramNewFrame::OnHinge15()
 {
-	ChangeThemeType(CatClassification::hinge_15);
+	ChangeThemeType(CatClassification::hinge_15, 6);
 }
 
-void CartogramNewFrame::OnHinge30(wxCommandEvent& event)
+void CartogramNewFrame::OnHinge30()
 {
-	ChangeThemeType(CatClassification::hinge_30);
+	ChangeThemeType(CatClassification::hinge_30, 6);
 }
 
-void CartogramNewFrame::OnQuantile(wxCommandEvent& event)
+void CartogramNewFrame::OnQuantile(int num_cats)
 {
-	ChangeThemeType(CatClassification::quantile);
+	ChangeThemeType(CatClassification::quantile, num_cats);
 }
 
-void CartogramNewFrame::OnPercentile(wxCommandEvent& event)
+void CartogramNewFrame::OnPercentile()
 {
-	ChangeThemeType(CatClassification::percentile);
+	ChangeThemeType(CatClassification::percentile, 6);
 }
 
-void CartogramNewFrame::OnStdDevMap(wxCommandEvent& event)
+void CartogramNewFrame::OnStdDevMap()
 {
-	ChangeThemeType(CatClassification::stddev);
+	ChangeThemeType(CatClassification::stddev, 6);
 }
 
-void CartogramNewFrame::OnUniqueValues(wxCommandEvent& event)
+void CartogramNewFrame::OnUniqueValues()
 {
-	ChangeThemeType(CatClassification::unique_values);
+	ChangeThemeType(CatClassification::unique_values, 6);
 }
 
-void CartogramNewFrame::OnNaturalBreaks(wxCommandEvent& event)
+void CartogramNewFrame::OnNaturalBreaks(int num_cats)
 {
-	ChangeThemeType(CatClassification::natural_breaks);
+	ChangeThemeType(CatClassification::natural_breaks, num_cats);
 }
 
-void CartogramNewFrame::OnEqualIntervals(wxCommandEvent& event)
+void CartogramNewFrame::OnEqualIntervals(int num_cats)
 {
-	ChangeThemeType(CatClassification::equal_intervals);
+	ChangeThemeType(CatClassification::equal_intervals, num_cats);
 }
 
-void CartogramNewFrame::OnSaveCategories(wxCommandEvent& event)
+void CartogramNewFrame::OnSaveCategories()
 {
 	((CartogramNewCanvas*) template_canvas)->OnSaveCategories();
 }
 
 void CartogramNewFrame::ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
+						int num_categories,
 						const wxString& custom_classif_title)
 {
 	((CartogramNewCanvas*) template_canvas)->
-		ChangeThemeType(new_cat_theme, custom_classif_title);
+		ChangeThemeType(new_cat_theme, num_categories, custom_classif_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
 	template_legend->Refresh();

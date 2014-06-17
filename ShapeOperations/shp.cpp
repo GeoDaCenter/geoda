@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,7 +27,7 @@
 #include <time.h>
 #include "../logger.h"
 #include "../GenUtils.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 
 
 long ReadBig(ifstream &input)
@@ -346,7 +346,7 @@ void BasePartition::alloc(const int els, const int cls, const double range)
 	cell= new int [ cells ];
 	next= new int [ elements ];
 	if (cell && next)
-		for (int cnt= 0; cnt < cells; ++cnt) cell [ cnt ] = GeoDaConst::EMPTY;
+		for (int cnt= 0; cnt < cells; ++cnt) cell [ cnt ] = GdaConst::EMPTY;
 	else elements= cells= 0;
 }
 
@@ -412,10 +412,10 @@ void PartitionP::include(const int incl)  {
 	//          cout << "including " << incl << " at " << where << endl;
 	int old= cell [ where ];
 	cell [ where ] = incl;
-	if (old != GeoDaConst::EMPTY)
+	if (old != GdaConst::EMPTY)
 		previous [ old ] = incl;
 	next [ incl ] = old;    // OLD becomes the 2nd element in the list
-	previous [ incl ] = GeoDaConst::EMPTY;       // there are no elements prior to incl
+	previous [ incl ] = GdaConst::EMPTY;       // there are no elements prior to incl
 	return;
 }
 
@@ -424,13 +424,13 @@ void PartitionP::include(const int incl)  {
  */
 void PartitionP::remove(const int del)  {
 	int   thePrevious= previous[ del ], theNext= next[ del ];
-	if ( thePrevious == GeoDaConst::EMPTY )                // this is the 1st element in the list
+	if ( thePrevious == GdaConst::EMPTY )                // this is the 1st element in the list
 		cell [ cellIndex[del] ] = theNext;
     else
 		next[ thePrevious ] = theNext;
-	if ( theNext != GeoDaConst::EMPTY )                   // this is not the last element in thelist
+	if ( theNext != GdaConst::EMPTY )                   // this is not the last element in thelist
 		previous[ theNext ] = thePrevious;
-	previous[ del ] = next [ del ] = GeoDaConst::EMPTY;  // probably this is not necessary
+	previous[ del ] = next [ del ] = GdaConst::EMPTY;  // probably this is not necessary
 	return;
 }
 
@@ -453,49 +453,27 @@ wxString getPointStr(const BasePoint& point)
 
 /** Method for detecting if an edge is shared between a host and guest polygon.
  */
-bool PolygonPartition::edge(const PolygonPartition &p, const int host,
+bool PolygonPartition::edge(PolygonPartition &p, const int host,
 							const int guest)  
 {
-	BasePoint guestPrev = p.Points[ p.prev(guest) ]; 
-	BasePoint hostPoint = Points[ succ(host) ];
-	if (hostPoint == guestPrev) {
-		//LOG_MSG("PolygonPartition::edge: hostPoint == guestPrev true");
-		//wxString msg;
-		//msg << "  hostPoint" << getPointStr(hostPoint);
-		//msg << ", guestPrev" << getPointStr(guestPrev);
-		//LOG_MSG(msg);
-		return true;
-	}
+	using namespace Shapefile;
+
 	
-	BasePoint guestSucc= p.Points[ p.succ(guest) ];
-	if (hostPoint == guestSucc) {
-		//LOG_MSG("PolygonPartition::edge: hostPoint == guestSucc true");
-		//wxString msg;
-		//msg << "  hostPoint" << getPointStr(hostPoint);
-		//msg << ", guestSucc" << getPointStr(guestSucc);
-		//LOG_MSG(msg);
-		return true;
-	}
+	Point* guestPrev = p.GetPoint(p.prev(guest));
+	//BasePoint hostPoint = Points[ succ(host) ];
+	Point* hostPoint = this->GetPoint(succ(host));
 	
-	hostPoint= Points[ prev(host) ];
+	if (hostPoint->equals(guestPrev)) return true;
 	
-	if (hostPoint == guestSucc) {
-		//LOG_MSG("PolygonPartition::edge: hostPoint(prev) == guestSucc true");
-		//wxString msg;
-		//msg << "  hostPoint" << getPointStr(hostPoint);
-		//msg << ", guestSucc" << getPointStr(guestSucc);
-		//LOG_MSG(msg);
-		return true;
-	}
+	//BasePoint guestSucc= p.Points[ p.succ(guest) ];
+	Point* guestSucc= p.GetPoint(p.succ(guest));
+	if (hostPoint->equals( guestSucc) ) return true;
 	
-	if (hostPoint == guestPrev) {
-		//LOG_MSG("PolygonPartition::edge: hostPoint(prev) == guestPrev true");
-		//wxString msg;
-		//msg << "  hostPoint" << getPointStr(hostPoint);
-		//msg << ", guestPrev" << getPointStr(guestPrev);
-		//LOG_MSG(msg);
-		return true;
-	}
+	hostPoint= this->GetPoint( prev(host) );
+	
+	if (hostPoint->equals( guestSucc )) return true;
+	
+	if (hostPoint->equals( guestPrev )) return true;
 	
 	return false;
 }
@@ -506,15 +484,15 @@ bool PolygonPartition::edge(const PolygonPartition &p, const int host,
 int PolygonPartition::MakePartition(int mX, int mY)  {
 	if (mX == 0) mX = NumPoints/4 + 2;
 	if (mY == 0) mY = (int)(sqrt((long double)NumPoints) + 2);
-	pX.alloc(NumPoints, mX, bBox._max().x - bBox._min().x);
-	pY.alloc(NumPoints, mY, bBox._max().y - bBox._min().y);
-	double        xStart= bBox._min().x, yStart= bBox._min().y;
+	pX.alloc(NumPoints, mX, GetMaxX() - GetMinX());// bBox._max().x - bBox._min().x);
+	pY.alloc(NumPoints, mY, GetMaxY() - GetMinY());//bBox._max().y - bBox._min().y);
+	double xStart= GetMinX(), yStart= GetMinY();
 	for (int cnt= 0; cnt < NumPoints; ++cnt)  {
-		pX.include(cnt, Points[cnt].x - xStart);
-		pY.initIx(cnt, Points[cnt].y - yStart);
+		pX.include(cnt, GetPoint(cnt)->x - xStart);
+		pY.initIx(cnt, GetPoint(cnt)->y - yStart);
 	};
 	MakeNeighbors();
-	return 0;
+	return 0;	
 }
 
 /*
@@ -529,11 +507,11 @@ void PolygonPartition::MakeNeighbors()
 	}
 	int first= 0, last;
 	for (int part= 1; part <= NumParts; ++part) {
-		last= (part == NumParts) ? NumPoints : Parts[part];
+		last= (part == NumParts) ? NumPoints : GetPart(part);
 		nbrPoints [ first ] = -(last-2);
 		nbrPoints [ last-1 ] = first+1;
 		first= last;
-	}
+	}	
 }
 
 /*
@@ -544,8 +522,8 @@ void PolygonPartition::MakeSmallPartition(const int mX, const double Start,
 {
 	pX.alloc(NumPoints, mX, Stop-Start);
 	for (int cnt= 0; cnt < NumPoints; ++cnt) {
-		BasePoint pt= Points[cnt];
-		if (pt.x >= Start && pt.x <= Stop) pX.include(cnt, pt.x - Start);
+		Shapefile::Point* pt= GetPoint(cnt);
+		if (pt->x >= Start && pt->x <= Stop) pX.include(cnt, pt->x - Start);
 	}
 	MakeNeighbors();
 }
@@ -557,24 +535,28 @@ void PolygonPartition::MakeSmallPartition(const int mX, const double Start,
  Uses two criteria to establish neighborhood:
  0 -- common point;  1 -- common boundary.
  */
-int PolygonPartition::sweep(PolygonPartition & guest, const int criteria)  
+int PolygonPartition::sweep(PolygonPartition & guest, const int criteria,
+                            double precision_threshold)
 {
 	int       host, dot, cly, cell;
-	double    yStart= bBox._min().y, yStop= bBox._max().y;
-	BasePoint pt;
-	guest.MakeSmallPartition(pX.Cells(), bBox._min().x, bBox._max().x);
+	double    yStart= GetMinY(), yStop= GetMaxY();
+	Shapefile::Point* pt;
+	guest.MakeSmallPartition(pX.Cells(), GetMinX(), GetMaxX());
 	for (cell= 0; cell < pX.Cells(); ++cell) {
-		for (host= pX.first(cell); host != GeoDaConst::EMPTY;
-			 host= pX.tail(host)) pY.include(host);
-		for (dot=guest.pX.first(cell); dot != GeoDaConst::EMPTY;
-			 dot=guest.pX.tail(dot)) {
-			pt= guest.Points[dot];
-			cly= pY.inTheRange(pt.y - yStart);
+		for (host= pX.first(cell); host != GdaConst::EMPTY; host= pX.tail(host))
+            pY.include(host);
+		for (dot=guest.pX.first(cell); dot != GdaConst::EMPTY; dot=guest.pX.tail(dot))
+        {
+			pt= guest.GetPoint(dot);
+			cly= pY.inTheRange(pt->y - yStart);
 			if (cly != -1) {
-				for (host= pY.first(cly); host != GeoDaConst::EMPTY;
-					 host= pY.tail(host)) {
-					if (pt == Points[host]) {
-						if (criteria == 0 || edge(guest, host, dot)) { 
+				for (host= pY.first(cly); host != GdaConst::EMPTY;
+					 host= pY.tail(host))
+                {
+					if (pt->equals( GetPoint(host), precision_threshold) )
+                    {
+						if (criteria == 0 || edge(guest, host, dot))
+                        {
 							pY.cleanup(pX, cell);  
 							return 1;  
 						}
@@ -585,6 +567,7 @@ int PolygonPartition::sweep(PolygonPartition & guest, const int criteria)
 		pY.cleanup(pX, cell);
 	}
 	return 0;
+	
 }
 
 

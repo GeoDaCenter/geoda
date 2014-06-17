@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,11 +25,13 @@
 #include <wx/checkbox.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
+#include <wx/spinctrl.h>
 #include "../GenUtils.h"
+#include "../Explore/CatClassification.h"
 
-class DbfGridTableBase;
 class GalElement;
 class Project;
+class TableInterface;
 
 class VariableSettingsDlg: public wxDialog
 {
@@ -41,40 +43,45 @@ public:
 	VariableSettingsDlg(Project* project, short smoother, GalElement* gal,
 						const wxString& title="Rates Variable Settings",
 						const wxString& var1_title="Event Variable",
-						const wxString& var2_title="Base Variable",
-						const wxString& var3_title="Third Variable",
-						const wxString& var4_title="Fourth Variable");
+						const wxString& var2_title="Base Variable");
 	VariableSettingsDlg( Project* project, VarType v_type,
-						bool fill_result_vectors,
 						const wxString& title="Variable Settings",
 						const wxString& var1_title="First Variable (X)",
 						const wxString& var2_title="Second Variable (Y)",
 						const wxString& var3_title="Third Variable (Z)",
-						const wxString& var4_title="Fourth Variable");
+						const wxString& var4_title="Fourth Variable",
+						bool set_second_from_first_mode = false,
+						bool set_fourth_from_third_mode = false);
 	virtual ~VariableSettingsDlg();
     void CreateControls();
 	void Init(VarType var_type);
-	
-    void OnListVariableDoubleClicked( wxCommandEvent& event );
-	void OnVarChange( wxCommandEvent& event );
-	void OnTime( wxCommandEvent& event );
+
+	void OnListVariable1DoubleClicked( wxCommandEvent& event );
+	void OnListVariable2DoubleClicked( wxCommandEvent& event );
+	void OnListVariable3DoubleClicked( wxCommandEvent& event );
+	void OnListVariable4DoubleClicked( wxCommandEvent& event );
+	void OnVar1Change( wxCommandEvent& event );
+	void OnVar2Change( wxCommandEvent& event );
+	void OnVar3Change( wxCommandEvent& event );
+	void OnVar4Change( wxCommandEvent& event );
+	void OnTime1( wxCommandEvent& event );
+	void OnTime2( wxCommandEvent& event );
+	void OnTime3( wxCommandEvent& event );
+	void OnTime4( wxCommandEvent& event );
+	void OnSpinCtrl( wxSpinEvent& event );
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
 
-	bool fill_result_vectors; // when true, only var_info and col_ids are filled
-	bool fill_smoothed_results; // only true when first constructor is called
+
+	std::vector<int> col_ids;
+	std::vector<GeoDaVarInfo> var_info;
+	CatClassification::CatClassifType GetCatClassifType(); // for rate smoothed
+	int GetNumCategories(); // for rate smoothed
+	
+private:
 	double* smoothed_results; // for rate_smoothed
 	std::vector<bool> m_undef_r; // for rate_smoothed
 	int m_theme; // for rate_smoothed
-	
-	double*	v1_single_time;
-	double* v2_single_time;
-	double* v3_single_time;
-	double* v4_single_time;
-	wxString v1_name_with_time;
-	wxString v2_name_with_time;
-	wxString v3_name_with_time;
-	wxString v4_name_with_time;
 	
 	wxString v1_name;
 	wxString v2_name;
@@ -89,12 +96,6 @@ public:
 	int v3_col_id;
 	int v4_col_id;
 	
-	std::vector<int> col_ids;
-	std::vector<GeoDaVarInfo> var_info;
-	
-	int time_ref_var; // which var_info item has is_ref_variable == true, if any
-
-protected:
 	VarType v_type;
 	wxListBox* lb1;
     wxListBox* lb2;
@@ -117,20 +118,21 @@ protected:
 	
 	wxChoice* map_theme_lb; // for rate_smoothed
 	short m_smoother; // for rate_smoothed
-	
+	wxSpinCtrl* num_cats_spin;
+	int num_categories;
+											  
 	bool all_init;
 	
 	int num_var; // 1, 2, 3, or 4
 	bool is_time;
 	int time_steps;
 
-	long num_obs; // for rate_smoothed
 	double*	E; // for rate_smoothed
 	double* P; // for rate_smoothed
 	GalElement* m_gal; // for rate_smoothed
 	
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items
 	// in the fields dropdown are in the order displayed in wxGrid
@@ -141,6 +143,13 @@ protected:
 	void FillData();
 	bool FillSmoothedResults();
 	
+	/** Automatically set the second variable to the same value as
+	 the first variable when first variable is changed. */
+	bool set_second_from_first_mode;
+	/** Automatically set the fourth variable to the same value as
+	 the third variable when third variable is changed. */
+	bool set_fourth_from_third_mode;
+
 	DECLARE_EVENT_TABLE()
 };
 

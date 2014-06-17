@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,7 @@
 #include <vector>
 class GalElement;
 
-namespace GeoDaAlgs {
+namespace GdaAlgs {
 	bool RateStandardizeEB(const int nObs, const double* P, const double* E,
 						   double* m_results, std::vector<bool>& undefined);
 	void RateSmoother_RawRate(int obs, double *P, double *E,

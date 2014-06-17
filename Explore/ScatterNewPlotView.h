@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,7 @@
 #include "../TemplateFrame.h"
 #include "../TemplateLegend.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class CatClassifState;
 class ScatterNewPlotCanvas;
@@ -62,6 +62,7 @@ public:
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
+						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -77,7 +78,7 @@ public:
 protected:
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	void CreateAndUpdateCategories();
 	
@@ -86,6 +87,7 @@ public:
 	virtual void FixedScaleVariableToggle(int var_index);
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
+	int GetNumCats() { return num_categories; } // used by Bubble Plot
 	
 	void ViewStandardizedData();
 	void ViewOriginalData();
@@ -110,7 +112,7 @@ protected:
 	void ComputeChowTest();
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
-	static void CalcRegressionLine(MyPolyLine& reg_line, // return value
+	static void CalcRegressionLine(GdaPolyLine& reg_line, // return value
 								   double& slope, // return value
 								   bool& infinite_slope, // return value
 								   bool& regression_defined, // return value
@@ -137,7 +139,7 @@ protected:
 	
 	int num_obs;
 	int num_time_vals;
-	int num_cats;
+	int num_categories;
 	int ref_var_index;
 	std::vector<GeoDaVarInfo> var_info;
 	std::vector<d_array_type> data;
@@ -154,8 +156,8 @@ protected:
 	std::vector<double> Z;
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
-	MyAxis* x_baseline;
-	MyAxis* y_baseline;
+	GdaAxis* x_baseline;
+	GdaAxis* y_baseline;
 	SampleStatistics statsX;
 	SampleStatistics statsXselected;
 	SampleStatistics statsXexcluded;
@@ -177,24 +179,24 @@ protected:
 	double chow_pval; // significance of chow_ratio
 	bool chow_valid;
 	
-	MyPolyLine* reg_line;
-	MyTable* stats_table;
-	MyText* chow_test_text;
+	GdaPolyLine* reg_line;
+	GdaShapeTable* stats_table;
+	GdaShapeText* chow_test_text;
 	
 	bool show_reg_selected;
-	MyPolyLine* reg_line_selected;
+	GdaPolyLine* reg_line_selected;
 	double reg_line_selected_slope;
 	bool reg_line_selected_infinite_slope;
 	bool reg_line_selected_defined;
 
 	bool show_reg_excluded;
-	MyPolyLine* reg_line_excluded;
+	GdaPolyLine* reg_line_excluded;
 	double reg_line_excluded_slope;
 	bool reg_line_excluded_infinite_slope;
 	bool reg_line_excluded_defined;
 
-	MyPolyLine* x_axis_through_origin;
-	MyPolyLine* y_axis_through_origin;
+	GdaPolyLine* x_axis_through_origin;
+	GdaPolyLine* y_axis_through_origin;
 	bool show_origin_axes;
 	bool display_stats;
 
@@ -242,13 +244,12 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
     void OnViewStandardizedData(wxCommandEvent& event);
     void OnViewOriginalData(wxCommandEvent& event);
+	void OnViewRegimesRegression(wxCommandEvent& event);
     void OnViewRegressionSelected(wxCommandEvent& event);
     void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);
@@ -256,19 +257,21 @@ public:
 
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
-	void OnThemeless(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
-	void OnPercentile(wxCommandEvent& event);
-	void OnHinge15(wxCommandEvent& event);
-	void OnHinge30(wxCommandEvent& event);
-	void OnStdDevMap(wxCommandEvent& event);
-	void OnUniqueValues(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
-	void OnSaveCategories(wxCommandEvent& event);
+	
+	virtual void OnThemeless();
+	virtual void OnQuantile(int num_cats);
+	virtual void OnPercentile();
+	virtual void OnHinge15();
+	virtual void OnHinge30();
+	virtual void OnStdDevMap();
+	virtual void OnUniqueValues();
+	virtual void OnNaturalBreaks(int num_cats);
+	virtual void OnEqualIntervals(int num_cats);
+	virtual void OnSaveCategories();
 	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
+						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);
 	bool is_bubble_plot;
 	

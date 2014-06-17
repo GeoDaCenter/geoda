@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,7 +33,7 @@ oShapeFileTriplet::oShapeFileTriplet(const wxString& fname,
 	shp(fname, "shp"),
 	shx(fname, "shx"),
 	record(0),
-	offset(GeoDaConst::ShpHeaderSize),
+	offset(GdaConst::ShpHeaderSize),
 	dbf(fname.c_str(), dbfdesc,1,numfld), head(s)  
 {
 	LOG_MSG("Entering oShapeFileTriplet::oShapeFileTriplet v.1");
@@ -61,7 +61,7 @@ oShapeFileTriplet::oShapeFileTriplet(const wxString& fname,
 	shp(fname, "shp"),
 	shx(fname, "shx"),
 	record(0),
-	offset(GeoDaConst::ShpHeaderSize),
+	offset(GdaConst::ShpHeaderSize),
 	dbf(fname, DBF::InitField(nme, 1),1,1), head(s)  
 {
 	LOG_MSG("Entering oShapeFileTriplet::oShapeFileTriplet v.2");

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -45,7 +45,7 @@ BasePoint& operator+=(BasePoint &a, const BasePoint &b)
 { a.x += b.x;  a.y += b.y;  return a;  }
 
 std::ostream& operator<<(std::ostream &s, const BasePoint &p)
-{ return s << std::setw(GeoDaConst::RealWidth) << p.x << ' ' << std::setw(GeoDaConst::RealWidth) << p.y; }
+{ return s << std::setw(GdaConst::RealWidth) << p.x << ' ' << std::setw(GdaConst::RealWidth) << p.y; }
 
 std::istream& operator>>(std::istream &s, BasePoint &p)  
 {

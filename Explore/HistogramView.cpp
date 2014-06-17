@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,9 +29,10 @@
 #include <wx/dcmemory.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DialogTools/HistIntervalDlg.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -62,18 +63,18 @@ HistogramCanvas::HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
 : TemplateCanvas(parent, pos, size, false, true),
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
-highlight_state(project_s->highlight_state),
+highlight_state(project_s->GetHighlightState()),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 scale_x_over_time(true), scale_y_over_time(true)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering HistogramCanvas::HistogramCanvas");
 	template_frame = t_frame;	
-	DbfGridTableBase* grid_base = project->GetGridBase();
+	TableInterface* table_int = project->GetTableInt();
 	
 	std::vector<d_array_type> data(v_info.size());
 	
-	grid_base->GetColData(col_ids[0], data[0]);
+	table_int->GetColData(col_ids[0], data[0]);
 	int data0_times = data[0].shape()[0];
 	data_stats.resize(data0_times);
 	hinge_stats.resize(data0_times);
@@ -87,7 +88,7 @@ scale_x_over_time(true), scale_y_over_time(true)
 			data_sorted[t][i].second = i;
 		}
 		std::sort(data_sorted[t].begin(), data_sorted[t].end(),
-				  GeoDa::dbl_int_pair_cmp_less);
+				  Gda::dbl_int_pair_cmp_less);
 		data_stats[t].CalculateFromSample(data_sorted[t]);
 		hinge_stats[t].CalculateHingeStats(data_sorted[t]);
 		if (data_stats[t].min < data_min_over_time) {
@@ -96,6 +97,11 @@ scale_x_over_time(true), scale_y_over_time(true)
 		if (data_stats[t].max > data_max_over_time) {
 			data_max_over_time = data_stats[t].max;
 		}
+	}
+	
+	template_frame->ClearAllGroupDependencies();
+	for (int i=0, sz=var_info.size(); i<sz; ++i) {
+		template_frame->AddGroupDependancy(var_info[i].name);
 	}
 	
 	obs_id_to_ival.resize(boost::extents[data0_times][num_obs]);
@@ -111,7 +117,7 @@ scale_x_over_time(true), scale_y_over_time(true)
 	max_num_obs_in_ival.resize(data0_times);
 	ival_to_obs_ids.resize(data0_times);
 	
-	highlight_color = GeoDaConst::highlight_color;
+	highlight_color = GdaConst::highlight_color;
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
@@ -120,6 +126,8 @@ scale_x_over_time(true), scale_y_over_time(true)
 	VarInfoAttributeChange();
 	InitIntervals();
 	PopulateCanvas();
+
+	DisplayStatistics(true);
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
@@ -136,6 +144,10 @@ HistogramCanvas::~HistogramCanvas()
 void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering HistogramCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((HistogramFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
@@ -156,7 +168,7 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Synchronize " << var_info[0].name << " with Time Control";
 		wxMenuItem* mi =
-		menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+0, s, s);
+		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
 		mi->Check(var_info[0].sync_with_global_time);
 	}
 	
@@ -166,7 +178,7 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Fixed scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	 */
@@ -190,10 +202,10 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 	
 	if (var_info[0].is_time_variant) {
 		GeneralWxUtils::CheckMenuItem(menu,
-									  GeoDaConst::ID_TIME_SYNC_VAR1,
+									  GdaConst::ID_TIME_SYNC_VAR1,
 									  var_info[0].sync_with_global_time);
 		GeneralWxUtils::CheckMenuItem(menu,
-									  GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
+									  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 									  var_info[0].fixed_scale);
 	}
 }
@@ -232,7 +244,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if (!shiftdown) {
 		bool any_selected = false;
 		for (int i=0; i<total_sel_shps; i++) {
-			MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
 				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
@@ -250,7 +262,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	}
 	
 	for (int i=0; i<total_sel_shps; i++) {
-		MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
 						  GenUtils::RectsIntersect(rec->lower_left,
@@ -306,7 +318,7 @@ void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		if (ival_obs_sel_cnt[t][i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[t][i]) /
 					((double) ival_obs_cnt[t][i]));
-		MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 						 rec->upper_right.x - rec->lower_left.x,
 						 (rec->upper_right.y - rec->lower_left.y)*s);
@@ -327,7 +339,6 @@ void HistogramCanvas::update(HighlightState* o)
 
 wxString HistogramCanvas::GetCanvasTitle()
 {
-	DbfGridTableBase* gb = project->GetGridBase();
 	wxString s("Histogram: ");	
 	s << GetNameWithTime(0);
 	return s;
@@ -338,7 +349,7 @@ wxString HistogramCanvas::GetNameWithTime(int var)
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -347,11 +358,11 @@ wxString HistogramCanvas::GetNameWithTime(int var)
 void HistogramCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering HistogramCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
 	int time = var_info[0].time;
@@ -376,7 +387,7 @@ void HistogramCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
 		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new MyAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis("Frequency", axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
 							-9, 0);
 		background_shps.push_back(y_axis);
@@ -412,12 +423,12 @@ void HistogramCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new MyAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0),
+		x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0),
 							wxRealPoint(shps_orig_xmax, 0), 0, 9);
 		background_shps.push_back(x_axis);
 	}
 	
-	MyShape* s = 0;
+	GdaShape* s = 0;
 	int table_w=0, table_h=0;
 	if (display_stats) {
 		int y_d = show_axes ? 0 : -32;
@@ -429,14 +440,14 @@ void HistogramCanvas::PopulateCanvas()
 		vals[2] << "#obs";
 		vals[3] << "% of total";
 		vals[4] << "sd from mean";
-		std::vector<MyTable::CellAttrib> attribs(0); // undefined
-		s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
-						wxRealPoint(0, 0), MyText::h_center, MyText::top,
-						MyText::right, MyText::v_center, 3, 10, -62, 53+y_d);
+		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
+						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -62, 53+y_d);
 		background_shps.push_back(s);
 		{
 			wxClientDC dc(this);
-			((MyTable*) s)->GetSize(dc, table_w, table_h);
+			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
 		}
 		for (int i=0; i<cur_intervals; i++) {
 			int t = time;
@@ -459,11 +470,11 @@ void HistogramCanvas::PopulateCanvas()
 			vals[3] << GenUtils::DblToStr(p, 3);
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
 			
-			std::vector<MyTable::CellAttrib> attribs(0); // undefined
-			s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
+			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(orig_x_pos[i], 0),
-							MyText::h_center, MyText::top,
-							MyText::h_center, MyText::v_center, 3, 10, 0,
+							GdaShapeText::h_center, GdaShapeText::top,
+							GdaShapeText::h_center, GdaShapeText::v_center, 3, 10, 0,
 							53+y_d);
 			background_shps.push_back(s);
 		}
@@ -476,9 +487,9 @@ void HistogramCanvas::PopulateCanvas()
 		sts << ", s.d.: " << data_stats[time].sd_with_bessel;
 		sts << ", #obs: " << num_obs;
 	
-		s = new MyText(sts, *GeoDaConst::small_font,
+		s = new GdaShapeText(sts, *GdaConst::small_font,
 					   wxRealPoint(shps_orig_xmax/2.0, 0), 0,
-					   MyText::h_center, MyText::v_center, 0,
+					   GdaShapeText::h_center, GdaShapeText::v_center, 0,
 					   table_h + 70 + y_d); //145+y_d);
 		background_shps.push_back(s);
 	}
@@ -505,35 +516,35 @@ void HistogramCanvas::PopulateCanvas()
 		double x1 = orig_x_pos[i] + interval_width_const/2.0;
 		double y0 = 0;
 		double y1 = ival_obs_cnt[time][i];
-		selectable_shps[i] = new MyRectangle(wxRealPoint(x0, 0),
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
 											 wxRealPoint(x1, y1));
-		int sz = GeoDaConst::qualitative_colors.size();
-		selectable_shps[i]->setPen(GeoDaConst::qualitative_colors[i%sz]);
-		selectable_shps[i]->setBrush(GeoDaConst::qualitative_colors[i%sz]);
+		int sz = GdaConst::qualitative_colors.size();
+		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
+		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
 	
 	ResizeSelectableShps();
 	LOG_MSG("Exiting HistogramCanvas::PopulateCanvas");
 }
 
-void HistogramCanvas::TitleOrTimeChange()
+void HistogramCanvas::TimeChange()
 {
-	LOG_MSG("Entering HistogramCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering HistogramCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	var_info[0].time = project->GetGridBase()->curr_time_step;
+	var_info[0].time = project->GetTimeState()->GetCurrTime();
 
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting HistogramCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting HistogramCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void HistogramCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -541,6 +552,7 @@ void HistogramCanvas::VarInfoAttributeChange()
 	if (var_info[0].sync_with_global_time) {
 		is_any_sync_with_global_time = true;
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
 	if (var_info[0].is_ref_variable) ref_var_index = 0;
@@ -549,7 +561,7 @@ void HistogramCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
 void HistogramCanvas::TimeSyncVariableToggle(int var_index)
@@ -801,7 +813,7 @@ void HistogramFrame::OnActivate(wxActivateEvent& event)
 void HistogramFrame::MapMenus()
 {
 	LOG_MSG("In HistogramFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
@@ -815,7 +827,7 @@ void HistogramFrame::MapMenus()
 void HistogramFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("HistogramFrame::UpdateOptionMenuItems: Options "
@@ -835,17 +847,12 @@ void HistogramFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void HistogramFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void HistogramFrame::update(TimeState* o)
 {
-	LOG_MSG("In HistogramFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In HistogramFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
-}
-
-void HistogramFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void HistogramFrame::OnShowAxes(wxCommandEvent& event)

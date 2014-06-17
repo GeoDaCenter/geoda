@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,13 +22,16 @@
 
 #include <string>
 #include <list>
+#include <wx/arrstr.h>
 #include <wx/app.h>
 #include <wx/clipbrd.h>
 #include <wx/colordlg.h>
+#include <wx/cmdline.h>
 #include <wx/docview.h>
 #include <wx/filename.h>
+#include <wx/ipc.h>
 #include <wx/string.h>
-#include <wx/timer.h>
+#include <wx/snglinst.h>
 #include <wx/toolbar.h>
 
 // Forward Declarations
@@ -36,30 +39,41 @@ class GalWeight;
 class ProgressDlg;
 class Project;
 class CatClassifFrame;
+class GdaApp;
+class GdaFrame;
+class GdaServer;
+class GdaClient;
+class GdaConnection;
 
 /** Main appilcation class. */
-class MyApp: public wxApp
+class GdaApp: public wxApp
 {
 public:
-	//MyApp(void);
+	GdaApp();
+	virtual ~GdaApp();
 	virtual bool OnInit(void);
 	virtual int OnExit(void);
 	virtual void OnFatalException(void);
-	//void OnTimer(wxTimerEvent& event);
+	virtual void OnInitCmdLine(wxCmdLineParser& parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+	virtual void MacOpenFiles(const wxArrayString& fileNames);
+
+	static const wxCmdLineEntryDesc globalCmdLineDesc[];
 private:
-	//static wxTimer* timer;
-	//DECLARE_EVENT_TABLE()
+	wxString cmd_line_proj_file_name;
+	wxSingleInstanceChecker* checker;
+	GdaServer* server;
 };
 
-DECLARE_APP(MyApp)
+DECLARE_APP(GdaApp)
 
 /** Main toolbar frame. */
-class MyFrame: public wxFrame
+class GdaFrame: public wxFrame
 {
 public:
-	MyFrame(const wxString& title,
+	GdaFrame(const wxString& title,
 			const wxPoint& pos, const wxSize& size, long style);
-	virtual ~MyFrame();
+	virtual ~GdaFrame();
 	
 	void EnableTool(const wxString& id_str, bool enable);
 	void EnableTool(int xrc_id, bool enable);
@@ -68,20 +82,20 @@ public:
 	void OnKeyEvent(wxKeyEvent& event);
 	void OnToolOpenNewTable(wxCommandEvent& event);
 	void OnOpenNewTable();
-	/** Opens a new SHP file and initializes many global variables. */
-	void OnOpenShapefile(wxCommandEvent& event);
-	/** open columbus shapefile for testing */
-	void OpenColumbusTest();
-	void OnOpenTableOnly(wxCommandEvent& event);
-	void OnOpenSpTmShapefile(wxCommandEvent& event);
-	void OnOpenSpTmTableOnly(wxCommandEvent& event);
-	void OpenProject(bool table_only, bool space_time);
-	bool OnCloseMap(bool ignore_unsaved_changes = false);
+	bool OnCloseProject(bool ignore_unsaved_changes = false);
 	void OnClose(wxCloseEvent& event);
 	void OnMenuClose(wxCommandEvent& event);
-	void OnCloseAll(wxCommandEvent& event);
+	void OnCloseProjectEvt(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 
+	void OnNewProject(wxCommandEvent& event);
+	void OpenProject(const wxString& full_proj_path);
+	void OnOpenProject(wxCommandEvent& event);
+	void OnSaveProject(wxCommandEvent& event);
+	void OnSaveAsProject(wxCommandEvent& event);
+	
+	void OnShowProjectInfo(wxCommandEvent& event);
+	
 	void OnSelectWithRect(wxCommandEvent& event);
 	void OnSelectWithCircle(wxCommandEvent& event);
 	void OnSelectWithLine(wxCommandEvent& event);
@@ -89,8 +103,6 @@ public:
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
-	void OnZoomIn(wxCommandEvent& event);
-	void OnZoomOut(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
 	
@@ -112,7 +124,6 @@ public:
 	void OnConnectivityHistView(wxCommandEvent& event);
 
 	void OnMapChoices(wxCommandEvent& event);
-	void OnOpenChoices(wxCommandEvent& event);
 	
 	void OnShapePointsFromASCII(wxCommandEvent& event);
 	void OnShapePolygonsFromGrid(wxCommandEvent& event);
@@ -123,20 +134,20 @@ public:
 	void OnShowDataMovie(wxCommandEvent& event);
 	void OnShowCatClassif(wxCommandEvent& event);
 	CatClassifFrame* GetCatClassifFrame();
-	void OnSpaceTimeTool(wxCommandEvent& event);
+	void OnVarGroupingEditor(wxCommandEvent& event);
+	void OnTimeEditor(wxCommandEvent& event);
 	void OnMoveSelectedToTop(wxCommandEvent& event);
 	void OnClearSelection(wxCommandEvent& event);
 	void OnRangeSelection(wxCommandEvent& event);
 	void OnFieldCalculation(wxCommandEvent& event);
+	void OnCalculator(wxCommandEvent& event);
 	void OnAddCol(wxCommandEvent& event);
 	void OnDeleteCol(wxCommandEvent& event);
 	void OnEditFieldProperties(wxCommandEvent& event);
 	void OnMergeTableData(wxCommandEvent& event);
-	void OnSaveProject(wxCommandEvent& event);
-	void OnSaveAsProject(wxCommandEvent& event);
-	void OnExportToCsvFile(wxCommandEvent& event);
-	bool SaveTableSpace();
-	bool SaveTableSpaceTime();
+	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
+	void OnExportToOGR(wxCommandEvent& event);
+	void OnExportSelectedToOGR(wxCommandEvent& event);
 	void OnGeneratePointShpFile(wxCommandEvent& event);
 	
 	void OnRegressionClassic(wxCommandEvent& event);
@@ -159,7 +170,6 @@ public:
 	void OnExploreScatterNewPlot(wxCommandEvent& event);
 	void OnExploreBubbleChart(wxCommandEvent& event);
 	void OnExploreTestMap(wxCommandEvent& event);
-	void OnExploreTestTable(wxCommandEvent& event);
 	void OnExploreBox(wxCommandEvent& event);
 	void OnExploreNewBox(wxCommandEvent& event);
 	void OnExplorePCP(wxCommandEvent& event);
@@ -274,53 +284,196 @@ public:
 	
 	void OnOpenThemelessMap(wxCommandEvent& event);
 	void OnThemelessMap(wxCommandEvent& event);
-	void OnOpenQuantile(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
+	
+	void OnOpenQuantile1(wxCommandEvent& event);
+	void OnOpenQuantile2(wxCommandEvent& event);
+	void OnOpenQuantile3(wxCommandEvent& event);
+	void OnOpenQuantile4(wxCommandEvent& event);
+	void OnOpenQuantile5(wxCommandEvent& event);
+	void OnOpenQuantile6(wxCommandEvent& event);
+	void OnOpenQuantile7(wxCommandEvent& event);
+	void OnOpenQuantile8(wxCommandEvent& event);
+	void OnOpenQuantile9(wxCommandEvent& event);
+	void OnOpenQuantile10(wxCommandEvent& event);
+	void OpenQuantile(int num_cats);
+	void OnQuantile1(wxCommandEvent& event);
+	void OnQuantile2(wxCommandEvent& event);
+	void OnQuantile3(wxCommandEvent& event);
+	void OnQuantile4(wxCommandEvent& event);
+	void OnQuantile5(wxCommandEvent& event);
+	void OnQuantile6(wxCommandEvent& event);
+	void OnQuantile7(wxCommandEvent& event);
+	void OnQuantile8(wxCommandEvent& event);
+	void OnQuantile9(wxCommandEvent& event);
+	void OnQuantile10(wxCommandEvent& event);
+	void ChangeToQuantile(int num_cats);
+
 	void OnOpenPercentile(wxCommandEvent& event);
 	void OnPercentile(wxCommandEvent& event);
+
 	void OnOpenHinge15(wxCommandEvent& event);
 	void OnHinge15(wxCommandEvent& event);
+
 	void OnOpenHinge30(wxCommandEvent& event);
 	void OnHinge30(wxCommandEvent& event);
+
 	void OnOpenStddev(wxCommandEvent& event);
 	void OnStddev(wxCommandEvent& event);
-	void OnOpenNaturalBreaks(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnOpenEqualIntervals(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
+
+	void OnOpenNaturalBreaks1(wxCommandEvent& event);
+	void OnOpenNaturalBreaks2(wxCommandEvent& event);
+	void OnOpenNaturalBreaks3(wxCommandEvent& event);
+	void OnOpenNaturalBreaks4(wxCommandEvent& event);
+	void OnOpenNaturalBreaks5(wxCommandEvent& event);
+	void OnOpenNaturalBreaks6(wxCommandEvent& event);
+	void OnOpenNaturalBreaks7(wxCommandEvent& event);
+	void OnOpenNaturalBreaks8(wxCommandEvent& event);
+	void OnOpenNaturalBreaks9(wxCommandEvent& event);
+	void OnOpenNaturalBreaks10(wxCommandEvent& event);
+	void OpenNaturalBreaks(int num_cats);
+	void OnNaturalBreaks1(wxCommandEvent& event);
+	void OnNaturalBreaks2(wxCommandEvent& event);
+	void OnNaturalBreaks3(wxCommandEvent& event);
+	void OnNaturalBreaks4(wxCommandEvent& event);
+	void OnNaturalBreaks5(wxCommandEvent& event);
+	void OnNaturalBreaks6(wxCommandEvent& event);
+	void OnNaturalBreaks7(wxCommandEvent& event);
+	void OnNaturalBreaks8(wxCommandEvent& event);
+	void OnNaturalBreaks9(wxCommandEvent& event);
+	void OnNaturalBreaks10(wxCommandEvent& event);
+	void ChangeToNaturalBreaks(int num_cats);
+	
+	void OnOpenEqualIntervals1(wxCommandEvent& event);
+	void OnOpenEqualIntervals2(wxCommandEvent& event);
+	void OnOpenEqualIntervals3(wxCommandEvent& event);
+	void OnOpenEqualIntervals4(wxCommandEvent& event);
+	void OnOpenEqualIntervals5(wxCommandEvent& event);
+	void OnOpenEqualIntervals6(wxCommandEvent& event);
+	void OnOpenEqualIntervals7(wxCommandEvent& event);
+	void OnOpenEqualIntervals8(wxCommandEvent& event);
+	void OnOpenEqualIntervals9(wxCommandEvent& event);
+	void OnOpenEqualIntervals10(wxCommandEvent& event);
+	void OpenEqualIntervals(int num_cats);
+	void OnEqualIntervals1(wxCommandEvent& event);
+	void OnEqualIntervals2(wxCommandEvent& event);
+	void OnEqualIntervals3(wxCommandEvent& event);
+	void OnEqualIntervals4(wxCommandEvent& event);
+	void OnEqualIntervals5(wxCommandEvent& event);
+	void OnEqualIntervals6(wxCommandEvent& event);
+	void OnEqualIntervals7(wxCommandEvent& event);
+	void OnEqualIntervals8(wxCommandEvent& event);
+	void OnEqualIntervals9(wxCommandEvent& event);
+	void OnEqualIntervals10(wxCommandEvent& event);
+	void ChangeToEqualIntervals(int num_cats);
+
 	void OnOpenUniqueValues(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
+
 	void OnSaveCategories(wxCommandEvent& event);
 	
 	void OnOpenRawrate(wxCommandEvent& event);
 	void OnRawrate(wxCommandEvent& event);
+
 	void OnOpenExcessrisk(wxCommandEvent& event);
 	void OnExcessrisk(wxCommandEvent& event);
+
 	void OnOpenEmpiricalBayes(wxCommandEvent& event);
 	void OnEmpiricalBayes(wxCommandEvent& event);
+
 	void OnOpenSpatialRate(wxCommandEvent& event);
 	void OnSpatialRate(wxCommandEvent& event);
+
 	void OnOpenSpatialEmpiricalBayes(wxCommandEvent& event);
 	void OnSpatialEmpiricalBayes(wxCommandEvent& event);
 	
 	void OnCondHorizThemelessMap(wxCommandEvent& event);
-	void OnCondHorizQuantile(wxCommandEvent& event);
+	
+	void OnCondHorizQuant1(wxCommandEvent& event);
+	void OnCondHorizQuant2(wxCommandEvent& event);
+	void OnCondHorizQuant3(wxCommandEvent& event);
+	void OnCondHorizQuant4(wxCommandEvent& event);
+	void OnCondHorizQuant5(wxCommandEvent& event);
+	void OnCondHorizQuant6(wxCommandEvent& event);
+	void OnCondHorizQuant7(wxCommandEvent& event);
+	void OnCondHorizQuant8(wxCommandEvent& event);
+	void OnCondHorizQuant9(wxCommandEvent& event);
+	void OnCondHorizQuant10(wxCommandEvent& event);
+	void ChangeToCondHorizQuant(int num_cats);
+	
 	void OnCondHorizPercentile(wxCommandEvent& event);
 	void OnCondHorizHinge15(wxCommandEvent& event);
 	void OnCondHorizHinge30(wxCommandEvent& event);
 	void OnCondHorizStddev(wxCommandEvent& event);
-	void OnCondHorizNaturalBreaks(wxCommandEvent& event);
-	void OnCondHorizEqualIntervals(wxCommandEvent& event);
+	
+	void OnCondHorizNatBrks1(wxCommandEvent& event);
+	void OnCondHorizNatBrks2(wxCommandEvent& event);
+	void OnCondHorizNatBrks3(wxCommandEvent& event);
+	void OnCondHorizNatBrks4(wxCommandEvent& event);
+	void OnCondHorizNatBrks5(wxCommandEvent& event);
+	void OnCondHorizNatBrks6(wxCommandEvent& event);
+	void OnCondHorizNatBrks7(wxCommandEvent& event);
+	void OnCondHorizNatBrks8(wxCommandEvent& event);
+	void OnCondHorizNatBrks9(wxCommandEvent& event);
+	void OnCondHorizNatBrks10(wxCommandEvent& event);
+	void ChangeToCondHorizNatBrks(int num_cats);
+	
+	void OnCondHorizEquInts1(wxCommandEvent& event);
+	void OnCondHorizEquInts2(wxCommandEvent& event);
+	void OnCondHorizEquInts3(wxCommandEvent& event);
+	void OnCondHorizEquInts4(wxCommandEvent& event);
+	void OnCondHorizEquInts5(wxCommandEvent& event);
+	void OnCondHorizEquInts6(wxCommandEvent& event);
+	void OnCondHorizEquInts7(wxCommandEvent& event);
+	void OnCondHorizEquInts8(wxCommandEvent& event);
+	void OnCondHorizEquInts9(wxCommandEvent& event);
+	void OnCondHorizEquInts10(wxCommandEvent& event);
+	void ChangeToCondHorizEquInts(int num_cats);
+	
 	void OnCondHorizUniqueValues(wxCommandEvent& event);
 	
 	void OnCondVertThemelessMap(wxCommandEvent& event);
-	void OnCondVertQuantile(wxCommandEvent& event);
+
+	void OnCondVertQuant1(wxCommandEvent& event);
+	void OnCondVertQuant2(wxCommandEvent& event);
+	void OnCondVertQuant3(wxCommandEvent& event);
+	void OnCondVertQuant4(wxCommandEvent& event);
+	void OnCondVertQuant5(wxCommandEvent& event);
+	void OnCondVertQuant6(wxCommandEvent& event);
+	void OnCondVertQuant7(wxCommandEvent& event);
+	void OnCondVertQuant8(wxCommandEvent& event);
+	void OnCondVertQuant9(wxCommandEvent& event);
+	void OnCondVertQuant10(wxCommandEvent& event);
+	void ChangeToCondVertQuant(int num_cats);	
+	
 	void OnCondVertPercentile(wxCommandEvent& event);
 	void OnCondVertHinge15(wxCommandEvent& event);
 	void OnCondVertHinge30(wxCommandEvent& event);
 	void OnCondVertStddev(wxCommandEvent& event);
-	void OnCondVertNaturalBreaks(wxCommandEvent& event);
-	void OnCondVertEqualIntervals(wxCommandEvent& event);
+	
+	void OnCondVertNatBrks1(wxCommandEvent& event);
+	void OnCondVertNatBrks2(wxCommandEvent& event);
+	void OnCondVertNatBrks3(wxCommandEvent& event);
+	void OnCondVertNatBrks4(wxCommandEvent& event);
+	void OnCondVertNatBrks5(wxCommandEvent& event);
+	void OnCondVertNatBrks6(wxCommandEvent& event);
+	void OnCondVertNatBrks7(wxCommandEvent& event);
+	void OnCondVertNatBrks8(wxCommandEvent& event);
+	void OnCondVertNatBrks9(wxCommandEvent& event);
+	void OnCondVertNatBrks10(wxCommandEvent& event);
+	void ChangeToCondVertNatBrks(int num_cats);
+	
+	void OnCondVertEquInts1(wxCommandEvent& event);
+	void OnCondVertEquInts2(wxCommandEvent& event);
+	void OnCondVertEquInts3(wxCommandEvent& event);
+	void OnCondVertEquInts4(wxCommandEvent& event);
+	void OnCondVertEquInts5(wxCommandEvent& event);
+	void OnCondVertEquInts6(wxCommandEvent& event);
+	void OnCondVertEquInts7(wxCommandEvent& event);
+	void OnCondVertEquInts8(wxCommandEvent& event);
+	void OnCondVertEquInts9(wxCommandEvent& event);
+	void OnCondVertEquInts10(wxCommandEvent& event);
+	void ChangeToCondVertEquInts(int num_cats);
+	
 	void OnCondVertUniqueValues(wxCommandEvent& event);
 		
 	void OnSaveResults(wxCommandEvent& event);
@@ -334,6 +487,9 @@ public:
 	void OnRan499Per(wxCommandEvent& event);
 	void OnRan999Per(wxCommandEvent& event);
 	void OnRanOtherPer(wxCommandEvent& event);
+	
+	void OnUseSpecifiedSeed(wxCommandEvent& event);
+	void OnSpecifySeedDlg(wxCommandEvent& event);
 	
 	void OnSaveMoranI(wxCommandEvent& event);
 	
@@ -355,15 +511,16 @@ public:
 	void OnDisplayMeanCenters(wxCommandEvent& event);
 	void OnDisplayCentroids(wxCommandEvent& event);
 	void OnDisplayVoronoiDiagram(wxCommandEvent& event);
-	void OnSaveVoronoiToShapefile(wxCommandEvent& event);
-	void OnSaveMeanCntrsToShapefile(wxCommandEvent& event);
-	void OnSaveCentroidsToShapefile(wxCommandEvent& event);
+	void OnExportVoronoi(wxCommandEvent& event);
+	void OnExportMeanCntrs(wxCommandEvent& event);
+	void OnExportCentroids(wxCommandEvent& event);
 	void OnSaveVoronoiDupsToTable(wxCommandEvent& event);
 	
 	// ScatterPlot and PCP specific callbacks
 	void OnViewStandardizedData(wxCommandEvent& event);
 	void OnViewOriginalData(wxCommandEvent& event);
 	// ScatterPlot specific callbacks
+	void OnViewRegimesRegression(wxCommandEvent& event);
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnViewRegressionSelected(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
@@ -403,24 +560,72 @@ public:
 	void OnDisplayStatusBar(wxCommandEvent& event);
 	
 	void OnHelpAbout(wxCommandEvent& event);
-
+    
+    void OnTableSetLocale(wxCommandEvent& event);
+    void OnEncodingUTF8(wxCommandEvent& event);
+	void OnEncodingUTF16(wxCommandEvent& event);
+	void OnEncodingWindows1250(wxCommandEvent& event);
+	void OnEncodingWindows1251(wxCommandEvent& event);
+	void OnEncodingWindows1254(wxCommandEvent& event);
+	void OnEncodingWindows1255(wxCommandEvent& event);
+	void OnEncodingWindows1256(wxCommandEvent& event);
+	void OnEncodingWindows1258(wxCommandEvent& event);
+	void OnEncodingCP852(wxCommandEvent& event);
+	void OnEncodingCP866(wxCommandEvent& event);
+	void OnEncodingISO8859_1(wxCommandEvent& event);
+	void OnEncodingISO8859_2(wxCommandEvent& event);
+	void OnEncodingISO8859_3(wxCommandEvent& event);
+	void OnEncodingISO8859_5(wxCommandEvent& event);
+	void OnEncodingISO8859_7(wxCommandEvent& event);
+	void OnEncodingISO8859_8(wxCommandEvent& event);
+	void OnEncodingISO8859_9(wxCommandEvent& event);
+	void OnEncodingISO8859_10(wxCommandEvent& event);
+	void OnEncodingISO8859_15(wxCommandEvent& event);
+	void OnEncodingGB2312(wxCommandEvent& event);
+	void OnEncodingBIG5(wxCommandEvent& event);
+	void OnEncodingKOI8_R(wxCommandEvent& event);
+	void OnEncodingSHIFT_JIS(wxCommandEvent& event);
+	void OnEncodingEUC_JP(wxCommandEvent& event);
+	void OnEncodingEUC_KR(wxCommandEvent& event);
+    void SetEncodingCheckmarks(wxFontEncoding e);
+    
 	void DisplayRegression(const wxString dump);
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
 
-	static Project* project_p;
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
-		
-	// Getter/Setter methods
+	static GdaFrame* GetGdaFrame() { return gda_frame; }
 	static bool IsProjectOpen();
-	static void SetProjectOpen(bool open);
-	static MyFrame* theFrame;
-	
-	static std::list<wxToolBar*> toolbar_list;
+
 private:
+	static void SetProjectOpen(bool open);
+
+	static GdaFrame* gda_frame;
+	static Project* project_p;
 	static bool projectOpen;
+	static std::list<wxToolBar*> toolbar_list; // not currently used
+	
 	DECLARE_EVENT_TABLE()
+};
+
+class GdaServer : public wxServer {
+public:
+	virtual wxConnectionBase* OnAcceptConnection(const wxString& topic);
+};
+
+class GdaClient : public wxClient {
+public:
+	GdaClient() {}
+	virtual wxConnectionBase* OnMakeConnection();
+};
+
+class GdaConnection : public wxConnection {
+public:
+	GdaConnection() {}
+	virtual ~GdaConnection() {}
+	
+	virtual bool OnExec(const wxString &topic, const wxString &data);
 };
 
 #endif

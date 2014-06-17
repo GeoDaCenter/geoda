@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,10 +24,31 @@
 #include <vector>
 #include <map>
 #include <wx/msgdlg.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "GalWeight.h"
+
+GalElement::GalElement() : data(0), size(0)
+{
+}
+
+GalElement::~GalElement()
+{
+	LOG_MSG("In GalElement::~GalElement");
+	if (data) delete [] data;
+	size = 0;
+}
+
+int GalElement::alloc(int sz)
+{
+	if (data) delete [] data;
+	if (sz > 0) {
+		size = 0;
+		data = new long[sz];
+	}
+	return !empty();
+}
 
 //*** compute spatial lag for a contiguity weights matrix
 //*** optionally (default) performs standardization of the result
@@ -98,12 +119,13 @@ double GalElement::SpatialLag(const std::vector<double>& x, const int * perm,
 }
 
 GalElement* WeightUtils::ReadGal(const wxString& fname,
-								 DbfGridTableBase* grid_base)
+								 TableInterface* table_int)
 {
 	LOG_MSG("Entering WeightUtils::ReadGal");
 	using namespace std;
 	ifstream file;
-	file.open(fname.mb_str(wxConvUTF8), ios::in);  // a text file
+	//file.open(fname.mb_str(wxConvUTF8), ios::in);  // a text file
+	file.open(fname.fn_str(), ios::in);  // a text file
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -135,10 +157,10 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		}
 	}
 	
-	if (num_obs != grid_base->GetNumberRows()) {
+	if (num_obs != table_int->GetNumberRows()) {
 		wxString msg = "The number of observations specified in chosen ";
 		msg << "weights file is " << num_obs << ", but the number in the ";
-		msg << "current DBF Table is " << grid_base->GetNumberRows();
+		msg << "current Table is " << table_int->GetNumberRows();
 		msg << ", which is incompatible.";
 		LOG_MSG(msg);
 		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
@@ -200,20 +222,21 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		}
 		for (int i=0; i<num_obs; i++) id_map[i+min_val] = i;
 	} else {
-		int col = grid_base->FindColId(key_field);
+		int col=0, tm=0;
+		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
 			wxString msg = "Specified key value field \"";
 			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded DBF Table.";
+			msg << "in currently loaded Table.";
 			LOG_MSG(msg);
 			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
-		if (grid_base->GetColType(col) != GeoDaConst::long64_type) {
+		if (table_int->GetColType(col) != GdaConst::long64_type) {
 			wxString msg = "Specified key value field \"";
 			msg << key_field << "\" on first line of weights file is";
-			msg << " not an integer type in the currently loaded DBF Table.";
+			msg << " not an integer type in the currently loaded Table.";
 			LOG_MSG(msg);
 			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
@@ -222,12 +245,12 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		// get mapping from key_field to record ids (which always start
 		// from 0 internally, but are displayed to the user from 1)
 		vector<wxInt64> vec;
-		grid_base->col_data[col]->GetVec(vec);
+		table_int->GetColData(col, 0, vec);
 		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
 		if (id_map.size() != num_obs) {
 			wxString msg = "Specified key value field \"";
 			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded DBF Table.";
+			msg << "values in the currently loaded Table.";
 			LOG_MSG(msg);
 			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
@@ -264,7 +287,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 					msg << "range of 1 through " << num_obs << ".";
 				} else {
 					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the DBF Table.";
+					msg << key_field << " of the Table.";
 				}
 				LOG_MSG(msg);
 				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
@@ -300,7 +323,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 							} else {
 								msg << " encountered which does not exist ";
 								msg << "in field \"" << key_field;
-								msg << " of the DBF Table.";
+								msg << " of the Table.";
 							}
 						LOG_MSG(msg);
 						wxMessageDialog dlg(NULL, msg, "Error",

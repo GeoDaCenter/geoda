@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -53,7 +53,6 @@ extern bool ordinaryLS(DenseVector &y,
 				 double ** &cov, 
 				 double * resid, 
 				 DenseVector &ols);
-extern void DevFromMean(int, double*);
 
 // standard normal cumulative distribution function
 double nc(double x)  
@@ -326,42 +325,6 @@ Returns the incomplete gamma function Q(a; x)
 evaluated by its continued fraction representation
 as gammcf. Also returns ln 
 */
-/*
-double gcf(const double a, const double x)  
-{
-    const int ITMAX = 100;
-    const double EPS = 3.0e-7;
-    double gold = 0, g, fac = 1.0, b1 = 1.0;
-    double b0 = 0, anf, ana, an, a1, a0 = 1.0;
-    double gln = gammaln(a);
-    a1 = x;
-    for (int n = 1; n <= ITMAX; ++n)  
-		{
-        an = 1.0 * n;
-        ana = an - a;
-        a0 = (a1 + a0*ana) * fac;
-        b0 = (b1 + b0*ana) * fac;
-        anf = an * fac;
-        a1 = x * a0 + anf * a1;
-        b1 = x * b0 + anf * b1;
-        if (a1)  
-				{
-            if (abs(a1) > 0.0)
-							fac = 1.0 / a1;
-						else
-							a1 = EPS;
-
-            g = b1 * fac;
-						if (abs(g) < EPS) return 0;
-            if (fabs((g-gold)/g) < EPS)
-                return exp(-x+a*log(x)-gln) * g;
-            gold = g;
-        };
-    };
-    return 0;
-}
-*/
-
 double gcf(const double a, const double x)  
 {
     const int ITMAX = 100;
@@ -601,8 +564,6 @@ double* JarqueBera(double* e, long n, long k)
 }
 extern bool SymMatInverse(Iterator<WVector> mt);
 extern bool SymMatInverse(double ** mt, const int dim);
-void DevFromMean(int nObs, double** RawData, int deps, int startfrom);
-double*  DevFromMeanR(int nObs, double* RawData);
 
 
 double *BP_Test(double *resid, int obs, double** X, int nvar, bool InclConst)
@@ -761,8 +722,7 @@ double* WhiteTest(int obs, int nvar, double* resid, double** X, bool InclConstan
 	typedef double* double_ptr_type;
 	double *r2 = new double[obs];
 	int i = 0, jj = 0;
-//	if (!InclConstant)
-//		DevFromMean(obs,resid);
+	//	if (!InclConstant) DevFromMean(obs,resid);
 
 	// (1) r2 = Compute e2
 	double r2_bar = 0;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,9 @@
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/xrc/xmlres.h>
-#include "DataViewer/DbfGridTableBase.h"
+#include "DataViewer/TableInterface.h"
+#include "DataViewer/TableState.h"
+#include "DataViewer/TimeState.h"
 #include "FramesManager.h"
 #include "TemplateFrame.h"
 #include "TemplateCanvas.h"
@@ -53,10 +55,15 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 : wxFrame(parent, -1, title, pos, size, style),
 	template_canvas(0), template_legend(0), project(project_s),
 	frames_manager(project_s->GetFramesManager()),
-	is_status_bar_visible(false)
+	table_state(project_s->GetTableState()),
+	time_state(project_s->GetTimeState()),
+	is_status_bar_visible(false), supports_timeline_changes(false),
+    depends_on_non_simple_groups(true)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);
+	table_state->registerObserver(this);
+	time_state->registerObserver(this);
 }
 
 TemplateFrame::~TemplateFrame()
@@ -64,6 +71,8 @@ TemplateFrame::~TemplateFrame()
 	LOG_MSG("Called TemplateFrame::~TemplateFrame()");
 	if (HasCapture()) ReleaseMouse();
 	frames_manager->removeObserver(this);
+	table_state->removeObserver(this);
+	time_state->removeObserver(this);
 }
 
 void TemplateFrame::OnSelectWithRect(wxCommandEvent& event)
@@ -98,6 +107,14 @@ void TemplateFrame::OnSelectionMode(wxCommandEvent& event)
 	LOG_MSG("Called TemplateFrame::OnSelectionMode");
 	if (!template_canvas) return;
 	template_canvas->SetMouseMode(TemplateCanvas::select);
+	UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnResetMap(wxCommandEvent& event)
+{
+	LOG_MSG("Called TemplateFrame::OnResetMap");
+	if (!template_canvas) return;
+	template_canvas->ResetShapes();
 	UpdateOptionMenuItems();
 }
 
@@ -148,7 +165,7 @@ void TemplateFrame::OnPrintCanvasState(wxCommandEvent& event)
 void TemplateFrame::UpdateOptionMenuItems()
 {
 	if (template_canvas == 0) return;
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
@@ -218,6 +235,12 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 								  IsStatusBarVisible());
 }
 
+void TemplateFrame::UpdateTitle()
+{
+	if (template_canvas) SetTitle(template_canvas->GetCanvasTitle());
+	if (GetActiveFrame()==this) GdaFrame::GetGdaFrame()->SetTitle(GetTitle());
+}
+
 void TemplateFrame::OnTimeSyncVariable(int var_index)
 {
 	if (!template_canvas) return;
@@ -283,8 +306,8 @@ void TemplateFrame::DisplayStatusBar(bool show)
 void TemplateFrame::RegisterAsActive(const wxString& name,
 									 const wxString& title)
 {
-	if (!MyFrame::theFrame) {
-		// ~MyFrame() has been called, program is exiting
+	if (!GdaFrame::GetGdaFrame()) {
+		// ~GdaFrame() has been called, program is exiting
 		return;
 	}
 	if (!activeFrame || activeFrame != this) {
@@ -293,20 +316,20 @@ void TemplateFrame::RegisterAsActive(const wxString& name,
 		MapMenus();
 		// Enable the Close menu item.  This saves including this code in every
 		// single MapMenus call by all classes that inherit this class.
-		GeneralWxUtils::EnableMenuItem(MyFrame::theFrame->GetMenuBar(),
+		GeneralWxUtils::EnableMenuItem(GdaFrame::GetGdaFrame()->GetMenuBar(),
 									   "File",
 									   wxID_CLOSE, true);
 		activeFrame = this;
 		activeFrName = name;
-		MyFrame::theFrame->SetTitle(title);
+		GdaFrame::GetGdaFrame()->SetTitle(title);
 	}
 }
 
 void TemplateFrame::DeregisterAsActive()
 {
 	LOG_MSG("In TemplateFrame::DeregisterAsActive");
-	if (!MyFrame::theFrame) {
-		// ~MyFrame() has been called, program is exiting
+	if (!GdaFrame::GetGdaFrame()) {
+		// ~GdaFrame() has been called, program is exiting
 		return;
 	}
 	if (activeFrame == this) {
@@ -314,7 +337,7 @@ void TemplateFrame::DeregisterAsActive()
 		activeFrName = wxEmptyString;
 		LOG_MSG("reset toolbar to default.");
 		// restore to a default state.
-		MyFrame::theFrame->UpdateToolbarAndMenus();
+		GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
 	}
 }
 
@@ -337,27 +360,25 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 {
 	//LOG_MSG("In TemplateFrame::OnKeyEvent");
 	if (event.GetModifiers() == wxMOD_CMD &&
-		project && project->GetGridBase() &&
-		project->GetGridBase()->IsTimeVariant() &&
+		project && project->GetTimeState() &&
+		project->GetTableInt()->IsTimeVariant() &&
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
-		DbfGridTableBase* grid_base = project->GetGridBase();
+		TimeState* time_state = project->GetTimeState();
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
 		LOG(del);
-		grid_base->curr_time_step = grid_base->curr_time_step + del;
-		if (grid_base->curr_time_step < 0) {
-			grid_base->curr_time_step = grid_base->time_steps-1;
-		} else if (grid_base->curr_time_step >= grid_base->time_steps) {
-			grid_base->curr_time_step = 0;
+		time_state->SetCurrTime(time_state->GetCurrTime() + del);
+		if (time_state->GetCurrTime() < 0) {
+			time_state->SetCurrTime(time_state->GetTimeSteps()-1);
+		} else if (time_state->GetCurrTime() >= time_state->GetTimeSteps()) {
+			time_state->SetCurrTime(0);
 		}
-		if (project->GetFramesManager()) {
-			project->GetFramesManager()->notifyObservers();
-		}
+		time_state->notifyObservers();
 		return;
 	}
 	event.Skip();
 }
 
-/** MMM: ExportImage assuemes the old style template canvas.  We should have
+/** MMM: ExportImage assumes the old style template canvas.  We should have
       a second version available.  OnDraw is used by the older
       TemplateCanvas chidren classes.  Perhaps we can just call
       PaintBackground(dc) followed by PaintShapes(dc). */
@@ -365,13 +386,13 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
-	wxString default_fname(project->GetMainName() + type + ".svg");
+	wxString default_fname(project->GetProjectTitle() + type + ".svg");
 	wxString filter("BMP|*.bmp|PNG|*.png|SVG|*.svg");
 	int filter_index = 2;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
 	//
 	//	default_fname = wxEmptyString;
-	//	default_fname << project->GetMainName() << type << ".png";
+	//	default_fname << project->GetProjectTitle() << type << ".png";
 	//	filter = wxEmptyString;
 	//	filter << "BMP|*.bmp|PNG|*.png";
 	//	filter_index = 1;
@@ -660,4 +681,36 @@ void TemplateFrame::update(FramesManager* o)
 {
 }
 
+void TemplateFrame::update(TableState* o)
+{
+}
 
+void TemplateFrame::update(TimeState* o)
+{
+}
+
+bool TemplateFrame::AllowTimelineChanges()
+{
+	if (supports_timeline_changes) return true;
+	return !depends_on_non_simple_groups;
+}
+
+bool TemplateFrame::AllowGroupModify(const wxString& grp_nm)
+{
+	return (grp_dependencies.find(grp_nm) == grp_dependencies.end());
+}
+
+void TemplateFrame::AddGroupDependancy(const wxString& grp_nm)
+{
+	grp_dependencies.insert(grp_nm);
+}
+
+void TemplateFrame::RemoveGroupDependancy(const wxString& grp_nm)
+{
+	grp_dependencies.erase(grp_nm);
+}
+
+void TemplateFrame::ClearAllGroupDependencies()
+{
+	grp_dependencies.clear();
+}

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,7 +30,7 @@ class ConditionalHistogramFrame;
 class ConditionalHistogramCanvas;
 
 typedef boost::multi_array<SampleStatistics, 2> stats_array_type;
-typedef boost::multi_array<MyPolyLine, 2> polyline_array_type;
+typedef boost::multi_array<GdaPolyLine, 2> polyline_array_type;
 
 struct CondCellData {
 	std::vector<int> ival_obs_cnt; // size = cur_intervals
@@ -92,13 +92,13 @@ protected:
 	static const int HIST_VAR; // histogram variable
 	
 	// size = time_steps if HIST_VAR is time variant
-	std::vector<GeoDa::dbl_int_pair_vec_type> data_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
-	MyAxis* x_axis;
-	MyAxis* y_axis;
+	GdaAxis* x_axis;
+	GdaAxis* y_axis;
 	bool scale_x_over_time;
 	bool scale_y_over_time;
 	stats_array_type stats_x;
@@ -147,10 +147,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	void OnShowAxes(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);
