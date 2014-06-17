@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,18 +25,16 @@ class Link
 public :
     Link() {};
     Link(const int ix, const double &v) : nb(ix), weight(v) {};
-    int			getIx()  const  {  return nb;  }
+    int		getIx()  const  {  return nb;  }
     double	getWeight()  const   {  return weight;  }
-    void		setIx(const int x)  {  nb = x;  }
-    void		setWeight(const double &v)  {  weight = v;  }
-    Link & operator = (const Link & from)  
-		{
+    void	setIx(const int x)  {  nb = x;  }
+    void	setWeight(const double &v)  {  weight = v;  }
+    Link & operator = (const Link & from) {
         this-> nb = from.nb;
         this->weight = from.weight;
         return *this;
     }
-    bool operator < (const Link & from)  
-		{
+    bool operator < (const Link & from) {
         return (this->nb < from.nb);
     }
 private :

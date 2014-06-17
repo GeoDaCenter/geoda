@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,10 +30,10 @@
 #include <wx/filename.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../DialogTools/HistIntervalDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -65,7 +65,7 @@ ConnectivityHistCanvas::ConnectivityHistCanvas(wxWindow *parent,
 project(project_s), num_obs(project_s->GetNumRecords()),
 connectivity(project_s->GetNumRecords()),
 has_isolates(gal_w->HasIsolates()), num_isolates(0),
-highlight_state(project_s->highlight_state),
+highlight_state(project_s->GetHighlightState()),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true)
 {
 	using namespace Shapefile;
@@ -85,7 +85,7 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(true)
 	}
 	
 	std::sort(data_sorted.begin(), data_sorted.end(),
-				GeoDa::dbl_int_pair_cmp_less);
+				Gda::dbl_int_pair_cmp_less);
 	data_stats.CalculateFromSample(data_sorted);
 	hinge_stats.CalculateHingeStats(data_sorted);
 	int min_connectivity = data_sorted[0].first;
@@ -106,7 +106,7 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(true)
 	
 	InitIntervals();
 	
-	highlight_color = GeoDaConst::highlight_color;
+	highlight_color = GdaConst::highlight_color;
 	
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = false;
@@ -129,6 +129,10 @@ ConnectivityHistCanvas::~ConnectivityHistCanvas()
 void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering ConnectivityHistCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((ConnectivityHistFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS");
@@ -190,7 +194,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if (!shiftdown) {
 		bool any_selected = false;
 		for (int i=0; i<total_sel_shps; i++) {
-			MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
 				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
@@ -211,7 +215,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	}
 	
 	for (int i=0; i<total_sel_shps; i++) {
-		MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
 						  GenUtils::RectsIntersect(rec->lower_left,
@@ -266,7 +270,7 @@ void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 					((double) ival_obs_cnt[i]));
-		MyRectangle* rec = (MyRectangle*) selectable_shps[i];
+		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 						 rec->upper_right.x - rec->lower_left.x,
 						 (rec->upper_right.y - rec->lower_left.y)*s);
@@ -303,11 +307,11 @@ wxString ConnectivityHistCanvas::GetCanvasTitle()
 void ConnectivityHistCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering ConnectivityHistCanvas::PopulateCanvas");
-	BOOST_FOREACH( MyShape* shp, background_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-	BOOST_FOREACH( MyShape* shp, selectable_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
-	BOOST_FOREACH( MyShape* shp, foreground_shps ) { delete shp; }
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
 	double x_min = 0;
@@ -330,7 +334,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
 		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new MyAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis("Frequency", axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
 							-9, 0);
 		background_shps.push_back(y_axis);
@@ -366,13 +370,13 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new MyAxis("Number of Neighbors",
+		x_axis = new GdaAxis("Number of Neighbors",
 							axis_scale_x, wxRealPoint(0,0),
 							wxRealPoint(shps_orig_xmax, 0), 0, 9);
 		background_shps.push_back(x_axis);
 	}
 	
-	MyShape* s = 0;
+	GdaShape* s = 0;
 	if (has_isolates) {
 		wxString msg;
 		msg << "Warning: " << num_isolates << " observation";
@@ -382,10 +386,10 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			msg << " is ";
 		}
 		msg << "neighborless. See Options menu.";
-		s = new MyText(msg, *GeoDaConst::small_font,
+		s = new GdaShapeText(msg, *GdaConst::small_font,
 					   wxRealPoint(((double) shps_orig_xmax)/2.0,
-								   shps_orig_ymax), 0, MyText::h_center,
-					   MyText::bottom, 0, -15);
+								   shps_orig_ymax), 0, GdaShapeText::h_center,
+					   GdaShapeText::bottom, 0, -15);
 		background_shps.push_back(s);
 	}
 		
@@ -400,14 +404,14 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		vals[2] << "#obs";
 		vals[3] << "% of total";
 		vals[4] << "sd from mean";
-		std::vector<MyTable::CellAttrib> attribs(0); // undefined
-		s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
-						wxRealPoint(0, 0), MyText::h_center, MyText::top,
-						MyText::right, MyText::v_center, 3, 10, -62, 53+y_d);
+		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
+						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -62, 53+y_d);
 		background_shps.push_back(s);
 		{
 			wxClientDC dc(this);
-			((MyTable*) s)->GetSize(dc, table_w, table_h);
+			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
 		}
 		for (int i=0; i<cur_intervals; i++) {
 			std::vector<wxString> vals(rows);
@@ -429,11 +433,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			vals[3] << GenUtils::DblToStr(p, 3);
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
 			
-			std::vector<MyTable::CellAttrib> attribs(0); // undefined
-			s = new MyTable(vals, attribs, rows, cols, *GeoDaConst::small_font,
+			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(orig_x_pos[i], 0),
-							MyText::h_center, MyText::top,
-							MyText::h_center, MyText::v_center, 3, 10, 0,
+							GdaShapeText::h_center, GdaShapeText::top,
+							GdaShapeText::h_center, GdaShapeText::v_center, 3, 10, 0,
 							53+y_d);
 			background_shps.push_back(s);
 		}
@@ -446,9 +450,9 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		sts << ", s.d.: " << data_stats.sd_with_bessel;
 		sts << ", #obs: " << num_obs;
 	
-		s = new MyText(sts, *GeoDaConst::small_font,
+		s = new GdaShapeText(sts, *GdaConst::small_font,
 					   wxRealPoint(shps_orig_xmax/2.0, 0), 0,
-					   MyText::h_center, MyText::v_center, 0,
+					   GdaShapeText::h_center, GdaShapeText::v_center, 0,
 					   table_h + 70 + y_d); //145+y_d);
 		background_shps.push_back(s);
 	}
@@ -476,11 +480,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		double x1 = orig_x_pos[i] + interval_width_const/2.0;
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
-		selectable_shps[i] = new MyRectangle(wxRealPoint(x0, 0),
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
 											 wxRealPoint(x1, y1));
-		int sz = GeoDaConst::qualitative_colors.size();
-		selectable_shps[i]->setPen(GeoDaConst::qualitative_colors[i%sz]);
-		selectable_shps[i]->setBrush(GeoDaConst::qualitative_colors[i%sz]);
+		int sz = GdaConst::qualitative_colors.size();
+		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
+		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
 	
 	ResizeSelectableShps();
@@ -519,9 +523,9 @@ void ConnectivityHistCanvas::SaveConnectivityToTable()
 	data[0].l_val = &t_con;
 	data[0].label << "Connectivity of " << weights_name;
 	data[0].field_default = "NUM_NBRS";
-	data[0].type = GeoDaConst::long64_type;
+	data[0].type = GdaConst::long64_type;
 	
-	SaveToTableDlg dlg(project->GetGridBase(), this, data,
+	SaveToTableDlg dlg(project, this, data,
 					   "Save Connectivity to Table",
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
@@ -717,7 +721,7 @@ void ConnectivityHistFrame::OnActivate(wxActivateEvent& event)
 void ConnectivityHistFrame::MapMenus()
 {
 	LOG_MSG("In ConnectivityHistFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS");
@@ -729,7 +733,7 @@ void ConnectivityHistFrame::MapMenus()
 void ConnectivityHistFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("ConnectivityHistFrame::UpdateOptionMenuItems: Options "
@@ -750,16 +754,11 @@ void ConnectivityHistFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-/** Implementation of FramesManagerObserver interface */
-void ConnectivityHistFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void ConnectivityHistFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(FramesManager* o)");
+	LOG_MSG("In ConnectivityHistFrame::update(TimeState* o)");
 	UpdateTitle();
-}
-
-void ConnectivityHistFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
 }
 
 void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)

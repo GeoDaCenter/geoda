@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,7 @@
 #include "Box.h"
 #include "DBF.h"
 #include "ShapeFile.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ using namespace std;
   */
 class AbstractShape {
 protected:
-	char Id[ GeoDaConst::ShpObjIdLen ];
+	char Id[ GdaConst::ShpObjIdLen ];
 	void Assign(char* nme);
 	void Identify(const long d);
 	AbstractShape(char* name) { Assign(name); }
@@ -49,8 +49,8 @@ public:
 	bool IsEqual(AbstractShape& a) { return !strcmp(Id, a.Id); }
 	void ReadID(std::istream& s);
 	void ReadDbf(iDBF& s) {
-		char st [GeoDaConst::ShpObjIdLen+1];
-		s.Read(st, GeoDaConst::ShpObjIdLen);
+		char st [GdaConst::ShpObjIdLen+1];
+		s.Read(st, GdaConst::ShpObjIdLen);
 		Assign(st);
 	}
 	void WriteDbf(oDBF& s) const { s.Write(Id); }

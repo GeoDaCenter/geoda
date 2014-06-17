@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,17 +30,16 @@
 class Arcball;
 class C3DControlPan;
 class C3DPlotFrame;
-class DbfGridTableBase;
+class TableInterface;
 typedef boost::multi_array<double, 2> d_array_type;
 
 class C3DPlotCanvas: public wxGLCanvas, public HighlightStateObserver
 {
 public:
-	C3DPlotCanvas(DbfGridTableBase* grid_base,
+	C3DPlotCanvas(Project* project, C3DPlotFrame* t_frame,
 				  HighlightState* highlight_state,
 				  const std::vector<GeoDaVarInfo>& var_info,
 				  const std::vector<int>& col_ids,
-				  double* x, double* y, double* z,
 				  wxWindow *parent,
 				  const wxWindowID id = wxID_ANY,
 				  const wxPoint& pos = wxDefaultPosition,
@@ -52,7 +51,7 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetNameWithTime(int var);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	void UpdateScaledData();
 	virtual void TimeSyncVariableToggle(int var_index);
@@ -83,7 +82,6 @@ public:
 	int height, width;
 	double bb_min[3], bb_max[3];
 
-	C3DPlotFrame* template_frame;
 	wxColour selectable_fill_color;
 	wxColour highlight_color;
 	wxColour canvas_background_color;
@@ -109,7 +107,8 @@ public:
 	/** Implementation of the HighlightStateObserver interface
 	 update function. */
 	virtual void update(HighlightState* o);
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
+	Project* project;
 	HighlightState* highlight_state;
 	int num_obs;
 	int num_vars;
@@ -128,7 +127,8 @@ public:
 	wxPoint select_end;
 	bool bSelect;
 	C3DControlPan *m_dlg;
-
+	C3DPlotFrame* c3d_plot_frame;
+	
 	DECLARE_EVENT_TABLE()
 };
 
@@ -140,10 +140,7 @@ public:
 				 const std::vector<GeoDaVarInfo>& var_info,
 				 const std::vector<int>& col_ids,
 				 const wxString& title, const wxPoint& pos,
-				 const wxSize& size, const long style,
-				 double* x, const wxString& x_name,
-				 double* y, const wxString& y_name,
-				 double* z, const wxString& z_name);
+				 const wxSize& size, const long style);
 	virtual ~C3DPlotFrame();	
     
 	wxSplitterWindow* m_splitter;
@@ -160,8 +157,8 @@ public:
 	virtual void OnHighlightColor(wxCommandEvent& event);
 	virtual void OnTimeSyncVariable(int var_index);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	virtual void UpdateTitle();
 	

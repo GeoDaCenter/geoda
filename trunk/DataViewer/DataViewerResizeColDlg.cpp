@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include "../logger.h"
-#include "DbfGridTableBase.h"
+#include "TableInterface.h"
 #include "DataViewerResizeColDlg.h"
 
 BEGIN_EVENT_TABLE( DataViewerResizeColDlg, wxDialog )
@@ -28,9 +28,9 @@ BEGIN_EVENT_TABLE( DataViewerResizeColDlg, wxDialog )
 END_EVENT_TABLE()
 
 DataViewerResizeColDlg::DataViewerResizeColDlg(wxGrid* grid_s,
-										 DbfGridTableBase* grid_base_s,
+										 TableInterface* table_int_s,
 										 wxWindow* parent)
-: grid(grid_s), grid_base(grid_base_s)
+: grid(grid_s), table_int(table_int_s)
 {
 	SetParent(parent);
     CreateControls();

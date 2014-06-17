@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,6 +34,8 @@ public:
 	static bool isUnix();
 	static bool isXP();
 	static bool isVista();
+	static bool isX86();
+	static bool isX64();
 	static bool isDebug();
 	static bool isBigEndian();
 	static bool isLittleEndian();

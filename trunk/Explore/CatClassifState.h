@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,9 +34,9 @@ public:
 	 all observers have deregistered themselves. */
 	void closeAndDeleteWhenEmpty();
 	
-	virtual void registerObserver(CatClassifStateObserver* o);
-	virtual void removeObserver(CatClassifStateObserver* o);
-	virtual void notifyObservers();
+	void registerObserver(CatClassifStateObserver* o);
+	void removeObserver(CatClassifStateObserver* o);
+	void notifyObservers();
 	
 	CatClassifDef& GetCatClassif();
 	void SetCatClassif(const CatClassifDef& data);

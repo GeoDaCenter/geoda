@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <limits>
 #include <vector>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -44,8 +46,10 @@ LisaMapNewCanvas::LisaMapNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								   CatClassification::CatClassifType theme_type_s,
 								   bool isBivariate, bool isEBRate,
 								   const wxPoint& pos, const wxSize& size)
-: MapNewCanvas(parent, t_frame, project, CatClassification::no_theme,
-			   no_smoothing, pos, size),
+: MapNewCanvas(parent, t_frame, project,
+			   std::vector<GeoDaVarInfo>(0), std::vector<int>(0),
+			   CatClassification::no_theme,
+			   no_smoothing, 1, pos, size),
 lisa_coord(lisa_coordinator),
 is_clust(theme_type_s==CatClassification::lisa_categories),
 is_bi(isBivariate), is_rate(isEBRate)
@@ -55,6 +59,10 @@ is_bi(isBivariate), is_rate(isEBRate)
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from LisaCoordinator initially
 	var_info = lisa_coordinator->var_info;
+	template_frame->ClearAllGroupDependencies();
+	for (int t=0, sz=var_info.size(); t<sz; ++t) {
+		template_frame->AddGroupDependancy(var_info[t].name);
+	}
 	CreateAndUpdateCategories();
 	
 	LOG_MSG("Exiting LisaMapNewCanvas::LisaMapNewCanvas");
@@ -68,6 +76,10 @@ LisaMapNewCanvas::~LisaMapNewCanvas()
 void LisaMapNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering LisaMapNewCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((LisaMapNewFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
@@ -133,14 +145,17 @@ void LisaMapNewCanvas::SetCheckMarks(wxMenu* menu)
 								  sig_filter == 3);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
 								  sig_filter == 4);
+	
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
+								  lisa_coord->IsReuseLastSeed());
 }
 
-void LisaMapNewCanvas::TitleOrTimeChange()
+void LisaMapNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering LisaMapNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering LisaMapNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -164,7 +179,7 @@ void LisaMapNewCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LisaMapNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting LisaMapNewCanvas::TimeChange");
 }
 
 /** Update Categories based on info in LisaCoordinator */
@@ -299,7 +314,11 @@ void LisaMapNewCanvas::SyncVarInfoFromCoordinator()
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
 	var_info = lisa_coord->var_info;
-	for (int t=0; t<var_info.size(); t++) var_info[t].time = my_times[t];
+	template_frame->ClearAllGroupDependencies();
+	for (int t=0; t<var_info.size(); t++) {
+		var_info[t].time = my_times[t];
+		template_frame->AddGroupDependancy(var_info[t].name);
+	}
 	is_any_time_variant = lisa_coord->is_any_time_variant;
 	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
 	ref_var_index = lisa_coord->ref_var_index;
@@ -343,10 +362,13 @@ lisa_coord(lisa_coordinator)
 	LOG(width);
 	LOG(height);
 	
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this);
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+        wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
-	template_canvas = new LisaMapNewCanvas(splitter_win, this, project,
+    wxPanel* rpanel = new wxPanel(splitter_win);
+	template_canvas = new LisaMapNewCanvas(rpanel, this, project,
 										   lisa_coordinator,
 										   (isClusterMap ?
 											CatClassification::lisa_categories :
@@ -355,17 +377,30 @@ lisa_coord(lisa_coordinator)
 										   wxDefaultPosition,
 										   wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
+    
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	
-	template_legend = new MapNewLegend(splitter_win, template_canvas,
+	wxPanel* lpanel = new wxPanel(splitter_win);
+    template_legend = new MapNewLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
-	
-	splitter_win->SplitVertically(template_legend, template_canvas,
-								  GeoDaConst::map_default_legend_width);
+	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+	splitter_win->SplitVertically(lpanel, rpanel,
+								  GdaConst::map_default_legend_width);
 	
 	lisa_coord->registerObserver(this);
 	
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
 	Show(true);
 	LOG_MSG("Exiting LisaMapNewFrame::LisaMapNewFrame");
 }
@@ -390,7 +425,7 @@ void LisaMapNewFrame::OnActivate(wxActivateEvent& event)
 void LisaMapNewFrame::MapMenus()
 {
 	LOG_MSG("In LisaMapNewFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 	LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
@@ -404,7 +439,7 @@ void LisaMapNewFrame::MapMenus()
 void LisaMapNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("LisaMapNewFrame::UpdateOptionMenuItems: "
@@ -463,6 +498,42 @@ void LisaMapNewFrame::OnRanOtherPer(wxCommandEvent& event)
 	}
 }
 
+void LisaMapNewFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+{
+	lisa_coord->SetReuseLastSeed(!lisa_coord->IsReuseLastSeed());
+}
+
+void LisaMapNewFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+{
+	uint64_t last_seed = lisa_coord->GetLastUsedSeed();
+	wxString m;
+	m << "The last seed used by the pseudo random\nnumber ";
+	m << "generator was " << last_seed << ".\n";
+	m << "Enter a seed value to use between\n0 and ";
+	m << std::numeric_limits<uint64_t>::max() << ".";
+	long long unsigned int val;
+	wxString dlg_val;
+	wxString cur_val;
+	cur_val << last_seed;
+	
+	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	if (dlg.ShowModal() != wxID_OK) return;
+	dlg_val = dlg.GetValue();
+	dlg_val.Trim(true);
+	dlg_val.Trim(false);
+	if (dlg_val.IsEmpty()) return;
+	if (dlg_val.ToULongLong(&val)) {
+		if (!lisa_coord->IsReuseLastSeed()) lisa_coord->SetLastUsedSeed(true);
+		uint64_t new_seed_val = val;
+		lisa_coord->SetLastUsedSeed(new_seed_val);
+	} else {
+		wxString m;
+		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
+	}
+}
+
 void LisaMapNewFrame::SetSigFilterX(int filter)
 {
 	if (filter == lisa_coord->GetSignificanceFilter()) return;
@@ -502,7 +573,7 @@ void LisaMapNewFrame::OnSaveLisa(wxCommandEvent& event)
 	data[0].d_val = &tempLocalMoran;
 	data[0].label = "Lisa Indices";
 	data[0].field_default = "LISA_I";
-	data[0].type = GeoDaConst::double_type;
+	data[0].type = GdaConst::double_type;
 	
 	double cuttoff = lisa_coord->significance_cutoff;
 	double* p = lisa_coord->sig_local_moran_vecs[t];
@@ -518,7 +589,7 @@ void LisaMapNewFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].l_val = &clust;
 	data[1].label = "Clusters";
 	data[1].field_default = "LISA_CL";
-	data[1].type = GeoDaConst::long64_type;
+	data[1].type = GdaConst::long64_type;
 	
 	std::vector<double> sig(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
@@ -528,9 +599,9 @@ void LisaMapNewFrame::OnSaveLisa(wxCommandEvent& event)
 	data[2].d_val = &sig;
 	data[2].label = "Significances";
 	data[2].field_default = "LISA_P";
-	data[2].type = GeoDaConst::double_type;	
+	data[2].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(project->GetGridBase(), this, data,
+	SaveToTableDlg dlg(project, this, data,
 					   "Save Results: LISA",
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
@@ -538,7 +609,7 @@ void LisaMapNewFrame::OnSaveLisa(wxCommandEvent& event)
 
 void LisaMapNewFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
-	HighlightState* highlight_state = project->highlight_state;
+	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,5 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/filename.h>
 #include "GeodaWeight.h"
 
+wxString GeoDaWeight::GetTitle()
+{
+	if (!title.IsEmpty()) return title;
+	return wxFileName(wflnm).GetName();
+}

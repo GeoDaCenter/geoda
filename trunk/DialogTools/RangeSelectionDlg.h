@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,17 +27,26 @@
 #include <wx/dialog.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h> 
+#include "../FramesManagerObserver.h"
+#include "../DataViewer/TableStateObserver.h"
 
+class FramesManager;
+class TableState;
 class Project;
-class DbfGridTableBase;
+class TableInterface;
 
-class RangeSelectionDlg: public wxDialog
+class RangeSelectionDlg: public wxDialog, public FramesManagerObserver,
+public TableStateObserver
 {    
 public:
-    RangeSelectionDlg( Project* project, wxWindow* parent,
-					  const wxString& title = "Selection Dialog", 
-					  const wxPoint& pos = wxDefaultPosition );
+    RangeSelectionDlg( wxWindow* parent, Project* project,
+					   FramesManager* frames_manager, TableState* table_state,
+					   const wxString& title = "Selection Tool", 
+					   const wxPoint& pos = wxDefaultPosition );
+	virtual ~RangeSelectionDlg();
 
+	/** Load XML resources and initialize local-variable widget pointers.
+	 Initialize widgets with defaults. */
     void CreateControls();
 	void OnFieldChoice( wxCommandEvent& event );
 	void OnFieldChoiceTm( wxCommandEvent& event );
@@ -55,6 +64,47 @@ public:
 	void OnApplySaveClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
 
+	/** Implementation of FramesManagerObserver interface */
+	virtual void update(FramesManager* o);
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
+
+private:
+	/** Should only be called by update and constructor. */
+	void RefreshColIdMap();
+	/** Refresh selection vars list and associated time list,
+	 enabling widgets as needed. */
+	
+	void InitSelectionVars();
+	/** Refresh save vars list and associated time list,
+	 enabling widgets as needed. */
+	void InitSaveVars();
+	/** Generic helper method called only by InitSelectionVars
+	 and InitSaveVars */
+	void InitVars(wxChoice* field, wxChoice* field_tm);
+	/** Is Table currently time variant */
+	
+	bool IsTimeVariant();
+	
+	/** If Variable choice is valid, enable select all in range and
+	 undefined buttons. Also update text to current variable choice. */
+	void CheckRangeButtonSettings();
+	/** Check that everything is ok to enable the Apply button and
+	 enable/disable as needed. */
+	void CheckApplySaveSettings();
+	
+	/** Get the current selection variable col id.  -1 if not found */
+	int GetSelColInt();
+	/** Get the current selection variable time id.  0 by default */
+	int GetSelColTmInt();
+	/** Get the current save variable col id.  -1 if not found */
+	int GetSaveColInt();
+	/** Get the current save variable time id.  0 by default */
+	int GetSaveColTmInt();
+	
 	wxChoice* m_field_choice;
 	wxChoice* m_field_choice_tm;
 	wxTextCtrl* m_min_text;
@@ -74,26 +124,16 @@ public:
 	wxButton* m_apply_save_button;
 	
 	bool m_selection_made; // true once a selection has been made
-	bool m_all_init;
-	bool is_space_time;
-	void CheckRangeButtonSettings();
-	void CheckApplySaveSettings();
-	void EnableTimeField();
-	void EnableTimeSaveField();
-	
-private:
-	void FillColIdMap();
-	void InitField();
-	void InitSaveField();
-	void InitField(wxChoice* field, wxChoice* field_tm);
-	void InitTime();
-	
+	bool all_init;
+
 	// col_id_map[i] is a map from the i'th item in the fields drop-down
 	// to the actual col_id_map.  Items in the fields dropdown are in the
 	// order displayed in wxGrid
 	std::vector<int> col_id_map;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	Project* project;
+	FramesManager* frames_manager;
+	TableState* table_state;
 	// The last mapped col_id for which selection was applied.
 	// This value is used for the save results apply funciton.
 	int current_sel_mcol;

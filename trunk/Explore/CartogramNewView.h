@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@ class CatClassifState;
 class CartogramNewFrame;
 class CartogramNewCanvas;
 class CartogramNewLegend;
-class DbfGridTableBase;
+class TableInterface;
 class GalWeight;
 typedef boost::multi_array<double, 2> d_array_type;
 
@@ -79,11 +79,12 @@ public:
 	virtual void NewCustomCatClassif();
 	virtual void ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
+						int num_categories,
 						const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	
 protected:
 	virtual void PopulateCanvas();
@@ -94,18 +95,19 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
+	virtual int GetNumCats() { return num_categories; }
 	
 protected:
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	HighlightState* highlight_state;
 	CatClassifState* custom_classif_state;
 	
 	int num_obs;
 	int num_time_vals; // current number of valid variable combos
-	int num_cats; // current number of categories
+	int num_categories; // current number of categories
 	int ref_var_index;
-	std::vector<GeoDa::dbl_int_pair_vec_type> cat_var_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	std::vector<GeoDaVarInfo> var_info;
 	std::vector<d_array_type> data;
 	bool is_any_time_variant;
@@ -132,7 +134,7 @@ protected:
 	std::vector<int> num_improvement_iters;
 	int GetCurNumCartTms();
 	int GetNumBatches();
-	GeoDa::dbl_int_pair_vec_type improve_table;
+	Gda::dbl_int_pair_vec_type improve_table;
 	
 public:
 	void CartogramImproveLevel(int level);
@@ -176,27 +178,28 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 
-	virtual void UpdateTitle();
-	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
-	void OnThemeless(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
-	void OnPercentile(wxCommandEvent& event);
-	void OnHinge15(wxCommandEvent& event);
-	void OnHinge30(wxCommandEvent& event);
-	void OnStdDevMap(wxCommandEvent& event);
-	void OnUniqueValues(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
-	void OnSaveCategories(wxCommandEvent& event);
-	void CartogramImproveLevel(int level);
+
+	virtual void OnThemeless();
+	virtual void OnQuantile(int num_cats);
+	virtual void OnPercentile();
+	virtual void OnHinge15();
+	virtual void OnHinge30();
+	virtual void OnStdDevMap();
+	virtual void OnUniqueValues();
+	virtual void OnNaturalBreaks(int num_cats);
+	virtual void OnEqualIntervals(int num_cats);
+	virtual void OnSaveCategories();
+	
+	virtual void CartogramImproveLevel(int level);
 	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
+						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);
 		
     DECLARE_EVENT_TABLE()

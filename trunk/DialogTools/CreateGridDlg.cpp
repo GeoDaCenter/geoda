@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -32,7 +32,11 @@
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../ShapeOperations/ShapeFileHdr.h"
+#include "../ShapeOperations/OGRDatasourceProxy.h"
+#include "../ShapeOperations/OGRLayerProxy.h"
 #include "CreateGridDlg.h"
+#include "ExportDataDlg.h"
+#include "ConnectDatasourceDlg.h"
 
 IMPLEMENT_CLASS( CreateGridDlg, wxDialog )
 
@@ -40,7 +44,7 @@ BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
     EVT_BUTTON( XRCID("IDCANCEL"), CreateGridDlg::OnCancelClick )
     EVT_BUTTON( XRCID("IDC_REFERENCEFILE"),
 			   CreateGridDlg::OnCReferencefileClick )
-    EVT_BUTTON( XRCID("IDC_BROWSE_OFILE"), CreateGridDlg::OnCBrowseOfileClick )
+    //EVT_BUTTON( XRCID("IDC_BROWSE_OFILE"), CreateGridDlg::OnCBrowseOfileClick )
     EVT_BUTTON( XRCID("IDC_REFERENCEFILE2"),
 			   CreateGridDlg::OnCReferencefile2Click )
     EVT_TEXT( XRCID("IDC_EDIT1"), CreateGridDlg::OnCEdit1Updated )
@@ -97,8 +101,8 @@ bool CreateGridDlg::Create( wxWindow* parent, wxWindowID id,
 void CreateGridDlg::CreateControls()
 {   
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_CREATE_GRID");
-    m_outputfile = XRCCTRL(*this, "IDC_EDIT9", wxTextCtrl);
-	m_outputfile->SetMaxLength(0);
+    //m_outputfile = XRCCTRL(*this, "IDC_EDIT9", wxTextCtrl);
+	//m_outputfile->SetMaxLength(0);
     m_inputfile_ascii = XRCCTRL(*this, "IDC_EDIT6", wxTextCtrl);
 	m_inputfile_ascii->SetMaxLength(0);
     m_lower_x = XRCCTRL(*this, "IDC_EDIT1", wxTextCtrl);
@@ -134,6 +138,7 @@ void CreateGridDlg::CreateControls()
         FindWindow(XRCID("IDC_EDIT8"))->
 			SetValidator( wxTextValidator(wxFILTER_NUMERIC, & s_col) );
 	}
+	FindWindow(XRCID("ID_CREATE"))->Enable(true);
 }
 
 void CreateGridDlg::OnCancelClick( wxCommandEvent& event )
@@ -216,9 +221,9 @@ void CreateGridDlg::OnCBrowseOfileClick( wxCommandEvent& event )
 	wxString	m_path = wxEmptyString;
 
     if (dlg.ShowModal() == wxID_OK) {
-		m_path  = dlg.GetPath();
-		wxString OutFile = m_path;
-		m_outputfile->SetValue(OutFile);
+		//m_path  = dlg.GetPath();
+		//wxString OutFile = m_path;
+		//m_outputfile->SetValue(OutFile);
 	}
 
 	EnableItems();
@@ -226,33 +231,35 @@ void CreateGridDlg::OnCBrowseOfileClick( wxCommandEvent& event )
 
 void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
 {
-	wxFileDialog dlg( this, "Input Shp file", "", "",
-					 "Shp files (*.shp)|*.shp" );
-
-	wxString	m_path = wxEmptyString;
-	bool m_polyid = false;
-
-    if (dlg.ShowModal() == wxID_OK) {
-		m_path  = dlg.GetPath();
-		wxString InFile = m_path;
-		m_inputfileshp->SetValue(InFile);
-
-        fn = dlg.GetFilename();
-        int pos = fn.Find('.', true);
-        if (pos >= 0) fn = fn.Left(pos);
+    try{
+        ConnectDatasourceDlg dlg(this);
+        if (dlg.ShowModal() != wxID_OK) return;
         
-		iShapeFile     shp_ref(m_path, "shp");
-	    char           hs_ref[ 2*GeoDaConst::ShpHeaderSize ];
-	    shp_ref.read(hs_ref, 2*GeoDaConst::ShpHeaderSize);
-	    ShapeFileHdr  hd_ref(hs_ref);
-		m_BigBox = hd_ref.BoundingBox();
-		m_xBot = m_BigBox._min().x;
-		m_yBot = m_BigBox._min().y;
-		m_xTop = m_BigBox._max().x;
-		m_yTop = m_BigBox._max().y;
-
-	}
-	EnableItems();
+        wxString proj_title = dlg.GetProjectTitle();
+        wxString layer_name = dlg.GetLayerName();
+        IDataSource* datasource = dlg.GetDataSource();
+        wxString ds_name = datasource->GetOGRConnectStr();
+        
+        OGRDatasourceProxy* ogr_ds =
+           new OGRDatasourceProxy(ds_name.ToStdString(), false);
+        OGRLayerProxy* ogr_layer =
+            ogr_ds->GetLayerProxy(layer_name.ToStdString());
+        bool validExt = ogr_layer->GetExtent(m_xBot, m_yBot, m_xTop, m_yTop);
+        delete ogr_ds;
+        ogr_ds = NULL;
+        if ( validExt ) {
+            m_inputfileshp->SetValue(layer_name);
+            EnableItems();
+        } else {
+            wxMessageBox("Can't get bounding box information from this "
+                         "datasource. Please try another datasource." );
+        }
+    }catch(GdaException& e) {
+        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
+        return;
+    }
+    event.Skip();
 }
 
 void CreateGridDlg::OnCreateClick( wxCommandEvent& event )
@@ -295,11 +302,10 @@ void CreateGridDlg::EnableItems()
 	FindWindow(XRCID("IDC_REFERENCEFILE"))->Enable((m_check == 2));
 	FindWindow(XRCID("IDC_REFERENCEFILE2"))->Enable((m_check == 3));
 
-	wxString m_oSHAPE = m_outputfile->GetValue();
+	//wxString m_oSHAPE = m_outputfile->GetValue();
 
-	FindWindow(XRCID("ID_CREATE"))->Enable(m_oSHAPE.Length() > 0 &&
-										   (m_xBot < m_xTop &&
-											m_yBot < m_yTop));
+	//FindWindow(XRCID("ID_CREATE"))->Enable((m_xBot < m_xTop &&
+	//										m_yBot < m_yTop));
 	FindWindow(XRCID("IDC_EDIT7"))->Enable((m_check != 2));
 	FindWindow(XRCID("IDC_EDIT8"))->Enable((m_check != 2));
 	if (m_check != 2) m_inputfile_ascii->SetValue(wxEmptyString);
@@ -311,7 +317,8 @@ bool CreateGridDlg::CheckBBox()
 {
 	if (m_xBot >= m_xTop || m_yBot >= m_yTop ) {
 		wxString xx;
-		xx.Format("Bounding Box: (%f,%f) (%f,%f)",m_xBot,m_yBot,m_xTop,m_yTop);
+        xx << "Bounding Box: (" << m_xBot << "," << m_yBot << ") ("
+        << m_xTop << "," << m_yTop << ") is not valid.";
 		wxMessageBox(xx);
 		return false;
 	}
@@ -349,15 +356,40 @@ void CreateGridDlg::CreateGrid()
 
 	BB.p1.x = m_xBot - eps_x;BB.p1.y = m_yBot - eps_y;
 	BB.p2.x = m_xTop + eps_x;BB.p2.y = m_yTop + eps_y;
-	wxString m_oSHAPE = m_outputfile->GetValue();
+	//wxString m_oSHAPE = m_outputfile->GetValue();
 
-	CreateGridShapeFile(m_oSHAPE, m_nRows, m_nCols, x, y, BB); 
+	//CreateGridShapeFile(m_oSHAPE, m_nRows, m_nCols, x, y, BB);
+    
+    vector<GdaShape*> grids;
+    int n_pts = 5;
+    int n_polygons = m_nRows * m_nCols;
+    
+    for (int row = m_nRows; row >= 1; row--) {
+        for (int col = 1; col <= m_nCols; col++) {
+            wxRealPoint* pts = new wxRealPoint[n_pts];
+            pts[0] = wxRealPoint(x[col-1],y[row]);
+            pts[1] = wxRealPoint(x[col],y[row]);
+            pts[2] = wxRealPoint(x[col],y[row-1]);
+            pts[3] = wxRealPoint(x[col-1],y[row-1]);
+            pts[4] = wxRealPoint(x[col-1],y[row]);
+            
+            grids.push_back(new GdaPolygon(n_pts,pts));
 
+            delete pts;
+        }
+    }
+   
+    ExportDataDlg dlg(this, grids, Shapefile::POLYGON);
+    dlg.ShowModal();
+    
 	m_nCount = nMaxCount;
 
 	FindWindow(XRCID("ID_CREATE"))->Enable(true);
 	FindWindow(XRCID("IDCANCEL"))->Enable(true);
 
+    for(size_t i=0; i<grids.size(); i++) {
+        delete grids[i];
+    }
 	delete [] x;
 	x = NULL;
 	delete [] y;

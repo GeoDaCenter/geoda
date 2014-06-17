@@ -1,0 +1,13 @@
+Package: geoda
+Version: 1.5
+Architecture: amd64
+Priority: optional
+Section: graphics
+Installed-Size: 88128
+Depends: zlib1g, libexpat1, freeglut3, libreadline6, libcurl4-gnutls-dev, libgtk-3-0, libc-dev-bin, libssl0.9.8
+Maintainer: Luc Anselin < luc.anselin@asu.edu >
+Provides: geoda
+Homepage: http://geodacenter.asu.edu
+Description: GeoDa Software
+  GeoDa Software for Geospatial Analysis and Computation	
+

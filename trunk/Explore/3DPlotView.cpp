@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,11 +26,12 @@
 #include <wx/menu.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DialogTools/3DControlPan.h"
 #include "../FramesManager.h"
 #include "Geom3D.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -44,23 +45,23 @@ BEGIN_EVENT_TABLE(C3DPlotCanvas, wxGLCanvas)
     EVT_MOUSE_EVENTS(C3DPlotCanvas::OnMouse)
 END_EVENT_TABLE()
 
-C3DPlotCanvas::C3DPlotCanvas(DbfGridTableBase* grid_base_s,
+C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
 							 HighlightState* highlight_state_s,
 							 const std::vector<GeoDaVarInfo>& v_info,
 							 const std::vector<int>& col_ids,
-							 double* x, double* y, double* z,
 							 wxWindow *parent,
 							 wxWindowID id, const wxPoint& pos,
 							 const wxSize& size, long style)
 : wxGLCanvas(parent, id, pos, size, style), ball(0),
-grid_base(grid_base_s),
-num_obs(grid_base_s->GetNumberRows()), num_vars(v_info.size()),
+project(project_s), table_int(project_s->GetTableInt()),
+num_obs(project_s->GetTableInt()->GetNumberRows()), num_vars(v_info.size()),
 num_time_vals(1), highlight_state(highlight_state_s), var_info(v_info),
-data(v_info.size()), scaled_d(v_info.size())
+data(v_info.size()), scaled_d(v_info.size()),
+c3d_plot_frame(t_frame)
 {
-	selectable_fill_color = GeoDaConst::three_d_plot_default_point_colour;
-	highlight_color = GeoDaConst::three_d_plot_default_highlight_colour;
-	canvas_background_color=GeoDaConst::three_d_plot_default_background_colour;
+	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
+	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
+	canvas_background_color=GdaConst::three_d_plot_default_background_colour;
 	
 	data_stats.resize(var_info.size());
 	var_min.resize(var_info.size());
@@ -68,8 +69,8 @@ data(v_info.size()), scaled_d(v_info.size())
 	
 	std::vector<double> temp_vec(num_obs);
 	for (int v=0; v<num_vars; v++) {
-		grid_base->GetColData(col_ids[v], data[v]);
-		grid_base->GetColData(col_ids[v], scaled_d[v]);
+		table_int->GetColData(col_ids[v], data[v]);
+		table_int->GetColData(col_ids[v], scaled_d[v]);
 		int data_times = data[v].shape()[0];
 		data_stats[v].resize(data_times);
 		for (int t=0; t<data_times; t++) {
@@ -78,6 +79,11 @@ data(v_info.size()), scaled_d(v_info.size())
 			}
 			data_stats[v][t].CalculateFromSample(temp_vec);
 		}
+	}
+	
+	c3d_plot_frame->ClearAllGroupDependencies();
+	for (int i=0, sz=var_info.size(); i<sz; ++i) {
+		c3d_plot_frame->AddGroupDependancy(var_info[i].name);
 	}
 	
 	VarInfoAttributeChange();
@@ -135,7 +141,7 @@ void C3DPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-				menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -154,7 +160,7 @@ void C3DPlotCanvas::SetCheckMarks(wxMenu* menu)
 	for (int i=0, iend=var_info.size(); i<iend; i++) {
 		if (var_info[i].is_time_variant) {
 			GeneralWxUtils::CheckMenuItem(menu,
-										  GeoDaConst::ID_TIME_SYNC_VAR1+i,
+										  GdaConst::ID_TIME_SYNC_VAR1+i,
 										  var_info[i].sync_with_global_time);
 		}
 	}
@@ -362,9 +368,9 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 			last[0] = where[0];
 			last[1] = where[1];
 
-			template_frame->control->m_xp->SetValue((int)((xp+1)*10000));
-			template_frame->control->m_yp->SetValue((int)((yp+1)*10000));
-			template_frame->control->m_zp->SetValue((int)((zp+1)*10000));
+			c3d_plot_frame->control->m_xp->SetValue((int)((xp+1)*10000));
+			c3d_plot_frame->control->m_yp->SetValue((int)((yp+1)*10000));
+			c3d_plot_frame->control->m_zp->SetValue((int)((zp+1)*10000));
 
 			this->UpdateSelect();
 		} else {
@@ -913,18 +919,18 @@ wxString C3DPlotCanvas::GetNameWithTime(int var)
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << grid_base->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
 }
 
-void C3DPlotCanvas::TitleOrTimeChange()
+void C3DPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering C3DPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering C3DPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = grid_base->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -950,14 +956,14 @@ void C3DPlotCanvas::TitleOrTimeChange()
 	//PopulateCanvas();
 	Refresh();
 	
-	LOG_MSG("Exiting C3DPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting C3DPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void C3DPlotCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -967,6 +973,7 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 			is_any_sync_with_global_time = true;
 		}
 	}
+	c3d_plot_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
@@ -977,7 +984,7 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
 void C3DPlotCanvas::UpdateScaledData()
@@ -1050,24 +1057,18 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 						   const std::vector<GeoDaVarInfo>& var_info,
 						   const std::vector<int>& col_ids,
 						   const wxString& title, const wxPoint& pos,
-						   const wxSize& size, const long style,
-						   double* x, const wxString& x_name,
-						   double* y, const wxString& y_name,
-						   double* z, const wxString& z_name)
+						   const wxSize& size, const long style)
 	: TemplateFrame(parent, project, title, pos, size, style)
 {
 	m_splitter = new wxSplitterWindow(this);
     
-	canvas = new C3DPlotCanvas(project->GetGridBase(),
+	canvas = new C3DPlotCanvas(project, this,
 							   project->GetHighlightState(),
 							   var_info, col_ids,
-							   x, y, z,
 							   m_splitter);
 	
 	control = new C3DControlPan(m_splitter, -1, wxDefaultPosition,
-								wxDefaultSize, wxCAPTION|wxSYSTEM_MENU,
-								x_name, y_name, z_name);
-	canvas->template_frame = this;
+								wxDefaultSize, wxCAPTION|wxSYSTEM_MENU);
 	control->template_frame = this;
 	m_splitter->SplitVertically(control, canvas, 70);
 	UpdateTitle();
@@ -1103,7 +1104,7 @@ void C3DPlotFrame::OnMenuClose(wxCommandEvent& event)
 void C3DPlotFrame::MapMenus()
 {
 	LOG_MSG("In C3DPlotFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_3D_PLOT_VIEW_MENU_OPTIONS");
@@ -1116,7 +1117,7 @@ void C3DPlotFrame::MapMenus()
 void C3DPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("C3DPlotFrame::UpdateOptionMenuItems: Options "
@@ -1162,13 +1163,11 @@ void C3DPlotFrame::OnSelectableFillColor(wxCommandEvent& event)
 	}	
 }
 
-
-
-/** Implementation of FramesManagerObserver interface */
-void C3DPlotFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void C3DPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In C3DPlotFrame::update(FramesManager* o)");
-	canvas->TitleOrTimeChange();
+	LOG_MSG("In C3DPlotFrame::update(TimeState* o)");
+	canvas->TimeChange();
 	UpdateTitle();
 }
 
@@ -1181,7 +1180,7 @@ void C3DPlotFrame::OnTimeSyncVariable(int var_index)
 
 void C3DPlotFrame::UpdateTitle()
 {
-	SetTitle(canvas->GetCanvasTitle());
+	TemplateFrame::UpdateTitle();
 	control->UpdateAxesLabels(canvas->GetNameWithTime(0),
 							  canvas->GetNameWithTime(1),
 							  canvas->GetNameWithTime(2));

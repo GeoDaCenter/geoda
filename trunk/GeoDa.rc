@@ -1,13 +1,14 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
+#include "wx/msw/wx.rc"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+//#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -17,7 +18,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+//LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 #endif //_WIN32
 
@@ -61,18 +62,18 @@ IDI_ICON1               ICON                    "./rc/GeoDa.ico"
 // Menu
 //
 
-WXWINDOWMENU MENU 
-BEGIN
-    POPUP "&Window"
-    BEGIN
-        MENUITEM "&Cascade",                    4002
-        MENUITEM "Tile &Horizontally",          4001
-        MENUITEM "Tile &Vertically",            4005
-        MENUITEM "",                            65535
-        MENUITEM "&Arrange Icons",              4003
-        MENUITEM "&Next",                       4004
-    END
-END
+//WXWINDOWMENU MENU 
+//BEGIN
+//    POPUP "&Window"
+//    BEGIN
+//        MENUITEM "&Cascade",                    4002
+//        MENUITEM "Tile &Horizontally",          4001
+//        MENUITEM "Tile &Vertically",            4005
+//        MENUITEM "",                            65535
+//        MENUITEM "&Arrange Icons",              4003
+//        MENUITEM "&Next",                       4004
+//    END
+//END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -80,25 +81,25 @@ END
 // Cursor
 //
 
-WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
-WXCURSOR_BULLSEYE       CURSOR                  "wx/msw/bullseye.cur"
-WXCURSOR_PENCIL         CURSOR                  "wx/msw/pencil.cur"
-WXCURSOR_MAGNIFIER      CURSOR                  "wx/msw/magnif1.cur"
-WXCURSOR_ROLLER         CURSOR                  "wx/msw/roller.cur"
-WXCURSOR_PBRUSH         CURSOR                  "wx/msw/pbrush.cur"
-WXCURSOR_PLEFT          CURSOR                  "wx/msw/pntleft.cur"
-WXCURSOR_PRIGHT         CURSOR                  "wx/msw/pntright.cur"
-WXCURSOR_BLANK          CURSOR                  "wx/msw/blank.cur"
-WXCURSOR_RIGHT_ARROW    CURSOR                  "wx/msw/rightarr.cur"
-WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
+//WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
+//WXCURSOR_BULLSEYE       CURSOR                  "wx/msw/bullseye.cur"
+//WXCURSOR_PENCIL         CURSOR                  "wx/msw/pencil.cur"
+//WXCURSOR_MAGNIFIER      CURSOR                  "wx/msw/magnif1.cur"
+//WXCURSOR_ROLLER         CURSOR                  "wx/msw/roller.cur"
+//WXCURSOR_PBRUSH         CURSOR                  "wx/msw/pbrush.cur"
+//WXCURSOR_PLEFT          CURSOR                  "wx/msw/pntleft.cur"
+//WXCURSOR_PRIGHT         CURSOR                  "wx/msw/pntright.cur"
+//WXCURSOR_BLANK          CURSOR                  "wx/msw/blank.cur"
+//WXCURSOR_RIGHT_ARROW    CURSOR                  "wx/msw/rightarr.cur"
+//WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
-WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
+//CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
+//WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

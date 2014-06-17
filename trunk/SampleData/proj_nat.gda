@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <title>US County Homicides 1960-1990</title>
+  <layers>
+    <layer>
+      <datasource>
+	<type>ESRI Shapefile</type>
+	<path>./nat.shp</path>
+      </datasource>
+      <layername>nat</layername>
+      <title>NCOVR 1960-90</title>
+      <variable_order>
+	<time_ids>
+	  <id>1960</id>
+	  <id>1970</id>
+	  <id>1980</id>
+	  <id>1990</id>
+	</time_ids>
+	<var>NAME</var>
+	<var>STATE_NAME</var>
+	<group>
+	  <name>Population</name>
+	  <var>POP60</var>
+	  <placeholder/>
+	  <var>POP80</var>
+	  <var>POP90</var>
+	</group>
+	<var>STATE_FIPS</var>
+	<group>
+	  <name>Homicide Rate</name>
+	  <var>HR60</var>
+	  <var>HR70</var>
+	  <var>HR80</var>
+	  <var>HR90</var>
+	</group>
+      </variable_order>
+    </layer>
+  </layers>
+</project>
+

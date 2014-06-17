@@ -1,0 +1,100 @@
+# $Id: $
+#
+# NMAKE Makefile to build libspatialite on Windows
+#
+!INCLUDE nmake.opt
+
+LIBOBJ = src\gaiaaux\gg_sqlaux.obj src\gaiaaux\gg_utf8.obj \
+	src\gaiaexif\gaia_exif.obj src\gaiageo\gg_advanced.obj \
+	src\gaiageo\gg_endian.obj src\gaiageo\gg_ewkt.obj \
+	src\gaiageo\gg_geodesic.obj src\gaiageo\gg_geoJSON.obj \
+	src\gaiageo\gg_geometries.obj src\gaiageo\gg_geoscvt.obj \
+	src\gaiageo\gg_gml.obj src\gaiageo\gg_kml.obj \
+	src\gaiageo\gg_relations.obj src\gaiageo\gg_shape.obj \
+	src\gaiageo\gg_transform.obj src\gaiageo\gg_vanuatu.obj \
+	src\gaiageo\gg_wkb.obj src\gaiageo\gg_wkt.obj src\gaiageo\gg_extras.obj \
+	src\spatialite\mbrcache.obj src\shapefiles\shapefiles.obj \
+	src\spatialite\spatialite.obj src\spatialite\virtualdbf.obj \
+	src\spatialite\virtualfdo.obj src\spatialite\virtualnetwork.obj \
+	src\spatialite\virtualshape.obj src\spatialite\virtualspatialindex.obj \
+	src\spatialite\statistics.obj src\spatialite\metatables.obj \
+	src\spatialite\virtualXL.obj src\srsinit\srs_init.obj \
+	src\srsinit\epsg_inlined_00.obj src\srsinit\epsg_inlined_01.obj \
+	src\srsinit\epsg_inlined_02.obj src\srsinit\epsg_inlined_03.obj \
+	src\srsinit\epsg_inlined_04.obj src\srsinit\epsg_inlined_05.obj \
+	src\srsinit\epsg_inlined_06.obj src\srsinit\epsg_inlined_07.obj \
+	src\srsinit\epsg_inlined_08.obj src\srsinit\epsg_inlined_09.obj \
+	src\srsinit\epsg_inlined_10.obj src\srsinit\epsg_inlined_11.obj \
+	src\srsinit\epsg_inlined_12.obj src\srsinit\epsg_inlined_13.obj \
+	src\srsinit\epsg_inlined_14.obj src\srsinit\epsg_inlined_15.obj \
+	src\srsinit\epsg_inlined_16.obj src\srsinit\epsg_inlined_17.obj \
+	src\srsinit\epsg_inlined_18.obj src\srsinit\epsg_inlined_19.obj \
+	src\srsinit\epsg_inlined_20.obj src\srsinit\epsg_inlined_21.obj \
+	src\srsinit\epsg_inlined_22.obj src\srsinit\epsg_inlined_23.obj \
+	src\srsinit\epsg_inlined_24.obj src\srsinit\epsg_inlined_25.obj \
+	src\srsinit\epsg_inlined_26.obj src\srsinit\epsg_inlined_27.obj \
+	src\srsinit\epsg_inlined_28.obj src\srsinit\epsg_inlined_29.obj \
+	src\srsinit\epsg_inlined_30.obj src\srsinit\epsg_inlined_31.obj \
+	src\srsinit\epsg_inlined_32.obj src\srsinit\epsg_inlined_33.obj \
+	src\srsinit\epsg_inlined_34.obj src\srsinit\epsg_inlined_35.obj \
+	src\srsinit\epsg_inlined_36.obj src\srsinit\epsg_inlined_37.obj \
+	src\srsinit\epsg_inlined_38.obj src\srsinit\epsg_inlined_39.obj \
+	src\srsinit\epsg_inlined_40.obj src\srsinit\epsg_inlined_extra.obj \
+	src\srsinit\epsg_inlined_prussian.obj \
+	src\srsinit\epsg_inlined_wgs84_00.obj src\srsinit\epsg_inlined_wgs84_01.obj \
+	src\versioninfo\version.obj src\virtualtext\virtualtext.obj
+SPATIALITE_DLL = spatialite$(VERSION).dll
+
+LIBRARY_HOME = C:\OSGeo4W
+LIB_HM_LIB = lib
+
+CFLAGS = /nologo -I.\src\headers -I. -I$(LIBRARY_HOME)\include $(OPTFLAGS) -DUSING_STATIC_LIBICONV
+
+default:	all
+
+all: spatialite.lib spatialite_i.lib
+#$(EXIF_LOADER_EXE)
+
+spatialite.lib:	$(LIBOBJ)
+	if exist spatialite.lib del spatialite.lib
+	lib /out:spatialite.lib $(LIBOBJ)
+
+$(SPATIALITE_DLL):	spatialite_i.lib
+
+spatialite_i.lib:     $(LIBOBJ)
+	link /debug /dll /out:$(SPATIALITE_DLL) \
+		/implib:spatialite_i.lib $(LIBOBJ) \
+		$(LIBRARY_HOME)\$(LIB_HM_LIB)\proj_i.lib $(LIBRARY_HOME)\$(LIB_HM_LIB)\geos_c_i.lib \
+		$(LIBRARY_HOME)\$(LIB_HM_LIB)\freexl_i.lib $(LIBRARY_HOME)\$(LIB_HM_LIB)\iconv.lib \
+		$(LIBRARY_HOME)\$(LIB_HM_LIB)\sqlite3_i.lib
+	if exist $(SPATIALITE_DLL).manifest mt -manifest \
+		$(SPATIALITE_DLL).manifest -outputresource:$(SPATIALITE_DLL);2
+		
+.c.obj:
+	$(CC) $(CFLAGS) /c $*.c /Fo$@
+	
+clean:
+	del *.dll
+	del *.exp
+	del *.manifest
+	del *.lib
+	del src\gaiaaux\*.obj
+	del src\gaiaexif\*.obj
+	del src\gaiageo\*.obj
+	del src\spatialite\*.obj
+	del src\srsinit\*.obj
+	del src\versioninfo\*.obj
+	del src\virtualtext\*.obj
+	del *.pdb
+
+install: all
+	-mkdir $(INSTDIR)
+	-mkdir $(INSTDIR)\bin
+	-mkdir $(INSTDIR)\lib
+	-mkdir $(INSTDIR)\include
+	-mkdir $(INSTDIR)\include\spatialite
+	copy *.dll $(INSTDIR)\bin
+	copy *.lib $(INSTDIR)\lib
+	copy src\headers\spatialite.h $(INSTDIR)\include
+	copy src\headers\spatialite\*.h $(INSTDIR)\include\spatialite
+	

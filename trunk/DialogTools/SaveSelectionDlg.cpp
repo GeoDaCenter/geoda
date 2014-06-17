@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,10 +20,11 @@
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 #include <wx/msgdlg.h>
 #include <wx/valtext.h>
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../Project.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../logger.h"
 #include "SaveSelectionDlg.h"
 
@@ -51,8 +52,8 @@ SaveSelectionDlg::SaveSelectionDlg(Project* project_s,
 								   const wxString& caption,
 								   const wxPoint& pos,
 								   const wxSize& size, long style )
-: project(project_s), grid_base(project_s->GetGridBase()),
-m_all_init(false), is_space_time(project_s->GetGridBase()->IsTimeVariant())
+: project(project_s), table_int(project_s->GetTableInt()),
+m_all_init(false), is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
     CreateControls();
@@ -65,7 +66,7 @@ m_all_init(false), is_space_time(project_s->GetGridBase()->IsTimeVariant())
 
 void SaveSelectionDlg::CreateControls()
 {
-	if (grid_base->IsTimeVariant()) {
+	if (project->GetTableInt()->IsTimeVariant()) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "IDD_SAVE_SELECTION_TM");
 	} else {
@@ -108,9 +109,9 @@ void SaveSelectionDlg::CreateControls()
 void SaveSelectionDlg::InitTime()
 {
 	if (!is_space_time) return;
-	for (int t=0; t<grid_base->time_steps; t++) {
+	for (int t=0; t<project->GetTableInt()->GetTimeSteps(); t++) {
 		wxString tm;
-		tm << grid_base->time_ids[t];
+		tm << project->GetTableInt()->GetTimeString(t);
 		m_save_field_choice_tm->Append(tm);
 	}
 	m_save_field_choice_tm->SetSelection(0);
@@ -120,7 +121,7 @@ void SaveSelectionDlg::InitTime()
 void SaveSelectionDlg::FillColIdMap()
 {
 	col_id_map.clear();
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 }
 
 void SaveSelectionDlg::InitField()
@@ -130,14 +131,13 @@ void SaveSelectionDlg::InitField()
 	
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int col = col_id_map[i];
-		DbfColContainer& cd = *grid_base->col_data[col];
-		if (grid_base->IsColTimeVariant(col)) {
+		if (table_int->IsColTimeVariant(col)) {
 			wxString t;
 			int t_sel = m_save_field_choice_tm->GetSelection();
-			t << " (" << grid_base->time_ids[t_sel] << ")";
-			m_save_field_choice->Append(cd.name + t);
+			t << " (" << project->GetTableInt()->GetTimeString(t_sel) << ")";
+			m_save_field_choice->Append(table_int->GetColName(col) + t);
 		} else {
-			m_save_field_choice->Append(cd.name);
+			m_save_field_choice->Append(table_int->GetColName(col));
 		}
 	}
 }
@@ -145,11 +145,11 @@ void SaveSelectionDlg::InitField()
 
 void SaveSelectionDlg::OnAddField( wxCommandEvent& event )
 {	
-	DataViewerAddColDlg dlg(grid_base, this, false, true, "SELECT");
+	DataViewerAddColDlg dlg(project, this, false, true, "SELECT");
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
-	if (grid_base->GetColType(col) != GeoDaConst::long64_type &&
-		grid_base->GetColType(col) != GeoDaConst::double_type) return;
+	if (table_int->GetColType(col) != GdaConst::long64_type &&
+		table_int->GetColType(col) != GdaConst::double_type) return;
 
 	FillColIdMap();
 	InitField();
@@ -199,7 +199,7 @@ void SaveSelectionDlg::EnableTimeField()
 		return;
 	}
 	int col = col_id_map[m_save_field_choice->GetSelection()];
-	m_save_field_choice_tm->Enable(grid_base->IsColTimeVariant(col));
+	m_save_field_choice_tm->Enable(table_int->IsColTimeVariant(col));
 }
 
 void SaveSelectionDlg::OnSelCheckBox( wxCommandEvent& event )
@@ -276,23 +276,22 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 	}
 	
 	int sf_tm = 0;
-	if (grid_base->col_data[write_col]->time_steps > 1 &&
+	if (table_int->GetColTimeSteps(write_col) > 1 &&
 		m_save_field_choice_tm) {
 		sf_tm = m_save_field_choice_tm->GetSelection();
 	}
 	
-	std::vector<bool>& h = project->highlight_state->GetHighlight();
+	std::vector<bool>& h = project->GetHighlightState()->GetHighlight();
 	// write_col now refers to a valid field in grid base, so write out
 	// results to that field.
 	int obs = h.size();
-	DbfColContainer& cd = *grid_base->col_data[write_col];
 	std::vector<bool> undefined;
-	if (cd.type == GeoDaConst::long64_type) {
+	if (table_int->GetColType(write_col) == GdaConst::long64_type) {
 		wxInt64 sel_c_i = sel_c;
 		wxInt64 unsel_c_i = unsel_c;
-		std::vector<wxInt64> t(grid_base->GetNumberRows());
-		cd.GetVec(t, sf_tm);
-		cd.GetUndefined(undefined, sf_tm);
+		std::vector<wxInt64> t(table_int->GetNumberRows());
+		table_int->GetColData(write_col, sf_tm, t);
+		table_int->GetColUndefined(write_col, sf_tm, undefined);
 		if (sel_checked) {
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
@@ -309,12 +308,12 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 				}
 			}
 		}
-		cd.SetFromVec(t, sf_tm);
-		cd.SetUndefined(undefined, sf_tm);
-	} else if (cd.type == GeoDaConst::double_type) {
-		std::vector<double> t(grid_base->GetNumberRows());
-		cd.GetVec(t, sf_tm);
-		cd.GetUndefined(undefined, sf_tm);
+		table_int->SetColData(write_col, sf_tm, t);
+		table_int->SetColUndefined(write_col, sf_tm, undefined);
+	} else if (table_int->GetColType(write_col) == GdaConst::double_type) {
+		std::vector<double> t(table_int->GetNumberRows());
+		table_int->GetColData(write_col, sf_tm, t);
+		table_int->GetColUndefined(write_col, sf_tm, undefined);
 		if (sel_checked) {
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
@@ -331,8 +330,8 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 				}
 			}
 		}
-		cd.SetFromVec(t, sf_tm);
-		cd.SetUndefined(undefined, sf_tm);
+		table_int->SetColData(write_col, sf_tm, t);
+		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
 		wxString msg = "Chosen field is not a numeric type.  This is likely ";
 		msg << "a bug. Please report this.";
@@ -341,7 +340,6 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		return;
 	}
 	
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
 	wxString msg = "Values assigned to target field successfully.";
 	wxMessageDialog dlg(this, msg, "Success", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();

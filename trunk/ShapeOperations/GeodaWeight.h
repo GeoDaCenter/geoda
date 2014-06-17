@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,10 +29,14 @@ public:
 	enum WeightType { gal_type, gwt_type };
 	WeightType weight_type;
 	wxString wflnm; // filename
+	wxString title; // optional title.  Use wflnm if empty
 	bool symmetry_checked; // indicates validity of is_symmetric bool
 	bool is_symmetric; // true iff matrix is symmetric
 	int num_obs;
-	virtual bool HasIsolates() { return true; } // implement in subclasses
+	virtual bool HasIsolates() { return true; } // implement in
+												// subclasses
+	wxString GetTitle(); // returns portion of wflnm if title empty
+
 };
 
 #endif

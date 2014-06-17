@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,7 +35,7 @@
 #include "GalWeight.h"
 #include "../GenUtils.h"
 #include "../GenGeomAlgs.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 #include "../logger.h"
 #include "VoronoiUtils.h"
 
@@ -91,7 +91,7 @@ namespace boost {
  is large doubles.
  */
 
-namespace GeoDa {
+namespace Gda {
 	namespace VoronoiUtils {
 		typedef voronoi_builder<int> VB;
 		typedef voronoi_diagram<double> VD;
@@ -101,9 +101,6 @@ namespace GeoDa {
 							std::map<std::pair<int,int>,
 							std::list<int>* >& pt_to_id_list,
 							std::vector<std::pair<int,int> >& int_pts);
-		bool isEdgeOutsideBB(const VD::edge_type& edge,
-							 const double& xmin, const double& ymin,
-							 const double& xmax, const double& ymax);
 		bool isVertexOutsideBB(const VD::vertex_type& vertex,
 							   const double& xmin, const double& ymin,
 							   const double& xmax, const double& ymax);
@@ -128,7 +125,7 @@ namespace GeoDa {
 /** Input: double precision x/y coordinates, indexed by observation record id
  Output: list of list of duplicates
  */
-void GeoDa::VoronoiUtils::FindPointDuplicates(const std::vector<double>& x,
+void Gda::VoronoiUtils::FindPointDuplicates(const std::vector<double>& x,
 											  const std::vector<double>& y,
 										std::list<std::list<int> >& duplicates)
 {
@@ -184,15 +181,15 @@ void GeoDa::VoronoiUtils::FindPointDuplicates(const std::vector<double>& x,
 /** If success, returns true. Else, if returns false, then duplicates or
    near duplicates were found and duplicate_ind1 and duplicate_ind2 will
    indicate which two points are near duplicates. */
-bool GeoDa::VoronoiUtils::MakePolygons(const std::vector<double>& x,
+bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 									   const std::vector<double>& y,
-									   std::vector<MyPolygon*>& polys,
+									   std::vector<GdaShape*>& polys,
 									   double& voronoi_bb_xmin,
 									   double& voronoi_bb_ymin,
 									   double& voronoi_bb_xmax,
 									   double& voronoi_bb_ymax)
 {
-	LOG_MSG("Entering GeoDa::VoronoiUtils::MakePolygons");
+	LOG_MSG("Entering Gda::VoronoiUtils::MakePolygons");
 	using namespace boost::polygon;
 	typedef std::pair<int,int> int_pair;
 	
@@ -348,7 +345,7 @@ bool GeoDa::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 		} while (edge != cell.incident_edge());
 		
 		if (!boundary_cell) {
-			polys[ind] = new MyPolygon(edge_cnt, pts);
+			polys[ind] = new GdaPolygon(edge_cnt, pts);
 			//wxString msg;
 			//msg << "added non-boundary polygon with ";
 			//msg << edge_cnt-1 << " edges";
@@ -417,7 +414,7 @@ bool GeoDa::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 				pts[pts_cnt].y = y;
 				pts_cnt++;
 			}
-			polys[ind] = new MyPolygon(pts_cnt, pts);
+			polys[ind] = new GdaPolygon(pts_cnt, pts);
 		}
 	}
 	
@@ -430,23 +427,23 @@ bool GeoDa::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 			for (std::list<int>::iterator iter=dups_iter->second.begin();
 				 iter != dups_iter->second.end(); iter++) {
 				if (*iter == head_id) continue;
-				polys[*iter] = new MyPolygon(*polys[head_id]);
+				polys[*iter] = new GdaPolygon(*(GdaPolygon*)polys[head_id]);
 			}			
 		}
 	}
 			
 	if (pts) delete [] pts;
 	
-	LOG_MSG(wxString::Format("Voronoi diagram processing on %d points "
-							 "took %ld ms", num_obs, sw_vd_processing.Time()));
-	LOG_MSG(wxString::Format("#obs: %d, #voronoi cells: %d", num_obs,
-							 polys.size()));
+	//LOG_MSG(wxString::Format("Voronoi diagram processing on %d points "
+	//						 "took %ld ms", num_obs, sw_vd_processing.Time()));
+	//LOG_MSG(wxString::Format("#obs: %d, #voronoi cells: %d", num_obs,
+	//						 polys.size()));
 	
-	LOG_MSG("Exiting GeoDa::VoronoiUtils::MakePolygons");
+	LOG_MSG("Exiting Gda::VoronoiUtils::MakePolygons");
 	return true;
 }
 
-std::list<int>* GeoDa::VoronoiUtils::getCellList(
+std::list<int>* Gda::VoronoiUtils::getCellList(
 				const VD::cell_type& cell,
 				std::map<std::pair<int,int>, std::list<int>* >& pt_to_id_list,
 				std::vector<std::pair<int,int> >& int_pts)
@@ -465,37 +462,7 @@ std::list<int>* GeoDa::VoronoiUtils::getCellList(
 	return iter->second;
 }
 
-
-bool GeoDa::VoronoiUtils::isEdgeOutsideBB(const VD::edge_type& edge,
-										  const double& xmin,
-										  const double& ymin,
-										  const double& xmax,
-										  const double& ymax)
-{
-	double x, y;
-	const VD::vertex_type* v = edge.vertex0();
-	bool v0_outside = false;
-	bool v1_outside = false;
-	bool v0_exists = (v != 0);
-	if (v) {
-		x = v->x();
-		y = v->y();
-		v0_outside = (x < xmin || x > xmax || y < ymin || y > ymax);
-	}
-	v = edge.vertex1();
-	bool v1_exists = (v !=0 );
-	if (v) {
-		x = v->x();
-		y = v->y();
-		v1_outside = (x < xmin || x > xmax || y < ymin || y > ymax);
-	}
-	if (v0_exists && v1_exists) return v0_outside && v1_outside;
-	if (v0_exists && !v1_exists) return v0_outside;
-	if (!v0_exists && v1_exists) return v1_outside;
-	return true;
-}
-
-bool GeoDa::VoronoiUtils::isVertexOutsideBB(const VD::vertex_type& vertex,
+bool Gda::VoronoiUtils::isVertexOutsideBB(const VD::vertex_type& vertex,
 											const double& xmin,
 											const double& ymin,
 											const double& xmax,
@@ -509,7 +476,7 @@ bool GeoDa::VoronoiUtils::isVertexOutsideBB(const VD::vertex_type& vertex,
 /** Clip both infinite and finite edges to bounding rectangle.
  return true if intersection or if edge is contained within bounding box,
  otherwise return false */
-bool GeoDa::VoronoiUtils::clipEdge(const VD::edge_type& edge,
+bool Gda::VoronoiUtils::clipEdge(const VD::edge_type& edge,
 								   std::vector<std::pair<int,int> >& int_pts,
 								   const double& xmin, const double& ymin,
 								   const double& xmax, const double& ymax,
@@ -526,7 +493,7 @@ bool GeoDa::VoronoiUtils::clipEdge(const VD::edge_type& edge,
 }
 
 /** Clip infinite edge to bounding rectangle */
-bool GeoDa::VoronoiUtils::clipInfiniteEdge(const VD::edge_type& edge,
+bool Gda::VoronoiUtils::clipInfiniteEdge(const VD::edge_type& edge,
 									std::vector<std::pair<int,int> >& int_pts,
 									const double& xmin, const double& ymin,
 									const double& xmax, const double& ymax,
@@ -572,7 +539,7 @@ bool GeoDa::VoronoiUtils::clipInfiniteEdge(const VD::edge_type& edge,
 }
 
 /** Clip finite edge to bounding rectangle */
-bool GeoDa::VoronoiUtils::clipFiniteEdge(const VD::edge_type& edge,
+bool Gda::VoronoiUtils::clipFiniteEdge(const VD::edge_type& edge,
 									std::vector<std::pair<int,int> >& int_pts,
 									const double& xmin, const double& ymin,
 									const double& xmax, const double& ymax,
@@ -591,12 +558,12 @@ bool GeoDa::VoronoiUtils::clipFiniteEdge(const VD::edge_type& edge,
  created successfully.  The presence of duplicates is indicated in
  duplicates_exists and the list of duplicates is filled in.
  */
-bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
+bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 									const std::vector<double>& y,
 									bool queen,
 									std::vector<std::set<int> >& nbr_map)
 {
-	LOG_MSG("Entering GeoDa::VoronoiUtils::PointsToContiguity");
+	LOG_MSG("Entering Gda::VoronoiUtils::PointsToContiguity");
 	typedef std::pair<int,int> int_pair;
 	typedef std::list<int> id_list;
 	
@@ -611,11 +578,14 @@ bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	double big_dbl = 1073741824; // 2^30
 	double p = (big_dbl/orig_scale);
 	
-	double bb_xmin = 0;
-	double bb_ymin = 0;
-	double bb_xmax = (x_orig_max-x_orig_min)*p;
-	double bb_ymax = (y_orig_max-y_orig_min)*p;
-	
+	// Add 2% offset to the bounding rectangle
+	const double bb_pad = 0.02;
+	// note data has been translated to origin and scaled
+	double bb_xmin = -bb_pad*big_dbl;
+	double bb_xmax = (x_orig_max-x_orig_min)*p + bb_pad*big_dbl;
+	double bb_ymin = -bb_pad*big_dbl;
+	double bb_ymax = (y_orig_max-y_orig_min)*p + bb_pad*big_dbl;
+		
 	std::map<int_pair, id_list* > pt_to_id_list;
 	// for each unique point, the list of cells at that point
 	std::map<int_pair, id_list* >::iterator pt_to_id_list_iter;
@@ -646,7 +616,6 @@ bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	VB vb;
 	for (int i=0; i<num_obs; i++) {
 		int index = vb.insert_point(int_pts[i].first, int_pts[i].second);
-		LOG(index);
 	}
 	vb.construct(&vd);
 	LOG_MSG(wxString::Format("Voronoi diagram construction on %d points "
@@ -655,7 +624,6 @@ bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	wxStopWatch sw_vd_processing;
 	for (VD::const_cell_iterator it = vd.cells().begin();
 		 it != vd.cells().end(); ++it) {
-		bool boundary_cell = false;
 		const VD::cell_type &cell = *it;
 		
 		int_pair key = int_pts[cell.source_index()];
@@ -667,12 +635,15 @@ bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 		v_list verts;
 		do {
 			id_list* nbr_list = getCellList(*(edge->twin()->cell()),
-											 pt_to_id_list, int_pts);
+											pt_to_id_list, int_pts);
 			if (!nbr_list) {
 				return false;
 			}
 			
-			if (!isEdgeOutsideBB(*edge, bb_xmin, bb_ymin, bb_xmax, bb_ymax)) {
+			double x0, y0, x1, y1;
+			if (clipEdge(*edge, int_pts,
+						 bb_xmin, bb_ymin, bb_xmax, bb_ymax,
+						 x0, y0, x1, y1)) {
 				nbr_set.insert(nbr_list);
 			}
 			
@@ -737,11 +708,11 @@ bool GeoDa::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	LOG_MSG(wxString::Format("Voronoi diagram processing on %d points "
 							 "took %ld ms", num_obs, sw_vd_processing.Time()));
 	
-	LOG_MSG("Exiting GeoDa::VoronoiUtils::PointsToContiguity");
+	LOG_MSG("Exiting Gda::VoronoiUtils::PointsToContiguity");
 	return true;
 }
 
-GalElement* GeoDa::VoronoiUtils::NeighborMapToGal(
+GalElement* Gda::VoronoiUtils::NeighborMapToGal(
 										std::vector<std::set<int> >& nbr_map)
 {
 	if (nbr_map.size() == 0) return 0;
@@ -749,14 +720,10 @@ GalElement* GeoDa::VoronoiUtils::NeighborMapToGal(
 	if (!gal) return 0;
 	for (int i=0, iend=nbr_map.size(); i<iend; i++) {
 		gal[i].alloc(nbr_map[i].size());
-		//wxString s;
-		//s << "neighbors of obs " << i << ": ";
 		for (std::set<int>::iterator it=nbr_map[i].begin();
 			 it != nbr_map[i].end(); it++) {
 			gal[i].Push(*it);
-			//s << *it << "  ";
 		}
-		//LOG_MSG(s);
 	}
 	return gal;
 }

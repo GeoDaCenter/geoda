@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,8 @@
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../FramesManager.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DataViewer/TableState.h"
 #include "../Generic/HighlightState.h"
 #include "../logger.h"
@@ -68,13 +69,15 @@ void DataMovieTimer::Notify() {
 DataMovieDlg::DataMovieDlg(wxWindow* parent,
 						   FramesManager* frames_manager_s,
 						   TableState* table_state_s,
-						   DbfGridTableBase* grid_base_s,
+						   TimeState* time_state_s,
+						   TableInterface* table_int_s,
 						   HighlightState* highlight_state_s)
 : frames_manager(frames_manager_s), table_state(table_state_s),
-grid_base(grid_base_s), highlight_state(highlight_state_s),
+time_state(time_state_s), table_int(table_int_s),
+highlight_state(highlight_state_s),
 playing(false), timer(0), delay_ms(333),
-loop(true), forward(true), is_space_time(grid_base->GetTimeSteps() > 1),
-num_obs(grid_base->GetNumberRows()),
+loop(true), forward(true), is_space_time(time_state_s->GetTimeSteps() > 1),
+num_obs(table_int->GetNumberRows()),
 cur_field_choice(""), cur_field_choice_tm(0),
 is_ascending(true), is_cumulative(true),
 all_init(false)
@@ -319,7 +322,7 @@ void DataMovieDlg::InitFieldChoices()
 	field_choice->Clear();
 	field_choice_tm->Clear();
 	std::vector<wxString> times;
-	grid_base->GetTimeStrings(times);
+	table_int->GetTimeStrings(times);
 	for (int i=0; i<times.size(); i++) {
 		field_choice_tm->Append(times[i]);
 	}
@@ -327,20 +330,20 @@ void DataMovieDlg::InitFieldChoices()
 		field_choice_tm->SetSelection(cur_fc_tm_id);
 	}
 	std::vector<wxString> names;
-	grid_base->FillNumericNameList(names);
+	table_int->FillNumericNameList(names);
 	for (int i=0; i<names.size(); i++) {
 		field_choice->Append(names[i]);
 	}
 	field_choice->SetSelection(field_choice->FindString(cur_fc_str));
-	field_choice_tm->Enable(grid_base->IsColTimeVariant(cur_fc_str));
-	if (grid_base->IsColTimeVariant(cur_fc_str) &&
+	field_choice_tm->Enable(table_int->IsColTimeVariant(cur_fc_str));
+	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		field_choice_tm->GetSelection() == wxNOT_FOUND) {
 		field_choice_tm->SetSelection(0);
 	}
 	
 	if (field_choice->FindString(cur_fc_str) != wxNOT_FOUND) {
 		cur_field_choice = cur_fc_str;
-		if (grid_base->IsColTimeVariant(cur_fc_str)) {
+		if (table_int->IsColTimeVariant(cur_fc_str)) {
 			cur_field_choice_tm = field_choice_tm->GetSelection();
 		} else {
 			cur_field_choice_tm = 0;
@@ -351,7 +354,7 @@ void DataMovieDlg::InitFieldChoices()
 	}
 	
 	EnableControls(field_choice->FindString(cur_fc_str) != wxNOT_FOUND);
-	LOG(grid_base->IsColTimeVariant(cur_fc_str));
+	LOG(table_int->IsColTimeVariant(cur_fc_str));
 	LOG_MSG("Exiting DataMovieDlg::InitFieldChoices");
 }
 
@@ -359,7 +362,7 @@ void DataMovieDlg::OnFieldChoice(wxCommandEvent& ev)
 {
 	LOG_MSG("Entering DataMovieDlg::OnFieldChoice");
 	wxString cur_fc_str = field_choice->GetStringSelection();
-	bool is_tm_var = grid_base->IsColTimeVariant(cur_fc_str);
+	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 	field_choice_tm->Enable(is_tm_var);
 	if (is_tm_var && field_choice_tm->GetSelection() == wxNOT_FOUND) {
 		field_choice_tm->SetSelection(0);
@@ -413,7 +416,7 @@ void DataMovieDlg::EnableControls(bool enable)
 	if (!all_init) return;
 	if (is_space_time && field_choice && field_choice_tm) {
 		wxString cur_fc_str = field_choice->GetStringSelection();
-		bool is_tm_var = grid_base->IsColTimeVariant(cur_fc_str);
+		bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 		field_choice_tm->Enable(is_tm_var);
 	}
 	play_button->Enable(enable);
@@ -443,19 +446,19 @@ void DataMovieDlg::InitNewFieldChoice()
 		return;
 	}
 	data_sorted.resize(num_obs);
-	int col = grid_base->FindColId(cur_field_choice);
+	int col = table_int->FindColId(cur_field_choice);
 	std::vector<double> dd;
-	grid_base->GetColData(col, cur_field_choice_tm, dd);
+	table_int->GetColData(col, cur_field_choice_tm, dd);
 	for (int i=0; i<num_obs; i++) {
 		data_sorted[i].first = dd[i];
 		data_sorted[i].second = i;
 	}
 	if (is_ascending) {
 		std::sort(data_sorted.begin(), data_sorted.end(),
-				  GeoDa::dbl_int_pair_cmp_less);
+				  Gda::dbl_int_pair_cmp_less);
 	} else {
 		std::sort(data_sorted.begin(), data_sorted.end(),
-				  GeoDa::dbl_int_pair_cmp_greater);
+				  Gda::dbl_int_pair_cmp_greater);
 	}
 	LOG(data_sorted[0].first);
 	LOG(data_sorted[num_obs-1].first);
@@ -543,13 +546,13 @@ void DataMovieDlg::OnKeyEvent(wxKeyEvent& event)
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
 		LOG(del);
-		grid_base->curr_time_step = grid_base->curr_time_step + del;
-		if (grid_base->curr_time_step < 0) {
-			grid_base->curr_time_step = grid_base->time_steps-1;
-		} else if (grid_base->curr_time_step >= grid_base->time_steps) {
-			grid_base->curr_time_step = 0;
+		time_state->SetCurrTime(time_state->GetCurrTime() + del);
+		if (time_state->GetCurrTime() < 0) {
+			time_state->SetCurrTime(time_state->GetTimeSteps()-1);
+		} else if (time_state->GetCurrTime() >= time_state->GetTimeSteps()) {
+			time_state->SetCurrTime(0);
 		}
-		frames_manager->notifyObservers();
+		time_state->notifyObservers();
 		return;
 	}
 	event.Skip();

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -31,34 +31,52 @@ struct CatClassifDef;
 struct Category;
 struct CategoryVec;
 struct CatClassifData;
+class TableInterface;
 
 namespace CatClassification {
 	
-	const int max_num_classes = 10;
+	const int max_num_categories = 10;
 	
 	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, natural_breaks,
 		equal_intervals, lisa_categories, lisa_significance,
 		getis_ord_categories, getis_ord_significance, custom };
 	
+	/** When CatClassifType != custom, BreakValsType is assumed to
+	  be by_cat_classif_type.  Otherwise, if CatClassifType == custom,
+	  BreakValsType cannot be by_cat_classif_type */
+	enum BreakValsType { by_cat_classif_type,
+		no_theme_break_vals, hinge_15_break_vals, hinge_30_break_vals,
+		quantile_break_vals, percentile_break_vals, stddev_break_vals, 
+		unique_values_break_vals, natural_breaks_break_vals,
+		equal_intervals_break_vals, custom_break_vals };
+	
 	enum ColorScheme { sequential_color_scheme,
 		diverging_color_scheme, qualitative_color_scheme,
 		custom_color_scheme };
 	
+	
+	void CatLabelsFromBreaks(const std::vector<double>& breaks,
+							 std::vector<wxString>& cat_labels);
+	
 	void SetBreakPoints(std::vector<double>& breaks,
-						const GeoDa::dbl_int_pair_vec_type& var,
+						std::vector<wxString>& cat_labels,
+						const Gda::dbl_int_pair_vec_type& var,
 						const CatClassifType theme, int num_cats);
 	
 	void PopulateCatClassifData(const CatClassifDef& cat_def,
-				const std::vector<GeoDa::dbl_int_pair_vec_type>& var,
+				const std::vector<Gda::dbl_int_pair_vec_type>& var,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
 				std::vector<wxString>& cats_error_message);
 		
+	bool CorrectCatClassifFromTable(CatClassifDef& cc,
+									TableInterface* table_int);
+	
 	void FindNaturalBreaks(int num_cats,
-						   const GeoDa::dbl_int_pair_vec_type& var,
+						   const Gda::dbl_int_pair_vec_type& var,
 						   std::vector<double>& nat_breaks);
 	void SetNaturalBreaksCats(int num_cats,
-				const std::vector<GeoDa::dbl_int_pair_vec_type>& var,
+				const std::vector<Gda::dbl_int_pair_vec_type>& var,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
 				ColorScheme coltype=CatClassification::sequential_color_scheme);
 	
@@ -66,17 +84,19 @@ namespace CatClassification {
 	
 	wxString CatClassifTypeToString(CatClassifType theme_type);
 	
-	int PromptNumCats(const CatClassifType new_theme);
-	
 	void PickColorSet(std::vector<wxColour>& color_vec,
 					  ColorScheme coltype, int num_color, bool reversed=false);
 	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
 	
 	void ChangeNumCats(int num_cats, CatClassifDef& cc);
 	int ChangeBreakValue(int brk, double new_val, CatClassifDef& cc);
+	void ChangeUnifDistMin(double new_unif_dist_min, CatClassifDef& cc);
+	void ChangeUnifDistMax(double new_unif_dist_max, CatClassifDef& cc);
 	void ApplyColorScheme(ColorScheme scheme, CatClassifDef& cc);
 	void PrintCatClassifDef(const CatClassifDef& cc, wxString& str);
 	wxString ColorToString(const wxColour& c);
+	BreakValsType CatClassifTypeToBreakValsType(CatClassifType cct);
+	CatClassifType BreakValsTypeToCatClassifType(BreakValsType bvt);
 }
 
 /**
@@ -95,16 +115,27 @@ namespace CatClassification {
 struct CatClassifDef {
 	CatClassifDef();
 	CatClassifDef& operator=(const CatClassifDef& s);
+	bool operator==(const CatClassifDef& s) const;
+	bool operator!=(const CatClassifDef& s) const;
+	// If cat_classif_type != custom, then most fields below other
+	// than num_cats are ignored.
 	CatClassification::CatClassifType cat_classif_type;
+	// breaks_type is only relevant when cat_classif_type == custom.
+	// Cannot have breaks_type == by_cat_classif_type combined
+	// with cat_classif_type == custom
+	CatClassification::BreakValsType break_vals_type;
 	int num_cats; // limit of 10
+	bool automatic_labels; // update category labels automatically if true
 	std::vector<double> breaks; // size: num_cats-1
 	std::vector<wxString> names; // size: num_cats
 	std::vector<wxColour> colors; // size: num_cats
 	CatClassification::ColorScheme color_scheme; // one of four choices
 	wxString title;
-	int unique_id;
-	wxString default_var;
-	int default_var_tm;
+	wxString assoc_db_fld_name; // if empty, then uniform dist
+	double uniform_dist_min; // used for uniform dist
+	double uniform_dist_max; // used for uniform dist
+
+	wxString ToStr() const;
 };
 
 struct Category {

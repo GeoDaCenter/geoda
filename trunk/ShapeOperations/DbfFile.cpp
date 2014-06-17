@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,9 +24,10 @@
 #include <wx/filename.h>
 //#include <time.h> // for random number generator
 #include <stdlib.h> // for random number generator and atoi
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../logger.h"
 #include "DbfFile.h"
+#include "../GenUtils.h"
 
 // dBaseIII+ is only 128, but many others are much higher.  Some people
 // have imperically discovered that 2046 is OK in practice for many
@@ -36,7 +37,7 @@ const int DbfFileReader::MAX_NUMBER_FIELDS = 2046;
 DbfFileReader::DbfFileReader(const wxString& filename) :
   fname(filename), read_success(false)
 {
-  file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+  file.open(fname.fn_str(), std::ios::in | std::ios::binary);
   if (!(file.is_open() && file.good())) {
     read_success = false;
     return;
@@ -58,6 +59,39 @@ DbfFileHeader DbfFileReader::getFileHeader()
 std::vector<DbfFieldDesc> DbfFileReader::getFieldDescs()
 {
   return fields;
+}
+
+void DbfFileReader::getFieldTypes(
+	std::map<wxString, GdaConst::FieldType>& field_type_map)
+{
+	field_type_map.clear();
+	for (int i=0, ie=fields.size(); i<ie; i++) {
+		wxString name(fields[i].name);
+		char type = fields[i].type;
+		int length = fields[i].length;
+		int decimals = fields[i].decimals;
+		
+		if (type == 'N' || type == 'F') {
+			if (decimals > 0) {
+				field_type_map[name] = GdaConst::double_type;
+			} else {
+				field_type_map[name] = GdaConst::long64_type;
+			}
+		} else if (type == 'D') {
+			field_type_map[name] = GdaConst::date_type;
+		} else {
+			// assume (type == 'C')
+			field_type_map[name] = GdaConst::string_type;
+		}
+	}
+}
+
+void DbfFileReader::getFieldList(std::vector<wxString>& field_list)
+{
+	field_list.resize(fields.size());
+	for (int i=0, ie=fields.size(); i<ie; i++) {
+		field_list[i] = fields[i].name.c_str();
+	}
 }
 
 bool DbfFileReader::isDbfReadSuccess()
@@ -108,7 +142,7 @@ bool DbfFileReader::isFieldValUnique(int field)
   bool all_unique = false;
   read_success = false;
   if (!file.is_open())
-    file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
   if (!(file.is_open() && file.good())) return false;
  
   if (field >= (int) fields.size()) {
@@ -181,7 +215,7 @@ bool DbfFileReader::getFieldValsLong(int field, std::vector<wxInt64>& vals)
     if (vals.size() != header.num_records) return false;
 
     if (!file.is_open())
-        file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+		file.open(fname.fn_str(), std::ios::in | std::ios::binary);
     if (!(file.is_open() && file.good())) return false;
 
      // calculate field offset
@@ -245,7 +279,7 @@ bool DbfFileReader::getFieldValsDouble(int field, std::vector<double>& vals)
     if (vals.size() != header.num_records) return false;
 	
     if (!file.is_open())
-        file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+		file.open(fname.fn_str(), std::ios::in | std::ios::binary);
     if (!(file.is_open() && file.good())) return false;
 	
 	// calculate field offset
@@ -278,7 +312,7 @@ bool DbfFileReader::getFieldValsString(int field, std::vector<wxString>& vals)
     if (vals.size() != header.num_records) return false;
 	
     if (!file.is_open())
-        file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+		file.open(fname.fn_str(), std::ios::in | std::ios::binary);
     if (!(file.is_open() && file.good())) return false;
 	
 	// calculate field offset
@@ -309,7 +343,7 @@ void DbfFileReader::printFieldValues(int field, wxTextOutputStream& outstrm)
 {
   read_success = false;
   if (!file.is_open())
-    file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
   if (!(file.is_open() && file.good())) return;
 
   if (field >= (int) fields.size()) {
@@ -350,7 +384,7 @@ bool DbfFileReader::populateHeader()
 {
   read_success = false;
   if (!file.is_open())
-    file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
   if (!(file.is_open() && file.good())) return false;
 
   wxUint32 u_int32;
@@ -409,7 +443,7 @@ bool DbfFileReader::populateFieldDescs()
 {
   read_success = false;
   if (!file.is_open())
-    file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
   if (!(file.is_open() && file.good())) return false;
 
   wxUint32 u_int32;
@@ -453,7 +487,7 @@ bool DbfFileReader::populateFieldDescs()
   file.seekg(32, std::ios::beg);
   for (int i=0; i<num_fields; i++) {
     file.read(ascii_name, 11);
-    fields[i].name = wxString(ascii_name, wxConvUTF8);
+    fields[i].name = wxString(ascii_name, wxCSConv("utf-8"));
 	fields[i].name.Trim(false); // remove left spaces
 	fields[i].name.Trim(true); // remove right spaces
     file.read(&type, 1);
@@ -491,7 +525,7 @@ bool DbfFileUtils::insertIdFieldDbf(const wxString& in_fname,
   }
 
   std::ifstream in_file;
-  in_file.open(in_fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+  in_file.open(in_fname.fn_str(), std::ios::in | std::ios::binary);
 
   if (!(in_file.is_open() && in_file.good())) {
 	err_msg += "Error: Problem opening \"" + in_fname + "\"";
@@ -506,8 +540,9 @@ bool DbfFileUtils::insertIdFieldDbf(const wxString& in_fname,
 	  fn.SetName("1-_" + just_name);
 	  temp_out_fname = fn.GetPathWithSep() + fn.GetFullName();
   }
-  out_file.open(temp_out_fname.mb_str(wxConvUTF8),
-				std::ios::out | std::ios::binary);
+  //out_file.open(temp_out_fname.fn_str(),std::ios::out | std::ios::binary);
+  out_file.open(GET_ENCODED_FILENAME(temp_out_fname), std::ios::out | std::ios::binary);
+
   if (!(out_file.is_open() && out_file.good())) {
 	err_msg += "Error: Problem opening \"" + temp_out_fname + "\"";
     return false;
@@ -685,9 +720,10 @@ bool DbfFileUtils::insertIdFieldDbf(const wxString& in_fname,
 bool DbfFileUtils::isValidFieldName(const wxString& n)
 {
 	if ( n.size() < 1 || n.size() > 10 ) return false;
-	if ( !isAlphabetic(n.Mid(0,1)) ) return false;
+	if ( !isAlphabetic(n.Mid(0,1)) || n.Mid(0,1) == "_" ) return false;
 	for (int i=0, iend=n.size(); i<iend; i++)
-		if ( !(isAlphaNum(n.Mid(i,1)) ||  n.Mid(i,1) == "_") ) return false;
+		if ( !(isAlphaNum(n.Mid(i,1)) || n.Mid(i,1) == "_")
+			|| n.Mid(i,1) == " " ) return false;
 	return true;
 }
 
@@ -715,7 +751,7 @@ bool DbfFileUtils::isAlphaNum(const wxString& n)
 int DbfFileUtils::getNumRecords(const wxString& fname)
 {
 	std::ifstream file;
-	file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
 	if (!(file.is_open() && file.good())) return 0;
 	
 	wxUint32 u_int32;
@@ -738,7 +774,7 @@ int DbfFileUtils::getNumRecords(const wxString& fname)
 int DbfFileUtils::getNumFields(const wxString& fname)
 {
 	std::ifstream file;
-	file.open(fname.mb_str(wxConvUTF8), std::ios::in | std::ios::binary);
+	file.open(fname.fn_str(), std::ios::in | std::ios::binary);
 	if (!(file.is_open() && file.good())) return 0;
 
 	// discover number of fields. MAX_NUMBER_FIELDS is the max
@@ -797,8 +833,8 @@ void DbfFileUtils::SuggestDoubleParams(int length, int decimals,
 	// writing to disk, and when decimals = 15, require length >= 17 to
 	// allow for "0." prefex. If length-2 == decimals, then negative numbers
 	// are not allowed since there is not room for the "-0." prefix.
-	if (GeoDaConst::max_dbf_double_len < length) {
-		length = GeoDaConst::max_dbf_double_len;
+	if (GdaConst::max_dbf_double_len < length) {
+		length = GdaConst::max_dbf_double_len;
 	}
 	if (length < 3) length = 3;
 	if (decimals < 1) decimals = 1;

@@ -47,4 +47,5 @@ GenericNullStream()
 typedef GenericNullStream<char> NullStream;
 typedef GenericNullStream<wchar_t> WNullStream;
 
-#endif // NULLSTREAM_H_INCLUDED
+#endif
+// NULLSTREAM_H_INCLUDED

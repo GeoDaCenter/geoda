@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,7 @@
 void AbstractShape::Assign(char* nme)
 {
 	while (*nme == ' ') ++nme;
-	strncpy(Id, nme, GeoDaConst::ShpObjIdLen-1);
+	strncpy(Id, nme, GdaConst::ShpObjIdLen-1);
 }
 
 void AbstractShape::Identify(const long d) {
@@ -42,7 +42,7 @@ void AbstractShape::ReadID(std::istream& s)
 		return;
 	}
 	if (ch == '"') {
-		s.get(Id, GeoDaConst::ShpObjIdLen - 1, '"');
+		s.get(Id, GdaConst::ShpObjIdLen - 1, '"');
 		if (ch == '"') s >> ch;
 	} else {
 		s.putback(ch);

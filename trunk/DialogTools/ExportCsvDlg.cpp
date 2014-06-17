@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,8 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../Project.h"
 #include "../GenUtils.h"
 #include "../ShapeOperations/CsvFileUtils.h"
@@ -39,7 +40,7 @@ END_EVENT_TABLE()
 
 ExportCsvDlg::ExportCsvDlg(wxWindow* parent, Project* project_s,
 						   const wxPoint& pos, const wxSize& size)
-: project(project_s), grid_base(project_s->GetGridBase()), all_init(false)
+: project(project_s), table_int(project_s->GetTableInt()), all_init(false)
 {
 	SetParent(parent);
     CreateControls();
@@ -71,7 +72,6 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 					 wxEmptyString,
 					 "CSV files (*.csv)|*.csv",
 					 wxFD_SAVE );
-	dlg.SetPath(project->GetMainDir());
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	wxFileName new_csv_fname(dlg.GetPath());
@@ -100,8 +100,10 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 		}
 	}
 	
-	std::ofstream out_file;
-	out_file.open(new_csv.mb_str(wxConvUTF8), std::ios::out);
+	std::ofstream out_file;	
+	out_file.open(GET_ENCODED_FILENAME(new_csv),
+				  std::ios::out | std::ios::binary);
+
 	if (!(out_file.is_open() && out_file.good())) {
 		wxString msg;
 		msg << "Unable to create CSV file.";
@@ -111,49 +113,49 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 	}
 		
 	vector<int> col_map;
-	grid_base->FillColIdMap(col_map);
+	table_int->FillColIdMap(col_map);
 	
-	// Ensure string data is available
 	int tot_cols = 0;
-	for (int i=0, iend=grid_base->col_data.size(); i<iend; i++) {
-		grid_base->col_data[i]->CopyVectorToRawData();
-		tot_cols += grid_base->col_data[i]->time_steps;
-	}
 	
-	int rows = grid_base->GetNumberRows();
-	int cols = grid_base->GetNumberCols();
-	vector<string> v(tot_cols);
-	int v_ind;
+	int rows = table_int->GetNumberRows();
+	int cols = table_int->GetNumberCols();
+	vector<string> v;
 	
+	
+	// This will export with the group name and time period rather
+	// than the original datasource column names.
 	if (inc_var_names) {
-		v_ind = 0;
 		for (int col=0; col<cols; col++) {
-			DbfColContainer* cc = grid_base->col_data[col_map[col]];
-			for (int t=0; t<cc->time_steps; t++) {
+			int cid = col_map[col];
+			for (int t=0; t<table_int->GetColTimeSteps(cid); t++) {
+				if (table_int->GetColType(cid, t)
+					== GdaConst::placeholder_type) continue;
 				ostringstream ss;
-				ss << string(cc->name.mb_str(wxConvUTF8));
-				if (cc->time_steps > 1) {
-					ss << "_" << grid_base->time_ids[t];
+				ss << table_int->GetColName(cid).ToStdString();
+				if (table_int->GetColTimeSteps(cid) > 1) {
+					ss << "_" << project->GetTableInt()->GetTimeString(t);
 				}
-				v[v_ind++] = ss.str();
+				v.push_back(ss.str());
+				++tot_cols;
 			}
 		}
 		string record;
-		GeoDa::StringsToCsvRecord(v, record);
+		Gda::StringsToCsvRecord(v, record);
 		out_file << record << "\n";
 	}
 	
 	for (int row=0; row<rows; row++) {
-		v_ind = 0;
+		int v_ind = 0;
 		for (int col=0; col<cols; col++) {
-			DbfColContainer* cc = grid_base->col_data[col_map[col]];
-			for (int t=0; t<cc->time_steps; t++) {
-				v[v_ind++] = string((char*)(cc->raw_data[t]+
-											row*(cc->field_len+1)));
+			int cid = col_map[col];
+			for (int t=0, tt=table_int->GetColTimeSteps(cid); t<tt; t++) {
+				if (table_int->GetColType(cid, t)
+					== GdaConst::placeholder_type) continue;
+				v[v_ind++] = table_int->GetCellString(row,col,t).ToStdString();
 			}
 		}
 		string record;
-		GeoDa::StringsToCsvRecord(v, record);
+		Gda::StringsToCsvRecord(v, record);
 		out_file << record << "\n";
 	}
 	

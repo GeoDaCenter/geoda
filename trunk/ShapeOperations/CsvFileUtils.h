@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@
 
 typedef boost::multi_array<std::string, 2> std_str_array_type;
 
-namespace GeoDa
+namespace Gda
 {
     namespace qi = boost::spirit::qi;
     namespace ascii = boost::spirit::ascii;
@@ -52,23 +52,23 @@ namespace GeoDa
             using qi::lexeme;
             using ascii::char_;
             using ascii::string;
-            using namespace qi::labels;
+			namespace ql = qi::labels;
 			
 			using phoenix::push_back;
 			
-			text = lexeme[*(char_ - (char_('\"') | char_(',')))   [_val += _1]];
+			text = lexeme[*(char_ - (char_('\"') | char_(','))) [ql::_val += ql::_1]];
 			non_escaped %= text;
-			escaped = "\"" >> *( text [_val += _1]
-								| char_(',') [_val += _1] 
-								| string("\"\"") [_val += "\""]
+			escaped = "\"" >> *( text [ql::_val += ql::_1]
+								| char_(',') [ql::_val += ql::_1] 
+								| string("\"\"") [ql::_val += "\""]
 								) >> "\"";
 			field %= (escaped | non_escaped);
 			
 			// Both of the following expression work, but we've chosen
 			// to use the more explicit version for readability.
 			//record = field >> *(',' >> field);
-			record = field [push_back(_val, _1)] >> 
-			*(char_(',') >> field [push_back(_val, _1)]);
+			record = field [push_back(ql::_val, ql::_1)] >> 
+			*(char_(',') >> field [push_back(ql::_val, ql::_1)]);
         }
 		
 		qi::rule<Iterator, std::vector<std::string>(), ascii::space_type> record;
@@ -79,7 +79,7 @@ namespace GeoDa
     };
 }
 
-namespace GeoDa {
+namespace Gda {
 	void StringsToCsvRecord(const std::vector<std::string>& strings,
 							std::string& record);
 	std::istream& safeGetline(std::istream& is, std::string& t);

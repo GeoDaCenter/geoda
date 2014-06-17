@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,13 +24,13 @@
 #include <wx/choice.h>
 #include <wx/stattext.h>
 #include <wx/dialog.h>
-#include "DbfGridTableBase.h"
+#include "TableInterface.h"
 
 class DataViewerDeleteColDlg: public wxDialog
 {
 public:
 	DataViewerDeleteColDlg();
-	DataViewerDeleteColDlg( DbfGridTableBase* grid_base,
+	DataViewerDeleteColDlg( TableInterface* table_int,
 						   wxWindow* parent);
 	void CreateControls();
 	void OnDelete( wxCommandEvent& ev );
@@ -40,7 +40,7 @@ public:
 	wxButton* m_del_button;
 	wxChoice* m_field;
 	wxStaticText* m_message;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 
 private:
 	// a mapping from displayed col order to actual col ids in table

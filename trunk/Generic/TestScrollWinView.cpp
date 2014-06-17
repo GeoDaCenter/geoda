@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,7 +27,7 @@
 #include <wx/sizer.h>
 #include <wx/grid.h>
 #include "../GeoDa.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 
 IMPLEMENT_CLASS(TestScrollWinFrame, TemplateFrame)
@@ -73,6 +73,10 @@ TestScrollWinCanvas::~TestScrollWinCanvas()
 void TestScrollWinCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
   //LOG_MSG("Entering TestScrollWinCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((TestScrollWinFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu =
 		wxXmlResource::Get()->LoadMenu("ID_TEST_SCROLL_WIN_VIEW_MENU_CONTEXT");
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -131,13 +135,13 @@ void TestScrollWinCanvas::PaintShapes(wxDC& dc)
 	f5.SetPixelSize(wxSize(0,20));
 	dc.SetFont(f5);
 	dc.DrawText("SetPixelSize(0,20), wxFONTFAMILY_SWISS", 10, y+(dy*i++));
-	dc.SetFont(*GeoDaConst::small_font);
-	dc.DrawText("*GeoDaConst::small_font", 10, y+(dy*i++));
-	dc.SetFont(*GeoDaConst::medium_font);
-	dc.DrawText("*GeoDaConst::medium_font", 10, y+(dy*i++));
-	dc.SetTextForeground(GeoDaConst::selectable_fill_color);
-	dc.SetFont(*GeoDaConst::large_font);
-	dc.DrawText("*GeoDaConst::large_font", 10, y+(dy*i++));
+	dc.SetFont(*GdaConst::small_font);
+	dc.DrawText("*GdaConst::small_font", 10, y+(dy*i++));
+	dc.SetFont(*GdaConst::medium_font);
+	dc.DrawText("*GdaConst::medium_font", 10, y+(dy*i++));
+	dc.SetTextForeground(GdaConst::selectable_fill_color);
+	dc.SetFont(*GdaConst::large_font);
+	dc.DrawText("*GdaConst::large_font", 10, y+(dy*i++));
 }
 
 TestScrollWinFrame::TestScrollWinFrame(wxFrame *parent,
@@ -270,7 +274,7 @@ void TestScrollWinFrame::OnMenuClose(wxCommandEvent& event)
 void TestScrollWinFrame::MapMenus()
 {
   //LOG_MSG("In TestScrollWinFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_TEST_SCROLL_WIN_VIEW_MENU_CONTEXT");

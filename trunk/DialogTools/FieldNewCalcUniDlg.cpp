@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,8 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include "../Project.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -54,14 +55,15 @@ BEGIN_EVENT_TABLE( FieldNewCalcUniDlg, wxPanel )
 				 FieldNewCalcUniDlg::OnUnaryOperandTmUpdated )
 END_EVENT_TABLE()
 
-FieldNewCalcUniDlg::FieldNewCalcUniDlg(Project* project,
+FieldNewCalcUniDlg::FieldNewCalcUniDlg(Project* project_s,
 									   wxWindow* parent,
 									   wxWindowID id, const wxString& caption,
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
-: all_init(false), op_string(9), grid_base(project->GetGridBase()),
+: all_init(false), op_string(9), project(project_s),
+table_int(project_s->GetTableInt()),
 m_valid_const(false), m_const(1), m_var_sel(wxNOT_FOUND),
-is_space_time(project->GetGridBase()->IsTimeVariant())
+is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
     CreateControls();
@@ -131,40 +133,46 @@ void FieldNewCalcUniDlg::Apply()
 		return;
 	}
 	
+	TableState* ts = project->GetTableState();
+	wxString grp_nm = table_int->GetColName(result_col);
+	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+
+	
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
 	static boost::mt19937 rng(std::time(0));
 	
 	std::vector<int> time_list;
 	if (IsAllTime(result_col, m_result_tm->GetSelection())) {
-		time_list.resize(grid_base->time_steps);
-		for (int i=0; i<grid_base->time_steps; i++) time_list[i] = i;
+		int ts = project->GetTableInt()->GetTimeSteps();
+		time_list.resize(ts);
+		for (int i=0; i<ts; i++) time_list[i] = i;
 	} else {
 		int tm = IsTimeVariant(result_col) ? m_result_tm->GetSelection() : 0;
 		time_list.resize(1);
 		time_list[0] = tm;
 	}
 	
-	int rows = grid_base->GetNumberRows();
+	int rows = table_int->GetNumberRows();
 	std::vector<double> data(rows, 0);
 	std::vector<bool> undefined(rows, false);
 	if (var_col != wxNOT_FOUND &&
 		!IsAllTime(var_col, m_var_tm->GetSelection())) {
 		int tm = IsTimeVariant(var_col) ? m_var_tm->GetSelection() : 0;
-		grid_base->col_data[var_col]->GetVec(data, tm);
-		grid_base->col_data[var_col]->GetUndefined(undefined, tm);
+		table_int->GetColData(var_col,tm, data);
+		table_int->GetColUndefined(var_col, tm, undefined);
 	} else {
 		for (int i=0; i<rows; i++) data[i] = m_const;
 	}
-	std::vector<double> r_data(grid_base->GetNumberRows(), 0);
-	std::vector<bool> r_undefined(grid_base->GetNumberRows(), false);
+	std::vector<double> r_data(table_int->GetNumberRows(), 0);
+	std::vector<bool> r_undefined(table_int->GetNumberRows(), false);
 	
 	for (int t=0; t<time_list.size(); t++) {
 		if (var_col != wxNOT_FOUND &&
 			IsAllTime(var_col, m_var_tm->GetSelection()))
 		{
-			grid_base->col_data[var_col]->GetVec(data, time_list[t]);
-			grid_base->col_data[var_col]->GetUndefined(undefined, time_list[t]);
+			table_int->GetColData(var_col, time_list[t], data);
+			table_int->GetColUndefined(var_col, time_list[t], undefined);
 		}
 		for (int i=0; i<rows; i++) {
 			r_data[i] = data[i];
@@ -301,8 +309,9 @@ void FieldNewCalcUniDlg::Apply()
 				return;
 				break;
 		}
-		grid_base->col_data[result_col]->SetFromVec(r_data, time_list[t]);
-		grid_base->col_data[result_col]->SetUndefined(r_undefined, time_list[t]);
+		table_int->SetColData(result_col, time_list[t], r_data);
+		table_int->SetColUndefined(result_col, time_list[t], r_undefined);
+
 	}
 }
 
@@ -320,7 +329,7 @@ void FieldNewCalcUniDlg::InitFieldChoices()
 		m_var_sel = sel_temp;
 	}
 	
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 	m_var_str.resize(col_id_map.size());
 
 	wxString r_tm, v_tm;
@@ -330,14 +339,14 @@ void FieldNewCalcUniDlg::InitFieldChoices()
 	}
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		if (is_space_time &&
-			grid_base->col_data[col_id_map[i]]->time_steps > 1) {			
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name + r_tm);
-			m_var->Append(grid_base->col_data[col_id_map[i]]->name + v_tm);
-			m_var_str[i] = grid_base->col_data[col_id_map[i]]->name + v_tm;
+			table_int->GetColTimeSteps(col_id_map[i]) > 1) {			
+			m_result->Append(table_int->GetColName(col_id_map[i]) + r_tm);
+			m_var->Append(table_int->GetColName(col_id_map[i]) + v_tm);
+			m_var_str[i] = table_int->GetColName(col_id_map[i]) + v_tm;
 		} else {
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_var->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_var_str[i] = grid_base->col_data[col_id_map[i]]->name;
+			m_result->Append(table_int->GetColName(col_id_map[i]));
+			m_var->Append(table_int->GetColName(col_id_map[i]));
+			m_var_str[i] = table_int->GetColName(col_id_map[i]);
 		}
 	}
 	
@@ -429,14 +438,14 @@ void FieldNewCalcUniDlg::Display()
 bool FieldNewCalcUniDlg::IsTimeVariant(int col_id)
 {
 	if (!is_space_time) return false;
-	return (grid_base->IsColTimeVariant(col_id));
+	return (table_int->IsColTimeVariant(col_id));
 }
 
 bool FieldNewCalcUniDlg::IsAllTime(int col_id, int tm_sel)
 {
 	if (!is_space_time) return false;
-	if (!grid_base->IsColTimeVariant(col_id)) return false;
-	return tm_sel == grid_base->time_steps;
+	if (!table_int->IsColTimeVariant(col_id)) return false;
+	return tm_sel == project->GetTableInt()->GetTimeSteps();
 }
 
 void FieldNewCalcUniDlg::OnUnaryResultUpdated( wxCommandEvent& event )
@@ -485,7 +494,7 @@ void FieldNewCalcUniDlg::OnUnaryOperandUpdated( wxCommandEvent& event )
 		m_var_sel = m_var->GetSelection();
 	}
 	m_var_tm->Enable(m_var_sel != wxNOT_FOUND &&
-					 grid_base->col_data[col_id_map[m_var_sel]]->time_steps>1);
+					 table_int->GetColTimeSteps(col_id_map[m_var_sel]) > 1);
 	Display();
 }
 
@@ -497,11 +506,11 @@ void FieldNewCalcUniDlg::OnUnaryOperandTmUpdated( wxCommandEvent& event )
 
 void FieldNewCalcUniDlg::OnAddColumnClick( wxCommandEvent& event )
 {
-	DataViewerAddColDlg dlg(grid_base, this);
+	DataViewerAddColDlg dlg(project, this);
 	if (dlg.ShowModal() != wxID_OK) return;
 	InitFieldChoices();
 	wxString sel_str = dlg.GetColName();
-	if (grid_base->col_data[dlg.GetColId()]->time_steps > 1) {
+	if (table_int->GetColTimeSteps(dlg.GetColId()) > 1) {
 		sel_str << " (" << m_result_tm->GetStringSelection() << ")";
 	}
 	m_result->SetSelection(m_result->FindString(sel_str));
@@ -512,13 +521,13 @@ void FieldNewCalcUniDlg::OnAddColumnClick( wxCommandEvent& event )
 void FieldNewCalcUniDlg::InitTime(wxChoice* time_list)
 {
 	time_list->Clear();
-	for (int i=0; i<grid_base->time_steps; i++) {
+	for (int i=0; i<project->GetTableInt()->GetTimeSteps(); i++) {
 		wxString t;
-		t << grid_base->time_ids[i];
+		t << project->GetTableInt()->GetTimeString(i);
 		time_list->Append(t);
 	}
 	time_list->Append("all times");
-	time_list->SetSelection(grid_base->time_steps);
+	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
 	time_list->Disable();
 	time_list->Show(is_space_time);
 }

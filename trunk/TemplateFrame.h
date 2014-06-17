@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,10 +20,15 @@
 #ifndef __GEODA_TEMPLATE_FRAME_H__
 #define __GEODA_TEMPLATE_FRAME_H__
 
-#include <list>
+#include <set>
 #include <wx/frame.h>
 #include "FramesManagerObserver.h"
+#include "DataViewer/TableStateObserver.h"
+#include "DataViewer/TimeStateObserver.h"
+
 class FramesManager;
+class TableState;
+class TimeState;
 class Project;
 class TemplateCanvas;
 class TemplateLegend;
@@ -31,7 +36,8 @@ class TemplateLegend;
 /**
  * Common template frame
  */
-class TemplateFrame: public wxFrame, public FramesManagerObserver
+class TemplateFrame: public wxFrame, public FramesManagerObserver,
+	public TableStateObserver, public TimeStateObserver
 {
 public:
 	TemplateFrame(wxFrame *parent, Project* project, const wxString& title,
@@ -50,7 +56,6 @@ public:
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
 								 const wxString& title = "Choose A Color");
-	
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 	virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
@@ -66,6 +71,7 @@ public:
 	virtual void OnSelectWithCircle(wxCommandEvent& event);
 	virtual void OnSelectWithLine(wxCommandEvent& event);
 	virtual void OnSelectionMode(wxCommandEvent& event);
+	virtual void OnResetMap(wxCommandEvent& event);
 	virtual void OnFitToWindowMode(wxCommandEvent& event);
 	virtual void OnFixedAspectRatioMode(wxCommandEvent& event);
 	virtual void OnZoomMode(wxCommandEvent& event);
@@ -73,7 +79,7 @@ public:
 	virtual void OnPrintCanvasState(wxCommandEvent& event);
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
-	virtual void UpdateTitle() {};
+	virtual void UpdateTitle();
 	virtual void OnTimeSyncVariable(int var_index);
 	virtual void OnFixedScaleVariable(int var_index);
 	virtual void OnPlotsPerView(int plots_per_view);
@@ -87,19 +93,52 @@ public:
 	/** return value can be null */
 	virtual TemplateLegend* GetTemplateLegend() { return template_legend; }
 	
-	/** Implementation of FramesManagerObserver interface */
+	/** Default Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	/** Default Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	/** Default Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
+	/** Default Implementation of TableStateObserver interface.  Indicates if
+	 frame currently handle changes to time-line.  This is a function
+	 of private boolean variables depends_on_non_simple_groups 
+	 and supports_timeline_changes.  If supports_timeline_changes is true,
+	 then return value is true and depends_on_non_simple_groups is ignored. */
+	virtual bool AllowTimelineChanges();
+	virtual bool AllowGroupModify(const wxString& grp_nm);
+	virtual bool AllowObservationAddDelete() { return false; }
+	
+	/** Indicate that current view depends on group */
+	virtual void AddGroupDependancy(const wxString& grp_nm);
+	/** Indicate that current view no longer depends on group */
+	virtual void RemoveGroupDependancy(const wxString& grp_nm);
+	virtual void ClearAllGroupDependencies();
+	
+	virtual void SetDependsOnNonSimpleGroups(bool v) {
+		depends_on_non_simple_groups = v; }
 	
 private:
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
+
 protected:
 	Project* project;
 	TemplateCanvas* template_canvas;
 	TemplateLegend* template_legend; // optional
 	FramesManager* frames_manager;
+	TableState* table_state;
+	TimeState* time_state;
 	bool is_status_bar_visible;
+	
+	/** True iff frame depend on multi-time-period variables currently. 
+	 If supports_timeline_changes is true, then no need to update this
+	 variable. */
+	bool depends_on_non_simple_groups;
+	/** True iff frame can handle time-line changes such as add/delete/swap. */
+    bool supports_timeline_changes;
 
+	std::set<wxString> grp_dependencies;
+	
 	DECLARE_CLASS(TemplateFrame)
 	DECLARE_EVENT_TABLE()
 };

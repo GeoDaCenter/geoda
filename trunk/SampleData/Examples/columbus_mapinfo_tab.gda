@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <title>columbus</title>
+    <layers>
+        <layer>
+            <datasource>
+                <type>MapInfo File</type>
+                <path>columbus/mapinfo_tab/columbus.tab</path>
+            </datasource>
+            <layername>columbus</layername>
+            <title/>
+            <variable_order>
+                <time_ids>
+                    <id>time 0</id>
+                </time_ids>
+                <var>AREA</var>
+                <var>PERIMETER</var>
+                <var>COLUMBUS_</var>
+                <var>COLUMBUS_I</var>
+                <var>POLYID</var>
+                <var>NEIG</var>
+                <var>HOVAL</var>
+                <var>INC</var>
+                <var>CRIME</var>
+                <var>OPEN</var>
+                <var>PLUMB</var>
+                <var>DISCBD</var>
+                <var>X</var>
+                <var>Y</var>
+                <var>NSA</var>
+                <var>NSB</var>
+                <var>EW</var>
+                <var>CP</var>
+                <var>THOUS</var>
+                <var>NEIGNO</var>
+            </variable_order>
+            <custom_classifications/>
+            <spatial_weights>
+                <weights>
+                    <path>columbus/columbus_rook.gal</path>
+                    <default/>
+                </weights>
+            </spatial_weights>
+            <default_vars>
+                <default_var>
+                    <name>HOVAL</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>INC</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>CRIME</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>CRIME</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+            </default_vars>
+        </layer>
+    </layers>
+</project>

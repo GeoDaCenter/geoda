@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,17 +20,55 @@
 #ifndef __GEODA_CENTER_GEN_UTILS_H__
 #define __GEODA_CENTER_GEN_UTILS_H__
 
-#include <vector>
+#include <stdint.h>
 #include <string>
+#include <vector>
+#include <map>
 #include <wx/filename.h>
 #include <wx/string.h>
 #include <wx/gdicmn.h> // for wxPoint / wxRealPoint
+#include <wx/textwrapper.h>
+
+// file name encodings
+// in windows, wxString.fn_str() will return a wchar*, which take care of 
+// international encodings
+// in mac, wxString.mb_str() will return UTF8 char*
+#ifdef __WIN32__
+ #ifndef GET_ENCODED_FILENAME
+  #define GET_ENCODED_FILENAME(a) a.fn_str() 
+ #endif
+#else
+ #ifndef GET_ENCODED_FILENAME
+  #define GET_ENCODED_FILENAME(a) a.mb_str() 
+ #endif
+#endif
 
 class wxDC;
+class TableState;
+
+namespace Gda {
+	/** Returns a uniformly distributed
+	 random unsigned 64-bit integer given a seed.  Has the property
+	 that seed, seed+1, seed+2, .... seed+n are good random numbers. This
+	 is useful for doing parallel Monte Carlo simulations with a common
+	 random seed for reproducibility. */
+	uint64_t ThomasWangHashUInt64(uint64_t key);
+	
+	/** Returns a uniformly distributed
+	 random double on the unit interval given unsigned 64-bit integer as
+	 a seed.  Has the property that seed, seed+1, seed+2, .... seed+n are
+	 good random numbers. This is useful for doing parallel Monte Carlo
+	 simulations with a common random seed for reproducibility. */
+	double ThomasWangHashDouble(uint64_t key);
+	
+	inline bool IsNaN(double x) { return x != x; }
+	inline bool IsFinite(double x) { return x-x == 0; }
+}
 
 struct GeoDaVarInfo {
-	// Primary Attributes
+	GeoDaVarInfo();
 	
+	// Primary Attributes
 	wxString name;
 	bool is_time_variant;
 	int time; // current time, always between time_min and time_max
@@ -60,7 +98,7 @@ struct GeoDaVarInfo {
 	double max_over_time; // within time min/max range
 };
 
-namespace GeoDa {
+namespace Gda {
 	// returns new reference variable index, or else -1 if no reference
 	// variable
 	int UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info);
@@ -68,10 +106,10 @@ namespace GeoDa {
 	void PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info);
 }
 
-namespace GeoDa {
+namespace Gda {
 	// useful for sorting a vector of double with their original indexes:
 	// std::vector<dbl_int_pair_type> data;
-	// std::sort(data.begin(), data.end(), GeoDa::dbl_int_pair_cmp_less);	
+	// std::sort(data.begin(), data.end(), Gda::dbl_int_pair_cmp_less);	
 	typedef std::pair<double, int> dbl_int_pair_type;
 	typedef std::vector<dbl_int_pair_type> dbl_int_pair_vec_type;
 	bool dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
@@ -128,7 +166,7 @@ struct HingeStats {
 		max_val(0), is_even_num_obs(false),
 		Q2(0), Q2_ind(0), Q1(0), Q1_ind(0),
 		Q3(0), Q3_ind(0), min_IQR_ind(0), max_IQR_ind(0) {}
-	void CalculateHingeStats(const std::vector<GeoDa::dbl_int_pair_type>& data);
+	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data);
 	int num_obs;
 	double min_val;
 	double max_val;
@@ -152,14 +190,14 @@ struct HingeStats {
 	double extreme_upper_val_30;
 };
 
-namespace GeoDa {
+namespace Gda {
 	// Percentile using Linear interpolation between closest ranks
 	// Definition as described in Matlab documentation
 	// and at http://en.wikipedia.org/wiki/Percentile
 	// Assumes that input vector v is sorted in ascending order.
 	// Duplicate values are allowed.
 	double percentile(double x, const std::vector<double>& v);
-	double percentile(double x, const GeoDa::dbl_int_pair_vec_type& v);
+	double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
 }
 
 struct DataPoint {
@@ -176,7 +214,7 @@ struct SampleStatistics {
     sd_with_bessel(0), sd_without_bessel(0) {}
 	SampleStatistics(const std::vector<double>& data);
 	void CalculateFromSample(const std::vector<double>& data);
-	void CalculateFromSample(const std::vector<GeoDa::dbl_int_pair_type>& data);
+	void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data);
 	std::string ToString();
 	
 	int sample_size;
@@ -193,7 +231,7 @@ struct SampleStatistics {
 	static void CalcMinMax(const std::vector<double>& data, double& min,
 						   double& max);
 	static double CalcMean(const std::vector<double>& data);
-	static double CalcMean(const std::vector<GeoDa::dbl_int_pair_type>& data);
+	static double CalcMean(const std::vector<Gda::dbl_int_pair_type>& data);
 };
 
 struct SimpleLinearRegression {
@@ -272,8 +310,10 @@ namespace GenUtils {
 						  const wxPoint& p3);
 	bool LineSegsIntersect(const wxPoint& l1_p1, const wxPoint& l1_p2,
 						   const wxPoint& l2_p1, const wxPoint& l2_p2);
-	
+
 	// other
+	wxString BoolToStr(bool b);
+	bool StrToBool(const wxString& s);
 	wxString Pad(const wxString& s, int width, bool pad_left=true);
 	wxString DblToStr(double x, int precision = 3);
 	wxString PtToStr(const wxPoint& p);
@@ -292,7 +332,23 @@ namespace GenUtils {
 	wxString GetFileDirectory(const wxString& path);
 	wxString GetFileName(const wxString& path);
 	wxString GetFileExt(const wxString& path);
-	wxString GetTheFileTitle(const wxString& path);
+	/** If path is a relative path, return an absolute path based
+	 on proj_path path. If path is absolute, return it as is. */
+	wxString RestorePath(const wxString& proj_path, const wxString& path);
+	wxString SimplifyPath(const wxString& proj_path, const wxString& path);
+	/** Input: wd should be the working directory of the project file.  It
+	 is assumed that this directory is valid.
+	 path can be either a dir or file path.  If path is
+	 relative, then path is returned unchanged.  If path is abolute, then
+	 if directory or file is either the same as, or within a subdirectory
+	 of current working directory, then return a relative path with
+	 respect to the current working directory.  Otherwise, return the
+	 resource string unchanged.  Within the the program, all resource
+	 file should be stored with an absolute path.  Upon saving the
+	 project file, each of these resource strings should be processed
+	 by SimplfyPath to see if they can be converted into a relative path
+	 with respect to the current Working Directory (project file location). */
+	wxString SimplifyPath(const wxFileName& wd, const wxString& path);
 	wxInt32 Reverse(const wxInt32 &val);
 	long ReverseInt(const int &val);
 	void SkipTillNumber(std::istream &s);
@@ -315,6 +371,13 @@ namespace GenUtils {
 	bool isEmptyOrSpaces(const wxString& str);
 	bool ExistsShpShxDbf(const wxFileName& fname, bool* shp_found,
 						 bool* shx_found, bool* dbf_found);
+	wxString FindLongestSubString(const std::vector<wxString> strings,
+								  bool case_sensitive=false);
+	
+	bool CanModifyGrpAndShowMsgIfNot(TableState* table_state,
+									 const wxString& grp_nm);
+
+	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 }
 
 /** Old code used by LISA functions */
@@ -345,7 +408,7 @@ public:
         }
     }
     int Pop() { // remove element from the set
-		if (current == 0) return -1; // formerly GeoDaConst::EMPTY
+		if (current == 0) return -1; // formerly GdaConst::EMPTY
         int rtn= buffer[ --current ];
         flags[rtn]= '\x0';   // check it out
         return rtn;
@@ -408,5 +471,6 @@ template<class T> void GenUtils::swap(T& x, T& y)
 	x = y;
 	y = t;
 }
+
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -105,7 +105,7 @@ iDBF::iDBF(const wxString& fname, const wxString& dir)
 	char sym;
 	char buffer[32];
 	int cp, maxfield= 19, HeaderSz= 0, RecordLength= 0;
-	open(fn.mb_str(), std::ios::binary | std::ios::in);
+	open(GET_ENCODED_FILENAME(fname), std::ios::in | std::ios::binary);
 	connectedToFile = true;
 	if (fail())	{
 		wxString msg("iDBF::iDBF Error: wasn't able to open DBF file: ");
@@ -180,7 +180,8 @@ bool iDBF::ReOpen()
 	char sym;
 	char  buffer[32];
 	int cp, maxfield= 19, HeaderSz= 0, RecordLength= 0;
-    open(fn.mb_str(), std::ios::binary | std::ios::in);
+    //open(fn.mb_str(), std::ios::binary | std::ios::in);
+	open(GET_ENCODED_FILENAME(fn), std::ios::in | std::ios::binary);
 	connectedToFile = true;
 	if (fail())
 	{
@@ -324,7 +325,7 @@ std::vector<wxString> iDBF::GetFieldNames()
 {
 	std::vector<wxString> names(NumOfFields);
     for (int i=0; i < NumOfFields; i++)
-		names[i] = wxString(Field[i]->Name, wxConvUTF8);
+		names[i] = wxString(Field[i]->Name, wxCSConv("utf-8"));
 	return names;
 }
 
@@ -488,8 +489,8 @@ int oDBF::OpenDBF()
 	long l_day;
 	wxDateTime::Now().FormatISODate().SubString(8, 9).ToCLong(&l_day);
 	int day = (int) l_day;
-    open(fn.mb_str(), std::ios::binary | std::ios::out);
-	
+    //open(fn.fn_str(), std::ios::binary | std::ios::out);
+	open(GET_ENCODED_FILENAME(fn), std::ios::out | std::ios::binary);	
 	//	_finddata_t *info = new _finddata_t;
 	//	long s = _findfirst(fn, info);
 	//	if (info->attrib == 33)

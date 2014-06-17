@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,9 +27,9 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class CatClassifState;
 class PCPNewCanvas;
@@ -57,6 +57,7 @@ public:
 	
 	virtual void NewCustomCatClassif();
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
+						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -64,7 +65,7 @@ public:
 
 protected:
 	virtual void PopulateCanvas();
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	void CreateAndUpdateCategories(); // cats
 	
@@ -89,9 +90,9 @@ public:
 	virtual void PaintControls(wxDC& dc);
 	void MoveControlLine(int final_y);
 	
-	void ForgetNumCats() { remember_num_cats = false; }
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
+	int GetNumCats() { return num_categories; }
 	
 protected:
 	virtual void UpdateStatusBar();
@@ -103,8 +104,8 @@ protected:
 	int num_obs;
 	int num_vars;
 	int num_time_vals;
-	int num_cats;
-	bool remember_num_cats; // only reask user for num_cats if false
+	int num_categories;
+
 	int ref_var_index;
 	std::vector<GeoDaVarInfo> var_info;
 	std::vector<int> var_order; // var id for position 0 to position num_vars-1
@@ -125,10 +126,10 @@ protected:
 	bool standardized;
 	
 	int theme_var; // current theme variable
-	std::vector<MyText*> control_labels;
+	std::vector<GdaShapeText*> control_labels;
 	int control_label_sel; // selected variable text label
-	std::vector<MyCircle*> control_circs;
-	std::vector<MyPolyLine*> control_lines;
+	std::vector<GdaCircle*> control_circs;
+	std::vector<GdaPolyLine*> control_lines;
 	int control_line_sel; // selected control line
 	PCPSelectState pcp_selectstate;
 	bool show_pcp_control;
@@ -152,20 +153,17 @@ public:
 					const std::vector<int>& col_ids,
 					const wxString& title = "Parallel Coordinate Plot",
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GeoDaConst::pcp_default_size,
+					const wxSize& size = GdaConst::pcp_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~PCPNewFrame();
 	
-public:
     void OnActivate(wxActivateEvent& event);
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
@@ -174,19 +172,20 @@ public:
 	void OnViewOriginalData(wxCommandEvent& event);
     void OnViewStandardizedData(wxCommandEvent& event);
 
-	void OnThemeless(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
-	void OnPercentile(wxCommandEvent& event);
-	void OnHinge15(wxCommandEvent& event);
-	void OnHinge30(wxCommandEvent& event);
-	void OnStdDevMap(wxCommandEvent& event);
-	void OnUniqueValues(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
-	void OnSaveCategories(wxCommandEvent& event);	
+	virtual void OnThemeless();
+	virtual void OnQuantile(int num_cats);
+	virtual void OnPercentile();
+	virtual void OnHinge15();
+	virtual void OnHinge30();
+	virtual void OnStdDevMap();
+	virtual void OnUniqueValues();
+	virtual void OnNaturalBreaks(int num_cats);
+	virtual void OnEqualIntervals(int num_cats);
+	virtual void OnSaveCategories();
 	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
+						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);
 	
     DECLARE_EVENT_TABLE()

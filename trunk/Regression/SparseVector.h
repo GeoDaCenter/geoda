@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -50,7 +50,7 @@ public :
     void timesPlus(const SparseVector &a, const double &s);
     void dropZeros();
 private:
-        int 	size;		// vector size (== allocation of the arrays)
+	int 	size;		// vector size (== allocation of the arrays)
     int		nzEntries;	// number of non-zero entries;
     bool	denseReady;
     double 	* val;		// values of all elements

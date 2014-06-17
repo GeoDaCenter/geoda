@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,7 +21,7 @@
 #define __GEODA_CENTER_SHAPE_FILE_H__
 
 #include <fstream>
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include <wx/string.h>
 
 /*

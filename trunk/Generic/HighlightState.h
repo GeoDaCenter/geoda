@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,8 +26,8 @@
 class HighlightStateObserver;
 
 /**
- An instance of this class models the linked highlight state of all SHP file
- observations in the currently opened SHP file.  This is the means by which
+ An instance of this class models the linked highlight state of all
+ observations in the currentl project.  This is the means by which
  all of the views in GeoDa are linked.  All children of TemplateCanvas can
  be Observers of the HightlightState Observable class.  To be notified of
  state changes, an Observable registers itself by calling the
@@ -37,7 +37,6 @@ class HighlightStateObserver;
 
 class HighlightState {
 public:
-	// Types for use in Table
 	enum EventType {
 		empty, // an empty event, observers should not be notified
 		delta, // check both newly_highlighted and newly_unhighlighted

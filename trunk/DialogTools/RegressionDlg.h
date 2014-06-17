@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,15 +28,18 @@
 #include <wx/radiobut.h>
 #include <wx/gauge.h>
 #include <wx/stattext.h>
+#include "../DataViewer/TableStateObserver.h"
 #include "../FramesManagerObserver.h"
 
 class FramesManager;
+class TableState;
 class DiagnosticReport;
 class WeightsManager;
-class DbfGridTableBase;
+class TableInterface;
 class Project;
 
-class RegressionDlg: public wxDialog, public FramesManagerObserver
+class RegressionDlg: public wxDialog, public FramesManagerObserver,
+  public TableStateObserver
 {
     DECLARE_EVENT_TABLE()
 
@@ -64,7 +67,6 @@ public:
     void OnStandardizeClick( wxCommandEvent& event );
 	void OnPredValCbClick( wxCommandEvent& event );
 	void OnCoefVarMatrixCbClick( wxCommandEvent& event );
-	void OnMoranZValCbClick( wxCommandEvent& event );
     void OnCListVarinDoubleClicked( wxCommandEvent& event );
     void OnCListVaroutDoubleClicked( wxCommandEvent& event );
     void OnCButton1Click( wxCommandEvent& event );
@@ -96,7 +98,7 @@ public:
 	wxStaticText* m_gauge_text;
 
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	WeightsManager* w_manager;
 	
 	int			RegressModel;
@@ -108,10 +110,10 @@ public:
 	double		**x;
 	bool		m_Run;
 	bool		m_OpenDump;
-	bool		m_output1, m_output2, m_moranz;
+	bool		m_output1, m_output2;
 	wxCheckBox* m_pred_val_cb;
 	wxCheckBox* m_coef_var_matrix_cb;
-	wxCheckBox* m_moran_z_val_cb;
+	wxCheckBox* m_white_test_cb;
 	int			lastSelection;
 	int			nVarName;
 	double		*m_resid1, *m_yhat1;
@@ -121,7 +123,7 @@ public:
 	bool		b_done1,b_done2, b_done3;
 	int			m_nCount;
 	int			m_nTimer;
-	
+		
 	// name_to_nm is a mapping from variable name
 	// in the the column which could include time such as
 	// TEMP (1998)  -->  TEMP
@@ -130,7 +132,6 @@ public:
 	// the Table.
 	std::map<wxString, wxString> name_to_nm;
 	std::map<wxString, int> name_to_tm_id;
-	std::vector<int> col_id_map;
 	wxString logReport;
 	
 	void InitVariableList();
@@ -141,7 +142,8 @@ public:
 	void SetXVariableNames(DiagnosticReport *dr);
 	void printAndShowClassicalResults(const wxString& datasetname,
 									  const wxString& wname,
-									  DiagnosticReport *r, int Obs, int nX);
+									  DiagnosticReport *r, int Obs, int nX,
+									  bool do_white_test);
 	void printAndShowLagResults(const wxString& dname, const wxString& wname,
 								DiagnosticReport *dr, int Obs, int nX);
 	void printAndShowErrorResults(const wxString& datasetname,
@@ -150,8 +152,15 @@ public:
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return false; }
+	
 protected:
 	FramesManager* frames_manager;
+	TableState* table_state;
 };
 
 #endif

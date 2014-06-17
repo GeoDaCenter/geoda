@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,13 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <wx/defs.h>
+
+#include <wx/wxprec.h>
+
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+#include <wx/string.h>
 
 namespace Shapefile {
 	
@@ -74,12 +80,26 @@ namespace Shapefile {
 	};
 	
 	std::string shapeTypeToString(wxInt32 st);
-	
+
 	struct Point {
 		Point() : x(0), y(0) {}
 		Point(wxFloat64 x_s, wxFloat64 y_s) : x(x_s), y(y_s) {}
 		wxFloat64 x;
 		wxFloat64 y;
+		//bool equals(Point* p){ return x==p->x && y==p->y; }
+		//bool equals(Point& p){ return x==p.x && y==p.y; }
+		bool equals(Point* p, double precision_threshold=0.0){
+            if (abs(x-p->x) <= precision_threshold &&
+                abs(y-p->y) <= precision_threshold)
+                return true;
+            return false;
+        }
+		bool equals(Point& p, double precision_threshold=0.0){
+            if (abs(x-p.x) <= precision_threshold &&
+                abs(y-p.y) <= precision_threshold)
+                return true;
+            return false;
+        }
 	};
 	
 	bool operator==(Point const& a, Point const& b);
@@ -150,6 +170,11 @@ namespace Shapefile {
 		// stores the first index in array for each part
 		std::vector<Point> points; // byte 44 + 4*num_parts, array of
 		// size num_parts, LE
+		
+		bool intersect(PolygonContents* shp) { 
+			return !(shp->box[0] > box[2] || shp->box[1] > box[3] ||
+					 shp->box[2] < box[0] || shp->box[3] < box[1]);
+		}
 	};
 	
 	struct MainRecordHeader {
@@ -206,22 +231,22 @@ namespace Shapefile {
 	wxInt32 myINT_SWAP_ON_LE( int x );
 	int calcNumIndexHeaderRecords(const Header& header);
 	
-	bool populateHeader(const std::string& fname, Header& header);
-	bool populateIndex(const std::string& fname, Index& index_s);
-	bool populateMain(const Index& index_s, const std::string& fname,
+	bool populateHeader(const wxString& fname, Header& header);
+	bool populateIndex(const wxString& fname, Index& index_s);
+	bool populateMain(const Index& index_s, const wxString& fname,
 					  Main& main_s);
 	
 	bool writeHeader(std::ofstream& out_file,
 					 const Shapefile::Header& header,
-					 std::string& err_msg);
-	bool writePointIndexFile(const std::string& fname, const Index& index,
-							 std::string& err_msg);
-	bool writePointMainFile(const std::string& fname, const Main& main,
-							std::string& err_msg);
-	bool writePolygonIndexFile(const std::string& fname, const Index& index,
-							   std::string& err_msg);
-	bool writePolygonMainFile(const std::string& fname, const Main& main,
-							  std::string& err_msg);
+					 wxString& err_msg);
+	bool writePointIndexFile(const wxString& fname, const Index& index,
+							 wxString& err_msg);
+	bool writePointMainFile(const wxString& fname, const Main& main,
+							wxString& err_msg);
+	bool writePolygonIndexFile(const wxString& fname, const Index& index,
+							   wxString& err_msg);
+	bool writePolygonMainFile(const wxString& fname, const Main& main,
+							  wxString& err_msg);
 	
 	void printHeader(const Header& header, std::ostream& s, int indent=0);
 	void printIndex(const Index& index_s, std::ostream& s, int indent=0);

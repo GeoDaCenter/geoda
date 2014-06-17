@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -43,11 +43,10 @@ public:
 
     void OnCreateClick( wxCommandEvent& event );
     void OnCOpenIascClick( wxCommandEvent& event );
-    void OnCOpenOshpClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
 
     wxTextCtrl* m_inputfile;
-    wxTextCtrl* m_outputfile;
+
 
 	wxString fn;
 };

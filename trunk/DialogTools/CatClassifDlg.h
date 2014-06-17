@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -43,12 +43,12 @@
 #include "../Explore/CatClassifStateObserver.h"
 #include "../FramesManagerObserver.h"
 #include "../GenUtils.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 
 class CatClassifCanvas;
 class CatClassifFrame;
 class CatClassifPanel;
-class DbfGridTableBase;
+class TableInterface;
 class FramesManager;
 class HighlightState;
 class TableState;
@@ -78,12 +78,15 @@ public:
 	void UpdateIvalSelCnts();
 	static const int max_intervals;
 	static const int default_intervals;
+	static const double default_min;
+	static const double default_max;
 
-	void ChangeData(GeoDa::dbl_int_pair_vec_type* new_data);
-	void ChangeBreaks(std::vector<double>* new_breaks,
-					  std::vector<wxColour>* new_colors);
-	void ChangeColorScheme(std::vector<wxColour>* new_colors);
-	static void InitRandNormData(GeoDa::dbl_int_pair_vec_type& rn_data);
+	void ChangeAll(Gda::dbl_int_pair_vec_type* new_data,
+				   std::vector<double>* new_breaks,
+				   std::vector<wxColour>* new_colors);
+	static void InitRandNormData(Gda::dbl_int_pair_vec_type& rn_data);
+	static void InitUniformData(Gda::dbl_int_pair_vec_type& data,
+								double min, double max);
 	
 private:
 	virtual void UpdateStatusBar();
@@ -91,11 +94,11 @@ private:
 	Project* project;
 	HighlightState* highlight_state;
 	int num_obs;
-	GeoDa::dbl_int_pair_vec_type* data;
-	GeoDa::dbl_int_pair_vec_type default_data;
+	Gda::dbl_int_pair_vec_type* data;
+	Gda::dbl_int_pair_vec_type default_data;
 	
 	AxisScale axis_scale_y;
-	MyAxis* y_axis;
+	GdaAxis* y_axis;
 	
 	std::vector<wxColour>* colors; // size = cur_num_intervals
 	std::vector<wxColour> default_colors;
@@ -122,7 +125,11 @@ class CatClassifPanel: public wxPanel, public TableStateObserver
 public:
     CatClassifPanel(Project* project,
 					CatClassifHistCanvas* hist_canvas,
-					wxWindow* parent, wxWindowID id = wxID_ANY,
+					wxWindow* parent,
+					wxChoice* preview_var_choice,
+					wxChoice* preview_var_tm_choice,
+					wxCheckBox* sync_vars_chk,
+					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
 					long style = wxCAPTION|wxSYSTEM_MENU);
@@ -132,93 +139,135 @@ public:
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
 							   int field_tm = 0);
-	void EditExisting(const wxString& cat_classif_title,
-					  const wxString& field_name = wxEmptyString,
-					  int field_tm = 0);
-	
-	void OnKillFocusEvent(wxFocusEvent& event);
+
+	// Top level user actions
 	void OnCurCatsChoice(wxCommandEvent& event);
-	void OnColorScheme(wxCommandEvent& event);
-	void OnNumCatsSpinCtrl(wxSpinEvent& event);
-	void InitFieldChoices();
-	void OnFieldChoice(wxCommandEvent& ev);
-	void OnFieldChoiceTm(wxCommandEvent& ev);
-	void InitNewFieldChoice();
-	void InitCurCatsChoices();
-	void OnBrkSlider(wxCommandEvent& event);
-	void OnScrollThumbRelease(wxScrollEvent& event);
-	void OnCatBut(wxMouseEvent& event);
-	void OnCatTxt(wxCommandEvent& event);
+	void OnBreaksChoice(wxCommandEvent& event);
+	void OnColorSchemeChoice(wxCommandEvent& event);
+	void OnNumCatsChoice(wxCommandEvent& event);
+	void OnAssocVarChoice(wxCommandEvent& ev);
+	void OnAssocVarTmChoice(wxCommandEvent& ev);
+	void OnPreviewVarChoice(wxCommandEvent& ev);
+	void OnPreviewVarTmChoice(wxCommandEvent& ev);
+	void OnSyncVarsChk(wxCommandEvent& ev);
+	void OnUnifDistMinEnter(wxCommandEvent& event);
+	void OnUnifDistMinKillFocus(wxFocusEvent& event);
+	void OnUnifDistMaxEnter(wxCommandEvent& event);
+	void OnUnifDistMaxKillFocus(wxFocusEvent& event);
+	void OnAutomaticLabelsCb(wxCommandEvent& event);
 	void OnBrkRad(wxCommandEvent& event);
 	void OnBrkTxtEnter(wxCommandEvent& event);
-	void OnButtonCopyFromExisting(wxCommandEvent& event);
+	void OnBrkSlider(wxCommandEvent& event);
+	void OnScrollThumbRelease(wxScrollEvent& event);
+	void OnKillFocusEvent(wxFocusEvent& event);
+	void OnCategoryColorButton(wxMouseEvent& event);
+	void OnCategoryTitleText(wxCommandEvent& event);
 	void OnButtonChangeTitle(wxCommandEvent& event);
 	void OnButtonNew(wxCommandEvent& event);
 	void OnButtonDelete(wxCommandEvent& event);
 	void OnButtonClose(wxCommandEvent& event);
+
+	void ResetValuesToDefault();
+	void EnableControls(bool enable);
+	void InitFromCCData();
+	void InitAssocVarChoices();
+	void InitPreviewVarChoices();
+	void InitCurCatsChoices();
+	
+	int GetNumCats();
+	void SetNumCats(int num_cats);
+	void ShowNumCategories(int num_cats);
+	bool IsAutomaticLabels();
+	void SetAutomaticLabels(bool auto_labels);
+	CatClassification::ColorScheme GetColorSchemeChoice();
+	void SetColorSchemeChoice(CatClassification::ColorScheme cs);
+	CatClassification::BreakValsType GetBreakValsTypeChoice();
+	void SetBreakValsTypeChoice(CatClassification::BreakValsType bvt);
+	wxString GetAssocDbFldNm();
+	wxString GetAssocVarChoice();
+	wxString GetAssocVarTmChoice();
+	int GetAssocVarTmAsInt();
+	wxString GetPreviewDbFldNm();
+	wxString GetPreviewVarChoice();
+	wxString GetPreviewVarTmChoice();
+	int GetPreviewVarTmAsInt();
+	bool IsSyncVars();
+	void SetSyncVars(bool sync_assoc_and_prev_vars);
+	bool IsUnifDistMode() { return unif_dist_mode; }
+	void SetUnifDistMode(bool enable) { unif_dist_mode = enable; }
+	void ShowUnifDistMinMax(bool show);
+	void SetUnifDistMinMaxTxt(double min, double max);
+	int GetActiveBrkRadio();
+	void SetActiveBrkRadio(int);
+	void SetBrkTxtFromVec(const std::vector<double>& brks);	
+	double GetBrkSliderMin();
+	double GetBrkSliderMax();	
+	void SetSliderFromBreak(int brk);
 	bool IsDuplicateTitle(const wxString& title);
 	wxString GetDefaultTitle(const wxString& field_name = wxEmptyString,
 							 int field_tm = 0);
-	void EnableControls(bool enable);
-	void ResetValuesToDefault();
-	void InitFromCCData();
-	bool IsOkToDelete(const wxString& custom_cat_title);
 	
-	void CopyFromExisting(CatClassification::CatClassifType new_theme);
-	void InitSliderFromBreak(int brk);
-	void ChangeNumCats(int new_num_cats);
-	int GetActiveBrkRadio();
-	void UpdateBrkTxtRad(int active_brk);
-	void UpdateBrkSliderRanges();
+	bool IsOkToDelete(const wxString& custom_cat_title);
+	void UpdateCCState();
 	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
-	
-	int num_obs;
-	GeoDa::dbl_int_pair_vec_type data;
-	CatClassifDef cc_data;
-	
-	static const int max_intervals;
-	static const int default_intervals;
-	int cur_intervals;
-	
-	CatClassifFrame* template_frame;
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; } //MMM
+
+	CatClassifFrame* template_frame;	
 private:
 	Project* project;
-	DbfGridTableBase* grid_base;
+	TableInterface* table_int;
 	CatClassifHistCanvas* hist_canvas;
 	CatClassifManager* cat_classif_manager;
 	TableState* table_state;
 	
-	void ShowNumCategories(int num_cats);
-	
-	void UpdateCCState();
 	CatClassifState* cc_state;
 	wxChoice* cur_cats_choice;
-	wxButton* copy_from_existing_button;
+	wxChoice* breaks_choice;
 	wxButton* change_title_button;
 	wxButton* delete_button;
-	wxSpinCtrl* num_cats_spin_ctrl;
+	wxChoice* num_cats_choice;
 	wxStaticText* min_lbl;
 	wxStaticText* max_lbl;
 	wxChoice* color_scheme;
-	wxString cur_field_choice;
-	int cur_field_choice_tm;
-	wxChoice* field_choice;
-	wxChoice* field_choice_tm;
+	wxChoice* assoc_var_choice;
+	wxChoice* assoc_var_tm_choice;
+	wxChoice* preview_var_choice;
+	wxChoice* preview_var_tm_choice;
+	wxCheckBox* sync_vars_chk;
+	wxStaticText* unif_dist_min_lbl;
+	wxTextCtrl* unif_dist_min_txt;
+	wxStaticText* unif_dist_max_lbl;
+	wxTextCtrl* unif_dist_max_txt;
+	wxCheckBox* auto_labels_cb;
 	wxSlider* brk_slider;
 	int last_brk_slider_pos;
-	std::vector<wxStaticBitmap*> cat_but;
-	std::vector<wxTextCtrl*> cat_txt;
+	std::vector<wxStaticBitmap*> cat_color_button;
+	std::vector<wxTextCtrl*> cat_title_txt;
 	std::vector<wxRadioButton*> brk_rad;
 	std::vector<wxStaticText*> brk_lbl;
 	std::vector<wxTextCtrl*> brk_txt;
-	std::vector<double> brk_slider_min;
-	std::vector<double> brk_slider_max;
+	
+	int num_obs;
+	Gda::dbl_int_pair_vec_type data;
+	CatClassifDef cc_data;
+	Gda::dbl_int_pair_vec_type preview_data;
+	
+	static const wxString unif_dist_txt;
+	static const int max_intervals;
+	static const int default_intervals;
+	static const double default_min;
+	static const double default_max;
+	
 	bool all_init;
+	bool unif_dist_mode;
 	
 	DECLARE_EVENT_TABLE()
 };
+
 
 class CatClassifFrame : public TemplateFrame
 {
@@ -226,40 +275,27 @@ public:
     CatClassifFrame(wxFrame *parent, Project* project,
 					const wxString& title = "Category Editor",
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GeoDaConst::cat_classif_default_size,
+					const wxSize& size = GdaConst::cat_classif_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
 	virtual ~CatClassifFrame();
 	
 	void OnActivate(wxActivateEvent& event);
-
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-
-	void OnThemeless(wxCommandEvent& event);
-	void OnQuantile(wxCommandEvent& event);
-	void OnPercentile(wxCommandEvent& event);
-	void OnHinge15(wxCommandEvent& event);
-	void OnHinge30(wxCommandEvent& event);
-	void OnStdDevMap(wxCommandEvent& event);
-	void OnUniqueValues(wxCommandEvent& event);
-	void OnNaturalBreaks(wxCommandEvent& event);
-	void OnEqualIntervals(wxCommandEvent& event);
+	void OnPreviewVarChoice(wxCommandEvent& event);
+	void OnPreviewVarTmChoice(wxCommandEvent& event);
+	void OnSyncVarsChk(wxCommandEvent& event);
+	
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
 							   int field_tm = 0);
-	void EditExisting(const wxString& cat_classif_title,
-					  const wxString& field_name = wxEmptyString,
-					  int field_tm = 0);
 	
 private:
-	void ChangeThemeType(CatClassification::CatClassifType new_theme);
-	
-	wxSplitterWindow* splitter;
 	CatClassifHistCanvas* canvas;
 	CatClassifPanel* panel;
-	
+
 	DECLARE_EVENT_TABLE()
 };
 

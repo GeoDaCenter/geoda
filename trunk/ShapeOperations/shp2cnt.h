@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,14 +23,20 @@
 #include <wx/filename.h>
 #include "GalWeight.h"
 #include <vector>
+#include "ShpFile.h"
 
 bool IsLineShapeFile(const wxString& fname);
 #define geoda_sqr(x) ( (x) * (x) )
 GalElement* HOContiguity(const int p, long obs, GalElement *W, bool Lag);
-GalElement* shp2gal(const wxString& fname, int criteria, bool save= true);
-bool SaveGal(const GalElement *full, const wxString& ifname, 
-			 const wxString& ofname, const wxString& vname,
-			 const std::vector<wxInt64>& id_vec);
+//GalElement* shp2gal(const wxString& fname, int criteria, bool save= true);
+GalElement* shp2gal(Shapefile::Main& main, int criteria, bool save= true,
+                    double precision_threshold=0.0);
+
+bool SaveGal(const GalElement *full, const wxString& layer_name, 
+			 const wxString& ifname, //<- no need to be file name 
+			 const wxString& vname, const std::vector<wxInt64>& id_vec);
+
+void DevFromMean(int, double*);
 
 
 #endif

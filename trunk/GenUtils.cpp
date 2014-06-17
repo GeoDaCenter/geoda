@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,17 +24,49 @@
 #include <sstream>
 #include <boost/math/distributions/students_t.hpp>
 #include <wx/dc.h>
-#include "GeoDaConst.h"
+#include <wx/msgdlg.h>
+#include "DataViewer/TableState.h"
+#include "GdaConst.h"
 #include "logger.h"
 #include "GenUtils.h"
 
 using namespace std;
 
+uint64_t Gda::ThomasWangHashUInt64(uint64_t key) {
+	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+	key = key ^ (key >> 24);
+	key = (key + (key << 3)) + (key << 8); // key * 265
+	key = key ^ (key >> 14);
+	key = (key + (key << 2)) + (key << 4); // key * 21
+	key = key ^ (key >> 28);
+	key = key + (key << 31);
+	return key;
+}
+
+double Gda::ThomasWangHashDouble(uint64_t key) {
+	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+	key = key ^ (key >> 24);
+	key = (key + (key << 3)) + (key << 8); // key * 265
+	key = key ^ (key >> 14);
+	key = (key + (key << 2)) + (key << 4); // key * 21
+	key = key ^ (key >> 28);
+	key = key + (key << 31);
+	return 5.42101086242752217E-20 * key;
+}
+
+GeoDaVarInfo::GeoDaVarInfo() : is_time_variant(false), time(0),
+min(1, 0), max(1, 0), sync_with_global_time(true), fixed_scale(true),
+is_ref_variable(false), time_min(0), time_max(0), min_over_time(0),
+max_over_time(0)
+{
+}
+
 // Sets all Secondary Attributes in GeoDaVarInfo based on Primary Attributes.
 // This method must be called whenever a Primary attribute of any item in the
 // GeoDaVarInfo vector changes.
-int GeoDa::UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info)
+int Gda::UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info)
 {
+	PrintVarInfoVector(var_info);
 	int num_vars = var_info.size();
 	int ref_var = -1;
 	for (int i=0; i<num_vars; i++) {
@@ -44,6 +76,7 @@ int GeoDa::UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info)
 		var_info[i].ref_time_offset = 0;
 		var_info[i].time_min = var_info[i].time;
 		var_info[i].time_max = var_info[i].time;
+		LOG(var_info[i].min.size());
 		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
 		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
 	}
@@ -79,9 +112,9 @@ int GeoDa::UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info)
 	return ref_var;
 }
 
-void GeoDa::PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info)
+void Gda::PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info)
 {
-	LOG_MSG("Entering GeoDa::PrintVarInfoVector");
+	LOG_MSG("Entering Gda::PrintVarInfoVector");
 	LOG(var_info.size());
 	for (int i=0; i<var_info.size(); i++) {
 		LOG_MSG("Primary Attributes:");
@@ -104,32 +137,32 @@ void GeoDa::PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info)
 		LOG(var_info[i].max_over_time);
 		LOG_MSG("\n");
 	}
-	LOG_MSG("Exiting GeoDa::PrintVarInfoVector");
+	LOG_MSG("Exiting Gda::PrintVarInfoVector");
 }
 
 /** Use with std::sort for sorting in ascending order */
-bool GeoDa::dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
+bool Gda::dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
 								  const dbl_int_pair_type& ind2)
 {
 	return ind1.first < ind2.first;
 }
 
 /** Use with std::sort for sorting in descending order */
-bool GeoDa::dbl_int_pair_cmp_greater(const dbl_int_pair_type& ind1,
+bool Gda::dbl_int_pair_cmp_greater(const dbl_int_pair_type& ind1,
 									 const dbl_int_pair_type& ind2)
 {
 	return ind1.first > ind2.first;
 }
 
 /** Use with std::sort for sorting in ascending order */
-bool GeoDa::dbl_int_pair_cmp_second_less(const dbl_int_pair_type& ind1,
+bool Gda::dbl_int_pair_cmp_second_less(const dbl_int_pair_type& ind1,
 										 const dbl_int_pair_type& ind2)
 {
 	return ind1.second < ind2.second;
 }
 
 /** Use with std::sort for sorting in descending order */
-bool GeoDa::dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
+bool Gda::dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 											const dbl_int_pair_type& ind2)
 {
 	return ind1.second > ind2.second;
@@ -137,7 +170,7 @@ bool GeoDa::dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 
 
 void HingeStats::CalculateHingeStats(
-							const std::vector<GeoDa::dbl_int_pair_type>& data)
+							const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	num_obs = data.size();
 	double N = num_obs;
@@ -183,7 +216,7 @@ void HingeStats::CalculateHingeStats(
 // percentile(1, v) = 15, percentile(10, v) = 15, percentile(11) = 15.25
 // percentile(50, v) = 35, percentile(89, v) = 49.5,
 // percentile(90, v) = 50, percentile(99, v) = 50
-double GeoDa::percentile(double x, const std::vector<double>& v)
+double Gda::percentile(double x, const std::vector<double>& v)
 {
 	int N = v.size();
 	double Nd = (double) N;
@@ -204,7 +237,7 @@ double GeoDa::percentile(double x, const std::vector<double>& v)
 }
 
 // Same assumptions as above
-double GeoDa::percentile(double x, const GeoDa::dbl_int_pair_vec_type& v)
+double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 {
 	int N = v.size();
 	double Nd = (double) N;
@@ -262,7 +295,7 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 
 /** We assume that the data has been sorted in ascending order */
 void SampleStatistics::CalculateFromSample(
-							const std::vector<GeoDa::dbl_int_pair_type>& data)
+							const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	sample_size = data.size();
 	if (sample_size == 0) return;
@@ -348,7 +381,7 @@ double SampleStatistics::CalcMean(const std::vector<double>& data)
 }
 
 double SampleStatistics::CalcMean(
-							const std::vector<GeoDa::dbl_int_pair_type>& data)
+							const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	if (data.size() == 0) return 0;
 	double total = 0;
@@ -639,6 +672,18 @@ bool GenUtils::LineSegsIntersect(const wxPoint& l1_p1, const wxPoint& l1_p2,
 			 CounterClockwise(l1_p1, l1_p2, l2_p2)));
 }
 
+wxString GenUtils::BoolToStr(bool b)
+{
+	return b ? "true" : "false";
+}
+
+bool GenUtils::StrToBool(const wxString& s)
+{
+	if (s.CmpNoCase("1") == 0) return true;
+	if (s.CmpNoCase("true") == 0) return true;
+	return false;
+}
+
 /** If input string has length < width, then prepends (or appends
  if pad_left=false) string with spaces so that total length is now width.
  If string length >= width, then returns original input string. */
@@ -764,13 +809,80 @@ wxString GenUtils::GetFileExt(const wxString& path)
 	return wxEmptyString;
 }
 
-wxString GenUtils::GetTheFileTitle(const wxString& path)
+wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 {
-	wxString strResult = GetFileName(path);
-	int pos = strResult.Find('.',true);
-	if (pos >= 0)
-		return strResult.Left(pos);
-	return strResult;
+	LOG_MSG("In GenUtils::RestorePath");
+	wxFileName path_fn(path);
+	if (path_fn.IsAbsolute()) return path;
+	if (!path_fn.IsOk()) return path;
+	wxFileName wd;
+	wxFileName prj_path_fn(proj_path);
+	if (prj_path_fn.GetExt().IsEmpty()) {
+		wd.AssignDir(proj_path);
+	} else {
+		wd.AssignDir(prj_path_fn.GetPath());
+	}
+	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute()) return path;
+	if (path_fn.MakeAbsolute(wd.GetPath())) {
+		if (path_fn.GetExt().IsEmpty()) {
+			LOG_MSG(path_fn.GetPath());
+			return path_fn.GetPath();
+		}
+		LOG_MSG(path_fn.GetFullPath());
+		return path_fn.GetFullPath();
+	}
+	return path;
+}
+
+wxString GenUtils::SimplifyPath(const wxString& proj_path, const wxString& path)
+{
+	LOG_MSG("Entering GenUtils::SimplifyPath(const wxString&, "
+			"const wxString&");
+	wxFileName wd; 
+        wxFileName proj_path_fn(proj_path); 
+	if (proj_path_fn.GetExt().IsEmpty()) {
+		wd.AssignDir(proj_path);
+	} else {
+		wd.AssignDir(proj_path_fn.GetPath());
+	}
+	LOG_MSG("Exiting GenUtils::SimplifyPath");
+	return GenUtils::SimplifyPath(wd, path);
+}
+
+wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
+{
+	LOG_MSG("Entering GenUtils::SimplifyPath(const wxFileName&, "
+			"const wxString&)");
+	LOG(wd.GetPath());
+	LOG(wd.GetFullPath());
+	LOG(wd.IsDir());
+	LOG(path);
+        wxFileName path_fn(path);
+	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute() ||
+		path_fn.IsRelative()) return path;
+	wxFileName p;
+	if (wxDirExists(path)) {
+		p.AssignDir(path);
+	} else {
+		p.Assign(path);
+	}
+	if (p.GetVolume() != wd.GetVolume()) return path;
+	wxArrayString p_dirs = p.GetDirs();
+	wxArrayString wd_dirs = wd.GetDirs();
+	if (p_dirs.size() < wd_dirs.size()) return path;
+	for (int i=0, sz=wd_dirs.size(); i<sz; ++i) {
+		if (p_dirs[i] != wd_dirs[i]) return path;
+	}
+	if (p.MakeRelativeTo(wd.GetPath())) {
+		if (p.IsDir()) {
+			LOG_MSG(p.GetPath());
+			return p.GetPath();
+		}
+		LOG_MSG(p.GetFullPath());
+		return p.GetFullPath();
+	}
+	LOG_MSG("Exiting GenUtils::SimplifyPath");
+	return path;
 }
 
 /*
@@ -816,8 +928,7 @@ void GenUtils::SkipTillNumber(std::istream &s)
 		if ((ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == '.')
 			break;
 	}
-	if (s.good())
-		s.putback(ch);
+	if (s.good()) s.putback(ch);
 }
 
 // This is an implementation of ltoa
@@ -825,7 +936,7 @@ void GenUtils::longToString(const long d, char* Id, const int base)
 {
 	int i = 0;
 	long j = d;
-	char rId[ GeoDaConst::ShpObjIdLen ];
+	char rId[ GdaConst::ShpObjIdLen ];
 	if (d == 0) {
 		Id[0] = '0';
 		Id[1] = '\0';
@@ -1011,3 +1122,70 @@ bool GenUtils::ExistsShpShxDbf(const wxFileName& fname, bool* shp_found,
 	return shp.FileExists() && shx.FileExists() && dbf.FileExists();
 }
 
+wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
+										bool cs)
+{
+	using namespace std;
+	int n=strings.size();
+	if (n == 0) return "";
+	vector<wxString> strs(strings);
+	if (!cs) for (int i=0; i<n; i++) strs[i].MakeLower();
+	wxString ref_str = strs[0];
+	for (int i=0; i<n; ++i) {
+		if (strs[i].length() < ref_str.length()) ref_str = strs[i];
+	}
+	int len = ref_str.length();
+	if (len == 0) return "";
+	// iterate over all possible substrings in ref_str starting from first
+	// position in ref_str, and starting with full ref_str.  Reduce length
+	// of substring to search each iteration.
+	for (int cur_len=len; cur_len > 0; --cur_len) {
+		for (int cur_pos=0; cur_pos <= len-cur_len; ++cur_pos) {
+			wxString ss = ref_str.substr(cur_pos, cur_len);
+			bool all_match = true; // substring found everywhere currently
+			for (int i=0; i<n && all_match; i++) {
+				if (strs[i].find(ss) == wxString::npos) all_match = false;
+			}
+			if (all_match) {
+				// common substring found.  Return unmodified (case-preserved)
+				// substring from first string
+				return strings[0].substr(strs[0].find(ss), cur_len);
+			}
+		}
+	}
+	return ""; // no substring match, return empty string.
+}
+
+bool GenUtils::CanModifyGrpAndShowMsgIfNot(TableState* table_state,
+											const wxString& grp_nm)
+{
+	int n = table_state->GetNumDisallowGroupModify(grp_nm);
+	if (n == 0) return true;
+	wxString msg(table_state->GetDisallowGroupModifyMsg(grp_nm));
+	wxMessageDialog dlg(NULL, msg, "Warning", wxOK | wxICON_WARNING);
+	dlg.ShowModal();
+	return false;
+}
+
+wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
+{
+	class HardBreakWrapper : public wxTextWrapper
+	{
+		public:
+		HardBreakWrapper(wxWindow *win, const wxString& text, int widthMax) {
+			Wrap(win, text, widthMax);
+		}
+		wxString const& GetWrapped() const { return m_wrapped; }
+		protected:
+		virtual void OnOutputLine(const wxString& line) {
+			m_wrapped += line;
+		}
+		virtual void OnNewLine() {
+			m_wrapped += '\n';
+		}
+		private:
+		wxString m_wrapped;
+	};
+	HardBreakWrapper wrapper(win, text, widthMax);
+	return wrapper.GetWrapped();
+}

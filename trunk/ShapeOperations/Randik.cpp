@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,29 +20,40 @@
 #include <time.h>
 #include "Randik.h"
 
-//*** Constructor for class Randik
-//*** Critical issue: a method generating a seed for the
-//                    random numbers generator.
-//*** Initialize member values
 Randik::Randik() : current(0), cohort(NULL) 
 {
 	cohort = new long [ cohortSize ];
 	if (cohort == NULL)  return;
-	int  aPerfectNumber = 0;
+	long aPerfectNumber = 0;
 	do {
-		time_t     timer= time( NULL );        // get a unique number
-		timer &= 0xffffff;                     // preserve a portion of it
-		aPerfectNumber = -timer;               // it is a negative number now
+		time_t timer= time( NULL ); // get a unique number
+		timer &= 0xffffff;          // preserve a portion of it
+		aPerfectNumber = -timer;    // it is a negative number now
 	}
-	while (aPerfectNumber == 0);             // sort out pathological zeros
-	Initialize( aPerfectNumber );            // initialize RNG with the seed
+	while (aPerfectNumber == 0);    // sort out pathological zeros
+	seed = aPerfectNumber;
+	Initialize( aPerfectNumber );   // initialize RNG with the seed
 }
 
-//** member function Initialize()
-//***  the seed has to be negative
-void Randik::Initialize(const long Seed)  {
+/** user_seed should be a value previsouly used by the
+ random number gen used in the default constructor.  Positive
+ values are automatically converted to negative. */
+Randik::Randik(long user_seed) : current(0), cohort(NULL) 
+{
+	cohort = new long [ cohortSize ];
+	if (cohort == NULL)  return;
+	int  aPerfectNumber = user_seed;
+	if (aPerfectNumber == 0) aPerfectNumber = -1;
+	if (aPerfectNumber > 0) aPerfectNumber = -aPerfectNumber;
+	seed = aPerfectNumber;
+	Initialize( aPerfectNumber );   // initialize RNG with the seed
+}
+
+
+/** The seed has to be negative */
+void Randik::Initialize(const long seed)  {
 	long mj, mk;
-	mj = MSEED + Seed;
+	mj = MSEED + seed;
 	mj %= MBIG;
 	cohort[0] = mj;
 	mk= 1;
@@ -68,18 +79,17 @@ void Randik::Initialize(const long Seed)  {
 	current = 0;
 }
 
-//** destructor
 Randik::~Randik()
 {
 	if (cohort) delete [] cohort; cohort = NULL;
 }
 
-//** Randik::Iterate()  Sign value to current and cohort[current] 
+/** Randik::Iterate()  Sign value to current and cohort[current] */
 void Randik::Iterate()  {
 	if (++current == cohortSize) current = 0;  // next element in the cohort
 	int k = current - (cohortSize - cohortStep);
 	if (k < 0) k += cohortSize;
-	long      mj = cohort[ current ] - cohort[ k ];
+	long mj = cohort[ current ] - cohort[ k ];
 	if (mj < 0) mj += MBIG;
 	cohort[ current ] = mj;
 }
@@ -91,8 +101,7 @@ inline void swapint(int &x, int &y)
 	y = z;
 }
 
-
-//** IndexSort(): Sort array value. Algorithm: QuickSort
+/** IndexSort(): Sort array value. Algorithm: QuickSort */
 void IndexSort(const long * value, int * index,
 			   const int lower, const int upper)  {
 	int   i= lower, j= upper;
@@ -108,42 +117,6 @@ void IndexSort(const long * value, int * index,
 	if (i < upper) IndexSort(value, index, i, upper);
 }
 
-//***  Generate a random permutation of 1...size
-//***
-int* Randik::Perm(const int size)  
-{
-	int* thePermutation = new int [ size ];
-	long* theRands = new long [ size ];
-	if (thePermutation == NULL || theRands == NULL)  {
-		if (thePermutation) delete [] thePermutation;
-		if (theRands) delete [] theRands;
-		return NULL;
-	}
-	bool    permOk = true;
-	do  {
-		int cnt;
-		for (cnt= 0; cnt < size; ++cnt)   // original permutation -- 0 permuts
-			thePermutation[ cnt ] = cnt;
-		for (cnt= 0; cnt < size; ++cnt)   // generate size random numbers
-			theRands[ cnt ] = lValue();
-		IndexSort(theRands, thePermutation, 0, size-1);
-		int     thePrevious= thePermutation[0];
-		for (cnt = 1; cnt < size; ++cnt)  {  // ascending order is IMPORTANT
-			const int theNext = thePermutation[cnt];
-			if (thePrevious == theNext)  {
-				permOk = false;       // bad, bad permutation
-				break;
-			}
-			thePrevious= theNext;
-		}
-	}
-	while (!permOk);                  // loop while the permutation is not good
-	delete [] theRands;
-	return thePermutation;
-}
-
-//***  Generate a random permutation of 1...size
-//***
 bool Randik::Perm(const int size, int* thePermutation, long* theRands)
 {
 	if (!thePermutation || !theRands) return false;
@@ -155,7 +128,7 @@ bool Randik::Perm(const int size, int* thePermutation, long* theRands)
 		for (cnt= 0; cnt < size; ++cnt)   // generate size random numbers
 			theRands[ cnt ] = lValue();
 		IndexSort(theRands, thePermutation, 0, size-1);
-		int     thePrevious= thePermutation[0];
+		int  thePrevious = thePermutation[0];
 		for (cnt = 1; cnt < size; ++cnt)  {  // ascending order is IMPORTANT
 			const int theNext = thePermutation[cnt];
 			if (thePrevious == theNext)  {
@@ -169,28 +142,7 @@ bool Randik::Perm(const int size, int* thePermutation, long* theRands)
 	return true;
 }
 
-void Randik::PermG(const int size, int* thePermutation)  
+long Randik::GetSeed()
 {
-	long * theRands = new long [ size ];
-	
-	bool    permOk = true;
-	do {
-		int cnt;
-		for (cnt= 0; cnt < size; ++cnt)   // original permutation -- 0 permuts
-			thePermutation[ cnt ] = cnt;
-		for (cnt= 0; cnt < size; ++cnt)   // generate size random numbers
-			theRands[ cnt ] = lValue();
-		IndexSort(theRands, thePermutation, 0, size-1);
-		int     thePrevious= thePermutation[0];
-		for (cnt = 1; cnt < size; ++cnt)  {  // ascending order is IMPORTANT
-			const int theNext = thePermutation[cnt];
-			if (thePrevious == theNext) {
-				permOk = false;       // bad, bad permutation
-				break;
-			}
-			thePrevious= theNext;
-		}
-	}
-	while (!permOk);                  // loop while the permutation is not good
-	delete [] theRands;
+	return seed < 0 ? -seed : seed;
 }

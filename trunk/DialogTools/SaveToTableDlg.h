@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,9 +25,10 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/dialog.h>
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 
-class DbfGridTableBase;
+class Project;
+class TableInterface;
 
 struct SaveToTableEntry
 {
@@ -40,13 +41,13 @@ struct SaveToTableEntry
 	// if type is double, then only show or allow double fields.  If type
 	// is long64 then show both fields, and create a long64 field if a new
 	// field is specified.
-	GeoDaConst::FieldType type;
+	GdaConst::FieldType type;
 };
 
 class SaveToTableDlg: public wxDialog
 {    
 public:
-    SaveToTableDlg( DbfGridTableBase* grid_base, wxWindow* parent,
+    SaveToTableDlg( Project* project, wxWindow* parent,
 				   const std::vector<SaveToTableEntry>& data,
 				   const wxString& title = "Save Results", 
 				   const wxPoint& pos = wxDefaultPosition,
@@ -81,7 +82,8 @@ private:
 
 	std::vector< std::vector<int> > col_id_maps;
 	
-	DbfGridTableBase* grid_base;
+	Project* project;
+	TableInterface* table_int;
 	
 	DECLARE_EVENT_TABLE()
 };

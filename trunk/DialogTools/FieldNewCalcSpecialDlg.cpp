@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,8 +27,10 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include "../GenUtils.h"
 #include "../Project.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../logger.h"
 #include "FieldNewCalcSpecialDlg.h"
@@ -52,15 +54,16 @@ BEGIN_EVENT_TABLE( FieldNewCalcSpecialDlg, wxPanel )
 			   FieldNewCalcSpecialDlg::OnSpecialOperand2Updated )
 END_EVENT_TABLE()
 
-FieldNewCalcSpecialDlg::FieldNewCalcSpecialDlg(Project* project,
+FieldNewCalcSpecialDlg::FieldNewCalcSpecialDlg(Project* project_s,
 											   wxWindow* parent,
 											   wxWindowID id,
 											   const wxString& caption, 
 											   const wxPoint& pos,
 											   const wxSize& size,
 											   long style )
-: all_init(false), op_string(3), grid_base(project->GetGridBase()),
-is_space_time(project->GetGridBase()->IsTimeVariant())
+: all_init(false), op_string(3), project(project_s),
+table_int(project_s->GetTableInt()),
+is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
     CreateControls();
@@ -110,6 +113,10 @@ void FieldNewCalcSpecialDlg::Apply()
 	}
 	int result_col = col_id_map[m_result->GetSelection()];
 
+	TableState* ts = project->GetTableState();
+	wxString grp_nm = table_int->GetColName(result_col);
+	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	
 	int op_sel = m_op->GetSelection();
 	
 	if (!m_var1_valid || !m_var2_valid) {
@@ -127,16 +134,17 @@ void FieldNewCalcSpecialDlg::Apply()
 
 	std::vector<int> time_list;
 	if (IsAllTime(result_col, m_result_tm->GetSelection())) {
-		time_list.resize(grid_base->time_steps);
-		for (int i=0; i<grid_base->time_steps; i++) time_list[i] = i;
+		int ts = project->GetTableInt()->GetTimeSteps();
+		time_list.resize(ts);
+		for (int i=0; i<ts; i++) time_list[i] = i;
 	} else {
 		int tm = IsTimeVariant(result_col) ? m_result_tm->GetSelection() : 0;
 		time_list.resize(1);
 		time_list[0] = tm;
 	}
 	
-	std::vector<double> data(grid_base->GetNumberRows(), 0);
-	std::vector<bool> undefined(grid_base->GetNumberRows(), false);
+	std::vector<double> data(table_int->GetNumberRows(), 0);
+	std::vector<bool> undefined(table_int->GetNumberRows(), false);
 	for (int t=0; t<time_list.size(); t++) {
 		switch (m_op->GetSelection()) {
 			case normal_rand:
@@ -145,7 +153,7 @@ void FieldNewCalcSpecialDlg::Apply()
 													   m_var2_const);
 				boost::variate_generator<boost::mt19937&,
 				boost::normal_distribution<> > X(rng, norm_dist);
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					data[i] = X();
 				}
 			}
@@ -153,14 +161,14 @@ void FieldNewCalcSpecialDlg::Apply()
 			case uniform_rand:
 			{
 				static boost::uniform_01<boost::mt19937> X(rng);
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					data[i] = X();
 				}
 			}
 				break;
 			case enumerate:
 			{
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					data[i] = (double) i+1;
 				}
 			}
@@ -169,10 +177,10 @@ void FieldNewCalcSpecialDlg::Apply()
 				return;
 				break;
 		}
-		grid_base->col_data[result_col]->SetFromVec(data, time_list[t]);
-		grid_base->col_data[result_col]->SetUndefined(undefined, time_list[t]);
+		table_int->SetColData(result_col, time_list[t], data);
+		table_int->SetColUndefined(result_col, time_list[t], undefined);
+
 	}
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
 }
 
 
@@ -183,15 +191,15 @@ void FieldNewCalcSpecialDlg::InitFieldChoices()
 	int prev_cnt = m_result->GetCount();
 	m_result->Clear();
 
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 	wxString t;
 	if (is_space_time) t << " (" << m_result_tm->GetStringSelection() << ")";
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		if (is_space_time &&
-			grid_base->col_data[col_id_map[i]]->time_steps > 1) {
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name + t);
+			table_int->GetColTimeSteps(col_id_map[i]) > 1) {
+			m_result->Append(table_int->GetColName(col_id_map[i]) + t);
 		} else {
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name);
+			m_result->Append(table_int->GetColName(col_id_map[i]));
 		}
 	}
 	
@@ -257,14 +265,14 @@ void FieldNewCalcSpecialDlg::Display()
 bool FieldNewCalcSpecialDlg::IsTimeVariant(int col_id)
 {
 	if (!is_space_time) return false;
-	return (grid_base->IsColTimeVariant(col_id));
+	return (table_int->IsColTimeVariant(col_id));
 }
 
 bool FieldNewCalcSpecialDlg::IsAllTime(int col_id, int tm_sel)
 {
 	if (!is_space_time) return false;
-	if (!grid_base->IsColTimeVariant(col_id)) return false;
-	return tm_sel == grid_base->time_steps;
+	if (!table_int->IsColTimeVariant(col_id)) return false;
+	return tm_sel == project->GetTableInt()->GetTimeSteps();
 }
 
 void FieldNewCalcSpecialDlg::OnSpecialResultUpdated( wxCommandEvent& event )
@@ -310,11 +318,11 @@ void FieldNewCalcSpecialDlg::OnSpecialOperand2Updated( wxCommandEvent& event )
 
 void FieldNewCalcSpecialDlg::OnAddColumnClick( wxCommandEvent& event )
 {
-	DataViewerAddColDlg dlg(grid_base, this);
+	DataViewerAddColDlg dlg(project, this);
 	if (dlg.ShowModal() != wxID_OK) return;
 	InitFieldChoices();
 	wxString sel_str = dlg.GetColName();
-	if (grid_base->col_data[dlg.GetColId()]->time_steps > 1) {
+	if (table_int->GetColTimeSteps(dlg.GetColId()) > 1) {
 		sel_str << " (" << m_result_tm->GetStringSelection() << ")";
 	}
 	m_result->SetSelection(m_result->FindString(sel_str));
@@ -325,13 +333,13 @@ void FieldNewCalcSpecialDlg::OnAddColumnClick( wxCommandEvent& event )
 void FieldNewCalcSpecialDlg::InitTime(wxChoice* time_list)
 {
 	time_list->Clear();
-	for (int i=0; i<grid_base->time_steps; i++) {
+	for (int i=0; i<project->GetTableInt()->GetTimeSteps(); i++) {
 		wxString t;
-		t << grid_base->time_ids[i];
+		t << project->GetTableInt()->GetTimeString(i);
 		time_list->Append(t);
 	}
 	time_list->Append("all times");
-	time_list->SetSelection(grid_base->time_steps);
+	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
 	time_list->Disable();
 	time_list->Show(is_space_time);
 }

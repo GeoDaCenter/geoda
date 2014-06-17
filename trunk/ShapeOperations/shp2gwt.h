@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -44,7 +44,7 @@ GwtElement* shp2gwt(int Obs, std::vector<double>& x, std::vector<double>& y,
 					int method);
 
 bool WriteGwt(const GwtElement *g,
-			  const wxString& ifname, const wxString& ofname, 
+			  const wxString& layer_name, const wxString& ofname, 
 			  const wxString& vname, const std::vector<wxInt64>& id_vec,
 			  const int degree, bool gl);
 

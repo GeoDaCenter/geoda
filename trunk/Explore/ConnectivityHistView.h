@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,9 +25,9 @@
 #include "CatClassification.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class GalWeight;
 class ConnectivityHistCanvas;
@@ -77,14 +77,14 @@ protected:
 	bool has_isolates;
 	int num_isolates;
 	std::vector<int> connectivity;
-	GeoDa::dbl_int_pair_vec_type data_sorted;
+	Gda::dbl_int_pair_vec_type data_sorted;
 	SampleStatistics data_stats;
 	HingeStats hinge_stats;
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
-	MyAxis* x_axis;
-	MyAxis* y_axis;
+	GdaAxis* x_axis;
+	GdaAxis* y_axis;
 
 	bool show_axes;
 	bool display_stats;
@@ -117,7 +117,7 @@ public:
     ConnectivityHistFrame(wxFrame *parent, Project* project, GalWeight* gal,
 						  const wxString& title = "Connectivity Histogram",
 						  const wxPoint& pos = wxDefaultPosition,
-						  const wxSize& size = GeoDaConst::hist_default_size,
+						  const wxSize& size = GdaConst::hist_default_size,
 						  const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~ConnectivityHistFrame();
 	
@@ -127,10 +127,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);

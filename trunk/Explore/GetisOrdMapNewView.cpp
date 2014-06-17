@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -19,10 +19,12 @@
 
 #include "GetisOrdMapNewView.h"
 
+#include <limits>
 #include <vector>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -49,8 +51,10 @@ GetisOrdMapNewCanvas::GetisOrdMapNewCanvas(wxWindow *parent,
 										   bool row_standardize_s,
 										   const wxPoint& pos,
 										   const wxSize& size)
-: MapNewCanvas(parent, t_frame, project, CatClassification::no_theme,
-			   no_smoothing, pos, size),
+: MapNewCanvas(parent, t_frame, project,
+			   std::vector<GeoDaVarInfo>(0), std::vector<int>(0),
+			   CatClassification::no_theme,
+			   no_smoothing, 1, pos, size),
 gs_coord(gs_coordinator),
 is_gi(is_gi_s), is_clust(is_clust_s), is_perm(is_perm_s),
 row_standardize(row_standardize_s)
@@ -67,6 +71,10 @@ row_standardize(row_standardize_s)
 	
 	// must set var_info times from GStatCoordinator initially
 	var_info = gs_coord->var_info;
+	template_frame->ClearAllGroupDependencies();
+	for (int t=0, sz=var_info.size(); t<sz; ++t) {
+		template_frame->AddGroupDependancy(var_info[t].name);
+	}
 	CreateAndUpdateCategories();
 	
 	LOG_MSG("Exiting GetisOrdMapNewCanvas::GetisOrdMapNewCanvas");
@@ -81,6 +89,10 @@ GetisOrdMapNewCanvas::~GetisOrdMapNewCanvas()
 void GetisOrdMapNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering GetisOrdMapNewCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((GetisOrdMapNewFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
@@ -137,14 +149,17 @@ void GetisOrdMapNewCanvas::SetCheckMarks(wxMenu* menu)
 								  sig_filter == 3);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
 								  sig_filter == 4);
+	
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
+								  gs_coord->IsReuseLastSeed());
 }
 
-void GetisOrdMapNewCanvas::TitleOrTimeChange()
+void GetisOrdMapNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering GetisOrdMapNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering GetisOrdMapNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -168,7 +183,7 @@ void GetisOrdMapNewCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting GetisOrdMapNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting GetisOrdMapNewCanvas::TimeChange");
 }
 
 /** Update Categories based on info in GStatCoordinator */
@@ -321,7 +336,11 @@ void GetisOrdMapNewCanvas::SyncVarInfoFromCoordinator()
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
 	var_info = gs_coord->var_info;
-	for (int t=0; t<var_info.size(); t++) var_info[t].time = my_times[t];
+	template_frame->ClearAllGroupDependencies();
+	for (int t=0; t<var_info.size(); t++) {
+		var_info[t].time = my_times[t];
+		template_frame->AddGroupDependancy(var_info[t].name);
+	}
 	is_any_time_variant = gs_coord->is_any_time_variant;
 	is_any_sync_with_global_time = gs_coord->is_any_sync_with_global_time;
 	ref_var_index = gs_coord->ref_var_index;
@@ -352,7 +371,9 @@ row_standardize(row_standardize_s)
 	LOG(width);
 	LOG(height);
 	
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this);
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+        wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
 	is_gi = (map_type == Gi_clus_perm || map_type == Gi_clus_norm ||
@@ -362,24 +383,38 @@ row_standardize(row_standardize_s)
 	is_perm = (map_type == Gi_clus_perm || map_type == Gi_sig_perm ||
 			   map_type == GiStar_clus_perm || map_type == GiStar_sig_perm);
 	
-	template_canvas = new GetisOrdMapNewCanvas(splitter_win, this, project,
+    wxPanel* rpanel = new wxPanel(splitter_win);
+	template_canvas = new GetisOrdMapNewCanvas(rpanel, this, project,
 											   gs_coordinator,
 											   is_gi, is_clust, is_perm,
 											   row_standardize,
 											   wxDefaultPosition,
 											   wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	
-	template_legend = new MapNewLegend(splitter_win, template_canvas,
+    wxPanel* lpanel = new wxPanel(splitter_win);
+	template_legend = new MapNewLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
-	
-	splitter_win->SplitVertically(template_legend, template_canvas,
-								  GeoDaConst::map_default_legend_width);
+	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+	splitter_win->SplitVertically(lpanel, rpanel,
+								  GdaConst::map_default_legend_width);
 	
 	gs_coord->registerObserver(this);
-	
+    
+	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
+    DisplayStatusBar(true);
 	Show(true);
 	LOG_MSG("Exiting GetisOrdMapNewFrame::GetisOrdMapNewFrame");
 }
@@ -404,7 +439,7 @@ void GetisOrdMapNewFrame::OnActivate(wxActivateEvent& event)
 void GetisOrdMapNewFrame::MapMenus()
 {
 	LOG_MSG("In GetisOrdMapNewFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 	LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
@@ -418,7 +453,7 @@ void GetisOrdMapNewFrame::MapMenus()
 void GetisOrdMapNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("GetisOrdMapNewFrame::UpdateOptionMenuItems: "
@@ -475,6 +510,42 @@ void GetisOrdMapNewFrame::OnRanOtherPer(wxCommandEvent& event)
 		long num;
 		dlg.m_number->GetValue().ToLong(&num);
 		RanXPer(num);
+	}
+}
+
+void GetisOrdMapNewFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+{
+	gs_coord->SetReuseLastSeed(!gs_coord->IsReuseLastSeed());
+}
+
+void GetisOrdMapNewFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+{
+	uint64_t last_seed = gs_coord->GetLastUsedSeed();
+	wxString m;
+	m << "The last seed used by the pseudo random\nnumber ";
+	m << "generator was " << last_seed << ".\n";
+	m << "Enter a seed value to use between\n0 and ";
+	m << std::numeric_limits<uint64_t>::max() << ".";
+	long long unsigned int val;
+	wxString dlg_val;
+	wxString cur_val;
+	cur_val << last_seed;
+	
+	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	if (dlg.ShowModal() != wxID_OK) return;
+	dlg_val = dlg.GetValue();
+	dlg_val.Trim(true);
+	dlg_val.Trim(false);
+	if (dlg_val.IsEmpty()) return;
+	if (dlg_val.ToULongLong(&val)) {
+		if (!gs_coord->IsReuseLastSeed()) gs_coord->SetLastUsedSeed(true);
+		uint64_t new_seed_val = val;
+		gs_coord->SetLastUsedSeed(new_seed_val);
+	} else {
+		wxString m;
+		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
 	}
 }
 
@@ -552,34 +623,34 @@ void GetisOrdMapNewFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	data[data_i].d_val = &g_val;
 	data[data_i].label = g_label;
 	data[data_i].field_default = g_field_default;
-	data[data_i].type = GeoDaConst::double_type;
+	data[data_i].type = GdaConst::double_type;
 	data_i++;
 	data[data_i].l_val = &c_val;
 	data[data_i].label = c_label;
 	data[data_i].field_default = c_field_default;
-	data[data_i].type = GeoDaConst::long64_type;
+	data[data_i].type = GdaConst::long64_type;
 	data_i++;
 	if (!is_perm) {
 		data[data_i].d_val = &z_val;
 		data[data_i].label = "z-score";
 		data[data_i].field_default = "Z_SCR";
-		data[data_i].type = GeoDaConst::double_type;
+		data[data_i].type = GdaConst::double_type;
 		data_i++;
 	}
 	data[data_i].d_val = &p_val;
 	data[data_i].label = p_label;
 	data[data_i].field_default = p_field_default;
-	data[data_i].type = GeoDaConst::double_type;
+	data[data_i].type = GdaConst::double_type;
 	data_i++;
 	
-	SaveToTableDlg dlg(project->GetGridBase(), this, data, title,
+	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
 void GetisOrdMapNewFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
-	HighlightState* highlight_state = project->highlight_state;
+	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();

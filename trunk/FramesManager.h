@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -37,9 +37,9 @@ public:
 	}
 	int getNumberObservers() { return observers.size(); }
 	
-	virtual void registerObserver(FramesManagerObserver* o);
-	virtual void removeObserver(FramesManagerObserver* o);
-	virtual void notifyObservers();
+	void registerObserver(FramesManagerObserver* o);
+	void removeObserver(FramesManagerObserver* o);
+	void notifyObservers();
 	
 private:
 	/** The list of registered FramesManagerObserver objects. */

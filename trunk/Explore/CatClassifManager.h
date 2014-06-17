@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,18 +22,39 @@
 
 #include <list>
 #include <vector>
+#include <map>
+#include "../DataViewer/CustomClassifPtree.h"
+#include "../DataViewer/TableStateObserver.h"
+#include "CatClassification.h"
 #include "CatClassifState.h"
 
-class CatClassifManager {
+class TableState;
+class TableInterface;
+
+class CatClassifManager : public TableStateObserver {
 public:
-	CatClassifManager();
+	CatClassifManager(TableInterface* table_int,
+					  TableState* table_state, CustomClassifPtree* cc_ptree);
 	virtual ~CatClassifManager();
 	void GetTitles(std::vector<wxString>& titles);
 	CatClassifState* FindClassifState(const wxString& title);
+	/** Create and return a new CatClassifState object and associate
+	 with a default variable db field name.  If the name is blank,
+	 then no default preview variable associated. */
 	CatClassifState* CreateNewClassifState(const CatClassifDef& cc_data);
 	void RemoveClassifState(CatClassifState* ccs);
+	bool VerifyAgainstTable();
+	
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
+	
 private:
 	std::list<CatClassifState*> classif_states;
+	TableInterface* table_int;
+	TableState* table_state;
 };
 
 #endif

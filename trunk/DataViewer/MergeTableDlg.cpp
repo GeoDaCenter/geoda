@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,14 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <set>
+#include <map>
+#include <vector>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/button.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
 #include "MergeTableDlg.h"
+#include "DataSource.h"
+#include "DbfColContainer.h"
+#include "TableBase.h"
+#include "TableInterface.h"
 #include "../ShapeOperations/DbfFile.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../ShapeOperations/OGRLayerProxy.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
+#include "../DialogTools/ConnectDatasourceDlg.h"
+#include "../DialogTools/FieldNameCorrectionDlg.h"
+#include "../logger.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_RADIOBUTTON( XRCID("ID_KEY_VAL_RB"), MergeTableDlg::OnKeyValRB )
@@ -44,22 +55,25 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), MergeTableDlg::OnCloseClick )
 END_EVENT_TABLE()
 
-MergeTableDlg::MergeTableDlg(DbfGridTableBase* grid_base_s,
-							 const wxPoint& pos)
-: dbf_reader(0), grid_base(grid_base_s)
+using namespace std;
+
+MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
+: table_int(_table_int)
 {
 	SetParent(NULL);
-	grid_base->FillColIdMap(col_id_map);
+	//table_int->FillColIdMap(col_id_map);
 	CreateControls();
 	Init();
-	SetTitle("Merge - " + grid_base->GetDbfNameNoExt());
+	wxString nm;
+	SetTitle("Merge - " + table_int->GetTableName());
 	SetPosition(pos);
     Centre();
 }
 
 MergeTableDlg::~MergeTableDlg()
 {
-	if (dbf_reader) delete dbf_reader;
+    //delete merge_datasource_proxy;
+    //merge_datasource_proxy = NULL;
 }
 
 void MergeTableDlg::CreateControls()
@@ -83,13 +97,30 @@ void MergeTableDlg::CreateControls()
 
 void MergeTableDlg::Init()
 {
+	vector<wxString> col_names;
 	table_fnames.clear();
-	for (int i=0, iend=grid_base->col_data.size(); i<iend; i++) {
-		wxString n = grid_base->col_data[col_id_map[i]]->name;
-		n.MakeUpper();
-		m_current_key->Append(n);
-		table_fnames.insert(n);
-	}
+	// get the field names from table interface
+    set<wxString> field_name_set;
+    int time_steps = table_int->GetTimeSteps();
+    int n_fields   = table_int->GetNumberCols();
+    for (int cid=0; cid<n_fields; cid++) {
+        wxString group_name = table_int->GetColName(cid);
+        table_fnames.insert(group_name);
+        for (int i=0; i<time_steps; i++) {
+            GdaConst::FieldType field_type = table_int->GetColType(cid,i);
+            wxString field_name = table_int->GetColName(cid, i);
+            // only String, Integer can be keys for merging
+            if ( field_type == GdaConst::long64_type ||
+                field_type == GdaConst::string_type )
+            {
+                if ( field_name_set.count(field_name) == 0) {
+                    m_current_key->Append(field_name);
+                    field_name_set.insert(field_name);
+                }
+            }
+            table_fnames.insert(field_name);
+        }
+    }
 	UpdateMergeButton();
 }
 
@@ -105,70 +136,51 @@ void MergeTableDlg::OnRecOrderRB( wxCommandEvent& ev )
 
 void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 {
-    wxFileDialog dlg( this, "DBF File To Merge", wxEmptyString,
-					 wxEmptyString, "DBF files (*.dbf)|*.dbf",
-					 wxFD_OPEN|wxFD_FILE_MUST_EXIST );
-	
-	if (dlg.ShowModal() == wxID_CANCEL) {
-		return;
-	}
-	RemoveDbfReader();
-	// GetPath returns the path and the file name + ext
-	dbf_reader = new DbfFileReader(dlg.GetPath());
-	if (!dbf_reader || !dbf_reader->isDbfReadSuccess()) {
-		wxString msg("There was a problem reading the DBF file.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+    try {
+        ConnectDatasourceDlg dlg(this);
+        if (dlg.ShowModal() != wxID_OK) return;
+        
+        wxString proj_title = dlg.GetProjectTitle();
+        wxString layer_name = dlg.GetLayerName();
+        IDataSource* datasource = dlg.GetDataSource();
+        wxString datasource_name = datasource->GetOGRConnectStr();
+       
+        //XXX: ToStdString() needs to take care of weird file path
+        merge_datasource_proxy =
+            new OGRDatasourceProxy(datasource_name.ToStdString(), true);
+        merge_layer_proxy =
+            merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
+        merge_layer_proxy->ReadData();
+        m_input_file_name->SetValue(layer_name);
+        
+        // get the unique field names, and fill to m_import_key (wxChoice)
+        map<wxString, int> dbf_fn_freq;
+        dups.clear();
+        dedup_to_id.clear();
+        for (int i=0, iend=merge_layer_proxy->GetNumFields(); i<iend; i++) {
+            GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
+            wxString name = merge_layer_proxy->GetFieldName(i);
+            wxString dedup_name = name;
+            if (dbf_fn_freq.find(name) != dbf_fn_freq.end()) {
+                dedup_name << " (" << dbf_fn_freq[name]++ << ")";
+            } else {
+                dbf_fn_freq[name] = 1;
+            }
+            dups.insert(dedup_name);
+            dedup_to_id[dedup_name] = i; // map to DBF col id
+            if ( field_type == GdaConst::long64_type ||
+                 field_type == GdaConst::string_type )
+            {
+                m_import_key->Append(dedup_name);
+            }
+            m_exclude_list->Append(dedup_name);
+        }
+        
+    }catch(GdaException& e) {
+        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-		RemoveDbfReader();
-		return;
-	}
-	if (dbf_reader->getNumRecords() != grid_base->GetNumberRows()) {
-		wxString msg("The selected DBF file contains ");
-		msg << dbf_reader->getNumRecords() << " while the current Table ";
-		msg << "contains " << grid_base->GetNumberRows();
-		msg << " records. Please choose a DBF file with ";
-		msg << grid_base->GetNumberRows() << " records.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		RemoveDbfReader();
-		return;
-	}
-	m_input_file_name->SetValue(dbf_reader->getFileName());
-	
-	std::map<wxString, int> dbf_fn_freq;
-	dups.clear();
-	dedup_to_id.clear();
-	for (int i=0, iend=dbf_reader->getNumFields(); i<iend; i++) {
-		wxString name = dbf_reader->getFieldDesc(i).name.Upper();
-		if (dbf_fn_freq.find(name) != dbf_fn_freq.end()) {
-			dbf_fn_freq[name]++;
-		} else {
-			dbf_fn_freq[name] = 1;
-		}
-	}
-
-	for (std::map<wxString, int>::iterator it=dbf_fn_freq.begin();
-		 it!=dbf_fn_freq.end(); it++) {
-		if ((*it).second > 1) dups.insert((*it).first);
-	}
-	
-	std::map<wxString, int> dups_cntr;
-	for (std::set<wxString>::iterator it=dups.begin(); it!=dups.end(); it++) {
-		dups_cntr[(*it)] = 1;
-	}
-	
-	dups.clear();
-	for (int i=0, iend=dbf_reader->getNumFields(); i<iend; i++) {
-		wxString name = dbf_reader->getFieldDesc(i).name.Upper();
-		wxString dedup_name = name;
-		if (dbf_fn_freq[name] > 1) {
-			dedup_name << " (" << dups_cntr[name]++ << ")";
-			dups.insert(dedup_name);
-		}
-		dedup_to_id[dedup_name] = i; // map to DBF col id
-		m_import_key->Append(dedup_name);
-		m_exclude_list->Append(dedup_name);
-	}
+        return;
+    }
 }
 
 void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)
@@ -177,7 +189,6 @@ void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)
 		m_include_list->Append(m_exclude_list->GetString(i));
 	}
 	m_exclude_list->Clear();
-
 	UpdateMergeButton();
 }
 
@@ -220,213 +231,203 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-wxString MergeTableDlg::getValidName(const std::map<wxString,int>& fname_to_id,
-									 const std::set<wxString>& table_fnames,
-									 const wxString& fname)
-{
-	wxString new_fname = fname;
-	bool done = false;
-	while (!done) {
-		wxString msg;
-		msg << "Field name \"" << new_fname << "\" is either a duplicate\n";
-		msg << "or is invalid. Please enter an alternative, non-duplicate\n";
-		msg << "field name. A valid field name is between one and ten\n";
-		msg << "characters long. The first character must be a letter,\n";
-		msg << "and the remaining characters can be either letters,\n";
-		msg << "numbers or underscores.";
 
-		wxTextEntryDialog dlg(this, msg, "Rename Field");
-		if (dlg.ShowModal() == wxID_OK) {
-			new_fname = dlg.GetValue().Upper();
-			new_fname.Trim(false);
-			new_fname.Trim(true);
-			if (DbfFileUtils::isValidFieldName(new_fname) &&
-				table_fnames.find(new_fname) == table_fnames.end() &&
-				fname_to_id.find(new_fname) == fname_to_id.end())
-			{
-				done = true;
-			}
-		} else {
-			new_fname = wxEmptyString;
-			done = true;
-		}
-	}
-	return new_fname;
+void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
+                              map<wxString, int>& key_map)
+{
+    for (int i=0, iend=key_vec.size(); i<iend; i++) {
+        key_vec[i].Trim(false);
+        key_vec[i].Trim(true);
+        key_map[key_vec[i]] = i;
+    }
+	
+    if (key_vec.size() != key_map.size()) {
+        wxString msg;
+        msg << "Chosen table merge key field " << key_name;
+        msg << " contains duplicate values. Key fields must contain all ";
+        msg << "unique values.";
+        throw GdaException(msg.mb_str());
+    }
+}
+
+vector<wxString> MergeTableDlg::
+GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
+{
+    vector<wxString> merged_field_names;
+    set<wxString> dup_merged_field_names, bad_merged_field_names;
+
+    for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
+        wxString inc_n = m_include_list->GetString(i);
+        merged_field_names.push_back(inc_n);
+        if (table_fnames.find(inc_n) != table_fnames.end())
+            dup_merged_field_names.insert(inc_n);
+        else if (!table_int->IsValidDBColName(inc_n))
+            bad_merged_field_names.insert(inc_n);
+    }
+    
+    if ( bad_merged_field_names.size() + dup_merged_field_names.size() > 0) {
+        // show a field name correction dialog
+        GdaConst::DataSourceType ds_type = table_int->GetDataSourceType();
+        FieldNameCorrectionDlg fc_dlg(ds_type, merged_fnames_dict,
+                                      merged_field_names,
+                                      dup_merged_field_names,
+                                      bad_merged_field_names);
+        if ( fc_dlg.ShowModal() != wxID_OK ) 
+            merged_field_names.clear();
+        else
+            merged_fnames_dict = fc_dlg.GetMergedFieldNameDict();
+    }
+    return merged_field_names;
 }
 
 void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 {
-	//id_map: map from the ith row of the imported DBF to a row in the Table
-	std::vector<int> id_map(grid_base->GetNumberRows());
-	for (int i=0, iend=id_map.size(); i<iend; i++) id_map[i] = i;
-
-	if (m_key_val_rb->GetValue()==1) {
-		int key1_id = m_current_key->GetSelection();
-		int key2_id = m_import_key->GetSelection();
-		wxString key1_name = m_current_key->GetString(key1_id);
-		wxString key2_name = m_import_key->GetString(key2_id);
-	
-		DbfColContainer& col1 = *(grid_base->col_data[col_id_map[key1_id]]);
-		DbfColContainer col2(*dbf_reader, key2_id, grid_base);
-		if (col1.type != col2.type) {
-			wxString msg;
-			msg << "Chosen merge key field " << key1_name << " and ";
-			msg << key2_name << " are not of the same type.  Please choose ";
-			msg << "compatible merge key fields.";
-			wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;
-		}
-	
-		std::vector<wxString> key1_vec;
-		std::map<wxString,int> key1_map;
-		col1.GetVec(key1_vec);
-		for (int i=0, iend=key1_vec.size(); i<iend; i++) {
-			key1_vec[i].Trim(false);
-			key1_vec[i].Trim(true);
-			key1_map[key1_vec[i]] = i;
-		}
-	
-		if (key1_vec.size() != key1_map.size()) {
-			wxString msg;
-			msg << "Chosen table merge key field " << key1_name;
-			msg << " contains duplicate values. Key fields must contain all ";
-			msg << "unique values.";
-			wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;		
-		}
-	
-		std::vector<wxString> key2_vec;
-		std::set<wxString> key2_set;
-		col2.GetVec(key2_vec);
-		for (std::vector<wxString>::iterator it=key2_vec.begin();
-			 it!=key2_vec.end(); it++) {
-			(*it).Trim(false);
-			(*it).Trim(true);
-			key2_set.insert(*it);
-		}
-	
-		if (key2_vec.size() != key2_set.size()) {
-			wxString msg;
-			msg << "Chosen DBF merge key field " << key2_name;
-			msg << " contains duplicate values. Key fields must contain all ";
-			msg << "unique values.";
-			wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;		
-		}
-	
-		std::map<wxString,int>::iterator key1_it;
-		for (int i=0, iend = key2_vec.size(); i<iend; i++) {
-			key1_it = key1_map.find(key2_vec[i]);
-			if (key1_it == key1_map.end()) {
-				wxString msg;
-				msg << "The set of values in the two chosen key fields do ";
-				msg << "not match exactly.  Please choose keys with matching ";
-				msg << "sets of values.";
-				wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-				dlg.ShowModal();
-				return;
-			}
-			id_map[i] = (*key1_it).second;
-		}
+    try {
+        wxString error_msg;
+        
+        // get selected field names from merging table
+        map<wxString, wxString> merged_fnames_dict;
+        for (set<wxString>::iterator it = table_fnames.begin();
+             it != table_fnames.end(); ++it ) {
+             merged_fnames_dict[ *it ] = *it;
+        }
+        vector<wxString> merged_field_names =
+            GetSelectedFieldNames(merged_fnames_dict);
+        
+        if (merged_field_names.empty()) return;
+        
+        int n_rows = table_int->GetNumberRows();
+        int n_merge_field = merged_field_names.size();
+       
+        map<int, int> rowid_map;
+        // check merge by key/record order
+        if (m_key_val_rb->GetValue()==1) {
+            // get and check keys from original table
+            int key1_id = m_current_key->GetSelection();
+            wxString key1_name = m_current_key->GetString(key1_id);
+            int col1_id = table_int->FindColId(key1_name);
+            if (table_int->IsColTimeVariant(col1_id)) {
+                error_msg = "Chosen key field '";
+                error_msg << key1_name << "' is a time variant. Please choose "
+                << "a non-time variant field as key.";
+                throw GdaException(error_msg.mb_str());
+            }
+            vector<wxString> key1_vec;
+            vector<wxInt64>  key1_l_vec;
+            map<wxString,int> key1_map;
+            if ( table_int->GetColType(col1_id, 0) == GdaConst::string_type ) {
+                table_int->GetColData(col1_id, 0, key1_vec);
+            }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
+                table_int->GetColData(col1_id, 0, key1_l_vec);
+            }
+            if (key1_vec.empty()) {
+                for( int i=0; i< key1_l_vec.size(); i++){
+                    wxString tmp;
+                    tmp << key1_l_vec[i];
+                    key1_vec.push_back(tmp);
+                }
+            }
+            CheckKeys(key1_name, key1_vec, key1_map);
+            
+            // get and check keys from import table
+            int key2_id = m_import_key->GetSelection();
+            wxString key2_name = m_import_key->GetString(key2_id);
+            int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
+            int n_merge_rows = merge_layer_proxy->GetNumRecords();
+            vector<wxString> key2_vec;
+            map<wxString,int> key2_map;
+            for (int i=0; i < n_merge_rows; i++) {
+                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id));
+            }
+            CheckKeys(key2_name, key2_vec, key2_map);
+            
+            // make sure key1 <= key2, and store their mappings
+            map<wxString,int>::iterator key1_it, key2_it;
+            for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
+                key2_it = key2_map.find(key1_it->first);
+                if ( key2_it == key2_map.end()){
+                    error_msg = "The set of values in the import key fields ";
+                    error_msg << "do not fully match current table. Please "
+                              << "choose keys with matching sets of values.";
+                    throw GdaException(error_msg.mb_str());
+                }
+                rowid_map[key1_it->second] = key2_it->second;
+            }
+        }
+        // merge by order sequence
+        else if (m_rec_order_rb->GetValue() == 1) {
+            if (table_int->GetNumberRows()>merge_layer_proxy->GetNumRecords()) {
+                error_msg = "The number of records in current table is larger ";
+                error_msg << "than the number of records in import table. "
+                          << "Please choose import table >= "
+                          << table_int->GetNumberRows() << "records";
+                throw GdaException(error_msg.mb_str());
+            }
+        }
+        // append new fields to original table via TableInterface
+        for (int i=0; i<n_merge_field; i++) {
+            wxString real_field_name = merged_field_names[i];
+            wxString field_name  = real_field_name;
+            if (merged_fnames_dict.find(real_field_name) !=
+                merged_fnames_dict.end())
+            {
+                field_name = merged_fnames_dict[real_field_name];
+            }
+            AppendNewField(field_name, real_field_name, n_rows, rowid_map);
+        }
 	}
-	
-	std::vector<wxString> dbf_fnames(m_include_list->GetCount());
-	
-	// dups tell us which strings need to be renamed, while
-	// dedup_to_id tell us which col id this maps to in the original dbf
-	// we need to create a final list of names to col id.
-	
-	std::map<wxString,int> fname_to_id;
-	std::map<int,wxString> inc_order_to_fname; // keep track of order
-		
-	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
-		wxString inc_n = m_include_list->GetString(i);
-		wxString final_n = inc_n;
-		if (dups.find(inc_n) != dups.end() ||
-			!DbfFileUtils::isValidFieldName(inc_n) ||
-			table_fnames.find(inc_n) != table_fnames.end())
-		{
-			final_n = getValidName(fname_to_id, table_fnames, inc_n);
-		}
-		if (final_n == wxEmptyString) return;
-		fname_to_id[final_n] = dedup_to_id[inc_n];
-		inc_order_to_fname[i] = final_n;
-	}
- 	
-	// want to insert at end of table, but in order specified by
-	// m_include_list
-	// Create new columns in Table using fname_to_id map
-	// first_col is the index into col_data of the first column of 
-	// newly merged data.
-	std::vector<int> dbf_col_to_table_col(dbf_reader->getNumFields(), -1);
-	
-	int first_col = grid_base->GetNumberCols();
-	
-	wxGrid* grid = grid_base->GetView();
-	if (grid) grid->BeginBatch();
-	int time_steps = 1; // non space-time column
-	std::vector<DbfFieldDesc> fields = dbf_reader->getFieldDescs();
-	for (int i=0, iend=inc_order_to_fname.size(); i<iend; i++) {
-		wxString fname = inc_order_to_fname[i];
-		int id = fname_to_id[fname];
-		GeoDaConst::FieldType ftype = GeoDaConst::string_type;
-		if (fields[id].type == 'D') ftype = GeoDaConst::date_type;
-		if (fields[id].type == 'N' || fields[id].type == 'F') {
-			ftype = fields[id].decimals == 0 ?
-			GeoDaConst::long64_type : GeoDaConst::double_type;
-		}
-		dbf_col_to_table_col[id] = first_col+i;
-		grid_base->InsertCol(first_col+i, time_steps, ftype,
-							 fname, fields[id].length,
-							 fields[id].decimals, fields[id].decimals,
-							 true, false);
-	}
-
-	std::vector<DbfColContainer*>& col_data = grid_base->col_data;
-	DbfFileReader& dbf = *dbf_reader;
-	int rows = dbf.getNumRecords();
-	int cols = dbf.getNumFields();
-	// read in each row of the DBF, and write to the correct raw
-	// data cell (row and column) as we read in.
-	if (!dbf.file.is_open()) {
-		dbf.file.open(dbf.fname.mb_str(wxConvUTF8),
-					  std::ios::in | std::ios::binary);
-	}
-	if (!(dbf.file.is_open() && dbf.file.good())) return;
-	
-	int del_flag_len = 1;  // the record deletion flag
-	dbf.file.seekg(dbf.header.header_length, std::ios::beg);
-	char* buf = new char[dbf.getFileHeader().length_each_record];
-	for (int row=0; row<rows; row++) {
-		int t_row = id_map[row];
-		dbf.file.seekg(del_flag_len, std::ios::cur);
-		for (int col=0; col<cols; col++) {
-			int field_len = fields[col].length;
-			if (dbf_col_to_table_col[col] != -1) {
-				int t_col = dbf_col_to_table_col[col];
-				dbf.file.read((char*)(col_data[t_col]->raw_data[0] +
-									  t_row*(field_len+1)),
-							  field_len);
-				col_data[t_col]->raw_data[0][t_row*(field_len+1)+field_len] = '\0';
-			} else { // skip over this field
-				// NOTE: successive read ops are much faster than
-				// successive read, seekg, read, seekg.  Amazingly faster!
-				dbf.file.read(buf, field_len);
-			}
-		}
-	}
-	delete [] buf;
-	if (grid) grid->EndBatch();
-	
+    catch (GdaException& ex) {
+        if (ex.type() == GdaException::NORMAL) return;
+        wxMessageDialog dlg(this, ex.what(), "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        EndDialog(wxID_CANCEL);
+        return;
+    }
+    
 	wxMessageDialog dlg(this, "File merged into Table successfully.",
 						"Success", wxOK );
 	dlg.ShowModal();
-
 	ev.Skip();
 	EndDialog(wxID_OK);	
+}
+
+void MergeTableDlg::AppendNewField(wxString field_name,
+                                   wxString real_field_name,
+                                   int n_rows,
+                                   map<int,int>& rowid_map)
+{
+    int fid = merge_layer_proxy->GetFieldPos(real_field_name);
+    GdaConst::FieldType ftype = merge_layer_proxy->GetFieldType(fid);
+    if ( ftype == GdaConst::string_type ) {
+        int add_pos = table_int->InsertCol(ftype, field_name);
+        vector<wxString> data(n_rows);
+        for (int i=0; i<n_rows; i++) {
+            int import_rid = i;
+            if (!rowid_map.empty()) import_rid = rowid_map[i];
+            data[i]=wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
+        }
+        table_int->SetColData(add_pos, 0, data);
+    } else if ( ftype == GdaConst::long64_type ) {
+        int add_pos = table_int->InsertCol(ftype, field_name);
+        vector<wxInt64> data(n_rows);
+        for (int i=0; i<n_rows; i++) {
+            int import_rid = i;
+            if (!rowid_map.empty()) import_rid = rowid_map[i];
+            OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+            data[i] = feat->GetFieldAsInteger(fid);
+        }
+        table_int->SetColData(add_pos, 0, data);
+    } else if ( ftype == GdaConst::double_type ) {
+        int add_pos=table_int->InsertCol(ftype, field_name);
+        vector<double> data(n_rows);
+        for (int i=0; i<n_rows; i++) {
+            int import_rid = i;
+            if (!rowid_map.empty()) import_rid = rowid_map[i];
+            OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+            data[i] = feat->GetFieldAsDouble(fid);
+        }
+        table_int->SetColData(add_pos, 0, data);
+    }
 }
 
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
@@ -437,45 +438,15 @@ void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 
 void MergeTableDlg::OnKeyChoice( wxCommandEvent& ev )
 {
-	UpdateMergeButton();	
+	UpdateMergeButton();
 }
 
 void MergeTableDlg::UpdateMergeButton()
 {
-	bool enable = (dbf_reader && !m_include_list->IsEmpty() &&
+	bool enable = (!m_include_list->IsEmpty() &&
 				   (m_rec_order_rb->GetValue()==1 ||
 					(m_key_val_rb->GetValue()==1 &&
 					 m_current_key->GetSelection() != wxNOT_FOUND &&
 					 m_import_key->GetSelection() != wxNOT_FOUND)));
 	FindWindow(XRCID("wxID_OK"))->Enable(enable);
 }
-
-void MergeTableDlg::RemoveDbfReader()
-{
-	if (dbf_reader) delete dbf_reader; dbf_reader = 0;
-	m_input_file_name->SetValue("");
-	m_import_key->Clear();
-	m_exclude_list->Clear();
-	m_include_list->Clear();
-	UpdateMergeButton();
-}
-	
-void MergeTableDlg::UpdateIncListItems()
-{
-	// highlight in red and items that will require a name change
-	// in order to be merged into the table.  These includes illegal
-	// and duplicate names
-	
-	std::set<wxString> dbf_fnames;
-	
-	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
-		wxString s(m_include_list->GetString(i));
-		std::set<wxString>::iterator it1 = table_fnames.find(s);
-		std::set<wxString>::iterator it2 = dbf_fnames.find(s);
-		bool black = (DbfFileUtils::isValidFieldName(s) && 
-					  it1 == table_fnames.end() && it2 == dbf_fnames.end());
-		// m_include_list->SetString(i, s);
-		dbf_fnames.insert(s);
-	}
-}
-

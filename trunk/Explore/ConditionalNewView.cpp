@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,11 +28,9 @@
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
 #include "../DialogTools/CatClassifDlg.h"
-#include "../DataViewer/DbfGridTableBase.h"
-#include "../DialogTools/MapQuantileDlg.h"
-#include "../DialogTools/SaveToTableDlg.h"
-#include "../DialogTools/VariableSettingsDlg.h"
-#include "../GeoDaConst.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
+#include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../FramesManager.h"
@@ -69,19 +67,21 @@ project(project_s), num_obs(project_s->GetNumRecords()), num_time_vals(1),
 vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
 bin_extents(boost::extents[3][3]), bin_w(0), bin_h(0),
-highlight_state(project_s->highlight_state),
+highlight_state(project_s->GetHighlightState()),
 data(v_info.size()), var_info(v_info),
-grid_base(project_s->GetGridBase()),
+table_int(project_s->GetTableInt()),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 cc_state_vert(0), cc_state_horiz(0), all_init(false)
 {
 	LOG_MSG("Entering ConditionalNewCanvas::ConditionalNewCanvas");
 	template_frame = t_frame;
-	SetCatType(VERT_VAR, CatClassification::quantile);
-	SetCatType(HOR_VAR, CatClassification::quantile);
+	SetCatType(VERT_VAR, CatClassification::quantile, 3);
+	SetCatType(HOR_VAR, CatClassification::quantile, 3);
 	
-	for (int i=0; i<var_info.size(); i++) {
-		grid_base->GetColData(col_ids[i], data[i]);
+	template_frame->ClearAllGroupDependencies();
+	for (size_t i=0; i<var_info.size(); i++) {
+		table_int->GetColData(col_ids[i], data[i]);
+		template_frame->AddGroupDependancy(var_info[i].name);
 	}
 	horiz_num_time_vals = data[HOR_VAR].size();
 	horiz_var_sorted.resize(horiz_num_time_vals);
@@ -94,7 +94,7 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 			horiz_var_sorted[t][i].second = i;
 		}
 		std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(),
-				  GeoDa::dbl_int_pair_cmp_less);
+				  Gda::dbl_int_pair_cmp_less);
 	}
 	vert_num_time_vals = data[VERT_VAR].size();
 	vert_var_sorted.resize(vert_num_time_vals);
@@ -107,18 +107,18 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 			vert_var_sorted[t][i].second = i;
 		}
 		std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(),
-				  GeoDa::dbl_int_pair_cmp_less);
+				  Gda::dbl_int_pair_cmp_less);
 	}
 	VarInfoAttributeChange();
 
 	if (num_obs < 3) {
 		horiz_num_cats = num_obs;
 		vert_num_cats = num_obs;
-		SetCatType(VERT_VAR, CatClassification::unique_values);
-		SetCatType(HOR_VAR, CatClassification::unique_values);
+		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
+		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
 	}
-	CreateAndUpdateCategories(VERT_VAR, false);
-	CreateAndUpdateCategories(HOR_VAR, false);
+	CreateAndUpdateCategories(VERT_VAR);
+	CreateAndUpdateCategories(HOR_VAR);
 	
 	highlight_state->registerObserver(this);
 	// child classes will set all_init = true;
@@ -138,18 +138,21 @@ ConditionalNewCanvas::~ConditionalNewCanvas()
 void ConditionalNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("In ConditionalNewCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((ConditionalNewFrame*) template_frame)->OnActivate(ae);
 }
 
 void ConditionalNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-				menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -166,10 +169,50 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
 	// or are not checkable do not appear.
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"),
-					GetCatType(VERT_VAR) == CatClassification::no_theme);	
-	GeneralWxUtils::CheckMenuItem(menu,
-					XRCID("ID_COND_VERT_CHOROPLETH_QUANTILE"),
-					GetCatType(VERT_VAR) == CatClassification::quantile);
+					GetCatType(VERT_VAR) == CatClassification::no_theme);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_1"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_2"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_3"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_4"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_5"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_6"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_7"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_8"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_9"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_10"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::quantile)
+								  && GetVertNumCats() == 10);
+	
     GeneralWxUtils::CheckMenuItem(menu,
 					XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"),
 					GetCatType(VERT_VAR) == CatClassification::percentile);
@@ -182,16 +225,136 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
 					GetCatType(VERT_VAR) == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"),
 					GetCatType(VERT_VAR) == CatClassification::unique_values);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQUAL_INTERVALS"),
-					GetCatType(VERT_VAR) ==CatClassification::equal_intervals);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NATURAL_BREAKS"),
-					GetCatType(VERT_VAR) == CatClassification::natural_breaks);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_1"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_2"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_3"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_4"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_5"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_6"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_7"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_8"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_9"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_10"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetVertNumCats() == 10);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_1"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_2"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_3"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_4"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_5"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_6"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_7"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_8"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_9"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_10"),
+								  (GetCatType(VERT_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetVertNumCats() == 10);
 
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_THEMELESS"),
-					GetCatType(HOR_VAR) == CatClassification::no_theme);	
-	GeneralWxUtils::CheckMenuItem(menu,
-					XRCID("ID_COND_HORIZ_CHOROPLETH_QUANTILE"),
-					GetCatType(HOR_VAR) == CatClassification::quantile);
+					GetCatType(HOR_VAR) == CatClassification::no_theme);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_1"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_2"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_3"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_4"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_5"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_6"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_7"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_8"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_9"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_10"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::quantile)
+								  && GetHorizNumCats() == 10);
+	
     GeneralWxUtils::CheckMenuItem(menu,
 					XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"),
 					GetCatType(HOR_VAR) == CatClassification::percentile);
@@ -204,10 +367,90 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
 					GetCatType(HOR_VAR) == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_UNIQUE_VALUES"),
 					GetCatType(HOR_VAR) == CatClassification::unique_values);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQUAL_INTERVALS"),
-					GetCatType(HOR_VAR) ==CatClassification::equal_intervals);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NATURAL_BREAKS"),
-					GetCatType(HOR_VAR) == CatClassification::natural_breaks);	
+	
+   	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_1"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_2"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_3"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_4"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_5"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_6"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_7"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_8"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_9"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_10"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::equal_intervals)
+								  && GetHorizNumCats() == 10);
+	
+	// since XRCID is a macro, we can't make this into a loop
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_1"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 1);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_2"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 2);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_3"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 3);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_4"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 4);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_5"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 5);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_6"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 6);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_7"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 7);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_8"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 8);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_9"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 9);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_10"),
+								  (GetCatType(HOR_VAR) ==
+								   CatClassification::natural_breaks)
+								  && GetHorizNumCats() == 10);	
 }
 
 wxString ConditionalNewCanvas::GetCategoriesTitle(int var_id)
@@ -231,10 +474,10 @@ wxString ConditionalNewCanvas::GetCategoriesTitle(int var_id)
 
 wxString ConditionalNewCanvas::GetNameWithTime(int var)
 {
-	if (var < 0 || var >= var_info.size()) return wxEmptyString;
+	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
-		s << " (" << project->GetGridBase()->GetTimeString(var_info[var].time);
+		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
 		s << ")";
 	}
 	return s;
@@ -251,7 +494,9 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 	if (cat_classif_def_vert.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(cat_classif_def_vert.num_cats,
 										 cat_classif_def_vert);
+		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_vert.breaks,
+										  temp_cat_labels,
 										  vert_var_sorted[var_info[var_id].time],
 										  cat_classif_def_vert.cat_classif_type,
 										  cat_classif_def_vert.num_cats);
@@ -264,7 +509,7 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 		}
 	}
 	
-	CatClassifFrame* ccf = MyFrame::theFrame->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_vert, "",
 										  var_info[var_id].name,
@@ -274,7 +519,7 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 	cc_state_vert = ccs;
 	cc_state_vert->registerObserver(this);
 	
-	CreateAndUpdateCategories(var_id, false);
+	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -296,7 +541,9 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 	if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(cat_classif_def_horiz.num_cats,
 										 cat_classif_def_horiz);
+		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_horiz.breaks,
+										  temp_cat_labels,
 										  horiz_var_sorted[var_info[var_id].time],
 										  cat_classif_def_horiz.cat_classif_type,
 										  cat_classif_def_horiz.num_cats);
@@ -309,7 +556,7 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 		}
 	}
 	
-	CatClassifFrame* ccf = MyFrame::theFrame->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_horiz, "",
 										  var_info[var_id].name,
@@ -319,7 +566,7 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 	cc_state_horiz = ccs;
 	cc_state_horiz->registerObserver(this);
 	
-	CreateAndUpdateCategories(var_id, false);
+	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -333,7 +580,7 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 
 void ConditionalNewCanvas::ChangeThemeType(int var_id,
 							CatClassification::CatClassifType new_cat_theme,
-							bool prompt_num_cats,
+							int num_categories,
 							const wxString& custom_classif_title)
 {
 	CatClassifState* ccs = (var_id==VERT_VAR ? cc_state_vert : cc_state_horiz);
@@ -361,9 +608,9 @@ void ConditionalNewCanvas::ChangeThemeType(int var_id,
 			cc_state_horiz = 0;
 		}
 	}
-	SetCatType(var_id, new_cat_theme);
+	SetCatType(var_id, new_cat_theme, num_categories);
 	VarInfoAttributeChange();
-	CreateAndUpdateCategories(var_id, prompt_num_cats);
+	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -387,7 +634,7 @@ void ConditionalNewCanvas::update(CatClassifState* o)
 	} else {
 		return;
 	}
-	CreateAndUpdateCategories(var_id, false);
+	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -403,12 +650,12 @@ void ConditionalNewCanvas::PopulateCanvas()
 	LOG_MSG("In ConditionalNewCanvas::PopulateCanvas");
 }
 
-void ConditionalNewCanvas::TitleOrTimeChange()
+void ConditionalNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering ConditionalNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering ConditionalNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->GetCurrTime();
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -423,7 +670,7 @@ void ConditionalNewCanvas::TitleOrTimeChange()
 	} else {
 		ref_time = cts;
 	}
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].sync_with_global_time) {
 			var_info[i].time = ref_time + var_info[i].ref_time_offset;
 		}
@@ -432,35 +679,35 @@ void ConditionalNewCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting ConditionalNewCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting ConditionalNewCanvas::TimeChange");
 }
 
 void ConditionalNewCanvas::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
+	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) is_any_time_variant = true;
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
 	}
+	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
+	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
 		if (var_info[i].is_ref_variable) ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
-void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id,
-													 bool prompt_num_cats)
+void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 {
 	if (var_id == VERT_VAR) {
 		for (int t=0; t<vert_num_time_vals; t++) vert_cats_valid[t] = true;
@@ -468,14 +715,6 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id,
 			vert_cats_error_message[t] = wxEmptyString;
 		}
 		
-		if (prompt_num_cats &&
-			(GetCatType(var_id) == CatClassification::quantile ||
-			 GetCatType(var_id) == CatClassification::natural_breaks ||
-			 GetCatType(var_id) == CatClassification::equal_intervals))
-		{
-			vert_num_cats =
-				CatClassification::PromptNumCats(GetCatType(var_id));
-		}		
 		if (cat_classif_def_vert.cat_classif_type !=
 			CatClassification::custom) {
 			CatClassification::ChangeNumCats(vert_num_cats,
@@ -498,14 +737,6 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id,
 			horiz_cats_error_message[t] = wxEmptyString;
 		}
 		
-		if (prompt_num_cats &&
-			(GetCatType(var_id) == CatClassification::quantile ||
-			 GetCatType(var_id) == CatClassification::natural_breaks ||
-			 GetCatType(var_id) == CatClassification::equal_intervals))
-		{
-			horiz_num_cats =
-				CatClassification::PromptNumCats(GetCatType(var_id));
-		}
 		if (cat_classif_def_horiz.cat_classif_type !=
 			CatClassification::custom) {
 			CatClassification::ChangeNumCats(horiz_num_cats,
@@ -565,12 +796,15 @@ CatClassification::CatClassifType ConditionalNewCanvas::GetCatType(int var_id)
 }
 
 void ConditionalNewCanvas::SetCatType(int var_id,
-									  CatClassification::CatClassifType t)
+									  CatClassification::CatClassifType t,
+									  int num_categories)
 {
 	if (var_id == VERT_VAR) {
 		cat_classif_def_vert.cat_classif_type = t;
+		vert_num_cats = num_categories;
 	} else {
 		cat_classif_def_horiz.cat_classif_type = t;
+		horiz_num_cats = num_categories;
 	}
 	
 }
@@ -602,7 +836,7 @@ void ConditionalNewFrame::MapMenus()
 void ConditionalNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("ConditionalNewFrame::UpdateOptionMenuItems: "
@@ -623,19 +857,13 @@ void ConditionalNewFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items	
 }
 
-/** Implementation of FramesManagerObserver interface */
-void  ConditionalNewFrame::update(FramesManager* o)
+/** Implementation of TimeStateObserver interface */
+void  ConditionalNewFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConditionalNewFrame::update(FramesManager* o)");
-	template_canvas->TitleOrTimeChange();
+	LOG_MSG("In ConditionalNewFrame::update(TimeState* o)");
+	template_canvas->TimeChange();
 	UpdateTitle();
 }
-
-void ConditionalNewFrame::UpdateTitle()
-{
-	SetTitle(template_canvas->GetCanvasTitle());
-}
-
 
 void ConditionalNewFrame::OnNewCustomCatClassifA()
 {
@@ -661,32 +889,34 @@ void ConditionalNewFrame::OnCustomCatClassifA(const wxString& cc_title)
 
 void ConditionalNewFrame::OnCustomCatClassifB(const wxString& cc_title)
 {
-	ChangeVertThemeType(CatClassification::custom, cc_title);
+	ChangeVertThemeType(CatClassification::custom, 4, cc_title);
 }
 
 void ConditionalNewFrame::OnCustomCatClassifC(const wxString& cc_title)
 {
-	ChangeHorizThemeType(CatClassification::custom, cc_title);
+	ChangeHorizThemeType(CatClassification::custom, 4, cc_title);
 }
 
 void ConditionalNewFrame::ChangeVertThemeType(
-								  CatClassification::CatClassifType new_theme,
-								  const wxString& cc_title)
+								CatClassification::CatClassifType new_theme,
+								int num_categories,
+								const wxString& cc_title)
 {
 	ConditionalNewCanvas* cc = (ConditionalNewCanvas*) template_canvas;
 	cc->ChangeThemeType(ConditionalNewCanvas::VERT_VAR, new_theme,
-						false, cc_title);
+						num_categories, cc_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
 }
 
 void ConditionalNewFrame::ChangeHorizThemeType(
-								   CatClassification::CatClassifType new_theme,
-								   const wxString& cc_title)
+								CatClassification::CatClassifType new_theme,
+								int num_categories,
+								const wxString& cc_title)
 {
 	ConditionalNewCanvas* cc = (ConditionalNewCanvas*) template_canvas;
 	cc->ChangeThemeType(ConditionalNewCanvas::HOR_VAR, new_theme,
-						false, cc_title);
+						num_categories, cc_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
 }

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -2623,10 +2623,10 @@ double getLj(const SparseMatrix &w, const double rho, const DenseVector &y, cons
         
 
 void EGLS(const double lambda, 
-					const DenseVector &y, 
-					const DenseVector * X, 
-					const SparseMatrix &w, 
-					DenseVector &egls)
+		  const DenseVector &y, 
+		  const DenseVector * X, 
+		  const SparseMatrix &w, 
+		  DenseVector &egls)
 {
     const int dim = w.dim(), vars = egls.getSize();
 

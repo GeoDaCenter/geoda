@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,7 +22,7 @@
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 #include "../Project.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/GwtWeight.h"
@@ -47,7 +47,7 @@ SelectWeightDlg::SelectWeightDlg(Project* project_s,
 								 wxWindowID id,
 								 const wxString& caption, const wxPoint& pos,
 								 const wxSize& size, long style )
-: project(project_s), grid_base(project_s->GetGridBase()),
+: project(project_s), table_int(project_s->GetTableInt()),
 w_manager(project_s->GetWManager())
 {
 	Create(parent, id, caption, pos, size, style);
@@ -132,19 +132,12 @@ void SelectWeightDlg::OnOkClick( wxCommandEvent& event )
 		w_manager->SetDefaultWeight(m_checkButton->GetValue());
 	}
 	if (m_radio2->GetValue()) {
-		wxString ext = wxEmptyString;
-		int pos = m_wfile_fpath.Find('.',true);
-		if (pos > 0) {
-			ext = m_wfile_fpath.Right(m_wfile_fpath.Length()-pos-1);	
-		}
-		ext.MakeLower();
-		char buf_flname[512];
-		strcpy( buf_flname, (const char*)m_wfile_fpath.mb_str(wxConvUTF8) );
-		char* flname = buf_flname;
+		wxString ext = GenUtils::GetFileExt(m_wfile_fpath).Lower();
+		wxString flname = m_wfile_fpath;
 	
 		int obs = w_manager->GetNumObservations();
 		if (ext == "gal") {
-			GalElement* tempGal = WeightUtils::ReadGal(flname, grid_base);
+			GalElement* tempGal = WeightUtils::ReadGal(flname, table_int);
 			if (tempGal == NULL) {
 				FindWindow(XRCID("wxID_OK"))->Enable(false);
 				return;
@@ -160,7 +153,7 @@ void SelectWeightDlg::OnOkClick( wxCommandEvent& event )
 				return;
 			}
 		} else if (ext == "gwt") {
-			GalElement* tempGal = WeightUtils::ReadGwtAsGal(flname, grid_base);
+			GalElement* tempGal = WeightUtils::ReadGwtAsGal(flname, table_int);
 			if (tempGal == NULL) {
 				FindWindow(XRCID("wxID_OK"))->Enable(false);
 				return;
@@ -188,9 +181,7 @@ void SelectWeightDlg::OnOkClick( wxCommandEvent& event )
 
 void SelectWeightDlg::OnCOpenFileweightClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg( this,
-					 "Input Weights File",
-					 project->GetMainDir(),
+    wxFileDialog dlg( this, "Input Weights File", "",
 					 "Weights Files (*.gal, *.gwt)|*.gal;*.gwt");
 
 	

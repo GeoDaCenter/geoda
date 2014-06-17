@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,7 +33,7 @@ wxString GeneralWxUtils::wxFindAppPath(const wxString& argv0,
 									  const wxString& appVariableName)
 {
     wxString str;
-	
+	/*	
     // Try appVariableName
     if (!appVariableName.IsEmpty())
     {
@@ -72,6 +72,7 @@ wxString GeneralWxUtils::wxFindAppPath(const wxString& argv0,
         return wxPathOnly(str);
 	
     // Failed
+	*/
 	return wxEmptyString;
 }
 
@@ -127,6 +128,20 @@ bool GeneralWxUtils::isVista()
 	return r;
 }
 
+bool GeneralWxUtils::isX86()
+{
+#ifdef _WIN64 || __amd64__
+	return false;
+#else
+	return true;
+#endif
+}
+
+bool GeneralWxUtils::isX64()
+{
+    return !isX86();
+}
+
 bool GeneralWxUtils::isDebug()
 {
 #if defined(__WXDEBUG__) || defined(DEBUG)
@@ -171,11 +186,13 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 		LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu in unexpected way!");
 		return false;
 	}
-	wxMenu* prev_opt_menu = mb->GetMenu(m_ind);
-	mb->Replace(m_ind, newMenu, title);
+	//wxMenu* prev_opt_menu = mb->GetMenu(m_ind);
+	//mb->Replace(m_ind, newMenu, title);
+    wxMenu* prev_opt_menu = mb->Remove(m_ind);
+    mb->Insert(m_ind, newMenu, title);
 	// The following line shouldn't be needed, but on wxWidgets 2.9.2, the
 	// menu label is set to empty after Replace is called.
-	mb->SetMenuLabel(m_ind, title);
+	//mb->SetMenuLabel(m_ind, title);
 	if (prev_opt_menu) delete prev_opt_menu;
 	LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu");
 	return true;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,10 +22,10 @@
 
 #include <fstream>
 #include <vector>
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "GeodaWeight.h"
 
-class DbfGridTableBase;
+class TableInterface;
 struct DataPoint;
 
 class GalElement {
@@ -34,25 +34,14 @@ public:
     long* data;
 
 public:
-    GalElement(const long sz=0) : data(0), size(0) {
-		if (sz > 0) data = new long[sz]; }
-    virtual ~GalElement() {
-        if (data) delete [] data;
-		size = 0; }
-    int alloc (const int sz) {
-		if (data) delete [] data;
-        if (sz > 0) {
-			size = 0;
-			data = new long[sz];
-		}
-        return !empty(); }
+    GalElement();
+    virtual ~GalElement();
+    int alloc(int sz);
     bool empty() const { return data == 0; }
-    void Push(const long val) { data[size++] = val; }
-    long Pop() {
-        if (!size) return GeoDaConst::EMPTY;
-        return data[--size]; }
+    void Push(long val) { data[size++] = val; }
+    long Pop() { return (size <= 0) ? GdaConst::EMPTY : data[--size]; }
     long Size() const { return size; }
-	long elt(const long where) const { return data[where]; }
+	long elt(long where) const { return data[where]; }
     long* dt() const { return data; }
 	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
     double SpatialLag(const double* x, const bool std=true) const;
@@ -78,7 +67,7 @@ public:
 };
 
 namespace WeightUtils {
-	GalElement* ReadGal(const wxString& w_fname, DbfGridTableBase* grid_base);
+	GalElement* ReadGal(const wxString& w_fname, TableInterface* table_int);
 }
 
 #endif

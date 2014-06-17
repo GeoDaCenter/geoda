@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,13 +27,14 @@
 
 #include "Bnd2ShpDlg.h"
 #include "../ShapeOperations/shp2gwt.h"
+#include "../Generic/GdaShape.h"
+#include "ExportDataDlg.h"
 
 IMPLEMENT_CLASS( Bnd2ShpDlg, wxDialog )
 
 BEGIN_EVENT_TABLE( Bnd2ShpDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_CREATE"), Bnd2ShpDlg::OnCreateClick )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), Bnd2ShpDlg::OnCOpenIascClick )
-    EVT_BUTTON( XRCID("IDC_OPEN_OSHP"), Bnd2ShpDlg::OnCOpenOshpClick )
     EVT_BUTTON( XRCID("IDCANCEL"), Bnd2ShpDlg::OnCancelClick )
 END_EVENT_TABLE()
 
@@ -47,8 +48,6 @@ Bnd2ShpDlg::Bnd2ShpDlg( wxWindow* parent, wxWindowID id,
 {
     Create(parent, id, caption, pos, size, style);
 
-	FindWindow(XRCID("IDC_OPEN_OSHP"))->Enable(false);
-	FindWindow(XRCID("IDC_FIELD_SHP"))->Enable(false);
 	FindWindow(XRCID("ID_CREATE"))->Enable(false);
 }
 
@@ -68,21 +67,99 @@ void Bnd2ShpDlg::CreateControls()
 									 "IDD_CONVERT_BOUNDARY_TO_SHP");
     m_inputfile = XRCCTRL(*this, "IDC_FIELD_ASC", wxTextCtrl);
 	m_inputfile->SetMaxLength(0);
-    m_outputfile = XRCCTRL(*this, "IDC_FIELD_SHP", wxTextCtrl);
-	m_outputfile->SetMaxLength(0);
 }
 
 void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 {
 	wxString m_iASC = m_inputfile->GetValue();
-	wxString m_oSHP = m_outputfile->GetValue();
 
-	if (!CreateSHPfromBoundary(m_iASC, m_oSHP))
+    fstream ias;
+	ias.open(m_iASC.mb_str());
+	int nRows;
+	char name[1000];
+	ias.getline(name,100);
+	wxString tok = wxString(name, wxConvUTF8);
+	wxString ID_name=wxEmptyString;
+	
+	int pos = tok.Find(',');
+	if( pos >= 0)
 	{
-		wxMessageBox("Fail in reading the input file!");
-			return;
+		//nRows = wxAtoi(tok.Left(pos));
+		long temp;
+		tok.Left(pos).ToCLong(&temp);
+		nRows = (int) temp;
+		ID_name = tok.Right(tok.Length()-pos-1);
 	}
+	else
+	{
+		wxMessageBox("Wrong format!");
+		return;
+	}
+	
+	ID_name.Trim(false);
+	ID_name.Trim(true);
+	
+	if (nRows < 1 || ID_name == wxEmptyString)
+	{
+		wxMessageBox("Wrong format!");
+		return;
+	}
+   
+    int nPoint, ID;
+	vector<GdaShape*> polys;
+    
+	for (long row = nRows; row >= 1; row--)
+	{
+		ias.getline(name,100);
+		sscanf(name,"%d, %d", &ID, &nPoint);
+		if (nPoint < 1)
+		{
+			wxString xx= wxString::Format("at polygon-%d",ID);
+			wxMessageBox(wxT("Fail in reading the Boundary file: "+xx));
+			return;
+		}
 
+		wxRealPoint* pts = new wxRealPoint[nPoint+1];
+        
+		for (long pt=0; pt < nPoint; pt++)
+		{
+			double xt,yt;
+			
+			ias.getline(name, 100);
+			tok = wxString(name,wxConvUTF8);
+			//tok = wxString::Format("%100s",name);
+			int pos = tok.Find(',');
+			if( pos >= 0)
+			{
+				//xt = wxAtof(tok.Left(pos));
+				tok.Left(pos).ToCDouble(&xt);
+				tok = tok.Right(tok.Length()-pos-1);
+				//yt = wxAtof(tok);
+				tok.ToCDouble(&yt);
+			}
+			else
+			{
+				wxMessageBox("Wrong format!");
+				return;
+			}
+            
+            pts[pt] = wxRealPoint(xt,yt);
+		}
+        
+        pts[nPoint] = wxRealPoint(pts[0].x, pts[0].y);
+        
+        polys.push_back(new GdaPolygon(nPoint, pts));
+        
+        delete[] pts;
+    }
+
+    ExportDataDlg dlg(this, polys, Shapefile::POLYGON);
+    dlg.ShowModal();
+    
+    for(size_t i=0; i<polys.size(); i++) {
+        delete polys[i];
+    }
+    
 	event.Skip(); // wxDialog::OnOK(event);
 }
 
@@ -124,7 +201,7 @@ void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 			tl.ToCLong(&nRows);
 			ID_name = tok.Right(tok.Length()-pos-1);
 		}
-		else
+        if (pos < 0 || ID_name.IsNumber() )
 		{
 			wxMessageBox("The first line should have comma separated "
 						 "number of rows and ID name!");
@@ -145,37 +222,9 @@ void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 			return;
 		}
 
-		FindWindow(XRCID("IDC_OPEN_OSHP"))->Enable(true);
-		FindWindow(XRCID("IDC_FIELD_SHP"))->Enable(true);
-
+		FindWindow(XRCID("ID_CREATE"))->Enable(true);
     }
 
-}
-
-void Bnd2ShpDlg::OnCOpenOshpClick( wxCommandEvent& event )
-{
-	wxFileDialog dlg
-                 (
-                    this,
-                    "Output Shp file",
-                    wxEmptyString,
-                    fn + ".shp",
-                    "Shp files (*.shp)|*.shp",
-					wxFD_SAVE | wxFD_OVERWRITE_PROMPT
-                 );
-
-	wxString	m_path = wxEmptyString;
-
-
-    if (dlg.ShowModal() == wxID_OK)
-    {
-
-		m_path  = dlg.GetPath();
-		wxString OutFile = m_path;
-		m_outputfile->SetValue(OutFile);
-
-		FindWindow(XRCID("ID_CREATE"))->Enable(true);
-	}
 }
 
 void Bnd2ShpDlg::OnCancelClick( wxCommandEvent& event )

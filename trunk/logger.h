@@ -5,11 +5,12 @@
 // ( copy at http://www.boost.org/LICENSE_1_0.txt )
 #ifndef __GEODA_LOGGER_H__
 #define __GEODA_LOGGER_H__
-#include <wx/string.h>
 #include <ostream>
 #include <iomanip>
 #include <memory>
-#include <wx/datetime.h>
+#include <ctime>
+//#include <boost/date_time/posix_time/posix_time.hpp>
+//#include <wx/datetime.h>
 
 class logger_t {
 public:
@@ -25,13 +26,36 @@ extern logger_t & logger();
 
 #define LOG(name)do {if (logger().is_activated ){\
 *logger().outstream << __FILE__ \
-<< " [" << __LINE__ << "] : " << #name << " = " << (name) << std::endl;} }while(false)
+<< " [" << __LINE__ << "] : " << #name << " = " \
+<< (name) << std::endl;} }while(false)
+
+//#define LOG_MSG(name)do {if (logger().is_activated ){\
+//*logger().outstream << "[line " << __LINE__ << "]: "\
+//<< name << std::endl;} }while(false)
 
 #define LOG_MSG(name)do {if (logger().is_activated ){\
-wxDateTime now = wxDateTime::UNow();\
-*logger().outstream << "[" << now.Format("%H:%M:%S", wxDateTime::MST).mb_str() \
-<< "." << std::setw(3) << std::setfill('0') << now.GetMillisecond() \
+std::time_t now = std::time(0);\
+std::tm* ltm = std::localtime(&now);\
+*logger().outstream << "[" << ltm->tm_hour \
+<< ":" << std::setw(2) << std::setfill('0') << ltm->tm_min \
+<< ":" << std::setw(2) << std::setfill('0') << ltm->tm_sec \
 << ", line " << __LINE__ << "] : " << name << std::endl;} }while(false)
+
+//#define LOG_MSG(name)do {if (logger().is_activated ){\
+//wxDateTime now = wxDateTime::UNow();\
+//*logger().outstream << "[" << now.Format("%H:%M:%S", wxDateTime::MST).mb_str() \
+//<< "." << std::setw(3) << std::setfill('0') << now.GetMillisecond() \
+//<< ", line " << __LINE__ << "] : " << name << std::endl;} }while(false)
+
+//#define LOG_MSG(name)do {if (logger().is_activated ){\
+//using namespace boost::posix_time;\
+//ptime now = second_clock::local_time();\
+//time_duration tod = now.time_of_day();\
+//*logger().outstream << "[" << tod.hours() \
+//<< ":" << std::setw(2) << std::setfill('0') << tod.minutes() \
+//<< ":" << std::setw(2) << std::setfill('0') << tod.seconds() \
+//<< ", line " << __LINE__ << "] : " << name << std::endl;} }while(false)
+
 
 namespace logger_n {
 	template < typename T1, typename T2, \
@@ -66,4 +90,5 @@ logger().is_activated = false; } while(false)
 #define LOG_ON() do{}while(false)
 #define LOG_OFF() do{}while(false)
 #endif
-#endif // __GEODA_LOGGER_H__
+#endif
+// __GEODA_LOGGER_H__

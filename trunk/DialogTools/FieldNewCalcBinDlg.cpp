@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,8 +22,10 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include "../GenUtils.h"
 #include "../Project.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcUniDlg.h"
@@ -53,15 +55,16 @@ BEGIN_EVENT_TABLE( FieldNewCalcBinDlg, wxPanel )
 			   FieldNewCalcBinDlg::OnBinaryOperand2TmUpdated )
 END_EVENT_TABLE()
 
-FieldNewCalcBinDlg::FieldNewCalcBinDlg(Project* project,
+FieldNewCalcBinDlg::FieldNewCalcBinDlg(Project* project_s,
 									   wxWindow* parent,
 									   wxWindowID id, const wxString& caption, 
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
-: all_init(false), op_string(5), grid_base(project->GetGridBase()),
+: all_init(false), op_string(5), project(project_s),
+table_int(project_s->GetTableInt()),
 m_valid_const1(false), m_const1(1), m_var1_sel(wxNOT_FOUND),
 m_valid_const2(false), m_const2(1), m_var2_sel(wxNOT_FOUND),
-is_space_time(project->GetGridBase()->IsTimeVariant())
+is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
     CreateControls();
@@ -108,6 +111,10 @@ void FieldNewCalcBinDlg::Apply()
 		return;
 	}
 	int result_col = col_id_map[m_result->GetSelection()];
+	
+	TableState* ts = project->GetTableState();
+	wxString grp_nm = table_int->GetColName(result_col);
+	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 
 	int var1_col = wxNOT_FOUND;
 	int var2_col = wxNOT_FOUND;
@@ -137,15 +144,16 @@ void FieldNewCalcBinDlg::Apply()
 	
 	std::vector<int> time_list;
 	if (IsAllTime(result_col, m_result_tm->GetSelection())) {
-		time_list.resize(grid_base->time_steps);
-		for (int i=0; i<grid_base->time_steps; i++) time_list[i] = i;
+		int ts = project->GetTableInt()->GetTimeSteps();
+		time_list.resize(ts);
+		for (int i=0; i<ts; i++) time_list[i] = i;
 	} else {
 		int tm = IsTimeVariant(result_col) ? m_result_tm->GetSelection() : 0;
 		time_list.resize(1);
 		time_list[0] = tm;
 	}
 	
-	int rows = grid_base->GetNumberRows();
+	int rows = table_int->GetNumberRows();
 	std::vector<double> data0(rows, 0); // results
 	std::vector<bool> undefined0(rows, false); // results
 	std::vector<double> data1(rows, 0); // var1
@@ -156,16 +164,16 @@ void FieldNewCalcBinDlg::Apply()
 	if (var1_col != wxNOT_FOUND &&
 		!IsAllTime(var1_col, m_var1_tm->GetSelection())) {
 		int tm = IsTimeVariant(var1_col) ? m_var1_tm->GetSelection() : 0;
-		grid_base->col_data[var1_col]->GetVec(data1, tm);
-		grid_base->col_data[var1_col]->GetUndefined(undefined1, tm);
+		table_int->GetColData(var1_col, tm, data1);
+		table_int->GetColUndefined(var1_col, tm, undefined1);
 	} else {
 		for (int i=0; i<rows; i++) data1[i] = m_const1;
 	}
 	if (var2_col != wxNOT_FOUND &&
 		!IsAllTime(var2_col, m_var2_tm->GetSelection())) {
 		int tm = IsTimeVariant(var2_col) ? m_var2_tm->GetSelection() : 0;
-		grid_base->col_data[var2_col]->GetVec(data2, tm);
-		grid_base->col_data[var2_col]->GetUndefined(undefined2, tm);
+		table_int->GetColData(var2_col, tm, data2);
+		table_int->GetColUndefined(var2_col, tm, undefined2);
 	} else {
 		for (int i=0; i<rows; i++) data2[i] = m_const2;
 	}
@@ -174,16 +182,14 @@ void FieldNewCalcBinDlg::Apply()
 		if (var1_col != wxNOT_FOUND &&
 			IsAllTime(var1_col, m_var1_tm->GetSelection()))
 		{
-			grid_base->col_data[var1_col]->GetVec(data1, time_list[t]);
-			grid_base->col_data[var1_col]->GetUndefined(undefined1,
-														time_list[t]);
+			table_int->GetColData(var1_col, time_list[t], data1);
+			table_int->GetColUndefined(var1_col, time_list[t], undefined1);
 		}
 		if (var2_col != wxNOT_FOUND &&
 			IsAllTime(var2_col, m_var2_tm->GetSelection()))
 		{
-			grid_base->col_data[var2_col]->GetVec(data2, time_list[t]);
-			grid_base->col_data[var2_col]->GetUndefined(undefined2,
-														time_list[t]);
+			table_int->GetColData(var2_col, time_list[t], data2);
+			table_int->GetColUndefined(var2_col, time_list[t], undefined2);
 		}
 		for (int i=0; i<rows; i++) {
 			data0[i] = 0;
@@ -193,28 +199,28 @@ void FieldNewCalcBinDlg::Apply()
 		switch (m_op->GetSelection()) {
 			case add_op:
 			{
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					if (!undefined0[i]) data0[i] = data1[i] + data2[i];
 				}
 			}
 				break;
 			case subtract_op:
 			{
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					if (!undefined0[i]) data0[i] = data1[i] - data2[i];
 				}
 			}
 				break;
 			case multiply_op:
 			{
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					if (!undefined0[i]) data0[i] = data1[i] * data2[i];
 				}
 			}
 				break;
 			case divide_op:
 			{
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					if (!undefined0[i] && data2[i] != 0) {
 						data0[i] = data1[i] / data2[i];
 					} else {
@@ -228,7 +234,7 @@ void FieldNewCalcBinDlg::Apply()
 			{
 				// If base is negative and exponent is not an integral value,
 				// or if base is zero and exponent is negative, not defined.
-				for (int i=0, iend=grid_base->GetNumberRows(); i<iend; i++) {
+				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 					if (data1[i] == 0 && data2[i] < 0) undefined0[i] = true;
 					if (!undefined0[i]) {
 						if (data1[i] < 0) {
@@ -252,10 +258,9 @@ void FieldNewCalcBinDlg::Apply()
 				return;
 				break;
 		}
-		grid_base->col_data[result_col]->SetFromVec(data0, time_list[t]);
-		grid_base->col_data[result_col]->SetUndefined(undefined0, time_list[t]);
+		table_int->SetColData(result_col, time_list[t], data0);
+		table_int->SetColUndefined(result_col, time_list[t], undefined0);
 	}
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
 }
 
 
@@ -277,7 +282,7 @@ void FieldNewCalcBinDlg::InitFieldChoices()
 		m_var2_sel = sel2_temp;
 	}
 	
-	grid_base->FillNumericColIdMap(col_id_map);
+	table_int->FillNumericColIdMap(col_id_map);
 	m_var1_str.resize(col_id_map.size());
 	m_var2_str.resize(col_id_map.size());
 	
@@ -289,18 +294,18 @@ void FieldNewCalcBinDlg::InitFieldChoices()
 	}
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		if (is_space_time &&
-			grid_base->col_data[col_id_map[i]]->time_steps > 1) {			
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name + r_tm);
-			m_var1->Append(grid_base->col_data[col_id_map[i]]->name + v1_tm);
-			m_var1_str[i] = grid_base->col_data[col_id_map[i]]->name + v1_tm;
-			m_var2->Append(grid_base->col_data[col_id_map[i]]->name + v2_tm);
-			m_var2_str[i] = grid_base->col_data[col_id_map[i]]->name + v2_tm;
+			table_int->GetColTimeSteps(col_id_map[i]) > 1) {			
+			m_result->Append(table_int->GetColName(col_id_map[i]) + r_tm);
+			m_var1->Append(table_int->GetColName(col_id_map[i]) + v1_tm);
+			m_var1_str[i] = table_int->GetColName(col_id_map[i]) + v1_tm;
+			m_var2->Append(table_int->GetColName(col_id_map[i]) + v2_tm);
+			m_var2_str[i] = table_int->GetColName(col_id_map[i]) + v2_tm;
 		} else {
-			m_result->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_var1->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_var1_str[i] = grid_base->col_data[col_id_map[i]]->name;
-			m_var2->Append(grid_base->col_data[col_id_map[i]]->name);
-			m_var2_str[i] = grid_base->col_data[col_id_map[i]]->name;
+			m_result->Append(table_int->GetColName(col_id_map[i]));
+			m_var1->Append(table_int->GetColName(col_id_map[i]));
+			m_var1_str[i] = table_int->GetColName(col_id_map[i]);
+			m_var2->Append(table_int->GetColName(col_id_map[i]));
+			m_var2_str[i] = table_int->GetColName(col_id_map[i]);
 		}	
 	}
 	
@@ -407,14 +412,14 @@ void FieldNewCalcBinDlg::Display()
 bool FieldNewCalcBinDlg::IsTimeVariant(int col_id)
 {
 	if (!is_space_time) return false;
-	return (grid_base->IsColTimeVariant(col_id));
+	return (table_int->IsColTimeVariant(col_id));
 }
 
 bool FieldNewCalcBinDlg::IsAllTime(int col_id, int tm_sel)
 {
 	if (!is_space_time) return false;
-	if (!grid_base->IsColTimeVariant(col_id)) return false;
-	return tm_sel == grid_base->time_steps;
+	if (!table_int->IsColTimeVariant(col_id)) return false;
+	return tm_sel == project->GetTableInt()->GetTimeSteps();
 }
 
 void FieldNewCalcBinDlg::OnBinaryResultUpdated( wxCommandEvent& event )
@@ -463,7 +468,7 @@ void FieldNewCalcBinDlg::OnBinaryOperand1Updated( wxCommandEvent& event )
 		m_var1_sel = m_var1->GetSelection();
 	}
 	m_var1_tm->Enable(m_var1_sel != wxNOT_FOUND &&
-					 grid_base->col_data[col_id_map[m_var1_sel]]->time_steps>1);
+					  table_int->GetColTimeSteps(col_id_map[m_var1_sel]) > 1);
 	Display();
 }
 
@@ -500,7 +505,7 @@ void FieldNewCalcBinDlg::OnBinaryOperand2Updated( wxCommandEvent& event )
 		m_var2_sel = m_var2->GetSelection();
 	}
 	m_var2_tm->Enable(m_var2_sel != wxNOT_FOUND &&
-					grid_base->col_data[col_id_map[m_var2_sel]]->time_steps>1);
+					  table_int->GetColTimeSteps(col_id_map[m_var2_sel]) > 1);
 	Display();
 }
 
@@ -512,11 +517,11 @@ void FieldNewCalcBinDlg::OnBinaryOperand2TmUpdated( wxCommandEvent& event )
 
 void FieldNewCalcBinDlg::OnAddColumnClick( wxCommandEvent& event )
 {
-	DataViewerAddColDlg dlg(grid_base, this);
+	DataViewerAddColDlg dlg(project, this);
 	if (dlg.ShowModal() != wxID_OK) return;
 	InitFieldChoices();
 	wxString sel_str = dlg.GetColName();
-	if (grid_base->col_data[dlg.GetColId()]->time_steps > 1) {
+	if (table_int->GetColTimeSteps(dlg.GetColId()) > 1) {
 		sel_str << " (" << m_result_tm->GetStringSelection() << ")";
 	}
 	m_result->SetSelection(m_result->FindString(sel_str));
@@ -527,13 +532,13 @@ void FieldNewCalcBinDlg::OnAddColumnClick( wxCommandEvent& event )
 void FieldNewCalcBinDlg::InitTime(wxChoice* time_list)
 {
 	time_list->Clear();
-	for (int i=0; i<grid_base->time_steps; i++) {
+	for (int i=0; i<project->GetTableInt()->GetTimeSteps(); i++) {
 		wxString t;
-		t << grid_base->time_ids[i];
+		t << project->GetTableInt()->GetTimeString(i);
 		time_list->Append(t);
 	}
 	time_list->Append("all times");
-	time_list->SetSelection(grid_base->time_steps);
+	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
 	time_list->Disable();
 	time_list->Show(is_space_time);
 }

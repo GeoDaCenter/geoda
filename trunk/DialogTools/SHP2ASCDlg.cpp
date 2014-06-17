@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -31,7 +31,11 @@
 #include "../ShapeOperations/shp.h"
 #include "../ShapeOperations/ShapeFileTypes.h"
 #include "../ShapeOperations/ShapeFileHdr.h"
+
+#include "../ShapeOperations/OGRDatasourceProxy.h"
+#include "../ShapeOperations/OGRLayerProxy.h"
 #include "SHP2ASCDlg.h"
+#include "ConnectDatasourceDlg.h"
 
 using namespace ShapeFileTypes;
 
@@ -46,15 +50,16 @@ BEGIN_EVENT_TABLE( SHP2ASCDlg, wxDialog )
     EVT_BUTTON( XRCID("IDC_OPEN_ISHP"), SHP2ASCDlg::OnCOpenIshpClick )
 END_EVENT_TABLE()
 
-bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
-					   int type, bool isR)
+bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
+                                   int type, bool isR)
 {
 	if(isR && !orasc)
 		return false;
 
 	ofstream ascr;
 	if (isR) {
-		ascr.open(orasc); // produce bounding box file.
+		//ascr.open(orasc); // produce bounding box file.
+		ascr.open(GET_ENCODED_FILENAME(orasc));
 	}
 
 	if(isR) {
@@ -62,47 +67,23 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 			return false;
 	}
 
-	ofstream asc(oasc);
+	ofstream asc;
+	asc.open(GET_ENCODED_FILENAME(oasc));
 
 	if(!asc.is_open())
 		return false;
 
-	iShapeFile    shx(wxString(ishp), "shx");
-	char          hsx[ 2*GeoDaConst::ShpHeaderSize ];
-	shx.read((char *) &hsx[0], 2*GeoDaConst::ShpHeaderSize);
-	ShapeFileHdr        hdx(hsx);
-	long          offset, contents, *OffsetIx;
-	long n = (hdx.Length() - GeoDaConst::ShpHeaderSize) / 4;
-	OffsetIx= new long [ n ];
-
-	if (n < 1 || OffsetIx == NULL)
-		return false;
-
-	for (long rec= 0; rec < n; ++rec) {
-		offset= ReadBig(shx);
-		contents= ReadBig(shx);
-		offset *= 2;
-		OffsetIx[rec]= offset;
-	}
-	shx.close();
-
-	wxString name = wxString::Format("%s",ishp);
-	name = name+ ".dbf";
-	iDBF tb(name);
-
-	if(!tb.IsConnectedToFile()) {
-		wxMessageBox("Can't find a DBF file.");
-		return false;
-	}
-
+    int n = ogr_layer->GetNumRecords();
+    string field_name = ogr_layer->GetFieldName(field).ToStdString();
+    
 	switch(type) {
 		case 1:
 		case 3:
 			break;
 		case 2:
 		case 4:
-			asc << n << "," << tb.GetFieldName(field) << endl;
-			if(isR) ascr << n << "," << tb.GetFieldName(field) << endl;
+			asc << n << "," << field_name << endl;
+			if(isR) ascr << n << "," << field_name << endl;
 			break;
 		default:
 			asc.close();
@@ -112,81 +93,66 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 	}
 
 	double* polyid = NULL;
-	charPtr* temp_y = NULL;
+	string* temp_y = NULL;
 	int col_type;
 
-	if (tb.GetFieldType(field) == 'N' || tb.GetFieldType(field) == 'D') {
+    if (ogr_layer->GetFieldType(field) == GdaConst::long64_type ||
+        ogr_layer->GetFieldType(field) == GdaConst::double_type ) {
 		polyid = new double[n];
 		col_type = 1;
-		tb.GetDblDataArray(wxString(tb.GetFieldName(field)),polyid);
-	} else if (tb.GetFieldType(field) == 'C') {
-		temp_y = new charPtr [n + 1];
+        for (int i=0; i<n; i++) {
+            polyid[i] = ogr_layer->data[i]->GetFieldAsInteger(field);
+        }
+        
+	} else if (ogr_layer->GetFieldType(field) == GdaConst::string_type) {
+		temp_y = new string[n + 1];
 		col_type = 0;
-		tb.GetStrDataArray(wxString(tb.GetFieldName(field)),temp_y);
+        for (int i=0; i<n; i++) {
+            temp_y[i] = ogr_layer->data[i]->GetFieldAsString(field);
+        }
+        
 	} else {
 		wxMessageBox("the file is Unsupported type!");
-		tb.close();
 		return false;
 	}
-	tb.close();
 
-	iShapeFile    shp(wxString(ishp), "shp");
-	char          hs[ 2*GeoDaConst::ShpHeaderSize ];
-	shp.read(hs, 2*GeoDaConst::ShpHeaderSize);
-	ShapeFileHdr        hd(hs);
-
-	if ((ShapeFileTypes::ShapeType(hd.FileShape())
-		 == ShapeFileTypes::POLYGON) ||
-		(ShapeFileTypes::ShapeType(hd.FileShape())
-		 == ShapeFileTypes::POLYGON_Z) ||
-		(ShapeFileTypes::ShapeType(hd.FileShape())
-		 == ShapeFileTypes::POLYGON_M))
-	{
-		Box pBox;
-		for (long rec= 0; rec < n; ++rec)  
+	if (ogr_layer->GetShapeType() == wkbPolygon ||
+		ogr_layer->GetShapeType() == wkbMultiPolygon ) {
+        
+		for (long rec= 0; rec < n; ++rec)
 		{
 			if(col_type == 0)
 				asc << temp_y[rec]; 
 			else
-				asc << polyid[rec];
+				asc << polyid[rec]; 
 
-			shp.seekg(OffsetIx[rec]+12, ios::beg);
-#ifdef WORDS_BIGENDIAN
-			char r[32], p;
-			double m1, m2, n1, n2;
-			shp.read((char *)r, sizeof(double) * 4);
-			SWAP(r[0], r[7], p);
-			SWAP(r[1], r[6], p);
-			SWAP(r[2], r[5], p);
-			SWAP(r[3], r[4], p);
-			memcpy(&m1, &r[0], sizeof(double));
-			SWAP(r[8], r[15], p);
-			SWAP(r[9], r[14], p);
-			SWAP(r[10], r[13], p);
-			SWAP(r[11], r[12], p);
-			memcpy(&m2, &r[8], sizeof(double));
-			SWAP(r[16], r[23], p);
-			SWAP(r[17], r[22], p);
-			SWAP(r[18], r[21], p);
-			SWAP(r[19], r[20], p);
-			memcpy(&n1, &r[16], sizeof(double));
-			SWAP(r[24], r[31], p);
-			SWAP(r[25], r[30], p);
-			SWAP(r[26], r[29], p);
-			SWAP(r[27], r[28], p);
-			memcpy(&n2, &r[24], sizeof(double));
-			BasePoint p1 = BasePoint(m1, m2);
-			BasePoint p2 = BasePoint(n1, n2);
-			pBox = Box(p1, p2);
-#else
-			shp >> pBox;
-#endif
-			shp.seekg(OffsetIx[rec]+12, ios::beg);
-			BoundaryShape t;
-			t.ReadShape(shp);    
-
-			int n_po  = t.GetNumPoints()-1;
-
+			int n_po  = 0;
+            OGRGeometry* geom = ogr_layer->data[rec]->GetGeometryRef();
+            OGRPolygon* poly = dynamic_cast<OGRPolygon*>(geom);
+            OGRMultiPolygon* multi_poly = NULL;
+           
+            // if a OGRPolygon, build a OGRMultiPolygon
+            if ( poly != NULL ) {
+                multi_poly = new OGRMultiPolygon();
+                multi_poly->addGeometry(poly);
+            } else {
+                multi_poly = dynamic_cast<OGRMultiPolygon*>(geom);
+            }
+           
+            int num_sub_polys = multi_poly->getNumGeometries();
+            
+            for ( int i=0; i < num_sub_polys; i++) {
+                OGRPolygon* sub_poly =
+                    (OGRPolygon*)multi_poly->getGeometryRef(i);
+                OGRLinearRing* ext_ring = sub_poly->getExteriorRing();
+                n_po += ext_ring->getNumPoints();
+                int num_inner_rings = sub_poly->getNumInteriorRings();
+                for (int j=0; j < num_inner_rings; j++) {
+                    OGRLinearRing* inn_ring = sub_poly->getInteriorRing(j);
+                    n_po += inn_ring->getNumPoints();
+                }
+            }
+            
 			switch(type)
 			{
 			case 1:
@@ -207,32 +173,52 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 					ascr << temp_y[rec]; 
 				else
 					ascr << polyid[rec];
+                
+                OGREnvelope pEnvelope;
+                multi_poly->getEnvelope(&pEnvelope);
 
-				ascr << "," << wxString::Format("%.10f", pBox._min().x);
-				ascr << "," << wxString::Format("%.10f", pBox._min().y);
-				ascr << "," << wxString::Format("%.10f", pBox._max().x);
-				ascr << "," << wxString::Format("%.10f", pBox._max().y);
+				ascr << "," << wxString::Format("%.10f", pEnvelope.MinX);
+				ascr << "," << wxString::Format("%.10f", pEnvelope.MinY);
+				ascr << "," << wxString::Format("%.10f", pEnvelope.MaxX);
+				ascr << "," << wxString::Format("%.10f", pEnvelope.MaxY);
 				ascr << endl;		
 			}
-
-			BasePoint *Points;
-			Points = t.GetPoints();
-
-			for(int p=0; p<n_po; p++)
-			{
-				asc << wxString::Format("%.10f", Points[p].x);
-				asc << ",";
-				asc << wxString::Format("%.10f", Points[p].y);
-				asc << endl;
-			}
+            
+            OGRLinearRing* ext_ring = NULL;
+            
+            for ( int i=0; i < num_sub_polys; i++) {
+                OGRPolygon* sub_poly =
+                    (OGRPolygon*)multi_poly->getGeometryRef(i);
+                ext_ring = sub_poly->getExteriorRing();
+                for (int i=0; i < ext_ring->getNumPoints(); i++) {
+                    asc << wxString::Format("%.10f", ext_ring->getX(i));
+                    asc << ",";
+                    asc << wxString::Format("%.10f", ext_ring->getY(i));
+                    asc << endl;
+                }
+                int num_inner_rings = sub_poly->getNumInteriorRings();
+                for (int i=0; i < num_inner_rings; i++) {
+                    OGRLinearRing* inn_ring = sub_poly->getInteriorRing(i);
+                    for (int j=0; j < inn_ring->getNumPoints(); j++) {
+                        asc << wxString::Format("%.10f", inn_ring->getX(j));
+                        asc << ",";
+                        asc << wxString::Format("%.10f", inn_ring->getY(j));
+                        asc << endl;
+                    }
+                }
+            }
+           
+            /*
 			switch(type)
 			{
 			case 3:
 			case 4:
-					asc << wxString::Format("%.10f", Points[0].x);
-					asc << ",";
-					asc << wxString::Format("%.10f", Points[0].y);
-					asc << endl;
+                    if ( poly != NULL) {
+                        asc << wxString::Format("%.10f", ext_ring->getX(0));
+                        asc << ",";
+                        asc << wxString::Format("%.10f", ext_ring->getY(0));
+                        asc << endl;
+                    }
 				break;
 			case 1:
 			case 2:
@@ -240,6 +226,7 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 			default:
 				return false;
 			}
+            */
 		}
 	}
 
@@ -253,18 +240,19 @@ bool CreateASCBoundary(char* ishp, char* oasc, char* orasc, int field,
 	asc.close();
 	if(isR)
 		ascr.close();
-	shp.close();    
 
 	return true;	
 }
 
 SHP2ASCDlg::SHP2ASCDlg( )
+: ogr_ds(NULL), ogr_layer(NULL)
 {
 }
 
 SHP2ASCDlg::SHP2ASCDlg( wxWindow* parent, wxWindowID id,
 						 const wxString& caption, const wxPoint& pos,
 						 const wxSize& size, long style )
+: ogr_ds(NULL), ogr_layer(NULL)
 {
 	type = -1;
     Create(parent, id, caption, pos, size, style);
@@ -273,6 +261,14 @@ SHP2ASCDlg::SHP2ASCDlg( wxWindow* parent, wxWindowID id,
 	FindWindow(XRCID("IDC_FIELD_ASC"))->Enable(false);
 	FindWindow(XRCID("IDC_KEYVAR"))->Enable(false);
 	FindWindow(XRCID("IDOK_ADD"))->Enable(false);
+}
+
+SHP2ASCDlg::~SHP2ASCDlg()
+{
+    if ( ogr_ds ) {
+        delete ogr_ds;
+        ogr_ds = NULL;
+    }
 }
 
 bool SHP2ASCDlg::Create( wxWindow* parent, wxWindowID id,
@@ -329,13 +325,15 @@ void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 	else 
 		DirName = m_ishp;
 
-	char buf_ifl[512];
-	strcpy( buf_ifl, (const char*)DirName.mb_str(wxConvUTF8) );
-	char* ifl = buf_ifl;
+	//char buf_ifl[512];
+	//strcpy( buf_ifl, (const char*)DirName.mb_str(wxConvUTF8) );
+	//char* ifl = buf_ifl;
+	wxString ifl = DirName;
 
-	char buf_ofl[512];
-	strcpy( buf_ofl, (const char*)m_oasc.mb_str(wxConvUTF8) );
-	char* ofl = buf_ofl;
+	//char buf_ofl[512];
+	//strcpy( buf_ofl, (const char*)m_oasc.mb_str(wxConvUTF8) );
+	//char* ofl = buf_ofl;
+	wxString ofl = m_oasc;
 
 	pos = m_oasc.Find('.',true);
 	if (pos > 0) {
@@ -350,24 +348,27 @@ void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 
 	if(m_isR) {
 		wxString orf = RName+ "_r" +RNameExt;
-		char buf_orfl[512];
-		strcpy( buf_orfl, (const char*)orf.mb_str(wxConvUTF8) );
-		char* orfl = buf_orfl;
+		//char buf_orfl[512];
+		//strcpy( buf_orfl, (const char*)orf.mb_str(wxConvUTF8) );
+		//char* orfl = buf_orfl;
 
-		if(!CreateASCBoundary(ifl, ofl, orfl,
-							  m_X->GetSelection(), type, m_isR)) {
+		if(!CreateASCBoundary(ofl, orf, m_X->GetSelection(), type, m_isR)) {
 			wxMessageBox("Can't write output file!");
 			return;
 		}
 			
 	} else {
-		if(!CreateASCBoundary(ifl, ofl, NULL,
-							  m_X->GetSelection(), type, m_isR)) {
+		if(!CreateASCBoundary(ofl, wxEmptyString, m_X->GetSelection(),
+                              type, m_isR)) {
 			wxMessageBox("Can't write output file!");
 			return;
 		}
 	}
 
+    wxMessageDialog dlg (this, "Export shape to boundary successfully.",
+                         "Info", wxOK | wxICON_INFORMATION);
+    dlg.ShowModal();
+    
 	event.Skip();
 }
 
@@ -423,58 +424,49 @@ void SHP2ASCDlg::OnCRadio4Selected( wxCommandEvent& event )
 
 void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg( this, "Input Shp file", "", "",
-					 "Shp files (*.shp)|*.shp" );
+    try{
+        ConnectDatasourceDlg dlg(this);
+        if (dlg.ShowModal() != wxID_OK) return;
+        
+        wxString proj_title = dlg.GetProjectTitle();
+        wxString layer_name = dlg.GetLayerName();
+        IDataSource* datasource = dlg.GetDataSource();
+        wxString ds_name = datasource->GetOGRConnectStr();
+        
+        ogr_ds = new OGRDatasourceProxy(ds_name.ToStdString(),true);
+        ogr_layer = ogr_ds->GetLayerProxy(layer_name.ToStdString());
+        ogr_layer->ReadData();
 
-	
-	wxString	m_path = wxEmptyString;
-	bool m_polyid = false;
-
-    if (dlg.ShowModal() == wxID_OK) {
-		m_path  = dlg.GetPath();
-		wxString onlyFileName = dlg.GetPath();
-		wxString InFile = m_path;
-		wxString m_ishp = m_path;
-		m_inputfile->SetValue(InFile);
-		fn = dlg.GetFilename();
-		int j = fn.Find('.', true);
-		if (j >= 0) fn = fn.Left(j);
-
-		m_X->Clear();
-
-		wxString DirName;
-		int pos = m_ishp.Find('.',true);
-		DirName = pos >= 0 ? m_ishp.Left(pos) : m_ishp;
-		DirName = DirName + ".dbf";
-		
-		iDBF tb(DirName);
-		
-		if(!tb.IsConnectedToFile())
-		{
-			wxMessageBox("DBF file failed!");
-			return;
-		}
-		int numfields = tb.GetNumOfField();
-
-		if(numfields == 0)
-		{
-			wxMessageBox("No fields found!");
-			tb.close();
-			return;
-		}
-
-		for(int i=0; i<numfields; i++)
-		{
-		   
-			m_X->Append(wxString::Format("%s",tb.GetFieldName(i)));
-		}
-		tb.close();
-
-		m_X->SetSelection(0);
-
-	
-		FindWindow(XRCID("IDC_OPEN_OASC"))->Enable(true);
-		FindWindow(XRCID("IDC_FIELD_ASC"))->Enable(true);
-		FindWindow(XRCID("IDC_KEYVAR"))->Enable(true);	
-	}
+        bool is_valid_layer = true;
+        
+        if (ogr_layer->IsTableOnly()) {
+            wxMessageBox("This is not a shape datasource. Please open a valid "
+                         "shape datasource, e.g. ESRI Shapefile, PostGIS layer...");
+            is_valid_layer = false;
+        }
+        if (ogr_layer->GetNumFields() == 0){
+            wxMessageBox("No fields found!");
+            is_valid_layer = false;
+        }
+        if ( !is_valid_layer) {
+            delete ogr_ds;
+            ogr_ds = NULL;
+            return;
+        }
+        
+        m_X->Clear();
+        for (int i=0; i<ogr_layer->GetNumFields(); i++){
+            m_X->Append(wxString::Format("%s",ogr_layer->GetFieldName(i)));
+        }
+        m_X->SetSelection(0);
+        m_inputfile->SetValue(layer_name);
+        
+        FindWindow(XRCID("IDC_OPEN_OASC"))->Enable(true);
+        FindWindow(XRCID("IDC_FIELD_ASC"))->Enable(true);
+        FindWindow(XRCID("IDC_KEYVAR"))->Enable(true);
+    } catch (GdaException& e) {
+        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
+        return;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,9 +24,9 @@
 #include <wx/menu.h>
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../Generic/MyShape.h"
+#include "../Generic/GdaShape.h"
 
 class BoxNewPlotCanvas;
 class BoxNewPlotFrame;
@@ -58,7 +58,7 @@ public:
 	
 protected:
 	virtual void PopulateCanvas();
-	virtual void TitleOrTimeChange();
+	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	
 public:
@@ -84,13 +84,13 @@ protected:
 	int ref_var_index;
 	std::vector<GeoDaVarInfo> var_info;
 	std::vector<d_array_type> data;
-	std::vector<GeoDa::dbl_int_pair_vec_type> data_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<HingeStats> hinge_stats;
 	std::vector<SampleStatistics> data_stats;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	AxisScale axis_scale;
-	MyAxis* vert_axis;
+	GdaAxis* vert_axis;
 	std::vector<bool> sel_scratch;
 
 	bool show_axes;
@@ -121,7 +121,7 @@ public:
 					const std::vector<int>& col_ids,
 					const wxString& title = "Box Plot",
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GeoDaConst::boxplot_default_size,
+					const wxSize& size = GdaConst::boxplot_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~BoxNewPlotFrame();
 	
@@ -131,10 +131,8 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
-	/** Implementation of FramesManagerObserver interface */
-	virtual void update(FramesManager* o);
-	
-	virtual void UpdateTitle();
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
 	
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,14 +25,16 @@
 #include <wx/dialog.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
+#include <wx/timer.h>
 #include "../FramesManagerObserver.h"
+#include "../DataViewer/TimeStateObserver.h"
+#include "../DataViewer/TableStateObserver.h"
 
 class FramesManager;
-class DbfGridTableBase;
+class TimeState;
 class TimeChooserDlg;
-class TimeChooserTimer;
 
-class TimeChooserTimer: public wxTimer
+class TimeChooserTimer : public wxTimer
 {
 public:
 	TimeChooserTimer(TimeChooserDlg* dlg);
@@ -44,11 +46,13 @@ public:
 };
 
 
-class TimeChooserDlg : public wxDialog, public FramesManagerObserver
+class TimeChooserDlg : public wxDialog, public FramesManagerObserver,
+	public TimeStateObserver, public TableStateObserver
 {
 public:	
 	TimeChooserDlg(wxWindow* parent, FramesManager* frames_manager,
-				   DbfGridTableBase* grid_base);
+				   TimeState* time_state, TableState* table_state,
+				   TableInterface* table_int);
 	virtual ~TimeChooserDlg();
 	void OnClose(wxCloseEvent& ev);
 	void OnMoveSlider(wxCommandEvent& ev);
@@ -77,9 +81,19 @@ public:
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	/** Implementation of TimeStateObserver interface */
+	virtual void update(TimeState* o);
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
 	
 protected:
+	TableInterface* table_int;
 	FramesManager* frames_manager;
+	TimeState* time_state;
+	TableState* table_state;
 	TimeChooserTimer* timer;
 	bool playing;
 	wxSlider* slider;
@@ -89,12 +103,9 @@ protected:
 	static const int min_delay_ms = 200;
 	static const int max_delay_ms = 3000;
 	wxButton* play_button;
-	wxStaticText* min_txt;
-	wxStaticText* max_txt;
 	wxStaticText* cur_txt;
 	wxCheckBox* loop_cb;
 	wxCheckBox* reverse_cb;
-	DbfGridTableBase* grid_base;
 	bool all_init;
 	bool suspend_notify;
 	bool suspend_update;

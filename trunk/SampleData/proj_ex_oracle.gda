@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <title>Columbus Crime Rates</title>
+  <layers>
+    <layer>
+      <datasource>
+	<type>OCI</type>
+	<db_name>xe</db_name>
+	<host>192.168.56.101</host>
+	<port>1521</port>
+	<user>oracle</user>
+	<pwd>oracle</pwd>
+      </datasource>
+      <layername>columbus</layername>
+      <title>Columbus Crime</title>
+    </layer>
+  </layers>
+</project>
+

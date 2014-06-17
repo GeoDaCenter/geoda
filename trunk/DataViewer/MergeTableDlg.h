@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,14 +30,16 @@
 #include <wx/listbox.h>
 #include <wx/grid.h>
 
-class DbfFileReader;
-class DbfGridTableBase;
+#include "DataSource.h"
+#include "../ShapeOperations/OGRLayerProxy.h"
+#include "../ShapeOperations/OGRDatasourceProxy.h"
+#include "../DataViewer/TableInterface.h"
 
 class MergeTableDlg: public wxDialog
 {    
 public:
-    MergeTableDlg(DbfGridTableBase* grid_base,
-				  const wxPoint& pos = wxDefaultPosition);
+    MergeTableDlg(TableInterface* _table_int,
+                  const wxPoint& pos = wxDefaultPosition);
 	virtual ~MergeTableDlg();
 
     void CreateControls();
@@ -55,8 +57,8 @@ public:
 	void OnKeyChoice( wxCommandEvent& ev );
 	void OnCloseClick( wxCommandEvent& ev );
 	void UpdateMergeButton();
-	void RemoveDbfReader();
-	void UpdateIncListItems();
+	//void RemoveDbfReader();
+	//void UpdateIncListItems();
 	
 	wxTextCtrl* m_input_file_name;
 	wxRadioButton* m_key_val_rb;
@@ -66,14 +68,13 @@ public:
 	wxListBox* m_exclude_list;
 	wxListBox* m_include_list;
 	
-	DbfGridTableBase* grid_base;
-	DbfFileReader* dbf_reader;
+	//TableBase* table_base;
+	TableInterface* table_int;
+	OGRLayerProxy* merge_layer_proxy;
+    OGRDatasourceProxy* merge_datasource_proxy;
 	std::set<wxString> table_fnames;
 	
 private:
-	wxString getValidName(const std::map<wxString,int>& fname_to_id,
-						  const std::set<wxString>& table_fnames,
-						  const wxString& fname);
 	std::map<wxString, int> dedup_to_id;
 	std::set<wxString> dups;
 	// a mapping from displayed col order to actual col ids in table
@@ -81,8 +82,15 @@ private:
 	// but because of user wxGrid col reorder operaions might see these
 	// as C, B, A, F, D, E.  In this case, the col_id_map would be
 	// 0->2, 1->1, 2->0, 3->5, 4->3, 5->4
-	std::vector<int> col_id_map;
-	
+	//std::vector<int> col_id_map;
+    
+private:
+    void CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+                   std::map<wxString, int>& key_map);
+    vector<wxString>
+    GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
+    void AppendNewField(wxString field_name, wxString real_field_name,
+                        int n_rows, std::map<int,int>& rowid_map);
 	DECLARE_EVENT_TABLE()
 };
 

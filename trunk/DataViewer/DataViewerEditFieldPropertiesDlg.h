@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,47 +27,64 @@
 #include <wx/grid.h>
 #include <wx/dialog.h>
 #include <wx/button.h>
-#include "DbfGridTableBase.h"
+#include "../FramesManagerObserver.h"
+#include "TableStateObserver.h"
 
-class DataViewerEditFieldPropertiesDlg: public wxDialog
+class FramesManager;
+class TableInterface;
+class TableState;
+class Project;
+
+class DataViewerEditFieldPropertiesDlg: public wxDialog,
+	public FramesManagerObserver, public TableStateObserver
 {
 public:
-    DataViewerEditFieldPropertiesDlg(DbfGridTableBase* grid_base,
+    DataViewerEditFieldPropertiesDlg(Project* project,
 									 const wxPoint &pos=wxDefaultPosition,
 									 const wxSize &size=wxDefaultSize );
+	virtual ~DataViewerEditFieldPropertiesDlg();
+	
     void CreateControls();
-    void OnApplyButton( wxCommandEvent& ev );
+	void InitTable();
 	void OnCloseButton( wxCommandEvent& ev );
 	void OnClose( wxCloseEvent& ev );
-	void OnCellEdit( wxGridEvent& ev );
-	void OnCellClickLeft( wxGridEvent& ev );
+	void OnCellChanging( wxGridEvent& ev );
 	void OnCellEditorShown( wxGridEvent& ev );
 	void OnCellEditorHidden( wxGridEvent& ev );
-	void OnLabelLeftClickEvent( wxGridEvent& ev );
-	void ShowFieldProperties(int row);
+	void UpdateMinMax(int row);
 	
-	wxGrid* field_grid;
-	DbfGridTableBase* grid_base;
+	/** Implementation of FramesManagerObserver interface */
+	virtual void update(FramesManager* o);
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
 	
-	wxGridSizer* g_sizer;
-	wxStaticText* m_max_label;
-	wxStaticText* m_max_val;
-	wxStaticText* m_min_label;
-	wxStaticText* m_min_val;
+	void UpdateTmStrMap();
 	
 private:
+	wxGrid* field_grid;
+	Project* project;
+	FramesManager* frames_manager;
+	TableInterface* table_int;
+	TableState* table_state;
+		
 	std::map<wxString, int> fn_freq;
-	wxButton* apply_button;
-	bool reenable_apply_after_cell_editor_hidden;
 	bool cell_editor_open;
-	bool is_space_time;
 	
-	// a mapping from displayed col order to actual col ids in table
-	// Eg, in underlying table, we might have A, B, C, D, E, F,
-	// but because of user wxGrid col reorder operaions might see these
-	// as C, B, A, F, D, E.  In this case, the col_id_map would be
-	// 0->2, 1->1, 2->0, 3->5, 4->3, 5->4
-	std::vector<int> col_id_map;
+	std::map<wxString, int> tm_str_map;
+	
+	int COL_N; // field name
+	int COL_T; // type
+	int COL_L; // length
+	int COL_D; // decimals
+	int COL_DD; // displayed decimals
+	int COL_PG; // parent group name
+	int COL_TM; // time period
+	int COL_MIN; // min value possible
+	int COL_MAX; // max value possible
+	int NUM_COLS;
 	
 	DECLARE_EVENT_TABLE()
 };

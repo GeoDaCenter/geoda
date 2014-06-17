@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,7 +21,7 @@
 #include <wx/colourdata.h>
 #include <wx/xrc/xmlres.h>
 #include "logger.h"
-#include "GeoDaConst.h"
+#include "GdaConst.h"
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
@@ -40,15 +40,19 @@ TemplateLegend::TemplateLegend(wxWindow *parent,
 							   const wxPoint& pos, const wxSize& size)
 : wxScrolledWindow(parent, wxID_ANY, pos, size,
 				   wxBORDER_SUNKEN | wxVSCROLL | wxHSCROLL),
-legend_background_color(GeoDaConst::legend_background_color),
+legend_background_color(GdaConst::legend_background_color),
 template_canvas(template_canvas_s)
 {
-	SetBackgroundColour(GeoDaConst::legend_background_color);
+	SetBackgroundColour(GdaConst::legend_background_color);
     d_rect = 20;
     px = 10;
     py = 40;
     m_w = 15;
     m_l = 20;
+    
+    wxBoxSizer* box = new wxBoxSizer(wxHORIZONTAL);
+    box->Add(this, 1, wxEXPAND|wxALL);
+    parent->SetSizer(box);
 }
 
 TemplateLegend::~TemplateLegend()
@@ -152,7 +156,7 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 void TemplateLegend::OnDraw(wxDC& dc)
 {
 	if (!template_canvas) return;
-    dc.SetFont(*GeoDaConst::small_font);
+    dc.SetFont(*GdaConst::small_font);
     dc.DrawText(template_canvas->GetCategoriesTitle(), px, 13);
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();

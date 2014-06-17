@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,8 +20,10 @@
 #include <set>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../logger.h"
+#include "../Project.h"
 #include "PCPDlg.h"
 
 BEGIN_EVENT_TABLE( PCPDlg, wxDialog )
@@ -38,10 +40,10 @@ BEGIN_EVENT_TABLE( PCPDlg, wxDialog )
 					   PCPDlg::OnExclListDClick )
 END_EVENT_TABLE()
 
-PCPDlg::PCPDlg(DbfGridTableBase* grid_base_s, wxWindow* parent,
-				 wxWindowID id, const wxString& title, const wxPoint& pos,
-				 const wxSize& size, long style )
-: grid_base(grid_base_s)
+PCPDlg::PCPDlg(Project* project_s, wxWindow* parent,
+			   wxWindowID id, const wxString& title, const wxPoint& pos,
+			   const wxSize& size, long style )
+: project(project_s), table_int(project_s->GetTableInt())
 {
     SetParent(parent);
     CreateControls();
@@ -61,16 +63,16 @@ void PCPDlg::CreateControls()
 
 void PCPDlg::Init()
 {
-	grid_base->FillNumericColIdMap(col_id_map);
-	name_to_id.clear(); // map to grid_base col id
+	table_int->FillNumericColIdMap(col_id_map);
+	name_to_id.clear(); // map to table_int col id
 	name_to_tm_id.clear(); // map to corresponding time id
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int id = col_id_map[i];
-		wxString name = grid_base->col_data[id]->name.Upper();
-		if (grid_base->IsColTimeVariant(id)) {
-			for (int t=0; t<grid_base->col_data[id]->time_steps; t++) {
+		wxString name = table_int->GetColName(id).Upper();
+		if (table_int->IsColTimeVariant(id)) {
+			for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
 				wxString nm = name;
-				nm << " (" << grid_base->time_ids[t] << ")";
+				nm << " (" << project->GetTableInt()->GetTimeString(t) << ")";
 				name_to_id[nm] = id;
 				name_to_tm_id[nm] = t;
 				m_exclude_list->Append(nm);
@@ -153,15 +155,15 @@ void PCPDlg::OnOkClick( wxCommandEvent& event )
 		
 		col_ids[i] = pcp_col_ids[i];
 		var_info[i].time = pcp_col_tm_ids[i];
-		var_info[i].name = grid_base->GetColName(col_ids[i]);
-		var_info[i].is_time_variant = grid_base->IsColTimeVariant(col_ids[i]);
-		grid_base->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+		var_info[i].name = table_int->GetColName(col_ids[i]);
+		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
+		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
 		var_info[i].sync_with_global_time = var_info[i].is_time_variant;
 		var_info[i].fixed_scale = true;
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
-	GeoDa::PrintVarInfoVector(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::PrintVarInfoVector(var_info);
 	
 	event.Skip();
 	EndDialog(wxID_OK);

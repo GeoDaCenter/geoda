@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,10 +24,13 @@
 #include <wx/button.h>
 #include "../ShapeOperations/DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
+#include "../GenUtils.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
+#include "../Project.h"
 #include "SaveToTableDlg.h"
 
 const int ID_ADD_BUTTON = wxID_HIGHEST+1;
@@ -44,16 +47,16 @@ BEGIN_EVENT_TABLE( SaveToTableDlg, wxDialog )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), SaveToTableDlg::OnCloseClick )
 END_EVENT_TABLE()
 
-SaveToTableDlg::SaveToTableDlg(DbfGridTableBase* grid_base_s, wxWindow* parent,
+SaveToTableDlg::SaveToTableDlg(Project* project_s, wxWindow* parent,
 							   const std::vector<SaveToTableEntry>& data_s,
 							   const wxString& title, const wxPoint& pos,
 							   const wxSize& size, long style)
 : wxDialog(parent, wxID_ANY, title, pos, size, style),
-data(data_s), grid_base(grid_base_s),
+data(data_s), project(project_s), table_int(project_s->GetTableInt()),
 m_check(data_s.size()), m_add_button(data_s.size()),
 m_field(data_s.size()), m_time(data_s.size()),
 col_id_maps(data_s.size()),
-is_space_time(grid_base_s->IsTimeVariant()),
+is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
 {
 	for (int i=0, iend=data.size(); i<iend; i++) {
@@ -144,16 +147,18 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		prev_col_nm[i] = m_field[i]->GetStringSelection();
 	}
 	
-	DataViewerAddColDlg dlg(grid_base, this, false, true,
+	LOG(data[obj_id].field_default);
+	LOG(data[obj_id].type);
+	DataViewerAddColDlg dlg(project, this, false, true,
 							data[obj_id].field_default,
 							data[obj_id].type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
 
-	GeoDaConst::FieldType type = grid_base->GetColType(col);
+	GdaConst::FieldType type = table_int->GetColType(col);
 	if (type != data[obj_id].type &&
-		data[obj_id].type == GeoDaConst::long64_type &&
-		type != GeoDaConst::double_type) return;
+		data[obj_id].type == GdaConst::long64_type &&
+		type != GdaConst::double_type) return;
 	// reinitialize all field lists, but set list corresponding to button
 	// to newly created field
 	FillColIdMaps();
@@ -161,7 +166,11 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 	
 	for (int i=0; i<data.size(); i++) {
 		int sel = m_field[i]->FindString(prev_col_nm[i]);
-		if (sel != wxNOT_FOUND) m_field[i]->SetSelection(sel);
+		if (sel != wxNOT_FOUND) {
+			m_field[i]->SetSelection(sel);
+		} else {
+			m_field[i]->SetSelection(-1);
+		}
 	}
 	
 	m_field[obj_id]->SetSelection(m_field[obj_id]->
@@ -255,7 +264,7 @@ void SaveToTableDlg::EnableTimeField(int button)
 		return;
 	}
 	int col = col_id_maps[button][m_field[button]->GetSelection()];
-	m_time[button]->Enable(grid_base->IsColTimeVariant(col));
+	m_time[button]->Enable(table_int->IsColTimeVariant(col));
 }
 
 void SaveToTableDlg::UpdateFieldTms(int button)
@@ -290,7 +299,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	
 	std::vector<wxString> fname(data.size());
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		fname[i] = m_field[i]->GetStringSelection();
+		if (is_check[i]) fname[i] = m_field[i]->GetStringSelection();
 	}
 	
 	// Throw all fname[i] into a set container and check for duplicates while
@@ -299,7 +308,10 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	std::set<wxString>::iterator it;
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
-		if (grid_base->IsTimeVariant() && m_time[i]->IsEnabled()) {
+		TableState* ts = project->GetTableState();
+		if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, s)) return;
+		if (project->GetTableInt()->IsTimeVariant()
+			&& m_time[i]->IsEnabled()) {
 			s << " (" << m_time[i]->GetStringSelection() << ")";
 		}
 		it = names.find(s);
@@ -315,23 +327,18 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	for (int i=0, iend=data.size(); i<iend; i++) {
 		if (is_check[i]) {
 			int col = col_id_maps[i][m_field[i]->GetSelection()];
-			DbfColContainer& cd = *grid_base->col_data[col];
 			int time = is_space_time ? m_time[i]->GetSelection() : 0;
 			if (data[i].d_val) {
-				cd.SetFromVec(*data[i].d_val, time);
+				table_int->SetColData(col, time, *data[i].d_val);
 			} else if (data[i].l_val) {
-				cd.SetFromVec(*data[i].l_val, time);
+				table_int->SetColData(col, time, *data[i].l_val);
 			}
 			if (data[i].undefined) {
-				cd.SetUndefined(*data[i].undefined, time);
+				table_int->SetColUndefined(col, time, *data[i].undefined);
 			}
 		}
 	}
-	GeneralWxUtils::EnableMenuItem(MyFrame::theFrame->GetMenuBar(),
-								   XRCID("ID_SAVE_PROJECT"),
-								   grid_base->ChangedSinceLastSave());
-	 
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
+
 	event.Skip();
 	EndDialog(wxID_OK);	
 }
@@ -346,9 +353,9 @@ void SaveToTableDlg::InitTime()
 {
 	if (!is_space_time) return;
 	for (int j=0, jend=data.size(); j<jend; j++) {
-		for (int t=0; t<grid_base->time_steps; t++) {
+		for (int t=0; t<project->GetTableInt()->GetTimeSteps(); t++) {
 			wxString tm;
-			tm << grid_base->time_ids[t];
+			tm << project->GetTableInt()->GetTimeString(t);
 			m_time[j]->Append(tm);
 		}
 		m_time[j]->SetSelection(0);
@@ -359,23 +366,22 @@ void SaveToTableDlg::InitTime()
 void SaveToTableDlg::FillColIdMaps()
 {
 	std::vector<int> tmp_col_id_map;
-	grid_base->FillColIdMap(tmp_col_id_map);
+	table_int->FillColIdMap(tmp_col_id_map);
 	for (int i=0; i<col_id_maps.size(); i++) col_id_maps[i].clear();
 	
-	for (int i=0; i<grid_base->GetNumberCols(); i++) {
+	for (int i=0; i<table_int->GetNumberCols(); i++) {
 		int col = tmp_col_id_map[i];
-		DbfColContainer& cd = *grid_base->col_data[col];
-		if (cd.type == GeoDaConst::double_type) {
+		if (table_int->GetColType(col) == GdaConst::double_type) {
 			for (int j=0, jend=data.size(); j<jend; j++) {
-				if (data[j].type == GeoDaConst::double_type) {
+				if (data[j].type == GdaConst::double_type) {
 					col_id_maps[j].push_back(col);
 				}
 			}
 		}
-		if (cd.type == GeoDaConst::double_type ||
-			cd.type == GeoDaConst::long64_type) {
+		if (table_int->GetColType(col) == GdaConst::double_type ||
+			table_int->GetColType(col) == GdaConst::long64_type) {
 			for (int j=0, jend=data.size(); j<jend; j++) {
-				if (data[j].type == GeoDaConst::long64_type) {
+				if (data[j].type == GdaConst::long64_type) {
 					col_id_maps[j].push_back(col);
 				}
 			}
@@ -390,14 +396,13 @@ void SaveToTableDlg::InitField(int button)
 	
 	for (int i=0, iend=col_id_maps[button].size(); i<iend; i++) {
 		int col = col_id_maps[button][i];
-		DbfColContainer& cd = *grid_base->col_data[col];
-		//if (grid_base->IsColTimeVariant(col)) {
+		//if (table_int->IsColTimeVariant(col)) {
 		//	wxString t;
 		//	int t_sel = m_time[button]->GetSelection();
-		//	t << " (" << grid_base->time_ids[t_sel] << ")";
-		//	m_field[button]->Append(cd.name + t);
+		//	t << " (" << project->GetTableInt()->GetTimeString(t_sel) << ")";
+		//	m_field[button]->Append(table_int->GetColName(col) + t);
 		//} else {
-			m_field[button]->Append(cd.name);
+			m_field[button]->Append(table_int->GetColName(col));
 		//}
 	}
 }

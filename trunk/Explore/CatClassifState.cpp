@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -59,8 +59,8 @@ void CatClassifState::removeObserver(CatClassifStateObserver* o)
 
 void CatClassifState::notifyObservers()
 {
-	std::list<CatClassifStateObserver*>::iterator it;
-	for (it=observers.begin(); it != observers.end(); it++) {
+	for (std::list<CatClassifStateObserver*>::iterator it=observers.begin();
+		 it != observers.end(); ++it) {
 		(*it)->update(this);
 	}
 }

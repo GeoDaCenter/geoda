@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -36,7 +36,7 @@
 #include <wx/filename.h>
 #include <time.h>
 #include "../GenUtils.h"
-#include "../GeoDaConst.h"
+#include "../GdaConst.h"
 #include "../GenGeomAlgs.h"
 #include "../logger.h"
 #include "ShapeFileTriplet.h"
@@ -77,11 +77,11 @@ class PartitionGWT
     void reset()  {
 		
         for (int cnt= 0; cnt < cells; ++cnt)
-			cell [ cnt ] = GeoDaConst::EMPTY;
+			cell [ cnt ] = GdaConst::EMPTY;
         return;
     };
     void reset(const double range)  {
-        cell [ Where(range) ] = GeoDaConst::EMPTY;
+        cell [ Where(range) ] = GdaConst::EMPTY;
         return;
     };
 };
@@ -146,13 +146,19 @@ class Location
 		if (method==1) // 1:Eucledian Distance 2:Arc Distance
 			return centroid[elt].x - BoundingBox._min().x;
 		else
-			return GenGeomAlgs::ComputeArcDist(BoundingBox._min().x,BoundingBox._min().y,centroid[elt].x,BoundingBox._min().y);
+			return GenGeomAlgs::ComputeArcDist(BoundingBox._min().x,
+											   BoundingBox._min().y,
+											   centroid[elt].x,
+											   BoundingBox._min().y);
 	};
 	double y_range(const long elt, int method)  const {
 		if (method==1)
 			return centroid[elt].y - BoundingBox._min().y;
 		else
-			return GenGeomAlgs::ComputeArcDist(BoundingBox._min().x,BoundingBox._min().y,BoundingBox._min().x,centroid[elt].y);
+			return GenGeomAlgs::ComputeArcDist(BoundingBox._min().x,
+											   BoundingBox._min().y,
+											   BoundingBox._min().x,
+											   centroid[elt].y);
 	};
 	void setCurrent(const long cp) {
         current= cp;
@@ -248,7 +254,7 @@ void Location::CheckParticle(PartitionGWT * Y,
 							 long &BufferSize,
 							 GwtNeighbor * buffer)  
 {
-    for ( long cnt= Y->first(cell); cnt != GeoDaConst::EMPTY; cnt= Y->tail(cnt)) {
+    for ( long cnt= Y->first(cell); cnt != GdaConst::EMPTY; cnt= Y->tail(cnt)) {
 		if (InTheSemiCircle( cnt)) {
 			buffer[ BufferSize++ ] = GwtNeighbor(cnt, currDistance);
 		}
@@ -532,32 +538,34 @@ bool CreateGridShapeFile(wxString otfl, int nRows, int nCols,
 }
 
 
-bool WriteGwt(const GwtElement *g, 
-			  const wxString& ifname, 
-			  const wxString& ofname, 
+bool WriteGwt(const GwtElement *g,
+			  const wxString& layer_name, 
+			  const wxString& ofname,
 			  const wxString& vname,
 			  const std::vector<wxInt64>& id_vec,
 			  const int degree_flag,
 			  bool geodaL)  
 {
-    if (g == NULL || ifname.IsEmpty() || ofname.IsEmpty() || vname.IsEmpty()
+    if (g == NULL || layer_name.IsEmpty() || ofname.IsEmpty() || vname.IsEmpty()
 		|| id_vec.size() == 0) {
         return false;
 	}
 	int Obs = (int) id_vec.size();
 	
-    wxFileName galfn(ofname);
-    galfn.SetExt("gwt");
-    wxString gal_ofn(galfn.GetFullPath());
-    std::ofstream out(gal_ofn.mb_str(wxConvUTF8), std::ios::out);
+    wxFileName gwtfn(ofname);
+    gwtfn.SetExt("gwt");
+    wxString gwt_ofn(gwtfn.GetFullPath());
+    std::ofstream out;
+	out.open(GET_ENCODED_FILENAME(gwt_ofn));
+
     if (!(out.is_open() && out.good())) {
         return false;
     }
 	
+	LOG_MSG(layer_name);
+	
     int degree_fl = geodaL ? 0 : degree_flag ;
-    wxFileName local(ifname);
-    std::string local_name(local.GetName().mb_str(wxConvUTF8));
-    out << degree_fl << " " << Obs << " " << local_name;
+    out << degree_fl << " " << Obs << " " << layer_name;
     out << " " << vname.mb_str() << endl;
     
     for (int i=0; i < Obs; i++) {
@@ -701,10 +709,10 @@ GwtElement* shp2gwt(int Obs,
 	for (part= 0; part < gx; ++part)  
 	{      // processing all elements along (part, y)
 		included= 0;
-		for (curr= gX.first(part); curr != GeoDaConst::EMPTY;
+		for (curr= gX.first(part); curr != GdaConst::EMPTY;
 			 curr= gX.tail(curr), ++included)
 			A->include( curr, Center.y_range(curr, method) );
-		for (curr= gX.first(part); curr != GeoDaConst::EMPTY;
+		for (curr= gX.first(part); curr != GdaConst::EMPTY;
 			 curr= gX.tail(curr))  
 		{
 			long cell= A->Where( Center.y_range(curr, method) );
@@ -730,7 +738,7 @@ GwtElement* shp2gwt(int Obs,
 			if (4*included > gy) // it's less expensive to reset all cells in the partition
 				B->reset();
 			else               // it's less expensive to reset only used cells
-				for(curr= gX.first(part); curr != GeoDaConst::EMPTY;
+				for(curr= gX.first(part); curr != GdaConst::EMPTY;
 					curr= gX.tail(curr))
 					B->reset(Center.y_range(curr, method));
 		};

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -18,6 +18,8 @@
  */
 
 #include <time.h>
+#include <boost/foreach.hpp>
+#include <wx/grid.h>
 #include <wx/msgdlg.h>
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
@@ -32,7 +34,8 @@
 #include "ProgressDlg.h"
 #include "SaveToTableDlg.h"
 #include "SelectWeightDlg.h"
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TableState.h"
 #include "../ShapeOperations/DbfFile.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/GeodaWeight.h"
@@ -45,26 +48,11 @@
 #include "../Regression/smile.h"
 #include "RegressionDlg.h"
 
-void Compute_MoranI(const GalElement* g, double *resid, int dim, double* rst);
-void Compute_RSLmError(const GalElement* g, double *resid, int dim,
-					   double* rst);
-void Compute_RSLmErrorRobust(const GalElement* g, double** cov, DenseVector y,
-							 DenseVector *x, DenseVector ols, double *resid,
-							 int dim, int expl,	double* rst);
-void Compute_RSLmLag(const GalElement* g, double** cov, DenseVector y,
-					 DenseVector *x, DenseVector ols, double *resid,
-					 int dim, int expl, double* rst);
-void Compute_RSLmLagRobust(const GalElement* g,	double** cov, DenseVector y,
-						   DenseVector *x, DenseVector ols, double *resid,
-						   int dim, int expl, double* rst);
-void Compute_RSLmSarma(const GalElement* g, double** cov, DenseVector y,
-					   DenseVector *x, DenseVector ols,	double *resid,
-					   int dim, int expl, double* rst);
-
 bool classicalRegression(const GalElement *g, int num_obs, double * Y,
 						 int dim, double ** X, 
 						 int expl, DiagnosticReport *dr, bool InclConstant,
-						 bool m_moranz, wxGauge* gauge = 0);
+						 bool m_moranz, wxGauge* gauge,
+						 bool do_white_test);
 
 bool spatialLagRegression(const GalElement *g, int num_obs, double * Y,
 						  int dim, double ** X, int deps, DiagnosticReport *dr,
@@ -88,8 +76,6 @@ BEGIN_EVENT_TABLE( RegressionDlg, wxDialog )
 	EVT_CHECKBOX( XRCID("ID_PRED_VAL_CB"), RegressionDlg::OnPredValCbClick )
 	EVT_CHECKBOX( XRCID("ID_COEF_VAR_MATRIX_CB"),
 				 RegressionDlg::OnCoefVarMatrixCbClick )
-	EVT_CHECKBOX( XRCID("ID_MORAN_Z_VAL_CB"),
-				 RegressionDlg::OnMoranZValCbClick )
     EVT_BUTTON( XRCID("IDC_BUTTON1"), RegressionDlg::OnCButton1Click )
     EVT_BUTTON( XRCID("IDC_BUTTON2"), RegressionDlg::OnCButton2Click )
     EVT_BUTTON( XRCID("IDC_RESET"), RegressionDlg::OnCResetClick )
@@ -116,14 +102,15 @@ RegressionDlg::RegressionDlg(Project* project_s, wxWindow* parent,
 							 const wxPoint& pos, const wxSize& size,
 							 long style )
 : project(project_s), frames_manager(project_s->GetFramesManager()),
+table_state(project_s->GetTableState()),
 w_manager(project_s->GetWManager()),
-grid_base(project_s->GetGridBase())
+table_int(project_s->GetTableInt())
 {
 	Create(parent, id, caption, pos, size, style);
 
 	m_choice->Clear();
 	for (int i=0; i<w_manager->GetNumWeights(); i++) {
-		m_choice->Append(w_manager->GetWFilename(i));
+		m_choice->Append(w_manager->GetWTitle(i));
 	}
 	if (w_manager->GetCurrWeightInd() != -1) {
 		m_choice->SetSelection(w_manager->GetCurrWeightInd());
@@ -135,24 +122,25 @@ grid_base(project_s->GetGridBase())
 	nVarName = 0;
 	m_Run = false;
 	m_OpenDump = false;
-	m_moranz= m_output1 = m_output2 = false;
+	m_output1 = m_output2 = false;
 	b_done1 = b_done2 = b_done3 = false;
 	m_nCount = 0;
 
 	m_output1 = false;
 	m_output2 = false;
-	m_moranz  = false;
 
 	m_title = title;
 	
 	InitVariableList();
 	frames_manager->registerObserver(this);
+	table_state->registerObserver(this);
 }
 
 RegressionDlg::~RegressionDlg()
 {
 	LOG_MSG("Entering RegressionDlg::~RegressionDlg");
 	frames_manager->removeObserver(this);
+	table_state->removeObserver(this);
 	LOG_MSG("Exiting RegressionDlg::~RegressionDlg");
 }
 
@@ -172,6 +160,7 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
     m_radio3 = NULL;
     m_gauge = NULL;
 	m_gauge_text = NULL;
+	m_white_test_cb = NULL;
 
     SetParent(parent);
     CreateControls();
@@ -199,7 +188,8 @@ void RegressionDlg::CreateControls()
 	
 	m_pred_val_cb = XRCCTRL(*this, "ID_PRED_VAL_CB", wxCheckBox);
 	m_coef_var_matrix_cb = XRCCTRL(*this, "ID_COEF_VAR_MATRIX_CB", wxCheckBox);
-	m_moran_z_val_cb = XRCCTRL(*this, "ID_MORAN_Z_VAL_CB", wxCheckBox);	
+	m_white_test_cb = XRCCTRL(*this, "ID_WHITE_TEST_CB", wxCheckBox);
+	m_white_test_cb->SetValue(false);
 	
 	m_gauge = XRCCTRL(*this, "IDC_GAUGE", wxGauge);
 	m_gauge->SetRange(200);
@@ -293,6 +283,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	// Y and X's data
 	//wxString st;
 	m_independentlist->SetSelection(0);
+	m_independentlist->SetFirstItem(m_independentlist->GetSelection());
 	
 	const unsigned int sz = m_independentlist->GetCount();
 	LOG(sz);
@@ -310,7 +301,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	std::vector<double> vec(m_obs);
 	for (i=0; i < m_independentlist->GetCount(); i++) {
 		wxString nm = name_to_nm[m_independentlist->GetString(i)];
-		int col = grid_base->FindColId(nm);
+		int col = table_int->FindColId(nm);
 		if (col == wxNOT_FOUND) {
 			wxString err_msg;
 			err_msg << "Variable " << nm << " is no longer ";
@@ -321,10 +312,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			return;
 		}
 		int tm = name_to_tm_id[m_independentlist->GetString(i)];
-		grid_base->col_data[col]->GetVec(vec, tm);
+		table_int->GetColData(col, tm, vec);
 		for (int j=0; j<m_obs; j++) dt[i][j] = vec[j];
 	}
-	int y_col_id = grid_base->FindColId(name_to_nm[m_Yname]);
+	int y_col_id = table_int->FindColId(name_to_nm[m_Yname]);
 	if (y_col_id == wxNOT_FOUND) {
 		wxString err_msg;
 		err_msg << "Variable " << name_to_nm[m_Yname];
@@ -334,7 +325,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-	grid_base->col_data[y_col_id]->GetVec(vec, name_to_tm_id[m_Yname]);
+	table_int->GetColData(y_col_id, name_to_tm_id[m_Yname], vec);
 	for (int j=0; j<m_obs; j++) dt[sz][j] = vec[j];
 		
 	for (i = 0; i < sz + 1; i++) {
@@ -350,7 +341,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	double* result = NULL;
 	
 	const int n = m_obs;
-
+	bool do_white_test = m_white_test_cb->GetValue();
+	
 	if (m_WeightCheck) {
 		const int op = m_choice->GetSelection();
 		GeoDaWeight* w = w_manager->GetWeight(op);
@@ -374,7 +366,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 
 			if (gal_weight &&
 				!classicalRegression(gal_weight, m_obs, y, n, x, nX, &m_DR,
-									 m_constant_term, m_moranz, m_gauge)) {
+									 m_constant_term, true, m_gauge,
+									 do_white_test)) {
 				wxMessageBox("Error: the inverse matrix is ill-conditioned");
 				m_OpenDump = false;
 				OnCResetClick(event);
@@ -382,9 +375,9 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				return;
 			} else {
 				m_resid1= m_DR.GetResidual();
-				printAndShowClassicalResults(grid_base->GetDbfNameNoExt(),
+				printAndShowClassicalResults(table_int->GetTableName(),
 											 fname, &m_DR,
-											 n, nX);
+											 n, nX, do_white_test);
 				m_yhat1 = m_DR.GetYHAT();
 				m_OpenDump = true;
 				m_Run = true;
@@ -430,7 +423,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				UpdateMessageBox("");
 				return;
 			} else {
-				printAndShowLagResults(grid_base->GetDbfNameNoExt(),
+				printAndShowLagResults(table_int->GetTableName(),
 									   fname, &m_DR, n, nX);
 				m_yhat2 = m_DR.GetYHAT();
 				m_resid2= m_DR.GetResidual();
@@ -478,7 +471,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				UpdateMessageBox("");
 				return;
 			} else {
-	  			printAndShowErrorResults(grid_base->GetDbfNameNoExt(),
+	  			printAndShowErrorResults(table_int->GetTableName(),
 										 fname, &m_DR, n, nX);
 				m_yhat3 = m_DR.GetYHAT();
 				m_resid3= m_DR.GetResidual();
@@ -503,15 +496,17 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		m_DR.SetSDevY(ComputeSdev(y, n));
 
 		if (!classicalRegression((GalElement*)NULL, m_obs, y, n, x, nX, &m_DR, 
-								 m_constant_term, false, m_gauge)) {
+								 m_constant_term, false, m_gauge,
+								 do_white_test)) {
 			wxMessageBox("Error: the inverse matrix is ill-conditioned.");
 			m_OpenDump = false;
 			OnCResetClick(event);
 			UpdateMessageBox("");
 			return;
 		} else {
-			printAndShowClassicalResults(grid_base->GetDbfNameNoExt(),
-										 wxEmptyString, &m_DR, n, nX);
+			printAndShowClassicalResults(table_int->GetTableName(),
+										 wxEmptyString, &m_DR, n, nX,
+										 do_white_test);
 			m_yhat1 = m_DR.GetYHAT();
 			m_resid1= m_DR.GetResidual();
 			m_OpenDump = true;
@@ -521,8 +516,12 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		m_DR.release_Var();
 	}
 
+	if (m_OpenDump) {
+		GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
+	}
+	
 	EnablingItems();
-	FindWindow(XRCID("ID_RUN"))->Enable(false);	
+	//FindWindow(XRCID("ID_RUN"))->Enable(false);
 	UpdateMessageBox("done");
 	
 	LOG_MSG("Exiting RegressionDlg::OnRunClick");
@@ -531,7 +530,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 {
  	if (m_OpenDump) {
-		MyFrame::theFrame->DisplayRegression(logReport);
+		GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
 	}
 }
 
@@ -543,7 +542,6 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 					 wxEmptyString,
 					 "TXT files (*.txt)|*.txt",
 					 wxFD_SAVE );
-	dlg.SetPath(project->GetMainDir());
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	wxFileName new_txt_fname(dlg.GetPath());
@@ -613,6 +611,7 @@ void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 			b_done1 = b_done2 = b_done3 = false;
 			m_nCount = 0;
 			m_varlist->SetSelection(0);
+			m_varlist->SetFirstItem(m_varlist->GetSelection());
 		}
 	}
 	lastSelection = 2;
@@ -630,6 +629,7 @@ void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 				cur_sel = m_varlist->GetCount()-1;
 			}
 			m_varlist->SetSelection(cur_sel);
+			m_varlist->SetFirstItem(m_varlist->GetSelection());
 			b_done1 = b_done2 = b_done3 = false;
 			m_nCount = 0;
 		}
@@ -649,6 +649,10 @@ void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 	m_nCount = 0;
 
 	RegressModel = 1;
+	m_white_test_cb->SetValue(false);
+	m_white_test_cb->Enable(true);
+	
+	m_gauge->SetValue(0);
 
 	m_dependent->SetValue(wxEmptyString);
 	InitVariableList();
@@ -665,6 +669,7 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 				cur_sel = m_independentlist->GetCount()-1;
 			}
 			m_independentlist->SetSelection(cur_sel);
+			m_independentlist->SetFirstItem(m_independentlist->GetSelection());
 			m_nCount = 0;
 			b_done1 = b_done2 = b_done3 = false;
 		}
@@ -703,11 +708,11 @@ void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 {
 	LOG_MSG("Entering RegressionDlg::OnCSaveRegressionClick");
-	if (!grid_base) return;
-	int n_obs = grid_base->GetNumberRows();
+	if (!table_int) return;
+	int n_obs = table_int->GetNumberRows();
 	
-	std::vector<double> yhat(grid_base->GetNumberRows());
-	std::vector<double> resid(grid_base->GetNumberRows());
+	std::vector<double> yhat(table_int->GetNumberRows());
+	std::vector<double> resid(table_int->GetNumberRows());
 	std::vector<double> prederr(RegressModel > 1 ? n_obs : 0);
 	std::vector<SaveToTableEntry> data(RegressModel > 1 ? 3 : 2);
 		
@@ -737,26 +742,26 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	data[0].d_val = &yhat;
 	data[0].label = "Predicted Value";
 	data[0].field_default = pre + "PREDIC";
-	data[0].type = GeoDaConst::double_type;
+	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &resid;
 	data[1].label = "Residual";
 	data[1].field_default = pre + "RESIDU";
-	data[1].type = GeoDaConst::double_type;
+	data[1].type = GdaConst::double_type;
 		
 	if (RegressModel > 1) {
 		data[2].d_val = &prederr;
 		data[2].label = "Prediction Error";
 		data[2].field_default = pre + "PRDERR";
-		data[2].type = GeoDaConst::double_type;
+		data[2].type = GdaConst::double_type;
 	}
 	
-	SaveToTableDlg dlg(grid_base, this, data,
+	SaveToTableDlg dlg(project, this, data,
 					   "Save Regression Results",
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 	
-	if (grid_base->GetView()) grid_base->GetView()->Refresh();
+	if (project->FindTableGrid()) project->FindTableGrid()->Refresh();
 	LOG_MSG("Exiting RegressionDlg::OnCSaveRegressionClick");
 }
 
@@ -766,7 +771,6 @@ void RegressionDlg::OnCloseClick( wxCommandEvent& event )
 	event.Skip();
 	EndDialog(wxID_CLOSE);
 	Destroy();
-	project->regression_dlg = 0;
 	LOG_MSG("Entering RegressionDlg::OnCloseClick");
 }
 
@@ -774,7 +778,6 @@ void RegressionDlg::OnClose(wxCloseEvent& event)
 {
 	LOG_MSG("Entering RegressionDlg::OnClose");
 	Destroy();
-	project->regression_dlg = 0;
 	LOG_MSG("Exiting RegressionDlg::OnClose");
 }
 
@@ -784,7 +787,7 @@ void RegressionDlg::OnCOpenWeightClick( wxCommandEvent& event )
 	if (dlg.ShowModal()!= wxID_OK) return;
 	m_choice->Clear();
 	for (int i=0; i<w_manager->GetNumWeights(); i++) {
-		m_choice->Append(w_manager->GetWFilename(i));
+		m_choice->Append(w_manager->GetWTitle(i));
 	}
 	if (w_manager->GetCurrWeightInd() >=0 ) {
 		m_choice->SetSelection(w_manager->GetCurrWeightInd());
@@ -827,16 +830,17 @@ void RegressionDlg::InitVariableList()
 	lists = NULL;
 	listb = NULL;
 
-	grid_base->FillNumericColIdMap(col_id_map);
-	name_to_nm.clear(); // map to grid_base col id
+	std::vector<int> col_id_map;
+	table_int->FillNumericColIdMap(col_id_map);
+	name_to_nm.clear(); // map to table_int col id
 	name_to_tm_id.clear(); // map to corresponding time id
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int id = col_id_map[i];
-		wxString name = grid_base->col_data[id]->name.Upper();
-		if (grid_base->IsColTimeVariant(id)) {
-			for (int t=0; t<grid_base->col_data[id]->time_steps; t++) {
+		wxString name = table_int->GetColName(id);
+		if (table_int->IsColTimeVariant(id)) {
+			for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
 				wxString nm = name;
-				nm << " (" << grid_base->time_ids[t] << ")";
+				nm << " (" << table_int->GetTimeString(t) << ")";
 				name_to_nm[nm] = name;
 				name_to_tm_id[nm] = t;
 				m_varlist->Append(nm);
@@ -851,6 +855,7 @@ void RegressionDlg::InitVariableList()
 	y = NULL;
 	x = NULL;
 	m_varlist->SetSelection(0);
+	m_varlist->SetFirstItem(m_varlist->GetSelection());
 	EnablingItems();
 }
 
@@ -880,7 +885,7 @@ void RegressionDlg::EnablingItems()
 	//Option to not use include constant removed.
 	//FindWindow(XRCID("IDC_CHECK_CONSTANT"))->Enable(m_Run1);
 	//FindWindow(XRCID("ID_STANDARDIZE"))->Enable(m_Run1);
-	FindWindow(XRCID("ID_VIEW_RESULTS"))->Enable(!logReport.IsEmpty());
+	//FindWindow(XRCID("ID_VIEW_RESULTS"))->Enable(!logReport.IsEmpty());
 	FindWindow(XRCID("ID_SAVE_TO_TXT_FILE"))->Enable(!logReport.IsEmpty());
 	FindWindow(XRCID("IDC_SAVE_REGRESSION"))->Enable(m_Run);
 	FindWindow(XRCID("IDC_RADIO1"))->Enable(m_Run1);
@@ -912,255 +917,262 @@ void RegressionDlg::SetXVariableNames(DiagnosticReport *dr)
 void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 												 const wxString& wname,
 												 DiagnosticReport *r,
-												 int Obs, int nX)
+												 int Obs, int nX,
+												 bool do_white_test)
 {
+	LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
 	wxString f; // temporary formatting string
 	wxString slog;
-
-	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n";
-	slog << "Data set            :  " << datasetname << "\n";
+	
+	logReport = wxEmptyString; // reset log report
+	int cnt = 0;
+	
+	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
+	slog << "Data set            :  " << datasetname << "\n"; cnt++;
 	slog << "Dependent Variable  :";
 	slog << GenUtils::Pad(m_dependent->GetValue(), 12);
-	slog << "  Number of Observations:" << wxString::Format("%5d\n",Obs);
+	slog << "  Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
 	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
-	slog << wxString::Format(f, r->GetMeanY(), nX);
+	slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
 	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
-	slog << wxString::Format(f, r->GetSDevY(), Obs-nX);
-	slog << "\n";
+	slog << wxString::Format(f, r->GetSDevY(), Obs-nX); cnt++;
+	slog << "\n"; cnt++;
 	
-	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n";
+	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetR2(), r->GetFtest());
-	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n";
+	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetR2_adjust(), r->GetFtestProb());
-	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n";
+	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetRSS() ,r->GetLIK());
-	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n";
+	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQ(), r->GetAIC());
-	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n";
+	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
-	f = "Sigma-square ML     :%12.6g\n";
+	f = "Sigma-square ML     :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQLM());
-	f = "S.E of regression ML:%12.6g\n\n";
+	f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
-
+	
 	slog << "--------------------------------";
-	slog << "---------------------------------------\n";
+	slog << "---------------------------------------\n"; cnt++;
 	slog << "    Variable   Coefficient      ";
-	slog << "Std.Error    t-Statistic   Probability  \n";
+	slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
 	slog << "--------------------------------";
-	slog << "---------------------------------------\n";
+	slog << "---------------------------------------\n"; cnt++;
 	
 	for (int i=0; i<nX; i++) {
 		slog << GenUtils::Pad(r->GetXVarName(i), 12);
-		slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %10.7f\n",
+		slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
 								 r->GetCoefficient(i), r->GetStdError(i),
-								 r->GetZValue(i), r->GetProbability(i));
+								 r->GetZValue(i), r->GetProbability(i)); cnt++;
 	}
-	slog << "--------------------------------";
-	slog << "---------------------------------------\n";
-	slog << "\n\n";
+	slog << "----------------------------------";
+	slog << "-------------------------------------\n\n"; cnt++; cnt++;
 	
-	slog << "REGRESSION DIAGNOSTICS  \n";
+	slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
 	double *rr = r->GetBPtest();
 	if (rr[1] > 1) {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber());
+								 r->GetConditionNumber()); cnt++;
 	} else {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber());
+								 r->GetConditionNumber()); cnt++;
 		slog << "                                ";
-		slog << "      (Extreme Multicollinearity)\n";
+		slog << "      (Extreme Multicollinearity)\n"; cnt++;
 	}
-	slog << "TEST ON NORMALITY OF ERRORS\n";
-	slog << "TEST                  DF          VALUE            PROB\n";
+	slog << "TEST ON NORMALITY OF ERRORS\n"; cnt++;
+	slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
 	rr = r->GetJBtest();
-	f = "Jarque-Bera           %2.0f        %11.7g        %9.7f\n";
+	f = "Jarque-Bera           %2.0f        %11.4f        %9.5f\n"; cnt++;
 	slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	
-	slog << "\n";
-	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY  \n";
-	slog << "RANDOM COEFFICIENTS\n";
-	slog << "TEST                  DF          VALUE            PROB\n";
+	slog << "\n"; cnt++;
+	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY  \n"; cnt++;
+	slog << "RANDOM COEFFICIENTS\n"; cnt++;
+	slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
 	rr = r->GetBPtest();
 	if (rr[1] > 0) {
-		f = "Breusch-Pagan test    %2.0f        %11.7g        %9.7f\n";
+		f = "Breusch-Pagan test    %2.0f        %11.4f        %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	} else {
-		f = "Breusch-Pagan test    %2.0f        %11.7g        N/A\n";
+		f = "Breusch-Pagan test    %2.0f        %11.4f        N/A\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1]);
 	}
 	rr = r->GetKBtest();
 	if (rr[1]>0) {
-		f = "Koenker-Bassett test  %2.0f        %11.7g        %9.7f\n";
+		f = "Koenker-Bassett test  %2.0f        %11.4f        %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	} else {
-		f = "Koenker-Bassett test  %2.0f        %11.7g        N/A\n";
+		f = "Koenker-Bassett test  %2.0f        %11.4f        N/A\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1]);
 	}
-	slog << "SPECIFICATION ROBUST TEST\n";
-	rr = r->GetWhitetest();
-	slog << "TEST                  DF          VALUE            PROB\n";
-	if (rr[2] < 0.0) {
-		f = "White                 %2.0f            N/A            N/A\n";
-		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-	} else {
-		f = "White                 %2.0f        %11.7g        %9.7f\n";
-		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+	if (do_white_test) {
+		slog << "SPECIFICATION ROBUST TEST\n"; cnt++;
+		rr = r->GetWhitetest();
+		slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
+		if (rr[2] < 0.0) {
+			f = "White                 %2.0f            N/A            N/A\n"; cnt++;
+			slog << wxString::Format(f, rr[0]);
+		} else {
+			f = "White                 %2.0f        %11.4f        %9.5f\n"; cnt++;
+			slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+		}
 	}
-
+	
 	bool m_WeightCheck = m_CheckWeight->GetValue();
 	if (m_WeightCheck) {
-		slog <<"\n";
-		slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE   \n";
+		slog <<"\n"; cnt++;
+		slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE   \n"; cnt++;
 		slog << "FOR WEIGHT MATRIX : " << wname;
-		slog << "\n   (row-standardized weights)\n";
+		slog << "\n   (row-standardized weights)\n"; cnt++; cnt++;
 		rr = r->GetMoranI();
 		slog << "TEST                          ";
-		slog << "MI/DF      VALUE          PROB  \n";
-		if (m_moranz) {
-			f = "Moran's I (error)           %8.6f   %11.7f      %9.7f\n";
-			slog << wxString::Format(f, rr[0], rr[1] ,rr[2]);
-		} else {
-			f = "Moran's I (error)           %8.6f     N/A            N/A\n";
-			slog << wxString::Format(f, rr[0]);
-		}
+		slog << "MI/DF        VALUE          PROB\n"; cnt++;
+		f = "Moran's I (error)           %8.4f   %11.4f      %9.5f\n"; cnt++;
+		slog << wxString::Format(f, rr[0], rr[1] ,rr[2]);
 		rr = r->GetLMLAG();
-		f = "Lagrange Multiplier (lag)      %2.0f      %11.7f      %9.7f\n";
+		f = "Lagrange Multiplier (lag)      %2.0f      %11.4f      %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 		rr = r->GetLMLAGRob();
-		f = "Robust LM (lag)                %2.0f      %11.7f      %9.7f\n";
+		f = "Robust LM (lag)                %2.0f      %11.4f      %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 		rr = r->GetLMERR();
-		f = "Lagrange Multiplier (error)    %2.0f      %11.7f      %9.7f\n";
+		f = "Lagrange Multiplier (error)    %2.0f      %11.4f      %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 		rr = r->GetLMERRRob();
-		f = "Robust LM (error)              %2.0f      %11.7f      %9.7f\n";
+		f = "Robust LM (error)              %2.0f      %11.4f      %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 		rr = r->GetLMSarma();
-		f = "Lagrange Multiplier (SARMA)    %2.0f      %11.7f      %9.7f\n";
+		f = "Lagrange Multiplier (SARMA)    %2.0f      %11.4f      %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	}
 	
 	if (m_output2) {
-		slog << "\n";
-		slog << "COEFFICIENTS VARIANCE MATRIX\n";
+		slog << "\n"; cnt++;
+		slog << "COEFFICIENTS VARIANCE MATRIX\n"; cnt++;
 		int start = 0;
 		while (start < nX) {
 			wxString st = wxEmptyString;
 			for (int j=start; j<nX && j<start+5; j++) {
 				slog << " " << GenUtils::Pad(r->GetXVarName(j), 10) << " ";
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			for (int i=0; i<nX; i++) {
 				st = wxEmptyString;
 				for (int j=start; j<nX && j<start+5; j++) {
 					slog << wxString::Format(" %10.6f ", r->GetCovariance(i,j));
 				}
-				slog << "\n";
+				slog << "\n"; cnt++;
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			start += 5;
 		}
 	}
 	
 	if (m_output1) {
-		slog << "\n";
+		slog << "\n"; cnt++;
 		slog << "  OBS    " << GenUtils::Pad(m_dependent->GetValue(), 12);
-		slog << "        PREDICTED        RESIDUAL     \n";
+		slog << "        PREDICTED        RESIDUAL\n"; cnt++;
 		double *res = r->GetResidual();
 		double *yh = r->GetYHAT();
 		for (int i=0; i<m_obs; i++) {
 			slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f\n",
-									 i+1, y[i], yh[i], res[i]);
+									 i+1, y[i], yh[i], res[i]); cnt++;
 		}
 		res = NULL;
 		yh = NULL;
 	}
-
-	slog << "========================= ";
-	slog << "END OF REPORT ==============================\n";
 	
-	slog << "\n\n";
+	slog << "========================== END OF REPORT";
+	slog <<  " ==============================\n\n"; cnt++; cnt++;
+	
+	slog << "\n\n"; cnt++; cnt++;
 	logReport << slog;
+	
+	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
+	LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }
 
 void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 										   const wxString& wname,
 										   DiagnosticReport *r, int Obs, int nX)
 {
+	LOG_MSG("Entering RegressionDlg::printAndShowLagResults");
 	wxString f; // temporary formatting string
 	wxString slog;
-
+	
+	logReport = wxEmptyString; // reset log report
+	int cnt = 0;
 	wxString m_Yname = m_dependent->GetValue();
 	slog << "SUMMARY OF OUTPUT: SPATIAL LAG MODEL - ";
-	slog << "MAXIMUM LIKELIHOOD ESTIMATION\n";
-	slog << "Data set            : " << datasetname << "\n";
-	slog << "Spatial Weight      : " << wname << "\n";
-	f = "Dependent Variable  :%12s  Number of Observations:%5d\n";
+	slog << "MAXIMUM LIKELIHOOD ESTIMATION\n"; cnt++;
+	slog << "Data set            : " << datasetname << "\n"; cnt++;
+	slog << "Spatial Weight      : " << wname << "\n"; cnt++;
+	f = "Dependent Variable  :%12s  Number of Observations:%5d\n"; cnt++;
 	slog << wxString::Format(f, m_Yname, Obs);
-	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
+	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetMeanY(), nX+1);
-	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d\n";
+	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetSDevY(), Obs-nX-1);
-	f = "Lag coeff.   (Rho)  :%12.6g\n";
+	f = "Lag coeff.   (Rho)  :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetCoefficient(0));
-	slog << "\n";
+	slog << "\n"; cnt++;
 	
-	f = "R-squared           :%12.6f  Log likelihood        :%12.6g\n";
+	f = "R-squared           :%12.6f  Log likelihood        :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetR2(), r->GetLIK());
 	//f = "Sq. Correlation     :%12.6f  Akaike info criterion :%12.6g\n";
 	//slog << wxString::Format(f, r->GetR2_adjust(), r->GetAIC());
-	f = "Sq. Correlation     : -            Akaike info criterion :%12.6g\n";
+	f = "Sq. Correlation     : -            Akaike info criterion :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetAIC());
-	f = "Sigma-square        :%12.6g  Schwarz criterion     :%12.6g\n";
+	f = "Sigma-square        :%12.6g  Schwarz criterion     :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQ(),r->GetOLS_SC());
 	f = "S.E of regression   :%12.6g";
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()));
-	slog << "\n\n";
+	slog << "\n\n"; cnt++; cnt++;
 	
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n";
+	slog << "-------------------------------------\n"; cnt++;
 	slog << "    Variable    Coefficient     ";
-	slog << "Std.Error       z-value   Probability \n";
+	slog << "Std.Error       z-value    Probability\n"; cnt++;
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n";
+	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
 		slog << GenUtils::Pad(wxString(r->GetXVarName(i)), 12);
-		f = "  %12.7g   %12.7g   %12.7g   %10.7f\n";
+		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n\n";
-
-	slog << "REGRESSION DIAGNOSTICS\n";
-	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY \n";
-	slog << "RANDOM COEFFICIENTS\n";
+	slog << "-------------------------------------\n\n"; cnt++; cnt++;
+	
+	slog << "REGRESSION DIAGNOSTICS\n"; cnt++;
+	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY \n"; cnt++;
+	slog << "RANDOM COEFFICIENTS\n"; cnt++;
 	slog << "TEST                                     ";
-	slog << "DF     VALUE         PROB\n";
+	slog << "DF      VALUE        PROB\n"; cnt++;
 	double *rr = r->GetBPtest();
 	if (rr[1] >0) {
 		f = "Breusch-Pagan test                      ";
-		f += "%2.0f    %11.7g     %9.7f\n";
+		f += "%2.0f    %11.4f   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	} else {
 		f = "Breusch-Pagan test                      ";
-		f += "%2.0f    N/A        N/A\n";
+		f += "%2.0f    N/A      N/A\n"; cnt++;
 		slog << wxString::Format(f, rr[0]);
 	}
-	slog << "\n";
-
-	slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE\n";
-	slog << "SPATIAL LAG DEPENDENCE FOR WEIGHT MATRIX : " << wname << "\n";
+	slog << "\n"; cnt++;
+	
+	slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE\n"; cnt++;
+	slog << "SPATIAL LAG DEPENDENCE FOR WEIGHT MATRIX : " << wname << "\n"; cnt++;
 	slog << "TEST                                     ";
-	slog << "DF      VALUE        PROB\n";
+	slog << "DF      VALUE        PROB\n"; cnt++;
 	rr = r->GetLRTest();
-	f = "Likelihood Ratio Test                   %2.0f    %11.7g     %9.7f\n";
+	f = "Likelihood Ratio Test                   %2.0f    %11.4f   %9.5f\n"; cnt++;
 	slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-
+	
 	if (m_output2) {
-		slog << "\n";
-		slog << "COEFFICIENTS VARIANCE MATRIX\n";
+		slog << "\n"; cnt++;
+		slog << "COEFFICIENTS VARIANCE MATRIX\n"; cnt++;
 		int start = 0;
 		while (start < nX+1) {
 			wxString st = wxEmptyString;
@@ -1168,38 +1180,40 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 				int jj = (j==nX ? 0 : j+1);
 				slog << " " << GenUtils::Pad(r->GetXVarName(jj), 10) << " ";
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			for (int i=0; i<nX+1; i++) {
 				st = wxEmptyString;
 				for (int j=start; j<nX+1 && j<start+5; j++) {
 					slog << wxString::Format(" %10.6f ", r->GetCovariance(i,j));
 				}
-				slog << "\n";
+				slog << "\n"; cnt++;
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			start += 5;
 		}
 	}
-		
+	
 	if (m_output1) {
-		slog << "\n";
+		slog << "\n"; cnt++;
 		slog << "  OBS    " << GenUtils::Pad(m_Yname, 12);
-		slog << "        PREDICTED        RESIDUAL       PRED ERROR\n";
+		slog << "        PREDICTED        RESIDUAL       PRED ERROR\n"; cnt++;
 		double *res  = r->GetResidual();
 		double *yh = r->GetYHAT();
 		double *pe = r->GetPredError();
 		for (int i=0; i<m_obs; i++) {
-			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n";
+			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
 			slog << wxString::Format(f, i+1, y[i], yh[i], res[i], pe[i]);
 		}
 		res = NULL;
 		yh = NULL;
 	}
 	
-	slog << "========================= END OF REPORT";
-	slog <<  "==============================\n\n\n";
-
+	slog << "========================== END OF REPORT";
+	slog <<  " ==============================\n\n"; cnt++; cnt++;
+	
 	logReport << slog;
+	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
+	LOG_MSG("Exiting RegressionDlg::printAndShowLagResults");
 }
 
 void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
@@ -1207,115 +1221,120 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 											 DiagnosticReport *r,
 											 int Obs, int nX)
 {
+	LOG_MSG("Entering RegressionDlg::printAndShowErrorResults");
 	wxString m_Yname = m_dependent->GetValue();
 	wxString f; // temporary formatting string
 	wxString slog;
-
+	
+	logReport = wxEmptyString; // reset log report
+	int cnt = 0;
 	slog << "SUMMARY OF OUTPUT: SPATIAL ERROR MODEL - ";
-	slog << "MAXIMUM LIKELIHOOD ESTIMATION \n";
-	slog << "Data set            : " << datasetname << "\n";
-	slog << "Spatial Weight      : " << wname << "\n";
-
+	slog << "MAXIMUM LIKELIHOOD ESTIMATION \n"; cnt++;
+	slog << "Data set            : " << datasetname << "\n"; cnt++;
+	slog << "Spatial Weight      : " << wname << "\n"; cnt++;
+	
 	slog << "Dependent Variable  :" << GenUtils::Pad(m_Yname, 12);
-	slog << wxString::Format("  Number of Observations:%5d\n", Obs);
-	f = "Mean dependent var  :%12.6f  Number of Variables   :%5d\n";
+	slog << wxString::Format("  Number of Observations:%5d\n", Obs); cnt++;
+	f = "Mean dependent var  :%12.6f  Number of Variables   :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetMeanY(), nX);
-	f = "S.D. dependent var  :%12.6f  Degrees of Freedom    :%5d\n";
+	f = "S.D. dependent var  :%12.6f  Degrees of Freedom    :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetSDevY(), Obs-nX);
-	f = "Lag coeff. (Lambda) :%12.6f\n";
+	f = "Lag coeff. (Lambda) :%12.6f\n"; cnt++;
 	slog << wxString::Format(f, r->GetCoefficient(nX));
 	
-	slog << "\n";
-	f = "R-squared           :%12.6f  R-squared (BUSE)      : - \n";
+	slog << "\n"; cnt++;
+	f = "R-squared           :%12.6f  R-squared (BUSE)      : - \n"; cnt++;
 	slog << wxString::Format(f, r->GetR2());
-	f = "Sq. Correlation     : -            Log likelihood        :%12.6f\n";
+	f = "Sq. Correlation     : -            Log likelihood        :%12.6f\n"; cnt++;
 	slog << wxString::Format(f, r->GetLIK());
-	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n";
+	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n"; cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQ(), r->GetAIC());
-	f = "S.E of regression   :%12.6g  Schwarz criterion     :%12.6g\n\n";
+	f = "S.E of regression   :%12.6g  Schwarz criterion     :%12.6g\n\n"; cnt++; cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
 	
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n";
+	slog << "-------------------------------------\n"; cnt++;
 	slog << "    Variable    Coefficient     ";
-	slog << "Std.Error       z-value   Probability \n";
+	slog << "Std.Error       z-value    Probability\n"; cnt++;
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n";
+	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
 		slog << GenUtils::Pad(wxString(r->GetXVarName(i)), 12);
-		f = "  %12.7g   %12.7g   %12.7g   %10.7f\n";
+		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}
 	slog << "----------------------------------";
-	slog << "-------------------------------------\n\n";
-
-	slog << "REGRESSION DIAGNOSTICS\n";
-	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY \n";
-	slog << "RANDOM COEFFICIENTS\n";
+	slog << "-------------------------------------\n\n"; cnt++; cnt++;
+	
+	slog << "REGRESSION DIAGNOSTICS\n"; cnt++;
+	slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY \n"; cnt++;
+	slog << "RANDOM COEFFICIENTS\n"; cnt++;
 	slog << "TEST                                     ";
-	slog << "DF     VALUE         PROB\n";
+	slog << "DF      VALUE        PROB\n"; cnt++;
 	double *rr = r->GetBPtest();
 	if (rr[1] >0) {
 		f = "Breusch-Pagan test                      ";
-		f += "%2.0f    %11.7g     %9.7f\n";
+		f += "%2.0f    %11.4f   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	} else {
 		f = "Breusch-Pagan test                      ";
-		f += "%2.0f    N/A        N/A\n";
+		f += "%2.0f    N/A      N/A\n"; cnt++;
 		slog << wxString::Format(f, rr[0]);
 	}
-	slog << "\n";
-
-	slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE \n";
-	slog << "SPATIAL ERROR DEPENDENCE FOR WEIGHT MATRIX : " << wname << "\n";
+	slog << "\n"; cnt++;
+	
+	slog << "DIAGNOSTICS FOR SPATIAL DEPENDENCE \n"; cnt++;
+	slog << "SPATIAL ERROR DEPENDENCE FOR WEIGHT MATRIX : " << wname << "\n"; cnt++;
 	slog << "TEST                                     ";
-	slog << "DF      VALUE        PROB \n";
+	slog << "DF      VALUE        PROB\n"; cnt++;
 	rr = r->GetLRTest();
-	f = "Likelihood Ratio Test                   %2.0f    %11.7g     %9.7f\n";
+	f = "Likelihood Ratio Test                   %2.0f    %11.4f   %9.5f\n"; cnt++;
 	slog << wxString::Format(f, rr[0], rr[1], rr[2]);
 	
 	if (m_output2) {
-		slog << "\n";
-		slog << "COEFFICIENTS VARIANCE MATRIX\n";
+		slog << "\n"; cnt++;
+		slog << "COEFFICIENTS VARIANCE MATRIX\n"; cnt++;
 		int start = 0;
 		while (start < nX+1) {
 			wxString st = wxEmptyString;
 			for (int j=start; j<nX+1 && j<start+5; j++) {
 				slog << " " << GenUtils::Pad(r->GetXVarName(j), 10) << " ";
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			for (int i=0; i<nX+1; i++) {
 				st = wxEmptyString;
 				for (int j=start; j<nX+1 && j<start+5; j++) {
 					slog << wxString::Format(" %10.6f ", r->GetCovariance(i,j));
 				}
-				slog << "\n";
+				slog << "\n"; cnt++;
 			}
-			slog << "\n";
+			slog << "\n"; cnt++;
 			start += 5;
 		}
 	}
 	
 	if (m_output1) {
-		slog << "\n";
+		slog << "\n"; cnt++;
 		slog << "  OBS    " << GenUtils::Pad(m_Yname, 12);
-		slog << "        PREDICTED        RESIDUAL       PRED ERROR\n";
+		slog << "        PREDICTED        RESIDUAL       PRED ERROR\n"; cnt++;
 		double *res  = r->GetResidual();
 		double *yh = r->GetYHAT();
 		double *pe = r->GetPredError();
 		for (int i=0; i<m_obs; i++) {
-			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n";
+			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
 			slog << wxString::Format(f, i+1, y[i], yh[i], res[i], pe[i]);
 		}
 		res = NULL;
 		yh = NULL;
 	}
 	
-	slog << "========================= END OF REPORT";
-	slog <<  "==============================\n\n\n";
+	slog << "========================== END OF REPORT";
+	slog <<  " ==============================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
+	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
+	LOG_MSG("Exiting RegressionDlg::printAndShowErrorResults");
 }
 
 void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
@@ -1324,6 +1343,7 @@ void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 	RegressModel = 1;
 	UpdateMessageBox(" ");
     EnablingItems();
+	m_white_test_cb->Enable(true);
 	m_gauge->SetValue(0);
 }
 
@@ -1333,6 +1353,7 @@ void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 	RegressModel = 2;
 	UpdateMessageBox(" ");
     EnablingItems();
+	m_white_test_cb->Enable(false);
 	m_gauge->SetValue(0);
 }
 
@@ -1342,6 +1363,7 @@ void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 	RegressModel = 3;
 	UpdateMessageBox(" ");
     EnablingItems();
+	m_white_test_cb->Enable(false);
 	m_gauge->SetValue(0);
 }
 
@@ -1361,12 +1383,65 @@ void RegressionDlg::OnCoefVarMatrixCbClick( wxCommandEvent& event )
 	m_output2 = m_coef_var_matrix_cb->GetValue() == 1;
 }
 
-void RegressionDlg::OnMoranZValCbClick( wxCommandEvent& event )
-{
-	m_moranz = m_moran_z_val_cb->GetValue() == 1;
-}
-
 void RegressionDlg::update(FramesManager* o)
 {
+}
+
+/** If variables are simply being added, then we will just add these to the
+list of vaiables rather than do a reset.  Otherwise, a reset will be done.
+This could be made more intelligent in the future, but is probably good
+enough for now. */
+void RegressionDlg::update(TableState* o)
+{
+	LOG_MSG("Entering RegressionDlg::update(TableState*)");
+	bool add_vars_only_event = false;
+	TableState::EventType et = o->GetEventType();
+	if (et == TableState::cols_delta) {
+		add_vars_only_event = true;
+		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
+			if (!e.insert) add_vars_only_event = false;
+		}
+		if (add_vars_only_event) {
+			// name_to_nm, name_to_tm_id and m_varlist need updating
+			// Note: we have ensured that the Table received this event
+			// first and has already updated it's information.  Therefore, it
+			// is safe to query the table for details about new columns
+			BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
+				wxString name = e.group_name;
+				LOG(name);
+				int id = table_int->FindColId(name);
+				LOG(id);
+				bool tm_vari = table_int->IsColTimeVariant(id);
+				LOG(tm_vari);
+				if (tm_vari) {
+					for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+						wxString nm = name;
+						nm << " (" << table_int->GetTimeString(t) << ")";
+						name_to_nm[nm] = name;
+						name_to_tm_id[nm] = t;
+						m_varlist->Append(nm);
+						LOG_MSG("Appending: " + nm);
+					}
+				} else {
+					name_to_nm[name] = name;
+					name_to_tm_id[name] = 0;
+					m_varlist->Append(name);
+					LOG_MSG("Appending: " + name);
+				}
+			}
+		}
+		Refresh();
+	} else if (et == TableState::col_disp_decimals_change) {
+		add_vars_only_event = true;
+	}
+	if (!add_vars_only_event) {
+		LOG_MSG("TableState event not just simple variable addition.  Reset dialog");
+		// default is to reset dialog
+		wxCommandEvent event;
+		m_OpenDump = false;
+		OnCResetClick(event);
+		UpdateMessageBox("");
+	}
+	LOG_MSG("Exiting RegressionDlg::update(TableState*)");
 }
 

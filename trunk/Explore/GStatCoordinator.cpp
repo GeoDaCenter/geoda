@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,13 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <time.h>
 #include <boost/math/distributions/normal.hpp> // for normal_distribution
 #include <algorithm>
 #include <functional>
 #include <map>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
 #include "../ShapeOperations/Randik.h"
 #include "../logger.h"
@@ -78,13 +79,14 @@
 
 
 GStatWorkerThread::GStatWorkerThread(int obs_start_s, int obs_end_s,
-								   GStatCoordinator* gstat_coord_s,
-								   wxMutex* worker_list_mutex_s,
-								   wxCondition* worker_list_empty_cond_s,
-								   std::list<wxThread*> *worker_list_s,
-								   int thread_id_s)
+									 uint64_t	seed_start_s,
+									 GStatCoordinator* gstat_coord_s,
+									 wxMutex* worker_list_mutex_s,
+									 wxCondition* worker_list_empty_cond_s,
+									 std::list<wxThread*> *worker_list_s,
+									 int thread_id_s)
 : wxThread(),
-obs_start(obs_start_s), obs_end(obs_end_s),
+obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 gstat_coord(gstat_coord_s),
 worker_list_mutex(worker_list_mutex_s),
 worker_list_empty_cond(worker_list_empty_cond_s),
@@ -102,7 +104,7 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 	LOG_MSG(wxString::Format("GStatWorkerThread %d started", thread_id));
 	
 	// call work for assigned range of observations
-	gstat_coord->CalcPseudoP_range(obs_start, obs_end);
+	gstat_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
 	// remove ourself from the list
@@ -120,21 +122,22 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 
 
 GStatCoordinator::GStatCoordinator(const GalWeight* gal_weights_s,
-								   DbfGridTableBase* grid_base,
+								   TableInterface* table_int,
 								   const std::vector<GeoDaVarInfo>& var_info_s,
 								   const std::vector<int>& col_ids,
 								   bool row_standardize_weights)
 : W(gal_weights_s->gal),
 weight_name(wxFileName(gal_weights_s->wflnm).GetName()),
 row_standardize(row_standardize_weights),
-num_obs(grid_base->GetNumberRows()),
+num_obs(table_int->GetNumberRows()),
 permutations(99),
 var_info(var_info_s),
-data(var_info_s.size())
+data(var_info_s.size()),
+last_seed_used(0), reuse_last_seed(false)
 {
 	SetSignificanceFilter(1);
 	for (int i=0; i<var_info.size(); i++) {
-		grid_base->GetColData(col_ids[i], data[i]);
+		table_int->GetColData(col_ids[i], data[i]);
 	}
 	InitFromVarInfo();
 	
@@ -296,7 +299,7 @@ void GStatCoordinator::InitFromVarInfo()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void GStatCoordinator::VarInfoAttributeChange()
 {
-	GeoDa::UpdateVarInfoSecondaryAttribs(var_info);
+	Gda::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -315,7 +318,7 @@ void GStatCoordinator::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//GeoDa::PrintVarInfoVector(var_info);
+	//Gda::PrintVarInfoVector(var_info);
 }
 
 /** The category vector c_val will be filled based on the current
@@ -504,14 +507,19 @@ void GStatCoordinator::CalcPseudoP()
 		x_star_t = x_star[t];
 		
 		if (nCPUs <= 1) {
-			CalcPseudoP_range(0, num_obs-1);
+			if (!reuse_last_seed) last_seed_used = time(0);
+			CalcPseudoP_range(0, num_obs-1, last_seed_used);
 		} else {
 			CalcPseudoP_threaded();
 		}
 	}
-	LOG_MSG(wxString::Format("GStat on %d obs with %d perms over %d "
-							 "time periods took %ld ms",
-							 num_obs, permutations, num_time_vals, sw.Time()));
+	{
+		wxString m;
+		m << "GStat on " << num_obs << " obs with " << permutations;
+		m << " perms over " << num_time_vals << " time periods took ";
+		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
+		LOG_MSG(m);
+	}
 	LOG_MSG("Exiting GStatCoordinator::CalcPseudoP");
 }
 
@@ -541,6 +549,7 @@ void GStatCoordinator::CalcPseudoP_threaded()
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
 	
+	if (!reuse_last_seed) last_seed_used = time(0);
 	for (int i=0; i<tot_threads && !is_thread_error; i++) {
 		int a=0;
 		int b=0;
@@ -551,11 +560,16 @@ void GStatCoordinator::CalcPseudoP_threaded()
 			a = remainder*(quotient+1) + (i-remainder)*quotient;
 			b = a+quotient-1;
 		}
+		uint64_t seed_start = last_seed_used+a;
+		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
 		int thread_id = i+1;
-		LOG_MSG(wxString::Format("thread %d: %d->%d", thread_id, a, b));
+		wxString msg;
+		msg << "thread " << thread_id << ": " << a << "->" << b;
+		msg << ", seed: " << seed_start << "->" << seed_end;
+		LOG_MSG(msg);
 		
 		GStatWorkerThread* thread =
-			new GStatWorkerThread(a, b, this,
+			new GStatWorkerThread(a, b, seed_start, this,
 								  &worker_list_mutex,
 								  &worker_list_empty_cond,
 								  &worker_list, thread_id);
@@ -571,7 +585,7 @@ void GStatCoordinator::CalcPseudoP_threaded()
 		LOG_MSG("Error: Could not spawn a worker thread, falling back "
 				"to single-threaded pseudo-p calculation.");
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(0, num_obs-1);
+		CalcPseudoP_range(0, num_obs-1, last_seed_used);
 	} else {
 		LOG_MSG("Starting all worker threads");
 		std::list<wxThread*>::iterator it;
@@ -595,11 +609,11 @@ void GStatCoordinator::CalcPseudoP_threaded()
 /** In the code that computes Gi and Gi*, we specifically checked for 
  self-neighbors and handled the situation appropriately.  For the
  permutation code, we will disallow self-neighbors. */
-void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end)
+void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
+										 uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
-	Randik rng;
-	
+	//Randik rng;
 	//const int DBGI = 4;
 	//std::map<int,int> freq;
 	//for (int j=0; j<num_obs; j++) freq[j] = 0;
@@ -618,7 +632,10 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end)
 				int rand = 0;
 				while (rand < numNeighsI) {
 					// computing 'perfect' permutation of given size
-					const int  newRandom = (int) (rng.fValue() * max_rand);
+					//int newRandom = (int) (rng.fValue() * max_rand);
+					int newRandom = (int) (Gda::ThomasWangHashDouble(seed_start++)
+										   * max_rand);
+					//int newRandom = X(rng);
 					if (newRandom != i && !workPermutation.Belongs(newRandom))
 					{
 						//if (i == DBGI) freq[newRandom]++;

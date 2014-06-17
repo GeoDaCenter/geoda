@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2013 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,8 @@
 #include <wx/xrc/xmlres.h>
 #include <boost/foreach.hpp>
 #include <boost/multi_array.hpp>
-#include "../DataViewer/DbfGridTableBase.h"
+#include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TimeState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -67,7 +68,7 @@ is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized)
 	
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, num_obs);
 	cat_data.SetCategoryColor(0, 0, 
-					 GeoDaConst::scatterplot_regression_excluded_color);
+					 GdaConst::scatterplot_regression_excluded_color);
 	for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(0, 0, i);
 	// For LisaScatterPlot, all time steps have the exact same
 	// trivial categorization.
@@ -76,7 +77,7 @@ is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized)
 	//CreateCategoriesAllCanvasTms(1, num_time_vals); // 1 = #cats
 	//for (int t=0; t<num_time_vals; t++) {
 	//	SetCategoryColor(t, 0, 
-	//					 GeoDaConst::scatterplot_regression_excluded_color);
+	//					 GdaConst::scatterplot_regression_excluded_color);
 	//	for (int i=0; i<num_obs; i++) {
 	//		AppendIdToCategory(t, 0, i);
 	//	}
@@ -92,6 +93,9 @@ is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized)
 	//CreateAndUpdateCategories();
 	PopulateCanvas();
 	
+	UpdateDisplayLinesAndMargins();
+	ResizeSelectableShps();	
+	
 	LOG_MSG("Exiting LisaScatterPlotCanvas::LisaMapNewCanvas");
 }
 
@@ -104,6 +108,10 @@ LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
 void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::DisplayRightClickMenu");
+	// Workaround for right-click not changing window focus in OSX / wxW 3.0
+	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+	((LisaScatterPlotFrame*) template_frame)->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_LISA_SCATTER_PLOT_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
@@ -124,7 +132,7 @@ void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
-			menu1->AppendCheckItem(GeoDaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -135,14 +143,14 @@ void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s;
 		s << "Fixed x-axis scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	if (var_info[1].is_time_variant) {
 		wxString s;
 		s << "Fixed y-axis scale over time";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GeoDaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
+		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
 		mi->Check(var_info[1].fixed_scale);
 	}
 	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
@@ -157,7 +165,7 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 	wxString s;
 	wxString v0(var_info_orig[0].name);
 	if (var_info_orig[0].is_time_variant) {
-		v0 << " (" << project->GetGridBase()->
+		v0 << " (" << project->GetTableInt()->
 			GetTimeString(var_info_orig[0].time);
 		v0 << ")";
 	}
@@ -165,7 +173,7 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 	if (is_bi || is_rate) {
 		v1 << var_info_orig[1].name;
 		if (var_info_orig[1].is_time_variant) {
-			v1 << " (" << project->GetGridBase()->
+			v1 << " (" << project->GetTableInt()->
 				GetTimeString(var_info_orig[1].time);
 			v1 << ")";
 		}
@@ -194,7 +202,7 @@ wxString LisaScatterPlotCanvas::GetNameWithTime(int var)
 		
 	wxString v0(var_info_orig[0].name);
 	if (var_info_orig[0].is_time_variant) {
-		v0 << " (" << project->GetGridBase()->
+		v0 << " (" << project->GetTableInt()->
 			GetTimeString(var_info_orig[0].time);
 		v0 << ")";
 	}
@@ -202,7 +210,7 @@ wxString LisaScatterPlotCanvas::GetNameWithTime(int var)
 	if (is_bi || is_rate) {
 		v1 << var_info_orig[1].name;
 		if (var_info_orig[1].is_time_variant) {
-			v1 << " (" << project->GetGridBase()->
+			v1 << " (" << project->GetTableInt()->
 				GetTimeString(var_info_orig[1].time);
 			v1 << ")";
 		}
@@ -236,12 +244,12 @@ void LisaScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
 	ScatterNewPlotCanvas::SetCheckMarks(menu);
 }
 
-void LisaScatterPlotCanvas::TitleOrTimeChange()
+void LisaScatterPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Entering LisaScatterPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
-	int cts = project->GetGridBase()->curr_time_step;
+	int cts = project->GetTimeState()->GetCurrTime();
 	int ref_time = var_info[ref_var_index].time;
 	int ref_time_min = var_info[ref_var_index].time_min;
 	int ref_time_max = var_info[ref_var_index].time_max; 
@@ -268,7 +276,7 @@ void LisaScatterPlotCanvas::TitleOrTimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LisaScatterPlotCanvas::TitleOrTimeChange");
+	LOG_MSG("Exiting LisaScatterPlotCanvas::TimeChange");
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -280,7 +288,11 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
 	var_info = lisa_coord->var_info;
-	for (int t=0; t<var_info.size(); t++) var_info[t].time = my_times[t];
+	template_frame->ClearAllGroupDependencies();
+	for (int t=0; t<var_info.size(); t++) {
+		var_info[t].time = my_times[t];
+		template_frame->AddGroupDependancy(var_info[t].name);
+	}
 	is_any_time_variant = lisa_coord->is_any_time_variant;
 	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
 	ref_var_index = lisa_coord->ref_var_index;
@@ -385,11 +397,11 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 {
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
-	MyText* morans_i_text = new MyText(s, *GeoDaConst::small_font,
+	GdaShapeText* morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
 									   wxRealPoint(50, 100), 0,
-									   MyText::h_center, MyText::v_center,
+									   GdaShapeText::h_center, GdaShapeText::v_center,
 									   0, -15);
-	morans_i_text->setPen(*GeoDaConst::scatterplot_reg_pen);
+	morans_i_text->setPen(*GdaConst::scatterplot_reg_pen);
 	foreground_shps.push_back(morans_i_text);
 }
 
@@ -434,13 +446,13 @@ void LisaScatterPlotCanvas::SaveMoranI()
 	data[0].d_val = &std_data;
 	data[0].label = "Standardized Data";
 	data[0].field_default = "MORAN_STD";
-	data[0].type = GeoDaConst::double_type;
+	data[0].type = GdaConst::double_type;
 	data[1].d_val = &lag;
 	data[1].label = "Spatial Lag";
 	data[1].field_default = "MORAN_LAG";
-	data[1].type = GeoDaConst::double_type;
+	data[1].type = GdaConst::double_type;
 	
-	SaveToTableDlg dlg(project->GetGridBase(), this, data, title,
+	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
@@ -494,7 +506,7 @@ void LisaScatterPlotFrame::OnActivate(wxActivateEvent& event)
 void LisaScatterPlotFrame::MapMenus()
 {
 	LOG_MSG("In LisaScatterPlotFrame::MapMenus");
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_LISA_SCATTER_PLOT_VIEW_MENU_OPTIONS");
@@ -508,7 +520,7 @@ void LisaScatterPlotFrame::MapMenus()
 void LisaScatterPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = MyFrame::theFrame->GetMenuBar();
+	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
         LOG_MSG("LisaScatterPlotFrame::UpdateOptionMenuItems: "
