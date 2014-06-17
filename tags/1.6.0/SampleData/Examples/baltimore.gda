@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <title>baltim</title>
+    <layers>
+        <layer>
+            <datasource>
+                <type>ESRI Shapefile</type>
+                <path>baltimore/baltim.shp</path>
+            </datasource>
+            <layername>baltim</layername>
+            <title/>
+            <variable_order>
+                <time_ids>
+                    <id>time 0</id>
+                </time_ids>
+                <var>STATION</var>
+                <var>PRICE</var>
+                <var>NROOM</var>
+                <var>DWELL</var>
+                <var>NBATH</var>
+                <var>PATIO</var>
+                <var>FIREPL</var>
+                <var>AC</var>
+                <var>BMENT</var>
+                <var>NSTOR</var>
+                <var>GAR</var>
+                <var>AGE</var>
+                <var>CITCOU</var>
+                <var>LOTSZ</var>
+                <var>SQFT</var>
+                <var>X</var>
+                <var>Y</var>
+            </variable_order>
+            <custom_classifications/>
+            <spatial_weights>
+                <weights>
+                    <path>baltimore/baltim_queen.gal</path>
+                    <default/>
+                </weights>
+            </spatial_weights>
+            <default_vars>
+                <default_var>
+                    <name>X</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>Y</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>PRICE</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+                <default_var>
+                    <name>PRICE</name>
+                    <time_id>time 0</time_id>
+                </default_var>
+            </default_vars>
+        </layer>
+    </layers>
+</project>

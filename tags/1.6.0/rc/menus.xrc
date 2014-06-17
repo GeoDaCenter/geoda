@@ -1,0 +1,4107 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<resource>
+  <object class="wxMenuBar" name="ID_SHARED_MAIN_MENU">
+    <object class="wxMenu" name="ID_MENU">
+      <label>&amp;File</label>
+      <object class="wxMenuItem" name="ID_NEW_PROJECT">
+        <label>&amp;New Project</label>
+        <accel>Ctrl+N</accel>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_PROJECT">
+        <label>&amp;Open Project</label>
+        <accel>Ctrl+O</accel>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SAVE_PROJECT">
+        <label>Save</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_AS_PROJECT">
+        <label>Save As...</label>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_LAYER">
+        <label>Export...</label>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_SELECTED">
+        <label>Export Selected...</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SHOW_PROJECT_INFO">
+        <label>Project Information</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_CLOSE_PROJECT">
+        <label>Close Project</label>
+      </object>
+      <object class="wxMenuItem" name="wxID_EXIT">
+        <label>Exit</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>&amp;Tools</label>
+      <object class="wxMenu" name="ID_MENU">
+        <label>Weights</label>
+        <object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_OPEN">
+          <label>Select</label>
+          <enabled>0</enabled>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_CREATE">
+          <label>Create</label>
+          <enabled>1</enabled>
+        </object>
+        <object class="wxMenuItem" name="ID_CONNECTIVITY_HIST_VIEW">
+          <label>Connectivity Histogram</label>
+          <enabled>0</enabled>
+        </object>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <label>Shape</label>
+        <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+          <label>Points from Table</label>
+        </object>
+        <object class="wxMenuItem" name="ID_SHAPE_POLYGONS_FROM_GRID">
+          <label>Polygons from Grid</label>
+        </object>
+        <object class="wxMenuItem" name="ID_SHAPE_POLYGONS_FROM_BOUNDARY">
+          <label>Polygons from Boundary</label>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_SHAPE_TO_BOUNDARY">
+          <label>To Boundary</label>
+        </object>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>T&amp;able</label>
+      <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
+        <label>Merge Table Data</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
+        <label>Selection Tool</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
+        <label>Move Selected to Top</label>
+      </object>
+      <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+        <label>Add Neighbors To Selection</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
+        <label>Clear Selection</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+        <label>Save Selection</label>
+      </object>
+      <object class="separator"/>
+      
+      
+      
+      
+      
+      
+      
+      <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
+        <label>Variable Calculation</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
+        <label>Add Variable</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_DELETE_COLUMN">
+        <label>Delete Variable</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
+        <label>Edit Variable Properties</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
+        <label>Animation</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SHOW_TIME_CHOOSER">
+        <label>Time Control</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TIME_EDITOR">
+        <label>Time Editor</label>
+      </object>
+      <object class="wxMenuItem" name="ID_VAR_GROUPING_EDITOR">
+        <label>Variable Grouping Editor</label>
+      </object>
+      
+	        
+      <object class="separator"/>
+      
+      <object class="wxMenuItem" name="ID_SHOW_CAT_CLASSIF">
+        <label>Category Editor</label>
+      </object>
+      <object class="separator"/>
+      
+      
+      <object class="wxMenu" name="ID_TABLE_ENCODING">
+        <label>Encoding</label>
+        <object class="wxMenuItem" name="ID_ENCODING_UTF8">
+          <label>Unicode (UTF-8)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_UTF16">
+          <label>Unicode (UTF-16LE)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1256">
+          <label>Arabic (Windows-1256)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_2">
+          <label>Central European Latin-2 (ISO-8859-2)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1250">
+          <label>Central European (Windows-1250)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_CP852">
+          <label>Central European (CP852)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_GB2312">
+          <label>Chinese Simplified (GB2312)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_BIG5">
+          <label>Chinese Traditional (Big5)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_5">
+          <label>Cyrillic (ISO-8859-5)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_KOI8_R">
+          <label>Cyrillic (KOI8-R)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1251">
+          <label>Cyrillic (Windows-1251)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_CP866">
+          <label>Cyrillic/Russian (CP866)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_7">
+          <label>Greek (ISO-8859-7)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_8">
+          <label>Hebrew (ISO-8859-8-1)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1255">
+          <label>Hebrew (Windows-1255)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_SHIFT_JIS">
+          <label>Japanese (Shift_JIS)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_EUC_JP">
+          <label>Japanese (EUC-JP)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_EUC_KR">
+          <label>Korean (EUC-KR)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_10">
+          <label>Nordic Latin-6 (ISO-8859-10)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_3">
+          <label>South European Latin-3 (ISO-8859-3)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_9">
+          <label>Turkish Latin-5 (ISO-8859-9)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1254">
+          <label>Turkish (Windows-1254)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1258">
+          <label>Vietnamese (Windows-1258)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_1">
+          <label>West European Latin-1 (ISO-8859-1)</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_15">
+          <label>West European Latin-9 (ISO-8859-15)</label>
+          <checkable>1</checkable>
+        </object>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
+        <label>Setup Number Separators</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <label>&amp;Map</label>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_THEMELESS">
+        <label>Themeless Map</label>
+      </object>
+	  <object class="wxMenu" name="ID_OPEN_QUANTILE_SUBMENU">
+	    <label>Quantile Map</label>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_2">
+          <label>2</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_3">
+          <label>3</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_4">
+          <label>4</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_5">
+          <label>5</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_6">
+          <label>6</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_7">
+          <label>7</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_8">
+          <label>8</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_9">
+          <label>9</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_QUANTILE_10">
+          <label>10</label>
+	    </object>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile Map</label>
+      </object>
+      <object class="wxMenu" name="ID_OPEN_MENU">
+        <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+        </object>
+        <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values Map</label>
+      </object>
+	  <object class="wxMenu" name="ID_OPEN_NATURAL_BREAKS_SUBMENU">
+	    <label>Natural Breaks Map</label>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_2">
+          <label>2</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_3">
+          <label>3</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_4">
+          <label>4</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_5">
+          <label>5</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_6">
+          <label>6</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_7">
+          <label>7</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_8">
+          <label>8</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_9">
+          <label>9</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_10">
+          <label>10</label>
+	    </object>
+      </object>
+	  <object class="wxMenu" name="ID_OPEN_EQUAL_INTERVALS_SUBMENU">
+	    <label>Equal Intervals Map</label>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_2">
+          <label>2</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_3">
+          <label>3</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_4">
+          <label>4</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_5">
+          <label>5</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_6">
+          <label>6</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_7">
+          <label>7</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_8">
+          <label>8</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_9">
+          <label>9</label>
+	    </object>
+	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
+          <label>10</label>
+	    </object>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_RAWRATE">
+          <label>Raw Rate</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_EXCESSRISK">
+          <label>Excess Risk</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER">
+          <label>Empirical Bayes</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER">
+          <label>Spatial Rate</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES">
+          <label>Spatial Empirical Bayes</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Rates-Calculated Map</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_MAP_VIEW_MAP_MENU">
+        <label>Conditional Plot Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SHOW_CARTOGRAM_NEW_VIEW">
+        <label>Cartogram</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenuItem" name="IDM_HIST">
+        <label>Histogram</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_BOX">
+        <label>Box Plot</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_SCATTERPLOT">
+        <label>Scatter Plot</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_BUBBLECHART">
+        <label>Bubble Chart</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_3DP">
+        <label>3D Scatter Plot</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_PCP">
+        <label>Parallel Coordinate Plot</label>
+      </object>
+      <object class="wxMenu" name="ID_COND_MENU">
+        <label>Conditional Plot</label>
+        <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_MAP_VIEW">
+          <label>Map</label>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_HIST_VIEW">
+          <label>Histogram</label>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_SCATTER_VIEW">
+          <label>Scatter Plot</label>
+        </object>
+      </object>
+      <label>E&amp;xplore</label>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>&amp;Space</label>
+      <object class="wxMenuItem" name="IDM_MSPL">
+        <label>Univariate Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_GMORAN">
+        <label>Bivariate Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
+        <label>Moran's I with EB Rate</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="IDM_UNI_LISA">
+        <label>Univariate Local Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_MULTI_LISA">
+        <label>Bivariate Local Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_LISA_EBRATE">
+        <label>Local Moran's I with EB Rate</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="IDM_GETIS_ORD">
+        <label>Local G Statistics</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Metho&amp;ds</label>
+      <object class="wxMenuItem" name="ID_REGRESSION_CLASSIC">
+        <label>Regression</label>
+        <enabled>1</enabled>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Options</label>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>&amp;Help</label>
+      <object class="wxMenuItem" name="wxID_ABOUT">
+        <label>About GeoDa</label>
+      </object>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_DEFAULT_MENU_OPTIONS">
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_3D_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_BOX_NEW_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Hinge</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_15">
+        <label>1.5</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_30">
+        <label>3.0</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES">
+      <label>Show Vertical Axis</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_BOXPLOT_VIEW_MENU_OPTIONS">
+    <label>Options</label>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Hinge</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_15">
+        <label>1.5</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_30">
+        <label>3.0</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+      <label>Background Color</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_BOXPLOT_VIEW_MENU_CONTEXT">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Hinge</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_15">
+        <label>1.5</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_HINGE_30">
+        <label>3.0</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+      <label>Background</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_COND_MAP_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_QUANTILE_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_QUANTILE_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <label>Map Color Classification</label>
+    </object>
+    <object class="wxMenu" name="ID_CAT_CLASSIF_B_MENU">
+      <object class="wxMenuItem" name="ID_COND_VERT_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_VERT_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_VERT_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Vertical Bins Breaks</label>
+    </object>
+    <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
+      <object class="wxMenuItem" name="ID_COND_HORIZ_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_HORIZ_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_HORIZ_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_HORIZ_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Horizontal Bins Breaks</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+      <label>Save Categories</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_COND_SCATTER_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_B_MENU">
+      <object class="wxMenuItem" name="ID_COND_VERT_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+	
+	  <object class="wxMenu" name="ID_COND_VERT_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_VERT_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+      <label>Vertical Bins Breaks</label>
+    </object>
+    <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
+      <object class="wxMenuItem" name="ID_COND_HORIZ_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_HORIZ_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      
+	  <object class="wxMenu" name="ID_COND_HORIZ_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_HORIZ_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Horizontal Bins Breaks</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_AXES_SCALE_VALUES">
+      <label>Display Axes Scale Values</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_SLOPE_VALUES">
+      <label>Display Slope Values</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_COLOR">
+        <label>Regression Line Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_COND_HISTOGRAM_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_B_MENU">
+      <object class="wxMenuItem" name="ID_COND_VERT_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+	  
+      <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+	  
+      <object class="wxMenu" name="ID_COND_VERT_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_VERT_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Vertical Bins Breaks</label>
+    </object>
+    <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
+      <object class="wxMenuItem" name="ID_COND_HORIZ_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+	  
+	  <object class="wxMenu" name="ID_COND_HORIZ_QUANT_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+	  
+      <object class="wxMenu" name="ID_COND_HORIZ_NAT_BRKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_COND_HORIZ_EQU_INTS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Horizontal Bins Breaks</label>
+    </object>
+    <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
+      <label>Choose Intervals</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES">
+      <label>Show Axes</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_QUANTILE_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_QUANTILE_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <label>Classification Themes</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+      <label>Save Categories</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Improve Cartogram</label>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_1">
+        <label>1 Iteration</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_2">
+        <label>2 Iteration</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_3">
+        <label>3 Iteration</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_4">
+        <label>4 Iteration</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_5">
+        <label>5 Iteration</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CARTOGRAM_IMPROVE_6">
+        <label>6 Iteration</label>
+      </object>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS">
+    <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
+      <label>Choose Intervals</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES">
+      <label>Show Axes</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS">
+    <object class="wxMenuItem" name="ID_SAVE_CONNECTIVITY_TO_TABLE">
+      <label>Save Connectivity To Table</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECT_ISOLATES">
+      <label>Select Neighborless Observations</label>
+    </object>
+    <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
+      <label>Choose Intervals</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES">
+      <label>Show Axes</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Randomization</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_99PERMUTATION">
+        <label>99 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_199PERMUTATION">
+        <label>199 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_499PERMUTATION">
+        <label>499 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_999PERMUTATION">
+        <label>999 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_OTHER">
+        <label>Other (up to 99999)</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
+        <label>Use Specified Seed</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
+        <label>Specify Seed...</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Significance Filter</label>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_05">
+        <label>0.05</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_01">
+        <label>0.01</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_001">
+        <label>0.001</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_0001">
+        <label>0.0001</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_GETIS_ORD">
+      <label>Save Results</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+      <label>Add Neighbors To Selection</label>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Select All...</label>
+      <object class="wxMenuItem" name="ID_SELECT_CORES">
+        <label>Cores</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_NEIGHBORS_OF_CORES">
+        <label>Neighbors of Cores</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_CORES_AND_NEIGHBORS">
+        <label>Cores and Neighbors</label>
+      </object>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
+      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
+        <label>Add Mean Centers to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
+        <label>Add Centroids to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
+        <label>Display Mean Centers</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
+        <label>Display Centroids</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
+        <label>Save Mean Centers</label>
+        <enabled>1</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
+        <label>Save Centroids</label>
+        <enabled>1</enabled>
+      </object>
+      <label>Shape Centers</label>
+    </object>
+    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
+      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
+        <label>Display Thiessen Polygons</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
+        <label>Save Thiessen Polygons</label>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
+        <label>Save Duplicate Thiessen Polygons (ID) to Table</label>
+        <enabled>0</enabled>
+      </object>
+      <label>Thiessen Polygons</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Selectable Fill Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_LISAMAP_NEW_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Randomization</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_99PERMUTATION">
+        <label>99 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_199PERMUTATION">
+        <label>199 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_499PERMUTATION">
+        <label>499 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_999PERMUTATION">
+        <label>999 Permutations</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_OTHER">
+        <label>Other (up to 99999)</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
+        <label>Use Specified Seed</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
+        <label>Specify Seed...</label>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Significance Filter</label>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_05">
+        <label>0.05</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_01">
+        <label>0.01</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_001">
+        <label>0.001</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_0001">
+        <label>0.0001</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_LISA">
+      <label>Save Results</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+      <label>Add Neighbors To Selection</label>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Select All...</label>
+      <object class="wxMenuItem" name="ID_SELECT_CORES">
+        <label>Cores</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_NEIGHBORS_OF_CORES">
+        <label>Neighbors of Cores</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_CORES_AND_NEIGHBORS">
+        <label>Cores and Neighbors</label>
+      </object>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
+      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
+        <label>Add Mean Centers to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
+        <label>Add Centroids to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
+        <label>Display Mean Centers</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
+        <label>Display Centroids</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
+        <label>Save Mean Centers</label>
+        <enabled>1</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
+        <label>Save Centroids</label>
+        <enabled>1</enabled>
+      </object>
+      <label>Shape Centers</label>
+    </object>
+    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
+      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
+        <label>Display Thiessen Polygons</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
+        <label>Save Thiessen Polygons</label>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
+        <label>Save Duplicate Thiessen Polygons to Table</label>
+        <enabled>0</enabled>
+      </object>
+      <label>Thiessen Polygons</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Selectable Fill Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_LISA_SCATTER_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+      <label>Selection Shape</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
+      <label>Show Axes Through Origin</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Randomization</label>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_99PERMUTATION">
+        <label>99 Permutations</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_199PERMUTATION">
+        <label>199 Permutations</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_499PERMUTATION">
+        <label>499 Permutations</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_999PERMUTATION">
+        <label>999 Permutations</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_OTHER">
+        <label>Other (up to 99999)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
+        <label>Use Specified Seed</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
+        <label>Specify Seed...</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_MORANI">
+      <label>Save Results</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_COLOR">
+        <label>Regression Line Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_MAP_VIEW_MENU_LEGEND">
+    <object class="wxMenuItem" name="ID_LEGEND_BACKGROUND_COLOR">
+      <label>Legend Background Color</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_LEGEND_TO_CLIPBOARD">
+      <label>Copy Legend To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_MAP_NEW_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+
+	  <object class="wxMenu" name="ID_QUANTILE_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_QUANTILE_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+		  
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Box Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+	  
+	  <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	  
+      <label>Change Current Map Type</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+      <label>Save Categories</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Rates</label>
+      <object class="wxMenuItem" name="ID_RATES_SMOOTH_RAWRATE">
+        <label>Raw Rate</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_RATES_SMOOTH_EXCESSRISK">
+        <label>Excess Risk</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_RATES_EMPIRICAL_BAYES_SMOOTHER">
+        <label>Empirical Bayes</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_RATES_SPATIAL_RATE_SMOOTHER">
+        <label>Spatial Rate</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_RATES_SPATIAL_EMPIRICAL_BAYES">
+        <label>Spatial Empirical Bayes</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_MAPANALYSIS_SAVERESULTS">
+      <label>Save Rates</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
+      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
+        <label>Add Mean Centers to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
+        <label>Add Centroids to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
+        <label>Display Mean Centers</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
+        <label>Display Centroids</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
+        <label>Save Mean Centers</label>
+        <enabled>1</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
+        <label>Save Centroids</label>
+        <enabled>1</enabled>
+      </object>
+      <label>Shape Centers</label>
+    </object>
+    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
+      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
+        <label>Display Thiessen Polygons</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
+        <label>Save Thiessen Polygons</label>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
+        <label>Save Duplicate Thiessen Polygons to Table</label>
+        <enabled>0</enabled>
+      </object>
+      <label>Thiessen Polygons</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_MAP_MOVIE_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background</label>
+      </object>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_QUANTILE_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_QUANTILE_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Boxplot Theme</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+        <label>Save Categories</label>
+      </object>
+      <label>Classification Themes</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+      <label>Save Categories</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+      <label>View Standardized Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+      <label>View Original Data</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+      <label>View Standardized Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+      <label>View Original Data</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+	<object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+      <label>Regimes Regression</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
+      <label>Show Axes Through Origin</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_COLOR">
+        <label>Regression Line Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_BUBBLE_CHART_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
+        <label>Themeless</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_QUANTILE_SUBMENU">
+		<label>Quantile</label>
+		<object class="wxMenuItem" name="ID_QUANTILE_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_QUANTILE_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+        <label>Percentile</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Hinge=1.5</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Hinge=3.0</label>
+          <checkable>1</checkable>
+        </object>
+        <label>Boxplot Theme</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
+        <label>Standard Deviation</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_UNIQUE_VALUES">
+        <label>Unique Values</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
+		<label>Natural Breaks</label>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+	
+	  <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
+		<label>Equal Intervals</label>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
+          <label>2</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_3">
+          <label>3</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_4">
+          <label>4</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_5">
+          <label>5</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_6">
+          <label>6</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_7">
+          <label>7</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_8">
+          <label>8</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_9">
+          <label>9</label>
+		  <checkable>1</checkable>
+        </object>
+		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_10">
+          <label>10</label>
+		  <checkable>1</checkable>
+        </object>
+	  </object>
+      <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+        <label>Save Categories</label>
+      </object>
+      <label>Classification Themes</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
+      <label>Save Categories</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+      <label>View Standardized Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+      <label>View Original Data</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
+      <label>Show Axes Through Origin</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_SCATTER_PLOT_VIEW_MENU_OPTIONS">
+    <label>Options</label>
+    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+      <label>View Standardized Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+      <label>View Original Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+      <label>Regimes Regression</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+      <label>Background Color</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_SCATTER_PLOT_VIEW_MENU_CONTEXT">
+    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+      <label>View Standardized Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+      <label>View Original Data</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+      <label>Regimes Regression</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+      <label>Background</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
+    <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
+      <label>Merge Table Data</label>
+    </object>
+    <object class="separator"/>
+    
+    <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
+      <label>Selection Tool</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
+      <label>Move Selected to Top</label>
+    </object>
+    
+    
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+      <label>Add Neighbors To Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
+      <label>Clear Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
+      <label>Variable Calculation</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
+      <label>Add Variable</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_DELETE_COLUMN">
+      <label>Delete Variable</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_RENAME_VARIABLE">
+      <label>Rename Variable</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
+      <label>Edit Variable Properties</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
+      <label>Animation</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_TIME_CHOOSER">
+      <label>Time Control</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TIME_EDITOR">
+      <label>Time Editor</label>
+    </object>
+    <object class="wxMenuItem" name="ID_VAR_GROUPING_EDITOR">
+      <label>Variable Grouping Editor</label>
+    </object>
+    
+    
+    
+    <object class="wxMenuItem" name="ID_TABLE_GROUP">
+      <label>Group Selected</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_UNGROUP">
+      <label>Ungroup Variable</label>
+    </object>
+	
+    <object class="separator"/>
+    
+    <object class="wxMenuItem" name="ID_SHOW_CAT_CLASSIF">
+      <label>Category Editor</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_TABLE_ENCODING">
+      <label>Encoding</label>
+      <object class="wxMenuItem" name="ID_ENCODING_UTF8">
+        <label>Unicode (UTF-8)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_UTF16">
+        <label>Unicode (UTF-16LE)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1256">
+        <label>Arabic (Windows-1256)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_2">
+        <label>Central European Latin-2 (ISO-8859-2)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1250">
+        <label>Central European (Windows-1250)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_CP852">
+        <label>Central European (CP852)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_GB2312">
+        <label>Chinese Simplified (GB2312)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_BIG5">
+        <label>Chinese Traditional (Big5)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_5">
+        <label>Cyrillic (ISO-8859-5)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_KOI8_R">
+        <label>Cyrillic (KOI8-R)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1251">
+        <label>Cyrillic (Windows-1251)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_CP866">
+        <label>Cyrillic/Russian (CP866)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_7">
+        <label>Greek (ISO-8859-7)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_8">
+        <label>Hebrew (ISO-8859-8-1)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1255">
+        <label>Hebrew (Windows-1255)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_SHIFT_JIS">
+        <label>Japanese (Shift_JIS)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_EUC_JP">
+        <label>Japanese (EUC-JP)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_EUC_KR">
+        <label>Korean (EUC-KR)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_10">
+        <label>Nordic Latin-6 (ISO-8859-10)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_3">
+        <label>South European Latin-3 (ISO-8859-3)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_9">
+        <label>Turkish Latin-5 (ISO-8859-9)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1254">
+        <label>Turkish (Windows-1254)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_WINDOWS_1258">
+        <label>Vietnamese (Windows-1258)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_1">
+        <label>West European Latin-1 (ISO-8859-1)</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_ENCODING_ISO_8859_15">
+        <label>West European Latin-9 (ISO-8859-15)</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
+      <label>Setup Number Separators</label>
+    </object>
+    <label>Table</label>
+  </object>
+  <object class="wxMenu" name="ID_REPORT_VIEW_MENU_CONTEXT">
+    <object class="wxMenuItem" name="ID_FONT">
+      <label>Change Font</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_TESTMAP_VIEW_MENU_CONTEXT">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Selectable Fill Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_TEST_TABLE_VIEW_MENU_CONTEXT">
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Selectable Fill Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_TEST_SCROLL_WIN_VIEW_MENU_CONTEXT">
+    <object class="wxMenuItem" name="ID_HELLO_WORLD">
+      <label>Hello World</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_COND_MENU">
+    <label>Conditional Plot</label>
+    <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_MAP_VIEW">
+      <label>Map</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_HIST_VIEW">
+      <label>Histogram</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_SCATTER_VIEW">
+      <label>Scatter Plot</label>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_MORAN_MENU">
+    <label>Moran's I Scatter Plots</label>
+    <object class="wxMenuItem" name="IDM_MSPL">
+      <label>Univariate Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_GMORAN">
+      <label>Bivariate Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
+      <label>Moran's I with EB Rate</label>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_LISA_MENU">
+    <label>Local Moran's I Maps</label>
+    <object class="wxMenuItem" name="IDM_UNI_LISA">
+      <label>Univariate Local Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_MULTI_LISA">
+      <label>Bivariate Local Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_LISA_EBRATE">
+      <label>Local Moran's I with EB Rate</label>
+    </object>
+  </object>
+  <object class="wxMenu" name="ID_MAP_CHOICES">
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_THEMELESS">
+      <label>Themeless Map</label>
+      <bitmap>ToolBarBitmaps_ThemelessMap.png</bitmap>
+    </object>
+	<object class="wxMenu" name="ID_OPEN_QUANTILE_SUBMENU">
+	  <label>Quantile Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_10">
+        <label>10</label>
+	  </object>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+      <label>Percentile Map</label>
+      <bitmap>ToolBarBitmaps_26.png</bitmap>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
+      <label>Box Map, Hinge=1.5</label>
+      <bitmap>ToolBarBitmaps_28.png</bitmap>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
+      <label>Box Map, Hinge=3.0</label>
+      <bitmap>ToolBarBitmaps_29.png</bitmap>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
+      <label>Standard Deviation Map</label>
+      <bitmap>ToolBarBitmaps_27.png</bitmap>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_UNIQUE_VALUES">
+      <label>Unique Values Map</label>
+      <bitmap>ToolBarBitmaps_38.png</bitmap>
+    </object>
+	<object class="wxMenu" name="ID_OPEN_NATURAL_BREAKS_SUBMENU">
+	  <label>Natural Breaks Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_10">
+        <label>10</label>
+	  </object>
+	</object>
+	<object class="wxMenu" name="ID_OPEN_EQUAL_INTERVALS_SUBMENU">
+	  <label>Equal Intervals Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
+        <label>10</label>
+	  </object>
+    </object>
+    <object class="wxMenu" name="ID_MAP_SMOOTHING_CHOICES">
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_RAWRATE">
+        <label>Raw Rate</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_EXCESSRISK">
+        <label>Excess Risk</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER">
+        <label>Empirical Bayes</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER">
+        <label>Spatial Rate</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES">
+        <label>Spatial Empirical Bayes</label>
+      </object>
+      <label>Rates-Calculated Maps</label>
+    </object>
+    <label>Options</label>
+  </object>
+  <object class="wxMenu" name="ID_MAP_CHOICES_NO_ICONS">
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_THEMELESS">
+      <label>Themeless Map</label>
+    </object>
+	<object class="wxMenu" name="ID_OPEN_QUANTILE_SUBMENU">
+	  <label>Quantile Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_QUANTILE_10">
+        <label>10</label>
+	  </object>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
+      <label>Percentile Map</label>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
+      <label>Box Map, Hinge=1.5</label>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
+      <label>Box Map, Hinge=3.0</label>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
+      <label>Standard Deviation Map</label>
+    </object>
+    <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_UNIQUE_VALUES">
+      <label>Unique Values Map</label>
+    </object>
+	<object class="wxMenu" name="ID_OPEN_NATURAL_BREAKS_SUBMENU">
+	  <label>Natural Breaks Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_NATURAL_BREAKS_10">
+        <label>10</label>
+	  </object>
+	</object>
+	<object class="wxMenu" name="ID_OPEN_EQUAL_INTERVALS_SUBMENU">
+	  <label>Equal Intervals Map</label>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_2">
+        <label>2</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_3">
+        <label>3</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_4">
+        <label>4</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_5">
+        <label>5</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_6">
+        <label>6</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_7">
+        <label>7</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_8">
+        <label>8</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_9">
+        <label>9</label>
+	  </object>
+	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
+        <label>10</label>
+	  </object>
+    </object>
+    <object class="wxMenu" name="ID_MAP_SMOOTHING_CHOICES">
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_RAWRATE">
+        <label>Raw Rate</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_EXCESSRISK">
+        <label>Excess Risk</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER">
+        <label>Empirical Bayes</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER">
+        <label>Spatial Rate</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES">
+        <label>Spatial Empirical Bayes</label>
+      </object>
+      <label>Rates-Calculated Maps</label>
+    </object>
+    <label>Options</label>
+  </object>
+</resource>

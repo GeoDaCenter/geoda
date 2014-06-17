@@ -1,0 +1,719 @@
+GeoDa 1.6.0 Release Notes
+
+Changes since 1.5.43:
+- More helpful messages concerning the Project
+ file are added when using Save, Save As, Close
+ and Exit.
+
+Changes since 1.5.42:
+- Fixed a problem with scroll bars in Windows
+- Added Arc Distance (km) in Weights Creation
+- Updated radius-of-Earth constant to 6371 km
+- Fixed missing zoom/pan icons in Windows
+
+Changes since 1.5.37:
+- Fixed a mismatch between Custom Category labels
+  and Map legend.
+
+Changes since 1.5.36:
+- Added separate Associated Variable and Preview
+  Variable choices to Custom Categories.
+- Removed ability to see regression statistics in
+  Moran's I scatterplot.
+
+Changes since 1.5.35:
+- Fixed a bug in Conditional Scatterplot.
+
+Changes since 1.5.34:
+- Added support for data sources with undefined/null
+  polygons/point for some observations.
+- Undefined map objects will be recorded in the table
+  as blank (undefined) numbers when saving mean
+  centers/centroids to the table.
+
+Changes since 1.5.33:
+- Enabled "Display Statistics" by default in all views
+- Replaced "Show Regression of Selected" and
+  "Show Regression of Selected Excluded" with single menu
+  item "Regimes Regression".
+- Fixed bug where could not Export to a project with geometry
+  layer after creating a point geometry layer from CSV/dBase
+  table-only projects.
+
+Changes since 1.5.32:
+- Removed "Numer of Categories" dialog everywhere.
+- Added new Save As dialogs.
+- Fixed a crash when saving ints to CSV.
+- Fixed a crash in dBase int field initialization.
+- Various small bug fixes.
+
+Overview of Changes Since Major Release 1.4:
+
+Major New Data Sources Supported
+- ESRI ArcSDE database
+- Oracle / Oracle Spatial database
+- PostgreSQL / PostGIS database
+- MySQL with Spatial Extensions database
+- SQLite / Spatialite database
+- ESRI File Geodatabase
+- ESRI Personal Geodatabase
+- WFS (Web Feature Service)
+- GeoJSON
+- GML
+- KML
+- Mapinfo
+- MS Excel (read only)
+- US Census TIGER/line
+
+New Native OS Support and Installers
+- Windows 64-bit for Windows 7, 8, and 8.1
+- Mac OSX 64-bit for 10.6.8 or later
+- CentOS 64-bit for 6.0 or later
+- continued support for Windows 32-bit, and
+ Ubuntu 32-bit and 64-bit.
+- all OSes now support full 64-bit memory
+ access for the first time.
+- Windows, Mac and Linux native installers
+
+Other Changes
+- Project file added to remember data source connection
+ details as well as variable order, time grouping, recently
+ used weights, recently used variables, custom categories.
+- Redesigned Custom Category Editor.
+- Highly streamlined and flexible space-time grouping
+ including support for missing time periods in various
+ time-series variables.
+- Dynamic space-time grouping from within Table.
+- Almost all dialogs are non-blocking and update/sync
+ in real-time.
+- New Time period editor.
+- Easy Import, Export and Merge between data sources.
+- Added Windows, Mac and Linux simple installers.
+- Ported to newest/major wxWidgets 3.0 library.
+- Integration with GDAL/OGR.
+- Rewritten/enhanced Variable Group.
+- Rewritten/enhanced Variable Property editors.
+- Better support for international characters in filenames
+and in data.
+- LISA and Getis-Ord can now be given a user-supplied
+ seed value for the pseudo random number generator.
+- Project Information dialog under File menu added.
+- White Test is disabled by default in Regression.
+- Double-clicking on GeoDa project files with "gda" file
+  name extension opens that project in GeoDa.  Works on
+  all platforms.  If another copy of GeoDa is currently running,
+  a request is made to open project in currently-running instance.
+- Program is completely independent of ESRI Shapefile
+ format: GeoDa works with all of the new data formats
+ natively for every type of operation.
+
+GeoDa 1.4.6 Release Notes: 
+Changes since 1.4.5:
+- Fixed a big in all conditional plots when a time-variant variable
+ is chosen for the vertical axis and a time-invariant variable is
+ chosen for the horizontal axis.
+- Improved Table row selection highlighting.
+
+Changes since 1.4.4:
+- Fixed a problem with Save As for Table Only projects
+
+Changes since 1.4.3:
+- Fixed a problem where some views wouldn't refresh unless clicked
+ on with mouse.
+
+Changes since 1.4.2:
+- Regression: Moran's I z-val is computed automatically when a weights
+ file is selected.  Because of the big speed increase, the checkbox to
+ disable the calculation is removed.
+
+Changes since 1.4.1:
+- Regression: Moran's I z-val for OLS now supports non-symmetric
+weights.  Also, massive performance improvement: there is essentially
+no time penalty to run Moran's I z-val calculation: 163K obs with
+6 nearest-neighbors weights finishes in 11 seconds.
+- Regression: small improvements to the GUI.  View button has been
+removed and results are automatically shown with calculation finishes.
+- Map zoom improvements: fixed a bug with zoom on Mac.  Unlimited zooming
+now supported.
+- Table: Table column widths are automatically set to better fit data.
+
+Changes since 1.4.0:
+- Fixed a potential crash and a bug related to creating
+contiguity weights directly from a point shape file
+- Table values from some illegally formatted DBF data will display
+properly rather than being cut off according to the DBF field
+specifications.
+- Fixed a false warning message in Regression that occurs when a
+negative variance is detected for a particular test.
+
+GeoDa 1.4.0 Release Notes
+Overview of Changes Since Major Release 1.2:
+- All views now support Space-Time data.
+- Conditional Plot completely re-designed to support row/column
+  breakpoints by theme, or by new Custom Categories dialog where
+  number of row/columns and break points can be changed dynamically.
+- New Custom Categories feature added.  In addition to existing
+  built-in categories (Quantile, Percentile, etc), user can easily
+  create new custom categories based on existing categories.  User can
+  dynamically modify: number of categories, break-points, title, and
+  colors.  Multiple views can share the same custom category and all
+  will be automatically updated together as changes are made.
+- New Animator dialog feature.  This replaces the older Map Movie
+  dialog.  Animator allows data selection to be animated across all
+  views and for any variable.
+- New Thiessen Polygons submenu for point Maps and rewritten Thiessen
+  Polygon functionality to address all existing bugs and to increase
+  performance.
+- New Cartogram maps.  Performance greatly improved with multi-core
+  support for space-time cartograms.
+- Numerous performance enhancement and bug fixes
+
+GeoDa 1.3.29 Release Notes:
+Changes since 1.3.28
+- Empty values in CSV file supported.
+
+Changes since 1.3.27
+- added support for reading Point and Polygon Shapefiles with
+  "Measure" data and "Z-value" data.
+- Fixed a bug where Scatterplot regression lines were not showing up
+  in "Save Image As" or "Save to Clipboard."
+- Added Map and Scatterplot rendering optimizations for large
+  datafiles.  This should greatly speed up linking/brushing and window
+  resizing for Shapefiles with 100 to 500 thousand observations.
+
+Changes since 1.3.26
+- Updated GeoDa icons
+- Renamed program from OpenGeoDa to GeoDa
+
+Changes since 1.3.24
+- Better default Custom Categories names
+- Several bug fixes to Custom Categories
+- Now using official Boost Polygon Voronoi library (Boost 1.52 or
+later)
+
+Changes since 1.3.21
+Category Editor Enhancements:
+- All views with themes now fully support Custom Categories
+- When creating a new custom category, the preview variable
+  is now remembered as a default.  This makes it convenient to
+  switch between editing different custom categories using the
+  Categories Editor.
+- Categories Editor aware of changes to Table.  In particular
+  it automatically updates when variables are added or deleted.
+
+Changes since 1.3.18
+- Increased allowed number of time periods from 200 to 10000.
+
+Changes since 1.3.15
+New Category Editor
+- Ability to create and edit custom category breaks
+- Real-time histogram preview.
+- Rich set of controls with intelligent defaults.
+- Ability to edit breaks, category colors, number of categories and
+  category titles.
+- Can copy from existing categories.
+
+Changes since 1.3.14
+- Fixed a bug when closing Cartogram
+
+Changes since 1.3.13
+- Fixed an issue with Time field in Animation Dialog.
+- New Regression toolbar icon.
+- Improvements to Conditional Histogram axes.
+
+Changes since 1.3.12
+- New Conditional Histogram: very similar to new
+  Conditional Scatter Plot and Maps.
+- LISA and Moran's Toolbar icons reduced to just two icons that open
+  up a submenu with three choices each.
+- New Regression icon added to Toolbar.
+
+Changes since 1.3.11:
+New Animation Dialog
+- Replaces Map Movie.
+- Includes controls for reverse, loop, ascending and descending order
+  playback.  Can also toggle between cumulative and single selection
+  mode.
+- Currently available data fields are synchronized to the Table.  If a
+  Table variable is added or deleted, the currently open Data
+  Selection Movie dialog reflects the change.
+- Highly interactive: buttons, checkbox changes and variable changes
+  do not reset the slider position and the current set of selected
+  objects is automatically updated.
+
+Changes since 1.3.10:
+- Regression Dialog: integrated the Regression Title dialog into
+  the main Regression Dialog.
+- Regression Dialog: Added "Save to File" button for writing output
+  to a text file.
+- Regression output: cleaned up formatting in several places.
+- Regression Dialog: fixed a bug where garbage results could be
+  produced when new Table Variables are inserted/removed while
+  Regression Dialog is open.
+
+Changes since 1.3.9:
+- New Toolbar icon for Time Control window.
+- Internal code cleanup.  Should result in some performance speedup
+  when performing brushing.
+
+Changes since 1.3.8:
+- Connectivity Histogram: updated look, similar to the current
+  Histogram, but binning algorithm optimized for integer values.
+- Connectivity Histogram: can now save number of neighbors to Table
+- Connectivity Histogram: option to select neighborless observations
+  when they exist.
+- fixed: LISA Save Results could sometimes produce a false duplicate
+  variable names warning.
+
+Changes since 1.3.7:
+All new space-time-aware Conditional Scatter Plot:
+- Option to hide/show axes values labels (shown by default)
+- Option to hide/show slope values (hidden by default)
+- slope values with p-val <= 0.05 annotated with *
+- slope values with p-val <= 0.01 annotated with **
+
+Changes since 1.3.6:
+- All new space-time-aware Conditional Map Plot
+
+Changes since 1.3.5:
+- All maps and Bubble Chart use the same outline-style as the new
+  Cartogram.
+- Removed Polygons to Mean Centers / Centroids from Tools menu
+- Added Save Mean Centers / Centroids to Shapefile in Map Options menu
+
+Changes since 1.3.4:
+Cartogram changes:
+- Cartogram now fully supports space-time
+- Estimates of time to complete Cartogram improvements with iterations
+  given in menu.  Estimates are improved for every time iterations
+  are performed.
+- Cartogram improvements > 2 seconds are animated in real-time with
+  updates approximately every second.
+- Initial Cartogram loading time is always as fast as possible, even
+  for very large data sets.
+- Space-time improvements performed using all available CPU cores.
+- All standard map themes now supported.  No limitations of data
+  values being positive, non-zero, or range being non-zero.
+- New outline coloring scheme aids in visualizing large data sets.
+- For space-time data, radius scaling is fixed across all time
+  periods, ie. observations with same value have the exact same circle
+  area across all time periods.
+
+Changes since 1.3.3:
+- Fixed a rare edge-case bug in Scatter Plot where the Chow test
+  calculation would cause a crash.
+Weights Creation:
+- When calculating contiguity weights from points directly, duplicate
+  points are handled by making all duplicates at a common location
+  neighbors of each other.  A warning dialog is shown the first time
+  with the option of saving duplicates to the Table.  After that,
+  the warning dialog is now shown again.
+- Weights Creation only applies to currently opened project.
+- Euclidean point distance method is now the only option for kNN.
+- Fixed some bugs related to creating weights with no shapefile
+present.
+- Removed Points to Polygon option from the tools menu.  Similar
+  functionality is now accessible from within the Options menu of any
+  map window.
+
+Changes since 1.3.2:
+- Added ability generate rook/queen contiguity weights directly from
+  point shapefiles.
+
+Changes since 1.2.0:
+- Save To Table Dialog: variable checkbox selected automatically after
+  creating a new variable.
+- Save To Table Dialog: variable type in Add Variable Dialog defaults
+  to integer automatically when saving integer data.
+- Maps: new Thiessen Polygons submenu.  For a point-shape-file map
+  window, can now:
+  1) display Thiessen Polygons on the current map
+  2) Save Thiessen Polygons to a new shapefile
+  3) If duplicate or near-duplicate points are detected, then user is
+     given the option to save sets of duplicate ids to the Table.
+     This should aid the user in correcting the problem.
+
+Changes since 1.0.1:
+Release 1.2.0 of GeoDa includes the most significant changes
+to the program since it was first released publicly. There are
+too many small improvements to list, but some highlights include:
+
+- Space-Time exploratory data analysis is available in almost
+  every data visualization window.
+- Space-Time data is fully linked across all views in real-time.
+- Most visualizations have been rewritten to support space-time.
+- Very easy to convert simple table data into space-time data by
+  opening a regular shapefile/dbf/csv file and choosing
+  "Convert to Space-Time Project" from the Table menu.
+- General graphics and features have been greatly improved everywhere.
+
+Maps:
+- Supports space-time data
+- Added Natural Breaks and Unique Values themes
+- Can now select all observations in a category by clicking a color
+  box in the legend
+- Can optionally show polygon centers on the map
+
+Bubble Chart:
+- Supports space-time data
+- Bubble Charts are entirely new to GeoDa.  Very similar to
+  Scatter Plot, but four variables can be visualized by varying
+  the size and color of plot points.
+
+Scatter Plot:
+- Supports space-time data
+- Completely rewritten graphics for a cleaner look
+- Can optionally choose "Display Statistics" to see parameters
+  describing all three regression lines when "Regression of Selected"
+  and "Regression of Excluded" are active.
+- Chow test automatically shown to determine if two regressions
+  are significantly different.
+
+Parallel Coordinate Plot:
+- Supports space-time data
+- Completely rewritten graphics for a cleaner look
+- Can optionally choose "Display Statistics" to see more detailed data.
+- Legend added to left side to support new color classification
+  feature.
+
+Histogram:
+- Supports space-time data
+- Completely rewritten graphics for a cleaner look
+- Can optionally choose "Display Statistics"
+
+Box Plot:
+- Supports space-time data
+- Completely rewritten graphics for a cleaner look
+- Can optionally choose "Display Statistics"
+- Can view multiple Box Plots together in a time series for space-time
+  data.
+- Added an optional vertical axis scale
+- Selection works across all box plots when viewing space-time data
+
+3D Plot:
+- Supports space-time data
+- Fixed a number of bugs related to linking and brushing
+
+
+Changes since 1.1.0 beta 43:
+- Fixed a problem with wrong in Time Chooser dialog
+- Move Centroids / Mean-centers into common submenu and
+  added ability to show both centroids and mean-centers on
+  any map window.
+- Renamed Space menu options.
+- Removed three Tools menu options related to import and export
+  of point data.
+- Moved Save and Save As into File menu.
+
+Changes since 1.1.0 beta 42:
+- Fixed a crash in the Scatterplot Chow Test that could occur in
+  certain edge cases.
+- Improved algorithms for toolbar sizing, and statistics table
+  placement and sizing for Scatterplot, Histogram, and Boxplot.
+  This solves an issue that comes up on Windows XP/Vista/7 when
+  larger font sizes were selected in system Display settings.
+
+Changes since 1.1.0 beta 41:
+- Added calculation for z-value to Moran's I Randomization Dialog
+  z-value(I) = (I - mean)/sd
+- Fixed a bug where the user could manually edit the dependent
+  variable field in Regression.  To change the variable, the user
+  must select a new variable and the previous variable will be
+  restored to the end of the variable list.
+- For all views with legends, when colors for a category are changed
+  in one time period, it is also changed for in all other time periods
+  with the same number of categories.
+- Fixed a problem where toolbar could be partially hidden in Win 7 or
+  Vista when a magnification level greater than 100% is selected under
+  system Display options.
+
+Changes since 1.1.0 beta 1 through 40:
+- The 1.1.0 beta releases were internal development releases that were
+  not made publicly available.  The changes were so numerous that
+  we were not listing them in these release notes until recently. The
+  release notes for 1.2.0 above summarizes some of the major changes
+  to the program.
+
+Changes since 1.0.1:
+- Most variable dialogs are now resizable.
+- Fixed a bug in Save Selection and Selection Dialogs where saved
+  values could get written to the wrong field.
+
+Changes since 1.0:
+- Fixed a bug in Scatter Plot where plot points were difficult to see.
+
+Changes since 0.9.9.15:
+- Bug in Arc Distance option for Threshold Distances fixed.
+
+Changes since 0.9.9.14:
+- Major speedup to LISA and Getis-Ord Gi-Statistics.  When a
+  multi-core processor is detected, pseudo p-val calculations are
+  split up amongst the cores.  On some machines a 20x speedup is
+  possible.
+- Ability to load, edit and perform calculations on a DBF without the
+  SHP / SHX files from the File menu.
+- Table code totally rewritten with many new features.
+- Table: can drag columns to reorder and new column order remembered
+  after saving Table
+- Table: Edit Variable Properties dialog added.  Can rename fields and
+  change all field properties such as field width and number of
+  displayed decimals
+- Table: Variable Calculation: Can generate Gaussian Normal distribution
+- Table: Variable Calculation: Can randomly shuffle order of any
+  numerical field
+- Table: Replaced Range dialog with new more powerful Selection Dialog
+- Table: undefined / invalid numbers appear as blank entries.  For
+  example, square root of negative numbers appear as blanks rather
+  than zeros.  Use new Selection Dialog to find all undefined numbers
+- Merge Table Dialog: more robust and powerful.  Automatically
+  identifies and eliminates duplicate field names.
+- Regression: fixed a problem where invalid results could occur
+  after adding a new field to Table without saving first.
+- Weights Creation: can manually edit distance field.
+- Many small bug fixes and stability improvements.
+
+Changes since 0.9.9.13:
+- Added ability to enter in constants directly in Variable
+  Calculations
+
+Changes since 0.9.9.11:
+- Getis & Ord local G statistics added.  A new toolbar icon
+  has been added and a new menu option under space.
+
+Changes since 0.9.9.10:
+- "Select All... Cores, Neighbors of Cores, Cores and Neighbors"
+  added to LISA maps as a right-click-popup menu option to aid
+  in LISA analysis.
+- "Add Neighbors To Selection" right-click-popup menu option added
+  to LISA maps and to Table (when a weights file has been loaded).
+- Added limited support for DBF date field.  Dates are treated
+  like an integer, but are limited to 8 digits long and must be
+  in the format YYYYMMDD.  For example Jan 31, 2011 will appear
+  as 20110131.
+- Tested on Ubuntu 9, 10, and 11 for both 32-bit and 64-bit.
+
+Changes since 0.9.9.9:
+- An unlimited number of DBF fields is now supported.  Note
+  that some older DBF programs only support a limited number of
+  fields, but there appears to be no standard for what is acceptable.
+- Fixed an issue where the number of outliers calculated by Box Map,
+  Box Plot, and Cartogram map would sometimes slightly disagree.
+- Fixed an issue where program would hang when a Moran's Scatter Plot
+  for a weights file containing isolates is displayed an isolates are
+  selected in another view.
+
+Changes since 0.9.9.8:
+- Moran's I, LISA maps and LISA box plot now correctly handle
+  weights files with neighborless observations.  Notice that
+  a new category has been added in LISA maps for neighborless
+  observations.  Neighborless observations are completely excluded
+  from Moran's I calculations and from LISA box plot.
+
+Changes since 0.9.9.7:
+- The loading time for point-data Shapefiles significantly reduced.
+- it is now possible to open a weights file that was created from a
+  different shp file than the shp file that is currently opened: only
+  the number of observations and the id variable in current dbf file
+  need to match.
+- Re-added variable and weighs selection toolbar icons
+- Increased precision of Shp to Bnd export to 10 digits after the
+  decimal.
+
+Changes since 0.9.9.6:
+- LISA maps a now fully synchronized again
+- Newly created weights files are now loaded into GeoDa
+  automatically.
+- Weights can now be easily selected and created everywhere that
+  they are needed.
+- New fields can be added to the table from within the Variable
+  Calculation dialog.
+
+Changes since 0.9.9.5:
+- Fixed an issue with mouse selection on OSX where a selection
+  rectangle would automatically start in the upper-left-hand corner
+  when mouse focus first moved between two windows.
+- Added some white-space between Condition Plot cells for maps.
+- Weights Characteristics Histogram: when neighborless observations
+  (isolates) are detected, a button appears in the histogram for
+  selecting all neighborless observations.
+- Added observation counts to cell windows in all Condition Plots.
+
+Changes since 0.9.9.4:
+- Histogram was sometimes treating values as integers when it should
+  have been treating them as general floats.
+- The labels in the "Save Regression Results" were mixed up.  This
+  has been resolved.
+- In conditional plot, the X/Y axis for each scatterplot cell was did
+not match the labeling.
+- Box Plot graphics are improved.  The median is displayed clearly
+  as an orange line, and the mean is a green dot.  Observation
+  selection behavior is also fixed.
+- Conditional Box Plot view now works properly.
+
+Changes since 0.9.9.3:
+- Fixed a bug in Regression where values for R^2 and lambda/rho
+  were invalid when isolates present in the weights file.
+- Reenabled ability to change order of variables in PCP map
+  by dragging on the control circles.  Dragging behavior changed
+  so that a dragged variable will be inserted between the two
+  variables that it is dragged to (ie, the user should drag the
+  control line between control lines, rather then on top of another
+  control line).
+- Weights Histogram now appears the same as in Legacy.
+  it is once again very easy to see if there are any isolates in
+  the weights file.
+
+Changes since 0.9.9.2:
+- Fixed a serious problem where Spatial Lag Model and Spatial
+  Error regression models would give bad results when opening
+  the Regression dialog directly from a DBF file.  This bug
+  only existed in the 0.9.9.1 and 0.9.9.2 releases.
+
+Changes since 0.9.9.1:
+- Default number of digits after the decimal for new floating
+  point Table entries is nine rather than four.
+
+Changes since 0.9.9.0:
+- Fixed a bug where algorithms that use a spatial lag,
+  such as Moran's I, would produce incorrect results for
+  GWT weights files.
+- Lisa clusters are now updated when the significance
+  level is changed: non-significant clusters are now
+  categorized correctly when save to the Table.
+
+Changes since 0.9.8.19:
+- Reduced size of toolbar to less than 800 pixels wide.
+  Thematic Map toolbar icons have been consolidated
+  into a single icon with a drop-down menu.
+
+Changes since 0.9.8.18:
+- Last-used variable settings remembered
+- non-significant LISA categories now recorded as 0 when
+  saving to the Table.
+- Table shows all decimal places for floating point numbers
+  according to the precision field in the DBF file.
+- Fixed a problem where floating point numbers in a DBF
+  file would get truncated when GeoDa was running
+  on a computer that uses "," as a decimal separator.
+- When importing data from a txt file, GeoDa defaults
+  to 9 digits of precision after the decimal place in the DBF file. 
+
+Changes since 0.9.8.17:
+- Restored fast loading times for Table and Map
+- Fixed a potential crash in Shape to Boundary conversion
+
+Changes since 0.9.8.16:
+- Improved the appearance of map in Conditional Plot
+- Options to change the colors in Map Movies now appear
+  in the Options menu for the Map Movie.
+- Fixed an issue with Copy to Clipboard and Save As
+- Progress Bars added for shp file loading and Regression
+- Fixed bugs in Quantile map and improved so that number
+  of available Quantiles is limited to number of different
+  values in variable or nine, whichever is less.
+- Can now use GWT for Rate calculation in Table
+- Miscellaneous smaller bug fixes.
+
+Changes since 0.9.8.15:
+- Ability to specify float, int, or string data types
+  when adding a new column to the table.
+- Fixed an issue with panning and zooming introduced
+  in release 0.9.8.15
+- Other minor bug fixes and error message updates.
+
+Changes since 0.9.8.14:
+- Not much has changed functionality-wise, but there have
+  been a number of bug fixes and we are building against the
+  wxWidgets 2.9.1 platform.  This alpha release is now always
+  recommended over Legacy GeoDa.
+- Major improvements in Linux.  There is no longer any drawing
+  artifacts left on the screen.
+- Flicker removed from Windows.
+- Ability added to not draw polygon outlines.  This helps greatly
+  when viewing maps with many regions.  Look for this new option
+  under the Color submenu of the Options menu on any map. 
+- Huge speed improvements during brushing operations when
+  large maps are visible.  Brushing is now much faster than in
+  Legacy GeoDa.
+
+Changes since 0.9.8.13:
+- A 'Unique / Key ID Variable' is no longer needed when opening
+  up a SHP file.  In the Weights Creation dialog, there is now an
+  easy way to directly add a new ID Variable to the DBF file
+  directly if needed.  It is no longer possible to create a weights
+  file without specifying an ID Variable.
+- Weights File Creation dialog now opens the current project
+  Shapefile by default.
+- Select Weightss dialog now opens up to the same directory
+  as the currently open Shapefile.
+
+Changes since 0.9.8.12:
+- Re-enabled the ability to choose a character field from the DBF
+  file as a key variable upon opening a Shapefile.  At the moment,
+  character fields are not offered as an option in the weights
+  creation dialog.  Use <Record ID> as a workaround if needed.
+
+Changes since 0.9.8.11:
+- Table 'Move Selected to Top' option only does something when at
+  least one observation is selected.
+- A widespread issue on Mac where parts of various images where
+  being duplicated by being slightly shifted upwards has been solved.
+
+Changes since 0.9.8.10:
+- It is now possible to choose between Arc Distance / Euclidean
+  Distance and Center Points / Mean Centers for all weights creation
+  options that require distance between polygon / point centers.
+- Arc distance calculation corrected: input  is degrees of lat/long
+  and output is arc distance in miles with the assumption that earth
+  is a perfect sphere with a radius of 3959 miles.
+- 'Central Points' labels changed to 'Mean Center'.  The mean center
+  calculation was previously incorrect.  Also note that legacy GeoDa
+  incorrectly calls mean centers 'centroids'.  GeoDa also offers
+  centroids and these are now calculated correctly as the center of
+  gravity..
+- All weights creation functionality has been verified to be correct.  
+
+Changes since 0.9.8.9:
+- Solved an issue where Bivariate Map Movie would sometimes crash.
+- Bivariate Equal Interval Map no longer crashes.
+- Shapefile to Boundary conversion crash on Windows is fixed.
+- Shapefile from ASCII import fixed.
+- Table "Save to Shapefile as ..." menu item working again.
+- Data Export: Centroids/Mean Centers no longer results in an
+   occasional crash.
+- Shapefile Creation: polygons from boundary now works.
+
+Changes since 0.9.8.8:
+- Hinge = 3.0 theme now works for various map smoothing options
+- Map themes are disabled for "Excess Risk" smoothing option
+- Labels for X, Y, and Z axes now appear in the 3D Control
+  panel window (not in the 3D plot itself).  Previously the user
+  had to remember which axis was which.
+- Check-marks now accurately reflect the current chosen Map
+  theme and smoothing function.
+- The title for the main tool-bar window now changes to indicate
+  which window is currently active.
+- Labels for various Map windows (title and legend) have been
+  corrected.
+- Various bugs fixed to improved Table operation stability.  Many
+  operations that would add a new column to the Table caused
+  the program to crash previously.
+- Weight-create toolbar item is always enabled.
+- Restored Tools > Weights > Open and Properties menu options.
+- A problem where Shapefiles generated by GeoDa could
+  not be read by other GIS programs has been resolved.
+- When opening a Shapefile, only columns of type integer are
+  presented to the user as possible unique polygon identifiers.
+
+Changes since 0.9.8.7:
+- New image output formats: The "Save Image As" dialog now has options
+  for BMP, PNG and PS.  The PS (PostScript) format is the default
+  and this outputs a vector-graphics version.  This file can be
+  easily converted to a PDF file with various free programs.
+- Improved stability: several memory-leaks discovered and closed.
+- Only SHP file name is displayed in the map title and legend rather
+  than the full-path name and name with extension, respectively.
+- First releases for Linux!  Download either 32-bit or 64-bit as
+  appropriate.  The 64-bit version is less tested and is more
+  prone to stability issues at this time.
+

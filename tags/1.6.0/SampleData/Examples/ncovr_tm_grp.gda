@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <title>US County Homicides 1960-1990</title>
+    <layers>
+        <layer>
+            <datasource>
+                <type>SQLite</type>
+                <path>ncovr/ncovr.sqlite</path>
+            </datasource>
+            <layername>ncovr</layername>
+            <title>NCOVR 1960-90</title>
+            <variable_order>
+                <time_ids>
+                    <id>1960</id>
+                    <id>1970</id>
+                    <id>1980</id>
+                    <id>1990</id>
+                </time_ids>
+                <var>NAME</var>
+                <group>
+                    <name>Population</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>PO60</var>
+                    <var>PO70</var>
+                    <var>PO80</var>
+                    <var>PO90</var>
+                </group>
+                <group>
+                    <name>Homicide Rate</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>HR60</var>
+                    <var>HR70</var>
+                    <var>HR80</var>
+                    <var>HR90</var>
+                </group>
+                <group>
+                    <name>Unemp. Rate</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>UE60</var>
+                    <var>UE70</var>
+                    <var>UE80</var>
+                    <var>UE90</var>
+                </group>
+                <group>
+                    <name>Homicide Count</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>HC60</var>
+                    <var>HC70</var>
+                    <var>HC80</var>
+                    <var>HC90</var>
+                </group>
+                <group>
+                    <name>Resource Depr.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>RD60</var>
+                    <var>RD70</var>
+                    <var>RD80</var>
+                    <var>RD90</var>
+                </group>
+                <group>
+                    <name>Pop. Structure</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>PS60</var>
+                    <var>PS70</var>
+                    <var>PS80</var>
+                    <var>PS90</var>
+                </group>
+                <group>
+                    <name>Divorce Rate</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>DV60</var>
+                    <var>DV70</var>
+                    <var>DV80</var>
+                    <var>DV90</var>
+                </group>
+                <group>
+                    <name>Median Age</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>MA60</var>
+                    <var>MA70</var>
+                    <var>MA80</var>
+                    <var>MA90</var>
+                </group>
+                <group>
+                    <name>Log of Pop.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>POL60</var>
+                    <var>POL70</var>
+                    <var>POL80</var>
+                    <var>POL90</var>
+                </group>
+                <group>
+                    <name>Log of Pop. Dens.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>DNL60</var>
+                    <var>DNL70</var>
+                    <var>DNL80</var>
+                    <var>DNL90</var>
+                </group>
+                <group>
+                    <name>Log Median Fam. Inc.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>MFIL59</var>
+                    <var>MFIL69</var>
+                    <var>MFIL79</var>
+                    <var>MFIL89</var>
+                </group>
+                <group>
+                    <name>% Fam. Below Pov. Ln.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>FP59</var>
+                    <var>FP69</var>
+                    <var>FP79</var>
+                    <var>FP89</var>
+                </group>
+                <group>
+                    <name>% Black</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>BLK60</var>
+                    <var>BLK70</var>
+                    <var>BLK80</var>
+                    <var>BLK90</var>
+                </group>
+                <group>
+                    <name>Gini Ind. Fam. Inc. Ineq.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>GI59</var>
+                    <var>GI69</var>
+                    <var>GI79</var>
+                    <var>GI89</var>
+                </group>
+                <group>
+                    <name>% Fem. Headed Hshlds.</name>
+                    <displayed_decimals>4</displayed_decimals>
+                    <var>FH60</var>
+                    <var>FH70</var>
+                    <var>FH80</var>
+                    <var>FH90</var>
+                </group>
+                <var>STATE_NAME</var>
+                <var>STATE_FIPS</var>
+                <var>CNTY_FIPS</var>
+                <var>FIPS</var>
+                <var>STFIPS</var>
+                <var>COFIPS</var>
+                <var>FIPSNO</var>
+                <var>SOUTH</var>
+            </variable_order>
+            <custom_classifications/>
+            <spatial_weights>
+                <weights>
+                    <path>ncovr/ncovr_rook.gal</path>
+                    <default/>
+                </weights>
+            </spatial_weights>
+            <default_vars>
+                <default_var>
+                    <name>Homicide Rate</name>
+                    <time_id>1960</time_id>
+                </default_var>
+                <default_var>
+                    <name>Resource Depr.</name>
+                    <time_id>1960</time_id>
+                </default_var>
+                <default_var>
+                    <name>Population</name>
+                    <time_id>1960</time_id>
+                </default_var>
+                <default_var>
+                    <name>Population</name>
+                    <time_id>1960</time_id>
+                </default_var>
+            </default_vars>
+        </layer>
+    </layers>
+</project>

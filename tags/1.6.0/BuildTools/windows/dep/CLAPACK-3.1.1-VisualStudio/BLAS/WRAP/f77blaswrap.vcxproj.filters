@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{00577042-1bd2-45cf-a3c3-62fb05fcd59c}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{0817413d-18a3-492a-8ad7-cd2ea532ed3d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="crotg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="csrot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fblaswr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zdrot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrotg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="blaswrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="f2c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fblaswr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
