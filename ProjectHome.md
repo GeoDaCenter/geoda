@@ -1,0 +1,1 @@
+GeoDa (TM): Software providing an introduction to spatial data analysis.
