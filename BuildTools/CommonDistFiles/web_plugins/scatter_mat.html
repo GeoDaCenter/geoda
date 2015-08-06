@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>D3 Demo: Scatterplot</title>
+    <script type="text/javascript" src="d3/d3.min.js"></script>
+    <script type="text/javascript" src="geoda.js"></script>
+    <!-- style type="text/css">
+      svg {
+        font: 10px sans-serif;
+        padding: 10px;
+      }
+
+      .axis,
+      .frame {
+        shape-rendering: crispEdges;
+      }
+
+      .axis line {
+        stroke: #ddd;
+      }
+
+      .axis path {
+        display: none;
+      }
+
+      .frame {
+        fill: none;
+        stroke: #aaa;
+      }
+
+      circle {
+        fill-opacity: .7;
+      }
+
+      circle.hidden {
+        fill: #ccc !important;
+      }
+
+      .extent {
+        fill: #000;
+        fill-opacity: .125;
+        stroke: #fff;
+      }
+    </style -->
+    
+    <style type="text/css">
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+
+      .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+      }
+
+      .axis_caption {
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+
+      .point {
+        fill: #33CC33;
+        fill-opacity: 0.5;
+        stroke: #1F7A1F;
+      }
+
+      .point.selected {
+        fill: #CCCC00;
+        fill-opacity: 0.5;
+        stroke: #7A7A00;
+      }
+
+      .brush .extent {
+        stroke: #fff;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+      }
+    </style>
+    
+    <script type="text/javascript">
+      /**
+				 o is a JSON object with the following format:
+				 {"observable": "HighlightState",
+				 "event": "delta",
+				 "newly_highlighted": [3,2,32,4],
+				 "newly_unhighlighted": [23, 6, 7]
+				 }
+				 */
+      gda.updateHS = function (o) {
+        gda.logMsg("In gda.updateHS");
+
+        if (o.event == "unhighlight_all") {
+          d3.select("body").select("svg").selectAll(".point").classed("selected", false);
+          gda.remove_all_from_obj(gda.curr_sel);
+          gda.logMsg("Unhighlight all success.");
+
+        } else if (o.event == "invert") {
+          gda.logMsg("event == invert");
+          var new_sel = {};
+          for (var i=0;i<gda.dataset.length; ++i) {
+            new_sel[i] = true;
+          }
+          gda.remove_obj_from_obj(gda.curr_sel, new_sel);
+
+          var svg = d3.select("body").select("svg");
+          for (var i in new_sel) {
+            svg.select("#p" + i).classed("selected", true);
+          }
+          for (var i in gda.curr_sel) {
+            svg.select("#p" + i).classed("selected", false);
+          }
+
+          gda.curr_sel = new_sel;
+          gda.logMsg("Invert success.");
+
+        } else if (o.event == "delta") {
+          var svg = d3.select("body").select("svg");
+          for (var i=0, sz=o.newly_highlighted.length; i<sz; ++i) {
+            svg.select("#p" + o.newly_highlighted[i]).classed("selected", true);
+          }
+          for (var i=0, sz=o.newly_unhighlighted.length; i<sz; ++i) {
+            svg.select("#p" + o.newly_unhighlighted[i]).classed("selected", false);
+          }
+
+          gda.merge_array_into_obj(o.newly_highlighted, gda.curr_sel);
+          gda.remove_array_from_obj(o.newly_unhighlighted, gda.curr_sel);
+          gda.logMsg("Delta success.");
+        }
+      }
+
+      /*
+    csv file is transformed by csv into following format:
+    data = [ {col_name0: row0, col_name1: row0, ... col_namen: row0},
+      {col_name0: row1, col_name1: row1, ... col_namen: row1},
+      ...
+      {col_name0: row_n, col_name1: row_n, ... col_namen: row_n} ];
+    */
+
+      /**initFromDataset expects the following init_obj JSON message:
+				 data: parsed data array of row objects as from above,
+				 selected: [ 3, 12, 23, 33 ]
+				 }
+				 */
+
+      gda.initFromDataset = function(init_obj) {
+
+      }
+
+      gda.brushended = function() {
+        //brush.clear();
+      }
+
+      // Find the nodes within the specified rectangle.
+      gda.search = function(quadtree, x0, y0, x3, y3) {
+        quadtree.visit(function(node, x1, y1, x2, y2) {
+          var p = node.point;
+          if (p) p.selected = (p[0] >= x0) && (p[0] < x3) &&
+            (p[1] >= y0) && (p[1] < y3);
+          return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+        });
+      }
+
+      gda.highlightIds = function() {
+        var svg = d3.select("body").select("svg");
+        for (i = 0; i < this.dataset.length; ++i) {
+          svg.select("#p" + i).classed("selected", false);
+        }
+        for (i = 0; i < arguments.length; ++i) {
+          if (arguments[i] >= 0 && arguments[i] < this.dataset.length) {
+            svg.select("#p" + arguments[i]).classed("selected", true);
+          }
+        }
+        //this.printHighlighted.apply(this, arguments);
+        //d3.select("body").select("#hlt").text("number highlighted = " + arguments.length);
+      }
+
+      gda.printHighlighted = function() {
+        var s = "";
+        for (i = 0; i < arguments.length; ++i) {
+          s = s + arguments[i];
+          if (i+1 < arguments.length) s = s + ", ";
+        }
+
+        gda.logMsg(s, "highlight_para");
+      }
+
+      ///////////////////////////////////
+      // BEGIN:   GeoDa JS API Section //
+      ///////////////////////////////////
+
+      gda.readyToInit = function () {
+        // To immediately closes the web view:
+        //   document.title = JSON.stringify({action: "close"});
+
+        var requests = [];
+        // Variable Settings Request Object
+        var vs_o = {
+          interface: "project",
+          operation: "promptVarSettings",
+          arity: "bivariate",
+          show_weights: false,
+          title: "Custom D3/JS Scatterplot Variables",
+          var1_title: "x-axis",
+          var2_title: "y-axis"
+        };
+        requests.push(vs_o);
+
+        gda.makeRequests(requests,
+                         function (resp_array) {
+                           // resp_array is the response array.
+                           // We only expect one response object
+                           // in this case.
+                           var o = resp_array[0];
+                           myScatterP.time_info = o.time_info;
+                           myScatterP.var1 = o.var1;
+                           myScatterP.var2 = o.var2;
+                           myScatterP.var1_title = o.var1.name;
+                           myScatterP.var2_title = o.var2.name;
+                           myScatterP.var1_time = o.var1.time;
+                           myScatterP.var2_time = o.var2.time;
+
+                           var var1_data = myScatterP.var1.data;
+                           var var2_data = myScatterP.var2.data;
+
+                           var t1_str = myScatterP.var1_title;
+                           var t2_str = myScatterP.var2_title;
+                           if (var1_data.length > 1) {
+                             t1_str += " (" + myScatterP.time_info[myScatterP.var1_time] + ")";
+                           }
+                           if (var2_data.length > 1) {
+                             t2_str += " (" + myScatterP.time_info[myScatterP.var2_time] + ")";
+                           }
+
+                           var initObj = {
+                             var1_title: t1_str,
+                             var1_data: o.var1.data[o.var1.time],
+                             var2_title: t2_str,
+                             var2_data: o.var2.data[o.var2.time],
+                             selected: o.selected
+                           };
+                           gda.initFromDataset(initObj);
+                           gda.logMsg("received VS response", "vs_para") });
+
+      }
+
+
+      gda.updateTmS = function (o) {
+        gda.logMsg("In gda.updateTmS", "tm_log");
+        gda.appendMsg("time id: " + o.curr_time + ", time name: " + o.curr_time_str, "tm_log");
+        gda.appendMsg("current times: var1 = " + myScatterP.var1_time +
+                      ", var2 = " + myScatterP.var2_time, "tm_log");
+        if (myScatterP.var1.data.length <= 1 &&
+            myScatterP.var2.data.length <= 1) {
+          gda.appendMsg("no time variant variables.");
+          return;
+        }
+        var tms = Math.max(myScatterP.var1.data.length, myScatterP.var2.data.length);
+        var tm_min = Math.min(myScatterP.var1_time, myScatterP.var2_time);
+        var tm_max = Math.max(myScatterP.var1_time, myScatterP.var2_time);
+        if (myScatterP.var1.data.length == 1) {
+          // we know only var2 is time variant
+          myScatterP.var2_time = o.curr_time;
+          // refresh
+        } else if (myScatterP.var2.data.length == 1) {
+          // we know only var 1 is time variant
+          myScatterP.var1_time = o.curr_time;
+          // refresh
+        } else {
+          // both variables time variant
+          var tm_diff = Math.abs(myScatterP.var1_time - myScatterP.var2_time);
+          if (tm_min <= o.curr_time && o.curr_time <= tm_max) {
+            gda.appendMsg("nothing to do", "tm_log");
+          } else if (o.curr_time < tm_min) {
+            if (myScatterP.var1_time <= myScatterP.var2_time) {
+              myScatterP.var1_time = o.curr_time;
+              myScatterP.var2_time = o.curr_time + tm_diff;
+            } else {
+              myScatterP.var2_time = o.curr_time;
+              myScatterP.var1_time = o.curr_time + tm_diff;
+            }
+          } else if (o.curr_time > tm_max) {
+            if (myScatterP.var1_time >= myScatterP.var2_time) {
+              myScatterP.var1_time = o.curr_time;
+              myScatterP.var2_time = o.curr_time - tm_diff;
+            } else {
+              myScatterP.var2_time = o.curr_time;
+              myScatterP.var1_time = o.curr_time - tm_diff;
+            }
+          }
+        }
+        gda.appendMsg("current times: var1 = " + myScatterP.var1_time +
+                      ", var2 = " + myScatterP.var2_time, "tm_log");
+
+        var sel_array = [];
+        for (var i in gda.curr_sel) {
+          sel_array.push(i);
+        }
+
+        var var1_data = myScatterP.var1.data;
+        var var2_data = myScatterP.var2.data;
+
+        var t1_str = myScatterP.var1_title;
+        var t2_str = myScatterP.var2_title;
+        if (var1_data.length > 1) {
+          t1_str += " (" + myScatterP.time_info[myScatterP.var1_time] + ")";
+        }
+        if (var2_data.length > 1) {
+          t2_str += " (" + myScatterP.time_info[myScatterP.var2_time] + ")";
+        }
+
+        var initObj = {
+          var1_title: t1_str,
+          var1_data: var1_data[myScatterP.var1_time],
+          var2_title: t2_str,
+          var2_data: var2_data[myScatterP.var2_time],
+          selected: sel_array
+        };
+        gda.initFromDataset(initObj);
+
+      };
+      ///////////////////////////////////
+      // END:   GeoDa JS API Section   //
+      ///////////////////////////////////
+
+      // define myScatterP namespace
+      var myScatterP = myScatterP || {};
+      myScatterP.time_info = [];
+      myScatterP.var1 = {};
+      myScatterP.var2 = {};
+      myScatterP.var1_title = "X";
+      myScatterP.var2_title = "Y";
+      myScatterP.var1_time = 0;
+      myScatterP.var2_time = 0;
+      
+    </script>
+  </head>
+  <body>
+    <h1>Scatter Plot Matrix</h1>
+    <script type="text/javascript">
+    </script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,7 @@
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../logger.h"
 #include "AddIdVariable.h"
 

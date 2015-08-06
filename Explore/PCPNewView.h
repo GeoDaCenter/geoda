@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,29 +28,29 @@
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
 #include "../GdaConst.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
 
 class CatClassifState;
-class PCPNewCanvas;
-class PCPNewLegend;
-class PCPNewFrame;
+class PCPCanvas;
+class PCPLegend;
+class PCPFrame;
 typedef boost::multi_array<double, 2> d_array_type;
 
-class PCPNewCanvas : public TemplateCanvas, public CatClassifStateObserver
+class PCPCanvas : public TemplateCanvas, public CatClassifStateObserver
 {
-	DECLARE_CLASS(PCPNewCanvas)
+	DECLARE_CLASS(PCPCanvas)
 public:
-	PCPNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
+	PCPCanvas(wxWindow *parent, TemplateFrame* t_frame,
 				 Project* project,
-				 const std::vector<GeoDaVarInfo>& var_info,
+				 const std::vector<GdaVarTools::VarInfo>& var_info,
 				 const std::vector<int>& col_ids,
 				 const wxPoint& pos = wxDefaultPosition,
 				 const wxSize& size = wxDefaultSize);
-	virtual ~PCPNewCanvas();
+	virtual ~PCPCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);
@@ -97,8 +97,6 @@ public:
 protected:
 	virtual void UpdateStatusBar();
 
-	Project* project;
-	HighlightState* highlight_state;
 	CatClassifState* custom_classif_state;
 	
 	int num_obs;
@@ -107,7 +105,7 @@ protected:
 	int num_categories;
 
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<int> var_order; // var id for position 0 to position num_vars-1
 	
 	std::vector<d_array_type> data;
@@ -138,24 +136,24 @@ protected:
 	DECLARE_EVENT_TABLE()
 };
 
-class PCPNewLegend : public TemplateLegend {
+class PCPLegend : public TemplateLegend {
 public:
-	PCPNewLegend(wxWindow *parent, TemplateCanvas* template_canvas,
+	PCPLegend(wxWindow *parent, TemplateCanvas* template_canvas,
 				 const wxPoint& pos, const wxSize& size);
-	virtual ~PCPNewLegend();
+	virtual ~PCPLegend();
 };
 
-class PCPNewFrame : public TemplateFrame {
-    DECLARE_CLASS(PCPNewFrame)
+class PCPFrame : public TemplateFrame {
+    DECLARE_CLASS(PCPFrame)
 public:
-    PCPNewFrame(wxFrame *parent, Project* project,
-					const std::vector<GeoDaVarInfo>& var_info,
+    PCPFrame(wxFrame *parent, Project* project,
+					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					const wxString& title = "Parallel Coordinate Plot",
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::pcp_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~PCPNewFrame();
+    virtual ~PCPFrame();
 	
     void OnActivate(wxActivateEvent& event);
     virtual void MapMenus();

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,10 +29,8 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
-#include "../DialogTools/SelectWeightDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
-#include "../GenUtils.h"
 #include "../FramesManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -97,15 +95,13 @@ const int CartogramNewCanvas::THM_VAR = 1; // circle color variable
 CartogramNewCanvas::CartogramNewCanvas(wxWindow *parent,
 									   TemplateFrame* t_frame,
 									   Project* project_s,
-									   const std::vector<GeoDaVarInfo>& v_info,
+									   const std::vector<GdaVarTools::VarInfo>& v_info,
 									   const std::vector<int>& col_ids,
 									   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, true, true),
-project(project_s), num_obs(project_s->GetNumRecords()),
-num_time_vals(1),
-num_categories(6),
-highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
-data(v_info.size()), var_info(v_info),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, true, true),
+num_obs(project_s->GetNumRecords()), num_time_vals(1), num_categories(6),
+custom_classif_state(0), data(v_info.size()), var_info(v_info),
 table_int(project_s->GetTableInt()), gal_weight(0),
 full_map_redraw_needed(true),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
@@ -113,7 +109,6 @@ improve_table(6), realtime_updates(false), all_init(false)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering CartogramNewCanvas::CartogramNewCanvas");
-	template_frame = t_frame;
 	
 	cat_classif_def.cat_classif_type = CatClassification::no_theme;
 	cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
@@ -139,7 +134,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	std::vector<double> orig_x(num_obs);
 	std::vector<double> orig_y(num_obs);
 	std::vector<double> orig_data(num_obs);
-	project->GetCenters(orig_x, orig_y);
+	project->GetCentroids(orig_x, orig_y);
 	
 	cart_nbr_info = new CartNbrInfo(project->GetVoronoiRookNeighborGal(),
 									num_obs);
@@ -260,7 +255,7 @@ void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting CartogramNewCanvas::DisplayRightClickMenu");
 }
@@ -690,7 +685,7 @@ void CartogramNewCanvas::TimeChange()
 
 void CartogramNewCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -710,7 +705,7 @@ void CartogramNewCanvas::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index.
@@ -811,9 +806,12 @@ void CartogramNewCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+		s << "#selected=" << highlight_state->GetTotalHighlighted()<<"  ";
+	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "obs " << hover_obs[0]+1 << " = (";
+			s << "hover obs " << hover_obs[0]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[0]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[0]] << ")";
 		}
@@ -832,9 +830,6 @@ void CartogramNewCanvas::UpdateStatusBar()
 		if (total_hover_obs >= 4) {
 			s << ", ...";
 		}
-	} else if (mousemode == select &&
-			   (selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
 	}
 	sb->SetStatusText(s);
 }
@@ -1057,7 +1052,7 @@ BEGIN_EVENT_TABLE(CartogramNewFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
-									 const std::vector<GeoDaVarInfo>& var_info,
+									 const std::vector<GdaVarTools::VarInfo>& var_info,
 									 const std::vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)

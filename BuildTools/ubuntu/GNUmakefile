@@ -10,8 +10,8 @@ default:	compile-geoda
 
 app:  build-geoda-mac
 
-compile-geoda:	dataviewer-target generic-target dialogtools-target \
-		explore-target knn-target regression-target \
+compile-geoda:	dataviewer-target dialogtools-target \
+		explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
 		geoda-target
 
@@ -26,17 +26,14 @@ resource-target:
 dataviewer-target:
 	(cd $(GeoDa_ROOT)/DataViewer; $(MAKE))
 
-generic-target:
-	(cd $(GeoDa_ROOT)/Generic; $(MAKE))
-
 dialogtools-target:
 	(cd $(GeoDa_ROOT)/DialogTools; $(MAKE))
 
 explore-target:
 	(cd $(GeoDa_ROOT)/Explore; $(MAKE))
 
-knn-target:
-	(cd $(GeoDa_ROOT)/kNN; $(MAKE))
+libgdiam-target:
+	(cd $(GeoDa_ROOT)/libgdiam; $(MAKE))
 
 regression-target:
 	(cd $(GeoDa_ROOT)/Regression; $(MAKE))

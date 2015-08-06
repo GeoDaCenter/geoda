@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,7 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
-#include "../GenUtils.h"
+#include "../VarTools.h"
 
 class CatClassifState;
 class CartogramNewFrame;
@@ -66,7 +66,7 @@ public:
 	
 	CartogramNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
 					   Project* project,
-					   const std::vector<GeoDaVarInfo>& var_info,
+					   const std::vector<GdaVarTools::VarInfo>& var_info,
 					   const std::vector<int>& col_ids,
 					   const wxPoint& pos = wxDefaultPosition,
 					   const wxSize& size = wxDefaultSize);
@@ -98,9 +98,7 @@ public:
 	virtual int GetNumCats() { return num_categories; }
 	
 protected:
-	Project* project;
 	TableInterface* table_int;
-	HighlightState* highlight_state;
 	CatClassifState* custom_classif_state;
 	
 	int num_obs;
@@ -108,7 +106,7 @@ protected:
 	int num_categories; // current number of categories
 	int ref_var_index;
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
@@ -165,7 +163,7 @@ class CartogramNewFrame : public TemplateFrame {
    DECLARE_CLASS(CartogramNewFrame)
 public:
     CartogramNewFrame(wxFrame *parent, Project* project,
-					  const std::vector<GeoDaVarInfo>& var_info,
+					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
 					  const wxString& title = "Cartogram",
 					  const wxPoint& pos = wxDefaultPosition,

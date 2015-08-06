@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  *
@@ -24,46 +24,93 @@
 #include <map>
 #include <vector>
 #include <wx/dialog.h>
+#include <wx/textctrl.h>
+#include <wx/scrolwin.h>
 #include "../DataViewer/TableInterface.h"
 
 using namespace std;
 
+class ScrolledWidgetsPane : public wxScrolledWindow
+{
+private:
+	int  n_fields;
+	GdaConst::DataSourceType ds_type;
+    // old_name : new_name (after correction)
+	map<wxString, wxString> field_names_dict;
+	map<wxString, bool> field_dict;
+	vector<wxString> merged_field_names;
+	
+public:
+	// Variable number of controls
+	size_t num_controls;
+	std::vector<wxStaticText*> txt_fname; // ID_FNAME_STAT_TXT_BASE
+	std::vector<wxTextCtrl*> txt_input; // ID_INPUT_TXT_CTRL_BASE
+	std::vector<wxStaticText*> txt_info; // ID_INFO_STAT_TXT_BASE
+	
+	wxButton* ok_btn; // wxID_OK
+	wxButton* exit_btn; // wxID_CANCEL
+	
+    bool need_correction;
+
+    
+public:
+	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id);
+	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
+											GdaConst::DataSourceType ds_type,
+											vector<wxString>& all_fname);	
+	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
+											GdaConst::DataSourceType ds_type,
+											map<wxString, wxString>& fnames_dict,
+											vector<wxString>& merged_field_names,
+											set<wxString>& dup_fname,
+											set<wxString>& bad_fname);		
+	virtual ~ScrolledWidgetsPane();
+	
+	wxString GetSuggestFieldName(const wxString& old_name);
+	wxString RenameDupFieldName(const wxString& old_name);
+	wxString RemoveIllegalChars(const wxString& old_name);
+	wxString TruncateFieldName(const wxString& old_name, int max_len=0);
+	bool IsFieldNameValid(const wxString& col_name);
+	
+	map<wxString, wxString> GetMergedFieldNameDict();
+
+	void Init(vector<wxString>& merged_field_names,
+						set<wxString>& dup_fname, set<wxString>& bad_fname);
+	
+	void CheckUserInput();
+		
+};
+
 class FieldNameCorrectionDlg: public wxDialog
 {
 private:
-    int  n_fields;
+	ScrolledWidgetsPane* fieldPane;
     bool need_correction;
-    GdaConst::DataSourceType ds_type;
-    map<wxString, wxString> field_names_dict;
-    vector<wxString> merged_field_names;
     
 public:
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            vector<wxString>& all_fname,
-                           wxString title="Field name correction dialog.");
+                           wxString title="Field Name Correction");
     
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            map<wxString, wxString>& fnames_dict,
                            vector<wxString>& merged_field_names,
                            set<wxString>& dup_fname,
                            set<wxString>& bad_fname,
-                           wxString title="Field name correction dialog.");
-   
-    void OnOkClick(wxCommandEvent& event);
-    void OnCancelClick(wxCommandEvent& event);
-    bool NeedCorrection(){return need_correction;}
-    map<wxString, wxString> GetMergedFieldNameDict();
+                           wxString title="Field Name Correction");
+	virtual ~FieldNameCorrectionDlg();
 
-protected:
-    void Init(vector<wxString>& merged_field_names,
-              set<wxString>& dup_fname, set<wxString>& bad_fname);
-    wxString GetSuggestFieldName(const wxString& old_name);
-    wxString RenameDupFieldName(const wxString& old_name);
-    wxString RemoveIllegalChars(const wxString& old_name);
-    wxString TruncateFieldName(const wxString& old_name, int max_len=0);
-    bool IsFieldNameValid(const wxString& col_name);
+	bool NeedCorrection() { return need_correction;}
     
-DECLARE_EVENT_TABLE()
+	map<wxString, wxString> GetMergedFieldNameDict(){ 
+        return fieldPane->GetMergedFieldNameDict();
+    }
+	
+	void OnOkClick(wxCommandEvent& event);
+	void OnCancelClick(wxCommandEvent& event);
+	void OnClose(wxCloseEvent& ev);
+	
+	DECLARE_EVENT_TABLE()
 };
 
 #endif

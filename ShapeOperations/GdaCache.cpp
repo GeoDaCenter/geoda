@@ -175,8 +175,8 @@ bool GdaCache::CacheLayer(std::string ext_ds_name,
 	// Cache
 	char *papszLCO[] = {"OVERWRITE=yes","FORMAT=Spatialite"};
 	std::string cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
-    OGRDataSource *poDstDS = cach_ds_proxy->ds;
-    OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
+	GDALDataset *poDstDS = cach_ds_proxy->ds;
+	OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
 												poOutputSRS, 
 												(OGRwkbGeometryType)eGType, 
 												papszLCO);
@@ -246,7 +246,8 @@ bool GdaCache::CacheLayer(std::string ext_ds_name,
         OGRFeature::DestroyFeature( poDstFeature );
         OGRFeature::DestroyFeature( poFeature );
     }
-    OGRDataSource::DestroyDataSource(poDstDS);
+    //OGRDataSource::DestroyDataSource(poDstDS);
+	GDALClose(poDstDS);
     // XXX
     // delete poDstLayer;
 	return true;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,8 +24,10 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <wx/string.h>
+#include "WeightsManInterface.h"
 #include "GdaFlexValue.h"
 #include "GdaLexer.h"
+#include "NumericTests.h"
 
 class GdaParserException: public std::exception
 {
@@ -48,7 +50,8 @@ public:
 	 returns a helpful error message.  Regardless of success, GetEvalTokens
 	 returns the list of tokens that were evaluated. */ 
 	bool eval(const std::vector<GdaTokenDetails>& tokens,
-					 std::map<wxString, GdaFVSmtPtr> * table);
+			  std::map<wxString, GdaFVSmtPtr>* data_table,
+			  WeightsManInterface* w_man_int);
 	
 	GdaFVSmtPtr GetEvalVal() { return eval_val; }
 	wxString GetErrorMsg() { return error_msg; }
@@ -58,6 +61,12 @@ public:
 	
 private:
 	GdaFVSmtPtr expression();
+	GdaFVSmtPtr logical_xor_expr();
+	GdaFVSmtPtr logical_or_expr();
+	GdaFVSmtPtr logical_and_expr();
+	GdaFVSmtPtr logical_not_expr();
+	GdaFVSmtPtr comp_expr();
+	GdaFVSmtPtr add_expr();
 	GdaFVSmtPtr mult_expr();
 	GdaFVSmtPtr pow_expr();
 	GdaFVSmtPtr func_expr();
@@ -72,14 +81,19 @@ private:
 	void mark_curr_token_ident();
 	void mark_curr_token_problem();
 
+	static void exception_if_not_data(const GdaFVSmtPtr x);
+	static void exception_if_not_weights(const GdaFVSmtPtr x);
+	
 	size_t tok_i;
 	std::vector<GdaTokenDetails> tokens;
-	std::map<wxString, GdaFVSmtPtr>* table;
+	std::map<wxString, GdaFVSmtPtr>* data_table;
+	WeightsManInterface* w_man_int;
 	
 	std::vector<GdaTokenDetails> eval_toks;
 	wxString error_msg;
 	GdaFVSmtPtr eval_val;
 };
+
 
 /** Grammar
 
@@ -88,8 +102,34 @@ program:
   expression END
 
 expression:
-  expression + mult_expr
-  expression - mult_expr
+  logical_or_expr
+
+logical_or_expr:
+  logical_or_expr OR logical_and_expr
+  logical_and_expr
+
+logical_and_expr:
+  logical_and_expr AND comp_expr
+  comp_expr
+
+logical_not_expr:
+  NOT expression
+  ! expression
+  comp_expr
+
+comp_expr:
+  comp_expr < add_expr
+  comp_expr <= add_expr
+  comp_expr > add_expr
+  comp_expr >= add_expr
+  comp_expr = add_expr
+  comp_expr <> add_expr
+  comp_expr != add_expr
+  add_expr
+
+add_expr:
+  add_expr + mult_expr
+  add_expr - mult_expr
   mult_expr
 
 mult_expr:
@@ -98,22 +138,24 @@ mult_expr:
   pow_expr
 
 pow_expr:
-  func_expr ^ expression
+  func_expr ^ logical_or_expr
   func_expr
 
   2^3^4 -> 2^(3^4)  top down order by convention or right-to-left associativity
 
 func_expr:
   NAME ()
-  NAME ( expression )
-  NAME ( expression, expression )
+  NAME ( logical_or_expr )
+  NAME ( logical_or_expr, logical_or_expr )
   primary
 
 primary:
+  TRUE
+  FALSE
   NUMBER
   NAME
   - primary
-  ( expression )
+  ( logical_or_expr )
  */
 
 #endif

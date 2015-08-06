@@ -1,0 +1,4 @@
+
+BuildTools/macosx/libraries/
+BuildTools/macosx/temp/
+*.swp

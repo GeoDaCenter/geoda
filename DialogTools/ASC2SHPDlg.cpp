@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,11 +26,20 @@
 #endif
 
 #include <wx/xrc/xmlres.h>
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
-#include "../ShapeOperations/shp2gwt.h"
+#include "../GenUtils.h"
+#include "../ShapeOperations/AbstractShape.h"
+#include "../ShapeOperations/SimplePoint.h"
 #include "../ShapeOperations/ShapeFileTriplet.h"
 #include "ASC2SHPDlg.h"
+
+typedef struct dpoint_stru {
+	double x,y;
+} DPOINT;
+
+typedef struct Box_stru {
+	DPOINT p1;
+	DPOINT p2;
+} myBox;
 
 bool CreatePointShapeFile(
 						  char* otfl,         // Target File name
@@ -80,7 +89,7 @@ bool CreatePointShapeFile(
 	// Declare the triplet (the .shp, .shx, .dbf) as oShapeFileTriplet class object
 	oShapeFileTriplet Triple(otfl,xoBox, "POLY", ShapeFileTypes::SPOINT);
 	// Allocate a pointer of AbstractShape to manage the point Shapefile
-	AbstractShape* shape = new Ppoint;
+	AbstractShape* shape = new SimplePoint;
 	
 	// store the point dataset into the triplet and
 	// at the same time re-evaluate the bounding box according to
@@ -174,7 +183,7 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
     int idx_x = m_X->GetSelection();
 	int idx_y = m_Y->GetSelection();
 	std::ifstream ias;
-	ias.open(m_iASC.mb_str());
+	ias.open(GET_ENCODED_FILENAME(m_iASC));
 	int n_recs;
 	int n_fields;
 		
@@ -373,7 +382,7 @@ void ASC2SHPDlg::OnCOpenIascClick( wxCommandEvent& event )
 		m_Y->Clear();
 
 		ifstream ias;
-		ias.open(m_iASC.mb_str());
+		ias.open(GET_ENCODED_FILENAME(m_iASC));
 
 		int n_recs;
 		int n_fields;

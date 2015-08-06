@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,6 +25,8 @@ class LisaCoordinator;  // forward declaration
 class LisaCoordinatorObserver {
 public:
 	virtual void update(LisaCoordinator* o) = 0;
+	/** Request for the Observer to close itself */
+	virtual void closeObserver(LisaCoordinator* o) = 0;
 };
 
 #endif

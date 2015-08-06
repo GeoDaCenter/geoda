@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,8 +24,6 @@
 #include <wx/dcbuffer.h>
 
 #include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
@@ -33,34 +31,43 @@
 #include "../logger.h"
 #include "RandomizationDlg.h"
 
-IMPLEMENT_CLASS( RandomizationDlg, wxDialog )
 
-BEGIN_EVENT_TABLE( RandomizationDlg, wxDialog )
+
+const int ID_BUTTON = wxID_ANY;
+
+BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
     EVT_PAINT( RandomizationDlg::OnPaint )
-    EVT_BUTTON( XRCID("ID_CLOSE"), RandomizationDlg::OnCloseClick )
-    EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
+    EVT_CLOSE( RandomizationDlg::OnClose)
+    //EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
 END_EVENT_TABLE()
 
 RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const std::vector<double>& raw_data2_s,
 								   const GalElement* W_s,
 								   int NumPermutations,
+                                   bool reuse_user_seed,
+                                   uint64_t user_specified_seed,
 								   wxWindow* parent, wxWindowID id,
 								   const wxString& caption, 
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
 : start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s), W(W_s),
 num_obs(raw_data1_s.size()), Permutations(NumPermutations),
-MoranI(NumPermutations, 0), is_bivariate(true)
+MoranI(NumPermutations, 0), is_bivariate(true),
+wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
 {
 	LOG_MSG("In RandomizationDlg::RandomizationDlg");
 	
-	SetParent(parent);
+	//SetParent(parent);
     CreateControls();
-    Centre();
 	
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 	
+	if (reuse_user_seed)
+        rng = new Randik(user_specified_seed);
+    else
+        rng = new Randik();
+    
 	CalcMoran();
 	Init();
 }
@@ -68,22 +75,35 @@ MoranI(NumPermutations, 0), is_bivariate(true)
 RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const GalElement* W_s,
 								   int NumPermutations,
+                                   bool reuse_user_seed,
+                                   uint64_t user_specified_seed,
 								   wxWindow* parent, wxWindowID id,
 								   const wxString& caption, 
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
-: start(-1), stop(1), raw_data1(raw_data1_s), W(W_s),
-num_obs(raw_data1_s.size()), Permutations(NumPermutations),
-MoranI(NumPermutations, 0), is_bivariate(false)
+: start(-1), 
+stop(1), 
+raw_data1(raw_data1_s), 
+W(W_s),
+num_obs(raw_data1_s.size()), 
+Permutations(NumPermutations),
+MoranI(NumPermutations, 0), 
+is_bivariate(false),
+wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
 {
 	LOG_MSG("In RandomizationDlg::RandomizationDlg");
 	
-	SetParent(parent);
+	//SetParent(parent);
     CreateControls();
     Centre();
 	
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 	
+    if (reuse_user_seed)
+        rng = new Randik(user_specified_seed);
+    else
+        rng = new Randik();
+    
 	CalcMoran();
 	Init();
 }
@@ -130,27 +150,41 @@ RandomizationDlg::~RandomizationDlg()
 {
 	if (perm) delete [] perm;
 	if (theRands) delete [] theRands;
+	if (rng) 
+		delete rng;
 }
 
 void RandomizationDlg::CreateControls()
 {    
-    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_RANDOMIZATION");
+    //wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_RANDOMIZATION");
+    wxPanel *panel = new wxPanel(this, -1);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    
+    
+    wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
+    hbox2->Add(button);
+    vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxRIGHT | wxALL, 10);
+    hbox1->Add(new wxPanel(panel, -1));
+    vbox->Add(hbox1, 1, wxEXPAND);
+    panel->SetSizer(vbox);
+    
+    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
 }
 
-void RandomizationDlg::OnCloseClick( wxCommandEvent& event )
-{	
-	event.Skip();
-	EndDialog(wxID_CANCEL);
+void RandomizationDlg::OnClose( wxCloseEvent& event )
+{
+    Destroy();
+    event.Skip();
 }
 
 void RandomizationDlg::OnOkClick( wxCommandEvent& event )
 {
 	wxRect rcClient = GetClientRect();
 	CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
-    //RunPermutations();
 	RunRandomTrials();
 	Refresh();
-	FindWindow(XRCID("ID_CLOSE"))->SetLabel("Done");
 }
  
 void RandomizationDlg::DrawRectangle(wxDC* dc, int left, int top, int right,
@@ -173,16 +207,18 @@ void RandomizationDlg::DrawRectangle(wxDC* dc, int left, int top, int right,
 void RandomizationDlg::RunRandomTrials()
 {
 	totFrequency = 0;
-	for (int i=0; i<bins; i++) freq[i]=0;
+	for (int i=0; i<bins; i++) 
+		freq[i]=0;
+	
 	// thresholdBin bin already has one permutation
 	freq[ thresholdBin ] = 1;
 	// leftmost and the righmost are the same so far
 	minBin = thresholdBin; 
 	maxBin = thresholdBin;
-
+	
 	for (int i=0; i<Permutations; i++) {
 		//create a random permutation
-		rng.Perm(num_obs, perm, theRands);
+		rng->Perm(num_obs, perm, theRands);
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
@@ -248,8 +284,14 @@ void RandomizationDlg::UpdateStatistics()
 
 void RandomizationDlg::Draw(wxDC* dc)
 {	
+    // draw white background
+    wxSize sz = this->GetClientSize();
+    DrawRectangle(dc, 0, 0, sz.x, sz.y, GdaConst::canvas_background_color);
+    
 	int fMax = freq[0];
-	for (int i=1; i<bins; i++) if (fMax < freq[i]) fMax = freq[i];
+	for (int i=1; i<bins; i++) 
+        if (fMax < freq[i]) 
+            fMax = freq[i];
 
 	for (int i=0; i < bins; i++) {
 		double df = double (freq[i]* Height) / double (fMax);
@@ -295,9 +337,9 @@ void RandomizationDlg::Draw(wxDC* dc)
 	const int hZero= (int)(Left+(0-start)/(stop-start)*Width);
 	dc->DrawRectangle(hZero, Top-2 , 3, Height+2);
   
-	int fs = 4 + Bottom/4;
+	//int fs = 4 + Bottom/4;
 	wxFont nf(*wxSMALL_FONT);
-	nf.SetPointSize(fs);
+	nf.SetPointSize(13);
 	dc->SetFont(nf);
 	
 	drawPen.SetColour(GdaConst::textColor);

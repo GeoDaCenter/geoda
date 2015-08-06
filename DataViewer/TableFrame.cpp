@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -18,6 +18,7 @@
  */
 
 #include <wx/msgdlg.h>
+#include <wx/textdlg.h>
 #include <wx/stopwatch.h>
 #include <wx/xrc/xmlres.h>
 #include "../GeoDa.h"
@@ -114,7 +115,8 @@ popup_col(-1)
 	wxStopWatch resize_time;
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		if (table_int->GetColType(i) == GdaConst::long64_type) {
-			grid->SetColFormatNumber(i);
+			//grid->SetColFormatNumber(i);
+            grid->SetColFormatFloat(i,-1,0);
 		} else if (table_int->GetColType(i) == GdaConst::double_type) {
 			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
 		} else if (table_int->GetColType(i) == GdaConst::date_type) {
@@ -224,7 +226,8 @@ void TableFrame::MapMenus()
 {
 	LOG_MSG("In TableFrame::MapMenus");
 	// Map Default Options Menus
-    wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
+    //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
+    wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
 	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(),
 								"Options", optMenu);
 }

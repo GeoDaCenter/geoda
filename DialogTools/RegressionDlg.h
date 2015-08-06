@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,18 +28,20 @@
 #include <wx/radiobut.h>
 #include <wx/gauge.h>
 #include <wx/stattext.h>
-#include "../DataViewer/TableStateObserver.h"
 #include "../FramesManagerObserver.h"
+#include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
+#include "RegressionReportDlg.h"
 
 class FramesManager;
 class TableState;
 class DiagnosticReport;
-class WeightsManager;
 class TableInterface;
 class Project;
+class WeightsManState;
 
 class RegressionDlg: public wxDialog, public FramesManagerObserver,
-  public TableStateObserver
+  public TableStateObserver, public WeightsManStateObserver
 {
     DECLARE_EVENT_TABLE()
 
@@ -79,27 +81,38 @@ public:
     void OnCSaveRegressionClick( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
 	void OnClose(wxCloseEvent& event);
+	void OnReportClose(wxWindowDestroyEvent& event);
+    
     void OnCRadio1Selected( wxCommandEvent& event );
     void OnCRadio2Selected( wxCommandEvent& event );
     void OnCRadio3Selected( wxCommandEvent& event );
+    void OnCRadio4Selected( wxCommandEvent& event );
+    
     void OnCOpenWeightClick( wxCommandEvent& event );
-
+    void OnSetupAutoModel( wxCommandEvent& event );
+    
+    
+    void DisplayRegression(wxString dump);
+    
     wxListBox* m_varlist;
 	wxTextCtrl* m_dependent;
 	wxListBox* m_independentlist;
-    wxChoice* m_choice;
+    wxChoice* m_weights;  // Weights list
+	std::vector<boost::uuids::uuid> w_ids; // Weights list corresponding ids
     wxCheckBox* m_CheckConstant;
     wxCheckBox* m_CheckWeight;
     wxCheckBox* m_standardize;
+    wxRadioButton* m_radio4;
     wxRadioButton* m_radio1;
     wxRadioButton* m_radio2;
     wxRadioButton* m_radio3;
 	wxGauge* m_gauge;
 	wxStaticText* m_gauge_text;
+    
+    RegressionReportDlg *regReportDlg;
 
 	Project* project;
 	TableInterface* table_int;
-	WeightsManager* w_manager;
 	
 	int			RegressModel;
 	std::vector<wxString> m_Xnames;
@@ -136,6 +149,8 @@ public:
 	
 	void InitVariableList();
 	void EnablingItems();
+	void InitWeightsList();
+	boost::uuids::uuid GetWeightsId();
 
 	void UpdateMessageBox(wxString msg);
 
@@ -150,17 +165,29 @@ public:
 								  const wxString& wname,
 								  DiagnosticReport *r, int Obs, int nX);
 	
+    void SetupXNames(bool m_constant_term);
+    
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowTimelineChanges() { return true; }
 	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
 	virtual bool AllowObservationAddDelete() { return false; }
 	
-protected:
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return 0; }
+	virtual void closeObserver(boost::uuids::uuid id) {};
+	
+private:
+    double autoPVal;
 	FramesManager* frames_manager;
 	TableState* table_state;
+	WeightsManState* w_man_state;
+	WeightsManInterface* w_man_int;
 };
 
 #endif

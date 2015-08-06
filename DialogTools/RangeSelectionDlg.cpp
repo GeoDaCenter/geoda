@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,44 +26,38 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/valtext.h>
-#include "../GenUtils.h"
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../FramesManager.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
+#include "../ShapeOperations/WeightsManState.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "RangeSelectionDlg.h"
 
 BEGIN_EVENT_TABLE( RangeSelectionDlg, wxDialog )
+EVT_RADIOBUTTON(XRCID("IDC_RADIO_SUBSELECT"), RangeSelectionDlg::OnSetSubSelect)
+EVT_RADIOBUTTON(XRCID("IDC_RADIO_APPENDSELECT"), RangeSelectionDlg::OnSetAppendSelect)
 	EVT_CHOICE( XRCID("ID_FIELD_CHOICE"), RangeSelectionDlg::OnFieldChoice )
-	EVT_CHOICE( XRCID("ID_FIELD_CHOICE_TM"),
-			   RangeSelectionDlg::OnFieldChoiceTm )
+	EVT_CHOICE( XRCID("ID_FIELD_CHOICE_TM"), RangeSelectionDlg::OnFieldChoiceTm )
 	EVT_TEXT( XRCID("ID_MIN_TEXT"), RangeSelectionDlg::OnRangeTextChange )
 	EVT_TEXT( XRCID("ID_MAX_TEXT"), RangeSelectionDlg::OnRangeTextChange )
-    EVT_BUTTON( XRCID("ID_SEL_RANGE_BUTTON"),
-			   RangeSelectionDlg::OnSelRangeClick )
-	EVT_BUTTON( XRCID("ID_SEL_UNDEF_BUTTON"),
-			   RangeSelectionDlg::OnSelUndefClick )
-	EVT_BUTTON( XRCID("ID_INVERT_SEL_BUTTON"),
-			   RangeSelectionDlg::OnInvertSelClick )
-	EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"),
-			   RangeSelectionDlg::OnRandomSelClick )
+    EVT_BUTTON( XRCID("ID_SEL_RANGE_BUTTON"), RangeSelectionDlg::OnSelRangeClick )
+	EVT_BUTTON( XRCID("ID_SEL_UNDEF_BUTTON"), RangeSelectionDlg::OnSelUndefClick )
+	EVT_BUTTON( XRCID("ID_INVERT_SEL_BUTTON"), RangeSelectionDlg::OnInvertSelClick )
+	EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"), RangeSelectionDlg::OnRandomSelClick )
+	EVT_BUTTON( XRCID("ID_CLEAR_SEL_BUTTON"), RangeSelectionDlg::OnClearSelClick )
+	EVT_BUTTON( XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON"), RangeSelectionDlg::OnAddNeighsToSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_FIELD"), RangeSelectionDlg::OnAddField )
-	EVT_CHOICE( XRCID("ID_SAVE_FIELD_CHOICE"),
-			   RangeSelectionDlg::OnSaveFieldChoice )
-	EVT_CHOICE( XRCID("ID_SAVE_FIELD_CHOICE_TM"),
-			   RangeSelectionDlg::OnSaveFieldChoiceTm )
+	EVT_CHOICE( XRCID("ID_SAVE_FIELD_CHOICE"), RangeSelectionDlg::OnSaveFieldChoice )
+	EVT_CHOICE( XRCID("ID_SAVE_FIELD_CHOICE_TM"), RangeSelectionDlg::OnSaveFieldChoiceTm )
 	EVT_CHECKBOX( XRCID("ID_SEL_CHECK_BOX"), RangeSelectionDlg::OnSelCheckBox )
-	EVT_TEXT( XRCID("ID_SEL_VAL_TEXT"),
-			 RangeSelectionDlg::OnSelUnselTextChange )
-	EVT_CHECKBOX( XRCID("ID_UNSEL_CHECK_BOX"),
-				 RangeSelectionDlg::OnUnselCheckBox )
-	EVT_TEXT( XRCID("ID_UNSEL_VAL_TEXT"),
-			 RangeSelectionDlg::OnSelUnselTextChange )
-	EVT_BUTTON( XRCID("ID_APPLY_SAVE_BUTTON"),
-			   RangeSelectionDlg::OnApplySaveClick )
+	EVT_TEXT( XRCID("ID_SEL_VAL_TEXT"), RangeSelectionDlg::OnSelUnselTextChange )
+	EVT_CHECKBOX( XRCID("ID_UNSEL_CHECK_BOX"), RangeSelectionDlg::OnUnselCheckBox )
+	EVT_TEXT( XRCID("ID_UNSEL_VAL_TEXT"), RangeSelectionDlg::OnSelUnselTextChange )
+	EVT_BUTTON( XRCID("ID_APPLY_SAVE_BUTTON"), RangeSelectionDlg::OnApplySaveClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), RangeSelectionDlg::OnCloseClick )
 	
 END_EVENT_TABLE()
@@ -74,10 +68,13 @@ RangeSelectionDlg::RangeSelectionDlg(wxWindow* parent, Project* _project,
 									 const wxString& title, const wxPoint& pos)
 : project(_project), frames_manager(_frames_manager),
 table_state(_table_state), table_int(_project->GetTableInt()),
+w_man_int(project->GetWManInt()), w_man_state(project->GetWManState()),
 current_sel_mcol(wxNOT_FOUND),
 m_field_choice(0), m_min_text(0), m_field_static_txt(0), m_field2_static_txt(0),
 m_max_text(0), m_sel_range_button(0), m_sel_undef_button(0),
-m_invert_sel_button(0), m_random_sel_button(0),
+m_invert_sel_button(0), m_random_sel_button(0), m_clear_sel_button(0),
+m_num_to_rand_sel_txt(0),
+m_add_neighs_to_sel_button(0), m_weights_choice(0),
 m_save_field_choice(0), m_sel_check_box(0),
 m_sel_val_text(0), m_unsel_check_box(0), m_unsel_val_text(0),
 m_apply_save_button(0), all_init(false), m_selection_made(false)
@@ -92,15 +89,18 @@ m_apply_save_button(0), all_init(false), m_selection_made(false)
 	InitSaveVars();
 	CheckRangeButtonSettings();
 	CheckApplySaveSettings();
-
+	RefreshWeightsIds();
+	
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
+	w_man_state->registerObserver(this);
 }
 
 RangeSelectionDlg::~RangeSelectionDlg()
 {
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
+	w_man_state->removeObserver(this);
 }
 
 void RangeSelectionDlg::CreateControls()
@@ -138,11 +138,29 @@ void RangeSelectionDlg::CreateControls()
 									   wxButton);
 	m_sel_undef_button->Enable(false);
 
+	m_clear_sel_button = wxDynamicCast(
+						FindWindow(XRCID("ID_CLEAR_SEL_BUTTON")), wxButton);
+
 	m_invert_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_INVERT_SEL_BUTTON")), wxButton);
 	
+	m_num_to_rand_sel_txt = wxDynamicCast(
+						FindWindow(XRCID("ID_NUM_TO_RAND_SEL")), wxTextCtrl);
+	m_num_to_rand_sel_txt->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+	
+	// Select 10% of objects by default
+	wxString num_to_sel;
+	num_to_sel << (project->GetNumRecords() / 10);
+	m_num_to_rand_sel_txt->SetValue(num_to_sel);
+	
 	m_random_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_RANDOM_SEL_BUTTON")), wxButton);
+	
+		
+	m_add_neighs_to_sel_button = wxDynamicCast(
+			   FindWindow(XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON")), wxButton);
+														  
+	m_weights_choice = wxDynamicCast(FindWindow(XRCID("ID_WEIGHTS")), wxChoice);
 	
 	m_save_field_choice =
 		wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE")), wxChoice);
@@ -170,6 +188,18 @@ void RangeSelectionDlg::CreateControls()
 	m_apply_save_button = wxDynamicCast(
 		FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
 	m_apply_save_button->Disable();
+    
+    m_radio_subselect = XRCCTRL(*this, "IDC_RADIO_SUBSELECT", wxRadioButton);
+    m_radio_appendselect = XRCCTRL(*this, "IDC_RADIO_APPENDSELECT", wxRadioButton);
+}
+
+void RangeSelectionDlg::OnSetSubSelect( wxCommandEvent& event )
+{
+    
+}
+void RangeSelectionDlg::OnSetAppendSelect( wxCommandEvent& event )
+{
+    
 }
 
 void RangeSelectionDlg::OnFieldChoice( wxCommandEvent& event )
@@ -196,12 +226,26 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 	std::vector<bool>& h = hs.GetHighlight();
 	std::vector<int>& nh = hs.GetNewlyHighlighted();
 	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
+    
+    int n = table_int->GetNumberRows();
 	int nh_cnt = 0;
 	int nuh_cnt = 0;
 	if (m_field_choice->GetSelection() == wxNOT_FOUND) return;
 	int mcol = GetSelColInt();
 	int f_tm = GetSelColTmInt();
 
+    bool no_hl = true;
+    bool sub_select = m_radio_subselect->GetValue();
+    bool append_select = !sub_select;
+
+    for (int i=0; i<n; i++) {
+        if (h[i] == true) {
+            no_hl = false;
+            break;
+        }
+    }
+    std::vector<bool> cur_sel(n);
+    
 	LOG(table_int->GetColName(mcol));
 	double min_dval = 0;
 	m_min_text->GetValue().ToDouble(&min_dval);
@@ -216,19 +260,19 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 		table_int->GetColData(mcol, f_tm, vec);
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			if (!undefined[i] && min_ival <= vec[i] && vec[i] <= max_ival) {
-				if (!h[i]) nh[nh_cnt++]=i;
+                cur_sel[i] = true;
 			} else {
-				if (h[i]) nuh[nuh_cnt++]=i;
-			}
+                cur_sel[i] = false;
+            }
 		}
 	} else if (table_int->GetColType(mcol) == GdaConst::double_type) {
 		std::vector<double> vec;
 		table_int->GetColData(mcol, f_tm, vec);
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			if (!undefined[i] && min_dval <= vec[i] && vec[i] <= max_dval) {
-				if (!h[i]) nh[nh_cnt++]=i;
+                cur_sel[i] = true;
 			} else {
-				if (h[i]) nuh[nuh_cnt++]=i;
+                cur_sel[i] = false;
 			}
 		}
 	} else {
@@ -238,8 +282,33 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-	if (nh_cnt > 0 || nuh_cnt > 0) {
-		hs.SetEventType(HighlightState::delta);
+    bool update_flag = false;
+    for (int i=0; i<n; i++) {
+        if (no_hl) {
+            if (cur_sel[i] == true) {
+                h[i] = true;
+                update_flag = true;
+                nh[nh_cnt++] = i;
+            }
+        } else {
+            if (sub_select) {
+                if (h[i] == true && cur_sel[i] == false) {
+                    h[i] = false;
+                    update_flag = true;
+                    nuh[nuh_cnt++] = i;
+                }
+            } else if (append_select) {
+                if (h[i] == false && cur_sel[i] == true) {
+                    h[i] = true;
+                    update_flag = true;
+                    nh[nh_cnt++] = i;
+                }
+            }
+        }
+    }
+
+	if (update_flag) {
+		hs.SetEventType(HLStateInt::delta);
 		hs.SetTotalNewlyHighlighted(nh_cnt);
 		hs.SetTotalNewlyUnhighlighted(nuh_cnt);
 		hs.notifyObservers();
@@ -253,7 +322,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 {
 	HighlightState& hs = *project->GetHighlightState();
-	hs.SetEventType(HighlightState::unhighlight_all);
+	hs.SetEventType(HLStateInt::unhighlight_all);
 	hs.notifyObservers();
 	
 	std::vector<bool>& h = hs.GetHighlight();
@@ -271,7 +340,7 @@ void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 		if (undefined[i]) nh[nh_cnt++] = i;
 	}
 	if (nh_cnt > 0) {
-		hs.SetEventType(HighlightState::delta);
+		hs.SetEventType(HLStateInt::delta);
 		hs.SetTotalNewlyHighlighted(nh_cnt);
 		hs.SetTotalNewlyUnhighlighted(nuh_cnt);
 		hs.notifyObservers();
@@ -282,10 +351,32 @@ void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 {
+	size_t num_obs = project->GetNumRecords();
+	long num_to_rand_sel = 0;
+	{
+		wxString v(m_num_to_rand_sel_txt->GetValue());
+		if (v.IsEmpty()) v = "0";
+		if (!v.ToLong(&num_to_rand_sel)) return;
+		if (num_to_rand_sel > num_obs) num_to_rand_sel = num_obs;
+	}
+	
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
 	static boost::mt19937 rng(std::time(0));
-	static boost::uniform_01<boost::mt19937> X(rng);
+	//static boost::uniform_01<boost::mt19937> X(rng);
+	static boost::random::uniform_int_distribution<> X(0, num_obs-1);
+	// X(rng) -> returns a uniform random number from 0 to num_obs-1;
+	
+	std::vector<size_t> perm(num_obs);
+	for (size_t i=0; i<num_obs; ++i) perm[i] = i;
+	for (size_t i=0; i<num_obs; ++i) {
+		// swap each item in perm with a random position.
+		// This will produce a random permutation
+		size_t r = (size_t) X(rng);
+		double tmp = perm[r];
+		perm[r] = perm[i];
+		perm[i] = tmp;
+	}
 	
 	HighlightState& hs = *project->GetHighlightState();
 	std::vector<bool>& h = hs.GetHighlight();
@@ -293,18 +384,27 @@ void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
 	int nh_cnt = 0;
 	int nuh_cnt = 0;
-	int total_obs = h.size();
-	for (int i=0; i<total_obs; i++) {
-		bool sel = X() < 0.5;
-		if (sel && !h[i]) {
-			nh[nh_cnt++] = i;
-		} else if (!sel && h[i]) {
-			nuh[nuh_cnt++] = i;
+	for (size_t i=0; i<num_obs; i++) {
+		size_t r = perm[i];
+		bool sel = (i < num_to_rand_sel);
+		if (sel && !h[r]) {
+			nh[nh_cnt++] = r;
+		} else if (!sel && h[r]) {
+			nuh[nuh_cnt++] = r;
 		}
 	}
-	hs.SetEventType(HighlightState::delta);
+	hs.SetEventType(HLStateInt::delta);
 	hs.SetTotalNewlyHighlighted(nh_cnt);
 	hs.SetTotalNewlyUnhighlighted(nuh_cnt);
+	hs.notifyObservers();
+	m_selection_made = true;
+	CheckApplySaveSettings();
+}
+
+void RangeSelectionDlg::OnClearSelClick( wxCommandEvent& event )
+{
+	HighlightState& hs = *project->GetHighlightState();
+	hs.SetEventType(HLStateInt::unhighlight_all);
 	hs.notifyObservers();
 	m_selection_made = true;
 	CheckApplySaveSettings();
@@ -313,10 +413,15 @@ void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 void RangeSelectionDlg::OnInvertSelClick( wxCommandEvent& event )
 {
 	HighlightState& hs = *project->GetHighlightState();
-	hs.SetEventType(HighlightState::invert);
+	hs.SetEventType(HLStateInt::invert);
 	hs.notifyObservers();
 	m_selection_made = true;
 	CheckApplySaveSettings();
+}
+
+void RangeSelectionDlg::OnAddNeighsToSelClick( wxCommandEvent& event )
+{
+	project->AddNeighborsToSelection(GetWeightsId());
 }
 
 void RangeSelectionDlg::OnAddField( wxCommandEvent& event )
@@ -376,7 +481,7 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(write_col);
-	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
@@ -481,10 +586,57 @@ void RangeSelectionDlg::update(TableState* o)
 	Refresh();
 }
 
+/** Implementation of WeightsManStateObserver interface */
+void RangeSelectionDlg::update(WeightsManState* o)
+{
+	LOG_MSG("In RangeSelectionDlg::update(WeightsManState* o)");
+	RefreshWeightsIds();
+	Refresh();
+}
+
+
 void RangeSelectionDlg::RefreshColIdMap()
 {
 	col_id_map.clear();
 	table_int->FillNumericColIdMap(col_id_map);
+}
+
+void RangeSelectionDlg::RefreshWeightsIds()
+{
+	if (!m_weights_choice) return;
+	int cur_sel = m_weights_choice->GetSelection();
+	wxString sel_str;
+	if (cur_sel >= 0) {
+		sel_str = m_weights_choice->GetString(cur_sel);
+	}
+	m_weights_choice->Clear();
+	weights_ids.clear();
+	w_man_int->GetIds(weights_ids);
+	int sel_pos=-1;
+	for (size_t i=0; i<weights_ids.size(); ++i) {
+		wxString weights_nm = w_man_int->GetShortDispName(weights_ids[i]);
+		m_weights_choice->Append(weights_nm);
+		if (weights_nm == sel_str) sel_pos = i;
+	}
+	if (sel_pos < 0) {
+		for (size_t i=0; i<weights_ids.size(); ++i) {
+			if (w_man_int->GetDefault() == weights_ids[i]) sel_pos = i;
+		}
+	}
+	if (weights_ids.size() > 0 && sel_pos < 0) sel_pos = 0;
+	if (sel_pos >= 0) m_weights_choice->SetSelection(sel_pos);
+}
+
+boost::uuids::uuid RangeSelectionDlg::GetWeightsId()
+{
+	if (!m_weights_choice) return boost::uuids::nil_uuid();
+	int sel = m_weights_choice->GetSelection();
+	if (sel < 0 || sel >= weights_ids.size()) return boost::uuids::nil_uuid();
+	wxString s;
+	s << "RangeSelectionDlg::GetWeightsId() weight: ";
+	s << w_man_int->GetShortDispName(weights_ids[sel]);
+	LOG_MSG(s);
+	return weights_ids[sel];
 }
 
 void RangeSelectionDlg::InitSelectionVars()

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,16 +23,20 @@
 #include <vector>
 #include "../ShapeOperations/Randik.h"
 
+
+
 class GalElement;
 
-class RandomizationDlg: public wxDialog
+class RandomizationDlg: public wxFrame
 {    
-    DECLARE_CLASS( RandomizationDlg )
+    //DECLARE_CLASS( RandomizationDlg )
     DECLARE_EVENT_TABLE()
 
 public:
-	RandomizationDlg( const std::vector<double>& raw_data1,
+	RandomizationDlg(const std::vector<double>& raw_data1,
 					 const GalElement* W, int NumPermutations,
+                     bool reuse_user_seed,
+					 uint64_t user_specified_seed,                    
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
 					 const wxString& caption = "Randomization",
 					 const wxPoint& pos = wxDefaultPosition,
@@ -41,6 +45,8 @@ public:
 	RandomizationDlg( const std::vector<double>& raw_data1,
 					 const std::vector<double>& raw_data2,
 					 const GalElement* W, int NumPermutations,
+                     bool reuse_user_seed,
+					 uint64_t user_specified_seed,
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
 					 const wxString& caption = "Randomization",
 					 const wxPoint& pos = wxDefaultPosition,
@@ -52,7 +58,7 @@ public:
 	void CalcMoran();
 
     void OnPaint( wxPaintEvent& event );
-    void OnCloseClick( wxCommandEvent& event );
+    void OnClose( wxCloseEvent& event );
     void OnOkClick( wxCommandEvent& event );
     void CheckSize(const int width, const int height);
     void Paint(wxDC *dc);
@@ -92,7 +98,7 @@ public:
 	int* perm;
 	long* theRands;
 	
-    Randik  rng;
+	Randik*  rng;
 	bool    experiment_run_once;
 
 private:

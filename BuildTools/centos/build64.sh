@@ -351,9 +351,9 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 # install boost library
 #########################################################################
 {
-    LIB_NAME=boost_1_54_0
-    LIB_URL=http://softlayer-dal.dl.sourceforge.net/project/boost/boost/1.54.0/boost_1_54_0.tar.bz2
-    LIB_FILENAME=boost_1_54_0.tar.bz2
+    LIB_NAME=boost_1_57_0
+    LIB_URL=http://softlayer-dal.dl.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
+    LIB_FILENAME=boost_1_57_0.tar.bz2
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
 
@@ -366,8 +366,8 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
         cd $PREFIX/include
         rm boost
-        ln -s $DOWNLOAD_HOME/boost_1_54_0 boost
-        cd $DOWNLOAD_HOME/boost_1_54_0
+        ln -s $DOWNLOAD_HOME/boost_1_57_0 boost
+        cd $DOWNLOAD_HOME/boost_1_57_0
         chmod +x bootstrap.sh
         chmod +x tools/build/v2/engine/build.sh
         ./bootstrap.sh
@@ -426,9 +426,8 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 # wxWidgets 2.9.2 doesn't compile on Ubuntu 13 64bit
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
-    LIB_NAME=wxWidgets-2.9.4
-    #LIB_URL=http://hivelocity.dl.sourceforge.net/project/wxwindows/2.9.2/wxWidgets-2.9.2.tar.bz2
-    LIB_URL=http://softlayer-dal.dl.sourceforge.net/project/wxwindows/2.9.4/wxWidgets-2.9.4.tar.bz2
+    LIB_NAME=wxWidgets-3.0.2
+    LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2"
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config
     echo $LIB_FILENAME

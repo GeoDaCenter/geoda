@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,7 +33,6 @@
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
-#include "../FramesManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
@@ -56,25 +55,23 @@ const int ConditionalNewCanvas::VERT_VAR = 1; // vertical variable
 ConditionalNewCanvas::ConditionalNewCanvas(wxWindow *parent,
 										TemplateFrame* t_frame,
 										Project* project_s,
-										const std::vector<GeoDaVarInfo>& v_info,
+										const std::vector<GdaVarTools::VarInfo>& v_info,
 										const std::vector<int>& col_ids,
 										bool fixed_aspect_ratio_mode,
 										bool fit_to_window_mode,
 										const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size,
-				 fixed_aspect_ratio_mode, fit_to_window_mode),
-project(project_s), num_obs(project_s->GetNumRecords()), num_time_vals(1),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
+num_obs(project_s->GetNumRecords()), num_time_vals(1),
 vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
 bin_extents(boost::extents[3][3]), bin_w(0), bin_h(0),
-highlight_state(project_s->GetHighlightState()),
 data(v_info.size()), var_info(v_info),
 table_int(project_s->GetTableInt()),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 cc_state_vert(0), cc_state_horiz(0), all_init(false)
 {
 	LOG_MSG("Entering ConditionalNewCanvas::ConditionalNewCanvas");
-	template_frame = t_frame;
 	SetCatType(VERT_VAR, CatClassification::quantile, 3);
 	SetCatType(HOR_VAR, CatClassification::quantile, 3);
 	
@@ -487,7 +484,7 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 {
 	int var_id = VERT_VAR;
 	// we know that all three var_info variables are defined, so need
-	// need to prompt user as with MapNewCanvas
+	// need to prompt user as with MapCanvas
 	
 	// Fully update cat_classif_def fields according to current
 	// categorization state
@@ -534,7 +531,7 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 {
 	int var_id = HOR_VAR;
 	// we know that all three var_info variables are defined, so need
-	// need to prompt user as with MapNewCanvas
+	// need to prompt user as with MapCanvas
 	
 	// Fully update cat_classif_def fields according to current
 	// categorization state
@@ -684,7 +681,7 @@ void ConditionalNewCanvas::TimeChange()
 
 void ConditionalNewCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -704,7 +701,7 @@ void ConditionalNewCanvas::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
@@ -814,7 +811,7 @@ BEGIN_EVENT_TABLE(ConditionalNewFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 ConditionalNewFrame::ConditionalNewFrame(wxFrame *parent, Project* project,
-									 const std::vector<GeoDaVarInfo>& var_info,
+									 const std::vector<GdaVarTools::VarInfo>& var_info,
 									 const std::vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)

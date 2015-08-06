@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,14 +20,15 @@
 #include <string>
 #include <vector>
 #include <ogrsf_frmts.h>
+#include <climits>
 #include <boost/thread.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "../ShapeOperations/ShpFile.h"
+#include "../ShpFile.h"
 #include "../GdaException.h"
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
 
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
@@ -171,7 +172,7 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 		ogr_type = OFTString;
 	}
 	else if (field_type == GdaConst::long64_type) {
-		ogr_type = OFTInteger;
+		ogr_type = OFTInteger64;
 	}
 	else if (field_type == GdaConst::double_type) {
 		ogr_type = OFTReal;
@@ -328,7 +329,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 vector<wxInt64> col_data;
                 table->GetColData(col_pos, time_step, col_data);
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    data[k]->SetField(j, (int)col_data[ selected_rows[k] ]);
+                    data[k]->SetField(j, (GIntBig)(col_data[selected_rows[k]]));
                     if (stop_exporting) return;
                 }
             } else if (ftype == GdaConst::double_type) {
@@ -518,14 +519,14 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     int num_geometries = p_main.records.size();
-    if ( p_main.header.shape_type == Shapefile::POINT) {
+    if ( p_main.header.shape_type == Shapefile::POINT_TYP) {
         Shapefile::PointContents* pc;
         for (int i=0; i<num_geometries; i++) {
             pc = (Shapefile::PointContents*)p_main.records[i].contents_p;
             //xxx
             geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
         }
-        shape_type = Shapefile::POINT;
+        shape_type = Shapefile::POINT_TYP;
         
     } else if (p_main.header.shape_type == Shapefile::POLYGON) {
         Shapefile::PolygonContents* pc;
@@ -537,7 +538,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     }
     
     for (int id=0; id < n_geom; id++) {
-        if ( shape_type == Shapefile::POINT ) {
+        if ( shape_type == Shapefile::POINT_TYP ) {
             OGRwkbGeometryType eGType = wkbPoint;
             GdaPoint* pc = (GdaPoint*) geometries[id];
             OGRPoint pt;
@@ -646,10 +647,10 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
         
 		if (eType == wkbPoint) {
 			Shapefile::PointContents* pc = new Shapefile::PointContents();
-			pc->shape_type = Shapefile::POINT;
+			pc->shape_type = Shapefile::POINT_TYP;
             if (geometry) {
                 if (feature_counter==0)
-                    p_main.header.shape_type = Shapefile::POINT;
+                    p_main.header.shape_type = Shapefile::POINT_TYP;
                 OGRPoint* p = (OGRPoint *) geometry;
                 pc->x = p->getX();
                 pc->y = p->getY();
@@ -657,7 +658,29 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     GetExtent(p_main, pc, row_idx);
             }
 			p_main.records[feature_counter++].contents_p = pc;
-            
+			
+		} else if (eType == wkbMultiPoint) {
+			Shapefile::PointContents* pc = new Shapefile::PointContents();
+			pc->shape_type = Shapefile::POINT_TYP;
+			if (geometry) {
+                if (feature_counter==0)
+                    p_main.header.shape_type = Shapefile::POINT_TYP;
+                OGRMultiPoint* mp = (OGRMultiPoint*) geometry;
+				int n_geom = mp->getNumGeometries();
+				for (size_t i = 0; i < n_geom; i++ )
+                {	
+					// only consider first point
+                    OGRGeometry* ogrGeom = mp->getGeometryRef(i);
+                    OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
+					pc->x = p->getX();
+					pc->y = p->getY();
+					if (noExtent)
+						GetExtent(p_main, pc, row_idx);
+					
+				}
+            }
+			p_main.records[feature_counter++].contents_p = pc;
+			
 		} else if (eType == wkbPolygon ) {
 			Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
 			pc->shape_type = Shapefile::POLYGON;
@@ -798,9 +821,12 @@ void OGRLayerProxy::Export(std::string format,
     int bForceToMultiPolygon = FALSE;
     int bForceToMultiLineString = FALSE;
 	
-	if( wkbFlatten(eGType) == wkbPoint ) bForceToPoint = TRUE;
-    else if(wkbFlatten(eGType) == wkbPolygon)  bForceToPolygon = TRUE;
-    else if(wkbFlatten(eGType) == wkbMultiPolygon) bForceToMultiPolygon = TRUE;
+	if( wkbFlatten(eGType) == wkbPoint ) 
+        bForceToPoint = TRUE;
+    else if(wkbFlatten(eGType) == wkbPolygon)  
+        bForceToPolygon = TRUE;
+    else if(wkbFlatten(eGType) == wkbMultiPolygon) 
+        bForceToMultiPolygon = TRUE;
     else if(wkbFlatten(eGType) == wkbMultiLineString) {
 		bForceToMultiLineString = TRUE;
 	} else { // not supported geometry type
@@ -809,16 +835,22 @@ void OGRLayerProxy::Export(std::string format,
 	}
 	//////////////////////////////////////////////////////////////
 	// Try opening the output datasource as an existing, writable 
-	OGRDataSource  *poODS = NULL;
-    OGRSFDriver    *poDriver = NULL;
+	//OGRDataSource  *poODS = NULL;
+    GDALDataset  *poODS = NULL;
+    //OGRSFDriver    *poDriver = NULL;
     
     if (is_update == true) {
-       poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
+       //poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
+        poODS = (GDALDataset*) GDALOpenEx( pszDestDataSource, 
+                                         GDAL_OF_VECTOR, NULL, NULL, NULL );
     } else {
         //////////////////////////////////////////////////////////////
         // Find the output driver.       
-        OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-        poDriver = poR->GetDriverByName(pszFormat);
+        GDALDriver *poDriver;
+        poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
+        
+        //OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
+        //poDriver = poR->GetDriverByName(pszFormat);
         if( poDriver == NULL ) {
             // raise driver not supported failure
             error_message << "Current OGR dirver " + format + " is not "
@@ -826,14 +858,15 @@ void OGRLayerProxy::Export(std::string format,
             export_progress = -1;
             return;
         }
-        if( !poDriver->TestCapability( ODrCCreateDataSource ) ) {
+        //if( !poDriver->TestCapability( //ODrCCreateDataSource ) ) {
             // raise driver does not support data source creation.\n",
-            export_progress = -1;
-            return;
-        }
+            //export_progress = -1;
+            //return;
+        //}
         //////////////////////////////////////////////////////////////
         // Create the output data source.  
-        poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
+        //poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
+        poODS = poDriver->Create(pszDestDataSource, 0, 0, 0, GDT_Unknown, NULL);
     }
     
 	if( poODS == NULL ) {
@@ -930,5 +963,6 @@ void OGRLayerProxy::Export(std::string format,
 	}
 	//////////////////////////////////////////////////////////////
 	// Clean
-	OGRDataSource::DestroyDataSource( poODS );	
+	//OGRDataSource::DestroyDataSource( poODS );	
+    GDALClose(poODS);
 }

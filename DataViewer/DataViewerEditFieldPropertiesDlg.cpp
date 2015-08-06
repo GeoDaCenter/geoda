@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,11 +20,10 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
-#include "../GenUtils.h"
 #include "../logger.h"
 #include "../Project.h"
 #include "../GeoDa.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../FramesManager.h"
 #include "TableInterface.h"
 #include "TableState.h"
@@ -260,7 +259,12 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				}
 				if (type == GdaConst::double_type) {
 					wxString ddv;
-					ddv << table_int->GetColDispDecimals(cid);
+					if (table_int->GetColDispDecimals(cid) > 0) {
+						ddv << table_int->GetColDispDecimals(cid);
+					} else {
+						// otherwise default (-1) shown as ""
+						ddv = "";
+					}
 					field_grid->SetCellValue(r, COL_DD, ddv);
 					field_grid->SetColFormatNumber(COL_DD);
 				}
@@ -386,7 +390,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	}
 
 	if (col == COL_D || col == COL_DD || col == COL_L) {
-		if (!GenUtils::CanModifyGrpAndShowMsgIfNot(table_state, pg)) {
+		if (!Project::CanModifyGrpAndShowMsgIfNot(table_state, pg)) {
 			ev.Veto();
 			return;
 		}
@@ -532,25 +536,31 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	} else if (col == COL_DD &&
 			   table_int->PermitChangeDisplayedDecimals())
 	{ // we know this is a double_type field
-		if (table_int->HasFixedDecimals()) {
-			min_v = 0;
-			max_v = GdaConst::max_dbf_double_decimals;
-			if (new_val < min_v || max_v < new_val) {
-				wxString msg;
-				msg << "The number of displayed decimal places for a ";
-				msg << "non-integral numeric field must be at least " << min_v;
-				msg << " and at most " << max_v;
-				msg << " Keeping original value.";
-				wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
-				dlg.ShowModal();
-				ev.Veto();
-				return;
+		if (new_val > 0) {
+			if (table_int->HasFixedDecimals()) {
+				min_v = 0;
+				max_v = GdaConst::max_dbf_double_decimals;
+				if (new_val < min_v || max_v < new_val) {
+					wxString msg;
+					msg << "The number of displayed decimal places for a ";
+					msg << "non-integral numeric field must be at least " << min_v;
+					msg << " and at most " << max_v;
+					msg << " Keeping original value.";
+					wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+					dlg.ShowModal();
+					ev.Veto();
+					return;
+				}
+			} else {
+				if (new_val < 0 || new_val > 20) {
+					ev.Veto();
+					return;
+				}
 			}
 		} else {
-			if (new_val < 0 || new_val > 20) {
-				ev.Veto();
-				return;
-			}
+			ev.Veto();
+			return;
+			// new_val = -1; // Change back to default value
 		}
 		table_int->ColChangeDisplayedDecimals(cid, new_val);
 	}

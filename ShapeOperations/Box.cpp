@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,7 @@
 double Box::range_x(int method) const
 {
 	if (method ==2) {
-		double range = GenGeomAlgs::ComputeArcDist(Bmin.x,Bmin.y,Bmax.x,Bmin.y);
+		double range = GenGeomAlgs::ComputeArcDistMi(Bmin.x,Bmin.y,Bmax.x,Bmin.y);
 		return range;
 	} else {
 		return Bmax.x - Bmin.x;
@@ -32,7 +32,7 @@ double Box::range_x(int method) const
 double Box::range_y(int method) const
 {  
 	if (method ==2) {
-		double range = GenGeomAlgs::ComputeArcDist(Bmin.x,Bmin.y,Bmin.x,Bmax.y);
+		double range = GenGeomAlgs::ComputeArcDistMi(Bmin.x,Bmin.y,Bmin.x,Bmax.y);
 		return range;
 	} else {
 		return Bmax.y - Bmin.y;

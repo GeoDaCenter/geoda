@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,7 @@
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 
 TableInterface::TableInterface(TableState* table_state_s,
 							   TimeState* time_state_s)
@@ -154,7 +154,8 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 {
 	using namespace std;
 	vector<wxString> ret(n, col_nm);
-	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive)) return ret;
+	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive))
+        return ret;
 	
 	const int MAX_TRIES = 100000;
 	if (col_nm.IsEmpty()) col_nm = "VAR";
@@ -171,7 +172,8 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 		}
 		wxString u = col_nm;
 		u << "_" << i;
-		if (!DoesNameExist(u, cols_case_sensitive)) ret[ret_cnt++] = u;
+		if (!DoesNameExist(u, cols_case_sensitive))
+            ret[ret_cnt++] = u;
 	}
 	return ret;
 }

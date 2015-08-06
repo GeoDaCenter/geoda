@@ -7,7 +7,7 @@
 # ./build.sh 8 1 (no debug)
 #############################################################################
 CPUS=2
-NODEBUG=1
+NODEBUG=0
 
 if ! type "cmake" > /dev/null; then
     echo "You need to install cmake to run this script."
@@ -33,7 +33,8 @@ read -p "Do you want to install pre-requisites (e.g. libreadline, zlib, libexpat
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo apt-get update
-    sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
+    sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
+# for 14.10, experimenting with adding librtmp-dev, libidn11-dev and libldap-dev
 fi
 
 unset ORACLE_HOME
@@ -63,23 +64,33 @@ install_library()
     LIB_NAME=$1
     LIB_URL=$2
     LIB_CHECKER=$3
-    LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-    echo $LIB_FILENAME
+    LIB_FILENAME=$(basename "$LIB_URL")
+    CONFIGURE_FLAGS=$4
+    echo ""
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    echo "% Building: $LIB_FILENAME"
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
 
     if ! [ -f "$LIB_FILENAME" ] ; then
+	echo "$LIB_FILENAME not found. Downloading..."
         curl -O $LIB_URL
+    else
+	echo "$LIB_FILENAME found.  Download skipped."
     fi
 
     if ! [ -d "$LIB_NAME" ] ; then
+	echo "Directory $LIB_NAME not found.  Expanding..."
         tar -xf $LIB_FILENAME
+    else
+	echo "Directory $LIB_NAME found.  File expansion skipped."
     fi
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
 	chmod +x configure
-        ./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib/x86_64-linux-gnu" --prefix=$PREFIX
+        ./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib/x86_64-linux-gnu" --prefix=$PREFIX $CONFIGURE_FLAGS
         $MAKER
         make install
     fi
@@ -91,6 +102,10 @@ install_library()
 #########################################################################
 # install libiConv
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: libiConv %"
+echo "%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="libiconv-1.13"
     LIB_URL="http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.tar.gz"
@@ -120,11 +135,15 @@ install_library()
 #########################################################################
 # install cURL
 #########################################################################
-install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a
+install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a "--without-librtmp"
 
 #########################################################################
 # install Xerces
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Xerces %"
+echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="xerces-c-3.1.1"
     LIB_URL="http://mirror.metrocast.net/apache//xerces/c/3/sources/xerces-c-3.1.1.tar.gz"
@@ -188,6 +207,10 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # install libkml requires 1.3
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: libkml %"
+echo "%%%%%%%%%%%%%%%%%%%%"
 # libexpat,libcurl4-gnutls-dev 
 #install_library libkml-1.2.0 https://libkml.googlecode.com/files/libkml-1.2.0.tar.gz libkmlbase.a
 {
@@ -201,7 +224,7 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
     fi
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        sudo apt-get install libexpat
+        sudo apt-get install libexpat1-dev
         cp -rf ../dep/"$LIB_NAME" .
         cd $LIB_NAME
         ./autogen.sh
@@ -249,6 +272,10 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # install SpatiaLite
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Spatialite %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
     LIB_URL=http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.0.0.tar.gz
@@ -279,6 +306,10 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 # MySQL 
 #########################################################################
 #cmake, curse
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%"
+echo "% Building: MySQL %"
+echo "%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=mysql-5.6.14
     #LIB_URL=http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.14.tar.gz
@@ -314,39 +345,99 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # install boost library
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Boost 1.57 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
-    LIB_NAME=boost_1_54_0
-    LIB_URL=http://softlayer-dal.dl.sourceforge.net/project/boost/boost/1.54.0/boost_1_54_0.tar.bz2
-    LIB_FILENAME=boost_1_54_0.tar.bz2
+    LIB_NAME=boost_1_57_0
+    LIB_URL=http://hivelocity.dl.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.gz
+    LIB_FILENAME=boost_1_57_0.tar.gz
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ]; then
+    if ! [ -f "$LIB_FILENAME" ]; then
+	echo "$LIB_FILENAME not found. Downloading..."
         curl -O $LIB_URL
+    else
+	echo "$LIB_FILENAME found. Skipping download."
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
+	echo "Directory $LIB_NAME not found. Expanding archive."
         tar -xf $LIB_FILENAME
+    else
+	echo "Directory $LIB_NAME found. Skipping expansion."
     fi
 
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
+	echo "$LIB_CHECKER not found.  Building Boost..."
         cd $PREFIX/include
         rm boost
-        ln -s $DOWNLOAD_HOME/boost_1_54_0 boost
-        cd $DOWNLOAD_HOME/boost_1_54_0
+        ln -s $DOWNLOAD_HOME/boost_1_57_0 boost
+        cd $DOWNLOAD_HOME/boost_1_57_0
         chmod +x bootstrap.sh
-        chmod +x tools/build/v2/engine/build.sh
+        #chmod +x tools/build/v2/engine/build.sh
         ./bootstrap.sh
         chmod +x b2
         ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
     fi
 
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
-        echo "Error! Exit"
+        echo "Error: Target library $LIB_CHECKER not found. Exiting build."
         exit
     fi
 }
+
+#########################################################################
+# install JSON Spirit
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: JSON Spirit %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
+LIB_NAME="json_spirit_v4.08"
+LIB_URL="http://www.codeproject.com/KB/recipes/JSON_Spirit/json_spirit_v4.08.zip"
+LIB_CHECKER="libjson_spirit.a"
+LIB_FILENAME="json_spirit_v4.08.zip"
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ]; then
+    unzip $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cp $GEODA_HOME/dep/json_spirit/CMakeLists.txt .
+    mkdir bld
+    cd bld
+    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake ..
+    make
+    rm -rf "$PREFIX/include/json_spirit"
+    rm -f "$PREFIX/lib/$LIB_CHECKER"
+    mkdir "$PREFIX/include/json_spirit"
+    echo "Copying JSON Sprit includes..."
+    cp -R "../json_spirit" "$PREFIX/include/."
+    echo "Copying libjson_spirit.a"
+    cp json_spirit/libjson_spirit.a "$PREFIX/lib/."
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+
 #########################################################################
 # install CLAPACK
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: CLAPACK 3.2.1 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     CLAPACK_NAME="CLAPACK-3.2.1"
     LIB_CHECKER="libf2c.a"
@@ -387,6 +478,10 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # install GDAL/OGR
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Custom GDAL/OGR 1.9.2 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=gdal-1.9.2
     LIB_URL=https://codeload.github.com/lixun910/gdal-1.9.2-work/zip/master
@@ -427,27 +522,33 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # install wxWidgets library
 #########################################################################
-# wxWidgets 2.9.2 doesn't compile on Ubuntu 13 64bit
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building wxWidgets 3.0.2 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
-    LIB_NAME=wxWidgets-3.0.0
-    LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.0/wxWidgets-3.0.0.tar.bz2"
+    LIB_NAME=wxWidgets-3.0.2
+    LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2"
 
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ] ; then
+    if ! [ -f "$LIB_FILENAME" ] ; then
         curl -O $LIB_URL
-        tar -xf $LIB_FILENAME
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
+	tar -xf $LIB_FILENAME
     fi
 
     if ! [ -f "$PREFIX/bin/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=2 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --prefix=$PREFIX
+        ./configure --with-gtk=2 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
         $MAKER
         make install
         cd ..
@@ -462,6 +563,10 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 #########################################################################
 # build GeoDa
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%"
+echo "% Building: GeoDa %"
+echo "%%%%%%%%%%%%%%%%%%%"
 {
     cd $GEODA_HOME
     cp ../../GeoDamake.ubuntu.opt ../../GeoDamake.opt
@@ -469,4 +574,7 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
     $MAKER
     make app
     cp plugins/x64/*.so build/plugins/
+    cp ../CommonDistFiles/cache.sqlite build/
+    cp ../CommonDistFiles/geoda_prefs.sqlite build/
+    cp ../CommonDistFiles/geoda_prefs.json build/
 }

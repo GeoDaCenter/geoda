@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,6 +21,7 @@
 #include <cmath>
 #include <vector>
 #include <wx/splitter.h>
+#include <wx/textdlg.h>
 #include <wx/xrc/xmlres.h>
 #include <boost/foreach.hpp>
 #include <boost/multi_array.hpp>
@@ -30,12 +31,15 @@
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../VarTools.h"
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "LisaCoordinator.h"
 #include "LisaScatterPlotView.h"
+
+const int ID_RANDDLG = wxID_ANY;
 
 IMPLEMENT_CLASS(LisaScatterPlotCanvas, ScatterNewPlotCanvas)
 BEGIN_EVENT_TABLE(LisaScatterPlotCanvas, ScatterNewPlotCanvas)
@@ -54,11 +58,15 @@ LisaScatterPlotCanvas::LisaScatterPlotCanvas(wxWindow *parent,
 : ScatterNewPlotCanvas(parent, t_frame, project, pos, size),
 lisa_coord(lisa_coordinator),
 is_bi(lisa_coordinator->lisa_type == LisaCoordinator::bivariate),
-is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized)
+is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized),
+rand_dlg(0)
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::LisaMapNewCanvas");
+	LOG_MSG("Entering LisaScatterPlotCanvas::LisaMapCanvas");
 	
 	fixed_aspect_ratio_mode = true;
+	show_reg_selected = false;
+	show_reg_excluded = false;
+	
 	// must set var_info from LisaCoordinator initially in order to get
 	// intial times for each variable.
 	sp_var_info.resize(2);
@@ -95,16 +103,24 @@ is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized)
 	
 	UpdateDisplayLinesAndMargins();
 	ResizeSelectableShps();	
-	
-	LOG_MSG("Exiting LisaScatterPlotCanvas::LisaMapNewCanvas");
+
+	LOG_MSG("Exiting LisaScatterPlotCanvas::LisaMapCanvas");
 }
 
 LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::~LisaScatterPlotCanvas");
+    if (rand_dlg) {
+        rand_dlg->Destroy();
+    }
 	LOG_MSG("Exiting LisaScatterPlotCanvas::~LisaScatterPlotCanvas");
 }
 
+void LisaScatterPlotCanvas::OnRandDlgClose( wxWindowDestroyEvent& event)
+{
+    rand_dlg = 0;
+}
+            
 void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::DisplayRightClickMenu");
@@ -118,7 +134,7 @@ void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting LisaScatterPlotCanvas::DisplayRightClickMenu");
 }
@@ -242,6 +258,9 @@ void LisaScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
 	// or are not checkable do not appear.
 	
 	ScatterNewPlotCanvas::SetCheckMarks(menu);
+    
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
+								  lisa_coord->IsReuseLastSeed());
 }
 
 void LisaScatterPlotCanvas::TimeChange()
@@ -399,7 +418,8 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 	s << regressionXY.beta;
 	GdaShapeText* morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
 									   wxRealPoint(50, 100), 0,
-									   GdaShapeText::h_center, GdaShapeText::v_center,
+									   GdaShapeText::h_center,
+												   GdaShapeText::v_center,
 									   0, -15);
 	morans_i_text->setPen(*GdaConst::scatterplot_reg_pen);
 	foreground_shps.push_back(morans_i_text);
@@ -420,12 +440,28 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 		for (int i=0; i<num_obs; i++) {
 			raw_data2[i] = lisa_coord->data2_vecs[yt][i];
 		}
-		RandomizationDlg dlg(raw_data1, raw_data2, lisa_coord->W, permutation,
-							 0);
-		dlg.ShowModal();
+
+        if (rand_dlg != 0) {
+            rand_dlg->Destroy();
+            rand_dlg = 0;
+        }
+		rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
+                             lisa_coord->W, permutation,
+                             lisa_coord->IsReuseLastSeed(),
+                             lisa_coord->GetLastUsedSeed(), this);
+        rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
+        rand_dlg->Show(true);
+        
 	} else {
-		RandomizationDlg dlg(raw_data1, lisa_coord->W, permutation, 0);
-		dlg.ShowModal();
+        if (rand_dlg != 0) {
+            rand_dlg->Destroy();
+            rand_dlg = 0;
+        }
+    	rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->W, permutation,
+                                 lisa_coord->IsReuseLastSeed(),
+                                 lisa_coord->GetLastUsedSeed(), this);
+        rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
+		rand_dlg->Show(true);
 	}
 }
 
@@ -489,9 +525,46 @@ lisa_coord(lisa_coordinator)
 LisaScatterPlotFrame::~LisaScatterPlotFrame()
 {
 	LOG_MSG("In LisaScatterPlotFrame::~LisaScatterPlotFrame");
-	lisa_coord->removeObserver(this);
-	if (HasCapture()) ReleaseMouse();
-	DeregisterAsActive();
+	if (lisa_coord) {
+		lisa_coord->removeObserver(this);
+		lisa_coord = 0;
+	}
+}
+
+void LisaScatterPlotFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+{
+	lisa_coord->SetReuseLastSeed(!lisa_coord->IsReuseLastSeed());
+}
+
+void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+{
+	uint64_t last_seed = lisa_coord->GetLastUsedSeed();
+	wxString m;
+	m << "The last seed used by the pseudo random\nnumber ";
+	m << "generator was " << last_seed << ".\n";
+	m << "Enter a seed value to use between\n0 and ";
+	m << std::numeric_limits<uint64_t>::max() << ".";
+	long long unsigned int val;
+	wxString dlg_val;
+	wxString cur_val;
+	cur_val << last_seed;
+	
+	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	if (dlg.ShowModal() != wxID_OK) return;
+	dlg_val = dlg.GetValue();
+	dlg_val.Trim(true);
+	dlg_val.Trim(false);
+	if (dlg_val.IsEmpty()) return;
+	if (dlg_val.ToULongLong(&val)) {
+		if (!lisa_coord->IsReuseLastSeed()) lisa_coord->SetLastUsedSeed(true);
+		uint64_t new_seed_val = val;
+		lisa_coord->SetLastUsedSeed(new_seed_val);
+	} else {
+		wxString m;
+		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		dlg.ShowModal();
+	}
 }
 
 void LisaScatterPlotFrame::OnActivate(wxActivateEvent& event)
@@ -594,4 +667,15 @@ void LisaScatterPlotFrame::update(LisaCoordinator* o)
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
 }
+
+void LisaScatterPlotFrame::closeObserver(LisaCoordinator* o)
+{
+	LOG_MSG("In LisaScatterPlotFrame::closeObserver(LisaCoordinator*)");
+	if (lisa_coord) {
+		lisa_coord->removeObserver(this);
+		lisa_coord = 0;
+	}
+	Close(true);
+}
+
 

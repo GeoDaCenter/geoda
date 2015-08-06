@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,26 +22,20 @@ Main module to solve a ML estimation problem with the characteristic polynomial 
 test functionality for solving sparse polynomial problem
 The IDE project should also include SLStream.cpp
  */
-#include <wx/wxprec.h>
 
+#include <time.h>
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
-
-#include <wx/gauge.h>
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../ShapeOperations/shp2cnt.h"
+#include "../ShapeOperations/GwtWeight.h"
 #include "mix.h"
-
 #include "Lite2.h"
 #include "Weights.h"
 #include "PowerLag.h"
-
 #include "polym.h"
-#include <time.h>
-#include "../logger.h"
 #include "ML_im.h"
+#include "../logger.h"
 
 // use __WXMAC__ to call vecLib
 //#ifdef WORDS_BIGENDIAN
@@ -69,6 +63,7 @@ The IDE project should also include SLStream.cpp
 
 #define tol 1e-14
 
+#define geoda_sqr(x) ( (x) * (x) )
 
 /* Template to compute value of the poynomial for any value.
      P(x) = a0 + a1*x + a2*x^2 + a3*x^3 + ... + aN*x^N
@@ -663,7 +658,8 @@ void householder(Iterator<WVector> a, double * diag, double * off)
 * optionally, might perform row-standardization of the spatial weights, but the matrix
 * remains intact.
 */
-void SpatialLag(Iterator<WMap> mt, const WIterator v, WVector &lag, bool need_std = false)  {
+void SpatialLag(Iterator<WMap> mt, const WIterator v, WVector &lag,
+				bool need_std = false)  {
     lag.reset();
     for ( ; mt; ++mt)  {
         double lag_value = Product( (*mt)(), v);
@@ -677,7 +673,8 @@ void SpatialLag(Iterator<WMap> mt, const WIterator v, WVector &lag, bool need_st
 * optionally, might perform row-standardization of the spatial weights, but the matrix
 * remains intact.
 */
-void SpatialLag(Iterator<WVector> mt, const WIterator v, WVector &lag, bool need_std = false)  {
+void SpatialLag(Iterator<WVector> mt, const WIterator v, WVector &lag,
+				bool need_std = false)  {
     lag.reset();
     for ( ; mt; ++mt)  {
         double lag_value = Product( (*mt)(), v);
@@ -1063,8 +1060,6 @@ VALUE Converge(const VALUE left, const VALUE middle, const VALUE right, WVector 
 
 #include "SparseVector.h"
 #include "DenseVector.h"
-#include "Link.h"
-#include "SparseRow.h"
 #include "SparseMatrix.h"
 #include "DenseMatrix.h"
 
@@ -2350,7 +2345,7 @@ double SmallSimulationError(Weights &W,
 		double *work = new double [lwork];
 		for (row = 0; row < dim; row++) {
 			for (column = row; column < dim; column++) {
-				LOG(sym[row][column]);
+				//LOG(sym[row][column]);
 				a[row + column * (column + 1) / 2] = sym[row][column];
 			}
 		}

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,16 +27,15 @@
 
 #include <wx/gauge.h>
 #include "../logger.h"
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../ShapeOperations/shp2cnt.h"
+#include "../ShapeOperations/GalWeight.h"
 
 #include "mix.h"
-
 #include "Lite2.h"
 #include "ML_im.h"
 #include "smile.h"
 #include "../Regression/DiagnosticReport.h"
+
+#define geoda_sqr(x) ( (x) * (x) )
 
 extern double fprob (int dfnum, int dfden, double F);
 extern double* JarqueBera(double* e, long n, long k);
@@ -107,7 +106,6 @@ extern double product(const double * v1, const double * v2, const int &sz);
 extern double cdf(double x);
 extern float betai(float a, float b, float x);
 extern double MC_Condition_Number(double**, int,int);
-extern void DevFromMean(int, double*);
 extern double *BP_Test(double *resid, int obs, double** X, int expl,
 					   bool InclConst);
 extern double *WhiteTest(int obs, int nvar, double* resid, double** X,
@@ -126,7 +124,7 @@ void MakeFastLookupMat(const GalElement *g, int dim,
 	g_lookup.resize(dim);
     for (int cnt = 0; cnt < dim; ++cnt) {
         for (int cp = 0; cp < g[cnt].Size(); ++cp) {
-			g_lookup[cnt].insert(g[cnt].elt(cp));
+			g_lookup[cnt].insert(g[cnt][cp]);
 		}
 	}
 }
@@ -145,10 +143,10 @@ double T(const GalElement *g, int dim,
 		
 	for (cnt = 0; cnt < dim; ++cnt) {
         for (cp = 0; cp < g[cnt].Size(); ++cp) {
-			if ( g_lookup[g[cnt].elt(cp)].find(cnt) 
-				!= g_lookup[g[cnt].elt(cp)].end() )
+			if ( g_lookup[g[cnt][cp]].find(cnt) 
+				!= g_lookup[g[cnt][cp]].end() )
 			{ // check if transpose element exists (ie, non-zero)
-				sum += (1.0/g[cnt].Size()/g[ g[cnt].elt(cp) ].Size());
+				sum += (1.0/g[cnt].Size()/g[ g[cnt][cp] ].Size());
 			}
 		}
 	}
@@ -619,6 +617,21 @@ extern void run1(SparseMatrix &w,
 
 bool SymMatInverse(double ** mt, const int dim);
 
+
+void DevFromMean(int nObs, double* RawData)
+{
+	double sumX = 0.0;
+	int cnt = 0;
+	for (cnt= 0; cnt < nObs; ++cnt) 
+	{
+		sumX += RawData[cnt];
+	}
+	const double  meanX = sumX / nObs;
+	for (cnt= 0; cnt < nObs; ++cnt)
+	{
+		RawData[cnt] -= meanX;
+	}
+}
 
 // yuntien: August 2005
 // Regression

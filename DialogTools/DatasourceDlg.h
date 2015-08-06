@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -38,14 +38,14 @@ class DatasourceDlg : public wxDialog
 protected:
     enum DS_IDS
     {
-        ID_DS_START=1001,
-        ID_DS_END = ID_DS_START + 1,
+        ID_DS_START=1001
     };
     
 public:
     DatasourceDlg(){}
     virtual ~DatasourceDlg(){}
-   
+	virtual void OnOkClick( wxCommandEvent& event ) = 0;
+	
 protected:
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
@@ -73,9 +73,6 @@ public:
     void BrowseDataSource( wxCommandEvent& event );
 	wxString GetProjectTitle();
     wxString GetLayerName();
-
-    
-    virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
 protected:
     wxString DBTYPE_ORACLE;

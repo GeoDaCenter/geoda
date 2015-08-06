@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,13 +34,14 @@
 #include "../FramesManager.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../Project.h"
 #include "../SaveButtonManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
 #include "../DataViewer/TimeState.h"
 #include "../Explore/CatClassifState.h"
-#include "../Generic/HighlightState.h"
+#include "../HighlightState.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "../logger.h"
 #include "CatClassifDlg.h"
@@ -66,16 +67,15 @@ CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
 								   TemplateFrame* t_frame,
 								   Project* project_s,
 								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), num_obs(project_s->GetNumRecords()),
-highlight_state(project_s->GetHighlightState()),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+num_obs(project_s->GetNumRecords()),
 y_axis(0), data(0), default_data(project_s->GetNumRecords()),
 breaks(0), default_breaks(default_intervals-1),
 colors(0), default_colors(default_intervals)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering CatClassifHistCanvas::CatClassifHistCanvas");
-	template_frame = t_frame;
 
 	cur_intervals = default_intervals;
 	
@@ -132,8 +132,7 @@ void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	// The position passed in is the mouse position relative to
 	// the canvas window, not the parent frame.  This is corrected
 	// by adding the position of the canvas relative to its parent
-	template_frame->PopupMenu(optMenu,
-							  wxPoint(GetPosition().x + pos.x, pos.y));
+	template_frame->PopupMenu(optMenu, pos  + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting CatClassifHistCanvas::DisplayRightClickMenu");
 }
@@ -175,7 +174,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
-		GenUtils::StandardizeRect(sel1, sel2, lower_left, upper_right);
+		GenGeomAlgs::StandardizeRect(sel1, sel2, lower_left, upper_right);
 	}
 	if (!shiftdown) {
 		bool any_selected = false;
@@ -183,7 +182,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
-				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
+				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right))) {
 					 //LOG_MSG(wxString::Format("ival %d selected", i));
 					 any_selected = true;
@@ -194,7 +193,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 				 }
 		}
 		if (!any_selected) {
-			highlight_state->SetEventType(HighlightState::unhighlight_all);
+			highlight_state->SetEventType(HLStateInt::unhighlight_all);
 			highlight_state->notifyObservers();
 			return;
 		}
@@ -204,7 +203,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
-						  GenUtils::RectsIntersect(rec->lower_left,
+						  GenGeomAlgs::RectsIntersect(rec->lower_left,
 												   rec->upper_right,
 												   lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
@@ -264,14 +263,14 @@ void CatClassifHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 }
 
 /** Override of TemplateCanvas method. */
-void CatClassifHistCanvas::update(HighlightState* o)
+void CatClassifHistCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering CatClassifHistCanvas::update");
 	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
-	HighlightState::EventType type = highlight_state->GetEventType();
+	HLStateInt::EventType type = highlight_state->GetEventType();
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -431,12 +430,12 @@ void CatClassifHistCanvas::InitIntervals()
 
 void CatClassifHistCanvas::UpdateIvalSelCnts()
 {
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::unhighlight_all) {
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::unhighlight_all) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 0;
 		}
-	} else if (type == HighlightState::delta) {
+	} else if (type == HLStateInt::delta) {
 		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
 		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
@@ -448,7 +447,7 @@ void CatClassifHistCanvas::UpdateIvalSelCnts()
 		for (int i=0; i<nuh_cnt; i++) {
 			ival_obs_sel_cnt[obs_id_to_ival[nuh[i]]]--;
 		}
-	} else if (type == HighlightState::invert) {
+	} else if (type == HLStateInt::invert) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 
 			ival_obs_cnt[i] - ival_obs_sel_cnt[i];
@@ -2164,8 +2163,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	canvas = new CatClassifHistCanvas(spliter_vert, this, project);
 	template_canvas = canvas;
 	panel = new CatClassifPanel(project, canvas, spliter_vert, wxID_ANY);
-	canvas->template_frame = this;
-	panel->template_frame = this;
 	spliter_vert->SplitVertically(panel, canvas);
 	spliter_vert->SetMinimumPaneSize(20);
 	SetMinSize(wxSize(600,500));
@@ -2219,7 +2216,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 								preview_var_choice, preview_var_tm_choice,
 								sync_vars_chk, wxID_ANY,
 								wxDefaultPosition, wxDefaultSize);
-	canvas->template_frame = this;
 	panel->template_frame = this;
 
 	wxBoxSizer* r_sizer = new wxBoxSizer(wxVERTICAL);

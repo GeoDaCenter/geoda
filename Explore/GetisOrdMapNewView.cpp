@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,6 +23,8 @@
 #include <vector>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/msgdlg.h>
+#include <wx/textdlg.h>
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../GeneralWxUtils.h"
@@ -34,15 +36,15 @@
 #include "GStatCoordinator.h"
 #include "GetisOrdMapNewView.h"
 
-IMPLEMENT_CLASS(GetisOrdMapNewCanvas, MapNewCanvas)
-BEGIN_EVENT_TABLE(GetisOrdMapNewCanvas, MapNewCanvas)
+IMPLEMENT_CLASS(GetisOrdMapCanvas, MapCanvas)
+BEGIN_EVENT_TABLE(GetisOrdMapCanvas, MapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-GetisOrdMapNewCanvas::GetisOrdMapNewCanvas(wxWindow *parent,
+GetisOrdMapCanvas::GetisOrdMapCanvas(wxWindow *parent,
 										   TemplateFrame* t_frame,
 										   Project* project,
 										   GStatCoordinator* gs_coordinator,
@@ -51,15 +53,15 @@ GetisOrdMapNewCanvas::GetisOrdMapNewCanvas(wxWindow *parent,
 										   bool row_standardize_s,
 										   const wxPoint& pos,
 										   const wxSize& size)
-: MapNewCanvas(parent, t_frame, project,
-			   std::vector<GeoDaVarInfo>(0), std::vector<int>(0),
+: MapCanvas(parent, t_frame, project,
+			   std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
 			   CatClassification::no_theme,
-			   no_smoothing, 1, pos, size),
+			   no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 gs_coord(gs_coordinator),
 is_gi(is_gi_s), is_clust(is_clust_s), is_perm(is_perm_s),
 row_standardize(row_standardize_s)
 {
-	LOG_MSG("Entering GetisOrdMapNewCanvas::GetisOrdMapNewCanvas");
+	LOG_MSG("Entering GetisOrdMapCanvas::GetisOrdMapCanvas");
 	
 	if (is_clust) {
 		cat_classif_def.cat_classif_type
@@ -77,21 +79,20 @@ row_standardize(row_standardize_s)
 	}
 	CreateAndUpdateCategories();
 	
-	LOG_MSG("Exiting GetisOrdMapNewCanvas::GetisOrdMapNewCanvas");
+	LOG_MSG("Exiting GetisOrdMapCanvas::GetisOrdMapCanvas");
 }
 
-GetisOrdMapNewCanvas::~GetisOrdMapNewCanvas()
+GetisOrdMapCanvas::~GetisOrdMapCanvas()
 {
-	LOG_MSG("Entering GetisOrdMapNewCanvas::~GetisOrdMapNewCanvas");
-	LOG_MSG("Exiting GetisOrdMapNewCanvas::~GetisOrdMapNewCanvas");
+	LOG_MSG("In GetisOrdMapCanvas::~GetisOrdMapCanvas");
 }
 
-void GetisOrdMapNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
+void GetisOrdMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering GetisOrdMapNewCanvas::DisplayRightClickMenu");
+	LOG_MSG("Entering GetisOrdMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((GetisOrdMapNewFrame*) template_frame)->OnActivate(ae);
+	((GetisOrdMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
@@ -99,12 +100,12 @@ void GetisOrdMapNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting MapNewCanvas::DisplayRightClickMenu");
+	LOG_MSG("Exiting MapCanvas::DisplayRightClickMenu");
 }
 
-wxString GetisOrdMapNewCanvas::GetCanvasTitle()
+wxString GetisOrdMapCanvas::GetCanvasTitle()
 {
 	wxString new_title;
 	new_title << (is_gi ? "Gi " : "Gi* ");
@@ -122,23 +123,23 @@ wxString GetisOrdMapNewCanvas::GetCanvasTitle()
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by GetisOrd maps */
-bool GetisOrdMapNewCanvas::ChangeMapType(CatClassification::CatClassifType new_theme,
+bool GetisOrdMapCanvas::ChangeMapType(CatClassification::CatClassifType new_theme,
 										 SmoothingType new_smoothing)
 {
-	LOG_MSG("In GetisOrdMapNewCanvas::ChangeMapType");
+	LOG_MSG("In GetisOrdMapCanvas::ChangeMapType");
 	return false;
 }
 
-void GetisOrdMapNewCanvas::SetCheckMarks(wxMenu* menu)
+void GetisOrdMapCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
 	
-	MapNewCanvas::SetCheckMarks(menu);
+	MapCanvas::SetCheckMarks(menu);
 	
-	int sig_filter = ((GetisOrdMapNewFrame*) template_frame)->
+	int sig_filter = ((GetisOrdMapFrame*) template_frame)->
 		GetGStatCoordinator()->GetSignificanceFilter();
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_05"),
@@ -154,9 +155,9 @@ void GetisOrdMapNewCanvas::SetCheckMarks(wxMenu* menu)
 								  gs_coord->IsReuseLastSeed());
 }
 
-void GetisOrdMapNewCanvas::TimeChange()
+void GetisOrdMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering GetisOrdMapNewCanvas::TimeChange");
+	LOG_MSG("Entering GetisOrdMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -183,11 +184,11 @@ void GetisOrdMapNewCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting GetisOrdMapNewCanvas::TimeChange");
+	LOG_MSG("Exiting GetisOrdMapCanvas::TimeChange");
 }
 
 /** Update Categories based on info in GStatCoordinator */
-void GetisOrdMapNewCanvas::CreateAndUpdateCategories()
+void GetisOrdMapCanvas::CreateAndUpdateCategories()
 {
 	SyncVarInfoFromCoordinator();
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
@@ -315,9 +316,9 @@ void GetisOrdMapNewCanvas::CreateAndUpdateCategories()
 	PopulateCanvas();
 }
 
-void GetisOrdMapNewCanvas::TimeSyncVariableToggle(int var_index)
+void GetisOrdMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In GetisOrdMapNewCanvas::TimeSyncVariableToggle");
+	LOG_MSG("In GetisOrdMapCanvas::TimeSyncVariableToggle");
 	gs_coord->var_info[var_index].sync_with_global_time =
 	!gs_coord->var_info[var_index].sync_with_global_time;
 	for (int i=0; i<var_info.size(); i++) {
@@ -331,7 +332,7 @@ void GetisOrdMapNewCanvas::TimeSyncVariableToggle(int var_index)
 /** Copy everything in var_info except for current time field for each
  variable.  Also copy over is_any_time_variant, is_any_sync_with_global_time,
  ref_var_index, num_time_vales, map_valid and map_error_message */
-void GetisOrdMapNewCanvas::SyncVarInfoFromCoordinator()
+void GetisOrdMapCanvas::SyncVarInfoFromCoordinator()
 {
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
@@ -349,22 +350,22 @@ void GetisOrdMapNewCanvas::SyncVarInfoFromCoordinator()
 	map_error_message = gs_coord->map_error_message;
 }
 
-IMPLEMENT_CLASS(GetisOrdMapNewFrame, MapNewFrame)
-	BEGIN_EVENT_TABLE(GetisOrdMapNewFrame, MapNewFrame)
-	EVT_ACTIVATE(GetisOrdMapNewFrame::OnActivate)
+IMPLEMENT_CLASS(GetisOrdMapFrame, MapFrame)
+	BEGIN_EVENT_TABLE(GetisOrdMapFrame, MapFrame)
+	EVT_ACTIVATE(GetisOrdMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-GetisOrdMapNewFrame::GetisOrdMapNewFrame(wxFrame *parent, Project* project,
+GetisOrdMapFrame::GetisOrdMapFrame(wxFrame *parent, Project* project,
 										 GStatCoordinator* gs_coordinator,
 										 GMapType map_type_s,
 										 bool row_standardize_s,
 										 const wxPoint& pos, const wxSize& size,
 										 const long style)
-: MapNewFrame(parent, project, pos, size, style),
+: MapFrame(parent, project, pos, size, style),
 gs_coord(gs_coordinator), map_type(map_type_s),
 row_standardize(row_standardize_s)
 {
-	LOG_MSG("Entering GetisOrdMapNewFrame::GetisOrdMapNewFrame");
+	LOG_MSG("Entering GetisOrdMapFrame::GetisOrdMapFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -384,7 +385,7 @@ row_standardize(row_standardize_s)
 			   map_type == GiStar_clus_perm || map_type == GiStar_sig_perm);
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
-	template_canvas = new GetisOrdMapNewCanvas(rpanel, this, project,
+	template_canvas = new GetisOrdMapCanvas(rpanel, this, project,
 											   gs_coordinator,
 											   is_gi, is_clust, is_perm,
 											   row_standardize,
@@ -409,62 +410,71 @@ row_standardize(row_standardize_s)
 	
 	gs_coord->registerObserver(this);
     
+    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
+    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    SetupToolbar();
+	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+	toolbar_panel->SetSizerAndFit(toolbar_sizer);
+    
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL); 
+	sizer->Add(splitter_win, 1, wxEXPAND|wxALL); 
     SetSizer(sizer);
-    splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
+   
     DisplayStatusBar(true);
 	Show(true);
-	LOG_MSG("Exiting GetisOrdMapNewFrame::GetisOrdMapNewFrame");
+	LOG_MSG("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
 }
 
-GetisOrdMapNewFrame::~GetisOrdMapNewFrame()
+GetisOrdMapFrame::~GetisOrdMapFrame()
 {
-	LOG_MSG("In GetisOrdMapNewFrame::~GetisOrdMapNewFrame");
-	gs_coord->removeObserver(this);
-	if (HasCapture()) ReleaseMouse();
-	DeregisterAsActive();
+	LOG_MSG("In GetisOrdMapFrame::~GetisOrdMapFrame");
+	if (gs_coord) {
+		gs_coord->removeObserver(this);
+		gs_coord = 0;
+	}
 }
 
-void GetisOrdMapNewFrame::OnActivate(wxActivateEvent& event)
+void GetisOrdMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In GetisOrdMapNewFrame::OnActivate");
+	LOG_MSG("In GetisOrdMapFrame::OnActivate");
 	if (event.GetActive()) {
-		RegisterAsActive("GetisOrdMapNewFrame", GetTitle());
+		RegisterAsActive("GetisOrdMapFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
-void GetisOrdMapNewFrame::MapMenus()
+void GetisOrdMapFrame::MapMenus()
 {
-	LOG_MSG("In GetisOrdMapNewFrame::MapMenus");
+	LOG_MSG("In GetisOrdMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 	LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
-	((MapNewCanvas*) template_canvas)->
+	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
-	((MapNewCanvas*) template_canvas)->SetCheckMarks(optMenu);
+	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
 }
 
-void GetisOrdMapNewFrame::UpdateOptionMenuItems()
+void GetisOrdMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("GetisOrdMapNewFrame::UpdateOptionMenuItems: "
+        LOG_MSG("GetisOrdMapFrame::UpdateOptionMenuItems: "
 				"Options menu not found");
 	} else {
-		((GetisOrdMapNewCanvas*) template_canvas)->
+		((GetisOrdMapCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
-void GetisOrdMapNewFrame::UpdateContextMenuItems(wxMenu* menu)
+void GetisOrdMapFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -474,7 +484,7 @@ void GetisOrdMapNewFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-void GetisOrdMapNewFrame::RanXPer(int permutation)
+void GetisOrdMapFrame::RanXPer(int permutation)
 {
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
@@ -483,27 +493,27 @@ void GetisOrdMapNewFrame::RanXPer(int permutation)
 	gs_coord->notifyObservers();
 }
 
-void GetisOrdMapNewFrame::OnRan99Per(wxCommandEvent& event)
+void GetisOrdMapFrame::OnRan99Per(wxCommandEvent& event)
 {
 	RanXPer(99);
 }
 
-void GetisOrdMapNewFrame::OnRan199Per(wxCommandEvent& event)
+void GetisOrdMapFrame::OnRan199Per(wxCommandEvent& event)
 {
 	RanXPer(199);
 }
 
-void GetisOrdMapNewFrame::OnRan499Per(wxCommandEvent& event)
+void GetisOrdMapFrame::OnRan499Per(wxCommandEvent& event)
 {
 	RanXPer(499);
 }
 
-void GetisOrdMapNewFrame::OnRan999Per(wxCommandEvent& event)
+void GetisOrdMapFrame::OnRan999Per(wxCommandEvent& event)
 {
 	RanXPer(999);  
 }
 
-void GetisOrdMapNewFrame::OnRanOtherPer(wxCommandEvent& event)
+void GetisOrdMapFrame::OnRanOtherPer(wxCommandEvent& event)
 {
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
@@ -513,12 +523,12 @@ void GetisOrdMapNewFrame::OnRanOtherPer(wxCommandEvent& event)
 	}
 }
 
-void GetisOrdMapNewFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+void GetisOrdMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
 	gs_coord->SetReuseLastSeed(!gs_coord->IsReuseLastSeed());
 }
 
-void GetisOrdMapNewFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
 	uint64_t last_seed = gs_coord->GetLastUsedSeed();
 	wxString m;
@@ -549,7 +559,7 @@ void GetisOrdMapNewFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	}
 }
 
-void GetisOrdMapNewFrame::SetSigFilterX(int filter)
+void GetisOrdMapFrame::SetSigFilterX(int filter)
 {
 	if (filter == gs_coord->GetSignificanceFilter()) return;
 	gs_coord->SetSignificanceFilter(filter);
@@ -557,27 +567,27 @@ void GetisOrdMapNewFrame::SetSigFilterX(int filter)
 	UpdateOptionMenuItems();
 }
 
-void GetisOrdMapNewFrame::OnSigFilter05(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSigFilter05(wxCommandEvent& event)
 {
 	SetSigFilterX(1);
 }
 
-void GetisOrdMapNewFrame::OnSigFilter01(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSigFilter01(wxCommandEvent& event)
 {
 	SetSigFilterX(2);
 }
 
-void GetisOrdMapNewFrame::OnSigFilter001(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSigFilter001(wxCommandEvent& event)
 {
 	SetSigFilterX(3);
 }
 
-void GetisOrdMapNewFrame::OnSigFilter0001(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSigFilter0001(wxCommandEvent& event)
 {
 	SetSigFilterX(4);
 }
 
-void GetisOrdMapNewFrame::OnSaveGetisOrd(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 {
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	wxString title = "Save Results: ";
@@ -648,7 +658,7 @@ void GetisOrdMapNewFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-void GetisOrdMapNewFrame::CoreSelectHelper(const std::vector<bool>& elem)
+void GetisOrdMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
@@ -665,16 +675,16 @@ void GetisOrdMapNewFrame::CoreSelectHelper(const std::vector<bool>& elem)
 		}
 	}
 	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetEventType(HighlightState::delta);
+		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
 }
 
-void GetisOrdMapNewFrame::OnSelectCores(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapNewFrame::OnSelectCores");
+	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCores");
 		
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -687,12 +697,12 @@ void GetisOrdMapNewFrame::OnSelectCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapNewFrame::OnSelectCores");
+	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCores");
 }
 
-void GetisOrdMapNewFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapNewFrame::OnSelectNeighborsOfCores");
+	LOG_MSG("Entering GetisOrdMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -705,7 +715,7 @@ void GetisOrdMapNewFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 			elem[i] = true;
 			const GalElement& e = gs_coord->W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
-				elem[e.elt(j)] = true;
+				elem[e[j]] = true;
 			}
 		}
 	}
@@ -717,12 +727,12 @@ void GetisOrdMapNewFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);	
 	
-	LOG_MSG("Exiting GetisOrdMapNewFrame::OnSelectNeighborsOfCores");
+	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectNeighborsOfCores");
 }
 
-void GetisOrdMapNewFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
+void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapNewFrame::OnSelectCoresAndNeighbors");
+	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -735,13 +745,13 @@ void GetisOrdMapNewFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 			elem[i] = true;
 			const GalElement& e = gs_coord->W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
-				elem[e.elt(j)] = true;
+				elem[e[j]] = true;
 			}
 		}
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapNewFrame::OnSelectCoresAndNeighbors");
+	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 }
 
 /** Called by GStatCoordinator to notify that state has changed.  State changes
@@ -749,12 +759,22 @@ void GetisOrdMapNewFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
  - variable sync change and therefore all Gi categories have changed
  - significance level has changed and therefore categories have changed
  - new randomization for p-vals and therefore categories have changed */
-void GetisOrdMapNewFrame::update(GStatCoordinator* o)
+void GetisOrdMapFrame::update(GStatCoordinator* o)
 {
-	GetisOrdMapNewCanvas* lc = (GetisOrdMapNewCanvas*) template_canvas;
+	GetisOrdMapCanvas* lc = (GetisOrdMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
 	if (template_legend) template_legend->Refresh();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
+}
+
+void GetisOrdMapFrame::closeObserver(GStatCoordinator* o)
+{
+	LOG_MSG("In GetisOrdMapFrame::closeObserver(GStatCoordinator*)");
+	if (gs_coord) {
+		gs_coord->removeObserver(this);
+		gs_coord = 0;
+	}
+	Close(true);
 }

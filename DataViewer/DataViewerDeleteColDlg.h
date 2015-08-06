@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <wx/choice.h>
+#include <wx/listbox.h>
 #include <wx/stattext.h>
 #include <wx/dialog.h>
 #include "TableInterface.h"
@@ -38,9 +39,10 @@ public:
 	void InitFieldChoices();
 	
 	wxButton* m_del_button;
-	wxChoice* m_field;
+	wxListBox* m_field;
 	wxStaticText* m_message;
 	TableInterface* table_int;
+    wxArrayString items;
 
 private:
 	// a mapping from displayed col order to actual col ids in table

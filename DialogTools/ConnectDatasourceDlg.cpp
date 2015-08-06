@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -42,8 +42,8 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"),
                ConnectDatasourceDlg::OnLookupDSTableBtn)
-	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"),
-               ConnectDatasourceDlg::OnLookupWSLayerBtn)
+	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"),
+    //           ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
 END_EVENT_TABLE()
 
@@ -51,7 +51,7 @@ using namespace std;
 
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 										   const wxSize& size)
-:datasource(NULL)
+:datasource(0)
 {
     // init controls defined in parent class
     DatasourceDlg::Init();
@@ -61,16 +61,13 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetPosition(pos);
 	Centre();
     
-    Bind( wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
 }
 
 ConnectDatasourceDlg::~ConnectDatasourceDlg()
 {
-    if ( datasource != NULL ) {
-        delete datasource;
-        datasource = NULL;
-    }
+	if (datasource) delete datasource;
 }
 
 void ConnectDatasourceDlg::CreateControls()
@@ -80,16 +77,17 @@ void ConnectDatasourceDlg::CreateControls()
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
 	m_webservice_url = XRCCTRL(*this, "IDC_CDS_WS_URL",AutoTextCtrl);
-	m_database_lookup_table =
-        XRCCTRL(*this, "ID_BTN_LOOKUP_TABLE", wxBitmapButton);
-	m_database_lookup_wslayer =
-        XRCCTRL(*this, "ID_BTN_LOOKUP_WSLAYER", wxBitmapButton);
+	m_database_lookup_table = XRCCTRL(*this, "ID_BTN_LOOKUP_TABLE", 
+									  wxBitmapButton);
+	//m_database_lookup_wslayer = XRCCTRL(*this, "ID_BTN_LOOKUP_WSLAYER", 
+	//									wxBitmapButton);
 	m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE", wxTextCtrl);
+	
     // create controls defined in parent class
     DatasourceDlg::CreateControls();
+	
     // setup WSF auto-completion
-	std::vector<std::string> ws_url_cands =
-        OGRDataAdapter::GetInstance().GetHistory("ws_url");
+	std::vector<std::string> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
 	m_webservice_url->SetAutoList(ws_url_cands);
 }
 
@@ -177,8 +175,10 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             throw GdaException(msg.mb_str());
         }
 		// At this point, there is a valid datasource and layername.
-        if (layer_name.IsEmpty()) layer_name = layername;
+        if (layer_name.IsEmpty()) 
+			layer_name = layername;
         EndDialog(wxID_OK);
+		
 	} catch (GdaException& e) {
 		wxString msg;
 		msg << e.what();
@@ -215,7 +215,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 			throw GdaException(
                 wxString("Please select a datasource file.").mb_str());
 		}
-#ifdef _WIN64 || __amd64__
+#if defined(_WIN64) || defined(__amd64__)
         if (m_ds_filepath_txt->GetValue().StartsWith("PGeo:")) {
 			fn = "PGeo:" + fn;
 		}

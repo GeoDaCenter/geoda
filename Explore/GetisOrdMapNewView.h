@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,21 +23,21 @@
 #include "../GdaConst.h"
 #include "MapNewView.h"
 
-class GetisOrdMapNewFrame;
-class GetisOrdMapNewCanvas;
+class GetisOrdMapFrame;
+class GetisOrdMapCanvas;
 class GStatCoordinator;
 
-class GetisOrdMapNewCanvas : public MapNewCanvas
+class GetisOrdMapCanvas : public MapCanvas
 {
-	DECLARE_CLASS(GetisOrdMapNewCanvas)
+	DECLARE_CLASS(GetisOrdMapCanvas)
 public:
-	GetisOrdMapNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
+	GetisOrdMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 						 Project* project, GStatCoordinator* gs_coordinator,
 						 bool is_gi, bool is_clust, bool is_perm,
 						 bool row_standardize_weights,
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = wxDefaultSize);
-	virtual ~GetisOrdMapNewCanvas();
+	virtual ~GetisOrdMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
@@ -58,9 +58,9 @@ protected:
 	DECLARE_EVENT_TABLE()
 };
 
-class GetisOrdMapNewFrame : public MapNewFrame
+class GetisOrdMapFrame : public MapFrame
 {
-	DECLARE_CLASS(GetisOrdMapNewFrame)
+	DECLARE_CLASS(GetisOrdMapFrame)
 public:
 	enum GMapType {
 		Gi_clus_perm = 0,		// G_i, cluster, permutation
@@ -73,19 +73,19 @@ public:
 		GiStar_sig_norm = 7,	// G_i_star, significance, normal_dist
 	};
 	
-    GetisOrdMapNewFrame(wxFrame *parent, Project* project,
+	GetisOrdMapFrame(wxFrame *parent, Project* project,
 						GStatCoordinator* gs_coordinator,
 						GMapType map_type,
 						bool row_standardize_weights,
 						const wxPoint& pos = wxDefaultPosition,
 						const wxSize& size = GdaConst::map_default_size,
 						const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~GetisOrdMapNewFrame();
+	virtual ~GetisOrdMapFrame();
 	
-    void OnActivate(wxActivateEvent& event);
+	void OnActivate(wxActivateEvent& event);
 	virtual void MapMenus();
-    virtual void UpdateOptionMenuItems();
-    virtual void UpdateContextMenuItems(wxMenu* menu);
+	virtual void UpdateOptionMenuItems();
+	virtual void UpdateContextMenuItems(wxMenu* menu);
 	
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
@@ -109,7 +109,8 @@ public:
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 	
-	void update(GStatCoordinator* o);
+	virtual void update(GStatCoordinator* o);
+	virtual void closeObserver(GStatCoordinator* o);
 	GStatCoordinator* GetGStatCoordinator() { return gs_coord; }
 	
 	GMapType map_type;
@@ -122,7 +123,7 @@ protected:
 	bool is_perm; // true = pseudo-p-val, false = normal distribution p-val
 	bool row_standardize; // true = row standardize, false = binary
 	
-    DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
 

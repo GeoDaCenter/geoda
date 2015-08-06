@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,7 @@
 #ifndef __GEODA_CENTER_CREATE_GRID_DLG_H__
 #define __GEODA_CENTER_CREATE_GRID_DLG_H__
 
-#include "../ShapeOperations/shp2gwt.h"
+#include "../ShapeOperations/Box.h"
 
 class CreateGridDlg: public wxDialog
 {    

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -341,6 +341,16 @@ GdaConst::FieldType DbfTable::GetColType(int col)
 	return type;
 }
 
+std::vector<GdaConst::FieldType> DbfTable::GetColTypes(int col)
+{
+	size_t ts = GetColTimeSteps(col);
+	std::vector<GdaConst::FieldType> ret(ts);
+	for (size_t t=0; t<ts; ++t) {
+		ret[t] = GetColType(col, t);
+	}
+	return ret;
+}
+
 GdaConst::FieldType DbfTable::GetColType(int col, int time)
 {
 	DbfColContainer* c = FindDbfCol(col, time);
@@ -413,24 +423,68 @@ void DbfTable::GetColData(int col, GdaFlexValue& data)
 	}	
 }
 
-void DbfTable::GetColData(int col, d_array_type& dbl_data)
+void DbfTable::GetColData(int col, d_array_type& data)
 {
 	if (col < 0 || col >= var_order.GetNumVarGroups()
 		|| !IsColNumeric(col)) return;
 	std::vector<DbfColContainer*> cols;
 	GetDbfCols(col, cols);
 	size_t tms = cols.size();
-	dbl_data.resize(boost::extents[tms][rows]);
+	data.resize(boost::extents[tms][rows]);
 	std::vector<double> vec;
 	for (size_t t=0; t<tms; ++t) {
 		if (cols[t]) {
 			cols[t]->CheckUndefined();
 			cols[t]->GetVec(vec);
 			for (size_t i=0; i<rows; i++) {
-				dbl_data[t][i] = cols[t]->undefined[i] ? 0 : vec[i];
+				data[t][i] = cols[t]->undefined[i] ? 0 : vec[i];
 			}
 		} else {
-			for (size_t i=0; i<rows; i++) dbl_data[t][i] = 0;
+			for (size_t i=0; i<rows; i++) data[t][i] = 0;
+		}
+	}
+}
+
+void DbfTable::GetColData(int col, l_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()
+		|| !IsColNumeric(col)) return;
+	std::vector<DbfColContainer*> cols;
+	GetDbfCols(col, cols);
+	size_t tms = cols.size();
+	data.resize(boost::extents[tms][rows]);
+	std::vector<wxInt64> vec;
+	for (size_t t=0; t<tms; ++t) {
+		if (cols[t]) {
+			cols[t]->CheckUndefined();
+			cols[t]->GetVec(vec);
+			for (size_t i=0; i<rows; i++) {
+				data[t][i] = cols[t]->undefined[i] ? 0 : vec[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; i++) data[t][i] = 0;
+		}
+	}
+}
+
+void DbfTable::GetColData(int col, s_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()
+		|| !IsColNumeric(col)) return;
+	std::vector<DbfColContainer*> cols;
+	GetDbfCols(col, cols);
+	size_t tms = cols.size();
+	data.resize(boost::extents[tms][rows]);
+	std::vector<wxString> vec;
+	for (size_t t=0; t<tms; ++t) {
+		if (cols[t]) {
+			cols[t]->CheckUndefined();
+			cols[t]->GetVec(vec);
+			for (size_t i=0; i<rows; i++) {
+				data[t][i] = cols[t]->undefined[i] ? "" : vec[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; i++) data[t][i] = "";
 		}
 	}
 }
@@ -956,15 +1010,21 @@ int DbfTable::InsertCol(GdaConst::FieldType type, const wxString& name,
 	using namespace std;
 	bool alloc_raw_data = false;
 	bool mark_all_defined = true;
-    if (pos > var_order.GetNumVarGroups()) return -1;
+    if (pos > var_order.GetNumVarGroups())
+        return -1;
+    
     // this case if for appending new column at the end of table
-	if (pos < 0) pos = var_order.GetNumVarGroups();
+	if (pos < 0)
+        pos = var_order.GetNumVarGroups();
+    
 	LOG_MSG(wxString::Format("Inserting column into table at postion %d", pos));
-	if (time_steps <= 0) return -1;
-	if (type != GdaConst::double_type) decimals = 0;
-	if (field_len == -1 &&
-		(type == GdaConst::placeholder_type ||
-		 type == GdaConst::unknown_type)) return -1;
+	if (time_steps <= 0)
+        return -1;
+	if (type != GdaConst::double_type)
+        decimals = 0;
+	if (field_len == -1 && (type == GdaConst::placeholder_type ||
+                            type == GdaConst::unknown_type))
+        return -1;
 	if (field_len == -1) {
 		if (type == GdaConst::double_type) {
 			field_len = GdaConst::default_dbf_double_len;
@@ -984,8 +1044,11 @@ int DbfTable::InsertCol(GdaConst::FieldType type, const wxString& name,
 		}
 	}
 
+    if (name == "geoid2_1") {
+        int test = 1;
+    }
 	vector<wxString> names(SuggestDBColNames(name, name, time_steps));
-	
+
 	GdaConst::FieldInfo info;
 	info.type = type;
 	info.name = name;
@@ -1006,12 +1069,14 @@ int DbfTable::InsertCol(GdaConst::FieldType type, const wxString& name,
 	}
 	
 	VarGroup g(name, decimals);
-	if (time_steps > 1) g.vars = names;
+	if (time_steps > 1)
+        g.vars = names;
 	var_order.InsertVarGroup(g, pos);
 	
 	SetChangedSinceLastSave(true);
 
-    if (decimals < 0) decimals = GdaConst::default_display_decimals;
+    if (decimals < 0)
+        decimals = GdaConst::default_display_decimals;
 	TableDeltaList_type tdl;
 	TableDeltaEntry tde(name, true, pos);
 	tde.pos_final = pos;
@@ -1380,9 +1445,12 @@ bool DbfTable::DbColNmToColAndTm(const wxString& name, int& col, int& tm)
  */
 DbfColContainer* DbfTable::FindDbfCol(int col, int time)
 {
-	std::map<wxString, DbfColContainer*>::iterator i =
-		var_map.find(var_order.GetSimpleColName(col, time));
-	return i == var_map.end() ? 0 : i->second;
+    wxString col_name = var_order.GetSimpleColName(col, time);
+	std::map<wxString, DbfColContainer*>::iterator iter = var_map.find(col_name);
+    if (iter == var_map.end())
+        return 0;
+    else
+        return iter->second;
 }
 
 void DbfTable::GetDbfCols(int col, std::vector<DbfColContainer*>& cols)

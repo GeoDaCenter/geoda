@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,7 +30,7 @@
 #include "DbfColContainer.h"
 #include "TableBase.h"
 #include "TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"
@@ -53,6 +53,7 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_BUTTON( XRCID("wxID_OK"), MergeTableDlg::OnMergeClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), MergeTableDlg::OnCloseClick )
+    EVT_CLOSE( MergeTableDlg::OnClose )
 END_EVENT_TABLE()
 
 using namespace std;
@@ -235,17 +236,38 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
+	map<wxString, int>::iterator it;
+	map<wxString, int> dupKeys;
+	
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
-        key_vec[i].Trim(false);
-        key_vec[i].Trim(true);
-        key_map[key_vec[i]] = i;
+			wxString tmpK = key_vec[i];
+        tmpK.Trim(false);
+        tmpK.Trim(true);
+			if (key_map.find(tmpK) == key_map.end())
+        key_map[tmpK] = i;
+			else {
+				// duplicate key
+				dupKeys[tmpK] = i;
+			}
+
     }
 	
     if (key_vec.size() != key_map.size()) {
         wxString msg;
+        wxInt64 x = 170312427001;
         msg << "Chosen table merge key field " << key_name;
         msg << " contains duplicate values. Key fields must contain all ";
-        msg << "unique values.";
+        msg << "unique values.\n\n" << x;
+			msg << "Duplicated values: ";
+			int count = 0;
+			for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
+				msg << it->first << "\n";
+				count++;
+				if (count > 5)
+					break;
+			}
+			if (count > 5)
+				msg << "...";
         throw GdaException(msg.mb_str());
     }
 }
@@ -268,7 +290,8 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
     if ( bad_merged_field_names.size() + dup_merged_field_names.size() > 0) {
         // show a field name correction dialog
         GdaConst::DataSourceType ds_type = table_int->GetDataSourceType();
-        FieldNameCorrectionDlg fc_dlg(ds_type, merged_fnames_dict,
+        FieldNameCorrectionDlg fc_dlg(ds_type,
+                                      merged_fnames_dict,
                                       merged_field_names,
                                       dup_merged_field_names,
                                       bad_merged_field_names);
@@ -380,7 +403,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         if (ex.type() == GdaException::NORMAL) return;
         wxMessageDialog dlg(this, ex.what(), "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        EndDialog(wxID_CANCEL);
+        //EndDialog(wxID_CANCEL);
         return;
     }
     
@@ -432,8 +455,13 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
-	ev.Skip();
+	//ev.Skip();
 	EndDialog(wxID_CLOSE);
+}
+
+void MergeTableDlg::OnClose( wxCloseEvent& ev) 
+{
+    EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnKeyChoice( wxCommandEvent& ev )

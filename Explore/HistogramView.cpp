@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,6 +34,7 @@
 #include "../DialogTools/HistIntervalDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
@@ -56,20 +57,19 @@ const double HistogramCanvas::interval_width_const = 10;
 const double HistogramCanvas::interval_gap_const = 0;
 
 HistogramCanvas::HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project_s,
-								   const std::vector<GeoDaVarInfo>& v_info,
-								   const std::vector<int>& col_ids,
-								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
+								 Project* project_s,
+								 const std::vector<GdaVarTools::VarInfo>& v_info,
+								 const std::vector<int>& col_ids,
+								 const wxPoint& pos, const wxSize& size)
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
-highlight_state(project_s->GetHighlightState()),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 scale_x_over_time(true), scale_y_over_time(true)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering HistogramCanvas::HistogramCanvas");
-	template_frame = t_frame;	
 	TableInterface* table_int = project->GetTableInt();
 	
 	std::vector<d_array_type> data(v_info.size());
@@ -155,7 +155,7 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting HistogramCanvas::DisplayRightClickMenu");
 }
@@ -239,7 +239,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
-		GenUtils::StandardizeRect(sel1, sel2, lower_left, upper_right);
+		GenGeomAlgs::StandardizeRect(sel1, sel2, lower_left, upper_right);
 	}
 	if (!shiftdown) {
 		bool any_selected = false;
@@ -247,7 +247,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
-				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
+				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right)))
 			{
 				any_selected = true;
@@ -255,7 +255,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 		if (!any_selected) {
-			highlight_state->SetEventType(HighlightState::unhighlight_all);
+			highlight_state->SetEventType(HLStateInt::unhighlight_all);
 			highlight_state->notifyObservers();
 			return;
 		}
@@ -265,7 +265,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
-						  GenUtils::RectsIntersect(rec->lower_left,
+						  GenGeomAlgs::RectsIntersect(rec->lower_left,
 												   rec->upper_right,
 												   lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[t][i] == ival_obs_sel_cnt[t][i]);
@@ -326,7 +326,7 @@ void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 }
 
 /** Override of TemplateCanvas method. */
-void HistogramCanvas::update(HighlightState* o)
+void HistogramCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering HistogramCanvas::update");
 	layer0_valid = false;
@@ -334,6 +334,7 @@ void HistogramCanvas::update(HighlightState* o)
 	layer2_valid = false;
 	UpdateIvalSelCnts();
 	Refresh();
+    UpdateStatusBar();
 	LOG_MSG("Exiting HistogramCanvas::update");	
 }
 
@@ -544,7 +545,7 @@ void HistogramCanvas::TimeChange()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void HistogramCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -561,7 +562,7 @@ void HistogramCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void HistogramCanvas::TimeSyncVariableToggle(int var_index)
@@ -680,14 +681,14 @@ void HistogramCanvas::InitIntervals()
 void HistogramCanvas::UpdateIvalSelCnts()
 {
 	int ts = obs_id_to_ival.shape()[0];	
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::unhighlight_all) {
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::unhighlight_all) {
 		for (int t=0; t<ts; t++) {
 			for (int i=0; i<cur_intervals; i++) {
 				ival_obs_sel_cnt[t][i] = 0;
 			}
 		}
-	} else if (type == HighlightState::delta) {
+	} else if (type == HLStateInt::delta) {
 		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
 		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
@@ -703,7 +704,7 @@ void HistogramCanvas::UpdateIvalSelCnts()
 				ival_obs_sel_cnt[t][obs_id_to_ival[t][nuh[i]]]--;
 			}
 		}
-	} else if (type == HighlightState::invert) {
+	} else if (type == HLStateInt::invert) {
 		for (int t=0; t<ts; t++) {
 			for (int i=0; i<cur_intervals; i++) {
 				ival_obs_sel_cnt[t][i] = 
@@ -734,7 +735,13 @@ void HistogramCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	if (total_hover_obs == 0) {
-		sb->SetStatusText("");
+        if (highlight_state->GetTotalHighlighted()> 0) {
+            wxString s;
+            s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+            sb->SetStatusText(s);
+        } else {
+            sb->SetStatusText("");
+        }
 		return;
 	}
 	int t = var_info[0].time;
@@ -771,7 +778,7 @@ BEGIN_EVENT_TABLE(HistogramFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 HistogramFrame::HistogramFrame(wxFrame *parent, Project* project,
-							   const std::vector<GeoDaVarInfo>& var_info,
+							   const std::vector<GdaVarTools::VarInfo>& var_info,
 							   const std::vector<int>& col_ids,
 							   const wxString& title, const wxPoint& pos,
 							   const wxSize& size, const long style)

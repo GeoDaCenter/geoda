@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,7 +22,7 @@
 
 #include <vector>
 #include <wx/grid.h>
-#include "../Generic/HighlightStateObserver.h"
+#include "../HighlightStateObserver.h"
 #include "TableStateObserver.h"
 #include "TimeStateObserver.h"
 
@@ -32,7 +32,7 @@ class TableState;
 class TimeState;
 class HighlightState;
 
-class TableBase : public TableStateObserver, TimeStateObserver,
+class TableBase : public TableStateObserver, public TimeStateObserver,
 public HighlightStateObserver,  public wxGridTableBase
 {
 public:
@@ -76,7 +76,7 @@ public:
 	virtual wxString GetRowLabelValue(int row);
 	virtual wxString GetColLabelValue(int col);	
 	
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual void update(TableState* o);
 	virtual void update(TimeState* o);
 	virtual bool AllowTimelineChanges() { return true; }

@@ -35,7 +35,7 @@
                 <var>NEIGNO</var>
             </variable_order>
             <custom_classifications/>
-            <spatial_weights/>
+            <weights_entries/>
             <default_vars>
                 <default_var>
                     <name>HOVAL</name>

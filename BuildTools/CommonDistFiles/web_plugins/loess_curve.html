@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<title>D3 Demo: Scatterplot</title>
+			<script type="text/javascript" src="d3/d3.min.js"></script>
+			<script type="text/javascript" src="geoda.js"></script>
+			<script> var science = { stats: {} };</script>
+			<script type="text/javascript" src="loess.js"></script>
+			<style type="text/css">
+			
+			 .curve {
+        stroke: #D90036;
+        stroke-width: 4;
+    }
+			
+			    .line {
+        fill-opacity: 0;
+        stroke-width: 4;
+        stroke: #C10000;
+				}
+			
+				.axis path,
+				.axis line {
+					fill: none;
+					stroke: black;
+					shape-rendering: crispEdges;
+				}
+				
+				.axis text {
+					font-family: sans-serif;
+					font-size: 11px;
+				}
+				
+				.axis_caption {
+					font-family: sans-serif;
+					font-size: 14px;
+				}
+				
+				.point {
+					fill: #33CC33;
+					fill-opacity: 0.5;
+					stroke: #1F7A1F;
+				}
+				
+				.point.selected {
+					fill: #CCCC00;
+					fill-opacity: 0.5;
+					stroke: #7A7A00;
+				}
+				
+				.brush .extent {
+					stroke: #fff;
+					fill-opacity: .125;
+					shape-rendering: crispEdges;
+				}
+				</style>
+			
+			<script type="text/javascript">
+				/**
+				 o is a JSON object with the following format:
+				 {"observable": "HighlightState",
+				 "event": "delta",
+				 "newly_highlighted": [3,2,32,4],
+				 "newly_unhighlighted": [23, 6, 7]
+				 }
+				 */
+				gda.updateHS = function (o) {
+					gda.logMsg("In gda.updateHS");
+					
+					if (o.event == "unhighlight_all") {
+						d3.select("body").select("svg").selectAll(".point").classed("selected", false);
+						gda.remove_all_from_obj(gda.curr_sel);
+						gda.logMsg("Unhighlight all success.");
+						
+					} else if (o.event == "invert") {
+						gda.logMsg("event == invert");
+						var new_sel = {};
+						for (var i=0;i<gda.dataset.length; ++i) {
+							new_sel[i] = true;
+						}
+						gda.remove_obj_from_obj(gda.curr_sel, new_sel);
+						
+						var svg = d3.select("body").select("svg");
+						for (var i in new_sel) {
+							svg.select("#p" + i).classed("selected", true);
+						}
+						for (var i in gda.curr_sel) {
+							svg.select("#p" + i).classed("selected", false);
+						}
+						
+						gda.curr_sel = new_sel;
+						gda.logMsg("Invert success.");
+						
+					} else if (o.event == "delta") {
+						var svg = d3.select("body").select("svg");
+						for (var i=0, sz=o.newly_highlighted.length; i<sz; ++i) {
+							svg.select("#p" + o.newly_highlighted[i]).classed("selected", true);
+						}
+						for (var i=0, sz=o.newly_unhighlighted.length; i<sz; ++i) {
+							svg.select("#p" + o.newly_unhighlighted[i]).classed("selected", false);
+						}
+						
+						gda.merge_array_into_obj(o.newly_highlighted, gda.curr_sel);
+						gda.remove_array_from_obj(o.newly_unhighlighted, gda.curr_sel);
+						gda.logMsg("Delta success.");
+					}
+				}
+				
+				
+				/** 
+				 num_obs: number of data points to randomly create
+				 max: max range of new x values
+				 */
+				gda.makeRandomArray = function(num_obs, max) {
+					var ds = [];
+					for (var i=0; i<num_obs; i++) {
+						ds.push(Math.round(Math.random() * max));
+					}
+					return ds;
+				}
+				
+				/**initFromDataset expects the following init_obj JSON message:
+				 {
+				 var1_title: "title",
+				 var2_title: "title2",
+				 var1_data: [ 1, 2, 3, 4 ],
+				 var2_data: [ 1.1, 2.2, 3.3, 4.4 ],
+				 selected: [ 3, 12, 23, 33 ]
+				 }
+				 */
+				gda.initFromDataset = function(init_obj) {
+					//science = { stats: {} }; // reset science object global var
+				
+					gda.last_init_obj = init_obj;
+					gda.remove_all_from_obj(gda.curr_sel);
+					d3.selectAll("svg").remove();
+					this.dataset = [];					//Initialize empty array
+					
+					//Width and height
+					var w = 600;
+					var h = 400;
+					var win_size = gda.getWindowSize();
+					w = win_size.width-20;
+					h = win_size.height-20;
+					
+					//var defaultExtent = [[100, 100], [160, 160]];
+					var defaultExtent = [[0, 0], [0, 0]];
+					var padding = 60;
+					
+					/*
+					 //Static dataset
+					 this.dataset = [
+					 [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
+					 [410, 12], [475, 44], [25, 67], [85, 21], [220, 88],
+					 [600, 150]
+					 ];
+					 */
+					
+					
+					var min_v1 = Math.min.apply(null, init_obj.var1_data);
+					var min_v2 = Math.min.apply(null, init_obj.var2_data);
+					for (var i=0, sz=init_obj.var1_data.length; i<sz; ++i) {
+						this.dataset.push([init_obj.var1_data[i] - min_v1,
+						 init_obj.var2_data[i] -min_v2 ]);
+					}
+					
+					gda.var1_title = init_obj.var1_title;
+					gda.var2_title = init_obj.var2_title;
+					
+					var domain_x_max = d3.max(this.dataset, function(d) { return d[0]; });
+					var domain_y_max = d3.max(this.dataset, function(d) { return d[1]; });
+					
+					var sorted_dataset = [];
+					for (var i=0, sz=this.dataset.length; i<sz; ++i) {
+						sorted_dataset.push(this.dataset[i]);
+					}
+					
+					sorted_dataset.sort(function(a,b) { return a[0] - b[0]; });
+					
+					var xValues = [];
+					var yValues = [];
+					
+					for (var i=0, sz=sorted_dataset.length; i<sz; ++i) {
+						xValues.push(sorted_dataset[i][0]);
+						yValues.push(sorted_dataset[i][1]);
+					}
+					
+					window.Sx = [0, 1, 2,   3,   4,   5,    6, 7,  8,  9,  10];
+					window.Sy = [0, 2, 2.3, 4.5, 3.2, 3.3, 23, 21, 15, 17, 21.3];
+					window.S = d3.zip(Sx, Sy);
+					
+					window.loess = science.stats.loess().bandwidth(0.30);
+					// .robustnessIterations(20);
+						//.accuracy(0.0001);
+					var yValuesSmoothed = loess(xValues, yValues);
+					var smoothed_points = d3.zip(xValues, yValuesSmoothed);
+					
+					var ds = [];
+					for (var i=0, sz=this.dataset.length; i<sz; ++i) {
+						ds.push([this.dataset[i][0], this.dataset[i][1]]);
+					}
+					
+					//var smoothed_points = loess_pairs(this.dataset, 0.3);
+					//var smoothed_points = loess_pairs(ds, 0.3);
+					this.dataset_smoothed = smoothed_points;
+					
+					var smoothed_x_max = d3.max(smoothed_points, function(d) { return d[0]; });
+					var smoothed_y_max = d3.max(smoothed_points, function(d) { return d[1]; });
+					console.log("domain_x_max: " + domain_x_max);
+					console.log("domain_y_max: " + domain_y_max);
+					console.log("smoothed_x_max: " + smoothed_x_max);
+					console.log("smoothed_y_max: " + smoothed_y_max);
+					console.log("smoothed_points.length: " + smoothed_points.length);
+					
+					console.log("xValues max: " + Math.max.apply(null, xValues));
+					console.log("yValues max: " + Math.max.apply(null, yValues));
+					
+					//Create scale functions
+					var xScale = d3.scale.linear()
+					.domain([0, domain_x_max])
+					.range([padding, w - padding * 2]);
+					
+					var yScale = d3.scale.linear()
+					.domain([0, domain_y_max])
+					.range([h - padding, padding]);
+					
+					var rScale = d3.scale.linear()
+					.domain([0, domain_y_max])
+					.range([2, 5]);
+					
+					//Define X axis
+					var xAxis = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom")
+					.ticks(5);
+					
+					//Define Y axis
+					var yAxis = d3.svg.axis()
+					.scale(yScale)
+					.orient("left")
+					.ticks(5);
+					
+					//Create SVG element
+					var svg = d3.select("body")
+					.append("svg")
+					.attr("width", w)
+					.attr("height", h);
+					
+					//Create circles
+					this.point = svg.selectAll(".point")
+					.data(this.dataset)
+					.enter().append("circle")
+					.attr("class", "point")
+					.attr("cx", function(d) {
+						  return xScale(d[0]); })
+					.attr("cy", function(d) {
+						  return yScale(d[1]); })
+					.attr("r", 3)
+					//.attr("r", function(d) {
+					//	  return rScale(d[1]); })
+					.attr("id", function(d,i) { return "p" + i; })
+					.attr("obs", function(d,i) { return i; })
+					.attr("onclick", function(d,i) { return "onPointClick(\"p"+i+"\")" });
+					
+					/*
+					 //Create labels
+					 svg.selectAll("text")
+					 .data(this.dataset)
+					 .enter()
+					 .append("text")
+					 .text(function(d) {
+					 return d[0] + "," + d[1];
+					 })
+					 .attr("x", function(d) {
+					 return xScale(d[0]);
+					 })
+					 .attr("y", function(d) {
+					 return yScale(d[1]);
+					 })
+					 .attr("font-family", "sans-serif")
+					 .attr("font-size", "11px")
+					 .attr("fill", "red");
+					 */
+										
+					//Create X axis
+					svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(0," + (h - padding) + ")")
+					.call(xAxis);
+					
+					svg.append("text")
+					.attr("class", "axis_caption")
+					.attr("text-anchor", "middle")
+					.attr("x", w/2)  // .attr("x", w)
+					.attr("y", h - 20)  // .attr("y", h - 6)
+					.text(init_obj.var1_title);
+					
+					//Create Y axis
+					svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(" + padding + ",0)")
+					.call(yAxis);
+					
+					svg.append("text")
+					.attr("class", "axis_caption")
+					.attr("text-anchor", "middle")
+					.attr("transform", "rotate(-90) translate("+(-h/2)+", 6)")
+					.attr("x", 0)   // nothing originally
+					.attr("y", 0)  // .attr("y", 6)
+					.attr("dy", ".75em")
+					.text(init_obj.var2_title);
+	
+		      var scale_smoothed_points = [];
+					for (var i=0; i<smoothed_points.length; ++i) {
+	    				var x = xScale(smoothed_points[i][0]);
+							var y = yScale(smoothed_points[i][1]);
+							scale_smoothed_points.push([x, y]);
+					}
+					
+					
+					svg.append("g")
+						.append("path")
+						.datum(scale_smoothed_points)
+						.attr("class", "line")
+						.attr("d", d3.svg.line()
+							.interpolate("basis")
+							.x(function(d) { return d[0]; })
+							.y(function(d) { return d[1]; }));
+
+					
+					
+					// Define svg brush (from http://bl.ocks.org/mbostock/6216724 )
+					this.brush = d3.svg.brush()
+					.x(xScale)
+					.y(yScale)
+					.extent(defaultExtent)
+					.on("brush", this.brushed)
+					.on("brushend", this.brushended);
+					
+					this.quadtree = d3.geom.quadtree()
+					.extent([[-1, -1], [domain_x_max + 1, domain_y_max + 1]])
+					(this.dataset);
+					
+					svg.append("g")
+					.attr("class", "brush")
+					.call(this.brush)
+					.call(this.brush.event);
+					
+					gda.merge_array_into_obj(init_obj.selected, gda.curr_sel);
+					this.highlightIds.apply(this, init_obj.selected);
+				}
+				
+				gda.brushed = function () {
+					var extent = gda.brush.extent();
+					gda.point.each(function(d) { d.selected = false; });
+					gda.search(gda.quadtree, extent[0][0], extent[0][1], extent[1][0], extent[1][1]);
+					gda.point.classed("selected", function(d) { return d.selected; });
+					var x = document.getElementsByClassName("selected");
+					var new_sel = {};
+					var hl_plus = [];
+					var hl_minus = [];
+					for (var i=0, sz=x.length; i<sz; ++i) {
+						new_sel[Number(x[i].getAttribute("obs"))] = true;
+						//new_sel.push(Number(x[i].getAttribute("obs")));
+					}
+					for (var i in new_sel) {
+						if (gda.curr_sel[i] === undefined) hl_plus.push(Number(i));
+					}
+					for (var i in gda.curr_sel) {
+						if (new_sel[i] === undefined) hl_minus.push(Number(i));
+					}
+					
+					//hl_plus = gda.array_minus(new_sel, gda.curr_sel);
+					//hl_minus = gda.array_minus(gda.curr_sel, new_sel);
+					
+					if (hl_plus.length == 0 && hl_minus.length == 0) return;
+					
+					//var sl = "";
+					//for (var i=0, sz=new_sel.length; i<sz; ++i) {
+					//  sl += new_sel[i];
+					//  if (i+1 < sz) sl += ", ";
+					//}
+					
+					var notifyMsg = {};
+					
+					if (x.length == 0) {
+						notifyMsg = {
+							'action': 'notify',
+							'observable': 'HighlightState',
+							'event_type': 'unhighlight_all'
+						};
+					} else {
+						notifyMsg = {
+							'action': 'notify',
+							'observable': 'HighlightState',
+							'event_type': 'delta',
+							'newly_highlighted': hl_plus,
+							'newly_unhighlighted': hl_minus
+						};
+					}
+					
+					var title_str = JSON.stringify(notifyMsg);
+					document.title = title_str;
+					
+					gda.curr_sel = new_sel;
+				}
+				
+				gda.brushended = function() {
+					//brush.clear();
+				}
+				
+				// Find the nodes within the specified rectangle.
+				gda.search = function(quadtree, x0, y0, x3, y3) {
+					quadtree.visit(function(node, x1, y1, x2, y2) {
+								   var p = node.point;
+								   if (p) p.selected = (p[0] >= x0) && (p[0] < x3) &&
+								   (p[1] >= y0) && (p[1] < y3);
+								   return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+								   });
+				}
+				
+				gda.highlightIds = function() {
+					var svg = d3.select("body").select("svg");
+					for (i = 0; i < this.dataset.length; ++i) {
+						svg.select("#p" + i).classed("selected", false);
+					}
+					for (i = 0; i < arguments.length; ++i) {
+						if (arguments[i] >= 0 && arguments[i] < this.dataset.length) {
+							svg.select("#p" + arguments[i]).classed("selected", true);
+						}
+					}
+					//this.printHighlighted.apply(this, arguments);
+					//d3.select("body").select("#hlt").text("number highlighted = " + arguments.length);
+				}
+				
+				gda.printHighlighted = function() {
+					var s = "";
+					for (i = 0; i < arguments.length; ++i) {
+						s = s + arguments[i];
+						if (i+1 < arguments.length) s = s + ", ";
+					}
+					
+					gda.logMsg(s, "highlight_para");
+				}
+				
+				///////////////////////////////////
+				// BEGIN:   GeoDa JS API Section //
+				///////////////////////////////////
+				
+				gda.readyToInit = function () {
+					// To immediately closes the web view:
+					//   document.title = JSON.stringify({action: "close"});
+					
+					var requests = [];
+					// Variable Settings Request Object
+					var vs_o = {
+						interface: "project",
+						operation: "promptVarSettings",
+						arity: "bivariate",
+						show_weights: false,
+						title: "Custom D3/JS Scatterplot Variables",
+						var1_title: "x-axis",
+						var2_title: "y-axis"
+					};
+					requests.push(vs_o);
+					
+					gda.makeRequests(requests,
+						function (resp_array) {
+							// resp_array is the response array.
+									 // We only expect one response object
+									 // in this case.
+									 var o = resp_array[0];
+									 myScatterP.time_info = o.time_info;
+									 myScatterP.var1 = o.var1;
+									 myScatterP.var2 = o.var2;
+									 myScatterP.var1_title = o.var1.name;
+									 myScatterP.var2_title = o.var2.name;
+									 myScatterP.var1_time = o.var1.time;
+									 myScatterP.var2_time = o.var2.time;
+									 
+									 var var1_data = myScatterP.var1.data;
+									var var2_data = myScatterP.var2.data;
+					
+									var t1_str = myScatterP.var1_title;
+									var t2_str = myScatterP.var2_title;
+									if (var1_data.length > 1) {
+										t1_str += " (" + myScatterP.time_info[myScatterP.var1_time] + ")";
+									}
+									if (var2_data.length > 1) {
+											t2_str += " (" + myScatterP.time_info[myScatterP.var2_time] + ")";
+									}
+									 
+									 var initObj = {
+									 var1_title: t1_str,
+									 var1_data: o.var1.data[o.var1.time],
+									 var2_title: t2_str,
+									 var2_data: o.var2.data[o.var2.time],
+									 selected: o.selected
+									 };
+									 gda.initFromDataset(initObj);
+									 gda.logMsg("received VS response", "vs_para") });
+					
+				}
+				
+				
+				gda.updateTmS = function (o) {
+					gda.logMsg("In gda.updateTmS", "tm_log");
+					gda.appendMsg("time id: " + o.curr_time + ", time name: " + o.curr_time_str, "tm_log");
+					gda.appendMsg("current times: var1 = " + myScatterP.var1_time +
+								  ", var2 = " + myScatterP.var2_time, "tm_log");
+					if (myScatterP.var1.data.length <= 1 &&
+						myScatterP.var2.data.length <= 1) {
+						gda.appendMsg("no time variant variables.");
+						return;
+					}
+					var tms = Math.max(myScatterP.var1.data.length, myScatterP.var2.data.length);
+					var tm_min = Math.min(myScatterP.var1_time, myScatterP.var2_time);
+					var tm_max = Math.max(myScatterP.var1_time, myScatterP.var2_time);
+					if (myScatterP.var1.data.length == 1) {
+						// we know only var2 is time variant
+						myScatterP.var2_time = o.curr_time;
+						// refresh
+					} else if (myScatterP.var2.data.length == 1) {
+						// we know only var 1 is time variant
+						myScatterP.var1_time = o.curr_time;
+						// refresh
+					} else {
+						// both variables time variant
+						var tm_diff = Math.abs(myScatterP.var1_time - myScatterP.var2_time);
+						if (tm_min <= o.curr_time && o.curr_time <= tm_max) {
+							gda.appendMsg("nothing to do", "tm_log");
+						} else if (o.curr_time < tm_min) {
+							if (myScatterP.var1_time <= myScatterP.var2_time) {
+								myScatterP.var1_time = o.curr_time;
+								myScatterP.var2_time = o.curr_time + tm_diff;
+							} else {
+								myScatterP.var2_time = o.curr_time;
+								myScatterP.var1_time = o.curr_time + tm_diff;
+							}
+						} else if (o.curr_time > tm_max) {
+							if (myScatterP.var1_time >= myScatterP.var2_time) {
+								myScatterP.var1_time = o.curr_time;
+								myScatterP.var2_time = o.curr_time - tm_diff;
+							} else {
+								myScatterP.var2_time = o.curr_time;
+								myScatterP.var1_time = o.curr_time - tm_diff;
+							}
+						}
+					}
+					gda.appendMsg("current times: var1 = " + myScatterP.var1_time +
+								  ", var2 = " + myScatterP.var2_time, "tm_log");
+									
+					var sel_array = [];
+					for (var i in gda.curr_sel) {
+						sel_array.push(i);
+					}
+					
+					var var1_data = myScatterP.var1.data;
+					var var2_data = myScatterP.var2.data;
+					
+					var t1_str = myScatterP.var1_title;
+					var t2_str = myScatterP.var2_title;
+					if (var1_data.length > 1) {
+						t1_str += " (" + myScatterP.time_info[myScatterP.var1_time] + ")";
+					}
+					if (var2_data.length > 1) {
+						t2_str += " (" + myScatterP.time_info[myScatterP.var2_time] + ")";
+					}
+					
+					var initObj = {
+						var1_title: t1_str,
+						var1_data: var1_data[myScatterP.var1_time],
+						var2_title: t2_str,
+						var2_data: var2_data[myScatterP.var2_time],
+						selected: sel_array
+					};
+					gda.initFromDataset(initObj);
+					
+				};
+				///////////////////////////////////
+				// END:   GeoDa JS API Section   //
+				///////////////////////////////////
+				
+				// define myScatterP namespace
+				var myScatterP = myScatterP || {};
+				myScatterP.time_info = [];
+				myScatterP.var1 = {};
+				myScatterP.var2 = {};
+				myScatterP.var1_title = "X";
+				myScatterP.var2_title = "Y";
+				myScatterP.var1_time = 0;
+				myScatterP.var2_time = 0;
+				
+				</script>
+			
+			</head>
+	<body>
+		<!-- <p>version 4.04</p> -->
+		<script>
+			
+			gda.logMsg = function() {};
+			gda.appendMsg = function() {};
+			gda.dataset_smoothed = [];
+			
+			var num_obs = 200;
+			var rand_sel = [];
+			for (var i=0; i<num_obs/10; ++i) {
+				rand_sel.push(Math.round(Math.random()*(num_obs-1)));
+			}
+			var init_obj =  {
+				var1_title: "X",
+				var2_title: "Y",
+				var1_data: gda.makeRandomArray(num_obs, Math.random() * 1000),
+				var2_data: gda.makeRandomArray(num_obs, Math.random() * 1000),
+				selected: rand_sel
+			};
+			
+			//window.onresize = gda.updateWindow;
+			
+			gda.initFromDataset(init_obj);
+			(function() {
+			 var button_text = document.createElement("p");
+			 button_text.id = "num_highlighted_para";
+			 
+			 var button = document.createElement("button");
+			 button.type = "button";
+			 button.onclick = function() {
+			 var x = document.getElementsByClassName("selected");
+			 var sl = "";
+			 for (var i=0; i<x.length; ++i) {
+			 sl += x[i].getAttribute("obs");
+			 if (i+1 < x.length) sl += ", ";
+			 }
+			 var s = x.length + " points selected: " + sl;
+			 document.getElementById("num_highlighted_para").innerHTML = s;
+			 };
+			 button.innerHTML = "Print Highlighted";
+			 //document.body.appendChild(button);
+			 //document.body.appendChild(button_text);
+			 }());
+			
+			window.addEventListener("resize", function () {
+			 gda.initFromDataset(gda.last_init_obj) } );
+			
+			</script>
+	</body>
+</html>

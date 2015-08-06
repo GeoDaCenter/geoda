@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -57,8 +57,10 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 	frames_manager(project_s->GetFramesManager()),
 	table_state(project_s->GetTableState()),
 	time_state(project_s->GetTimeState()),
-	is_status_bar_visible(false), supports_timeline_changes(false),
-    depends_on_non_simple_groups(true)
+	is_status_bar_visible(false),
+	get_status_bar_string_from_frame(false),
+	supports_timeline_changes(false),
+	depends_on_non_simple_groups(true)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);
@@ -118,6 +120,14 @@ void TemplateFrame::OnResetMap(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
+void TemplateFrame::OnRefreshMap(wxCommandEvent& event)
+{
+	LOG_MSG("Called TemplateFrame::OnResetMap");
+	if (!template_canvas) return;
+	template_canvas->ReDraw();
+}
+
+
 void TemplateFrame::OnFitToWindowMode(wxCommandEvent& event)
 {
 	LOG_MSG("Entering TemplateFrame::OnFitToWindowMode");
@@ -143,6 +153,14 @@ void TemplateFrame::OnZoomMode(wxCommandEvent& event)
 	LOG_MSG("Called TemplateFrame::OnZoomMode");
 	if (!template_canvas) return;
 	template_canvas->SetMouseMode(TemplateCanvas::zoom);
+	UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnZoomOutMode(wxCommandEvent& event)
+{
+	LOG_MSG("Called TemplateFrame::OnZoomMode");
+	if (!template_canvas) return;
+	template_canvas->SetMouseMode(TemplateCanvas::zoomout);
 	UpdateOptionMenuItems();
 }
 
@@ -201,10 +219,11 @@ void TemplateFrame::UpdateOptionMenuItems()
 
 void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 {
-	if (template_canvas == 0) return;
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),IsStatusBarVisible());
+	if (template_canvas == 0) return;
 	// or are not checkable do not appear.
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
 								  template_canvas->GetBrushType() ==
@@ -231,8 +250,7 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
 								  template_canvas->
 									IsSelectableOutlineVisible());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),
-								  IsStatusBarVisible());
+	
 }
 
 void TemplateFrame::UpdateTitle()
@@ -301,6 +319,21 @@ void TemplateFrame::DisplayStatusBar(bool show)
 	}
 	LOG(is_status_bar_visible);
 	LOG_MSG("Exiting TemplateFrame::DisplayStatusBar");
+}
+
+bool TemplateFrame::GetStatusBarStringFromFrame()
+{
+	return get_status_bar_string_from_frame;
+}
+
+void TemplateFrame::SetGetStatusBarStringFromFrame(bool get_sb_string)
+{
+	get_status_bar_string_from_frame = get_sb_string;
+}
+
+wxString TemplateFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs, int total_hover_obs)
+{
+	return "";
 }
 
 void TemplateFrame::RegisterAsActive(const wxString& name,
@@ -380,8 +413,7 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 
 /** MMM: ExportImage assumes the old style template canvas.  We should have
       a second version available.  OnDraw is used by the older
-      TemplateCanvas chidren classes.  Perhaps we can just call
-      PaintBackground(dc) followed by PaintShapes(dc). */
+      TemplateCanvas chidren classes. */
 void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	LOG_MSG("Entering TemplateFrame::ExportImage");
@@ -516,8 +548,27 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	LOG_MSG("Exiting TemplateFrame::ExportImage");
 }
 
+void TemplateFrame::OnChangeMapTransparency()
+{
+    // should be overrided.
+}
+
+void TemplateFrame::OnDrawBasemap(bool flag, int map_type)
+{
+	if (!template_canvas) return;
+
+    bool drawSuccess = template_canvas->DrawBasemap(flag, map_type);
+    
+    if (drawSuccess==false) {
+        wxMessageBox("To add the base map, please make sure to have proper projection information.");
+    }
+}
+
+
 void TemplateFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
 {
+	if (!template_canvas) return;
+    
 	ExportImage(template_canvas, activeFrName);
 }
 
@@ -551,11 +602,11 @@ void TemplateFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 }
 
 
-// MMM: This is for new style TemplateCanvas children.  We should
-// improve this function to use the PaintBackground function.
+// MMM: This is for new style TemplateCanvas children.
 void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 {
 	LOG_MSG("Entering TemplateFrame::OnCopyImageToClipboard");
+	if (!template_canvas) return;
 	wxSize sz = template_canvas->GetVirtualSize();
 		
 	wxBitmap bitmap( sz.x, sz.y );
@@ -625,6 +676,7 @@ bool TemplateFrame::GetColorFromUser(wxWindow* parent,
 void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnCanvasBackgroundColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->canvas_background_color,
@@ -637,6 +689,7 @@ void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->selectable_fill_color,
@@ -649,6 +702,7 @@ void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->selectable_outline_color,
@@ -661,6 +715,7 @@ void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineVisible");
+	if (!template_canvas) return;
 	template_canvas->SetSelectableOutlineVisible(
 						!template_canvas->selectable_outline_visible);
 }
@@ -668,6 +723,7 @@ void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnHighlightColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->highlight_color,

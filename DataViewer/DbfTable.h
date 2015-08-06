@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,7 +25,7 @@
 #include <wx/filename.h>
 #include <wx/string.h>
 #include "TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../DataViewer/VarOrderPtree.h"
 #include "../DataViewer/VarOrderMapper.h"
 
@@ -70,6 +70,7 @@ public:
 	virtual int GetColTimeSteps(int col);	
 	virtual bool IsColNumeric(int col);
 	virtual GdaConst::FieldType GetColType(int col);
+	virtual std::vector<GdaConst::FieldType> GetColTypes(int col);
 	virtual GdaConst::FieldType GetColType(int col, int time);
 	virtual bool DoesNameExist(const wxString& name, bool case_sensitive) const;
 	virtual wxString GetColName(int col);
@@ -78,7 +79,9 @@ public:
 	virtual int GetColDecimals(int col, int time=0);
 	virtual int GetColDispDecimals(int col);
 	virtual void GetColData(int col, GdaFlexValue& data);
-	virtual void GetColData(int col, d_array_type& dbl_data);
+	virtual void GetColData(int col, d_array_type& data);
+	virtual void GetColData(int col, l_array_type& data);
+	virtual void GetColData(int col, s_array_type& data);
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);

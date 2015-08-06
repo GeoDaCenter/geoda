@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,11 +22,10 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
-#include "../GenUtils.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -52,9 +51,13 @@ SaveToTableDlg::SaveToTableDlg(Project* project_s, wxWindow* parent,
 							   const wxString& title, const wxPoint& pos,
 							   const wxSize& size, long style)
 : wxDialog(parent, wxID_ANY, title, pos, size, style),
-data(data_s), project(project_s), table_int(project_s->GetTableInt()),
-m_check(data_s.size()), m_add_button(data_s.size()),
-m_field(data_s.size()), m_time(data_s.size()),
+data(data_s),
+project(project_s),
+table_int(project_s->GetTableInt()),
+m_check(data_s.size()),
+m_add_button(data_s.size()),
+m_field(data_s.size()),
+m_time(data_s.size()),
 col_id_maps(data_s.size()),
 is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
@@ -72,7 +75,8 @@ all_init(false)
 			m_time[i] = 0;
 		}
 	}
-	if (data.size() == 1) m_check[0]->SetValue(1);
+	if (data.size() == 1)
+        m_check[0]->SetValue(1);
 	InitTime();
 	FillColIdMaps();
 	InitFields();
@@ -80,7 +84,8 @@ all_init(false)
 		m_field[i]->SetSelection(m_field[i]->FindString(data[i].field_default));
 	}
 	CreateControls();
-	for (int i=0; i<data.size(); i++) EnableTimeField(i);
+	for (int i=0; i<data.size(); i++)
+        EnableTimeField(i);
 	SetPosition(pos);
 	SetTitle(title);
     Centre();
@@ -97,8 +102,7 @@ void SaveToTableDlg::CreateControls()
 	
 	int fg_cols = is_space_time ? 4 : 3;
 	// data.size() rows, fg_cols columns, vgap=3, hgap=3
-	wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size(),
-													fg_cols, 3, 3);
+	wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size(), fg_cols, 3, 3);
 	for (int i=0, iend=data.size(); i<iend; i++) {
 		fg_sizer->Add(m_check[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		fg_sizer->Add(m_add_button[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
@@ -158,7 +162,8 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 	GdaConst::FieldType type = table_int->GetColType(col);
 	if (type != data[obj_id].type &&
 		data[obj_id].type == GdaConst::long64_type &&
-		type != GdaConst::double_type) return;
+		type != GdaConst::double_type)
+        return;
 	// reinitialize all field lists, but set list corresponding to button
 	// to newly created field
 	FillColIdMaps();
@@ -173,8 +178,7 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		}
 	}
 	
-	m_field[obj_id]->SetSelection(m_field[obj_id]->
-								  FindString(dlg.GetColName()));
+	m_field[obj_id]->SetSelection(m_field[obj_id]->FindString(dlg.GetColName()));
 
 	EnableTimeField(obj_id);
 	m_check[obj_id]->SetValue(1);
@@ -242,7 +246,11 @@ void SaveToTableDlg::UpdateOkButton()
 		is_check[i]=m_check[i]->GetValue()==1;
 	}
 	bool any_checked = false;
-	for (int i=0, e=data.size(); i<e; i++) if (is_check[i]) any_checked = true;
+	for (int i=0, e=data.size(); i<e; i++) {
+        if (is_check[i]) {
+            any_checked = true;
+        }
+    }
 	if (!any_checked) {
 		m_ok_button->Disable();
 		return;
@@ -269,7 +277,8 @@ void SaveToTableDlg::EnableTimeField(int button)
 
 void SaveToTableDlg::UpdateFieldTms(int button)
 {
-	if (!is_space_time) return;
+	if (!is_space_time)
+        return;
 	
 	int prev_col = -1;
 	if (m_field[button]->GetSelection() != wxNOT_FOUND) {
@@ -294,12 +303,17 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 		is_check[i]=m_check[i]->GetValue()==1;
 	}
 	bool any_checked = false;
-	for (int i=0, e=data.size(); i<e; i++) if (is_check[i]) any_checked = true;
-	if (!any_checked) return;
+	for (int i=0, e=data.size(); i<e; i++) {
+        if (is_check[i])
+            any_checked = true;
+    }
+	if (!any_checked)
+        return;
 	
-	std::vector<wxString> fname(data.size());
+	std::vector<wxString> fname;
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		if (is_check[i]) fname[i] = m_field[i]->GetStringSelection();
+		if (is_check[i])
+            fname.push_back(m_field[i]->GetStringSelection());
 	}
 	
 	// Throw all fname[i] into a set container and check for duplicates while
@@ -309,7 +323,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
 		TableState* ts = project->GetTableState();
-		if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, s)) return;
+		if (!Project::CanModifyGrpAndShowMsgIfNot(ts, s))
+            return;
 		if (project->GetTableInt()->IsTimeVariant()
 			&& m_time[i]->IsEnabled()) {
 			s << " (" << m_time[i]->GetStringSelection() << ")";
@@ -321,7 +336,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 			dlg.ShowModal();
 			return;
 		}
-		if (is_check[i]) names.insert(s);
+		if (is_check[i])
+            names.insert(s);
 	}
 	
 	for (int i=0, iend=data.size(); i<iend; i++) {
@@ -351,7 +367,8 @@ void SaveToTableDlg::OnCloseClick( wxCommandEvent& event )
 
 void SaveToTableDlg::InitTime()
 {
-	if (!is_space_time) return;
+	if (!is_space_time)
+        return;
 	for (int j=0, jend=data.size(); j<jend; j++) {
 		for (int t=0; t<project->GetTableInt()->GetTimeSteps(); t++) {
 			wxString tm;
@@ -367,7 +384,8 @@ void SaveToTableDlg::FillColIdMaps()
 {
 	std::vector<int> tmp_col_id_map;
 	table_int->FillColIdMap(tmp_col_id_map);
-	for (int i=0; i<col_id_maps.size(); i++) col_id_maps[i].clear();
+	for (int i=0; i<col_id_maps.size(); i++)
+        col_id_maps[i].clear();
 	
 	for (int i=0; i<table_int->GetNumberCols(); i++) {
 		int col = tmp_col_id_map[i];
@@ -410,5 +428,6 @@ void SaveToTableDlg::InitField(int button)
 void SaveToTableDlg::InitFields()
 {
 	// assumes that FillColIdMaps and InitTime has been called previously
-	for (int i=0; i<data.size(); i++) InitField(i);
+	for (int i=0; i<data.size(); i++)
+        InitField(i);
 }

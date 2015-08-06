@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,9 +22,8 @@
 
 #include <wx/xrc/xmlres.h>
 
-class RegressionReportDlg: public wxDialog
+class RegressionReportDlg: public wxFrame
 {    
-    DECLARE_DYNAMIC_CLASS( RegressionReportDlg )
     DECLARE_EVENT_TABLE()
 
 public:
@@ -33,14 +32,14 @@ public:
         wxWindowID id = wxID_ANY,
         const wxString& caption = "Regression Report",
         const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxSize(600, 400),
+        const wxSize& size = wxSize(650, 480),
         long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
 
     bool Create( wxWindow* parent,
         wxWindowID id = wxID_ANY,
         const wxString& caption = "Regression Report",
         const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxSize(600, 400),
+        const wxSize& size = wxSize(650, 480),
         long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
 
     void CreateControls();
@@ -48,6 +47,9 @@ public:
     void OnClose(wxCloseEvent& event);
 	void OnMouseEvent(wxMouseEvent& event);
 	void OnFontChanged(wxCommandEvent& event);
+    
+    void AddNewReport(const wxString report);
+    void SetReport(const wxString report);
 
     wxTextCtrl* m_textbox;
     wxString results;

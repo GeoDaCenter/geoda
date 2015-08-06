@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,7 @@
 iShapeFile::iShapeFile(const wxString& fname, const wxString& ext)
 	: std::ifstream(), record(0)
 {
-	open(GenUtils::swapExtension(fname, ext).fn_str(),
+	open(GET_ENCODED_FILENAME(GenUtils::swapExtension(fname, ext)),
 		std::ios::binary | std::ios::in);
 }
 
@@ -53,7 +53,7 @@ long int iShapeFile::Recl(const long& shape)
 oShapeFile::oShapeFile(const wxString& fname, const wxString& ext)
 	: std::ofstream()  
 {
-    open(GenUtils::swapExtension(fname, ext).fn_str(),
+    open(GET_ENCODED_FILENAME(GenUtils::swapExtension(fname, ext)),
 			std::ios::binary | std::ios::out);
 	if (fail()) {
 	}

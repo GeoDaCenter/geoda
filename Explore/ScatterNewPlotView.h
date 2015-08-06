@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,15 +20,22 @@
 #ifndef __GEODA_CENTER_SCATTER_NEW_PLOT_VIEW_H__
 #define __GEODA_CENTER_SCATTER_NEW_PLOT_VIEW_H__
 
+#include <map>
+#include <vector>
 #include <boost/multi_array.hpp>
 #include <wx/menu.h>
+#include <wx/slider.h>
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
+#include "LowessParamDlg.h"
+#include "LowessParamObserver.h"
+#include "../ShapeOperations/Lowess.h"
+#include "../ShapeOperations/SmoothingUtils.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../TemplateLegend.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
 
 class CatClassifState;
 class ScatterNewPlotCanvas;
@@ -36,34 +43,49 @@ class ScatterNewPlotFrame;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
+// Transparency SliderBar dialog for Basemap
+class BubbleSizeSliderDlg: public wxDialog
+{
+public:
+	BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption="Bubble Size Adjust Dialog");
+    
+private:
+    ScatterNewPlotCanvas* canvas;
+    wxSlider* slider;
+    wxButton* resetBtn;
+    
+	void OnSliderChange(wxScrollEvent& event );
+	void OnReset(wxCommandEvent& event );
+};
+
 class ScatterNewPlotCanvas :
-	public TemplateCanvas, public CatClassifStateObserver
+public TemplateCanvas, public CatClassifStateObserver
 {
 	DECLARE_CLASS(ScatterNewPlotCanvas)	
 public:
 	ScatterNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
-						 Project* project,
-						 const wxPoint& pos = wxDefaultPosition,
-						 const wxSize& size = wxDefaultSize);
+											 Project* project,
+											 const wxPoint& pos = wxDefaultPosition,
+											 const wxSize& size = wxDefaultSize);
 	ScatterNewPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
-						 Project* project,
-						 const std::vector<GeoDaVarInfo>& var_info,
-						 const std::vector<int>& col_ids,
-						 bool is_bubble_plot = false,
-						 bool standardized = false,
-						 const wxPoint& pos = wxDefaultPosition,
-						 const wxSize& size = wxDefaultSize);
+											 Project* project,
+											 const std::vector<GdaVarTools::VarInfo>& var_info,
+											 const std::vector<int>& col_ids,
+											 bool is_bubble_plot = false,
+											 bool standardized = false,
+											 const wxPoint& pos = wxDefaultPosition,
+											 const wxSize& size = wxDefaultSize);
 	virtual ~ScatterNewPlotCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-						 int num_categories,
-						 const wxString& custom_classif_title = wxEmptyString);
+											 int num_categories,
+											 const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void SetCheckMarks(wxMenu* menu);
 	void OnSaveCategories();
@@ -88,9 +110,13 @@ public:
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	int GetNumCats() { return num_categories; } // used by Bubble Plot
+	Lowess GetLowess() { return lowess; }
 	
 	void ViewStandardizedData();
 	void ViewOriginalData();
+	void ShowLinearSmoother(bool display);
+	void ShowLowessSmoother(bool display);
+	void ChangeLoessParams(double f, int iter, double delta_factor);
 	void ViewRegressionSelected(bool display);
 	void ViewRegressionSelectedExcluded(bool display);
 	void DisplayStatistics(bool display_stats);
@@ -99,49 +125,37 @@ public:
 	bool IsStandardized() { return standardized; }
 	bool IsDisplayStats() { return display_stats; }
 	bool IsShowOriginAxes() { return show_origin_axes; }
-	bool IsRegressionSelected() { return show_reg_selected; } 
+	bool IsShowRegimes() { return show_reg_selected && show_reg_excluded; }
+	bool IsRegressionSelected() { return show_reg_selected; }
 	bool IsRegressionExcluded() { return show_reg_excluded; }
+	bool IsShowLinearSmoother() { return show_linear_smoother; }
+	bool IsShowLowessSmoother() { return show_lowess_smoother; }
+	void UpdateLowessOnRegimes();
+    void UpdateBubbleSize(double size_scaler);
 	
+    double bubble_size_scaler;
+    
 protected:
-	void CalcStatsFromSelected();
-	void CalcVarSdFromSumSquares(SampleStatistics& ss, double sum_squares);
-	void CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
-								 const SampleStatistics& ss_Y,
-								 SimpleLinearRegression& r,
-								 bool selected);
 	void ComputeChowTest();
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
-	static void CalcRegressionLine(GdaPolyLine& reg_line, // return value
-								   double& slope, // return value
-								   bool& infinite_slope, // return value
-								   bool& regression_defined, // return value
-								   wxRealPoint& a, // return value
-								   wxRealPoint& b, // return value
-								   double& cc_degs_of_rot, // return value
-								   const AxisScale& axis_scale_x,
-								   const AxisScale& axis_scale_y,
-								   const SimpleLinearRegression& reg,
-								   const wxPen& pen);
+
 	void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
-	static wxString CreateStatsString(const SampleStatistics& s);
-	static double RegLineToDegCCFromHoriz(double a_x, double a_y,
-										  double b_x, double b_y);
-	wxString RegLineTextFromReg(const SimpleLinearRegression& reg, int line);
-
+	
+	ScatterPlotPens pens;
+	
 	virtual void UpdateStatusBar();
-
+	
 	bool is_bubble_plot;
 	Project* project;
-	HighlightState* highlight_state;
 	CatClassifState* custom_classif_state;
 	
 	int num_obs;
 	int num_time_vals;
 	int num_categories;
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
 	d_array_type x_data;
 	d_array_type y_data;
@@ -156,6 +170,8 @@ protected:
 	std::vector<double> Z;
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
+	double scaleX;
+	double scaleY;
 	GdaAxis* x_baseline;
 	GdaAxis* y_baseline;
 	SampleStatistics statsX;
@@ -169,7 +185,7 @@ protected:
 	SimpleLinearRegression regressionXYselected;
 	SimpleLinearRegression regressionXYexcluded;
 	bool standardized;
-
+	
 	// variables for Chow test
 	double sse_c; // error sum of squares constrained (combined subsets)
 	double sse_sel; // err sum of sqrs unconstrained for selected
@@ -180,26 +196,36 @@ protected:
 	bool chow_valid;
 	
 	GdaPolyLine* reg_line;
+	GdaSpline* lowess_reg_line;
 	GdaShapeTable* stats_table;
 	GdaShapeText* chow_test_text;
 	
 	bool show_reg_selected;
 	GdaPolyLine* reg_line_selected;
+	GdaSpline* lowess_reg_line_selected;
 	double reg_line_selected_slope;
 	bool reg_line_selected_infinite_slope;
 	bool reg_line_selected_defined;
-
+	
 	bool show_reg_excluded;
 	GdaPolyLine* reg_line_excluded;
+	GdaSpline* lowess_reg_line_excluded;
 	double reg_line_excluded_slope;
 	bool reg_line_excluded_infinite_slope;
 	bool reg_line_excluded_defined;
-
+	
 	GdaPolyLine* x_axis_through_origin;
 	GdaPolyLine* y_axis_through_origin;
 	bool show_origin_axes;
 	bool display_stats;
-
+	
+	bool show_linear_smoother;
+	bool show_lowess_smoother;
+	
+	SmoothingUtils::LowessCacheType lowess_cache;
+	void EmptyLowessCache();
+	Lowess lowess;
+	
 	// this is only used for Bubble Chart as a way to sort circles from
 	// largest to smallest diameter.  This is a map from observation id
 	// to z_val order (ranging from 0 to num_obs-1)
@@ -210,51 +236,58 @@ protected:
 	int table_display_lines;
 	bool UpdateDisplayLinesAndMargins();
 	bool all_init;
+    
 	
 	DECLARE_EVENT_TABLE()
 };
 
-class ScatterNewPlotLegend : public TemplateLegend {
+class ScatterNewPlotLegend : public TemplateLegend
+{
 public:
 	ScatterNewPlotLegend(wxWindow *parent, TemplateCanvas* template_canvas,
-						 const wxPoint& pos, const wxSize& size);
+											 const wxPoint& pos, const wxSize& size);
 	virtual ~ScatterNewPlotLegend();
 };
 
-class ScatterNewPlotFrame : public TemplateFrame {
-    DECLARE_CLASS(ScatterNewPlotFrame)
+class ScatterNewPlotFrame : public TemplateFrame, public LowessParamObserver
+{
+	DECLARE_CLASS(ScatterNewPlotFrame)
 public:
 	ScatterNewPlotFrame(wxFrame *parent, Project* project,
-						const wxPoint& pos = wxDefaultPosition,
-						const wxSize& size = wxDefaultSize,
-						const long style = wxDEFAULT_FRAME_STYLE);
-    ScatterNewPlotFrame(wxFrame *parent, Project* project,
-						const std::vector<GeoDaVarInfo>& var_info,
-						const std::vector<int>& col_ids,
-						bool is_bubble_plot,
-						const wxString& title = "Scatter Plot",
-						const wxPoint& pos = wxDefaultPosition,
-						const wxSize& size = wxDefaultSize,
-						const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~ScatterNewPlotFrame();
-
+											const wxPoint& pos = wxDefaultPosition,
+											const wxSize& size = wxDefaultSize,
+											const long style = wxDEFAULT_FRAME_STYLE);
+	ScatterNewPlotFrame(wxFrame *parent, Project* project,
+											const std::vector<GdaVarTools::VarInfo>& var_info,
+											const std::vector<int>& col_ids,
+											bool is_bubble_plot,
+											const wxString& title = "Scatter Plot",
+											const wxPoint& pos = wxDefaultPosition,
+											const wxSize& size = wxDefaultSize,
+											const long style = wxDEFAULT_FRAME_STYLE);
+	virtual ~ScatterNewPlotFrame();
+	
 public:
-    void OnActivate(wxActivateEvent& event);
-    virtual void MapMenus();
-    virtual void UpdateOptionMenuItems();
-    virtual void UpdateContextMenuItems(wxMenu* menu);
-
+    void AdjustBubbleSize(wxCommandEvent& evt);
+	void OnActivate(wxActivateEvent& event);
+	virtual void MapMenus();
+	virtual void UpdateOptionMenuItems();
+	virtual void UpdateContextMenuItems(wxMenu* menu);
+	
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
-    void OnViewStandardizedData(wxCommandEvent& event);
-    void OnViewOriginalData(wxCommandEvent& event);
+	void OnViewStandardizedData(wxCommandEvent& event);
+	void OnViewOriginalData(wxCommandEvent& event);
+	void OnViewLinearSmoother(wxCommandEvent& event);
+	void OnViewLowessSmoother(wxCommandEvent& event);
+	void OnEditLowessParams(wxCommandEvent& event);
 	void OnViewRegimesRegression(wxCommandEvent& event);
-    void OnViewRegressionSelected(wxCommandEvent& event);
-    void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
-    void OnDisplayStatistics(wxCommandEvent& event);
-    void OnShowAxesThroughOrigin(wxCommandEvent& event);
-
+	void OnViewRegressionSelected(wxCommandEvent& event);
+	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
+	void OnDisplayStatistics(wxCommandEvent& event);
+	void OnShowAxesThroughOrigin(wxCommandEvent& event);
+	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 	
@@ -269,13 +302,19 @@ public:
 	virtual void OnEqualIntervals(int num_cats);
 	virtual void OnSaveCategories();
 	
+	/** Implementation of LowessParamObserver interface */
+	virtual void update(LowessParamObservable* o);
+	virtual void notifyOfClosing(LowessParamObservable* o);
+	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-						 int num_categories,
-						 const wxString& custom_classif_title = wxEmptyString);
+											 int num_categories,
+											 const wxString& custom_classif_title = wxEmptyString);
 	bool is_bubble_plot;
 	
-    DECLARE_EVENT_TABLE()
+	LowessParamFrame* lowess_param_frame;
+	
+	DECLARE_EVENT_TABLE()
 };
 
 

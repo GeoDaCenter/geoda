@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,15 +21,13 @@
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
-#include "../DataViewer/TimeState.h"
 #include "../logger.h"
 #include "../Project.h"
 #include "PCPDlg.h"
 
 BEGIN_EVENT_TABLE( PCPDlg, wxDialog )
-    EVT_BUTTON( wxID_OK, PCPDlg::OnOkClick )
-    EVT_BUTTON( wxID_CANCEL, PCPDlg::OnCancelClick )
-
+	EVT_BUTTON( wxID_OK, PCPDlg::OnOkClick )
+	EVT_BUTTON( wxID_CANCEL, PCPDlg::OnCancelClick )
 	EVT_BUTTON( XRCID("ID_INC_ALL_BUTTON"), PCPDlg::OnIncAllClick )
 	EVT_BUTTON( XRCID("ID_INC_ONE_BUTTON"), PCPDlg::OnIncOneClick )
 	EVT_LISTBOX_DCLICK( XRCID("ID_INCLUDE_LIST"),
@@ -45,16 +43,16 @@ PCPDlg::PCPDlg(Project* project_s, wxWindow* parent,
 			   const wxSize& size, long style )
 : project(project_s), table_int(project_s->GetTableInt())
 {
-    SetParent(parent);
-    CreateControls();
+	SetParent(parent);
+	CreateControls();
 	Init();
 	SetPosition(pos);
-    Centre();
+	Centre();
 }
 
 void PCPDlg::CreateControls()
 {    
-    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_PCP");
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_PCP");
 	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")),
 								   wxListBox);
 	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),
@@ -162,8 +160,8 @@ void PCPDlg::OnOkClick( wxCommandEvent& event )
 		var_info[i].fixed_scale = true;
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
-	Gda::PrintVarInfoVector(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 	
 	event.Skip();
 	EndDialog(wxID_OK);

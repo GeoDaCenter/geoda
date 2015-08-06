@@ -7,15 +7,14 @@
 
 #if !defined(CLEANLOG)
 
-
-#define FTLOG
+#define LOGGER_FIL
 
 #if !defined(DEBUG)
-#undef FTLOG
-#undef TLOG
+#undef LOGGER_FIL
+#undef LOGGER_TER
 #endif
 
-#if defined (FTLOG)
+#if defined (LOGGER_FIL)
 #include <fstream>
 #else
 #include <iostream>
@@ -26,17 +25,17 @@ logger_t::logger_t()
 {}
 bool logger_t::is_activated = true;
 
-#if defined(TLOG)
+#if defined(LOGGER_TER)
 std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
 	= std::auto_ptr<std::ostream>( new NullStream );
 std::ostream * logger_t::outstream = &std::cout;
 
-#elif defined (ETLOG)
+#elif defined (LOGGER_ERR)
 std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
 	= std::auto_ptr <std::ostream>( new NullStream );
 std::ostream * logger_t::outstream = &std::cerr;
 
-#elif defined (FTLOG)
+#elif defined (LOGGER_FIL)
 std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
 	= std::auto_ptr<std::ostream>( new std::ofstream ("logger.txt"));
 std::ostream * logger_t::outstream = outstream_helper_ptr.get();
@@ -57,5 +56,4 @@ logger_t & logger()
 }
 
 #endif
-// !CLEANLOG
-
+// endif for CLEANLOG

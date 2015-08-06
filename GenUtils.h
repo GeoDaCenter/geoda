@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <wx/colour.h>
 #include <wx/filename.h>
 #include <wx/string.h>
 #include <wx/gdicmn.h> // for wxPoint / wxRealPoint
@@ -46,6 +47,16 @@
 class wxDC;
 class TableState;
 
+namespace GdaColorUtils {
+	/** Returns colour in 6-hex-digit HTML format.
+	 Eg wxColour(255,0,0) -> "#FF0000" */
+	wxString ToHexColorStr(const wxColour& c);
+	/** change brightness of input_color and leave result in output color
+	 brightness = 75 by default, will slightly darken the input color.
+	 brightness = 0 is black, brightness = 200 is white. */
+	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
+}
+
 namespace Gda {
 	/** Returns a uniformly distributed
 	 random unsigned 64-bit integer given a seed.  Has the property
@@ -65,46 +76,6 @@ namespace Gda {
 	inline bool IsFinite(double x) { return x-x == 0; }
 }
 
-struct GeoDaVarInfo {
-	GeoDaVarInfo();
-	
-	// Primary Attributes
-	wxString name;
-	bool is_time_variant;
-	int time; // current time, always between time_min and time_max
-	std::vector<double> min; // min values for each time
-	std::vector<double> max; // max values for each time
-	bool sync_with_global_time; // keep synchronized with reference time
-	// change scale with each time-step if false, otherwise
-	// scale is set according to min/max values over all possible times
-	// for this particular variable combination
-	bool fixed_scale;
-	
-	// Secondary Attributes
-	
-	// if true, then this variable time tries to match the the
-	// global time and other variables time offsets are with respect
-	// to this variable's time.  If true, then ref_time_offset = 0
-	// Only one variable can be the reference variable for time
-	bool is_ref_variable;
-	// time offset from the reference variable time
-	int ref_time_offset; // offset from ref_time
-	// synchronize with reference time.  This only applies to time-variant
-	// variables.  If false for a time-variant variable, then that variable
-	// is temporarily treated as a non-time-variant variable
-	int time_min;
-	int time_max;
-	double min_over_time; // within time min/max range
-	double max_over_time; // within time min/max range
-};
-
-namespace Gda {
-	// returns new reference variable index, or else -1 if no reference
-	// variable
-	int UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info);
-	// for debugging purposes
-	void PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info);
-}
 
 namespace Gda {
 	// useful for sorting a vector of double with their original indexes:
@@ -200,14 +171,6 @@ namespace Gda {
 	double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
 }
 
-struct DataPoint {
-    double vertical, horizontal;
-    DataPoint(const double h= 0, const double v= 0)
-	: vertical(v), horizontal(h) {};
-	DataPoint& operator=(const DataPoint& s) {
-		vertical = s.vertical; horizontal = s.horizontal; return *this;}
-};
-
 struct SampleStatistics {
 	SampleStatistics() : sample_size(0), min(0), max(0), mean(0),
     var_with_bessel(0), var_without_bessel(0),
@@ -299,18 +262,6 @@ struct AxisScale {
 
 
 namespace GenUtils {
-	// Computational Geometry Algs
-	void StandardizeRect(const wxPoint& s1, const wxPoint& s2,
-						 wxPoint& lower_left, wxPoint& upper_right);
-	bool RectsIntersect(const wxPoint& r1_lower_left,
-						const wxPoint& r1_upper_right,
-						const wxPoint& r2_lower_left,
-						const wxPoint& r2_upper_right);
-	bool CounterClockwise(const wxPoint& p1, const wxPoint& p2,
-						  const wxPoint& p3);
-	bool LineSegsIntersect(const wxPoint& l1_p1, const wxPoint& l1_p2,
-						   const wxPoint& l2_p1, const wxPoint& l2_p2);
-
 	// other
 	wxString BoolToStr(bool b);
 	bool StrToBool(const wxString& s);
@@ -327,7 +278,6 @@ namespace GenUtils {
 	template<class T> const T& min(const T& x, const T& y);
 	template<class T> const T& max(const T& x, const T& y, const T& z);
 	template<class T> const T& min(const T& x, const T& y, const T& z);
-	template<class T> void swap(T& x, T& y);
 	wxString swapExtension(const wxString& fname, const wxString& ext);
 	wxString GetFileDirectory(const wxString& path);
 	wxString GetFileName(const wxString& path);
@@ -349,6 +299,9 @@ namespace GenUtils {
 	 by SimplfyPath to see if they can be converted into a relative path
 	 with respect to the current Working Directory (project file location). */
 	wxString SimplifyPath(const wxFileName& wd, const wxString& path);
+	void SplitLongPath(const wxString& path, std::vector<wxString>& parts,
+					   wxString& html_formatted,
+					   int max_chars_per_part = 30);
 	wxInt32 Reverse(const wxInt32 &val);
 	long ReverseInt(const int &val);
 	void SkipTillNumber(std::istream &s);
@@ -373,11 +326,10 @@ namespace GenUtils {
 						 bool* shx_found, bool* dbf_found);
 	wxString FindLongestSubString(const std::vector<wxString> strings,
 								  bool case_sensitive=false);
-	
-	bool CanModifyGrpAndShowMsgIfNot(TableState* table_state,
-									 const wxString& grp_nm);
 
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
+
+	std::string GetBasemapCacheDir();
 }
 
 /** Old code used by LISA functions */
@@ -464,13 +416,5 @@ template<class T> const T& GenUtils::min(const T& x, const T& y, const T& z)
 		return y < z ? y : z;
 	}
 }
-
-template<class T> void GenUtils::swap(T& x, T& y)
-{
-	T t = x;
-	x = y;
-	y = t;
-}
-
 
 #endif

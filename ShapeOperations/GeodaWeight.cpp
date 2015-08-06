@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -19,6 +19,23 @@
 
 #include <wx/filename.h>
 #include "GeodaWeight.h"
+
+GeoDaWeight::GeoDaWeight(const GeoDaWeight& gw)
+{
+	GeoDaWeight::operator=(gw);
+}
+
+const GeoDaWeight& GeoDaWeight::operator=(const GeoDaWeight& gw)
+{
+	weight_type = gw.weight_type;
+	wflnm = gw.wflnm;
+	title = gw.title;
+	symmetry_checked = gw.symmetry_checked;
+	is_symmetric = gw.is_symmetric;
+	num_obs = gw.num_obs;
+	
+	return *this;
+}
 
 wxString GeoDaWeight::GetTitle()
 {

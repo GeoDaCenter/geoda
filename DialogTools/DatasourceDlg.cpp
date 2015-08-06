@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,14 +20,17 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <wx/progdlg.h>
+#include <wx/checkbox.h>
+#include <wx/choicdlg.h>
+#include <wx/dirdlg.h>
 #include <wx/filedlg.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
-#include <wx/checkbox.h>
-#include <wx/xrc/xmlres.h>
+#include <wx/progdlg.h>
 #include <wx/regex.h>
+#include <wx/textdlg.h>
+#include <wx/xrc/xmlres.h>
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
 #include "../DataViewer/DbfTable.h"
@@ -47,9 +50,10 @@ void DatasourceDlg::Init()
 	ds_file_path = wxFileName("");
     
     // create file type dataset pop-up menu dynamically
-	ds_names.Add("ESRI Shapefiles (*.shp)|*.shp");
+	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
+	ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
     ds_names.Add("Comma Separated Value (*.csv)|*.csv");
-    ds_names.Add("dBase database file (*.dbf)|*.dbf");
+    ds_names.Add("dBase Database File (*.dbf)|*.dbf");
     if( GeneralWxUtils::isWindows()){
         ds_names.Add("ESRI Personal Geodatabase (*.mdb)|*.mdb");
     }
@@ -57,8 +61,8 @@ void DatasourceDlg::Init()
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
                  "GeoJSON (*.geojson)|*.geojson|"
                  "GeoJSON (*.json)|*.json");
-    ds_names.Add("GML (*.gml)|*.gml");
-    ds_names.Add("KML (*.kml)|*.kml");
+    ds_names.Add("Geography Markup Language (*.gml)|*.gml");
+    ds_names.Add("Keyhole Markup Language (*.kml)|*.kml");
     ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
                  "MapInfo Tab (*.tab)|*.tab|"
                  "MapInfo MID (*.mid)|*.mid|"
@@ -67,7 +71,6 @@ void DatasourceDlg::Init()
     //ds_names.Add("Idrisi Vector (*.vct)|*.vct");
     //ds_names.Add("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
     //ds_names.Add("OpenStreetMap XML and PBF (*.osm)|*.OSM;*.osm");
-    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
     //XXX: looks like tiger data are downloaded as Shapefile, geodatabase etc.
     //ds_names.Add("U.S. Census TIGER/Line (*.tiger)|*.tiger");
     
@@ -92,15 +95,15 @@ void DatasourceDlg::CreateControls()
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
     
+	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);
     if(GeneralWxUtils::isWindows()) m_database_type->Append(DBTYPE_ARCSDE);
-    m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_MYSQL);
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
 	std::vector<std::string> host_cands =
-        OGRDataAdapter::GetInstance().GetHistory("db_host");
+		OGRDataAdapter::GetInstance().GetHistory("db_host");
 	std::vector<std::string> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
 	std::vector<std::string> uname_cands =
@@ -127,12 +130,13 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
         "Please complete the datasource fields.";
 		throw GdaException(msg.mb_str());
 	}
-	vector<string> table_names = OGRDataAdapter::GetInstance()
-					.GetLayerNames(ds_name.ToStdString());
+	vector<string> table_names = 
+		OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString());
     int n_tables = table_names.size();
 	if ( n_tables > 0 ) {
 		wxString *choices = new wxString[n_tables];
-		for	(int i=0; i<n_tables; i++) choices[i] = table_names[i];
+		for	(int i=0; i<n_tables; i++) 
+			choices[i] = table_names[i];
 		wxSingleChoiceDialog choiceDlg(NULL,
                                     "Please select the layer name to connect:",
                                     "Layer names",
@@ -189,9 +193,9 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         ds_file_path = dlg.GetPath();
         m_ds_filepath_txt->SetValue(ds_file_path.GetFullPath());
         FindWindow(XRCID("wxID_OK"))->Enable(true);
-        
+		OnOkClick(event);
     }
-#ifdef _WIN64 || __amd64__
+#if defined(_WIN64) || defined(__amd64__)
     else if (name.Contains("mdb")){
         // 64bit Windows only accept DSN ODBC for ESRI PGeo
         wxTextEntryDialog dlg(this, "Input the DSN name of ESRI Personal "
@@ -201,6 +205,7 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         if (dlg.ShowModal() != wxID_OK) return;
         ds_file_path = dlg.GetValue().Trim();
         m_ds_filepath_txt->SetValue( "PGeo:"+dlg.GetValue() );
+		FindWindow(XRCID("wxID_OK"))->Enable(true);
     }
 #endif
     else {
@@ -212,7 +217,9 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         
         ds_file_path = dlg.GetPath();
         m_ds_filepath_txt->SetValue(ds_file_path.GetFullPath());
+		
         FindWindow(XRCID("wxID_OK"))->Enable(true);
+		OnOkClick(event);
     }
 }
 

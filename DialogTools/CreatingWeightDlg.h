@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,89 +29,107 @@
 #include <wx/spinbutt.h>
 #include <wx/spinctrl.h>
 #include <wx/textctrl.h>
+#include "../FramesManagerObserver.h"
 #include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
+#include "../VarCalc/WeightsMetaInfo.h"
 
 class wxSpinButton;
+class FramesManager;
 class GalElement;
 class GwtElement;
 class Project;
 class TableInterface;
 class TableState;
+class WeightsManState;
+class WeightsManInterface;
 
-/** NOTE: CreatingWeightDlg is still modal even though it is a
- TableStateObserver. The plan is to make it non-modal in the future.*/
-class CreatingWeightDlg: public wxDialog, public TableStateObserver
+class CreatingWeightDlg: public wxDialog, public FramesManagerObserver,
+public TableStateObserver, public WeightsManStateObserver
 {
 public:
-    CreatingWeightDlg(wxWindow* parent,
-					  Project* project,
-					  wxWindowID id = -1,
-					  const wxString& caption = "Weights File Creation",
-					  const wxPoint& pos = wxDefaultPosition,
-					  const wxSize& size = wxDefaultSize,
-					  long style = wxCAPTION|wxSYSTEM_MENU );
-    bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Weights File Creation",
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU );
-    void CreateControls();
+	CreatingWeightDlg(wxWindow* parent,
+                    Project* project,
+                    wxWindowID id = -1,
+                    const wxString& caption = "Weights File Creation",
+                    const wxPoint& pos = wxDefaultPosition,
+                    const wxSize& size = wxDefaultSize,
+                    long style = wxCAPTION|wxSYSTEM_MENU );
+	virtual ~CreatingWeightDlg();
+	void OnClose(wxCloseEvent& ev);
+	bool Create( wxWindow* parent, wxWindowID id = -1,
+							const wxString& caption = "Weights File Creation",
+							const wxPoint& pos = wxDefaultPosition,
+							const wxSize& size = wxDefaultSize,
+							long style = wxCAPTION|wxSYSTEM_MENU );
+	void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
-    
-    void OnDistanceMetricSelected(wxCommandEvent& event );
-	void SetDistMetricEuclid(bool update_sel);
-	void SetDistMetricArcMiles(bool update_sel);
-	void SetDistMetricArcKms(bool update_sel);
+	
+	void OnDistanceChoiceSelected(wxCommandEvent& event );
+	void SetDistChoiceEuclid(bool update_sel);
+	void SetDistChoiceArcMiles(bool update_sel);
+	void SetDistChoiceArcKms(bool update_sel);
 	void OnIdVariableSelected( wxCommandEvent& event );
-    void OnXSelected(wxCommandEvent& event );
-    void OnYSelected(wxCommandEvent& event );
+	void OnXSelected(wxCommandEvent& event );
+	void OnYSelected(wxCommandEvent& event );
 	void OnXTmSelected(wxCommandEvent& event );
-    void OnYTmSelected(wxCommandEvent& event );
-    void OnCRadioQueenSelected( wxCommandEvent& event );
-    void OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event );
-    void OnCRadioRookSelected( wxCommandEvent& event );
-    void OnCRadioDistanceSelected( wxCommandEvent& event );
+	void OnYTmSelected(wxCommandEvent& event );
+	void OnCRadioQueenSelected( wxCommandEvent& event );
+	void OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event );
+	void OnCRadioRookSelected( wxCommandEvent& event );
+	void OnCRadioDistanceSelected( wxCommandEvent& event );
 	void OnCThresholdTextEdit( wxCommandEvent& event );
-    void OnCThresholdSliderUpdated( wxCommandEvent& event );
-    void OnCRadioKnnSelected( wxCommandEvent& event );
-    void OnCRadioGeoDaLSelected( wxCommandEvent& event );
-    void OnCSpinKnnUpdated( wxSpinEvent& event );
-    void OnCreateClick( wxCommandEvent& event );
-    void OnCloseClick( wxCommandEvent& event );
-    void OnPrecisionThresholdCheck( wxCommandEvent& event );
-
+	void OnCThresholdSliderUpdated( wxCommandEvent& event );
+	void OnCRadioKnnSelected( wxCommandEvent& event );
+	void OnCSpinKnnUpdated( wxSpinEvent& event );
+	void OnCreateClick( wxCommandEvent& event );
+	void OnPrecisionThresholdCheck( wxCommandEvent& event );
+	
+	/** Implementation of FramesManagerObserver interface */
+	virtual void update(FramesManager* o);
+	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowTimelineChanges() { return true; }
 	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
 	virtual bool AllowObservationAddDelete() { return true; }
 	
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return 0; }
+	virtual void closeObserver(boost::uuids::uuid id) {};
+	
 private:
+	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN };
+	
 	bool all_init;
-    wxChoice* m_id_field;
-    wxRadioButton* m_radio2;
-    wxTextCtrl* m_contiguity;
-    wxSpinButton* m_spincont;
-    wxRadioButton* m_radio1;
-    wxCheckBox* m_include_lower;
-    wxChoice* m_distance_metric;
-    wxChoice* m_X;
+	wxChoice* m_id_field;
+	wxRadioButton* m_radio_queen; // IDC_RADIO_QUEEN
+	wxTextCtrl* m_contiguity;
+	wxSpinButton* m_spincont;
+	wxRadioButton* m_radio_rook; // IDC_RADIO_ROOK
+	wxCheckBox* m_include_lower;
+	wxChoice* m_dist_choice;
+	wxChoice* m_X;
 	wxChoice* m_X_time;
-    wxChoice* m_Y;
+	wxChoice* m_Y;
 	wxChoice* m_Y_time;
-    wxRadioButton* m_radio3;
-    wxTextCtrl* m_threshold;
-    wxCheckBox* m_cbx_precision_threshold;
-    wxTextCtrl* m_txt_precision_threshold;
-    wxSlider* m_sliderdistance;
-    wxRadioButton* m_radio4;
-    wxCheckBox* m_radio9;
-    wxTextCtrl* m_neighbors;
-    wxSpinButton* m_spinneigh;
-
+	wxRadioButton* m_radio_thresh;  // IDC_RADIO_DISTANCE
+	wxTextCtrl* m_threshold;
+	wxCheckBox* m_cbx_precision_threshold;
+	wxTextCtrl* m_txt_precision_threshold;
+	wxSlider* m_sliderdistance;
+	wxRadioButton* m_radio_knn;  // IDC_RADIO_KNN
+	wxTextCtrl* m_neighbors;
+	wxSpinButton* m_spinneigh;
+	
+	FramesManager* frames_manager;
 	Project* project;
 	TableInterface* table_int;
 	TableState* table_state;
+	WeightsManState* w_man_state;
+	WeightsManInterface* w_man_int;
 	
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items
@@ -119,7 +137,7 @@ private:
 	// in wxGrid
 	std::vector<int> col_id_map;
 	
-	int					m_radio;
+	RadioBtnId			m_radio;
 	int					m_num_obs;
 	double				m_thres_min; // minimum to avoid isolates
 	double				m_thres_max; // maxiumum to include everything
@@ -128,32 +146,42 @@ private:
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
 	
-	int					m_method;  // 1 == Euclidean Dist, 2 = Arc Dist
+	bool				m_is_arc; // true = Arc Dist, false = Euclidean Dist
 	bool				m_arc_in_km; // true if Arc Dist in km, else miles
 	std::vector<double>	m_XCOO;
 	std::vector<double>	m_YCOO;
-
+	
+	WeightsMetaInfo::DistanceMetricEnum dist_metric;
+	WeightsMetaInfo::DistanceUnitsEnum dist_units;
+	WeightsMetaInfo::DistanceValuesEnum dist_values;
+	
+	wxString dist_var_1;
+	long dist_tm_1;
+	wxString dist_var_2;
+	long dist_tm_2;
+	
 	// updates the enable/disable state of the Create button based
 	// on the values of various other controls.
 	void UpdateCreateButtonState();
 	void UpdateTmSelEnableState();
-	void SetRadioBtnAndAssocWidgets(int radio);
+	void SetRadioBtnAndAssocWidgets(RadioBtnId radio);
 	void UpdateThresholdValues();
 	void ResetThresXandYCombo();
 	void EnableThresholdControls(bool b);
 	void EnableContiguityRadioButtons(bool b);
 	void EnableDistanceRadioButtons(bool b);
-	void ClearRadioButtons();
+	void SetRadioButtons(RadioBtnId id);
 	void InitFields();
 	void InitDlg();
 	bool CheckID(const wxString& id);
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
-    bool Shp2GalProgress(GalElement *gal, GwtElement *gwt,
-						 const wxString& ifn, const wxString& ofn,
-						 const wxString& idd,
-						 const std::vector<wxInt64>& id_vec);
-   
+	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
+											 const wxString& ifn, const wxString& ofn,
+											 const wxString& idd,
+											 const WeightsMetaInfo& wmi);
+	
 	wxString s_int;
+	bool suspend_table_state_updates;
 	
 	DECLARE_EVENT_TABLE()
 };

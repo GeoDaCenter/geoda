@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -113,6 +113,10 @@ public:
     
 	/** Returns type for entire group, cannot be a placeholder type */
 	virtual GdaConst::FieldType GetColType(int col) = 0;
+	
+	/** Returns types for each timestep in group.
+	 Can include placeholder types */
+	virtual std::vector<GdaConst::FieldType> GetColTypes(int col) = 0;
     
 	/** Returns type for each specific column.  Can be a placeholder type */
 	virtual GdaConst::FieldType GetColType(int col, int time) = 0;
@@ -123,7 +127,9 @@ public:
 	virtual int GetColDispDecimals(int col) = 0;
 	
 	virtual void GetColData(int col, GdaFlexValue& data) = 0;
-	virtual void GetColData(int col, d_array_type& dbl_data) = 0;
+	virtual void GetColData(int col, d_array_type& data) = 0;
+	virtual void GetColData(int col, l_array_type& data) = 0;
+	virtual void GetColData(int col, s_array_type& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,9 +25,9 @@
 #endif
 #include <wx/xrc/xmlres.h>
 
+#include "ogrsf_frmts.h"
 #include "Bnd2ShpDlg.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
 #include "ExportDataDlg.h"
 
 IMPLEMENT_CLASS( Bnd2ShpDlg, wxDialog )
@@ -74,7 +74,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	wxString m_iASC = m_inputfile->GetValue();
 
     fstream ias;
-	ias.open(m_iASC.mb_str());
+	ias.open(GET_ENCODED_FILENAME(m_iASC));
 	int nRows;
 	char name[1000];
 	ias.getline(name,100);
@@ -106,12 +106,14 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	}
    
     int nPoint, ID;
+    vector<int> IDs;
 	vector<GdaShape*> polys;
     
 	for (long row = nRows; row >= 1; row--)
 	{
 		ias.getline(name,100);
 		sscanf(name,"%d, %d", &ID, &nPoint);
+        IDs.push_back(ID);
 		if (nPoint < 1)
 		{
 			wxString xx= wxString::Format("at polygon-%d",ID);
@@ -155,6 +157,36 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 
     ExportDataDlg dlg(this, polys, Shapefile::POLYGON);
     dlg.ShowModal();
+  
+    if ( !ID_name.empty() ) {
+        wxString ds_name = dlg.GetDatasourceName();
+        wxString ds_format = dlg.GetDatasourceFormat();
+        //OGRDataSource* ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), true);
+        GDALDataset       *poDS;
+        poDS = (GDALDataset*) GDALOpenEx(ds_name.c_str(), 
+                                         GDAL_OF_VECTOR, NULL, NULL, NULL );
+        if ( poDS ) {
+            //OGRLayer* layer = ds->GetLayer(0);
+            OGRLayer* layer = poDS->GetLayer(0);
+            OGRFieldDefn poField(ID_name.c_str(), OFTInteger);
+            if ( layer->CreateField( &poField ) == OGRERR_NONE ) {
+                OGRFeature *poFeature;
+                layer->ResetReading();
+                poFeature = layer->GetNextFeature();
+                int i=0;
+                while (poFeature) {
+                    poFeature->SetField(ID_name.c_str(), IDs[i++]);
+                    layer->SetFeature(poFeature);
+                    OGRFeature::DestroyFeature(poFeature);
+                    poFeature = layer->GetNextFeature();
+                }
+                layer->DeleteField(0); // delete default ("FID")
+                layer->SyncToDisk();
+            }
+        }
+        //OGRDataSource::DestroyDataSource(ds);
+         GDALClose( poDS );
+    }
     
     for(size_t i=0; i<polys.size(); i++) {
         delete polys[i];
@@ -184,7 +216,7 @@ void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 		if (j >= 0) fn = fn.Left(j);
         
 		std::ifstream ias;
-		ias.open(m_iASC.mb_str());
+		ias.open(GET_ENCODED_FILENAME(m_iASC));
 		char name[1000];
 
 		ias.getline(name,100);

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,6 @@
 #include <wx/image.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 
-#include "../ShapeOperations/shp.h"
 #include "../ShapeOperations/ShapeFileTypes.h"
 #include "../ShapeOperations/ShapeFileHdr.h"
 

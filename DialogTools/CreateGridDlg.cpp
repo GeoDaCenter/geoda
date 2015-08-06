@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,11 +27,8 @@
 #include <wx/valtext.h>
 #include <wx/filedlg.h>
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
-#include "../ShapeOperations/ShapeFileHdr.h"
 #include "../ShapeOperations/OGRDatasourceProxy.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "CreateGridDlg.h"
@@ -164,7 +161,7 @@ void CreateGridDlg::OnCReferencefileClick( wxCommandEvent& event )
                 int pos = fn.Find('.', true);
                 if (pos >= 0) fn = fn.Left(pos);
 
-		ifstream    ifl(m_path.mb_str(), ios::in);
+		ifstream    ifl(GET_ENCODED_FILENAME(m_path), ios::in);
 		if (ifl.fail())  {
 			wxMessageBox("File doesn't exist!");
 			return;
@@ -350,17 +347,7 @@ void CreateGridDlg::CreateGrid()
 	y[m_nRows] = m_yTop;
 	for (i = 1;i < m_nRows; i++) y[i] = y[i-1] + d_y;
 
-	myBox BB;
-	double const eps_x = fabs(m_xTop - m_xBot) / 1000000.0;
-	double const eps_y = fabs(m_yTop - m_yBot) / 1000000.0;
-
-	BB.p1.x = m_xBot - eps_x;BB.p1.y = m_yBot - eps_y;
-	BB.p2.x = m_xTop + eps_x;BB.p2.y = m_yTop + eps_y;
-	//wxString m_oSHAPE = m_outputfile->GetValue();
-
-	//CreateGridShapeFile(m_oSHAPE, m_nRows, m_nCols, x, y, BB);
-    
-    vector<GdaShape*> grids;
+	vector<GdaShape*> grids;
     int n_pts = 5;
     int n_polygons = m_nRows * m_nCols;
     

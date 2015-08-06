@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,8 +27,8 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GdaConst.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
 
 class HistogramCanvas;
 class HistogramFrame;
@@ -39,14 +39,14 @@ class HistogramCanvas : public TemplateCanvas {
 	DECLARE_CLASS(HistogramCanvas)	
 public:
 	HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
-					Project* project, const std::vector<GeoDaVarInfo>& var_info,
+					Project* project, const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize);
 	virtual ~HistogramCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -76,12 +76,10 @@ public:
 protected:
 	virtual void UpdateStatusBar();
 
-	Project* project;
-	HighlightState* highlight_state;
 	int num_obs;
 	int num_time_vals;
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	std::vector<HingeStats> hinge_stats;
@@ -127,7 +125,7 @@ class HistogramFrame : public TemplateFrame {
     DECLARE_CLASS(HistogramFrame)
 public:
     HistogramFrame(wxFrame *parent, Project* project,
-				   const std::vector<GeoDaVarInfo>& var_info,
+				   const std::vector<GdaVarTools::VarInfo>& var_info,
 				   const std::vector<int>& col_ids,
 				   const wxString& title = "Histogram",
 				   const wxPoint& pos = wxDefaultPosition,

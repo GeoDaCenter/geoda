@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -429,16 +429,26 @@ GdaConst::FieldType OGRTable::GetColType(int col)
 	return type;
 }
 
-
-bool OGRTable::DoesNameExist(const wxString& name, bool case_sensitive) const
+std::vector<GdaConst::FieldType> OGRTable::GetColTypes(int col)
 {
-	return var_order.DoesNameExist(name, case_sensitive);
+	size_t ts = GetColTimeSteps(col);
+	std::vector<GdaConst::FieldType> ret(ts);
+	for (size_t t=0; t<ts; ++t) {
+		ret[t] = GetColType(col, t);
+	}
+	return ret;
 }
 
 GdaConst::FieldType OGRTable::GetColType(int col, int time)
 {
 	OGRColumn* ogr_col = FindOGRColumn(col, time);
 	return ogr_col ? ogr_col->GetType() : GdaConst::placeholder_type;
+}
+
+
+bool OGRTable::DoesNameExist(const wxString& name, bool case_sensitive) const
+{
+	return var_order.DoesNameExist(name, case_sensitive);
 }
 
 /** Return the Group column name. */
@@ -532,7 +542,7 @@ void OGRTable::GetColData(int col, GdaFlexValue& data)
 /**
  * d_array_type is boost::multi_array<double, 2>
  */
-void OGRTable::GetColData(int col, d_array_type& dbl_data)
+void OGRTable::GetColData(int col, d_array_type& data)
 {
 	if (col < 0 || col >= var_order.GetNumVarGroups()
 		|| !IsColNumeric(col)) return;
@@ -546,17 +556,74 @@ void OGRTable::GetColData(int col, d_array_type& dbl_data)
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
 	
-	dbl_data.resize(boost::extents[tms][rows]);
+	data.resize(boost::extents[tms][rows]);
 	for (size_t t=0; t<tms; ++t) {
 		if (ftr_c[t] != -1) {
             int col_idx = ftr_c[t];
-            std::vector<double> data(rows, 0);
-            columns[col_idx]->FillData(data);
+            std::vector<double> d(rows, 0);
+            columns[col_idx]->FillData(d);
 			for (size_t i=0; i<rows; ++i) {
-				dbl_data[t][i] = data[i];
+				data[t][i] = d[i];
 			}
 		} else {
-			for (size_t i=0; i<rows; ++i) dbl_data[t][i] = 0;
+			for (size_t i=0; i<rows; ++i) data[t][i] = 0;
+		}
+	}
+}
+
+void OGRTable::GetColData(int col, l_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()
+		|| !IsColNumeric(col)) return;
+	VarGroup vg = var_order.FindVarGroup(col);
+	if (vg.IsEmpty()) return;
+	vector<wxString> vars;
+	vg.GetVarNames(vars);
+	size_t tms = vars.size();
+	vector<int> ftr_c(tms); // OGRFeature column id
+	for (size_t t=0; t<vars.size(); ++t) {
+		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
+	}
+	
+	data.resize(boost::extents[tms][rows]);
+	for (size_t t=0; t<tms; ++t) {
+		if (ftr_c[t] != -1) {
+            int col_idx = ftr_c[t];
+            std::vector<wxInt64> d(rows, 0);
+            columns[col_idx]->FillData(d);
+			for (size_t i=0; i<rows; ++i) {
+				data[t][i] = d[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; ++i) data[t][i] = 0;
+		}
+	}
+}
+
+void OGRTable::GetColData(int col, s_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
+	VarGroup vg = var_order.FindVarGroup(col);
+	if (vg.IsEmpty()) return;
+	vector<wxString> vars;
+	vg.GetVarNames(vars);
+	size_t tms = vars.size();
+	vector<int> ftr_c(tms); // OGRFeature column id
+	for (size_t t=0; t<vars.size(); ++t) {
+		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
+	}
+	
+	data.resize(boost::extents[tms][rows]);
+	for (size_t t=0; t<tms; ++t) {
+		if (ftr_c[t] != -1) {
+            int col_idx = ftr_c[t];
+            std::vector<wxString> d(rows);
+            columns[col_idx]->FillData(d);
+			for (size_t i=0; i<rows; ++i) {
+				data[t][i] = d[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; ++i) data[t][i] = "";
 		}
 	}
 }
@@ -604,7 +671,7 @@ void OGRTable::GetColUndefined(int col, b_array_type& undefined)
 	var_order.FindVarGroup(col).GetVarNames(vars);
 	int tms = vars.size();
 	undefined.resize(boost::extents[tms][rows]);
-	for (size_t t=0; t<=tms; t++) {
+	for (size_t t=0; t<tms; t++) {
 		if (vars[t].IsEmpty()) {
 			for (int i=0; i<rows; ++i) undefined[t][i] = true;
 		} else {

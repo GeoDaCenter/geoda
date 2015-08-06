@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,12 +26,12 @@
 #include <boost/multi_array.hpp>
 #include <boost/thread.hpp>
 
-#include "../ShapeOperations/ShpFile.h"
+#include "../ShpFile.h"
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/OGRTable.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
 
 #include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,6 +23,7 @@
 #include "../GdaConst.h"
 #include "ScatterNewPlotView.h"
 #include "LisaCoordinatorObserver.h"
+#include "../DialogTools/RandomizationDlg.h"
 
 class LisaCoordinator;
 
@@ -49,13 +50,15 @@ public:
 	void SaveMoranI();
 	
 protected:
+    void OnRandDlgClose( wxWindowDestroyEvent& event);
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
 	LisaCoordinator* lisa_coord;
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
-	std::vector<GeoDaVarInfo> sp_var_info;
-	std::vector<GeoDaVarInfo> var_info_orig;
+	std::vector<GdaVarTools::VarInfo> sp_var_info;
+	std::vector<GdaVarTools::VarInfo> var_info_orig;
+    RandomizationDlg* rand_dlg;
 	
 	DECLARE_EVENT_TABLE()
 };
@@ -77,6 +80,9 @@ public:
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
+    void OnUseSpecifiedSeed(wxCommandEvent& event);
+	void OnSpecifySeedDlg(wxCommandEvent& event);
+    
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
 	void OnRan199Per(wxCommandEvent& event);
@@ -87,7 +93,8 @@ public:
 	
 	void OnSaveMoranI(wxCommandEvent& event);
 	
-	void update(LisaCoordinator* o);
+	virtual void update(LisaCoordinator* o);
+	virtual void closeObserver(LisaCoordinator* o);
 	
 protected:
 	LisaCoordinator* lisa_coord;

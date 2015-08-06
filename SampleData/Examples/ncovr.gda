@@ -84,24 +84,51 @@
                 <var>FH90</var>
             </variable_order>
             <custom_classifications/>
-            <spatial_weights>
+            <weights_entries>
                 <weights>
-                    <path>ncovr/ncovr_rook.gal</path>
-                    <default/>
+                    <alias>R</alias>
+                    <title>Rook Contiguity</title>
+		    <default/>
+                    <meta_info>
+                        <weights_type>rook</weights_type>
+                        <order>1</order>
+                        <inc_lower_orders>true</inc_lower_orders>
+                        <path>ncovr/ncovr_rook.gal</path>
+                        <id_variable>FIPSNO</id_variable>
+                        <symmetry>symmetric</symmetry>
+                    </meta_info>
                 </weights>
-            </spatial_weights>
+                <weights>
+                    <alias>T</alias>
+                    <title>Threshold Centroids</title>
+                    <meta_info>
+                        <weights_type>threshold</weights_type>
+                        <dist_metric>euclidean</dist_metric>
+                        <dist_units>mile</dist_units>
+                        <dist_values>centroids</dist_values>
+                        <threshold_val>1.465775932595192</threshold_val>
+                        <path>ncovr/nat_thresh_centroids.gwt</path>
+                        <id_variable>FIPSNO</id_variable>
+                        <symmetry>symmetric</symmetry>
+                    </meta_info>
+                </weights>
+            </weights_entries>
             <default_vars>
                 <default_var>
                     <name>HR60</name>
+                    <time_id>time 0</time_id>
                 </default_var>
                 <default_var>
                     <name>RD60</name>
+                    <time_id>time 0</time_id>
                 </default_var>
                 <default_var>
                     <name>PO60</name>
+                    <time_id>time 0</time_id>
                 </default_var>
                 <default_var>
                     <name>PO60</name>
+                    <time_id>time 0</time_id>
                 </default_var>
             </default_vars>
         </layer>

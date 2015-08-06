@@ -98,6 +98,7 @@ JAR=$(JAVA_HOME)\bin\jar
 JAVA_INCLUDE=-I$(JAVA_HOME)\include -I$(JAVA_HOME)\include\win32
 
 # Compilation flags
+GDAL_COMPILATION=YES
 
 # Enable code analyzis on request
 # http://msdn.microsoft.com/en-us/library/ms173498.aspx
@@ -357,13 +358,13 @@ PCIDSK_SETTING=INTERNAL
 
 # SQLite Libraries
 SQLITE_HOME=$(GDAL_HOME)
-#SQLITE_INC=-I$(SQLITE_HOME)\include
+SQLITE_INC=-I$(SQLITE_HOME)\include
 #SQLITE_LIB=$(SQLITE_HOME)\lib\sqlite3_i.lib
 # For spatialite support, try this instead (assuming you grab the libspatialite-amalgamation-2.3.1 and installed it in osgeo4w):
 # The -DSPATIALITE_AMALGAMATION, which cause "spatialite/sqlite3.h" to be included instead of "sqlite3.h" might not be necessary
 # depending on the layout of the include directories. In case of compilation errors, remove it.
-SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE -DSPATIALITE_AMALGAMATION
-SQLITE_LIB=$(GDAL_HOME)\lib64\spatialite.lib $(GDAL_HOME)\lib64\sqlite.lib
+#SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE 
+SQLITE_LIB=$(GDAL_HOME)\lib\spatialite_i.lib $(SQLITE_HOME)\lib\sqlite3_i.lib
 
 # Informix Data Blade
 #INFORMIXDIR="C:\Program Files\IBM\Informix\Client-SDK"
@@ -427,7 +428,7 @@ FGDB_ENABLED = YES
 FGDB_PLUGIN = YES
 FGDB_SDK = C:\FileGDB
 FGDB_INC = $(FGDB_SDK)\include 
-FGDB_LIB = $(FGDB_SDK)\lib\FileGDBAPI.lib
+FGDB_LIB = $(FGDB_SDK)\lib64\FileGDBAPI.lib
 
 
 #uncomment to use ArcObjects
@@ -527,7 +528,7 @@ ADD_LIBS	=
 # Location of MS Data Access SDK (not really needed anymore I think)
 #MSDASDK =	D:\Software\MDAC_2.6
 
-GDAL_DLL =	gdal$(VERSION).dll
+GDAL_DLL =	gdal_geoda$(VERSION).dll
 
 INC	=	-I$(GDAL_ROOT)\port -I$(GDAL_ROOT)\ogr -I$(GDAL_ROOT)\gcore \
 		-I$(GDAL_ROOT)\alg -I$(GDAL_ROOT)\ogr\ogrsf_frmts

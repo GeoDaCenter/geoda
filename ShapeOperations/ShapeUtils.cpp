@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -410,8 +410,8 @@ void ShapeUtils::populatePointShpFile(const std::vector<double>& x,
 {
 	initHeader(index.header);
 	initHeader(main.header);
-	index.header.shape_type = Shapefile::POINT;
-	main.header.shape_type = Shapefile::POINT;
+	index.header.shape_type = Shapefile::POINT_TYP;
+	main.header.shape_type = Shapefile::POINT_TYP;
 	double xmin = x[0];
 	double xmax = x[0];
 	double ymin = y[0];

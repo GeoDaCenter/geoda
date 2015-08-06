@@ -29,6 +29,6 @@ if [ $MACHINE_TYPE == 'x86_64' ]; then
     mv product/DEBIAN/control64 product/DEBIAN/control
 fi
 
-rm -f *.deb
-dpkg -b product/ geoda_1.5.deb
+rm -f GeoDa-1.7.x-Ubuntu-XXbit.deb
+dpkg -b product/ GeoDa-1.7.x-Ubuntu-XXbit.deb
 

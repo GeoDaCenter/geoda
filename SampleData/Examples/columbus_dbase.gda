@@ -35,12 +35,25 @@
                 <var>NEIGNO</var>
             </variable_order>
             <custom_classifications/>
-            <spatial_weights>
+            <weights_entries>
                 <weights>
-                    <path>columbus/columbus_rook.gal</path>
-                    <default/>
+                    <alias>T</alias>
+                    <title>Threshold 4.2, vars X/Y</title>
+		    <default/>
+                    <meta_info>
+                        <weights_type>threshold</weights_type>
+                        <dist_metric>euclidean</dist_metric>
+                        <dist_units>mile</dist_units>
+                        <dist_values>vars</dist_values>
+                        <dist_var1>X</dist_var1>
+                        <dist_var2>Y</dist_var2>
+                        <threshold_val>4.265155686805119</threshold_val>
+                        <path>columbus/columbus_thres_xy.gwt</path>
+                        <id_variable>POLYID</id_variable>
+                        <symmetry>symmetric</symmetry>
+                    </meta_info>
                 </weights>
-            </spatial_weights>
+            </weights_entries>
             <default_vars>
                 <default_var>
                     <name>HOVAL</name>

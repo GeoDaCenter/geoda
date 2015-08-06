@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,14 +20,15 @@
 
 
 #include <fstream>
-#include <wx/filedlg.h>
+#include <wx/checkbox.h>
 #include <wx/dir.h>
+#include <wx/dirdlg.h>
+#include <wx/filedlg.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
-#include <wx/checkbox.h>
-#include <wx/xrc/xmlres.h>
 #include <wx/progdlg.h>
+#include <wx/xrc/xmlres.h>
 #include <cpl_error.h>
 #include <ogrsf_frmts.h>
 
@@ -38,7 +39,6 @@
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "ExportDataDlg.h"
@@ -76,7 +76,8 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
 geometries(_geometries), shape_type(_shape_type), is_saveas_op(false),
 is_geometry_only(true)
 {
-    if( project)project_file_name = project->GetProjectTitle();
+    if( project)
+        project_file_name = project->GetProjectTitle();
     Init(parent, pos);
 }
 
@@ -91,7 +92,8 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
 : is_selected_only(isSelectedOnly), project_p(project), 
 is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true)
 {
-    if( project)project_file_name = project->GetProjectTitle();
+    if( project)
+        project_file_name = project->GetProjectTitle();
     for(size_t i=0; i<_geometries.size(); i++) {
         geometries.push_back((GdaShape*)_geometries[i]);
     }
@@ -102,8 +104,10 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 {
     DatasourceDlg::Init();
     
-    if ( project_file_name.empty() ) is_create_project = false;
-    else is_create_project = true;
+    if ( project_file_name.empty() ) 
+        is_create_project = false;
+    else 
+        is_create_project = true;
     ds_file_path = wxFileName("");
     
     //ds_names.Remove("dBase database file (*.dbf)|*.dbf");
@@ -114,8 +118,10 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     if( GeneralWxUtils::isWindows()){
 		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
 	}
-    Bind( wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource,
-         this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+    Bind( wxEVT_COMMAND_MENU_SELECTED, 
+         &ExportDataDlg::BrowseExportDataSource,
+         this, DatasourceDlg::ID_DS_START, 
+         ID_DS_START + ds_names.Count());
     SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
@@ -153,7 +159,8 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
         wxDirDialog dlg(this, "Select an existing *.gdb directory, "
                         "or create an New Folder named *.gdb","",
                         wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-        if (dlg.ShowModal() != wxID_OK) return;
+        if (dlg.ShowModal() != wxID_OK) 
+            return;
         ds_file_path = dlg.GetPath();
         if (ds_file_path.GetExt()!=filegdb_ext)
             ds_file_path.SetExt(filegdb_ext);
@@ -161,7 +168,8 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
     } else {
         wxFileDialog dlg(this, "Export or save layer to", "", "",
                          wildcard, wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-        if (dlg.ShowModal() != wxID_OK) return;
+        if (dlg.ShowModal() != wxID_OK) 
+            return;
         ds_file_path = dlg.GetPath();
     	if (ds_file_path.GetExt().IsEmpty()) {
             wxString ext_str = wildcard.AfterLast('.');
@@ -197,11 +205,13 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     int datasource_type = m_ds_notebook->GetSelection();
     IDataSource* datasource = GetDatasource();
     wxString ds_name = datasource->GetOGRConnectStr();
+    datasource_name = ds_name;
 	GdaConst::DataSourceType ds_type = datasource->GetType();
     
     if (ds_name.length() <= 0 ) {
         wxMessageDialog dlg(this, "Please specify a valid data source name.",
-                            "Warning", wxOK | wxICON_WARNING);
+                            "Warning", 
+                            wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -418,13 +428,13 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, TableInterface* table,
 			for( int i=0; i<num_obs; i++) selected_rows.push_back(i);
 		}
 
-        if (project_p->main_data.header.shape_type == Shapefile::POINT) {
+        if (project_p->main_data.header.shape_type == Shapefile::POINT_TYP) {
             PointContents* pc;
             for (int i=0; i<num_obs; i++) {
                 pc = (PointContents*)project_p->main_data.records[i].contents_p;
                 geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
             }
-            shape_type = Shapefile::POINT;
+            shape_type = Shapefile::POINT_TYP;
         }
         else if (project_p->main_data.header.shape_type == Shapefile::POLYGON) {
             PolygonContents* pc;
@@ -482,6 +492,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, TableInterface* table,
             throw GdaException(msg.str().c_str());
         }
     }
+    
     OGRDataAdapter::GetInstance().StopExport(); //here new_layer will be deleted
 
 	if (!is_geometry_only)

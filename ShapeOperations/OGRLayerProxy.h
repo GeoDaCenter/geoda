@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,8 +28,8 @@
 
 // This is for Shapfile/DBF direct operation
 #include "../DataViewer/TableInterface.h"
-#include "../ShapeOperations/ShpFile.h"
-#include "../Generic/GdaShape.h"
+#include "../ShpFile.h"
+#include "../GdaShape.h"
 #include "../GdaException.h"
 #include "OGRFieldProxy.h"
 #include "OGRLayerProxy.h"
@@ -241,7 +241,7 @@ public:
         return rst;
     }
     
-    void SetValueAt(int rid, int cid, int val)
+    void SetValueAt(int rid, int cid, GIntBig val)
     {
         data[rid]->SetField( cid, val);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){

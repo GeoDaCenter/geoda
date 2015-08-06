@@ -17,7 +17,7 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/tmglib.a \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
-        -L$(GEODA_HOME)/libraries/lib -lgdal \
+        -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
         -lGL -lGLU -lglut -lidn -lrt
 
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 

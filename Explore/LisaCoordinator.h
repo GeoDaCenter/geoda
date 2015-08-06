@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,11 +25,14 @@
 #include <boost/multi_array.hpp>
 #include <wx/string.h>
 #include <wx/thread.h>
-#include "../GenUtils.h"
+#include "../VarTools.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 
 class LisaCoordinatorObserver;
 class LisaCoordinator;
+class Project;
+class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
 
 class LisaWorkerThread : public wxThread
@@ -55,14 +58,13 @@ public:
 	std::list<wxThread*> *worker_list;
 };
 
-class LisaCoordinator
+class LisaCoordinator : public WeightsManStateObserver
 {
 public:
 	enum LisaType { univariate, bivariate, eb_rate_standardized }; // #9
 	
-	LisaCoordinator(const GalWeight* gal_weights,
-					TableInterface* table_int,
-					const std::vector<GeoDaVarInfo>& var_info,
+	LisaCoordinator(boost::uuids::uuid weights_id, Project* project,
+					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					LisaType lisa_type, bool calc_significances = true);
 	virtual ~LisaCoordinator();
@@ -81,6 +83,11 @@ public:
 	bool IsReuseLastSeed() { return reuse_last_seed; }
 	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
 
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
+	virtual void closeObserver(boost::uuids::uuid id);
+	
 protected:
 	// The following seven are just temporary pointers into the corresponding
 	// space-time data arrays below
@@ -109,6 +116,7 @@ public:
 	std::vector<double*> data1_vecs;
 	std::vector<double*> data2_vecs;
 	
+	boost::uuids::uuid w_id;
 	const GalElement* W;
 	wxString weight_name;
 	bool isBivariate;
@@ -117,13 +125,13 @@ public:
 	int num_obs; // total # obs including neighborless obs
 	int num_time_vals; // number of valid time periods based on var_info
 	
-	// These two variables should be empty for LisaMapNewCanvas
+	// These two variables should be empty for LisaMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	
-	// All LisaMapNewCanvas objects synchronize themselves
+	// All LisaMapCanvas objects synchronize themselves
 	// from the following 6 variables.
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
@@ -157,6 +165,9 @@ protected:
 	bool calc_significances; // if false, then p-vals will never be needed
 	uint64_t last_seed_used;
 	bool reuse_last_seed;
+	
+	WeightsManState* w_man_state;
+	WeightsManInterface* w_man_int;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,55 +20,34 @@
 #ifndef __GEODA_CENTER_GWT_WEIGHT_H__
 #define __GEODA_CENTER_GWT_WEIGHT_H__
 
-#include <fstream>
 #include <vector>
-#include "../GdaConst.h"
 #include "GeodaWeight.h"
 
-class GalElement;
-class TableInterface;
-struct DataPoint;
 
-struct GwtNeighbor
-{
-    long    nbx;
-    double  weight;
-    GwtNeighbor(const long nb=0, const double w=0) : nbx(nb), weight(w) {}
-    void assign(const long nb=0, const double w=0) { nbx=nb;  weight=w; }
+struct GwtNeighbor {
+	long nbx;
+	double weight;
+	GwtNeighbor(const long nb=0, const double w=0) : nbx(nb), weight(w) {}
+	void assign(const long nb=0, const double w=0) { nbx=nb;  weight=w; }
 };
 
 class GwtElement {
 public:
-    long nbrs; // current number of neighbors
-    GwtNeighbor* data; // list neighborhood
+	long nbrs; // current number of neighbors
+	GwtNeighbor* data; // list neighborhood
 	
 public:
-    GwtElement() : data(0), nbrs(0) {}
-    virtual ~GwtElement() {
-        if (data) delete [] data;
-        nbrs = 0; }
-    bool alloc(const int sz) {
-		if (data) delete [] data;
-        if (sz > 0) {
-			nbrs = 0;
-			data = new GwtNeighbor[sz];
-		}
-        return !empty(); }
-    bool empty() const { return data == 0; }
-    void Push(const GwtNeighbor &elt) { data[nbrs++] = elt; }
-    GwtNeighbor Pop() {
-        if (!nbrs) return GwtNeighbor(GdaConst::EMPTY);
-        return data[--nbrs]; }
-    long Size() const { return nbrs; }
-    GwtNeighbor elt(const long where) const { return data[where]; }
+	GwtElement() : data(0), nbrs(0) {}
+	virtual ~GwtElement();
+	bool alloc(const int sz);
+	bool empty() const { return data == 0; }
+	void Push(const GwtNeighbor &elt) { data[nbrs++] = elt; }
+	GwtNeighbor Pop() { return !nbrs ? GwtNeighbor(-1) : data[--nbrs]; }
+	long Size() const { return nbrs; }
+	GwtNeighbor elt(const long where) const { return data[where]; }
 	GwtNeighbor* dt() const { return data; }
 	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
-    double SpatialLag(const double* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const int *perm,
-					  const bool std=true) const;
-
-	long* GetData() const; // this allocates an array and should be removed
+	double SpatialLag(const double* x, const bool std=true) const;
 };
 
 
@@ -77,18 +56,21 @@ public:
 	GwtWeight() : gwt(0) { weight_type = gwt_type; }
 	virtual ~GwtWeight() { if (gwt) delete [] gwt; gwt = 0; }
 	GwtElement* gwt;
-	static bool HasIsolates(GwtElement *gwt, int num_obs) {
-		if (!gwt) return false;
-		for (int i=0; i<num_obs; i++) { if (gwt[i].Size() <= 0) return true; }
-		return false; }
+	static bool HasIsolates(GwtElement *gwt, int num_obs);
 	virtual bool HasIsolates() { return HasIsolates(gwt, num_obs); }
 };
 
-namespace WeightUtils {
-	GalElement* ReadGwtAsGal(const wxString& w_fname,
-							TableInterface* table_int);
-	GwtElement* ReadGwt(const wxString& w_fname, TableInterface* table_int);
-	GalElement* Gwt2Gal(GwtElement* Gwt, long obs);
+namespace Gda {
+	bool SaveGwt(const GwtElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxInt64>& id_vec);
+	bool SaveGwt(const GwtElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxString>& id_vec);
 }
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,22 +21,27 @@
 #define __GEODA_CENTER_RATE_SMOOTHING_H__
 
 #include <vector>
-class GalElement;
+#include <boost/uuid/uuid.hpp>
+#include "../VarCalc/WeightsManInterface.h"
 
 namespace GdaAlgs {
 	bool RateStandardizeEB(const int nObs, const double* P, const double* E,
-						   double* m_results, std::vector<bool>& undefined);
+						   double* results, std::vector<bool>& undefined);
 	void RateSmoother_RawRate(int obs, double *P, double *E,
-							  double *m_results, std::vector<bool>& undefined);
+							  double *results, std::vector<bool>& undefined);
 	void RateSmoother_ExcessRisk(int obs, double *P, double *E,
-								 double *m_results,
+								 double *results,
 								 std::vector<bool>& undefined);
 	void RateSmoother_EBS(int obs, double *P, double *E,
-						  double *m_results, std::vector<bool>& undefined);
-	bool RateSmoother_SEBS(int obs, GalElement* m_gal, double *P, double *E,
-						   double *m_results, std::vector<bool>& undefined);
-	bool RateSmoother_SRS(int obs, GalElement* m_gal, double *P, double *E,
-						  double *m_results, std::vector<bool>& undefined);
+						  double *results, std::vector<bool>& undefined);
+	bool RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
+						   boost::uuids::uuid weights_id,
+						   double *P, double *E,
+						   double *results, std::vector<bool>& undefined);
+	bool RateSmoother_SRS(int obs, WeightsManInterface* w_man_int,
+						  boost::uuids::uuid weights_id,
+						  double *P, double *E,
+						  double *results, std::vector<bool>& undefined);
 }
 
 #endif

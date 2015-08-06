@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -253,7 +253,7 @@ void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            ogr_layer->data[i]->SetField(col_idx, (int)data[i]);
+            ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
             set_markers[i] = true;
         }
     }
@@ -269,7 +269,7 @@ void OGRColumnInteger::UpdateData(const vector<double>& data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            ogr_layer->data[i]->SetField(col_idx, (int)data[i]);
+            ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
             set_markers[i] = true;
         }
     }
@@ -309,7 +309,7 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
             new_data[row_idx] = l_val;
         } else {
             int col_idx = GetColIndex();
-            ogr_layer->data[row_idx]->SetField(col_idx, (int)l_val);
+            ogr_layer->data[row_idx]->SetField(col_idx, (GIntBig)l_val);
         }
         set_markers[row_idx] = true;
     }

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,8 +35,8 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/DataSource.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
-#include "../Generic/GdaShape.h"
-#include "../ShapeOperations/ShpFile.h"
+#include "../GdaShape.h"
+#include "../ShpFile.h"
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../GdaException.h"
@@ -197,7 +197,7 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 	OGRwkbGeometryType eGType = wkbNone;
     for (size_t i = 0; i < selected_rows.size(); i++ ) {
         int id = selected_rows[i];
-        if ( shape_type == Shapefile::POINT ) {
+        if ( shape_type == Shapefile::POINT_TYP ) {
             eGType = wkbPoint;
             GdaPoint* pc = (GdaPoint*) geometries[id];
             OGRPoint* pt = (OGRPoint*)OGRGeometryFactory::createGeometry(wkbPoint);
@@ -393,16 +393,21 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 	}
 	//////////////////////////////////////////////////////////////
 	// Try opening the output datasource as an existing, writable
-	OGRDataSource  *poODS = NULL;
-    OGRSFDriver    *poDriver = NULL;
+	GDALDataset *poODS = NULL;
+	//OGRDataSource  *poODS = NULL;
+    //OGRSFDriver    *poDriver = NULL;
     
     if (is_update == true) {
-        poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
+        //poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
+        poODS = (GDALDataset*)GDALOpenEx( dest_datasource.c_str(), 
+					GDAL_OF_VECTOR, NULL, NULL, NULL);
     } else {
         //////////////////////////////////////////////////////////////
         // Find the output driver.
-        OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-        poDriver = poR->GetDriverByName(pszFormat);
+        GDALDriver *poDriver;
+        poDriver  = GetGDALDriverManager()->GetDriverByName(pszFormat);
+        //OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
+        //poDriver = poR->GetDriverByName(pszFormat);
         if( poDriver == NULL ) {
             // raise driver not supported failure
             error_message << "Current OGR dirver " + format + " is not "
@@ -410,14 +415,15 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
             export_progress = -1;
             return;
         }
-        if( !poDriver->TestCapability( ODrCCreateDataSource ) ) {
+        //if( !poDriver->TestCapability( //ODrCCreateDataSource ) ) {
             // raise driver does not support data source creation.\n",
-            export_progress = -1;
-            return;
-        }
+            //export_progress = -1;
+            //return;
+        //}
         //////////////////////////////////////////////////////////////
         // Create the output data source.
-        poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
+        //poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
+        poODS = poDriver->Create( pszDestDataSource, 0, 0,0, GDT_Unknown, NULL);
     }
     
 	if( poODS == NULL ) {
@@ -514,5 +520,6 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 	}
 	//////////////////////////////////////////////////////////////
 	// Clean
-	OGRDataSource::DestroyDataSource( poODS );	
+	//OGRDataSource::DestroyDataSource( poODS );
+	GDALClose(poODS);
 }

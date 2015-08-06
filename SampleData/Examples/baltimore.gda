@@ -32,12 +32,21 @@
                 <var>Y</var>
             </variable_order>
             <custom_classifications/>
-            <spatial_weights>
+	    <weights_entries>
                 <weights>
-                    <path>baltimore/baltim_queen.gal</path>
-                    <default/>
+                    <alias>Q</alias>
+                    <title>Queen Contiguity</title>
+		    <default/>
+                    <meta_info>
+                        <weights_type>queen</weights_type>
+                        <order>1</order>
+                        <inc_lower_orders>true</inc_lower_orders>
+                        <path>baltimore/baltim_queen.gal</path>
+                        <id_variable>STATION</id_variable>
+                        <symmetry>symmetric</symmetry>
+                    </meta_info>
                 </weights>
-            </spatial_weights>
+	    </weights_entries>
             <default_vars>
                 <default_var>
                     <name>X</name>

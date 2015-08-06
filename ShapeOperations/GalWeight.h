@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,54 +20,55 @@
 #ifndef __GEODA_CENTER_GAL_WEIGHT_H__
 #define __GEODA_CENTER_GAL_WEIGHT_H__
 
-#include <fstream>
 #include <vector>
-#include "../GdaConst.h"
 #include "GeodaWeight.h"
 
 class TableInterface;
-struct DataPoint;
 
 class GalElement {
 public:
-    long size; // number of neighbors in data array.
-    long* data;
+	GalElement();
+	void SetSizeNbrs(size_t sz);
+	void SetNbr(size_t pos, long n);
+	void SetNbrs(const std::vector<long>& nbrs);
+	const std::vector<long>& GetNbrs() const;
+	void SortNbrs();
+	long Size() const { return nbr.size(); }
+	long operator[](size_t n) const { return nbr[n]; }
+	double SpatialLag(const std::vector<double>& x) const;
+	double SpatialLag(const double* x) const;
+	double SpatialLag(const std::vector<double>& x, const int* perm) const;
 
-public:
-    GalElement();
-    virtual ~GalElement();
-    int alloc(int sz);
-    bool empty() const { return data == 0; }
-    void Push(long val) { data[size++] = val; }
-    long Pop() { return (size <= 0) ? GdaConst::EMPTY : data[--size]; }
-    long Size() const { return size; }
-	long elt(long where) const { return data[where]; }
-    long* dt() const { return data; }
-	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
-    double SpatialLag(const double* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const int* perm,
-					  const bool std=true) const;
-    double SpatialLag(const double* x, const int* perm,
-					  const bool std=true) const;
-	double SpatialLag(const std::vector<double>& x, const int* perm,
-					  const bool std=true) const;
+private:
+	std::vector<long> nbr;
 };
 
 class GalWeight : public GeoDaWeight {
 public:
 	GalWeight() : gal(0) { weight_type = gal_type; }
+	GalWeight(const GalWeight& gw);
+	virtual GalWeight& operator=(const GalWeight& gw);
 	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
 	GalElement* gal;
-	static bool HasIsolates(GalElement *gal, int num_obs) {
-		if (!gal) return false;
-		for (int i=0; i<num_obs; i++) { if (gal[i].Size() <= 0) return true; }
-		return false; }
+	static bool HasIsolates(GalElement *gal, int num_obs);
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
 };
 
-namespace WeightUtils {
-	GalElement* ReadGal(const wxString& w_fname, TableInterface* table_int);
+namespace Gda {
+	bool SaveGal(const GalElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxInt64>& id_vec);
+	bool SaveGal(const GalElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxString>& id_vec);
+	
+	void MakeHigherOrdContiguity(size_t distance, size_t obs,
+															 GalElement* W,
+															 bool cummulative);
 }
 
 #endif

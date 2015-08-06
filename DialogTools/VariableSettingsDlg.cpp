@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,10 +23,9 @@
 #include <wx/stattext.h>
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
 #include "../logger.h"
-#include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/RateSmoothing.h"
 #include "VariableSettingsDlg.h"
 
 BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
@@ -52,37 +51,11 @@ BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
 	EVT_BUTTON(XRCID("wxID_CANCEL"), VariableSettingsDlg::OnCancelClick)
 END_EVENT_TABLE()
 
-/** This constructor will go away in the future.  When this is called,
- the actual rate smoothing is performed and the results are stored
- in the smoothed_results array.  New code should call the general
- constructor and the actual smoothing should be done by the new code. */
-VariableSettingsDlg::VariableSettingsDlg(Project* project_s, short smoother,
-										 GalElement* gal,
-										 const wxString& title_s,
-										 const wxString& var1_title_s,
-										 const wxString& var2_title_s)
-: project(project_s), table_int(project_s->GetTableInt()),
-is_time(project_s->GetTableInt()->IsTimeVariant() &&
-		project_s->GetTableInt()->GetTimeSteps() > 1 ),
-time_steps(project_s->GetTableInt()->GetTimeSteps()),
-m_smoother(smoother), // 9: is for MoranI EB Rate Standardization
-m_gal(gal),
-title(title_s), var1_title(var1_title_s), var2_title(var2_title_s),
-set_second_from_first_mode(false), set_fourth_from_third_mode(false),
-num_cats_spin(0), num_categories(4),
-all_init(false)
-{
-	Init(rate_smoothed);
-	SetParent(0);
-	GetSizer()->Fit(this);
-	GetSizer()->SetSizeHints(this);	
-	Centre();
-	all_init = true;
-}
-
 /** All new code should use this constructor. */
 VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
 										 VarType v_type_s,
+										 bool show_weights_s,
+											bool show_distance_s,
 										 const wxString& title_s,
 										 const wxString& var1_title_s,
 										 const wxString& var2_title_s,
@@ -91,9 +64,10 @@ VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
 										 bool _set_second_from_first_mode,
 										 bool _set_fourth_from_third_mode)
 : project(project_s), table_int(project_s->GetTableInt()),
+show_weights(show_weights_s), no_weights_found_fail(false),
+show_distance(show_distance_s),
 is_time(project_s->GetTableInt()->IsTimeVariant()),
 time_steps(project_s->GetTableInt()->GetTimeSteps()),
-m_smoother(0), m_gal(0),
 title(title_s), var1_title(var1_title_s), var2_title(var2_title_s),
 var3_title(var3_title_s), var4_title(var4_title_s),
 set_second_from_first_mode(_set_second_from_first_mode),
@@ -101,7 +75,18 @@ set_fourth_from_third_mode(_set_fourth_from_third_mode),
 num_cats_spin(0), num_categories(4),
 all_init(false)
 {
-	Init(v_type_s);
+	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
+		no_weights_found_fail = true;
+		LOG_MSG("No Weights Found Error:\n"
+				"This view requires weights, but none defined.\n"
+				"Please use Tools > Weights > Weights Manager\n"
+				"to define weights.");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),
+										 "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
+		SetTitle("No Weights Found");
+	} else {
+		Init(v_type_s);
+	}
 	SetParent(0);
 	GetSizer()->Fit(this);
 	GetSizer()->SetSizeHints(this);	
@@ -111,9 +96,6 @@ all_init(false)
 
 VariableSettingsDlg::~VariableSettingsDlg()
 {
-	if (E) delete [] E;
-	if (P) delete [] P;
-	if (smoothed_results) delete [] smoothed_results;
 }
 
 void VariableSettingsDlg::Init(VarType var_type)
@@ -128,16 +110,13 @@ void VariableSettingsDlg::Init(VarType var_type)
 	} else { // (var_type == quadvariate)
 		num_var = 4;
 	}
+	if (num_var > 2) show_weights = false;
 	
 	int num_obs = project->GetNumRecords();
-	E = (v_type == rate_smoothed) ? 
-		new double[num_obs] : 0;
-	P = (v_type == rate_smoothed) ? 
-		new double[num_obs] : 0;
-	smoothed_results = (v_type == rate_smoothed) ?
-		new double[num_obs] : 0;
 	m_theme = 0;
-	map_theme_lb = 0;
+	map_theme_ch = 0;
+	weights_ch = 0;
+	distance_ch = 0;
 	lb1 = 0;
 	lb2 = 0;
 	lb3 = 0;
@@ -195,31 +174,41 @@ void VariableSettingsDlg::Init(VarType var_type)
 	
 	InitFieldChoices();
 	
-	if (map_theme_lb) {
-		map_theme_lb->Clear();
-		map_theme_lb->Append("Quantile Map");
-		map_theme_lb->Append("Percentile Map");
-		map_theme_lb->Append("Box Map (Hinge=1.5)");
-		map_theme_lb->Append("Box Map (Hinge=3.0)");
-		map_theme_lb->Append("Standard Deviation Map");
-		map_theme_lb->Append("Natural Breaks");
-		map_theme_lb->Append("Equal Intervals");
-		map_theme_lb->SetSelection(0);
-		if (m_smoother == 9 || m_smoother == 5) map_theme_lb->Enable(false);
+	if (map_theme_ch) {
+		map_theme_ch->Clear();
+		map_theme_ch->Append("Quantile Map");
+		map_theme_ch->Append("Percentile Map");
+		map_theme_ch->Append("Box Map (Hinge=1.5)");
+		map_theme_ch->Append("Box Map (Hinge=3.0)");
+		map_theme_ch->Append("Standard Deviation Map");
+		map_theme_ch->Append("Natural Breaks");
+		map_theme_ch->Append("Equal Intervals");
+		map_theme_ch->SetSelection(0);
 	}
 }
 
 void VariableSettingsDlg::CreateControls()
 {
-	if (num_var == 1 && is_time) {
+	// show_distance is only supported for univariate
+	if (num_var == 1 && is_time && show_distance) {
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),
+																		 "ID_VAR_SETTINGS_TIME_DLG_1_DIST");
+	} else if (num_var == 1 && !is_time && show_distance) {
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),
+																		 "ID_VAR_SETTINGS_DLG_1_DIST");
+	} else if (num_var == 1 && is_time && !show_weights) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_TIME_DLG_1");
-	}
-	if (num_var == 1 && !is_time) {
+	} else if (num_var == 1 && is_time && show_weights) {
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),
+										 "ID_VAR_SETTINGS_TIME_DLG_1_W");
+	} else if (num_var == 1 && !is_time && !show_weights) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_DLG_1");
-	}
-	if (num_var == 2 && is_time) {
+	} else if (num_var == 1 && !is_time && show_weights) {
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),
+										 "ID_VAR_SETTINGS_DLG_1_W");
+	} else if (num_var == 2 && is_time && !show_weights) {
 		if (v_type == rate_smoothed) {
 			wxXmlResource::Get()->LoadDialog(this, GetParent(),
 											 "ID_VAR_SETTINGS_TIME_DLG_RATE");
@@ -227,8 +216,15 @@ void VariableSettingsDlg::CreateControls()
 			wxXmlResource::Get()->LoadDialog(this, GetParent(),
 											 "ID_VAR_SETTINGS_TIME_DLG_2");
 		}
-	}
-	if (num_var == 2 && !is_time) {
+	} else if (num_var == 2 && is_time && show_weights) {
+		if (v_type == rate_smoothed) {
+			wxXmlResource::Get()->LoadDialog(this, GetParent(),
+											 "ID_VAR_SETTINGS_TIME_DLG_RATE_W");
+		} else {
+			wxXmlResource::Get()->LoadDialog(this, GetParent(),
+											 "ID_VAR_SETTINGS_TIME_DLG_2_W");
+		}
+	} else if (num_var == 2 && !is_time && !show_weights) {
 		if (v_type == rate_smoothed) {
 			wxXmlResource::Get()->LoadDialog(this, GetParent(),
 											 "ID_VAR_SETTINGS_DLG_RATE");
@@ -236,23 +232,28 @@ void VariableSettingsDlg::CreateControls()
 			wxXmlResource::Get()->LoadDialog(this, GetParent(),
 											 "ID_VAR_SETTINGS_DLG_2");
 		}
-	}
-	if (num_var == 3 && is_time) {
+	} else if (num_var == 2 && !is_time && show_weights) {
+		if (v_type == rate_smoothed) {
+			wxXmlResource::Get()->LoadDialog(this, GetParent(),
+											 "ID_VAR_SETTINGS_DLG_RATE_W");
+		} else {
+			wxXmlResource::Get()->LoadDialog(this, GetParent(),
+											 "ID_VAR_SETTINGS_DLG_2_W");
+		}
+	} else if (num_var == 3 && is_time) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_TIME_DLG_3");
-	}
-	if (num_var == 3 && !is_time) {
+	} else if (num_var == 3 && !is_time) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_DLG_3");
-	}
-	if (num_var == 4 && is_time) {
+	} else if (num_var == 4 && is_time) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_TIME_DLG_4");
-	}
-	if (num_var == 4 && !is_time) {
+	} else if (num_var == 4 && !is_time) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_DLG_4");
 	}
+	
 	if (is_time) {
 		time_lb1 = XRCCTRL(*this, "ID_TIME1", wxChoice);
 		if (num_var >= 2) {
@@ -263,6 +264,34 @@ void VariableSettingsDlg::CreateControls()
 		}
 		if (num_var >= 4) {
 			time_lb4 = XRCCTRL(*this, "ID_TIME4", wxChoice);
+		}
+	}
+	if (show_weights) {
+		weights_ch = XRCCTRL(*this, "ID_WEIGHTS", wxChoice);
+		WeightsManInterface* w_man_int = project->GetWManInt();
+		w_man_int->GetIds(weights_ids);
+		size_t sel_pos=0;
+		for (size_t i=0; i<weights_ids.size(); ++i) {
+			weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
+			if (w_man_int->GetDefault() == weights_ids[i]) sel_pos = i;
+		}
+		if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
+	}
+	if (show_distance && v_type == univariate) {
+		distance_ch = XRCCTRL(*this, "ID_DISTANCE_METRIC", wxChoice);
+		distance_ch->Append("Euclidean Distance");
+		distance_ch->Append("Arc Distance (mi)");
+		distance_ch->Append("Arc Distance (km)");
+		if (project->GetDefaultDistMetric() == WeightsMetaInfo::DM_euclidean) {
+			distance_ch->SetSelection(0);
+		} else if (project->GetDefaultDistMetric() == WeightsMetaInfo::DM_arc) {
+			if (project->GetDefaultDistUnits() == WeightsMetaInfo::DU_km) {
+				distance_ch->SetSelection(2);
+			} else {
+				distance_ch->SetSelection(1);
+			}
+		} else {
+			distance_ch->SetSelection(0);
 		}
 	}
 	SetTitle(title);
@@ -289,7 +318,7 @@ void VariableSettingsDlg::CreateControls()
 	if (num_var >= 4) lb4 = XRCCTRL(*this, "ID_VARIABLE4", wxListBox);
 	
 	if (FindWindow(XRCID("ID_THEMATIC"))) {
-        map_theme_lb = XRCCTRL(*this, "ID_THEMATIC", wxChoice);
+        map_theme_ch = XRCCTRL(*this, "ID_THEMATIC", wxChoice);
 	}
 	if (FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN"))) {
         num_cats_spin = XRCCTRL(*this, "ID_NUM_CATEGORIES_SPIN", wxSpinCtrl);
@@ -438,7 +467,13 @@ void VariableSettingsDlg::OnCancelClick(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 {
-	if (map_theme_lb) m_theme = map_theme_lb->GetSelection();
+	if (no_weights_found_fail) {
+		event.Skip();
+		EndDialog(wxID_CANCEL);
+		return;
+	}
+	
+	if (map_theme_ch) m_theme = map_theme_ch->GetSelection();
 	
 	if (lb1->GetSelection() == wxNOT_FOUND) {
 		wxString msg("No field chosen for first variable.");
@@ -503,12 +538,17 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		}
 	}
 	
-	if (v_type == rate_smoothed) {
-		if (!FillSmoothedResults()) return;
-	} else {
-		FillData();
+	FillData();
+	
+	if (show_weights) project->GetWManInt()->MakeDefault(GetWeightsId());
+	
+	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
+		project->SetDefaultDistMetric(GetDistanceMetric());
 	}
-
+	if (GetDistanceUnits() != WeightsMetaInfo::DU_unspecified) {
+		project->SetDefaultDistUnits(GetDistanceUnits());
+	}
+	
 	event.Skip();
 	EndDialog(wxID_OK);
 }
@@ -516,6 +556,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 // Theme choice for Rate Smoothed variable settings
 CatClassification::CatClassifType VariableSettingsDlg::GetCatClassifType()
 {
+	if (no_weights_found_fail) return CatClassification::quantile; 
 	if (m_theme == 0) return CatClassification::quantile;
 	if (m_theme == 1) return CatClassification::percentile;
 	if (m_theme == 2) return CatClassification::hinge_15;
@@ -529,6 +570,7 @@ CatClassification::CatClassifType VariableSettingsDlg::GetCatClassifType()
 // Number of categories for Rate Smoothed variable settings
 int VariableSettingsDlg::GetNumCategories()
 {
+	if (no_weights_found_fail) return 6;
 	CatClassification::CatClassifType cc_type = GetCatClassifType();
 	if (cc_type == CatClassification::quantile ||
 		cc_type == CatClassification::natural_breaks ||
@@ -537,6 +579,46 @@ int VariableSettingsDlg::GetNumCategories()
 	} else {
 		return 6;
 	}
+}
+
+boost::uuids::uuid VariableSettingsDlg::GetWeightsId()
+{
+	if (no_weights_found_fail || !show_weights ||
+		!weights_ch || weights_ids.size()==0) return boost::uuids::nil_uuid();
+	
+	int sel = weights_ch->GetSelection();
+	if (sel < 0) sel = 0;
+	if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+	wxString s;
+	s << "VariableSettingsDlg::GetWeightsId() weight: ";
+	s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
+	LOG_MSG(s);
+	return weights_ids[sel];
+}
+
+WeightsMetaInfo::DistanceMetricEnum VariableSettingsDlg::GetDistanceMetric()
+{
+	if (distance_ch) {
+		if (distance_ch->GetSelection() == 0) {
+			return WeightsMetaInfo::DM_euclidean;
+		} else if (distance_ch->GetSelection() == 1 ||
+							 distance_ch->GetSelection() == 2) {
+			return WeightsMetaInfo::DM_arc;
+		}
+	}
+	return WeightsMetaInfo::DM_unspecified;
+}
+
+WeightsMetaInfo::DistanceUnitsEnum VariableSettingsDlg::GetDistanceUnits()
+{
+	if (distance_ch) {
+		if (distance_ch->GetSelection() == 1) {
+			return WeightsMetaInfo::DU_mile;
+		} else if (distance_ch->GetSelection() == 2) {
+			return WeightsMetaInfo::DU_km;
+		}
+	}
+	return WeightsMetaInfo::DU_unspecified;
 }
 
 void VariableSettingsDlg::InitTimeChoices()
@@ -651,7 +733,7 @@ void VariableSettingsDlg::FillData()
 	}
 	
 	for (int i=0; i<num_var; i++) {
-		// Set Primary GeoDaVarInfo attributes
+		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
 		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
 		// var_info[i].time already set above
@@ -660,101 +742,7 @@ void VariableSettingsDlg::FillData()
 		var_info[i].fixed_scale = true;
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
-	//Gda::PrintVarInfoVector(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
-bool VariableSettingsDlg::FillSmoothedResults()
-{
-	std::vector<double> data;
-	std::vector<bool> undefined;
-	data.resize(table_int->GetNumberRows());
-	for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) data[i] = 0;
-	undefined.resize(table_int->GetNumberRows());
-	
-	col_ids.resize(num_var);
-	var_info.resize(num_var);
-	v1_col_id = col_id_map[lb1->GetSelection()];
-	v1_name = table_int->GetColName(v1_col_id);
-	col_ids[0] = v1_col_id;
-	var_info[0].time = v1_time;
-	
-	int col1 = col_id_map[lb1->GetSelection()];
-	table_int->GetColData(col1, v1_time, data);
-	table_int->GetColUndefined(col1, v1_time, undefined);
-	for (int i=0, iend=data.size(); i<iend; i++) {
-		E[i] = undefined[i] ? 0.0 : data[i];
-	}	
-
-	
-	v2_col_id = col_id_map[lb2->GetSelection()];
-	v2_name = table_int->GetColName(v2_col_id);
-	col_ids[1] = v2_col_id;
-	var_info[1].time = v2_time;
-	
-	int col2 = col_id_map[lb2->GetSelection()];
-	table_int->GetColData(col2, v2_time, data);
-	table_int->GetColUndefined(col2, v2_time, undefined);
-	for (int i=0, iend=data.size(); i<iend; i++) {
-		P[i] = undefined[i] ? 0.0 : data[i];
-	}
-	
-	for (int i=0; i<num_var; i++) {
-		// Set Primary GeoDaVarInfo attributes
-		var_info[i].name = table_int->GetColName(col_ids[i]);
-		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
-		// var_info[i].time already set above
-		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-		var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-		var_info[i].fixed_scale = true;
-	}
-	// Call function to set all Secondary Attributes based on Primary Attributes
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
-	//Gda::PrintVarInfoVector(var_info);
-	
-	int num_obs = project->GetNumRecords();
-	for (int i=0; i<num_obs; i++) {
-		if (P[i] <= 0) {
-			wxString msg("Base values contain non-positive numbers. "
-						 "No rate computed.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return false;
-		}
-	}
-
-	switch (m_smoother) {
-		case 1:
-			GdaAlgs::RateSmoother_SRS(num_obs, m_gal, P, E,
-										smoothed_results, m_undef_r);
-			break;
-		case 2:
-			GdaAlgs::RateSmoother_EBS(num_obs, P, E,
-										smoothed_results, m_undef_r);
-			break;
-		case 3:
-			GdaAlgs::RateSmoother_SEBS(num_obs, m_gal, P, E,
-										 smoothed_results, m_undef_r);
-			break;
-		case 4:
-			GdaAlgs::RateSmoother_RawRate(num_obs, P, E,
-											smoothed_results, m_undef_r);
-			break;
-		case 5:
-			GdaAlgs::RateSmoother_ExcessRisk(num_obs, P, E,
-											   smoothed_results, m_undef_r);
-			break;
-		case 9:
-			if (!GdaAlgs::RateStandardizeEB(num_obs, P, E,
-											  smoothed_results, m_undef_r)) {
-				wxString msg("Emprical Bayes Rate Standardization failed.");
-				wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-				dlg.ShowModal();
-				return false;
-			}
-			break;
-		default:
-			break;
-	}
-	return true;
-}

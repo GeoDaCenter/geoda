@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_TEMPLATE_FRAME_H__
-#define __GEODA_TEMPLATE_FRAME_H__
+#ifndef __GEODA_CENTER_TEMPLATE_FRAME_H__
+#define __GEODA_CENTER_TEMPLATE_FRAME_H__
 
 #include <set>
 #include <wx/frame.h>
@@ -50,6 +50,7 @@ public:
 	void DeregisterAsActive();
 	static wxString GetActiveName();
 	static TemplateFrame* GetActiveFrame();
+	virtual void OnActivate(wxActivateEvent& event) {}
 	
 public:
 	static bool GetColorFromUser(wxWindow* parent,
@@ -58,6 +59,8 @@ public:
 								 const wxString& title = "Choose A Color");
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
+    virtual void OnChangeMapTransparency();
+    virtual void OnDrawBasemap(bool flag, int map_type);
 	virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	virtual void OnCopyLegendToClipboard(wxCommandEvent& event);
 	virtual void OnCopyImageToClipboard(wxCommandEvent& event);
@@ -72,9 +75,11 @@ public:
 	virtual void OnSelectWithLine(wxCommandEvent& event);
 	virtual void OnSelectionMode(wxCommandEvent& event);
 	virtual void OnResetMap(wxCommandEvent& event);
+	virtual void OnRefreshMap(wxCommandEvent& event);
 	virtual void OnFitToWindowMode(wxCommandEvent& event);
 	virtual void OnFixedAspectRatioMode(wxCommandEvent& event);
 	virtual void OnZoomMode(wxCommandEvent& event);
+	virtual void OnZoomOutMode(wxCommandEvent& event);
 	virtual void OnPanMode(wxCommandEvent& event);
 	virtual void OnPrintCanvasState(wxCommandEvent& event);
 	virtual void UpdateOptionMenuItems();
@@ -89,6 +94,13 @@ public:
 	virtual void OnDisplayStatusBar(wxCommandEvent& event) {
 		DisplayStatusBar(!IsStatusBarVisible()); }
 	virtual void DisplayStatusBar(bool show);
+	/** Called by TemplateCanvas to determine if TemplateFrame will
+	 generate the Status Bar String. */
+	virtual bool GetStatusBarStringFromFrame();
+	/** Set to true if TemplateFrame implements GetUpdateStatusBarString. */
+	virtual void SetGetStatusBarStringFromFrame(bool get_sb_string);
+	virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
+																						int total_hover_obs);
 	virtual Project* GetProject() { return project; }
 	/** return value can be null */
 	virtual TemplateLegend* GetTemplateLegend() { return template_legend; }
@@ -129,13 +141,14 @@ protected:
 	TableState* table_state;
 	TimeState* time_state;
 	bool is_status_bar_visible;
+	bool get_status_bar_string_from_frame;
 	
 	/** True iff frame depend on multi-time-period variables currently. 
 	 If supports_timeline_changes is true, then no need to update this
 	 variable. */
 	bool depends_on_non_simple_groups;
 	/** True iff frame can handle time-line changes such as add/delete/swap. */
-    bool supports_timeline_changes;
+	bool supports_timeline_changes;
 
 	std::set<wxString> grp_dependencies;
 	

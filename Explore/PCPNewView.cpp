@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -43,32 +43,31 @@
 #include "../ShapeOperations/ShapeUtils.h"
 #include "PCPNewView.h"
 
-IMPLEMENT_CLASS(PCPNewCanvas, TemplateCanvas)
-BEGIN_EVENT_TABLE(PCPNewCanvas, TemplateCanvas)
+IMPLEMENT_CLASS(PCPCanvas, TemplateCanvas)
+BEGIN_EVENT_TABLE(PCPCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
-	EVT_MOUSE_EVENTS(PCPNewCanvas::OnMouseEvent)
+	EVT_MOUSE_EVENTS(PCPCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-PCPNewCanvas::PCPNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
+PCPCanvas::PCPCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								   Project* project_s,
-								   const std::vector<GeoDaVarInfo>& v_info,
+								   const std::vector<GdaVarTools::VarInfo>& v_info,
 								   const std::vector<int>& col_ids,
 								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), num_vars(v_info.size()),
-data(v_info.size()),
-highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
+data(v_info.size()), custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
 num_categories(6), all_init(false)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering PCPNewCanvas::PCPNewCanvas");
-	template_frame = t_frame;	
+	LOG_MSG("Entering PCPCanvas::PCPCanvas");
 	TableInterface* table_int = project->GetTableInt();
 
 	LOG(var_info.size());
@@ -170,23 +169,23 @@ num_categories(6), all_init(false)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting PCPNewCanvas::PCPNewCanvas");
+	LOG_MSG("Exiting PCPCanvas::PCPCanvas");
 }
 
-PCPNewCanvas::~PCPNewCanvas()
+PCPCanvas::~PCPCanvas()
 {
-	LOG_MSG("Entering PCPNewCanvas::~PCPNewCanvas");
+	LOG_MSG("Entering PCPCanvas::~PCPCanvas");
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting PCPNewCanvas::~PCPNewCanvas");
+	LOG_MSG("Exiting PCPCanvas::~PCPCanvas");
 }
 
-void PCPNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
+void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering PCPNewCanvas::DisplayRightClickMenu");
+	LOG_MSG("Entering PCPCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((PCPNewFrame*) template_frame)->OnActivate(ae);
+	((PCPFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
@@ -197,12 +196,12 @@ void PCPNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting PCPNewCanvas::DisplayRightClickMenu");
+	LOG_MSG("Exiting PCPCanvas::DisplayRightClickMenu");
 }
 
-void PCPNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
+void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
@@ -232,7 +231,7 @@ void PCPNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 				  "Time Variable Options");
 }
 
-void PCPNewCanvas::SetCheckMarks(wxMenu* menu)
+void PCPCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -379,35 +378,27 @@ void PCPNewCanvas::SetCheckMarks(wxMenu* menu)
 								  (GetCcType() ==
 								   CatClassification::natural_breaks)
 								  && GetNumCats() == 10);
-	
-	//if (var_info[0].is_time_variant) {
-	//	GeneralWxUtils::CheckMenuItem(menu,
-	//								  GdaConst::ID_TIME_SYNC_VAR1,
-	//								  var_info[0].sync_with_global_time);
-	//	GeneralWxUtils::CheckMenuItem(menu,
-	//								  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
-	//								  var_info[0].fixed_scale);
-	//}
 }
 
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines
  as needed. */
-void PCPNewCanvas::update(HighlightState* o)
+void PCPCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering PCPNewCanvas::update");
+	LOG_MSG("Entering PCPCanvas::update");
 
 	// we want to force a full redraw of all selected objects
 	layer1_valid = false;
 	layer2_valid = false;
  
 	Refresh();
-	
-	LOG_MSG("Entering PCPNewCanvas::update");	
+
+	UpdateStatusBar();
+	LOG_MSG("Entering PCPCanvas::update");	
 }
 
-wxString PCPNewCanvas::GetCanvasTitle()
+wxString PCPCanvas::GetCanvasTitle()
 {
 	wxString s("Parallel Coordinate Plot: ");
 	s << GetNameWithTime(var_order[0]) << ", ";
@@ -416,7 +407,7 @@ wxString PCPNewCanvas::GetCanvasTitle()
 	return s;
 }
 
-wxString PCPNewCanvas::GetCategoriesTitle()
+wxString PCPCanvas::GetCategoriesTitle()
 {
 	wxString s;
 	if (GetCcType() == CatClassification::no_theme) {
@@ -431,7 +422,7 @@ wxString PCPNewCanvas::GetCategoriesTitle()
 }
 
 
-wxString PCPNewCanvas::GetNameWithTime(int var)
+wxString PCPCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
@@ -442,7 +433,7 @@ wxString PCPNewCanvas::GetNameWithTime(int var)
 	return s;
 }
 
-void PCPNewCanvas::NewCustomCatClassif()
+void PCPCanvas::NewCustomCatClassif()
 {
 	// Fully update cat_classif_def fields according to current
 	// categorization state
@@ -505,7 +496,7 @@ void PCPNewCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
-void PCPNewCanvas::ChangeThemeType(
+void PCPCanvas::ChangeThemeType(
 						CatClassification::CatClassifType new_cat_theme,
 						int num_categories_s,
 						const wxString& custom_classif_title)
@@ -538,7 +529,7 @@ void PCPNewCanvas::ChangeThemeType(
 	}
 }
 
-void PCPNewCanvas::update(CatClassifState* o)
+void PCPCanvas::update(CatClassifState* o)
 {
 	cat_classif_def = o->GetCatClassif();
 	VarInfoAttributeChange();
@@ -552,7 +543,7 @@ void PCPNewCanvas::update(CatClassifState* o)
 	}
 }
 
-void PCPNewCanvas::OnSaveCategories()
+void PCPCanvas::OnSaveCategories()
 {
 	wxString t_name;
 	if (GetCcType() == CatClassification::custom) {
@@ -567,9 +558,9 @@ void PCPNewCanvas::OnSaveCategories()
 	SaveCategories(title, label, "CATEGORIES");
 }
 
-void PCPNewCanvas::PopulateCanvas()
+void PCPCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering PCPNewCanvas::PopulateCanvas");
+	LOG_MSG("Entering PCPCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -752,12 +743,12 @@ void PCPNewCanvas::PopulateCanvas()
 	
 	ResizeSelectableShps();
 	
-	LOG_MSG("Exiting PCPNewCanvas::PopulateCanvas");
+	LOG_MSG("Exiting PCPCanvas::PopulateCanvas");
 }
 
-void PCPNewCanvas::TimeChange()
+void PCPCanvas::TimeChange()
 {
-	LOG_MSG("Entering PCPNewCanvas::TimeChange");
+	LOG_MSG("Entering PCPCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -785,14 +776,14 @@ void PCPNewCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting PCPNewCanvas::TimeChange");
+	LOG_MSG("Exiting PCPCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
-void PCPNewCanvas::VarInfoAttributeChange()
+void PCPCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -813,11 +804,11 @@ void PCPNewCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index */
-void PCPNewCanvas::CreateAndUpdateCategories()
+void PCPCanvas::CreateAndUpdateCategories()
 {
 	cats_valid.resize(num_time_vals);
 	for (int t=0; t<num_time_vals; t++) cats_valid[t] = true;
@@ -884,9 +875,9 @@ void PCPNewCanvas::CreateAndUpdateCategories()
 	CatClassification::ChangeNumCats(cnc, cat_classif_def);
 }
 
-void PCPNewCanvas::TimeSyncVariableToggle(int var_index)
+void PCPCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPNewCanvas::TimeSyncVariableToggle");
+	LOG_MSG("In PCPCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -895,9 +886,9 @@ void PCPNewCanvas::TimeSyncVariableToggle(int var_index)
 	Refresh();
 }
 
-void PCPNewCanvas::FixedScaleVariableToggle(int var_index)
+void PCPCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPNewCanvas::FixedScaleVariableToggle");
+	LOG_MSG("In PCPCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -905,7 +896,7 @@ void PCPNewCanvas::FixedScaleVariableToggle(int var_index)
 	Refresh();
 }
 
-void PCPNewCanvas::DisplayStatistics(bool display_stats_s)
+void PCPCanvas::DisplayStatistics(bool display_stats_s)
 {
 	display_stats = display_stats_s;
 	invalidateBms();
@@ -913,7 +904,7 @@ void PCPNewCanvas::DisplayStatistics(bool display_stats_s)
 	Refresh();
 }
 
-void PCPNewCanvas::ShowAxes(bool show_axes_s)
+void PCPCanvas::ShowAxes(bool show_axes_s)
 {
 	show_axes = show_axes_s;
 	invalidateBms();
@@ -921,7 +912,7 @@ void PCPNewCanvas::ShowAxes(bool show_axes_s)
 	Refresh();
 }
 
-void PCPNewCanvas::StandardizeData(bool standardize)
+void PCPCanvas::StandardizeData(bool standardize)
 {
 	if (standardize == standardized) return;
 	standardized = standardize;
@@ -944,7 +935,7 @@ void PCPNewCanvas::StandardizeData(bool standardize)
 //   LeftDCLick(), etc.
 // LeftUp(): returns true at the moment the button changed to up.
 
-void PCPNewCanvas::OnMouseEvent(wxMouseEvent& event)
+void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	// Capture the mouse when left mouse button is down.
 	if (event.LeftIsDown() && !HasCapture()) CaptureMouse();
@@ -1067,7 +1058,7 @@ void PCPNewCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 }
 
-void PCPNewCanvas::VarLabelClicked()
+void PCPCanvas::VarLabelClicked()
 {
 	int v = var_order[control_label_sel];
 	wxString msg;
@@ -1081,7 +1072,7 @@ void PCPNewCanvas::VarLabelClicked()
 	if (tl) tl->Refresh();
 }
 
-void PCPNewCanvas::PaintControls(wxDC& dc)
+void PCPCanvas::PaintControls(wxDC& dc)
 {
 	if (!show_pcp_control) return;
 	// draw control line
@@ -1102,9 +1093,9 @@ void PCPNewCanvas::PaintControls(wxDC& dc)
  Determines final location of control.  If order changes, update
  var_order, invalidate bitmaps and call PopulateCanvas.
  */
-void PCPNewCanvas::MoveControlLine(int final_y)
+void PCPCanvas::MoveControlLine(int final_y)
 {
-	LOG_MSG("Entering PCPNewCanvas::MoveControlLine");
+	LOG_MSG("Entering PCPCanvas::MoveControlLine");
 	LOG(control_line_sel);
 	
 	LOG_MSG("original var_order");
@@ -1164,21 +1155,25 @@ void PCPNewCanvas::MoveControlLine(int final_y)
 	LOG_MSG("final var_order:");
 	for (int i=0; i<num_vars; i++) LOG(var_order[i]);
 	
-	LOG_MSG("Exiting PCPNewCanvas::MoveControlLine");
+	LOG_MSG("Exiting PCPCanvas::MoveControlLine");
 	invalidateBms();
 	PopulateCanvas();
 }
 
-CatClassification::CatClassifType PCPNewCanvas::GetCcType()
+CatClassification::CatClassifType PCPCanvas::GetCcType()
 {
 	return cat_classif_def.cat_classif_type;
 }
 
-void PCPNewCanvas::UpdateStatusBar()
+void PCPCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    if (highlight_state->GetTotalHighlighted() > 0){
+		s << "#selected=" << highlight_state->GetTotalHighlighted();
+	}
+
 	if (mousemode == select && selectstate == start) {
 		// obs: 1,3,5,... obs 1 = (1.23, 432.3, -23)
 		if (total_hover_obs > 1) {
@@ -1201,33 +1196,29 @@ void PCPNewCanvas::UpdateStatusBar()
 			s << GenUtils::DblToStr(data[var_order[num_vars-1]][t][ob],3);
 			s << ")";
 		}
-	} else if (mousemode == select &&
-			   (selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
 	}
-	
 	sb->SetStatusText(s);
 }
 
 
-PCPNewLegend::PCPNewLegend(wxWindow *parent, TemplateCanvas* t_canvas,
+PCPLegend::PCPLegend(wxWindow *parent, TemplateCanvas* t_canvas,
 						   const wxPoint& pos, const wxSize& size)
 : TemplateLegend(parent, t_canvas, pos, size)
 {
 }
 
-PCPNewLegend::~PCPNewLegend()
+PCPLegend::~PCPLegend()
 {
-    LOG_MSG("In PCPNewLegend::~PCPNewLegend");
+    LOG_MSG("In PCPLegend::~PCPLegend");
 }
 
-IMPLEMENT_CLASS(PCPNewFrame, TemplateFrame)
-	BEGIN_EVENT_TABLE(PCPNewFrame, TemplateFrame)
-	EVT_ACTIVATE(PCPNewFrame::OnActivate)
+IMPLEMENT_CLASS(PCPFrame, TemplateFrame)
+	BEGIN_EVENT_TABLE(PCPFrame, TemplateFrame)
+	EVT_ACTIVATE(PCPFrame::OnActivate)
 END_EVENT_TABLE()
 
-PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
-								 const std::vector<GeoDaVarInfo>& var_info,
+PCPFrame::PCPFrame(wxFrame *parent, Project* project,
+								 const std::vector<GdaVarTools::VarInfo>& var_info,
 								 const std::vector<int>& col_ids,
 								 const wxString& title,
 								 const wxPoint& pos,
@@ -1235,7 +1226,7 @@ PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
 								 const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering PCPNewFrame::PCPNewFrame");
+	LOG_MSG("Entering PCPFrame::PCPFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -1247,7 +1238,7 @@ PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
 	splitter_win->SetMinimumPaneSize(10);
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
-	template_canvas = new PCPNewCanvas(rpanel, this, project,
+	template_canvas = new PCPCanvas(rpanel, this, project,
 									   var_info, col_ids,
 									   wxDefaultPosition,
 									   wxSize(width,height));
@@ -1261,7 +1252,7 @@ PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
 	SetTitle(template_canvas->GetCanvasTitle());
 	
     wxPanel* lpanel = new wxPanel(splitter_win);
-	template_legend = new PCPNewLegend(lpanel, template_canvas,
+	template_legend = new PCPLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
     lbox->Add(template_legend, 1, wxEXPAND);
@@ -1276,55 +1267,55 @@ PCPNewFrame::PCPNewFrame(wxFrame *parent, Project* project,
     splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
 	Show(true);
-	LOG_MSG("Exiting PCPNewFrame::PCPNewFrame");
+	LOG_MSG("Exiting PCPFrame::PCPFrame");
 }
 
-PCPNewFrame::~PCPNewFrame()
+PCPFrame::~PCPFrame()
 {
-	LOG_MSG("In PCPNewFrame::~PCPNewFrame");
+	LOG_MSG("In PCPFrame::~PCPFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 
-void PCPNewFrame::OnActivate(wxActivateEvent& event)
+void PCPFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In PCPNewFrame::OnActivate");
+	LOG_MSG("In PCPFrame::OnActivate");
 	if (event.GetActive()) {
-		RegisterAsActive("PCPNewFrame", GetTitle());
+		RegisterAsActive("PCPFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
-void PCPNewFrame::MapMenus()
+void PCPFrame::MapMenus()
 {
-	LOG_MSG("In PCPNewFrame::MapMenus");
+	LOG_MSG("In PCPFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS");
-	((PCPNewCanvas*) template_canvas)->
+	((PCPCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
-	((PCPNewCanvas*) template_canvas)->SetCheckMarks(optMenu);
+	((PCPCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::UpdateOptionMenuItems()
+void PCPFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("PCPNewFrame::UpdateOptionMenuItems: Options "
+        LOG_MSG("PCPFrame::UpdateOptionMenuItems: Options "
 				"menu not found");
 	} else {
-		((PCPNewCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+		((PCPCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
-void PCPNewFrame::UpdateContextMenuItems(wxMenu* menu)
+void PCPFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -1335,110 +1326,110 @@ void PCPNewFrame::UpdateContextMenuItems(wxMenu* menu)
 }
 
 /** Implementation of TimeStateObserver interface */
-void PCPNewFrame::update(TimeState* o)
+void PCPFrame::update(TimeState* o)
 {
-	LOG_MSG("In PCPNewFrame::update(TimeState* o)");
+	LOG_MSG("In PCPFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
 
-void PCPNewFrame::OnNewCustomCatClassifA()
+void PCPFrame::OnNewCustomCatClassifA()
 {
-	((PCPNewCanvas*) template_canvas)->NewCustomCatClassif();
+	((PCPCanvas*) template_canvas)->NewCustomCatClassif();
 }
 
-void PCPNewFrame::OnCustomCatClassifA(const wxString& cc_title)
+void PCPFrame::OnCustomCatClassifA(const wxString& cc_title)
 {
 	ChangeThemeType(CatClassification::custom, 4, cc_title);
 }
 
-void PCPNewFrame::OnShowAxes(wxCommandEvent& event)
+void PCPFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPNewFrame::OnShowAxes");
-	PCPNewCanvas* t = (PCPNewCanvas*) template_canvas;
+	LOG_MSG("In PCPFrame::OnShowAxes");
+	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::OnDisplayStatistics(wxCommandEvent& event)
+void PCPFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPNewFrame::OnDisplayStatistics");
-	PCPNewCanvas* t = (PCPNewCanvas*) template_canvas;
+	LOG_MSG("In PCPFrame::OnDisplayStatistics");
+	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::OnViewOriginalData(wxCommandEvent& event)
+void PCPFrame::OnViewOriginalData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPNewFrame::OnViewOriginalData");
-	PCPNewCanvas* t = (PCPNewCanvas*) template_canvas;
+	LOG_MSG("In PCPFrame::OnViewOriginalData");
+	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(false);
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::OnViewStandardizedData(wxCommandEvent& event)
+void PCPFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPNewFrame::OnViewStandardizedData");
-	PCPNewCanvas* t = (PCPNewCanvas*) template_canvas;
+	LOG_MSG("In PCPFrame::OnViewStandardizedData");
+	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(true);
 	UpdateOptionMenuItems();
 }
 
-void PCPNewFrame::OnThemeless()
+void PCPFrame::OnThemeless()
 {
 	ChangeThemeType(CatClassification::no_theme, 1);
 }
 
-void PCPNewFrame::OnHinge15()
+void PCPFrame::OnHinge15()
 {
 	ChangeThemeType(CatClassification::hinge_15, 6);
 }
 
-void PCPNewFrame::OnHinge30()
+void PCPFrame::OnHinge30()
 {
 	ChangeThemeType(CatClassification::hinge_30, 6);
 }
 
-void PCPNewFrame::OnQuantile(int num_cats)
+void PCPFrame::OnQuantile(int num_cats)
 {
 	ChangeThemeType(CatClassification::quantile, num_cats);
 }
 
-void PCPNewFrame::OnPercentile()
+void PCPFrame::OnPercentile()
 {
 	ChangeThemeType(CatClassification::percentile, 6);
 }
 
-void PCPNewFrame::OnStdDevMap()
+void PCPFrame::OnStdDevMap()
 {
 	ChangeThemeType(CatClassification::stddev, 6);
 }
 
-void PCPNewFrame::OnUniqueValues()
+void PCPFrame::OnUniqueValues()
 {
 	ChangeThemeType(CatClassification::unique_values, 6);
 }
 
-void PCPNewFrame::OnNaturalBreaks(int num_cats)
+void PCPFrame::OnNaturalBreaks(int num_cats)
 {
 	ChangeThemeType(CatClassification::natural_breaks, num_cats);
 }
 
-void PCPNewFrame::OnEqualIntervals(int num_cats)
+void PCPFrame::OnEqualIntervals(int num_cats)
 {
 	ChangeThemeType(CatClassification::equal_intervals, num_cats);
 }
 
-void PCPNewFrame::OnSaveCategories()
+void PCPFrame::OnSaveCategories()
 {
-	((PCPNewCanvas*) template_canvas)->OnSaveCategories();
+	((PCPCanvas*) template_canvas)->OnSaveCategories();
 }
 
-void PCPNewFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
+void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
 								  int num_categories,
 								  const wxString& custom_classif_title)
 {
-	((PCPNewCanvas*) template_canvas)->ChangeThemeType(new_theme,
+	((PCPCanvas*) template_canvas)->ChangeThemeType(new_theme,
 													   num_categories,
 													   custom_classif_title);
 	UpdateTitle();

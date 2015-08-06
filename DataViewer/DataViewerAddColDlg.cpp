@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,7 +29,7 @@
 #include "TimeState.h"
 #include "../Project.h"
 #include "../logger.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
@@ -57,6 +57,7 @@ DataViewerAddColDlg::DataViewerAddColDlg(Project* project_s,
 time_variant_no_as_default(time_variant_no_as_default_s),
 can_change_time_variant(can_change_time_variant_s), default_name(default_name_s),
 default_field_type(default_field_type_s),
+m_decimals_val(0), m_length_valid(true),
 time_variant(project_s->GetTableInt()->IsTimeVariant()),
 fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 {
@@ -79,6 +80,7 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
     
 	m_insert_pos->Append("after last variable");
 	m_insert_pos->SetSelection(0);
+	UpdateApplyButton();
 }
 
 
@@ -187,8 +189,7 @@ void DataViewerAddColDlg::CreateControls()
 	} else {
 		m_type->SetSelection(0);
 	}
-			   
-	UpdateApplyButton();
+	
 	CheckName();
 	SetDefaultsByType(default_field_type);
 }
@@ -537,9 +538,15 @@ void DataViewerAddColDlg::UpdateMinMaxValues()
 void DataViewerAddColDlg::UpdateApplyButton()
 {
 	if (fixed_lengths) {
-		m_apply_button->Enable(m_name_valid && m_length_valid &&
-							   m_decimals_valid &&
-							   m_length_val > m_decimals_val);
+		bool enable = false;
+		if (cur_type == GdaConst::double_type) {
+			enable = (m_name_valid && m_length_valid &&
+					  m_decimals_valid &&
+					  m_length_val > m_decimals_val);
+		} else {
+			enable = (m_name_valid && m_length_valid);
+		}
+		m_apply_button->Enable(enable);
 	} else {
 		m_apply_button->Enable(m_name_valid);
 	}

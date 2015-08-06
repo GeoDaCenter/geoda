@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,7 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/TableState.h"
-#include "../Generic/HighlightState.h"
+#include "../HighlightState.h"
 #include "../logger.h"
 #include "DataMovieDlg.h"
 
@@ -189,7 +189,7 @@ void DataMovieDlg::ChangePosNum(int new_pos_num)
 	slider->SetValue(new_pos_num);
 	SetCurTxt(new_pos_num);
 	if (new_pos_num == 0) {
-		highlight_state->SetEventType(HighlightState::unhighlight_all);
+		highlight_state->SetEventType(HLStateInt::unhighlight_all);
 		highlight_state->notifyObservers();
 		Refresh();
 		return;
@@ -223,7 +223,7 @@ void DataMovieDlg::ChangePosNum(int new_pos_num)
 		}
 	}
 	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetEventType(HighlightState::delta);
+		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();

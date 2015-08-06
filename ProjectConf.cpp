@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -230,7 +230,8 @@ void ProjectConfiguration::Save(wxString saveFileName)
 {
     ptree pt;
     WritePtree(pt, saveFileName);
-    boost::property_tree::xml_writer_settings<char> settings(' ', 4);
+    //boost::property_tree::xml_writer_settings<char> settings(' ', 4);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 4);
 	try {
 #ifdef __WIN32__
 		std::wstring ws(GET_ENCODED_FILENAME(saveFileName));

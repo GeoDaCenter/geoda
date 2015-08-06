@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -32,74 +32,77 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-OGRDatasourceProxy::OGRDatasourceProxy(OGRDataSource* _ds, string _ds_name)
+OGRDatasourceProxy::OGRDatasourceProxy(GDALDataset* _ds, string _ds_name)
 : ds(_ds), ds_name(_ds_name)
 {
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(string ds_name, bool bUpdate)
-: ds_name(ds_name)
+OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
+: ds_name(_ds_name)
 {	
-	ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), bUpdate);
-    if (!ds) {
-		// default bUpdate=True, but some datasource might be False update
-		// , here we try to use bUpdate=False again
-		ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), !bUpdate );
-		if (!ds) {
-			// raise open fialed
-			string error_detail = CPLGetLastErrorMsg();
-			ostringstream msg;
-			if ( error_detail.length() == 0 || error_detail == "Unknown"){
-				msg << "Failed to open data source. Please check if the data "
-                    << "is valid and its data type/format is "
-					<< "supported by GeoDa.\n\nTip: you can setup necessary "
-                    << "GeoDa driver by following the instructions at:\n"
-                    << "https://geodacenter.asu.edu/geoda/formats";
-			} else {
-				msg << error_detail;
-			}
-
-			throw GdaException(msg.str().c_str());
+	//ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), bUpdate);
+    const char* pszDsPath = ds_name.c_str();
+	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
+	if (!ds) {
+		// raise open fialed
+		string error_detail = CPLGetLastErrorMsg();
+		ostringstream msg;
+		if ( error_detail.length() == 0 || error_detail == "Unknown"){
+			msg << "Failed to open data source. Please check if the data "
+									<< "is valid and its data type/format is "
+				<< "supported by GeoDa.\n\nTip: you can setup necessary "
+									<< "GeoDa driver by following the instructions at:\n"
+									<< "https://geodacenter.asu.edu/geoda/formats";
+		} else {
+			msg << error_detail;
 		}
-    }
-    ds_type = GetGdaDataSourceType();
+
+		throw GdaException(msg.str().c_str());
+	}
+	ds_type = GetGdaDataSourceType();
 	is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
 }
 
 OGRDatasourceProxy::OGRDatasourceProxy(string format,
-									   string dest_datasource )
+                                       string dest_datasource)
 : ds_name(dest_datasource)
 {
 	// create a OGRDatasourceProxy with a geometry layer
 	ostringstream error_message;
 	const char* pszFormat = format.c_str();
 	const char* pszDestDataSource = ds_name.c_str();
-	OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-	OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
+	//OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
+	//OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
+	GDALDriver *poDriver;
+	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current data source format " << format << " is not "
-		<< "supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "Current data source format " << format << " is not ";
+		error_message << "supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
-	if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
-        error_message << "GeoDa does not support creating data source "
-        << "of " << pszFormat << ". Please try to 'Export' to other "
-        << "supported data source format.";
-		throw GdaException(error_message.str().c_str());
-	}
-    // get datasource type
-    string ogr_ds_type( poDriver->GetName() );
+	//if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
+  //      error_message << "GeoDa does not support creating data source "
+  //      << "of " << pszFormat << ". Please try to 'Export' to other "
+  //      << "supported data source format.";
+	//	throw GdaException(error_message.str().c_str());
+	//}
+	
+	// get datasource type
+	const char* drv_name = GDALGetDriverLongName(poDriver);
+	string ogr_ds_type(drv_name);
 	if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
 		GdaConst::datasrc_str_to_type.end()) {
 		ds_type = GdaConst::ds_unknown;
 	} else {
 		ds_type = GdaConst::datasrc_str_to_type[ogr_ds_type];
 	}
+	
 	// create the output data source.
 	char *papszLCO[50] = {"OVERWRITE=yes"};
-	ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
+	//ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
+	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if(ds == NULL ) {
 		// driver failed to load
 		error_message << "Internal Error: GeoDa can't create output OGR driver."
@@ -126,20 +129,16 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
 	}
 	layer_pool.clear();
 	// clean ogr data sources
-	OGRDataSource::DestroyDataSource(ds);
+	//OGRDataSource::DestroyDataSource(ds);
+	GDALClose(ds);
 }
 
 //------------------------------------------------------------------------------
 GdaConst::DataSourceType
 OGRDatasourceProxy::GetGdaDataSourceType()
 {
-    OGRSFDriver* driver = ds->GetDriver();
-	if (!driver) {
-		ostringstream msg;
-		msg << "Failed to retrieve data source type. ";
-		throw GdaException(msg.str().c_str());
-	}
-	string ogr_ds_type( driver->GetName() );
+	const char* drv_name = GDALGetDriverLongName(ds);
+	string ogr_ds_type(drv_name);
     
 	if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
 		GdaConst::datasrc_str_to_type.end()) {
@@ -174,7 +173,7 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
         }
 	} else {
 		// read and store layer one by one, get the layer name
-        int system_layers = 0;
+		int system_layers = 0;
 		OGRLayer* layer = NULL;
 		for (int i=0; i<layer_count; i++)
 		{
@@ -281,28 +280,33 @@ void OGRDatasourceProxy::CreateDataSource(string format,
 	ostringstream error_message;
 	const char* pszFormat = format.c_str();
 	const char* pszDestDataSource = dest_datasource.c_str();
-	OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-	OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
+	//OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
+	//OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
+	GDALDriver *poDriver;
+	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
 		error_message << "Current OGR dirver " + format + " is not supprted "
 			<< "by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
-	if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
-        error_message << "Current OGR driver does not support data source"
-        " creation.";
-		throw GdaException(error_message.str().c_str());
-	}
+	//if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
+  //      error_message << "Current OGR driver does not support data source"
+  //      " creation.";
+	//	throw GdaException(error_message.str().c_str());
+	//}
+	
 	// Create the output data source.  
-	OGRDataSource *poODS = poDriver->CreateDataSource( pszDestDataSource, NULL);
+	//OGRDataSource *poODS = poDriver->CreateDataSource( pszDestDataSource, NULL);
+	GDALDataset *poODS = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if( poODS == NULL ) {
 		// driver failed to load
 		error_message << "Can't create output OGR driver."
 		<<"\n\nDetails:"<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
-	OGRDataSource::DestroyDataSource( poODS );	
+	//OGRDataSource::DestroyDataSource( poODS );
+	GDALClose(poODS);
 }
 
 
@@ -357,7 +361,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                     if (ftype == GdaConst::string_type){
                         ogr_type = OFTString;
                     } else if (ftype == GdaConst::long64_type){
-                        ogr_type = OFTInteger;
+                        ogr_type = OFTInteger64;
                     } else if (ftype == GdaConst::double_type){
                         ogr_type = OFTReal;
                     } else if (ftype == GdaConst::date_type){

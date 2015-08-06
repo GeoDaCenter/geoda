@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -61,7 +61,7 @@ public:
 						 const wxSize& size = wxDefaultSize);
 	virtual ~CatClassifHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void DetermineMouseHoverObjects();
@@ -91,8 +91,6 @@ public:
 private:
 	virtual void UpdateStatusBar();
 	
-	Project* project;
-	HighlightState* highlight_state;
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;

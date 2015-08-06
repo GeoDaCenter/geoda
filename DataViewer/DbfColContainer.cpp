@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,7 +29,7 @@
 #include <wx/colour.h>
 #include <wx/msgdlg.h>
 #include "DbfColContainer.h"
-#include "../Generic/HighlightState.h"
+#include "../HighlightState.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"

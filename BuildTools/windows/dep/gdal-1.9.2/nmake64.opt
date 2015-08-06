@@ -51,6 +51,7 @@ MSVC_VER=1500
 # But the paths *should* be absolute (relative paths mess up in submakefiles).
 
 ODBC_DRV_HOME= "C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64"
+#ODBC_DRV_HOME= "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64"
 !IFNDEF GDAL_HOME
 GDAL_HOME = C:\OSGeo4W
 #GDAL_HOME = %%LIBRARY_HOME%%
@@ -99,6 +100,7 @@ JAR=$(JAVA_HOME)\bin\jar
 JAVA_INCLUDE=-I$(JAVA_HOME)\include -I$(JAVA_HOME)\include\win32
 
 # Compilation flags
+GDAL_COMPILATION=YES
 
 # Enable code analyzis on request
 # http://msdn.microsoft.com/en-us/library/ms173498.aspx
@@ -153,7 +155,7 @@ WIN64=YES
 STDCALL=YES
 
 # Version number embedded in DLL name. 
-VERSION =	19
+VERSION =	20
 
 # Comment the following out if you want PAM supported disabled
 # by default.  
@@ -353,18 +355,18 @@ PG_LIB = $(GDAL_HOME)\lib\libpq.lib wsock32.lib
 
 # MySQL Libraries
 # NOTE: Need /MT instead of /MD, also enable /EHsc switch. 
-MYSQL_INC_DIR = $(DOWNLOAD_HOME)\mysql-5.6.16-winx64\include
-MYSQL_LIB = $(GDAL_HOME)\lib\mysqlclient.lib advapi32.lib
+#MYSQL_INC_DIR = $(DOWNLOAD_HOME)\mysql-5.6.16-winx64\include
+#MYSQL_LIB = $(GDAL_HOME)\lib\mysqlclient.lib advapi32.lib
 
 # SQLite Libraries
 SQLITE_HOME=$(GDAL_HOME)
-#SQLITE_INC=-I$(SQLITE_HOME)\include
+SQLITE_INC=-I$(SQLITE_HOME)\include
 #SQLITE_LIB=$(SQLITE_HOME)\lib\sqlite3_i.lib
 # For spatialite support, try this instead (assuming you grab the libspatialite-amalgamation-2.3.1 and installed it in osgeo4w):
 # The -DSPATIALITE_AMALGAMATION, which cause "spatialite/sqlite3.h" to be included instead of "sqlite3.h" might not be necessary
 # depending on the layout of the include directories. In case of compilation errors, remove it.
-SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE -DSPATIALITE_AMALGAMATION
-SQLITE_LIB=$(GDAL_HOME)\lib\spatialite.lib $(GDAL_HOME)\lib\sqlite.lib
+#SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE 
+SQLITE_LIB=$(GDAL_HOME)\lib\spatialite_i.lib $(SQLITE_HOME)\lib\sqlite3_i.lib
 
 # Informix Data Blade
 #INFORMIXDIR="C:\Program Files\IBM\Informix\Client-SDK"
@@ -528,7 +530,7 @@ ADD_LIBS	=
 # Location of MS Data Access SDK (not really needed anymore I think)
 #MSDASDK =	D:\Software\MDAC_2.6
 
-GDAL_DLL =	gdal$(VERSION).dll
+GDAL_DLL =	gdal_geoda$(VERSION).dll
 
 INC	=	-I$(GDAL_ROOT)\port -I$(GDAL_ROOT)\ogr -I$(GDAL_ROOT)\gcore \
 		-I$(GDAL_ROOT)\alg -I$(GDAL_ROOT)\ogr\ogrsf_frmts

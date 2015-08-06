@@ -3,6 +3,36 @@
   <object class="wxMenuBar" name="ID_SHARED_MAIN_MENU">
     <object class="wxMenu" name="ID_MENU">
       <label>&amp;File</label>
+	  <object class="wxMenu" name="ID_NEW_PROJ_FROM_MENU">
+		<label>New Project From</label>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_SHP">
+		  <label>ESRI Shapefile (*.shp)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_SQLITE">
+          <label>SQLite/SpatialLite (*.sqlite)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_CSV">
+          <label>Comma Separated Value (*.csv)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_DBF">
+          <label>dBase Database File (*.dbf)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_JSON">
+          <label>GeoJSON (*.json)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_GML">
+          <label>Geography Markup Language (*.gml)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_KML">
+          <label>Keyhole Markup Language (*.kml)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_MAPINFO">
+          <label>MapInfo (*.tab, *.mif, *.mid)</label>
+		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_XLS">
+          <label>MS Excel (*.xls)</label>
+		</object>
+	  </object>
       <object class="wxMenuItem" name="ID_NEW_PROJECT">
         <label>&amp;New Project</label>
         <accel>Ctrl+N</accel>
@@ -11,18 +41,18 @@
         <label>&amp;Open Project</label>
         <accel>Ctrl+O</accel>
       </object>
+      <object class="wxMenuItem" name="ID_SAVE_AS_PROJECT">
+        <label>Save Project</label>
+      </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SAVE_PROJECT">
         <label>Save</label>
       </object>
-      <object class="wxMenuItem" name="ID_SAVE_AS_PROJECT">
-        <label>Save As...</label>
-      </object>
       <object class="wxMenuItem" name="ID_EXPORT_LAYER">
-        <label>Export...</label>
+        <label>Export</label>
       </object>
       <object class="wxMenuItem" name="ID_EXPORT_SELECTED">
-        <label>Export Selected...</label>
+        <label>Export Selected</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SHOW_PROJECT_INFO">
@@ -40,16 +70,20 @@
       <label>&amp;Tools</label>
       <object class="wxMenu" name="ID_MENU">
         <label>Weights</label>
-        <object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_OPEN">
-          <label>Select</label>
-          <enabled>0</enabled>
-        </object>
-        <object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_CREATE">
+		<object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_CREATE">
           <label>Create</label>
           <enabled>1</enabled>
         </object>
+		<object class="wxMenuItem" name="ID_TOOLS_WEIGHTS_MANAGER">
+          <label>Weights Manager</label>
+          <enabled>0</enabled>
+        </object>
         <object class="wxMenuItem" name="ID_CONNECTIVITY_HIST_VIEW">
           <label>Connectivity Histogram</label>
+          <enabled>0</enabled>
+        </object>
+		<object class="wxMenuItem" name="ID_CONNECTIVITY_MAP_VIEW">
+          <label>Connectivity Map</label>
           <enabled>0</enabled>
         </object>
       </object>
@@ -82,9 +116,6 @@
       <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
         <label>Move Selected to Top</label>
       </object>
-      <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Add Neighbors To Selection</label>
-      </object>
       <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
         <label>Clear Selection</label>
       </object>
@@ -93,15 +124,12 @@
       </object>
       <object class="separator"/>
       
-      
-      
-      
-      
-      
-      
       <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
         <label>Variable Calculation</label>
       </object>
+	  <object class="wxMenuItem" name="ID_CALCULATOR">
+	    <label>Calculator</label>
+	  </object>
       <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
         <label>Add Variable</label>
       </object>
@@ -110,6 +138,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
         <label>Edit Variable Properties</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
+        <label>Change Variable Type</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
@@ -397,6 +428,9 @@
       <object class="wxMenuItem" name="IDM_SCATTERPLOT">
         <label>Scatter Plot</label>
       </object>
+			<object class="wxMenuItem" name="IDM_SCATTERPLOT_MAT">
+        <label>Scatter Plot Matrix</label>
+      </object>
       <object class="wxMenuItem" name="IDM_BUBBLECHART">
         <label>Bubble Chart</label>
       </object>
@@ -405,6 +439,9 @@
       </object>
       <object class="wxMenuItem" name="IDM_PCP">
         <label>Parallel Coordinate Plot</label>
+      </object>
+			<object class="wxMenuItem" name="IDM_LINE_CHART">
+        <label>Averages Chart</label>
       </object>
       <object class="wxMenu" name="ID_COND_MENU">
         <label>Conditional Plot</label>
@@ -444,6 +481,10 @@
       <object class="separator"/>
       <object class="wxMenuItem" name="IDM_GETIS_ORD">
         <label>Local G Statistics</label>
+      </object>
+			<object class="separator"/>
+			<object class="wxMenuItem" name="IDM_CORRELOGRAM">
+        <label>Nonparametric Spatial Autocorrelation</label>
       </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
@@ -1407,6 +1448,19 @@
 	  
       <label>Horizontal Bins Breaks</label>
     </object>
+		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
+    </object>
     <object class="wxMenuItem" name="ID_DISPLAY_AXES_SCALE_VALUES">
       <label>Display Axes Scale Values</label>
       <checkable>1</checkable>
@@ -1806,7 +1860,7 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS">
-    <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
+     <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
       <object class="wxMenuItem" name="ID_MAPANALYSIS_THEMELESS">
         <label>Themeless</label>
         <checkable>1</checkable>
@@ -2133,6 +2187,162 @@
     </object>
     <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_CONNECTIVITY_MAP_VIEW_MENU_OPTIONS">
+    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
+      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
+        <label>Add Mean Centers to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
+        <label>Add Centroids to Table</label>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
+        <label>Display Mean Centers</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
+        <label>Display Centroids</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
+        <label>Save Mean Centers</label>
+        <enabled>1</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
+        <label>Save Centroids</label>
+        <enabled>1</enabled>
+      </object>
+      <label>Shape Centers</label>
+    </object>
+    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
+      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
+        <label>Display Thiessen Polygons</label>
+        <checkable>1</checkable>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
+        <label>Save Thiessen Polygons</label>
+        <enabled>0</enabled>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
+        <label>Save Duplicate Thiessen Polygons to Table</label>
+        <enabled>0</enabled>
+      </object>
+      <label>Thiessen Polygons</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_SELECTION_MODE">
+      <label>Selection Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_PAN_MODE">
+      <label>Panning Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_ZOOM_MODE">
+      <label>Zooming Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
+      <label>Fit-To-Window Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+      <label>Fixed Aspect Ratio Mode</label>
+      <checkable>1</checkable>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+        <label>Outlines Visible</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+        <label>Background Color</label>
+      </object>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+      <label>Save Image As</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+      <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+      <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+    <label>Options</label>
+  </object>
   <object class="wxMenu" name="ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
@@ -2210,9 +2420,6 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-      <label>Add Neighbors To Selection</label>
-    </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
@@ -2342,6 +2549,52 @@
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
     </object>
+    <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_LISAMAP_NEW_VIEW_MENU_OPTIONS">
@@ -2394,9 +2647,6 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-      <label>Add Neighbors To Selection</label>
-    </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
@@ -2521,6 +2771,52 @@
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
     </object>
+    <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_LISA_SCATTER_PLOT_VIEW_MENU_OPTIONS">
@@ -2539,6 +2835,14 @@
         <checkable>1</checkable>
       </object>
       <label>Selection Shape</label>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
     </object>
     <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
       <label>Show Axes Through Origin</label>
@@ -2568,14 +2872,15 @@
         <label>Other (up to 99999)</label>
         <checkable>1</checkable>
       </object>
-      <object class="separator"/>
-      <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
-        <label>Use Specified Seed</label>
-        <checkable>1</checkable>
-      </object>
-      <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
-        <label>Specify Seed...</label>
-      </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
+            <label>Use Specified Seed</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
+            <label>Specify Seed...</label>
+        </object>
+
     </object>
     <object class="wxMenuItem" name="ID_SAVE_MORANI">
       <label>Save Results</label>
@@ -2772,7 +3077,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <label>Change Current Map Type</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
@@ -2914,6 +3218,53 @@
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
     </object>
+    
+    <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_MAP_MOVIE_VIEW_MENU_OPTIONS">
@@ -3083,6 +3434,7 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+
       <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
         <label>Save Categories</label>
       </object>
@@ -3148,6 +3500,131 @@
     </object>
     <label>Options</label>
   </object>
+	<object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
+		<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
+      <label>Add/Remove Variables</label>
+      <checkable>0</checkable>
+    </object>
+		<object class="wxMenuItem" name="ID_COMPARE_REGIMES">
+      <label>Compare Regimes</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_COMPARE_TIME_PERIODS">
+      <label>Compare Time Periods</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_COMPARE_REG_AND_TM_PER">
+      <label>Compare Regimes and Times</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+	<object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_SAVE_DUMMIES">
+      <label>Save Dummy Variables</label>
+      <checkable>0</checkable>
+      <checked>0</checked>
+    </object>
+    <label>Options</label>
+  </object>
+	<object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">
+		<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
+      <label>Add/Remove Variables</label>
+      <checkable>0</checkable>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
+    </object>
+	  <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+      <label>Regimes Regression</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_SLOPE_VALUES">
+      <label>Display Slope Values</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+    <label>Options</label>
+  </object>
+	<object class="wxMenu" name="ID_CORRELOGRAM_MENU_OPTIONS">
+		<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
+      <label>Change Parameters</label>
+      <checkable>0</checkable>
+    </object>
+		<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <label>Options</label>
+  </object>
+	<object class="wxMenu" name="ID_COV_SCATTER_PLOT_MENU_OPTIONS">
+	  <object class="wxMenu" name="ID_MENU">
+      <label>Selection Shape</label>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+        <label>Rectangle</label>
+        <checkable>1</checkable>
+        <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+        <label>Circle</label>
+        <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+        <label>Line</label>
+        <checkable>1</checkable>
+      </object>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
+			<checkable>0</checkable>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+      <label>Regimes Regression</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+	  <object class="separator"/>
+    <object class="wxMenu" name="ID_MENU">
+      <label>Color</label>
+      <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_COLOR">
+        <label>Curve Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+        <label>Point Color</label>
+      </object>
+      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
+        <label>Highlight Color</label>
+      </object>
+    </object>
+		<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+      <label>Show Status Bar</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <label>Options</label>
+  </object>
   <object class="wxMenu" name="ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
@@ -3174,7 +3651,20 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-	<object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
+    </object>
+	  <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
       <label>Regimes Regression</label>
       <checkable>1</checkable>
       <checked>1</checked>
@@ -3220,6 +3710,52 @@
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
     </object>
+    
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_BUBBLE_CHART_VIEW_MENU_OPTIONS">
@@ -3450,6 +3986,19 @@
       <label>View Original Data</label>
       <checkable>1</checkable>
     </object>
+		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
+    </object>
     <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
       <label>Regimes Regression</label>
       <checkable>1</checkable>
@@ -3483,6 +4032,19 @@
     <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
       <label>View Original Data</label>
       <checkable>1</checkable>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+      <label>Show LOWESS Smoother</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
+		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+      <label>Edit LOWESS Parameters</label>
     </object>
     <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
       <label>Regimes Regression</label>
@@ -3524,9 +4086,6 @@
     </object>
     
     
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-      <label>Add Neighbors To Selection</label>
-    </object>
     <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
       <label>Clear Selection</label>
     </object>
@@ -3537,6 +4096,9 @@
     <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
       <label>Variable Calculation</label>
     </object>
+	<object class="wxMenuItem" name="ID_CALCULATOR">
+	  <label>Calculator</label>
+	</object>
     <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
       <label>Add Variable</label>
     </object>
@@ -3548,6 +4110,9 @@
     </object>
     <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
       <label>Edit Variable Properties</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
+      <label>Change Variable Type</label>
     </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
@@ -3798,12 +4363,6 @@
     </object>
     <label>Options</label>
   </object>
-  <object class="wxMenu" name="ID_TEST_SCROLL_WIN_VIEW_MENU_CONTEXT">
-    <object class="wxMenuItem" name="ID_HELLO_WORLD">
-      <label>Hello World</label>
-    </object>
-    <label>Options</label>
-  </object>
   <object class="wxMenu" name="ID_COND_MENU">
     <label>Conditional Plot</label>
     <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_MAP_VIEW">
@@ -3840,6 +4399,53 @@
       <label>Local Moran's I with EB Rate</label>
     </object>
   </object>
+
+
+      <object class="wxMenu" name="ID_BASEMAP_MENU">
+          <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_NO_BASEMAP">
+              <label>No Basemap</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_1">
+              <label>CartoDB Light</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_2">
+              <label>CartoDB Dark</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_3">
+              <label>CartoDB Light (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_4">
+              <label>CartoDB Dark (No Labels)</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_5">
+              <label>Nokia Day</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_6">
+              <label>Nokia Night</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_7">
+              <label>Nokia Hybrid</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_BASEMAP_8">
+              <label>Nokia Satellite</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+
   <object class="wxMenu" name="ID_MAP_CHOICES">
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_THEMELESS">
       <label>Themeless Map</label>

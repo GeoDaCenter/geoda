@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -64,11 +64,13 @@ public:
     void Init(wxWindow* parent, const wxPoint& pos);
     void CreateControls();
     void BrowseExportDataSource( wxCommandEvent& event );
-    void OnOkClick( wxCommandEvent& event );
+    virtual void OnOkClick( wxCommandEvent& event );
 
 public:
 	bool IsTableOnly();
-	
+    wxString GetDatasourceName() { return datasource_name; }
+    wxString GetDatasourceFormat() { return ds_format; }
+    
 private:
 	AutoTextCtrl* m_database_table;
 	wxCheckBox* m_chk_create_project;
@@ -80,6 +82,7 @@ private:
 	wxFileName ds_file_path;
 	wxString ds_format;
 	wxString ds_srs;
+    wxString datasource_name;
     bool is_selected_only;
     bool is_create_project;
     bool is_saveas_op;

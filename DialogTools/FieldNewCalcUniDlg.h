@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -59,9 +59,11 @@ public:
 	void SetOtherPanelPointers(FieldNewCalcSpecialDlg* s_panel_s,
 							   FieldNewCalcBinDlg* b_panel_s,
 							   FieldNewCalcLagDlg* l_panel_s,
-							   FieldNewCalcRateDlg* r_panel_s) {
+							   FieldNewCalcRateDlg* r_panel_s) 
+	{
 		s_panel=s_panel_s; b_panel=b_panel_s;
-		l_panel = l_panel_s; r_panel=r_panel_s; }
+		l_panel = l_panel_s; r_panel=r_panel_s; 
+	}
 	FieldNewCalcSpecialDlg* s_panel;
 	FieldNewCalcBinDlg* b_panel;
 	FieldNewCalcLagDlg* l_panel;

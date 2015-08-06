@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,8 +26,8 @@
 #include <wx/grid.h>
 #include "TableStateObserver.h"
 #include "../GdaConst.h"
-#include "../Generic/HighlightStateObserver.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../HighlightStateObserver.h"
+#include "../DbfFile.h"
 
 /**
  DbfColContainer notes: when a DBF file is read from disk, we initially

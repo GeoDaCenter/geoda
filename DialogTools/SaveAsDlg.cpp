@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,6 +30,7 @@
 #include <wx/progdlg.h>
 #include <cpl_error.h>
 
+#include "../ShapeOperations/WeightsManager.h"
 #include "../Project.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -216,9 +217,10 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
                 cc->SetCatClassifList(project_p->GetCatClassifManager());
                 WeightsManPtree* spatial_weights =
                     layer_conf->GetWeightsManPtree();
+				WeightsNewManager* wnm =
+					(WeightsNewManager*) project_p->GetWManInt();
                 spatial_weights->
-                    SetWeightsMetaInfoList(project_p->GetWManager());
-				
+                    SetWeightsMetaInfoList(wnm->GetPtreeEntries());
                 ProjectConfiguration* project_conf =
                     new ProjectConfiguration(proj_title, layer_conf);
                 project_conf->Save(project_fname);
