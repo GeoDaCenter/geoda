@@ -45,16 +45,32 @@ GalElement::GalElement()
 void GalElement::SetSizeNbrs(size_t	sz)
 {
 	nbr.resize(sz);
+    nbrWeight.resize(sz);
+    for(size_t i=0; i<sz; i++) nbrWeight[i] = 1.0;
 }
 
 void GalElement::SetNbr(size_t pos, long n)
 {
 	if (pos < nbr.size()) nbr[pos] = n;
+    // this should be called by GAL created only
+    if (pos < nbrWeight.size()) nbrWeight[pos] = 1.0;
+}
+
+void GalElement::SetNbr(size_t pos, long n, double w)
+{
+	if (pos < nbr.size()) nbr[pos] = n;
+    // this should be called by GWT-GAL 
+    if (pos < nbrWeight.size()) nbrWeight[pos] = w;
 }
 
 void GalElement::SetNbrs(const std::vector<long>& nbrs)
 {
 	nbr = nbrs;
+    if (nbrWeight.empty()) {
+        size_t sz = nbr.size();
+        nbrWeight.resize(sz);
+        for(size_t i=0; i<sz; i++) nbrWeight[i] = 1.0;
+    }
 }
 
 const std::vector<long> & GalElement::GetNbrs() const
@@ -73,8 +89,16 @@ double GalElement::SpatialLag(const std::vector<double>& x) const
 {
 	double lag = 0;
 	size_t sz = Size();
-	for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-	if (sz>1) lag /= (double) sz;
+   
+    double sumW = 0;
+	for (size_t i=0; i<sz; ++i) {
+        sumW += nbrWeight[i];
+    }
+    
+	for (size_t i=0; i<sz; ++i) {
+        if (sumW == 0) sumW = 1;
+        lag += x[nbr[i]] * nbrWeight[i] / sumW;
+    }
 	return lag;
 }
 
@@ -84,14 +108,25 @@ double GalElement::SpatialLag(const double *x) const
 {
 	double lag = 0;
 	size_t sz = Size();
-	for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-	if (sz>1) lag /= (double) sz;
+    
+    double sumW = 0;
+	for (size_t i=0; i<sz; ++i) {
+        sumW += nbrWeight[i];
+    }
+    
+	for (size_t i=0; i<sz; ++i) {
+        if (sumW == 0) sumW = 1;
+        lag += x[nbr[i]] * nbrWeight[i] / sumW;
+    }
+	//for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
+	//if (sz>1) lag /= (double) sz;
 	return lag;
 }
 
 double GalElement::SpatialLag(const std::vector<double>& x,
 							  const int* perm) const  
 {
+    // todo: this should also handle ReadGWtAsGAL like previous 2 functions
 	double lag = 0;
 	size_t sz = Size();
 	for (size_t i=0; i<sz; ++i) lag += x[perm[nbr[i]]];

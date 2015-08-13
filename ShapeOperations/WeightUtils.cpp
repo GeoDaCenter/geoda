@@ -500,10 +500,11 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		int gwt_obs1, gwt_obs2;
 		//wxInt64 obs1, obs2;
         string obs1, obs2;
+        double wVal;
 		getline(file, str);
 		if (!str.empty()) {
 			stringstream ss(str, stringstream::in | stringstream::out);
-			ss >> obs1 >> obs2;
+			ss >> obs1 >> obs2 >> wVal;
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
@@ -532,7 +533,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			if (gal[gwt_obs1].Size() == 0) {
 				gal[gwt_obs1].SetSizeNbrs(nbr_histogram[obs1]);
 			}
-			gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2);
+			gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2, wVal);
 		}
 		line_num++;
 	}	

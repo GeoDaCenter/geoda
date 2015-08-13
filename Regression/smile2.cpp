@@ -291,11 +291,20 @@ void Compute_MoranI(const GalElement* g,
     DenseVector		re(resid, dim, false);
     DenseVector		lag( re.getSize() );
 
-    SparseMatrix orig(g, dim);
-    orig.rowStandardize();
-    orig.matrixColumn(lag, re);
+    
+    //SparseMatrix orig(g, dim);
+    //orig.rowStandardize();
+    //orig.matrixColumn(lag, re);
+
+    //double MoranI = re.product( lag ) / ee; // [e'We] / [ee]
+    for (int cnt = 0; cnt < dim; ++cnt)
+    {
+        lag.setAt( cnt, g[cnt].SpatialLag(resid) ); // We
+		re.setAt(cnt, resid[cnt]);
+    }
 
     double MoranI = re.product( lag ) / ee; // [e'We] / [ee]
+    
 	double const M_stat = gammp( 0.5, fabs(MoranI) * 0.5);
 	rst[0] = MoranI;
 	rst[1] = M_stat;
@@ -460,20 +469,23 @@ void Compute_RSLmError(const GalElement* g,
 					   int dim, double *rst,
 					   const std::vector< std::set<int> >& g_lookup)
 {
-		double const ee = norm(resid, dim); 
+    double const ee = norm(resid, dim);
     double const sigma2		=  ee / (dim);
 
 
     DenseVector	lag(dim), re(dim);
     for (int cnt = 0; cnt < dim; ++cnt)
-		{
+    {
         lag.setAt( cnt, g[cnt].SpatialLag(resid) ); // We
-				re.setAt(cnt, resid[cnt]);
-		}
+		re.setAt(cnt, resid[cnt]);
+    }
 
     double RS = geoda_sqr(re.product( lag ) / sigma2); // [e'We/sigma2]^2
 
-    RS /= T(g, dim, g_lookup);
+    double t = T(g, dim, g_lookup);
+    RS /= t;
+    // tr[(W'+W)*W]
+    
 
 	double const RS_stat = gammp( 0.5, RS * 0.5);
 	rst[0] = RS;

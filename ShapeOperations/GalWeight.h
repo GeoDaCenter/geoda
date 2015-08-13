@@ -30,6 +30,7 @@ public:
 	GalElement();
 	void SetSizeNbrs(size_t sz);
 	void SetNbr(size_t pos, long n);
+	void SetNbr(size_t pos, long n, double w);
 	void SetNbrs(const std::vector<long>& nbrs);
 	const std::vector<long>& GetNbrs() const;
 	void SortNbrs();
@@ -41,6 +42,7 @@ public:
 
 private:
 	std::vector<long> nbr;
+	std::vector<double> nbrWeight;
 };
 
 class GalWeight : public GeoDaWeight {

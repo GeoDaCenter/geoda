@@ -226,7 +226,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	boost::uuids::uuid id = w_man_int->FindIdByFilename(path);
 	if (id.is_nil()) {
 		LOG_MSG("could not find existing weight with filename: " + path);
-		id = w_man_int->FindIdByMetaInfo(wmi);
+		//id = w_man_int->FindIdByMetaInfo(wmi);
 	}
 	if (!id.is_nil()) {
 		HighlightId(id);

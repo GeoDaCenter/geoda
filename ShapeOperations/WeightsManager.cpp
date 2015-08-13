@@ -134,9 +134,10 @@ boost::uuids::uuid WeightsNewManager::FindIdByTitle(const wxString& title) const
 
 boost::uuids::uuid WeightsNewManager::RequestWeights(const WeightsMetaInfo& wmi)
 {
-	boost::uuids::uuid u = FindUuid(wmi);
-	if (!u.is_nil()) return u;
-	u = boost::uuids::random_generator()();
+    //XXX: seems no need to check again
+	//boost::uuids::uuid u = FindUuid(wmi);
+	//if (!u.is_nil()) return u;
+    boost::uuids::uuid u = boost::uuids::random_generator()();
 	WeightsPtreeEntry pte(wmi);
 	Entry e(pte);
 	e.wpte.title = SuggestTitleFromFileName(wmi.filename);
@@ -329,6 +330,7 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	EmType::iterator it = entry_map.find(w_uuid);
 	if (it == entry_map.end()) return 0;
 	Entry& e = it->second;
+    wxString tmpName = e.wpte.wmi.filename;
 	if (e.gal_weight) return e.gal_weight;
 	
 	// Load file for first use
@@ -439,7 +441,8 @@ bool WeightsNewManager::IsValid(boost::uuids::uuid w_uuid)
 boost::uuids::uuid WeightsNewManager::FindUuid(const WeightsMetaInfo& wmi) const
 {
 	for (EmTypeCItr it=entry_map.begin(); it != entry_map.end(); ++it) {
-		if (it->second.wpte.wmi == wmi) return it->first;
+		if (it->second.wpte.wmi == wmi)
+            return it->first;
 	}
 	return boost::uuids::nil_uuid();
 }
