@@ -1,6 +1,9 @@
 
 BuildTools/macosx/libraries/
 BuildTools/macosx/temp/
+BuildTools/macosx/GeoDa.xcodeproj/
+BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
+
 *.swp
 
 *.xcuserstate
@@ -19,4 +22,5 @@ BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/xun.xcuserdatad/xcdebugger/Breakpoi
 
 BuildTools/macosx/GeoDa.xcodeproj/project.xcworkspace/xcuserdata/xun.xcuserdatad/UserInterfaceState.xcuserstate
 
-BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/xun.xcuserdatad/xcschemes/GeoDa.xcscheme
+
+*.xcuserstate
