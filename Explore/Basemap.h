@@ -290,6 +290,8 @@ protected:
     void _GetTiles(int x, int start_y, int end_y);
     
     void DownloadTile(int x, int y);
+    
+    bool _HasInternet();
 };
 
     
