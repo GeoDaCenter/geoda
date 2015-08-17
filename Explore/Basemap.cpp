@@ -10,8 +10,6 @@
 #include <sstream>
 
 #ifdef __WIN32__
-// special treat for issue 208 basemap hangs in windows
-#include <windows.h>
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #endif
@@ -416,26 +414,12 @@ void Basemap::GetTiles()
         downloadThread = NULL;
     }
     
-    if (downloadThread == NULL && _HasInternet()) {
+    if (downloadThread == NULL) {
         bDownload = true;
         downloadThread = new boost::thread(boost::bind(&Basemap::_GetTiles,this, startX, startY, endX, endY));
     }
     delete topleft;
     delete bottomright;
-}
-
-bool Basemap::_HasInternet()
-{
-#ifdef __WIN32__
-    // for issue 208: basemap hangs without internet
-    if (system("ping www.nba.com")) {
-        return false;
-    } else {
-        return true;
-    }
-#else
-    return true;
-#endif
 }
 
 bool Basemap::IsReady()
@@ -514,7 +498,7 @@ void Basemap::DownloadTile(int x, int y)
             curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
             curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
-            curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
+            curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);
             curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
             // Grab image 
