@@ -4449,7 +4449,6 @@
   <object class="wxMenu" name="ID_MAP_CHOICES">
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_THEMELESS">
       <label>Themeless Map</label>
-      <bitmap>ToolBarBitmaps_ThemelessMap.png</bitmap>
     </object>
 	<object class="wxMenu" name="ID_OPEN_QUANTILE_SUBMENU">
 	  <label>Quantile Map</label>
@@ -4483,23 +4482,18 @@
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
       <label>Percentile Map</label>
-      <bitmap>ToolBarBitmaps_26.png</bitmap>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
       <label>Box Map, Hinge=1.5</label>
-      <bitmap>ToolBarBitmaps_28.png</bitmap>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
       <label>Box Map, Hinge=3.0</label>
-      <bitmap>ToolBarBitmaps_29.png</bitmap>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
       <label>Standard Deviation Map</label>
-      <bitmap>ToolBarBitmaps_27.png</bitmap>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_UNIQUE_VALUES">
       <label>Unique Values Map</label>
-      <bitmap>ToolBarBitmaps_38.png</bitmap>
     </object>
 	<object class="wxMenu" name="ID_OPEN_NATURAL_BREAKS_SUBMENU">
 	  <label>Natural Breaks Map</label>
