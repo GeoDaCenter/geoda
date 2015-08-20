@@ -2836,7 +2836,12 @@
       </object>
       <label>Selection Shape</label>
     </object>
-		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
+    <object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+      <label>Show Linear Smoother</label>
+      <checkable>1</checkable>
+      <checked>1</checked>
+    </object>
+    <object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
       <label>Show LOWESS Smoother</label>
       <checkable>1</checkable>
       <checked>0</checked>
