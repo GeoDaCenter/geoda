@@ -340,7 +340,7 @@ void RandomizationPanel::CheckSize(const int width, const int height)
 	Left = 10;
     Bottom = 20;
 	Right = 10;
-	Top = 30;
+	Top = 10;
 	Height = 40;
 	Width = 40;
 	
@@ -421,8 +421,8 @@ void RandomizationDlg::CreateControls()
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     
-    hbox1->Add(new wxPanel(panel, -1));
-    vbox->Add(hbox1, 1, wxEXPAND);
+    //hbox1->Add(new wxPanel(panel, -1));
+    //vbox->Add(hbox1, 1, wxEXPAND);
     
     wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
     hbox2->Add(button);
