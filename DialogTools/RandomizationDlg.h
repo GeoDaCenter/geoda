@@ -27,6 +27,70 @@
 
 class GalElement;
 
+class RandomizationPanel: public wxPanel
+{
+public:
+    RandomizationPanel(const std::vector<double>& raw_data1,
+                       const GalElement* W, int NumPermutations,
+                       bool reuse_user_seed,
+                       uint64_t user_specified_seed,
+                       wxFrame* parent);
+    RandomizationPanel(const std::vector<double>& raw_data1,
+                       const std::vector<double>& raw_data2,
+                       const GalElement* W, int NumPermutations,
+                       bool reuse_user_seed,
+                       uint64_t user_specified_seed,
+                       wxFrame* parent);
+   
+    virtual ~RandomizationPanel();
+    
+	void Init();
+	void CalcMoran();
+   
+    void OnSize(wxSizeEvent& event);
+    void OnPaint( wxPaintEvent& event );
+    void CheckSize(const int width, const int height);
+    void Paint(wxDC *dc);
+	void Draw(wxDC* dc);
+	void DrawRectangle(wxDC* dc, int left, int top, int right, int bottom,
+					   const wxColour color);
+	
+    void SinglePermute();
+	void RunPermutations();
+	void RunRandomTrials();
+	void UpdateStatistics();
+	
+    int	Width, Height, Left, Right, Top, Bottom;
+	int num_obs;
+    const int Permutations;
+	// vector of Moran's I for every permutation experiment
+	std::vector<double> MoranI;
+    
+	const double start, stop;
+    double  range;
+    int	    bins, minBin, maxBin;
+    int	    binX, thresholdBin;
+	std::vector<int> freq;
+	
+	bool is_bivariate;
+	const GalElement* W;
+	std::vector<double> raw_data1;
+	std::vector<double> raw_data2;
+	double Moran;
+	double  MMean;
+	double  MSdev;
+	int     totFrequency;
+	double  pseudo_p_val;
+	double  expected_val;
+	bool count_greater;
+	
+	int* perm;
+	long* theRands;
+	
+	Randik*  rng;
+	bool    experiment_run_once;
+};
+
 class RandomizationDlg: public wxFrame
 {    
     //DECLARE_CLASS( RandomizationDlg )
@@ -54,55 +118,11 @@ public:
 					 long style = wxCAPTION|wxSYSTEM_MENU);
 	virtual ~RandomizationDlg();
     void CreateControls();
-	void Init();
-	void CalcMoran();
 
-    void OnPaint( wxPaintEvent& event );
     void OnClose( wxCloseEvent& event );
     void OnOkClick( wxCommandEvent& event );
-    void CheckSize(const int width, const int height);
-    void Paint(wxDC *dc);
-	void Draw(wxDC* dc);
-	void DrawRectangle(wxDC* dc, int left, int top, int right, int bottom,
-					   const wxColour color);
-	
-    void SinglePermute();
-	void RunPermutations();
-	void RunRandomTrials();
-	void UpdateStatistics();
-	
-    int	Width, Height, Left, Right, Top, Bottom;
-	int num_obs;
-    const int Permutations;
-	// vector of Moran's I for every permutation experiment
-	std::vector<double> MoranI;
 
-	const double start, stop;
-    double  range;
-    int	    bins, minBin, maxBin;
-    int	    binX, thresholdBin;
-	std::vector<int> freq;
-	
-	bool is_bivariate;
-	const GalElement* W;
-	std::vector<double> raw_data1;
-	std::vector<double> raw_data2;
-	double Moran;
-	double  MMean;
-	double  MSdev;
-	int     totFrequency;
-	double  pseudo_p_val;
-	double  expected_val;
-	bool count_greater;
-	
-	int* perm;
-	long* theRands;
-	
-	Randik*  rng;
-	bool    experiment_run_once;
-
-private:
-	RandomizationDlg() : start(-1), stop(1), Moran(0), Permutations(0) {}
+    RandomizationPanel* panel;
 };
 
 #endif
