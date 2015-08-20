@@ -1143,17 +1143,22 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		size_t c=0;
 		for (size_t i=0; i<lcs.ss_ptrs.size(); ++i) {
 			for (size_t j=i+1; j<lcs.ss_ptrs.size(); ++j) {
-				s<< "<tr>";
-				s<< "<td align=\"center\">" << i+1 <<"&nbsp;vs&nbsp;"<< j+1 << "</td>";
-				if (lcs.test_stat_valid_c[c]) {
-					s<< "<td align=\"center\">" << lcs.deg_free_c[c] << "&nbsp;</td>";
-					s<< "<td align=\"center\">" << lcs.test_stat_c[c] << "&nbsp;</td>";
-					double pval = lcs.p_val_c[c];
-					s<< "<td align=\"center\">" << GenUtils::DblToStr(pval, 4) << "</td>";
-				} else {
-					s<< "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-				}
-				s<< "</tr>";
+                if ((i+1 == 1 && j+1 == 4 ) || (i+1 == 2 && j+1 == 3)) {
+                    // escape unnecessary comparison result, only pre- and
+                    // post- comparisons are needed. issue 168
+                } else {
+    				s<< "<tr>";
+    				s<< "<td align=\"center\">" << i+1 <<"&nbsp;vs&nbsp;"<< j+1 << "</td>";
+    				if (lcs.test_stat_valid_c[c]) {
+    					s<< "<td align=\"center\">" << lcs.deg_free_c[c] << "&nbsp;</td>";
+    					s<< "<td align=\"center\">" << lcs.test_stat_c[c] << "&nbsp;</td>";
+    					double pval = lcs.p_val_c[c];
+    					s<< "<td align=\"center\">" << GenUtils::DblToStr(pval, 4) << "</td>";
+    				} else {
+    					s<< "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
+    				}
+    				s<< "</tr>";
+                }
 				++c;
 			}
 		}
