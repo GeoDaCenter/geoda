@@ -122,29 +122,18 @@ void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
 {
     if (event.GetNumberOfFiles() > 0) {
         
-        wxString* dropped = event.GetFiles();
-        wxASSERT(dropped);
-        
-        wxBusyCursor busyCursor;
-        wxWindowDisabler disabler;
-        //wxBusyInfo busyInfo(_("Adding files, wait please..."));
-        
+        wxString* dropped = event.GetFiles();         
         wxString name;
-        wxArrayString files;
-        
+       
         for (int i = 0; i < event.GetNumberOfFiles(); i++) {
             name = dropped[i];
-            if (wxFileExists(name))
-                files.push_back(name);
-            //else if (wxDirExists(name))
-            //s    wxDir::GetAllFiles(name, &files);
-        }
-        
-        wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(event.GetEventObject());
-        wxASSERT(textCtrl);
-        textCtrl->Clear();
-        for (size_t i = 0; i < files.size(); i++) {
-            *textCtrl << files[i] << wxT('\n');
+            if (wxFileExists(name)) {
+                
+			} else if (wxDirExists(name)) {
+				//wxArrayString files;
+				//wxDir::GetAllFiles(name, &files);
+			}
+                
         }
     }
 }

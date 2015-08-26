@@ -61,10 +61,10 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetPosition(pos);
 	Centre();
    
-    m_ds_filepath_txt->Connect(wxEVT_DROP_FILES, wxDropFilesEventHandler(ConnectDatasourceDlg::OnDropFiles), NULL, this);
-    m_ds_filepath_txt->DragAcceptFiles(true);
+    m_drag_drop_box->Connect(wxEVT_DROP_FILES, wxDropFilesEventHandler(ConnectDatasourceDlg::OnDropFiles), NULL, this);
+    m_drag_drop_box->DragAcceptFiles(true);
     
-    //Bind(wxEVT_DROP_FILES, &ConnectDatasourceDlg::OnDropFiles, this, XRCID("IDC_FIELD_ASC"));
+    Bind(wxEVT_DROP_FILES, &ConnectDatasourceDlg::OnDropFiles, this, XRCID("IDC_DRAG_DROP_BOX"));
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
 }
