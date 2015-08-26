@@ -47,6 +47,7 @@ public:
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
 protected:
+    wxBitmapButton* m_drag_drop_box;
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
 	//wxBitmapButton* m_database_lookup_table;
@@ -71,6 +72,8 @@ public:
 	void PromptDSLayers(IDataSource* datasource);
     void OnBrowseDSfileBtn( wxCommandEvent& event );
     void BrowseDataSource( wxCommandEvent& event );
+    void OnDropFiles(wxDropFilesEvent& event);
+    
 	wxString GetProjectTitle();
     wxString GetLayerName();
 	

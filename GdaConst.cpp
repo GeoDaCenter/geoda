@@ -357,18 +357,18 @@ void GdaConst::init()
 	}
 	
 	extra_small_font = wxFont::New(ref_extra_small_pt_sz,
-																 wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
-																 wxFONTWEIGHT_NORMAL, false, wxEmptyString,
-																 wxFONTENCODING_DEFAULT);
+                                   wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
+                                   wxFONTWEIGHT_NORMAL, false, wxEmptyString,
+                                   wxFONTENCODING_DEFAULT);
 	small_font = wxFont::New(ref_small_pt_sz, wxFONTFAMILY_SWISS,
-													 wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-													 wxEmptyString, wxFONTENCODING_DEFAULT);
+                             wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                             wxEmptyString, wxFONTENCODING_DEFAULT);
 	medium_font = wxFont::New(ref_medium_pt_sz, wxFONTFAMILY_SWISS,
-														wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-														wxEmptyString, wxFONTENCODING_DEFAULT);
+                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                              wxEmptyString, wxFONTENCODING_DEFAULT);
 	large_font = wxFont::New(ref_large_pt_sz, wxFONTFAMILY_SWISS,
-													 wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-													 wxEmptyString, wxFONTENCODING_DEFAULT);
+                             wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                             wxEmptyString, wxFONTENCODING_DEFAULT);
 	
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;
@@ -393,17 +393,13 @@ void GdaConst::init()
 	
 	ln_cht_clr_regimes_hl = wxColour(255,255,102); // yellow #FFFF66
 	ln_cht_clr_sel_dark = wxColour(204, 41, 44); // red
-	ln_cht_clr_sel_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_sel_dark,
-																												 125);
+	ln_cht_clr_sel_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_sel_dark,125);
 	ln_cht_clr_exl_dark = wxColour(0, 79, 241); // blue
-	ln_cht_clr_exl_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_exl_dark,
-																												 125);
+	ln_cht_clr_exl_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_exl_dark, 125);
 	ln_cht_clr_tm1_dark = wxColour(147, 36, 255); // purple
-	ln_cht_clr_tm1_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm1_dark,
-																												 125);
+	ln_cht_clr_tm1_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm1_dark, 125);
 	ln_cht_clr_tm2_dark = wxColour(115, 61, 26); // brown
-	ln_cht_clr_tm2_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm2_dark,
-																												 125);
+	ln_cht_clr_tm2_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm2_dark, 125);
 	
 	// Following 4 colors are colour-blind safe colors from Color Brewer 2.0
 	// LineChartStats::

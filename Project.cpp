@@ -1239,12 +1239,14 @@ bool Project::CommonProjectInit()
 	// If dBase or Shapefile, process as dBase, otherwise process as OGR source
 	if (datasource->GetType() == GdaConst::ds_dbf ||
 			datasource->GetType() == GdaConst::ds_shapefile) {
+		if (!InitFromOgrLayer()) return false;
+        /*
 		int rtn = InitFromShapefileLayer();
 		if (rtn ==0) return false;
 		else if (rtn == MULTI_POINT) {
 			if (!InitFromOgrLayer()) return false;
 		} 
-		
+         */
 	} else {
 		if (!InitFromOgrLayer()) return false;
 	}

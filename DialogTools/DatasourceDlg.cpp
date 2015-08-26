@@ -94,6 +94,7 @@ void DatasourceDlg::CreateControls()
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
+	m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxBitmapButton);
     
 	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);
@@ -115,6 +116,37 @@ void DatasourceDlg::CreateControls()
 	m_database_port->SetAutoList(port_cands);
 	m_database_uname->SetAutoList(uname_cands);
 	m_database_name->SetAutoList(name_cands);
+}
+
+void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
+{
+    if (event.GetNumberOfFiles() > 0) {
+        
+        wxString* dropped = event.GetFiles();
+        wxASSERT(dropped);
+        
+        wxBusyCursor busyCursor;
+        wxWindowDisabler disabler;
+        //wxBusyInfo busyInfo(_("Adding files, wait please..."));
+        
+        wxString name;
+        wxArrayString files;
+        
+        for (int i = 0; i < event.GetNumberOfFiles(); i++) {
+            name = dropped[i];
+            if (wxFileExists(name))
+                files.push_back(name);
+            //else if (wxDirExists(name))
+            //s    wxDir::GetAllFiles(name, &files);
+        }
+        
+        wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(event.GetEventObject());
+        wxASSERT(textCtrl);
+        textCtrl->Clear();
+        for (size_t i = 0; i < files.size(); i++) {
+            *textCtrl << files[i] << wxT('\n');
+        }
+    }
 }
 
 /**
