@@ -30,6 +30,8 @@
 #include <wx/sizer.h>
 #include <wx/notebook.h>
 #include <wx/checkbox.h>
+#include <wx/statbmp.h>
+
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
 
@@ -47,7 +49,7 @@ public:
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
 protected:
-    wxBitmapButton* m_drag_drop_box;
+    wxStaticBitmap* m_drag_drop_box;
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
 	//wxBitmapButton* m_database_lookup_table;

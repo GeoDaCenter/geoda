@@ -6721,7 +6721,7 @@
                     <object class="sizeritem">
                       <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                       <border>15</border>
-                      <object class="wxBitmapButton" name="IDC_DRAG_DROP_BOX">
+                      <object class="wxStaticBitmap" name="IDC_DRAG_DROP_BOX">
                         <style>wxBORDER_NONE</style>
                         <bitmap>dragdrop.png</bitmap>
                         <bitmap2>dragdrop2.png</bitmap2>

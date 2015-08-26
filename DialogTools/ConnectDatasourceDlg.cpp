@@ -28,6 +28,8 @@
 #include <wx/checkbox.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
+#include <wx/dnd.h>
+#include <wx/statbmp.h>
 
 #include "../DataViewer/DataSource.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -37,6 +39,36 @@
 #include "../GeneralWxUtils.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
+
+class DnDFile : public wxFileDropTarget
+{
+public:
+    DnDFile(wxStaticBitmap *pOwner = NULL) { m_pOwner = pOwner; }
+    
+    virtual bool OnDropFiles(wxCoord x, wxCoord y,
+                             const wxArrayString& filenames);
+    
+private:
+    wxStaticBitmap *m_pOwner;
+};
+
+bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
+{
+    size_t nFiles = filenames.GetCount();
+    wxString str;
+    str.Printf( wxT("%d files dropped"), (int)nFiles);
+    
+    if (m_pOwner != NULL)
+    {
+        //m_pOwner->Append(str);
+        for ( size_t n = 0; n < nFiles; n++ ) {
+            //m_pOwner->Append(filenames[n]);
+        }
+    }
+    
+    return true;
+}
+
 
 BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
@@ -61,10 +93,12 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetPosition(pos);
 	Centre();
    
-    m_drag_drop_box->Connect(wxEVT_DROP_FILES, wxDropFilesEventHandler(ConnectDatasourceDlg::OnDropFiles), NULL, this);
-    m_drag_drop_box->DragAcceptFiles(true);
+    //m_drag_drop_box->Connect(wxEVT_DROP_FILES, wxDropFilesEventHandler(ConnectDatasourceDlg::OnDropFiles), NULL, this);
+    //m_drag_drop_box->DragAcceptFiles(true);
     
-    Bind(wxEVT_DROP_FILES, &ConnectDatasourceDlg::OnDropFiles, this, XRCID("IDC_DRAG_DROP_BOX"));
+    //Bind(wxEVT_DROP_FILES, &ConnectDatasourceDlg::OnDropFiles, this, XRCID("IDC_DRAG_DROP_BOX"));
+    m_drag_drop_box->SetDropTarget(new DnDFile(m_drag_drop_box));
+    
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
 }
