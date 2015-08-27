@@ -1424,46 +1424,25 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	}
 	
 	wxToolBar* tb1;
-	//if (GeneralWxUtils::isMac()) {
-		//MMM: With wxWidgets 3.0 and OSX Cocoa, this special code
-		// doesn't appear to be needed.  Commenting out for now.
-		
-		// For some reason the toolbar icons become disabled when
-		// GdaFrame loses focus on Mac.  So, for now we are not
-		// making the toolbar a child of the Panel.
-		//tb1 = wxXmlResource::Get()->LoadToolBar(this, "ToolBar");
-		//SetToolBar(tb1);
-	//} else {
-		wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition,
+    wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition,
 									 size, wxNO_BORDER);
-		wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 		
-		tb1 = wxXmlResource::Get()->LoadToolBar(panel, "ToolBar");
-		//wxToolBar* tb2 = wxXmlResource::Get()->LoadToolBar(panel, "ToolBar2");
-		//wxToolBar* tb3 = wxXmlResource::Get()->LoadToolBar(panel, "ToolBar3");
-		wxASSERT(tb1);
-		////wxASSERT(tb2);
-		if (GeneralWxUtils::isUnix()) {
-			// unfortunately, just GTK needs the toolbar to be added to the
-			// topSizer rather than the panel itself.
-			topSizer->Add(tb1, 0, 0, 0, 0);
-			////topSizer->Add(tb2, 0, 0, 0, 0);
-			////topSizer->Add(tb3, 0, 0, 0, 0);
-		} else {
-		    topSizer->Add(panel, 0, 0, 0, 0);
-		}
-		SetSizer(topSizer);
-		topSizer->Fit(panel);
-	//}
-
+    tb1 = wxXmlResource::Get()->LoadToolBar(panel, "ToolBar");
+    wxASSERT(tb1);
+    if (GeneralWxUtils::isUnix()) {
+        // unfortunately, just GTK needs the toolbar to be added to the
+		// topSizer rather than the panel itself.
+		topSizer->Add(tb1, 0, 0, 0, 0);
+    } else {
+        topSizer->Add(panel, 0, 0, 0, 0);
+    }
+	SetSizer(topSizer);
+	topSizer->Fit(panel);
 	
 	gda_frame = this;
 
 	toolbar_list.push_front(tb1);
-	////toolbar_list.push_front(tb2);
-	////toolbar_list.push_front(tb3);
-	
-	//wxXmlResource::Get()->LoadPanel(appFrame, "ID_CONTROL_PANEL");
 	
 	SetMenusToDefault();
  	UpdateToolbarAndMenus();

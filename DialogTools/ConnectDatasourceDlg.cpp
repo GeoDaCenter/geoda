@@ -43,27 +43,26 @@
 class DnDFile : public wxFileDropTarget
 {
 public:
-    DnDFile(wxStaticBitmap *pOwner = NULL) { m_pOwner = pOwner; }
+    DnDFile(ConnectDatasourceDlg *pOwner = NULL) { m_pOwner = pOwner; }
     
     virtual bool OnDropFiles(wxCoord x, wxCoord y,
                              const wxArrayString& filenames);
     
 private:
-    wxStaticBitmap *m_pOwner;
+    ConnectDatasourceDlg *m_pOwner;
 };
 
 bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 {
     size_t nFiles = filenames.GetCount();
-    wxString str;
-    str.Printf( wxT("%d files dropped"), (int)nFiles);
+    //wxString str;
+    //str.Printf( wxT("%d files dropped"), (int)nFiles);
     
-    if (m_pOwner != NULL)
+    if (m_pOwner != NULL && nFiles > 0)
     {
-        //m_pOwner->Append(str);
-        for ( size_t n = 0; n < nFiles; n++ ) {
-            //m_pOwner->Append(filenames[n]);
-        }
+        m_pOwner->ds_file_path = wxFileName::FileName(filenames[0]);
+        wxCommandEvent ev;
+        m_pOwner->OnOkClick(ev);
     }
     
     return true;
@@ -93,11 +92,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetPosition(pos);
 	Centre();
    
-    //m_drag_drop_box->Connect(wxEVT_DROP_FILES, wxDropFilesEventHandler(ConnectDatasourceDlg::OnDropFiles), NULL, this);
-    //m_drag_drop_box->DragAcceptFiles(true);
-    
-    //Bind(wxEVT_DROP_FILES, &ConnectDatasourceDlg::OnDropFiles, this, XRCID("IDC_DRAG_DROP_BOX"));
-    m_drag_drop_box->SetDropTarget(new DnDFile(m_drag_drop_box));
+    m_drag_drop_box->SetDropTarget(new DnDFile(this));
     
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());

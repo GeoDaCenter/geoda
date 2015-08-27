@@ -48,6 +48,8 @@ public:
     virtual ~DatasourceDlg(){}
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
+	wxFileName      ds_file_path;
+    
 protected:
     wxStaticBitmap* m_drag_drop_box;
 	wxTextCtrl*     m_ds_filepath_txt;
@@ -63,7 +65,6 @@ protected:
 	//AutoTextCtrl*   m_webservice_url;
 	wxNotebook*     m_ds_notebook;
     wxMenu*         m_ds_menu;
-	wxFileName      ds_file_path;
 	wxString        layer_name;
 
     wxArrayString   ds_names;
