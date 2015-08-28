@@ -127,6 +127,7 @@ public:
 					wxChoice* preview_var_choice,
 					wxChoice* preview_var_tm_choice,
 					wxCheckBox* sync_vars_chk,
+                    bool _useScientificNotation=false,
 					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
@@ -216,6 +217,7 @@ public:
 
 	CatClassifFrame* template_frame;	
 private:
+    bool useScientificNotation;
 	Project* project;
 	TableInterface* table_int;
 	CatClassifHistCanvas* hist_canvas;
@@ -271,6 +273,7 @@ class CatClassifFrame : public TemplateFrame
 {
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
+                    bool useScientificNotation = false,
 					const wxString& title = "Category Editor",
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,

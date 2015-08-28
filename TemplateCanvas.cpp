@@ -120,7 +120,8 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
     layer1_valid(false), layer2_valid(false),
 	total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 	is_pan_zoom(false), is_scrolled(false), prev_scroll_pos_x(0),
-	prev_scroll_pos_y(0)
+	prev_scroll_pos_y(0),
+    useScientificNotation(false)
 {
 	LOG_MSG("Entering TemplateCanvas::TemplateCanvas");
     
@@ -154,6 +155,11 @@ TemplateCanvas::~TemplateCanvas()
         basemap = 0;
     }
 	LOG_MSG("Exiting TemplateCanvas::~TemplateCanvas()");
+}
+
+void TemplateCanvas::SetScientificNotation(bool flag)
+{
+    useScientificNotation = flag;
 }
 
 void TemplateCanvas::deleteLayerBms()

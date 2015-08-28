@@ -57,17 +57,20 @@ namespace CatClassification {
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
-							 std::vector<wxString>& cat_labels);
+                             std::vector<wxString>& cat_labels,
+                             bool useScientifcNotation=false);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
-						const CatClassifType theme, int num_cats);
+						const CatClassifType theme, int num_cats,
+                        bool useScientificNotation=false);
 	
 	void PopulateCatClassifData(const CatClassifDef& cat_def,
 				const std::vector<Gda::dbl_int_pair_vec_type>& var,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				std::vector<wxString>& cats_error_message);
+				std::vector<wxString>& cats_error_message,
+                bool useSciNotation=false);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int);

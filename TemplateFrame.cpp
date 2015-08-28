@@ -33,6 +33,14 @@
 #include "TemplateFrame.h"
 #include "TemplateCanvas.h"
 #include "TemplateLegend.h"
+#include "Explore/MapNewView.h"
+#include "Explore/CartogramNewView.h"
+#include "Explore/ConditionalMapView.h"
+#include "Explore/LisaScatterPlotView.h"
+#include "Explore/PCPNewView.h"
+#include "Explore/ScatterNewPlotView.h"
+
+
 #include "rc/GeoDaIcon-16x16.xpm"
 #include "GeneralWxUtils.h"
 #include "GeoDa.h"
@@ -625,6 +633,31 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 	LOG_MSG("Exiting TemplateFrame::OnCopyImageToClipboard");
 }
 
+void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
+{
+    if (!template_legend) return;
+	if (!template_canvas) return;
+   
+    bool flag = template_canvas->useScientificNotation;
+  
+    
+    template_canvas->SetScientificNotation(!flag);
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        //MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas);
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    }
+    template_legend->Refresh();
+}
 
 void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
 {

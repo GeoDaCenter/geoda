@@ -587,6 +587,7 @@ CatClassifPanel::CatClassifPanel(Project* project_s,
 								 wxChoice* preview_var_choice_s,
 								 wxChoice* preview_var_tm_choice_s,
 								 wxCheckBox* sync_vars_chk_s,
+                                 bool _useScientificNotation,
 								 wxWindowID id,
 								 const wxPoint& pos, const wxSize& size,
 								 long style)
@@ -602,7 +603,8 @@ preview_var_choice(preview_var_choice_s),
 preview_var_tm_choice(preview_var_tm_choice_s),
 sync_vars_chk(sync_vars_chk_s),
 unif_dist_mode(true),
-all_init(false)
+all_init(false),
+useScientificNotation(_useScientificNotation)
 {
 	using namespace std;
 	SetParent(parent);
@@ -1495,7 +1497,7 @@ void CatClassifPanel::ResetValuesToDefault()
 	cc_data.break_vals_type = CatClassification::quantile_break_vals;
 	CatClassification::SetBreakPoints(cc_data.breaks, cc_data.names, data,
 									  CatClassification::quantile,
-									  default_intervals);
+									  default_intervals, useScientificNotation);
 	
 	for (int i=0; i<max_intervals; ++i) {
 		cat_title_txt[i]->ChangeValue("");
@@ -1997,7 +1999,7 @@ void CatClassifPanel::SetBrkTxtFromVec(const std::vector<double>& brks)
 	}
 	if (IsAutomaticLabels()) {
 		std::vector<wxString> new_labels;
-		CatClassification::CatLabelsFromBreaks(brks, new_labels);
+		CatClassification::CatLabelsFromBreaks(brks, new_labels, useScientificNotation);
 		int sz = new_labels.size();
 		cc_data.names.resize(sz);
 		for (int i=0; i<sz; ++i) {
@@ -2149,6 +2151,7 @@ BEGIN_EVENT_TABLE(CatClassifFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
+                                 bool useScientificNotation,
 								 const wxString& title, const wxPoint& pos,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
@@ -2214,8 +2217,8 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	template_canvas = canvas;
 	panel = new CatClassifPanel(project, canvas, this, 
 								preview_var_choice, preview_var_tm_choice,
-								sync_vars_chk, wxID_ANY,
-								wxDefaultPosition, wxDefaultSize);
+								sync_vars_chk, useScientificNotation,
+                                wxID_ANY, wxDefaultPosition, wxDefaultSize);
 	panel->template_frame = this;
 
 	wxBoxSizer* r_sizer = new wxBoxSizer(wxVERTICAL);

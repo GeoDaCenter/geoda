@@ -146,6 +146,7 @@ public:
 	void OnSaveCanvasImageAs(wxCommandEvent& event);
 	void OnSaveSelectedToColumn(wxCommandEvent& event);
 	void OnCanvasBackgroundColor(wxCommandEvent& event);
+	void OnLegendUseScientificNotation(wxCommandEvent& event);
 	void OnLegendBackgroundColor(wxCommandEvent& event);
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
@@ -171,7 +172,7 @@ public:
 	void OnShowTimeChooser(wxCommandEvent& event);
 	void OnShowDataMovie(wxCommandEvent& event);
 	void OnShowCatClassif(wxCommandEvent& event);
-	CatClassifFrame* GetCatClassifFrame();
+	CatClassifFrame* GetCatClassifFrame(bool useScientificNotation=false);
 	void OnVarGroupingEditor(wxCommandEvent& event);
 	void OnTimeEditor(wxCommandEvent& event);
 	void OnMoveSelectedToTop(wxCommandEvent& event);

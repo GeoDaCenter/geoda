@@ -402,7 +402,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 		}
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_map, "",
 										  var_info[CAT_VAR].name,
@@ -1289,7 +1289,8 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
 											  cat_data, map_valid,
-											  map_error_message);
+											  map_error_message,
+                                              this->useScientificNotation);
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
 										- var_info[ref_var_index].time_min);

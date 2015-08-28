@@ -67,6 +67,8 @@ protected:
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
+    
+public:
 	void CreateAndUpdateCategories(); // cats
 	
 public:

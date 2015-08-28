@@ -95,15 +95,21 @@ public:
 	virtual void SetHighlightColor(wxColour color);
 	virtual void SetCanvasBackgroundColor(wxColour color);
 	
+    
 protected:
 	virtual void UpdateSelectableOutlineColors();
 	
+public:
+    bool useScientificNotation;
+    void SetScientificNotation(bool flag);
+    
 protected:
 	MouseMode mousemode;
 	SelectState selectstate;
 	BrushType brushtype;
 	ScrollBarMode scrollbarmode;
-	
+
+    
 	/** The following parameters are used by the window resizing system.
 	 We need to very carefully determine how these can be used together
 	 in a flexible resizing system.
@@ -148,6 +154,7 @@ public:
 	 of the hightlighted/selected state for every SHP file observation.
 	 */
 	virtual void update(HLStateInt* o);
+    
 public:
 	/** Returns a human-readable string of the values of many of the
 	 internal state variables for the TemplateCanvas class instance.  This

@@ -502,6 +502,8 @@ EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"),
 		 GdaFrame::OnSaveSelectedToColumn)
 EVT_MENU(XRCID("ID_CANVAS_BACKGROUND_COLOR"),
 		 GdaFrame::OnCanvasBackgroundColor)
+EVT_MENU(XRCID("ID_LEGEND_USE_SCI_NOTATION"),
+		 GdaFrame::OnLegendUseScientificNotation)
 EVT_MENU(XRCID("ID_LEGEND_BACKGROUND_COLOR"),
 		 GdaFrame::OnLegendBackgroundColor)
 EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"),
@@ -2312,6 +2314,13 @@ void GdaFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 	t->OnCanvasBackgroundColor(event);
 }
 
+void GdaFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
+{
+	TemplateFrame* t = TemplateFrame::GetActiveFrame();
+	if (!t) return;
+    t->OnLegendUseScientificNotation(event);
+}
+
 void GdaFrame::OnLegendBackgroundColor(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
@@ -2581,7 +2590,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
 }
 
-CatClassifFrame* GdaFrame::GetCatClassifFrame()
+CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)
 {
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return 0;
@@ -2599,7 +2608,7 @@ CatClassifFrame* GdaFrame::GetCatClassifFrame()
 	}
 	
 	LOG_MSG("Opening a new Cateogry Editor");
-	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
+	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, useScientificNotation);
 	return dlg;
 }
 

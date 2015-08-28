@@ -64,6 +64,8 @@ public:
 	virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	virtual void OnCopyLegendToClipboard(wxCommandEvent& event);
 	virtual void OnCopyImageToClipboard(wxCommandEvent& event);
+    
+	virtual void OnLegendUseScientificNotation(wxCommandEvent& event);
 	virtual void OnLegendBackgroundColor(wxCommandEvent& event);
 	virtual void OnCanvasBackgroundColor(wxCommandEvent& event);
 	virtual void OnSelectableFillColor(wxCommandEvent& event);

@@ -471,7 +471,7 @@ void PCPCanvas::NewCustomCatClassif()
 			project->GetTableInt()->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[0].name, var_info[0].time);
@@ -865,7 +865,8 @@ void PCPCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
 											  cat_data, cats_valid,
-											  cats_error_message);
+											  cats_error_message,
+                                              this->useScientificNotation);
 	
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time

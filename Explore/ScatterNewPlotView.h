@@ -98,10 +98,12 @@ public:
 	virtual void SetSelectableOutlineColor(wxColour color);
 	
 protected:
+	virtual void TimeChange();
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
-	virtual void TimeChange();
 	void VarInfoAttributeChange();
+    
+public:
 	void CreateAndUpdateCategories();
 	
 public:

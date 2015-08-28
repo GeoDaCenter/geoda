@@ -658,7 +658,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 			project->GetTableInt()->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[3].name,
@@ -1255,7 +1255,8 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
 											  cat_data, cats_valid,
-											  cats_error_message);
+											  cats_error_message,
+                                              this->useScientificNotation);
 	
 	CreateZValArrays(num_time_vals, num_obs);
 	for (int t=0; t<num_time_vals; t++) {

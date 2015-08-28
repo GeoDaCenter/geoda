@@ -110,12 +110,11 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
-protected:
+public:
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	virtual void CreateAndUpdateCategories();
 
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void DisplayMeanCenters();
 	virtual void DisplayCentroids();

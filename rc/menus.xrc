@@ -2924,6 +2924,10 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_MAP_VIEW_MENU_LEGEND">
+    <object class="wxMenuItem" name="ID_LEGEND_USE_SCI_NOTATION">
+      <label>Use Scientific Notation</label>
+        <checkable>1</checkable>
+    </object>
     <object class="wxMenuItem" name="ID_LEGEND_BACKGROUND_COLOR">
       <label>Legend Background Color</label>
     </object>

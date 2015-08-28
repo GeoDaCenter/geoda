@@ -514,7 +514,7 @@ void MapCanvas::NewCustomCatClassif()
 		cat_classif_def.assoc_db_fld_name = table_int->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[0].name, var_info[0].time);
@@ -983,7 +983,8 @@ void MapCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
 											  cat_data, map_valid,
-											  map_error_message);
+											  map_error_message,
+                                              this->useScientificNotation);
 
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time

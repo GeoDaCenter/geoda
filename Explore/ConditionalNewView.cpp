@@ -724,7 +724,8 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 												  vert_var_sorted,
 												  vert_cat_data,
 												  vert_cats_valid,
-												  vert_cats_error_message);
+												  vert_cats_error_message,
+                                                  this->useScientificNotation);
 		int vt = var_info[var_id].time;
 		vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
 		CatClassification::ChangeNumCats(vert_num_cats, cat_classif_def_vert);
