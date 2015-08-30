@@ -478,12 +478,16 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				cat_data.SetCategoryMinMax(t, 0, low_v, high_v);
 			}
 		} else {
+            
+            
+            
 			std::vector<double> cat_min(num_cats);
 			std::vector<double> cat_max(num_cats);
 			std::vector<double> breaks(num_cats-1);
 			int num_breaks = breaks.size();
 			int num_breaks_lower = (num_breaks+1)/2;
-			
+		
+            
 			for (int t=0; t<num_time_vals; t++) {
 				if (!cats_valid[t]) continue;
 				// Set default cat_min / cat_max values for when
@@ -535,26 +539,30 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
                     ss.str("");
 					if (num_cats <= 1) {
 						//s << "(-inf, inf)";
-						ss << cat_def.names[ival];
+						//ss << cat_def.names[ival];
+			ss << "";
 						cat_data.SetCategoryCount(t, ival, num_obs);
 					} else if (ival == 0) {
+			ss << "< " << cat_def.breaks[ival];
 						//s << "(-inf, ";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival]) << ")";
-						ss << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats != 2) {
+			ss << "> " << cat_def.breaks[ival-1];
 						//s << "(";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
-						ss << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats == 2) {
+			ss << ">= " << cat_def.breaks[ival-1];
 						//s << "[";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
-						ss << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 												  cat_data.GetNumObsInCategory(t, ival));
 					} else {
@@ -572,10 +580,12 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 							a = "(";
 							b = "]";
 						}
+			ss << a << cat_def.breaks[ival-1] << ", ";
+			ss << cat_def.breaks[ival] << b;
 						//s << a << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", " << GenUtils::DblToStr(cat_def.breaks[ival]);
 						//s << b;
-						ss << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					}

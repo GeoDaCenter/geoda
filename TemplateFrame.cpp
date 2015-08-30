@@ -635,9 +635,6 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 
 void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 {
-    if (!template_legend) return;
-	if (!template_canvas) return;
-   
     bool flag = template_canvas->useScientificNotation;
   
     
