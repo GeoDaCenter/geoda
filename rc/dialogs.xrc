@@ -5864,7 +5864,8 @@
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
+        <border>12</border>
       </object>
       <object class="sizeritem">
         <object class="wxStaticBoxSizer" name="wxID_ANY">
@@ -5880,7 +5881,7 @@
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
                   <object class="spacer">
-                    <size>18,5d</size>
+                    <size>25,5d</size>
                   </object>
                   <object class="sizeritem">
                     <object class="wxRadioButton" name="IDC_RADIO2">
@@ -5889,7 +5890,7 @@
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
                   <object class="spacer">
-                    <size>18,5d</size>
+                    <size>25,5d</size>
                   </object>
                   <object class="sizeritem">
                     <object class="wxRadioButton" name="IDC_RADIO3">
@@ -5897,20 +5898,18 @@
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
-                    <object class="spacer">
-                        <size>18,5d</size>
-                    </object>
-                    <object class="sizeritem">
-                        <object class="wxRadioButton" name="IDC_RADIO4">
-                            <label>Auto </label>
-                        </object>
-                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                    </object>
-
                   <orient>wxHORIZONTAL</orient>
                 </object>
                 <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
-                <border>12</border>
+                <border>6</border>
+              </object>
+              <object class="sizeritem">
+                  <object class="wxStaticLine" name="stline_id">
+                      <size>400,5</size>
+                      <style>wxLI_HORIZONTAL</style>
+                  </object>
+                    <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
+                    <border>6</border>
               </object>
               <orient>wxVERTICAL</orient>
               <object class="sizeritem">
@@ -6011,12 +6010,6 @@
               </object>
               <object class="spacer">
                   <size>5,5d</size>
-              </object>
-              <object class="sizeritem">
-                  <object class="wxButton" name="ID_SETUP_AUTO">
-                      <label>Configure Auto</label>
-                      <style>wxBU_EXACTFIT</style>
-                  </object>
               </object>
               <object class="spacer">
                   <size>8,5d</size>

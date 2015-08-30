@@ -71,8 +71,7 @@ BEGIN_EVENT_TABLE( RegressionDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_VIEW_RESULTS"), RegressionDlg::OnViewResultsClick )
 	EVT_BUTTON( XRCID("ID_SAVE_TO_TXT_FILE"),
 			   RegressionDlg::OnSaveToTxtFileClick )
-    EVT_BUTTON( XRCID("ID_SETUP_AUTO"),
-           RegressionDlg::OnSetupAutoModel )
+    //EVT_BUTTON( XRCID("ID_SETUP_AUTO"), RegressionDlg::OnSetupAutoModel )
     EVT_LISTBOX_DCLICK( XRCID("IDC_LIST_VARIN"),
 					   RegressionDlg::OnCListVarinDoubleClicked )
     EVT_LISTBOX_DCLICK( XRCID("IDC_LIST_VAROUT"),
@@ -98,7 +97,7 @@ BEGIN_EVENT_TABLE( RegressionDlg, wxDialog )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO1"), RegressionDlg::OnCRadio1Selected )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO2"), RegressionDlg::OnCRadio2Selected )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO3"), RegressionDlg::OnCRadio3Selected )
-    EVT_RADIOBUTTON( XRCID("IDC_RADIO4"), RegressionDlg::OnCRadio4Selected )
+    //EVT_RADIOBUTTON( XRCID("IDC_RADIO4"), RegressionDlg::OnCRadio4Selected )
 
     EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), RegressionDlg::OnCOpenWeightClick )
 END_EVENT_TABLE()
@@ -199,7 +198,7 @@ void RegressionDlg::CreateControls()
     m_radio1 = XRCCTRL(*this, "IDC_RADIO1", wxRadioButton);
     m_radio2 = XRCCTRL(*this, "IDC_RADIO2", wxRadioButton);
     m_radio3 = XRCCTRL(*this, "IDC_RADIO3", wxRadioButton);
-    m_radio4 = XRCCTRL(*this, "IDC_RADIO4", wxRadioButton);
+    //m_radio4 = XRCCTRL(*this, "IDC_RADIO4", wxRadioButton);
     
 	
 	m_pred_val_cb = XRCCTRL(*this, "ID_PRED_VAL_CB", wxCheckBox);
@@ -1035,7 +1034,7 @@ void RegressionDlg::EnablingItems()
 	FindWindow(XRCID("IDC_RADIO1"))->Enable(m_Run1);
 	FindWindow(XRCID("IDC_RADIO2"))->Enable(m_WeightCheck && m_Run1);	
 	FindWindow(XRCID("IDC_RADIO3"))->Enable(m_WeightCheck && m_Run1);
-    FindWindow(XRCID("IDC_RADIO4"))->Enable(m_WeightCheck && m_Run1);
+    //FindWindow(XRCID("IDC_RADIO4"))->Enable(m_WeightCheck && m_Run1);
 }
 
 /** Refreshes weights list and remembers previous selection if
