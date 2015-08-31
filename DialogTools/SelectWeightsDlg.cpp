@@ -242,7 +242,8 @@ void SelectWeightsDlg::SetDetailsForId(boost::uuids::uuid id)
 	if (wmi.filename.IsEmpty()) {
 		row_content.push_back("not saved");
 	} else {
-		row_content.push_back(wmi.filename);
+        wxFileName fm(wmi.filename);
+		row_content.push_back(fm.GetFullName());
 	}
 	
 	row_title.push_back("id variable");
