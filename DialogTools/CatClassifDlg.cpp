@@ -725,7 +725,6 @@ useScientificNotation(_useScientificNotation)
 	for (int i=0; i<cc_data.num_cats; i++) {
 		cc_data.names[i] = cat_title_txt[i]->GetValue();
 	}
-	
 	std::sort(brk_rad_srt_vec.begin(), brk_rad_srt_vec.end(),
 			  int_win_pair_less);
 	brk_rad.resize(brk_rad_srt_vec.size());
