@@ -3631,266 +3631,264 @@
       <object class="sizeritem">
         <object class="wxStaticBoxSizer" name="wxID_ANY">
           <object class="sizeritem">
-            <object class="wxBoxSizer">
-              <orient>wxVERTICAL</orient>
+        
+            <object class="wxStaticBoxSizer" name="wxID_ANY">
               <object class="sizeritem">
                 <object class="wxBoxSizer">
-                    
+                  <orient>wxVERTICAL</orient>
                   <object class="sizeritem">
-                    <object class="wxRadioButton" name="IDC_RADIO_SUBSELECT">
-                      <label>Select From Current Selection</label>
-                      <tooltip>Select from current selection</tooltip>
-                      <style>wxRB_GROUP</style>
-                      <value>1</value>
+                    <object class="wxBoxSizer">
+                        
+                      <object class="sizeritem">
+                        <object class="wxRadioButton" name="IDC_RADIO_NEWSELECT">
+                          <label>New Selection</label>
+                          <tooltip>New selection</tooltip>
+                          <style>wxRB_GROUP</style>
+                          <value>1</value>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxRadioButton" name="IDC_RADIO_SUBSELECT">
+                          <label>Select From Current Selection</label>
+                          <tooltip>Select from current selection</tooltip>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxRadioButton" name="IDC_RADIO_APPENDSELECT">
+                          <label>Append To Current Selection</label>
+                          <tooltip>Append to current selection</tooltip>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>18,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxRadioButton" name="IDC_RADIO_APPENDSELECT">
-                      <label>Append To Current Selection</label>
-                      <tooltip>Append to current selection</tooltip>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxBOTTOM</flag>
-                <border>5</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>Selection Variable</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>10,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="ID_FIELD_CHOICE">
-                      <size>80,-1d</size>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <size>10,5d</size>
+                    <flag>wxBOTTOM</flag>
+                    <border>20</border>
                   </object>
                   <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>Time</label>
+                    <object class="wxBoxSizer">
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText">
+                          <label>Selection Variable</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxChoice" name="ID_FIELD_CHOICE">
+                          <size>80,-1d</size>
+                        </object>
+                      </object>
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText">
+                          <label>Time</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>7,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxChoice" name="ID_FIELD_CHOICE_TM">
+                          <size>80,-1d</size>
+                        </object>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>7,5d</size>
+                    <flag>wxBOTTOM</flag>
+                    <border>5</border>
                   </object>
                   <object class="sizeritem">
-                    <object class="wxChoice" name="ID_FIELD_CHOICE_TM">
-                      <size>80,-1d</size>
+                    <object class="wxBoxSizer">
+                      <object class="spacer">
+                        <size>10,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxButton" name="ID_SEL_RANGE_BUTTON">
+                          <label>Select All In Range</label>
+                        </object>
+                      </object>
+                      <object class="spacer">
+                        <size>5,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxTextCtrl" name="ID_MIN_TEXT">
+                          <size>50,-1d</size>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>3,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText">
+                          <label>&lt;=</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>3,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText" name="ID_FIELD_STATIC_TXT">
+                          <size>80,-1d</size>
+                          <label>choose a variable</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>3,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText">
+                          <label>&lt;=</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>3,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxTextCtrl" name="ID_MAX_TEXT">
+                          <size>50,-1d</size>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
+                      <object class="spacer">
+                        <size>3,5d</size>
+                      </object>
                     </object>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxBOTTOM</flag>
-                <border>5</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_SEL_RANGE_BUTTON">
-                      <label>Select All In Range</label>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <size>5,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxTextCtrl" name="ID_MIN_TEXT">
-                      <size>50,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>3,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>&lt;=</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>3,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText" name="ID_FIELD_STATIC_TXT">
-                      <size>80,-1d</size>
-                      <label>choose a variable</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>3,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>&lt;=</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>3,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxTextCtrl" name="ID_MAX_TEXT">
-                      <size>50,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                  <object class="spacer">
-                    <size>3,5d</size>
-                  </object>
-                </object>
-                <flag>wxTOP|wxBOTTOM</flag>
-                <border>5</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_SEL_UNDEF_BUTTON">
-                      <label>Select All Undefined</label>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <size>5,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText" name="ID_FIELD2_STATIC_TXT">
-                      <label>choose a variable</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxTOP|wxBOTTOM</flag>
-                <border>5</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxStaticLine">
-                      <style>wxLI_HORIZONTAL</style>
-                    </object>
-                    <option>1</option>
-                    <flag>wxEXPAND</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <option>1</option>
-                <flag>wxTOP|wxBOTTOM|wxEXPAND</flag>
-                <border>4</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_CLEAR_SEL_BUTTON">
-                      <label>Clear Selection</label>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <size>10</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_INVERT_SEL_BUTTON">
-                      <label>Invert Selection</label>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <size>30,-1</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>Number To Select</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>5</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxTextCtrl" name="ID_NUM_TO_RAND_SEL">
-                      <size>70,-1</size>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>5</size>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_RANDOM_SEL_BUTTON">
-                      <label>Random Selection</label>
-                    </object>
+                    <flag>wxTOP|wxBOTTOM</flag>
+                    <border>5</border>
                   </object>
                 </object>
-                <flag>wxTOP|wxBOTTOM</flag>
-                <border>5</border>
               </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxStaticLine">
-                      <style>wxLI_HORIZONTAL</style>
-                    </object>
-                    <option>1</option>
-                    <flag>wxEXPAND</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxTOP|wxBOTTOM|wxEXPAND</flag>
-                <border>4</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_ADD_NEIGHS_TO_SEL_BUTTON">
-                      <label>Add Neighbors To Selection</label>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="spacer">
-                    <size>25</size>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText">
-                      <label>Weights</label>
-                    </object>
-                    <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
-                    <border>8</border>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="ID_WEIGHTS">
-                      <size>120,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxTOP</flag>
-                <border>5</border>
-              </object>
+              <label></label>
+              <orient>wxHORIZONTAL</orient>
             </object>
           </object>
+         
+         
+         
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxStaticLine">
+                          <style>wxLI_HORIZONTAL</style>
+                        </object>
+                        <option>1</option>
+                        <flag>wxEXPAND</flag>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
+                    </object>
+                    <option>1</option>
+                    <flag>wxTOP|wxBOTTOM|wxEXPAND</flag>
+                    <border>4</border>
+                  </object>
+                  
+                  
+                  
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxButton" name="ID_SEL_UNDEF_BUTTON">
+                          <label>Select All Undefined</label>
+                        </object>
+                      </object>
+                      <object class="spacer">
+                        <size>5,5d</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText" name="ID_FIELD2_STATIC_TXT">
+                          <label>choose a variable</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
+                    </object>
+                    <flag>wxTOP|wxBOTTOM</flag>
+                    <border>5</border>
+                  </object>
+                  
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxButton" name="ID_INVERT_SEL_BUTTON">
+                          <label>Invert Selection</label>
+                        </object>
+                      </object>
+                    </object>
+                    <flag>wxTOP|wxBOTTOM</flag>
+                    <border>5</border>
+                   </object>
+                  
+ 
+          
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxButton" name="ID_ADD_NEIGHS_TO_SEL_BUTTON">
+                          <label>Add Neighbors To Selection</label>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <object class="spacer">
+                        <size>25</size>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxStaticText">
+                          <label>Weights</label>
+                        </object>
+                        <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                        <border>8</border>
+                      </object>
+                      <object class="sizeritem">
+                        <object class="wxChoice" name="ID_WEIGHTS">
+                          <size>120,-1d</size>
+                        </object>
+                        <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
+                      <orient>wxHORIZONTAL</orient>
+                    </object>
+                    <flag>wxTOP|wxBOTTOM</flag>
+                    <border>5</border>
+                  </object>
+          
+                  <object class="sizeritem">
+                    <object class="wxBoxSizer">
+                      <object class="sizeritem">
+                        <object class="wxButton" name="ID_CLEAR_SEL_BUTTON">
+                          <label>Clear Selection</label>
+                        </object>
+                      </object>
+                    </object>
+                    <flag>wxTOP|wxBOTTOM</flag>
+                    <border>5</border>
+                   </object>
+                  
           <label>Selection</label>
-          <orient>wxHORIZONTAL</orient>
+          <orient>wxVERTICAL</orient>
+          <flag>wxALIGN_LEFT|wxALL</flag>
         </object>
         <flag>wxALIGN_LEFT|wxALL</flag>
-        <border>5</border>
+        <border>20</border>
       </object>
       <object class="sizeritem">
         <object class="wxStaticBoxSizer" name="wxID_ANY">
@@ -3898,14 +3896,14 @@
             <object class="wxBoxSizer">
               <orient>wxVERTICAL</orient>
               <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
                     <object class="wxButton" name="ID_ADD_FIELD">
                       <label>Add Variable</label>
                     </object>
-                    <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxALL|wxALIGN_CENTRE_VERTICAL</flag>
                     <border>8</border>
-                  </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxBoxSizer">
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Target Variable</label>
@@ -4001,17 +3999,35 @@
                   <object class="spacer">
                     <size>50,5d</size>
                   </object>
-                  <object class="sizeritem">
-                    <object class="wxButton" name="ID_APPLY_SAVE_BUTTON">
-                      <label>Appl&amp;y</label>
-                      <style>wxBU_EXACTFIT</style>
-                    </object>
-                  </object>
                   <orient>wxHORIZONTAL</orient>
                 </object>
                 <flag>wxTOP</flag>
                 <border>5</border>
               </object>
+             
+             
+              <object class="sizeritem">
+                <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                    <object class="wxStaticLine">
+                      <style>wxLI_HORIZONTAL</style>
+                    </object>
+                    <option>1</option>
+                    <flag>wxEXPAND</flag>
+                  </object>
+                  <orient>wxHORIZONTAL</orient>
+                </object>
+                <flag>wxTOP|wxBOTTOM|wxEXPAND</flag>
+                <border>4</border>
+              </object>
+              
+                  <object class="sizeritem">
+                    <object class="wxButton" name="ID_APPLY_SAVE_BUTTON">
+                      <label>Appl&amp;y</label>
+                      <style>wxBU_EXACTFIT|wxALIGN_CENTER</style>
+                    </object>
+                  </object>
+             
             </object>
           </object>
           <label>Assign Values to Currently Selected / Unselected</label>
@@ -4020,10 +4036,12 @@
         <flag>wxALL|wxGROW</flag>
         <border>5</border>
       </object>
+       <flag>wxALL|wxALIGN_RIGHT</flag>
     </object>
     <title>Selection Tool</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    
   </object>
   <object class="wxDialog" name="IDD_CONVERT_ASC2SHP" subclass="ASC2SHPDlg">
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>

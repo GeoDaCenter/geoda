@@ -38,6 +38,7 @@
 #include "RangeSelectionDlg.h"
 
 BEGIN_EVENT_TABLE( RangeSelectionDlg, wxDialog )
+EVT_RADIOBUTTON(XRCID("IDC_RADIO_NEWSELECT"), RangeSelectionDlg::OnSetNewSelect)
 EVT_RADIOBUTTON(XRCID("IDC_RADIO_SUBSELECT"), RangeSelectionDlg::OnSetSubSelect)
 EVT_RADIOBUTTON(XRCID("IDC_RADIO_APPENDSELECT"), RangeSelectionDlg::OnSetAppendSelect)
 	EVT_CHOICE( XRCID("ID_FIELD_CHOICE"), RangeSelectionDlg::OnFieldChoice )
@@ -47,7 +48,7 @@ EVT_RADIOBUTTON(XRCID("IDC_RADIO_APPENDSELECT"), RangeSelectionDlg::OnSetAppendS
     EVT_BUTTON( XRCID("ID_SEL_RANGE_BUTTON"), RangeSelectionDlg::OnSelRangeClick )
 	EVT_BUTTON( XRCID("ID_SEL_UNDEF_BUTTON"), RangeSelectionDlg::OnSelUndefClick )
 	EVT_BUTTON( XRCID("ID_INVERT_SEL_BUTTON"), RangeSelectionDlg::OnInvertSelClick )
-	EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"), RangeSelectionDlg::OnRandomSelClick )
+	//EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"), RangeSelectionDlg::OnRandomSelClick )
 	EVT_BUTTON( XRCID("ID_CLEAR_SEL_BUTTON"), RangeSelectionDlg::OnClearSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON"), RangeSelectionDlg::OnAddNeighsToSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_FIELD"), RangeSelectionDlg::OnAddField )
@@ -144,17 +145,15 @@ void RangeSelectionDlg::CreateControls()
 	m_invert_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_INVERT_SEL_BUTTON")), wxButton);
 	
-	m_num_to_rand_sel_txt = wxDynamicCast(
-						FindWindow(XRCID("ID_NUM_TO_RAND_SEL")), wxTextCtrl);
-	m_num_to_rand_sel_txt->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+	//m_num_to_rand_sel_txt = wxDynamicCast(FindWindow(XRCID("ID_NUM_TO_RAND_SEL")), wxTextCtrl);
+	//m_num_to_rand_sel_txt->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	
 	// Select 10% of objects by default
 	wxString num_to_sel;
 	num_to_sel << (project->GetNumRecords() / 10);
-	m_num_to_rand_sel_txt->SetValue(num_to_sel);
+	//m_num_to_rand_sel_txt->SetValue(num_to_sel);
 	
-	m_random_sel_button = wxDynamicCast(
-						FindWindow(XRCID("ID_RANDOM_SEL_BUTTON")), wxButton);
+	//m_random_sel_button = wxDynamicCast(FindWindow(XRCID("ID_RANDOM_SEL_BUTTON")), wxButton);
 	
 		
 	m_add_neighs_to_sel_button = wxDynamicCast(
@@ -188,11 +187,17 @@ void RangeSelectionDlg::CreateControls()
 	m_apply_save_button = wxDynamicCast(
 		FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
 	m_apply_save_button->Disable();
-    
+   
+
+    m_radio_newselect = XRCCTRL(*this, "IDC_RADIO_NEWSELECT", wxRadioButton);
     m_radio_subselect = XRCCTRL(*this, "IDC_RADIO_SUBSELECT", wxRadioButton);
     m_radio_appendselect = XRCCTRL(*this, "IDC_RADIO_APPENDSELECT", wxRadioButton);
 }
 
+void RangeSelectionDlg::OnSetNewSelect( wxCommandEvent& event )
+{
+    
+}
 void RangeSelectionDlg::OnSetSubSelect( wxCommandEvent& event )
 {
     
@@ -235,9 +240,16 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 	int f_tm = GetSelColTmInt();
 
     bool no_hl = true;
+    bool new_select = m_radio_newselect->GetValue();
     bool sub_select = m_radio_subselect->GetValue();
     bool append_select = !sub_select;
 
+    if (new_select) {
+        for (int i=0; i<n; i++) {
+            h[i] = false;
+        }
+    }
+    
     for (int i=0; i<n; i++) {
         if (h[i] == true) {
             no_hl = false;
@@ -351,6 +363,7 @@ void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 {
+    /*
 	size_t num_obs = project->GetNumRecords();
 	long num_to_rand_sel = 0;
 	{
@@ -399,6 +412,7 @@ void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 	hs.notifyObservers();
 	m_selection_made = true;
 	CheckApplySaveSettings();
+     */
 }
 
 void RangeSelectionDlg::OnClearSelClick( wxCommandEvent& event )

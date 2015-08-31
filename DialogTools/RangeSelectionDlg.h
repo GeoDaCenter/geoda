@@ -69,6 +69,7 @@ public:
 	void OnApplySaveClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
     
+    void OnSetNewSelect(wxCommandEvent& event );
     void OnSetSubSelect(wxCommandEvent& event );
     void OnSetAppendSelect(wxCommandEvent& event );
 
@@ -145,6 +146,7 @@ private:
 	wxCheckBox* m_unsel_check_box;	
 	wxTextCtrl* m_unsel_val_text;
 	wxButton* m_apply_save_button;
+    wxRadioButton* m_radio_newselect;
     wxRadioButton* m_radio_subselect;
     wxRadioButton* m_radio_appendselect;
 	
