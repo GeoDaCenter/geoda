@@ -718,11 +718,14 @@
                 </object>
                 <flag>wxGROW</flag>
               </object>
+              <object class="spacer">
+                <size>10,2d</size>
+              </object>
               <object class="sizeritem">
                 <object class="wxBoxSizer">
                   <object class="sizeritem">
                     <object class="wxSlider" name="ID_BRK_SLIDER">
-                      <size>-1,100d</size>
+                      <size>-1,90d</size>
                       <style>wxSL_VERTICAL</style>
                     </object>
                     <option>1</option>

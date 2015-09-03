@@ -44,7 +44,6 @@ void OGRTableOpInsertColumn::Commit()
         int pos = ogr_layer->AddField(ogr_col->GetName().ToStdString(),
                                       ogr_col->GetType(),ogr_col->GetLength(),
                                       ogr_col->GetDecimals());
-        //ogr_col->SetColIndex(pos);
         // column content will be done in OGRTableUpdateColumn
     }
 }

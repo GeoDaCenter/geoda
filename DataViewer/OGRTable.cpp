@@ -278,10 +278,10 @@ bool OGRTable::Save(wxString& err_msg)
 
 bool OGRTable::IsReadOnly()
 {
-    if (datasource_type == GdaConst::ds_dbf ||
-        datasource_type == GdaConst::ds_shapefile) {
-        return true;
-    }
+    //if (datasource_type == GdaConst::ds_dbf ||
+    //    datasource_type == GdaConst::ds_shapefile) {
+    //    return true;
+    //}
 	return !ogr_layer->is_writable;
 }
 
