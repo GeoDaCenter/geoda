@@ -410,15 +410,16 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	final_col_name = colname.Upper();
 	final_col_id = col_insert_pos;
     
+
+	if (table_int->PermitChangeDisplayedDecimals()) {
+		table_int->ColChangeDisplayedDecimals(final_col_id, displayed_decimals);
+	}
     
 	wxGrid* g = project->FindTableGrid();
     if (g) {
         g->GoToCell(1, col_insert_pos);
     }
-
-	if (table_int->PermitChangeDisplayedDecimals()) {
-		table_int->ColChangeDisplayedDecimals(final_col_id, displayed_decimals);
-	}
+    
 	ev.Skip();
 	EndDialog(wxID_OK);
 	LOG_MSG("Exiting DataViewerAddColDlg::OnOkClick");

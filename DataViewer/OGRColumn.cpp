@@ -448,6 +448,8 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
         if (set_markers[row_idx]== false)
             return wxEmptyString;
         val = new_data[row_idx];
+        wxString rst = wxString::Format("%f", val);
+        return rst;
     } else {
         int col_idx = GetColIndex();
         if (col_idx == -1) return wxEmptyString;
@@ -461,9 +463,9 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
             }
         }
         val = ogr_layer->data[row_idx]->GetFieldAsDouble(col_idx);
+        wxString rst = wxString::Format("%.*f", disp_decimals, val);
+        return rst;
     }
-    wxString rst = wxString::Format("%.*f", disp_decimals, val);
-    return rst;
 }
 
 void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
