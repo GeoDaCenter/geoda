@@ -153,7 +153,8 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 	
 	LOG(data[obj_id].field_default);
 	LOG(data[obj_id].type);
-	DataViewerAddColDlg dlg(project, this, false, true,
+    // Multiple time periods seems complex to user, we don't set "multiple time periods" by default, even there is time defined.
+	DataViewerAddColDlg dlg(project, this, true, true,
 							data[obj_id].field_default,
 							data[obj_id].type);
 	if (dlg.ShowModal() != wxID_OK) return;

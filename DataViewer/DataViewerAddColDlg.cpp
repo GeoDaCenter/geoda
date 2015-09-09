@@ -73,6 +73,7 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	std::vector<int> col_id_map;
 	
 	table_int->FillColIdMap(col_id_map);
+    /*
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
 		curr_col_labels.insert(table_int->GetColName(i).Upper());
 		m_insert_pos->Append(table_int->GetColName(i).Upper());
@@ -80,6 +81,7 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
     
 	m_insert_pos->Append("after last variable");
 	m_insert_pos->SetSelection(0);
+     */
 	UpdateApplyButton();
 }
 
@@ -130,8 +132,10 @@ void DataViewerAddColDlg::CreateControls()
 	m_type->Append("string (eg New York)");
 	m_type->Append("date (eg 20110131)");
 	
-	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")),
-								 wxChoice);
+	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
+    mt->Hide();
+	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);
+    m_insert_pos->Hide();
 
 	m_displayed_decimals_lable = 
 	wxDynamicCast(FindWindow(XRCID("ID_STATIC_DISPLAYED_DECIMALS")),
@@ -367,6 +371,8 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	
 	int col_insert_pos;
+    col_insert_pos = table_int->GetNumberCols();
+    /* XXX to be removed
 	if (m_insert_pos->GetSelection() >= table_int->GetNumberCols()) {
 		col_insert_pos = table_int->GetNumberCols();
 	} else {
@@ -375,6 +381,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		// order it appears in the Table.
 		col_insert_pos = m_insert_pos->GetSelection();
 	}
+    */
 	int time_steps = 1; // non-space-time column by default	
 	if (m_time_variant_yes && m_time_variant_yes->GetValue()) {
 		time_steps = table_int->GetTimeSteps();
@@ -402,6 +409,12 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	final_col_name = colname.Upper();
 	final_col_id = col_insert_pos;
+    
+    
+	wxGrid* g = project->FindTableGrid();
+    if (g) {
+        g->GoToCell(1, col_insert_pos);
+    }
 
 	if (table_int->PermitChangeDisplayedDecimals()) {
 		table_int->ColChangeDisplayedDecimals(final_col_id, displayed_decimals);
