@@ -440,7 +440,7 @@ void RangeSelectionDlg::OnAddNeighsToSelClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnAddField( wxCommandEvent& event )
 {	
-	DataViewerAddColDlg dlg(project, this, false, true, "SELECT");
+	DataViewerAddColDlg dlg(project, this, true, true, "SELECT");
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
 	if (table_int->GetColType(col) != GdaConst::long64_type &&
