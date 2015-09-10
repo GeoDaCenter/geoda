@@ -232,6 +232,7 @@ public:
     
 protected:
     void OnMapSelect(wxCommandEvent& e);
+    void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);
     void OnMapZoom(wxCommandEvent& e);
     void OnMapZoomOut(wxCommandEvent& e);

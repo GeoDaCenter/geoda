@@ -1231,6 +1231,7 @@ MapFrame::~MapFrame()
 void MapFrame::SetupToolbar()
 {
 	Connect(XRCID("ID_SELECT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapSelect));
+	Connect(XRCID("ID_SELECT_INVERT"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapInvertSelect));
 	Connect(XRCID("ID_PAN_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapPan));
 	Connect(XRCID("ID_ZOOM_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapZoom));
 	Connect(XRCID("ID_ZOOM_OUT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapZoomOut));
@@ -1253,6 +1254,13 @@ void MapFrame::OnMapSelect(wxCommandEvent& e)
     //EnableTool(XRCID("ID_NEW_PROJECT"), !proj_open);
     */
     OnSelectionMode(e);
+}
+
+void MapFrame::OnMapInvertSelect(wxCommandEvent& e)
+{
+	HighlightState& hs = *project->GetHighlightState();
+	hs.SetEventType(HLStateInt::invert);
+	hs.notifyObservers();
 }
 
 void MapFrame::OnMapPan(wxCommandEvent& e)

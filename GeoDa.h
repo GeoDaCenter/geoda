@@ -176,6 +176,7 @@ public:
 	void OnVarGroupingEditor(wxCommandEvent& event);
 	void OnTimeEditor(wxCommandEvent& event);
 	void OnMoveSelectedToTop(wxCommandEvent& event);
+	void OnInvertSelection(wxCommandEvent& event);
 	void OnClearSelection(wxCommandEvent& event);
 	void OnRangeSelection(wxCommandEvent& event);
 	void OnFieldCalculation(wxCommandEvent& event);

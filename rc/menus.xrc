@@ -113,14 +113,17 @@
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
         <label>Selection Tool</label>
       </object>
-      <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
-        <label>Move Selected to Top</label>
+      <object class="wxMenuItem" name="ID_TABLE_INVERT_SELECTION">
+        <label>Invert Selection</label>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
         <label>Clear Selection</label>
       </object>
       <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
         <label>Save Selection</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
+        <label>Move Selected to Top</label>
       </object>
       <object class="separator"/>
       
@@ -4090,16 +4093,19 @@
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
       <label>Selection Tool</label>
     </object>
-    <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
-      <label>Move Selected to Top</label>
-    </object>
     
     
+      <object class="wxMenuItem" name="ID_TABLE_INVERT_SELECTION">
+        <label>Invert Selection</label>
+      </object>
     <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
       <label>Clear Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
+    </object>
+    <object class="wxMenuItem" name="ID_TABLE_MOVE_SELECTED_TO_TOP">
+      <label>Move Selected to Top</label>
     </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">

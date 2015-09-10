@@ -566,14 +566,11 @@ EVT_BUTTON(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
 
 EVT_MENU(XRCID("ID_VAR_GROUPING_EDITOR"), GdaFrame::OnVarGroupingEditor)
 EVT_MENU(XRCID("ID_TIME_EDITOR"), GdaFrame::OnTimeEditor)
-EVT_MENU(XRCID("ID_TABLE_MOVE_SELECTED_TO_TOP"),
-		 GdaFrame::OnMoveSelectedToTop)
-EVT_MENU(XRCID("ID_TABLE_CLEAR_SELECTION"),
-		 GdaFrame::OnClearSelection)
-EVT_MENU(XRCID("ID_TABLE_RANGE_SELECTION"),
-		 GdaFrame::OnRangeSelection)
-EVT_MENU(XRCID("ID_TABLE_FIELD_CALCULATION"),
-		 GdaFrame::OnFieldCalculation)
+EVT_MENU(XRCID("ID_TABLE_MOVE_SELECTED_TO_TOP"), GdaFrame::OnMoveSelectedToTop)
+EVT_MENU(XRCID("ID_TABLE_INVERT_SELECTION"), GdaFrame::OnInvertSelection)
+EVT_MENU(XRCID("ID_TABLE_CLEAR_SELECTION"), GdaFrame::OnClearSelection)
+EVT_MENU(XRCID("ID_TABLE_RANGE_SELECTION"), GdaFrame::OnRangeSelection)
+EVT_MENU(XRCID("ID_TABLE_FIELD_CALCULATION"), GdaFrame::OnFieldCalculation)
 EVT_MENU(XRCID("ID_CALCULATOR"), GdaFrame::OnCalculator)
 EVT_MENU(XRCID("ID_TABLE_ADD_COLUMN"), GdaFrame::OnAddCol)
 EVT_MENU(XRCID("ID_TABLE_DELETE_COLUMN"), GdaFrame::OnDeleteCol)
@@ -2662,6 +2659,15 @@ void GdaFrame::OnMoveSelectedToTop(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->FindTableBase()) return;
 	project_p->FindTableBase()->MoveSelectedToTop();
+}
+
+void GdaFrame::OnInvertSelection(wxCommandEvent& event)
+{
+	if (!project_p || !project_p->FindTableBase()) return;
+    
+	HighlightState& hs = *project_p->GetHighlightState();
+	hs.SetEventType(HLStateInt::invert);
+	hs.notifyObservers();
 }
 
 void GdaFrame::OnClearSelection(wxCommandEvent& event)

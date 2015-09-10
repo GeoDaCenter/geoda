@@ -199,6 +199,10 @@
           <bitmap>ToolBar_select.png</bitmap>
           <tooltip>Select</tooltip>
       </object>
+      <object class="tool" name="ID_SELECT_INVERT">
+          <bitmap>inverse-sel.png</bitmap>
+          <tooltip>Invert Select</tooltip>
+      </object>
       <object class="separator"/>
       <object class="tool" name="ID_ZOOM_LAYER">
           <bitmap>zoom_in.png</bitmap>
