@@ -676,8 +676,12 @@ EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
 EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+
+//EVT_TOOL(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
+//EVT_BUTTON(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
 EVT_TOOL(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
-EVT_BUTTON(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
+EVT_BUTTON(XRCID("IDM_GETIS_ORD"), GdaFrame::OnGetisMenuChoices)
+
 EVT_MENU(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
 
 EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
@@ -3272,7 +3276,11 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
-	
+   
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    if (gw == NULL) return;
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
 											  LisaCoordinator::univariate,
@@ -3290,6 +3298,12 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 	
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) return;
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
 											  LisaCoordinator::bivariate,
@@ -3309,6 +3323,11 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 	
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) return;
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 										VS.var_info, VS.col_ids,
 										LisaCoordinator::eb_rate_standardized,
@@ -3327,6 +3346,15 @@ void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
 	LOG_MSG("Exiting GdaFrame::OnLisaMenuChoices");
 }
 
+void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
+{
+	LOG_MSG("Entering GdaFrame::OnGetisMenuChoices");
+	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
+	
+	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+	LOG_MSG("Exiting GdaFrame::OnGetisMenuChoices");
+}
+
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 {
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
@@ -3339,6 +3367,12 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
 	
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) return;
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
@@ -3372,6 +3406,12 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap &&!LWO.m_Moran) return;
 	
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) return;
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
@@ -3407,6 +3447,12 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_Moran && !LWO.m_SigMap) return;
 	
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) return;
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
