@@ -4472,6 +4472,23 @@
               <checked>0</checked>
             </object>
           </object>
+          
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxStaticText">
+                          <label>Option:</label>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxCheckBox" name="IDC_CHECK4">
+                          <style>wxCHK_2STATE</style>
+                          <label>using row-standardized weights</label>
+                          <checked>1</checked>
+                      </object>
+                  </object>
         </object>
       </object>
       <object class="sizeritem">
@@ -4496,6 +4513,85 @@
         </object>
       </object>
     </object>
+  </object>
+  <object class="wxDialog" name="IDD_GETISWINDOWS2OPEN" subclass="GetisWhat2OpenDlg">
+      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+      <title>What windows to open?</title>
+      <centered>1</centered>
+      <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              <border>5</border>
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxCheckBox" name="IDC_CHECK1">
+                          <style>wxCHK_2STATE</style>
+                          <label>Significance Map</label>
+                          <checked>0</checked>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxCheckBox" name="IDC_CHECK2">
+                          <style>wxCHK_2STATE</style>
+                          <label>Cluster Map </label>
+                          <checked>0</checked>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxStaticText">
+                          <label>Option:</label>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxCheckBox" name="IDC_CHECK3">
+                          <style>wxCHK_2STATE</style>
+                          <label>show normal distribution p-val map</label>
+                          <checked>0</checked>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_LEFT|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxCheckBox" name="IDC_CHECK4">
+                          <style>wxCHK_2STATE</style>
+                          <label>using row-standardized weights</label>
+                          <checked>1</checked>
+                      </object>
+                  </object>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_TOP|wxALL</flag>
+              <border>5</border>
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxButton" name="wxID_OK">
+                          <label>OK</label>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxButton" name="wxID_CANCEL">
+                          <label>Close</label>
+                      </object>
+                  </object>
+              </object>
+          </object>
+      </object>
   </object>
   <object class="wxDialog" name="IDD_GETIS_ORD_CHOICE" subclass="GetisOrdChoiceDlg">
     <object class="wxBoxSizer">

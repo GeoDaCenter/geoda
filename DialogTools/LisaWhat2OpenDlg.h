@@ -37,10 +37,38 @@ public:
     wxCheckBox* m_check1;
     wxCheckBox* m_check2;
     wxCheckBox* m_check3;
+    wxCheckBox* m_check4;
 
 	bool m_SigMap;
 	bool m_ClustMap;
 	bool m_Moran;
+    bool m_RowStand;
 };
 
+class GetisWhat2OpenDlg: public wxDialog
+{    
+    DECLARE_CLASS( GetisWhat2OpenDlg )
+    DECLARE_EVENT_TABLE()
+
+public:
+    GetisWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
+					 const wxString& caption = "What windows to open?",
+					 const wxPoint& pos = wxDefaultPosition,
+					 const wxSize& size = wxDefaultSize,
+					 long style = wxCAPTION|wxSYSTEM_MENU );
+    void CreateControls();
+    void OnOkClick( wxCommandEvent& event );
+
+    wxCheckBox* m_check1;
+    wxCheckBox* m_check2;
+    wxCheckBox* m_check3;
+    wxCheckBox* m_check4;
+
+
+	bool m_SigMap;
+	bool m_ClustMap;
+    bool m_RowStand;
+    bool m_NormMap;
+
+};
 #endif

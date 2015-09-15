@@ -677,12 +677,11 @@ EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 
-//EVT_TOOL(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
-//EVT_BUTTON(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
-EVT_TOOL(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
-EVT_BUTTON(XRCID("IDM_GETIS_ORD"), GdaFrame::OnGetisMenuChoices)
+EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
+EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
 
-EVT_MENU(XRCID("IDM_GETIS_ORD"), GdaFrame::OnOpenGetisOrd)
+EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
+EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
 
 EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
 EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"),
@@ -3357,21 +3356,23 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 {
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
 												 false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 		
-	LisaWhat2OpenDlg LWO(this);
-	if (LWO.ShowModal() != wxID_OK) return;
-	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
-	
     Project* project = GetProject();
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) return;
+    
+	LisaWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
+	
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
@@ -3474,64 +3475,78 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	}	
 }
 
-void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
+void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 {
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
-												 false);
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
-		
-	GetisOrdChoiceDlg dlg(this);
-		
-	if (dlg.ShowModal() != wxID_OK) return;
-		
-	if (!dlg.Gi_ClustMap_norm && !dlg.Gi_SigMap_norm &&
-		!dlg.GiStar_ClustMap_norm && !dlg.GiStar_SigMap_norm &&
-		!dlg.Gi_ClustMap_perm && !dlg.Gi_SigMap_perm &&
-		!dlg.GiStar_ClustMap_perm && !dlg.GiStar_SigMap_perm) return;
-
-	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p,
-												VS.var_info, VS.col_ids,
-												dlg.row_standardize_weights);
+   
+	GetisWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
+    
+    
+	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand);
+												//dlg.row_standardize_weights);
 	if (!gc || !gc->IsOk()) {
 		// print error message
 		delete gc;
 		return;
 	}
-	
-	if (dlg.Gi_ClustMap_norm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::Gi_clus_norm, dlg.row_standardize_weights);
+    
+	if (LWO.m_NormMap && LWO.m_ClustMap) {
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_norm, LWO.m_RowStand);
 	}
-	if (dlg.Gi_SigMap_norm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::Gi_sig_norm, dlg.row_standardize_weights);
+	if (LWO.m_NormMap && LWO.m_SigMap) {
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
 	}
-	if (dlg.GiStar_ClustMap_norm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::GiStar_clus_norm, dlg.row_standardize_weights);
+	if (!LWO.m_NormMap && LWO.m_ClustMap) {
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_norm, LWO.m_RowStand);
 	}
-	if (dlg.GiStar_SigMap_norm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::GiStar_sig_norm, dlg.row_standardize_weights);
+	if (!LWO.m_NormMap && LWO.m_SigMap) {
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
 	}
-	if (dlg.Gi_ClustMap_perm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::Gi_clus_perm, dlg.row_standardize_weights);
+}
+
+void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
+{
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
+	if (VS.ShowModal() != wxID_OK) return;
+	boost::uuids::uuid w_id = VS.GetWeightsId();
+	if (w_id.is_nil()) return;
+		
+	GetisWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
+    
+	//GetisOrdChoiceDlg dlg(this);
+	//if (dlg.ShowModal() != wxID_OK) return;
+	//if (!dlg.Gi_ClustMap_norm && !dlg.Gi_SigMap_norm &&
+	//	!dlg.GiStar_ClustMap_norm && !dlg.GiStar_SigMap_norm &&
+	//	!dlg.Gi_ClustMap_perm && !dlg.Gi_SigMap_perm &&
+	//	!dlg.GiStar_ClustMap_perm && !dlg.GiStar_SigMap_perm) return;
+
+	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand);
+    
+	if (!gc || !gc->IsOk()) {
+		// print error message
+		delete gc;
+		return;
 	}
-	if (dlg.Gi_SigMap_perm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::Gi_sig_perm, dlg.row_standardize_weights);
-	}
-	if (dlg.GiStar_ClustMap_perm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::GiStar_clus_perm, dlg.row_standardize_weights);
-	}
-	if (dlg.GiStar_SigMap_perm) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
-			GetisOrdMapFrame::GiStar_sig_perm, dlg.row_standardize_weights);
-	}	
+    
+    if (LWO.m_NormMap && LWO.m_ClustMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
+    }
+    if (LWO.m_NormMap && LWO.m_SigMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_sig_norm, LWO.m_RowStand);
+    }
+    if (!LWO.m_NormMap && LWO.m_ClustMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
+    }
+    if (!LWO.m_NormMap && LWO.m_SigMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, LWO.m_RowStand);
+    }
 }
 
 void GdaFrame::OnNewCustomCatClassifA(wxCommandEvent& event)

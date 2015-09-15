@@ -482,11 +482,11 @@
         <label>Local Moran's I with EB Rate</label>
       </object>
       <object class="separator"/>
-      <object class="wxMenuItem" name="IDM_GETIS_ORD">
-        <label>Local G Statistics</label>
+      <object class="wxMenuItem" name="IDM_LOCAL_G">
+        <label>Local G Cluster Map</label>
       </object>
-      <object class="wxMenuItem" name="IDM_GETIS_ORD_STAR">
-        <label>Local G* Statistics</label>
+      <object class="wxMenuItem" name="IDM_LOCAL_G_STAR">
+        <label>Local G* Cluster Map</label>
       </object>
 			<object class="separator"/>
 			<object class="wxMenuItem" name="IDM_CORRELOGRAM">

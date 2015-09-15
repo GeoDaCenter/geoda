@@ -132,7 +132,7 @@
       <bitmap2>ToolBarBitmaps_22_disabled.png</bitmap2>
       <tooltip>Local Moran's I Maps</tooltip>
     </object>
-    <object class="tool" name="IDM_GETIS_ORD">
+    <object class="tool" name="IDM_GETIS_ORD_MENU">
       <bitmap>ToolBarBitmaps_37.png</bitmap>
       <bitmap2>ToolBarBitmaps_37_disabled.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>

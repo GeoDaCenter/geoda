@@ -229,6 +229,7 @@ public:
 	void OnOpenMultiLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
+	void OnOpenGetisOrdStar(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
