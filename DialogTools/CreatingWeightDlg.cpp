@@ -26,6 +26,7 @@
 #include <wx/sizer.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/grid.h>
 #include "../FramesManager.h"
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -49,35 +50,24 @@
 
 BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
 EVT_CLOSE( CreatingWeightDlg::OnClose )
-EVT_BUTTON( XRCID("ID_CREATE_ID"),
-					 CreatingWeightDlg::OnCreateNewIdClick )
-EVT_CHOICE(XRCID("IDC_IDVARIABLE"),
-					 CreatingWeightDlg::OnIdVariableSelected )
-EVT_CHOICE(XRCID("IDC_DISTANCE_METRIC"),
-					 CreatingWeightDlg::OnDistanceChoiceSelected )
+EVT_BUTTON( XRCID("ID_CREATE_ID"), CreatingWeightDlg::OnCreateNewIdClick )
+EVT_CHOICE(XRCID("IDC_IDVARIABLE"), CreatingWeightDlg::OnIdVariableSelected )
+EVT_CHOICE(XRCID("IDC_DISTANCE_METRIC"), CreatingWeightDlg::OnDistanceChoiceSelected )
 EVT_CHOICE(XRCID("IDC_XCOORDINATES"), CreatingWeightDlg::OnXSelected )
 EVT_CHOICE(XRCID("IDC_YCOORDINATES"), CreatingWeightDlg::OnYSelected )
 EVT_CHOICE(XRCID("IDC_XCOORD_TIME"), CreatingWeightDlg::OnXTmSelected )
 EVT_CHOICE(XRCID("IDC_YCOORD_TIME"), CreatingWeightDlg::OnYTmSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_QUEEN"),
-								CreatingWeightDlg::OnCRadioQueenSelected )
-EVT_SPIN( XRCID("IDC_SPIN_ORDEROFCONTIGUITY"),
-				 CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_ROOK"),
-								CreatingWeightDlg::OnCRadioRookSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_DISTANCE"),
-								CreatingWeightDlg::OnCRadioDistanceSelected )
-EVT_TEXT( XRCID("IDC_THRESHOLD_EDIT"),
-				 CreatingWeightDlg::OnCThresholdTextEdit )
-EVT_SLIDER( XRCID("IDC_THRESHOLD_SLIDER"),
-					 CreatingWeightDlg::OnCThresholdSliderUpdated )
+EVT_RADIOBUTTON( XRCID("IDC_RADIO_QUEEN"), CreatingWeightDlg::OnCRadioQueenSelected )
+EVT_SPIN( XRCID("IDC_SPIN_ORDEROFCONTIGUITY"), CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated )
+EVT_RADIOBUTTON( XRCID("IDC_RADIO_ROOK"), CreatingWeightDlg::OnCRadioRookSelected )
+EVT_RADIOBUTTON( XRCID("IDC_RADIO_DISTANCE"), CreatingWeightDlg::OnCRadioDistanceSelected )
+EVT_TEXT( XRCID("IDC_THRESHOLD_EDIT"), CreatingWeightDlg::OnCThresholdTextEdit )
+EVT_SLIDER( XRCID("IDC_THRESHOLD_SLIDER"), CreatingWeightDlg::OnCThresholdSliderUpdated )
 
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_KNN"),
-								CreatingWeightDlg::OnCRadioKnnSelected )
+EVT_RADIOBUTTON( XRCID("IDC_RADIO_KNN"), CreatingWeightDlg::OnCRadioKnnSelected )
 EVT_SPIN( XRCID("IDC_SPIN_KNN"), CreatingWeightDlg::OnCSpinKnnUpdated )
 EVT_BUTTON( XRCID("wxID_OK"), CreatingWeightDlg::OnCreateClick )
-EVT_CHECKBOX( XRCID("IDC_PRECISION_CBX"),
-						 CreatingWeightDlg::OnPrecisionThresholdCheck)
+EVT_CHECKBOX( XRCID("IDC_PRECISION_CBX"), CreatingWeightDlg::OnPrecisionThresholdCheck)
 END_EVENT_TABLE()
 
 
@@ -198,6 +188,10 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 	suspend_table_state_updates = true;
 	AddIdVariable dlg(table_int, this);
 	if (dlg.ShowModal() == wxID_OK) {
+    	wxGrid* g = project->FindTableGrid();
+        if (g) {
+            g->GoToCell(1, table_int->GetNumberCols());
+        }
 		// We know that the new id has been added to the the table in memory
 		m_id_field->Insert(dlg.GetIdVarName(), 0);
 		m_id_field->SetSelection(0);
@@ -208,6 +202,7 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 		// A new id was not added to the dbf file, so do nothing.
 	}
 	suspend_table_state_updates = false;
+	event.Skip();
 	LOG_MSG("Exiting CreatingWeightDlg::OnCreateNewIdClick");
 }
 

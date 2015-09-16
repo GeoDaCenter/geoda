@@ -42,7 +42,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
 {	
 	//ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), bUpdate);
     const char* pszDsPath = ds_name.c_str();
-	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR | GDAL_OF_UPDATE, NULL, NULL, NULL);
+	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
 	if (!ds) {
 		// raise open fialed
 		string error_detail = CPLGetLastErrorMsg();

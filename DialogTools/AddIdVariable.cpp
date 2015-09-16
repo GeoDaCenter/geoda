@@ -93,8 +93,9 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	
 	
 	LOG_MSG("Adding new id field to Table in memory.");
-        
-	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name,0);
+    
+    int col_insert_pos = table_int->GetNumberCols();
+	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {
 		std::vector<wxInt64> data(table_int->GetNumberRows());
 		for (wxInt64 i=0, iend=data.size(); i<iend; i++) data[i] = i+1;
@@ -106,6 +107,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
+    
 	event.Skip();
 	EndDialog(wxID_OK);
 }

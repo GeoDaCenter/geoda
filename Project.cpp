@@ -1438,9 +1438,7 @@ bool Project::InitFromOgrLayer()
 	
 	// OK. ReadLayer() is running in a seperate thread.
 	// That gives us a chance to get its progress from a Progress window.
-	layer_proxy =
-	OGRDataAdapter::GetInstance().T_ReadLayer(
-        datasource_name.ToStdString(),layername.ToStdString());
+	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name.ToStdString(),layername.ToStdString());
 	
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
