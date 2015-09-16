@@ -1339,6 +1339,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 		
 	EnableTool(XRCID("ID_MORAN_MENU"), proj_open);
 	EnableTool(XRCID("ID_LISA_MENU"), shp_proj);
+	EnableTool(XRCID("IDM_GETIS_ORD_MENU"), shp_proj);
 	EnableTool(XRCID("IDM_MSPL"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MSPL"), proj_open);
 	EnableTool(XRCID("IDM_GMORAN"), proj_open);
@@ -1351,8 +1352,10 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MULTI_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_LISA_EBRATE"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LISA_EBRATE"), shp_proj);
-	EnableTool(XRCID("IDM_GETIS_ORD"), shp_proj);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_GETIS_ORD"), shp_proj);
+	EnableTool(XRCID("IDM_LOCAL_G"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G"), shp_proj);
+	EnableTool(XRCID("IDM_LOCAL_G_STAR"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	
 	
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
@@ -3378,7 +3381,7 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 											  VS.var_info,
 											  VS.col_ids,
 											  LisaCoordinator::univariate,
-											  true);
+											  true, LWO.m_RowStand);
 
 	if (LWO.m_Moran) {
 		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
@@ -3417,7 +3420,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 											  VS.var_info,
 											  VS.col_ids,
 											  LisaCoordinator::bivariate,
-											  true);
+											  true, LWO.m_RowStand);
 
 	if (LWO.m_Moran) {
 		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
@@ -3458,7 +3461,7 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 											  VS.var_info,
 											  VS.col_ids,
 										LisaCoordinator::eb_rate_standardized,
-											  true);
+											  true, LWO.m_RowStand);
 
 	if (LWO.m_Moran) {
 		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,

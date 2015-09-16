@@ -103,7 +103,8 @@ LisaCoordinator::LisaCoordinator(boost::uuids::uuid weights_id,
                          const std::vector<GdaVarTools::VarInfo>& var_info_s,
                          const std::vector<int>& col_ids,
                          LisaType lisa_type_s,
-                         bool calc_significances_s)
+                         bool calc_significances_s,
+                         bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -114,7 +115,8 @@ calc_significances(calc_significances_s),
 isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
-last_seed_used(0), reuse_last_seed(false)
+last_seed_used(0), reuse_last_seed(false),
+row_standardize(row_standardize_s)
 {
 	GalWeight* gw = w_man_int->GetGal(w_id);
 	W = (gw ? gw->gal : 0);
@@ -543,7 +545,7 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			
 			//NOTE: we shouldn't have to row-standardize or
 			// multiply by data1[cnt]
-			if (numNeighbors) permutedLag /= numNeighbors;
+			if (numNeighbors && row_standardize) permutedLag /= numNeighbors;
 			const double localMoranPermuted = permutedLag * data1[cnt];
 			if (localMoranPermuted >= localMoran[cnt]) countLarger++;
 		}

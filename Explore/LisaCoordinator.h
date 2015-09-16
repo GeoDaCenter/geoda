@@ -66,7 +66,8 @@ public:
 	LisaCoordinator(boost::uuids::uuid weights_id, Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
-					LisaType lisa_type, bool calc_significances = true);
+					LisaType lisa_type, bool calc_significances = true,
+                    bool row_standardize_s = true);
 	virtual ~LisaCoordinator();
 	
 	bool IsOk() { return true; }

@@ -4472,7 +4472,7 @@
               <checked>0</checked>
             </object>
           </object>
-          
+          <!--
                   <object class="sizeritem">
                       <flag>wxALIGN_LEFT|wxALL</flag>
                       <border>5</border>
@@ -4489,6 +4489,7 @@
                           <checked>1</checked>
                       </object>
                   </object>
+          -->
         </object>
       </object>
       <object class="sizeritem">

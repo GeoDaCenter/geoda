@@ -32,6 +32,7 @@ LisaWhat2OpenDlg::LisaWhat2OpenDlg( wxWindow* parent, wxWindowID id,
 								   const wxString& caption, const wxPoint& pos,
 								   const wxSize& size, long style )
 {
+    m_RowStand = true;
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -46,8 +47,8 @@ void LisaWhat2OpenDlg::CreateControls()
         m_check2 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK2")), wxCheckBox);
     if (FindWindow(XRCID("IDC_CHECK3")))
         m_check3 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK3")), wxCheckBox);
-    if (FindWindow(XRCID("IDC_CHECK4")))
-        m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
+    //if (FindWindow(XRCID("IDC_CHECK4")))
+    //    m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
 }
 
 void LisaWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
@@ -55,7 +56,7 @@ void LisaWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
 	m_SigMap = m_check1->GetValue();
 	m_ClustMap = m_check2->GetValue();
 	m_Moran = m_check3->GetValue();
-    m_RowStand = m_check4->GetValue();
+    //m_RowStand = m_check4->GetValue();
     
 	event.Skip();
 	EndDialog(wxID_OK);	
