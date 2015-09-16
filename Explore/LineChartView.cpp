@@ -607,13 +607,13 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 		if (compare_time_periods || compare_r_and_t) {
 			ctrls_h_szr = new wxBoxSizer(wxHORIZONTAL);
 			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"),
-											 "Time Subset 1",
+											 "Time Period 1",
 											 wxDefaultPosition, wxDefaultSize,
 											 wxALIGN_CENTER_VERTICAL |
 											 wxRB_GROUP);
 			rb0->SetValue(true);
 			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"),
-											 "Time Subset 2",
+											 "Time Period 2",
 											 wxDefaultPosition, wxDefaultSize,
 											 wxALIGN_CENTER_VERTICAL);
 			rb1->SetValue(false);
@@ -992,16 +992,20 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		tm2_clr << "\"" << GdaColorUtils::ToHexColorStr(c) << "\"";
 	}
 	
+    stringstream _s;
+    _s << std::fixed << std::setprecision(2);
 	wxString td_s0_mean;
+    
 	if (lcs.s0.mean_v) {
+        _s << lcs.s0.mean;
 		if (single_sample) {
-			td_s0_mean << "<td align=\"center\">" << lcs.s0.mean << "</td>";
+			td_s0_mean << "<td align=\"center\">" << _s.str() << "</td>";
 		} else {
 			td_s0_mean << "<td";
 			if (cmp_r_t || cmp_t) td_s0_mean << " bgcolor="<<tm1_clr;
 			td_s0_mean << " align=\"center\">";
 			if (cmp_r || cmp_r_t) td_s0_mean << "<font color="<<sel_clr<<">";
-			td_s0_mean << lcs.s0.mean;
+            td_s0_mean << _s.str();
 			if (cmp_r || cmp_r_t) td_s0_mean << "</font>";
 			td_s0_mean << "</td>";
 		}
@@ -1011,7 +1015,9 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	LOG(td_s0_mean);
 	
 	wxString td_s1_mean;
-	if (!single_sample) { 
+	if (!single_sample) {
+        _s.str("");
+        _s << lcs.s1.mean;
 		if (!lcs.s1.mean_v) {
 			td_s1_mean << "<td></td>";
 		} else {
@@ -1020,7 +1026,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 			if (cmp_t) td_s1_mean<< " bgcolor="<<tm2_clr;
 			td_s1_mean << " align=\"center\">";
 			if (cmp_r || cmp_r_t) td_s1_mean << "<font color="<<exl_clr<<">";
-			td_s1_mean << lcs.s1.mean;
+            td_s1_mean << _s.str();
 			if (cmp_r || cmp_r_t) td_s1_mean << "</font>";
 			td_s1_mean << "</td>";
 		}
@@ -1029,36 +1035,56 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	wxString td_s2_mean;
 	if (!single_sample && cmp_r_t) {
+        _s.str("");
+        _s << lcs.s2.mean;
 		if (!lcs.s2.mean_v) {
 			td_s2_mean << "<td></td>";
 		} else {
 			td_s2_mean << "<td bgcolor="<<tm2_clr<<" align=\"center\">";
 			td_s2_mean << "<font color="<<sel_clr<<">";
-			td_s2_mean << lcs.s2.mean;
+            td_s2_mean << _s.str();
 			td_s2_mean << "</font></td>";
 		}
 	}
 	
 	wxString td_s3_mean;
 	if (!single_sample && cmp_r_t) {
+        _s.str("");
+        _s << lcs.s3.mean;
 		if (!lcs.s3.mean_v) {
 			td_s3_mean << "<td></td>";
 		} else {
 			td_s3_mean << "<td bgcolor="<<tm2_clr<<" align=\"center\">";
 			td_s3_mean << "<font color="<<exl_clr<<">";
-			td_s3_mean << lcs.s3.mean;
+            td_s3_mean << _s.str();
 			td_s3_mean << "</font></td>";
 		}
 	}
 
 	wxString sd0;
-	if (lcs.s0.var_v) sd0 << lcs.s0.sd;
+    _s.str("");
+    if (lcs.s0.var_v) {
+        _s << lcs.s0.sd;
+        sd0 << _s.str();
+    }
 	wxString sd1;
-	if (lcs.s1.var_v) sd1 << lcs.s1.sd;
+    _s.str("");
+    if (lcs.s1.var_v) {
+        _s << lcs.s1.sd;
+        sd1 << _s.str();
+    }
 	wxString sd2;
-	if (lcs.s2.var_v) sd2 << lcs.s2.sd;
+    _s.str("");
+    if (lcs.s2.var_v) {
+        _s << lcs.s2.sd;
+        sd2 << _s.str();
+    }
 	wxString sd3;
-	if (lcs.s3.var_v) sd3 << lcs.s3.sd;
+    _s.str("");
+    if (lcs.s3.var_v) {
+        _s << lcs.s3.sd;
+        sd3 << _s.str();
+    }
 	
 	wxString s;
 	s<< "<!DOCTYPE html>\n";
@@ -1072,43 +1098,62 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	//s<<     "}\n";
 	//s<<   "</style>\n";
 	s<< "</head>\n";
+    s<< "<style>td, th { border-bottom: thin short }table { border: none }</style>";
 	s<< "<body>\n";
 	s<< "<center>\n";
 	s<< "<font face=\"verdana,arial,sans-serif\" color=\"black\" size=\"2\">";
 	
-	s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\">";
+	s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\" style=\"border:none\">";
 	s<< "<tr>";
 	s<< "<td align=\"center\">Smpl.</td>";
 	s<< "<td align=\"center\">&nbsp;Obs.&nbsp;</td>";
 	s<< "<td align=\"center\">&nbsp;Mean&nbsp;</td>";
 	s<< "<td align=\"center\">&nbsp;S.D.&nbsp;</td>";
 	s<< "</tr>";
-	s<< "<tr>";
-	s<< "<td align=\"center\">"<<(single_sample ? "" : "1")<<"</td>";
-	s<< "<td align=\"center\">" << lcs.s0.sz_i << "</td>";
-	s<< td_s0_mean;
-	s<< "<td align=\"center\">" << sd0 << "</td>";
-	s<< "</tr>";
-	if (!single_sample) {
+   
+    if (single_sample) {
+    	s<< "<tr>";
+    	s<< "<td align=\"left\"></td>";
+    	s<< "<td align=\"right\">" << lcs.s0.sz_i << "</td>";
+    	s<< td_s0_mean;
+    	s<< "<td align=\"right\">" << sd0 << "</td>";
+    	s<< "</tr>";
+    } else {
 		s<< "<tr>";
-		s<< "<td align=\"center\">2"<<"</td>";
-		s<< "<td align=\"center\">" << lcs.s1.sz_i << "</td>";
+        if (cmp_r)
+            s<< "<td align=\"left\">1. sel. over time</td>";
+        if (cmp_t)
+            s<< "<td align=\"left\">1. 1st period</td>";
+        if (cmp_r_t)
+            s<< "<td align=\"left\">1. sel. 1st period</td>";
+		s<< "<td align=\"right\">" << lcs.s0.sz_i << "</td>";
+		s<< td_s0_mean;
+		s<< "<td align=\"right\">" << sd0 << "</td>";
+		s<< "</tr>";
+		s<< "<tr>";
+        if (cmp_r)
+            s<< "<td align=\"left\">2. excl. over time</td>";
+        if (cmp_t)
+            s<< "<td align=\"left\">2. 2nd period</td>";
+        if (cmp_r_t)
+            s<< "<td align=\"left\">2. excl. 1st period</td>";
+		s<< "<td align=\"right\">" << lcs.s1.sz_i << "</td>";
 		s<< td_s1_mean;
-		s<< "<td align=\"center\">" << sd1 << "</td>";
+		s<< "<td align=\"right\">" << sd1 << "</td>";
 		s<< "</tr>";
 	}
 	if (cmp_r_t && !single_sample) {
 		s<< "<tr>";
-		s<< "<td align=\"center\">3"<<"</td>";
-		s<< "<td align=\"center\">" << lcs.s2.sz_i << "</td>";
+		s<< "<td align=\"left\">3. sel. 2nd period</td>";
+		s<< "<td align=\"right\">" << lcs.s2.sz_i << "</td>";
 		s<< td_s2_mean;
-		s<< "<td align=\"center\">" << sd2 << "</td>";
+		s<< "<td align=\"right\">" << sd2 << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td align=\"center\">4"<<"</td>";
-		s<< "<td align=\"center\">" << lcs.s3.sz_i << "</td>";
+		s<< "<td align=\"left\">4.excl. 2nd period</td>";
+		s<< "<td align=\"right\">" << lcs.s3.sz_i << "</td>";
 		s<< td_s3_mean;
-		s<< "<td align=\"center\">" << sd3 << "</td>";
+		s<< "<td align=\"right\">" << sd3 << "</td>";
 		s<< "</tr>";
 	}
 	s<< "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
@@ -1118,16 +1163,22 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\">";
 		s<< "<tr>";
 		s<< "<td align=\"center\">D.F.&nbsp;</td>";
-		s<< "<td align=\"center\">" << lcs.deg_free << "</td>";
+        stringstream _s;
+        _s << std::fixed << std::setprecision(2) << lcs.deg_free;
+		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
 		s<< "<td align=\"right\">T Stat&nbsp;</td>";
-		s<< "<td align=\"center\">" << lcs.test_stat << "</td>";
+        _s.str("");
+        _s << lcs.test_stat;
+		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
 		s<< "<td align=\"right\">p-val&nbsp;</td>";
 		double pval = lcs.p_val;
-		s<< "<td align=\"center\">" << GenUtils::DblToStr(pval, 4) << "</td>";
+        _s.str("");
+        _s << std::setprecision(3) << pval;
+		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "</table>\n";
 	}
@@ -1150,10 +1201,20 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     				s<< "<tr>";
     				s<< "<td align=\"center\">" << i+1 <<"&nbsp;vs&nbsp;"<< j+1 << "</td>";
     				if (lcs.test_stat_valid_c[c]) {
-    					s<< "<td align=\"center\">" << lcs.deg_free_c[c] << "&nbsp;</td>";
-    					s<< "<td align=\"center\">" << lcs.test_stat_c[c] << "&nbsp;</td>";
+                        stringstream _s;
+                        _s << std::fixed << std::setprecision(2);
+                        _s << lcs.deg_free_c[c];
+                        
+    					s<< "<td align=\"right\">" << _s.str() << "&nbsp;</td>";
+                        
+                        _s.str("");
+                        _s << lcs.test_stat_c[c];
+    					s<< "<td align=\"right\">" << _s.str() << "&nbsp;</td>";
+                        
     					double pval = lcs.p_val_c[c];
-    					s<< "<td align=\"center\">" << GenUtils::DblToStr(pval, 4) << "</td>";
+                        _s.str("");
+                        _s << std::fixed << std::setprecision(3) << pval;
+    					s<< "<td align=\"right\">" << _s.str() << "</td>";
     				} else {
     					s<< "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
     				}
