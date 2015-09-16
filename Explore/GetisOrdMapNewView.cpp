@@ -390,26 +390,22 @@ row_standardize(row_standardize_s)
 											   is_gi, is_clust, is_perm,
 											   row_standardize,
 											   wxDefaultPosition,
-											   wxSize(width,height));
+                                            wxDefaultSize);
+											   //wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
-	DisplayStatusBar(true);
-	SetTitle(template_canvas->GetCanvasTitle());
-	
+    
     wxPanel* lpanel = new wxPanel(splitter_win);
-	template_legend = new MapNewLegend(lpanel, template_canvas,
-									   wxPoint(0,0), wxSize(0,0));
+	template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
     lbox->Add(template_legend, 1, wxEXPAND);
     lpanel->SetSizer(lbox);
     
-	splitter_win->SplitVertically(lpanel, rpanel,
-								  GdaConst::map_default_legend_width);
-	
-	gs_coord->registerObserver(this);
+	splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
     
+	
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
     wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
@@ -423,7 +419,9 @@ row_standardize(row_standardize_s)
     SetSizer(sizer);
     SetAutoLayout(true);
    
-    DisplayStatusBar(true);
+	gs_coord->registerObserver(this);
+	DisplayStatusBar(true);
+	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
 	LOG_MSG("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
 }
