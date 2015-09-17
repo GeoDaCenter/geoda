@@ -3540,8 +3540,8 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-		<object class="wxMenuItem" name="ID_SAVE_DUMMIES">
-      <label>Save Dummy Variables</label>
+		<object class="wxMenuItem" name="ID_DID_TEST">
+      <label>Run Diff-in-Diff</label>
       <checkable>0</checkable>
       <checked>0</checked>
     </object>

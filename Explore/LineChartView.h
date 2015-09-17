@@ -116,7 +116,7 @@ public:
 	void OnSelectPeriod0(wxCommandEvent& event);
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
-    void OnSaveDummyVars(wxCommandEvent& event);
+    void OnDIDTest(wxCommandEvent& event);
 	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);

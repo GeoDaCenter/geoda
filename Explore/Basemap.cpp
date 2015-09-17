@@ -619,13 +619,13 @@ void Basemap::Draw(wxBitmap* buffer)
             int pos_x =(i-startX) * 256 - offsetX;
             int pos_y = (j-startY) * 256 - offsetY;
             int idx_x = i;
-            if ( i > nn)
-                idx_x = nn - i;
+            
+            if ( i >= nn)
+                idx_x = i - nn;
             else if (i < 0)
                 idx_x = nn + i;
+            
             int idx_y = j < 0 ? nn + j : j;
-            if (idx_x > nn)
-                idx_x = idx_x - nn;
             std::string filepathStr = GetTilePath(idx_x, idx_y);
             wxString wxFilePath(filepathStr);
 			wxBitmap bmp;
@@ -637,8 +637,7 @@ void Basemap::Draw(wxBitmap* buffer)
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             bool bmpOK = bmp.IsOk();
-            if (bmpOK) 
-                dc.DrawBitmap(bmp, pos_x, pos_y, true);
+            if (bmpOK) dc.DrawBitmap(bmp, pos_x, pos_y, true);
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}

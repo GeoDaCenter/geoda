@@ -115,9 +115,9 @@ tms_subset1_tm_inv(1, false)
 	wxCommandEvent ev;
 	OnShowVarsChooser(ev);
     
-    Connect(XRCID("ID_SAVE_DUMMIES"), 
+    Connect(XRCID("ID_DID_TEST"),
             wxEVT_MENU, 
-            wxCommandEventHandler(LineChartFrame::OnSaveDummyVars));
+            wxCommandEventHandler(LineChartFrame::OnDIDTest));
 	LOG_MSG("Exiting LineChartFrame::LineChartFrame");
 }
 
@@ -206,7 +206,7 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 }
 
 
-void LineChartFrame::OnSaveDummyVars(wxCommandEvent& event)
+void LineChartFrame::OnDIDTest(wxCommandEvent& event)
 {
     wxString dummy_name_sel("DUM_SEL");
     wxString dummy_name_unsel("DUM_UNSEL");
