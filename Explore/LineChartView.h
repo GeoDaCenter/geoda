@@ -34,6 +34,8 @@
 #include "../VarTools.h"
 #include "../GdaShape.h"
 #include "../HighlightStateObserver.h"
+#include "../Regression/DiagnosticReport.h"
+#include "../DialogTools/RegressionReportDlg.h"
 #include "LineChartStats.h"
 
 class HighlightState;
@@ -117,6 +119,7 @@ public:
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
     void OnDIDTest(wxCommandEvent& event);
+	void OnReportClose(wxWindowDestroyEvent& event);
 	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
@@ -143,6 +146,15 @@ protected:
 	void UpdateDataMapFromVarMan();
 	wxString GetHelpHtml();
 	void UpdateStatsWinContent(int var);
+    void printAndShowClassicalResults(const wxString& yName, double* y,
+                                      const wxString& datasetname,
+                                      const wxString& wname,
+                                      DiagnosticReport *r,
+                                      int Obs, int nX,
+                                      bool do_white_test);
+    
+    wxString logReport;
+    RegressionReportDlg *regReportDlg;
 	
 	HighlightState* highlight_state;
 	VarsChooserFrame* vars_chooser_frame;

@@ -18,9 +18,11 @@
  */
 
 #include <utility> // std::pair
+#include <alloc.h>
 #include <boost/foreach.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include <wx/gauge.h>
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
@@ -28,6 +30,16 @@
 #include "../Project.h"
 #include "LineChartCanvas.h"
 #include "LineChartView.h"
+#include "../DialogTools/RegressionReportDlg.h"
+#include "../Regression/DiagnosticReport.h"
+#include "../Regression/Lite2.h"
+#include "../GenUtils.h"
+
+bool classicalRegression(const GalElement *g, int num_obs, double * Y,
+						 int dim, double ** X, 
+						 int expl, DiagnosticReport *dr, bool InclConstant,
+						 bool m_moranz, wxGauge* gauge,
+						 bool do_white_test);
 
 BEGIN_EVENT_TABLE(LineChartFrame, TemplateFrame)
 	EVT_ACTIVATE(LineChartFrame::OnActivate)
@@ -57,7 +69,8 @@ selection_period(0),
 tms_subset0(project->GetTableInt()->GetTimeSteps(), true),
 tms_subset1(project->GetTableInt()->GetTimeSteps(), false),
 tms_subset0_tm_inv(1, true), 
-tms_subset1_tm_inv(1, false)
+tms_subset1_tm_inv(1, false),
+regReportDlg(0)
 {
 	LOG_MSG("Entering LineChartFrame::LineChartFrame");
 	supports_timeline_changes = true;
@@ -73,7 +86,7 @@ tms_subset1_tm_inv(1, false)
 	//panel->Bind(wxEVT_MOTION, &LineChartFrame::OnMouseEvent, this); // MMLCu
 	
 	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-								   wxSize(200,-1));
+								   wxSize(400,-1));
 	
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
@@ -208,69 +221,244 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void LineChartFrame::OnDIDTest(wxCommandEvent& event)
 {
-    wxString dummy_name_sel("DUM_SEL");
-    wxString dummy_name_unsel("DUM_UNSEL");
-    wxString dummy_name_t1("DUM_T1");
-    wxString dummy_name_t2("DUM_T2");
-    wxString dummy_name_sel_t1("DUM_SEL1");
-    wxString dummy_name_sel_t2("DUM_SEL2");
-    wxString dummy_name_unsel_t1("DUM_UNSEL1");
-    wxString dummy_name_unsel_t2("DUM_UNSEL2");
-    
+    int nTests = var_man.GetVarsCount();
+    TableInterface* table_int = project->GetTableInt();
     const std::vector<bool>& hs(highlight_state->GetHighlight());
-    size_t tms = tms_subset0.size();
-
-    if (compare_r_and_t) {
-        // 4 dummy vars: 
-        // reg1     reg2
-        // t1   t2  t1   t2
-    } else if (compare_time_periods) {
-        // 2 dummy vars
-        // t1   t2
+    
+    // regression options
+    bool m_constant_term = true;
+    int RegressModel = 1; // for classic linear regression
+    wxGauge* m_gauge = NULL;
+    bool do_white_test = true;
+	double *m_resid1, *m_yhat1;
+   
+    for (int i=0; i<nTests; i++) {
+       
+        wxString m_Yname = var_man.GetName(i);
+        std::vector<wxString> m_Xnames;
+        int m_obs = project->GetNumRecords();
         
-    } 
-    // compare_regimes
-    {
-        // 2 dummy vars
-        // reg1      reg2
-        bool hasSel = false;
-        size_t num_obs = hs.size();
-        std::vector<wxInt64> reg_dummy_sel(num_obs, 0);
-        std::vector<wxInt64> reg_dummy_unsel(num_obs, 0);
+        m_Xnames.push_back("CONSTANT");
         
-        for (size_t i=0; i<num_obs; ++i) {
-            if (hs[i] == true) {
-                reg_dummy_sel[i] = 1;
-                hasSel = true;
-            } else 
-                reg_dummy_sel[i] = 0;
+        
+        // Y and X data
+        
+		wxString row_nm(var_man.GetName(i));
+		wxString row_title(row_nm);
+		const vec_vec_dbl_type& Y(data_map[row_nm]);
+        
+        size_t n_ts = Y.size();
+        
+        if (compare_regimes) {
+            m_Xnames.push_back("DUMMY_SELECT");
+            int nX = m_Xnames.size();
+           
+            int n = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n += m_obs;
+                }
+            }
+            if (n == 0) {
+                wxMessageBox("Please choose times on the time axis first.");
+                return;
+            }
             
-            reg_dummy_unsel[i] = hs[i] ? 0 : 1;
+            double *y = new double[n];
+            double **x = new double* [2];
+            for (int t=0; t<nX; t++)  x[t] = new double[n];
+            
+            int idx = 0;
+            
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    for (int j=0; j<m_obs; j++) {
+                        y[idx] = Y[t][j];
+                        x[0][idx] = 1.0; //constant
+                        x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                        idx += 1;
+                    }
+                }
+            }
+           
+			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+        	for (int i = 0; i < nX; i++) {
+        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        	}
+			m_DR.SetMeanY(ComputeMean(y, n));
+			m_DR.SetSDevY(ComputeSdev(y, n));
+           
+            
+            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+                                m_constant_term, true, m_gauge,
+                                do_white_test);
+            
+			m_resid1= m_DR.GetResidual();
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
+			m_yhat1 = m_DR.GetYHAT();
+            
+            delete[] y;
+            for (int t=0; t<nX; t++) delete[] x[t];
+			m_DR.release_Var();
+            wxDateTime now = wxDateTime::Now();
+            logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
+            
+        } else if (compare_time_periods) {
+            m_Xnames.push_back("DUMMY_PERIOD");
+            int nX = m_Xnames.size();
+            
+            int n1 = 0, n2 = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n1 += m_obs;
+                }
+            }
+            if (n1 == 0) {
+                wxMessageBox("Please choose times for Time Period 1 on the time axis first.");
+                return;
+            }
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset1[t]) {
+                    n2 += m_obs;
+                }
+            }
+            if (n2 == 0) {
+                wxMessageBox("Please choose times for Time Period 2 on the time axis first.");
+                return;
+            }
+            
+            int n = n1 + n2;
+            
+            double *y = new double[n];
+            double **x = new double* [2];
+            for (int t=0; t<nX; t++) {
+                x[t] = new double[n];
+            }
+            
+            int idx = 0;
+            
+            for (int t=0; t<n_ts; t++) {
+                if (tms_subset0[t] || tms_subset1[t]) {
+                    for (int j=0; j<m_obs; j++) {
+                        y[idx] = Y[t][j];
+                        x[0][idx] = 1.0; //constant
+                        x[1][idx] = tms_subset0[t] == true ? 1 : 0; // DUMMY_PERIOD
+                        idx += 1;
+                    }
+                }
+            }
+           
+			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+        	for (int i = 0; i < nX; i++) {
+        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        	}
+			m_DR.SetMeanY(ComputeMean(y, n));
+			m_DR.SetSDevY(ComputeSdev(y, n));
+           
+            
+            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+                                m_constant_term, true, m_gauge,
+                                do_white_test);
+            
+			m_resid1= m_DR.GetResidual();
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
+			m_yhat1 = m_DR.GetYHAT();
+            
+            delete[] y;
+            for (int t=0; t<nX; t++) delete[] x[t];
+			m_DR.release_Var();
+            wxDateTime now = wxDateTime::Now();
+            logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE TIME PERIOD) \n----------\n" + logReport;
+            
+        } else if (compare_r_and_t) {
+            m_Xnames.push_back("DUMMY_SELECT");
+            m_Xnames.push_back("DUMMY_PERIOD");
+            int nX = m_Xnames.size();
+            
+            int n1 = 0, n2 = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n1 += m_obs;
+                }
+            }
+            if (n1 == 0) {
+                wxMessageBox("Please choose times for Time Period 1 on the time axis first.");
+                return;
+            }
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset1[t]) {
+                    n2 += m_obs;
+                }
+            }
+            if (n2 == 0) {
+                wxMessageBox("Please choose times for Time Period 2 on the time axis first.");
+                return;
+            }
+            
+            int n = n1 + n2;
+            double *y = new double[n];
+            double **x = new double* [2];
+            for (int t=0; t<nX; t++) {
+                x[t] = new double[n];
+            }
+            
+            int idx = 0;
+            
+            for (int t=0; t<n_ts; t++) {
+                if (tms_subset0[t] || tms_subset1[t]) {
+                    for (int j=0; j<m_obs; j++) {
+                        y[idx] = Y[t][j];
+                        x[0][idx] = 1.0; //constant
+                        x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                        x[2][idx] = tms_subset0[t] == true ? 1 : 0; // DUMMY_PERIOD
+                        idx += 1;
+                    }
+                }
+            }
+           
+			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+        	for (int i = 0; i < nX; i++) {
+        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        	}
+			m_DR.SetMeanY(ComputeMean(y, n));
+			m_DR.SetSDevY(ComputeSdev(y, n));
+            
+            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+                                m_constant_term, true, m_gauge,
+                                do_white_test);
+            
+            m_resid1= m_DR.GetResidual();
+            printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
+            m_yhat1 = m_DR.GetYHAT();
+            
+            delete[] y;
+            for (int t=0; t<nX; t++) delete[] x[t];
+            m_DR.release_Var();
+ 
+            
+            wxDateTime now = wxDateTime::Now();
+            logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES AND TIME PERIOD) \n----------\n" + logReport;
         }
         
-        if (hasSel) {
-            TableInterface* table_int = project->GetTableInt();
-            int col_pos; 
-            if (!table_int->ColNameExists(dummy_name_unsel)) {
-                col_pos = table_int->InsertCol(GdaConst::long64_type, 
-                                               dummy_name_unsel,
-                                               0);
-            } else {
-                col_pos = table_int->FindColId(dummy_name_unsel);
-            }
-            table_int->SetColData(col_pos, 0/*time*/, reg_dummy_unsel);
-            
-            if (!table_int->ColNameExists(dummy_name_sel)) {
-                col_pos = table_int->InsertCol(GdaConst::long64_type, 
-                                               dummy_name_sel,
-                                               0);
-            } else {
-                col_pos = table_int->FindColId(dummy_name_sel);
-            }
-            table_int->SetColData(col_pos, 0/*time*/, reg_dummy_sel);
-            //const vec_vec_dbl_type& X(data_map[row_nm]);
+        
+        // display regression in dialog
+        if (regReportDlg == 0) {
+            regReportDlg = new RegressionReportDlg(this, logReport);
+            regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LineChartFrame::OnReportClose), NULL, this);
+        } else {
+            regReportDlg->AddNewReport(logReport);
         }
+        regReportDlg->Show(true);
+        regReportDlg->m_textbox->SetSelection(0, 0);
+        
     }
+    
+
+}
+
+void LineChartFrame::OnReportClose(wxWindowDestroyEvent& event)
+{
+    regReportDlg = 0;
 }
 
 void LineChartFrame::OnShowVarsChooser(wxCommandEvent& event)
@@ -1235,3 +1423,166 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	stats_win->SetPage(s);
 }
 
+void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double* y,
+                                                  const wxString& datasetname,
+                                                 const wxString& wname,
+                                                 DiagnosticReport *r,
+                                                 int Obs, int nX,
+                                                 bool do_white_test)
+{
+    LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
+    wxString f; // temporary formatting string
+    wxString slog;
+    
+    logReport = wxEmptyString; // reset log report
+    int cnt = 0;
+    
+    slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
+    slog << "Data set            :  " << datasetname << "\n"; cnt++;
+    slog << "Dependent Variable  :";
+    slog << GenUtils::Pad(yName, 12);
+    slog << "  Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
+    f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
+    slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
+    f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
+    slog << wxString::Format(f, r->GetSDevY(), Obs-nX); cnt++;
+    slog << "\n"; cnt++;
+    
+    f = "R-squared           :%12.6f  F-statistic           :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, r->GetR2(), r->GetFtest());
+    f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, r->GetR2_adjust(), r->GetFtestProb());
+    f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, r->GetRSS() ,r->GetLIK());
+    f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, r->GetSIQ_SQ(), r->GetAIC());
+    f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
+    f = "Sigma-square ML     :%12.6g\n"; cnt++;
+    slog << wxString::Format(f, r->GetSIQ_SQLM());
+    f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
+    slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
+    
+    slog << "--------------------------------";
+    slog << "---------------------------------------\n"; cnt++;
+    slog << "    Variable   Coefficient      ";
+    slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
+    slog << "--------------------------------";
+    slog << "---------------------------------------\n"; cnt++;
+    
+    for (int i=0; i<nX; i++) {
+        slog << GenUtils::Pad(r->GetXVarName(i), 12);
+        slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
+                                 r->GetCoefficient(i), r->GetStdError(i),
+                                 r->GetZValue(i), r->GetProbability(i)); cnt++;
+    }
+    slog << "----------------------------------";
+    slog << "-------------------------------------\n\n"; cnt++; cnt++;
+    
+    slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
+    double *rr = r->GetBPtest();
+    if (rr[1] > 1) {
+        slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
+                                 r->GetConditionNumber()); cnt++;
+    } else {
+        slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
+                                 r->GetConditionNumber()); cnt++;
+        slog << "                                ";
+        slog << "      (Extreme Multicollinearity)\n"; cnt++;
+    }
+    slog << "TEST ON NORMALITY OF ERRORS\n"; cnt++;
+    slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
+    rr = r->GetJBtest();
+    f = "Jarque-Bera           %2.0f        %11.4f        %9.5f\n"; cnt++;
+    slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+    
+    slog << "\n"; cnt++;
+    slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY  \n"; cnt++;
+    slog << "RANDOM COEFFICIENTS\n"; cnt++;
+    slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
+    rr = r->GetBPtest();
+    if (rr[1] > 0) {
+        f = "Breusch-Pagan test    %2.0f        %11.4f        %9.5f\n"; cnt++;
+        slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+    } else {
+        f = "Breusch-Pagan test    %2.0f        %11.4f        N/A\n"; cnt++;
+        slog << wxString::Format(f, rr[0], rr[1]);
+    }
+    rr = r->GetKBtest();
+    if (rr[1]>0) {
+        f = "Koenker-Bassett test  %2.0f        %11.4f        %9.5f\n"; cnt++;
+        slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+    } else {
+        f = "Koenker-Bassett test  %2.0f        %11.4f        N/A\n"; cnt++;
+        slog << wxString::Format(f, rr[0], rr[1]);
+    }
+    if (do_white_test) {
+        slog << "SPECIFICATION ROBUST TEST\n"; cnt++;
+        rr = r->GetWhitetest();
+        slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
+        if (rr[2] < 0.0) {
+            f = "White                 %2.0f            N/A            N/A\n"; cnt++;
+            slog << wxString::Format(f, rr[0]);
+        } else {
+            f = "White                 %2.0f        %11.4f        %9.5f\n"; cnt++;
+            slog << wxString::Format(f, rr[0], rr[1], rr[2]);
+        }
+    }
+    
+    if (true) {
+        slog << "\n"; cnt++;
+        slog << "COEFFICIENTS VARIANCE MATRIX\n"; cnt++;
+        int start = 0;
+        while (start < nX) {
+            wxString st = wxEmptyString;
+            for (int j=start; j<nX && j<start+5; j++) {
+                slog << " " << GenUtils::Pad(r->GetXVarName(j), 10) << " ";
+            }
+            slog << "\n"; cnt++;
+            for (int i=0; i<nX; i++) {
+                st = wxEmptyString;
+                for (int j=start; j<nX && j<start+5; j++) {
+                    slog << wxString::Format(" %10.6f ", r->GetCovariance(i,j));
+                }
+                slog << "\n"; cnt++;
+            }
+            slog << "\n"; cnt++;
+            start += 5;
+        }
+    }
+
+    /*
+    if (true) {
+        slog << "\n";
+        cnt++;
+        slog << "  OBS    " << GenUtils::Pad(yName, 12);
+        slog << "        PREDICTED        RESIDUAL";
+        for (int ii=1; ii<nX; ii++)
+            slog << "        " << GenUtils::Pad(r->GetXVarName(ii), 12);
+        slog << "\n";
+        
+        cnt++;
+        double *res = r->GetResidual();
+        double *yh = r->GetYHAT();
+        for (int i=0; i<Obs; i++) {
+            slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f",
+                                     i+1, y[i], yh[i], res[i]);
+            for (int ii=1; ii<nX; ii++)
+                slog << wxString::Format("     %12.5f", X[ii-1][i]);
+            slog << "\n";
+            cnt++;
+        }
+        res = NULL;
+        yh = NULL;
+    }
+    */
+    
+    slog << "========================== END OF REPORT";
+    slog <<  " ==============================\n\n"; cnt++; cnt++;
+    
+    slog << "\n\n"; cnt++; cnt++;
+    logReport << slog;
+    
+    LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
+    LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
+}
