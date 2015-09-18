@@ -269,7 +269,8 @@ void RandomizationPanel::Draw(wxDC* dc)
 	
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
-				  GdaConst::highlight_color );
+				  //GdaConst::highlight_color );
+                  wxColour(49, 163, 84));
 
 	wxPen drawPen(*wxBLACK_PEN);
 	drawPen.SetColour(GdaConst::textColor);
