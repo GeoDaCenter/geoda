@@ -272,13 +272,17 @@ void GdaShape::setBrush(const wxBrush& brush)
 const wxPen& GdaShape::getPen()
 {
 	if (!attribs) return *GdaConst::default_myshape_pen;
-	return attribs->pen;
+    if (attribs->pen.IsOk() && attribs->pen.GetColour().IsOk())
+    	return attribs->pen;
+    return *GdaConst::default_myshape_pen;
 }
 
 const wxBrush& GdaShape::getBrush()
 {
 	if (!attribs) return *GdaConst::default_myshape_brush;
-	return attribs->brush;
+    if (attribs->brush.IsOk() && attribs->brush.GetColour().IsOk())
+    	return attribs->brush;
+    return *GdaConst::default_myshape_brush;
 }
 
 int GdaShape::getXNudge()

@@ -646,15 +646,15 @@ useScientificNotation(_useScientificNotation)
 	assoc_var_choice = wxDynamicCast(FindWindow(XRCID("ID_ASSOC_VAR")),
 									   wxChoice);
 	assoc_var_choice->Clear();
-	assoc_var_choice->Append(unif_dist_txt);
-	assoc_var_choice->SetSelection(0);
+	//assoc_var_choice->Append(unif_dist_txt);
+	//assoc_var_choice->SetSelection(0);
 	assoc_var_tm_choice = 
 		wxDynamicCast(FindWindow(XRCID("ID_ASSOC_VAR_TM")), wxChoice);
 	assoc_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
 
 	preview_var_choice->Clear();
-	preview_var_choice->Append(unif_dist_txt);
-	preview_var_choice->SetSelection(0);
+	//preview_var_choice->Append(unif_dist_txt);
+	//preview_var_choice->SetSelection(0);
 	preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
 
 	unif_dist_min_lbl = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_LBL")),
@@ -876,7 +876,14 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 		for (size_t i=0; i<cc_data.colors.size(); i++) {
 			cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		}
-	}
+    } else {
+		CatClassification::PickColorSet(cc_data.colors,
+										cc_data.color_scheme,
+										cc_data.num_cats, false);
+		for (size_t i=0; i<cc_data.colors.size(); i++) {
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+		}
+    }
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -898,6 +905,9 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	{
 		cc_data.break_vals_type = CatClassification::custom_break_vals;
 	} else {
+		for (size_t i=0; i<new_num_cats; i++) {
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+		}
 		cc_data.break_vals_type = new_cat_typ;
 	}
 	cc_data.num_cats = new_num_cats;
@@ -1679,7 +1689,7 @@ void CatClassifPanel::InitAssocVarChoices()
 	}
 	std::vector<wxString> names;
 	table_int->FillNumericNameList(names);
-	assoc_var_choice->Append(unif_dist_txt);
+	//assoc_var_choice->Append(unif_dist_txt);
 	for (size_t i=0; i<names.size(); i++) {
 		assoc_var_choice->Append(names[i]);
 	}
@@ -1725,7 +1735,7 @@ void CatClassifPanel::InitPreviewVarChoices()
 	}
 	std::vector<wxString> names;
 	table_int->FillNumericNameList(names);
-	preview_var_choice->Append(unif_dist_txt);
+	//preview_var_choice->Append(unif_dist_txt);
 	for (size_t i=0; i<names.size(); i++) {
 		preview_var_choice->Append(names[i]);
 	}
@@ -1959,6 +1969,7 @@ void CatClassifPanel::SetSyncVars(bool sync_assoc_and_prev_vars)
 
 void CatClassifPanel::ShowUnifDistMinMax(bool show)
 {
+    show = false; // force to hide TODO
 	unif_dist_min_lbl->Show(show);
 	unif_dist_min_txt->Show(show);
 	unif_dist_max_lbl->Show(show);

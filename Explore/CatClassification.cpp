@@ -1542,6 +1542,9 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
                 
                 break;
             default:
+                for (int i = 0; i < num_color; i++) {
+                    color_vec[i] = Color1[colpos[num_color] + num_color - i-1];
+                }
                 break;
         }
     } else {
@@ -1562,6 +1565,9 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
                 }
                 break;
             default:
+                for (int i = 0; i < num_color; i++) {
+                    color_vec[i] = Color1[colpos[num_color] + num_color - i-1];
+                }
                 break;
         }
     }
@@ -1949,7 +1955,8 @@ std::vector<int>& CatClassifData::GetIdsRef(int canvas_tm, int cat)
 
 void CatClassifData::SetCategoryColor(int canvas_tm, int cat, wxColour color)
 {
-	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
+	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return;
 	categories[canvas_tm].cat_vec[cat].brush.SetColour(color);
 	categories[canvas_tm].cat_vec[cat].pen.SetColour(
 								 GdaColorUtils::ChangeBrightness(color));
@@ -1966,7 +1973,10 @@ wxBrush CatClassifData::GetCategoryBrush(int canvas_tm, int cat)
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return *wxBLACK_BRUSH;
 	}
-	return categories[canvas_tm].cat_vec[cat].brush;
+	wxBrush br = categories[canvas_tm].cat_vec[cat].brush;
+    if (br.IsOk() && br.GetColour().IsOk()) return br;
+    categories[canvas_tm].cat_vec[cat].brush.SetColour(*wxBLACK);
+    return *wxBLACK_BRUSH;
 }
 
 wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
@@ -1974,7 +1984,10 @@ wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return *wxBLACK_PEN;
 	}
-	return categories[canvas_tm].cat_vec[cat].pen;
+	wxPen pen = categories[canvas_tm].cat_vec[cat].pen;
+    if (pen.IsOk() && pen.GetColour().IsOk()) return pen;
+    categories[canvas_tm].cat_vec[cat].pen.SetColour(*wxBLACK);
+    return *wxBLACK_PEN;
 }
 
 void CatClassifData::AppendIdToCategory(int canvas_tm, int cat, int id)

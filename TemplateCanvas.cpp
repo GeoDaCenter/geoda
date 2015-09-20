@@ -1221,7 +1221,8 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 			gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		for (int cat=0; cat<num_cats; cat++) {
 			gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
-			gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
+            wxBrush br = cat_data.GetCategoryBrush(cc_ts, cat);
+            if (br.IsOk() ) gc->SetBrush(br);
 
             if (isDrawBasemap) {
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
