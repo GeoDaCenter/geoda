@@ -18,7 +18,7 @@
  */
 
 #include <utility> // std::pair
-#include <alloc.h>
+#include <stdlib.h>
 #include <boost/foreach.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
