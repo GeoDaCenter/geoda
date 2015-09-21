@@ -487,7 +487,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     make clean
     #./configure CFLAGS="$GDA_CFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" CXXFLAGS="$GDA_CXXFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" LDFLAGS="$GDA_LDFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" OBJCFLAGS="-arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" OBJCXXFLAGS="-arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --with-macosx-version-min=10.6 --enable-textfile --prefix=$PREFIX
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --prefix=$PREFIX
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

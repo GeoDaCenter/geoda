@@ -111,7 +111,9 @@ build-geoda-mac:
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libgeos_c.1.dylib" "@executable_path/../Resources/plugins/libgeos_c.1.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libgeos-3.3.8.dylib" "@executable_path/../Resources/plugins/libgeos-3.3.8.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcurl.4.dylib" "@executable_path/../Resources/plugins/libcurl.4.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
+	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libcurl.4.dylib 
+	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libxerces-c-3.1.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libkmlengine.0.dylib" "@executable_path/../Resources/plugins/libkmlengine.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libkmlengine.0.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libkmlbase.0.dylib" "@executable_path/../Resources/plugins/libkmlbase.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libkmlengine.0.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libminizip.0.dylib" "@executable_path/../Resources/plugins/libminizip.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libkmlengine.0.dylib 
