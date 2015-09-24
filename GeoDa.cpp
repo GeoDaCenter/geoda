@@ -486,6 +486,7 @@ EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
 // Print Canvas State to Log File.  Used for debugging.
 EVT_MENU(XRCID("ID_PRINT_CANVAS_STATE"), GdaFrame::OnPrintCanvasState)
 
+EVT_MENU(XRCID("ID_CLEAN_BASEMAP"), GdaFrame::OnCleanBasemap)
 EVT_MENU(XRCID("ID_NO_BASEMAP"), GdaFrame::OnSetNoBasemap)
 EVT_MENU(XRCID("ID_CHANGE_TRANSPARENCY"), GdaFrame::OnChangeMapTransparency)
 EVT_MENU(XRCID("ID_BASEMAP_1"), GdaFrame::OnSetBasemap1)
@@ -2240,51 +2241,68 @@ void GdaFrame::OnChangeMapTransparency(wxCommandEvent& event)
     if (f)
         f->OnChangeMapTransparency();
 }
+void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
+{
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (t) {
+        if (MapFrame* f = dynamic_cast<MapFrame*>(t)) return
+            f->CleanBasemap();
+    }
+}
 void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(false,0);
+    SetBasemapCheckmarks(0);
 }
 void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,1);
+    SetBasemapCheckmarks(1);
 }
 void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,2);
+    SetBasemapCheckmarks(2);
 }
 void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,3);
+    SetBasemapCheckmarks(3);
 }
 void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,4);
+    SetBasemapCheckmarks(4);
 }
 void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,5);
+    SetBasemapCheckmarks(5);
 }
 void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,6);
+    SetBasemapCheckmarks(6);
 }
 void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,7);
+    SetBasemapCheckmarks(7);
 }
 
 void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,8);
+    SetBasemapCheckmarks(8);
 }
 
 void GdaFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
@@ -5482,54 +5500,45 @@ void GdaFrame::OnEncodingEUC_KR(wxCommandEvent& event)
 void GdaFrame::SetEncodingCheckmarks(wxFontEncoding e)
 {
 	wxMenuBar* m = GetMenuBar();
-	m->FindItem(XRCID("ID_ENCODING_UTF8"))
-    ->Check(e==wxFONTENCODING_UTF8);
-	m->FindItem(XRCID("ID_ENCODING_UTF16"))
-    ->Check(e==wxFONTENCODING_UTF16LE);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1250"))
-    ->Check(e==wxFONTENCODING_CP1250);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1251"))
-    ->Check(e==wxFONTENCODING_CP1251);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1254"))
-    ->Check(e==wxFONTENCODING_CP1254);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1255"))
-    ->Check(e==wxFONTENCODING_CP1255);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1256"))
-    ->Check(e==wxFONTENCODING_CP1256);
-	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1258"))
-    ->Check(e==wxFONTENCODING_CP1258);
-	m->FindItem(XRCID("ID_ENCODING_CP852"))
-    ->Check(e==wxFONTENCODING_CP852);
-	m->FindItem(XRCID("ID_ENCODING_CP866"))
-    ->Check(e==wxFONTENCODING_CP866);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_1"))
-    ->Check(e==wxFONTENCODING_ISO8859_1);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_2"))
-    ->Check(e==wxFONTENCODING_ISO8859_2);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_3"))
-    ->Check(e==wxFONTENCODING_ISO8859_3);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_5"))
-    ->Check(e==wxFONTENCODING_ISO8859_5);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_7"))
-    ->Check(e==wxFONTENCODING_ISO8859_7);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_8"))
-    ->Check(e==wxFONTENCODING_ISO8859_8);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_9"))
-    ->Check(e==wxFONTENCODING_ISO8859_9);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_10"))
-    ->Check(e==wxFONTENCODING_ISO8859_10);
-	m->FindItem(XRCID("ID_ENCODING_ISO_8859_15"))
-    ->Check(e==wxFONTENCODING_ISO8859_15);
-	m->FindItem(XRCID("ID_ENCODING_GB2312"))
-    ->Check(e==wxFONTENCODING_GB2312);
-	m->FindItem(XRCID("ID_ENCODING_BIG5"))
-    ->Check(e==wxFONTENCODING_BIG5);
-	m->FindItem(XRCID("ID_ENCODING_KOI8_R"))
-    ->Check(e==wxFONTENCODING_KOI8);
-	m->FindItem(XRCID("ID_ENCODING_SHIFT_JIS"))
-    ->Check(e==wxFONTENCODING_SHIFT_JIS);
+	m->FindItem(XRCID("ID_ENCODING_UTF8"))->Check(e==wxFONTENCODING_UTF8);
+	m->FindItem(XRCID("ID_ENCODING_UTF16"))->Check(e==wxFONTENCODING_UTF16LE);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1250"))->Check(e==wxFONTENCODING_CP1250);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1251"))->Check(e==wxFONTENCODING_CP1251);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1254"))->Check(e==wxFONTENCODING_CP1254);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1255"))->Check(e==wxFONTENCODING_CP1255);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1256"))->Check(e==wxFONTENCODING_CP1256);
+	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1258"))->Check(e==wxFONTENCODING_CP1258);
+	m->FindItem(XRCID("ID_ENCODING_CP852"))->Check(e==wxFONTENCODING_CP852);
+	m->FindItem(XRCID("ID_ENCODING_CP866"))->Check(e==wxFONTENCODING_CP866);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_1"))->Check(e==wxFONTENCODING_ISO8859_1);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_2"))->Check(e==wxFONTENCODING_ISO8859_2);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_3"))->Check(e==wxFONTENCODING_ISO8859_3);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_5"))->Check(e==wxFONTENCODING_ISO8859_5);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_7"))->Check(e==wxFONTENCODING_ISO8859_7);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_8"))->Check(e==wxFONTENCODING_ISO8859_8);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_9"))->Check(e==wxFONTENCODING_ISO8859_9);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_10"))->Check(e==wxFONTENCODING_ISO8859_10);
+	m->FindItem(XRCID("ID_ENCODING_ISO_8859_15"))->Check(e==wxFONTENCODING_ISO8859_15);
+	m->FindItem(XRCID("ID_ENCODING_GB2312"))->Check(e==wxFONTENCODING_GB2312);
+	m->FindItem(XRCID("ID_ENCODING_BIG5"))->Check(e==wxFONTENCODING_BIG5);
+	m->FindItem(XRCID("ID_ENCODING_KOI8_R"))->Check(e==wxFONTENCODING_KOI8);
+	m->FindItem(XRCID("ID_ENCODING_SHIFT_JIS"))->Check(e==wxFONTENCODING_SHIFT_JIS);
 	m->FindItem(XRCID("ID_ENCODING_EUC_JP"))->Check(e==wxFONTENCODING_EUC_JP);
 	m->FindItem(XRCID("ID_ENCODING_EUC_KR"))->Check(e==wxFONTENCODING_EUC_KR);
+}
+
+void GdaFrame::SetBasemapCheckmarks(int idx)
+{
+    wxMenuBar* m = GetMenuBar();
+    m->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
+    m->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
+    m->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
+    m->FindItem(XRCID("ID_BASEMAP_3"))->Check(idx==3);
+    m->FindItem(XRCID("ID_BASEMAP_4"))->Check(idx==4);
+    m->FindItem(XRCID("ID_BASEMAP_5"))->Check(idx==5);
+    m->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
+    m->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
+    m->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
 }
 //------------------------------------------------------------------------------
 // End of functions for all encoding events

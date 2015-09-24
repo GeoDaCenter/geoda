@@ -2305,10 +2305,14 @@
     <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Basemap</label>
-          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
-              <label>Change Map Transparency</label>
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
               <checkable>1</checkable>
           </object>
+          <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+              <label>Change Map Transparency</label>
+          </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>
@@ -2558,10 +2562,16 @@
     <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Basemap</label>
+          
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
+              <checkable>1</checkable>
+          </object>
           <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
               <label>Change Map Transparency</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>
@@ -2780,10 +2790,15 @@
     <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
+              <checkable>1</checkable>
+          </object>
           <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
               <label>Change Map Transparency</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>
@@ -3237,10 +3252,15 @@
     <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
+              <checkable>1</checkable>
+          </object>
           <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
               <label>Change Map Transparency</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>
@@ -3729,10 +3749,15 @@
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
+              <checkable>1</checkable>
+          </object>
           <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
               <label>Change Map Transparency</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>
@@ -4430,10 +4455,15 @@
 
       <object class="wxMenu" name="ID_BASEMAP_MENU">
           <label>Basemap</label>
+          <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+              <label>Clean Basemap Cache</label>
+              <checkable>1</checkable>
+          </object>
           <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
               <label>Change Map Transparency</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_NO_BASEMAP">
               <label>No Basemap</label>
               <checkable>1</checkable>

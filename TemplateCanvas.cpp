@@ -1030,6 +1030,7 @@ bool TemplateCanvas::DrawBasemap(bool flag, int map_type)
             isResize = true;
         }
     } else {
+        if (basemap) basemap->mapType=0;
         // triger to draw plain map
         layer0_valid = false;
         isResize = true;

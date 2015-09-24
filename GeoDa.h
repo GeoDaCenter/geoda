@@ -133,6 +133,7 @@ public:
 	void OnPrintCanvasState(wxCommandEvent& event);
 	
     void OnChangeMapTransparency(wxCommandEvent& event);
+    void OnCleanBasemap(wxCommandEvent& event);
     void OnSetNoBasemap(wxCommandEvent& event);
     void OnSetBasemap1(wxCommandEvent& event);
     void OnSetBasemap2(wxCommandEvent& event);
@@ -640,6 +641,7 @@ public:
 	void OnEncodingEUC_JP(wxCommandEvent& event);
 	void OnEncodingEUC_KR(wxCommandEvent& event);
     void SetEncodingCheckmarks(wxFontEncoding e);
+    void SetBasemapCheckmarks(int idx);
     
 	void DisplayRegression(const wxString dump);
 

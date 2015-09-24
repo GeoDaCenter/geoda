@@ -110,6 +110,9 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
+    int GetBasemapType();
+    void CleanBasemapCache();
+    
 public:
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
@@ -134,6 +137,7 @@ public:
 	bool voronoi_diagram_duplicates_exist;
 	
 protected:
+    
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
 	
@@ -229,6 +233,8 @@ public:
 	virtual void OnExportCentroids();
 	virtual void OnSaveVoronoiDupsToTable();
     virtual void OnChangeMapTransparency();
+    
+    void CleanBasemap();
     
 protected:
     void OnMapSelect(wxCommandEvent& e);

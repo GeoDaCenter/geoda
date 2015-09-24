@@ -21,6 +21,8 @@
 
 #include <wx/dcbuffer.h>
 #include <wx/bitmap.h>
+#include <wx/dir.h>
+#include <wx/filename.h>
 
 #include <ogr_spatialref.h>
 
@@ -97,7 +99,19 @@ Basemap::~Basemap() {
 
 void Basemap::CleanCache()
 {
-    
+    std::ostringstream filepathBuf;
+    filepathBuf << cachePath << "basemap_cache"<< separator();
+    wxString filename = filepathBuf.str();
+    wxDir dir(filename);
+    if (dir.IsOpened() ) {
+        wxString file;
+        bool cont = dir.GetFirst(&file);
+        while ( cont ) {
+            file = filename + wxFileName::GetPathSeparator()+ file;
+            if(wxFileName::FileExists(file)) wxRemoveFile(file);
+            cont = dir.GetNext(&file);
+        }
+    }
 }
 
 void Basemap::SetupMapType(int map_type)

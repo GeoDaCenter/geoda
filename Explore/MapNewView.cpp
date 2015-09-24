@@ -214,6 +214,17 @@ MapCanvas::~MapCanvas()
 	LOG_MSG("Exiting MapCanvas::~MapCanvas");
 }
 
+int MapCanvas::GetBasemapType()
+{
+    if (basemap) return basemap->mapType;
+    return 0;
+}
+
+void MapCanvas::CleanBasemapCache()
+{
+    if (basemap) basemap->CleanCache();
+}
+
 void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering MapCanvas::DisplayRightClickMenu");
@@ -1228,6 +1239,11 @@ MapFrame::~MapFrame()
 	DeregisterAsActive();
 }
 
+void MapFrame::CleanBasemap()
+{
+    ((MapCanvas*)template_canvas)->CleanBasemapCache();
+}
+
 void MapFrame::SetupToolbar()
 {
 	Connect(XRCID("ID_SELECT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapSelect));
@@ -1292,7 +1308,22 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_BASEMAP_MENU");
 	
-	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+    if (popupMenu) {
+        // set checkmarks
+        int idx = ((MapCanvas*) template_canvas)->GetBasemapType();
+        
+        popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_3"))->Check(idx==3);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_4"))->Check(idx==4);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_5"))->Check(idx==5);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
+        popupMenu->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
+        PopupMenu(popupMenu, wxDefaultPosition);
+    }
+    
 }
 
 void MapFrame::OnActivate(wxActivateEvent& event)
@@ -1309,12 +1340,9 @@ void MapFrame::MapMenus()
 	LOG_MSG("In MapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
-	((MapCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
+	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
