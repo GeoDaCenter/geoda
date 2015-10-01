@@ -105,10 +105,12 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
 
 void ConnectDatasourceDlg::CreateControls()
 {
+    
     bool test = wxXmlResource::Get()->LoadDialog(this, GetParent(),
                                                  "IDD_CONNECT_DATASOURCE");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
+    m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
 	m_webservice_url = XRCCTRL(*this, "IDC_CDS_WS_URL",AutoTextCtrl);
 	m_database_lookup_table = XRCCTRL(*this, "ID_BTN_LOOKUP_TABLE", 
 									  wxBitmapButton);

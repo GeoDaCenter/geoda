@@ -94,7 +94,7 @@ void DatasourceDlg::CreateControls()
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
-	m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
+	
     
 	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);

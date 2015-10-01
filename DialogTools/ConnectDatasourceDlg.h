@@ -46,6 +46,7 @@ public:
 	IDataSource* GetDataSource(){ return datasource; }
     
 private:
+    wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
     wxTextCtrl*   m_database_table;
