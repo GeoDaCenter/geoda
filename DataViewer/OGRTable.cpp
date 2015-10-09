@@ -271,7 +271,7 @@ bool OGRTable::Save(wxString& err_msg)
     }
     // if it's readonly, it can be and will be exported.So we set no "Change"
 	SetChangedSinceLastSave(false);
-    wxString msg = "This is read only datasource. Try save as.";
+    wxString msg = "This is a read only datasource. Please try to use export.";
     throw GdaException(msg.mb_str(), GdaException::NORMAL);
 	return false;
 }

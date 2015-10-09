@@ -442,6 +442,7 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 	if (m_cbx_precision_threshold_first_click) {
 		// Show a warning message regarding the use of this function
 		wxString msg;
+        /*
 		msg << "Precision threshold should normally be set to 0.  ";
 		msg << "For data sources with neighboring polygons whose vertex ";
 		msg << "coordinates do not match exactly, a very small positive ";
@@ -449,6 +450,8 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 		msg << "are correctly identified.  This is an advanced option. ";
 		msg << "It is important to visually verify the resulting weights ";
 		msg << "to ensure there are no false-positives.";
+         */
+        msg << "You can set Precision Threshold when the points used to digitize the boundaries of adjacent polygons do not connect, resulting in 'slivers' or gaps between polygons. To fix this, you can specify a value for the precision threshold that corresponds to the length of this gap, e.g. 3 feet or 0.0000001 degree, depending on your measurement unit. If you zoom in in a GIS and measure lengths of these gaps, you can determine what the value for the threshold should be.";
 		wxMessageDialog dlg(NULL, msg, "About Precision Threshold",
 												wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
