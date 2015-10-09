@@ -254,11 +254,9 @@ void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
 	
     if (key_vec.size() != key_map.size()) {
         wxString msg;
-        wxInt64 x = 170312427001;
         msg << "Chosen table merge key field " << key_name;
-        msg << " contains duplicate values. Key fields must contain all ";
-        msg << "unique values.\n\n" << x;
-			msg << "Duplicated values: ";
+        msg << " contains undefined or duplicate values. Key fields must contain valid unique values.\n\n";
+        msg << "Duplicated values are: ";
 			int count = 0;
 			for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
 				msg << it->first << "\n";
