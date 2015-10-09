@@ -68,6 +68,7 @@ void DatasourceDlg::Init()
                  "MapInfo MID (*.mid)|*.mid|"
                  "MapInfo MID (*.mif)|*.mif");
     ds_names.Add("MS Excel (*.xls)|*.xls");
+    ds_names.Add("Open Document Spreadsheet (*.ods)|*.ods");
     //ds_names.Add("Idrisi Vector (*.vct)|*.vct");
     //ds_names.Add("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
     //ds_names.Add("OpenStreetMap XML and PBF (*.osm)|*.OSM;*.osm");
