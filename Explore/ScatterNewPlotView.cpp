@@ -2054,6 +2054,7 @@ void ScatterNewPlotFrame::UpdateOptionMenuItems()
 	} else {
 		((ScatterNewPlotCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));
+        
 	}
 }
 
