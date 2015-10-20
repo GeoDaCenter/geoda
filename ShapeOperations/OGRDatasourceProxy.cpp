@@ -42,25 +42,32 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
 {	
 	//ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), bUpdate);
     const char* pszDsPath = ds_name.c_str();
-	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
+	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
+    is_writable = true;
 	if (!ds) {
-		// raise open fialed
-		string error_detail = CPLGetLastErrorMsg();
-		ostringstream msg;
-		if ( error_detail.length() == 0 || error_detail == "Unknown"){
-			msg << "Failed to open data source. Please check if the data "
-									<< "is valid and its data type/format is "
+        // try without UPDATE
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
+        if (!ds) {
+            // raise open fialed
+            string error_detail = CPLGetLastErrorMsg();
+            ostringstream msg;
+            if ( error_detail.length() == 0 || error_detail == "Unknown"){
+                msg << "Failed to open data source. Please check if the data "
+                << "is valid and its data type/format is "
 				<< "supported by GeoDa.\n\nTip: you can setup necessary "
-									<< "GeoDa driver by following the instructions at:\n"
-									<< "https://geodacenter.asu.edu/geoda/formats";
-		} else {
-			msg << error_detail;
-		}
+				<< "GeoDa driver by following the instructions at:\n"
+				<< "https://geodacenter.asu.edu/geoda/formats";
+            } else {
+                msg << error_detail;
+            }
 
-		throw GdaException(msg.str().c_str());
+            throw GdaException(msg.str().c_str());
+        }
+        is_writable = false;
 	}
 	ds_type = GetGdaDataSourceType();
-	is_writable = ds->TestCapability( ODsCCreateLayer );
+	// deprecated by above logic
+    //is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
 }
 
@@ -82,12 +89,6 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format,
 		error_message << "supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
-	//if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
-  //      error_message << "GeoDa does not support creating data source "
-  //      << "of " << pszFormat << ". Please try to 'Export' to other "
-  //      << "supported data source format.";
-	//	throw GdaException(error_message.str().c_str());
-	//}
 	
 	// get datasource type
 	const char* drv_name = GDALGetDriverLongName(poDriver);
@@ -105,13 +106,13 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format,
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if(ds == NULL ) {
 		// driver failed to load
-		error_message << "Internal Error: GeoDa can't create output OGR driver."
+		error_message << "Internal Error: GeoDa can't create output driver. Please contact GeoDa admin."
 		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
     if(!ds->TestCapability(ODsCCreateLayer)) {
 		// driver failed to load
-		error_message << "GeoDa can't write layer."
+		error_message << "GeoDa can't write layer to this datasource. Please contact GeoDa admin."
 		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }

@@ -46,6 +46,7 @@ load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount();
     is_writable = layer->TestCapability(OLCCreateField) != 0;
+    
 	eGType = layer->GetGeomType();
     spatialRef = layer->GetSpatialRef();
     

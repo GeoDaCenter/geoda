@@ -69,7 +69,8 @@ CreateGridDlg::CreateGridDlg( wxWindow* parent, wxWindowID id,
 	m_check = 1;
 
 
-	m_xBot=m_yBot=m_xTop=m_yTop = 0.0;
+    m_xBot=m_yBot=0.0;
+    m_xTop=m_yTop = 1.0;
 	EnableItems();
 	hasCreated = false;
 

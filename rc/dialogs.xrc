@@ -6318,7 +6318,7 @@
                     <border>5</border>
                     <object class="wxTextCtrl" name="IDC_EDIT3">
                       <style>wxTE_RIGHT</style>
-                      <value>0.0</value>
+                      <value>1.0</value>
                     </object>
                   </object>
                   <object class="sizeritem">
@@ -6326,7 +6326,7 @@
                     <border>5</border>
                     <object class="wxTextCtrl" name="IDC_EDIT4">
                       <style>wxTE_RIGHT</style>
-                      <value>0.0</value>
+                      <value>1.0</value>
                     </object>
                   </object>
                 </object>

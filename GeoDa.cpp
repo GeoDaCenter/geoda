@@ -1566,10 +1566,10 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		if (project_p->GetWManState()) {
             project_p->GetWManState()->closeAndDeleteWhenEmpty();
         }
+        
         if (project_p->GetFramesManager()) {
             project_p->GetFramesManager()->closeAndDeleteWhenEmpty();
-            std::list<FramesManagerObserver*> observers(
-						project_p->GetFramesManager()->getCopyObservers());
+            std::list<FramesManagerObserver*> observers(project_p->GetFramesManager()->getCopyObservers());
             std::list<FramesManagerObserver*>::iterator it;
             for (it=observers.begin(); it != observers.end(); ++it) {
 				FramesManagerObserver* fmo = *it;
@@ -1582,6 +1582,7 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
                 }
             }
         }
+        
 		if (project_p->GetHighlightState()) {
 			project_p->GetHighlightState()->closeAndDeleteWhenEmpty();
 		}
@@ -2730,8 +2731,7 @@ void GdaFrame::OnFieldCalculation(wxCommandEvent& event)
 	std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
-		if (FieldNewCalcSheetDlg* w =
-				dynamic_cast<FieldNewCalcSheetDlg*>(*it)) {
+		if (FieldNewCalcSheetDlg* w = dynamic_cast<FieldNewCalcSheetDlg*>(*it)) {
 			LOG_MSG("FieldNewCalcSheetDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);

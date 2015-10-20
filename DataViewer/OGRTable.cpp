@@ -255,7 +255,7 @@ bool OGRTable::Save(wxString& err_msg)
                 operations_queue.push(op);
                 completed_stack.pop();
             }
-            err_msg << "GeoDa can't save changes to datasource. Please try to "
+            err_msg << "GeoDa can't save changes to this datasource. Please try to "
                     << "export to other type of datasources.";
             return false;
         }
@@ -271,7 +271,7 @@ bool OGRTable::Save(wxString& err_msg)
     }
     // if it's readonly, it can be and will be exported.So we set no "Change"
 	SetChangedSinceLastSave(false);
-    wxString msg = "This is a read only datasource. Please try to use export.";
+    wxString msg = "GeoDa can't save changes to this datasource. Please try to use File->Export.";
     throw GdaException(msg.mb_str(), GdaException::NORMAL);
 	return false;
 }

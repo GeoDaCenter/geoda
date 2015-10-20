@@ -76,9 +76,10 @@ w_man_state(project_s->GetWManState())
 FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg()
 {
 	LOG_MSG("In FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg");
-	frames_manager->registerObserver(this);
-	table_state->registerObserver(this);
-	w_man_state->registerObserver(this);
+    
+    frames_manager->removeObserver(this);
+    table_state->removeObserver(this);
+    w_man_state->removeObserver(this);
 }
 
 bool FieldNewCalcSheetDlg::Create( wxWindow* parent, wxWindowID id,
@@ -176,7 +177,7 @@ void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 void FieldNewCalcSheetDlg::OnClose(wxCloseEvent& event)
 {
 	LOG_MSG("In FieldNewCalcSheetDlg::OnClose");
-	Destroy();
+    Destroy();
 }
 
 void FieldNewCalcSheetDlg::update(FramesManager* o)
