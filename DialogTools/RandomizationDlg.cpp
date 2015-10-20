@@ -245,8 +245,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 		freq[i] = int(df);
 	}
 
-	wxColour color = (count_greater ? GdaConst::outliers_colour :
-					  GdaConst::textColor);
+	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
 		if (freq[i] > 0) {
 			int xx = Top + Height - freq[i];
@@ -256,8 +255,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 		}
 	}
 
-	color = (!count_greater ? GdaConst::outliers_colour :
-			 GdaConst::textColor);
+	color = !count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=thresholdBin+1; i < bins; i++) {
 		if (freq[i] > 0) {
 			int xx = Top + Height - freq[i];
@@ -302,10 +300,10 @@ void RandomizationPanel::Draw(wxDC* dc)
 	dc->DrawText(text, Left, Top + Height + Bottom/2);
  
 	text = wxString::Format("permutations: %d  ", Permutations);
-	dc->DrawText(text, Left+5, 40);
+	dc->DrawText(text, Left+5, 35);
 
 	text = wxString::Format("pseudo p-value: %-7.6f", pseudo_p_val);
-	dc->DrawText(text, Left+5, 55);
+	dc->DrawText(text, Left+5, 50);
 }
 
 
@@ -341,7 +339,7 @@ void RandomizationPanel::CheckSize(const int width, const int height)
 	Left = 10;
     Bottom = 20;
 	Right = 10;
-	Top = 10;
+	Top = 60;
 	Height = 40;
 	Width = 40;
 	
@@ -418,14 +416,10 @@ RandomizationDlg::~RandomizationDlg()
 
 void RandomizationDlg::CreateControls()
 {    
-    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    
-    //hbox1->Add(new wxPanel(panel, -1));
-    //vbox->Add(hbox1, 1, wxEXPAND);
-    
     wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
+    hbox2->AddSpacer(100);
     hbox2->Add(button);
     vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxLEFT | wxTOP, 100);
     
