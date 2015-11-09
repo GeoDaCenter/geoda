@@ -230,25 +230,28 @@ void RandomizationPanel::DrawRectangle(wxDC* dc, int left, int top, int right,
 }
 
 void RandomizationPanel::Draw(wxDC* dc)
-{	
+{
+    // make a copy of freq;
+    std::vector<int> freq_back(freq);
+    
     // draw white background
     wxSize sz = this->GetClientSize();
     DrawRectangle(dc, 0, 0, sz.x, sz.y, GdaConst::canvas_background_color);
     
-	int fMax = freq[0];
+	int fMax = freq_back[0];
 	for (int i=1; i<bins; i++) 
-        if (fMax < freq[i]) 
-            fMax = freq[i];
+        if (fMax < freq_back[i])
+            fMax = freq_back[i];
 
 	for (int i=0; i < bins; i++) {
-		double df = double (freq[i]* Height) / double (fMax);
-		freq[i] = int(df);
+		double df = double (freq_back[i]* Height) / double (fMax);
+		freq_back[i] = int(df);
 	}
 
 	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
-		if (freq[i] > 0) {
-			int xx = Top + Height - freq[i];
+		if (freq_back[i] > 0) {
+			int xx = Top + Height - freq_back[i];
 			if (xx < Top) xx=Top;
 			DrawRectangle(dc, Left + i*binX, xx,
 						  Left + i*binX + binX, Top + Height, color);
@@ -257,8 +260,8 @@ void RandomizationPanel::Draw(wxDC* dc)
 
 	color = !count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=thresholdBin+1; i < bins; i++) {
-		if (freq[i] > 0) {
-			int xx = Top + Height - freq[i];
+		if (freq_back[i] > 0) {
+			int xx = Top + Height - freq_back[i];
 			if (xx < Top) xx=Top;
 			DrawRectangle(dc, Left + i*binX, xx,
 						  Left + i*binX + binX, Top + Height, color);
@@ -340,15 +343,16 @@ void RandomizationPanel::CheckSize(const int width, const int height)
     Bottom = 20;
 	Right = 10;
 	Top = 60;
-	Height = 40;
-	Width = 40;
+	Height = 0;
+	Width = 0;
 	
 	int res = width - Width - Left - Right;
 	if (res < 0) res = 0;
-	int rata = (int) floor((double) res / (bins + 2));
+	int rata = (int) floor((double) res / (bins + 1));
 	if (rata == 0) rata = 1;
 	Left += rata;
 	binX = rata;  //  vertical scale is under control of Format
+    
 	Right = width - Left - binX*bins;
 	if (Right < 0) Right= 0;
 	Width = width - Left - Right;
