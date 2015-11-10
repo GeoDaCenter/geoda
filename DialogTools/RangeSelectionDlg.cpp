@@ -440,7 +440,7 @@ void RangeSelectionDlg::OnAddNeighsToSelClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnAddField( wxCommandEvent& event )
 {	
-	DataViewerAddColDlg dlg(project, this, true, true, "SELECT");
+	DataViewerAddColDlg dlg(project, this, true, true, "SELECT",GdaConst::long64_type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
 	if (table_int->GetColType(col) != GdaConst::long64_type &&
@@ -783,6 +783,13 @@ void RangeSelectionDlg::CheckApplySaveSettings()
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
+    
+    // Check if objects already selected
+    HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& hh = hs.GetHighlight();
+    if (hh.size() > 0) {
+        m_selection_made = true;
+    }
 	
 	m_apply_save_button->Enable(!target_field_empty &&
 								(sel_checked || unsel_checked) &&

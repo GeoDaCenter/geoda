@@ -43,8 +43,9 @@ public TableStateObserver, public WeightsManStateObserver
 {    
 public:
     RangeSelectionDlg( wxWindow* parent, Project* project,
-					   FramesManager* frames_manager, TableState* table_state,
-					   const wxString& title = "Selection Tool", 
+					   FramesManager* frames_manager,
+                       TableState* table_state,
+					   const wxString& title = "Selection Tool",
 					   const wxPoint& pos = wxDefaultPosition );
 	virtual ~RangeSelectionDlg();
 
@@ -88,7 +89,7 @@ public:
 		return 0; }
 	virtual void closeObserver(boost::uuids::uuid id) {};
 
-private:
+private:    
 	/** Should only be called by update and constructor. */
 	void RefreshColIdMap();
 	/** Refresh selection vars list and associated time list,

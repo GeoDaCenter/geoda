@@ -35,7 +35,8 @@ class DataViewerAddColDlg: public wxDialog
 {
 public:
     DataViewerAddColDlg(Project* project,
-						wxWindow* parent, bool time_variant_no_as_default=true,
+						wxWindow* parent,
+                        bool time_variant_no_as_default=true,
 						bool can_change_time_variant=true,
 						wxString default_name=wxEmptyString,
 			GdaConst::FieldType default_field_type=GdaConst::double_type);
