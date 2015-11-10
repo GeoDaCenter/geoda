@@ -107,6 +107,11 @@ void OGRDataAdapter::AddHistory(string param_key, string param_val)
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	gda_cache->AddHistory(param_key, param_val);
 }
+void OGRDataAdapter::AddEntry(string param_key, string param_val)
+{
+    if (gda_cache==NULL) gda_cache = new GdaCache();
+    gda_cache->AddEntry(param_key, param_val);
+}
 
 void OGRDataAdapter::CleanHistory()
 {

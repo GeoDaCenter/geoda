@@ -6929,6 +6929,7 @@
                 </object>
                 <object class="sizeritem">
                   <object class="wxFlexGridSizer">
+                                    
                     <object class="sizeritem">
                       <object class="wxStaticText" name="ID_STATICTEXT">
                         <label>Database Type</label>

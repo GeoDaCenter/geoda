@@ -31,6 +31,9 @@
 #include <wx/regex.h>
 #include <wx/textdlg.h>
 #include <wx/xrc/xmlres.h>
+#include <json_spirit/json_spirit.h>
+#include <json_spirit/json_spirit_writer.h>
+
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
 #include "../DataViewer/DbfTable.h"
@@ -40,6 +43,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../GdaJson.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
@@ -117,6 +121,58 @@ void DatasourceDlg::CreateControls()
 	m_database_port->SetAutoList(port_cands);
 	m_database_uname->SetAutoList(uname_cands);
 	m_database_name->SetAutoList(name_cands);
+    
+    // get a latest input DB information
+    std::vector<std::string> db_infos =
+        OGRDataAdapter::GetInstance().GetHistory("db_info");
+    if (db_infos.size() > 0) {
+        std::string db_info = db_infos[0];
+        json_spirit::Value v;
+        // try to parse as JSON
+        try {
+            if (!json_spirit::read( db_info, v)) {
+                throw std::runtime_error("Could not parse title as JSON");
+            }
+            json_spirit::Value json_db_type;
+            if (GdaJson::findValue(v, json_db_type, "db_type")) {
+                wxString db_type(json_db_type.get_str());
+                if(db_type == DBTYPE_POSTGIS)
+                     m_database_type->SetSelection(0);
+                if(db_type == DBTYPE_ORACLE)
+                    m_database_type->SetSelection(1);
+                if(db_type == DBTYPE_MYSQL)
+                    m_database_type->SetSelection(2);
+                if(db_type == DBTYPE_ARCSDE)
+                    m_database_type->SetSelection(3);
+            }
+            json_spirit::Value json_db_host;
+            if (GdaJson::findValue(v, json_db_host, "db_host")) {
+                m_database_host->SetValue(json_db_host.get_str());
+            }
+            json_spirit::Value json_db_port;
+            if (GdaJson::findValue(v, json_db_port, "db_port")) {
+                m_database_port->SetValue(json_db_port.get_str());
+            }
+            json_spirit::Value json_db_name;
+            if (GdaJson::findValue(v, json_db_name, "db_name")) {
+                m_database_name->SetValue(json_db_name.get_str());
+            }
+            json_spirit::Value json_db_user;
+            if (GdaJson::findValue(v, json_db_user, "db_user")) {
+                m_database_uname->SetValue(json_db_user.get_str());
+            }
+            json_spirit::Value json_db_pwd;
+            if (GdaJson::findValue(v, json_db_pwd, "db_pwd")) {
+                m_database_upwd->SetValue(json_db_pwd.get_str());
+            }
+
+        } catch (std::runtime_error e) {
+            wxString msg;
+            msg << "Get Latest DB infor: JSON parsing failed: ";
+            msg << e.what();
+            LOG_MSG(msg);
+        }
+    }
 }
 
 void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)

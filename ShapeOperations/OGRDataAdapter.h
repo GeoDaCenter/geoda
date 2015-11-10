@@ -128,7 +128,7 @@ public:
 	vector<string> GetHistory(string param_key);
 
 	void AddHistory(string param_key, string param_val);
-
+    void AddEntry(string param_key, string param_val);
 	void CleanHistory();
 	
 	/**

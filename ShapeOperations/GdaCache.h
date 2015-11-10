@@ -87,6 +87,8 @@ public:
 	 */
 	void AddHistory(std::string param_key, std::string param_val);
 	
+    void AddEntry(std::string param_key, std::string param_val);
+    
 	/**
 	 * Clean the content of "history" table
 	 */

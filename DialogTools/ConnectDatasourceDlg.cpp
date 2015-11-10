@@ -30,6 +30,8 @@
 #include <wx/regex.h>
 #include <wx/dnd.h>
 #include <wx/statbmp.h>
+#include <json_spirit/json_spirit.h>
+#include <json_spirit/json_spirit_writer.h>
 
 #include "../DataViewer/DataSource.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -205,8 +207,8 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 			return;
 		}
         if (layername.IsEmpty()) {
-            wxString msg = "Layer name could not be empty. Please select"
-                            " a layer.";
+            wxString msg = "Layer/Table name could not be empty. Please select"
+                            " a layer/table.";
             throw GdaException(msg.mb_str());
         }
 		// At this point, there is a valid datasource and layername.
@@ -219,12 +221,12 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		msg << e.what();
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-        EndDialog(wxID_CANCEL);
+        //EndDialog(wxID_CANCEL);
 	} catch (...) {
 		wxString msg = "Unknow exception. Please contact GeoDa support.";
 		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-        EndDialog(wxID_CANCEL);
+        //EndDialog(wxID_CANCEL);
 	}
 	LOG_MSG("Exiting ConnectDatasourceDlg::OnOkClick");
 }
@@ -267,8 +269,8 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
             PromptDSLayers(datasource);
             if (layer_name.IsEmpty()) {
                 throw GdaException(
-                    wxString("Layer name could not be empty. Please select"
-                             " a layer.").mb_str());
+                    wxString("Layer/Table name could not be empty. Please select"
+                             " a layer/table.").mb_str());
             }
         }
 		
@@ -282,12 +284,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 		wxString dbuser = m_database_uname->GetValue().Trim();
 		wxString dbpwd  = m_database_upwd->GetValue().Trim();
         
-        wxRegEx regex;
-        regex.Compile("[0-9]+");
-        if (!regex.Matches( dbport )){
-            throw GdaException(
-                wxString("Please input a valid database port.").mb_str());
-        }
+
         
         GdaConst::DataSourceType ds_type = GdaConst::ds_unknown;
         if (cur_sel == DBTYPE_ORACLE) ds_type = GdaConst::ds_oci;
@@ -302,31 +299,51 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
             " and connection.";
             throw GdaException(msg.mb_str());
         }
-        datasource = new DBDataSource(dbname, dbhost, dbport, dbuser, dbpwd,
-                                      ds_type);
-		// save user inputs to history table
-		if (!dbhost.IsEmpty())
-			OGRDataAdapter::GetInstance()
+        
+        // save user inputs to history table
+        if (!dbhost.IsEmpty())
+            OGRDataAdapter::GetInstance()
             .AddHistory("db_host", dbhost.ToStdString());
-		if (!dbname.IsEmpty())
-			OGRDataAdapter::GetInstance()
+        if (!dbname.IsEmpty())
+            OGRDataAdapter::GetInstance()
             .AddHistory("db_name", dbname.ToStdString());
-		if (!dbport.IsEmpty())
-			OGRDataAdapter::GetInstance()
+        if (!dbport.IsEmpty())
+            OGRDataAdapter::GetInstance()
             .AddHistory("db_port", dbport.ToStdString());
-		if (!dbuser.IsEmpty())
-			OGRDataAdapter::GetInstance()
+        if (!dbuser.IsEmpty())
+            OGRDataAdapter::GetInstance()
             .AddHistory("db_user", dbuser.ToStdString());
         
-		// check if empty, prompt user to input
+        // check if empty, prompt user to input
+        wxRegEx regex;
+        regex.Compile("[0-9]+");
+        if (!regex.Matches( dbport )){
+            throw GdaException(wxString("Database port is empty. Please input one.").mb_str());
+        }
 		wxString error_msg;
 		if (dbhost.IsEmpty()) error_msg = "Please input database host.";
 		else if (dbname.IsEmpty()) error_msg = "Please input database name.";
 		else if (dbport.IsEmpty()) error_msg = "Please input database port.";
 		else if (dbuser.IsEmpty()) error_msg = "Please input user name.";
+        else if (dbpwd.IsEmpty()) error_msg = "Please input password.";
 		if (!error_msg.IsEmpty()) {
 			throw GdaException(error_msg.mb_str() );
 		}
+        
+        // save current db info
+        json_spirit::Object ret_obj;
+        ret_obj.push_back(json_spirit::Pair("db_host", dbhost.ToStdString()));
+        ret_obj.push_back(json_spirit::Pair("db_port", dbport.ToStdString()));
+        ret_obj.push_back(json_spirit::Pair("db_name", dbname.ToStdString()));
+        ret_obj.push_back(json_spirit::Pair("db_user", dbuser.ToStdString()));
+        ret_obj.push_back(json_spirit::Pair("db_pwd", dbpwd.ToStdString()));
+        ret_obj.push_back(json_spirit::Pair("db_type", cur_sel.ToStdString()));
+        
+        std::string json_str = json_spirit::write(ret_obj);
+        OGRDataAdapter::GetInstance().AddEntry("db_info", json_str);
+        
+        datasource = new DBDataSource(dbname, dbhost, dbport, dbuser, dbpwd, ds_type);
+        
 	} else if ( datasource_type == 2 ) {
         // Web Service tab selected
         wxString ws_url = m_webservice_url->GetValue().Trim();
