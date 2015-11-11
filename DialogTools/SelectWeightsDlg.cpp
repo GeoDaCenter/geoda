@@ -60,9 +60,8 @@ void SelectWeightsDlg::InitNoWeights()
 	wxStaticText* ln1 = new wxStaticText(panel, wxID_ANY,
 										 "No Weights Found.");
 	wxStaticText* ln2 = new wxStaticText(panel, wxID_ANY,
-										 "Use Weights Manager to "
-										 "create or load weights.");
-	
+                                         "This view requires weights, but none defined.\n Please use Tools > Weights > Weights Manager\n to define weights.");
+ 
 	wxBoxSizer* v_szr = new wxBoxSizer(wxVERTICAL);
 	v_szr->AddSpacer(35);
 	v_szr->Add(ln1, 0, wxALIGN_CENTER_HORIZONTAL);
