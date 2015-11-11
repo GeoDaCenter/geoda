@@ -5913,7 +5913,7 @@
               </object>
               <object class="sizeritem">
                 <object class="wxListBox" name="IDC_LIST_VARIN">
-                  <size>100,140d</size>
+                  <size>-1,140d</size>
                   <style>wxLB_SINGLE</style>
                 </object>
                 <option>1</option>
