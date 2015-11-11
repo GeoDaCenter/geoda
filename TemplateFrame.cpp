@@ -426,7 +426,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
-	wxString default_fname(project->GetProjectTitle() + type + ".svg");
+	wxString default_fname(project->GetProjectTitle() + type + ".png");
 	wxString filter("BMP|*.bmp|PNG|*.png|SVG|*.svg");
 	int filter_index = 2;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
