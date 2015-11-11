@@ -66,7 +66,8 @@ const double CatClassifHistCanvas::interval_gap_const = 0;
 CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
 								   TemplateFrame* t_frame,
 								   Project* project_s,
-								   const wxPoint& pos, const wxSize& size)
+								   const wxPoint& pos,
+                                   const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, false, true),
 num_obs(project_s->GetNumRecords()),
@@ -125,8 +126,7 @@ void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((CatClassifFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS");
+	optMenu = wxXmlResource::Get()->LoadMenu("ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS");
 	SetCheckMarks(optMenu);
 	template_frame->UpdateContextMenuItems(optMenu);
 	// The position passed in is the mouse position relative to

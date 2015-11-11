@@ -42,10 +42,8 @@ default_categories(default_categories_s)
 {
 	categories = GenUtils::min<int>(default_categories, max_categories);
 	
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "ID_NUM_CATEGORIES_DLG");
-	m_categories = wxDynamicCast(FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN")),
-							  wxSpinCtrl);
+	wxXmlResource::Get()->LoadDialog(this, GetParent(),"ID_NUM_CATEGORIES_DLG");
+	m_categories = wxDynamicCast(FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN")), wxSpinCtrl);
 	m_categories->SetRange(min_categories, max_categories);
 
 	stat_text = wxDynamicCast(FindWindow(XRCID("IDC_STATIC")), wxStaticText);

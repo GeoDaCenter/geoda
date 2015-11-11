@@ -269,512 +269,521 @@
                   <font><weight>bold</weight></font>
               </object>
           </object>
-          
+          <!-- Detail Edit -->
           <object class="sizeritem">
-            <object class="wxBoxSizer">
-              <orient>wxVERTICAL</orient>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                      <object class="wxStaticText"  name="ID_MIN_LBL">
-                          <label>1.0</label>
-                          <size>20,-1d</size>
-                      </object>
-                      <flag>wxALIGN_RIGHT_VERTICAL</flag>
-                  </object>
+              <object class="wxBoxSizer">
                   <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxALIGN_RIGHT</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
+                  <!-- custom labels -->
                   <object class="sizeritem">
-                    <object class="wxCheckBox" name="ID_AUTO_LABELS_CB">
-                      <label>Automatic Labels</label>
-                      <checked>1</checked>
-                    </object>
-                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      <object class="wxBoxSizer">
+                          <orient>wxVERTICAL</orient>
+                          
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxCheckBox" name="ID_AUTO_LABELS_CB">
+                                          <label>Automatic Labels</label>
+                                          <checked>1</checked>
+                                      </object>
+                                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <orient>wxHORIZONTAL</orient>
+                              </object>
+                              <flag>wxALIGN_LEFT</flag>
+                          </object>
+                          
+                          <object class="spacer">
+                              <size>5,2d</size>
+                          </object>
+                          
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxBoxSizer">
+                                          <object class="spacer">
+                                              <size>150,-1d</size>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD">
+                                                          <value>1</value>
+                                                          <style>wxRB_GROUP</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>5,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxRadioButton" name="ID_BRK_RAD"/>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticText" name="ID_BRK_LBL">
+                                                          <label>break 0</label>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <object class="spacer">
+                                                      <size>3,-1d</size>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_BRK_TXT">
+                                                          <value>0.0000002</value>
+                                                          <style>wxTE_PROCESS_ENTER</style>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBoxSizer">
+                                                  <object class="sizeritem">
+                                                      <object class="wxStaticBitmap" name="ID_CAT_BUT">
+                                                          <size>11,8d</size>
+                                                          <bg>#3F70A6</bg>
+                                                      </object>
+                                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                      <border>3</border>
+                                                  </object>
+                                                  <object class="sizeritem">
+                                                      <object class="wxTextCtrl" name="ID_CAT_TXT">
+                                                          <value>category 1</value>
+                                                      </object>
+                                                      <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
+                                                  </object>
+                                                  <orient>wxHORIZONTAL</orient>
+                                              </object>
+                                              <flag>wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <orient>wxVERTICAL</orient>
+                                      </object>
+                                      <option>1</option>
+                                      <flag>wxGROW</flag>
+                                  </object>
+                                  
+                                  <orient>wxHORIZONTAL</orient>
+                              </object>
+                              <flag>wxGROW</flag>
+                          </object>
+                          
+                          <object class="spacer">
+                              <size>5,10d</size>
+                          </object>
+                      </object>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND|wxGROW</flag>
+                      <border>6</border>
                   </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxALIGN_LEFT</flag>
-              </object>
-              <object class="spacer">
-                <size>5,2d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <object class="wxBoxSizer">
-                      <object class="spacer">
-                        <size>150,-1d</size>
+                  <!-- slider bar -->
+                  <object class="sizeitem">
+                      <object class="wxBoxSizer">
+                          <orient>wxVERTICAL</orient>
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxStaticText"  name="ID_MIN_LBL">
+                                          <label>1.0</label>
+                                          <size>20,-1d</size>
+                                      </object>
+                                      <flag>wxALIGN_RIGHT_VERTICAL</flag>
+                                  </object>
+                                  <orient>wxHORIZONTAL</orient>
+                              </object>
+                              <flag>wxALIGN_RIGHT</flag>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxSlider" name="ID_BRK_SLIDER">
+                                  <size>-1,80d</size>
+                                  <style>wxSL_VERTICAL</style>
+                              </object>
+                              <option>1</option>
+                              <flag>wxGROW</flag>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxStaticText"  name="ID_MAX_LBL">
+                                          <label>1.0</label>
+                                          <size>20,-1d</size>
+                                          <flag>wxALIGN_RIGHT| wxALL</flag>
+                                      </object>
+                                      <flag>wxALIGN_RIGHT_VERTICAL</flag>
+                                  </object>
+                                  <orient>wxHORIZONTAL</orient>
+                              </object>
+                              <flag>wxALIGN_RIGHT | wxALL</flag>
+                          </object>
                       </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD">
-                              <value>1</value>
-                              <style>wxRB_GROUP</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>5,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxRadioButton" name="ID_BRK_RAD"/>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxStaticText" name="ID_BRK_LBL">
-                              <label>break 0</label>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <object class="spacer">
-                            <size>3,-1d</size>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_BRK_TXT">
-                              <value>0.0000002</value>
-                              <style>wxTE_PROCESS_ENTER</style>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="sizeritem">
-                        <object class="wxBoxSizer">
-                          <object class="sizeritem">
-                            <object class="wxStaticBitmap" name="ID_CAT_BUT">
-                              <size>11,8d</size>
-                              <bg>#3F70A6</bg>
-                            </object>
-                            <flag>wxALL|wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                            <border>3</border>
-                          </object>
-                          <object class="sizeritem">
-                            <object class="wxTextCtrl" name="ID_CAT_TXT">
-                              <value>category 1</value>
-                            </object>
-                            <flag>wxALIGN_CENTRE_VERTICAL|wxRESERVE_SPACE_EVEN_IF_HIDDEN</flag>
-                          </object>
-                          <orient>wxHORIZONTAL</orient>
-                        </object>
-                        <flag>wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <orient>wxVERTICAL</orient>
-                    </object>
-                    <option>1</option>
-                    <flag>wxGROW</flag>
                   </object>
-                  <object class="sizeritem">
-                    <object class="wxBoxSizer">
-                      <object class="sizeritem">
-                        <object class="wxSlider" name="ID_BRK_SLIDER">
-                          <size>-1,80d</size>
-                          <style>wxSL_VERTICAL</style>
-                        </object>
-                        <option>1</option>
-                        <flag>wxGROW</flag>
-                      </object>
-                      <orient>wxVERTICAL</orient>
-                    </object>
-                    <flag>wxGROW</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxGROW</flag>
               </object>
-              
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                      <object class="wxStaticText"  name="ID_MAX_LBL">
-                          <label>1.0</label>
-                          <size>20,-1d</size>
-                          <flag>wxALIGN_RIGHT| wxALL</flag>
-                      </object>
-                      <flag>wxALIGN_RIGHT_VERTICAL</flag>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxALIGN_RIGHT | wxALL</flag>
-              </object>
-              
-              <object class="spacer">
-                <size>5,10d</size>
-              </object>
-            </object>
-            <option>1</option>
-            <flag>wxALL|wxEXPAND|wxGROW</flag>
-            <border>6</border>
           </object>
         </object>
       </object>
