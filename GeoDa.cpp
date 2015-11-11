@@ -1146,14 +1146,10 @@ EVT_MENU(GdaConst::ID_TIME_SYNC_VAR2, GdaFrame::OnTimeSyncVariable2)
 EVT_MENU(GdaConst::ID_TIME_SYNC_VAR3, GdaFrame::OnTimeSyncVariable3)
 EVT_MENU(GdaConst::ID_TIME_SYNC_VAR4, GdaFrame::OnTimeSyncVariable4)
 
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
-		 GdaFrame::OnFixedScaleVariable1)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2,
-		 GdaFrame::OnFixedScaleVariable2)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR3,
-		 GdaFrame::OnFixedScaleVariable3)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR4,
-		 GdaFrame::OnFixedScaleVariable4)
+EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, GdaFrame::OnFixedScaleVariable1)
+EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, GdaFrame::OnFixedScaleVariable2)
+EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR3, GdaFrame::OnFixedScaleVariable3)
+EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR4, GdaFrame::OnFixedScaleVariable4)
 
 EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_1, GdaFrame::OnPlotsPerView1)
 EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_2, GdaFrame::OnPlotsPerView2)
@@ -1190,8 +1186,9 @@ void GdaFrame::UpdateToolbarAndMenus()
 	bool proj_open = (p != 0);
 	bool shp_proj = proj_open && !p->IsTableOnlyProject();
 	bool table_proj = proj_open && p->IsTableOnlyProject();
-	bool time_variant = proj_open && p->GetTableInt()->IsTimeVariant();
-
+	//bool time_variant = proj_open && p->GetTableInt()->IsTimeVariant();
+    bool time_variant = proj_open;
+    
 	wxMenuBar* mb = GetMenuBar();
 
 	// Reset the toolbar frame title to default.
@@ -1201,34 +1198,20 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("ID_NEW_PROJECT"), !proj_open);
 	EnableTool(XRCID("ID_OPEN_PROJECT"), !proj_open);
 	EnableTool(XRCID("ID_CLOSE_PROJECT"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"), proj_open);
 	
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SHP"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SQLITE"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_CSV"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_DBF"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GDB"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_JSON"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GML"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_KML"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File",
-								   XRCID("ID_NEW_PROJ_FROM_MAPINFO"),
-								   !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_XLS"),
-								   !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SHP"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SQLITE"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_CSV"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_DBF"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GDB"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_JSON"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GML"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_KML"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_MAPINFO"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_XLS"), !proj_open);
 	
 	if (!proj_open) {
 		// Disable only if project not open.  Otherwise, leave changing
@@ -1240,8 +1223,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_LAYER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_SELECTED"), proj_open);
 
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_PROJECT_INFO"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_PROJECT_INFO"), proj_open);
 	
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), true);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), false);
@@ -1251,30 +1233,21 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools",
-								   XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools",
-								   XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools",
-								XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools",
-								   XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools",
-								   XRCID("ID_POINTS_FROM_TABLE"), table_proj);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_POINTS_FROM_TABLE"), table_proj);
 
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"),
-								   false);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), false);
 
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIT_TO_WINDOW_MODE"),
-								   proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIT_TO_WINDOW_MODE"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ZOOM_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_PAN_MODE"), proj_open);	
 		
@@ -1299,12 +1272,9 @@ void GdaFrame::UpdateToolbarAndMenus()
 
 	EnableTool(XRCID("ID_COND_PLOT_CHOICES"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COND_MENU"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
-								   shp_proj);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
-								   proj_open);
-	GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), proj_open);
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_3DP"), proj_open);
@@ -1314,29 +1284,23 @@ void GdaFrame::UpdateToolbarAndMenus()
 
 	EnableTool(XRCID("IDM_NEW_TABLE"), proj_open);
 	GeneralWxUtils::EnableMenuAll(mb, "Table", proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_TIME_CHOOSER"),
-								   time_variant);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_TIME_CHOOSER"),time_variant);
+    
 	// Temporarily removed for 1.6 release work
 	//<object class="wxMenuItem" name="ID_CALCULATOR">
 	//  <label>Calculator</label>
 	//</object>
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CALCULATOR"),
-								   true);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CALCULATOR"), true);
 	EnableTool(XRCID("ID_SHOW_TIME_CHOOSER"), time_variant);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_DATA_MOVIE"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_DATA_MOVIE"), proj_open);
 	EnableTool(XRCID("ID_SHOW_DATA_MOVIE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CAT_CLASSIF"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CAT_CLASSIF"), proj_open);
 	EnableTool(XRCID("ID_SHOW_CAT_CLASSIF"), proj_open);
 	
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_VAR_GROUPING_EDITOR"),
-								   proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TIME_EDITOR"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_VAR_GROUPING_EDITOR"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TIME_EDITOR"), proj_open);
 	
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_TO_CSV_FILE"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_TO_CSV_FILE"), proj_open);
 		
 	EnableTool(XRCID("ID_MORAN_MENU"), proj_open);
 	EnableTool(XRCID("ID_LISA_MENU"), shp_proj);
@@ -1368,8 +1332,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
 	EnableTool(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"), shp_proj);
 	
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_REGRESSION_CLASSIC"),
-								   proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_REGRESSION_CLASSIC"), proj_open);
 	EnableTool(XRCID("ID_REGRESSION_CLASSIC"), proj_open);
 	
 	//Empty out the Options menu:
@@ -2544,25 +2507,86 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
 {
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
-	FramesManager* fm = p->GetFramesManager();
-	std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
-	std::list<FramesManagerObserver*>::iterator it;
-	for (it=observers.begin(); it != observers.end(); ++it) {
-		if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
-			LOG_MSG("TimeChooserDlg already opened.");
-			w->Show(true);
-			w->Maximize(false);
-			w->Raise();
-			return;
-		}
-	}
-	
-	LOG_MSG("Opening a new TimeChooserDlg");
-	TimeChooserDlg* dlg = new TimeChooserDlg(0, project_p->GetFramesManager(),
+    
+    bool hasTime = p->GetTableInt()->IsTimeVariant();
+    bool opened = false;
+        FramesManager* fm = p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
+                LOG_MSG("TimeChooserDlg already opened.");
+                w->Show(true);
+                w->Maximize(false);
+                w->Raise();
+                opened = true;
+                return;
+            }
+        }
+    if (!opened) {
+        LOG_MSG("Opening a new TimeChooserDlg");
+        TimeChooserDlg* dlg = new TimeChooserDlg(0, project_p->GetFramesManager(),
 											 project_p->GetTimeState(),
 											 project_p->GetTableState(),
 											 project_p->GetTableInt());
-	dlg->Show(true);
+        dlg->Show(true);
+    }
+    if (!hasTime) {
+    //} else {
+        // Show Time Editor and Variable Group Editor
+        
+        //OnVarGroupingEditor(event);
+        //Project* p = GetProject();
+        //if (!p || !p->GetTableInt()) return;
+       // FramesManager* fm = p->GetFramesManager();
+        //std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        //std::list<FramesManagerObserver*>::iterator it;
+        
+        wxPoint pt;
+    
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
+            {
+                LOG_MSG("VarGroupingEditorDlg already opened.");
+                w->Show(true);
+                w->Maximize(false);
+                w->Raise();
+                pt = w->GetPosition();
+                opened =true;
+                break;
+            }
+        }
+        if (!opened) {
+            LOG_MSG("Opening a new VarGroupingEditorDlg");
+            VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
+            dlg->Show(true);
+            pt = dlg->GetPosition();
+        }
+        
+        //OnTimeEditor(event);
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
+                LOG_MSG("TimeEditorDlg already opened.");
+                w->Show(true);
+                w->Maximize(false);
+                w->Raise();
+                int start_x = pt.x - 200;
+                if (start_x) start_x = 0;
+                w->SetPosition(wxPoint(pt.x -200, pt.y));
+                return;
+            }
+        }
+        
+        LOG_MSG("Opening a new TimeEditorDlg");
+        TimeEditorDlg* tmdlg = new TimeEditorDlg(0, GetProject()->GetFramesManager(),
+                                               GetProject()->GetTableState(),
+                                               GetProject()->GetTableInt());
+        tmdlg->Show(true);
+        int start_x = pt.x - 200;
+        if (start_x) start_x = 0;
+        tmdlg->SetPosition(wxPoint(pt.x -200, pt.y));
+
+    }
 }
 
 void GdaFrame::OnShowDataMovie(wxCommandEvent& event)

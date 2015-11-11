@@ -547,10 +547,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int insert_pos = 0;
 	if (!fill_from_top) insert_pos = last_inc_list_sel;
 	BOOST_FOREACH(const wxString& s, ung_sel_strs) {
-		while (!((overwrite_plhdr &&
-				  (include_list->GetItemText(insert_pos, 0) ==
-				   GdaConst::placeholder_str)) ||
-				 include_list->GetItemText(insert_pos, 0).IsEmpty()))
+		while (!((overwrite_plhdr && (include_list->GetItemText(insert_pos, 0) == GdaConst::placeholder_str)) || include_list->GetItemText(insert_pos, 0).IsEmpty()))
 		{
 			++insert_pos;
 		}
