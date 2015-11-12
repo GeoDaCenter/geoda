@@ -101,7 +101,6 @@
                 <object class="wxChoice" name="ID_BREAKS_CHOICE">
                   <size>80,-1d</size>
                   <content>
-                    <item>Themeless</item>
                     <item>Quantile</item>
                     <item>Unique Values</item>
                     <item>Natural Breaks</item>

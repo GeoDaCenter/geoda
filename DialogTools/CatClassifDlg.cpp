@@ -677,11 +677,14 @@ useScientificNotation(_useScientificNotation)
 	
 	cc_data.uniform_dist_min = default_min;
 	cc_data.uniform_dist_max = default_max;
-	ShowUnifDistMinMax(true);
+	
 	SetUnifDistMinMaxTxt(cc_data.uniform_dist_min, cc_data.uniform_dist_max);
 	
 	brk_slider = wxDynamicCast(FindWindow(XRCID("ID_BRK_SLIDER")), wxSlider);
-	
+    if (num_cats_choice->GetSelection()==0) brk_slider->Show(false);
+    
+	ShowUnifDistMinMax(true);
+    
 	int_win_pair_vec_type cat_color_button_srt_vec;
 	int_win_pair_vec_type cat_title_txt_srt_vec;
 	int_win_pair_vec_type brk_rad_srt_vec;
@@ -895,6 +898,13 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	if (new_num_cats == cc_data.num_cats ||
 		new_num_cats < 1 || new_num_cats > max_intervals) return;
 	
+    if (event.GetSelection() == 0 ) {
+        // only 1 category then we don't need slider bar
+        brk_slider->Show(false);
+    } else {
+        brk_slider->Show(true);
+    }
+    
 	CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
 	if (new_cat_typ == CatClassification::hinge_15_break_vals ||
 		new_cat_typ == CatClassification::hinge_30_break_vals ||
@@ -905,9 +915,17 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	{
 		cc_data.break_vals_type = CatClassification::custom_break_vals;
 	} else {
-		for (size_t i=0; i<new_num_cats; i++) {
-			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
-		}
+        if (cc_data.num_cats > 1) {
+            for (size_t i=0; i<new_num_cats; i++) {
+                cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+            }
+        } else if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
+            // if create more than one breaks from themeless map,
+            // assign a colorful sequential theme for easy use
+            //cc_data.color_scheme = CatClassification::sequential_color_scheme;
+            color_scheme->SetSelection(0);
+            OnColorSchemeChoice(event);
+        }
 		cc_data.break_vals_type = new_cat_typ;
 	}
 	cc_data.num_cats = new_num_cats;
@@ -1857,12 +1875,12 @@ void CatClassifPanel::SetColorSchemeChoice(CatClassification::ColorScheme cs)
 CatClassification::BreakValsType CatClassifPanel::GetBreakValsTypeChoice()
 {
 	int brs = breaks_choice->GetSelection();
-	if (brs == 0) return CatClassification::no_theme_break_vals;
-	if (brs == 1) return CatClassification::quantile_break_vals;
-	if (brs == 2) return CatClassification::unique_values_break_vals;
-	if (brs == 3) return CatClassification::natural_breaks_break_vals;
-	if (brs == 4) return CatClassification::equal_intervals_break_vals;
-	if (brs == 5) return CatClassification::custom_break_vals;
+	//if (brs == 0) return CatClassification::no_theme_break_vals;
+	if (brs == 0) return CatClassification::quantile_break_vals;
+	if (brs == 1) return CatClassification::unique_values_break_vals;
+	if (brs == 2) return CatClassification::natural_breaks_break_vals;
+	if (brs == 3) return CatClassification::equal_intervals_break_vals;
+	if (brs == 4) return CatClassification::custom_break_vals;
 	// quantile by default
 	return CatClassification::quantile_break_vals;
 }
@@ -1871,18 +1889,18 @@ CatClassification::BreakValsType CatClassifPanel::GetBreakValsTypeChoice()
 void CatClassifPanel::SetBreakValsTypeChoice(
 									CatClassification::BreakValsType ct)
 {
-	int brs = 1; // quantile by default
-	if (ct == CatClassification::no_theme_break_vals) brs = 0;
-	if (ct == CatClassification::quantile_break_vals) brs = 1;
-	if (ct == CatClassification::unique_values_break_vals) brs = 2;
-	if (ct == CatClassification::natural_breaks_break_vals) brs = 3;
-	if (ct == CatClassification::equal_intervals_break_vals) brs = 4;
-	if (ct == CatClassification::custom_break_vals) brs = 5;
+	int brs = 0; // quantile by default
+	//if (ct == CatClassification::no_theme_break_vals) brs = 0;
+	if (ct == CatClassification::quantile_break_vals) brs = 0;
+	if (ct == CatClassification::unique_values_break_vals) brs = 1;
+	if (ct == CatClassification::natural_breaks_break_vals) brs = 2;
+	if (ct == CatClassification::equal_intervals_break_vals) brs = 3;
+	if (ct == CatClassification::custom_break_vals) brs = 4;
 	
-	if (ct == CatClassification::percentile_break_vals) brs = 5;
-	if (ct == CatClassification::hinge_15_break_vals) brs = 5;
-	if (ct == CatClassification::hinge_30_break_vals) brs = 5;
-	if (ct == CatClassification::stddev_break_vals) brs = 5;
+	if (ct == CatClassification::percentile_break_vals) brs = 4;
+	if (ct == CatClassification::hinge_15_break_vals) brs = 4;
+	if (ct == CatClassification::hinge_30_break_vals) brs = 4;
+	if (ct == CatClassification::stddev_break_vals) brs = 4;
 	breaks_choice->SetSelection(brs);	
 }
 
