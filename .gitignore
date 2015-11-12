@@ -1,4 +1,6 @@
+*~
 
+BuildTools/windows/temp/
 BuildTools/macosx/libraries/
 BuildTools/macosx/temp/
 BuildTools/macosx/GeoDa.xcodeproj/
