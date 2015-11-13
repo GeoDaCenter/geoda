@@ -3535,22 +3535,22 @@
     </object>
     <label>Options</label>
   </object>
-	<object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
-		<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
+  <object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
+    <object class="wxMenuItem" name="ID_EDIT_VARIABLES">
       <label>Add/Remove Variables</label>
       <checkable>0</checkable>
     </object>
-		<object class="wxMenuItem" name="ID_COMPARE_REGIMES">
+    <object class="wxMenuItem" name="ID_COMPARE_REGIMES">
       <label>Compare Regimes</label>
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-		<object class="wxMenuItem" name="ID_COMPARE_TIME_PERIODS">
+    <object class="wxMenuItem" name="ID_COMPARE_TIME_PERIODS">
       <label>Compare Time Periods</label>
       <checkable>1</checkable>
       <checked>0</checked>
     </object>
-		<object class="wxMenuItem" name="ID_COMPARE_REG_AND_TM_PER">
+    <object class="wxMenuItem" name="ID_COMPARE_REG_AND_TM_PER">
       <label>Compare Regimes and Times</label>
       <checkable>1</checkable>
       <checked>0</checked>
@@ -3560,15 +3560,15 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-		<object class="wxMenuItem" name="ID_DID_TEST">
-      <label>Run Diff-in-Diff</label>
+    <object class="wxMenuItem" name="ID_DID_TEST">
+      <label>Run Diff-in-Diff Test</label>
       <checkable>0</checkable>
       <checked>0</checked>
     </object>
     <label>Options</label>
   </object>
-	<object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">
-		<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
+  <object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">
+    <object class="wxMenuItem" name="ID_EDIT_VARIABLES">
       <label>Add/Remove Variables</label>
       <checkable>0</checkable>
     </object>

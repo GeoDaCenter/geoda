@@ -83,11 +83,8 @@ regReportDlg(0)
 	panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
-	//panel->Bind(wxEVT_MOTION, &LineChartFrame::OnMouseEvent, this); // MMLCu
-	
-	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-								   wxSize(400,-1));
-	
+	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this); // MMLCu
+	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
 	//title_win = new wxHtmlWindow(panel);
@@ -149,7 +146,15 @@ LineChartFrame::~LineChartFrame()
 void LineChartFrame::OnMouseEvent(wxMouseEvent& event)
 {
     if (event.RightUp()) {
-        const wxPoint& pos = event.GetPosition();
+        wxPoint pos = event.GetPosition();
+        
+        wxObject* t = event.GetEventObject();
+        if (wxHtmlWindow* f = dynamic_cast<wxHtmlWindow*>(t)) {
+            wxPoint f_pos = f->GetPosition();
+            pos.x += f_pos.x;
+            pos.y += f_pos.y;
+        }
+        
     	// Workaround for right-click not changing window focus in OSX / wxW 3.0
     	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
     	OnActivate(ae);
@@ -178,8 +183,7 @@ void LineChartFrame::MapMenus()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_LINE_CHART_MENU_OPTIONS");	
+	optMenu = wxXmlResource::Get()->LoadMenu("ID_LINE_CHART_MENU_OPTIONS");
 	LineChartFrame::UpdateContextMenuItems(optMenu);
 	
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
@@ -192,8 +196,7 @@ void LineChartFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("LineChartFrame::UpdateOptionMenuItems: Options "
-                "menu not found");
+		LOG_MSG("LineChartFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		LineChartFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -711,7 +714,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	if (!panel || !bag_szr) return;
 	LOG(num_vars);
 	if (message_win) {
-		message_win->Unbind(wxEVT_MOTION, &LineChartFrame::OnMouseEvent, this);
+		message_win->Unbind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
 		LOG(detatch_success);
 		message_win->Destroy();
@@ -749,6 +752,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	lc_stats.clear();
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
 		if (stats_wins[i]) {
+            stats_wins[i]->Unbind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 			stats_wins[i]->Destroy();
 		}
 	}	
@@ -764,8 +768,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	}
 	
 	if (num_vars < 1) {
-		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-									   wxSize(200,-1));
+		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
 		message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
         if (vars_chooser_frame) {
             UpdateMessageWin();
@@ -779,41 +782,24 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 		
 	} else {
 		title1_h_szr = new wxBoxSizer(wxHORIZONTAL);
-		title1_txt = new wxStaticText(panel, wxID_ANY, "New Title Text",
-									  wxDefaultPosition, wxDefaultSize,
-									  wxALIGN_CENTER_VERTICAL);
+		title1_txt = new wxStaticText(panel, wxID_ANY, "New Title Text", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 		title1_h_szr->Add(title1_txt);
-		panel_v_szr->Add(title1_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxBOTTOM, 5);
-		if (compare_r_and_t) {
-			title2_h_szr = new wxBoxSizer(wxHORIZONTAL);
-			title2_txt = new wxStaticText(panel, wxID_ANY, "New Title Text",
-										  wxDefaultPosition, wxDefaultSize,
-										  wxALIGN_CENTER_VERTICAL);
-			title2_h_szr->Add(title2_txt);
-			panel_v_szr->Add(title2_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxBOTTOM, 5);
-		}
+		panel_v_szr->Add(title1_h_szr, 0, wxALIGN_LEFT|wxBOTTOM, 5);
+
 		if (compare_time_periods || compare_r_and_t) {
-			ctrls_h_szr = new wxBoxSizer(wxHORIZONTAL);
-			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"),
-											 "Time Period 1",
-											 wxDefaultPosition, wxDefaultSize,
-											 wxALIGN_CENTER_VERTICAL |
-											 wxRB_GROUP);
+			ctrls_h_szr = new wxBoxSizer(wxVERTICAL);
+			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"), "Choose Time 1 by selecting on the horizontal axis below", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
 			rb0->SetValue(true);
-			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"),
-											 "Time Period 2",
-											 wxDefaultPosition, wxDefaultSize,
-											 wxALIGN_CENTER_VERTICAL);
+			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"), "Choose Time 2 by selecting on the horizontal axis below", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 			rb1->SetValue(false);
-			Connect(XRCID("ID_RAD_BUT_0"), wxEVT_RADIOBUTTON,
-					wxCommandEventHandler(LineChartFrame::OnSelectPeriod0));
-			Connect(XRCID("ID_RAD_BUT_1"), wxEVT_RADIOBUTTON,
-					wxCommandEventHandler(LineChartFrame::OnSelectPeriod1));
+			Connect(XRCID("ID_RAD_BUT_0"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod0));
+			Connect(XRCID("ID_RAD_BUT_1"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod1));
 	
 			ctrls_h_szr->Add(rb0);
-			ctrls_h_szr->AddSpacer(15);	
 			ctrls_h_szr->Add(rb1);
-			panel_v_szr->Add(ctrls_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxBOTTOM, 5);
+            ctrls_h_szr->AddSpacer(15);
+
+			panel_v_szr->Add(ctrls_h_szr, 0, wxALIGN_LEFT|wxBOTTOM, 5);
 		}
 		
 		for (int row=0; row<num_vars; ++row) {
@@ -841,9 +827,9 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			wxHtmlWindow* wv = 0;
 			if (display_stats) {
 				wv = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-															wxSize(80, -1));
-				//wv = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
-				//										wxDefaultPosition, wxDefaultSize);
+															wxSize(200, -1));
+				//wv = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,		wxDefaultPosition, wxDefaultSize);
+                wv->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 				stats_wins.push_back(wv);
 				UpdateStatsWinContent(row);
 			}
@@ -870,6 +856,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			bag_szr->AddGrowableRow(i, 1);
 		}
 	}
+    //panel_v_szr->AddSpacer(15);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	UpdateTitleText();
 	panel_h_szr->RecalcSizes();
@@ -924,7 +911,7 @@ void LineChartFrame::UpdateTitleText()
 	SetTitle(frame_title);
 	
 	if (!title1_txt) return;
-	if (compare_r_and_t && !title2_txt) return;
+	//if (compare_r_and_t && !title2_txt) return;
 	TableInterface* table_int = project->GetTableInt();
 	
 	wxString span_end("</span>");
@@ -940,6 +927,7 @@ void LineChartFrame::UpdateTitleText()
 	wxString span_clr_tm2("<span foreground='");
 	span_clr_tm2 
 		<< GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << "'>";
+    
 	wxString selected_str;
 	wxString excluded_str;
 	if (compare_regimes || compare_r_and_t) {
@@ -992,39 +980,54 @@ void LineChartFrame::UpdateTitleText()
 	}
 	
 	if (lc_stats.size() > 0 && tms > 1) {
-		if (compare_regimes || compare_r_and_t) {
-			ln1 << "Sample 1: " << selected_str << " ";
-			if (compare_r_and_t) ln1 << span_clr_tm1;
-			ln1 << (tm0_st.IsEmpty() ? "(choose times)" : tm0_st);
-			if (compare_r_and_t) ln1 << span_end;
-			ln1 << "    Sample 2: " << excluded_str << " ";
-			if (compare_r_and_t) ln1 << span_clr_tm1;
-			ln1 << (tm0_st.IsEmpty() ? "(choose times)" : tm0_st);
-			if (compare_r_and_t) ln1 << span_end;
+		if (compare_regimes) {
+
+            ln1 << "Compare the means of two groups in the same time period ";
+            ln1 << tm0_st;
+            ln1 << ":\n";
+            ln1 << "    Group 1 (" << span_clr_sel << "selected" << span_end << ")";
+            ln1 << " vs. ";
+            ln1 << "Group 2 (" << span_clr_exl << "excluded" << span_end << ")";
+            ln1 << "\n\n";
+            ln1 << "    <small>Select observations in a map or plot.</small>\n";
+            ln1 << "    <small>Select time period on the horizontal axis below.</small>";
 		}
 		if (compare_time_periods) {
-			ln1 << "Sample 1: ";
-			ln1 << span_clr_tm1;
-			ln1 << (tm0_st.IsEmpty() ? "(choose times)" : tm0_st) << span_end;
-			ln1 << "    Sample 2: ";
-			ln1 << span_clr_tm2;
-			ln1 << (tm1_st.IsEmpty() ? "(choose times)" : tm1_st) << span_end;
+            ln1 << "Compare the means of the same variable in two time periods:\n";
+            ln1 << span_clr_tm1;
+            ln1 << "    Time 1 (" << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << ")";
+            ln1 << span_end;
+            ln1 << " vs. ";
+            ln1 << span_clr_tm2;
+            ln1 << "Time 2 (" << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << ")";
+            ln1 << span_end;
+            ln1 << "\n\n";
+            ln1 << "    <small>Select time period on the horizontal axis below.</small>\n";
+
 		}
 		if (compare_r_and_t) {
-			ln2 << "Sample 3: " << selected_str << " ";
-			ln2 << span_clr_tm2 << (tm1_st.IsEmpty() ? "(choose times)" : tm1_st);
-			ln2 << span_end;
-			ln2 << "    Sample 4: " << excluded_str << " ";
-			ln2 << span_clr_tm2 << (tm1_st.IsEmpty() ? "(choose times)" : tm1_st);
-			ln2 << span_end;
+            
+            ln1 << "Compare the means of two groups in two time periods:\n";
+            ln1 << "    Group 1 (" << span_clr_sel << "selected" << span_end << ")";
+            ln1 << " vs. ";
+            ln1 << "Group 2 (" << span_clr_exl << "excluded" << span_end << ")";
+            ln1 << "\n";
+            ln1 << "    Time 1 (" << span_clr_tm1 << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << span_end << ")";
+            ln1 << " vs. ";
+            ln1 << "Time 2 (" << span_clr_tm2 << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << span_end << ")";
+            ln1 << "\n\n";
+            ln1 << "    <small>Select observations in a map or plot.</small>\n";
+            ln1 << "    <small>Select time periods on the horizontal axis below.</small>";
 		}
 	} else {
 		if (compare_regimes || compare_r_and_t) {
 			ln1 << "Sample 1: " << selected_str << "    Sample 2: " << excluded_str;
 		}
 	}
+    title1_txt->SetLabel("");
 	title1_txt->SetLabelMarkup(ln1);
-	if (title2_txt && compare_r_and_t) title2_txt->SetLabelMarkup(ln2);
+	//if (title2_txt && compare_r_and_t) title2_txt->SetLabelMarkup(ln2);
+    
 	Refresh();
 }
 
@@ -1277,26 +1280,17 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	wxString s;
 	s<< "<!DOCTYPE html>\n";
 	s<< "<html lang=\"en\">\n";
-	s<< "<head>\n";
-	//s<<   "<meta charset=\"utf-8\">\n";
-	//s<<   "<style>\n";
-	//s<<     "html, body, h1, h2, h3, p, table { margin: 0; padding: 0;}";
-	//s<<     "body {\n";
-	//s<<       "font: 10px sans-serif;\n";
-	//s<<     "}\n";
-	//s<<   "</style>\n";
-	s<< "</head>\n";
-    s<< "<style>td, th { border-bottom: thin short }table { border: none }</style>";
+	s<< "<head></head>\n";
 	s<< "<body>\n";
 	s<< "<center>\n";
 	s<< "<font face=\"verdana,arial,sans-serif\" color=\"black\" size=\"2\">";
 	
-	s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\" style=\"border:none\">";
-	s<< "<tr>";
-	s<< "<td align=\"center\">Smpl.</td>";
-	s<< "<td align=\"center\">&nbsp;Obs.&nbsp;</td>";
-	s<< "<td align=\"center\">&nbsp;Mean&nbsp;</td>";
-	s<< "<td align=\"center\">&nbsp;S.D.&nbsp;</td>";
+	s<< "<table width=100% rules=\"rows\" >";
+	s<< "<tr bgcolor=\"#CCCCCC\" >";
+	s<< "<th width=120 align=\"center\">Group</th>";
+	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
+	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
+	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";
 	s<< "</tr>";
    
     if (single_sample) {
@@ -1306,39 +1300,44 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     	s<< td_s0_mean;
     	s<< "<td align=\"right\">" << sd0 << "</td>";
     	s<< "</tr>";
+        
     } else {
 		s<< "<tr>";
         if (cmp_r)
-            s<< "<td align=\"left\">1. sel. over time</td>";
+            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">1. 1st period</td>";
+            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
         if (cmp_r_t)
-            s<< "<td align=\"left\">1. sel. 1st period</td>";
+            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
+        
 		s<< "<td align=\"right\">" << lcs.s0.sz_i << "</td>";
 		s<< td_s0_mean;
 		s<< "<td align=\"right\">" << sd0 << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
+        
         if (cmp_r)
-            s<< "<td align=\"left\">2. excl. over time</td>";
+            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">2. 2nd period</td>";
+            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
         if (cmp_r_t)
-            s<< "<td align=\"left\">2. excl. 1st period</td>";
+            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
+        
 		s<< "<td align=\"right\">" << lcs.s1.sz_i << "</td>";
 		s<< td_s1_mean;
 		s<< "<td align=\"right\">" << sd1 << "</td>";
 		s<< "</tr>";
 	}
+    
 	if (cmp_r_t && !single_sample) {
 		s<< "<tr>";
-		s<< "<td align=\"left\">3. sel. 2nd period</td>";
+		s<< "<td align=\"left\">3. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
 		s<< "<td align=\"right\">" << lcs.s2.sz_i << "</td>";
 		s<< td_s2_mean;
 		s<< "<td align=\"right\">" << sd2 << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td align=\"left\">4.excl. 2nd period</td>";
+		s<< "<td align=\"left\">4. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
 		s<< "<td align=\"right\">" << lcs.s3.sz_i << "</td>";
 		s<< td_s3_mean;
 		s<< "<td align=\"right\">" << sd3 << "</td>";
@@ -1347,33 +1346,38 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	s<< "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
 	s<< "</table>\n";
 
+    
+    
 	if (lcs.test_stat_valid && !cmp_r_t) {
-		s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\">";
+        s<< "<br/>T-Test: Do Means Differ?<br/><br/>";
+		s<< "<table>";
 		s<< "<tr>";
-		s<< "<td align=\"center\">D.F.&nbsp;</td>";
+		s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
         _s << std::fixed << std::setprecision(2) << lcs.deg_free;
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td align=\"right\">T Stat&nbsp;</td>";
+		s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">T Stat&nbsp;</td>";
         _s.str("");
         _s << lcs.test_stat;
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td align=\"right\">p-val&nbsp;</td>";
+		s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">p-val&nbsp;</td>";
 		double pval = lcs.p_val;
         _s.str("");
         _s << std::setprecision(3) << pval;
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "</table>\n";
+        s<< "<br/><br/>Right-click for diff-in-diff test.";
 	}
 	
 	if (cmp_r_t) {
-		s<< "<table align=\"center\" cellspacing=\"0\" cellpadding=\"1\">";
-		s<< "<tr>";
+        s<< "<br/>T-Test: Do Means Differ?<br/><br/>";
+		s<< "<table>";
+		s<< "<tr bgcolor=\"#CCCCCC\">";
 		s<< "<td align=\"center\">Smpl.&nbsp;&nbsp;<br>Comp.&nbsp;&nbsp;</td>";
 		s<< "<td align=\"center\">&nbsp;D.F.&nbsp;</td>";
 		s<< "<td align=\"center\">&nbsp;T Stat&nbsp;</td>";
@@ -1412,6 +1416,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 			}
 		}
 		s<< "</table>\n";
+        s<< "<br/><br/>Right-click for diff-in-diff test.";
 	}
 	
 	s<< "</center>\n";

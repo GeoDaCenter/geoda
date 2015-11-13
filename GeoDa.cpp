@@ -3270,9 +3270,7 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
 {
 	LineChartFrame* f =
-	new LineChartFrame(GdaFrame::gda_frame, project_p,
-										 "Averages Chart", wxDefaultPosition,
-										 GdaConst::line_chart_default_size);
+	new LineChartFrame(GdaFrame::gda_frame, project_p, "Averages Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
 }
 
 void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
