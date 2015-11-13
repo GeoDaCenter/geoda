@@ -18,6 +18,7 @@
  */
 
 #include <utility> // std::pair
+#include <list>
 #include <boost/foreach.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
@@ -27,6 +28,9 @@
 #include "../GdaConst.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../DialogTools/TimeEditorDlg.h"
+#include "../FramesManager.h"
+#include "../FramesManagerObserver.h"
 #include "CatClassification.h"
 #include "LineChartCanvas.h"
 
@@ -44,14 +48,8 @@ const double LineChartCanvas::circ_rad = 2.5;
 const double LineChartCanvas::ss_circ_rad = 6.0;
 const double LineChartCanvas::ray_len = 10.0;
 
-LineChartCanvas::LineChartCanvas(wxWindow *parent,
-																 TemplateFrame* t_frame,
-																 Project* project,
-																 const LineChartStats& lcs_,
-																 LineChartCanvasCallbackInt* lc_canv_cb_,
-																 const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(),
-								 pos, size, false, true),
+LineChartCanvas::LineChartCanvas(wxWindow *parent,  TemplateFrame* t_frame, Project* project, const LineChartStats& lcs_, LineChartCanvasCallbackInt* lc_canv_cb_, const wxPoint& pos, const wxSize& size)
+: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true),
   lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
@@ -67,12 +65,45 @@ LineChartCanvas::LineChartCanvas(wxWindow *parent,
 	ResizeSelectableShps();
 	
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+    
+    Bind(wxEVT_LEFT_DCLICK, &LineChartCanvas::OnDblClick, this);
+    
 	LOG_MSG("Exiting LineChartCanvas::LineChartCanvas");
 }
 
 LineChartCanvas::~LineChartCanvas()
 {
 	LOG_MSG("In LineChartCanvas::LineChartCanvas");
+}
+
+void LineChartCanvas::OnDblClick(wxMouseEvent& event)
+{
+    wxPoint pos = event.GetPosition();
+    
+    wxSize size(GetVirtualSize());
+    int win_width = size.GetWidth();
+    int win_height = size.GetHeight();
+    size_t tms = tm_rects.size();
+    for (size_t t=0; t<tms; ++t) {
+        GdaRectangle r(*((GdaRectangle*) tm_rects[t]));
+        if (r.lower_left.y - pos.y < 40 && r.lower_left.y - pos.y > -40) {
+            FramesManager* fm = project->GetFramesManager();
+            std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+            std::list<FramesManagerObserver*>::iterator it;
+            for (it=observers.begin(); it != observers.end(); ++it) {
+                if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
+                    LOG_MSG("TimeEditorDlg already opened.");
+                    w->Show(true);
+                    w->Maximize(false);
+                    w->Raise();
+                    return;
+                }
+            }
+            TimeEditorDlg* tmdlg = new TimeEditorDlg(0, project->GetFramesManager(), project->GetTableState(), project->GetTableInt());
+            tmdlg->Show(true);
+            return;
+        }
+    }
 }
 
 /** Note: some of these right-click popup items need to be called with
@@ -108,16 +139,13 @@ void LineChartCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	size_t tms = tm_rects.size();
 	std::vector<bool> new_sel_tms(tms, false);
 	
-	for (size_t t=0; t<tms; ++t) {
+    for (size_t t=0; t<tms; ++t) {
 		// slightly increase the target area for selection by a fixed
 		// number of pixels.
 		GdaRectangle r(*((GdaRectangle*) tm_rects[t]));
 		r.lower_left += wxPoint(t==0 ? -30 : 0,   40);
 		r.upper_right += wxPoint(t+1==tms ? 30 : 0,   -30);
-		bool selected = ((pointsel && r.pointWithin(sel1)) ||
-										 (rect_sel &&
-											GenGeomAlgs::RectsIntersect(r.lower_left,	r.upper_right,
-																									lower_left, upper_right)));
+		bool selected = ((pointsel && r.pointWithin(sel1)) || (rect_sel && GenGeomAlgs::RectsIntersect(r.lower_left,	r.upper_right, lower_left, upper_right)));
 		new_sel_tms[t] = selected;
 	}
 	
@@ -311,49 +339,37 @@ void LineChartCanvas::PopulateCanvas()
 		if (lcs.compare_regimes) {
 			if (lcs.Y_sel_tm0_avg_valid) {
 				summ_avg_circs[0] = 
-					MakeSummAvgHelper(lcs.Y_sel_tm0_avg,
-														GdaConst::ln_cht_clr_sel_dark);
+					MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark);
 			}
 			if (lcs.Y_excl_tm0_avg_valid) {
 				summ_avg_circs[1] =
-					MakeSummAvgHelper(lcs.Y_excl_tm0_avg,
-														GdaConst::ln_cht_clr_exl_dark);
+					MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark);
 			}
 		} else if (lcs.compare_time_periods) {
 			if (lcs.Y_avg_tm0_valid) {
 				summ_avg_circs[0] =
-					MakeSummAvgHelper(lcs.Y_avg_tm0,
-														GdaConst::ln_cht_clr_tm1_dark);
+					MakeSummAvgHelper(lcs.Y_avg_tm0,GdaConst::ln_cht_clr_tm1_dark);
 			}
 			if (lcs.Y_avg_tm1_valid) {
 				summ_avg_circs[1] =
-					MakeSummAvgHelper(lcs.Y_avg_tm1,
-														GdaConst::ln_cht_clr_tm2_dark);
+					MakeSummAvgHelper(lcs.Y_avg_tm1,GdaConst::ln_cht_clr_tm2_dark);
 			}
 		} else if (lcs.compare_r_and_t) {
 			if (lcs.Y_sel_tm0_avg_valid) {
 				summ_avg_circs[0] = 
-				MakeSummAvgHelper(lcs.Y_sel_tm0_avg,
-													GdaConst::ln_cht_clr_sel_dark,
-													GdaConst::ln_cht_clr_tm1_light);
+				MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm1_light);
 			}
 			if (lcs.Y_excl_tm0_avg_valid) {
 				summ_avg_circs[1] =
-				MakeSummAvgHelper(lcs.Y_excl_tm0_avg,
-													GdaConst::ln_cht_clr_exl_dark,
-													GdaConst::ln_cht_clr_tm1_light);
+				MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm1_light);
 			}
 			if (lcs.Y_sel_tm1_avg_valid) {
 				summ_avg_circs[2] = 
-				MakeSummAvgHelper(lcs.Y_sel_tm1_avg,
-													GdaConst::ln_cht_clr_sel_dark,
-													GdaConst::ln_cht_clr_tm2_light);
+				MakeSummAvgHelper(lcs.Y_sel_tm1_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm2_light);
 			}
 			if (lcs.Y_excl_tm1_avg_valid) {
 				summ_avg_circs[3] =
-				MakeSummAvgHelper(lcs.Y_excl_tm1_avg,
-													GdaConst::ln_cht_clr_exl_dark,
-													GdaConst::ln_cht_clr_tm2_light);
+				MakeSummAvgHelper(lcs.Y_excl_tm1_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm2_light);
 			}
 		}
 	}
@@ -411,8 +427,7 @@ void LineChartCanvas::PopulateCanvas()
 					} else if (t+1 == tms) {
 						x1_nudge = 5;
 					}
-					GdaRectangle* r = new GdaRectangle(wxRealPoint(x0, 0),
-																						 wxRealPoint(x1, 100));
+					GdaRectangle* r = new GdaRectangle(wxRealPoint(x0, 0), wxRealPoint(x1, 100));
 					tm_rects.push_back(r);
 					r->setPen(*wxTRANSPARENT_PEN);
 					r->setBrush(*wxTRANSPARENT_BRUSH);

@@ -52,6 +52,8 @@ class LineChartCanvas : public TemplateCanvas
 	virtual void UpdateAll();
 	
 protected:
+    void OnDblClick(wxMouseEvent& event);
+    
 	virtual void PopulateCanvas();
 	void UpdateMargins();
 	GdaCircle* MakeSummAvgHelper(double y_avg, const wxColour& fg_clr,
