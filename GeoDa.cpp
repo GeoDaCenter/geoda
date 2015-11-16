@@ -2936,8 +2936,7 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 	if (!GetProject() || !GetProject()->GetTableInt()) return;
 	Project* p = GetProject();
 	TableInterface* table_int = p->GetTableInt();
-	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate, false,
-												 false, "New Map Coordinates");
+	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate, false, false, "New Map Coordinates","First Variable (X/Longitude)", "Second Variable (Y/Latitue)");
 	if (VS.ShowModal() != wxID_OK) return;
 	
 	std::vector<double> xs;
