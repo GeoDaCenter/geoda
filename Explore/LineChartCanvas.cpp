@@ -226,18 +226,24 @@ void LineChartCanvas::UpdateStatusBar()
 			GdaCircle c(*sel_circs[t]);
 			c.radius = 6;
 			if (c.pointWithin(sel1)) {
-				if (!s.IsEmpty()) s << ", ";
-				if (!time_inv) s << table_int->GetTimeString(t) << " ";
-				s << "selected obs mean= " << lcs.Y_sel_avg[t];
+                if (lcs.sel_sz_i > 0) {
+                    if (!s.IsEmpty()) s << ", ";
+                    if (!time_inv) s << table_int->GetTimeString(t) << " ";
+                
+                    s << "selected obs mean= " << lcs.Y_sel_avg[t];
+                }
 			}
 		}
 		for (size_t t=0, tms=excl_circs.size(); t<tms; ++t) {
 			GdaCircle c(*excl_circs[t]);
 			c.radius = 6;
 			if (c.pointWithin(sel1)) {
-				if (!s.IsEmpty()) s << ", ";
-				if (!time_inv) s << table_int->GetTimeString(t) << " ";
-				s << "excluded obs mean=" << lcs.Y_excl_avg[t];
+                if (lcs.sel_sz_i > 0) {
+                    if (!s.IsEmpty()) s << ", ";
+                    if (!time_inv) s << table_int->GetTimeString(t) << " ";
+                
+                    s << "excluded obs mean=" << lcs.Y_excl_avg[t];
+                }
 			}
 		}
 		if (!s.IsEmpty()) {
