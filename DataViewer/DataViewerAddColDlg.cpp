@@ -156,30 +156,21 @@ void DataViewerAddColDlg::CreateControls()
 	m_displayed_decimals->Append("10");
 	
 	if (fixed_lengths) {
-		m_length_lable = wxDynamicCast(FindWindow(XRCID("ID_STATIC_LENGTH")),
-									   wxStaticText);
-		m_length = wxDynamicCast(FindWindow(XRCID("ID_TEXT_LENGTH")),
-								 wxTextCtrl);
+		m_length_lable = wxDynamicCast(FindWindow(XRCID("ID_STATIC_LENGTH")), wxStaticText);
+		m_length = wxDynamicCast(FindWindow(XRCID("ID_TEXT_LENGTH")), wxTextCtrl);
 		m_length->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 		m_length_valid = true;
 
-		m_decimals_lable =
-			wxDynamicCast(FindWindow(XRCID("ID_STATIC_DECIMALS")),
-						  wxStaticText);
-		m_decimals = wxDynamicCast(FindWindow(XRCID("ID_TEXT_DECIMALS")),
-								   wxTextCtrl);
+		m_decimals_lable = wxDynamicCast(FindWindow(XRCID("ID_STATIC_DECIMALS")), wxStaticText);
+		m_decimals = wxDynamicCast(FindWindow(XRCID("ID_TEXT_DECIMALS")), wxTextCtrl);
 		m_decimals->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 		m_decimals_valid = true;
 	
-		m_max_label = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MAX_LABEL")),
-									wxStaticText);
-		m_max_val = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MAX_VAL")),
-								  wxStaticText);
+		m_max_label = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MAX_LABEL")), wxStaticText);
+		m_max_val = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MAX_VAL")),  wxStaticText);
 
-		m_min_label = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MIN_LABEL")),
-									wxStaticText);
-		m_min_val = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MIN_VAL")),
-								  wxStaticText);
+		m_min_label = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MIN_LABEL")), wxStaticText);
+		m_min_val = wxDynamicCast(FindWindow(XRCID("ID_STATIC_MIN_VAL")), wxStaticText);
 	}
 	
 	if (default_field_type == GdaConst::double_type) {
@@ -249,16 +240,11 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 			m_displayed_decimals->Enable();
 			m_displayed_decimals->SetSelection(0);
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)",
-												GdaConst::max_dbf_double_len));
-				m_length->SetValue(wxString::Format("%d",
-											GdaConst::default_dbf_double_len));
-				m_decimals_lable->SetLabelText(
-									wxString::Format("Decimals (max %d)",
-									GdaConst::max_dbf_double_decimals));
+				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_double_len));
+				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_double_len));
+				m_decimals_lable->SetLabelText(wxString::Format("Decimals (max %d)", GdaConst::max_dbf_double_decimals));
 				m_decimals->Enable();
-				m_decimals->SetValue(wxString::Format("%d",
-									GdaConst::default_dbf_double_decimals));
+				m_decimals->SetValue(wxString::Format("%d", GdaConst::default_dbf_double_decimals));
 
 				m_max_label->SetLabelText("maximum");
 				m_max_val->SetLabelText(wxString::Format("%d", 9));
@@ -271,10 +257,8 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 		{
 			cur_type = GdaConst::long64_type;
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)",
-												GdaConst::max_dbf_long_len));
-				m_length->SetValue(wxString::Format("%d",
-											GdaConst::default_dbf_long_len));
+				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_long_len));
+				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_long_len));
 				m_max_label->SetLabelText("maximum");
 				m_max_val->SetLabelText(wxString::Format("%d", 9));
 				m_min_label->SetLabelText("minimum");
@@ -286,10 +270,8 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 		{
 			cur_type = GdaConst::string_type;
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)",
-												GdaConst::max_dbf_string_len));
-				m_length->SetValue(wxString::Format("%d",
-											GdaConst::default_dbf_string_len));
+				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_string_len));
+				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_string_len));
 			}
 		}
 			break;
@@ -299,8 +281,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 			cur_type = GdaConst::date_type;
 			if (fixed_lengths) {
 				m_length_lable->SetLabelText("Length");
-				m_length->SetValue(wxString::Format("%d",
-										GdaConst::default_dbf_date_len));
+				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_date_len));
 				m_length->Disable();
 			}
 		}
@@ -512,8 +493,9 @@ void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 {
-	if (fixed_lengths &&
-		cur_type == GdaConst::double_type) UpdateMinMaxValues();
+	if (fixed_lengths && cur_type == GdaConst::double_type)
+        UpdateMinMaxValues();
+    
 	UpdateApplyButton();
 }
 
@@ -535,13 +517,10 @@ void DataViewerAddColDlg::UpdateMinMaxValues()
 		m_decimals->GetValue().ToLong(&decimals);
 		int suggest_len;
 		int suggest_dec;
-		DbfFileUtils::SuggestDoubleParams(length, decimals,
-										  &suggest_len, &suggest_dec);
+		DbfFileUtils::SuggestDoubleParams(length, decimals, &suggest_len, &suggest_dec);
 		if (length == suggest_len && decimals == suggest_dec) {
-			m_max_val->SetLabelText(DbfFileUtils::GetMaxDoubleString(length,
-																	 decimals));
-			m_min_val->SetLabelText(DbfFileUtils::GetMinDoubleString(length,
-																	 decimals));
+			m_max_val->SetLabelText(DbfFileUtils::GetMaxDoubleString(length, decimals));
+			m_min_val->SetLabelText(DbfFileUtils::GetMinDoubleString(length, decimals));
 		}
 	} else { // cur_type == GdaConst::long64_type
 		m_max_val->SetLabelText(DbfFileUtils::GetMaxIntString(length));

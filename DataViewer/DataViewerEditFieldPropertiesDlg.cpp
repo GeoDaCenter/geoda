@@ -533,6 +533,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		field_grid->SetCellValue(row, COL_D,
 								 wxString::Format("%d", suggest_dec));
 		table_int->ColChangeProperties(cid, time, suggest_len, suggest_dec);
+        //todo: add to change decimals visually
+        table_int->ColChangeDisplayedDecimals(cid, suggest_dec);
 	} else if (col == COL_DD &&
 			   table_int->PermitChangeDisplayedDecimals())
 	{ // we know this is a double_type field

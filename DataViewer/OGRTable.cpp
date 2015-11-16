@@ -819,6 +819,7 @@ bool OGRTable::ColChangeProperties(int col, int time,
     operations_queue.push(new OGRTableOpUpdateField(ogr_col, new_len, new_dec));
     ogr_col->SetLength(new_len);
     ogr_col->SetDecimals(new_dec);
+    var_order.SetDisplayedDecimals(col, new_dec); // visually change
     
     table_state->SetColPropertiesChangeEvtTyp(GetColName(col), col);
 	table_state->notifyObservers();
