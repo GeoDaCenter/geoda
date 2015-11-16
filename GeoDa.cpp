@@ -1451,9 +1451,9 @@ void GdaFrame::SetProjectOpen(bool open)
 	projectOpen = open;
 }
 
-boost::uuids::uuid GdaFrame::GetWeightsId()
+boost::uuids::uuid GdaFrame::GetWeightsId(const wxString& caption)
 {
-	SelectWeightsDlg dlg(project_p, this);
+	SelectWeightsDlg dlg(project_p, this, caption);
 	if (dlg.ShowModal()!= wxID_OK) return boost::uuids::nil_uuid();
 	project_p->GetWManInt()->MakeDefault(dlg.GetSelWeightsId());
 	return dlg.GetSelWeightsId();
@@ -2439,7 +2439,7 @@ void GdaFrame::OnConnectivityHistView(wxCommandEvent& event )
 void GdaFrame::OnConnectivityMapView(wxCommandEvent& event )
 {
 	LOG_MSG("Entering GdaFrame::OnConnectivityMapView");
-	boost::uuids::uuid id = GetWeightsId();
+	boost::uuids::uuid id = GetWeightsId("Choose Weights for Connectivity Map");
 	if (id.is_nil()) return;
 	ConnectivityMapFrame* f =
 		new ConnectivityMapFrame(this, project_p, id,

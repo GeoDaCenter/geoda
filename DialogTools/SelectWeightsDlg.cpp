@@ -31,7 +31,7 @@
 
 
 SelectWeightsDlg::SelectWeightsDlg(Project* project, wxWindow* parent,
-								   wxWindowID id, const wxString& caption,
+                                const wxString& caption, wxWindowID id,
 								   const wxPoint& pos, const wxSize& size,
 								   long style)
 : wxDialog(parent, id, caption, pos, size, style),

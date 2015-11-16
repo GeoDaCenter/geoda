@@ -42,8 +42,8 @@ class SelectWeightsDlg: public wxDialog
 public:
 	SelectWeightsDlg(Project* project,
 					 wxWindow* parent,
+                     const wxString& caption = "Choose Weights",
 					 wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Choose Weights",
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
 					 long style = wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER);
