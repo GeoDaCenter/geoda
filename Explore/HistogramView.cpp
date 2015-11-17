@@ -127,7 +127,7 @@ scale_x_over_time(true), scale_y_over_time(true)
 	InitIntervals();
 	PopulateCanvas();
 
-	DisplayStatistics(true);
+	DisplayStatistics(false);
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
