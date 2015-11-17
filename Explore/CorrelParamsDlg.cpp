@@ -612,14 +612,14 @@ wxString CorrelParamsFrame::GetHelpPageHtml() const
 
 	s << "<h2>Number Bins</h2>";
 	s << "<p>";
-	s << "The number of distance bands to parition distance range into.";
+	s << "The number of distance bands to partition distance range into.";
 	s << "</p>";
 	
 	s << "<h2>Max Distance</h2>";
 	s << "<p>";
 	s << "Limit the algorithm to look at pairs only within a limited distance ";
 	s << "apart.  Note that the maximum distance provided is the exact ";
-	s << "maximum distance that any two observations centers are apart.";
+	s << "maximum distance that any two observation centers are apart.";
 	s << "</p>";
 	
 	s << "<h2>All Pairs</h2>";
@@ -627,7 +627,7 @@ wxString CorrelParamsFrame::GetHelpPageHtml() const
 	s << "All pairs of observation centers will be sampled exactly once. ";
 	s << "The running time of this algorithm is quadratic in the number of ";
 	s << "observations, so consider using the Max Distance threshold or ";
-	s << "Random Sample for data sets with more than 10000 observations.";
+	s << "Random Sample for data sets with more than 10,000 observations.";
 	s << "The Estimated Pairs gives the number of pairs of centers that will ";
 	s << "be involved in the computation.  This is comparable to the ";
 	s << "Iterations parameter in the Random Sample method.";
