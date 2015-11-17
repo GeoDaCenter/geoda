@@ -220,7 +220,15 @@ int OGRTable::GetTimeInt(const wxString& tm_string)
 
 bool OGRTable::IsTimeVariant()
 {
-	return var_order.GetNumTms() > 1;
+    //return var_order.GetNumTms() > 1;
+    
+    int n_vargrp = var_order.GetNumVarGroups();
+    for (int i=0; i<n_vargrp; i++){
+        if (!var_order.FindVarGroup(i).IsSimple())
+            return true;
+    }
+	
+    return false;
 }
 
 int OGRTable::GetTimeSteps()

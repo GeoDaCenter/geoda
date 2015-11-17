@@ -191,67 +191,49 @@ void VariableSettingsDlg::CreateControls()
 {
 	// show_distance is only supported for univariate
 	if (num_var == 1 && is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-																		 "ID_VAR_SETTINGS_TIME_DLG_1_DIST");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1_DIST");
 	} else if (num_var == 1 && !is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-																		 "ID_VAR_SETTINGS_DLG_1_DIST");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_DIST");
 	} else if (num_var == 1 && is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_TIME_DLG_1");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1");
 	} else if (num_var == 1 && is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_TIME_DLG_1_W");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(),  "ID_VAR_SETTINGS_TIME_DLG_1_W");
 	} else if (num_var == 1 && !is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_DLG_1");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1");
 	} else if (num_var == 1 && !is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_DLG_1_W");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_W");
 	} else if (num_var == 2 && is_time && !show_weights) {
 		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_TIME_DLG_RATE");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE");
 		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_TIME_DLG_2");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2");
 		}
 	} else if (num_var == 2 && is_time && show_weights) {
 		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_TIME_DLG_RATE_W");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE_W");
 		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_TIME_DLG_2_W");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2_W");
 		}
 	} else if (num_var == 2 && !is_time && !show_weights) {
 		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_DLG_RATE");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE");
 		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_DLG_2");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2");
 		}
 	} else if (num_var == 2 && !is_time && show_weights) {
 		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_DLG_RATE_W");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE_W");
 		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(),
-											 "ID_VAR_SETTINGS_DLG_2_W");
+			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2_W");
 		}
 	} else if (num_var == 3 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_TIME_DLG_3");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_3");
 	} else if (num_var == 3 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_DLG_3");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_3");
 	} else if (num_var == 4 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_TIME_DLG_4");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_4");
 	} else if (num_var == 4 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_VAR_SETTINGS_DLG_4");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_4");
 	}
 	
 	if (is_time) {
