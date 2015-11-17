@@ -91,6 +91,7 @@ void GetisWhat2OpenDlg::CreateControls()
         m_check3 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK3")), wxCheckBox);
     if (FindWindow(XRCID("IDC_CHECK4")))
         m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
+    m_check3->Hide();
 }
 
 void GetisWhat2OpenDlg::OnOkClick( wxCommandEvent& event )

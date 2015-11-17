@@ -4561,7 +4561,7 @@
             <flag>wxALIGN_LEFT|wxALL</flag>
             <border>5</border>
             <object class="wxStaticText">
-              <label>Option:</label>
+              <label></label>
             </object>
           </object>
           <object class="sizeritem">
