@@ -62,7 +62,7 @@ ignore_callbacks(false)
 	const int data_id_col_width = 70;
 	const int data_val_col_width = 300-90;
 	
-	wxStaticText* from_title = new wxStaticText(panel, wxID_ANY, "Copy From"); 
+	wxStaticText* from_title = new wxStaticText(panel, wxID_ANY, "Current Variable");
 	from_vars = new wxListCtrl(panel, XRCID("ID_FROM_VARS"), wxDefaultPosition,
 							   wxSize(list_width, vars_list_height),
 							   wxLC_REPORT);
@@ -90,17 +90,15 @@ ignore_callbacks(false)
 	Connect(XRCID("ID_FROM_DATA"), wxEVT_LIST_ITEM_ACTIVATED,
 			wxListEventHandler(DataChangeTypeFrame::OnFromDataSel));
 	
-	add_var_btn = new wxButton(panel, XRCID("ID_ADD_VAR_BTN"), "Add Variable",
+	add_var_btn = new wxButton(panel, XRCID("ID_ADD_VAR_BTN"), " Add Transformed Variable",
 							   wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);	
 	Connect(XRCID("ID_ADD_VAR_BTN"), wxEVT_BUTTON,
 			wxCommandEventHandler(DataChangeTypeFrame::OnAddVarBtn));
 	
-	copy_btn = new wxButton(panel, XRCID("ID_COPY_BTN"), "-> Copy ->",
-							  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);	
-	Connect(XRCID("ID_COPY_BTN"), wxEVT_BUTTON,
-			wxCommandEventHandler(DataChangeTypeFrame::OnCopyBtn));
+	//copy_btn = new wxButton(panel, XRCID("ID_COPY_BTN"), "-> Copy ->", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	//Connect(XRCID("ID_COPY_BTN"), wxEVT_BUTTON, wxCommandEventHandler(DataChangeTypeFrame::OnCopyBtn));
 
-	wxStaticText* to_title = new wxStaticText(panel, wxID_ANY, "Copy To");
+	wxStaticText* to_title = new wxStaticText(panel, wxID_ANY, "Transformed Variable");
 	to_vars = new wxListCtrl(panel, XRCID("ID_TO_VARS"), wxDefaultPosition,
 							   wxSize(list_width, vars_list_height),
 							 wxLC_REPORT);
@@ -138,8 +136,8 @@ ignore_callbacks(false)
 	
 	
 	wxBoxSizer* btns_top_vert_szr = new wxBoxSizer(wxVERTICAL);
-	btns_top_vert_szr->Add(copy_btn, 0, wxALIGN_CENTER_HORIZONTAL);
-	btns_top_vert_szr->AddSpacer(20);
+	//btns_top_vert_szr->Add(copy_btn, 0, wxALIGN_CENTER_HORIZONTAL);
+	//btns_top_vert_szr->AddSpacer(20);
 	btns_top_vert_szr->Add(add_var_btn, 0, wxALIGN_CENTER_HORIZONTAL);
 	
 
@@ -198,30 +196,197 @@ void DataChangeTypeFrame::OnActivate(wxActivateEvent& event)
 
 void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
 {
+    using namespace std;
 	LOG_MSG("In DataChangeTypeFrame::OnAddVarBtn");
+    
 	if (!from_vars || !from_data || !to_vars || !to_data) return;
-	DataViewerAddColDlg dlg(project, this);
-	if (dlg.ShowModal() != wxID_OK) return;
-	wxString new_name = dlg.GetColName();
-	long item = -1;
-	for (long i=0, sz = to_vars->GetItemCount(); i<sz; ++i) {
-		if (to_vars->GetItemText(i, NAME_COL) == new_name) {
-			item = i;
-			break;
-		}
-	}
-	if (item != -1) {
-		for (long i=0, sz = to_vars->GetItemCount(); i<sz; ++i) {
-			if (i == item) {
-				to_vars->SetItemState(i, wxLIST_STATE_SELECTED,
-									  wxLIST_STATE_SELECTED);
-			} else {
-				to_vars->SetItemState(i, 0, wxLIST_STATE_SELECTED);
-			}
-		}
-	}
-	RefreshToVars();
-	UpdateButtons();
+    
+    wxString from_name;
+    wxString from_time;
+    int from_col = -1;
+    int from_tm = 0;
+    GdaConst::FieldType from_type;
+    int from_sel = GetFromVarSel(from_name, from_time);
+    bool from_tm_variant = true;
+
+    if (from_sel < 0) {
+        return;
+    }
+    
+    wxString to_name;
+    wxString to_time;
+    int to_col = -1;
+    int to_tm = 0;
+    GdaConst::FieldType to_type;
+    int to_sel = GetToVarSel(to_name, to_time);
+    bool to_tm_variant = true;
+    
+    if (to_sel < 0) {
+        // Add New Field
+        DataViewerAddColDlg dlg(project, this);
+        if (dlg.ShowModal() != wxID_OK) return;
+        wxString new_name = dlg.GetColName();
+        RefreshToVars();
+        long item = -1;
+        for (long i=0, sz = to_vars->GetItemCount(); i<sz; ++i) {
+            if (to_vars->GetItemText(i, NAME_COL) == new_name) {
+                item = i;
+                break;
+            }
+        }
+        if (item != -1) {
+            for (long i=0, sz = to_vars->GetItemCount(); i<sz; ++i) {
+                if (i == item) {
+                    to_vars->SetItemState(i, wxLIST_STATE_SELECTED,  wxLIST_STATE_SELECTED);
+                    to_vars->EnsureVisible(i);
+                } else {
+                    to_vars->SetItemState(i, 0, wxLIST_STATE_SELECTED);
+                }
+            }
+        }
+        to_sel = GetToVarSel(to_name, to_time);
+    } else {
+        wxMessageDialog dlg (this, "Tip: clear selection on Transformed Variable list to add a new transformed variable", "Do you want to use \"" + to_name + "\" as Transformed Variable?", wxYES_NO | wxNO_DEFAULT);
+        if (dlg.ShowModal() != wxID_YES) return;
+    }
+	
+    
+    
+    // Copy
+    from_col = table_int->FindColId(from_name);
+    from_tm_variant = table_int->IsColTimeVariant(from_col);
+    if (from_tm_variant) {
+        from_tm = table_int->GetTimeInt(from_time);
+    }
+    from_type = table_int->GetColType(from_col, from_tm);
+    
+    to_col = table_int->FindColId(to_name);
+    to_tm_variant = table_int->IsColTimeVariant(to_col);
+    if (to_tm_variant) {
+        to_tm = table_int->GetTimeInt(to_time);
+    }
+    to_type = table_int->GetColType(to_col, to_tm);
+    
+    if (from_col < 0 ||
+        from_type == GdaConst::unknown_type ||
+        from_type == GdaConst::placeholder_type ||
+        to_col < 0 ||
+        to_type == GdaConst::unknown_type ||
+        to_type == GdaConst::placeholder_type)
+    {
+        wxString s;
+        s << "An unknown problem occurred. Could not copy data.";
+        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        //copy_btn->Disable();
+        return;
+    }
+    
+    if (to_type == GdaConst::date_type)
+    {
+        wxString s;
+        s << "GeoDa does not support copying to date variables currently.";
+        wxMessageDialog dlg(NULL, s, "Information", wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    
+    LOG_MSG("Ready to copy field data");
+    LOG(from_name);
+    LOG(from_time);
+    LOG(from_col);
+    LOG(from_tm);
+    LOG(from_type);
+    LOG(from_tm_variant);
+    LOG(to_name);
+    LOG(to_time);
+    LOG(to_col);
+    LOG(to_tm);
+    LOG(to_type);
+    LOG(to_tm_variant);
+    
+    int num_rows = table_int->GetNumberRows();
+    vector<bool> undefined(num_rows, false);
+    if (from_type == GdaConst::long64_type ||
+        from_type == GdaConst::date_type)
+    {
+        vector<wxInt64> data;
+        table_int->GetColData(from_col, from_tm, data);
+        table_int->GetColUndefined(from_col, from_tm, undefined);
+        if (to_type == GdaConst::long64_type ||
+            to_type == GdaConst::double_type )
+        {
+            table_int->SetColData(to_col, to_tm, data);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
+        }
+        else if (to_type == GdaConst::string_type)
+        {
+            vector<wxString> str(num_rows);
+            for (size_t i=0, sz=num_rows; i<sz; ++i) {
+                if (undefined[i]) continue;
+                str[i] << data[i];
+            }
+            table_int->SetColData(to_col, to_tm, str);
+        }
+    }
+    else if (from_type == GdaConst::double_type)
+    {
+        vector<double> data;
+        table_int->GetColData(from_col, from_tm, data);
+        table_int->GetColUndefined(from_col, from_tm, undefined);
+        if (to_type == GdaConst::long64_type ||
+            to_type == GdaConst::double_type )
+        {
+            table_int->SetColData(to_col, to_tm, data);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
+        }
+        else if (to_type == GdaConst::string_type)
+        {
+            vector<wxString> str(num_rows);
+            for (size_t i=0, sz=num_rows; i<sz; ++i) {
+                if (undefined[i]) continue;
+                str[i] << data[i];
+            }
+            table_int->SetColData(to_col, to_tm, str);
+        }
+    }
+    else if (from_type == GdaConst::string_type)
+    {
+        vector<wxString> data;
+        table_int->GetColData(from_col, from_tm, data);
+        if (to_type == GdaConst::long64_type)
+        {
+            vector<wxInt64> nums(num_rows, 0);
+            for (size_t i=0, sz=num_rows; i<sz; ++i) {
+                wxInt64 val;
+                wxString _data = data[i].Trim();
+                if( _data.ToLongLong(&val))
+                    nums[i] = val;
+                else {
+                    undefined[i] = true;
+                }
+            }
+            table_int->SetColData(to_col, to_tm, nums);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
+        }
+        else if (to_type == GdaConst::double_type )
+        {
+            vector<double> nums(num_rows, 0);
+            for (size_t i=0, sz=num_rows; i<sz; ++i) {
+                double val;
+                undefined[i] = !data[i].Trim().ToDouble(&val);
+                if (!undefined[i]) nums[i] = val;
+            }
+            table_int->SetColData(to_col, to_tm, nums);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
+        }
+        else if (to_type == GdaConst::string_type)
+        {
+            table_int->SetColData(to_col, to_tm, data);
+        }
+    }
+
+	//UpdateButtons();
 }
 
 void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
@@ -245,7 +410,7 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 	bool to_tm_variant = true;
 	
 	if (from_sel < 0 || to_sel < 0) {
-		copy_btn->Disable();
+		//copy_btn->Disable();
 		return;
 	}
 	
@@ -274,7 +439,7 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 		s << "An unknown problem occurred. Could not copy data.";
 		wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-		copy_btn->Disable();
+		//copy_btn->Disable();
 		return;
 	}
 	
@@ -440,13 +605,13 @@ void DataChangeTypeFrame::update(TableState* o)
 
 void DataChangeTypeFrame::UpdateButtons()
 {
-	if (!copy_btn) return;
+	//if (!copy_btn) return;
 	if (!from_vars || !from_data || !to_vars || !to_data) {
-		copy_btn->Disable();
+		//copy_btn->Disable();
 		return;
 	}
 	wxString n, t;
-	copy_btn->Enable(GetFromVarSel(n, t) >= 0 && GetToVarSel(n, t) >= 0);
+	//copy_btn->Enable(GetFromVarSel(n, t) >= 0 && GetToVarSel(n, t) >= 0);
 }
 
 int DataChangeTypeFrame::GetFromVarSel(wxString& name, wxString& time)
