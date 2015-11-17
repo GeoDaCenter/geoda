@@ -137,7 +137,7 @@
         <label>Add Variable</label>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_DELETE_COLUMN">
-        <label>Delete Variable</label>
+        <label>Delete Variable(s)</label>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
         <label>Edit Variable Properties</label>
@@ -4096,7 +4096,7 @@
       <label>Add Variable</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_DELETE_COLUMN">
-      <label>Delete Variable</label>
+      <label>Delete Variable(s)</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_RENAME_VARIABLE">
       <label>Rename Variable</label>

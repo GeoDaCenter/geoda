@@ -923,7 +923,7 @@ All Rights Reserved</label>
         <border>8</border>
       </object>
     </object>
-    <title>Delete Variable</title>
+    <title>Delete Variable(s)</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
