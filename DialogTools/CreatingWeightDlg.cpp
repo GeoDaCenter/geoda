@@ -451,7 +451,7 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 		msg << "It is important to visually verify the resulting weights ";
 		msg << "to ensure there are no false-positives.";
          */
-        msg << "You can set Precision Threshold when the points used to digitize the boundaries of adjacent polygons do not connect, resulting in 'slivers' or gaps between polygons. To fix this, you can specify a value for the precision threshold that corresponds to the length of this gap, e.g. 3 feet or 0.0000001 degree, depending on your measurement unit. If you zoom in in a GIS and measure lengths of these gaps, you can determine what the value for the threshold should be.";
+        msg << "You can set the precision threshold to address the problem that the points used to digitize the boundaries of adjacent polygons do not connect, resulting in \"slivers\" or gaps between polygons. To fix this, you can specify a value for the precision threshold that corresponds to the length of this gap, e.g. 3 feet or 0.0000001 degree, depending on your measurement unit. If you zoom in in a GIS and measure lengths of these gaps, you can determine what the value for the threshold should be. An alternative solution is to clean the dataset to get rid of the digitizing error.";
 		wxMessageDialog dlg(NULL, msg, "About Precision Threshold",
 												wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
