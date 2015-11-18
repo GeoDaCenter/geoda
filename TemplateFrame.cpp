@@ -568,7 +568,7 @@ void TemplateFrame::OnDrawBasemap(bool flag, int map_type)
     bool drawSuccess = template_canvas->DrawBasemap(flag, map_type);
     
     if (drawSuccess==false) {
-        wxMessageBox("To add the base map, please make sure to have proper projection information.");
+        wxMessageBox("To add the base map, you need a .prj file (WGS84 format) in the same directory as your spatial files.");
     }
 }
 
