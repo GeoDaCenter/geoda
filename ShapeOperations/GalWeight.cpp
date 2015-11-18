@@ -42,25 +42,64 @@ GalElement::GalElement()
 {
 }
 
+bool GalElement::Check(long nbrIdx)
+{
+    if (nbrLookup.find(nbrIdx) != nbrLookup.end())
+        return true;
+    return false;
+}
+
+double GalElement::GetRW(int idx)
+{
+    if (nbrAvgW.empty()) {
+        size_t sz = nbr.size();
+        nbrAvgW.resize(sz);
+        double sumW = 0.0;
+        
+        for (size_t i=0; i<sz; i++)
+            sumW += nbrWeight[i];
+        
+        for (size_t i=0; i<sz; i++) {
+            nbrAvgW[i] = nbrWeight[i] / sumW;
+        }
+    }
+    if (Check(idx) == false)
+        return 0;
+    
+    return nbrAvgW[nbrLookup[idx]];
+}
+
 void GalElement::SetSizeNbrs(size_t	sz)
 {
 	nbr.resize(sz);
     nbrWeight.resize(sz);
-    for(size_t i=0; i<sz; i++) nbrWeight[i] = 1.0;
+    for(size_t i=0; i<sz; i++) {
+        nbrWeight[i] = 1.0;
+    }
 }
 
 void GalElement::SetNbr(size_t pos, long n)
 {
-	if (pos < nbr.size()) nbr[pos] = n;
+    if (pos < nbr.size()) {
+        nbr[pos] = n;
+        nbrLookup[n] = pos;
+    }
     // this should be called by GAL created only
-    if (pos < nbrWeight.size()) nbrWeight[pos] = 1.0;
+    if (pos < nbrWeight.size()) {
+        nbrWeight[pos] = 1.0;
+    }
 }
 
 void GalElement::SetNbr(size_t pos, long n, double w)
 {
-	if (pos < nbr.size()) nbr[pos] = n;
+    if (pos < nbr.size()) {
+        nbr[pos] = n;
+        nbrLookup[n] = pos;
+    }
     // this should be called by GWT-GAL 
-    if (pos < nbrWeight.size()) nbrWeight[pos] = w;
+    if (pos < nbrWeight.size()) {
+        nbrWeight[pos] = w;
+    }
 }
 
 void GalElement::SetNbrs(const std::vector<long>& nbrs)
@@ -69,7 +108,10 @@ void GalElement::SetNbrs(const std::vector<long>& nbrs)
     if (nbrWeight.empty()) {
         size_t sz = nbr.size();
         nbrWeight.resize(sz);
-        for(size_t i=0; i<sz; i++) nbrWeight[i] = 1.0;
+        for(size_t i=0; i<sz; i++) {
+            nbrLookup[nbrs[i]] = i;
+            nbrWeight[i] = 1.0;
+        }
     }
 }
 

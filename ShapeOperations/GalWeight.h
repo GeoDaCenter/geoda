@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_GAL_WEIGHT_H__
 
 #include <vector>
+#include <map>
 #include "GeodaWeight.h"
 
 class TableInterface;
@@ -39,10 +40,14 @@ public:
 	double SpatialLag(const std::vector<double>& x) const;
 	double SpatialLag(const double* x) const;
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
-
+    double GetRW(int idx);
+    bool Check(long nbrIdx);
+    
 private:
+    std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
 	std::vector<long> nbr;
 	std::vector<double> nbrWeight;
+    std::vector<double> nbrAvgW;
 };
 
 class GalWeight : public GeoDaWeight {

@@ -35,7 +35,7 @@
 #include "../Regression/Lite2.h"
 #include "../GenUtils.h"
 
-bool classicalRegression(const GalElement *g, int num_obs, double * Y,
+bool classicalRegression(GalElement *g, int num_obs, double * Y,
 						 int dim, double ** X, 
 						 int expl, DiagnosticReport *dr, bool InclConstant,
 						 bool m_moranz, wxGauge* gauge,

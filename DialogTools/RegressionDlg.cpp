@@ -51,17 +51,17 @@
 #include "RegressionDlg.h"
 #include "RegressionReportDlg.h"
 
-bool classicalRegression(const GalElement *g, int num_obs, double * Y,
+bool classicalRegression(GalElement *g, int num_obs, double * Y,
 						 int dim, double ** X, 
 						 int expl, DiagnosticReport *dr, bool InclConstant,
 						 bool m_moranz, wxGauge* gauge,
 						 bool do_white_test);
 
-bool spatialLagRegression(const GalElement *g, int num_obs, double * Y,
+bool spatialLagRegression(GalElement *g, int num_obs, double * Y,
 						  int dim, double ** X, int deps, DiagnosticReport *dr,
 						  bool InclConstant, wxGauge* p_bar = 0) ;
 
-bool spatialErrorRegression(const GalElement *g, int num_obs, double * Y,
+bool spatialErrorRegression(GalElement *g, int num_obs, double * Y,
 							int dim, double ** XX, int deps,
 							DiagnosticReport *rr, 
 							bool InclConstant, wxGauge* p_bar = 0);
