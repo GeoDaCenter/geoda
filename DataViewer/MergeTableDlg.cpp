@@ -435,7 +435,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             int import_rid = i;
             if (!rowid_map.empty()) import_rid = rowid_map[i];
             OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-            data[i] = feat->GetFieldAsInteger(fid);
+            data[i] = feat->GetFieldAsInteger64(fid);
         }
         table_int->SetColData(add_pos, 0, data);
     } else if ( ftype == GdaConst::double_type ) {

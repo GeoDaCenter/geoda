@@ -208,7 +208,7 @@ void OGRColumnInteger::FillData(vector<wxInt64> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i]=(wxInt64)ogr_layer->data[i]->GetFieldAsInteger(col_idx);
+            data[i]=(wxInt64)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
         }
     }
 }
@@ -223,7 +223,7 @@ void OGRColumnInteger::FillData(vector<double> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = (double)ogr_layer->data[i]->GetFieldAsInteger(col_idx);
+            data[i] = (double)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
         }
     }
 }
@@ -238,7 +238,7 @@ void OGRColumnInteger::FillData(vector<wxString> &data)
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             data[i] = wxString::Format("%i",
-                ogr_layer->data[i]->GetFieldAsInteger(col_idx));
+                ogr_layer->data[i]->GetFieldAsInteger64(col_idx));
         }
     }
 }
@@ -281,7 +281,7 @@ void OGRColumnInteger::GetCellValue(int row, wxInt64& val)
         val = new_data[row];
     } else {
         int col_idx = GetColIndex();
-        val = (wxInt64)ogr_layer->data[row]->GetFieldAsInteger(col_idx);
+        val = (wxInt64)ogr_layer->data[row]->GetFieldAsInteger64(col_idx);
     }
 }
 
@@ -295,8 +295,10 @@ wxString OGRColumnInteger::GetValueAt(int row_idx, int disp_decimals,
     } else {
         int col_idx = GetColIndex();
         if (col_idx == -1) return wxEmptyString;
-        const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
-        return wxString(val);
+        //const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
+        wxLongLong val(ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx));
+        
+        return val.ToString();
     }
 }
 

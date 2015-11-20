@@ -290,7 +290,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
     this->row_idx = row_idx;
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
-    l_old_value = (wxInt64)ogr_layer->data[row_idx]->GetFieldAsInteger(col_idx);
+    l_old_value = (wxInt64)ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx);
     l_new_value = new_val;
 }
 
@@ -323,7 +323,7 @@ void OGRTableOpUpdateCell::GetOriginalCellValue()
         if (col_idx < 0)
             l_old_value = 0;
         else
-            l_old_value = ogr_layer->data[row_idx]->GetFieldAsInteger(col_idx);
+            l_old_value = ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx);
     } else if (type == GdaConst::double_type) {
         if (col_idx < 0)
             d_old_value = 0.0;

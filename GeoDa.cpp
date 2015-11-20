@@ -255,6 +255,7 @@ bool GdaApp::OnInit(void)
     setlocale(LC_ALL, "C");
     
     CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
+    //CPLSetConfigOption("SHAPE_ADJUST_TYPE", "YES");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac

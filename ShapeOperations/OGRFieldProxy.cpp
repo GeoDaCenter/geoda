@@ -37,7 +37,7 @@ OGRFieldProxy::OGRFieldProxy(const wxString& _name,
 	if (ogr_type == OFTString){
 		type = GdaConst::string_type;
 	}
-	else if (ogr_type == OFTInteger) {
+	else if (ogr_type == OFTInteger64) {
 		type = GdaConst::long64_type;
 	}
 	else if (ogr_type == OFTReal) {
@@ -67,7 +67,7 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 	if (ogr_type == OFTString){
 		type = GdaConst::string_type;
 	}
-	else if (ogr_type == OFTInteger) {
+	else if (ogr_type == OFTInteger64 || ogr_type == OFTInteger) {
 		type = GdaConst::long64_type;
 	}
 	else if (ogr_type == OFTReal) {

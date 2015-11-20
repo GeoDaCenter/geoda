@@ -100,7 +100,7 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
 		polyid = new double[n];
 		col_type = 1;
         for (int i=0; i<n; i++) {
-            polyid[i] = ogr_layer->data[i]->GetFieldAsInteger(field);
+            polyid[i] = ogr_layer->data[i]->GetFieldAsInteger64(field);
         }
         
 	} else if (ogr_layer->GetFieldType(field) == GdaConst::string_type) {
