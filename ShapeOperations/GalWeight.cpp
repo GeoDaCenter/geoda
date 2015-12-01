@@ -284,7 +284,7 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
     typedef std::pair<wxString, wxString> STID_KEY;
     std::map<STID_KEY, int> stid_dict;
     
-    int id=0;
+    int id=1;
     for (size_t i=0; i<num_t; ++i) {
         for (size_t j=0; j<num_obs; ++j) {
             STID_KEY k(id_vec[j], time_ids[i]);

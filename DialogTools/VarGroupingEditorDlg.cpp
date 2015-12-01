@@ -269,7 +269,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     bool has_highligh = false;
     const std::vector<bool>& hs(highlight_state->GetHighlight());
     
-    int idx = 0;
+    int idx = 1;
     for (int t=0; t<n_ts; t++) {
         for (int j=0; j<n_obs; j++) {
             if (hs[j]) {
@@ -309,24 +309,25 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                     for (int ii=0; ii<n; ii++) {
                         new_id_vec.push_back(id_vec[id_stack[ii]]);
                     }
-                    OGRColumn* id_col = new OGRColumnString("ORIG_ID", 50, 0, n);
+                    OGRColumn* id_col = new OGRColumnString(gw->id_field, 50, 0, n);
                     id_col->UpdateData(new_id_vec);
                     mem_table_int->AddOGRColumn(id_col);
                     using_default_id = false;
                 }
             }
         }
-        
+        /*
         if (using_default_id) {
             // if no weights/id_field, then use 0,1,2,...
             OGRColumn* id_col = new OGRColumnInteger("ORIG_ID", 18, 0, n);
             id_col->UpdateData(id_stack);
             mem_table_int->AddOGRColumn(id_col);
         }
+         */
     }
     
     if (!time_stack.empty()) {
-        OGRColumn* time_col = new OGRColumnString("TIME_PERIOD", 50, 0, n);
+        OGRColumn* time_col = new OGRColumnString("TIME", 50, 0, n);
         time_col->UpdateData(time_stack);
         mem_table_int->AddOGRColumn(time_col);
     }

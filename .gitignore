@@ -7,7 +7,14 @@ BuildTools/macosx/temp/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 
+*.csv
+*.dbf
+*.shx
+*.shp
+*.kml
+*.gal
 *.swp
+SampleData/
 
 *.xcuserstate
 

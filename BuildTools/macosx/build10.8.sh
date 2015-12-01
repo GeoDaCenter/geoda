@@ -56,7 +56,7 @@ fi
 #########################################################################
 # copy library/*
 #########################################################################
-if ! [ -f "$PREFIX/lib/libjson_spirit.a1" ] ; then
+if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libraries.zip
     curl -O $LIB_URL
     unzip libraries.zip
@@ -94,6 +94,52 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a1" ] ; then
     install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libspatialite.5.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libcurl.4.dylib" "$GEODA_HOME/libraries/lib/libcurl.4.dylib" libxerces-c-3.1.dylib
     cd ../..
+fi
+
+#########################################################################
+# install GDAL/OGR
+#########################################################################
+LIB_NAME=gdal
+LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa18Merge
+LIB_FILENAME=GeoDa18Merge
+LIB_CHECKER=libgdal.a1
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ]; then
+    curl -k -O $LIB_URL
+    unzip $LIB_FILENAME
+    mv gdal-GeoDa18Merge/gdal gdal
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    if [[ $NODEBUG -eq 1 ]] ; then
+        # no debug
+    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config
+    else
+        # with debug
+    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
+    fi
+    echo "$GEODA_HOME/dep/$LIB_NAME"
+    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    #make clean
+    rm $GEODA_HOME/libraries/lib/libspatialite.la
+    $MAKER
+    touch .libs/libgdal.lai
+    make install
+    cp .libs/* ../../libraries/lib
+    #cd ogr/ogrsf_frmts/oci
+    #make plugin
+    #mv ogr_OCI.so ogr_OCI.dylib
+    #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    echo "You need to modify the libgdal.la and remove the extra '=' symobls."
+    exit
 fi
 
 #########################################################################
