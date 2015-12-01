@@ -41,7 +41,10 @@ public:
 	OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
              TableState* table_state, TimeState* time_state,
              const VarOrderPtree& var_order_ptree);
-	virtual ~OGRTable();
+    
+    OGRTable(int n_rows);
+    
+    virtual ~OGRTable();
 
 private:
     GdaConst::DataSourceType datasource_type;
@@ -68,6 +71,11 @@ public:
     //void ChangeOGRLayer(OGRLayerProxy* new_ogr_layer);
 
 public:
+    // These functions for in-memory table
+    void AddOGRColumn(OGRColumn* ogr_col);
+    OGRColumn* GetOGRColumn(int idx);
+    
+    
 	// Implementation of TableInterface pure virtual methods
     
 	virtual GdaConst::DataSourceType GetDataSourceType();

@@ -41,6 +41,14 @@
 
 using namespace std;
 
+OGRTable::OGRTable(int n_rows)
+: TableInterface(NULL, NULL)
+{
+    // This is in-memory table only.
+    ogr_layer = NULL;
+    rows = n_rows;
+}
+
 OGRTable::OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
                    TableState* table_state, TimeState* time_state,
                    const VarOrderPtree& var_order_ptree)
@@ -178,6 +186,24 @@ void OGRTable::AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx)
     columns.push_back(ogr_col);
 }
 
+// Following 2 functions are for in-memory OGRTable
+void OGRTable::AddOGRColumn(OGRColumn* ogr_col)
+{
+    int pos = columns.size();
+	VarGroup g(ogr_col->GetName(), ogr_col->GetDecimals());
+    var_order.InsertVarGroup(g, pos);
+    
+    
+    columns.push_back(ogr_col);
+    var_map[ogr_col->GetName()] = pos;
+}
+
+
+OGRColumn* OGRTable::GetOGRColumn(int idx)
+{
+    return columns[idx];
+}
+
 void OGRTable::GetTimeStrings(std::vector<wxString>& tm_strs)
 {
 	tm_strs = var_order.GetTimeIdsRef();
@@ -238,7 +264,9 @@ int OGRTable::GetTimeSteps()
 
 wxString OGRTable::GetTableName()
 {
-	return ogr_layer->name;
+    if (ogr_layer)
+        return ogr_layer->name;
+    return "NO_NAME";
 }
 
 bool OGRTable::Save(wxString& err_msg)
@@ -894,9 +922,11 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
     var_order.SetGroupName(col, new_name);
     
     // update Table
-	table_state->SetColRenameEvtTyp(old_name, new_name, true);
-	table_state->notifyObservers();
-	SetChangedSinceLastSave(true);
+    if (table_state) {
+        table_state->SetColRenameEvtTyp(old_name, new_name, true);
+        table_state->notifyObservers();
+        SetChangedSinceLastSave(true);
+    }
 	return true;
 }
 

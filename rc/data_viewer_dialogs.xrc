@@ -801,6 +801,22 @@
                 <option>1</option>
                 <flag>wxEXPAND</flag>
               </object>
+              <object class="spacer">
+                <size>4,5d</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                    <object class="wxButton" name="ID_SAVE_SPACETIME_TABLE">
+                      <label>Save As Space Time Table...</label>
+                      <style>wxBU_EXACTFIT</style>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                    <border>5</border>
+                  </object>
+                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                </object>
+              </object>
               <orient>wxVERTICAL</orient>
             </object>
             <option>33</option>

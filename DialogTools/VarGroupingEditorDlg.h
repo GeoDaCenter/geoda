@@ -38,6 +38,7 @@ class FramesManager;
 class TableState;
 class TableInterface;
 class Project;
+class WeightsManInterface;
 
 class VarGroupingEditorDlg: public wxDialog, public FramesManagerObserver,
 public TableStateObserver
@@ -56,6 +57,7 @@ public:
 	void InitGroupedList();
 	
 	void OnClose(wxCloseEvent& event);
+    void OnSaveSpaceTimeTableClick( wxCommandEvent& event );
     void OnCreateGrpClick( wxCommandEvent& event );
 	void OnUngroupClick( wxCommandEvent& event );
 	
@@ -101,6 +103,9 @@ public:
 	bool IsItemSel(wxListCtrl* lc, int i);
 	
 private:
+	HighlightState* highlight_state;
+    WeightsManInterface* wmi;
+    
 	int GetIncListNameCnt();
 	int GetIncListNonPlaceholderCnt();
 	
@@ -111,7 +116,8 @@ private:
 	wxTextCtrl* new_group_name_txt_ctrl;
 	wxStaticText* new_field_type_stat_txt;
 	wxStaticText* include_list_stat_txt;
-	
+
+    wxButton* save_spacetime_button;
 	wxButton* move_up_button;
 	wxButton* move_down_button;
 	wxButton* sort_button;

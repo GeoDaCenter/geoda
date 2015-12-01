@@ -40,6 +40,8 @@ class WeightsNewManager : public WeightsManInterface
 public:
 	WeightsNewManager(WeightsManState* w_man_state,
 					  TableInterface* table_int);
+    ~WeightsNewManager();
+    
 	void Init(const std::list<WeightsPtreeEntry>& entries);
 	std::list<WeightsPtreeEntry> GetPtreeEntries() const;
 	bool AssociateGal(boost::uuids::uuid w_uuid, GalWeight* gw);
@@ -68,6 +70,7 @@ public:
 	virtual void Remove(boost::uuids::uuid w_uuid);
 	virtual wxString RecNumToId(boost::uuids::uuid w_uuid, long rec_num);
 	virtual GalWeight* GetGal(boost::uuids::uuid w_uuid);
+	virtual GeoDaWeight* GetWeights(boost::uuids::uuid w_uuid);
 	virtual boost::uuids::uuid GetDefault() const;
 	virtual void MakeDefault(boost::uuids::uuid w_uuid);
 	virtual boost::uuids::uuid FindByTitle(const wxString& s) const;
@@ -78,10 +81,11 @@ public:
 	
 private:
 	struct Entry {
-		Entry() : gal_weight(0) {}
-		Entry(const WeightsPtreeEntry& e) : gal_weight(0), wpte(e) {}
+		Entry() : gal_weight(0), geoda_weight(0) {}
+		Entry(const WeightsPtreeEntry& e) : gal_weight(0), geoda_weight(0), wpte(e) {}
 		WeightsPtreeEntry wpte;
 		GalWeight* gal_weight;
+        GeoDaWeight* geoda_weight;
 		std::vector<wxString> rec_num_to_id;
 	};
 	typedef std::map<boost::uuids::uuid, Entry> EmType;

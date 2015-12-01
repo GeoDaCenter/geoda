@@ -39,7 +39,7 @@ class ExportDataDlg: public DatasourceDlg
 {
 public:
 	ExportDataDlg(wxWindow* parent,
-				  Project* project,
+				  Project* _project,
                   bool isSelectedOnly=false,
                   wxString projectFileName = "",
 				  const wxPoint& pos = wxDefaultPosition,
@@ -50,17 +50,22 @@ public:
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaShape*>& _geometries,
                   Shapefile::ShapeType _shape_type,
-				  Project* project=NULL,
+				  Project* _project=NULL,
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaPoint*>& _geometries,
                   Shapefile::ShapeType _shape_type,
-				  Project* project=NULL,
+				  Project* _project=NULL,
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
+    ExportDataDlg(wxWindow* parent,
+                  TableInterface* _table,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    
     void Init(wxWindow* parent, const wxPoint& pos);
     void CreateControls();
     void BrowseExportDataSource( wxCommandEvent& event );
@@ -76,6 +81,7 @@ private:
 	wxCheckBox* m_chk_create_project;
     
 	Project* project_p;
+    TableInterface* table_p;
 	vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type;
     wxString project_file_name;
@@ -94,8 +100,7 @@ private:
 	IDataSource* GetDatasource();
     void OpenDatasourceFile(const wxFileName& ds_fname);
     void ExportOGRLayer(wxString& ds_name, bool is_update);
-    bool CreateOGRLayer(wxString& ds_name, TableInterface* table,
-		OGRSpatialReference* spatial_ref, bool is_update);
+    bool CreateOGRLayer(wxString& ds_name, OGRSpatialReference* spatial_ref, bool is_update);
     
 	DECLARE_EVENT_TABLE()
 };

@@ -231,6 +231,7 @@
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
+		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
@@ -1117,6 +1118,7 @@
 		DDEA3CB6193CEE250028B746 /* VarCalc */ = {
 			isa = PBXGroup;
 			children = (
+				A17336821C06917B00579354 /* WeightsManInterface.h */,
 				DD5AA73B1982D200009B30C6 /* CalcHelp.cpp */,
 				DD5AA73C1982D200009B30C6 /* CalcHelp.h */,
 				DDEA3CB7193CEE5C0028B746 /* GdaFlexValue.cpp */,

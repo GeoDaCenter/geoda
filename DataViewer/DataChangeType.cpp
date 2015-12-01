@@ -249,9 +249,7 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         wxMessageDialog dlg (this, "Tip: clear selection on Transformed Variable list to add a new transformed variable", "Do you want to use \"" + to_name + "\" as Transformed Variable?", wxYES_NO | wxNO_DEFAULT);
         if (dlg.ShowModal() != wxID_YES) return;
     }
-	
-    
-    
+	    
     // Copy
     from_col = table_int->FindColId(from_name);
     from_tm_variant = table_int->IsColTimeVariant(from_col);

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <set>
 #include <boost/foreach.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -27,18 +28,26 @@
 #include "../FramesManager.h"
 #include "../DbfFile.h"
 #include "../DataViewer/DbfTable.h"
+#include "../DataViewer/OGRTable.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
 #include "../DataViewer/TimeState.h"
+#include "../DialogTools/ExportDataDlg.h"
+#include "../VarCalc/WeightsManInterface.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../GdaConst.h"
 #include "VarGroupingEditorDlg.h"
 
 BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 	EVT_CLOSE( VarGroupingEditorDlg::OnClose )
+
+    EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_TABLE"),
+			   VarGroupingEditorDlg::OnSaveSpaceTimeTableClick )
     EVT_BUTTON( XRCID("ID_CREATE_GRP_BUTTON"),
 			   VarGroupingEditorDlg::OnCreateGrpClick )
 	EVT_BUTTON( XRCID("ID_UNGROUP_BUTTON"),
@@ -87,6 +96,8 @@ VarGroupingEditorDlg::VarGroupingEditorDlg(Project* project,
 : table_int(project->GetTableInt()),
 frames_manager(project->GetFramesManager()),
 table_state(project->GetTableState()),
+highlight_state(project->GetHighlightState()),
+wmi(project->GetWManInt()),
 common_empty(true), all_init(false)
 {
 	CreateControls();
@@ -157,7 +168,10 @@ void VarGroupingEditorDlg::CreateControls()
 
 	grouped_list =
 		wxDynamicCast(FindWindow(XRCID("ID_GROUPED_LIST")), wxListBox);
-	
+
+    
+    save_spacetime_button =wxDynamicCast(FindWindow(XRCID("ID_SAVE_SPACETIME_TABLE")), wxButton);
+    
 	ResetAllButtons();
 	UpdateCommonType();
 		
@@ -236,6 +250,153 @@ void VarGroupingEditorDlg::OnClose(wxCloseEvent& event)
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
+}
+
+void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
+{
+    
+	std::vector<wxString> tm_strs;
+	table_int->GetTimeStrings(tm_strs);
+    int n_obs = table_int->GetNumberRows();
+    int n_ts = tm_strs.size();
+    int n = n_ts * n_obs;
+   
+    std::vector<wxString> time_stack;
+    std::vector<wxInt64> select_stack;
+    std::vector<wxInt64> id_stack;
+    std::vector<wxInt64> new_ids;
+   
+    bool has_highligh = false;
+    const std::vector<bool>& hs(highlight_state->GetHighlight());
+    
+    int idx = 0;
+    for (int t=0; t<n_ts; t++) {
+        for (int j=0; j<n_obs; j++) {
+            if (hs[j]) {
+                select_stack.push_back(1);
+                has_highligh = true;
+            } else {
+                select_stack.push_back(0);
+            }
+            time_stack.push_back(tm_strs[t]);
+            id_stack.push_back(j);
+            new_ids.push_back(idx);
+            idx += 1;
+        }
+    }
+    
+    // create in-memory table
+    OGRTable* mem_table_int = new OGRTable(n);
+    
+    OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
+    id_col->UpdateData(new_ids);
+    mem_table_int->AddOGRColumn(id_col);
+    
+    if (!id_stack.empty()) {
+        
+        bool using_default_id = true;
+        if (wmi) {
+            boost::uuids::uuid default_wid = wmi->GetDefault();
+            if (!default_wid.is_nil()) {
+                GalWeight* gw = wmi->GetGal(default_wid);
+                
+                std::vector<wxString> id_vec;
+                int c_id = table_int->FindColId(gw->id_field);
+                if (c_id > 0) {
+                    table_int->GetColData(c_id, 1, id_vec);
+                    
+                    std::vector<wxString> new_id_vec;
+                    for (int ii=0; ii<n; ii++) {
+                        new_id_vec.push_back(id_vec[id_stack[ii]]);
+                    }
+                    OGRColumn* id_col = new OGRColumnString("ORIG_ID", 50, 0, n);
+                    id_col->UpdateData(new_id_vec);
+                    mem_table_int->AddOGRColumn(id_col);
+                    using_default_id = false;
+                }
+            }
+        }
+        
+        if (using_default_id) {
+            // if no weights/id_field, then use 0,1,2,...
+            OGRColumn* id_col = new OGRColumnInteger("ORIG_ID", 18, 0, n);
+            id_col->UpdateData(id_stack);
+            mem_table_int->AddOGRColumn(id_col);
+        }
+    }
+    
+    if (!time_stack.empty()) {
+        OGRColumn* time_col = new OGRColumnString("TIME_PERIOD", 50, 0, n);
+        time_col->UpdateData(time_stack);
+        mem_table_int->AddOGRColumn(time_col);
+    }
+    
+    if (!select_stack.empty() && has_highligh) {
+        OGRColumn* select_col = new OGRColumnInteger("SELECT", 18, 0, n);
+        select_col->UpdateData(select_stack);
+        mem_table_int->AddOGRColumn(select_col);
+    }
+   
+    int n_col = table_int->GetNumberCols();
+    for (int i=0; i<n_col; i++) {
+        if (table_int->IsColTimeVariant(i)) {
+            wxString col_name(table_int->GetColName(i));
+            
+            GdaConst::FieldType ft = table_int->GetColType(i);
+            
+            if (ft == GdaConst::long64_type) {
+                std::vector<wxInt64> stack_dat;
+                stack_dat.reserve(n);
+                for (int t=0; t<n_ts; t++) {
+                    std::vector<wxInt64> dat;
+                    table_int->GetColData(i, t, dat);
+                    stack_dat.insert(stack_dat.end(), dat.begin(), dat.end());
+                }
+                OGRColumn* var_col = new OGRColumnInteger(col_name, 18, 0, n);
+                var_col->UpdateData(stack_dat);
+                mem_table_int->AddOGRColumn(var_col);
+                
+            } else if (ft == GdaConst::double_type) {
+                int n_decimal = -1;
+                std::vector<double> stack_dat;
+                stack_dat.reserve(n);
+                for (int t=0; t<n_ts; t++) {
+                    std::vector<double> dat;
+                    table_int->GetColData(i, t, dat);
+                    stack_dat.insert(stack_dat.end(), dat.begin(), dat.end());
+                    int deci = table_int->GetColDecimals(i, t);
+                    if (deci > n_decimal)
+                        n_decimal = deci;
+                }
+                OGRColumn* var_col = new OGRColumnDouble(col_name, 18, n_decimal, n);
+                var_col->UpdateData(stack_dat);
+                mem_table_int->AddOGRColumn(var_col);
+                
+            }
+        }
+    }
+    
+    // export
+    ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
+    if (dlg.ShowModal() == wxID_OK) {
+        wxString ds_name = dlg.GetDatasourceName();
+        wxFileName wx_fn(ds_name);
+        
+        wx_fn.SetExt("gal");
+        wxString ofn(wx_fn.GetFullPath());
+        
+        // save weights
+        if (wmi) {
+            boost::uuids::uuid default_wid = wmi->GetDefault();
+            if (!default_wid.is_nil()) {
+                GeoDaWeight* w = wmi->GetWeights(default_wid);
+                w->SaveSpaceTimeWeights(ofn, wmi, table_int);
+            }
+        }
+    }
+    
+    // clean memory
+    delete mem_table_int;
 }
 
 void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
@@ -727,6 +888,8 @@ void VarGroupingEditorDlg::UpdateButtons()
 	remove_fr_list_button->Enable(non_empty_cnt > 0);
 	
 	ungroup_button->Enable(grouped_list->GetSelection() != wxNOT_FOUND);
+    
+	save_spacetime_button->Enable(grouped_list->GetCount() > 0);
 	
 	UpdateGroupButton();
 }
@@ -741,6 +904,7 @@ void VarGroupingEditorDlg::ResetAllButtons()
 	placeholder_button->Disable();
 	add_to_list_button->Disable();
 	remove_fr_list_button->Disable();
+    save_spacetime_button->Disable();
 }
 
 void VarGroupingEditorDlg::UpdateCommonType()

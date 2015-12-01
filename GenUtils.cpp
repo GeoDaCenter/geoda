@@ -669,10 +669,10 @@ wxString GenUtils::GetFileDirectory(const wxString& path)
 {
 	int pos = path.Find('/',true);
 	if (pos >= 0)
-		return path.Left(pos);
+		return path.Left(pos) + '/';
 	pos = path.Find('\\',true);
 	if (pos >= 0)
-		return path.Left(pos);
+		return path.Left(pos) + '\\';
 	return wxEmptyString;
 }
 
@@ -685,6 +685,15 @@ wxString GenUtils::GetFileName(const wxString& path)
 	if (pos >= 0)
 		return path.Right(path.length() - pos - 1);
 	return wxEmptyString;
+}
+
+wxString GenUtils::GetFileNameNoExt(const wxString& path)
+{
+    wxString fname = GetFileName(path);
+    int pos = fname.Find('.', true);
+    if (pos >=0)
+        return fname.Left(pos-1);
+    return fname;
 }
 
 wxString GenUtils::GetFileExt(const wxString& path)

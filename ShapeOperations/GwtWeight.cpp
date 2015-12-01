@@ -76,6 +76,10 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 	return lag;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {
 	if (!gwt) return false;
@@ -83,6 +87,17 @@ bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 	return false;
 }
 
+bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
+{
+    return false;
+}
+
+bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)
+{
+    return false;
+}
+////////////////////////////////////////////////////////////////////////////////
+//
 bool Gda::SaveGwt(const GwtElement* g,
 									const wxString& layer_name, 
 									const wxString& ofname,

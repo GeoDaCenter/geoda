@@ -19,7 +19,9 @@
 
 #include <utility> // std::pair
 #include <stdlib.h>
+#include <vector>
 #include <boost/foreach.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include <wx/gauge.h>
@@ -30,10 +32,14 @@
 #include "../Project.h"
 #include "LineChartCanvas.h"
 #include "LineChartView.h"
+#include "../DataViewer/OGRTable.h"
 #include "../DialogTools/RegressionReportDlg.h"
+#include "../DialogTools/ExportDataDlg.h"
 #include "../Regression/DiagnosticReport.h"
 #include "../Regression/Lite2.h"
 #include "../GenUtils.h"
+#include "../varCalc/WeightsManInterface.h"
+#include "../ShapeOperations/GalWeight.h"
 
 bool classicalRegression(GalElement *g, int num_obs, double * Y,
 						 int dim, double ** X, 
@@ -128,6 +134,9 @@ regReportDlg(0)
     Connect(XRCID("ID_DID_TEST"),
             wxEVT_MENU, 
             wxCommandEventHandler(LineChartFrame::OnDIDTest));
+    Connect(XRCID("ID_SAVE_DUMMY"),
+            wxEVT_MENU, 
+            wxCommandEventHandler(LineChartFrame::OnSaveDummyTable));
 	LOG_MSG("Exiting LineChartFrame::LineChartFrame");
 }
 
@@ -221,6 +230,254 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
+void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
+{
+    int nTests = var_man.GetVarsCount();
+    TableInterface* table_int = project->GetTableInt();
+    const std::vector<bool>& hs(highlight_state->GetHighlight());
+    int n_obs = project->GetNumRecords();
+  
+    //double** var_stack_array = new double*[nTests];
+    //double *dummy_select_stack = NULL;
+    //double *dummy_time_stack = NULL;
+    
+    size_t n_ts = 1;
+    
+    std::vector<std::vector<double> > var_stack_array;
+    std::vector<wxInt64> dummy_select_stack;
+    std::vector<wxInt64> dummy_time_stack;
+    std::vector<wxInt64> id_stack;
+    std::vector<wxInt64> newids;
+   
+    var_stack_array.resize(nTests);
+    
+    for (int i=0; i<nTests; i++) {
+        
+		wxString row_nm(var_man.GetName(i));
+		const vec_vec_dbl_type& Y(data_map[row_nm]);
+        
+        n_ts = Y.size();
+        
+        if (compare_regimes) {
+            
+            int n= 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n+= n_obs;
+                }
+            }
+            if (n== 0) {
+                wxMessageBox("Please choose times on the time axis first.");
+                return;
+            }
+   
+            var_stack_array[i].resize(n);
+            dummy_select_stack.resize(n);
+            id_stack.resize(n);
+            
+            int idx = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    for (int j=0; j<n_obs; j++) {
+                        var_stack_array[i][idx] = Y[t][j];
+                        dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
+                        id_stack[idx] = j;
+                        newids.push_back(idx);
+                        idx += 1;
+                    }
+                }
+            }
+           
+        } else if (compare_time_periods) {
+            
+            int n1 = 0, n2 = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n1 += n_obs;
+                }
+            }
+            if (n1 == 0) {
+                wxMessageBox("Please choose times for Time Period 1 on the time axis first.");
+                return;
+            }
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset1[t]) {
+                    n2 += n_obs;
+                }
+            }
+            if (n2 == 0) {
+                wxMessageBox("Please choose times for Time Period 2 on the time axis first.");
+                return;
+            }
+            
+            int n = n1 + n2;
+            
+            var_stack_array[i].resize(n);
+            dummy_time_stack.resize(n);
+            id_stack.resize(n);
+            
+            int idx = 0;
+            
+            for (int t=0; t<n_ts; t++) {
+                if (tms_subset0[t] || tms_subset1[t]) {
+                    for (int j=0; j<n_obs; j++) {
+                        var_stack_array[i][idx] = Y[t][j];
+                        dummy_time_stack[idx] = tms_subset0[t] == true ? 0 : 1;
+                        id_stack[idx] = j;
+                        newids.push_back(idx);
+                        idx += 1;
+                    }
+                }
+            }
+           
+        } else if (compare_r_and_t) {
+            
+            int n1 = 0, n2 = 0;
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset0[t]) {
+                    n1 += n_obs;
+                }
+            }
+            if (n1 == 0) {
+                wxMessageBox("Please choose times for Time Period 1 on the time axis first.");
+                return;
+            }
+    		for (size_t t=0; t<n_ts; ++t) {
+                if (tms_subset1[t]) {
+                    n2 += n_obs;
+                }
+            }
+            if (n2 == 0) {
+                wxMessageBox("Please choose times for Time Period 2 on the time axis first.");
+                return;
+            }
+            
+            int n = n1 + n2;
+            
+            var_stack_array[i].resize(n);
+            dummy_time_stack.resize(n);
+            dummy_select_stack.resize(n);
+            id_stack.resize(n);
+            
+            int idx = 0;
+            for (int t=0; t<n_ts; t++) {
+                if (tms_subset0[t] || tms_subset1[t]) {
+                    for (int j=0; j<n_obs; j++) {
+                        var_stack_array[i][idx] = Y[t][j];
+                        dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
+                        dummy_time_stack[idx] = tms_subset0[t] == true ? 0 : 1;
+                        id_stack[idx] = j;
+                        newids.push_back(idx);
+                        idx += 1;
+                    }
+                }
+            }
+        } // end if (compare_r_and_t)
+    }
+    
+    // create in-memory table
+    OGRTable* mem_table_int = NULL;
+    
+    if (!newids.empty()) {
+        int n = newids.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
+        id_col->UpdateData(newids);
+        mem_table_int->AddOGRColumn(id_col);
+    }
+    
+    if (!id_stack.empty()) {
+        int n = id_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        
+        bool using_default_id = true;
+        
+        WeightsManInterface* wmi = NULL;
+        if (project && project->GetWManInt()) {
+            wmi = project->GetWManInt();
+            boost::uuids::uuid default_wid = wmi->GetDefault();
+            if (!default_wid.is_nil()) {
+                GalWeight* gw = wmi->GetGal(default_wid);
+                
+                vector<wxString> id_vec;
+                TableInterface* table_int = project->GetTableInt();
+                int c_id = table_int->FindColId(gw->id_field);
+                if (c_id > 0) {
+                    table_int->GetColData(c_id, 1, id_vec);
+                   
+                    vector<wxString> new_id_vec;
+                    for (int ii=0; ii<n; ii++) {
+                        new_id_vec.push_back(id_vec[id_stack[ii]]);
+                    }
+                    OGRColumn* id_col = new OGRColumnString("ORIG_ID", 50, 0, n);
+                    id_col->UpdateData(new_id_vec);
+                    mem_table_int->AddOGRColumn(id_col);
+                    using_default_id = false;
+                }
+            }
+        }
+        
+        if (using_default_id) {
+            // if no weights/id_field, then use 0,1,2,...
+            OGRColumn* id_col = new OGRColumnInteger("ORIG_ID", 18, 0, n);
+            id_col->UpdateData(id_stack);
+            mem_table_int->AddOGRColumn(id_col);
+        }
+    }
+    
+    if (!dummy_time_stack.empty()) {
+        int n = dummy_time_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* time_col = new OGRColumnInteger("TIME_PERIOD", 18, 0, n);
+        time_col->UpdateData(dummy_time_stack);
+        mem_table_int->AddOGRColumn(time_col);
+    }
+    
+    if (!dummy_select_stack.empty()) {
+        int n = dummy_select_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* select_col = new OGRColumnInteger("SELECT", 18, 0, n);
+        select_col->UpdateData(dummy_select_stack);
+        mem_table_int->AddOGRColumn(select_col);
+    }
+    
+    if (!var_stack_array.empty()) {
+        for (size_t i=0; i<var_stack_array.size(); i++) {
+            wxString col_name(var_man.GetName(i));
+            int n = var_stack_array[i].size();
+            if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+            OGRColumn* var_col = new OGRColumnDouble(col_name, 18, -1, n);
+            var_col->UpdateData(var_stack_array[i]);
+            mem_table_int->AddOGRColumn(var_col);
+        }
+    }
+    
+    // export
+    ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
+    if (dlg.ShowModal() == wxID_OK) {
+        wxString ds_name = dlg.GetDatasourceName();
+        wxFileName wx_fn(ds_name);
+        
+        wx_fn.SetExt("gal");
+        wxString ofn(wx_fn.GetFullPath());
+        
+        // save weights
+        // Get default GalWeight*
+        // change to space-time weights
+        WeightsManInterface* wmi = NULL;
+        if (project && project->GetWManInt()) {
+            wmi = project->GetWManInt();
+            boost::uuids::uuid default_wid = wmi->GetDefault();
+            if (!default_wid.is_nil()) {
+                GeoDaWeight* w = wmi->GetWeights(default_wid);
+                w->SaveDIDWeights(project, n_obs, newids, id_stack, ofn);
+            }
+        }
+    }
+    
+    // clean memory
+    delete mem_table_int;
+}
 
 void LineChartFrame::OnDIDTest(wxCommandEvent& event)
 {

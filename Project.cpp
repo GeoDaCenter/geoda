@@ -193,7 +193,13 @@ Project::~Project()
 	if (project_conf) delete project_conf;
 	datasource = 0;
 	if (cat_classif_manager) delete cat_classif_manager; cat_classif_manager=0;
-	if (w_man_int) delete w_man_int; w_man_int = 0;
+    
+    // Again, WeightsManInterface is not needed.
+	if (WeightsNewManager* o = dynamic_cast<WeightsNewManager*>(w_man_int)) {
+        if (o) {
+            delete o; o = 0;
+        }
+    }
 	for (size_t i=0, iend=mean_centers.size(); i<iend; i++) delete mean_centers[i];
 	for (size_t i=0, iend=centroids.size(); i<iend; i++) delete centroids[i];
 	if (voronoi_rook_nbr_gal) delete [] voronoi_rook_nbr_gal;

@@ -281,6 +281,7 @@ namespace GenUtils {
 	wxString swapExtension(const wxString& fname, const wxString& ext);
 	wxString GetFileDirectory(const wxString& path);
 	wxString GetFileName(const wxString& path);
+	wxString GetFileNameNoExt(const wxString& path);
 	wxString GetFileExt(const wxString& path);
 	/** If path is a relative path, return an absolute path based
 	 on proj_path path. If path is absolute, return it as is. */
@@ -330,6 +331,7 @@ namespace GenUtils {
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 
 	std::string GetBasemapCacheDir();
+    
 }
 
 /** Old code used by LISA functions */

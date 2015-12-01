@@ -46,6 +46,8 @@ protected:
     // markers for a new column if the cell has ben assigned a value
     vector<bool> set_markers;
 public:
+    // Constructor for in-memory column
+    OGRColumn(wxString name, int field_length, int decimals, int n_rows);
     OGRColumn(OGRLayerProxy* _ogr_layer,
               wxString name, int field_length, int decimals);
     OGRColumn(OGRLayerProxy* _ogr_layer, int idx);
@@ -95,6 +97,7 @@ private:
     void InitMemoryData();
     
 public:
+    OGRColumnInteger(wxString name, int field_length, int decimals, int n_rows);
     OGRColumnInteger(OGRLayerProxy* ogr_layer,
                      wxString name, int field_length, int decimals);
     OGRColumnInteger(OGRLayerProxy* ogr_layer, int idx);
@@ -122,6 +125,7 @@ private:
     void InitMemoryData();
     
 public:
+    OGRColumnDouble(wxString name, int field_length, int decimals, int n_rows);
     OGRColumnDouble(OGRLayerProxy* ogr_layer,
                     wxString name, int field_length, int decimals);
     OGRColumnDouble(OGRLayerProxy* ogr_layer, int idx);
@@ -149,6 +153,7 @@ private:
     void InitMemoryData();
     
 public:
+    OGRColumnString(wxString name, int field_length, int decimals, int n_rows);
     OGRColumnString(OGRLayerProxy* ogr_layer,
                     wxString name, int field_length, int decimals);
     OGRColumnString(OGRLayerProxy* ogr_layer, int idx);

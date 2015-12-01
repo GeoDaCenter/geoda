@@ -119,6 +119,7 @@ public:
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
     void OnDIDTest(wxCommandEvent& event);
+    void OnSaveDummyTable(wxCommandEvent& event);
 	void OnReportClose(wxWindowDestroyEvent& event);
 	
 	/** Implementation of TableStateObserver interface */
@@ -147,6 +148,7 @@ protected:
 	wxString GetHelpHtml();
 	void UpdateStatsWinContent(int var);
     void printAndShowClassicalResults(const wxString& yName, double* y,
+                                      
                                       const wxString& datasetname,
                                       const wxString& wname,
                                       DiagnosticReport *r,

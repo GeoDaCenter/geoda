@@ -27,6 +27,7 @@
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/grid.h>
+#include <wx/regex.h>
 #include "../FramesManager.h"
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -334,6 +335,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				GwtWeight* Wp = 0;
 				Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, dist_metric == WeightsMetaInfo::DM_arc, dist_units == WeightsMetaInfo::DU_mile);
 				if (!Wp->gwt) return;
+                Wp->id_field = id;
 				WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
 				if (Wp) delete Wp;
 				done = true;
@@ -859,25 +861,28 @@ void CreatingWeightDlg::InitFields()
 
 bool CreatingWeightDlg::CheckID(const wxString& id)
 {
-	std::vector<wxInt64> id_vec(m_num_obs);
+    std::vector<wxString> str_id_vec(m_num_obs);
+    
 	int col = table_int->FindColId(id);
     
     if (table_int->GetColType(col) == GdaConst::long64_type){
-        table_int->GetColData(col, 0, id_vec);
+        table_int->GetColData(col, 0, str_id_vec);
+        
     } else if (table_int->GetColType(col) == GdaConst::string_type) {
         // to handle string field with only numbers
         // Note: can't handle real string (a-zA-Z) here since it's hard
         // to control in weights file (.gal/.gwt/..)
-        std::vector<wxString> str_id_vec(m_num_obs);
         table_int->GetColData(col, 0, str_id_vec);
+        
+        wxRegEx regex;
+        regex.Compile("^[0-9a-zA-Z_]+$");
         
         for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
             wxString item  = str_id_vec[i];
-            wxInt64 val;
-            if(item.ToLongLong(&val)) {
-                id_vec[i] = val;
+            if (regex.Matches(item)) {
+                str_id_vec[i] = item;
             } else {
-        		wxString msg = id + " should contains only numbers as IDs.  Please choose ";
+        		wxString msg = id + " should contains only numbers/letters as IDs.  Please choose ";
         		msg += "a different ID Variable.";
         		wxMessageBox(msg);
         		return false;
@@ -885,11 +890,11 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
         }
     }
     
-	std::set<wxInt64> id_set;
-	for (int i=0, iend=id_vec.size(); i<iend; i++) {
-		id_set.insert(id_vec[i]);
+	std::set<wxString> id_set;
+	for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
+		id_set.insert(str_id_vec[i]);
 	}
-	if (id_vec.size() != id_set.size()) {
+	if (str_id_vec.size() != id_set.size()) {
 		wxString msg = id + " has duplicate values.  Please choose ";
 		msg += "a different ID Variable.";
 		wxMessageBox(msg);
@@ -1172,6 +1177,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 				w->num_obs = table_int->GetNumberRows();
 				w->wflnm = ofn;
 				w->gal = tempGal;
+                w->id_field = idd;
 				
 				WeightsMetaInfo e(wmi);
 				e.filename = ofn;

@@ -261,6 +261,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	GalWeight* gw = new GalWeight();
 	gw->num_obs = table_int->GetNumberRows();
 	gw->wflnm = wmi.filename;
+    gw->id_field = id_field;
 	gw->gal = tempGal;
 
 	if (!((WeightsNewManager*) w_man_int)->AssociateGal(id, gw)) {

@@ -24,6 +24,8 @@
 #include <map>
 #include "GeodaWeight.h"
 
+class Project;
+class WeightsManInterface;
 class TableInterface;
 
 class GalElement {
@@ -52,30 +54,49 @@ private:
 
 class GalWeight : public GeoDaWeight {
 public:
+	GalElement* gal;
+    
 	GalWeight() : gal(0) { weight_type = gal_type; }
 	GalWeight(const GalWeight& gw);
-	virtual GalWeight& operator=(const GalWeight& gw);
 	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
-	GalElement* gal;
+    
 	static bool HasIsolates(GalElement *gal, int num_obs);
+    
+	virtual GalWeight& operator=(const GalWeight& gw);
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
+    virtual bool SaveDIDWeights(Project* project,
+                        int num_obs,
+                        std::vector<wxInt64>& newids,
+                        std::vector<wxInt64>& stack_ids,
+                        const wxString& ofname);
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int);
 };
 
 namespace Gda {
+    // Integer IDs
 	bool SaveGal(const GalElement* g,
 							 const wxString& layer_name, 
 							 const wxString& ofname,
 							 const wxString& id_var_name,
 							 const std::vector<wxInt64>& id_vec);
+    // String IDs
 	bool SaveGal(const GalElement* g,
 							 const wxString& layer_name, 
 							 const wxString& ofname,
 							 const wxString& id_var_name,
 							 const std::vector<wxString>& id_vec);
+    // SpaceTime Gal
+	bool SaveSpaceTimeGal(const GalElement* g,
+                          const std::vector<wxString>& time_ids,
+                          const wxString& layer_name,
+                          const wxString& ofname,
+                          const wxString& id_var_name,
+                          const std::vector<wxString>& id_vec);
 	
-	void MakeHigherOrdContiguity(size_t distance, size_t obs,
-															 GalElement* W,
-															 bool cummulative);
+    
+	void MakeHigherOrdContiguity(size_t distance, size_t obs, GalElement* W, bool cummulative);
+    
+    
 }
 
 #endif

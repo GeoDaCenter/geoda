@@ -28,6 +28,7 @@
 #include "../GenUtils.h"
 #include "../DataViewer/TableInterface.h"
 #include "WeightsManState.h"
+#include "GeodaWeight.h"
 #include "GalWeight.h"
 #include "GwtWeight.h"
 #include "WeightUtils.h"
@@ -42,6 +43,22 @@ WeightsNewManager::WeightsNewManager(WeightsManState* w_man_state_,
 									 TableInterface* table_int_)
 : w_man_state(w_man_state_), table_int(table_int_)
 {
+}
+
+WeightsNewManager::~WeightsNewManager()
+{
+    
+	for (EmTypeCItr it=entry_map.begin(); it != entry_map.end(); ++it) {
+        Entry e = it->second;
+        if (e.gal_weight) {
+            delete e.gal_weight;
+            e.gal_weight = NULL;
+        }
+        if (e.geoda_weight) {
+            delete e.geoda_weight;
+            e.geoda_weight = NULL;
+        }
+	}
 }
 
 void WeightsNewManager::Init(const std::list<WeightsPtreeEntry>& entries)
@@ -350,11 +367,54 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 		GalWeight* w = new GalWeight();
 		w->num_obs = table_int->GetNumberRows();
 		w->wflnm = e.wpte.wmi.filename;
+        w->id_field = e.wpte.wmi.id_var;
 		w->title = e.wpte.title;
 		w->gal = gal;
 		e.gal_weight = w;
 	}
 	return e.gal_weight;
+}
+
+GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
+{
+	EmType::iterator it = entry_map.find(w_uuid);
+	if (it == entry_map.end()) return 0;
+	Entry& e = it->second;
+    wxString tmpName = e.wpte.wmi.filename;
+	if (e.gal_weight) return e.gal_weight;
+	
+	// Load file for first use
+	wxFileName t_fn(e.wpte.wmi.filename);
+	wxString ext = t_fn.GetExt().Lower();
+	if (ext != "gal" && ext != "gwt") {
+		LOG_MSG("File extention not gal or gwt");
+		return 0;
+	}
+	if (ext == "gal") {
+        GalElement* gal = WeightUtils::ReadGal(e.wpte.wmi.filename, table_int);
+    	if (gal != 0) {
+    		GalWeight* w = new GalWeight();
+    		w->num_obs = table_int->GetNumberRows();
+    		w->wflnm = e.wpte.wmi.filename;
+            w->id_field = e.wpte.wmi.id_var;
+    		w->title = e.wpte.title;
+    		w->gal = gal;
+    		e.geoda_weight = (GeoDaWeight*)w;
+    	}
+        
+	} else { // ext == "gwt"
+        GwtElement* gwt = WeightUtils::ReadGwt(e.wpte.wmi.filename, table_int);
+    	if (gwt != 0) {
+    		GwtWeight* w = new GwtWeight();
+    		w->num_obs = table_int->GetNumberRows();
+    		w->wflnm = e.wpte.wmi.filename;
+            w->id_field = e.wpte.wmi.id_var;
+    		w->title = e.wpte.title;
+    		w->gwt = gwt;
+    		e.geoda_weight = (GeoDaWeight*)w;
+    	}
+	}
+	return e.geoda_weight;
 }
 
 boost::uuids::uuid WeightsNewManager::GetDefault() const

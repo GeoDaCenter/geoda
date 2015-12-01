@@ -28,7 +28,13 @@
 #include "WeightsMetaInfo.h"
 #include "GdaFlexValue.h"
 class GalWeight;
+class GeoDaWeight;
 class ProgressDlg;
+
+
+// ToDo: There is no need to have a "WeightsManInterface" since there is only
+// one implementation: WeightsNewManager, which should be used instead of an
+// interface.
 
 class WeightsManInterface
 {
@@ -56,6 +62,7 @@ public:
 	virtual void Remove(boost::uuids::uuid w_uuid) = 0;
 	virtual wxString RecNumToId(boost::uuids::uuid w_uuid, long rec_num) = 0;
 	virtual GalWeight* GetGal(boost::uuids::uuid w_uuid) = 0;
+    virtual GeoDaWeight* GetWeights(boost::uuids::uuid w_uuid) = 0;
 	virtual boost::uuids::uuid GetDefault() const = 0;
 	virtual void MakeDefault(boost::uuids::uuid w_uuid) = 0;
 	virtual boost::uuids::uuid FindByTitle(const wxString& s) const = 0;

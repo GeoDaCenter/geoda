@@ -3565,6 +3565,11 @@
       <checkable>0</checkable>
       <checked>0</checked>
     </object>
+    <object class="wxMenuItem" name="ID_SAVE_DUMMY">
+      <label>Save Dummy Data to Table</label>
+      <checkable>0</checkable>
+      <checked>0</checked>
+    </object>
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">

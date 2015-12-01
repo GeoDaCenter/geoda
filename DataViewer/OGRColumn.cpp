@@ -33,6 +33,11 @@
 
 using namespace std;
 
+OGRColumn::OGRColumn(wxString name, int field_length, int decimals, int n_rows)
+: name(name), length(field_length), decimals(decimals), is_new(true), is_deleted(false), rows(n_rows)
+{
+}
+
 OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer,
                      wxString name, int field_length,int decimals)
 : name(name), ogr_layer(_ogr_layer), length(field_length), decimals(decimals),
@@ -164,6 +169,19 @@ void OGRColumn::GetCellValue(int row, wxString& val)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnInteger::OGRColumnInteger(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory integer column
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = 0;
+        set_markers[i] = false;
+    }
+}
+
 OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, wxString name,
                                    int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)
@@ -232,12 +250,12 @@ void OGRColumnInteger::FillData(vector<wxString> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format("%i", new_data[i]);
+            data[i] = wxString::Format(wxT("%") wxLongLongFmtSpec wxT("d"), new_data[i]);
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format("%i",
+            data[i] = wxString::Format(wxT("%") wxLongLongFmtSpec wxT("d"),
                 ogr_layer->data[i]->GetFieldAsInteger64(col_idx));
         }
     }
@@ -319,6 +337,19 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnDouble::OGRColumnDouble(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory integer column
+    if ( decimals < 0) decimals = GdaConst::default_dbf_double_decimals;
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = 0.0;
+        set_markers[i] = false;
+    }
+}
 OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, wxString name,
                                  int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)
@@ -487,6 +518,18 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnString::OGRColumnString(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory string column
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = wxEmptyString;
+        set_markers[i] = false;
+    }
+}
 OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
                                  int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)

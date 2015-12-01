@@ -337,9 +337,7 @@ void SpatialIndAlgs::knn_query(const rtree_pt_2d_t& rtree, int nn)
 	LOG_MSG(ss.str());
 }
 
-GwtWeight* SpatialIndAlgs::knn_build(const std::vector<double>& x,
-																		 const std::vector<double>& y,
-																		 int nn, bool is_arc, bool is_mi)
+GwtWeight* SpatialIndAlgs::knn_build(const std::vector<double>& x, const std::vector<double>& y, int nn, bool is_arc, bool is_mi)
 {
 	using namespace std;
 	size_t nobs = x.size();
@@ -819,8 +817,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 
 /** threshold th is the radius of intersection sphere with
   respect to the unit shpere of the 3d point rtree */
-GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree,
-						   double th, bool is_mi)
+GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, bool is_mi)
 {
 	wxStopWatch sw;
 	using namespace std;

@@ -51,16 +51,17 @@ BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
 END_EVENT_TABLE()
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
-                             Project* project,
+                             Project* _project,
                              bool isSelectedOnly,
                              wxString projectFileName,
                              const wxPoint& pos,
                              const wxSize& size )
-: is_selected_only(isSelectedOnly), project_p(project),
-project_file_name(projectFileName), is_saveas_op(true),
-is_geometry_only(false)
+: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false)
 {
-    if( project)project_file_name = project->GetProjectTitle();
+    if( project_p ) {
+        project_file_name = project_p->GetProjectTitle();
+        table_p = project_p->GetTableInt();
+    }
     Init(parent, pos);
     
 }
@@ -68,46 +69,58 @@ is_geometry_only(false)
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              vector<GdaShape*>& _geometries,
                              Shapefile::ShapeType _shape_type,
-                             Project* project,
+                             Project* _project,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(project),
-geometries(_geometries), shape_type(_shape_type), is_saveas_op(false),
-is_geometry_only(true)
+: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL)
 {
-    if( project)
-        project_file_name = project->GetProjectTitle();
+    if( project_p) {
+        project_file_name = project_p->GetProjectTitle();
+        table_p = project_p->GetTableInt();
+    }
     Init(parent, pos);
 }
 
-// This construction is for exporting POINT data only, e.g. centroids
+// Export POINT data only, e.g. centroids
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              vector<GdaPoint*>& _geometries,
                              Shapefile::ShapeType _shape_type,
-                             Project* project,
+                             Project* _project,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(project), 
-is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true)
+: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL)
 {
-    if( project)
-        project_file_name = project->GetProjectTitle();
+    if( project_p) {
+        project_file_name = project_p->GetProjectTitle();
+        table_p = project_p->GetTableInt();
+    }
     for(size_t i=0; i<_geometries.size(); i++) {
         geometries.push_back((GdaShape*)_geometries[i]);
     }
     Init(parent, pos);
 }
 
+// Export in-memory table (e.g. space-time table)
+ExportDataDlg::ExportDataDlg(wxWindow* parent,
+                             TableInterface* _table,
+                             const wxPoint& pos,
+                             const wxSize& size)
+: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), table_p(_table)
+{
+    Init(parent, pos);
+}
+
+
+
+
+
 void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 {
     DatasourceDlg::Init();
     
-    if ( project_file_name.empty() ) 
-        is_create_project = false;
-    else 
-        is_create_project = true;
+    is_create_project = project_file_name.empty() ? false : true;
     ds_file_path = wxFileName("");
     
     //ds_names.Remove("dBase database file (*.dbf)|*.dbf");
@@ -118,6 +131,7 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     if( GeneralWxUtils::isWindows()){
 		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
 	}
+    
     Bind( wxEVT_COMMAND_MENU_SELECTED, 
          &ExportDataDlg::BrowseExportDataSource,
          this, DatasourceDlg::ID_DS_START, 
@@ -220,7 +234,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString tmp_ds_name;
     
 	try{
-        TableInterface* table = NULL;
 		OGRSpatialReference* spatial_ref = NULL;
         
         if ( project_p == NULL ) {
@@ -228,7 +241,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             //geometries only, e.g. boundray file
         } else {
             //case: save current open datasource as a new datasource
-			table = project_p->GetTableInt();
 			spatial_ref = project_p->GetSpatialReference();
             // warning if saveas not compaptible
             GdaConst::DataSourceType o_ds_type = project_p->GetDatasourceType();
@@ -283,7 +295,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 			}
 		}
 
-        if( !CreateOGRLayer(ds_name, table, spatial_ref, is_update) ) {
+        if( !CreateOGRLayer(ds_name, spatial_ref, is_update) ) {
             wxString msg = "Exporting has been cancelled.";
             throw GdaException(msg.mb_str(), GdaException::NORMAL);
         }
@@ -401,7 +413,7 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
  * This function will be called by OnOKClick (When user clicks OK)
  */
 bool
-ExportDataDlg::CreateOGRLayer(wxString& ds_name, TableInterface* table,
+ExportDataDlg::CreateOGRLayer(wxString& ds_name,
 							  OGRSpatialReference* spatial_ref,
                               bool is_update)
 {
@@ -446,7 +458,14 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, TableInterface* table,
         }
     } else {
         // create datasource from geometries only
-        for(size_t i=0; i<geometries.size(); i++) selected_rows.push_back(i);
+        size_t nn = geometries.size();
+        
+        // create datasource from table only (no geometry)
+        if (nn == 0 && table_p)
+            nn = table_p->GetNumberRows();
+        
+        for(size_t i=0; i < nn; i++)
+            selected_rows.push_back(i);
     }
 
 	// convert to OGR geometries
@@ -457,16 +476,16 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, TableInterface* table,
 
 	// take care of empty layer name
     if (layer_name.empty()) {
-        layer_name = table ? table->GetTableName() : "NO_NAME";
+        layer_name = table_p ? table_p->GetTableName() : "NO_NAME";
     }
     
     int prog_n_max = selected_rows.size();
-    if (prog_n_max == 0 && table) prog_n_max = table->GetNumberRows();
+    if (prog_n_max == 0 && table_p) prog_n_max = table_p->GetNumberRows();
     
     OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(
                 ds_format.ToStdString(), ds_name.ToStdString(),
                 layer_name.ToStdString(), geom_type,
-                ogr_geometries, table, selected_rows, spatial_ref, is_update);
+                ogr_geometries, table_p, selected_rows, spatial_ref, is_update);
     if (new_layer == NULL)
         return false;
     wxProgressDialog prog_dlg("Save data source progress dialog",
