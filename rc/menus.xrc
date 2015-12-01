@@ -3536,10 +3536,6 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
-    <object class="wxMenuItem" name="ID_EDIT_VARIABLES">
-      <label>Add/Remove Variables</label>
-      <checkable>0</checkable>
-    </object>
     <object class="wxMenuItem" name="ID_COMPARE_REGIMES">
       <label>Compare Regimes</label>
       <checkable>1</checkable>

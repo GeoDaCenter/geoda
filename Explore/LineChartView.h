@@ -101,6 +101,8 @@ public HighlightStateObserver, public LineChartCanvasCallbackInt
 {
 public:
 	LineChartFrame(wxFrame *parent, Project* project,
+                const std::vector<GdaVarTools::VarInfo>& v_info,
+                const std::vector<int>& col_ids,
                  const wxString& title = "Averages Chart",
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);

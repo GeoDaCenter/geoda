@@ -3269,8 +3269,14 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
 {
+    bool hide_time = true;
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, false, false,
+                           "Variable Selection",
+                           "", "", "", "", false, false, hide_time);
+	if (VS.ShowModal() != wxID_OK) return;
+    
 	LineChartFrame* f =
-	new LineChartFrame(GdaFrame::gda_frame, project_p, "Averages Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
+	new LineChartFrame(GdaFrame::gda_frame, project_p, VS.var_info, VS.col_ids, "Averages Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
 }
 
 void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))

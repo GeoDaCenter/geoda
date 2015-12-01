@@ -52,6 +52,8 @@ BEGIN_EVENT_TABLE(LineChartFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 LineChartFrame::LineChartFrame(wxFrame *parent, Project* project,
+                               const std::vector<GdaVarTools::VarInfo>& v_info,
+                               const std::vector<int>& col_ids,
 							   const wxString& title,
 							   const wxPoint& pos,
 							   const wxSize& size)
@@ -84,7 +86,7 @@ regReportDlg(0)
 		std::vector<wxString> tm_strs;
 		project->GetTableInt()->GetTimeStrings(tm_strs);
 		var_man.ClearAndInit(tm_strs);
-	}
+    }
 	
 	panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
@@ -129,7 +131,22 @@ regReportDlg(0)
 	Show(true);
 	
 	wxCommandEvent ev;
-	OnShowVarsChooser(ev);
+	//OnShowVarsChooser(ev);
+    {
+        // this block of code is used to force 1-variable selection
+        // instead of VarsChooseDlg
+    	std::vector<double> min_vals;
+    	std::vector<double> max_vals;
+        int col_id = col_ids[0];
+    	project->GetTableInt()->GetMinMaxVals(col_id, min_vals, max_vals);
+        wxString name = v_info[0].name;
+        int time = v_info[0].time;
+    	var_man.AppendVar(name, min_vals, max_vals, time);
+        
+    	UpdateDataMapFromVarMan();
+    	SetupPanelForNumVariables(var_man.GetVarsCount());
+    	Refresh();
+	}
     
     Connect(XRCID("ID_DID_TEST"),
             wxEVT_MENU, 

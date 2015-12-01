@@ -55,24 +55,32 @@ END_EVENT_TABLE()
 VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
 										 VarType v_type_s,
 										 bool show_weights_s,
-											bool show_distance_s,
+                                         bool show_distance_s,
 										 const wxString& title_s,
 										 const wxString& var1_title_s,
 										 const wxString& var2_title_s,
 										 const wxString& var3_title_s,
 										 const wxString& var4_title_s,
 										 bool _set_second_from_first_mode,
-										 bool _set_fourth_from_third_mode)
-: project(project_s), table_int(project_s->GetTableInt()),
-show_weights(show_weights_s), no_weights_found_fail(false),
+										 bool _set_fourth_from_third_mode,
+                                         bool hide_time)
+: project(project_s),
+table_int(project_s->GetTableInt()),
+show_weights(show_weights_s),
+no_weights_found_fail(false),
 show_distance(show_distance_s),
 is_time(project_s->GetTableInt()->IsTimeVariant()),
 time_steps(project_s->GetTableInt()->GetTimeSteps()),
-title(title_s), var1_title(var1_title_s), var2_title(var2_title_s),
-var3_title(var3_title_s), var4_title(var4_title_s),
+title(title_s),
+var1_title(var1_title_s),
+var2_title(var2_title_s),
+var3_title(var3_title_s),
+var4_title(var4_title_s),
 set_second_from_first_mode(_set_second_from_first_mode),
 set_fourth_from_third_mode(_set_fourth_from_third_mode),
-num_cats_spin(0), num_categories(4),
+num_cats_spin(0),
+num_categories(4),
+hide_time(hide_time),
 all_init(false)
 {
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
@@ -137,28 +145,24 @@ void VariableSettingsDlg::Init(VarType var_type)
 	lb4_cur_sel = 0;
 	table_int->FillNumericColIdMap(col_id_map);
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-		if (table_int->GetColName(col_id_map[i])
-			== project->GetDefaultVarName(0)) {
+		if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
 			lb1_cur_sel = i;
 			if (set_second_from_first_mode && num_var >= 2) {
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 2 && table_int->GetColName(col_id_map[i])
-			== project->GetDefaultVarName(1)) {
+		if (num_var >= 2 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1)) {
 			if (!set_second_from_first_mode) {
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 3 && table_int->GetColName(col_id_map[i])
-			== project->GetDefaultVarName(2)) {
+		if (num_var >= 3 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2)) {
 			lb3_cur_sel = i;
 			if (set_fourth_from_third_mode && num_var >= 4) {
 				lb4_cur_sel = i;
 			}
 		}
-		if (num_var >= 4 && table_int->GetColName(col_id_map[i])
-			== project->GetDefaultVarName(3)) {
+		if (num_var >= 4 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3)) {
 			if (!set_fourth_from_third_mode) {
 				lb4_cur_sel = i;
 			}
@@ -237,15 +241,23 @@ void VariableSettingsDlg::CreateControls()
 	}
 	
 	if (is_time) {
+        if (hide_time) {
+            wxStaticText* time_txt = XRCCTRL(*this, "ID_VARSEL_TIME", wxStaticText);
+            time_txt->Hide();
+        }
 		time_lb1 = XRCCTRL(*this, "ID_TIME1", wxChoice);
+        if (hide_time) time_lb1->Hide();
 		if (num_var >= 2) {
 			time_lb2 = XRCCTRL(*this, "ID_TIME2", wxChoice);
+            if (hide_time) time_lb2->Hide();
 		}
 		if (num_var >= 3) {
 			time_lb3 = XRCCTRL(*this, "ID_TIME3", wxChoice);
+            if (hide_time) time_lb3->Hide();
 		}
 		if (num_var >= 4) {
 			time_lb4 = XRCCTRL(*this, "ID_TIME4", wxChoice);
+            if (hide_time) time_lb4->Hide();
 		}
 	}
 	if (show_weights) {
@@ -637,10 +649,12 @@ void VariableSettingsDlg::InitFieldChoices()
 	wxString t3;
 	wxString t4;
 	if (is_time) {
-		t1 << " (" << table_int->GetTimeString(v1_time) << ")";
-		t2 << " (" << table_int->GetTimeString(v2_time) << ")";
-		t3 << " (" << table_int->GetTimeString(v3_time) << ")";
-		t4 << " (" << table_int->GetTimeString(v4_time) << ")";
+        if (!hide_time) {
+    		t1 << " (" << table_int->GetTimeString(v1_time) << ")";
+    		t2 << " (" << table_int->GetTimeString(v2_time) << ")";
+    		t3 << " (" << table_int->GetTimeString(v3_time) << ")";
+    		t4 << " (" << table_int->GetTimeString(v4_time) << ")";
+        }
 	}
 	
 	lb1->Clear();

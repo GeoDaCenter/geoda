@@ -50,7 +50,8 @@ public:
 						const wxString& var3_title="Third Variable (Z)",
 						const wxString& var4_title="Fourth Variable",
 						bool set_second_from_first_mode = false,
-						bool set_fourth_from_third_mode = false);
+						bool set_fourth_from_third_mode = false,
+                        bool hide_time = false);
 	virtual ~VariableSettingsDlg();
 	void CreateControls();
 	void Init(VarType var_type);
@@ -81,7 +82,8 @@ public:
 	
 private:
 	int m_theme; // for rate_smoothed
-	
+
+    bool hide_time;
 	wxString v1_name;
 	wxString v2_name;
 	wxString v3_name;
