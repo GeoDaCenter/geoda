@@ -9,6 +9,20 @@
       </datasource>
       <layername>nat</layername>
       <title>NCOVR 1960-90</title>
+      <weights_entries>
+        <weights>
+          <alias>nat_rook</alias>
+          <title>Rook Contiguity</title>
+          <meta_info>
+            <weights_type>rook</weights_type>
+            <order>1</order>
+            <inc_lower_orders>true</inc_lower_orders>
+            <path>Examples/ncovr/ncovr_rook.gal</path>
+            <id_variable>FIPSNO</id_variable>
+            <symmetry>symmetric</symmetry>
+          </meta_info>
+         </weights>
+      </weights>
       <variable_order>
 	<time_ids>
 	  <id>1960</id>
