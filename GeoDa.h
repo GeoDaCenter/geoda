@@ -36,6 +36,7 @@
 #include <wx/snglinst.h>
 #include <wx/timer.h>
 #include <wx/toolbar.h>
+#include <wx/xrc/xh_auitoolb.h>
 
 // Forward Declarations
 class ProgressDlg;
@@ -671,7 +672,7 @@ private:
 	static GdaFrame* gda_frame;
 	static Project* project_p;
 	static bool projectOpen;
-	static std::list<wxToolBar*> toolbar_list; // not currently used
+	static std::list<wxAuiToolBar*> toolbar_list; // not currently used
 	
 	DECLARE_EVENT_TABLE()
 };

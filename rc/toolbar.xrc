@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <resource>
-  <object class="wxToolBar" name="ToolBar">
+  <object class="wxAuiToolBar" name="ToolBar">
     <object class="tool" name="ID_NEW_PROJECT">
       <bitmap>ToolBar-new-project.png</bitmap>
       <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
@@ -148,6 +148,7 @@
       <bitmap2>ToolBarBitmaps_43_disabled.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
+    <object class="separator"/>
     <bitmapsize>16, 16</bitmapsize>
     <dontattachtoframe>1</dontattachtoframe>
     <style>wxTB_FLAT|wxTB_3DBUTTONS</style>

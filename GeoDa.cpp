@@ -152,6 +152,9 @@
 #include "cpl_conv.h"
 #include "version.h"
 
+//The XML Handler should be explicitly registered:
+#include <wx/xrc/xh_auitoolb.h>
+
 // The following is defined in rc/GdaAppResouces.cpp.  This file was
 // compiled with:
 /*
@@ -267,7 +270,10 @@ bool GdaApp::OnInit(void)
 	
 	wxImage::AddHandler(new wxPNGHandler);
 	wxImage::AddHandler(new wxXPMHandler);
-	wxXmlResource::Get()->InitAllHandlers();
+    
+    
+    wxXmlResource::Get()->AddHandler(new wxAuiToolBarXmlHandler);
+    wxXmlResource::Get()->InitAllHandlers();
 	
 	
 	//Required for virtual file system archive and memory support
@@ -303,7 +309,7 @@ bool GdaApp::OnInit(void)
 	int frameWidth = 880; // 836 // 858
 	int frameHeight = 80;
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 687; // 643 // 665
+		frameWidth = 880; // 643 // 665
 		frameHeight = 45;
 	}
 	if (GeneralWxUtils::isWindows()) {
@@ -1368,7 +1374,7 @@ void GdaFrame::SetMenusToDefault()
 GdaFrame* GdaFrame::gda_frame = 0;
 bool GdaFrame::projectOpen = false;
 Project* GdaFrame::project_p = 0;
-std::list<wxToolBar*> GdaFrame::toolbar_list(0);
+std::list<wxAuiToolBar*> GdaFrame::toolbar_list(0);
 
 GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
@@ -1393,19 +1399,22 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
 	
-	wxToolBar* tb1;
+	wxAuiToolBar* tb1;
     wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition,
 									 size, wxNO_BORDER);
+    
 	wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 		
-    tb1 = wxXmlResource::Get()->LoadToolBar(panel, "ToolBar");
+    wxObject* tb_obj = wxXmlResource::Get()->LoadObject(panel, "ToolBar", "wxAuiToolBar");
+    tb1 = (wxAuiToolBar*)tb_obj;
     wxASSERT(tb1);
+    
     if (GeneralWxUtils::isUnix()) {
         // unfortunately, just GTK needs the toolbar to be added to the
 		// topSizer rather than the panel itself.
 		topSizer->Add(tb1, 0, 0, 0, 0);
     } else {
-        topSizer->Add(panel, 0, 0, 0, 0);
+        topSizer->Add(panel, 0, wxEXPAND, 0, 0);
     }
 	SetSizer(topSizer);
 	topSizer->Fit(panel);
@@ -1430,14 +1439,14 @@ GdaFrame::~GdaFrame()
 
 void GdaFrame::EnableTool(int xrc_id, bool enable)
 {
-	BOOST_FOREACH( wxToolBar* tb, toolbar_list ) {
+	BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
 		if (tb)	tb->EnableTool(xrc_id, enable);
 	}
 }
 
 void GdaFrame::EnableTool(const wxString& id_str, bool enable)
 {
-	BOOST_FOREACH( wxToolBar* tb, toolbar_list ) {
+	BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
 		if (tb)	tb->EnableTool(wxXmlResource::GetXRCID(id_str), enable);
 	}
 }

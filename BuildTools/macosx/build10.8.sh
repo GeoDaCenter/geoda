@@ -97,12 +97,47 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
 fi
 
 #########################################################################
+# install wxWidgets library
+#########################################################################
+LIB_NAME=wxWidgets-master
+LIB_URL=https://codeload.github.com/wxWidgets/wxWidgets/zip/master
+LIB_FILENAME=wxWidgets-master.zip
+LIB_CHECKER=libwx_baseu-3.0.a1
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -k -o $LIB_FILENAME $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    make clean
+    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
+    $MAKER 
+    make install
+    cd ..
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+
+exit
+
+#########################################################################
 # install GDAL/OGR
 #########################################################################
 LIB_NAME=gdal
 LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa18Merge
 LIB_FILENAME=GeoDa18Merge
-LIB_CHECKER=libgdal.a1
+LIB_CHECKER=libgdal.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME

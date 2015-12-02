@@ -280,7 +280,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			ung_enable = true;
 		}
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetText(ung_str);
+	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetItemLabel(ung_str);
 	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->Enable(ung_enable);
 	
 	// Set Rename item
@@ -288,7 +288,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 	if (popup_col != -1) {
 		rename_str << " \"" << ti->GetColName(popup_col) << "\"";
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetText(rename_str);
+	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetItemLabel(rename_str);
 	bool enable_rename = false;
 	if (popup_col!=-1) {
 		if (ti->IsColTimeVariant(popup_col)) {
