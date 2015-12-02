@@ -43,7 +43,7 @@
       <bitmap2>ToolBarBitmaps_5_disabled.png</bitmap2>
       <tooltip>Connectivity Histogram</tooltip>
     </object>
-	<object class="tool" name="ID_CONNECTIVITY_MAP_VIEW">
+    <object class="tool" name="ID_CONNECTIVITY_MAP_VIEW">
       <bitmap>ToolBarBitmaps_5a.png</bitmap>
       <bitmap2>ToolBarBitmaps_5a_disabled.png</bitmap2>
       <tooltip>Connectivity Map</tooltip>
@@ -91,7 +91,7 @@
       <bitmap2>ToolBarBitmaps_13_disabled.png</bitmap2>
       <tooltip>Scatter Plot</tooltip>
     </object>
-		<object class="tool" name="IDM_SCATTERPLOT_MAT">
+    <object class="tool" name="IDM_SCATTERPLOT_MAT">
       <bitmap>ToolBarBitmaps_ScatPlotMat.png</bitmap>
       <bitmap2>ToolBarBitmaps_ScatPlotMat_disabled.png</bitmap2>
       <tooltip>Scatter Plot Matrix</tooltip>
@@ -111,7 +111,7 @@
       <bitmap2>ToolBarBitmaps_15_disabled.png</bitmap2>
       <tooltip>Parallel Coordinate Plot</tooltip>
     </object>
-		<object class="tool" name="IDM_LINE_CHART">
+    <object class="tool" name="IDM_LINE_CHART">
       <bitmap>ToolBarBitmaps_AveragesChart.png</bitmap>
       <bitmap2>ToolBarBitmaps_AveragesChart_disabled.png</bitmap2>
       <tooltip>Averages Chart</tooltip>
@@ -137,7 +137,7 @@
       <bitmap2>ToolBarBitmaps_37_disabled.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>
     </object>
-		<object class="tool" name="IDM_CORRELOGRAM">
+    <object class="tool" name="IDM_CORRELOGRAM">
       <bitmap>ToolBarBitmaps_autocovariance_sp.png</bitmap>
       <bitmap2>ToolBarBitmaps_autocovariance_sp_disabled.png</bitmap2>
       <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
@@ -148,6 +148,9 @@
       <bitmap2>ToolBarBitmaps_43_disabled.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
+    <bitmapsize>16, 16</bitmapsize>
+    <dontattachtoframe>1</dontattachtoframe>
+    <style>wxTB_FLAT|wxTB_3DBUTTONS</style>
   </object>
   <object class="wxToolBar" name="ToolBar2">
     <object class="tool" name="ID_CD_ROM">
@@ -189,45 +192,43 @@
     <margins>2,2</margins>
     <style>wxTB_NODIVIDER</style>
   </object>
-  
-  
   <object class="wxToolBar" name="ToolBar_MAP">
-      <style>wxTB_FLAT|wxTB_HORIZONTAL</style>
-      <bitmapsize>16,16</bitmapsize>
-      <margins>1,1</margins>
-      <object class="tool" name="ID_SELECT_LAYER">
-          <bitmap>ToolBar_select.png</bitmap>
-          <tooltip>Select</tooltip>
-      </object>
-      <object class="tool" name="ID_SELECT_INVERT">
-          <bitmap>inverse-sel.png</bitmap>
-          <tooltip>Invert Select</tooltip>
-      </object>
-      <object class="separator"/>
-      <object class="tool" name="ID_ZOOM_LAYER">
-          <bitmap>zoom_in.png</bitmap>
-          <tooltip>Zoom In</tooltip>
-      </object>
-      <object class="tool" name="ID_ZOOM_OUT_LAYER">
-          <bitmap>zoom_out.png</bitmap>
-          <tooltip>Zoom Out</tooltip>
-      </object>
-      <object class="tool" name="ID_PAN_LAYER">
-          <bitmap>ToolBar_hand.png</bitmap>
-          <tooltip>Pan</tooltip>
-      </object>
-      <object class="tool" name="ID_EXTENT_LAYER">
-          <bitmap>ToolBar_extent.png</bitmap>
-          <tooltip>Full Extent</tooltip>
-      </object>
-      <object class="separator"/>
-      <object class="tool" name="ID_TOOLBAR_BASEMAP">
-          <bitmap>basemap.png</bitmap>
-          <tooltip>Base Map </tooltip>
-      </object>
-      <object class="tool" name="ID_REFRESH_LAYER">
-          <bitmap>ToolBar_refresh.png</bitmap>
-          <tooltip>Refresh</tooltip>
-      </object>
+    <style>wxTB_FLAT|wxTB_HORIZONTAL</style>
+    <bitmapsize>16,16</bitmapsize>
+    <margins>1,1</margins>
+    <object class="tool" name="ID_SELECT_LAYER">
+      <bitmap>ToolBar_select.png</bitmap>
+      <tooltip>Select</tooltip>
+    </object>
+    <object class="tool" name="ID_SELECT_INVERT">
+      <bitmap>inverse-sel.png</bitmap>
+      <tooltip>Invert Select</tooltip>
+    </object>
+    <object class="separator"/>
+    <object class="tool" name="ID_ZOOM_LAYER">
+      <bitmap>zoom_in.png</bitmap>
+      <tooltip>Zoom In</tooltip>
+    </object>
+    <object class="tool" name="ID_ZOOM_OUT_LAYER">
+      <bitmap>zoom_out.png</bitmap>
+      <tooltip>Zoom Out</tooltip>
+    </object>
+    <object class="tool" name="ID_PAN_LAYER">
+      <bitmap>ToolBar_hand.png</bitmap>
+      <tooltip>Pan</tooltip>
+    </object>
+    <object class="tool" name="ID_EXTENT_LAYER">
+      <bitmap>ToolBar_extent.png</bitmap>
+      <tooltip>Full Extent</tooltip>
+    </object>
+    <object class="separator"/>
+    <object class="tool" name="ID_TOOLBAR_BASEMAP">
+      <bitmap>basemap.png</bitmap>
+      <tooltip>Base Map </tooltip>
+    </object>
+    <object class="tool" name="ID_REFRESH_LAYER">
+      <bitmap>ToolBar_refresh.png</bitmap>
+      <tooltip>Refresh</tooltip>
+    </object>
   </object>
 </resource>
