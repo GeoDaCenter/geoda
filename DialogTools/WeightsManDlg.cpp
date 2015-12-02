@@ -66,6 +66,12 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 							wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "Remove",
 							  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram",
+                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map",
+                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	
 	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON,
 			wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
@@ -102,17 +108,23 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	btns_row1_h_szr->AddSpacer(5);
 	btns_row1_h_szr->Add(remove_btn, 0, wxALIGN_CENTER_VERTICAL);
 	
+    wxBoxSizer* btns_row2_h_szr = new wxBoxSizer(wxHORIZONTAL);
+    btns_row2_h_szr->Add(histogram_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row2_h_szr->AddSpacer(5);
+    btns_row2_h_szr->Add(connectivity_map_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row2_h_szr->AddSpacer(5);
+ 
+    
 	wxBoxSizer* wghts_list_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	wghts_list_h_szr->Add(w_list);
 	
 	wxBoxSizer* panel_v_szr = new wxBoxSizer(wxVERTICAL);
-	panel_v_szr->Add(wghts_list_h_szr, 0,
-					 wxALIGN_CENTER_HORIZONTAL);
-	
+	panel_v_szr->Add(btns_row1_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    panel_v_szr->AddSpacer(15);
+	panel_v_szr->Add(wghts_list_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
 	panel_v_szr->Add(details_win, 1, wxEXPAND);
+	panel_v_szr->Add(btns_row2_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 	
-	panel_v_szr->Add(btns_row1_h_szr, 0,
-					 wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 	
 	wxBoxSizer* panel_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
@@ -120,11 +132,9 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetSizer(panel_h_szr);
 	
 	
-	wxBoxSizer* right_v_szr = new wxBoxSizer(wxVERTICAL);
-	conn_hist_canvas = new ConnectivityHistCanvas(this, this, project,
-												  boost::uuids::nil_uuid());
-
-	right_v_szr->Add(conn_hist_canvas, 1, wxEXPAND);
+	//wxBoxSizer* right_v_szr = new wxBoxSizer(wxVERTICAL);
+	//conn_hist_canvas = new ConnectivityHistCanvas(this, this, project, boost::uuids::nil_uuid());
+	//right_v_szr->Add(conn_hist_canvas, 1, wxEXPAND);
 	
 	// We have decided not to display the ConnectivityMapCanvas.  Uncomment
 	// the following 4 lines to re-enable for shape-enabled projects.
@@ -141,7 +151,7 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	// Top Sizer for Frame
 	wxBoxSizer* top_h_sizer = new wxBoxSizer(wxHORIZONTAL);
 	top_h_sizer->Add(panel, 1, wxEXPAND|wxALL, 8);
-	top_h_sizer->Add(right_v_szr, 1, wxEXPAND);
+	//top_h_sizer->Add(right_v_szr, 1, wxEXPAND);
 	
 	wxColour panel_color = panel->GetBackgroundColour();
 	SetBackgroundColour(panel_color);
@@ -623,5 +633,7 @@ void WeightsManFrame::UpdateButtons()
 {
 	bool any_sel = !GetHighlightId().is_nil();
 	if (remove_btn) remove_btn->Enable(any_sel);
+	if (histogram_btn) histogram_btn->Enable(any_sel);
+	if (connectivity_map_btn) connectivity_map_btn->Enable(any_sel);
 }
 

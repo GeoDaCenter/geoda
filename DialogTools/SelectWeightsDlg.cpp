@@ -40,7 +40,8 @@ w_man_int(project->GetWManInt()), w_list(0), ok_btn(0), cancel_btn(0)
 	LOG_MSG("Entering SelectWeightsDlg::SelectWeightsDlg");
 	
 	w_man_int->GetIds(ids);
-	if (no_weights = (ids.size() == 0)) {
+    no_weights = ids.size() == 0 ? true : false;
+	if (no_weights) {
 		InitNoWeights();
 	} else {
 		InitNormal();
