@@ -88,6 +88,7 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 
 void DataViewerAddColDlg::CreateControls()
 {
+    SetBackgroundColour(*wxWHITE);
 	if (time_variant && fixed_lengths) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 								"ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");

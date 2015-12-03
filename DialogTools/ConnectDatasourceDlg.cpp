@@ -88,7 +88,6 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 {
     // init controls defined in parent class
     DatasourceDlg::Init();
-    
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);

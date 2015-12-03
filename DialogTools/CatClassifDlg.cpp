@@ -2234,7 +2234,7 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 			wxCommandEventHandler(CatClassifFrame::OnSyncVarsChk));
 
 	wxBoxSizer* histo_v_szr = new wxBoxSizer(wxVERTICAL);
-	histo_v_szr->Add(histo_h_szr, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL);
+	histo_v_szr->Add(histo_h_szr, 1, wxALIGN_CENTER_HORIZONTAL);
 	histo_v_szr->Add(sync_vars_chk, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
 	
 	histo_panel->SetSizer(histo_v_szr);

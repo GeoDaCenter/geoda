@@ -31,6 +31,7 @@
 
 #include <sqlite3.h>
 
+#include <wx/sysopt.h>
 #include <wx/wxprec.h>
 #include <wx/aboutdlg.h>
 #include <wx/valtext.h>
@@ -263,7 +264,9 @@ bool GdaApp::OnInit(void)
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
 	// issue #15331 for more details.
-	wxLog::SetLogLevel(0); 
+	wxLog::SetLogLevel(0);
+    
+    wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
 
 	GdaConst::init();
 	CalcHelp::init();
@@ -309,8 +312,8 @@ bool GdaApp::OnInit(void)
 	int frameWidth = 880; // 836 // 858
 	int frameHeight = 80;
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 880; // 643 // 665
-		frameHeight = 45;
+		frameWidth = 780; // 643 // 665
+		frameHeight = 60;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
@@ -1382,6 +1385,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 {
 	LOG_MSG("Entering GdaFrame::GdaFrame");
 		
+	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
 
@@ -1399,26 +1403,26 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
 	
-	wxAuiToolBar* tb1;
-    wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition,
-									 size, wxNO_BORDER);
-    
-	wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 		
-    wxObject* tb_obj = wxXmlResource::Get()->LoadObject(panel, "ToolBar", "wxAuiToolBar");
-    tb1 = (wxAuiToolBar*)tb_obj;
-    wxASSERT(tb1);
+    wxObject* tb_obj = wxXmlResource::Get()->LoadObject(this, "ToolBar", "wxAuiToolBar");
+	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
+    tb1->SetMargins(10,10);
+    tb1->Realize();
     
+    /*
+    wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size, wxNO_BORDER);
+	wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
     if (GeneralWxUtils::isUnix()) {
         // unfortunately, just GTK needs the toolbar to be added to the
 		// topSizer rather than the panel itself.
 		topSizer->Add(tb1, 0, 0, 0, 0);
     } else {
-        topSizer->Add(panel, 0, wxEXPAND, 0, 0);
+        //topSizer->Add(panel, 0, wxEXPAND, 0, 0);
+		topSizer->Add(tb1, 0, 0, 0, 0);
     }
 	SetSizer(topSizer);
-	topSizer->Fit(panel);
-	
+	//topSizer->Fit(panel);
+    */
 	gda_frame = this;
 
 	toolbar_list.push_front(tb1);

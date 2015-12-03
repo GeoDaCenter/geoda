@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <resource>
   <object class="wxAuiToolBar" name="ToolBar">
+    <bitmapsize>16, 16</bitmapsize>
+    <dontattachtoframe>1</dontattachtoframe>
+    <margins>2,2</margins>
+    <style>wxAUI_TB_PLAIN_BACKGROUND</style>
+    <bg>#3F70A6</bg>
     <object class="tool" name="ID_NEW_PROJECT">
-      <bitmap>ToolBar-new-project.png</bitmap>
-      <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
-      <tooltip>New Project</tooltip>
-    </object>
-    <object class="tool" name="ID_OPEN_PROJECT">
       <bitmap>ToolBar-open-folder.png</bitmap>
       <bitmap2>ToolBar-open-folder_disabled.png</bitmap2>
+      <tooltip>New Project</tooltip>
+    </object>
+    <!--
+    <object class="tool" name="ID_OPEN_PROJECT">
+      <bitmap>ToolBar-new-project.png</bitmap>
+      <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
       <tooltip>Open Project</tooltip>
     </object>
+     -->
     <object class="tool" name="ID_CLOSE_PROJECT">
       <bitmap>ToolBar-close-folder.png</bitmap>
       <bitmap2>ToolBar-close-folder_disabled.png</bitmap2>
@@ -20,6 +27,12 @@
       <bitmap>ToolBar-save-project.png</bitmap>
       <bitmap2>ToolBar-save-project_disabled.png</bitmap2>
       <tooltip>Save Project</tooltip>
+    </object>
+    <object class="separator"/>
+    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
+      <bitmap>ToolBarBitmaps_44.png</bitmap>
+      <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
+      <tooltip>Category Editor</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
@@ -49,22 +62,6 @@
       <tooltip>Connectivity Map</tooltip>
     </object>
     <object class="separator"/>
-    <object class="tool" name="ID_SHOW_TIME_CHOOSER">
-      <bitmap>ToolBarBitmaps_42.png</bitmap>
-      <bitmap2>ToolBarBitmaps_42_disabled.png</bitmap2>
-      <tooltip>Time Control</tooltip>
-    </object>
-    <object class="tool" name="ID_SHOW_DATA_MOVIE">
-      <bitmap>ToolBar-movie.png</bitmap>
-      <bitmap2>ToolBar-movie_disabled.png</bitmap2>
-      <tooltip>Animation</tooltip>
-    </object>
-    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
-      <bitmap>ToolBarBitmaps_44.png</bitmap>
-      <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
-      <tooltip>Category Editor</tooltip>
-    </object>
-    <object class="separator"/>
     <object class="tool" name="ID_MAP_CHOICES">
       <bitmap>ToolBarBitmaps_MapChoices2.png</bitmap>
       <bitmap2>ToolBarBitmaps_MapChoices2_disabled.png</bitmap2>
@@ -74,6 +71,11 @@
       <bitmap>ToolBarBitmaps_30.png</bitmap>
       <bitmap2>ToolBarBitmaps_30_disabled.png</bitmap2>
       <tooltip>Cartogram</tooltip>
+    </object>
+    <object class="tool" name="ID_SHOW_DATA_MOVIE">
+      <bitmap>ToolBar-movie.png</bitmap>
+      <bitmap2>ToolBar-movie_disabled.png</bitmap2>
+      <tooltip>Animation</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_HIST">
@@ -111,11 +113,6 @@
       <bitmap2>ToolBarBitmaps_15_disabled.png</bitmap2>
       <tooltip>Parallel Coordinate Plot</tooltip>
     </object>
-    <object class="tool" name="IDM_LINE_CHART">
-      <bitmap>ToolBarBitmaps_AveragesChart.png</bitmap>
-      <bitmap2>ToolBarBitmaps_AveragesChart_disabled.png</bitmap2>
-      <tooltip>Averages Chart</tooltip>
-    </object>
     <object class="tool" name="ID_COND_PLOT_CHOICES">
       <bitmap>ToolBarBitmaps_17.png</bitmap>
       <bitmap2>ToolBarBitmaps_17_disabled.png</bitmap2>
@@ -127,6 +124,11 @@
       <bitmap2>ToolBarBitmaps_19_disabled.png</bitmap2>
       <tooltip>Moran's I Scatter Plots</tooltip>
     </object>
+    <object class="tool" name="IDM_CORRELOGRAM">
+      <bitmap>ToolBarBitmaps_autocovariance_sp.png</bitmap>
+      <bitmap2>ToolBarBitmaps_autocovariance_sp_disabled.png</bitmap2>
+      <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
+    </object>
     <object class="tool" name="ID_LISA_MENU">
       <bitmap>ToolBarBitmaps_22.png</bitmap>
       <bitmap2>ToolBarBitmaps_22_disabled.png</bitmap2>
@@ -137,10 +139,16 @@
       <bitmap2>ToolBarBitmaps_37_disabled.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>
     </object>
-    <object class="tool" name="IDM_CORRELOGRAM">
-      <bitmap>ToolBarBitmaps_autocovariance_sp.png</bitmap>
-      <bitmap2>ToolBarBitmaps_autocovariance_sp_disabled.png</bitmap2>
-      <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
+    <object class="separator"/>
+    <object class="tool" name="ID_SHOW_TIME_CHOOSER">
+      <bitmap>toolbarbitmaps_42.png</bitmap>
+      <bitmap2>toolbarbitmaps_42_disabled.png</bitmap2>
+      <tooltip>time control</tooltip>
+    </object>
+    <object class="tool" name="IDM_LINE_CHART">
+      <bitmap>ToolBarBitmaps_AveragesChart.png</bitmap>
+      <bitmap2>ToolBarBitmaps_AveragesChart_disabled.png</bitmap2>
+      <tooltip>Averages Chart</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_REGRESSION_CLASSIC">
@@ -149,9 +157,6 @@
       <tooltip>Regression</tooltip>
     </object>
     <object class="separator"/>
-    <bitmapsize>16, 16</bitmapsize>
-    <dontattachtoframe>1</dontattachtoframe>
-    <style>wxTB_FLAT|wxTB_3DBUTTONS</style>
   </object>
   <object class="wxToolBar" name="ToolBar2">
     <object class="tool" name="ID_CD_ROM">

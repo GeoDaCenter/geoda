@@ -78,8 +78,9 @@ loop(true), forward(true)
 {
 	LOG_MSG("Entering TimeChooserDlg::TimeChooserDlg");
 	SetParent(parent);
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "ID_TIME_CHOOSER_DLG");
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_TIME_CHOOSER_DLG");
+    SetBackgroundColour(*wxWHITE);
+    
 	play_button = wxDynamicCast(FindWindow(XRCID("ID_PLAY")), wxButton);
 	slider = wxDynamicCast(FindWindow(XRCID("ID_SLIDER")), wxSlider);
 	speed_slider = wxDynamicCast(FindWindow(XRCID("ID_SPEED_SLIDER")),

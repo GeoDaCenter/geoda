@@ -468,15 +468,15 @@ fi
 #########################################################################
 # install wxWidgets library
 #########################################################################
-LIB_NAME=wxWidgets-3.0.2
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
-LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-LIB_CHECKER=libwx_baseu-3.0.a
+LIB_NAME=wxWidgets-master
+LIB_URL=https://codeload.github.com/wxWidgets/wxWidgets/zip/master
+LIB_FILENAME=wxWidgets-master.zip
+LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
 if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+        curl -k -o $LIB_FILENAME $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -486,8 +486,8 @@ fi
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     make clean
-    #./configure CFLAGS="$GDA_CFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" CXXFLAGS="$GDA_CXXFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" LDFLAGS="$GDA_LDFLAGS -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" OBJCFLAGS="-arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" OBJCXXFLAGS="-arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --with-macosx-version-min=10.6 --enable-textfile --prefix=$PREFIX
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --prefix=$PREFIX
+    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

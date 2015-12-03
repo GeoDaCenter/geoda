@@ -116,6 +116,12 @@ void Basemap::CleanCache()
 
 void Basemap::SetupMapType(int map_type)
 {
+	//std::vector<std::string> nokia_id = OGRDataAdapter::GetInstance().GetHistory("nokia_id");
+	//std::vector<std::string> nokia_code = OGRDataAdapter::GetInstance().GetHistory("nokia_code");
+   
+    std::string nokia_id = "oRnRceLPyM8OFQQA5LYH";
+    std::string nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
+    
     mapType = map_type;
     if (mapType == 1) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
@@ -137,22 +143,22 @@ void Basemap::SetupMapType(int map_type)
     } else if (mapType == 5) {
         // nokia day
         basemapUrl = "http://1.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.day/";
-        urlSuffix = "/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg";
+        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 6) {
         // nokia night
         basemapUrl = "http://4.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.night/";
-        urlSuffix = "/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg";
+        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 7) {
         // nokia terrian
         basemapUrl = "http://3.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
-        urlSuffix = "/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg";
+        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 8) {
         // nokia hybrid
         basemapUrl = "http://4.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
-        urlSuffix = "/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg";
+        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else {
         mapType = 1;

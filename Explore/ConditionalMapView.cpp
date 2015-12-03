@@ -1405,6 +1405,7 @@ ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
 	template_legend = new ConditionalMapLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    template_legend->GetContainingSizer()->Detach(template_legend);
     lbox->Add(template_legend, 1, wxEXPAND);
     lpanel->SetSizer(lbox);
 

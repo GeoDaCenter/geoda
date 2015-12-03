@@ -64,7 +64,7 @@
           </object>
           <object class="sizeritem">
             <object class="wxStaticLine" name="stline_id">
-              <size>400,5</size>
+              <size>400,1</size>
               <style>wxLI_HORIZONTAL</style>
             </object>
             <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
@@ -252,7 +252,7 @@
           </object>
           <object class="sizeritem">
             <object class="wxStaticLine" name="stline_id">
-              <size>400,5</size>
+              <size>400,1</size>
               <style>wxLI_HORIZONTAL</style>
             </object>
             <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
@@ -6065,7 +6065,7 @@
               </object>
               <object class="sizeritem">
                 <object class="wxStaticLine" name="stline_id">
-                  <size>400,5</size>
+                  <size>400,1</size>
                   <style>wxLI_HORIZONTAL</style>
                 </object>
                 <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
