@@ -29,12 +29,6 @@
       <tooltip>Save Project</tooltip>
     </object>
     <object class="separator"/>
-    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
-      <bitmap>ToolBarBitmaps_44.png</bitmap>
-      <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
-      <tooltip>Category Editor</tooltip>
-    </object>
-    <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
       <bitmap>ToolBar-table.png</bitmap>
       <bitmap2>ToolBar-table_disabled.png</bitmap2>
@@ -76,6 +70,12 @@
       <bitmap>ToolBar-movie.png</bitmap>
       <bitmap2>ToolBar-movie_disabled.png</bitmap2>
       <tooltip>Animation</tooltip>
+    </object>
+    <object class="separator"/>
+    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
+      <bitmap>ToolBarBitmaps_44.png</bitmap>
+      <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
+      <tooltip>Category Editor</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_HIST">

@@ -43,6 +43,7 @@ public:
     virtual void OnOkClick( wxCommandEvent& event );
 	void OnLookupWSLayerBtn( wxCommandEvent& event );
 	void OnLookupDSTableBtn( wxCommandEvent& event );
+	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
     
 private:

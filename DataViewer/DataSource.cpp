@@ -299,7 +299,7 @@ WebServiceDataSource::WebServiceDataSource(wxString ws_url,
 
 IDataSource* WebServiceDataSource::Clone()
 {
-    return new WebServiceDataSource(webservice_url);
+    return new WebServiceDataSource(webservice_url, ds_type);
 }
 
 void WebServiceDataSource::ReadPtree(const ptree& pt,

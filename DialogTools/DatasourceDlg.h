@@ -66,6 +66,11 @@ protected:
     wxMenu*         m_ds_menu;
 	wxString        layer_name;
 
+	wxTextCtrl*     m_cartodb_uname;
+	wxTextCtrl*     m_cartodb_key;
+	wxTextCtrl*     m_cartodb_public_table;
+	wxTextCtrl*     m_database_table;
+    
     wxArrayString   ds_names;
     
 public:

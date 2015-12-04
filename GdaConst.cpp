@@ -580,6 +580,16 @@ void GdaConst::init()
 	datasrc_field_illegal_regex[ds_postgresql] = db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_postgresql] = true;
 	
+	datasrc_str_to_type["CartoDB"] = ds_cartodb;
+	datasrc_type_to_prefix[ds_cartodb] = "CartoDB:";
+	datasrc_type_to_fullname[ds_cartodb] = "CartoDB";
+	datasrc_table_lens[ds_cartodb] = 31;
+	datasrc_field_lens[ds_cartodb] = 31;
+	datasrc_field_warning[ds_cartodb] = db_field_warning;
+	datasrc_field_regex[ds_cartodb] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_cartodb] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_cartodb] = true;
+    
 	datasrc_str_to_type["SQLite"] = ds_sqlite;
 	datasrc_type_to_prefix[ds_sqlite] = "";
 	datasrc_type_to_fullname[ds_sqlite] = "SQLite / Spatialite";

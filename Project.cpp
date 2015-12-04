@@ -190,8 +190,8 @@ Project::~Project()
 {
 	LOG_MSG("Entering Project::~Project");
 	
-	if (project_conf) delete project_conf;
-	datasource = 0;
+    if (project_conf) delete project_conf; project_conf=0;
+    if (datasource) delete datasource; datasource = 0;
 	if (cat_classif_manager) delete cat_classif_manager; cat_classif_manager=0;
     
     // Again, WeightsManInterface is not needed.
@@ -550,11 +550,12 @@ void Project::SaveDataSourceData()
 		try {
 			// for saving changes in database, call OGRTableInterface::Save()
 			if (ds_type == GdaConst::ds_shapefile ||
-					ds_type == GdaConst::ds_dbf ||
-					ds_type == GdaConst::ds_esri_file_geodb ||
-					ds_type == GdaConst::ds_postgresql ||
-					ds_type == GdaConst::ds_oci ||
-					ds_type == GdaConst::ds_mysql) {
+                ds_type == GdaConst::ds_dbf ||
+				ds_type == GdaConst::ds_esri_file_geodb ||
+				ds_type == GdaConst::ds_postgresql ||
+				ds_type == GdaConst::ds_oci ||
+				ds_type == GdaConst::ds_mysql ||
+                ds_type == GdaConst::ds_cartodb) {
 				
 				table_int->Save(save_err_msg);
 			}

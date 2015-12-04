@@ -126,8 +126,7 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    std::vector<std::string> db_infos =
-        OGRDataAdapter::GetInstance().GetHistory("db_info");
+    std::vector<std::string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
         std::string db_info = db_infos[0];
         json_spirit::Value v;

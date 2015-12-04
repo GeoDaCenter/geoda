@@ -73,8 +73,8 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 
 BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
-	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"),
-               ConnectDatasourceDlg::OnLookupDSTableBtn)
+	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
+	EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"),
     //           ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
@@ -170,6 +170,16 @@ void ConnectDatasourceDlg::OnLookupDSTableBtn( wxCommandEvent& event )
 	}
 }
 
+void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
+{
+	try {
+        CreateDataSource();
+        PromptDSLayers(datasource);
+    } catch(GdaException& e) {
+        
+    }
+}
+
 /**
  * This function handles the event of user click OK button.
  * When user chooses a data source, validate it first,
@@ -198,6 +208,10 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             // Database tab is selected
 			layername = m_database_table->GetValue();
 		} else if (datasource_type == 2) {
+            // Web Service tab is selected
+            if (layer_name.IsEmpty()) PromptDSLayers(datasource);
+			layername = layer_name;
+		} else if (datasource_type == 3) {
             // Web Service tab is selected
             if (layer_name.IsEmpty()) PromptDSLayers(datasource);
 			layername = layer_name;
@@ -366,6 +380,10 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         datasource = new WebServiceDataSource(ws_url, GdaConst::ds_wfs);
         // prompt user to select a layer from WFS
         //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
+	} else if ( datasource_type == 3 ) {
+        wxString url = "CartoDB:lixun910";
+        CPLSetConfigOption("CARTODB_API_KEY", "340808e9a453af9680684a65990eb4eb706e9b56");
+        datasource = new WebServiceDataSource(url, GdaConst::ds_cartodb);
     }
 	
 	return datasource;
