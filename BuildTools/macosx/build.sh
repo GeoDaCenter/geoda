@@ -423,8 +423,8 @@ fi
 # install GDAL/OGR
 #########################################################################
 LIB_NAME=gdal
-LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa18Merge
-LIB_FILENAME=GeoDa18Merge
+LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
+LIB_FILENAME=GeoDa17Merge
 LIB_CHECKER=libgdal.a
 echo $LIB_FILENAME
 
@@ -433,7 +433,7 @@ cd $DOWNLOAD_HOME
 if ! [ -d "$LIB_NAME" ]; then
     curl -k -O $LIB_URL
     unzip $LIB_FILENAME
-    mv gdal-GeoDa18Merge/gdal gdal
+    mv gdal-GeoDa17Merge/gdal gdal
 fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
@@ -468,10 +468,10 @@ fi
 #########################################################################
 # install wxWidgets library
 #########################################################################
-LIB_NAME=wxWidgets-master
-LIB_URL=https://codeload.github.com/wxWidgets/wxWidgets/zip/master
-LIB_FILENAME=wxWidgets-master.zip
-LIB_CHECKER=libwx_baseu-3.1.a
+LIB_NAME=wxWidgets-3.0.2
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_FILENAME=$(basename "$LIB_URL" ".tar")
+LIB_CHECKER=libwx_baseu-3.0.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
@@ -487,7 +487,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     make clean
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --with-macosx-version-min=10.6 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

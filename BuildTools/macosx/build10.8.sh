@@ -96,47 +96,13 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     cd ../..
 fi
 
-#########################################################################
-# install wxWidgets library
-#########################################################################
-LIB_NAME=wxWidgets-master
-LIB_URL=https://codeload.github.com/wxWidgets/wxWidgets/zip/master
-LIB_FILENAME=wxWidgets-master.zip
-LIB_CHECKER=libwx_baseu-3.0.a1
-echo $LIB_FILENAME
-
-cd $DOWNLOAD_HOME
-if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -k -o $LIB_FILENAME $LIB_URL
-fi
-
-if ! [ -d "$LIB_NAME" ]; then
-    tar -xf $LIB_FILENAME
-fi
-
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    cd $LIB_NAME
-    make clean
-    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
-    $MAKER 
-    make install
-    cd ..
-fi
-
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    echo "Error! Exit"
-    exit
-fi
-
-exit
 
 #########################################################################
-# install GDAL/OGR
+# install GDAL/OGR source
 #########################################################################
 LIB_NAME=gdal
-LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa18Merge
-LIB_FILENAME=GeoDa18Merge
+LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
+LIB_FILENAME=GeoDa17Merge
 LIB_CHECKER=libgdal.a
 echo $LIB_FILENAME
 
@@ -148,34 +114,6 @@ if ! [ -d "$LIB_NAME" ]; then
     mv gdal-GeoDa18Merge/gdal gdal
 fi
 
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    cd $LIB_NAME
-    if [[ $NODEBUG -eq 1 ]] ; then
-        # no debug
-    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config
-    else
-        # with debug
-    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
-    fi
-    echo "$GEODA_HOME/dep/$LIB_NAME"
-    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    #make clean
-    rm $GEODA_HOME/libraries/lib/libspatialite.la
-    $MAKER
-    touch .libs/libgdal.lai
-    make install
-    cp .libs/* ../../libraries/lib
-    #cd ogr/ogrsf_frmts/oci
-    #make plugin
-    #mv ogr_OCI.so ogr_OCI.dylib
-    #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
-fi
-
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    echo "Error! Exit"
-    echo "You need to modify the libgdal.la and remove the extra '=' symobls."
-    exit
-fi
 
 #########################################################################
 # install boost library
