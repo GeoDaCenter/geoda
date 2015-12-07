@@ -154,9 +154,9 @@ INGRES_INC =
 # MySQL support.
 #
 HAVE_MYSQL =	no
-MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
-MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
-LIBS	   +=	$(MYSQL_LIB)
+#MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
+#MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
+#LIBS	   +=	$(MYSQL_LIB)
 
 #
 # HDF4 Support.

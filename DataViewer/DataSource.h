@@ -54,7 +54,7 @@ using boost::property_tree::ptree;
  */
 class IDataSource : public PtreeInterface {
 public:
-	virtual ~IDataSource(){}
+    virtual ~IDataSource(){};
 	
 	virtual wxString GetOGRConnectStr() = 0;	
 	
@@ -100,6 +100,7 @@ public:
  */
 class FileDataSource : public IDataSource {
 public:
+    virtual ~FileDataSource(){};
     /**
      * Default constructor
      */
@@ -151,6 +152,7 @@ public:
  */
 class WebServiceDataSource: public IDataSource{
 public:
+    virtual ~WebServiceDataSource(){};
 	WebServiceDataSource(){}
 	WebServiceDataSource(const ptree& xml_tree,
                          GdaConst::DataSourceType _ds_type,
@@ -186,6 +188,7 @@ public:
  */
 class DBDataSource: public IDataSource{
 public:
+    virtual ~DBDataSource(){};
 	DBDataSource(){}
 	DBDataSource(const ptree& xml_tree, GdaConst::DataSourceType _ds_type,
 				 const wxString& proj_path);

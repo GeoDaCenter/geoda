@@ -292,8 +292,33 @@ bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
 	return true;
 }
 
-bool OGRLayerProxy::UpdateColumn()
+
+bool OGRLayerProxy::CallAPI(wxString url)
 {
+    return true;
+}
+
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
+{
+    return true;
+    
+}
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
+{
+    return true;
+}
+
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
+{
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        //data[rid]->SetField( cid, val);
+        int n_rows = data.size();
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, vals[rid].mb_str());
+        }
+        
+    }
 	return true;
 }
 

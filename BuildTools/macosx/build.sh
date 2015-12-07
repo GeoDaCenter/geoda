@@ -447,7 +447,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     fi
     echo "$GEODA_HOME/dep/$LIB_NAME"
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    #make clean
+    make clean
     rm $GEODA_HOME/libraries/lib/libspatialite.la
     $MAKER
     touch .libs/libgdal.lai
@@ -465,6 +465,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     exit
 fi
 
+exit
 #########################################################################
 # install wxWidgets library
 #########################################################################

@@ -191,7 +191,8 @@ Project::~Project()
 	LOG_MSG("Entering Project::~Project");
 	
     if (project_conf) delete project_conf; project_conf=0;
-    if (datasource) delete datasource; datasource = 0;
+    // datasource* has been deleted in project_conf* layer*
+    datasource = 0;
 	if (cat_classif_manager) delete cat_classif_manager; cat_classif_manager=0;
     
     // Again, WeightsManInterface is not needed.

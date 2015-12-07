@@ -13,6 +13,7 @@
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
+		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
@@ -232,6 +233,8 @@
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
+		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
+		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
@@ -648,6 +651,8 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */,
+				A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */,
 				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
 				DD972054150A6EE4000206F4 /* CmdLineUtils */,
@@ -1243,6 +1248,7 @@
 				DD27EF050F2F6CBE009C5C42 /* ShapeFile.cpp in Sources */,
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				DDD13F6F0F2FC802009F7F13 /* ShapeFileTriplet.cpp in Sources */,
+				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
 				DDD13F930F2FD641009F7F13 /* BasePoint.cpp in Sources */,
 				DDD13FAB0F30B2E4009F7F13 /* Box.cpp in Sources */,
 				DDD140540F310324009F7F13 /* AbstractShape.cpp in Sources */,
@@ -1442,8 +1448,8 @@
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
-					"-I./libraries/include/wx-3.1/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.0",
+					"-I./libraries/include/wx-3.0/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-D_FILE_OFFSET_BITS=64",
@@ -1473,24 +1479,24 @@
 					OpenGL,
 					"-framework",
 					AGL,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"-lwxpng-3.1",
-					"-lwxjpeg-3.1",
+					"./libraries/lib/libwx_osx_cocoau_xrc-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_html-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_qa-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_adv-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_core-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_webview-3.0.a",
+					"./libraries/lib/libwx_baseu_xml-3.0.a",
+					"./libraries/lib/libwx_baseu_net-3.0.a",
+					"./libraries/lib/libwx_baseu-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_gl-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_richtext-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_aui-3.0.a",
+					"-lwxpng-3.0",
+					"-lwxjpeg-3.0",
 					"-framework",
 					WebKit,
 					"-lexpat",
-					"-lwxregexu-3.1",
+					"-lwxregexu-3.0",
 					"-lz",
 					"-lpthread",
 					"-liconv",
@@ -1530,8 +1536,8 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
-					"-I./libraries/include/wx-3.1/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.0",
+					"-I./libraries/include/wx-3.0/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-D_FILE_OFFSET_BITS=64",
@@ -1559,25 +1565,25 @@
 					OpenGL,
 					"-framework",
 					AGL,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"-lwxpng-3.1",
-					"-lwxjpeg-3.1",
+					"./libraries/lib/libwx_osx_cocoau_xrc-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_html-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_qa-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_adv-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_core-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_webview-3.0.a",
+					"./libraries/lib/libwx_baseu_xml-3.0.a",
+					"./libraries/lib/libwx_baseu_net-3.0.a",
+					"./libraries/lib/libwx_baseu-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_gl-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_richtext-3.0.a",
+					"./libraries/lib/libwx_osx_cocoau_aui-3.0.a",
+					"-lwxpng-3.0",
+					"-lwxjpeg-3.0",
 					"-framework",
 					WebKit,
 					"-lexpat",
-					"-lwxregexu-3.1",
-					"-lwxtiff-3.1",
+					"-lwxregexu-3.0",
+					"-lwxtiff-3.0",
 					"-lz",
 					"-lpthread",
 					"-liconv",

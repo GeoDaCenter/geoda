@@ -34,7 +34,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 LayerConfiguration::~LayerConfiguration()
 {
-    if (datasource) delete datasource;
+    if (datasource) delete datasource; datasource= 0;
     if (variable_order) delete variable_order;
 	if (custom_classifs) delete custom_classifs;
 	if (spatial_weights) delete spatial_weights;

@@ -103,7 +103,7 @@ fi
 LIB_NAME=gdal
 LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
 LIB_FILENAME=GeoDa17Merge
-LIB_CHECKER=libgdal.a
+LIB_CHECKER=libgdal.a1
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
@@ -111,7 +111,18 @@ cd $DOWNLOAD_HOME
 if ! [ -d "$LIB_NAME" ]; then
     curl -k -O $LIB_URL
     unzip $LIB_FILENAME
-    mv gdal-GeoDa18Merge/gdal gdal
+    mv gdal-GeoDa17Merge/gdal gdal
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    make clean
+    #./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
+    cp dep/$LIB_NAME/GDALmake.opt .
+    rm $GEODA_HOME/libraries/lib/libspatialite.la
+    $MAKER
+    touch .libs/libgdal.lai
+    make install
 fi
 
 

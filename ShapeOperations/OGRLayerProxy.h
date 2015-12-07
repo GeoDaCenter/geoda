@@ -46,10 +46,16 @@ using namespace std;
  */
 class OGRLayerProxy {
 public:
-	OGRLayerProxy(std::string layer_name, OGRLayer* _layer,
-                  GdaConst::DataSourceType _ds_type, bool isNew=false);
-    OGRLayerProxy(OGRLayer* _layer, GdaConst::DataSourceType _ds_type,
-                  OGRwkbGeometryType eGType, int _n_rows = 0);
+	OGRLayerProxy(std::string layer_name,
+                  OGRLayer* _layer,
+                  GdaConst::DataSourceType _ds_type,
+                  bool isNew=false);
+    
+    OGRLayerProxy(OGRLayer* _layer,
+                  GdaConst::DataSourceType _ds_type,
+                  OGRwkbGeometryType eGType,
+                  int _n_rows = 0);
+    
 	~OGRLayerProxy();
 	
 private:
@@ -207,6 +213,10 @@ public:
 	 *
 	 */
 	bool UpdateColumn();
+    bool UpdateColumn(int col_idx, vector<double> &vals);
+    bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
+    bool UpdateColumn(int col_idx, vector<wxString> &vals);
+    
 	/**
 	 *
 	 */
@@ -275,6 +285,8 @@ public:
     
 private:
 	bool IsFieldExisted(const wxString& field_name);
+    
+    bool CallCartoDBAPI(wxString url);
 };
 
 #endif
