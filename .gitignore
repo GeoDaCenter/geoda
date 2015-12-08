@@ -1,12 +1,17 @@
 *~
 
 BuildTools/windows/temp/
+BuildTools/windows/Debug/
+BuildTools/windows/Release/
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/temp/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 
+*.sdf
+*.suo
+*.user
 *.csv
 *.dbf
 *.shx
