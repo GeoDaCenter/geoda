@@ -226,19 +226,13 @@ void OGRTableOpUpdateColumn::Commit()
     GdaConst::FieldType type = ogr_col->GetType();
    
     if ( type == GdaConst::long64_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, (GIntBig)l_new_data[rid]);
-        }
+        ogr_layer->UpdateColumn(col_idx, l_new_data);
         
     } else if (type == GdaConst::double_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, d_new_data[rid]);
-        }
+        ogr_layer->UpdateColumn(col_idx, d_new_data);
         
     } else if (type == GdaConst::string_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, s_new_data[rid].mb_str());
-        }
+        ogr_layer->UpdateColumn(col_idx, s_new_data);
     }
 }
 
@@ -248,7 +242,11 @@ void OGRTableOpUpdateColumn::Rollback()
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
     GdaConst::FieldType type = ogr_col->GetType();
-    
+   
+    if (ogr_layer->ds_type == GdaConst::ds_cartodb) {
+        // don't support rollback direct multirow SQL update of CartoDB
+        return;
+    }
     if ( type == GdaConst::long64_type) {
         for (int rid=0; rid < n_rows; rid++) {
             if ( !ogr_col->IsUndefined(rid) )

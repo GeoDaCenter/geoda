@@ -39,6 +39,7 @@
 #include "../logger.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../GdaCartoDB.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
 
@@ -74,9 +75,8 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
-	EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
-	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"),
-    //           ConnectDatasourceDlg::OnLookupWSLayerBtn)
+	//EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
+	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
 END_EVENT_TABLE()
 
@@ -113,12 +113,13 @@ void ConnectDatasourceDlg::CreateControls()
     // init db_table control that is unique in this class
     m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
 	m_webservice_url = XRCCTRL(*this, "IDC_CDS_WS_URL",AutoTextCtrl);
-	m_database_lookup_table = XRCCTRL(*this, "ID_BTN_LOOKUP_TABLE", 
-									  wxBitmapButton);
-	//m_database_lookup_wslayer = XRCCTRL(*this, "ID_BTN_LOOKUP_WSLAYER", 
-	//									wxBitmapButton);
+	m_database_lookup_table = XRCCTRL(*this, "ID_BTN_LOOKUP_TABLE",  wxBitmapButton);
+    m_database_lookup_table->Hide();
+	//m_database_lookup_wslayer = XRCCTRL(*this, "ID_BTN_LOOKUP_WSLAYER", wxBitmapButton);
 	m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE", wxTextCtrl);
-	
+    m_database_table->Hide(); // don't need this
+    XRCCTRL(*this, "IDC_STATIC_DB_TABLE", wxStaticText)->Hide();
+    
     // create controls defined in parent class
     DatasourceDlg::CreateControls();
 	
@@ -198,35 +199,38 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             // File table is selected
 			if (layer_name.IsEmpty()) {
 				layername = ds_file_path.GetName();
-			}
-			else {
+			} else {
                 // user may select a layer name from Popup dialog that displays
                 // all layer names, see PromptDSLayers()
 				layername = layer_name;
 			}
+            
 		} else if (datasource_type == 1) {
             // Database tab is selected
 			layername = m_database_table->GetValue();
+            if (layername.IsEmpty()) PromptDSLayers(datasource);
+			layername = layer_name;
+            
 		} else if (datasource_type == 2) {
             // Web Service tab is selected
             if (layer_name.IsEmpty()) PromptDSLayers(datasource);
 			layername = layer_name;
+            
 		} else if (datasource_type == 3) {
-            // Web Service tab is selected
+            // CartoDB Service tab is selected
             if (layer_name.IsEmpty()) PromptDSLayers(datasource);
 			layername = layer_name;
+            
 		} else {
             // Should never be here
 			return;
 		}
-        if (layername.IsEmpty()) {
-            wxString msg = "Layer/Table name could not be empty. Please select"
-                            " a layer/table.";
-            throw GdaException(msg.mb_str());
-        }
+        
+        if (layername.IsEmpty()) return;
+        
 		// At this point, there is a valid datasource and layername.
-        if (layer_name.IsEmpty()) 
-			layer_name = layername;
+        if (layer_name.IsEmpty()) layer_name = layername;
+        
         EndDialog(wxID_OK);
 		
 	} catch (GdaException& e) {
@@ -234,12 +238,11 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		msg << e.what();
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-        //EndDialog(wxID_CANCEL);
+        
 	} catch (...) {
 		wxString msg = "Unknow exception. Please contact GeoDa support.";
 		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-        //EndDialog(wxID_CANCEL);
 	}
 	LOG_MSG("Exiting ConnectDatasourceDlg::OnOkClick");
 }
@@ -381,8 +384,25 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         // prompt user to select a layer from WFS
         //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
 	} else if ( datasource_type == 3 ) {
-        wxString url = "CartoDB:lixun910";
-        CPLSetConfigOption("CARTODB_API_KEY", "340808e9a453af9680684a65990eb4eb706e9b56");
+        
+        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
+        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
+        
+        if (user.empty()) {
+           throw GdaException("Please input CartoDB User Name.");
+        }
+        if (key.empty()) {
+           throw GdaException("Please input CartoDB App Key.");
+        }
+        
+        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
+        CartoDBProxy::GetInstance().SetKey(key);
+        CartoDBProxy::GetInstance().SetUserName(user);
+        
+        wxString url = "CartoDB:" + user;
+        
         datasource = new WebServiceDataSource(url, GdaConst::ds_cartodb);
     }
 	

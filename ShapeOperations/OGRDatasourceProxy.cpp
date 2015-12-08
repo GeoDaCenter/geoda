@@ -52,11 +52,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
             if ( error_detail.length() == 0 || error_detail == "Unknown"){
-                msg << "Failed to open data source. Please check if the data "
-                << "is valid and its data type/format is "
-				<< "supported by GeoDa.\n\nTip: you can setup necessary "
-				<< "GeoDa driver by following the instructions at:\n"
-				<< "https://geodacenter.asu.edu/geoda/formats";
+                msg << "Failed to open data source. Please check if the data is valid and its data type/format is supported by GeoDa.\n\nTip: you can setup necessary GeoDa driver by following the instructions at:\n https://geodacenter.asu.edu/geoda/formats";
             } else {
                 msg << error_detail;
             }
@@ -71,8 +67,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
 	layer_count = ds->GetLayerCount();
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(string format,
-                                       string dest_datasource)
+OGRDatasourceProxy::OGRDatasourceProxy(string format, string dest_datasource)
 : ds_name(dest_datasource)
 {
 	// create a OGRDatasourceProxy with a geometry layer
@@ -138,10 +133,14 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
 GdaConst::DataSourceType
 OGRDatasourceProxy::GetGdaDataSourceType()
 {
-	const char* drv_name = GDALGetDriverLongName(ds);
-	string ogr_ds_type(drv_name);
+	string ogr_ds_type(GDALGetDriverLongName(ds));
+   
+    if (ogr_ds_type.empty()) ogr_ds_type = GDALGetDriverShortName(ds);
     
-	if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
+    if (ogr_ds_type.find("CartoDB") != std::string::npos) {
+       return GdaConst::datasrc_str_to_type["CartoDB"];
+        
+    } else if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
 		GdaConst::datasrc_str_to_type.end()) {
 		return GdaConst::ds_unknown;
 	} else {

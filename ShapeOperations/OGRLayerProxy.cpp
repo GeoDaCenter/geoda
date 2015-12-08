@@ -29,6 +29,7 @@
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaShape.h"
+#include "../GdaCartoDB.h"
 
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
@@ -66,8 +67,9 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
 : layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
 eLayerType(eGType), load_progress(0), stop_reading(false)
 {
-    //if (n_rows==0)
-    //    n_rows = layer->GetFeatureCount();
+    if (n_rows==0) {
+        n_rows = layer->GetFeatureCount();
+    }
     
     is_writable = layer->TestCapability(OLCCreateField) != 0;
     
@@ -293,31 +295,67 @@ bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
 }
 
 
-bool OGRLayerProxy::CallAPI(wxString url)
+bool OGRLayerProxy::CallCartoDBAPI(wxString url)
 {
     return true;
 }
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
 {
-    return true;
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, vals[rid]);
+        }
+        
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, vals[rid]);
+        }
+    }
+	return true;
     
 }
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
 {
-    return true;
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, (GIntBig)vals[rid]);
+        }
+        
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
+        }
+    }
+	return true;
 }
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 {
     if (ds_type == GdaConst::ds_cartodb) {
         // update column using CARTODB_API directly, avoid single UPDATE clause
-        //data[rid]->SetField( cid, val);
-        int n_rows = data.size();
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
         for (int rid=0; rid < n_rows; rid++) {
             data[rid]->SetField(col_idx, vals[rid].mb_str());
         }
         
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, vals[rid].mb_str());
+        }
     }
 	return true;
 }
@@ -399,9 +437,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (stop_exporting) return;
         if ((i+1)%2==0) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-			// raise "Failed to create feature.\n"
-			error_message << " Object Geometry contains NULL rings. "
-            << CPLGetLastErrorMsg();
+			error_message << "Failed to create feature.\n" << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;
         }

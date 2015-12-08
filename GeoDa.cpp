@@ -153,6 +153,8 @@
 #include "cpl_conv.h"
 #include "version.h"
 
+#include "GdaCartoDB.h"
+
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
 
@@ -268,6 +270,7 @@ bool GdaApp::OnInit(void)
     
     wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
 
+    
 	GdaConst::init();
 	CalcHelp::init();
 	

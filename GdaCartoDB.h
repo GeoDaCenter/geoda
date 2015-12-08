@@ -21,20 +21,68 @@
 #define __GEODA_CENTER_GDA_CARTODB_H_
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class CartoDBProxy {
 
 public:
+	static CartoDBProxy& GetInstance() {
+		static CartoDBProxy instance;
+		return instance;
+	}
+   
+	void Close();
+    
+    void SetKey(const string& key);
+    
+    void SetUserName(const string& name);
+    
+    /**
+        std::string id("lixun910");
+        std::string key("340808e9a453af9680684a65990eb4eb706e9b56");
+        CartoDBProxy cartodb(id, key);
+        
+        std::string tbl("sfpd_plots");
+        std::string col("test4");
+        std::vector<wxInt64> vals;
+        for (int i=1; i<=654;i++) vals.push_back(i);
+        cartodb.UpdateColumn(tbl, col, vals);
+     */
+    void UpdateColumn(const string& table_name,
+                      const string& col_name,
+                      vector<wxString>& vals);
+    
+    void UpdateColumn(const string& table_name,
+                      const string& col_name,
+                      vector<double>& vals);
+    
+    void UpdateColumn(const string& table_name,
+                      const string& col_name,
+                      vector<long long>& vals);
+    
+private:
     CartoDBProxy();
+    
+    CartoDBProxy(const string& _user_name, const string& _api_key);
     
     ~CartoDBProxy();
     
-private:
     string api_key;
     string user_name;
     string api_url;
+    
+    void doGet(string parameter);
+    void doPost(string parameter);
+    void _doGet(string parameter);
+    void _doPost(string parameter);
+    
+    string buildUpdateSQL(const string& table_name,
+                          const string& col_name,
+                          const string &new_table);
+    
+    string buildBaseUrl();
 };
 
 #endif

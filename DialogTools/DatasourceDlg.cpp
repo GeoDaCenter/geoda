@@ -44,6 +44,7 @@
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaJson.h"
+#include "../GdaCartoDB.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
@@ -103,6 +104,10 @@ void DatasourceDlg::CreateControls()
     m_ds_notebook->SetBackgroundColour(*wxWHITE);
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
 	
+    m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);
+    m_cartodb_key = XRCCTRL(*this, "IDC_CARTODB_KEY",wxTextCtrl);
+    m_cartodb_table = XRCCTRL(*this, "IDC_CARTODB_TABLE_NAME",wxTextCtrl);
+    m_cartodb_tablename = XRCCTRL(*this, "IDC_STATIC_CARTODB_TABLE_NAME",wxStaticText);
     
 	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);
@@ -175,6 +180,26 @@ void DatasourceDlg::CreateControls()
             LOG_MSG(msg);
         }
     }
+    
+    // get a latest CartoDB account
+    std::vector<std::string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    if (!cartodb_user.empty()) {
+        std::string user = cartodb_user[0];
+        CartoDBProxy::GetInstance().SetUserName(user);
+        // control
+        m_cartodb_uname->SetValue(user);
+    }
+    
+    std::vector<std::string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    if (!cartodb_key.empty()) {
+        std::string key = cartodb_key[0];
+        CartoDBProxy::GetInstance().SetKey(key);
+        // control
+        m_cartodb_key->SetValue(key);
+    }
+    
+    m_cartodb_table->Hide();
+    m_cartodb_tablename->Hide();
 }
 
 void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
@@ -206,31 +231,32 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 	wxString ds_name = datasource->GetOGRConnectStr();
 
 	if (ds_name.IsEmpty()) {
-        wxString msg = "Can't get layers from unknown datasource. "
-        "Please complete the datasource fields.";
+        wxString msg = "Can't get layers from unknown datasource. Please complete the datasource fields.";
 		throw GdaException(msg.mb_str());
 	}
-	vector<string> table_names = 
-		OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString());
+    
+	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString());
+    
     int n_tables = table_names.size();
+    
 	if ( n_tables > 0 ) {
 		wxString *choices = new wxString[n_tables];
-		for	(int i=0; i<n_tables; i++) 
+        for	(int i=0; i<n_tables; i++)  {
 			choices[i] = table_names[i];
-		wxSingleChoiceDialog choiceDlg(NULL,
-                                    "Please select the layer name to connect:",
-                                    "Layer names",
-                                    n_tables, choices);
+        }
+		wxSingleChoiceDialog choiceDlg(NULL, "Please select the layer name to connect:", "Layer names", n_tables, choices);
+        
 		if (choiceDlg.ShowModal() == wxID_OK) {
 			if (choiceDlg.GetSelection() >= 0) {
 				layer_name = choiceDlg.GetStringSelection();
 			}
 		}
 		delete[] choices;
+        
 	} else if ( n_tables == 0) {
-		wxMessageDialog dlg(NULL, "There is no layer found in current "
-			"data source.", "Info", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg(NULL, "There is no layer found in selected datasource.", "Info", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
+        
 	} else {
         wxString msg = "No layer has been selected. Please select a layer.";
 		throw GdaException(msg.mb_str());

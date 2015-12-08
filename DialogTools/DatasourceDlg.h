@@ -68,8 +68,8 @@ protected:
 
 	wxTextCtrl*     m_cartodb_uname;
 	wxTextCtrl*     m_cartodb_key;
-	wxTextCtrl*     m_cartodb_public_table;
-	wxTextCtrl*     m_database_table;
+	wxTextCtrl*     m_cartodb_table;
+	wxStaticText*     m_cartodb_tablename;
     
     wxArrayString   ds_names;
     

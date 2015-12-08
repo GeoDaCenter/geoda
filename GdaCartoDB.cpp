@@ -18,27 +18,196 @@
  */
 
 #include <string>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <boost/thread/thread.hpp>
 
-#include <cpl_conv.h>
+#include <curl/curl.h>
+#include <wx/string.h>
 
 #include "GdaCartoDB.h"
-#include "GdaException.h"
 
 using namespace std;
 
 CartoDBProxy::CartoDBProxy()
 {
     
-    api_key = CPLGetConfigOption("CARTODB_API_KEY", "");
 }
 
 
-CartoDBProxy::CartoDBProxy(string& _user_name)
+CartoDBProxy::CartoDBProxy(const string& _user_name, const string& _api_key)
 {
     user_name = _user_name;
-    api_key = CPLGetConfigOption("CARTODB_API_KEY", "");
+    api_key = _api_key;
+    
 }
 
 CartoDBProxy::~CartoDBProxy() {
+    
+}
+
+void CartoDBProxy::Close() {
+    
+}
+
+void CartoDBProxy::SetKey(const string& key) {
+    api_key = key;
+}
+
+void CartoDBProxy::SetUserName(const string& name) {
+    user_name = name;
+}
+
+string CartoDBProxy::buildBaseUrl()
+{
+    ostringstream url;
+    url << "https://" << user_name << ".cartodb.com/api/v2/sql";
+    return url.str();
+}
+
+string CartoDBProxy::buildUpdateSQL(const string& table_name, const string& col_name, const string &new_table)
+{
+    /**
+     update test as t set
+     column_a = c.column_a
+     from (values
+     ('123', 1),
+     ('345', 2)
+     ) as c(column_b, column_a)
+     where c.column_b = t.column_b;
+     */
+    
+    ostringstream sql;
+    sql << "UPDATE " << table_name << " t "
+    << "SET " << col_name << " = c.val  FROM (VALUES"
+    << new_table.substr(0, new_table.length()-1)
+    << ") AS c(id,val) "
+    << "WHERE c.id = t.cartodb_id ";
+   
+    return sql.str();
+}
+
+void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<wxString>& vals)
+{
+    ostringstream ss_newtable;
+    for (size_t i=0, n=vals.size(); i<n; i++) {
+        ss_newtable << "(" << i+1 << ", '" << vals[i] << "'),";
+    }
+    
+    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
+    doPost("q=" + sql);
+}
+
+void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<double>& vals)
+{
+    ostringstream ss_newtable;
+    ss_newtable.precision(std::numeric_limits<double>::digits10);
+    
+    for (size_t i=0, n=vals.size(); i<n; i++) {
+        ss_newtable << "(" << i+1 << ", " << vals[i] << "),";
+    }
+    
+    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
+    doPost("q=" + sql);
+}
+
+void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<long long>& vals)
+{
+    ostringstream ss_newtable;
+    
+    for (size_t i=0, n=vals.size(); i<n; i++) {
+        ss_newtable << "(" << i+1 << ", " << vals[i] << "),";
+    }
+    
+    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
+    doPost("q=" + sql);
+}
+
+void CartoDBProxy::doGet(string parameter)
+{
+    boost::thread t(boost::bind(&CartoDBProxy::_doGet, this, parameter));
+    t.join();
+}
+void CartoDBProxy::doPost(string parameter)
+{
+    boost::thread t(boost::bind(&CartoDBProxy::_doPost, this, parameter));
+    t.join();
+}
+
+void CartoDBProxy::_doGet(string parameter)
+{
+    CURL* curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    
+    curl = curl_easy_init();
+    if (curl) {
+        string url = buildBaseUrl() + "?api_key=" + api_key +"&" + parameter;
+        
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        
+        // Grab image 
+        res = curl_easy_perform(curl);
+        if( res ) {
+            printf("Cannot connect cartodb.com!\n");
+        } 
+        
+        int res_code = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &res_code);
+        if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
+        {
+            printf("!!! Response code: %d\n", res_code);
+            return;
+        }
+    }
+    // Clean up the resources 
+    curl_easy_cleanup(curl);
+   
+    curl_global_cleanup();
+    
+}
+void CartoDBProxy::_doPost(string parameter)
+{
+    CURL* curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    
+    curl = curl_easy_init();
+    if (curl) {
+        string url = buildBaseUrl();
+        parameter = "api_key=" + api_key + "&" + parameter;
+        
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameter.c_str());
+        
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        
+        // Grab image 
+        res = curl_easy_perform(curl);
+        if( res ) {
+            printf("Cannot connect cartodb.com!\n");
+        } 
+        
+        int res_code = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &res_code);
+        if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
+        {
+            printf("!!! Response code: %d\n", res_code);
+            return;
+        }
+    }
+    // Clean up the resources 
+    curl_easy_cleanup(curl);
+   
+    curl_global_cleanup();
     
 }

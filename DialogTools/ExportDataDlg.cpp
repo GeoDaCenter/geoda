@@ -152,7 +152,11 @@ void ExportDataDlg::CreateControls()
         m_chk_create_project->SetValue(false);
         m_chk_create_project->Hide();
     }
+    // Create the rest controls from parent
     DatasourceDlg::CreateControls();
+    
+    m_cartodb_table->Show();
+    m_cartodb_tablename->Show();
 }
 
 
@@ -486,8 +490,10 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
                 ds_format.ToStdString(), ds_name.ToStdString(),
                 layer_name.ToStdString(), geom_type,
                 ogr_geometries, table_p, selected_rows, spatial_ref, is_update);
+    
     if (new_layer == NULL)
         return false;
+    
     wxProgressDialog prog_dlg("Save data source progress dialog",
                               "Saving data...",
                               prog_n_max, this,

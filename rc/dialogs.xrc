@@ -7011,7 +7011,7 @@
                       <object class="wxStaticText"/>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
+                      <object class="wxStaticText" name="IDC_STATIC_DB_TABLE">
                         <label>Table Name</label>
                       </object>
                     </object>
@@ -7078,7 +7078,7 @@
               <object class="wxBoxSizer">
                 <orient>wxVERTICAL</orient>
                 <object class="spacer">
-                  <size>0,10</size>
+                  <size>0,40</size>
                 </object>
                 <object class="sizeritem">
                   <object class="wxFlexGridSizer">
@@ -7112,36 +7112,17 @@
                       <object class="wxStaticText"/>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Public Table Name (Option)</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CARTODB_PUB_TABLE" >
-                        <size>130,-1d</size>
-                        <value/>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
+                      <object class="wxStaticText" name="IDC_STATIC_CARTODB_TABLE_NAME">
                         <label>Table Name</label>
                       </object>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CARTODB_TABLE_NAMES">
+                      <object class="wxTextCtrl" name="IDC_CARTODB_TABLE_NAME">
                         <size>130,-1d</size>
-                        <enabled>0</enabled>
                       </object>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxBitmapButton" name="ID_CARTODB_LOOKUP_TABLE">
-                        <bitmap stock_id="wxART_FIND"/>
-                        <style>wxBORDER_NONE</style>
-                      </object>
-                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                      <object class="wxStaticText"/>
                     </object>
                     <cols>3</cols>
                     <rows>5</rows>
@@ -7150,7 +7131,36 @@
                   </object>
                   <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
+                <object class="spacer">
+                  <size>0,40</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>4,10</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Get a free CartoDB account: </label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxHyperlinkCtrl">
+                        <url>https://www.cartodb.com/</url>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label/>
+                      </object>
+                    </object>
+                  </object>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                
               </object>
+              
             </object>
             <label>CartoDB</label>
           </object>
@@ -7487,6 +7497,99 @@
             </object>
             <label>Database</label>
           </object>
+          
+          <object class="notebookpage">
+            <object class="wxPanel" name="dsCartoDB">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>0,40</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxFlexGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="ID_STATICTEXT">
+                        <label>User Name</label>
+                      </object>
+                      <border>5</border>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_CARTODB_USERNAME">
+                        <size>130,-1</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                      <border>5</border>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="IDC_STATIC">
+                        <label>App Key</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_CARTODB_KEY">
+                        <size>130,-1d</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="IDC_STATIC_CARTODB_TABLE_NAME">
+                        <label>Table Name</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_CARTODB_TABLE_NAME">
+                        <size>130,-1d</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                    </object>
+                    <cols>3</cols>
+                    <rows>5</rows>
+                    <vgap>15</vgap>
+                    <hgap>10</hgap>
+                  </object>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                <object class="spacer">
+                  <size>0,40</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>4,10</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Get a free CartoDB account: </label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxHyperlinkCtrl">
+                        <url>https://www.cartodb.com/</url>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label/>
+                      </object>
+                    </object>
+                  </object>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                
+              </object>
+              
+            </object>
+            <label>CartoDB</label>
+          </object>
+          
           <size>660,340</size>
         </object>
         <option>30</option>

@@ -291,8 +291,7 @@ bool OGRTable::Save(wxString& err_msg)
                 operations_queue.push(op);
                 completed_stack.pop();
             }
-            err_msg << "GeoDa can't save changes to this datasource. Please try to "
-                    << "export to other type of datasources.";
+            err_msg << "GeoDa can't save changes to this datasource. Please try to use File->Export.";
             return false;
         }
         // clean Operations
