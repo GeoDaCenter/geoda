@@ -440,13 +440,13 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     if [[ $NODEBUG -eq 1 ]] ; then
         # no debug
-    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config
+    	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
     else
         # with debug
     	./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
     fi
     echo "$GEODA_HOME/dep/$LIB_NAME"
-    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    #cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
     make clean
     rm $GEODA_HOME/libraries/lib/libspatialite.la
     $MAKER
@@ -465,7 +465,6 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     exit
 fi
 
-exit
 #########################################################################
 # install wxWidgets library
 #########################################################################

@@ -1,0 +1,368 @@
+// !$*UTF8*$!
+{
+	A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {782, 2769}}";
+			sepNavSelRange = "{210, 0}";
+			sepNavVisRange = "{4198, 832}";
+		};
+	};
+	A1B6336B1C18975800519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */;
+		name = "GdaAppResources.cpp: 2154";
+		rLen = 0;
+		rLoc = 155647;
+		rType = 0;
+		vrLen = 2052;
+		vrLoc = 153667;
+	};
+	A1B6336F1C1897A600519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */;
+		name = "GdaAppResources.cpp: 2154";
+		rLen = 0;
+		rLoc = 155647;
+		rType = 0;
+		vrLen = 2052;
+		vrLoc = 153667;
+	};
+	A1B633701C1897A600519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */;
+		name = "GdaCartoDB.cpp: 7";
+		rLen = 0;
+		rLoc = 210;
+		rType = 0;
+		vrLen = 910;
+		vrLoc = 0;
+	};
+	A1B633711C1897A600519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */;
+		name = "GdaCartoDB.cpp: 7";
+		rLen = 0;
+		rLoc = 210;
+		rType = 0;
+		vrLen = 910;
+		vrLoc = 0;
+	};
+	A1B633761C1899E400519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */;
+		name = "GdaCartoDB.cpp: 7";
+		rLen = 0;
+		rLoc = 210;
+		rType = 0;
+		vrLen = 832;
+		vrLoc = 4198;
+	};
+	A1B633771C1899E400519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1393";
+		rLen = 19;
+		rLoc = 66007;
+		rType = 0;
+		vrLen = 1445;
+		vrLoc = 66031;
+	};
+	A1B633781C1899E400519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1393";
+		rLen = 19;
+		rLoc = 66007;
+		rType = 0;
+		vrLen = 1422;
+		vrLoc = 66031;
+	};
+	A1B633851C1899F100519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1393";
+		rLen = 19;
+		rLoc = 66007;
+		rType = 0;
+		vrLen = 1422;
+		vrLoc = 66031;
+	};
+	A1B633891C189A5300519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1416";
+		rLen = 0;
+		rLoc = 66777;
+		rType = 0;
+		vrLen = 1420;
+		vrLoc = 66031;
+	};
+	A1B6338B1C189A9B00519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1415";
+		rLen = 2;
+		rLoc = 66770;
+		rType = 0;
+		vrLen = 1525;
+		vrLoc = 65216;
+	};
+	A1B6338E1C189AC600519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1415";
+		rLen = 2;
+		rLoc = 66770;
+		rType = 0;
+		vrLen = 1453;
+		vrLoc = 65216;
+	};
+	A1B633921C189B1000519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1415";
+		rLen = 2;
+		rLoc = 66770;
+		rType = 0;
+		vrLen = 1468;
+		vrLoc = 65843;
+	};
+	A1B633961C189B9500519276 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1415";
+		rLen = 2;
+		rLoc = 66770;
+		rType = 0;
+		vrLen = 1468;
+		vrLoc = 65843;
+	};
+	A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {649, 512460}}";
+			sepNavSelRange = "{155647, 0}";
+			sepNavVisRange = "{153667, 2052}";
+		};
+	};
+	A1E023B31C17A7F000BDA4F7 /* GeoDa */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = GeoDa;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		variableFormatDictionary = {
+		};
+	};
+	A1E023D31C17A80E00BDA4F7 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	A1E023D41C17A80E00BDA4F7 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	A1E023EA1C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */;
+		name = "GdaCartoDB.cpp: 7";
+		rLen = 0;
+		rLoc = 210;
+		rType = 0;
+		vrLen = 909;
+		vrLoc = 0;
+	};
+	A1E023EB1C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */;
+		name = "GeneralWxUtils.cpp: 132";
+		rLen = 0;
+		rLoc = 3005;
+		rType = 0;
+		vrLen = 852;
+		vrLoc = 2699;
+	};
+	A1E023EC1C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A1E023ED1C17F13800BDA4F7 /* atomicity.h */;
+		name = "atomicity.h: 51";
+		rLen = 0;
+		rLoc = 2062;
+		rType = 0;
+		vrLen = 743;
+		vrLoc = 1675;
+	};
+	A1E023ED1C17F13800BDA4F7 /* atomicity.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = atomicity.h;
+		path = "/usr/include/c++/4.2.1/ext/atomicity.h";
+		sourceTree = "<absolute>";
+	};
+	A1E023EE1C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD64925A16DFF63400B3B0AB /* GeoDa.cpp */;
+		name = "GeoDa.cpp: 1393";
+		rLen = 19;
+		rLoc = 66007;
+		rType = 0;
+		vrLen = 963;
+		vrLoc = 65539;
+	};
+	A1E023EF1C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DD7976270F1D2C5E00496A84 /* menus.xrc */;
+		name = "menus.xrc: 512";
+		rLen = 0;
+		rLoc = 19451;
+		rType = 0;
+		vrLen = 905;
+		vrLoc = 19007;
+	};
+	A1E023F01C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "Expected `}' at end of input";
+		fRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */;
+		rLen = 1;
+		rLoc = 2153;
+		rType = 1;
+	};
+	A1E023F11C17F13800BDA4F7 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */;
+		name = "GdaAppResources.cpp: 2154";
+		rLen = 0;
+		rLoc = 155647;
+		rType = 0;
+		vrLen = 1906;
+		vrLoc = 153742;
+	};
+	A1FC00E11C1895710008AFB6 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */;
+		name = "GdaAppResources.cpp: 2154";
+		rLen = 0;
+		rLoc = 155647;
+		rType = 0;
+		vrLen = 2125;
+		vrLoc = 153594;
+	};
+	DD64925A16DFF63400B3B0AB /* GeoDa.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {756, 76401}}";
+			sepNavSelRange = "{66770, 2}";
+			sepNavVisRange = "{65843, 1468}";
+		};
+	};
+	DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {649, 3926}}";
+			sepNavSelRange = "{3005, 0}";
+			sepNavVisRange = "{2699, 852}";
+		};
+	};
+	DD7974670F1D1B0700496A84 /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = A1E023B31C17A7F000BDA4F7 /* GeoDa */;
+		activeTarget = DD7974800F1D1B6600496A84 /* GeoDa */;
+		breakpoints = (
+		);
+		codeSenseManager = A1E023D41C17A80E00BDA4F7 /* Code sense */;
+		executables = (
+			A1E023B31C17A7F000BDA4F7 /* GeoDa */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					578,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 471373640;
+			PBXWorkspaceStateSaveDate = 471373640;
+		};
+		perUserProjectItems = {
+			A1B6336B1C18975800519276 /* PBXTextBookmark */ = A1B6336B1C18975800519276 /* PBXTextBookmark */;
+			A1B6336F1C1897A600519276 /* PBXTextBookmark */ = A1B6336F1C1897A600519276 /* PBXTextBookmark */;
+			A1B633701C1897A600519276 /* PBXTextBookmark */ = A1B633701C1897A600519276 /* PBXTextBookmark */;
+			A1B633711C1897A600519276 /* PBXTextBookmark */ = A1B633711C1897A600519276 /* PBXTextBookmark */;
+			A1B633761C1899E400519276 /* PBXTextBookmark */ = A1B633761C1899E400519276 /* PBXTextBookmark */;
+			A1B633771C1899E400519276 /* PBXTextBookmark */ = A1B633771C1899E400519276 /* PBXTextBookmark */;
+			A1B633781C1899E400519276 /* PBXTextBookmark */ = A1B633781C1899E400519276 /* PBXTextBookmark */;
+			A1B633851C1899F100519276 /* PBXTextBookmark */ = A1B633851C1899F100519276 /* PBXTextBookmark */;
+			A1B633891C189A5300519276 /* PBXTextBookmark */ = A1B633891C189A5300519276 /* PBXTextBookmark */;
+			A1B6338B1C189A9B00519276 /* PBXTextBookmark */ = A1B6338B1C189A9B00519276 /* PBXTextBookmark */;
+			A1B6338E1C189AC600519276 /* PBXTextBookmark */ = A1B6338E1C189AC600519276 /* PBXTextBookmark */;
+			A1B633921C189B1000519276 /* PBXTextBookmark */ = A1B633921C189B1000519276 /* PBXTextBookmark */;
+			A1B633961C189B9500519276 /* PBXTextBookmark */ = A1B633961C189B9500519276 /* PBXTextBookmark */;
+			A1E023EA1C17F13800BDA4F7 = A1E023EA1C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023EB1C17F13800BDA4F7 = A1E023EB1C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023EC1C17F13800BDA4F7 = A1E023EC1C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023EE1C17F13800BDA4F7 = A1E023EE1C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023EF1C17F13800BDA4F7 = A1E023EF1C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023F01C17F13800BDA4F7 = A1E023F01C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1E023F11C17F13800BDA4F7 = A1E023F11C17F13800BDA4F7 /* PBXTextBookmark */;
+			A1FC00E11C1895710008AFB6 = A1FC00E11C1895710008AFB6 /* PBXTextBookmark */;
+		};
+		sourceControlManager = A1E023D31C17A80E00BDA4F7 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	DD7974800F1D1B6600496A84 /* GeoDa */ = {
+		activeExec = 0;
+		executables = (
+			A1E023B31C17A7F000BDA4F7 /* GeoDa */,
+		);
+	};
+	DD7976270F1D2C5E00496A84 /* menus.xrc */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {649, 59865}}";
+			sepNavSelRange = "{19451, 0}";
+			sepNavVisRange = "{19007, 905}";
+		};
+	};
+}

@@ -39,8 +39,9 @@ LIBS	=	$(SDE_LIB)  $(GEODA_HOME)/libraries/lib/libproj.a $(GEODA_HOME)/libraries
 
 SSEFLAGS = 
 HAVE_SSE_AT_COMPILE_TIME = yes
-AVXFLAGS = -mavx
-HAVE_AVX_AT_COMPILE_TIME = yes
+AVXFLAGS = 
+HAVE_AVX_AT_COMPILE_TIME = 
+
 PYTHON = 
 PY_HAVE_SETUPTOOLS=
 
@@ -52,7 +53,7 @@ OGR_ENABLED = yes
 GNM_ENABLED = no
 
 OSX_FRAMEWORK_PREFIX = /Library/Frameworks/GDAL.framework
-OSX_VERSION_FRAMEWORK_PREFIX = ${OSX_FRAMEWORK_PREFIX}/Versions/2.0
+OSX_VERSION_FRAMEWORK_PREFIX = ${OSX_FRAMEWORK_PREFIX}/Versions/2.1
 
 prefix		=	$(GEODA_HOME)/libraries
 exec_prefix	=	${prefix}
@@ -67,10 +68,10 @@ INST_MAN	=	${prefix}/man
 INST_HTML	=	$(HOME)/www/gdal
 
 CPPFLAGS	=  -I$(GDAL_ROOT)/port  -DGDAL_COMPILATION
-CFLAGS		=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS	=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
-CFLAGS_NOFTRAPV          = -Os -arch x86_64  -g -DDEBUG  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS_NOFTRAPV        = -Os -arch x86_64  -g -DDEBUG  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
+CFLAGS		=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS	=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Wmissing-prototypes -Wnon-virtual-dtor $(USER_DEFS)
+CFLAGS_NOFTRAPV          = -Os -arch x86_64  -g -DDEBUG  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS_NOFTRAPV        = -Os -arch x86_64  -g -DDEBUG  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Wmissing-prototypes -Wnon-virtual-dtor $(USER_DEFS)
 
 NO_UNUSED_PARAMETER_FLAG = -Wno-unused-parameter
 NO_SIGN_COMPARE = -Wno-sign-compare
@@ -153,10 +154,10 @@ INGRES_INC =
 #
 # MySQL support.
 #
-HAVE_MYSQL =	no
-#MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
-#MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
-#LIBS	   +=	$(MYSQL_LIB)
+HAVE_MYSQL =	yes
+MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
+MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
+LIBS	   +=	$(MYSQL_LIB)
 
 #
 # HDF4 Support.
@@ -281,6 +282,10 @@ OCI_INCLUDE	=
 HAVE_GEOS       =       yes
 GEOS_CFLAGS     =       -I$(GEODA_HOME)/libraries/include
 
+# QHull Support
+
+QHULL_SETTING   =       internal
+
 # GRASS Support
 
 GRASS_SETTING	=	no
@@ -298,7 +303,7 @@ SDE_INC =
 # 
 # FileGDB
 #
-HAVE_FGDB = 
+HAVE_FGDB = no
 FGDB_LIB = 
 FGDB_INC = 
 
@@ -336,6 +341,14 @@ OPENCL_LIB	=
 OPENCL_FLAGS	=	
 
 #
+# SOSI support
+#
+SOSI_INC = 
+SOSI_LIB = 
+HAVE_SOSI = no
+
+
+#
 # PCIDSK SDK
 # 
 PCIDSK_SETTING  =       internal
@@ -346,6 +359,14 @@ PCIDSK_INCLUDE	=
 # Iconv
 #
 LIBICONV	=	-liconv
+
+#
+# LIBXML2
+#
+
+HAVE_LIBXML2 = yes
+LIBXML2_INC = -I/usr/include/libxml2
+LIBXML2_LIB = -lxml2 -lz -lpthread -licucore -lm
 
 # 
 # DWGdirect Library
@@ -422,11 +443,21 @@ LIBZ_SETTING	=	external
 LIBLZMA_SETTING	=	no
 
 #
+# DDS via Crunch Support.
+#
+CRUNCHDIR = 
+
+#
 # Rasdaman stuff
 #
 RASDAMAN_ENABLED  =       no
 RASDAMAN_INC  =   
 RASDAMAN_LIB  =   
+
+#
+# PDF stuff
+#
+PDF_PLUGIN = no
 
 #
 # Poppler stuff
@@ -436,7 +467,9 @@ HAVE_POPPLER = no
 POPPLER_HAS_OPTCONTENT = no
 POPPLER_BASE_STREAM_HAS_TWO_ARGS = no
 POPPLER_0_20_OR_LATER = no
+POPPLER_0_23_OR_LATER = 
 POPPLER_INC = 
+POPPLER_PLUGIN_LIB = 
 
 #
 # Podofo stuff
@@ -444,6 +477,15 @@ POPPLER_INC =
 
 HAVE_PODOFO = no
 PODOFO_INC = 
+PODOFO_PLUGIN_LIB = 
+
+#
+# Pdfium stuff
+#
+
+HAVE_PDFIUM = no
+PDFIUM_INC = 
+PDFIUM_PLUGIN_LIB = 
 
 #
 # CharLs stuff
@@ -471,6 +513,10 @@ else
 GDAL_LIBS	=	$(GDAL_LIB)
 endif
 
+ifeq ($(GNM_ENABLED),yes)
+CPPFLAGS	:= -DGNM_ENABLED $(CPPFLAGS)
+endif
+
 #
 # Java stuff
 #
@@ -490,6 +536,12 @@ HAVE_FREEXL = yes
 FREEXL_INCLUDE = -I$(GEODA_HOME)/libraries/include
 
 #
+# cryptopp stuff
+#
+HAVE_CRYPTOPP    =       no
+USE_ONLY_CRYPTODLL_ALG        =       yes
+
+#
 #	Note these codes have to exactly match the format directory names, 
 #	and their uppercase form should be the format portion of the
 #	format registration entry point.  eg. gdb -> GDALRegister_GDB().
@@ -506,6 +558,11 @@ GDAL_FORMATS = 	gxf gtiff hfa aigrid aaigrid ceos ceos2 iso8211 xpm \
 
 ifneq ($(LIBZ_SETTING),no)
 GDAL_FORMATS := $(GDAL_FORMATS) rik ozi
+
+ifneq ($(PDF_PLUGIN),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) pdf
+endif
+
 endif
 
 ifeq ($(OGR_ENABLED),yes)

@@ -7,6 +7,8 @@ BuildTools/macosx/temp/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 
+*.mode1v3
+*.pbxuser
 *.csv
 *.dbf
 *.shx
