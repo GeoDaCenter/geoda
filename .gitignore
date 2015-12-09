@@ -1,6 +1,8 @@
 *~
 
 BuildTools/windows/temp/
+BuildTools/windows/Debug/
+BuildTools/windows/Release/
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/temp/
@@ -9,6 +11,9 @@ BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 
 *.mode1v3
 *.pbxuser
+*.sdf
+*.suo
+*.user
 *.csv
 *.dbf
 *.shx

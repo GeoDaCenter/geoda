@@ -789,8 +789,8 @@ echo #####################################################
 echo #   build GDAL/OGR
 echo #####################################################
 echo.
-set LIB_NAME=GeoDa18Merge
-set LIB_URL="https://codeload.github.com/lixun910/gdal/zip/GeoDa18Merge"
+set LIB_NAME=GeoDa17Merge
+set LIB_URL="https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\gdal.lib set ALL_EXIST=false
