@@ -96,7 +96,7 @@ void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name
     }
     
     string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    doPost("q=" + sql);
+    _doPost("q=" + sql);
 }
 
 void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<double>& vals)
@@ -109,7 +109,7 @@ void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name
     }
     
     string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    doPost("q=" + sql);
+    _doPost("q=" + sql);
 }
 
 void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<long long>& vals)
@@ -121,7 +121,7 @@ void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name
     }
     
     string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    doPost("q=" + sql);
+    _doPost("q=" + sql);
 }
 
 void CartoDBProxy::doGet(string parameter)
@@ -177,7 +177,7 @@ void CartoDBProxy::_doPost(string parameter)
     CURL* curl;
     CURLcode res;
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    //curl_global_init(CURL_GLOBAL_ALL);
     
     curl = curl_easy_init();
     if (curl) {
@@ -202,12 +202,15 @@ void CartoDBProxy::_doPost(string parameter)
         if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
         {
             printf("!!! Response code: %d\n", res_code);
+			// Clean up the resources 
+			curl_easy_cleanup(curl);
             return;
         }
+		// Clean up the resources 
+		curl_easy_cleanup(curl);
     }
-    // Clean up the resources 
-    curl_easy_cleanup(curl);
+    
    
-    curl_global_cleanup();
+    //curl_global_cleanup();
     
 }

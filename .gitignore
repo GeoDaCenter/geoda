@@ -8,6 +8,7 @@ BuildTools/macosx/libraries1/
 BuildTools/macosx/temp/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
+BuildTools/macosx/GeoDa-leopard.xcodeproj/
 
 *.mode1v3
 *.pbxuser

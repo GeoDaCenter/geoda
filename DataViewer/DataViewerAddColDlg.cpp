@@ -73,15 +73,15 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	std::vector<int> col_id_map;
 	
 	table_int->FillColIdMap(col_id_map);
-    /*
+    
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
 		curr_col_labels.insert(table_int->GetColName(i).Upper());
-		m_insert_pos->Append(table_int->GetColName(i).Upper());
+		//m_insert_pos->Append(table_int->GetColName(i).Upper());
 	}
     
-	m_insert_pos->Append("after last variable");
-	m_insert_pos->SetSelection(0);
-     */
+	//m_insert_pos->Append("after last variable");
+	//m_insert_pos->SetSelection(0);
+     
 	UpdateApplyButton();
 }
 

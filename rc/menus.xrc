@@ -2289,6 +2289,55 @@
       </object>
     <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_BASEMAP_MENU">
+	  <label>Basemap</label>
+	  <object class="wxMenuItem" name="ID_CLEAN_BASEMAP">
+		  <label>Clean Basemap Cache</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_CHANGE_TRANSPARENCY">
+		  <label>Change Map Transparency</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="separator"/>
+	  <object class="wxMenuItem" name="ID_NO_BASEMAP">
+		  <label>No Basemap</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="separator"/>
+	  <object class="wxMenuItem" name="ID_BASEMAP_1">
+		  <label>CartoDB Light</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_2">
+		  <label>CartoDB Dark</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_3">
+		  <label>CartoDB Light (No Labels)</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_4">
+		  <label>CartoDB Dark (No Labels)</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_5">
+		  <label>Nokia Day</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_6">
+		  <label>Nokia Night</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_7">
+		  <label>Nokia Hybrid</label>
+		  <checkable>1</checkable>
+	  </object>
+	  <object class="wxMenuItem" name="ID_BASEMAP_8">
+		  <label>Nokia Satellite</label>
+		  <checkable>1</checkable>
+	  </object>
+  </object>
   <object class="wxMenu" name="ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
