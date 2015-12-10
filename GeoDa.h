@@ -194,6 +194,8 @@ public:
 	void OnGeneratePointShpFile(wxCommandEvent& event);
 	
 	void OnRegressionClassic(wxCommandEvent& event);
+	
+	void OnPublish(wxCommandEvent& event);
 
 	void OnCondPlotChoices(wxCommandEvent& event);
 	void OnShowConditionalMapView(wxCommandEvent& event);

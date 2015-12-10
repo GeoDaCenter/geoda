@@ -532,12 +532,14 @@ void Basemap::DownloadTile(int x, int y)
             if (!((res_code == 200 || res_code == 201) && imgResult != CURLE_ABORTED_BY_CALLBACK))
             {
                 printf("!!! Response code: %d\n", res_code);
+				// Clean up the resources 
+				curl_easy_cleanup(image);
                 return;
             }
+			// Clean up the resources 
+			curl_easy_cleanup(image); 
         }
-        // Clean up the resources 
-        curl_easy_cleanup(image); 
-        
+                
         fclose(fp);
     }
 }

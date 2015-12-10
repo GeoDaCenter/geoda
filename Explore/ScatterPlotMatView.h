@@ -113,6 +113,8 @@ public:
 	virtual void update(VarsChooserObservable* o);
 	virtual void notifyOfClosing(VarsChooserObservable* o);
 	
+	void GetVizInfo(vector<wxString>& vars);
+	
 protected:
 	void SetupPanelForNumVariables(int num_vars);
 	void UpdateMessageWin();

@@ -1730,3 +1730,10 @@ void MapFrame::OnChangeMapTransparency()
 
 }
 
+void MapFrame::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
+{
+	if (template_canvas) {
+		template_canvas->GetVizInfo(colors);
+	}
+}
+

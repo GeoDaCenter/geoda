@@ -611,3 +611,9 @@ wxString ScatterPlotMatFrame::GetHelpHtml()
 	return s;	
 }
 
+void ScatterPlotMatFrame::GetVizInfo(vector<wxString>& vars)
+{
+	for (int i=0; i<var_man.GetVarsCount(); ++i) {
+		vars.push_back(var_man.GetName(i));
+	}
+}

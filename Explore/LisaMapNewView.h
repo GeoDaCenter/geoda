@@ -22,6 +22,7 @@
 
 #include "MapNewView.h"
 #include "LisaCoordinatorObserver.h"
+#include "../GdaConst.h"
 
 class LisaMapFrame;
 class LisaMapCanvas;
@@ -101,6 +102,7 @@ public:
 	virtual void update(LisaCoordinator* o);
 	virtual void closeObserver(LisaCoordinator* o);
 	
+	void GetVizInfo(std::vector<int>& clusters);
 protected:
 	void CoreSelectHelper(const std::vector<bool>& elem);
 	LisaCoordinator* lisa_coord;

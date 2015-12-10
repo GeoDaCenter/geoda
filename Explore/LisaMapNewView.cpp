@@ -743,3 +743,14 @@ void LisaMapFrame::closeObserver(LisaCoordinator* o)
 	}
 	Close(true);
 }
+
+void LisaMapFrame::GetVizInfo(std::vector<int>& clusters)
+{
+	if (lisa_coord) {
+		if(lisa_coord->sig_cat_vecs.size()>0) {
+			for (int i=0; i<lisa_coord->num_obs;i++) {
+				clusters.push_back(lisa_coord->sig_cat_vecs[0][i]);
+			}
+		}
+	}
+}

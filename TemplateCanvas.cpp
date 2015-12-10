@@ -1080,6 +1080,29 @@ void TemplateCanvas::DrawLayer0()
 	
 	layer0_valid = true;
 	layer1_valid = false;
+	
+	
+	
+}
+
+void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
+{
+	int cc_ts = cat_data.curr_canvas_tm_step;
+	int num_cats=cat_data.GetNumCategories(cc_ts);
+	
+	for (int cat=0; cat<num_cats; cat++) {
+		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
+		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
+				
+		std::vector<int> ids_copy;
+		colors[clr] = ids_copy;
+		
+		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		
+		for (int i=0, iend=ids.size(); i<iend; i++) {
+			colors[clr].push_back(ids[i]);
+		}
+	}	
 }
 
 // Copy in layer0_bm and draw highlighted shapes.

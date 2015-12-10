@@ -884,3 +884,11 @@ void HistogramFrame::OnHistogramIntervals(wxCommandEvent& event)
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->HistogramIntervals();
 }
+
+void HistogramFrame::GetVizInfo(wxString& col_name, int& num_bins)
+{
+	
+	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
+	num_bins = t->cur_intervals;
+	col_name = t->var_info[0].name;
+}

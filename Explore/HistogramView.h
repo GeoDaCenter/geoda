@@ -73,13 +73,17 @@ public:
 	void HistogramIntervals();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
+	
+	int cur_intervals;
+	std::vector<GdaVarTools::VarInfo> var_info;
+	
 protected:
 	virtual void UpdateStatusBar();
 
 	int num_obs;
 	int num_time_vals;
 	int ref_var_index;
-	std::vector<GdaVarTools::VarInfo> var_info;
+	
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	std::vector<HingeStats> hinge_stats;
@@ -103,7 +107,7 @@ protected:
 	std::vector<double> max_ival_val; // size = time_steps
 	std::vector<double> max_num_obs_in_ival; // size = time_steps
 	double overall_max_num_obs_in_ival;
-	int cur_intervals;
+	
 	i_array_type ival_obs_cnt; // size = time_steps * cur_num_intervals
 	i_array_type ival_obs_sel_cnt;  // size = time_steps * cur_num_intervals
 	i_array_type obs_id_to_ival; // size = time_steps * num_obs
@@ -145,6 +149,8 @@ public:
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);
+	
+	void GetVizInfo(wxString& col_name, int& num_bins);
 protected:
 	
     DECLARE_EVENT_TABLE()

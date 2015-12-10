@@ -308,6 +308,8 @@ public:
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
 	
+	void GetVizInfo(wxString& x, wxString& y);
+	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,
 											 int num_categories,
@@ -315,6 +317,8 @@ protected:
 	bool is_bubble_plot;
 	
 	LowessParamFrame* lowess_param_frame;
+	
+	std::vector<GdaVarTools::VarInfo> var_info;
 	
 	DECLARE_EVENT_TABLE()
 };

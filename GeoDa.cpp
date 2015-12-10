@@ -154,6 +154,7 @@
 #include "version.h"
 
 #include "GdaCartoDB.h"
+#include "GeoDaWebProxy.h"
 
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
@@ -598,6 +599,7 @@ EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),  // not used currently
 
 EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
 EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
+EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)
 
 EVT_TOOL(XRCID("ID_COND_PLOT_CHOICES"), GdaFrame::OnCondPlotChoices)
 // The following duplicate entries are needed as a workaround to
@@ -1347,6 +1349,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_REGRESSION_CLASSIC"), proj_open);
 	EnableTool(XRCID("ID_REGRESSION_CLASSIC"), proj_open);
+	EnableTool(XRCID("ID_PUBLISH"), proj_open);
 	
 	//Empty out the Options menu:
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
@@ -3018,6 +3021,12 @@ void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 	dlg->Show(true);
 }
 
+void GdaFrame::OnPublish(wxCommandEvent& event)
+{
+	Project* p = GetProject();
+	if (p)
+	GeoDaWebProxy::GetInstance().Publish(p);
+}
 
 void GdaFrame::DisplayRegression(const wxString dump)
 {

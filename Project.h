@@ -187,21 +187,9 @@ public:
 	
 public:
 	/// main_data is the only public remaining attribute in Project
-  Shapefile::Main main_data;
+	Shapefile::Main main_data;
     OGRSpatialReference* sourceSR;
-	    
-private:
-	bool CommonProjectInit();
-	int InitFromShapefileLayer();
-	bool InitFromOgrLayer();
-	int OpenShpFile(wxFileName shp_fname);
-	/** Save in-memory Table+Geometries to OGR DataSource */
-	void SaveOGRDataSource();
-  void UpdateProjectConf();
-  Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
-	void CalcEucPlaneRtreeStats();
-	void CalcUnitSphereRtreeStats();
-    
+	
 	// ".gda" project file data
 	wxString layer_title; // optional project::layers::layer::title field
 	wxString layername; // optional project::layers::layer::layername field
@@ -211,6 +199,19 @@ private:
 	// project file.
 	wxString	proj_file_no_ext;
 	wxFileName	working_dir;
+	    
+private:
+	bool CommonProjectInit();
+	int InitFromShapefileLayer();
+	bool InitFromOgrLayer();
+	int OpenShpFile(wxFileName shp_fname);
+	/** Save in-memory Table+Geometries to OGR DataSource */
+	void SaveOGRDataSource();
+	void UpdateProjectConf();
+	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
+	void CalcEucPlaneRtreeStats();
+	void CalcUnitSphereRtreeStats();
+    
 	
   // XXX for multi-layer support, ProjectConfiguration is a container for
   // multi LayerConfiguration (layers), and each LayerConfiguration is defined

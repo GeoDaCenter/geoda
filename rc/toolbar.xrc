@@ -157,6 +157,11 @@
       <tooltip>Regression</tooltip>
     </object>
     <object class="separator"/>
+	<object class="tool" name="ID_PUBLISH">
+      <bitmap>share.png</bitmap>
+      <bitmap2>share_disabled.png</bitmap2>
+      <tooltip>Publish</tooltip>
+    </object>
   </object>
   <object class="wxToolBar" name="ToolBar2">
     <object class="tool" name="ID_CD_ROM">

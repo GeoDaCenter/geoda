@@ -236,6 +236,8 @@ public:
     
     void CleanBasemap();
     
+	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
+	
 protected:
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);

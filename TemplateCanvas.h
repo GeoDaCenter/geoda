@@ -23,6 +23,7 @@
 #include <list>
 #include <set> // for std::multiset template
 #include <vector>
+#include <map>
 #include <boost/multi_array.hpp>
 #include <wx/dc.h>
 #include <wx/event.h>
@@ -422,6 +423,8 @@ public:
     }
 	bool isDrawBasemap;
     
+	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
+	
 protected:
 	Project* project;
 	TemplateFrame* template_frame;

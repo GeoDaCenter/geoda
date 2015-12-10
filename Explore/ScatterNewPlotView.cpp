@@ -1935,7 +1935,7 @@ is_bubble_plot(false), lowess_param_frame(0)
 
 
 ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
-									const std::vector<GdaVarTools::VarInfo>& var_info,
+										 const std::vector<GdaVarTools::VarInfo>& var_info,
 										 const std::vector<int>& col_ids,
 										 bool is_bubble_plot_s,
 										 const wxString& title,
@@ -1943,6 +1943,7 @@ ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
 										 const wxSize& size,
 										 const long style)
 : TemplateFrame(parent, project, title, pos, size, style),
+var_info(var_info),
 is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 {
 	LOG_MSG("Entering ScatterNewPlotFrame::ScatterNewPlotFrame");
@@ -1952,9 +1953,7 @@ is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 	
 	wxSplitterWindow* splitter_win = 0;
 	if (is_bubble_plot) {
-		splitter_win = new wxSplitterWindow(this,-1,
-																				wxDefaultPosition, wxDefaultSize,
-																				wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+		splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 		splitter_win->SetMinimumPaneSize(10);
 	}
 	wxPanel* rpanel = NULL;
@@ -2117,9 +2116,7 @@ void ScatterNewPlotFrame::OnEditLowessParams(wxCommandEvent& event)
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l = t->GetLowess();
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),l.GetDeltaFactor(),project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
@@ -2261,5 +2258,13 @@ void ScatterNewPlotFrame::AdjustBubbleSize(wxCommandEvent& evt)
 {
     BubbleSizeSliderDlg sliderDlg(dynamic_cast<ScatterNewPlotCanvas*>(template_canvas));
     sliderDlg.ShowModal();
+}
+
+void ScatterNewPlotFrame::GetVizInfo(wxString& x, wxString& y)
+{
+	if (var_info.size() > 1) {
+		x = var_info[0].name;
+		y = var_info[1].name;
+	}
 }
 
