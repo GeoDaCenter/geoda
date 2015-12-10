@@ -136,6 +136,8 @@ public:
 	bool display_voronoi_diagram;
 	bool voronoi_diagram_duplicates_exist;
 	
+	std::vector<GdaVarTools::VarInfo> var_info;
+    
 protected:
     
 	TableInterface* table_int;
@@ -148,7 +150,6 @@ protected:
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
-	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
@@ -238,7 +239,13 @@ public:
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
 	
+    void GetVizInfo(wxString& shape_type,
+                    wxString& field_name,
+                    std::vector<wxString>& clrs,
+                    std::vector<double>& bins);
+    
 protected:
+    
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);

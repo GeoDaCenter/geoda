@@ -425,6 +425,9 @@ public:
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
 	
+    void GetVizInfo(wxString& shape_type,
+                    std::vector<wxString>& clrs,
+                    std::vector<double>& bins);
 protected:
 	Project* project;
 	TemplateFrame* template_frame;

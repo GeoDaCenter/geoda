@@ -5582,6 +5582,7 @@ void GdaFrame::SetEncodingCheckmarks(wxFontEncoding e)
 
 void GdaFrame::SetBasemapCheckmarks(int idx)
 {
+    /*
     wxMenuBar* m = GetMenuBar();
     m->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
     m->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
@@ -5592,6 +5593,7 @@ void GdaFrame::SetBasemapCheckmarks(int idx)
     m->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
     m->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
     m->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
+     */
 }
 //------------------------------------------------------------------------------
 // End of functions for all encoding events
