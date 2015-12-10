@@ -14,6 +14,7 @@
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
+		A1963FD31C19E82100A40408 /* GeoDaWebProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1963FD11C19E82100A40408 /* GeoDaWebProxy.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
@@ -235,6 +236,8 @@
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
+		A1963FD11C19E82100A40408 /* GeoDaWebProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoDaWebProxy.cpp; sourceTree = "<group>"; };
+		A1963FD21C19E82100A40408 /* GeoDaWebProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoDaWebProxy.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
@@ -651,8 +654,6 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
-				A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */,
-				A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */,
 				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
 				DD972054150A6EE4000206F4 /* CmdLineUtils */,
@@ -681,10 +682,14 @@
 				DD2AE42919D4F4CA00B23FB9 /* GdaJson.cpp */,
 				DDE4DFD41A963B07005B9158 /* GdaShape.cpp */,
 				DDE4DFD51A963B07005B9158 /* GdaShape.h */,
+				A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */,
+				A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */,
 				DD64A2870F20FE06006B1E6D /* GeneralWxUtils.h */,
 				DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */,
 				DD64925B16DFF63400B3B0AB /* GeoDa.h */,
 				DD64925A16DFF63400B3B0AB /* GeoDa.cpp */,
+				A1963FD21C19E82100A40408 /* GeoDaWebProxy.h */,
+				A1963FD11C19E82100A40408 /* GeoDaWebProxy.cpp */,
 				DDD13F040F2F8BE1009F7F13 /* GenGeomAlgs.h */,
 				DDD13F050F2F8BE1009F7F13 /* GenGeomAlgs.cpp */,
 				DD64A7230F2E26AA006B1E6D /* GenUtils.h */,
@@ -1290,6 +1295,7 @@
 				DD7E91D3151A8F3A001AAC4C /* LisaScatterPlotView.cpp in Sources */,
 				DD2B42B11522552B00888E51 /* BoxNewPlotView.cpp in Sources */,
 				DD2B433F1522A93700888E51 /* HistogramView.cpp in Sources */,
+				A1963FD31C19E82100A40408 /* GeoDaWebProxy.cpp in Sources */,
 				DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */,
 				DDC9DD8515937AA000A0E5BA /* ExportCsvDlg.cpp in Sources */,
 				DDC9DD8A15937B2F00A0E5BA /* CsvFileUtils.cpp in Sources */,
