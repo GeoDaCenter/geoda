@@ -7841,4 +7841,116 @@
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
+  
+  <object class="wxDialog" name="IDD_GEODA_PUBLISH_DLG" subclass="GeoDaPublishDlg">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+            <object class="wxPanel" name="">
+              <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>0,40</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxFlexGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="ID_STATICTEXT">
+                        <label>User Name</label>
+                      </object>
+                      <border>5</border>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_GEODA_USERNAME">
+                        <size>130,-1</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                      <border>5</border>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="IDC_STATIC">
+                        <label>App Key</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_GEODA_KEY">
+                        <size>130,-1d</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="IDC_STATIC">
+                        <label>Title of Visualization</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_GEODA_PUBLISH_TITILE">
+                        <size>130,-1d</size>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText" name="IDC_STATIC">
+                        <label>Description</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="IDC_GEODA_PUBLISH_DESCRIPTION">
+                        <size>130,40d</size>
+                        <style>wxTE_MULTILINE</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText"/>
+                    </object>
+                    <cols>3</cols>
+                    <rows>4</rows>
+                    <vgap>15</vgap>
+                    <hgap>10</hgap>
+                  </object>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                <object class="spacer">
+                  <size>0,40</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>4,10</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Get a free GeoDa-Web account: </label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxHyperlinkCtrl">
+                        <url>https://webpool.csf.asu.edu/xun/</url>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label/>
+                      </object>
+                    </object>
+                  </object>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                </object>
+                
+              </object>
+              
+            </object>
+       </object>
+    <title>Publish to GeoDa-Web</title>
+    <centered>1</centered>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+  </object>
 </resource>

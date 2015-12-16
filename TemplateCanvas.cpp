@@ -1093,7 +1093,7 @@ void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 	for (int cat=0; cat<num_cats; cat++) {
 		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
 		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
-				
+			
 		std::vector<int> ids_copy;
 		colors[clr] = ids_copy;
 		
@@ -1103,6 +1103,29 @@ void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 			colors[clr].push_back(ids[i]);
 		}
 	}	
+}
+
+void TemplateCanvas::GetVizInfo(wxString& shape_type,  std::vector<wxString>& clrs, std::vector<double>& bins)
+{
+    
+	if (selectable_shps_type == points) {
+        shape_type = "POINT";
+	} else if (selectable_shps_type == polygons) {
+        shape_type = "POLYGON";
+	}
+   
+	int cc_ts = cat_data.curr_canvas_tm_step;
+	int num_cats=cat_data.GetNumCategories(cc_ts);
+	
+    if (num_cats >1) {
+	for (int cat=0; cat<num_cats; cat++) {
+		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
+		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
+			
+        clrs.push_back(clr);
+        bins.push_back(cat_data.GetCategoryMax(cc_ts, cat));
+    }
+    }
 }
 
 // Copy in layer0_bm and draw highlighted shapes.

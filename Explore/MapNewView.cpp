@@ -1737,3 +1737,12 @@ void MapFrame::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 	}
 }
 
+void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, std::vector<wxString>& clrs, std::vector<double>& bins)
+{
+	if (template_canvas) {
+        template_canvas->GetVizInfo(shape_type, clrs, bins);
+        if (!((MapCanvas*) template_canvas)->var_info.empty()) {
+            field_name = ((MapCanvas*) template_canvas)->var_info[0].name;
+        }
+	}
+}

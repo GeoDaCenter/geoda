@@ -87,12 +87,36 @@ void GeoDaWebProxy::Publish(Project* p)
 			continue;
 		}
 		if (MapFrame* w = dynamic_cast<MapFrame*>(*it)) {
-			std::map<wxString, std::vector<int> > colors;
-			w->GetVizInfo(colors);
-			if (!colors.empty()) {
-				wxString map_conf(buildParameter(colors));
-				ss << "&" << buildParameter("map", map_conf);
-			}
+            wxString shape_type;
+            wxString field_name;
+            std::vector<wxString> clrs;
+            std::vector<double> bins;
+            
+            
+            w->GetVizInfo(shape_type, field_name, clrs, bins);
+            
+            ss << "&map={\"map_type\":\"" << shape_type.mb_str() << "\",";
+            ss << "\"legend_field\":\"" << field_name << "\"";
+            
+            if (!clrs.empty()) {
+                
+                ss << ",\"colors\":[";
+                for (size_t i=0; i< clrs.size(); i++) {
+                    ss << "\"" << clrs[i] << "\"";
+                    if (i < clrs.size() -1) ss << ",";
+                }
+                ss << "]";
+            }
+            if (!bins.empty()) {
+                ss.setf(std::ios_base::fixed);
+                ss << ",\"bins\":[";
+                for (size_t i=0; i< bins.size(); i++) {
+                    ss << bins[i] ;
+                    if (i < clrs.size() -1) ss << ",";
+                }
+                ss << "]";
+            }
+            ss << "}";
 			continue;
 		} 
 		
@@ -135,7 +159,7 @@ void GeoDaWebProxy::Publish(Project* p)
 	string returnUrl = doPost(parameter);
 	
 	// launch browser with return url
-	wxString published_url("");
+	wxString published_url(returnUrl);
 	wxLaunchDefaultBrowser(published_url);
 }
 
@@ -160,7 +184,8 @@ string GeoDaWebProxy::buildParameter(map<wxString, vector<int> >& val)
 		
 		par << "\"" << clr.mb_str() << "\": [";
 		for (size_t i=0; i< ids.size(); i++) {
-			par << ids[i] << ",";
+			par << ids[i];
+            if (i < ids.size() -1) par << ",";
 		}
 		par << "],";
 	}
@@ -189,7 +214,8 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<int>& val)
 	ostringstream par;
 	par << key << "=" << "[";
 	for (size_t i=0, n=val.size(); i<n; i++) {
-		par << val[i] << ",";
+		par << val[i];
+        if (i < val.size() -1) par << ",";
 	}
 	par << "]";
 	return par.str();
@@ -200,7 +226,8 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<wxString>& val)
 	ostringstream par;
 	par << key << "=" << "[";
 	for (size_t i=0, n=val.size(); i<n; i++) {
-		par << "\"" << val[i] << "\",";
+		par << "\"" << val[i] << "\"";
+        if (i < val.size() -1) par << ",";
 	}
 	par << "]";
 	return par.str();
@@ -209,14 +236,16 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<wxString>& val)
 string GeoDaWebProxy::buildBaseUrl()
 {
     ostringstream url;
-    url << "https://webpool.csf.asu.edu/xun/myapp/index/";
+    //url << "https://webpool.csf.asu.edu/xun/myapp/geoda_publish/";
+    url << "http://127.0.0.1:8000/myapp/geoda_publish/";
     return url.str();
 }
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
-    string data((const char*) ptr, (size_t) size * nmemb);
-    *((stringstream*) stream) << data << endl;
-    return size * nmemb;
+size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata) {
+    std::ostringstream *stream = (std::ostringstream*)userdata;
+    size_t count = size * nmemb;
+    stream->write(ptr, count);
+    return count;
 }
 
 
@@ -262,7 +291,7 @@ string GeoDaWebProxy::doPost(string parameter)
     CURLcode res;
 
     //curl_global_init(CURL_GLOBAL_ALL);
-    stringstream out;
+    ostringstream out;
 	
     curl = curl_easy_init();
     if (curl) {
@@ -276,7 +305,6 @@ string GeoDaWebProxy::doPost(string parameter)
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
         curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
 		
-		stringstream out;
 		
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
@@ -294,7 +322,7 @@ string GeoDaWebProxy::doPost(string parameter)
             printf("!!! Response code: %d\n", res_code);
 			// Clean up the resources 
 			curl_easy_cleanup(curl);
-            return "";
+            return out.str();
         }
 		// Clean up the resources 
 		curl_easy_cleanup(curl);
