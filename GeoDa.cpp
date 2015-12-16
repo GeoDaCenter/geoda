@@ -98,6 +98,7 @@
 #include "DialogTools/SaveAsDlg.h"
 #include "DialogTools/LocaleSetupDlg.h"
 #include "DialogTools/WeightsManDlg.h"
+#include "DialogTools/PublishDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -3025,8 +3026,11 @@ void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 void GdaFrame::OnPublish(wxCommandEvent& event)
 {
 	Project* p = GetProject();
-	if (p)
-	GeoDaWebProxy::GetInstance().Publish(p);
+    if (p) {
+        PublishDlg dlg(this,p);
+        dlg.ShowModal();
+        
+    }
 }
 
 void GdaFrame::DisplayRegression(const wxString dump)

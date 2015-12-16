@@ -7842,11 +7842,12 @@
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
   
-  <object class="wxDialog" name="IDD_GEODA_PUBLISH_DLG" subclass="GeoDaPublishDlg">
+  <object class="wxDialog" name="IDD_GEODA_PUBLISH_DLG" subclass="PublishDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
             <object class="wxPanel" name="">
+                <size>660,340</size>
               <object class="wxBoxSizer">
                 <orient>wxVERTICAL</orient>
                 <object class="spacer">
@@ -7889,7 +7890,7 @@
                       </object>
                     </object>
                     <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_GEODA_PUBLISH_TITILE">
+                      <object class="wxTextCtrl" name="IDC_GEODA_PUBLISH_TITLE">
                         <size>130,-1d</size>
                       </object>
                     </object>
@@ -7949,8 +7950,30 @@
               
             </object>
        </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_OK">
+              <label>OK</label>
+            </object>
+            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+            <border>5</border>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>Cancel</label>
+            </object>
+            <flag>wxGROW|wxALL</flag>
+            <border>5</border>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+      </object>
+    </object>
     <title>Publish to GeoDa-Web</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    <size>660,340</size>
   </object>
 </resource>

@@ -31,25 +31,19 @@ class Project;
 class GeoDaWebProxy {
 
 public:
-	static GeoDaWebProxy& GetInstance() {
-		static GeoDaWebProxy instance;
-		return instance;
-	}
-   
-	void Close();
-
-	void SetKey(const string& key);
-	void SetUserName(const string& name);
-	
-	void Publish(Project* p);
-	
-    
-private:
     GeoDaWebProxy();
     
     GeoDaWebProxy(const string& _user_name, const string& _api_key);
     
     ~GeoDaWebProxy();
+
+	void SetKey(const string& key);
+	void SetUserName(const string& name);
+	
+	void Publish(Project* p, wxString& title, wxString& description);
+	
+    
+private:
     
     string api_key;
     string user_name;

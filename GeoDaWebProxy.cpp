@@ -59,11 +59,8 @@ GeoDaWebProxy::~GeoDaWebProxy() {
     
 }
 
-void GeoDaWebProxy::Close() {
-    
-}
 
-void GeoDaWebProxy::Publish(Project* p)
+void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 {
 	if (p == NULL)
 		return;
@@ -72,7 +69,11 @@ void GeoDaWebProxy::Publish(Project* p)
 	
 	// table_name
 	ss << buildParameter("table_name", p->layername);
-	
+
+    ss << "&" << buildParameter("title", title);
+    
+    ss << "&" << buildParameter("content", description);
+    
 	// maps & plots
 	FramesManager* fm = p->GetFramesManager();
 	list<FramesManagerObserver*> observers(fm->getCopyObservers());
