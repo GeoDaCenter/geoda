@@ -33,6 +33,7 @@
 #include "../DialogTools/SaveToTableDlg.h"
 #include "LisaCoordinator.h"
 #include "LisaMapNewView.h"
+#include "ShpFile.h"
 
 IMPLEMENT_CLASS(LisaMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)
@@ -206,9 +207,16 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		}
 		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
 		
+        Shapefile::Header& hdr = project->main_data.header;
+        
 		if (is_clust) {
 			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            
+            if (hdr.shape_type == Shapefile::POINT_TYP) {
+                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+            } else {
+                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            }
 			cat_data.SetCategoryLabel(t, 1, "High-High");
 			cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
 			cat_data.SetCategoryLabel(t, 2, "Low-Low");
@@ -230,8 +238,13 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 			int s_f = lisa_coord->GetSignificanceFilter();
 			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
 
+            if (hdr.shape_type == Shapefile::POINT_TYP) {
+                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+            } else {
+                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            }
+            
 			cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
 			cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
 			if (s_f <= 3) {

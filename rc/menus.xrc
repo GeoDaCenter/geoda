@@ -2428,50 +2428,6 @@
       </object>
     </object>
     <object class="separator"/>
-    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
-      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
-        <label>Add Mean Centers to Table</label>
-      </object>
-      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
-        <label>Add Centroids to Table</label>
-      </object>
-      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
-        <label>Display Mean Centers</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
-        <label>Display Centroids</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
-        <label>Save Mean Centers</label>
-        <enabled>1</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
-        <label>Save Centroids</label>
-        <enabled>1</enabled>
-      </object>
-      <label>Shape Centers</label>
-    </object>
-    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
-      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
-        <label>Display Thiessen Polygons</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
-        <label>Save Thiessen Polygons</label>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
-        <label>Save Duplicate Thiessen Polygons (ID) to Table</label>
-        <enabled>0</enabled>
-      </object>
-      <label>Thiessen Polygons</label>
-    </object>
-    <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
       <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
@@ -2587,50 +2543,6 @@
       <object class="wxMenuItem" name="ID_SELECT_CORES_AND_NEIGHBORS">
         <label>Cores and Neighbors</label>
       </object>
-    </object>
-    <object class="separator"/>
-    <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
-      <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
-        <label>Add Mean Centers to Table</label>
-      </object>
-      <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
-        <label>Add Centroids to Table</label>
-      </object>
-      <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
-        <label>Display Mean Centers</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
-        <label>Display Centroids</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
-        <label>Save Mean Centers</label>
-        <enabled>1</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
-        <label>Save Centroids</label>
-        <enabled>1</enabled>
-      </object>
-      <label>Shape Centers</label>
-    </object>
-    <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
-      <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
-        <label>Display Thiessen Polygons</label>
-        <checkable>1</checkable>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
-        <label>Save Thiessen Polygons</label>
-        <enabled>0</enabled>
-      </object>
-      <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
-        <label>Save Duplicate Thiessen Polygons to Table</label>
-        <enabled>0</enabled>
-      </object>
-      <label>Thiessen Polygons</label>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">

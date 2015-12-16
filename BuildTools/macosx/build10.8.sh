@@ -6,6 +6,8 @@
 # ./build.sh [CPU] [NODEBUG, true=1 false=0(default)]
 # ./build.sh 8 1 (no debug)
 #############################################################################
+# Note: mac osx 10.7 autoconf, automake gettext libtool
+#
 CPUS=$1
 NODEBUG=$2
 if [[ $CPUS == "" ]] ; then
@@ -19,20 +21,31 @@ else
     fi
 fi
 
+if ! type "ar" > /dev/null; then
+    echo "You need to install Xcode development enviroment to run this script."
+    exit
+fi
+
+if ! type "cmake" > /dev/null; then
+    echo "You need to install cmake to run this script."
+    echo "Please download and install cmake from http://www.cmake.org/files/v2.8/cmake-2.8.12-Darwin64-universal.dmg."
+    exit
+fi
+
+OSX_VERSION=`sw_vers -productVersion`
+TARGET_VERSION="10.6"
 
 if ! type "gcc" > /dev/null; then
-    echo "If you want to build GeoDa on OSX > 10.6, please install the \"command-line tools\" package through XCode. Then it will use instaled GNU GCC and G++"
+    echo "If you want to build GeoDa on OSX > 10.6, please install the \"command-line tools\" package through XCode. Then it will use instaled GNU GCC- and G++."
     read -p "Do you want to continue? [y/n]" -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit
     fi
-    xcode-select --install
 fi
 
 unset ORACLE_HOME
 export GEODA_HOME=$PWD
-export MC_HOME="/Users/xun/geoda_trunk/BuildTools/macosx"
 PREFIX=$GEODA_HOME/libraries
 DOWNLOAD_HOME=$GEODA_HOME/temp
 echo $PREFIX
@@ -43,7 +56,7 @@ GDA_CFLAGS="-Os -arch x86_64"
 GDA_CXX="g++"
 GDA_CXXFLAGS="-Os -arch x86_64"
 GDA_LDFLAGS="-arch x86_64"
-GDA_WITH_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/"
+GDA_WITH_SYSROOT="/Developer/SDKs/MacOSX10.6.sdk/"
 
 if ! [ -d $DOWNLOAD_HOME ]; then
     mkdir $DOWNLOAD_HOME
@@ -54,78 +67,226 @@ if ! [ -d $PREFIX ]; then
 fi
 
 #########################################################################
-# copy library/*
+# install library function
 #########################################################################
-if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libraries.zip
-    curl -O $LIB_URL
-    unzip libraries.zip
-    rm libraries.zip
-    cd libraries/lib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgdal.20.dylib" "$GEODA_HOME/libraries/lib/libgdal.20.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlengine.0.dylib" "$GEODA_HOME/libraries/lib/libkmlengine.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlregionator.0.dylib" "$GEODA_HOME/libraries/lib/libkmlregionator.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlxsd.0.dylib" "$GEODA_HOME/libraries/lib/libkmlxsd.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmldom.0.dylib" "$GEODA_HOME/libraries/lib/libkmldom.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlbase.0.dylib" "$GEODA_HOME/libraries/lib/libkmlbase.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlconvenience.0.dylib" "$GEODA_HOME/libraries/lib/libkmlconvenience.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libminizip.0.dylib" "$GEODA_HOME/libraries/lib/libminizip.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/liburiparser.1.dylib" "$GEODA_HOME/libraries/lib/liburiparser.1.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libxerces-c-3.1.dylib" "$GEODA_HOME/libraries/lib/libxerces-c-3.1.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libpq.5.dylib" "$GEODA_HOME/libraries/lib/libpq.5.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libspatialite.5.dylib" "$GEODA_HOME/libraries/lib/libspatialite.5.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libfreexl.1.dylib" "$GEODA_HOME/libraries/lib/libfreexl.1.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libproj.0.dylib" "$GEODA_HOME/libraries/lib/libproj.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libsqlite3.0.dylib" "$GEODA_HOME/libraries/lib/libsqlite3.0.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgeos_c.1.dylib" "$GEODA_HOME/libraries/lib/libgeos_c.1.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libcurl.4.dylib" "$GEODA_HOME/libraries/lib/libcurl.4.dylib" libgdal.20.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlengine.0.dylib" "$GEODA_HOME/libraries/lib/libkmlengine.0.dylib" libkmlengine.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libkmlbase.0.dylib" "$GEODA_HOME/libraries/lib/libkmlbase.0.dylib" libkmlengine.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libminizip.0.dylib" "$GEODA_HOME/libraries/lib/libminizip.0.dylib" libkmlengine.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/liburiparser.1.dylib" "$GEODA_HOME/libraries/lib/liburiparser.1.dylib" libkmlengine.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libminizip.0.dylib" "$GEODA_HOME/libraries/lib/libminizip.0.dylib" libkmlbase.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/liburiparser.1.dylib" "$GEODA_HOME/libraries/lib/liburiparser.1.dylib" libkmlbase.0.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libfreexl.1.dylib" "$GEODA_HOME/libraries/lib/libfreexl.1.dylib" libspatialite.5.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libproj.0.dylib" "$GEODA_HOME/libraries/lib/libproj.0.dylib" libspatialite.5.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libsqlite3.0.dylib" "$GEODA_HOME/libraries/lib/libsqlite3.0.dylib" libspatialite.5.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgeos_c.1.dylib" "$GEODA_HOME/libraries/lib/libgeos_c.1.dylib" libspatialite.5.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libgeos_c.1.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libspatialite.5.dylib
-    install_name_tool -change "$MC_HOME/libraries/lib/libcurl.4.dylib" "$GEODA_HOME/libraries/lib/libcurl.4.dylib" libxerces-c-3.1.dylib
-    cd ../..
-fi
+install_library()
+{
+    LIB_NAME=$1
+    LIB_URL=$2
+    LIB_CHECKER=$3
+    LIB_FILENAME=$(basename "$LIB_URL" ".tar")
+    echo $LIB_FILENAME
+
+    cd $DOWNLOAD_HOME
+
+    if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+    fi
+
+    if ! [ -d "$LIB_NAME" ] ; then
+        tar -xf $LIB_FILENAME
+    fi
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        cd $LIB_NAME
+        #./configure --with-sysroot="$GDA_WITH_SYSROOT" CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+        ./configure CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+        $MAKER
+        make install
+    fi
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        echo "Error! Exit"
+        exit
+    fi
+}
+#########################################################################
+# install c-ares -- for cURL, prevent crash on Mac oSx with threads
+#########################################################################
+install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
 
 
 #########################################################################
-# install GDAL/OGR source
+# install iconv
 #########################################################################
-LIB_NAME=gdal
-LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
-LIB_FILENAME=GeoDa17Merge
-LIB_CHECKER=libgdal.a1
-echo $LIB_FILENAME
+install_library libiconv-1.14 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libiconv-1.14.tar.gz libiconv.dylib
+
+#########################################################################
+# install cURL
+#########################################################################
+#install_library curl-7.30.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.30.0.tar.gz libcurl.a
+#install_library curl-7.43.0 http://curl.haxx.se/download/curl-7.43.0.tar.gz libcurl.a
+
+LIB_NAME=curl-7.43.0
+LIB_CHECKER=libcurl.a
+LIB_URL=http://curl.haxx.se/download/curl-7.43.0.tar.gz
+LIB_FILENAME=curl-7.43.0.tar.gz
+echo $LIB_NAME
 
 cd $DOWNLOAD_HOME
 
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+fi
+
 if ! [ -d "$LIB_NAME" ]; then
-    curl -k -O $LIB_URL
-    unzip $LIB_FILENAME
-    mv gdal-GeoDa17Merge/gdal gdal
+    tar -xf $LIB_FILENAME
 fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
-    make clean
-    #./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
-    cp dep/$LIB_NAME/GDALmake.opt .
-    rm $GEODA_HOME/libraries/lib/libspatialite.la
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
     $MAKER
-    touch .libs/libgdal.lai
     make install
 fi
 
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+export PATH=$PREFIX/bin:$PATH
 
+#########################################################################
+# install Xerces
+#########################################################################
+XERCES_NAME="xerces-c-3.1.1"
+XERCES_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
+install_library $XERCES_NAME $XERCES_URL libxerces-c.a
+
+#########################################################################
+# install GEOS
+#########################################################################
+install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2 libgeos.a
+
+#########################################################################
+# install PROJ.4
+#########################################################################
+install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
+
+#########################################################################
+# install FreeXL
+#########################################################################
+install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
+
+
+#########################################################################
+# install SQLite
+#########################################################################
+install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+
+#########################################################################
+# install PostgreSQL
+#########################################################################
+install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
+
+#########################################################################
+# install libjpeg
+#########################################################################
+install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
+
+#########################################################################
+# install libkml requires 1.3
+#########################################################################
+LIB_NAME=libkml-1.3.0-rc2
+KML_LIB_NAME=$LIB_NAME
+LIB_CHECKER=libkmlbase.dylib
+LIB_URL=https://github.com/libkml/libkml/archive/1.3.0-rc2.tar.gz
+LIB_FILENAME=libkml.tar.gz
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -o $LIB_FILENAME $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    mkdir build
+    cd build
+    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX ..
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+#########################################################################
+# install SpatiaLite
+#########################################################################
+LIB_NAME=libspatialite-4.0.0
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
+#LIB_NAME=libspatialite-4.3.0a
+#LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.3.0a.tar.gz
+LIB_FILENAME=$LIB_NAME.tar.gz
+LIB_CHECKER=libspatialite.a
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure --enable-iconv CC="$GDA_CC" CFLAGS="$GDA_CFLAGS -I$PREFIX/include" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS -I$PREFIX/include" LDFLAGS="$GDA_LDFLAGS -L$PREFIX/lib -liconv" --prefix=$PREFIX --enable-geos --with-geosconfig=$PREFIX/bin/geos-config
+    $MAKER
+    touch src/.libs/libspatialite.lai
+    make install
+fi
+# in some case, the make install doens't work because of .la file content error,
+# so copy the compiled files manually
+cd $LIB_NAME
+cp src/.libs/libspatialite.* $PREFIX/lib/
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+#########################################################################
+# MySQL 
+#########################################################################
+LIB_NAME=mysql-5.6.28
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.28.tar.gz
+LIB_CHECKER=libmysqlclient.a
+LIB_FILENAME=$LIB_NAME.tar.gz
+echo $LIB_FILENAME
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+if ! [ -f "bld/libmysql/$LIB_CHECKER" ] ; then
+    mkdir bld
+    cd bld
+    #CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake -D CURSES_INCLUDE_PATH=/usr/include -D CURSES_LIBRARY=/usr/lib .. 
+    #cmake -D CURSES_INCLUDE_PATH=/usr/include -D CURSES_LIBRARY=/usr/lib .. 
+    cmake ..
+    make
+fi
+
+if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/bld/libmysql/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 #########################################################################
 # install boost library
 #########################################################################
@@ -153,7 +314,7 @@ if ! [ -f $DOWNLOAD_HOME/$LIB_NAME/stage/lib/$LIB_CHECKER ]; then
     cd $DOWNLOAD_HOME/$LIB_NAME
     ./bootstrap.sh
     ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64" stage
-    #./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk" macosx-version=10.5 stage
+    #./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64 -mmacosx-version-min=10.5 -isysroot $GDA_WITH_SYSROOT" macosx-version=10.5 stage
     #bjam toolset=darwin address-model=32
 
     # 10.5 against 1_50_0
@@ -165,6 +326,43 @@ if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
     exit
 fi
 
+#########################################################################
+# install JSON Spirit
+#########################################################################
+LIB_NAME="json_spirit_v4.08"
+LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+LIB_CHECKER="libjson_spirit.a"
+LIB_FILENAME="json_spirit_v4.08.zip"
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ]; then
+    curl -O $LIB_URL
+    unzip $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cp $GEODA_HOME/dep/json_spirit/CMakeLists.txt .
+    mkdir bld
+    cd bld
+    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake ..
+    make
+    rm -rf "$PREFIX/include/json_spirit"
+    rm -f "$PREFIX/lib/$LIB_CHECKER"
+    mkdir "$PREFIX/include/json_spirit"
+    echo "Copying JSON Sprit includes..."
+    cp -R "../json_spirit" "$PREFIX/include/."
+    echo "Copying libjson_spirit.a"
+    cp json_spirit/libjson_spirit.a "$PREFIX/lib/."
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 
 #########################################################################
 # install CLAPACK
@@ -206,12 +404,93 @@ if ! [ -f "$DOWNLOAD_HOME/$LIB_NAME/$LIB_CHECKER" ] ; then
     exit
 fi
 
-cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-mkdir ../../o
-echo "You can use Xcode to do dev work."
-echo "In Xcode, add libc++.dylib to your project:"
-echo "Go to Build Phases"
-echo "Expand: Link Binary With Libraries"
-echo "Click the +"
-echo "Select the libc++.dylib file and press Add"
+#########################################################################
+# install GDAL/OGR
+#########################################################################
+LIB_NAME=gdal
+LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
+LIB_FILENAME=GeoDa17Merge
+LIB_CHECKER=libgdal.a
+echo $LIB_FILENAME
 
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ]; then
+    curl -k -O $LIB_URL
+    unzip $LIB_FILENAME
+    mv gdal-GeoDa17Merge/gdal gdal
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+
+    # with debug
+    ./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix=$PREFIX --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$GEODA_HOME/temp/$KML_LIB_NAME --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --enable-debug
+
+    echo "$GEODA_HOME/dep/$LIB_NAME"
+    #cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    make clean
+    rm $GEODA_HOME/libraries/lib/libspatialite.la
+    $MAKER
+    touch .libs/libgdal.lai
+    make install
+    cp .libs/* ../../libraries/lib
+
+    #--build oci plugin
+    #cd ogr/ogrsf_frmts/oci
+    #make plugin
+    #mv ogr_OCI.so ogr_OCI.dylib
+    #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    echo "You need to modify the libgdal.la and remove the extra '=' symobls."
+    exit
+fi
+
+#########################################################################
+# install wxWidgets library
+#########################################################################
+LIB_NAME=wxWidgets-3.0.2
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_FILENAME=$(basename "$LIB_URL" ".tar")
+LIB_CHECKER=libwx_baseu-3.0.a
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -k -o $LIB_FILENAME $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    make clean
+    cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --with-macosx-version-min=10.6 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --prefix=$PREFIX
+    $MAKER 
+    make install
+    cd ..
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+
+#########################################################################
+# build GeoDa
+#########################################################################
+cd $GEODA_HOME
+cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+make clean
+mkdir ../../o
+$MAKER
+if [ -d "build" ] ; then
+    rm -rf build
+fi
+make app
