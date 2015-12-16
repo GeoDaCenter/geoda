@@ -2551,6 +2551,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
 											 project_p->GetTableInt());
         dlg->Show(true);
     }
+    hasTime = false; // always show time player + time editor
     if (!hasTime) {
     //} else {
         // Show Time Editor and Variable Group Editor

@@ -45,7 +45,7 @@ public TableStateObserver
 {    
 public:
     VarGroupingEditorDlg(Project* project, wxWindow* parent,
-				   const wxString& title = "Variable Grouping Editor", 
+				   const wxString& title = "Time Editor", 
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
 				   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );

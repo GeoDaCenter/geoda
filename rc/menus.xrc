@@ -468,7 +468,7 @@
       <label>Tim&amp;e</label>
 
 	      <object class="wxMenuItem" name="ID_SHOW_TIME_CHOOSER">
-        <label>Time Control</label>
+        <label>Time Player</label>
       </object>
       <object class="wxMenuItem" name="ID_VAR_GROUPING_EDITOR">
         <label>Time Editor</label>
@@ -3791,6 +3791,7 @@
     <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
       <label>Change Variable Type</label>
     </object>
+    <!--
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
       <label>Animation</label>
@@ -3804,16 +3805,14 @@
     <object class="wxMenuItem" name="ID_VAR_GROUPING_EDITOR">
       <label>Variable Grouping Editor</label>
     </object>
-    
-    
-    
+     
     <object class="wxMenuItem" name="ID_TABLE_GROUP">
       <label>Group Selected</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_UNGROUP">
       <label>Ungroup Variable</label>
     </object>
-	
+	-->
     <object class="separator"/>
     
     <object class="wxMenuItem" name="ID_SHOW_CAT_CLASSIF">
