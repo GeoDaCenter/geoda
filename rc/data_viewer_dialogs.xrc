@@ -828,7 +828,6 @@
         <border>10</border>
       </object>
     </object>
-    <title>Time Editor</title>
     <centered>1</centered>
     <style>wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
