@@ -42,6 +42,7 @@
 #include "../Project.h"
 #include "../GdaConst.h"
 #include "VarGroupingEditorDlg.h"
+#include "TimeEditorDlg.h"
 
 BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 	EVT_CLOSE( VarGroupingEditorDlg::OnClose )
@@ -615,6 +616,7 @@ void VarGroupingEditorDlg::OnSortClick( wxCommandEvent& event )
 
 void VarGroupingEditorDlg::OnPlaceholderClick( wxCommandEvent& event )
 {
+    /*
 	using namespace std;
 	LOG_MSG("In VarGroupingEditorDlg::OnPlaceholderClick");
 	if (!all_init) return;
@@ -625,6 +627,27 @@ void VarGroupingEditorDlg::OnPlaceholderClick( wxCommandEvent& event )
 		}
 	}
 	UpdateButtons();
+     */
+
+    wxPoint pt = GetPosition();
+    std::list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
+            LOG_MSG("TimeEditorDlg already opened.");
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            w->SetPosition(wxPoint(pt.x + 50, pt.y + 30));
+            return;
+        }
+    }
+    
+    LOG_MSG("Opening a new TimeEditorDlg");
+    TimeEditorDlg* dlg = new TimeEditorDlg(0,frames_manager, table_state,                                       table_int);
+    dlg->Show(true);
+    dlg->SetPosition(wxPoint(pt.x + 50, pt.y + 30));
+
 }
 
 void VarGroupingEditorDlg::OnUngroupedListItemActivate( wxListEvent& event )
@@ -740,7 +763,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 void VarGroupingEditorDlg::OnIncludeListItemActivate( wxListEvent& event )
 {
 	wxCommandEvent ce;
-	OnRemoveFrListClick(ce);
+	OnPlaceholderClick(ce);
 }
 
 void VarGroupingEditorDlg::OnRemoveFrListClick( wxCommandEvent& event )
@@ -881,9 +904,10 @@ void VarGroupingEditorDlg::UpdateButtons()
 	move_up_button->Enable(inc_sel_cnt > 0 && sel_first != 0);
 	move_down_button->Enable(inc_sel_cnt > 0 && sel_last != inc_item_cnt-1);
 	sort_button->Enable(cnt > 1);
-	placeholder_button->Enable((table_int->GetTimeSteps() == 1 && 
-								inc_item_cnt > 0) ||
-							   (sel_strs.size()-non_empty_cnt > 0));
+	//placeholder_button->Enable((table_int->GetTimeSteps() == 1 &&
+	//							inc_item_cnt > 0) ||
+	//						   (sel_strs.size()-non_empty_cnt > 0));
+    placeholder_button->Enable(true);
 	
 	UpdateAddToListButton();
 	remove_fr_list_button->Enable(non_empty_cnt > 0);

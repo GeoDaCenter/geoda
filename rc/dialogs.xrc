@@ -7301,7 +7301,7 @@
         <border>7</border>
       </object>
     </object>
-    <title>Time Editor</title>
+    <title>Time Setup</title>
     <style>wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
   <object class="wxDialog" name="IDD_EXPORT_OGRDATA" subclass="ExportDataDlg">

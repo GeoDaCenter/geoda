@@ -581,7 +581,7 @@ EVT_TOOL(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
 EVT_BUTTON(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
 
 EVT_MENU(XRCID("ID_VAR_GROUPING_EDITOR"), GdaFrame::OnVarGroupingEditor)
-EVT_MENU(XRCID("ID_TIME_EDITOR"), GdaFrame::OnTimeEditor)
+EVT_MENU(XRCID("ID_TIME_EDITOR"), GdaFrame::OnVarGroupingEditor)
 EVT_MENU(XRCID("ID_TABLE_MOVE_SELECTED_TO_TOP"), GdaFrame::OnMoveSelectedToTop)
 EVT_MENU(XRCID("ID_TABLE_INVERT_SELECTION"), GdaFrame::OnInvertSelection)
 EVT_MENU(XRCID("ID_TABLE_CLEAR_SELECTION"), GdaFrame::OnClearSelection)
@@ -2529,6 +2529,8 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
     
+    wxPoint pt;
+    
     bool hasTime = p->GetTableInt()->IsTimeVariant();
     bool opened = false;
         FramesManager* fm = p->GetFramesManager();
@@ -2540,6 +2542,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
                 w->Show(true);
                 w->Maximize(false);
                 w->Raise();
+                pt = w->GetPosition();
                 opened = true;
                 return;
             }
@@ -2551,6 +2554,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
 											 project_p->GetTableState(),
 											 project_p->GetTableInt());
         dlg->Show(true);
+        pt = dlg->GetPosition();
     }
     hasTime = false; // always show time player + time editor
     if (!hasTime) {
@@ -2564,7 +2568,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
         //std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
         //std::list<FramesManagerObserver*>::iterator it;
         
-        wxPoint pt;
+        
     
         for (it=observers.begin(); it != observers.end(); ++it) {
             if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
@@ -2573,7 +2577,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
                 w->Show(true);
                 w->Maximize(false);
                 w->Raise();
-                pt = w->GetPosition();
+                w->SetPosition(wxPoint(pt.x, pt.y + 130));
                 opened =true;
                 break;
             }
@@ -2582,9 +2586,14 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
             LOG_MSG("Opening a new VarGroupingEditorDlg");
             VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
             dlg->Show(true);
-            pt = dlg->GetPosition();
+            int start_x = pt.x - 200;
+            if (start_x) start_x = 0;
+            dlg->SetPosition(wxPoint(pt.x, pt.y + 130));
         }
         
+        
+        
+        /*
         //OnTimeEditor(event);
         for (it=observers.begin(); it != observers.end(); ++it) {
             if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
@@ -2607,6 +2616,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
         int start_x = pt.x - 200;
         if (start_x) start_x = 0;
         tmdlg->SetPosition(wxPoint(pt.x -200, pt.y));
+         */
 
     }
 }
