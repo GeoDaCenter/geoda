@@ -550,14 +550,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -584,14 +585,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_BOXPLOT_VIEW_MENU_CONTEXT">
@@ -616,14 +618,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -1119,14 +1122,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -1495,14 +1499,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -1835,14 +1840,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2055,14 +2061,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2096,14 +2103,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2143,14 +2151,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2226,15 +2235,16 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-    <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
 	
     <object class="separator"/>
@@ -2354,14 +2364,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2471,14 +2482,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2583,14 +2595,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2687,14 +2700,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -2973,14 +2987,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -3206,14 +3221,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -3420,16 +3436,16 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
     </object>
-    
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
+    </object>
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_BUBBLE_CHART_VIEW_MENU_OPTIONS">
@@ -3639,14 +3655,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -3688,14 +3705,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_SCATTER_PLOT_VIEW_MENU_CONTEXT">
@@ -3735,14 +3753,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -3973,14 +3992,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
@@ -4008,14 +4028,15 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
-      <label>Save Image As</label>
-    </object>
+    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
     <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
       <label>Copy Image To Clipboard</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+        <label>Save Image As</label>
     </object>
     <label>Options</label>
   </object>
