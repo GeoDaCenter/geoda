@@ -3176,21 +3176,35 @@
       <label>Save Categories</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
-      <label>View Standardized Data</label>
-      <checkable>1</checkable>
+    <object class="wxMenu" name="ID_VIEW_DATA_SUBMENU">
+        <label>Data</label>
+    
+        <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+            <label>View Standardized Data</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+            <label>View Original Data</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
-    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
-      <label>View Original Data</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_VIEW_SHOW_SUBMENU">
+        <label>Show</label>
+
+        <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+            <label>Display Statistics</label>
+            <checkable>1</checkable>
+            <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Show Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="separator"/>
+    
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
       <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
@@ -3214,11 +3228,6 @@
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
-    </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
     </object>
     <object class="separator"/>
     
