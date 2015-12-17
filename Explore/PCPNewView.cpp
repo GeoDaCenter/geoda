@@ -140,14 +140,14 @@ num_categories(6), all_init(false)
 	 */
 	
 	selectable_fill_color = GdaConst::pcp_line_color;
-	//highlight_color = GdaConst::highlight_color;
-	highlight_color = wxColour(68, 244, 136); // light mint green
+	highlight_color = GdaConst::highlight_color;
+	//highlight_color = wxColour(68, 244, 136); // light mint green
 	
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = true;
 	selectable_shps_type = polylines;
 	
-	ChangeThemeType(CatClassification::stddev, 6);
+    ChangeThemeType(CatClassification::no_theme, 6);
 	
 	/*
 	VarInfoAttributeChange();
