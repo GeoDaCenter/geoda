@@ -3386,44 +3386,59 @@
         <checkable>1</checkable>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
-      <label>View Standardized Data</label>
-      <checkable>1</checkable>
+    <object class="wxMenu" name="ID_SCATTER_DATA_MENU">
+        <label>Data</label>
+        <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+            <label>View Standardized Data</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+            <label>View Original Data</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
-    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
-      <label>View Original Data</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-		<object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
-      <label>Show Linear Smoother</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
+    <object class="wxMenu" name="ID_SCATTER_SMOOTHER_MENU">
+        <label>Smoother</label>
+        <object class="wxMenuItem" name="ID_VIEW_LINEAR_SMOOTHER">
+            <label>Show Linear Smoother</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
 		<object class="wxMenuItem" name="ID_VIEW_LOWESS_SMOOTHER">
-      <label>Show LOWESS Smoother</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
+            <label>Show LOWESS Smoother</label>
+            <checkable>1</checkable>
+            <checked>0</checked>
+        </object>
 		<object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
-      <label>Edit LOWESS Parameters</label>
+            <label>Edit LOWESS Parameters</label>
+        </object>
     </object>
-	  <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
-      <label>Regimes Regression</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    
+    <object class="wxMenu" name="ID_SCATTER_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
+            <label>Regimes Regression</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+            <label>Display Statistics</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
+            <label>Show Axes Through Origin</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Show Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
-      <label>Show Axes Through Origin</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="separator"/>
+    
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
       <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_COLOR">
@@ -3439,11 +3454,7 @@
         <label>Background Color</label>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
+    
     <object class="separator"/>
     
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">

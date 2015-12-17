@@ -23,7 +23,7 @@ using namespace std;
 
 #define rPsort(x,n,k) std::partial_sort(&x[0],&x[n],&x[k]);
 
-const double Lowess::default_f = 0.7;
+const double Lowess::default_f = 0.2;
 const int Lowess::default_iter = 5;
 const double Lowess::default_delta_factor = 0.02;
 const int Lowess::max_iter = 10000;
