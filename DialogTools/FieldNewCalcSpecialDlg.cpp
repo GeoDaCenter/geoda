@@ -115,6 +115,8 @@ void FieldNewCalcSpecialDlg::Apply()
 
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(result_col);
+    GdaConst::FieldType col_type = table_int->GetColType(result_col);
+    
 	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 	
 	int op_sel = m_op->GetSelection();
@@ -142,43 +144,85 @@ void FieldNewCalcSpecialDlg::Apply()
 		time_list.resize(1);
 		time_list[0] = tm;
 	}
+    
+    int n_rows = table_int->GetNumberRows();
+	std::vector<bool> undefined(n_rows, false);
 	
-	std::vector<double> data(table_int->GetNumberRows(), 0);
-	std::vector<bool> undefined(table_int->GetNumberRows(), false);
 	for (int t=0; t<time_list.size(); t++) {
 		switch (m_op->GetSelection()) {
 			case normal_rand:
 			{
-				boost::normal_distribution<> norm_dist(m_var1_const,
-													   m_var2_const);
-				boost::variate_generator<boost::mt19937&,
-				boost::normal_distribution<> > X(rng, norm_dist);
-				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
-					data[i] = X();
-				}
+				boost::normal_distribution<> norm_dist(m_var1_const, m_var2_const);
+				boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > X(rng, norm_dist);
+    
+                if (col_type == GdaConst::double_type ) {
+                    std::vector<double> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) {
+                        data[i] = X();
+                    }
+                    table_int->SetColData(result_col, time_list[t], data);
+                    
+                } else if (col_type == GdaConst::long64_type) {
+                    std::vector<wxInt64> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) {
+                        data[i] = (wxInt64)X();
+                    }
+                    table_int->SetColData(result_col, time_list[t], data);
+                    
+                } else if (col_type == GdaConst::string_type) {
+                    std::vector<wxString> data(n_rows, wxEmptyString);
+                    for (int i=0; i<n_rows; i++) {
+                        data[i] = wxString::Format(wxT("%f"), X());
+                    }
+                    table_int->SetColData(result_col, time_list[t], data);
+                    
+                }
+                table_int->SetColUndefined(result_col, time_list[t], undefined);
 			}
 				break;
 			case uniform_rand:
 			{
 				static boost::uniform_01<boost::mt19937> X(rng);
-				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
-					data[i] = X();
-				}
+                
+                if (col_type == GdaConst::double_type) {
+                    std::vector<double> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) data[i] = X();
+                    table_int->SetColData(result_col, time_list[t], data);
+                } else if (col_type == GdaConst::long64_type) {
+                    std::vector<wxInt64> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) data[i] = (wxInt64)X();
+                    table_int->SetColData(result_col, time_list[t], data);
+                } else if (col_type == GdaConst::string_type) {
+                    std::vector<wxString> data(n_rows, wxEmptyString);
+                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format(wxT("%f"), X());
+                    table_int->SetColData(result_col, time_list[t], data);
+                }
+                table_int->SetColUndefined(result_col, time_list[t], undefined);
 			}
 				break;
 			case enumerate:
 			{
-				for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
-					data[i] = (double) i+1;
-				}
+                if (col_type == GdaConst::double_type) {
+                    std::vector<double> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    table_int->SetColData(result_col, time_list[t], data);
+                } else if (col_type == GdaConst::long64_type) {
+                    std::vector<wxInt64> data(n_rows, 0);
+                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    table_int->SetColData(result_col, time_list[t], data);
+                } else if (col_type == GdaConst::string_type) {
+                    std::vector<wxString> data(n_rows, wxEmptyString);
+                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format(wxT("%d"), i+1);
+                    table_int->SetColData(result_col, time_list[t], data);
+                }                
+                table_int->SetColUndefined(result_col, time_list[t], undefined);
 			}
 				break;
 			default:
 				return;
 				break;
 		}
-		table_int->SetColData(result_col, time_list[t], data);
-		table_int->SetColUndefined(result_col, time_list[t], undefined);
+		
 
 	}
 }

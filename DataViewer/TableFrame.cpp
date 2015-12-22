@@ -42,9 +42,9 @@ BEGIN_EVENT_TABLE(TableFrame, TemplateFrame)
 	EVT_GRID_COL_SIZE( TableFrame::OnColSizeEvent )
 	EVT_GRID_COL_MOVE( TableFrame::OnColMoveEvent )
 	EVT_GRID_CELL_CHANGED( TableFrame::OnCellChanged )
-	
-    EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
-    EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
+
+    //EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
+    //EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
     EVT_MENU(XRCID("ID_TABLE_RENAME_VARIABLE"), TableFrame::OnRenameVariable)
     /*
 	EVT_MENU(XRCID("ID_ENCODING_UTF8"), TableFrame::OnEncodingUTF8)
@@ -262,13 +262,14 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			}
 		}
 	}
+    /*
 	if (any_sel_time_variant || !all_sel_compatible || sel_cols.size() <= 1 ||
 		(ti->GetTimeSteps() > 1 && ti->GetTimeSteps() != sel_cols.size())) {
 		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(false);
 	} else {
 		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(true);
 	}
-
+     
 	// Set Ungroup item
 	wxString ung_str("Ungroup Variable");
 	bool ung_enable = false;
@@ -282,7 +283,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 	}
 	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetItemLabel(ung_str);
 	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->Enable(ung_enable);
-	
+	*/
 	// Set Rename item
 	wxString rename_str("Rename Variable");
 	if (popup_col != -1) {
