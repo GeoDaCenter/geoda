@@ -85,19 +85,24 @@ public:
 	bool isTableOnly; // variable data only, no geometry layers
     bool IsDataTypeChanged();
     
+    bool IsFileDataSource();
+    
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
+    
 	/** Indicate the location and name of the project file.  The filename
 	 must be an absolute path.  The path will be decomposed into 
 	 a new Working Directory (SetWorkingDir is automatically called) and
 	 a name part.  */
 	void SetProjectFullPath(const wxString& proj_full_path);
+    
 	/** To convert returned value to a wxString use, GetFullPath().  If
 	 value is empty, then no directory has been set or no default could
 	 be determined.  When a project file exists, the Working Directory
 	 is the location of the project file. */
 	wxFileName GetWorkingDir() { return working_dir; }
+    
 	/** Set the current working directory.  Directory must be an absolute
 	 path.  If path refers to a file, the filename will be dropped.
 	 False is returned on failure. */
@@ -107,8 +112,8 @@ public:
 	void SaveProjectConf();
 	void SaveDataSourceData();
 	
-  /** SaveAs in-memory Table+Geometries to OGR DataSource */
-  void SaveDataSourceAs(const wxString& new_ds_name, bool is_update=false);
+    /** SaveAs in-memory Table+Geometries to OGR DataSource */
+    void SaveDataSourceAs(const wxString& new_ds_name, bool is_update=false);
 
 	int                 GetNumRecords() { return num_records; }
 	HighlightState*     GetHighlightState() { return highlight_state; }
@@ -125,7 +130,7 @@ public:
 	TimeChooserDlg*     GetTimeChooser() { return time_chooser; }
 	TableBase*          FindTableBase();
 	wxGrid*             FindTableGrid();
-  ProjectConfiguration* GetProjectConf() { return project_conf; }
+    ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
@@ -139,7 +144,7 @@ public:
 	GalElement* GetVoronoiRookNeighborGal();
 	void AddMeanCenters();
 	void AddCentroids();
-  void GetSelectedRows(vector<int>& rowids);
+    void GetSelectedRows(vector<int>& rowids);
 	
 	/// centroids by default
 	const std::vector<GdaPoint*>& GetMeanCenters();
@@ -173,8 +178,8 @@ public:
 	// Fill Distances according to order specified in shared project
 	// pairs order mapping.
 	void FillDistances(std::vector<double>& D,
-										 WeightsMetaInfo::DistanceMetricEnum dm,
-										 WeightsMetaInfo::DistanceUnitsEnum du);
+                       WeightsMetaInfo::DistanceMetricEnum dm,
+                       WeightsMetaInfo::DistanceUnitsEnum du);
 	
 	const pairs_bimap_type& GetSharedPairsBimap();
 	void CleanupPairsHLState();
@@ -183,7 +188,7 @@ public:
     
 	/** NOTE: This function needs a better home. */
 	static bool CanModifyGrpAndShowMsgIfNot(TableState* table_state,
-																					const wxString& grp_nm);
+                                            const wxString& grp_nm);
 	
 public:
 	/// main_data is the only public remaining attribute in Project
@@ -193,7 +198,8 @@ public:
 	// ".gda" project file data
 	wxString layer_title; // optional project::layers::layer::title field
 	wxString layername; // optional project::layers::layer::layername field
-	wxString project_title; // optional project::title field;	
+	wxString project_title; // optional project::title field;
+    
 	// active project filename if exists.  Filename only, no directory
 	// or ".gda" extension.  working_dir is the directory location of the
 	// project file.
@@ -205,6 +211,7 @@ private:
 	int InitFromShapefileLayer();
 	bool InitFromOgrLayer();
 	int OpenShpFile(wxFileName shp_fname);
+    
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();

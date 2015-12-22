@@ -47,15 +47,18 @@ BEGIN_EVENT_TABLE( DataViewerAddColDlg, wxDialog )
 			 DataViewerAddColDlg::OnChoiceDisplayedDecimals )
 END_EVENT_TABLE()
 
-DataViewerAddColDlg::DataViewerAddColDlg(Project* project_s,
-										 wxWindow* parent,
-										 bool time_variant_no_as_default_s,
-										 bool can_change_time_variant_s,
-										 wxString default_name_s,
-						GdaConst::FieldType default_field_type_s)
-: project(project_s), table_int(project_s->GetTableInt()),
+DataViewerAddColDlg::
+DataViewerAddColDlg(Project* project_s,
+                    wxWindow* parent,
+                    bool time_variant_no_as_default_s,
+                    bool can_change_time_variant_s,
+                    wxString default_name_s,
+                    GdaConst::FieldType default_field_type_s)
+: project(project_s),
+table_int(project_s->GetTableInt()),
 time_variant_no_as_default(time_variant_no_as_default_s),
-can_change_time_variant(can_change_time_variant_s), default_name(default_name_s),
+can_change_time_variant(can_change_time_variant_s),
+default_name(default_name_s),
 default_field_type(default_field_type_s),
 m_decimals_val(0), m_length_valid(true),
 time_variant(project_s->GetTableInt()->IsTimeVariant()),
@@ -76,11 +79,11 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
     
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
 		curr_col_labels.insert(table_int->GetColName(i).Upper());
-		//m_insert_pos->Append(table_int->GetColName(i).Upper());
+		m_insert_pos->Append(table_int->GetColName(i).Upper());
 	}
     
-	//m_insert_pos->Append("after last variable");
-	//m_insert_pos->SetSelection(0);
+	m_insert_pos->Append("after last variable");
+	m_insert_pos->SetSelection(0);
      
 	UpdateApplyButton();
 }
@@ -90,17 +93,13 @@ void DataViewerAddColDlg::CreateControls()
 {
     SetBackgroundColour(*wxWHITE);
 	if (time_variant && fixed_lengths) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-								"ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");
 	} else if (time_variant && !fixed_lengths) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_DATA_VIEWER_ADD_COL_TIME_DLG");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_TIME_DLG");
 	} else if (!time_variant && fixed_lengths) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_DATA_VIEWER_ADD_COL_FIXED_DLG");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_FIXED_DLG");
 	} else { // !time_variant && !fixed_lengths 
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),
-										 "ID_DATA_VIEWER_ADD_COL_DLG");
+		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_DLG");
 	}
 	m_apply_button = wxDynamicCast(FindWindow(XRCID("wxID_OK")), wxButton);
 	
@@ -115,10 +114,8 @@ void DataViewerAddColDlg::CreateControls()
 	m_time_variant_no = 0;
 	m_time_variant_yes = 0;
 	if (FindWindow(XRCID("ID_TIME_VARIANT_NO"))) {
-		m_time_variant_no = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_NO")),
-									  wxRadioButton);
-		m_time_variant_yes = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_YES")),
-									  wxRadioButton);
+		m_time_variant_no = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_NO")), wxRadioButton);
+		m_time_variant_yes = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_YES")), wxRadioButton);
 		m_time_variant_no->SetValue(time_variant_no_as_default);
 		m_time_variant_yes->SetValue(!time_variant_no_as_default);
 		m_time_variant_no->Enable(can_change_time_variant);
@@ -133,16 +130,15 @@ void DataViewerAddColDlg::CreateControls()
 	m_type->Append("date (eg 20110131)");
 	
 	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
-    mt->Hide();
 	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);
-    m_insert_pos->Hide();
+    
+    if ( !project->IsFileDataSource()) {
+        mt->Disable();
+        m_insert_pos->Disable();
+    }
 
-	m_displayed_decimals_lable = 
-	wxDynamicCast(FindWindow(XRCID("ID_STATIC_DISPLAYED_DECIMALS")),
-				  wxStaticText);
-	m_displayed_decimals =
-	wxDynamicCast(FindWindow(XRCID("ID_DISPLAYED_DECIMALS")),
-				  wxChoice);
+	m_displayed_decimals_lable =  wxDynamicCast(FindWindow(XRCID("ID_STATIC_DISPLAYED_DECIMALS")), wxStaticText);
+	m_displayed_decimals = wxDynamicCast(FindWindow(XRCID("ID_DISPLAYED_DECIMALS")), wxChoice);
 	m_displayed_decimals->Append("default");
 	m_displayed_decimals->Append("1");
 	m_displayed_decimals->Append("2");
@@ -352,17 +348,20 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	
 	int col_insert_pos;
-    col_insert_pos = table_int->GetNumberCols();
-    /* XXX to be removed
-	if (m_insert_pos->GetSelection() >= table_int->GetNumberCols()) {
-		col_insert_pos = table_int->GetNumberCols();
-	} else {
-		// One might think we want to use the col_id_map here, but it
-		// turns out we need to specify the position in the visual
-		// order it appears in the Table.
-		col_insert_pos = m_insert_pos->GetSelection();
-	}
-    */
+    
+    if ( m_insert_pos->IsEnabled() ) {
+        if (m_insert_pos->GetSelection() >= table_int->GetNumberCols()) {
+            col_insert_pos = table_int->GetNumberCols();
+        } else {
+            // One might think we want to use the col_id_map here, but it
+            // turns out we need to specify the position in the visual
+            // order it appears in the Table.
+            col_insert_pos = m_insert_pos->GetSelection();
+        }
+    } else {
+        col_insert_pos = table_int->GetNumberCols();
+    }
+
 	int time_steps = 1; // non-space-time column by default	
 	if (m_time_variant_yes && m_time_variant_yes->GetValue()) {
 		time_steps = table_int->GetTimeSteps();
@@ -502,9 +501,11 @@ void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 void DataViewerAddColDlg::UpdateMinMaxValues()
 {
 	if (!fixed_lengths) return;
-	m_max_val->SetLabelText("");
+
+    m_max_val->SetLabelText("");
 	m_min_val->SetLabelText("");
-	if (!m_length_valid || !m_decimals_valid ||
+	
+    if (!m_length_valid || !m_decimals_valid ||
 		!(cur_type == GdaConst::double_type ||
 		  cur_type == GdaConst::long64_type)) {
 		return;

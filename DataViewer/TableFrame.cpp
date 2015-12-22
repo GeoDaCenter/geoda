@@ -98,6 +98,7 @@ popup_col(-1)
 	TableInterface* table_int = project->GetTableInt();
 	grid = new wxGrid(this, wxID_ANY, wxPoint(0,0), wxDefaultSize);
 	grid->SetDefaultColSize((grid->GetDefaultColSize() * 4)/3);
+    
 	// false to not take ownership, but this uncovers a bug in wxWidgets.
 	// therefore, we'll have to let the wxGrid take ownership and make
 	// sure that the TableFrame is only hidden until the
@@ -105,11 +106,13 @@ popup_col(-1)
 	grid->SetTable(table_base, true); 
 	grid->EnableDragColMove(true);
 	grid->EnableDragCell(false);
+    
 	// This line causes the row to disappear on Windows and Linux, but not OSX
 	//grid->SetSelectionBackground(*wxWHITE);
 	for (int i=0, iend=table_base->GetNumberRows(); i<iend; i++) {
 		grid->DisableRowResize(i);
 	}
+    
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
 	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	wxStopWatch resize_time;
@@ -137,8 +140,7 @@ popup_col(-1)
 			avg_cell_len += cv.length();
 		}
 		if (sample >= 1) { // sample last row
-			avg_cell_len += grid->GetCellValue(table_base->GetNumberRows()-1,
-											   i).length();
+			avg_cell_len += grid->GetCellValue(table_base->GetNumberRows()-1, i).length();
 		}
 		avg_cell_len /= (double) sample;
 		if (avg_cell_len > cur_lbl_len &&
@@ -163,8 +165,11 @@ popup_col(-1)
 		}
 	}
 	
-	LOG_MSG(wxString::Format("Column auto-resize time "
-							 "took %ld ms", resize_time.Time()));
+    if (!project->IsFileDataSource()) {
+        grid->DisableDragColMove();
+    }
+    
+	LOG_MSG(wxString::Format("Column auto-resize time took %ld ms", resize_time.Time()));
 	LOG_MSG("Exiting TableFrame::TableFrame");
 }
 

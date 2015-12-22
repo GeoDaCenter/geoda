@@ -956,9 +956,7 @@ wxString OGRTable::GetCellString(int row, int col, int time)
 	// mapping col+time to underneath OGR col
     OGRColumn* ogr_col = FindOGRColumn(col, time);
 	if (ogr_col == NULL) {
-		LOG_MSG(wxString::Format("In OGRTable::GetCellFromString, "
-								 "error: wxGrid col %d, time %d "
-								 "not found.", col, time)); 
+		LOG_MSG(wxString::Format("In OGRTable::GetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return "";
 	}
     return ogr_col->GetValueAt(row, disp_dec, m_wx_encoding);
@@ -979,9 +977,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	
 	int t_col = FindOGRColId(col, time);
 	if (t_col == -1) {
-		LOG_MSG(wxString::Format("In OGRTable::SetCellFromString, "
-								 "error: wxGrid col %d, time %d "
-								 "not found.", col, time)); 
+		LOG_MSG(wxString::Format("In OGRTable::SetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return false;
 	} else {
 		if (table_state->GetNumDisallowGroupModify(GetColName(col)) > 0) {
@@ -999,8 +995,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	return true;
 }
 
-int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name,
-						int pos, int time_steps, int field_len, int decimals)
+int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos, int time_steps, int field_len, int decimals)
 {
 	using namespace std;
 	if (pos > GetNumberCols()) return -1;

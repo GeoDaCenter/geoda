@@ -327,11 +327,15 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
 		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }
+    
     OGRSpatialReference *poOutputSRS = spatial_ref;
+    
     // PRECISION is for database e.g. MSSQL
     // LAUNDER is for database: rename desired field name
     char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=no"};
+    
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(), poOutputSRS, eGType, papszLCO);
+    
     if( poDstLayer == NULL ) {
         error_message << "Can't write/create layer \"" << layer_name << "\"."
                       <<"\n\nDetails: Attemp to write a readonly database, or "

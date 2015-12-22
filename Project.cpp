@@ -537,6 +537,12 @@ void Project::SaveProjectConf()
 	project_conf->Save(project_conf->GetFilePath());
 }
 
+bool Project::IsFileDataSource() {
+    
+    if (datasource) return datasource->IsFileDataSource();
+    return false;
+}
+
 void Project::SaveDataSourceData()
 {
 	LOG_MSG("Entering Project::SaveDataSourceData");

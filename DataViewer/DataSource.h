@@ -66,6 +66,8 @@ public:
 
     virtual IDataSource* Clone() = 0;
     
+    virtual bool IsFileDataSource() = 0;
+    
     /**
      * Read subtree starting from passed in node pt. 
      * @param const ptree& pt: a subtree of "datasource" node
@@ -113,7 +115,8 @@ public:
      * @param project_fpath, the file path of project file, in case to rebuild 
      * the absolute path of file datasource name
      */
-	FileDataSource(const ptree& xml_tree, GdaConst::DataSourceType _ds_type,
+	FileDataSource(const ptree& xml_tree,
+                   GdaConst::DataSourceType _ds_type,
 				   const wxString& proj_path);
     /**
      * Constructor, which is used when create a FileDataSource instance from a 
@@ -130,15 +133,22 @@ private:
 public:
     /// implementation of IDataSource interfaces
 	virtual wxString GetOGRConnectStr();
+    
     virtual bool IsWritable(){return is_writable;}
+    
     virtual void UpdateWritable(bool writable){ is_writable = writable;}
+    
     virtual GdaConst::DataSourceType GetType(){return ds_type;}
+    
 	virtual void ReadPtree(const boost::property_tree::ptree& pt,
 						   const wxString& proj_path);
+    
 	virtual void WritePtree(boost::property_tree::ptree& pt,
 							const wxString& proj_path);
+    
     virtual IDataSource* Clone();
     
+    virtual bool IsFileDataSource() { return ds_type == GdaConst::ds_sqlite ? false : true;}
     /**
      * Return file path.
      */
@@ -177,6 +187,8 @@ public:
 							const wxString& proj_path);
     virtual IDataSource* Clone();
     
+    virtual bool IsFileDataSource() {return false;}
+                                  
     wxString GetURL() { return webservice_url; }
 };
 
@@ -215,6 +227,8 @@ public:
 	virtual void WritePtree(boost::property_tree::ptree& pt,
 							const wxString& proj_path);
     virtual IDataSource* Clone();
+    
+    virtual bool IsFileDataSource() {return false;}
     
     wxString GetDBName() { return db_name; }
     wxString GetDBHost() { return db_host; }
