@@ -435,6 +435,9 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	try {
 		// SaveAs only to same datasource
 		GdaConst::DataSourceType ds_type = datasource->GetType();
+        if (ds_type == GdaConst::ds_dbf ) ds_type = GdaConst::ds_shapefile;
+        
+        /*
 		// SaveAs dbf: using legacy code, not OGR
 		if (ds_type == GdaConst::ds_dbf ) {
 			wxString save_err_msg;
@@ -451,6 +454,8 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		if ( wxFileExists(new_ds_name) ) {
 			wxRemoveFile(new_ds_name);
 		}
+         */
+        
 		// SaveAs: using OGR
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
@@ -550,8 +555,7 @@ void Project::SaveDataSourceData()
 		wxString save_err_msg;
 		try {
 			// for saving changes in database, call OGRTableInterface::Save()
-			if (ds_type == GdaConst::ds_shapefile ||
-                ds_type == GdaConst::ds_dbf ||
+			if (
 				ds_type == GdaConst::ds_esri_file_geodb ||
 				ds_type == GdaConst::ds_postgresql ||
 				ds_type == GdaConst::ds_oci ||

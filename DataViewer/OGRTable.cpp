@@ -47,6 +47,8 @@ OGRTable::OGRTable(int n_rows)
     // This is in-memory table only.
     ogr_layer = NULL;
     rows = n_rows;
+    
+    table_state->registerObserver(this);
 }
 
 OGRTable::OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
@@ -89,6 +91,9 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	changed_since_last_save = false;
 	is_valid = true;
+    
+    table_state->registerObserver(this);
+
 }
 
 OGRTable::~OGRTable()
@@ -116,6 +121,13 @@ void OGRTable::ChangeOGRLayer(OGRLayerProxy* new_ogr_layer)
 }
 */
 
+
+void OGRTable::update(TableState* o)
+{
+    if (o->GetEventType() == TableState::col_order_change) {
+        this->SetChangedSinceLastSave(true);
+    }
+}
 GdaConst::DataSourceType OGRTable::GetDataSourceType()
 {
     return datasource_type;

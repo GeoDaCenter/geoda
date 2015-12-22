@@ -106,8 +106,7 @@ void DataViewerAddColDlg::CreateControls()
 	
 	m_name = wxDynamicCast(FindWindow(XRCID("ID_TEXT_NEW_NAME")), wxTextCtrl);
 	m_name->SetValue(default_name);
-	wxString name_chars="abcdefghijklmnopqrstuvwxyz"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+	wxString name_chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 	wxTextValidator name_validator(wxFILTER_INCLUDE_CHAR_LIST);
 	name_validator.SetCharIncludes(name_chars);
 	m_name->SetValidator(name_validator);

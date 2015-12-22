@@ -299,8 +299,12 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
     // check field names first
     if ( table != NULL ) {
         // get all field names for FieldNameCorrectionDlg
+        
         vector<wxString> all_fnames;
         int time_steps = table->GetTimeSteps();
+        
+
+        
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             for ( int t=0; t < time_steps; t++ ) {
                 wxString fname = table->GetColName(id, t);

@@ -136,6 +136,12 @@ DbfTable::~DbfTable()
 	LOG_MSG("Exiting DbfTable::~DbfTable");
 }
 
+
+void DbfTable::update(TableState* o)
+{
+    
+}
+
 GdaConst::DataSourceType DbfTable::GetDataSourceType()
 {
     return GdaConst::ds_dbf;

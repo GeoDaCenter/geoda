@@ -35,7 +35,7 @@
 
 using namespace std;
 
-class OGRTable : public TableInterface
+class OGRTable : public TableInterface, TableStateObserver
 {
 public:
 	OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
@@ -66,6 +66,12 @@ private:
     void AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx);
 	
 public:
+    /** Implementation of TableStateObserver interface */
+    virtual void update(TableState* o);
+    virtual bool AllowTimelineChanges() { return true; }
+    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+    virtual bool AllowObservationAddDelete() { return true; }
+    
     // Public methods specific to OGRTable
 	OGRLayerProxy* GetOGRLayer() { return ogr_layer; }
     //void ChangeOGRLayer(OGRLayerProxy* new_ogr_layer);

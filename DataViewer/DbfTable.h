@@ -37,6 +37,8 @@ public:
 	DbfTable(TableState* table_state, TimeState* time_state,
 			 DbfFileReader& dbf, const VarOrderPtree& var_order_ptree);
 	virtual ~DbfTable();
+    
+    virtual void update(TableState* o);
 	
 	// Implementation of TableInterface pure virtual methods
 	virtual GdaConst::DataSourceType GetDataSourceType();

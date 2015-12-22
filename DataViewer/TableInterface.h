@@ -27,6 +27,8 @@
 #include <boost/multi_array.hpp>
 #include "TableState.h"
 #include "TimeState.h"
+#include "TableStateObserver.h"
+
 #include "../GdaConst.h"
 #include "../VarCalc/GdaFlexValue.h"
 
@@ -36,12 +38,14 @@ typedef boost::multi_array<wxInt64, 2> l_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
 
-class TableInterface
+class TableInterface 
 {
 public:
 	TableInterface(TableState* table_state, TimeState* time_state);
 	virtual ~TableInterface();
 
+    virtual void update(TableState* o) = 0;
+    
 	virtual bool IsValid();
 	virtual wxString GetOpenErrorMessage();
 	

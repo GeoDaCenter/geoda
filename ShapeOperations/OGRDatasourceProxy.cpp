@@ -343,10 +343,14 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     
     // create fields using TableInterface:table
     if ( table != NULL ) {
+        
+        std::vector<int> col_id_map;
+        table->FillColIdMap(col_id_map);
+        
         int time_steps = table->GetTimeSteps();
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             for ( int t=0; t < time_steps; t++ ) {
-                wxString fname = table->GetColName(id, t);
+                wxString fname = table->GetColName(col_id_map[id], t);
                 if (fname.empty()) {
                     error_message << "Can't create layer \"" << layer_name
                     << "\" with empty field name.";
