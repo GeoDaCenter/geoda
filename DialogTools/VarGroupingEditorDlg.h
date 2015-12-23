@@ -69,8 +69,22 @@ public:
 	void OnRemoveFrListClick( wxCommandEvent& event );
 	void OnUngroupedListSelection( wxListEvent& event );
 	void OnUngroupedListItemActivate( wxListEvent& event );
-	void OnIncludeListSelection( wxListEvent& event );
+	
+    void OnIncludeListSelection( wxListEvent& event );
 	void OnIncludeListItemActivate( wxListEvent& event);
+    void OnIncludeListEdit( wxListEvent& event );
+    void OnIncludeListEditEnd( wxListEvent& event );
+    void OnIncludeListBeginDrag( wxListEvent& event );
+    void OnIncludeListDblClicked( wxMouseEvent& event);
+    void OnIncludeListRightUp( wxMouseEvent& event);
+    void OnIncludeListMouse( wxMouseEvent& event);
+    void OnIncludePopupClick(wxCommandEvent &evt);
+    
+    void includeListAddNewTime();
+    void includeListDeleteTime();
+    void GetPlace(wxPoint);
+    int ArrangeList(void);
+    
 	void OnGroupedListSelection( wxCommandEvent& event );
 	void OnNewGroupNameChange( wxCommandEvent& event );
 	
@@ -101,6 +115,8 @@ public:
 	void SelectItem(wxListCtrl* lc, int i);
 	void UnselectItem(wxListCtrl* lc, int i);
 	bool IsItemSel(wxListCtrl* lc, int i);
+    
+
 	
 private:
 	HighlightState* highlight_state;
@@ -128,6 +144,11 @@ private:
 	
 	wxListCtrl* ungrouped_list;
 	wxListCtrl* include_list;
+    wxPoint orgin;
+    wxPoint offset;
+    long dSource;
+    long dTarget;
+    
 	wxListBox* grouped_list;
 	
 	FramesManager* frames_manager;
