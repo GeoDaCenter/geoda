@@ -49,9 +49,12 @@ public:
 	void OnCloseButton( wxCommandEvent& ev );
 	void OnClose( wxCloseEvent& ev );
 	void OnCellChanging( wxGridEvent& ev );
-	void OnCellEditorShown( wxGridEvent& ev );
-	void OnCellEditorHidden( wxGridEvent& ev );
+	void OnCellEditorCreated( wxGridEditorCreatedEvent& ev );
+    void OnCellEditorShown( wxGridEvent& ev );
+    void OnCellEditorHidden( wxGridEvent& ev );
 	void UpdateMinMax(int row);
+    
+    void OnGridComboBox(wxCommandEvent& ev );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -64,6 +67,8 @@ public:
 	void UpdateTmStrMap();
 	
 private:
+    int combo_selection;
+    
 	wxGrid* field_grid;
 	Project* project;
 	FramesManager* frames_manager;

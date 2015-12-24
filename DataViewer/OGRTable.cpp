@@ -677,7 +677,7 @@ void OGRTable::GetColData(int col, s_array_type& data)
 
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
-	if (!IsColNumeric(col)) return;	
+	//if (!IsColNumeric(col)) return;
 	wxString nm(var_order.GetSimpleColName(col, time));
 	if (nm.IsEmpty()) return;
 	OGRColumn* ogr_col = FindOGRColumn(nm);
@@ -688,7 +688,7 @@ void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 
 void OGRTable::GetColData(int col, int time, std::vector<wxInt64>& data)
 {
-	if (!IsColNumeric(col)) return;	
+	//if (!IsColNumeric(col)) return;
 	wxString nm(var_order.GetSimpleColName(col, time));
 	if (nm.IsEmpty()) return;
 	OGRColumn* ogr_col = FindOGRColumn(nm);

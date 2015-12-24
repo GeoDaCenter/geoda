@@ -25,20 +25,24 @@
 #include "../GeoDa.h"
 #include "../DbfFile.h"
 #include "../FramesManager.h"
+#include "../GdaException.h"
+
 #include "TableInterface.h"
 #include "TableState.h"
 #include "DataViewerEditFieldPropertiesDlg.h"
-#include "../GdaException.h"
+
 
 BEGIN_EVENT_TABLE( DataViewerEditFieldPropertiesDlg, wxDialog )
 	EVT_GRID_EDITOR_SHOWN(
 		DataViewerEditFieldPropertiesDlg::OnCellEditorShown )
 	EVT_GRID_EDITOR_HIDDEN(
 		DataViewerEditFieldPropertiesDlg::OnCellEditorHidden )
+    EVT_GRID_EDITOR_CREATED(DataViewerEditFieldPropertiesDlg::OnCellEditorCreated )
 	EVT_BUTTON( wxID_CLOSE,
 			   DataViewerEditFieldPropertiesDlg::OnCloseButton )
 	EVT_CLOSE( DataViewerEditFieldPropertiesDlg::OnClose )
-	EVT_GRID_CELL_CHANGING(DataViewerEditFieldPropertiesDlg::OnCellChanging) 
+	EVT_GRID_CELL_CHANGING(DataViewerEditFieldPropertiesDlg::OnCellChanging)
+
 END_EVENT_TABLE()
 
 DataViewerEditFieldPropertiesDlg::DataViewerEditFieldPropertiesDlg(
@@ -69,6 +73,8 @@ table_state(project_s->GetTableState())
 	COL_MAX = -1; // max value possible
 	if (table_int->HasFixedDecimals()) COL_MAX = NUM_COLS++;
 	
+    combo_selection = -1;
+
     CreateControls();
 	SetTitle("Variable Properties - " + table_int->GetTableName());
     Centre();
@@ -102,7 +108,7 @@ void DataViewerEditFieldPropertiesDlg::CreateControls()
 	if (COL_MAX!=-1) field_grid->SetColLabelValue(COL_MAX, "maximum\npossible");
 
 	field_grid->HideRowLabels();
-	
+    field_grid->SetColLabelSize(30);
 	InitTable();
 
 	field_grid->AutoSize();
@@ -193,11 +199,13 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 			field_grid->SetReadOnly(r, COL_TM, true);
 		
 			// type
-			field_grid->SetCellAlignment(r, COL_T, wxALIGN_CENTRE,
-										 wxALIGN_CENTRE);
-			field_grid->SetCellTextColour(r, COL_T,
-										  GdaConst::table_no_edit_color);
-			field_grid->SetReadOnly(r, COL_T, true);
+			field_grid->SetCellAlignment(r, COL_T, wxALIGN_CENTRE, wxALIGN_CENTRE);
+			field_grid->SetCellTextColour(r, COL_T, GdaConst::table_no_edit_color);
+            
+			//field_grid->SetReadOnly(r, COL_T, true);
+            wxString strChoices[4] = {"real", "integer", "date","string"};
+            field_grid->SetCellEditor(r, COL_T, new wxGridCellChoiceEditor(4, strChoices, false));
+            
 			if (type == GdaConst::double_type) {
 				field_grid->SetCellValue(r, COL_T, "real");
 			} else if (type == GdaConst::long64_type) {
@@ -207,6 +215,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 			} else {
 				field_grid->SetCellValue(r, COL_T, "string");
 			}
+            
 			
 			// length
 			if (COL_L != -1) {
@@ -376,7 +385,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	}
 	
 	
-	if (col == COL_T || col == COL_TM || col == COL_MIN || col == COL_MAX ||
+	if (col == COL_TM || col == COL_MIN || col == COL_MAX ||
 		(type != GdaConst::double_type && (col == COL_D || col == COL_DD))) {
 		ev.Veto();
 		LOG_MSG("illegal cell to edit.");
@@ -398,7 +407,86 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	
 	long min_v;
 	long max_v;
-	if (col == COL_N) {
+    if (col == COL_T) {
+        if (combo_selection >=0) {
+            
+            wxString strChoices[4] = {"real", "integer", "date","string"};
+            // change field type
+            wxString new_type_str = strChoices[combo_selection];
+            if (new_type_str != type_str) {
+                GdaConst::FieldType new_type = GdaConst::unknown_type;
+                if (new_type_str == "real") {
+                    new_type = GdaConst::double_type;
+                } else if (new_type_str == "integer") {
+                    new_type = GdaConst::long64_type;
+                } else if (new_type_str == "string") {
+                    new_type = GdaConst::string_type;
+                } else if (new_type_str == "date") {
+                    new_type = GdaConst::date_type;
+                }
+                
+                wxString var_name = field_grid->GetCellValue(row, COL_N);
+                wxString tmp_name = var_name + "_";
+                
+                if (var_name != name) {
+                    // ungroup first
+                    int grp_col = table_int->FindColId(name);
+                    table_int->UngroupCol(grp_col);
+                }
+                
+                try {
+                    
+                    int from_col = table_int->FindColId(var_name);
+                    int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
+                    from_col = from_col + 1;
+                    int num_rows = table_int->GetNumberRows();
+                    vector<bool> undefined(num_rows, false);
+                    
+                    if (new_type == GdaConst::long64_type || new_type == GdaConst::date_type) {
+                        // get data from old
+                        vector<wxInt64> data(num_rows);
+                        table_int->GetColData(from_col, 0, data);
+                        table_int->SetColData(to_col, 0, data);
+                        
+                    } else if (new_type == GdaConst::double_type) {
+                        // get data from old
+                        vector<double> data(num_rows);
+                        table_int->GetColData(from_col, 0, data);
+                        table_int->SetColData(to_col, 0, data);
+                        
+                    } else if (new_type == GdaConst::string_type) {
+                        vector<wxString> data(num_rows);
+                        table_int->GetColData(from_col, 0, data);
+                        table_int->SetColData(to_col, 0, data);
+                    }
+                    
+                    table_int->GetColUndefined(from_col, 0, undefined);
+                    table_int->SetColUndefined(to_col, 0, undefined);
+                    
+                    // delete old field
+                    table_int->DeleteCol(from_col);
+                    // rename
+                    table_int->RenameSimpleCol(to_col, 0, var_name);
+                    
+                }catch(GdaException& e) {
+                    // clean up temporary data
+                    int tmp_col = table_int->FindColId(tmp_name);
+                    if (tmp_col >= 0) {
+                        table_int->DeleteCol(tmp_col);
+                    }
+                    wxString m = wxString::Format("Change variable type for \"%s\" is faild. Please check all values are valid for chaning variable type from \"%s\" to \"%s\".", (var_name, type_str, new_type_str));
+                    wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+                    dlg.ShowModal();
+                    combo_selection = -1;
+                    ev.Veto();
+                    return;
+
+                }
+            }
+            
+        }
+        combo_selection = -1;
+    } else if (col == COL_N) {
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m;
@@ -598,16 +686,55 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::OnCellChanging");
 }
 
+void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
+{
+    int sel = ev.GetSelection();
+    combo_selection = sel;
+    ev.Skip();
+}
+
+void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedEvent& ev )
+{
+    LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
+    cell_editor_open = true;
+    int row = ev.GetRow();
+    int col = ev.GetCol();
+    if (col == 1) {
+        wxControl *ctl = ev.GetControl();
+        ctl->Bind(wxEVT_COMBOBOX, &DataViewerEditFieldPropertiesDlg::OnGridComboBox, this);
+    }
+    ev.Skip();
+}
+
 void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
 {
 	LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
 	cell_editor_open = true;
+    int row = ev.GetRow();
+    int col = ev.GetCol();
+    
+    if (col == 1) {
+    }
+    ev.Skip();
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorHidden( wxGridEvent& ev )
 {
 	LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorHidden");
 	cell_editor_open = false;
+    
+    int row = ev.GetRow();
+    int col = ev.GetCol();
+    
+    if (col == 1) {
+        /*if (combo_selection >=0) {
+            wxString strChoices[4] = {"real", "integer", "date","string"};
+            field_grid->SetCellValue(row, col, strChoices[combo_selection]);
+        }
+        combo_selection = -1;
+         */
+    }
+    ev.Skip();
 }
 
 void DataViewerEditFieldPropertiesDlg::UpdateMinMax(int row)

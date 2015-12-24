@@ -129,10 +129,11 @@
       <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
         <label>Edit Variable Properties</label>
       </object>
+      <!--
       <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
         <label>Change Variable Type</label>
       </object>
-
+       -->
       <object class="separator"/>
       
       <object class="wxMenu" name="ID_TABLE_ENCODING">
@@ -3827,10 +3828,11 @@
     <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
       <label>Edit Variable Properties</label>
     </object>
+    <!--
     <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
       <label>Change Variable Type</label>
     </object>
-    <!--
+    
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
       <label>Animation</label>
