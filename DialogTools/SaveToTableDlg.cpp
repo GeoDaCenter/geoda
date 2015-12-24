@@ -63,29 +63,37 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
 {
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label,
-									wxDefaultPosition, wxSize(150, 30));
+		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(150, 30));
+        m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
-		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE,
-								  wxDefaultPosition, wxSize(180, 20));
+		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
+        
 		if (is_space_time) {
-			m_time[i] = new wxChoice(this, ID_TIME_CHOICE,
-									 wxDefaultPosition, wxSize(180, 20));
+			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
+            m_time[i]->Hide();
 		} else {
 			m_time[i] = 0;
 		}
+        m_add_button[i]->Hide();
+        m_field[i]->Hide();
 	}
+    
 	if (data.size() == 1)
         m_check[0]->SetValue(1);
+    
 	InitTime();
 	FillColIdMaps();
 	InitFields();
+    
 	for (int i=0; i<data.size(); i++) {
 		m_field[i]->SetSelection(m_field[i]->FindString(data[i].field_default));
 	}
+    
 	CreateControls();
+    
 	for (int i=0; i<data.size(); i++)
         EnableTimeField(i);
+    
 	SetPosition(pos);
 	SetTitle(title);
     Centre();
@@ -102,24 +110,29 @@ void SaveToTableDlg::CreateControls()
 	
 	int fg_cols = is_space_time ? 4 : 3;
 	// data.size() rows, fg_cols columns, vgap=3, hgap=3
-	wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size(), fg_cols, 3, 3);
-	for (int i=0, iend=data.size(); i<iend; i++) {
-		fg_sizer->Add(m_check[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
-		fg_sizer->Add(m_add_button[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
-		fg_sizer->Add(m_field[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
-		if (is_space_time) {
-			fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
-		}
+	//wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size(), fg_cols, 3, 3);
+    
+    wxBoxSizer* fg_sizer = new wxBoxSizer(wxVERTICAL);
+    for (int i=0, iend=data.size(); i<iend; i++) {
+		//fg_sizer->Add(m_check[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
+		//fg_sizer->Add(m_add_button[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
+		//fg_sizer->Add(m_field[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
+		//if (is_space_time) {
+		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
+		//}
+        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
-	top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
 	
+    //top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
+    top_sizer->Add(fg_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	wxBoxSizer *button_sizer = new wxBoxSizer(wxHORIZONTAL);
 	m_ok_button = new wxButton(this, wxID_OK, "OK");
-	m_ok_button->Disable();
+	//m_ok_button->Disable();
 	button_sizer->Add(m_ok_button, 0, wxALL, 5);
 	button_sizer->Add(new wxButton(this, wxID_CLOSE, "Close"), 0, wxALL, 5);
 	top_sizer->Add(button_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	
+    
 	SetSizerAndFit(top_sizer);
 }
 
@@ -299,10 +312,12 @@ void SaveToTableDlg::UpdateFieldTms(int button)
 
 void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 {
+    
 	std::vector<int> is_check(data.size());
 	for (int i=0, e=data.size(); i<e; i++) {
 		is_check[i]=m_check[i]->GetValue()==1;
 	}
+    /*
 	bool any_checked = false;
 	for (int i=0, e=data.size(); i<e; i++) {
         if (is_check[i])
@@ -340,8 +355,9 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 		if (is_check[i])
             names.insert(s);
 	}
-	
+	*/
 	for (int i=0, iend=data.size(); i<iend; i++) {
+        /*
 		if (is_check[i]) {
 			int col = col_id_maps[i][m_field[i]->GetSelection()];
 			int time = is_space_time ? m_time[i]->GetSelection() : 0;
@@ -354,6 +370,42 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 				table_int->SetColUndefined(col, time, *data[i].undefined);
 			}
 		}
+        */
+        if (is_check[i]) {
+            wxString field_name = data[i].field_default;
+            int time=0;
+            int col = table_int->FindColId(field_name);
+            if ( col == wxNOT_FOUND) {
+                int col_insert_pos = table_int->GetNumberCols();
+                int time_steps = 1;
+                int m_length_val = GdaConst::default_dbf_long_len;
+                int m_decimals_val = 0;
+                
+                if (data[i].type == GdaConst::double_type) {
+                    m_length_val = GdaConst::default_dbf_double_len;
+                    m_decimals_val = GdaConst::default_dbf_double_decimals;
+                } else if (data[i].type == GdaConst::long64_type) {
+                    m_length_val = GdaConst::default_dbf_long_len;
+                    m_decimals_val = 0;
+                } else if (data[i].type == GdaConst::string_type) {
+                    m_length_val = GdaConst::default_dbf_string_len;
+                    m_decimals_val = 0;
+                }
+                
+                col = table_int->InsertCol(data[i].type, data[i].field_default, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+            }
+            
+            if (col > 0) {
+                if (data[i].d_val) {
+                    table_int->SetColData(col, time, *data[i].d_val);
+                } else if (data[i].l_val) {
+                    table_int->SetColData(col, time, *data[i].l_val);
+                }
+                if (data[i].undefined) {
+                    table_int->SetColUndefined(col, time, *data[i].undefined);
+                }
+            }
+        }
 	}
 
 	event.Skip();
