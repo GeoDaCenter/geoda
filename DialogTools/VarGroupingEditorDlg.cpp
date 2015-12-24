@@ -80,10 +80,8 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
                             VarGroupingEditorDlg::OnIncludeListEdit)
     EVT_LIST_END_LABEL_EDIT(XRCID("ID_INCLUDE_LIST"),
                         VarGroupingEditorDlg::OnIncludeListEditEnd)
-    EVT_LIST_BEGIN_DRAG(XRCID("ID_INCLUDE_LIST"),
-                        VarGroupingEditorDlg::OnIncludeListBeginDrag)
-EVT_LIST_BEGIN_DRAG(XRCID("ID_INCLUDE_LIST"),
-                    VarGroupingEditorDlg::OnIncludeListBeginDrag)
+    EVT_LIST_COL_CLICK(XRCID("ID_INCLUDE_LIST"),
+                       VarGroupingEditorDlg::OnIncludeListColClick)
 
 	EVT_LISTBOX( XRCID("ID_GROUPED_LIST"),
 				VarGroupingEditorDlg::OnGroupedListSelection )
@@ -171,13 +169,9 @@ void VarGroupingEditorDlg::CreateControls()
 	InitAll();
 	UpdateButtons();
     
-    orgin.x = 0;
-    orgin.y = 0;
-    
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
-    include_list->Bind(wxEVT_MOTION, &VarGroupingEditorDlg::OnIncludeListMouse, this);
-    include_list->Bind(wxEVT_LEFT_UP, &VarGroupingEditorDlg::OnIncludeListMouse, this);
+
 }
 
 /** This should completely reset all info based on data from TableInterface.
@@ -451,9 +445,11 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 	}
 	
 	table_int->GroupCols(cols, grp_nm, cols[0]);
+    InitAll();
 	UpdateButtons();
 	GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
 }
+
 
 void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 {
@@ -477,6 +473,7 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 	GdaConst::FieldType type = table_int->GetColType(col);
 	
 	table_int->UngroupCol(col);
+    InitAll();
 	
 	new_group_name_txt_ctrl->SetValue(grp_nm);
 	if (type == GdaConst::double_type || type == GdaConst::long64_type) {
@@ -527,14 +524,14 @@ void VarGroupingEditorDlg::OnMoveUpClick( wxCommandEvent& event )
 	UnselectAll(include_list);
 	set<int> new_pos_set;
 	BOOST_FOREACH(int i, sel_pos) {
-		include_list->SetItem(i-1, 0, orig[i]);
+		include_list->SetItem(i-1, 1, orig[i]);
 		SelectItem(include_list, i-1);
 		new_pos_set.insert(i-1);
 	}
 	int free_pos = 0;
 	BOOST_FOREACH(int i, unsel_pos) {
 		while (new_pos_set.find(free_pos) != new_pos_set.end()) ++free_pos;
-		include_list->SetItem(free_pos, 0, orig[i]);
+		include_list->SetItem(free_pos, 1, orig[i]);
 		++free_pos;
 	}
 	UpdateButtons();
@@ -567,17 +564,57 @@ void VarGroupingEditorDlg::OnMoveDownClick( wxCommandEvent& event )
 	UnselectAll(include_list);
 	set<int> new_pos_set;
 	BOOST_FOREACH(int i, sel_pos) {
-		include_list->SetItem(i+1, 0, orig[i]);
+		include_list->SetItem(i+1, 1, orig[i]);
 		SelectItem(include_list, i+1);
 		new_pos_set.insert(i+1);
 	}
 	int free_pos = 0;
 	BOOST_FOREACH(int i, unsel_pos) {
 		while (new_pos_set.find(free_pos) != new_pos_set.end()) ++free_pos;
-		include_list->SetItem(free_pos, 0, orig[i]);
+		include_list->SetItem(free_pos, 1, orig[i]);
 		++free_pos;
 	}
 	UpdateButtons();
+}
+
+void VarGroupingEditorDlg::sortColumn(int col, bool asc)
+{
+    if (!all_init) return;
+    
+    list<wxString> all_str = GetListAllStrs(include_list, col);
+    list<int> nm_locs;
+    vector<wxString> sorted_nms;
+    set<wxString> sel_nms;
+    int loc=0;
+    BOOST_FOREACH(const wxString& s, all_str) {
+        if (!s.IsEmpty() && s != GdaConst::placeholder_str) {
+            nm_locs.push_back(loc);
+            sorted_nms.push_back(s);
+            if (IsItemSel(include_list, loc)) {
+                UnselectItem(include_list, loc);
+                sel_nms.insert(s);
+            }
+        }
+        ++loc;
+    }
+    
+    asc = sort_asc;
+    sort_asc = !sort_asc;
+    
+    if (asc)
+        sort(sorted_nms.begin(), sorted_nms.end());
+    else
+        sort(sorted_nms.begin(), sorted_nms.end(), greater<wxString>());
+    
+    list<int>::iterator pos = nm_locs.begin();
+    BOOST_FOREACH(const wxString& s, sorted_nms) {
+        include_list->SetItem(*pos, col, s);
+        if (sel_nms.find(s) != sel_nms.end())
+            SelectItem(include_list, *pos);
+        ++pos;
+    }
+    
+    UpdateButtons();
 }
 
 /** Sort items in place ignoring blanks and placeholders.  Highlighting
@@ -665,7 +702,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int cur_tm_steps = table_int->GetTimeSteps();
 	if (cur_tm_steps > 1) {
 		int empty_spots = cur_tm_steps - GetIncListNonPlaceholderCnt();
-		if (sel_cnt > empty_spots) return;
+		//if (sel_cnt > empty_spots) return;
 	}
 	
 	// At this point, we know for sure operation is legal
@@ -681,24 +718,24 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int room_with_plhdr = -1;
 	if (cur_tm_steps > 1) {
 		room_with_plhdr = cur_tm_steps - GetIncListNameCnt();
-		if (room_with_plhdr < sel_cnt) overwrite_plhdr = true;
+		if (room_with_plhdr < sel_cnt)
+            overwrite_plhdr = true;
 	}
 	
 	list<int> inc_list_sel = GetListSel(include_list);
 	int last_inc_list_sel = 0;
-	if (inc_list_sel.size() > 0) last_inc_list_sel = inc_list_sel.back();
+	if (inc_list_sel.size() > 0)
+        last_inc_list_sel = inc_list_sel.back();
 	
 	bool fill_from_top = false;
 	if (cur_tm_steps == 1) {
 		fill_from_top = true;
 		overwrite_plhdr = true;
-	} else if (overwrite_plhdr) {
-		fill_from_top = true;
+
 	} else if (cur_tm_steps - last_inc_list_sel < sel_cnt) {
 		fill_from_top = true;
 	}
 	
-	if (cur_tm_steps == 1) {
 		// add time periods as needed
 		int item_cnt = include_list->GetItemCount();
 		int room = item_cnt - GetIncListNonPlaceholderCnt();
@@ -710,13 +747,13 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 					t << table_int->GetTimeString(0);
 				} else {
 					t << "time " << item_cnt+i;
+                    table_int->InsertTimeStep(item_cnt+i, t);
 				}
                 include_list->InsertItem(item_cnt+i, t);
                 
 				include_list->SetItem(item_cnt+i, 1, wxEmptyString);
 			}
 		}
-	}
 	
 	list<wxString> ung_sel_strs = GetListSelStrs(ungrouped_list, 0);
 	
@@ -734,6 +771,10 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	// Remove added items from ungrouped_list
 	set<wxString> add_nms;
 	BOOST_FOREACH(const wxString& s, ung_sel_strs) add_nms.insert(s);
+    list<wxString> inc_nms;
+    inc_nms = GetListAllStrs(include_list, 1);
+    BOOST_FOREACH(const wxString& s, inc_nms) add_nms.insert(s);
+
 	InitUngroupedList(add_nms);
 	
 	int inc_list_cnt = GetIncListNameCnt();
@@ -770,16 +811,27 @@ void VarGroupingEditorDlg::OnIncludeListItemActivate( wxListEvent& event )
     include_list->EditLabel(item.GetId());
 }
 
+wxString VarGroupingEditorDlg::GetNewAppendTimeLabel()
+{
+    int cnt = 1;
+    wxString s;
+    for (int i=0; i<10000; i++) {
+        s = "time ";
+        s << cnt++;
+        if (include_list->FindItem(-1, s) == wxNOT_FOUND) return s;
+    }
+    return s;
+}
+
 void VarGroupingEditorDlg::includeListAddNewTime()
 {
     int time_step = include_list->GetItemCount();
-    wxString lbl;
-    lbl << "time " << time_step;
-    include_list->InsertItem(time_step, lbl);
-        
+    wxString lbl = GetNewAppendTimeLabel();
+    
     // sync TableState
     table_int->InsertTimeStep(time_step, lbl);
-    
+    include_list->InsertItem(time_step, lbl);
+    include_list->SetItem(time_step, 1, wxEmptyString);
     UpdateTimeStepsTxt();
 }
 
@@ -792,7 +844,7 @@ void VarGroupingEditorDlg::includeListDeleteTime()
             table_int->RemoveTimeStep(i);
         }
     }
-    
+
     list<wxString> inc_strs = GetListAllStrs(include_list, 1);
     set<wxString> excl;
     BOOST_FOREACH(const wxString& s, inc_strs) if (s!="") excl.insert(s);
@@ -874,50 +926,14 @@ void VarGroupingEditorDlg::OnIncludeListSelection( wxListEvent& event )
 {
 	LOG_MSG("In VarGroupingEditorDlg::OnIncludeListSelection");
 	if (!all_init) return;
-     dSource = event.GetIndex();
 	UpdateButtons();
 }
 
-void VarGroupingEditorDlg::OnIncludeListBeginDrag( wxListEvent& event )
+void VarGroupingEditorDlg::OnIncludeListColClick( wxListEvent& event )
 {
-    // only capture mouse events on drag
-    CaptureMouse();
-   
-}
-
-void VarGroupingEditorDlg::GetPlace( wxPoint mPoint)
-{
-    // gets point in respect to wxlistctrl
-    offset= mPoint - orgin;
-}
-
-int VarGroupingEditorDlg::ArrangeList(void)
-{
-    if (dSource == dTarget) {return -1;}
-    wxListItem SourceItem;
-    
-    //  have to setmask along with setid inorder to work??
-    SourceItem.SetMask(wxLIST_MASK_TEXT);
-    SourceItem.SetId(dSource);
-    include_list->GetItem(SourceItem);
-    include_list->DeleteItem(dSource);
-    include_list->InsertItem(dTarget,SourceItem.GetText());
-
-    //   wxMessageBox("Arrange List Done","WxListCtrl",wxOK |wxICON_INFORMATION );
-    return 0;
-}
-
-void VarGroupingEditorDlg::OnIncludeListMouse( wxMouseEvent& event)
-{
-    if (event.LeftUp()) {
-        offset = event.GetPosition();
-        int flags;
-        dTarget = include_list->HitTest( offset, flags );
-        if ( dTarget> -1 && (flags & wxLIST_HITTEST_ONITEM)) {
-            int a =ArrangeList();
-        }
-        //ReleaseMouse();
-    }
+    long col = event.GetColumn();
+    if (col > -1)
+    sortColumn(col);
 }
 
 void VarGroupingEditorDlg::OnIncludeListEdit( wxListEvent& event )
@@ -1015,6 +1031,7 @@ void VarGroupingEditorDlg::UpdateAddToListButton()
 	
 	// 4) Number of selected items is <= number of empty or placeholder items
 	//    but current number of time steps is > 1
+    /*
 	int cur_tm_steps = table_int->GetTimeSteps();
 	if (cur_tm_steps > 1) {
 		int empty_spots = cur_tm_steps - GetIncListNonPlaceholderCnt();
@@ -1023,6 +1040,7 @@ void VarGroupingEditorDlg::UpdateAddToListButton()
 			return;
 		}
 	}
+     */
 	
 	add_to_list_button->Enable(true);
 }
@@ -1052,7 +1070,9 @@ void VarGroupingEditorDlg::UpdateButtons()
 	//							inc_item_cnt > 0) ||
 	//						   (sel_strs.size()-non_empty_cnt > 0));
     placeholder_button->Enable(true);
-	
+    placeholder_button->Hide();
+    sort_button->Hide();
+    
 	UpdateAddToListButton();
 	remove_fr_list_button->Enable(non_empty_cnt > 0);
 	

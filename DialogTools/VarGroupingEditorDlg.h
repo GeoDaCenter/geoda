@@ -74,16 +74,17 @@ public:
 	void OnIncludeListItemActivate( wxListEvent& event);
     void OnIncludeListEdit( wxListEvent& event );
     void OnIncludeListEditEnd( wxListEvent& event );
-    void OnIncludeListBeginDrag( wxListEvent& event );
+    void OnIncludeListColClick( wxListEvent& event );
+    
     void OnIncludeListDblClicked( wxMouseEvent& event);
     void OnIncludeListRightUp( wxMouseEvent& event);
-    void OnIncludeListMouse( wxMouseEvent& event);
     void OnIncludePopupClick(wxCommandEvent &evt);
     
     void includeListAddNewTime();
     void includeListDeleteTime();
-    void GetPlace(wxPoint);
-    int ArrangeList(void);
+    void sortColumn(int col, bool asc=false);
+    wxString GetNewAppendTimeLabel();
+
     
 	void OnGroupedListSelection( wxCommandEvent& event );
 	void OnNewGroupNameChange( wxCommandEvent& event );
@@ -144,10 +145,7 @@ private:
 	
 	wxListCtrl* ungrouped_list;
 	wxListCtrl* include_list;
-    wxPoint orgin;
-    wxPoint offset;
-    long dSource;
-    long dTarget;
+    bool sort_asc;
     
 	wxListBox* grouped_list;
 	

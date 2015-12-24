@@ -2533,20 +2533,19 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
     
     bool hasTime = p->GetTableInt()->IsTimeVariant();
     bool opened = false;
-        FramesManager* fm = p->GetFramesManager();
-        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
-        std::list<FramesManagerObserver*>::iterator it;
-        for (it=observers.begin(); it != observers.end(); ++it) {
-            if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
-                LOG_MSG("TimeChooserDlg already opened.");
-                w->Show(true);
-                w->Maximize(false);
-                w->Raise();
-                pt = w->GetPosition();
-                opened = true;
-                return;
-            }
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
+            LOG_MSG("TimeChooserDlg already opened.");
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            pt = w->GetPosition();
+            opened = true;
         }
+    }
     if (!opened) {
         LOG_MSG("Opening a new TimeChooserDlg");
         TimeChooserDlg* dlg = new TimeChooserDlg(0, project_p->GetFramesManager(),
@@ -2556,68 +2555,27 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
         dlg->Show(true);
         pt = dlg->GetPosition();
     }
-    hasTime = false; // always show time player + time editor
-    if (!hasTime) {
-    //} else {
-        // Show Time Editor and Variable Group Editor
-        
-        //OnVarGroupingEditor(event);
-        //Project* p = GetProject();
-        //if (!p || !p->GetTableInt()) return;
-       // FramesManager* fm = p->GetFramesManager();
-        //std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
-        //std::list<FramesManagerObserver*>::iterator it;
-        
-        
-    
-        for (it=observers.begin(); it != observers.end(); ++it) {
-            if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
-            {
-                LOG_MSG("VarGroupingEditorDlg already opened.");
-                w->Show(true);
-                w->Maximize(false);
-                w->Raise();
-                w->SetPosition(wxPoint(pt.x, pt.y + 130));
-                opened =true;
-                break;
-            }
+
+    opened = false;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
+        {
+            LOG_MSG("VarGroupingEditorDlg already opened.");
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            w->SetPosition(wxPoint(pt.x, pt.y + 130));
+            opened =true;
+            break;
         }
-        if (!opened) {
-            LOG_MSG("Opening a new VarGroupingEditorDlg");
-            VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
-            dlg->Show(true);
-            int start_x = pt.x - 200;
-            if (start_x) start_x = 0;
-            dlg->SetPosition(wxPoint(pt.x, pt.y + 130));
-        }
-        
-        
-        
-        /*
-        //OnTimeEditor(event);
-        for (it=observers.begin(); it != observers.end(); ++it) {
-            if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
-                LOG_MSG("TimeEditorDlg already opened.");
-                w->Show(true);
-                w->Maximize(false);
-                w->Raise();
-                int start_x = pt.x - 200;
-                if (start_x) start_x = 0;
-                w->SetPosition(wxPoint(pt.x -200, pt.y));
-                return;
-            }
-        }
-        
-        LOG_MSG("Opening a new TimeEditorDlg");
-        TimeEditorDlg* tmdlg = new TimeEditorDlg(0, GetProject()->GetFramesManager(),
-                                               GetProject()->GetTableState(),
-                                               GetProject()->GetTableInt());
-        tmdlg->Show(true);
+    }
+    if (!opened) {
+        LOG_MSG("Opening a new VarGroupingEditorDlg");
+        VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
+        dlg->Show(true);
         int start_x = pt.x - 200;
         if (start_x) start_x = 0;
-        tmdlg->SetPosition(wxPoint(pt.x -200, pt.y));
-         */
-
+        dlg->SetPosition(wxPoint(pt.x, pt.y + 130));
     }
 }
 
