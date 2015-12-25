@@ -41,6 +41,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../GdaCartoDB.h"
 #include "ExportDataDlg.h"
 
 using namespace std;
@@ -220,6 +221,7 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
  */
 void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 {
+    
     int datasource_type = m_ds_notebook->GetSelection();
     IDataSource* datasource = GetDatasource();
     wxString ds_name = datasource->GetOGRConnectStr();
@@ -608,6 +610,29 @@ IDataSource* ExportDataDlg::GetDatasource()
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
         return new DBDataSource(dbname,dbhost,dbport,dbuser,dbpwd,ds_type);
         //ds_name = ds.GetOGRConnectStr();
+        
+    } else {
+        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
+        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
+        
+        if (user.empty()) {
+            throw GdaException("Please input CartoDB User Name.");
+        }
+        if (key.empty()) {
+            throw GdaException("Please input CartoDB App Key.");
+        }
+        
+        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
+        CartoDBProxy::GetInstance().SetKey(key);
+        CartoDBProxy::GetInstance().SetUserName(user);
+        
+        wxString url = "CartoDB:" + user;
+        
+        ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
+        
+        return new WebServiceDataSource(url, GdaConst::ds_cartodb);
     }
     return NULL;
 }

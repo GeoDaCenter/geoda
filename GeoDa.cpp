@@ -1451,7 +1451,10 @@ GdaFrame::~GdaFrame()
 void GdaFrame::EnableTool(int xrc_id, bool enable)
 {
 	BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
-		if (tb)	tb->EnableTool(xrc_id, enable);
+        if (tb)	{
+            tb->EnableTool(xrc_id, enable);
+            tb->Refresh();
+        }
 	}
 }
 
