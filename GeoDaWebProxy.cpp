@@ -237,8 +237,8 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<wxString>& val)
 string GeoDaWebProxy::buildBaseUrl()
 {
     ostringstream url;
-    //url << "https://webpool.csf.asu.edu/xun/myapp/geoda_publish/";
-    url << "http://127.0.0.1:8000/myapp/geoda_publish/";
+    url << "https://webpool.csf.asu.edu/xun/myapp/geoda_publish/";
+    //url << "http://127.0.0.1:8000/myapp/geoda_publish/";
     return url.str();
 }
 
