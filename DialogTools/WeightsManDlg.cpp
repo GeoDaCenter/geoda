@@ -246,14 +246,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		return;
 	}
 	
-	id = w_man_int->RequestWeights(wmi);
-	if (id.is_nil()) {
-		wxString msg("There was a problem requesting the weights file.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
-		dlg.ShowModal();
-		suspend_w_man_state_updates = false;
-		return;
-	}
+
 	
 	GalElement* tempGal = 0;
 	if (ext == "gal") {
@@ -267,6 +260,15 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		suspend_w_man_state_updates = false;
 		return;
 	}
+    
+    id = w_man_int->RequestWeights(wmi);
+    if (id.is_nil()) {
+        wxString msg("There was a problem requesting the weights file.");
+        wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+        dlg.ShowModal();
+        suspend_w_man_state_updates = false;
+        return;
+    }
 	
 	GalWeight* gw = new GalWeight();
 	gw->num_obs = table_int->GetNumberRows();
