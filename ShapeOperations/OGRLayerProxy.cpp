@@ -30,6 +30,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaShape.h"
 #include "../GdaCartoDB.h"
+#include "../GdaException.h"
 
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
@@ -276,8 +277,9 @@ bool OGRLayerProxy::IsTableOnly()
 
 bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
 {
-	layer->SetFeature(feature);
-	return true;
+	if (layer->SetFeature(feature) == OGRERR_NONE)
+        return true;
+    return false;
 }
 
 bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
@@ -578,6 +580,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     int n_geom = p_main.records.size();
     if (n_geom < n_rows)
         return false;
+    
     vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     int num_geometries = p_main.records.size();
@@ -683,26 +686,30 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 {
 	// get geometry envelope
 	OGREnvelope pEnvelope;
-	layer->GetExtent(&pEnvelope);
-	p_main.header.bbox_x_min = pEnvelope.MinX;
-	p_main.header.bbox_y_min = pEnvelope.MinY;
-	p_main.header.bbox_x_max = pEnvelope.MaxX;
-	p_main.header.bbox_y_max = pEnvelope.MaxY;
-	p_main.header.bbox_z_min = 0;
+    if (layer->GetExtent(&pEnvelope) == OGRERR_NONE) {
+        p_main.header.bbox_x_min = pEnvelope.MinX;
+        p_main.header.bbox_y_min = pEnvelope.MinY;
+        p_main.header.bbox_x_max = pEnvelope.MaxX;
+        p_main.header.bbox_y_max = pEnvelope.MaxY;
+
+    }
+    p_main.header.bbox_z_min = 0;
 	p_main.header.bbox_z_max = 0;
 	p_main.header.bbox_m_min = 0;
 	p_main.header.bbox_m_max = 0;
+    
 	// resize geometry records
 	p_main.records.resize(n_rows);
 	bool noExtent = (pEnvelope.MinX == pEnvelope.MaxX) &&
                     (pEnvelope.MinY == pEnvelope.MaxY);
     noExtent = false;
+    
 	//read OGR geometry features
 	int feature_counter =0;
 	for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
 		OGRFeature* feature = data[row_idx];
 		OGRGeometry* geometry= feature->GetGeometryRef();
-		OGRwkbGeometryType eType = geometry ?wkbFlatten(geometry->getGeometryType()) : eGType;
+		OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
 		// sometime OGR can't return correct value from GetGeomType() call
 		if (eGType == wkbUnknown)
             eGType = eType;
@@ -839,14 +846,20 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                 }
             }
 			p_main.records[feature_counter++].contents_p = pc;
-		}
+            
+        } else {
+            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            throw GdaException(open_err_msg.c_str());
+        }
 	}
     
 	return true;
 }
 
-void OGRLayerProxy::T_Export(std::string format, std::string dest_datasource,
-							 std::string new_layer_name, bool is_update)
+void OGRLayerProxy::T_Export(std::string format,
+                             std::string dest_datasource,
+							 std::string new_layer_name,
+                             bool is_update)
 {
 	export_progress = 0;
 	stop_exporting = FALSE;
@@ -875,7 +888,7 @@ void OGRLayerProxy::Export(std::string format,
 	papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
 	OGRLayer* poSrcLayer = this->layer;
 	OGRFeatureDefn *poSrcFDefn = poSrcLayer->GetLayerDefn();
-	//////////////////////////////////////////////////////////////
+    
 	// get information from current layer: geomtype, layer_name
     // (don't consider coodinator system and translation here)
 	int bForceToPoint = FALSE;
@@ -895,24 +908,17 @@ void OGRLayerProxy::Export(std::string format,
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
-	// Try opening the output datasource as an existing, writable 
-	//OGRDataSource  *poODS = NULL;
+	// Try opening the output datasource as an existing, writable
     GDALDataset  *poODS = NULL;
-    //OGRSFDriver    *poDriver = NULL;
     
     if (is_update == true) {
-       //poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
-        poODS = (GDALDataset*) GDALOpenEx( pszDestDataSource, 
-                                         GDAL_OF_VECTOR, NULL, NULL, NULL );
+        poODS = (GDALDataset*) GDALOpenEx( pszDestDataSource,
+                                          GDAL_OF_VECTOR, NULL, NULL, NULL );
     } else {
-        //////////////////////////////////////////////////////////////
-        // Find the output driver.       
+        // Find the output driver.
         GDALDriver *poDriver;
         poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
         
-        //OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-        //poDriver = poR->GetDriverByName(pszFormat);
         if( poDriver == NULL ) {
             // raise driver not supported failure
             error_message << "Current OGR dirver " + format + " is not "
@@ -920,27 +926,21 @@ void OGRLayerProxy::Export(std::string format,
             export_progress = -1;
             return;
         }
-        //if( !poDriver->TestCapability( //ODrCCreateDataSource ) ) {
-            // raise driver does not support data source creation.\n",
-            //export_progress = -1;
-            //return;
-        //}
-        //////////////////////////////////////////////////////////////
+
         // Create the output data source.  
-        //poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
         poODS = poDriver->Create(pszDestDataSource, 0, 0, 0, GDT_Unknown, NULL);
     }
     
 	if( poODS == NULL ) {
 		// driver failed to create
-		//throw GdaException("Can't create output OGR driver.");
+		// throw GdaException("Can't create output OGR driver.");
 		error_message << "Can't create output OGR driver."
                       <<"\n\nDetails:"<< CPLGetLastErrorMsg();
 		export_progress = -1;
 		return;
 	}
-    //////////////////////////////////////////////////////////////
-	// Parse the output SRS definition if possible.
+
+    // Parse the output SRS definition if possible.
 	OGRSpatialReference *poOutputSRS = NULL;
 	if( pszOutputSRSDef != NULL ) {
 		poOutputSRS = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
@@ -958,8 +958,8 @@ void OGRLayerProxy::Export(std::string format,
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
-	// Create Layer
+
+    // Create Layer
 	OGRLayer *poDstLayer = poODS->CreateLayer( pszNewLayerName, poOutputSRS,
 											  (OGRwkbGeometryType) eGType, 
 											  papszLCO );
@@ -969,6 +969,7 @@ void OGRLayerProxy::Export(std::string format,
 		export_progress = -1;
 		return;
 	}
+    
 	// Process Layer style table
 	poDstLayer->SetStyleTable( poSrcLayer->GetStyleTable() );
 	OGRFeatureDefn *poDstFDefn = poDstLayer->GetLayerDefn();
@@ -985,8 +986,8 @@ void OGRLayerProxy::Export(std::string format,
 			}
         }   
     }
-	//////////////////////////////////////////////////////////////
-	// Create OGR geometry features
+
+    // Create OGR geometry features
 	for(int row=0; row< this->n_rows; row++){
 		if(stop_exporting) return;
 		export_progress++;
@@ -1023,8 +1024,7 @@ void OGRLayerProxy::Export(std::string format,
         }
 		OGRFeature::DestroyFeature( poFeature );
 	}
-	//////////////////////////////////////////////////////////////
-	// Clean
-	//OGRDataSource::DestroyDataSource( poODS );	
+
+    // Clean
     GDALClose(poODS);
 }

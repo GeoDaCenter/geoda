@@ -193,7 +193,10 @@ Project::~Project()
     if (project_conf) delete project_conf; project_conf=0;
     // datasource* has been deleted in project_conf* layer*
     datasource = 0;
-	if (cat_classif_manager) delete cat_classif_manager; cat_classif_manager=0;
+    if (cat_classif_manager) {
+        delete cat_classif_manager;
+        cat_classif_manager=0;
+    }
     
     // Again, WeightsManInterface is not needed.
 	if (WeightsNewManager* o = dynamic_cast<WeightsNewManager*>(w_man_int)) {
@@ -201,12 +204,16 @@ Project::~Project()
             delete o; o = 0;
         }
     }
-	for (size_t i=0, iend=mean_centers.size(); i<iend; i++) delete mean_centers[i];
-	for (size_t i=0, iend=centroids.size(); i<iend; i++) delete centroids[i];
-	if (voronoi_rook_nbr_gal) delete [] voronoi_rook_nbr_gal;
-	for (std::map<wxString, i_array_type*>::iterator i=
-			 shared_category_scratch.begin();
-			 i != shared_category_scratch.end(); ++i) {
+	for (size_t i=0, iend=mean_centers.size(); i<iend; i++)
+        delete mean_centers[i];
+    
+	for (size_t i=0, iend=centroids.size(); i<iend; i++)
+        delete centroids[i];
+    
+	if (voronoi_rook_nbr_gal)
+        delete [] voronoi_rook_nbr_gal;
+    
+	for (std::map<wxString, i_array_type*>::iterator i= shared_category_scratch.begin(); i != shared_category_scratch.end(); ++i) {
 		delete i->second;
 	}
 	
@@ -296,7 +303,9 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 			geometries.push_back(new GdaPolygon(pc));
 		}
 		shape_type = Shapefile::POLYGON;
-	}
+    } else {
+        
+    }
 	return shape_type;
 }
 
@@ -909,9 +918,7 @@ void Project::AddCentroids()
 	data[1].field_default = "YCNTRD";
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data,
-										 "Add Centroids to Table",
-										 wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, "Add Centroids to Table", wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
@@ -1459,10 +1466,9 @@ bool Project::InitFromOgrLayer()
 	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name.ToStdString(),layername.ToStdString());
 	
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
+    
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
-		open_err_msg << "GeoDa does not support datasource ";
-		open_err_msg << "with line data at this time.  Please choose a ";
-		open_err_msg << "datasource with either point or polygon data.";
+		open_err_msg << "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
 		throw GdaException(open_err_msg.c_str());
 		return false;
 	}
@@ -1501,7 +1507,9 @@ bool Project::InitFromOgrLayer()
 		return false;
 	}
 	OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name.ToStdString());
+    
 	datasource->UpdateWritable(ds_proxy->is_writable);
+    
 	// Correct variable_order information, which will be used by OGRTable
 	std::vector<wxString> var_list;
 	std::map<wxString, GdaConst::FieldType> var_type_map;
@@ -1513,8 +1521,10 @@ bool Project::InitFromOgrLayer()
 	
 	table_state = new TableState;
 	time_state = new TimeState;
-	table_int = new OGRTable(layer_proxy, datasource->GetType(),
-                             table_state, time_state,
+	table_int = new OGRTable(layer_proxy,
+                             datasource->GetType(),
+                             table_state,
+                             time_state,
                              *variable_order);
 	if (!table_int) {
 		open_err_msg << "There was a problem reading the table";
@@ -1534,7 +1544,7 @@ bool Project::InitFromOgrLayer()
 		layer_proxy->ReadGeometries(main_data);
 	}
 	// run caching in background
-	//OGRDataAdapter::GetInstance().CacheLayer
+	// OGRDataAdapter::GetInstance().CacheLayer
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
 	LOG_MSG("Exiting Project::InitFromOgrLayer");
 	return true;
