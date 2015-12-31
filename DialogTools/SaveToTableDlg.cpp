@@ -22,6 +22,9 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
+#include <wx/textctrl.h>
+#include <wx/stattext.h>
+
 #include "../DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
@@ -36,6 +39,7 @@ const int ID_ADD_BUTTON = wxID_HIGHEST+1;
 const int ID_FIELD_CHOICE = wxID_HIGHEST+2;
 const int ID_TIME_CHOICE = wxID_HIGHEST+3;
 const int ID_CHECK = wxID_HIGHEST+4;
+const int ID_FIELD_TEXT = wxID_HIGHEST+5;
 
 BEGIN_EVENT_TABLE( SaveToTableDlg, wxDialog )
 	EVT_CHECKBOX( ID_CHECK, SaveToTableDlg::OnCheck )
@@ -57,6 +61,7 @@ table_int(project_s->GetTableInt()),
 m_check(data_s.size()),
 m_add_button(data_s.size()),
 m_field(data_s.size()),
+m_txt_field(data_s.size()),
 m_time(data_s.size()),
 col_id_maps(data_s.size()),
 is_space_time(project_s->GetTableInt()->IsTimeVariant()),
@@ -67,6 +72,7 @@ all_init(false)
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
+        m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20));
         
 		if (is_space_time) {
 			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
@@ -74,10 +80,12 @@ all_init(false)
 		} else {
 			m_time[i] = 0;
 		}
+        
         m_add_button[i]->Hide();
         m_field[i]->Hide();
 	}
     
+    m_field_label = new wxStaticText(this, wxID_ANY, "Variable Name");
 	if (data.size() == 1)
         m_check[0]->SetValue(1);
     
@@ -110,9 +118,11 @@ void SaveToTableDlg::CreateControls()
 	
 	int fg_cols = is_space_time ? 4 : 3;
 	// data.size() rows, fg_cols columns, vgap=3, hgap=3
-	//wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size(), fg_cols, 3, 3);
+	wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size() + 1, 2, 3, 3);
     
-    wxBoxSizer* fg_sizer = new wxBoxSizer(wxVERTICAL);
+    fg_sizer->AddSpacer(10);
+    fg_sizer->Add(m_field_label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+    //wxBoxSizer* fg_sizer = new wxBoxSizer(wxVERTICAL);
     for (int i=0, iend=data.size(); i<iend; i++) {
 		//fg_sizer->Add(m_check[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//fg_sizer->Add(m_add_button[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
@@ -121,6 +131,7 @@ void SaveToTableDlg::CreateControls()
 		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//}
         fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 5);
+        fg_sizer->Add(m_txt_field[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
 	
     //top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
@@ -247,8 +258,10 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 
 void SaveToTableDlg::OnCheck( wxCommandEvent& event )
 {
+    /*
 	if (!all_init) return;
 	UpdateOkButton();
+     */
 }
 
 void SaveToTableDlg::UpdateOkButton()
@@ -317,7 +330,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	for (int i=0, e=data.size(); i<e; i++) {
 		is_check[i]=m_check[i]->GetValue()==1;
 	}
-    /*
+    
 	bool any_checked = false;
 	for (int i=0, e=data.size(); i<e; i++) {
         if (is_check[i])
@@ -328,8 +341,16 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	
 	std::vector<wxString> fname;
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		if (is_check[i])
-            fname.push_back(m_field[i]->GetStringSelection());
+        if (is_check[i]) {
+            wxString name = m_txt_field[i]->GetValue();
+            if (name.empty()) {
+                wxMessageDialog dlg(this, "Variable name can't be empty.",
+                                    "Error", wxOK | wxICON_ERROR );
+                dlg.ShowModal();
+                return;
+            }
+            fname.push_back(name);
+        }
 	}
 	
 	// Throw all fname[i] into a set container and check for duplicates while
@@ -338,6 +359,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	std::set<wxString>::iterator it;
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
+        /*
 		TableState* ts = project->GetTableState();
 		if (!Project::CanModifyGrpAndShowMsgIfNot(ts, s))
             return;
@@ -345,6 +367,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 			&& m_time[i]->IsEnabled()) {
 			s << " (" << m_time[i]->GetStringSelection() << ")";
 		}
+         */
 		it = names.find(s);
 		if (it != names.end()) {
 			wxMessageDialog dlg(this, "Duplicate variable names specified.",
@@ -355,7 +378,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 		if (is_check[i])
             names.insert(s);
 	}
-	*/
+	
 	for (int i=0, iend=data.size(); i<iend; i++) {
         /*
 		if (is_check[i]) {
@@ -372,7 +395,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 		}
         */
         if (is_check[i]) {
-            wxString field_name = data[i].field_default;
+            wxString field_name = m_txt_field[i]->GetValue();
             int time=0;
             int col = table_int->FindColId(field_name);
             if ( col == wxNOT_FOUND) {
@@ -392,7 +415,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
                     m_decimals_val = 0;
                 }
                 
-                col = table_int->InsertCol(data[i].type, data[i].field_default, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+                col = table_int->InsertCol(data[i].type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
             }
             
             if (col > 0) {
