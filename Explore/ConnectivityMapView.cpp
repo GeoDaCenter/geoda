@@ -524,8 +524,8 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
 	template_canvas = new ConnectivityMapCanvas(this, this, project,
 												weights_id_s,
 												wxDefaultPosition,
-												wxSize(width,height));
-	template_canvas->SetScrollRate(1,1);
+												wxDefaultSize);
+	//template_canvas->SetScrollRate(1,1);
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	
