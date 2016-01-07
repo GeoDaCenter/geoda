@@ -3513,6 +3513,9 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	//VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true, false);
     
     Project* project = GetProject();
+    TableInterface* table_int = project->GetTableInt();
+    
+    
     std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
@@ -3522,6 +3525,14 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
         return;
         
     }
+    
+    bool has_time = table_int->IsTimeVariant();
+    if (has_time == false) {
+        wxMessageDialog dlg (this, "Please define time first. \n\n Note: Goto menu: Time->Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
     DiffMoranVarSettingDlg VS(project_p);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
