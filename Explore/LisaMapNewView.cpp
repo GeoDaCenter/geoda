@@ -55,7 +55,9 @@ LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 			   no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 lisa_coord(lisa_coordinator),
 is_clust(theme_type_s==CatClassification::lisa_categories),
-is_bi(isBivariate), is_rate(isEBRate)
+is_bi(isBivariate),
+is_rate(isEBRate),
+is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
 {
 	LOG_MSG("Entering LisaMapCanvas::LisaMapCanvas");
 
@@ -105,7 +107,9 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	wxString field_t;
 	if (is_bi) {
 		field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
-	} else {
+    } else if (is_diff) {
+        field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
+    }else {
 		field_t << "I_" << GetNameWithTime(0);
 	}
 	if (is_rate) {

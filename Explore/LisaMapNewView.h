@@ -55,6 +55,7 @@ protected:
 	bool is_clust; // true = Cluster Map, false = Significance Map
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
+    bool is_diff;
 	
 	DECLARE_EVENT_TABLE()
 };

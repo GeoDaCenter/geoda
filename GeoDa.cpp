@@ -3526,7 +3526,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
-											  LisaCoordinator::bivariate,
+											  LisaCoordinator::differential,
 											  true, LWO.m_RowStand);
 
 	if (LWO.m_Moran) {
