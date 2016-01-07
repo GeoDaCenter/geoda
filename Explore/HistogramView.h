@@ -60,6 +60,7 @@ protected:
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
+    
 	
 public:
 	virtual void TimeSyncVariableToggle(int var_index);
@@ -146,6 +147,7 @@ public:
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
+    void OnHistClassification(wxCommandEvent& event);
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);

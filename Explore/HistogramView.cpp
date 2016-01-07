@@ -149,14 +149,19 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((HistogramFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
+	optMenu = wxXmlResource::Get()-> LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
+    
+    template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(HistogramFrame::OnHistClassification));
+    
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
+    
+    
+    
 	LOG_MSG("Exiting HistogramCanvas::DisplayRightClickMenu");
 }
 
@@ -171,22 +176,21 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
 		mi->Check(var_info[0].sync_with_global_time);
 	}
+    menu->AppendSeparator();
+    menu->Append(wxID_ANY, "Time Variable Options", menu1, "Time Variable Options");
 	
-	/*
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
 	{
 		wxString s;
-		s << "Fixed scale over time";
+		s << "Create New Custom";
 		wxMenuItem* mi =
-		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
+		menu2->Append(GdaConst::ID_HISTOGRAM_CLASSIFICATION, s, s);
+
 	}
-	 */
-		
-	//menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
-    menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+	menu->Prepend(wxID_ANY, "Histogram Classification", menu2, "Histogram Classification");
+    
+    
+    
 }
 
 void HistogramCanvas::SetCheckMarks(wxMenu* menu)
@@ -808,7 +812,11 @@ HistogramFrame::~HistogramFrame()
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
-
+void HistogramFrame::OnHistClassification(wxCommandEvent& event)
+{
+    event.Skip();
+    
+}
 void HistogramFrame::OnActivate(wxActivateEvent& event)
 {
 	LOG_MSG("In HistogramFrame::OnActivate");
@@ -862,6 +870,8 @@ void HistogramFrame::update(TimeState* o)
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
+
+
 
 void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 {
