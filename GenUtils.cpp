@@ -690,9 +690,9 @@ wxString GenUtils::GetFileName(const wxString& path)
 wxString GenUtils::GetFileNameNoExt(const wxString& path)
 {
     wxString fname = GetFileName(path);
-    int pos = fname.Find('.', true);
+    int pos = fname.Find('.');
     if (pos >=0)
-        return fname.Left(pos-1);
+        return fname.SubString(0, pos-1);
     return fname;
 }
 

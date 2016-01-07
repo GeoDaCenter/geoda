@@ -95,7 +95,8 @@ private:
 	// e.g. centroids, grids. vector<GdaShape*> geometries
 	// take ownership of external geometries temporarily, 
 	// so its memory will be maintained (no cleanup).
-	bool is_geometry_only; 
+	bool is_geometry_only;
+    bool is_table_only;
     
 	IDataSource* GetDatasource();
     void OpenDatasourceFile(const wxFileName& ds_fname);

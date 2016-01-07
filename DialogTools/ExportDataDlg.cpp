@@ -57,7 +57,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              wxString projectFileName,
                              const wxPoint& pos,
                              const wxSize& size )
-: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false)
+: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false), is_table_only(false)
 {
     if( project_p ) {
         project_file_name = project_p->GetProjectTitle();
@@ -74,7 +74,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL)
+: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false)
 {
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
@@ -91,7 +91,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL)
+: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false)
 {
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
@@ -108,7 +108,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              TableInterface* _table,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), table_p(_table)
+: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table)
 {
     Init(parent, pos);
 }
@@ -124,6 +124,8 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     is_create_project = project_file_name.empty() ? false : true;
     ds_file_path = wxFileName("");
     
+    if (is_table_only)
+        ds_names.Remove("ESRI Shapefile (*.shp)|*.shp");
     //ds_names.Remove("dBase database file (*.dbf)|*.dbf");
     ds_names.Remove("MS Excel (*.xls)|*.xls");
 	//ds_names.Remove("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
