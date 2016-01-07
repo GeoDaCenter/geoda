@@ -99,6 +99,7 @@
 #include "DialogTools/LocaleSetupDlg.h"
 #include "DialogTools/WeightsManDlg.h"
 #include "DialogTools/PublishDlg.h"
+#include "DialogTools/BasemapConfDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -512,6 +513,9 @@ EVT_MENU(XRCID("ID_BASEMAP_5"), GdaFrame::OnSetBasemap5)
 EVT_MENU(XRCID("ID_BASEMAP_6"), GdaFrame::OnSetBasemap6)
 EVT_MENU(XRCID("ID_BASEMAP_7"), GdaFrame::OnSetBasemap7)
 EVT_MENU(XRCID("ID_BASEMAP_8"), GdaFrame::OnSetBasemap8)
+EVT_MENU(XRCID("ID_BASEMAP_CONF"), GdaFrame::OnBasemapConfig)
+
+
 
 EVT_MENU(XRCID("ID_SAVE_CANVAS_IMAGE_AS"), GdaFrame::OnSaveCanvasImageAs)
 EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"),
@@ -2291,6 +2295,14 @@ void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnDrawBasemap(true,8);
     SetBasemapCheckmarks(8);
+}
+
+void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
+{
+    BasemapConfDlg dlg(this,project_p);
+    dlg.ShowModal();
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (t) t->OnRefreshMap(event);
 }
 
 void GdaFrame::OnSaveCanvasImageAs(wxCommandEvent& event)

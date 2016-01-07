@@ -273,6 +273,8 @@ public:
     void CleanCache();
     
 protected:
+    std::string nokia_id;
+    std::string nokia_code;
     
     int nn; // pow(2.0, zoom)
     

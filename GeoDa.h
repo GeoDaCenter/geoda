@@ -144,6 +144,7 @@ public:
     void OnSetBasemap6(wxCommandEvent& event);
     void OnSetBasemap7(wxCommandEvent& event);
     void OnSetBasemap8(wxCommandEvent& event);
+    void OnBasemapConfig(wxCommandEvent& event);
     
 	void OnSaveCanvasImageAs(wxCommandEvent& event);
 	void OnSaveSelectedToColumn(wxCommandEvent& event);

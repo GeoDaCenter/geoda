@@ -7976,4 +7976,119 @@
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
     <size>660,340</size>
   </object>
+  
+  <object class="wxDialog" name="IDD_BASEMAP_CONF_DLG" subclass="BasemapConfDlg">
+      <object class="wxBoxSizer">
+          <orient>wxVERTICAL</orient>
+          <object class="sizeritem">
+              <object class="wxPanel" name="">
+                  <size>660,340</size>
+                  <object class="wxBoxSizer">
+                      <orient>wxVERTICAL</orient>
+                      <object class="spacer">
+                          <size>0,40</size>
+                      </object>
+                      <object class="sizeritem">
+                          <object class="wxFlexGridSizer">
+                              <object class="sizeritem">
+                                  <object class="wxStaticText" name="ID_STATICTEXT">
+                                      <label>Nokia/HERE App ID</label>
+                                  </object>
+                                  <border>5</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxTextCtrl" name="IDC_NOKIA_USERNAME">
+                                      <size>130,-1</size>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText"/>
+                                  <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  <border>5</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText" name="IDC_STATIC">
+                                      <label>Nokia/HERE App Key</label>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxTextCtrl" name="IDC_NOKIA_KEY">
+                                      <size>130,-1d</size>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText"/>
+                              </object>
+                              <cols>3</cols>
+                              <rows>2</rows>
+                              <vgap>15</vgap>
+                              <hgap>10</hgap>
+                          </object>
+                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                      </object>
+                      <object class="spacer">
+                          <size>0,40</size>
+                      </object>
+                      <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                              <object class="spacer">
+                                  <size>4,10</size>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText">
+                                      <label>Get a free Nokia/HERE account: </label>
+                                  </object>
+                              </object>
+                              <orient>wxHORIZONTAL</orient>
+                              <object class="sizeritem">
+                                  <object class="wxHyperlinkCtrl">
+                                      <url>https://developer.here.com/</url>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText">
+                                      <label/>
+                                  </object>
+                              </object>
+                          </object>
+                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                      </object>
+                      
+                  </object>
+                  
+              </object>
+          </object>
+          <object class="sizeritem">
+              <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                      <object class="wxButton" name="ID_NOKIA_RESET">
+                          <label>Reset</label>
+                      </object>
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <border>5</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxButton" name="wxID_OK">
+                          <label>OK</label>
+                      </object>
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <border>5</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxButton" name="wxID_CANCEL">
+                          <label>Cancel</label>
+                      </object>
+                      <flag>wxGROW|wxALL</flag>
+                      <border>5</border>
+                  </object>
+                  <orient>wxHORIZONTAL</orient>
+              </object>
+              <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+          </object>
+      </object>
+      <title>Basemap Configuration Dialog</title>
+      <centered>1</centered>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+      <size>560,240</size>
+  </object>
 </resource>

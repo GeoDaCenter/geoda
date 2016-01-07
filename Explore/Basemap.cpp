@@ -26,6 +26,7 @@
 
 #include <ogr_spatialref.h>
 
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 #include "curl/curl.h"
 
@@ -66,6 +67,9 @@ Basemap::Basemap(Screen* _screen,
     
     isTileReady = false;
     isTileDrawn = false;
+    
+    nokia_id = "oRnRceLPyM8OFQQA5LYH";
+    nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
     
     GetEasyZoomLevel();
     SetupMapType(map_type);
@@ -116,11 +120,25 @@ void Basemap::CleanCache()
 
 void Basemap::SetupMapType(int map_type)
 {
-	//std::vector<std::string> nokia_id = OGRDataAdapter::GetInstance().GetHistory("nokia_id");
-	//std::vector<std::string> nokia_code = OGRDataAdapter::GetInstance().GetHistory("nokia_code");
-   
-    std::string nokia_id = "oRnRceLPyM8OFQQA5LYH";
-    std::string nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
+
+    using namespace std;
+    // get a latest CartoDB account
+    vector<string> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
+    if (!nokia_user.empty()) {
+        string user = nokia_user[0];
+        if (!user.empty()) {
+            nokia_id = user;
+        }
+    }
+    
+    vector<string> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
+    if (!nokia_key.empty()) {
+        string key = nokia_key[0];
+        if (!key.empty()) {
+            nokia_code = key;
+        }
+    }
+
     
     mapType = map_type;
     if (mapType == 1) {
@@ -199,6 +217,7 @@ void Basemap::ResizeScreen(int _width, int _height)
         screen->height = _height;
     }
 
+    SetupMapType(mapType);
     isTileReady = false;
     isTileDrawn = false;
     GetEasyZoomLevel();

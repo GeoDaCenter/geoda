@@ -2297,6 +2297,11 @@
               <label>Nokia Satellite</label>
               <checkable>1</checkable>
           </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_BASEMAP_CONF">
+              <label>Basemap Configuration</label>
+              <checkable>1</checkable>
+          </object>
       </object>
     <label>Options</label>
   </object>
@@ -2348,6 +2353,11 @@
 		  <label>Nokia Satellite</label>
 		  <checkable>1</checkable>
 	  </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_BASEMAP_CONF">
+          <label>Basemap Configuration</label>
+          <checkable>1</checkable>
+      </object>
   </object>
   <object class="wxMenu" name="ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">
