@@ -706,10 +706,11 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	while (!file.eof()) {
 		int gwt_obs1, gwt_obs2;
 		wxInt64 obs1, obs2;
+        double w_val;
 		getline(file, str);
 		if (!str.empty()) {
 			stringstream ss(str, stringstream::in | stringstream::out);
-			ss >> obs1 >> obs2;
+			ss >> obs1 >> obs2 >> w_val;
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
@@ -733,8 +734,11 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			}
 			gwt_obs1 = (*it1).second; // value
 			gwt_obs2 = (*it2).second; // value
-			if (gwt[gwt_obs1].empty()) gwt[gwt_obs1].alloc(nbr_histogram[obs1]);
-			gwt[gwt_obs1].Push(gwt_obs2);
+            
+			if (gwt[gwt_obs1].empty())
+                gwt[gwt_obs1].alloc(nbr_histogram[obs1]);
+            
+			gwt[gwt_obs1].Push(GwtNeighbor(gwt_obs2, w_val));
 		}
 		line_num++;
 	}	

@@ -42,14 +42,23 @@ public:
 public:
 	GwtElement() : data(0), nbrs(0) {}
 	virtual ~GwtElement();
+    
 	bool alloc(const int sz);
+    
 	bool empty() const { return data == 0; }
+    
 	void Push(const GwtNeighbor &elt) { data[nbrs++] = elt; }
+    
 	GwtNeighbor Pop() { return !nbrs ? GwtNeighbor(-1) : data[--nbrs]; }
+    
 	long Size() const { return nbrs; }
+    
 	GwtNeighbor elt(const long where) const { return data[where]; }
+    
 	GwtNeighbor* dt() const { return data; }
+    
 	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
+    
 	double SpatialLag(const double* x, const bool std=true) const;
 };
 

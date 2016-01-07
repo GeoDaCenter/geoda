@@ -492,9 +492,6 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
         wxString ds_name = dlg.GetDatasourceName();
         wxFileName wx_fn(ds_name);
         
-        wx_fn.SetExt("gal");
-        wxString ofn(wx_fn.GetFullPath());
-        
         // save weights
         // Get default GalWeight*
         // change to space-time weights
@@ -504,6 +501,12 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             boost::uuids::uuid default_wid = wmi->GetDefault();
             if (!default_wid.is_nil()) {
                 GeoDaWeight* w = wmi->GetWeights(default_wid);
+                if (w->weight_type == GeoDaWeight::gal_type) {
+                    wx_fn.SetExt("gal");
+                } else if (w->weight_type == GeoDaWeight::gwt_type) {
+                    wx_fn.SetExt("gwt");
+                }
+                wxString ofn(wx_fn.GetFullPath());
                 w->SaveDIDWeights(project, n_obs, newids, id_stack, ofn);
             }
         }
