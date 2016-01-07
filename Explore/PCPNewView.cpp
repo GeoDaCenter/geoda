@@ -227,7 +227,8 @@ void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	 */
 		
 	//menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
+    menu->AppendSeparator();
+    menu->Append(wxID_ANY, "Time Variable Options", menu1,
 				  "Time Variable Options");
 }
 

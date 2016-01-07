@@ -146,8 +146,8 @@ void C3DPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 	}
 	
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->AppendSeparator();
+	menu->Append(wxID_ANY, "Time Variable Options", menu1, "Time Variable Options");
 }
 
 void C3DPlotCanvas::SetCheckMarks(wxMenu* menu)

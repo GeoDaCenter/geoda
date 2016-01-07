@@ -153,7 +153,8 @@ void ConditionalNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
+    menu->AppendSeparator();
+    menu->Append(wxID_ANY, "Time Variable Options", menu1,
 				  "Time Variable Options");
 }
 
