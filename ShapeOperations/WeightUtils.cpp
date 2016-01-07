@@ -711,7 +711,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			stringstream ss(str, stringstream::in | stringstream::out);
 			ss >> obs1 >> obs2;
 			it1 = id_map.find(obs1);
-			it2 = id_map.find(obs1);
+			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
 				int obs;
 				if (it1 == id_map.end()) obs = obs1;

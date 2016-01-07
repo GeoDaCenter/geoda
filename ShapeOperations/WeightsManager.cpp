@@ -381,15 +381,18 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
 	if (it == entry_map.end()) return 0;
 	Entry& e = it->second;
     wxString tmpName = e.wpte.wmi.filename;
-	if (e.gal_weight) return e.gal_weight;
+    
+    wxFileName t_fn(tmpName);
+    wxString ext = t_fn.GetExt().Lower();
+    if (ext != "gal" && ext != "gwt") {
+        LOG_MSG("File extention not gal or gwt");
+        return 0;
+    }
+    
+	if (ext == "gal" && e.gal_weight) return e.gal_weight;
 	
 	// Load file for first use
-	wxFileName t_fn(e.wpte.wmi.filename);
-	wxString ext = t_fn.GetExt().Lower();
-	if (ext != "gal" && ext != "gwt") {
-		LOG_MSG("File extention not gal or gwt");
-		return 0;
-	}
+	
 	if (ext == "gal") {
         GalElement* gal = WeightUtils::ReadGal(e.wpte.wmi.filename, table_int);
     	if (gal != 0) {

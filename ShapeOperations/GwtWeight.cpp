@@ -20,6 +20,10 @@
 #include <fstream>
 #include <iomanip>
 #include <wx/filename.h>
+
+#include "../DataViewer/TableInterface.h"
+#include "../GenUtils.h"
+#include "../Project.h"
 #include "GwtWeight.h"
 
 // file name encodings
@@ -89,12 +93,107 @@ bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
 {
-    return false;
+    using namespace std;
+    if (!project || ofname.empty()) return false;
+    
+    WeightsManInterface* wmi = project->GetWManInt();
+    if (!wmi) return false;
+    
+    wxString layer_name = GenUtils::GetFileNameNoExt(ofname);
+    
+    if (!gwt) return false;
+    
+    int n = newids.size();
+    
+    ofstream out;
+    out.open(GET_ENCODED_FILENAME(ofname));
+    if (!(out.is_open() && out.good())) return false;
+    
+    wxString id_var_name("STID");
+    out << "0 " << n << " " << layer_name;
+    out << " " << id_var_name << endl;
+    
+    int offset = 0;
+    
+    for (size_t i=0; i<n; ++i) {
+        int orig_id = stack_ids[i];
+        if (i == num_obs) {
+            offset = num_obs;
+            num_obs += num_obs;
+        }
+        
+        for (long nbr=0; nbr<gwt[orig_id].Size(); ++nbr) {
+            const GwtNeighbor& current = gwt[orig_id].elt(nbr);
+            
+            int n_id = current.nbx + offset;
+            
+            out << newids[i] << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+        }
+    }
+    return true;
 }
 
 bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)
 {
-    return false;
+    using namespace std;
+    
+    if (ofname.empty() || !wmi || !table_int)
+        return false;
+    
+    wxString layer_name = GenUtils::GetFileNameNoExt(ofname);
+    if (!gwt) return false;
+    
+    vector<wxString> id_vec;
+    int c_id = table_int->FindColId(this->id_field);
+    if (c_id < 0) return false;
+    
+    table_int->GetColData(c_id, 1, id_vec);
+    
+    std::vector<wxString> time_ids;
+    table_int->GetTimeStrings(time_ids);
+    
+    size_t num_obs = id_vec.size();
+    size_t num_t = time_ids.size();
+    size_t n = num_obs * num_t;
+
+    // (id, time) : stid
+    typedef std::pair<wxString, wxString> STID_KEY;
+    std::map<STID_KEY, int> stid_dict;
+    
+    int id=1;
+    for (size_t i=0; i<num_t; ++i) {
+        for (size_t j=0; j<num_obs; ++j) {
+            STID_KEY k(id_vec[j], time_ids[i]);
+            stid_dict[k] = id++;
+        }
+    }
+    
+    ofstream out;
+    out.open(GET_ENCODED_FILENAME(ofname));
+    if (!(out.is_open() && out.good())) return false;
+    
+    wxString id_var_name("STID");
+    out << "0 " << n << " " << layer_name;
+    out << " " << id_var_name << endl;
+    
+    
+    for (size_t i=0; i<num_t; ++i) {
+        for (size_t j=0; j<num_obs; ++j) {
+            STID_KEY k(id_vec[j], time_ids[i]);
+            int m_id = stid_dict[k];
+            
+            for (long nbr=0; nbr<gwt[j].Size(); ++nbr) {
+                const GwtNeighbor& current = gwt[j].elt(nbr);
+                
+                STID_KEY k1(id_vec[current.nbx], time_ids[i]);
+                int n_id = stid_dict[k1];
+                
+                out << m_id << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+            }
+        }
+    }
+    
+    return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //

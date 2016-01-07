@@ -48,7 +48,7 @@ OGRTable::OGRTable(int n_rows)
     ogr_layer = NULL;
     rows = n_rows;
     
-    table_state->registerObserver(this);
+    //table_state->registerObserver(this);
 }
 
 OGRTable::OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
