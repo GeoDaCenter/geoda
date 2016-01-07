@@ -677,9 +677,9 @@ EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
 EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
 EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
 EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
+EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
 EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
 EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
 EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
@@ -3338,24 +3338,75 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 	LisaScatterPlotFrame *f = new LisaScatterPlotFrame(GdaFrame::gda_frame,
 													   project_p, lc);
 }
+void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
+{
+    Project* project = GetProject();
+    TableInterface* table_int = project->GetTableInt();
+    
+    bool has_time = table_int->IsTimeVariant();
+    if (has_time == false) {
+        wxMessageDialog dlg (this, "Please define time first. \n\n Note: Goto menu: Time->Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "No Weights Found:\n\n This feature requires weights, but none defined.\n Please use Tools > Weights > Weights Manager\n to define weights.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+        
+    }
+    
+    DiffMoranVarSettingDlg VS(project_p);
+    if (VS.ShowModal() != wxID_OK) {
+        return;
+    }
+    
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil())
+        return;
+    
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL)
+        return;
+    
+    LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
+                                              VS.var_info, VS.col_ids,
+                                              LisaCoordinator::differential,
+                                              false);
+    
+    LisaScatterPlotFrame *f = new LisaScatterPlotFrame(GdaFrame::gda_frame,
+                                                       project_p, lc);
+
+}
 
 void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 {
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
-												 false);
-	if (VS.ShowModal() != wxID_OK) return;
+    bool show_weights = true;
+    bool show_distance = false;
+    wxString title = "Differential Moran Variable Settings";
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, show_weights, show_distance, title);
+	if (VS.ShowModal() != wxID_OK)
+        return;
+    
 	boost::uuids::uuid w_id = VS.GetWeightsId();
-	if (w_id.is_nil()) return;
+	if (w_id.is_nil())
+        return;
 	
     Project* project = GetProject();
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL) return;
+    if (gw == NULL)
+        return;
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
-											  LisaCoordinator::bivariate,
+                                              LisaCoordinator::differential,
 											  false);
 	
 	LisaScatterPlotFrame *f = new LisaScatterPlotFrame(GdaFrame::gda_frame,
@@ -3447,8 +3498,19 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 {
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
-												 false);
+	//VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true, false);
+    
+    Project* project = GetProject();
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "No Weights Found:\n\n This feature requires weights, but none defined.\n Please use Tools > Weights > Weights Manager\n to define weights.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+        
+    }
+    DiffMoranVarSettingDlg VS(project_p);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
@@ -3457,8 +3519,6 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap &&!LWO.m_Moran) return;
 	
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) return;

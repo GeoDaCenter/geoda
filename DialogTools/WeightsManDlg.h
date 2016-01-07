@@ -63,6 +63,8 @@ public:
 	void OnCreateBtn(wxCommandEvent& ev);
 	void OnLoadBtn(wxCommandEvent& ev);
 	void OnRemoveBtn(wxCommandEvent& ev);
+    void OnHistogramBtn(wxCommandEvent& ev);
+    void OnConnectMapBtn(wxCommandEvent& ev);
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -89,6 +91,7 @@ private:
 	ConnectivityHistCanvas* conn_hist_canvas;
 	ConnectivityMapCanvas* conn_map_canvas;
 
+    Project* project_p;
 	wxPanel* panel;
 	wxButton* histogram_btn; //
     wxButton* connectivity_map_btn; //

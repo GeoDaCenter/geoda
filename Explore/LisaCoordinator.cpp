@@ -122,10 +122,12 @@ row_standardize(row_standardize_s)
 	W = (gw ? gw->gal : 0);
 	weight_name = w_man_int->GetLongDispName(w_id);
 	SetSignificanceFilter(1);
+    
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
 	}
+    
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
 }
@@ -213,31 +215,43 @@ void LisaCoordinator::InitFromVarInfo()
 	DeallocateVectors();
 	
 	num_time_vals = 1;
-	is_any_time_variant = false;
-	is_any_sync_with_global_time = false;
-	ref_var_index = -1;
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant &&
-			var_info[i].sync_with_global_time) {
-			num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
-			is_any_sync_with_global_time = true;
-			ref_var_index = i;
-			break;
-		}
-	}
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) {
-			is_any_time_variant = true;
-			break;
-		}
-	}
+    is_any_time_variant = false;
+    is_any_sync_with_global_time = false;
+    ref_var_index = -1;
+    
+    if (lisa_type != differential) {
+        for (int i=0; i<var_info.size(); i++) {
+            if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
+                num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
+                is_any_sync_with_global_time = true;
+                ref_var_index = i;
+                break;
+            }
+        }
+        for (int i=0; i<var_info.size(); i++) {
+            if (var_info[i].is_time_variant) {
+                is_any_time_variant = true;
+                break;
+            }
+        }
+    }
 	
 	AllocateVectors();
 	
-	if (lisa_type == univariate || lisa_type == bivariate) {
+    if (lisa_type == differential) {
+        int t=0;
+        for (int i=0; i<num_obs; i++) {
+            int t0 = var_info[0].time;
+            int t1 = var_info[1].time;
+            data1_vecs[0][i] = data[0][t0][i] - data[0][t1][i];
+        }
+        
+    } else if (lisa_type == univariate || lisa_type == bivariate) {
 		for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
 			int d1_t = t - var_info[0].time_min;
-			for (int i=0; i<num_obs; i++) data1_vecs[d1_t][i] = data[0][t][i];
+            for (int i=0; i<num_obs; i++) {
+                data1_vecs[d1_t][i] = data[0][t][i];
+            }
 		}
 		if (lisa_type == bivariate) {
 			for (int t=var_info[1].time_min; t<=var_info[1].time_max; t++) {
@@ -335,8 +349,8 @@ void LisaCoordinator::CalcLisa()
 		data1 = data1_vecs[t];
 		if (isBivariate) {
 			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time) data2 = data2_vecs[t];
+			if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
+                data2 = data2_vecs[t];
 		}
 		lags = lags_vecs[t];
 		localMoran = local_moran_vecs[t];
@@ -398,7 +412,8 @@ void LisaCoordinator::CalcPseudoP()
 		if (isBivariate) {
 			data2 = data2_vecs[0];
 			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time) data2 = data2_vecs[t];
+				var_info[1].sync_with_global_time)
+                data2 = data2_vecs[t];
 		}
 		lags = lags_vecs[t];
 		localMoran = local_moran_vecs[t];

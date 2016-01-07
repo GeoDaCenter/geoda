@@ -349,6 +349,22 @@ int OGRTable::FindColId(const wxString& name)
 	return var_order.GetColId(c_name);
 }
 
+int OGRTable::GetColIdx(const wxString& name)
+{
+    wxString c_name = name;
+    c_name.Trim(false);
+    c_name.Trim(true);
+    
+    std::map<wxString, int>::iterator i;
+    if ( (i=var_map.find(name)) != var_map.end() ||
+        (i=var_map.find(name.Upper())) != var_map.end() ||
+        (i=var_map.find(name.Lower())) != var_map.end() ) {
+        return i->second;
+    }
+
+    return -1;
+}
+
 /** If there is an associated wxGrid, then return the column ids in the order
  they are displayed in the table.  Otherwise, just return 0, 1, 2, ... 
  A mapping from displayed col order to actual col ids in table

@@ -76,6 +76,20 @@ int VarOrderMapper::GetColId(const wxString& name) const
 	return wxNOT_FOUND;
 }
 
+int VarOrderMapper::GetColIdx(const wxString& name) const
+{
+    int cnt=0;
+    BOOST_FOREACH(const VarGroup& e, var_grps) {
+        if (e.name.CmpNoCase(name) == 0) return cnt;
+        else if (e.vars.size() > 0) {
+            BOOST_FOREACH(const wxString& subname, e.vars)
+                if (subname.CmpNoCase(name) == 0) return cnt;
+        }
+        ++cnt;
+    }
+    return wxNOT_FOUND;
+}
+
 /** Searches for name in VarGroup.  If VarGroup is simple, then returns
  true if name == VarGroup::name. If VarGroup not simple, then only returns
  true if name found in VarGroup vars.  col and tm are set to -1 when

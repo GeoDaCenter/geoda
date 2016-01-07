@@ -59,6 +59,7 @@ LisaScatterPlotCanvas::LisaScatterPlotCanvas(wxWindow *parent,
 lisa_coord(lisa_coordinator),
 is_bi(lisa_coordinator->lisa_type == LisaCoordinator::bivariate),
 is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized),
+is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential),
 rand_dlg(0)
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::LisaMapCanvas");
@@ -75,9 +76,10 @@ rand_dlg(0)
 	SyncVarInfoFromCoordinator();
 	
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, num_obs);
-	cat_data.SetCategoryColor(0, 0, 
-					 GdaConst::scatterplot_regression_excluded_color);
-	for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(0, 0, i);
+	cat_data.SetCategoryColor(0, 0, GdaConst::scatterplot_regression_excluded_color);
+	for (int i=0; i<num_obs; i++)
+        cat_data.AppendIdToCategory(0, 0, i);
+    
 	// For LisaScatterPlot, all time steps have the exact same
 	// trivial categorization.
 	cat_data.SetCurrentCanvasTmStep(0);
@@ -186,7 +188,7 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 		v0 << ")";
 	}
 	wxString v1;
-	if (is_bi || is_rate) {
+	if (is_bi || is_rate || is_diff) {
 		v1 << var_info_orig[1].name;
 		if (var_info_orig[1].is_time_variant) {
 			v1 << " (" << project->GetTableInt()->
@@ -201,7 +203,9 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 	} else if (is_rate) {
 		s << "Emp Bayes Rate Std Moran's I (" << w << "): ";
 		s << v0 << " / " << v1;
-	} else {
+    } else if (is_diff) {
+        s << "Differential Moran's I (" << w << "): " << v0 << " - " << v1;
+    } else {
 		s << "Moran's I (" << w << "): " << v0;
 	}
 	return s;
@@ -223,7 +227,7 @@ wxString LisaScatterPlotCanvas::GetNameWithTime(int var)
 		v0 << ")";
 	}
 	wxString v1;
-	if (is_bi || is_rate) {
+	if (is_bi || is_rate || is_diff) {
 		v1 << var_info_orig[1].name;
 		if (var_info_orig[1].is_time_variant) {
 			v1 << " (" << project->GetTableInt()->
@@ -233,15 +237,19 @@ wxString LisaScatterPlotCanvas::GetNameWithTime(int var)
 	}
 	wxString s0;
 	wxString s1;
-	if (!is_rate) {
-		s0 << v0;
-	} else {
+	if (is_diff) {
+        s0 << v0 << " - " << v1;
+	} else if (is_rate) {
 		s0 << v0 << " / " << v1;
-	}
+    } else {
+        s0 << v0;
+    }
 	if (is_bi) {
 		s1 << v1;
 	} else if (is_rate) {
 		s1 << v0 << " / " << v1;
+    } else if (is_diff) {
+    	s1 << v0 << " - " << v1;
 	} else {
 		s1 << v0;
 	}

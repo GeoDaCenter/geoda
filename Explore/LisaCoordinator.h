@@ -61,32 +61,43 @@ public:
 class LisaCoordinator : public WeightsManStateObserver
 {
 public:
-	enum LisaType { univariate, bivariate, eb_rate_standardized }; // #9
+	enum LisaType { univariate, bivariate, eb_rate_standardized, differential }; // #9
 	
-	LisaCoordinator(boost::uuids::uuid weights_id, Project* project,
+	LisaCoordinator(boost::uuids::uuid weights_id,
+                    Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					LisaType lisa_type, bool calc_significances = true,
                     bool row_standardize_s = true);
+    
 	virtual ~LisaCoordinator();
 	
 	bool IsOk() { return true; }
 	wxString GetErrorMessage() { return "Error Message"; }
 
 	int significance_filter; // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+    
 	double significance_cutoff; // either 0.05, 0.01, 0.001 or 0.0001
+    
 	void SetSignificanceFilter(int filter_id);
+    
 	int GetSignificanceFilter() { return significance_filter; }
+    
 	int permutations; // any number from 9 to 99999, 99 will be default
 	
 	uint64_t GetLastUsedSeed() { return last_seed_used; }
+    
 	void SetLastUsedSeed(uint64_t seed) { last_seed_used = seed; }
+    
 	bool IsReuseLastSeed() { return reuse_last_seed; }
+    
 	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
 
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
+    
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
+    
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 protected:

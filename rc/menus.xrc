@@ -4080,7 +4080,7 @@
       <label>Univariate Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_GMORAN">
-      <label>Bivariate Moran's I</label>
+      <label>Differential Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
       <label>Moran's I with EB Rate</label>
@@ -4092,7 +4092,7 @@
       <label>Univariate Local Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_MULTI_LISA">
-      <label>Bivariate Local Moran's I</label>
+      <label>Differential Local Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_LISA_EBRATE">
       <label>Local Moran's I with EB Rate</label>

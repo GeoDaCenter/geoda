@@ -226,6 +226,7 @@ public:
 	void OnMoranMenuChoices(wxCommandEvent& event);
 	void OnOpenMSPL(wxCommandEvent& event);
 	void OnOpenGMoran(wxCommandEvent& event);
+    void OnOpenDiffMoran(wxCommandEvent& event);
 	void OnOpenMoranEB(wxCommandEvent& event);
 	void OnLisaMenuChoices(wxCommandEvent& event);
 	void OnGetisMenuChoices(wxCommandEvent& event);

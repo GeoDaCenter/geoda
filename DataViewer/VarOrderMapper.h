@@ -39,6 +39,7 @@ public:
 	const std::vector<wxString>& GetTimeIdsRef() const;
 	const VarGroup_container& GetVarGroupsRef() const;
 	int GetColId(const wxString& name) const;
+    int GetColIdx(const wxString& name) const;
 	VarGroup FindVarGroup(const wxString& name) const;
 	VarGroup FindVarGroup(int i) const;
 	bool SimpleColNameToColAndTm(const wxString& name, int& col, int& tm);

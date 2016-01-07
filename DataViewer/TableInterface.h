@@ -205,7 +205,23 @@ public:
 	virtual void RemoveTimeStep(int time) = 0;
 	virtual void SwapTimeSteps(int time1, int time2) = 0;
 	virtual void RenameTimeStep(int time, const wxString& new_name) = 0;
+    
+    /** Checks is name is a valid database column name given naming
+     * restrctions for database as specified by cols_max_length,
+     * cols_case_sensitive and cols_ascii_only or other encoding restrictions.
+     * This is generally much more strict than space-time group names.
+     * Does not verify that name is unique. */
+    virtual bool IsValidDBColName(const wxString& col_nm,
+                                  wxString* fld_warn_msg=0) =0;
+
 	
+    /**
+     * belows are non-virtual functions
+     *
+     */
+    virtual std::vector<wxString> GetGroupNames();
+    virtual int GetColIdx(const wxString& name);
+    
 	/** Sets encoding of string column data.  Can possibly use for data base
 	 * column name encoding, but for now remain more restrictive */
 	virtual void SetEncoding(wxFontEncoding enc_type);
@@ -256,14 +272,9 @@ public:
 	 * for groups.  This is generally much less strict than database
 	 * column names.  Does not verify that name is unique. */
 	virtual bool IsValidGroupName(const wxString&  grp_nm) const;
-	/** Checks is name is a valid database column name given naming
-	 * restrctions for database as specified by cols_max_length,
-	 * cols_case_sensitive and cols_ascii_only or other encoding restrictions.
-	 * This is generally much more strict than space-time group names.
-	 * Does not verify that name is unique. */	
-	virtual bool IsValidDBColName(const wxString& col_nm, 
-								  wxString* fld_warn_msg=0) =0;
-	
+    
+    
+		
 protected:
 	
 	TableState* table_state;

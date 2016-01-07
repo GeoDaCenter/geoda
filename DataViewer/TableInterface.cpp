@@ -130,8 +130,7 @@ wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 	return GetUniqueGroupName(nm);
 }
 
-std::vector<wxString> TableInterface::SuggestDBColNames(
-						wxString new_grp_name, wxString prefix, int n) const
+std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, wxString prefix, int n) const
 {
 	return GetUniqueColNames(prefix, n);
 }
@@ -183,4 +182,24 @@ bool TableInterface::IsValidGroupName(const wxString& grp_nm) const
 	// Almost no restrictions on group names since this info is stored
 	// in project file.
 	return true;
+}
+
+std::vector<wxString> TableInterface::GetGroupNames()
+{
+    std::vector<wxString> grp_names;
+    
+    int n_col = GetNumberCols();
+    for (int i=0; i<n_col; i++) {
+        if (IsColTimeVariant(i)) {
+            grp_names.push_back(GetColName(i));
+        }
+    }
+    
+    return grp_names;
+}
+
+
+int TableInterface::GetColIdx(const wxString& name)
+{
+    return -1;
 }

@@ -56,6 +56,7 @@ protected:
 	LisaCoordinator* lisa_coord;
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
+    bool is_diff;
 	std::vector<GdaVarTools::VarInfo> sp_var_info;
 	std::vector<GdaVarTools::VarInfo> var_info_orig;
     RandomizationDlg* rand_dlg;

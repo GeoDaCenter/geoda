@@ -27,12 +27,47 @@
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/spinctrl.h>
+#include <wx/combobox.h>
 #include "../VarTools.h"
 #include "../Explore/CatClassification.h"
 #include "../VarCalc/WeightsMetaInfo.h"
 
 class Project;
 class TableInterface;
+
+class DiffMoranVarSettingDlg : public wxDialog
+{
+public:
+    DiffMoranVarSettingDlg(Project* project);
+    virtual ~DiffMoranVarSettingDlg();
+    
+    boost::uuids::uuid GetWeightsId();
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+protected:
+    void OnOK( wxCommandEvent& event );
+    void OnClose( wxCommandEvent& event );
+
+    void CreateControls();
+    bool Init();
+    
+    void InitVariableCombobox(wxComboBox* var_box);
+    void InitTimeComboboxes(wxComboBox* time1, wxComboBox* time2);
+    void InitWeightsCombobox(wxComboBox* weights_ch);
+    
+private:
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxComboBox* combo_var;
+    wxComboBox* combo_time1;
+    wxComboBox* combo_time2;
+    wxComboBox* combo_weights;
+};
+
 
 class VariableSettingsDlg: public wxDialog
 {

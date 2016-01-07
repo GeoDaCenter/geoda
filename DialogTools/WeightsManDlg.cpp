@@ -49,7 +49,9 @@ WeightsManFrame::WeightsManFrame(wxFrame *parent, Project* project,
 								 const wxString& title, const wxPoint& pos,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style),
-conn_hist_canvas(0), conn_map_canvas(0),
+conn_hist_canvas(0),
+conn_map_canvas(0),
+project_p(project),
 w_man_int(project->GetWManInt()), w_man_state(project->GetWManState()),
 table_int(project->GetTableInt()), suspend_w_man_state_updates(false),
 create_btn(0), load_btn(0), remove_btn(0), w_list(0)
@@ -60,41 +62,33 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
-	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), "Create",
-							  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), "Load",
-							wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "Remove",
-							  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), "Create",  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram",
-                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), "Load", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map",
-                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "Remove", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	
-	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON,
-			wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
-	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON,
-			wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
-	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON,
-			wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
+	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
+	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
+	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
+    Connect(XRCID("ID_HISTOGRAM_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnHistogramBtn));
+    Connect(XRCID("ID_CONNECT_MAP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectMapBtn));
 
-	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition,
-							wxSize(-1, 100), wxLC_REPORT);
+	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition, wxSize(-1, 100), wxLC_REPORT);
+    
 	// Note: search for "ungrouped_list" for examples of wxListCtrl usage.
 	w_list->AppendColumn("Weights Name");
 	w_list->SetColumnWidth(TITLE_COL, 300);
 	InitWeightsList();
 	
-	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_SELECTED,
-			wxListEventHandler(WeightsManFrame::OnWListItemSelect));
-	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_DESELECTED,
-			wxListEventHandler(WeightsManFrame::OnWListItemDeselect));
+	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_SELECTED, wxListEventHandler(WeightsManFrame::OnWListItemSelect));
+	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_DESELECTED, wxListEventHandler(WeightsManFrame::OnWListItemDeselect));
 	
-	details_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
-								 wxDefaultPosition,
-								 wxSize(-1, 200));
+	details_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxSize(-1, 200));
 
 	// Arrange above widgets in panel using sizers.
 	// Top level panel sizer will be panel_h_szr
@@ -170,6 +164,20 @@ WeightsManFrame::~WeightsManFrame()
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 	w_man_state->removeObserver(this);
+}
+
+void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
+{
+    boost::uuids::uuid id = GetHighlightId();
+    if (id.is_nil()) return;
+    ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
+}
+
+void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
+{
+    boost::uuids::uuid id = GetHighlightId();
+    if (id.is_nil()) return;
+    ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
 }
 
 void WeightsManFrame::OnActivate(wxActivateEvent& event)

@@ -21,12 +21,229 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/statbox.h>
+#include <wx/textctrl.h>
+#include <wx/radiobut.h>
+#include <wx/button.h>
+#include <wx/combobox.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
 #include "../logger.h"
 #include "VariableSettingsDlg.h"
+
+/**
+ * Belows are codes for DiffVarSettingDlg
+ *
+ */
+
+DiffMoranVarSettingDlg::DiffMoranVarSettingDlg(Project* project_s)
+    : wxDialog(NULL, -1, "Differential Moran Variable Settings", wxDefaultPosition, wxSize(590, 230))
+{
+    project = project_s;
+    
+    bool init_success = Init();
+    
+    if (init_success == false) {
+        EndDialog(wxID_CANCEL);
+    } else {
+        CreateControls();
+    }
+}
+
+DiffMoranVarSettingDlg::~DiffMoranVarSettingDlg()
+{
+}
+
+bool DiffMoranVarSettingDlg::Init()
+{
+    if (project == NULL)
+        return false;
+    
+    table_int = project->GetTableInt();
+    if (table_int == NULL)
+        return false;
+    
+    
+    table_int->GetTimeStrings(tm_strs);
+    
+    return true;
+}
+
+void DiffMoranVarSettingDlg::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this, -1);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    
+    wxSize var_size(100, -1);
+    wxSize  time_size(100,-1);
+    
+    wxStaticText  *st = new wxStaticText (panel, wxID_ANY, wxT("Select variable "),  wxDefaultPosition, wxDefaultSize);
+    
+    wxComboBox* box = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, var_size, 0, NULL, wxCB_READONLY);
+    
+    wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY, wxT(" and two time periods: "),  wxDefaultPosition, wxDefaultSize);
+    
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    
+    wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, wxT(" and "),  wxDefaultPosition, wxDefaultSize);
+    
+    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    
+    hbox->Add(st, 1, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
+    hbox->Add(box, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    hbox->Add(st1, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    hbox->Add(box1, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    hbox->Add(st2, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    hbox->Add(box2, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM |wxRIGHT, 10);
+    
+    
+    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),  wxDefaultPosition, wxSize(70,-1));
+    
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    
+    hbox1->Add(st3, 0, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
+    hbox1->Add(box3, 0, wxALIGN_LEFT | wxTOP | wxBOTTOM, 10);
+    
+    vbox->Add(hbox, 1);
+    vbox->Add(hbox1, 1, wxALIGN_LEFT | wxTOP , 30);
+    
+    panel->SetSizer(vbox);
+    
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"),  wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
+    
+    hbox2->Add(okButton, 1);
+    hbox2->Add(closeButton, 1, wxLEFT, 5);
+    
+    vbox1->Add(panel, 1);
+    vbox1->Add(hbox2, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    SetSizer(vbox1);
+    
+    Centre();
+    
+    // Content
+    InitVariableCombobox(box);
+    InitTimeComboboxes(box1, box2);
+    InitWeightsCombobox(box3);
+    
+    combo_var = box;
+    combo_time1 = box1;
+    combo_time2 = box2;
+    combo_weights = box3;
+    
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &DiffMoranVarSettingDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &DiffMoranVarSettingDlg::OnClose, this);
+}
+
+void DiffMoranVarSettingDlg::InitVariableCombobox(wxComboBox* var_box)
+{
+    std::vector<wxString> grp_names = table_int->GetGroupNames();
+    for (size_t i=0, n=grp_names.size(); i < n; i++ ) {
+        var_box->Append(grp_names[i]);
+    }
+    var_box->SetSelection(0);
+}
+
+void DiffMoranVarSettingDlg::InitTimeComboboxes(wxComboBox* time1, wxComboBox* time2)
+{
+    for (size_t i=0, n=tm_strs.size(); i < n; i++ ) {
+        time1->Append(tm_strs[i]);
+        time2->Append(tm_strs[i]);
+    }
+    time1->SetSelection(0);
+    time2->SetSelection(1);
+
+}
+
+void DiffMoranVarSettingDlg::InitWeightsCombobox(wxComboBox* weights_ch)
+{
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+
+    size_t sel_pos=0;
+    for (size_t i=0; i<weights_ids.size(); ++i) {
+        weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
+        if (w_man_int->GetDefault() == weights_ids[i])
+            sel_pos = i;
+    }
+    if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
+}
+
+void DiffMoranVarSettingDlg::OnClose(wxCommandEvent& event )
+{
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+}
+
+void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
+{
+    wxString col_name = combo_var->GetStringSelection();
+    if (col_name.IsEmpty()) {
+        wxMessageDialog dlg (this, "Please select a variable first.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    int time1 = combo_time1->GetSelection();
+    int time2 = combo_time2->GetSelection();
+    if (time1 < 0 || time2 < 0 || time1 == time2) {
+        wxMessageDialog dlg (this, "Please choose two different time periods.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    int num_var = 2;
+    
+    col_ids.resize(num_var);
+    var_info.resize(num_var);
+    
+    int col_idx = table_int->FindColId(col_name);
+    
+    col_ids[0] = col_idx;
+    col_ids[1] = col_idx;
+    
+    for (int i=0; i<2; i++) {
+        var_info[i].name = col_name;
+        var_info[i].is_time_variant = true;
+        
+        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = false;
+        var_info[i].fixed_scale = true;
+    }
+    var_info[0].time = time1;
+    var_info[1].time = time2;
+
+    // Call function to set all Secondary Attributes based on Primary Attributes
+    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+    
+    event.Skip();
+    EndDialog(wxID_OK);
+}
+
+boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
+{
+   
+    int sel = combo_weights->GetSelection();
+    if (sel < 0) sel = 0;
+    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+
+    return weights_ids[sel];
+}
+
+/**
+ * Belows are codes for VariableSettingsDlg
+ *
+ */
 
 BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
 	EVT_CHOICE(XRCID("ID_TIME1"), VariableSettingsDlg::OnTime1)
