@@ -803,7 +803,7 @@ if %ALL_EXIST% == true (
 
 cd %DOWNLOAD_HOME%
 
-IF NOT EXIST %DOWNLOAD_HOME%/%LIB_NAME% (
+IF NOT EXIST %DOWNLOAD_HOME%/gdal-%LIB_NAME% (
     %CURL_EXE% -k -# %LIB_URL% > %LIB_NAME%.zip
     %UNZIP_EXE% %LIB_NAME%.zip
     move /Y gdal-%LIB_NAME%/gdal gdal

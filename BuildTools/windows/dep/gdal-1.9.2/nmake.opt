@@ -98,7 +98,6 @@ JAR=$(JAVA_HOME)\bin\jar
 JAVA_INCLUDE=-I$(JAVA_HOME)\include -I$(JAVA_HOME)\include\win32
 
 # Compilation flags
-GDAL_COMPILATION=YES
 
 # Enable code analyzis on request
 # http://msdn.microsoft.com/en-us/library/ms173498.aspx
@@ -546,7 +545,7 @@ OGR_FLAG = -DOGR_ENABLED
 LINKER_FLAGS = $(MSVC_VLD_LIB) $(LDEBUG) /NODEFAULTLIB:library 
 
 
-CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS)
+CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS) -DGDAL_COMPILATION
 MAKE	=	nmake /nologo
 
 CC	=	cl -DXERCES_STATIC_LIBRARY
