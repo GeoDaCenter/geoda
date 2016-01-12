@@ -117,11 +117,11 @@ IF NOT EXIST %LIB_NAME% (
 cd %DOWNLOAD_HOME%\%LIB_NAME%\winbuild
 if %GDA_BUILD% == BUILD_32 (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static HTTP_ONLY=no VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
   
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll HTTP_ONLY=no VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
 
   xcopy /E /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\include %LIBRARY_HOME%\include
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -130,11 +130,11 @@ if %GDA_BUILD% == BUILD_32 (
 
 ) else (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static WITH_SSL=dll WITH_DEVEL=C:\OpenSSL-Win64 VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
 
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll WITH_SSL=dll WITH_DEVEL=C:\OpenSSL-Win64 VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
   
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\bin\libcurl.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib

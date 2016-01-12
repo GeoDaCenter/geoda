@@ -32,6 +32,43 @@
 
 class Project;
 
+using namespace std;
+
+
+class GeoDaWebProxy {
+
+public:
+    GeoDaWebProxy();
+    
+    GeoDaWebProxy(const string& _user_name, const string& _api_key);
+    
+    ~GeoDaWebProxy();
+
+	void SetKey(const string& key);
+	void SetUserName(const string& name);
+	
+	void Publish(Project* p, wxString& title, wxString& description);
+	
+    
+private:
+    
+    string api_key;
+    string user_name;
+    string api_url;
+    
+	string buildParameter(const char* key, string& val);
+	string buildParameter(const char* key, wxString& val);
+	string buildParameter(const char* key, vector<int>& val);
+	string buildParameter(const char* key, vector<wxString>& val);
+	string buildParameter(map<wxString, vector<int> >& val);
+	
+    void doGet(string& parameter);
+    string doPost(const string& parameter);
+
+    
+    string buildBaseUrl();
+};
+
 class PublishDlg: public wxDialog
 {
 public:

@@ -39,6 +39,9 @@ public:
     
     void SetUserName(const string& name);
     
+	string GetKey() const;
+	string GetUserName() const;
+
     /**
         std::string id("lixun910");
         std::string key("340808e9a453af9680684a65990eb4eb706e9b56");

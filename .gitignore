@@ -48,3 +48,6 @@ BuildTools/macosx/GeoDa.xcodeproj/project.xcworkspace/xcuserdata/xun.xcuserdatad
 rc/Drop-Files-Here-extra.png
 
 rc/Drop-Files-Here-extra-black.png
+*.opensdf
+*.exe
+BuildTools/windows/logger.txt

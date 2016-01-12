@@ -27,7 +27,7 @@
 
 #include <curl/curl.h>
 #include <wx/string.h>
-#include <wx/utils.h>
+
 
 #include "GeoDaWebProxy.h"
 

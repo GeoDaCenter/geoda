@@ -17,16 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_CENTER_GEODAWEB_H_
-#define __GEODA_CENTER_GEODAWEB_H_
+#ifndef __GEODA_CENTER_GEODAWEB_PROXY_H_
+#define __GEODA_CENTER_GEODAWEB_PROXY_H_
 
 #include <string>
 #include <vector>
 #include <map>
-
+#include "Project.h"
 using namespace std;
 
-class Project;
 
 class GeoDaWebProxy {
 

@@ -76,7 +76,6 @@ wxObject *wxAuiToolBarXmlHandler::DoCreateResource()
             kind = wxITEM_CHECK;
         }
 #if wxUSE_MENUS
-		/*
         // check whether we have dropdown tag inside
         wxMenu *menu = NULL; // menu for drop down items
         wxXmlNode * const nodeDropdown = GetParamNode("dropdown");
@@ -109,7 +108,6 @@ wxObject *wxAuiToolBarXmlHandler::DoCreateResource()
                 }
             }
         }
-		 */
 #endif
         wxAuiToolBarItem * const tool =
             m_toolbar->AddTool
@@ -128,13 +126,11 @@ wxObject *wxAuiToolBarXmlHandler::DoCreateResource()
             m_toolbar->EnableTool(GetID(), false);
 
 #if wxUSE_MENUS
-		/*
         if (menu)
         {
             tool->SetHasDropDown(true);
             tool->SetUserData(m_menuHandler.RegisterMenu(m_toolbar, GetID(), menu));
         }
-		 */
 #endif
 
         return m_toolbar; // must return non-NULL
@@ -230,7 +226,6 @@ wxObject *wxAuiToolBarXmlHandler::DoCreateResource()
         m_isInside = true;
         m_toolbar = toolbar;
 
-		/*
         wxXmlNode *n = children_node;
 
         while (n)
@@ -249,7 +244,6 @@ wxObject *wxAuiToolBarXmlHandler::DoCreateResource()
             n = GetNodeNext(n);
         }
 
-		 */
         m_isInside = false;
         m_toolbar = NULL;
 

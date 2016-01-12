@@ -47,6 +47,14 @@ CartoDBProxy::~CartoDBProxy() {
     
 }
 
+string CartoDBProxy::GetKey() const {
+	return api_key;
+}
+
+string CartoDBProxy::GetUserName() const {
+	return user_name;
+}
+
 void CartoDBProxy::Close() {
     
 }
@@ -202,9 +210,6 @@ void CartoDBProxy::_doPost(string parameter)
         if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
         {
             printf("!!! Response code: %d\n", res_code);
-			// Clean up the resources 
-			curl_easy_cleanup(curl);
-            return;
         }
 		// Clean up the resources 
 		curl_easy_cleanup(curl);
