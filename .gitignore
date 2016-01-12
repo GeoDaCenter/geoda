@@ -3,6 +3,8 @@
 BuildTools/windows/temp/
 BuildTools/windows/Debug/
 BuildTools/windows/Release/
+BuildTools/windows/ipch/
+BuildTools/windows/GeoDa.vcxproj.filters
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/temp/

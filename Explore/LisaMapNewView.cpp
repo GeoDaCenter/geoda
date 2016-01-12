@@ -33,7 +33,7 @@
 #include "../DialogTools/SaveToTableDlg.h"
 #include "LisaCoordinator.h"
 #include "LisaMapNewView.h"
-#include "ShpFile.h"
+#include "../ShpFile.h"
 
 IMPLEMENT_CLASS(LisaMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)

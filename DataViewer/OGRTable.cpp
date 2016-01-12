@@ -29,7 +29,6 @@
 #include <wx/regex.h>
 
 #include "../Project.h"
-#include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"

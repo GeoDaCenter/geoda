@@ -51,9 +51,7 @@ namespace CatClassification {
 		unique_values_break_vals, natural_breaks_break_vals,
 		equal_intervals_break_vals, custom_break_vals };
 	
-	enum ColorScheme { sequential_color_scheme,
-		diverging_color_scheme, qualitative_color_scheme,
-		custom_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,

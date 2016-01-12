@@ -69,8 +69,8 @@ void PublishDlg::OnOkClick( wxCommandEvent& event )
     wxString description(m_txt_description->GetValue() );
     
     
-    GeoDaWebProxy geodaweb;
-    geodaweb.Publish(p, title, description);
+    //GeoDaWebProxy geodaweb;
+    //geodaweb.Publish(p, title, description);
     
 	EndDialog(wxID_OK);
 }

@@ -105,7 +105,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -162,7 +162,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -170,9 +170,10 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>temp\wxWidgets-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -201,6 +202,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
+    <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
@@ -262,6 +265,7 @@
     <ClInclude Include="..\..\DbfFile.h" />
     <ClInclude Include="..\..\DefaultVarsPtree.h" />
     <ClInclude Include="..\..\DialogTools\AutoCompTextCtrl.h" />
+    <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
@@ -269,6 +273,7 @@
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
@@ -444,6 +449,7 @@
     <ClInclude Include="..\..\GenGeomAlgs.h" />
     <ClInclude Include="..\..\GenUtils.h" />
     <ClInclude Include="..\..\GeoDa.h" />
+    <ClInclude Include="..\..\GdaCartoDB.h" />
     <ClInclude Include="..\..\logger.h" />
     <ClInclude Include="..\..\nullstream.h" />
     <ClInclude Include="..\..\Project.h" />
@@ -587,6 +593,7 @@
     <ClCompile Include="..\..\GenGeomAlgs.cpp" />
     <ClCompile Include="..\..\GenUtils.cpp" />
     <ClCompile Include="..\..\GeoDa.cpp" />
+    <ClCompile Include="..\..\GdaCartoDB.cpp" />
     <ClCompile Include="..\..\logger.cpp" />
     <ClCompile Include="..\..\Project.cpp" />
     <ClCompile Include="..\..\ShapeOperations\WeightsManPtree.cpp" />

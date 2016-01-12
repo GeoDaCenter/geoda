@@ -355,7 +355,6 @@
     <ClInclude Include="..\..\FramesManagerObserver.h" />
     <ClInclude Include="..\..\GeneralWxUtils.h" />
     <ClInclude Include="..\..\GenGeomAlgs.h" />
-    <ClInclude Include="..\..\GenUtils.h" />
     <ClInclude Include="..\..\GeoDa.h" />
     <ClInclude Include="..\..\logger.h" />
     <ClInclude Include="..\..\nullstream.h" />
@@ -607,6 +606,14 @@
     </ClInclude>
     <ClInclude Include="..\..\Explore\Basemap.h">
       <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\GdaCartoDB.h" />
+    <ClInclude Include="..\..\GenUtils.h" />
+    <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PublishDlg.h">
+      <Filter>DialogTools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1106,6 +1113,13 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\Basemap.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GdaCartoDB.cpp" />
+    <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PublishDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
