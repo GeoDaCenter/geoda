@@ -189,10 +189,7 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 	suspend_table_state_updates = true;
 	AddIdVariable dlg(table_int, this);
 	if (dlg.ShowModal() == wxID_OK) {
-    	wxGrid* g = project->FindTableGrid();
-        if (g) {
-            g->GoToCell(1, table_int->GetNumberCols());
-        }
+    	
 		// We know that the new id has been added to the the table in memory
 		m_id_field->Insert(dlg.GetIdVarName(), 0);
 		m_id_field->SetSelection(0);
