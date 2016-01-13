@@ -109,19 +109,17 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 #########################################################################
 # install cURL
 #########################################################################
-#install_library curl-7.30.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.30.0.tar.gz libcurl.a
-#install_library curl-7.43.0 http://curl.haxx.se/download/curl-7.43.0.tar.gz libcurl.a
-
-LIB_NAME=curl-7.43.0
+LIB_NAME=curl-7.46.0
 LIB_CHECKER=libcurl.a
-LIB_URL=http://curl.haxx.se/download/curl-7.43.0.tar.gz
-LIB_FILENAME=curl-7.43.0.tar.gz
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
 
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ] ; then
     curl -O $LIB_URL
+    unzip $LIB_FILENAME
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
