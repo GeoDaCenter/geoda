@@ -537,7 +537,7 @@ void Basemap::DownloadTile(int x, int y)
             curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
             curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
-            curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);
+            curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
             curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
             // Grab image 
@@ -551,9 +551,6 @@ void Basemap::DownloadTile(int x, int y)
             if (!((res_code == 200 || res_code == 201) && imgResult != CURLE_ABORTED_BY_CALLBACK))
             {
                 printf("!!! Response code: %d\n", res_code);
-				// Clean up the resources 
-				curl_easy_cleanup(image);
-                return;
             }
 			// Clean up the resources 
 			curl_easy_cleanup(image); 

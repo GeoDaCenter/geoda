@@ -32,7 +32,8 @@ using namespace std;
 
 CartoDBProxy::CartoDBProxy()
 {
-    
+    user_name = "";
+	api_key = "";
 }
 
 
@@ -185,7 +186,7 @@ void CartoDBProxy::_doPost(string parameter)
     CURL* curl;
     CURLcode res;
 
-    //curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_ALL);
     
     curl = curl_easy_init();
     if (curl) {
@@ -196,8 +197,8 @@ void CartoDBProxy::_doPost(string parameter)
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameter.c_str());
         
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
-        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        //curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
         
         // Grab image 
         res = curl_easy_perform(curl);
@@ -216,6 +217,6 @@ void CartoDBProxy::_doPost(string parameter)
     }
     
    
-    //curl_global_cleanup();
+    curl_global_cleanup();
     
 }

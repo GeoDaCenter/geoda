@@ -344,7 +344,6 @@ string GeoDaWebProxy::doPost(const string& _parameter)
     //curl_global_init(CURL_GLOBAL_ALL);
     ostringstream out;
 	
-	bool success = 1;
     curl = curl_easy_init();
     if (curl) {
         string url = buildBaseUrl();
@@ -352,16 +351,12 @@ string GeoDaWebProxy::doPost(const string& _parameter)
         
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameter.c_str());
-        
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
-        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-		
-		
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
-        
-        // Grab image 
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+		 
         res = curl_easy_perform(curl);
         if( res ) {
             printf("Cannot connect cartodb.com!\n");
@@ -373,13 +368,11 @@ string GeoDaWebProxy::doPost(const string& _parameter)
         if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
         {
             printf("!!! Response code: %d\n", res_code);
-			success = 0;
         }
 		// Clean up the resources 
 		curl_easy_cleanup(curl);
     }
-    
-   
+
     //curl_global_cleanup();
     return out.str();
 }

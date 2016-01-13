@@ -51,6 +51,7 @@ echo #
 echo #####################################################
 echo.
 
+set CL=/MP
 
 set BUILD_HOME=%CD%
 echo BUILD_HOME: %BUILD_HOME%
@@ -95,8 +96,8 @@ echo #####################################################
 echo #   build cURL (by default /MD) 
 echo #####################################################
 echo.
-set LIB_NAME=curl-7.30.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.30.0.zip"
+set LIB_NAME=curl-7.46.0
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll set ALL_EXIST=false
@@ -117,11 +118,11 @@ IF NOT EXIST %LIB_NAME% (
 cd %DOWNLOAD_HOME%\%LIB_NAME%\winbuild
 if %GDA_BUILD% == BUILD_32 (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static HTTP_ONLY=no VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
   
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll HTTP_ONLY=no VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
 
   xcopy /E /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\include %LIBRARY_HOME%\include
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -130,11 +131,11 @@ if %GDA_BUILD% == BUILD_32 (
 
 ) else (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static WITH_SSL=dll WITH_DEVEL=C:\OpenSSL-Win64 VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
 
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll WITH_SSL=dll WITH_DEVEL=C:\OpenSSL-Win64 VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=yes ENABLE_WINSSL=yes CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
   
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\bin\libcurl.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -725,14 +726,22 @@ REM # up.  OSX already handles Retina displays properly.
 xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
 
 cd %DOWNLOAD_HOME%\%LIB_NAME%\build\msw
+set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
+
 if %GDA_BUILD% == BUILD_32 (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
+  
+  
 )  else (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
 )
-set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
+
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u.lib
@@ -817,7 +826,8 @@ if %GDA_BUILD% == BUILD_32 (
 )
 copy /Y %BUILD_HOME%\dep\gdal-1.9.2\port\cpl_config.h port\cpl_config.h
 
-nmake -f makefile.vc
+nmake -f makefile.vc MSVC_VER=1600
+REM nmake -f makefile.vc MSVC_VER=1600 DEBUG=1
 
 copy /Y %DOWNLOAD_HOME%\gdal\gcore\*.h %LIBRARY_HOME%\include
 copy /Y %DOWNLOAD_HOME%\gdal\port\*.h %LIBRARY_HOME%\include
@@ -947,27 +957,25 @@ copy /Y ..\CommonDistFiles\cache.sqlite Debug\.
 copy /Y ..\CommonDistFiles\geoda_prefs.sqlite Debug\.
 copy /Y ..\CommonDistFiles\geoda_prefs.json Debug\.
 xcopy /I /S /E /Y ..\CommonDistFiles\web_plugins Debug\web_plugins
-copy /Y temp\expat-2.1.0\build\Release\expat.dll Debug\.
-copy /Y temp\gdal\gdal_geoda20.dll Debug\.
-copy /Y temp\pgsql\lib\libpq.dll Debug\.
-copy /Y temp\pgsql\bin\ssleay32.dll Debug\.
-copy /Y temp\pgsql\bin\libeay32.dll Debug\.
-copy /Y temp\curl-7.30.0\builds\curlib\bin\libcurl.dll Debug\.
-copy /Y temp\libspatialite-4.0.0\spatialite.dll Debug\.
-copy /Y temp\proj-4.8.0\src\proj.dll Debug\.
-copy /Y temp\geos-3.3.8\src\geos_c.dll Debug\.
-copy /Y temp\freexl-1.0.0e\freexl.dll Debug\.
-copy /Y temp\geos-3.3.8\src\geos_c.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\expat.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libpq.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\ssleay32.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libeay32.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Debug\.
 copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll Debug\.
 if %GDA_BUILD% == BUILD_32 (
-  copy /Y temp\pgsql\bin\libintl.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_dll\wxmsw30ud_vc_custom.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_dll\wxmsw30ud_gl_vc_custom.dll Debug\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl.dll Debug\.
 ) else (
-  copy /Y temp\pgsql\bin\libintl-8.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_x64_dll\wxmsw30ud_vc_custom.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_x64_dll\wxmsw30ud_gl_vc_custom.dll Debug\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Debug\.
 )
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Debug\.
@@ -976,27 +984,25 @@ copy /Y ..\CommonDistFiles\cache.sqlite Release\.
 copy /Y ..\CommonDistFiles\geoda_prefs.sqlite Release\.
 copy /Y ..\CommonDistFiles\geoda_prefs.json Release\.
 xcopy /I /S /E /Y ..\CommonDistFiles\web_plugins Release\web_plugins
-copy /Y temp\expat-2.1.0\build\Release\expat.dll Release\.
-copy /Y temp\temp\gdal\gdal_geoda20.dll Release\.
-copy /Y temp\pgsql\lib\libpq.dll Release\.
-copy /Y temp\pgsql\bin\ssleay32.dll Release\.
-copy /Y temp\pgsql\bin\libeay32.dll Release\.
-copy /Y temp\curl-7.30.0\builds\curlib\bin\libcurl.dll Release\.
-copy /Y temp\libspatialite-4.0.0\spatialite.dll Release\.
-copy /Y temp\proj-4.8.0\src\proj.dll Release\.
-copy /Y temp\geos-3.3.8\src\geos_c.dll Release\.
-copy /Y temp\freexl-1.0.0e\freexl.dll Release\.
-copy /Y temp\geos-3.3.8\src\geos_c.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\expat.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libpq.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\ssleay32.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libeay32.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Release\.
 copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll Release\.
 if %GDA_BUILD% == BUILD_32 (
-  copy /Y temp\pgsql\bin\libintl.dll Release\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_dll\wxmsw30u_vc_custom.dll Release\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_dll\wxmsw30u_gl_vc_custom.dll Release\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl.dll Release\.
 ) else (
-  copy /Y temp\pgsql\bin\libintl-8.dll Release\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_x64_dll\wxmsw30u_vc_custom.dll Release\.
-  copy /Y temp\wxWidgets-3.0.2\lib\vc_x64_dll\wxmsw30u_gl_vc_custom.dll Release\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Release\.
 )
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Release\.
@@ -1023,10 +1029,10 @@ IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exp
 IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exe
 if %GDA_BUILD% == BUILD_32 (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
-  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
+  REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
 ) else (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
-  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+  REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END

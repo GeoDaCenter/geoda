@@ -42,17 +42,6 @@ public:
 	string GetKey() const;
 	string GetUserName() const;
 
-    /**
-        std::string id("lixun910");
-        std::string key("340808e9a453af9680684a65990eb4eb706e9b56");
-        CartoDBProxy cartodb(id, key);
-        
-        std::string tbl("sfpd_plots");
-        std::string col("test4");
-        std::vector<wxInt64> vals;
-        for (int i=1; i<=654;i++) vals.push_back(i);
-        cartodb.UpdateColumn(tbl, col, vals);
-     */
     void UpdateColumn(const string& table_name,
                       const string& col_name,
                       vector<wxString>& vals);
