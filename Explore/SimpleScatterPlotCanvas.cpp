@@ -496,8 +496,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 		size_t n = X.size();
 		wxString key = SmoothingUtils::LowessCacheKey(0, 0);
 		
-		SmoothingUtils::LowessCacheEntry* lce =
-		SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+		SmoothingUtils::LowessCacheEntry* lce = SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
 		
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");

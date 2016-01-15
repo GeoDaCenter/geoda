@@ -34,7 +34,7 @@ struct CorrelParams
 		bins = def_bins_cnst;
 		dist_metric = WeightsMetaInfo::DM_euclidean;
 		dist_units = WeightsMetaInfo::DU_mile;
-		method = ALL_PAIRS;
+		method = RAND_SAMP;
 		max_iterations = def_iter_cnst;
 		threshold = -1;
 	}

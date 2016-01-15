@@ -38,7 +38,9 @@ project(project_)
 	LOG_MSG("Entering LowessParamFrame::LowessParamFrame");
 	
 	wxPanel* panel = new wxPanel(this);
-	
+	panel->SetBackgroundColour(*wxWHITE);
+	SetBackgroundColour(*wxWHITE);
+
 	wxButton* help_btn = new wxButton(panel, 
                                       XRCID("ID_HELP_BTN"), 
                                       "Help",
@@ -201,8 +203,8 @@ void LowessParamFrame::UpdateParamsFromFields()
 	{
 		wxString s = f_text->GetValue();
 		double v;
-		LOG(v);
-		if (s.ToDouble(&v)) temp_l.SetF(v);
+		if (s.ToDouble(&v)) 
+			temp_l.SetF(v);
 		f = temp_l.GetF();
 		wxString sf = wxString::Format("%.2f", GetF());
 		LOG_MSG("Formated f: " + sf);
@@ -211,8 +213,8 @@ void LowessParamFrame::UpdateParamsFromFields()
 	{
 		wxString s = iter_text->GetValue();
 		long v;
-		LOG(v);
-		if (s.ToLong(&v)) temp_l.SetIter((long) v);
+		if (s.ToLong(&v)) 
+			temp_l.SetIter((long) v);
 		iter = temp_l.GetIter();
 		wxString sf = wxString::Format("%d", GetIter());
 		LOG_MSG("Formated iter: " + sf);
@@ -221,8 +223,8 @@ void LowessParamFrame::UpdateParamsFromFields()
 	{
 		wxString s = delta_factor_text->GetValue();
 		double v;
-		LOG(v);
-		if (s.ToDouble(&v)) temp_l.SetDeltaFactor(v);
+		if (s.ToDouble(&v)) 
+			temp_l.SetDeltaFactor(v);
 		delta_factor = temp_l.GetDeltaFactor();
 		wxString sf = wxString::Format("%.4f", GetDeltaFactor());
 		LOG_MSG("Formated delta_factor: " + sf);

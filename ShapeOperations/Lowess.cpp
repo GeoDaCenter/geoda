@@ -163,26 +163,31 @@ void Lowess::lowest(const double *x, const double *y, int n,
 		*ok = true;
 		/* weighted least squares */
 		/* make sum of w[j] == 1 */
-		for (j=nleft ; j<=nrt ; j++) w[j] /= a;
+		for (j=nleft ; j<=nrt ; j++) 
+			w[j] /= a;
 		if (h > 0.) {
 			a = 0.;
 			
 			/*  use linear fit */
 			/* weighted center of x values */
 			
-			for (j=nleft ; j<=nrt ; j++) a += w[j] * x[j];
+			for (j=nleft ; j<=nrt ; j++) 
+				a += w[j] * x[j];
 			b = *xs - a;
 			c = 0.;
-			for (j=nleft ; j<=nrt ; j++) c += w[j]*fsquare(x[j]-a);
+			for (j=nleft ; j<=nrt ; j++) 
+				c += w[j]*fsquare(x[j]-a);
 			if (sqrt(c) > 0.001*range) {
 				b /= c;
 				/* points are spread out */
 				/* enough to compute slope */
-				for (j=nleft; j <= nrt; j++) w[j] *= (b*(x[j]-a) + 1.);
+				for (j=nleft; j <= nrt; j++) 
+					w[j] *= (b*(x[j]-a) + 1.);
 			}
 		}
 		*ys = 0.;
-		for (j=nleft; j <= nrt; j++) *ys += w[j] * y[j];
+		for (j=nleft; j <= nrt; j++) 
+			*ys += w[j] * y[j];
 	}
 }
 
@@ -292,17 +297,21 @@ void Lowess::clowess(const double *x, const double *y, int n,
 		/* compute robustness weights */
 		/* except last time */
 		
-		if (cur_iter > iter) break;
+		if (cur_iter > iter) 
+			break;
 
-		for(i = 0 ; i < n ; i++) rw[i] = fabs(res[i]);
+		for(i = 0 ; i < n ; i++) 
+			rw[i] = fabs(res[i]);
 		
 		/* Compute   cmad := 6 * median(rw[], n)  ---- */
 		m1 = n/2;
 		/* partial sort, for m1 & m2 */
-		rPsort(rw, n, m1);
+		//rPsort(rw, n, m1);
+		rPsort(rw, m1, n);
 		if (n % 2 == 0) {
 			m2 = n-m1-1;
-			rPsort(rw, n, m2);
+			//rPsort(rw, n, m2);
+			rPsort(rw, m2, n);
 			cmad = 3.*(rw[m1]+rw[m2]);
 		}
 		else { /* n odd */

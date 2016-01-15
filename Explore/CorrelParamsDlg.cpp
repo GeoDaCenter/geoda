@@ -29,9 +29,7 @@
 #include "../DialogTools/WebViewHelpWin.h"
 #include "CorrelParamsDlg.h"
 
-CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params,
-																		 GdaVarTools::Manager& var_man,
-																		 Project* project_)
+CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params, GdaVarTools::Manager& var_man, Project* project_)
 : wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
 					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 CorrelParamsObservable(correl_params, var_man), project(project_),
@@ -44,7 +42,9 @@ help_btn(0), apply_btn(0)
 	LOG_MSG("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
 	wxPanel* panel = new wxPanel(this);
-	
+	panel->SetBackgroundColour(*wxWHITE);
+	SetBackgroundColour(*wxWHITE);
+
 	{
 		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), "Variable:");
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"), wxDefaultPosition,wxSize(160,-1));
@@ -244,9 +244,7 @@ CorrelParamsFrame::~CorrelParamsFrame()
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 {
 	LOG_MSG("In CorrelParamsFrame::OnHelpBtn");
-	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
-																					 wxID_ANY,
-																					 "Correlogram Parameters Help");
+	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,  wxID_ANY,  "Correlogram Parameters Help");
 }
 
 void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
@@ -290,6 +288,8 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 		}
 	}
 	
+	
+
 	if (all_pairs_rad->GetValue() == true) {
 		correl_params.method = CorrelParams::ALL_PAIRS;
 		if (use_thresh) {
@@ -306,7 +306,6 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 		long v;
 		long revert_val = correl_params.max_iterations;
 		bool apply_revert = true;
-		LOG(v);
 		if (s.ToLong(&v)) {
 			if (v > CorrelParams::max_iter_cnst) {
 				revert_val = CorrelParams::max_iter_cnst;

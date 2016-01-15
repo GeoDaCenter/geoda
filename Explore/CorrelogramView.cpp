@@ -37,10 +37,7 @@ BEGIN_EVENT_TABLE(CorrelogramFrame, TemplateFrame)
 	EVT_ACTIVATE(CorrelogramFrame::OnActivate)
 END_EVENT_TABLE()
 
-CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
-																				 const wxString& title,
-																				 const wxPoint& pos,
-																				 const wxSize& size)
+CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project, const wxString& title, const wxPoint& pos, const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
@@ -178,6 +175,15 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 		CorrelParams cp;
 		cp.dist_metric = project->GetDefaultDistMetric();
 		cp.dist_units = project->GetDefaultDistUnits();
+		/*
+		std::vector<wxRealPoint> pts;
+		project->GetCentroids(pts);
+		size_t pts_size = pts.size();
+		if (pts_size > 10000) {
+			// try to avoid out-of-memory 
+			cp.method = CorrelParams::RAND_SAMP;
+		}
+		*/
 		correl_params_frame = new CorrelParamsFrame(cp, var_man, project);
 		correl_params_frame->registerObserver(this);
 	}
@@ -707,29 +713,23 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	if (is_arc) {
 		th_rad = is_mi ? EarthMiToRad(par.threshold) : EarthKmToRad(par.threshold);
 	}
-	if (par.method == CorrelParams::ALL_PAIRS) {
-		std::vector<wxRealPoint> pts;
-		project->GetCentroids(pts);
+
+	std::vector<wxRealPoint> pts;
+	project->GetCentroids(pts);
+
+	if (par.method == CorrelParams::ALL_PAIRS) {	
 		success = MakeCorrAllPairs(pts, Z, is_arc, par.bins, cbins);
+	
 	} else if (par.method == CorrelParams::ALL_PAIRS_THRESH) {
 		if (is_arc) {
-			success = MakeCorrThresh(project->GetUnitSphereRtree(), Z,
-															 th_rad, par.bins, cbins);
+			success = MakeCorrThresh(project->GetUnitSphereRtree(), Z, th_rad, par.bins, cbins);
 		} else {
-			success = MakeCorrThresh(project->GetEucPlaneRtree(), Z,
-															 par.threshold, par.bins, cbins);
+			success = MakeCorrThresh(project->GetEucPlaneRtree(), Z,  par.threshold, par.bins, cbins);
 		}
 	} else if (par.method == CorrelParams::RAND_SAMP) {
-		std::vector<wxRealPoint> pts;
-		project->GetCentroids(pts);
-		success = MakeCorrRandSamp(pts, Z, is_arc, -1, par.bins,
-															 par.max_iterations, cbins);
+		success = MakeCorrRandSamp(pts, Z, is_arc, -1, par.bins,  par.max_iterations, cbins);
 	}	else if (par.method == CorrelParams::RAND_SAMP_THRESH) {
-		std::vector<wxRealPoint> pts;
-		project->GetCentroids(pts);
-		success = MakeCorrRandSamp(pts, Z, is_arc,
-															 (is_arc ? th_rad : par.threshold), par.bins,
-															 par.max_iterations, cbins);
+		success = MakeCorrRandSamp(pts, Z, is_arc, (is_arc ? th_rad : par.threshold), par.bins,  par.max_iterations, cbins);
 	}
 	if (success && par.bins != local_hl_state->GetHighlightSize()) {
 		local_hl_state->SetSize(par.bins);
