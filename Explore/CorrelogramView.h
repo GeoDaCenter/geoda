@@ -48,11 +48,12 @@ typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
 /**
  CorrelogramFrame manages all of its canvas child windows.
  */
-class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
+class CorrelogramFrame : public TemplateFrame, 
 public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt
 {
 public:
-	CorrelogramFrame(wxFrame *parent, Project* project,
+	CorrelogramFrame(wxFrame *parent, Project* project, CorrelParams &par,
+                     GdaVarTools::Manager &var_man,
 											const wxString& title = "Scatter Plot Matrix",
 											const wxPoint& pos = wxDefaultPosition,
 											const wxSize& size = wxDefaultSize);
@@ -74,24 +75,21 @@ public:
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
-	/** Implementation of CorrelParamsObserver interface */
-	virtual void update(CorrelParamsObservable* o);
-	virtual void notifyOfClosing(CorrelParamsObservable* o);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
-	virtual void notifyNewHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+	virtual void notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
-	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+	virtual void notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs);
 	
 protected:
+    void ReDraw();
 	void SetupPanelForNumVariables(int num_vars);
 	void UpdateMessageWin();
 	void UpdateDataMapFromVarMan();
 	bool UpdateCorrelogramData();
 	
+    Project* project;
 	CorrelParamsFrame* correl_params_frame;
 	CorrelParams par;
 	GdaVarTools::Manager var_man;

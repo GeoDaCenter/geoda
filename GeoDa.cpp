@@ -103,6 +103,7 @@
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
+#include "Explore/CorrelParamsDlg.h"
 #include "Explore/CorrelogramView.h"
 #include "Explore/GetisOrdMapNewView.h"
 #include "Explore/LineChartView.h"
@@ -3306,10 +3307,10 @@ void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
 {
-	CorrelogramFrame* f =
-	new CorrelogramFrame(GdaFrame::gda_frame, project_p,
-											 "Correlogram", wxDefaultPosition,
-											 GdaConst::scatterplot_default_size);
+    CorrelParamsFrame dlg(project_p);
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, project_p, dlg.correl_params, dlg.var_man, "Correlogram", wxDefaultPosition, GdaConst::scatterplot_default_size);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))

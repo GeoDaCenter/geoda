@@ -29,10 +29,13 @@
 #include "../DialogTools/WebViewHelpWin.h"
 #include "CorrelParamsDlg.h"
 
-CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params, GdaVarTools::Manager& var_man, Project* project_)
-: wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
-					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
-CorrelParamsObservable(correl_params, var_man), project(project_),
+BEGIN_EVENT_TABLE( CorrelParamsFrame, wxDialog )
+EVT_CLOSE( CorrelParamsFrame::OnClose )
+END_EVENT_TABLE()
+
+CorrelParamsFrame::CorrelParamsFrame(Project* project_)
+: wxDialog(NULL, wxID_ANY, "Correlogram Parameters" , wxDefaultPosition, wxDefaultSize),
+project(project_),
 var_txt(0), var_choice(0), dist_txt(0), dist_choice(0), bins_txt(0),
 bins_spn_ctrl(0), thresh_cbx(0), thresh_tctrl(0), thresh_slider(0),
 all_pairs_rad(0), est_pairs_txt(0), est_pairs_num_txt(0),
@@ -41,10 +44,19 @@ help_btn(0), apply_btn(0)
 {
 	LOG_MSG("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
+    {
+        std::vector<wxString> tm_strs;
+        project->GetTableInt()->GetTimeStrings(tm_strs);
+        var_man.ClearAndInit(tm_strs);
+        
+        correl_params.dist_metric = project->GetDefaultDistMetric();
+        correl_params.dist_units = project->GetDefaultDistUnits();
+
+    }
+    
 	wxPanel* panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
-
 	{
 		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), "Variable:");
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"), wxDefaultPosition,wxSize(160,-1));
@@ -82,16 +94,9 @@ help_btn(0), apply_btn(0)
 		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), "Number Bins:");
 		wxString vs;
 		vs << correl_params.bins;
-		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,
-																	 wxDefaultPosition, wxSize(75,-1),
-																	 wxSP_ARROW_KEYS, 
-																	 CorrelParams::min_bins_cnst,
-																	 CorrelParams::max_bins_cnst,
-																	 correl_params.bins);
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL,
-						wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT,
-						wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,  wxDefaultPosition, wxSize(75,-1),  wxSP_ARROW_KEYS,  CorrelParams::min_bins_cnst, CorrelParams::max_bins_cnst, correl_params.bins);
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL, wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
 	}
 	wxBoxSizer* bins_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	bins_h_szr->Add(bins_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -100,8 +105,7 @@ help_btn(0), apply_btn(0)
 	
 	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), "Max Distance:");
 	thresh_cbx->SetValue(false);
-	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "",
-																wxDefaultPosition, wxSize(100,-1));
+	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "", wxDefaultPosition, wxSize(100,-1));
 	thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	thresh_tctrl->Enable(false);
 	UpdateThreshTctrlVal();
@@ -130,18 +134,12 @@ help_btn(0), apply_btn(0)
 	thresh_v_szr->Add(thresh_h_szr, 0, wxBOTTOM, 5);
 	thresh_v_szr->Add(thresh_sld_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
 	
-	all_pairs_rad = new wxRadioButton(panel, XRCID("ID_ALL_PAIRS_RAD"),
-																		"All Pairs",
-																		wxDefaultPosition, wxDefaultSize,
-																		wxALIGN_CENTER_VERTICAL |
-																		wxRB_GROUP);
+	all_pairs_rad = new wxRadioButton(panel, XRCID("ID_ALL_PAIRS_RAD"), "All Pairs", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
 	all_pairs_rad->SetValue(correl_params.method == CorrelParams::ALL_PAIRS);
-	Connect(XRCID("ID_ALL_PAIRS_RAD"), wxEVT_RADIOBUTTON,
-					wxCommandEventHandler(CorrelParamsFrame::OnAllPairsRadioSelected));
-	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"),
-																	 "Estimated Pairs:");
-	est_pairs_num_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_NUM_TXT"),
-																	"4,000,000");
+	Connect(XRCID("ID_ALL_PAIRS_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnAllPairsRadioSelected));
+    
+	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"), "Estimated Pairs:");
+	est_pairs_num_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_NUM_TXT"), "4,000,000");
 	wxBoxSizer* est_pairs_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	est_pairs_h_szr->Add(est_pairs_txt, 0, wxALIGN_CENTER_VERTICAL);
 	est_pairs_h_szr->AddSpacer(5);
@@ -151,26 +149,17 @@ help_btn(0), apply_btn(0)
 	all_pairs_v_szr->AddSpacer(2);
 	all_pairs_v_szr->Add(est_pairs_h_szr, 0, wxLEFT, 18);
 	
-	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"),
-																		"Random Sample",
-																		wxDefaultPosition, wxDefaultSize,
-																		wxALIGN_CENTER_VERTICAL);
+	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), "Random Sample", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 	rand_samp_rad->SetValue(correl_params.method != CorrelParams::ALL_PAIRS);
-	Connect(XRCID("ID_RAND_SAMP_RAD"), wxEVT_RADIOBUTTON,
-					wxCommandEventHandler(CorrelParamsFrame::OnRandSampRadioSelected));
-	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"),
-																	"Iterations:");
+	Connect(XRCID("ID_RAND_SAMP_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnRandSampRadioSelected));
+	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), "Iterations:");
 	{
 		wxString vs;
 		vs << correl_params.max_iterations;
-		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs,
-																		wxDefaultPosition, wxSize(100,-1));
+		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs, wxDefaultPosition, wxSize(100,-1));
 		max_iter_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT,
-						wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
-		max_iter_tctrl->Bind(wxEVT_KILL_FOCUS,
-												 &CorrelParamsFrame::OnMaxIterTctrlKillFocus,
-												 this);
+		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
+        max_iter_tctrl->Bind(wxEVT_KILL_FOCUS, &CorrelParamsFrame::OnMaxIterTctrlKillFocus, this);
 	}
 	wxBoxSizer* max_iter_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	max_iter_h_szr->Add(max_iter_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -181,16 +170,10 @@ help_btn(0), apply_btn(0)
 	rand_samp_v_szr->AddSpacer(2);
 	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 18);
 		
-	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
-													wxDefaultPosition, wxDefaultSize,
-													wxBU_EXACTFIT);
-	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), "Apply",
-													 wxDefaultPosition, wxDefaultSize,
-													 wxBU_EXACTFIT);
-	Connect(XRCID("ID_HELP_BTN"), wxEVT_BUTTON,
-					wxCommandEventHandler(CorrelParamsFrame::OnHelpBtn));
-	Connect(XRCID("ID_APPLY_BTN"), wxEVT_BUTTON,
-					wxCommandEventHandler(CorrelParamsFrame::OnApplyBtn));
+	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	Connect(XRCID("ID_HELP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(CorrelParamsFrame::OnHelpBtn));
+	Connect(XRCID("ID_APPLY_BTN"), wxEVT_BUTTON, wxCommandEventHandler(CorrelParamsFrame::OnApplyBtn));
 	wxBoxSizer* btns_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	btns_h_szr->Add(help_btn, 0, wxALIGN_CENTER_VERTICAL);
 	btns_h_szr->AddSpacer(15);
@@ -228,17 +211,26 @@ help_btn(0), apply_btn(0)
 	SetSizerAndFit(top_h_sizer);
 	
 	wxCommandEvent ev;
-	OnAllPairsRadioSelected(ev);
+    if (correl_params.method == CorrelParams::ALL_PAIRS)
+        OnAllPairsRadioSelected(ev);
+    else
+        OnRandSampRadioSelected(ev);
 	
-	Show(true);
-
+    Center();
+    
 	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }
 
 CorrelParamsFrame::~CorrelParamsFrame()
 {
 	LOG_MSG("In CorrelParamsFrame::~CorrelParamsFrame");
-	notifyObserversOfClosing();
+}
+
+void CorrelParamsFrame::OnClose(wxCloseEvent& ev)
+{
+    EndModal(wxID_CANCEL);
+    Destroy();
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
@@ -287,8 +279,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 			use_thresh = false;
 		}
 	}
-	
-	
+
 
 	if (all_pairs_rad->GetValue() == true) {
 		correl_params.method = CorrelParams::ALL_PAIRS;
@@ -344,9 +335,10 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 		}
 	}
 	int var_man_cnt = var_man.GetVarsCount();
-	LOG(var_man_cnt);
-	if (var_man_cnt) LOG(var_man.GetName(0));
-	notifyObservers();
+
+    
+    EndModal(wxID_OK);
+    Destroy();
 }
 
 
@@ -476,18 +468,6 @@ void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
 	}	
 }
 
-void CorrelParamsFrame::UpdateFromTable()
-{
-	LOG_MSG("Entering CorrelParamsFrame::UpdateFromTable");
-	TableInterface* table_int = project->GetTableInt();
-	notifyObservers();
-	LOG_MSG("Exiting CorrelParamsFrame::UpdateFromTable");
-}
-
-void CorrelParamsFrame::closeAndDeleteWhenEmpty()
-{
-	Close(true);
-}
 
 bool CorrelParamsFrame::IsArc()
 {

@@ -37,20 +37,16 @@ BEGIN_EVENT_TABLE(CorrelogramFrame, TemplateFrame)
 	EVT_ACTIVATE(CorrelogramFrame::OnActivate)
 END_EVENT_TABLE()
 
-CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project, const wxString& title, const wxPoint& pos, const wxSize& size)
-: TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
-correl_params_frame(0), panel(0),
-panel_v_szr(0), bag_szr(0), top_h_sizer(0),
+CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* _project, CorrelParams &_par, GdaVarTools::Manager &_var_man, const wxString& title, const wxPoint& pos, const wxSize& size)
+: TemplateFrame(parent, _project, title, pos, size, wxDEFAULT_FRAME_STYLE),
+correl_params_frame(0), panel(0), par(_par), var_man(_var_man),
+panel_v_szr(0), bag_szr(0), top_h_sizer(0), project(_project),
 hist_plot(0), local_hl_state(0), message_win(0)
 {
 	LOG_MSG("Entering CorrelogramFrame::CorrelogramFrame");
 	local_hl_state = new HighlightState();
 	supports_timeline_changes = true;
-	{
-		std::vector<wxString> tm_strs;
-		project->GetTableInt()->GetTimeStrings(tm_strs);
-		var_man.ClearAndInit(tm_strs);
-	}
+
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -82,10 +78,8 @@ hist_plot(0), local_hl_state(0), message_win(0)
 	UpdateCorrelogramData();
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	
+    
 	Show(true);
-	
-	wxCommandEvent ev;
-	OnShowCorrelParams(ev);
 	
 	LOG_MSG("Exiting CorrelogramFrame::CorrelogramFrame");
 }
@@ -93,10 +87,7 @@ hist_plot(0), local_hl_state(0), message_win(0)
 CorrelogramFrame::~CorrelogramFrame()
 {
 	LOG_MSG("In CorrelogramFrame::~CorrelogramFrame");
-	if (correl_params_frame) {
-		correl_params_frame->removeObserver(this);
-		correl_params_frame->closeAndDeleteWhenEmpty();
-	}
+
 	if (local_hl_state) local_hl_state->closeAndDeleteWhenEmpty();
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
@@ -105,6 +96,7 @@ CorrelogramFrame::~CorrelogramFrame()
 void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
 {
     if (event.RightUp()) {
+        /*
         const wxPoint& pos = event.GetPosition();
     	// Workaround for right-click not changing window focus in OSX / wxW 3.0
     	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
@@ -117,6 +109,7 @@ void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
     	UpdateContextMenuItems(optMenu);
     	PopupMenu(optMenu, pos);
     	UpdateOptionMenuItems();
+         */
     }
 }
 
@@ -166,27 +159,14 @@ void CorrelogramFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 {
-	LOG_MSG("In CorrelogramFrame::OnShowCorrelParams");
-	if (correl_params_frame) {
-		correl_params_frame->Iconize(false);
-		correl_params_frame->Raise();
-		correl_params_frame->SetFocus();
-	} else {
-		CorrelParams cp;
-		cp.dist_metric = project->GetDefaultDistMetric();
-		cp.dist_units = project->GetDefaultDistUnits();
-		/*
-		std::vector<wxRealPoint> pts;
-		project->GetCentroids(pts);
-		size_t pts_size = pts.size();
-		if (pts_size > 10000) {
-			// try to avoid out-of-memory 
-			cp.method = CorrelParams::RAND_SAMP;
-		}
-		*/
-		correl_params_frame = new CorrelParamsFrame(cp, var_man, project);
-		correl_params_frame->registerObserver(this);
-	}
+    CorrelParamsFrame dlg(project);
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    var_man = dlg.var_man;
+    par = dlg.correl_params;
+    
+    ReDraw();
+    event.Skip();
 }
 
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
@@ -199,7 +179,6 @@ void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 void CorrelogramFrame::update(TableState* o)
 {
 	LOG_MSG("In CorrelogramFrame::update(TableState*)");
-	if (correl_params_frame) correl_params_frame->UpdateFromTable();
 }
 
 /** Implementation of TimeStateObserver interface */
@@ -213,22 +192,15 @@ void CorrelogramFrame::update(TimeState* o)
 	Refresh();
 }
 
-/** Implementation of CorrelParams interface */
-void CorrelogramFrame::update(CorrelParamsObservable* o)
+void CorrelogramFrame::ReDraw()
 {
 	LOG_MSG("In CorrelogramFrame::update(CorrelParamsObservable*)");
-	par = o->GetCorrelParams();
 	UpdateDataMapFromVarMan();
 	UpdateCorrelogramData();
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	Refresh();
 }
 
-void CorrelogramFrame::notifyOfClosing(CorrelParamsObservable* o)
-{
-	correl_params_frame = 0;
-    UpdateMessageWin();
-}
 
 void CorrelogramFrame::notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs)
 {
