@@ -117,9 +117,7 @@
       <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
         <label>Variable Calculation</label>
       </object>
-	  <object class="wxMenuItem" name="ID_CALCULATOR">
-	    <label>Calculator (beta)</label>
-	  </object>
+	  
       <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
         <label>Add Variable</label>
       </object>
@@ -130,6 +128,9 @@
         <label>Edit Variable Properties</label>
       </object>
       <!--
+       <object class="wxMenuItem" name="ID_CALCULATOR">
+       <label>Calculator (beta)</label>
+       </object>
       <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
         <label>Change Variable Type</label>
       </object>
@@ -3825,9 +3826,7 @@
     <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
       <label>Variable Calculation</label>
     </object>
-	<object class="wxMenuItem" name="ID_CALCULATOR">
-	  <label>Calculator</label>
-	</object>
+	
     <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
       <label>Add Variable</label>
     </object>
@@ -3841,6 +3840,9 @@
       <label>Edit Variable Properties</label>
     </object>
     <!--
+     <object class="wxMenuItem" name="ID_CALCULATOR">
+     <label>Calculator</label>
+     </object>
     <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
       <label>Change Variable Type</label>
     </object>
