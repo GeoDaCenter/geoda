@@ -517,21 +517,40 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
 	
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
 	
 	template_legend = 0;
-	template_canvas = new ConnectivityMapCanvas(this, this, project,
+    
+    wxPanel* rpanel = new wxPanel(this);
+    
+	template_canvas = new ConnectivityMapCanvas(rpanel, this, project,
 												weights_id_s,
 												wxDefaultPosition,
 												wxDefaultSize);
-	//template_canvas->SetScrollRate(1,1);
-	DisplayStatusBar(true);
-	SetTitle(template_canvas->GetCanvasTitle());
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(this, "ToolBar_MAP");
-    SetupToolbar();
+	template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
 
-	
+    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+    wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
+    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    tb->EnableTool(XRCID("ID_SELECT_INVERT"), false);
+    SetupToolbar();
+    toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+    toolbar_panel->SetSizerAndFit(toolbar_sizer);
+    
+    
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL);
+    sizer->Add(rpanel, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+
+	SetAutoLayout(true);
+    
+    DisplayStatusBar(true);
+    SetTitle(template_canvas->GetCanvasTitle());
+    
+    
 	Show(true);
 	LOG_MSG("Exiting ConnectivityMapFrame::ConnectivityMapFrame");
 }
