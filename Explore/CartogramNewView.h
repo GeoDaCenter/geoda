@@ -196,6 +196,17 @@ public:
 	virtual void CartogramImproveLevel(int level);
 	
 protected:
+    void SetupToolbar();
+    void OnMapSelect(wxCommandEvent& e);
+    void OnMapInvertSelect(wxCommandEvent& e);
+    void OnMapPan(wxCommandEvent& e);
+    void OnMapZoom(wxCommandEvent& e);
+    void OnMapZoomOut(wxCommandEvent& e);
+    void OnMapExtent(wxCommandEvent& e);
+    void OnMapRefresh(wxCommandEvent& e);
+    //void OnMapBrush(wxCommandEvent& e);
+    void OnMapBasemap(wxCommandEvent& e);
+    
 	void ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
 						 int num_categories,
 						 const wxString& custom_classif_title = wxEmptyString);

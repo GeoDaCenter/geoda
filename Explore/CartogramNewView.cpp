@@ -1095,7 +1095,16 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
 	splitter_win->SplitVertically(lpanel, rpanel,
                                   GdaConst::map_default_legend_width);
     
+    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+    wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
+    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    SetupToolbar();
+    tb->EnableTool(XRCID("ID_TOOLBAR_BASEMAP"), false);
+    toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+    toolbar_panel->SetSizerAndFit(toolbar_sizer);
+    
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL); 
 	sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizer);
     splitter_win->SetSize(wxSize(width,height));
@@ -1111,6 +1120,52 @@ CartogramNewFrame::~CartogramNewFrame()
 	LOG_MSG("In CartogramNewFrame::~CartogramNewFrame");
 	DeregisterAsActive();
 }
+
+void CartogramNewFrame::SetupToolbar()
+{
+    Connect(XRCID("ID_SELECT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapSelect));
+    Connect(XRCID("ID_SELECT_INVERT"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapInvertSelect));
+    Connect(XRCID("ID_PAN_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapPan));
+    Connect(XRCID("ID_ZOOM_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapZoom));
+    Connect(XRCID("ID_ZOOM_OUT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapZoomOut));
+    Connect(XRCID("ID_EXTENT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapExtent));
+    Connect(XRCID("ID_REFRESH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(CartogramNewFrame::OnMapRefresh));
+
+}
+void CartogramNewFrame::OnMapSelect(wxCommandEvent& e)
+{
+    OnSelectionMode(e);
+}
+
+void CartogramNewFrame::OnMapInvertSelect(wxCommandEvent& e)
+{
+    HighlightState& hs = *project->GetHighlightState();
+    hs.SetEventType(HLStateInt::invert);
+    hs.notifyObservers();
+}
+
+void CartogramNewFrame::OnMapPan(wxCommandEvent& e)
+{
+    OnPanMode(e);
+}
+void CartogramNewFrame::OnMapZoom(wxCommandEvent& e)
+{
+    OnZoomMode(e);
+}
+void CartogramNewFrame::OnMapZoomOut(wxCommandEvent& e)
+{
+    OnZoomOutMode(e);
+}
+void CartogramNewFrame::OnMapExtent(wxCommandEvent& e)
+{
+    //OnFitToWindowMode(e);
+    OnResetMap(e);
+}
+void CartogramNewFrame::OnMapRefresh(wxCommandEvent& e)
+{
+    OnRefreshMap(e);
+}
+
 
 void CartogramNewFrame::OnActivate(wxActivateEvent& event)
 {
