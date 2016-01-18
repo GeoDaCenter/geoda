@@ -2389,6 +2389,7 @@ void GdaFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 	LOG_MSG("Entering GdaFrame::OnCopyLegendToClipboard");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
+    t->OnCopyLegendToClipboard(event);
 	LOG_MSG("Exiting GdaFrame::OnCopyLegendToClipboard");
 }
 
