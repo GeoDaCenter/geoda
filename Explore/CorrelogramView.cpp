@@ -269,11 +269,13 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	}
 	hist_plot = 0;
 	for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
-		if (vert_labels[i]) vert_labels[i]->Destroy();
+		if (vert_labels[i])
+            vert_labels[i]->Destroy();
 	}
 	vert_labels.clear();
 	for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
-		if (horiz_labels[i]) horiz_labels[i]->Destroy();
+		if (horiz_labels[i])
+            horiz_labels[i]->Destroy();
 	}
 	horiz_labels.clear();
 	
@@ -495,10 +497,10 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
 			stringstream ss;
 			if (h_axs.tics[i] < 10000000) {
-				ss << std::fixed << std::setprecision(3) << h_axs.tics[i];
+				ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			} else {
-				ss << std::setprecision(3) << h_axs.tics[i];
+				ss << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			}
 			h_axs.tics_str_show[i] = true;

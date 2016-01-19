@@ -114,12 +114,6 @@ void SimpleAxisCanvas::PopulateCanvas()
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();
-	LOG(win_width);
-	LOG(win_height);
-	LOG(virtual_screen_marg_top);
-	LOG(virtual_screen_marg_bottom);
-	LOG(virtual_screen_marg_left);
-	LOG(virtual_screen_marg_right);
 	double scale_x, scale_y, trans_x, trans_y;
 	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
 									shps_orig_xmax, shps_orig_ymax,

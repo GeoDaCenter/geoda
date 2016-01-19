@@ -499,8 +499,8 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 		lce->sort_map[i] = Xpairs[i].second;
 		lce->X_srt[i] = Xpairs[i].first;
 		lce->Y_srt[i] = Y[Xpairs[i].second];
-		assert(lce->X_srt[i] == X[Xpairs[i].second]);
-		assert(lce->Y_srt[i] == Y[Xpairs[i].second]);
+		//assert(lce->X_srt[i] == X[Xpairs[i].second]);
+		//assert(lce->Y_srt[i] == Y[Xpairs[i].second]);
 		//LOG_MSG(wxString::Format("sorted %d: (%f, %f)", (int) i,
 		//												 lce->X_srt[i], lce->Y_srt[i]));
 	}

@@ -523,7 +523,7 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
 		ostringstream ss;
-		ss << tics[i];
+        ss << std::setprecision(1) << tics[i];
 		tics_str[i] = ss.str();
 		tics_str_show[i] = true;
 	}
