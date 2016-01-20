@@ -3619,7 +3619,6 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     
     
 	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand);
-												//dlg.row_standardize_weights);
 	if (!gc || !gc->IsOk()) {
 		// print error message
 		delete gc;
@@ -3633,10 +3632,10 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
 	}
 	if (!LWO.m_NormMap && LWO.m_ClustMap) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_norm, LWO.m_RowStand);
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_perm, LWO.m_RowStand);
 	}
 	if (!LWO.m_NormMap && LWO.m_SigMap) {
-		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
+		GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::GiStar_sig_perm, LWO.m_RowStand);
 	}
 }
 
