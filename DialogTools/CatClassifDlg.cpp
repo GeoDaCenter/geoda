@@ -55,7 +55,7 @@ BEGIN_EVENT_TABLE(CatClassifHistCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 const int CatClassifHistCanvas::max_intervals = 10;
-const int CatClassifHistCanvas::default_intervals = 6;
+const int CatClassifHistCanvas::default_intervals = 4;
 const double CatClassifHistCanvas::default_min = 0;
 const double CatClassifHistCanvas::default_max = 1;
 const double CatClassifHistCanvas::left_pad_const = 0;
@@ -681,7 +681,11 @@ useScientificNotation(_useScientificNotation)
 	SetUnifDistMinMaxTxt(cc_data.uniform_dist_min, cc_data.uniform_dist_max);
 	
 	brk_slider = wxDynamicCast(FindWindow(XRCID("ID_BRK_SLIDER")), wxSlider);
-    if (num_cats_choice->GetSelection()==0) brk_slider->Show(false);
+    if (num_cats_choice->GetSelection()==0) {
+        brk_slider->Enable(false);
+    }
+    min_lbl->SetLabelText(" ");
+    max_lbl->Show(false);
     
 	ShowUnifDistMinMax(true);
     
@@ -833,7 +837,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 				SetSyncVars(true);
 				InitFromCCData();
 				cur_cats_choice->Append(new_title);
-				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
+				cur_cats_choice->SetSelection(4);
 				EnableControls(true);
 				retry = false;
 			}
@@ -900,9 +904,9 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	
     if (event.GetSelection() == 0 ) {
         // only 1 category then we don't need slider bar
-        brk_slider->Show(false);
+        brk_slider->Enable(false);
     } else {
-        brk_slider->Show(true);
+        brk_slider->Enable(true);
     }
     
 	CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
@@ -1263,8 +1267,7 @@ void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 					SetActiveBrkRadio(nbrk);
 					hist_canvas->ChangeAll(&preview_data, &cc_data.breaks,
 										   &cc_data.colors);
-					min_lbl->SetLabelText(
-									GenUtils::DblToStr(GetBrkSliderMin()));
+					//min_lbl->SetLabelText( GenUtils::DblToStr(GetBrkSliderMin()));
 					max_lbl->SetLabelText(
 									GenUtils::DblToStr(GetBrkSliderMin()));
 					SetSliderFromBreak(nbrk);
@@ -2102,7 +2105,7 @@ void CatClassifPanel::SetSliderFromBreak(int brk)
 	double min = GetBrkSliderMin();
 	double max = GetBrkSliderMax();
 	// max-min gauranteed to not be zero!
-	min_lbl->SetLabelText(GenUtils::DblToStr(min));
+	//min_lbl->SetLabelText(GenUtils::DblToStr(min));
 	max_lbl->SetLabelText(GenUtils::DblToStr(max));
 	
 	double sl_pos_min = (double) brk_slider->GetMin();
@@ -2219,6 +2222,8 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	Connect(XRCID("ID_PREVIEW_VAR_TM_CHOICE"), wxEVT_CHOICE,
 			wxCommandEventHandler(CatClassifFrame::OnPreviewVarTmChoice));
 	
+    
+    
 	wxBoxSizer* histo_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	histo_h_szr->Add(preview_var_text, 0, wxALIGN_CENTER_VERTICAL);
 	histo_h_szr->AddSpacer(3);
@@ -2230,6 +2235,11 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 											   XRCID("ID_SYNC_VARS_CHK"),
 											   "same as Assoc. Var.");
 	sync_vars_chk->SetValue(true);
+    
+    preview_var_text->Show(false);
+    preview_var_choice->Show(false);
+    sync_vars_chk->Show(false);
+    
 	Connect(XRCID("ID_SYNC_VARS_CHK"), wxEVT_CHECKBOX,
 			wxCommandEventHandler(CatClassifFrame::OnSyncVarsChk));
 

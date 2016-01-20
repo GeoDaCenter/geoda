@@ -62,152 +62,110 @@
           <object class="spacer">
             <size>-1,8d</size>
           </object>
-          <object class="sizeritem">
-            <object class="wxStaticLine" name="stline_id">
-              <size>400,1</size>
-              <style>wxLI_HORIZONTAL</style>
-            </object>
-            <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
-            <border>6</border>
-          </object>
-          <object class="spacer">
-            <size>-1,8d</size>
-          </object>
+
           <!-- Create Custom Breaks -->
-          <object class="sizeritem">
-            <object class="wxStaticText">
-              <label>Define Custom Breaks</label>
-              <font>
-                <weight>bold</weight>
-              </font>
-            </object>
-          </object>
+
           <object class="spacer">
             <size>-1,5d</size>
           </object>
           <object class="sizeritem">
-            <!-- 1st row-->
-            <object class="wxBoxSizer">
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Breaks</label>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
+              <object class="wxFlexGridSizer">
+                  <cols>2</cols>
+                  <rows>5</rows>
+                  <vgap>2</vgap>
+                  <hgap>5</hgap>
+                  
+                  <object class="sizeritem">
+                      <object class="wxStaticText">
+                          <label>Assoc. Var.</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxChoice" name="ID_ASSOC_VAR">
+                                  <size>70,-1d</size>
+                                  <content>
+                                      <item/>
+                                  </content>
+                              </object>
+
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxChoice" name="ID_ASSOC_VAR_TM">
+                                  <size>50,-1d</size>
+                              </object>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxStaticText">
+                          <label>Breaks</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxChoice" name="ID_BREAKS_CHOICE">
+                          <size>80,-1d</size>
+                          <content>
+                              <item>Quantile</item>
+                              <item>Unique Values</item>
+                              <item>Natural Breaks</item>
+                              <item>Equal Intervals</item>
+                              <item>User Defined</item>
+                          </content>
+                          <selection>1</selection>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxStaticText">
+                          <label>Color Scheme</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxChoice" name="ID_COLOR_SCHEME">
+                          <content>
+                              <item>sequential</item>
+                              <item>diverging</item>
+                              <item>thematic</item>
+                              <item>custom</item>
+                          </content>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxStaticText">
+                          <label>Categories</label>
+                      </object>
+                      <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                      <border>3</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxChoice" name="ID_NUM_CATS_CHOICE">
+                          <size>30,-1d</size>
+                          <content>
+                              <item>1</item>
+                              <item>2</item>
+                              <item>3</item>
+                              <item>4</item>
+                              <item>5</item>
+                              <item>6</item>
+                              <item>7</item>
+                              <item>8</item>
+                              <item>9</item>
+                              <item>10</item>
+                          </content>
+                      </object>
+                  </object>
               </object>
-              <object class="spacer">
-                <size>3,-1d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxChoice" name="ID_BREAKS_CHOICE">
-                  <size>80,-1d</size>
-                  <content>
-                    <item>Quantile</item>
-                    <item>Unique Values</item>
-                    <item>Natural Breaks</item>
-                    <item>Equal Intervals</item>
-                    <item>User Defined</item>
-                  </content>
-                  <selection>1</selection>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <orient>wxHORIZONTAL</orient>
-            </object>
+    
           </object>
-          <object class="spacer">
-            <size>5,2d</size>
-          </object>
-          <object class="sizeritem">
-            <!-- 2st row-->
-            <object class="wxBoxSizer">
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Color Scheme</label>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="spacer">
-                <size>3,3d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxChoice" name="ID_COLOR_SCHEME">
-                  <content>
-                    <item>sequential</item>
-                    <item>diverging</item>
-                    <item>thematic</item>
-                    <item>custom</item>
-                  </content>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="spacer">
-                <size>10,3d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Categories</label>
-                </object>
-                <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
-                <border>3</border>
-              </object>
-              <object class="sizeritem">
-                <object class="wxChoice" name="ID_NUM_CATS_CHOICE">
-                  <size>30,-1d</size>
-                  <content>
-                    <item>1</item>
-                    <item>2</item>
-                    <item>3</item>
-                    <item>4</item>
-                    <item>5</item>
-                    <item>6</item>
-                    <item>7</item>
-                    <item>8</item>
-                    <item>9</item>
-                    <item>10</item>
-                  </content>
-                </object>
-              </object>
-              <orient>wxHORIZONTAL</orient>
-            </object>
-          </object>
-          <object class="spacer">
-            <size>5,2d</size>
-          </object>
-          <object class="sizeritem">
-            <!-- 3st row-->
-            <object class="wxBoxSizer">
-              <object class="sizeritem">
-                <object class="wxStaticText">
-                  <label>Assoc. Var.</label>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="spacer">
-                <size>3,-1d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxChoice" name="ID_ASSOC_VAR">
-                  <size>70,-1d</size>
-                  <content>
-                    <item/>
-                  </content>
-                </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="spacer">
-                <size>5,-1d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxChoice" name="ID_ASSOC_VAR_TM">
-                  <size>50,-1d</size>
-                </object>
-              </object>
-              <orient>wxHORIZONTAL</orient>
-            </object>
-          </object>
-          <object class="spacer">
-            <size>5,2d</size>
-          </object>
+          
           <object class="sizeritem">
             <object class="wxBoxSizer">
               <object class="sizeritem">
@@ -261,6 +219,8 @@
           <object class="spacer">
             <size>-1,8d</size>
           </object>
+          
+          
           <!-- Edit Custom Breaks-->
           <object class="sizeritem">
             <object class="wxStaticText">
@@ -746,7 +706,7 @@
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
                         <object class="wxStaticText" name="ID_MIN_LBL">
-                          <label>1.0</label>
+                          <label></label>
                           <size>20,-1d</size>
                         </object>
                         <flag>wxALIGN_RIGHT</flag>
