@@ -543,7 +543,7 @@ void CatClassifHistCanvas::UpdateStatusBar()
 
 const wxString CatClassifPanel::unif_dist_txt("uniform distribution");
 const int CatClassifPanel::max_intervals = 10;
-const int CatClassifPanel::default_intervals = 6;
+const int CatClassifPanel::default_intervals = 4;
 const double CatClassifPanel::default_min = 0;
 const double CatClassifPanel::default_max = 1;
 
@@ -2188,21 +2188,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, style)
 {
 	LOG_MSG("Entering CatClassifFrame::CatClassifFrame");
-	
-	/// START: original wxSpliterWindow desgin
-	/*
-	wxSplitterWindow* spliter_vert = 
-		new wxSplitterWindow(this, -1, wxDefaultPosition, wxDefaultSize,
-							 wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
-	canvas = new CatClassifHistCanvas(spliter_vert, this, project);
-	template_canvas = canvas;
-	panel = new CatClassifPanel(project, canvas, spliter_vert, wxID_ANY);
-	spliter_vert->SplitVertically(panel, canvas);
-	spliter_vert->SetMinimumPaneSize(20);
-	SetMinSize(wxSize(600,500));
-	 */
-	/// END: orginal wxSpliterWindow desgin
-
 	
 	/// START: wxBoxSizer desgin
 	wxPanel* histo_panel = new wxPanel(this);
