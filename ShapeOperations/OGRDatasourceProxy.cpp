@@ -364,9 +364,9 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                 if (field_it == field_dict.end()) {
                     // a unique field
                     OGRFieldType ogr_type;
-                    int ogr_fwidth            = table->GetColLength(id, t);
-                    int ogr_fprecision        = table->GetColDecimals(id, t);
-                    GdaConst::FieldType ftype = table->GetColType(id, t);
+                    int ogr_fwidth            = table->GetColLength(col_id_map[id], t);
+                    int ogr_fprecision        = table->GetColDecimals(col_id_map[id], t);
+                    GdaConst::FieldType ftype = table->GetColType(col_id_map[id], t);
                     if (ftype == GdaConst::string_type){
                         ogr_type = OFTString;
                     } else if (ftype == GdaConst::long64_type){
@@ -388,7 +388,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                         throw GdaException(error_message.str().c_str());
                     }
                     // record in field_dict
-                    field_dict[fname] = make_pair(id, t);
+                    field_dict[fname] = make_pair(col_id_map[id], t);
                 }
             }
         }
