@@ -70,9 +70,12 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-private:
+protected:
 	virtual void PopulateCanvas();
-	
+    void GetBarPositions(std::vector<double>& x_center_pos,
+                         std::vector<double>& x_left_pos,
+                         std::vector<double>& x_right_pos);
+    
 public:
 	void InitIntervals();
 	void UpdateIvalSelCnts();
@@ -88,7 +91,7 @@ public:
 	static void InitUniformData(Gda::dbl_int_pair_vec_type& data,
 								double min, double max);
 	
-private:
+protected:
 	virtual void UpdateStatusBar();
 	
 	int num_obs;
@@ -98,6 +101,8 @@ private:
 	AxisScale axis_scale_y;
 	GdaAxis* y_axis;
 	
+    double max_val;
+    double min_val;
 	std::vector<wxColour>* colors; // size = cur_num_intervals
 	std::vector<wxColour> default_colors;
 	std::vector<double>* breaks; // size = cur_num_intervals-1

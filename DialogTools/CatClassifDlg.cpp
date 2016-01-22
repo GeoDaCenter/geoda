@@ -289,6 +289,35 @@ wxString CatClassifHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
+                                      std::vector<double>& x_left_pos,
+                                      std::vector<double>& x_right_pos)
+{
+    int n = x_center_pos.size();
+    
+    double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
+    
+    double val_max = max_val;
+    double val_min = min_val;
+    double val_range = val_max - val_min;
+    double left = val_min;
+    
+    std::vector<double> ticks;
+    ticks.push_back(val_min);
+    for(int i=0; i<breaks->size();i++)
+        ticks.push_back((*breaks)[i]);
+    ticks.push_back(val_max);
+    
+    int j=0;
+    for (int i=0; i<ticks.size()-1; i++) {
+        x_left_pos[j] = x_max * (ticks[i] - left) / val_range;
+        x_right_pos[j] = x_max * (ticks[i+1] - left) / val_range;
+        
+        x_center_pos[j] = (x_right_pos[j] + x_left_pos[j]) / 2.0;
+        j++;
+    }
+}
+
 void CatClassifHistCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering CatClassifHistCanvas::PopulateCanvas");
@@ -304,12 +333,10 @@ void CatClassifHistCanvas::PopulateCanvas()
 	+ interval_width_const * cur_intervals + 
 	+ interval_gap_const * (cur_intervals-1);
 	
-	// orig_x_pos is the center of each histogram bar
-	std::vector<double> orig_x_pos(cur_intervals);
-	for (int i=0; i<cur_intervals; i++) {
-		orig_x_pos[i] = left_pad_const + interval_width_const/2.0
-		+ i * (interval_width_const + interval_gap_const);
-	}
+    std::vector<double> orig_x_pos(cur_intervals);
+    std::vector<double> orig_x_pos_left(cur_intervals);
+    std::vector<double> orig_x_pos_right(cur_intervals);
+    GetBarPositions(orig_x_pos, orig_x_pos_left, orig_x_pos_right);
 	
 	shps_orig_xmin = x_min;
 	shps_orig_xmax = x_max;
@@ -330,8 +357,8 @@ void CatClassifHistCanvas::PopulateCanvas()
 	
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-		double x0 = orig_x_pos[i] - interval_width_const/2.0;
-		double x1 = orig_x_pos[i] + interval_width_const/2.0;
+        double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
+        double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
 		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
@@ -339,6 +366,15 @@ void CatClassifHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
+        if (i==0) {
+            GdaShapeText* brk =
+            new GdaShapeText(GenUtils::DblToStr(min_val),
+                             *GdaConst::small_font,
+                             wxRealPoint(x0, y0), 90,
+                             GdaShapeText::right,
+                             GdaShapeText::v_center, 0, 10);
+            background_shps.push_back(brk);
+        }
 		if (i<cur_intervals-1) {
 			GdaShapeText* brk = 
 				new GdaShapeText(GenUtils::DblToStr((*breaks)[i]),
@@ -348,6 +384,15 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 GdaShapeText::v_center, 0, 10);
 			background_shps.push_back(brk);
 		}
+        if (i==cur_intervals-1) {
+            GdaShapeText* brk =
+            new GdaShapeText(GenUtils::DblToStr(max_val),
+                             *GdaConst::small_font,
+                             wxRealPoint(x1, y0), 90,
+                             GdaShapeText::right,
+                             GdaShapeText::v_center, 0, 10);
+            background_shps.push_back(brk);
+        }
 	}
 	
 	ResizeSelectableShps();
@@ -385,9 +430,18 @@ void CatClassifHistCanvas::InitIntervals()
 		
 		double val;
 		int ind;
+        
+        max_val = (*data)[0].first;
+        min_val = (*data)[0].second;
+        
 		for (int i=0; i<num_obs; i++) {
 			val = (*data)[i].first;
 			ind = (*data)[i].second;
+            if (val > max_val)
+                max_val = val;
+            if (val < min_val)
+                min_val = val;
+            
 			bool found = false;
 			int cat = num_breaks; // last cat by default
 			for (int j=0; j<num_breaks_lower; j++) {
@@ -825,7 +879,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 				cc_data.title = new_title;
 				CatClassification::CatClassifTypeToBreakValsType(
 													cc_data.cat_classif_type);
-				cc_data.cat_classif_type = CatClassification::custom;
+                cc_data.cat_classif_type = CatClassification::custom;
 				int f_sel = assoc_var_choice->FindString(field_name);
 				if (f_sel != wxNOT_FOUND) {
 					assoc_var_choice->SetSelection(f_sel);
@@ -836,8 +890,9 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
 				SetSyncVars(true);
 				InitFromCCData();
+                cc_state->SetCatClassif(cc_data);
 				cur_cats_choice->Append(new_title);
-				cur_cats_choice->SetSelection(4);
+				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
 				EnableControls(true);
 				retry = false;
 			}

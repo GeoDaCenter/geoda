@@ -1106,8 +1106,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 			   cc.break_vals_type == CatClassification::stddev_break_vals) {
 		cc.num_cats = 6;
 	} else if (cc.cat_classif_type == CatClassification::unique_values ||
-			   cc.break_vals_type ==
-			   CatClassification::unique_values_break_vals) {
+			   cc.break_vals_type == CatClassification::unique_values_break_vals) {
 		// need to determine number of unique values
 		std::vector<double> v(num_obs);
 		for (int i=0; i<num_obs; i++) v[i] = data[i].first;
@@ -1316,7 +1315,7 @@ CatClassification::ColorScheme CatClassification::GetColSchmForType(
 {
 	if (theme == CatClassification::no_theme ||
 		theme == CatClassification::custom) {
-		return custom_color_scheme;
+		return sequential_color_scheme;
 	} else if (theme == CatClassification::unique_values) {
 		return qualitative_color_scheme;
 	} else if (theme == CatClassification::quantile ||
@@ -1765,10 +1764,10 @@ CatClassification::BreakValsTypeToCatClassifType(
 
 CatClassifDef::CatClassifDef()
 : cat_classif_type(CatClassification::custom),
-break_vals_type(CatClassification::custom_break_vals),
-num_cats(1), automatic_labels(true),
-color_scheme(CatClassification::diverging_color_scheme),
-names(1), colors(1), uniform_dist_min(0), uniform_dist_max(1)
+break_vals_type(CatClassification::quantile_break_vals),
+num_cats(5), automatic_labels(true),
+color_scheme(CatClassification::sequential_color_scheme),
+names(5), colors(5), uniform_dist_min(0), uniform_dist_max(1)
 {
 	names[0] = "category 1";
 	CatClassification::PickColorSet(colors, color_scheme, num_cats, false);

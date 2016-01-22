@@ -250,8 +250,7 @@ void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -530,11 +529,16 @@ void CartogramNewCanvas::NewCustomCatClassif()
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[THM_VAR].name,
 										  var_info[THM_VAR].time);
-	if (!ccs) return;
-	if (custom_classif_state) custom_classif_state->removeObserver(this);
+	if (!ccs)
+        return;
+    
+	if (custom_classif_state)
+        custom_classif_state->removeObserver(this);
+    
 	cat_classif_def = ccs->GetCatClassif();
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
+    
 	//wxString s;
 	//CatClassification::PrintCatClassifDef(cat_classif_def, s);
 	//LOG_MSG(s);
@@ -562,16 +566,23 @@ void CartogramNewCanvas::ChangeThemeType(
 		CatClassifManager* ccm = project->GetCatClassifManager();
 		if (!ccm) return;
 		CatClassifState* new_ccs = ccm->FindClassifState(custom_classif_title);
+        
 		if (!new_ccs) return;
 		if (custom_classif_state == new_ccs) return;
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
+        
 		custom_classif_state = new_ccs;
 		custom_classif_state->registerObserver(this);
 		cat_classif_def = custom_classif_state->GetCatClassif();
+        
 	} else {
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
+        
 		custom_classif_state = 0;
 	}
+    
 	cat_classif_def.cat_classif_type = new_cat_theme;
 	VarInfoAttributeChange();	
 	CreateAndUpdateCategories();
@@ -588,9 +599,11 @@ void CartogramNewCanvas::update(CatClassifState* o)
 {
     if (o)
         cat_classif_def = o->GetCatClassif();
+    
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
 	PopulateCanvas();
+    
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
@@ -716,9 +729,12 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_valid[t] = true;
+	for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
 	map_error_message.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_error_message[t] = wxEmptyString;
+	for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
 	
 	if (GetCcType() == CatClassification::no_theme) {
 		// 1 = #cats
@@ -1182,12 +1198,9 @@ void CartogramNewFrame::MapMenus()
 	LOG_MSG("In CartogramNewFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
-	((CartogramNewCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
+	((CartogramNewCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((CartogramNewCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();

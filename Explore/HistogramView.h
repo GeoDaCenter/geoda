@@ -23,7 +23,9 @@
 #include <vector>
 #include <boost/multi_array.hpp>
 #include <wx/menu.h>
+
 #include "CatClassification.h"
+#include "CatClassifStateObserver.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GdaConst.h"
@@ -35,11 +37,14 @@ class HistogramFrame;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
-class HistogramCanvas : public TemplateCanvas {
+class HistogramCanvas : public TemplateCanvas, public CatClassifStateObserver
+{
 	DECLARE_CLASS(HistogramCanvas)	
 public:
-	HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
-					Project* project, const std::vector<GdaVarTools::VarInfo>& var_info,
+	HistogramCanvas(wxWindow *parent,
+                    TemplateFrame* t_frame,
+					Project* project,
+                    const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize);
@@ -55,13 +60,27 @@ public:
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
+    virtual void update(CatClassifState* o);
 	
+    int AddClassificationOptionsToMenu(wxMenu* menu, CatClassifManager* ccm);
+    void NewCustomCatClassif();
+    void OnCustomCategorySelect(wxCommandEvent& e);
+
+    
 protected:
+    bool is_custom_category;
+    CatClassifState* custom_classif_state;
+    CatClassifDef cat_classif_def;
+    std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
     
-	
+    void GetBarPositions(std::vector<double>& x_pos,
+                         std::vector<double>& x_left_pos,
+                         std::vector<double>& x_right_pos);
+
 public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);

@@ -148,12 +148,11 @@ weights_id(weights_id_s)
 	
 	cat_classif_def.cat_classif_type = theme_type;
 	if (theme_type == CatClassification::no_theme) {
-		cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-		CatClassification::ChangeNumCats(1, cat_classif_def);
-		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
+		//cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
+		//CatClassification::ChangeNumCats(1, cat_classif_def);
+		//cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 	}
-	selectable_fill_color =
-		GdaConst::map_default_fill_colour;
+	selectable_fill_color = GdaConst::map_default_fill_colour;
 	
 	virtual_screen_marg_top = 25;
 	virtual_screen_marg_bottom = 25;
@@ -508,8 +507,7 @@ void MapCanvas::NewCustomCatClassif()
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
-		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
-										 cat_classif_def);
+		CatClassification::ChangeNumCats(cat_classif_def.num_cats, cat_classif_def);
 		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
@@ -527,17 +525,22 @@ void MapCanvas::NewCustomCatClassif()
 	}
 	
 	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
-	if (!ccf) return;
-	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
-										  var_info[0].name, var_info[0].time);
-	if (!ccs) return;
-	if (custom_classif_state) custom_classif_state->removeObserver(this);
+    
+	if (!ccf)
+        return;
+    
+	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time);
+    
+	if (!ccs)
+        return;
+    
+	if (custom_classif_state)
+        custom_classif_state->removeObserver(this);
+    
 	cat_classif_def = ccs->GetCatClassif();
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
-	//wxString s;
-	//CatClassification::PrintCatClassifDef(cat_classif_def, s);
-	//LOG_MSG(s);
+    
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -847,15 +850,16 @@ void MapCanvas::CreateAndUpdateCategories()
 	
 	if (GetCcType() == CatClassification::no_theme) {
 		 // 1 = #cats
-		CatClassification::ChangeNumCats(1, cat_classif_def);
-		cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
+		//CatClassification::ChangeNumCats(1, cat_classif_def);
+		//cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
+		//cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
 			cat_data.SetCategoryColor(t,0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
-			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
+			for (int i=0; i<num_obs; i++)
+                cat_data.AppendIdToCategory(t, 0, i);
 		}
 		
 		if (ref_var_index != -1) {
@@ -990,11 +994,12 @@ void MapCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
-	cat_classif_def.color_scheme =
-		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
+	cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
+    
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
-											  cat_data, map_valid,
+											  cat_data,
+                                              map_valid,
 											  map_error_message,
                                               this->useScientificNotation);
 
