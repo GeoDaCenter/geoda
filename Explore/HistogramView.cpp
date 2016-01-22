@@ -32,6 +32,7 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/HistIntervalDlg.h"
+#include "../DialogTools/CatClassifDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenGeomAlgs.h"
@@ -41,6 +42,7 @@
 #include "../FramesManager.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "CatClassifManager.h"
+#include "CatClassifState.h"
 #include "HistogramView.h"
 
 IMPLEMENT_CLASS(HistogramCanvas, TemplateCanvas)
@@ -255,14 +257,7 @@ void HistogramCanvas::update(CatClassifState* o)
     invalidateBms();
     PopulateCanvas();
     Refresh();
-    //CreateAndUpdateCategories();
-    //PopulateCanvas();
-    //if (template_frame) {
-    //    template_frame->UpdateTitle();
-    //    if (template_frame->GetTemplateLegend()) {
-    //        template_frame->GetTemplateLegend()->Refresh();
-    //    }
-    //}
+
 }
 void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 {
@@ -651,32 +646,34 @@ void HistogramCanvas::PopulateCanvas()
 
 void HistogramCanvas::NewCustomCatClassif()
 {
-    /*
-    cat_classif_def.cat_classif_type = CatClassification::no_theme;
-    cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-    CatClassification::ChangeNumCats(1, cat_classif_def);
-    cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
-    
-    int tht = var_info[1].time;
-    CatClassification::ChangeNumCats(cat_classif_def.num_cats, cat_classif_def);
-    std::vector<wxString> temp_cat_labels; // will be ignored
-    CatClassification::SetBreakPoints(cat_classif_def.breaks,
-                                      temp_cat_labels,
-                                      cat_var_sorted[tht],
-                                      cat_classif_def.cat_classif_type,
-                                      cat_classif_def.num_cats);
-    int time = cat_data.GetCurrentCanvasTmStep();
-    for (int i=0; i<cat_classif_def.num_cats; i++) {
-        cat_classif_def.colors[i] = cat_data.GetCategoryColor(time, i);
-        cat_classif_def.names[i] = cat_data.GetCategoryLabel(time, i);
-    }
-    int col = project->GetTableInt()->FindColId(var_info[1].name);
+    int tht = var_info[0].time;
+    int col = project->GetTableInt()->FindColId(var_info[0].name);
     cat_classif_def.assoc_db_fld_name = project->GetTableInt()->GetColName(col, tht);
-    */
+
     CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
     if (!ccf) return;
 
+    CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time);
+    
+    if (!ccs)
+        return;
+    
+    if (custom_classif_state)
+        custom_classif_state->removeObserver(this);
+    cat_classif_def = ccs->GetCatClassif();
+    custom_classif_state = ccs;
+    custom_classif_state->registerObserver(this);
+    
+    is_custom_category = true;
+    cur_intervals = cat_classif_def.num_cats;
+    
+    InitIntervals();
+    invalidateBms();
+    PopulateCanvas();
+    Refresh();
+
 }
+
 void HistogramCanvas::TimeChange()
 {
 	LOG_MSG("Entering HistogramCanvas::TimeChange");

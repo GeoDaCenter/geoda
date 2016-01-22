@@ -885,7 +885,9 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 					assoc_var_choice->SetSelection(f_sel);
 					if (table_int->IsColTimeVariant(field_name)) {
 						assoc_var_tm_choice->SetSelection(field_tm);
-					}
+                    } else {
+                        assoc_var_tm_choice->Enable(false);
+                    }
 				}
 				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
 				SetSyncVars(true);
@@ -2278,6 +2280,7 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
     
     preview_var_text->Show(false);
     preview_var_choice->Show(false);
+    preview_var_tm_choice->Show(false);
     sync_vars_chk->Show(false);
     
 	Connect(XRCID("ID_SYNC_VARS_CHK"), wxEVT_CHECKBOX,
