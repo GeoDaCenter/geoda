@@ -3556,12 +3556,12 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	}
 	if (LWO.m_ClustMap) {
 		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
-												  lc, true, true, false);
+												  lc, true, false, false);
 	}
 	
 	if (LWO.m_SigMap) {
 		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
-												  lc, false, true, false);
+												  lc, false, false, false);
 	}
 }
 

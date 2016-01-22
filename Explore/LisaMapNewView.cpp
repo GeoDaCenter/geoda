@@ -101,8 +101,11 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	wxString lisa_t;
 	if (is_clust && !is_bi) lisa_t = " LISA Cluster Map";
 	if (is_clust && is_bi) lisa_t = " BiLISA Cluster Map";
+    if (is_clust && is_diff) lisa_t = " Differential LISA Cluster Map";
+    
 	if (!is_clust && !is_bi) lisa_t = " LISA Significance Map";
 	if (!is_clust && is_bi) lisa_t = " BiLISA Significance Map";
+    if (!is_clust && is_diff) lisa_t = " Differential Significance Map";
 	
 	wxString field_t;
 	if (is_bi) {
