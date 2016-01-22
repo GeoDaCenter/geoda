@@ -695,7 +695,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
             
             int n = n1 + n2;
             double *y = new double[n];
-            double **x = new double* [2];
+            double **x = new double* [nX];
             for (int t=0; t<nX; t++) {
                 x[t] = new double[n];
             }
