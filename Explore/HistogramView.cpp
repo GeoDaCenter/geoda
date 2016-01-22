@@ -650,7 +650,7 @@ void HistogramCanvas::NewCustomCatClassif()
     int col = project->GetTableInt()->FindColId(var_info[0].name);
     cat_classif_def.assoc_db_fld_name = project->GetTableInt()->GetColName(col, tht);
 
-    CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
+    CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(false);
     if (!ccf) return;
 
     CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time);

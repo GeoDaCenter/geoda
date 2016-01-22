@@ -474,7 +474,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     if (tmp_col >= 0) {
                         table_int->DeleteCol(tmp_col);
                     }
-                    wxString m = wxString::Format("Change variable type for \"%s\" is faild. Please check all values are valid for chaning variable type from \"%s\" to \"%s\".", (var_name, type_str, new_type_str));
+                    wxString m = wxString::Format("Change variable type for \"%s\" has failed. Please check all values are valid.", var_name);
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
