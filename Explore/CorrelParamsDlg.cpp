@@ -108,7 +108,7 @@ help_btn(0), apply_btn(0)
 	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "", wxDefaultPosition, wxSize(100,-1));
 	thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	thresh_tctrl->Enable(false);
-	UpdateThreshTctrlVal();
+	//UpdateThreshTctrlVal();
 	Connect(XRCID("ID_THRESH_CBX"), wxEVT_CHECKBOX,
 					wxCommandEventHandler(CorrelParamsFrame::OnThreshCheckBox));
 	Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_TEXT,
@@ -266,8 +266,10 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 	}
 	
 	bool use_thresh = thresh_cbx->GetValue();
-	double thresh_val = GetThreshMax();
-	if (use_thresh) {
+    double thresh_val = 0;
+    if (use_thresh) {
+        thresh_val = GetThreshMax();
+
 		wxString val = thresh_tctrl->GetValue();
 		val.Trim(false);
 		val.Trim(true);
