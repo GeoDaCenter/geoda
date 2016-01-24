@@ -160,8 +160,8 @@ void DiffMoranVarSettingDlg::InitTimeComboboxes(wxComboBox* time1, wxComboBox* t
         time1->Append(tm_strs[i]);
         time2->Append(tm_strs[i]);
     }
-    time1->SetSelection(0);
-    time2->SetSelection(1);
+    time1->SetSelection(1);
+    time2->SetSelection(0);
 
 }
 
