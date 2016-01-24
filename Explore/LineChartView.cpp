@@ -462,7 +462,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     if (!dummy_select_stack.empty()) {
         int n = dummy_select_stack.size();
         if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-        OGRColumn* select_col = new OGRColumnInteger("SELECT", 18, 0, n);
+        OGRColumn* select_col = new OGRColumnInteger("SPACE", 18, 0, n);
         select_col->UpdateData(dummy_select_stack);
         mem_table_int->AddOGRColumn(select_col);
     }
@@ -547,7 +547,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
         size_t n_ts = Y.size();
         
         if (compare_regimes) {
-            m_Xnames.push_back("DUMMY_SELECT");
+            m_Xnames.push_back("SPACE_DUMMY");
             int nX = m_Xnames.size();
            
             int n = 0;
@@ -668,8 +668,8 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE TIME PERIOD) \n----------\n" + logReport;
             
         } else if (compare_r_and_t) {
-            m_Xnames.push_back("DUMMY_SELECT");
-            m_Xnames.push_back("DUMMY_PERIOD");
+            m_Xnames.push_back("SPACE_DUMMY");
+            m_Xnames.push_back("TIME_PERIOD");
             m_Xnames.push_back("INTERACTION");
             int nX = m_Xnames.size();
             

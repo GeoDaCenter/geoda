@@ -3282,7 +3282,7 @@
       <checked>0</checked>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_DUMMY">
-      <label>Save Dummy Data to Table</label>
+      <label>Save Dummy Var. to Table</label>
       <checkable>0</checkable>
       <checked>0</checked>
     </object>
