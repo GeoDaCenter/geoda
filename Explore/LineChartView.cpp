@@ -1764,7 +1764,7 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     slog << wxString::Format(f, r->GetSIQ_SQLM());
     f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
     slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
-    
+    /*
     slog << "--------------------------------";
     slog << "---------------------------------------\n"; cnt++;
     slog << "    Variable   Coefficient      ";
@@ -1780,7 +1780,7 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     }
     slog << "----------------------------------";
     slog << "-------------------------------------\n\n"; cnt++; cnt++;
-   
+    */
     /*
     slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
     double *rr = r->GetBPtest();
