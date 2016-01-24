@@ -9,7 +9,7 @@
     <object class="tool" name="ID_NEW_PROJECT">
       <bitmap>ToolBar-open-folder.png</bitmap>
       <bitmap2>ToolBar-open-folder_disabled.png</bitmap2>
-      <tooltip>New Project</tooltip>
+      <tooltip>Open</tooltip>
     </object>
     <!--
     <object class="tool" name="ID_OPEN_PROJECT">
@@ -21,12 +21,12 @@
     <object class="tool" name="ID_CLOSE_PROJECT">
       <bitmap>ToolBar-close-folder.png</bitmap>
       <bitmap2>ToolBar-close-folder_disabled.png</bitmap2>
-      <tooltip>Close Project</tooltip>
+      <tooltip>Close</tooltip>
     </object>
     <object class="tool" name="ID_SAVE_PROJECT">
       <bitmap>ToolBar-save-project.png</bitmap>
       <bitmap2>ToolBar-save-project_disabled.png</bitmap2>
-      <tooltip>Save Project</tooltip>
+      <tooltip>Save</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
