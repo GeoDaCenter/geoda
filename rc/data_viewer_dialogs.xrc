@@ -725,7 +725,7 @@
                 <object class="wxBoxSizer">
                   <object class="sizeritem">
                     <object class="wxButton" name="ID_MOVE_UP_BUTTON">
-                      <label>Move Back</label>
+                      <label>Move Up</label>
                       <style>wxBU_EXACTFIT</style>
                     </object>
                     <flag>wxRIGHT</flag>
@@ -733,7 +733,7 @@
                   </object>
                   <object class="sizeritem">
                     <object class="wxButton" name="ID_MOVE_DOWN_BUTTON">
-                      <label>Move Forward</label>
+                      <label>Move Down</label>
                       <style>wxBU_EXACTFIT</style>
                     </object>
                   </object>
