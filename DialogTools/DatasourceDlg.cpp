@@ -56,7 +56,6 @@ void DatasourceDlg::Init()
     
     // create file type dataset pop-up menu dynamically
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
-	ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
     ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("dBase Database File (*.dbf)|*.dbf");
     if( GeneralWxUtils::isWindows()){
@@ -74,6 +73,8 @@ void DatasourceDlg::Init()
                  "MapInfo MID (*.mif)|*.mif");
     ds_names.Add("MS Excel (*.xls)|*.xls");
     ds_names.Add("Open Document Spreadsheet (*.ods)|*.ods");
+    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
+
     //ds_names.Add("Idrisi Vector (*.vct)|*.vct");
     //ds_names.Add("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
     //ds_names.Add("OpenStreetMap XML and PBF (*.osm)|*.OSM;*.osm");
