@@ -40,7 +40,7 @@
  #endif
 #else
  #ifndef GET_ENCODED_FILENAME
-  #define GET_ENCODED_FILENAME(a) a.mb_str() 
+  #define GET_ENCODED_FILENAME(a) a.ToUTF8().data() 
  #endif
 #endif
 

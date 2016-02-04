@@ -26,25 +26,12 @@
 #include <boost/uuid/uuid.hpp>
 #include <wx/filename.h>
 
+#include "../GenUtils.h"
 #include "../Project.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../DataViewer/TableInterface.h"
 #include "GalWeight.h"
 
-
-// file name encodings
-// in windows, wxString.fn_str() will return a wchar*, which take care of 
-// international encodings
-// in mac, wxString.mb_str() will return UTF8 char*
-#ifdef __WIN32__
-	#ifndef GET_ENCODED_FILENAME
-		#define GET_ENCODED_FILENAME(a) a.fn_str() 
-	#endif
-#else
-#ifndef GET_ENCODED_FILENAME
-	#define GET_ENCODED_FILENAME(a) a.mb_str() 
-	#endif
-#endif
 
 
 GalElement::GalElement()

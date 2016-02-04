@@ -44,14 +44,14 @@ public:
 	 * Construct function. Create a data source proxy according to the 
 	 * formated ds_name (datasource name).
 	 */
-	OGRDatasourceProxy(string _ds_name, bool bUpdate=true);
+	OGRDatasourceProxy(wxString _ds_name, bool bUpdate=true);
 	/**
 	 */
-	OGRDatasourceProxy(GDALDataset* _ds, string _ds_name);
+	OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name);
 	/**
 	 * Create a new OGRDatasourceProxy by given OGR format and ds name
 	 */
-	OGRDatasourceProxy(string format, string dest_datasources);
+	OGRDatasourceProxy(string format, wxString dest_datasources);
 	/**
 	 * Deconstructor. Will clean the layer proxies (OGRLayerProxy) in the layer
 	 * pool (map)
@@ -66,7 +66,7 @@ public:
    
     GdaConst::DataSourceType ds_type;
     
-    string ds_name; //!< formated name of data source
+    wxString ds_name; //!< formated name of data source
     
     GDALDataset* ds; //!< maintain the datasource after connecting to it
     
@@ -87,7 +87,7 @@ public:
 	 * Note: this function now is working in GdaCache only, so the created
 	 * datasource will be added to layer_pool.
 	 */
-	static void CreateDataSource(string format, string dest_datasource);
+	static void CreateDataSource(string format, wxString dest_datasource);
 	
 	/**
 	 * Return OGR data source type as string

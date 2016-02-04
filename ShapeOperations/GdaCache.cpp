@@ -31,22 +31,14 @@ GdaCache::GdaCache()
 {
     wxString exePath = GdaCache::GetFullPath();
     
-#ifdef __WIN32__
-	std::wstring ws(GET_ENCODED_FILENAME(exePath));
-	std::string s(ws.begin(), ws.end());
-	cache_filename = s;
-#else
-	cache_filename = GET_ENCODED_FILENAME(exePath);
-#endif
-    
 	// if cache file not exists, create one
     if (!wxFileExists(exePath)) {
-        OGRDatasourceProxy::CreateDataSource("SQLite", cache_filename);
+        OGRDatasourceProxy::CreateDataSource("SQLite", exePath);
     }
     
 	// connect to cache file
     try {
-        cach_ds_proxy = new OGRDatasourceProxy(cache_filename, true);
+        cach_ds_proxy = new OGRDatasourceProxy(exePath, true);
         layer_names = cach_ds_proxy->GetLayerNames();
         std::string sql = "SELECT * FROM history";
         history_table = cach_ds_proxy->GetLayerProxyBySQL(sql);

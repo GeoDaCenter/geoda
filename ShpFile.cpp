@@ -20,20 +20,7 @@
 #include <sstream>
 #include <boost/functional/hash.hpp>
 #include "ShpFile.h"
-
-// file name encodings
-// in windows, wxString.fn_str() will return a wchar*, which take care of 
-// international encodings
-// in mac, wxString.mb_str() will return UTF8 char*
-#ifdef __WIN32__
- #ifndef GET_ENCODED_FILENAME
-  #define GET_ENCODED_FILENAME(a) a.fn_str() 
- #endif
-#else
- #ifndef GET_ENCODED_FILENAME
-  #define GET_ENCODED_FILENAME(a) a.mb_str() 
- #endif
-#endif
+#include "GenUtils.h"
 
 bool Shapefile::operator==(Point const& a, Point const& b)
 {

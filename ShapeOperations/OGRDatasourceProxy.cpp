@@ -28,20 +28,21 @@
 #include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"
 #include "../GdaException.h"
+#include "../GenUtils.h"
 
 using namespace std;
 
-//------------------------------------------------------------------------------
-OGRDatasourceProxy::OGRDatasourceProxy(GDALDataset* _ds, string _ds_name)
+
+OGRDatasourceProxy::OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name)
 : ds(_ds), ds_name(_ds_name)
 {
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
+OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, bool bUpdate)
 : ds_name(_ds_name)
 {	
-	//ds = OGRSFDriverRegistrar::Open( ds_name.c_str(), bUpdate);
-    const char* pszDsPath = ds_name.c_str();
+    const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
+    
 	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     is_writable = true;
 	if (!ds) {
@@ -51,7 +52,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
             // raise open fialed
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
-            if ( error_detail.length() == 0 || error_detail == "Unknown"){
+            if ( error_detail.length() == 0 || error_detail == "Unknown") {
                 msg << "Failed to open data source. Please check if the data is valid and its data type/format is supported by GeoDa.\n\nTip: you can setup necessary GeoDa driver by following the instructions at:\n https://geodacenter.asu.edu/geoda/formats";
             } else {
                 msg << error_detail;
@@ -62,26 +63,25 @@ OGRDatasourceProxy::OGRDatasourceProxy(string _ds_name, bool bUpdate)
         is_writable = false;
 	}
 	ds_type = GetGdaDataSourceType();
+    
 	// deprecated by above logic
     //is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(string format, string dest_datasource)
+OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 : ds_name(dest_datasource)
 {
 	// create a OGRDatasourceProxy with a geometry layer
 	ostringstream error_message;
 	const char* pszFormat = format.c_str();
-	const char* pszDestDataSource = ds_name.c_str();
-	//OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-	//OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
+	const char* pszDestDataSource = GET_ENCODED_FILENAME(ds_name);
+    
 	GDALDriver *poDriver;
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current data source format " << format << " is not ";
-		error_message << "supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "Current data source format " << format << " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
 	
@@ -101,20 +101,17 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, string dest_datasource)
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if(ds == NULL ) {
 		// driver failed to load
-		error_message << "Internal Error: GeoDa can't create output driver. Please contact GeoDa admin."
-		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
+		error_message << "Internal Error: GeoDa can't create output driver. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
     if(!ds->TestCapability(ODsCCreateLayer)) {
 		// driver failed to load
-		error_message << "GeoDa can't write layer to this datasource. Please contact GeoDa admin."
-		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
+		error_message << "GeoDa can't write layer to this datasource. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }
 	layer_count = ds->GetLayerCount();
 }
 
-//------------------------------------------------------------------------------
 OGRDatasourceProxy::~OGRDatasourceProxy()
 {
 	// clean map of layer_pool
@@ -129,7 +126,6 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
 	GDALClose(ds);
 }
 
-//------------------------------------------------------------------------------
 GdaConst::DataSourceType
 OGRDatasourceProxy::GetGdaDataSourceType()
 {
@@ -148,18 +144,19 @@ OGRDatasourceProxy::GetGdaDataSourceType()
 	}
 }
 
-//------------------------------------------------------------------------------
 vector<string> OGRDatasourceProxy::GetLayerNames()
 {
 	// GetLayerNames can happen before actually read data from layer
 	// , so this provide us a chance to store all OGRLayer instance
 	// in this datasource proxy for future use.
+    
 	if (layer_count == layer_pool.size() && layer_count > 0) {
 		// return layer names from pool directly
 		//map<string, OGRLayerProxy*>::iterator it;
 		//for (it = layer_pool.begin(); it!= layer_pool.end(); it++) {
 		//	layer_names.push_back(it->first);
 		//}
+        
     } else if (layer_count == 0){
        // try to read (by default) first layer
        // Note: http://ogi.state.ok.us/geoserver/wfs?VERSION=1.1.0&REQUEST=GetFeature&typename=okcounties
@@ -171,6 +168,7 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
             this->layer_names.push_back(layer_name);
             layer_pool[layer_name] = new OGRLayerProxy(layer_name,layer,ds_type);
         }
+        
 	} else {
 		// read and store layer one by one, get the layer name
 		int system_layers = 0;
@@ -192,18 +190,16 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
 			layer_pool[layer_name] = new OGRLayerProxy(layer_name,layer,ds_type);
 		}
         layer_count = layer_count - system_layers;
+        
 	}
 	return this->layer_names;
 }
 
-//------------------------------------------------------------------------------
 OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(string sql)
 {
 	ds->ExecuteSQL(sql.c_str(), 0, 0);
 	return NULL;
 }
-
-//------------------------------------------------------------------------------
 
 OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(string sql)
 {
@@ -243,7 +239,6 @@ bool OGRDatasourceProxy::DeleteLayer(string layer_name)
     return false;
 }
 
-//------------------------------------------------------------------------------
 OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(string layer_name)
 {
 	OGRLayerProxy* layer_proxy;
@@ -272,37 +267,25 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(string layer_name)
 	return layer_proxy;
 }
 
-//------------------------------------------------------------------------------
-// static function
 void OGRDatasourceProxy::CreateDataSource(string format,
-										  string dest_datasource)
+										  wxString dest_datasource)
 {
 	ostringstream error_message;
 	const char* pszFormat = format.c_str();
 	const char* pszDestDataSource = dest_datasource.c_str();
-	//OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-	//OGRSFDriver *poDriver = poR->GetDriverByName(pszFormat);
 	GDALDriver *poDriver;
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current OGR dirver " + format + " is not supprted "
-			<< "by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "Current OGR dirver " + format + " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
-	//if( !poDriver->TestCapability( ODrCCreateDataSource ) ){
-  //      error_message << "Current OGR driver does not support data source"
-  //      " creation.";
-	//	throw GdaException(error_message.str().c_str());
-	//}
 	
 	// Create the output data source.  
-	//OGRDataSource *poODS = poDriver->CreateDataSource( pszDestDataSource, NULL);
 	GDALDataset *poODS = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if( poODS == NULL ) {
 		// driver failed to load
-		error_message << "Can't create output OGR driver."
-		<<"\n\nDetails:"<< CPLGetLastErrorMsg();
+		error_message << "Can't create output OGR driver. \n\nDetails:"<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
 	//OGRDataSource::DestroyDataSource( poODS );
@@ -337,8 +320,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(), poOutputSRS, eGType, papszLCO);
     
     if( poDstLayer == NULL ) {
-        error_message << "Can't write/create layer \"" << layer_name << "\"."
-                      <<"\n\nDetails: Attemp to write a readonly database, or "
+        error_message << "Can't write/create layer \"" << layer_name << "\". \n\nDetails: Attemp to write a readonly database, or "
                       << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }

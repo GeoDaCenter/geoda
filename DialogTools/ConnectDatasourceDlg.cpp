@@ -48,8 +48,7 @@ class DnDFile : public wxFileDropTarget
 public:
     DnDFile(ConnectDatasourceDlg *pOwner = NULL) { m_pOwner = pOwner; }
     
-    virtual bool OnDropFiles(wxCoord x, wxCoord y,
-                             const wxArrayString& filenames);
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
     
 private:
     ConnectDatasourceDlg *m_pOwner;

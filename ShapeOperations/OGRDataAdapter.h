@@ -105,7 +105,7 @@ private:
 	// In multi-layer scenario, this ogr-datasource pool will automatically
 	// manage ogr datasources and layers.
 	///////////////////////////////////////////////////////////////////////////
-	map<string, OGRDatasourceProxy*> ogr_ds_pool;
+	map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
 
 	OGRDatasourceProxy* export_ds;
     
@@ -123,7 +123,7 @@ public:
 	 * Otherwise, create a new OGR datasource, store it in ogr_ds_pool,
 	 * then return it.
 	 */
-	OGRDatasourceProxy* GetDatasourceProxy(string ds_name);
+	OGRDatasourceProxy* GetDatasourceProxy(wxString ds_name);
 	
 	vector<string> GetHistory(string param_key);
 
@@ -155,7 +155,7 @@ public:
 	 * @param ds_name OGR data source name
 	 * @param layer_name OGR table name
 	 */
-	OGRLayerProxy* T_ReadLayer(string ds_name, string layer_name);
+	OGRLayerProxy* T_ReadLayer(wxString ds_name, string layer_name);
 	
 	void T_StopReadLayer(OGRLayerProxy* layer_proxy);
 	
@@ -168,14 +168,15 @@ public:
      * Create a OGR datasource that contains input geometries and table.
      */
     OGRLayerProxy* ExportDataSource(string o_ds_format, 
-								string o_ds_name,
-                                 string o_layer_name,
-                                 OGRwkbGeometryType geom_type,
-                                 vector<OGRGeometry*> ogr_geometries,
-                                 TableInterface* table,
-								 vector<int>& selected_rows,
-                                 OGRSpatialReference* spatial_ref,
-								 bool is_update);
+                                    wxString o_ds_name,
+                                    string o_layer_name,
+                                    OGRwkbGeometryType geom_type,
+                                    vector<OGRGeometry*> ogr_geometries,
+                                    TableInterface* table,
+                                    vector<int>& selected_rows,
+                                    OGRSpatialReference* spatial_ref,
+                                    bool is_update);
+                                 
     void StopExport();
 	void CancelExport(OGRLayerProxy* layer);
     

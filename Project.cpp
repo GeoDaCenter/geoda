@@ -170,8 +170,7 @@ sourceSR(NULL)
 	// variable_order instance (table information) is newly created
 	// its content will be update in InitFromXXX() by calling function
 	// CorrectVarGroups()
-	LayerConfiguration* layer_conf = new LayerConfiguration(layername,
-																													datasource);
+	LayerConfiguration* layer_conf = new LayerConfiguration(layername, datasource);
 	project_conf = new ProjectConfiguration(proj_title, layer_conf);
 	
 	// Init new project from datasource
@@ -326,9 +325,7 @@ void Project::CalcEucPlaneRtreeStats()
 	}
 	SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
 	double mean_d_1nn, median_d_1nn;
-	SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc,
-																		 max_1nn_dist_euc,
-																		 mean_d_1nn, median_d_1nn);
+	SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
 	wxRealPoint pt1, pt2;
 	max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
 }
@@ -343,17 +340,14 @@ void Project::CalcUnitSphereRtreeStats()
 	std::vector<double> x(num_obs);
 	std::vector<double> y(num_obs);
 	for (size_t i=0; i<num_obs; ++i) {
-		pts_ll[i] = pt_lonlat(centroids[i]->center_o.x,
-													centroids[i]->center_o.y);
+		pts_ll[i] = pt_lonlat(centroids[i]->center_o.x, centroids[i]->center_o.y);
 		x[i] = centroids[i]->center_o.x;
 		y[i] = centroids[i]->center_o.y;
 	}
 	SpatialIndAlgs::to_3d_centroids(pts_ll, pts_3d);
 	SpatialIndAlgs::fill_pt_rtree(rtree_3d, pts_3d);
 	double mean_d_1nn, median_d_1nn;
-	SpatialIndAlgs::get_pt_rtree_stats(rtree_3d, min_1nn_dist_arc,
-																		 max_1nn_dist_arc,
-																		 mean_d_1nn, median_d_1nn);
+	SpatialIndAlgs::get_pt_rtree_stats(rtree_3d, min_1nn_dist_arc, max_1nn_dist_arc, mean_d_1nn, median_d_1nn);
 	wxRealPoint pt1, pt2;
 	double d = PointSetAlgs::EstDiameter(x, y, true, pt1, pt2);
 	max_dist_arc = GenGeomAlgs::DegToRad(d);
@@ -375,7 +369,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 		if (!wxFileExists(ds_name)) {
 			return NULL;
 		}
-		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name.ToStdString(), true);
+		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, true);
 		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername.ToStdString());
 		spatial_ref = ogr_layer->GetSpatialReference();
 		if (spatial_ref) spatial_ref = spatial_ref->Clone();
@@ -692,13 +686,8 @@ bool Project::IsPointDuplicates()
 void Project::DisplayPointDupsWarning()
 {
 	if (point_dups_warn_prev_displayed) return;
-	wxString msg("Duplicate Thiessen polygons exist due "
-							 "to duplicate or near-duplicate map points. "
-							 " Press OK to save duplicate polygon ids "
-							 "to Table.");
-	wxMessageDialog dlg(NULL, msg, "Duplicate Thiessen "
-											"Polygons Found",
-											wxOK | wxCANCEL | wxICON_INFORMATION);
+	wxString msg("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
+	wxMessageDialog dlg(NULL, msg, "Duplicate Thiessen Polygons Found", wxOK | wxCANCEL | wxICON_INFORMATION);
 	if (dlg.ShowModal() == wxID_OK) SaveVoronoiDupsToTable();
 	point_dups_warn_prev_displayed = true;
 }
@@ -754,8 +743,7 @@ void Project::SaveVoronoiDupsToTable()
 	data[0].type = GdaConst::long64_type;
 	
 	wxString title("Save Duplicate Thiessen Polygon Ids");
-	SaveToTableDlg dlg(this, NULL, data, title,
-										 wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, title, wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 }
 
@@ -877,9 +865,7 @@ void Project::AddMeanCenters()
 	data[1].field_default = "YMCTR";
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data,
-										 "Add Mean Centers to Table",
-										 wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, "Add Mean Centers to Table", wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
@@ -1463,7 +1449,7 @@ bool Project::InitFromOgrLayer()
 	
 	// OK. ReadLayer() is running in a seperate thread.
 	// That gives us a chance to get its progress from a Progress window.
-	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name.ToStdString(),layername.ToStdString());
+	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, layername.ToStdString());
 	
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     

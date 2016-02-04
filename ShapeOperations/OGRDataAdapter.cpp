@@ -69,7 +69,7 @@ OGRDataAdapter::OGRDataAdapter(bool enable_cache)
 void OGRDataAdapter::Close()
 {
 	// clean ogr_ds_pool
-	map<string, OGRDatasourceProxy*>::iterator it;
+	map<wxString, OGRDatasourceProxy*>::iterator it;
 	for(it=ogr_ds_pool.begin(); it!=ogr_ds_pool.end(); it++) {
         OGRDatasourceProxy* ds = it->second;
 		if (ds) {
@@ -82,7 +82,7 @@ void OGRDataAdapter::Close()
 	if ( !gda_cache) delete gda_cache;
 }
 
-OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(string ds_name)
+OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name)
 {
 	OGRDatasourceProxy* ds_proxy;
 	
@@ -129,7 +129,7 @@ vector<string> OGRDataAdapter::GetLayerNames(string ds_name)
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(string ds_name, string layer_name)
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, string layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
 	//XXX: we don't cache layer in 1.5.x
@@ -282,7 +282,7 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 
 OGRLayerProxy*
 OGRDataAdapter::ExportDataSource(string o_ds_format, 
-								 string o_ds_name,
+								 wxString o_ds_name,
                                  string o_layer_name,
                                  OGRwkbGeometryType geom_type,
                                  vector<OGRGeometry*> ogr_geometries,
