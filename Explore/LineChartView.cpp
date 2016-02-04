@@ -742,7 +742,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
         
         // display regression in dialog
         if (regReportDlg == 0) {
-            regReportDlg = new RegressionReportDlg(this, logReport);
+            regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY, "Diff-in-Diff Regression Report");
             regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LineChartFrame::OnReportClose), NULL, this);
         } else {
             regReportDlg->AddNewReport(logReport);
@@ -894,10 +894,7 @@ void LineChartFrame::notifyNewSelection(const std::vector<bool>& tms_sel,
 	s << "  new selection:";
 	for (size_t t=0; t<tms; ++t) {
 		if (tms_sel[t]) s << " " << t;
-	}
-	LOG(shiftdown);
-	LOG(pointsel);
-	LOG_MSG(s);
+	} 
 	
 	if (compare_regimes) {
 		// In compare regimes mode, we make minimal effort to
@@ -1123,9 +1120,8 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			//wxWebView* wv = 0;
 			wxHtmlWindow* wv = 0;
 			if (display_stats) {
-				wv = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-															wxSize(200, -1));
-				//wv = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,		wxDefaultPosition, wxDefaultSize);
+				wv = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200, -1));
+				//wv = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize);
                 wv->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 				stats_wins.push_back(wv);
 				UpdateStatsWinContent(row);
@@ -1139,17 +1135,23 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			}
 		}
 		int col0_proportion = 1;
-		if (display_stats) col0_proportion = compare_r_and_t ? 2 : 3;
-		int col1_proportion = 1;
+		if (display_stats)
+            col0_proportion = compare_r_and_t ? 2 : 3;
+		
+        int col1_proportion = 1;
 		bag_szr->SetFlexibleDirection(wxBOTH);
-		if (bag_szr->IsColGrowable(0)) bag_szr->RemoveGrowableCol(0);
+		if (bag_szr->IsColGrowable(0))
+            bag_szr->RemoveGrowableCol(0);
 		bag_szr->AddGrowableCol(0, col0_proportion);
-		if (display_stats) {
-			if (bag_szr->IsColGrowable(1)) bag_szr->RemoveGrowableCol(1);
+		
+        if (display_stats) {
+			if (bag_szr->IsColGrowable(1))
+                bag_szr->RemoveGrowableCol(1);
 			bag_szr->AddGrowableCol(1, col1_proportion);
 		}
 		for (int i=0; i<num_vars; ++i) {
-			if (bag_szr->IsRowGrowable(i)) bag_szr->RemoveGrowableRow(i);
+			if (bag_szr->IsRowGrowable(i))
+                bag_szr->RemoveGrowableRow(i);
 			bag_szr->AddGrowableRow(i, 1);
 		}
 	}
@@ -1198,16 +1200,17 @@ void LineChartFrame::UpdateTitleText()
 	wxString frame_title("Averages Chart");
 	if (var_man.GetVarsCount() > 0) {
 		if (compare_regimes) {
-			frame_title << " - Compare Regimes";
+			frame_title << " - Compare Regimes - " << var_man.GetName(0);
 		} else if (compare_time_periods) {
-			frame_title << " - Compare Time Periods";
+			frame_title << " - Compare Time Periods - " << var_man.GetName(0);
 		} else if (compare_r_and_t) {
-			frame_title << " - Compare Regimes and Times";
+			frame_title << " - Compare Regimes and Times - " << var_man.GetName(0);
 		}
 	}
 	SetTitle(frame_title);
 	
-	if (!title1_txt) return;
+	if (!title1_txt)
+        return;
 	//if (compare_r_and_t && !title2_txt) return;
 	TableInterface* table_int = project->GetTableInt();
 	

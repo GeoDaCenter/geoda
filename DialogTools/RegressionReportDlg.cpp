@@ -78,7 +78,7 @@ void RegressionReportDlg::CreateControls()
     m_textbox = new wxTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560), wxTE_MULTILINE | wxTE_READONLY);
     
     if (GeneralWxUtils::isWindows()) {
-        wxFont font(10,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
         m_textbox->SetFont(font);
     } else {
         wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);

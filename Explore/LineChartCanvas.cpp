@@ -50,9 +50,8 @@ const double LineChartCanvas::circ_rad = 2.5;
 const double LineChartCanvas::ss_circ_rad = 6.0;
 const double LineChartCanvas::ray_len = 10.0;
 
-LineChartCanvas::LineChartCanvas(wxWindow *parent,  TemplateFrame* t_frame, Project* project, const LineChartStats& lcs_, LineChartCanvasCallbackInt* lc_canv_cb_, const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true),
-  lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0)
+LineChartCanvas::LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const LineChartStats& lcs_, LineChartCanvasCallbackInt* lc_canv_cb_, const wxPoint& pos, const wxSize& size)
+: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true), lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
 	shps_orig_xmin = 0;
@@ -322,17 +321,18 @@ void LineChartCanvas::PopulateCanvas()
 	int win_height = size.GetHeight();
 	double scale_x, scale_y, trans_x, trans_y;
 	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-																	shps_orig_xmax, shps_orig_ymax,
-																	virtual_screen_marg_top,
-																	virtual_screen_marg_bottom,
-																	virtual_screen_marg_left,
-																	virtual_screen_marg_right,
-																	win_width, win_height,
-																	fixed_aspect_ratio_mode,
-																	fit_to_window_mode,
-																	&scale_x, &scale_y, &trans_x, &trans_y,
-																	0, 0,
-																	&current_shps_width, &current_shps_height);
+                                    shps_orig_xmax, shps_orig_ymax,
+                                    virtual_screen_marg_top,
+                                    virtual_screen_marg_bottom,
+                                    virtual_screen_marg_left,
+                                    virtual_screen_marg_right,
+                                    win_width, win_height,
+                                    fixed_aspect_ratio_mode,
+                                    fit_to_window_mode,
+                                    &scale_x, &scale_y, &trans_x, &trans_y,
+                                    0, 0,
+                                    &current_shps_width, &current_shps_height);
+																	
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 	
 	{
@@ -588,8 +588,7 @@ void LineChartCanvas::PopulateCanvas()
 			p->setPen(GdaConst::ln_cht_clr_sel_dark);
 			background_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
-				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y),
-																		 circ_rad);
+				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y), circ_rad);
 				wxColour lc = GdaConst::ln_cht_clr_sel_dark;
 				wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 				c->setPen(lc);
@@ -611,8 +610,7 @@ void LineChartCanvas::PopulateCanvas()
 			p->setPen(*wxBLACK_PEN);
 			background_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
-				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y),
-																		 circ_rad);
+				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y), circ_rad);
 				wxColour lc = *wxBLACK;
 				wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 				c->setPen(lc);
@@ -670,18 +668,14 @@ void LineChartCanvas::PopulateCanvas()
 
 	GdaAxis* x_baseline = 0;
 	if (time_variant) {
-		x_baseline = new GdaAxis("", tm_strs,
-														 wxRealPoint(0,0), wxRealPoint(100, 0),
-														 0, 5);
+		x_baseline = new GdaAxis("", tm_strs, wxRealPoint(0,0), wxRealPoint(100, 0), 0, 5);
 		x_baseline->hideCaption(true);
 		x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 		x_baseline->autoDropScaleValues(true);
 		x_baseline->moveOuterValTextInwards(false);
 		background_shps.push_back(x_baseline);
 	}
-	GdaAxis* y_baseline = new GdaAxis(lcs.Yname, axis_scale_y,
-																		wxRealPoint(0,0), wxRealPoint(0, 100),
-																		-5, 0);
+	GdaAxis* y_baseline = new GdaAxis(lcs.Yname, axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, 100), -5, 0);
 	y_baseline->autoDropScaleValues(true);
 	y_baseline->moveOuterValTextInwards(true);
 	y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
@@ -702,9 +696,7 @@ void LineChartCanvas::UpdateMargins()
 }
 
 /** bg_clr is optional and is transparent by default */
-GdaCircle* LineChartCanvas::MakeSummAvgHelper(double y_avg,
-																							const wxColour& fg_clr,
-																							const wxColour& bg_clr)
+GdaCircle* LineChartCanvas::MakeSummAvgHelper(double y_avg, const wxColour& fg_clr, const wxColour& bg_clr)
 {
 	const double x = 100;
 	const int x_nudge = 40;
