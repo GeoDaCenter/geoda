@@ -3286,8 +3286,7 @@ void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
                            "", "", "", "", false, false, hide_time);
 	if (VS.ShowModal() != wxID_OK) return;
     
-	LineChartFrame* f =
-	new LineChartFrame(GdaFrame::gda_frame, project_p, VS.var_info, VS.col_ids, "Average Comparison Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
+	LineChartFrame* f = new LineChartFrame(GdaFrame::gda_frame, project_p, VS.var_info, VS.col_ids, "Average Comparison Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
 }
 
 void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))

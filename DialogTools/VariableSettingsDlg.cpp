@@ -871,6 +871,14 @@ void VariableSettingsDlg::InitFieldChoices()
     		t2 << " (" << table_int->GetTimeString(v2_time) << ")";
     		t3 << " (" << table_int->GetTimeString(v3_time) << ")";
     		t4 << " (" << table_int->GetTimeString(v4_time) << ")";
+        } else {
+            wxString first_time = table_int->GetTimeString(0);
+            wxString second_time = table_int->GetTimeString(time_steps-1);
+            
+            t1 << " (" << first_time << "-" << second_time << ")";
+            t2 << " (" << first_time << "-" << second_time << ")";
+            t3 << " (" << first_time << "-" << second_time << ")";
+            t4 << " (" << first_time << "-" << second_time << ")";
         }
 	}
 	
@@ -881,24 +889,30 @@ void VariableSettingsDlg::InitFieldChoices()
 
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		wxString name = table_int->GetColName(col_id_map[i]);
-		if (table_int->IsColTimeVariant(col_id_map[i])) name << t1;
+		if (table_int->IsColTimeVariant(col_id_map[i]))
+            name << t1;
 		lb1->Append(name);
+        
 		if (num_var >= 2) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i])) name << t2;
+			if (table_int->IsColTimeVariant(col_id_map[i]))
+                name << t2;
 			lb2->Append(name);
 		} 
 		if (num_var >= 3) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i])) name << t3;
+			if (table_int->IsColTimeVariant(col_id_map[i]))
+                name << t3;
 			lb3->Append(name);
 		}
 		if (num_var >= 4) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i])) name << t4;
+			if (table_int->IsColTimeVariant(col_id_map[i]))
+                name << t4;
 			lb4->Append(name);
 		}
 	}
+    
 	int pos = lb1->GetScrollPos(wxVERTICAL);
 	lb1->SetSelection(lb1_cur_sel);
 	lb1->SetFirstItem(lb1->GetSelection());

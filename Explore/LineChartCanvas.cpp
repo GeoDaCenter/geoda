@@ -28,7 +28,9 @@
 #include "../GdaConst.h"
 #include "../logger.h"
 #include "../Project.h"
-#include "../DialogTools/TimeEditorDlg.h"
+#include "../DialogTools/TimeChooserDlg.h"
+#include "../DialogTools/VarGroupingEditorDlg.h"
+
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
 #include "CatClassification.h"
@@ -87,20 +89,52 @@ void LineChartCanvas::OnDblClick(wxMouseEvent& event)
     for (size_t t=0; t<tms; ++t) {
         GdaRectangle r(*((GdaRectangle*) tm_rects[t]));
         if (r.lower_left.y - pos.y < 40 && r.lower_left.y - pos.y > -40) {
+            bool opened = false;
+            wxPoint pt;
             FramesManager* fm = project->GetFramesManager();
             std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
             std::list<FramesManagerObserver*>::iterator it;
             for (it=observers.begin(); it != observers.end(); ++it) {
-                if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
-                    LOG_MSG("TimeEditorDlg already opened.");
+                if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
+                    LOG_MSG("TimeChooserDlg already opened.");
                     w->Show(true);
                     w->Maximize(false);
                     w->Raise();
-                    return;
+                    pt = w->GetPosition();
+                    opened = true;
                 }
             }
-            TimeEditorDlg* tmdlg = new TimeEditorDlg(0, project->GetFramesManager(), project->GetTableState(), project->GetTableInt());
-            tmdlg->Show(true);
+            if (!opened) {
+                LOG_MSG("Opening a new TimeChooserDlg");
+                TimeChooserDlg* dlg = new TimeChooserDlg(0, project->GetFramesManager(),
+                                                         project->GetTimeState(),
+                                                         project->GetTableState(),
+                                                         project->GetTableInt());
+                dlg->Show(true);
+                pt = dlg->GetPosition();
+            }
+            
+            opened = false;
+            for (it=observers.begin(); it != observers.end(); ++it) {
+                if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
+                {
+                    LOG_MSG("VarGroupingEditorDlg already opened.");
+                    w->Show(true);
+                    w->Maximize(false);
+                    w->Raise();
+                    w->SetPosition(wxPoint(pt.x, pt.y + 130));
+                    opened =true;
+                    break;
+                }
+            }
+            if (!opened) {
+                LOG_MSG("Opening a new VarGroupingEditorDlg");
+                VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(project, this);
+                dlg->Show(true);
+                int start_x = pt.x - 200;
+                if (start_x) start_x = 0;
+                dlg->SetPosition(wxPoint(pt.x, pt.y + 130));
+            }
             return;
         }
     }
