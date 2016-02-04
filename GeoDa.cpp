@@ -2037,9 +2037,8 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
 {
 	LOG_MSG("Entering GdaFrame::OnOpenProject");
 	if (project_p && project_p->GetFramesManager()->getNumberObservers() > 0) {
-		LOG_MSG("Open wxTopLevelWindows found for current project, "
-				"calling OnCloseProject()");
-		if (!OnCloseProject()) return;
+		if (!OnCloseProject())
+            return;
 	}
 	wxString wildcard = "GeoDa Project (*.gda)|*.gda";
 	wxFileDialog dlg(this, "GeoDa Project File to Open", "", "", wildcard);

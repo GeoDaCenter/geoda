@@ -40,6 +40,7 @@
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
+#include "../GeoDa.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
 
@@ -62,7 +63,8 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     
     if (m_pOwner != NULL && nFiles > 0)
     {
-        m_pOwner->ds_file_path = wxFileName::FileName(filenames[0]);
+        wxFileName fn = wxFileName::FileName(filenames[0]);
+        m_pOwner->ds_file_path = fn;
         wxCommandEvent ev;
         m_pOwner->OnOkClick(ev);
     }
@@ -87,6 +89,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 {
     // init controls defined in parent class
     DatasourceDlg::Init();
+    ds_names.Add("GeoDa Project File (*.gda)|*.gda");
+
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
@@ -106,8 +110,7 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
 void ConnectDatasourceDlg::CreateControls()
 {
     
-    bool test = wxXmlResource::Get()->LoadDialog(this, GetParent(),
-                                                 "IDD_CONNECT_DATASOURCE");
+    bool test = wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
     m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
@@ -180,6 +183,7 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
     }
 }
 
+
 /**
  * This function handles the event of user click OK button.
  * When user chooses a data source, validate it first,
@@ -190,6 +194,15 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 {
 	LOG_MSG("Entering ConnectDatasourceDlg::OnOkClick");
 	try {
+        if (ds_file_path.GetExt().Lower() == "gda") {
+            GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
+            if (gda_frame) {
+                gda_frame->OpenProject(ds_file_path.GetFullPath());
+                EndDialog(wxID_CANCEL);
+            }
+            return;
+        }
+        
 		CreateDataSource();
         // Check to make sure to get a layer name
         wxString layername;

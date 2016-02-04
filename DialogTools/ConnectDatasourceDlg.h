@@ -45,7 +45,7 @@ public:
 	void OnLookupDSTableBtn( wxCommandEvent& event );
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
-    
+        
 private:
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
