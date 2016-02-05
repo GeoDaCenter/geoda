@@ -4,8 +4,7 @@
     <bitmapsize>16, 16</bitmapsize>
     <dontattachtoframe>1</dontattachtoframe>
     <margins>2,2</margins>
-    <style>wxAUI_TB_PLAIN_BACKGROUND</style>
-    <bg>#3F70A6</bg>
+    <style>wxAUI_TB_DEFAULT_STYLE</style>
     <object class="tool" name="ID_NEW_PROJECT">
       <bitmap>ToolBar-open-folder.png</bitmap>
       <bitmap2>ToolBar-open-folder_disabled.png</bitmap2>
@@ -143,7 +142,7 @@
     <object class="tool" name="ID_SHOW_TIME_CHOOSER">
       <bitmap>toolbarbitmaps_42.png</bitmap>
       <bitmap2>toolbarbitmaps_42_disabled.png</bitmap2>
-      <tooltip>time control</tooltip>
+      <tooltip>Time control</tooltip>
     </object>
     <object class="tool" name="IDM_LINE_CHART">
       <bitmap>ToolBarBitmaps_AveragesChart.png</bitmap>
@@ -156,12 +155,14 @@
       <bitmap2>ToolBarBitmaps_43_disabled.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
+    <!--
     <object class="separator"/>
 	<object class="tool" name="ID_PUBLISH">
       <bitmap>share.png</bitmap>
       <bitmap2>share_disabled.png</bitmap2>
       <tooltip>Publish</tooltip>
     </object>
+     -->
   </object>
   <object class="wxToolBar" name="ToolBar2">
     <object class="tool" name="ID_CD_ROM">

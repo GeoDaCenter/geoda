@@ -58,6 +58,7 @@
 #include <wx/filesys.h>
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
+#include <wx/settings.h>
 
 #include "DataViewer/DataChangeType.h"
 #include "DataViewer/DbfTable.h"
@@ -270,7 +271,7 @@ bool GdaApp::OnInit(void)
 	// issue #15331 for more details.
 	wxLog::SetLogLevel(0);
     
-    wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
+    //wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
 
     
 	GdaConst::init();
@@ -307,24 +308,19 @@ bool GdaApp::OnInit(void)
 	
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
-	//int majorVsn = 0;
-	//int minorVsn = 0;
-	//wxGetOsVersion(&majorVsn, &minorVsn);
-	//LOG_MSG(wxString::Format("OS Version: %d.%d", majorVsn, minorVsn));
-	//LOG_MSG(wxString::Format("XP? %d, Vista? %d", GeneralWxUtils::isXP(),
-	//        GeneralWxUtils::isVista()));
 	
 	int frameWidth = 880; // 836 // 858
 	int frameHeight = 80;
+    
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 780; // 643 // 665
-		frameHeight = 60;
+		frameWidth = 770; // 643 // 665
+		frameHeight = 68;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
 		//   with GeneralWxUtils::isVista()
 		frameWidth = 790; // 656 // 678
-		frameHeight = 96;
+		frameHeight = 100;
 		// Override default in case XP family of OSes is detected
 		//if (GeneralWxUtils::isXP()) {
 		//}
@@ -334,15 +330,17 @@ bool GdaApp::OnInit(void)
  		frameHeight = 84;
 	}
 
+    int screenX = wxSystemSettings::GetMetric ( wxSYS_SCREEN_X );
+    if (screenX < frameWidth) frameWidth = screenX;
+    
 	wxPoint appFramePos = wxDefaultPosition;
 	if (GeneralWxUtils::isUnix() || GeneralWxUtils::isMac()) {
 		appFramePos = wxPoint(80,60);
 	}
 
 	wxFrame* frame = new GdaFrame("GeoDa", appFramePos,
-								  wxSize(frameWidth, frameHeight),
-								  wxDEFAULT_FRAME_STYLE &
-								  ~(wxMAXIMIZE_BOX));
+                                  wxSize(frameWidth, frameHeight),
+								  wxDEFAULT_FRAME_STYLE & ~(wxMAXIMIZE_BOX));
     frame->Show(true);
 	//GdaFrame::GetGdaFrame()->Show(true);
 	SetTopWindow(GdaFrame::GetGdaFrame());
@@ -368,19 +366,6 @@ bool GdaApp::OnInit(void)
 		LOG_MSG("Potential project file: " + proj_fname);
 		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
-
-	// The following code will insert a "Test Map Frame" menu item
-	// under the file menu.  Comment this section out when not
-	// testing.
-	// BEGIN TestMapFrame TEST
-	//wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	//int fm_index = mb->FindMenu("File");
-	//wxMenu* fm = mb->GetMenu(fm_index);
-	//fm->Append(ID_TEST_MAP_FRAME, "Test Map Frame",
-	//		   "Open a test frame");
-	//GeneralWxUtils::EnableMenuItem(mb, "File",
-	//							   ID_TEST_MAP_FRAME, true);
-	// END TestMapFrame TEST
 	
 	LOG_MSG("Exiting GdaApp::OnInit");
 	return true;
@@ -1416,21 +1401,8 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
     tb1->SetMargins(10,10);
     tb1->Realize();
+    //tb1->SetWindowStyleFlag(wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW);
     
-    /*
-    wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size, wxNO_BORDER);
-	wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
-    if (GeneralWxUtils::isUnix()) {
-        // unfortunately, just GTK needs the toolbar to be added to the
-		// topSizer rather than the panel itself.
-		topSizer->Add(tb1, 0, 0, 0, 0);
-    } else {
-        //topSizer->Add(panel, 0, wxEXPAND, 0, 0);
-		topSizer->Add(tb1, 0, 0, 0, 0);
-    }
-	SetSizer(topSizer);
-	//topSizer->Fit(panel);
-    */
 	gda_frame = this;
 
 	toolbar_list.push_front(tb1);
