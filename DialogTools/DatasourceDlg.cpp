@@ -56,24 +56,27 @@ void DatasourceDlg::Init()
     
     // create file type dataset pop-up menu dynamically
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
-    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
-    ds_names.Add("dBase Database File (*.dbf)|*.dbf");
-    if( GeneralWxUtils::isWindows()){
-        ds_names.Add("ESRI Personal Geodatabase (*.mdb)|*.mdb");
-    }
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
                  "GeoJSON (*.geojson)|*.geojson|"
                  "GeoJSON (*.json)|*.json");
+    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
+
+    if( GeneralWxUtils::isWindows()){
+        ds_names.Add("ESRI Personal Geodatabase (*.mdb)|*.mdb");
+    }
+    
     ds_names.Add("Geography Markup Language (*.gml)|*.gml");
     ds_names.Add("Keyhole Markup Language (*.kml)|*.kml");
     ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
                  "MapInfo Tab (*.tab)|*.tab|"
                  "MapInfo MID (*.mid)|*.mid|"
                  "MapInfo MID (*.mif)|*.mif");
+    ds_names.Add("");
+    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
+    ds_names.Add("dBase Database File (*.dbf)|*.dbf");
     ds_names.Add("MS Excel (*.xls)|*.xls");
     ds_names.Add("Open Document Spreadsheet (*.ods)|*.ods");
-    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
 
     //ds_names.Add("Idrisi Vector (*.vct)|*.vct");
     //ds_names.Add("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
@@ -274,7 +277,11 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
     if ( m_ds_menu == NULL ){
         m_ds_menu = new wxMenu;
         for ( size_t i=0; i < ds_names.GetCount(); i++ ) {
-            m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+            if (ds_names[i].IsEmpty()) {
+                m_ds_menu->AppendSeparator();
+            } else {
+                m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+            }
         }
     }
     this->PopupMenu(m_ds_menu);
