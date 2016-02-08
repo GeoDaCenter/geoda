@@ -309,12 +309,12 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
 	
-	int frameWidth = 880; // 836 // 858
+	int frameWidth = 980; // 836 // 858
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 770; // 643 // 665
-		frameHeight = 68;
+		frameWidth = 980; // 643 // 665
+		frameHeight = 78;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
@@ -1401,7 +1401,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
     tb1->SetMargins(10,10);
     tb1->Realize();
-    //tb1->SetWindowStyleFlag(wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW);
+    tb1->SetWindowStyleFlag(wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW);
     
 	gda_frame = this;
 
