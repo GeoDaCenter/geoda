@@ -313,8 +313,8 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 980; // 643 // 665
-		frameHeight = 78;
+		frameWidth = 1050; // 643 // 665
+		frameHeight = 86;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
@@ -350,14 +350,12 @@ bool GdaApp::OnInit(void)
 		// of %100, %125 or %150.
 		// Therefore, we might need to slighly increase the window size
 		// when sizes > %100 are used in the Display options.
-		LOG(GdaFrame::GetGdaFrame()->GetSize().GetHeight());
-		LOG(GdaFrame::GetGdaFrame()->GetClientSize().GetHeight());
+		
 		if (GdaFrame::GetGdaFrame()->GetClientSize().GetHeight() < 22) {
 			GdaFrame::GetGdaFrame()->SetSize(
 				GdaFrame::GetGdaFrame()->GetSize().GetWidth(),
 				GdaFrame::GetGdaFrame()->GetSize().GetHeight() +
 				(22 - GdaFrame::GetGdaFrame()->GetClientSize().GetHeight()));
-			LOG(GdaFrame::GetGdaFrame()->GetClientSize().GetHeight());
 		}
 	}
 
@@ -426,7 +424,8 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 	wxString msg;
 	int sz=fileNames.GetCount();
 	msg << "Request to open " << sz << " file(s):";
-	for (int i=0; i<sz; ++i) msg << "\n" << fileNames[i];
+	for (int i=0; i<sz; ++i)
+        msg << "\n" << fileNames[i];
 	LOG_MSG(msg);
 	if (sz > 0) GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
 }

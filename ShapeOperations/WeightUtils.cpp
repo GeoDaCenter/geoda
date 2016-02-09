@@ -471,20 +471,21 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	getline(file, str); // skip header line
 	// we need to traverse through every line of the file and
 	// record the number of neighbors for each observation.
-	map<wxString, int>::iterator it;
-	map<wxString, int> nbr_histogram;
+	map<wxString, set<wxString> >::iterator it;
+	map<wxString, set<wxString> > nbr_histogram;
 	while (!file.eof()) {
-		string obs1;
+		string obs1, obs2;
 		getline(file, str);
 		if (!str.empty()) {
 			stringstream ss (str, stringstream::in | stringstream::out);
-			ss >> obs1;
+            ss >> obs1 >> obs2;
 			it = nbr_histogram.find(wxString(obs1));
 			if (it == nbr_histogram.end()) {
-				nbr_histogram[obs1] = 1;
-			} else {
-				nbr_histogram[obs1] = (*it).second + 1;
+                set<wxString> s;
+				nbr_histogram[obs1] = s;
 			}
+            if (obs2 != obs1)
+                nbr_histogram[obs1].insert(obs2);
 		}
 	}
 	
@@ -509,8 +510,10 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
 				string obs;
-				if (it1 == id_map.end()) obs = obs1;
-				if (it2 == id_map.end()) obs = obs2;
+				if (it1 == id_map.end())
+                    obs = obs1;
+				if (it2 == id_map.end())
+                    obs = obs2;
 				wxString msg = "On line ";
 				msg << line_num+1 << " of weights file, observation id " << obs;
 				if (use_rec_order) {
@@ -526,14 +529,15 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 				delete [] gal;
 				return 0;
 			}
-			//LOG_MSG(wxString::Format("nbr_histogram[%d]=%d", (int) obs1,
-			//						 (int) nbr_histogram[obs1]));
+			
 			gwt_obs1 = (*it1).second; // value
 			gwt_obs2 = (*it2).second; // value
 			if (gal[gwt_obs1].Size() == 0) {
-				gal[gwt_obs1].SetSizeNbrs(nbr_histogram[obs1]);
+				gal[gwt_obs1].SetSizeNbrs(nbr_histogram[obs1].size());
 			}
-			gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2, wVal);
+            if (obs2 != obs1) {
+                gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2, wVal);
+            }
 		}
 		line_num++;
 	}	
