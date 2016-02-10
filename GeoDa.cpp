@@ -313,8 +313,8 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1050; // 643 // 665
-		frameHeight = 86;
+		frameWidth = 860; // 643 // 665
+		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
@@ -330,13 +330,18 @@ bool GdaApp::OnInit(void)
  		frameHeight = 84;
 	}
 
-    int screenX = wxSystemSettings::GetMetric ( wxSYS_SCREEN_X );
-    if (screenX < frameWidth) frameWidth = screenX;
+    
     
 	wxPoint appFramePos = wxDefaultPosition;
 	if (GeneralWxUtils::isUnix() || GeneralWxUtils::isMac()) {
 		appFramePos = wxPoint(80,60);
 	}
+    
+    int screenX = wxSystemSettings::GetMetric ( wxSYS_SCREEN_X );
+    if (screenX < frameWidth) {
+        frameWidth = screenX;
+        appFramePos = wxPoint(0, 50);
+    }
 
 	wxFrame* frame = new GdaFrame("GeoDa", appFramePos,
                                   wxSize(frameWidth, frameHeight),

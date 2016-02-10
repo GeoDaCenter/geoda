@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <resource>
   <object class="wxAuiToolBar" name="ToolBar">
-    <bitmapsize>32, 32</bitmapsize>
+    <bitmapsize>24, 24</bitmapsize>
     <dontattachtoframe>1</dontattachtoframe>
     <margins>2,2</margins>
     <style>wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW</style>
     <object class="tool" name="ID_NEW_PROJECT">
-      <bitmap>color/32x32/01.png</bitmap>
-      <bitmap2>color/32x32/01.png</bitmap2>
+      <bitmap>color/24x24/01.png</bitmap>
+      <bitmap2>color/24x24/01.png</bitmap2>
       <tooltip>Open</tooltip>
     </object>
     <!--
@@ -18,31 +18,31 @@
     </object>
      -->
     <object class="tool" name="ID_CLOSE_PROJECT">
-        <bitmap>color/32x32/02.png</bitmap>
-        <bitmap2>gray/32x32/02.png</bitmap2>
+        <bitmap>color/24x24/02.png</bitmap>
+        <bitmap2>gray/24x24/02.png</bitmap2>
       <tooltip>Close</tooltip>
     </object>
     <object class="tool" name="ID_SAVE_PROJECT">
-        <bitmap>color/32x32/03.png</bitmap>
-        <bitmap2>gray/32x32/03.png</bitmap2>
+        <bitmap>color/24x24/03.png</bitmap>
+        <bitmap2>gray/24x24/03.png</bitmap2>
         <tooltip>Save</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
-        <bitmap>color/32x32/04.png</bitmap>
-        <bitmap2>gray/32x32/04.png</bitmap2>
+        <bitmap>color/24x24/04.png</bitmap>
+        <bitmap2>gray/24x24/04.png</bitmap2>
       <tooltip>Open Table</tooltip>
     </object>
     <object class="tool" name="ID_TOOLS_WEIGHTS_MANAGER">
-        <bitmap>color/32x32/05.png</bitmap>
-        <bitmap2>gray/32x32/05.png</bitmap2>
+        <bitmap>color/24x24/05.png</bitmap>
+        <bitmap2>gray/24x24/05.png</bitmap2>
         <tooltip>Weights Manager</tooltip>
     </object>
     <!--
     <object class="separator"/>
     <object class="tool" name="ID_TOOLS_WEIGHTS_CREATE">
-        <bitmap>color/32x32/01.png</bitmap>
-        <bitmap2>gray/32x32/01.png</bitmap2>
+        <bitmap>color/24x24/01.png</bitmap>
+        <bitmap2>gray/24x24/01.png</bitmap2>
         <tooltip>Create weights</tooltip>
     </object>
     
@@ -59,103 +59,103 @@
      -->
     <object class="separator"/>
     <object class="tool" name="ID_MAP_CHOICES">
-        <bitmap>color/32x32/09.png</bitmap>
-        <bitmap2>gray/32x32/09.png</bitmap2>
+        <bitmap>color/24x24/09.png</bitmap>
+        <bitmap2>gray/24x24/09.png</bitmap2>
         <tooltip>Maps and Rates</tooltip>
     </object>
     <object class="tool" name="ID_SHOW_CARTOGRAM_NEW_VIEW">
-        <bitmap>color/32x32/10.png</bitmap>
-        <bitmap2>gray/32x32/10.png</bitmap2>
+        <bitmap>color/24x24/10.png</bitmap>
+        <bitmap2>gray/24x24/10.png</bitmap2>
       <tooltip>Cartogram</tooltip>
     </object>
     <object class="tool" name="ID_SHOW_DATA_MOVIE">
-        <bitmap>color/32x32/11.png</bitmap>
-        <bitmap2>gray/32x32/11.png</bitmap2>
+        <bitmap>color/24x24/11.png</bitmap>
+        <bitmap2>gray/24x24/11.png</bitmap2>
       <tooltip>Animation</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_SHOW_CAT_CLASSIF">
-        <bitmap>color/32x32/12.png</bitmap>
-        <bitmap2>gray/32x32/12.png</bitmap2>
+        <bitmap>color/24x24/12.png</bitmap>
+        <bitmap2>gray/24x24/12.png</bitmap2>
       <tooltip>Category Editor</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_HIST">
-        <bitmap>color/32x32/13.png</bitmap>
-        <bitmap2>gray/32x32/13.png</bitmap2>
+        <bitmap>color/24x24/13.png</bitmap>
+        <bitmap2>gray/24x24/13.png</bitmap2>
       <tooltip>Histogram</tooltip>
     </object>
     <object class="tool" name="IDM_BOX">
-        <bitmap>color/32x32/14.png</bitmap>
-        <bitmap2>gray/32x32/14.png</bitmap2>
+        <bitmap>color/24x24/14.png</bitmap>
+        <bitmap2>gray/24x24/14.png</bitmap2>
       <tooltip>Box Plot</tooltip>
     </object>
     <object class="tool" name="IDM_SCATTERPLOT">
-        <bitmap>color/32x32/15.png</bitmap>
-        <bitmap2>gray/32x32/15.png</bitmap2>
+        <bitmap>color/24x24/15.png</bitmap>
+        <bitmap2>gray/24x24/15.png</bitmap2>
       <tooltip>Scatter Plot</tooltip>
     </object>
     <object class="tool" name="IDM_SCATTERPLOT_MAT">
-        <bitmap>color/32x32/16.png</bitmap>
-        <bitmap2>gray/32x32/16.png</bitmap2>
+        <bitmap>color/24x24/16.png</bitmap>
+        <bitmap2>gray/24x24/16.png</bitmap2>
       <tooltip>Scatter Plot Matrix</tooltip>
     </object>
     <object class="tool" name="IDM_BUBBLECHART">
-        <bitmap>color/32x32/17.png</bitmap>
-        <bitmap2>gray/32x32/17.png</bitmap2>
+        <bitmap>color/24x24/17.png</bitmap>
+        <bitmap2>gray/24x24/17.png</bitmap2>
       <tooltip>Bubble Chart</tooltip>
     </object>
     <object class="tool" name="IDM_3DP">
-        <bitmap>color/32x32/18.png</bitmap>
-        <bitmap2>gray/32x32/18.png</bitmap2>
+        <bitmap>color/24x24/18.png</bitmap>
+        <bitmap2>gray/24x24/18.png</bitmap2>
       <tooltip>3D Scatter Plot</tooltip>
     </object>
     <object class="tool" name="IDM_PCP">
-        <bitmap>color/32x32/19.png</bitmap>
-        <bitmap2>gray/32x32/19.png</bitmap2>
+        <bitmap>color/24x24/19.png</bitmap>
+        <bitmap2>gray/24x24/19.png</bitmap2>
       <tooltip>Parallel Coordinate Plot</tooltip>
     </object>
     <object class="tool" name="ID_COND_PLOT_CHOICES">
-        <bitmap>color/32x32/20.png</bitmap>
-        <bitmap2>gray/32x32/20.png</bitmap2>
+        <bitmap>color/24x24/20.png</bitmap>
+        <bitmap2>gray/24x24/20.png</bitmap2>
       <tooltip>Conditional Plot</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_MORAN_MENU">
-        <bitmap>color/32x32/21.png</bitmap>
-        <bitmap2>gray/32x32/21.png</bitmap2>
+        <bitmap>color/24x24/21.png</bitmap>
+        <bitmap2>gray/24x24/21.png</bitmap2>
       <tooltip>Moran's I Scatter Plots</tooltip>
     </object>
     <object class="tool" name="IDM_CORRELOGRAM">
-        <bitmap>color/32x32/22.png</bitmap>
-        <bitmap2>gray/32x32/22.png</bitmap2>
+        <bitmap>color/24x24/22.png</bitmap>
+        <bitmap2>gray/24x24/22.png</bitmap2>
       <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
     </object>
     <object class="tool" name="ID_LISA_MENU">
-        <bitmap>color/32x32/23.png</bitmap>
-        <bitmap2>gray/32x32/23.png</bitmap2>
+        <bitmap>color/24x24/23.png</bitmap>
+        <bitmap2>gray/24x24/23.png</bitmap2>
       <tooltip>Local Moran's I Maps</tooltip>
     </object>
     <object class="tool" name="IDM_GETIS_ORD_MENU">
-        <bitmap>color/32x32/24.png</bitmap>
-        <bitmap2>gray/32x32/24.png</bitmap2>
+        <bitmap>color/24x24/24.png</bitmap>
+        <bitmap2>gray/24x24/24.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_SHOW_TIME_CHOOSER">
-        <bitmap>color/32x32/25.png</bitmap>
-        <bitmap2>gray/32x32/25.png</bitmap2>
+        <bitmap>color/24x24/25.png</bitmap>
+        <bitmap2>gray/24x24/25.png</bitmap2>
       <tooltip>Time control</tooltip>
     </object>
     <object class="tool" name="IDM_LINE_CHART">
-        <bitmap>color/32x32/26.png</bitmap>
-        <bitmap2>gray/32x32/26.png</bitmap2>
+        <bitmap>color/24x24/26.png</bitmap>
+        <bitmap2>gray/24x24/26.png</bitmap2>
       <tooltip>Averages Chart</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_REGRESSION_CLASSIC">
-        <bitmap>color/32x32/27.png</bitmap>
-        <bitmap2>gray/32x32/27.png</bitmap2>
+        <bitmap>color/24x24/27.png</bitmap>
+        <bitmap2>gray/24x24/27.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
     <!--
