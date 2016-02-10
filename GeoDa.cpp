@@ -438,6 +438,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
 
 EVT_CHAR_HOOK(GdaFrame::OnKeyEvent)
 
+
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SHP"), GdaFrame::OnNewProjectFromShp)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SQLITE"), GdaFrame::OnNewProjectFromSqlite)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_CSV"), GdaFrame::OnNewProjectFromCsv)
@@ -1400,7 +1401,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
     tb1->SetMargins(10,10);
     tb1->Realize();
-    tb1->SetWindowStyleFlag(wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW);
+    tb1->SetWindowStyleFlag(wxAUI_TB_OVERFLOW);
     
 	gda_frame = this;
 

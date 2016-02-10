@@ -79,10 +79,12 @@ public:
 			const wxPoint& pos, const wxSize& size, long style);
 	virtual ~GdaFrame();
 	
+    
 	void EnableTool(const wxString& id_str, bool enable);
 	void EnableTool(int xrc_id, bool enable);
 	boost::uuids::uuid GetWeightsId(const wxString& caption = "Choose Weights");
 
+    
 	void OnKeyEvent(wxKeyEvent& event);
 	void OnToolOpenNewTable(wxCommandEvent& event);
 	void OnOpenNewTable();
