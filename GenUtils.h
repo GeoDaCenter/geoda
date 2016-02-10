@@ -36,7 +36,7 @@
 // in mac, wxString.mb_str() will return UTF8 char*
 #ifdef __WIN32__
  #ifndef GET_ENCODED_FILENAME
-  #define GET_ENCODED_FILENAME(a) a.fn_str() 
+  #define GET_ENCODED_FILENAME(a) a.ToUTF8().data()
  #endif
 #else
  #ifndef GET_ENCODED_FILENAME
