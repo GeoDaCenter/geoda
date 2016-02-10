@@ -84,7 +84,7 @@ public:
 	void EnableTool(int xrc_id, bool enable);
 	boost::uuids::uuid GetWeightsId(const wxString& caption = "Choose Weights");
 
-    
+    void OnSize(wxSizeEvent& event);
 	void OnKeyEvent(wxKeyEvent& event);
 	void OnToolOpenNewTable(wxCommandEvent& event);
 	void OnOpenNewTable();

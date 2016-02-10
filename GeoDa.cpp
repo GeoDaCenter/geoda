@@ -347,6 +347,8 @@ bool GdaApp::OnInit(void)
                                   wxSize(frameWidth, frameHeight),
 								  wxDEFAULT_FRAME_STYLE & ~(wxMAXIMIZE_BOX));
     frame->Show(true);
+    frame->SetMinSize(wxSize(800, frameHeight));
+    
 	//GdaFrame::GetGdaFrame()->Show(true);
 	SetTopWindow(GdaFrame::GetGdaFrame());
 	
@@ -1401,16 +1403,22 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
 	
-		
+    
     wxObject* tb_obj = wxXmlResource::Get()->LoadObject(this, "ToolBar", "wxAuiToolBar");
 	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
     tb1->SetMargins(10,10);
+    tb1->SetMinSize(GetMinSize());
     tb1->Realize();
-    tb1->SetWindowStyleFlag(wxAUI_TB_OVERFLOW);
-    
-	gda_frame = this;
 
-	toolbar_list.push_front(tb1);
+    tb1->Connect(wxEVT_SIZE, wxSizeEventHandler(GdaFrame::OnSize), NULL, this);
+
+    
+    toolbar_list.push_front(tb1);
+    
+    
+    gda_frame = this;
+
+	
 	
 	SetMenusToDefault();
  	UpdateToolbarAndMenus();
@@ -1424,6 +1432,18 @@ GdaFrame::~GdaFrame()
 	LOG_MSG("Entering GdaFrame::~GdaFrame()");
 	GdaFrame::gda_frame = 0;
 	LOG_MSG("Exiting GdaFrame::~GdaFrame()");
+}
+
+void GdaFrame::OnSize(wxSizeEvent& event)
+{
+    BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
+        if (tb)	{
+            tb->SetSize(event.GetSize());
+            tb->SetOverflowVisible(!tb->GetToolFitsByIndex(tb->GetToolCount()-1));
+            tb->Refresh();
+        }
+    }
+    event.Skip();
 }
 
 void GdaFrame::EnableTool(int xrc_id, bool enable)
