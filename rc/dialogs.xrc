@@ -3571,6 +3571,13 @@
             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
             <border>5</border>
           </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+              <border>5</border>
+              <object class="wxButton" name="wxID_CANCEL">
+                  <label>Close</label>
+              </object>
+          </object>
           <orient>wxHORIZONTAL</orient>
         </object>
         <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>

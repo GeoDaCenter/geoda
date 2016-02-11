@@ -73,8 +73,8 @@ void DatasourceDlg::Init()
                  "MapInfo MID (*.mid)|*.mid|"
                  "MapInfo MID (*.mif)|*.mif");
     ds_names.Add("");
-    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("dBase Database File (*.dbf)|*.dbf");
+    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("MS Excel (*.xls)|*.xls");
     ds_names.Add("Open Document Spreadsheet (*.ods)|*.ods");
 

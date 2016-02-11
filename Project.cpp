@@ -438,28 +438,9 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	try {
 		// SaveAs only to same datasource
 		GdaConst::DataSourceType ds_type = datasource->GetType();
-        if (ds_type == GdaConst::ds_dbf ) ds_type = GdaConst::ds_shapefile;
+        if (ds_type == GdaConst::ds_dbf )
+            ds_type = GdaConst::ds_shapefile;
         
-        /*
-		// SaveAs dbf: using legacy code, not OGR
-		if (ds_type == GdaConst::ds_dbf ) {
-			wxString save_err_msg;
-			DbfTable* dbf_tbl_int = dynamic_cast<DbfTable*>(table_int);
-			if ( dbf_tbl_int ) {
-				dbf_tbl_int->WriteToDbf(new_ds_name, save_err_msg);
-			}
-			if ( !save_err_msg.empty() ) {
-				throw GdaException(save_err_msg.mb_str());
-			}
-			return;
-		}
-		
-		if ( wxFileExists(new_ds_name) ) {
-			wxRemoveFile(new_ds_name);
-		}
-         */
-        
-		// SaveAs: using OGR
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
 			std::ostringstream error_message;
@@ -534,10 +515,24 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 void Project::SaveProjectConf()
 {
 	if (project_conf->GetFilePath().IsEmpty()) {
-		throw GdaException("Project filename not specified.");
-	}
-	UpdateProjectConf();
-	project_conf->Save(project_conf->GetFilePath());
+		
+        // save project file at the same directory of the file datasource
+        if ( IsFileDataSource()) {
+            wxString ds_path = datasource->GetOGRConnectStr();
+            bool wd_success = SetWorkingDir(ds_path);
+            if (wd_success) {
+                
+                wxFileName temp(ds_path);
+                proj_file_no_ext = temp.GetName();
+                wxString prj_path = GetProjectFullPath();
+                project_conf->SetFilePath(prj_path);
+            }
+        }
+    }
+    if (!project_conf->GetFilePath().IsEmpty()) {
+        UpdateProjectConf();
+        project_conf->Save(project_conf->GetFilePath());
+    }
 }
 
 bool Project::IsFileDataSource() {

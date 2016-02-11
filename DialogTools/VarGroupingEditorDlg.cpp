@@ -24,6 +24,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
+#include <wx/filedlg.h>
 #include <wx/button.h>
 #include "../FramesManager.h"
 #include "../DbfFile.h"
@@ -94,18 +95,23 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 			   VarGroupingEditorDlg::OnNewGroupHelp )
 	EVT_BUTTON( XRCID("ID_CUR_GROUPED_HELP"),
 			   VarGroupingEditorDlg::OnCurGroupedHelp )
+    EVT_BUTTON( XRCID("ID_TIME_LOAD_FROM_GDA"),
+           VarGroupingEditorDlg::OnLoadFromGda )
+
+
 END_EVENT_TABLE()
 
-VarGroupingEditorDlg::VarGroupingEditorDlg(Project* project,
+VarGroupingEditorDlg::VarGroupingEditorDlg(Project* project_p,
 										   wxWindow* parent,
 										   const wxString& title,
 										   const wxPoint& pos,
 										   const wxSize& size, long style)
-: table_int(project->GetTableInt()),
-frames_manager(project->GetFramesManager()),
-table_state(project->GetTableState()),
-highlight_state(project->GetHighlightState()),
-wmi(project->GetWManInt()),
+: project(project_p),
+table_int(project_p->GetTableInt()),
+frames_manager(project_p->GetFramesManager()),
+table_state(project_p->GetTableState()),
+highlight_state(project_p->GetHighlightState()),
+wmi(project_p->GetWManInt()),
 common_empty(true), all_init(false)
 {
 	CreateControls();
@@ -1171,6 +1177,17 @@ void VarGroupingEditorDlg::OnCurGroupedHelp( wxCommandEvent& event )
 	msg << "created, they will appear on this list.";
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
+}
+
+void VarGroupingEditorDlg::OnLoadFromGda( wxCommandEvent& event )
+{
+    wxString wildcard = "GeoDa Project (*.gda)|*.gda";
+    wxFileDialog dlg(this, "GeoDa Project File to Open", "", "", wildcard);
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxString full_proj_path = dlg.GetPath();
+    
+    project->SetProjectFullPath(full_proj_path);
 }
 
 void VarGroupingEditorDlg::update(FramesManager* o)

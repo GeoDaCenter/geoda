@@ -229,7 +229,7 @@ const wxColour GdaConst::canvas_background_color(255, 255, 255); // white
 const wxColour GdaConst::legend_background_color(255, 255, 255); // white
 
 // Map
-const wxSize GdaConst::map_default_size(550, 300);
+const wxSize GdaConst::map_default_size(600, 400);
 const int GdaConst::map_default_legend_width = 150;
 // this is a light forest green
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);

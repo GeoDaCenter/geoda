@@ -313,7 +313,7 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 860; // 643 // 665
+		frameWidth = 1060; // 643 // 665
 		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
@@ -347,7 +347,7 @@ bool GdaApp::OnInit(void)
                                   wxSize(frameWidth, frameHeight),
 								  wxDEFAULT_FRAME_STYLE & ~(wxMAXIMIZE_BOX));
     frame->Show(true);
-    frame->SetMinSize(wxSize(800, frameHeight));
+    frame->SetMinSize(wxSize(640, frameHeight));
     
 	//GdaFrame::GetGdaFrame()->Show(true);
 	SetTopWindow(GdaFrame::GetGdaFrame());
@@ -1438,7 +1438,6 @@ void GdaFrame::OnSize(wxSizeEvent& event)
 {
     BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
         if (tb)	{
-            tb->SetSize(event.GetSize());
             tb->SetOverflowVisible(!tb->GetToolFitsByIndex(tb->GetToolCount()-1));
             tb->Refresh();
         }
@@ -1804,7 +1803,7 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 										  CatClassification::no_theme,
 										  MapCanvas::no_smoothing, 1,
 										  boost::uuids::nil_uuid(),
-										  wxDefaultPosition,
+										  wxPoint(80,160),
 										  GdaConst::map_default_size);
 		nf->UpdateTitle();
 	}
@@ -1999,7 +1998,8 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 						wxDefaultPosition,
 						GdaConst::table_default_size,
 						wxDEFAULT_FRAME_STYLE);
-	if (project_p->IsTableOnlyProject()) tf->Show(true);
+	if (project_p->IsTableOnlyProject())
+        tf->Show(true);
 	
 	SetProjectOpen(true);
 	UpdateToolbarAndMenus();
@@ -2023,7 +2023,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 										  CatClassification::no_theme,
 										  MapCanvas::no_smoothing, 1,
 										  boost::uuids::nil_uuid(),
-										  wxDefaultPosition,
+										  wxPoint(80,160),
 										  GdaConst::map_default_size);
 		nf->UpdateTitle();
 	}
@@ -2077,6 +2077,9 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
         	dlg.ShowModal();
         } else {
     		project_p->SaveDataSourceData();
+            try {
+                project_p->SaveProjectConf();
+            } catch( GdaException& e) {}
         }
 	}
 	catch (GdaException& e) {
@@ -2084,9 +2087,7 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	// We know Data Source data was saved successfully.
-
-	
+	// We know Data Source data was saved successfully
     
 	SaveButtonManager* sbm = project_p->GetSaveButtonManager();
 	if (sbm) {
@@ -2557,10 +2558,10 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
     }
     if (!opened) {
         LOG_MSG("Opening a new TimeChooserDlg");
-        TimeChooserDlg* dlg = new TimeChooserDlg(0, project_p->GetFramesManager(),
-											 project_p->GetTimeState(),
-											 project_p->GetTableState(),
-											 project_p->GetTableInt());
+        TimeChooserDlg* dlg = new TimeChooserDlg(0, p->GetFramesManager(),
+											 p->GetTimeState(),
+											 p->GetTableState(),
+											 p->GetTableInt());
         dlg->Show(true);
         pt = dlg->GetPosition();
     }
@@ -2580,7 +2581,7 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
     }
     if (!opened) {
         LOG_MSG("Opening a new VarGroupingEditorDlg");
-        VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
+        VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(p, this);
         dlg->Show(true);
         int start_x = pt.x - 200;
         if (start_x) start_x = 0;
@@ -2606,11 +2607,11 @@ void GdaFrame::OnShowDataMovie(wxCommandEvent& event)
 	}
 	
 	LOG_MSG("Opening a new DataMovieDlg");
-	DataMovieDlg* dlg = new DataMovieDlg(0, project_p->GetFramesManager(),
-										 project_p->GetTableState(),
-										 project_p->GetTimeState(),
-										 project_p->GetTableInt(),
-										 project_p->GetHighlightState());
+	DataMovieDlg* dlg = new DataMovieDlg(0, p->GetFramesManager(),
+										 p->GetTableState(),
+										 p->GetTimeState(),
+										 p->GetTableInt(),
+										 p->GetHighlightState());
 	dlg->Show(true);
 }
 

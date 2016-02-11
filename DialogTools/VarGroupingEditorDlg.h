@@ -92,6 +92,7 @@ public:
 	void OnUngroupedVarsHelp( wxCommandEvent& event );
 	void OnNewGroupHelp( wxCommandEvent& event );
 	void OnCurGroupedHelp( wxCommandEvent& event );
+    void OnLoadFromGda( wxCommandEvent& event );
 	
 	void UpdateGroupButton();
 	void UpdateAddToListButton();
@@ -152,7 +153,8 @@ private:
 	FramesManager* frames_manager;
 	TableState* table_state;
 	TableInterface* table_int;
-
+    Project* project;
+    
 	bool common_empty;
 	wxString common_type;
 	

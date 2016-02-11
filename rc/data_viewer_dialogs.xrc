@@ -789,6 +789,17 @@
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
+                  <object class="spacer">
+                      <size>4,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxBitmapButton" name="ID_TIME_LOAD_FROM_GDA">
+                          <style>wxNO_BORDER|wxBU_EXACTFIT</style>
+                          <bitmap>open-folder.png</bitmap>
+                          <tooltip>Load time definition from project file.</tooltip>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
                   <orient>wxHORIZONTAL</orient>
                 </object>
                 <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
