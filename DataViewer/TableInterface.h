@@ -33,6 +33,8 @@
 #include "../VarCalc/GdaFlexValue.h"
 
 class TimeState;
+class VarOrderPtree;
+
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<wxInt64, 2> l_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
@@ -88,6 +90,8 @@ public:
 	 is supported.  This is saved the project file meta-data, so should
 	 generally be supported. */
 	virtual bool PermitChangeDisplayedDecimals() = 0;
+    
+    virtual void Update(const VarOrderPtree& var_order_ptree) = 0;
     
 	/** Searches for database field/col name and returns true if found
 	 as well as col and time in.  If not found, returns false and col

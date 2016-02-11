@@ -34,6 +34,7 @@ public:
 	VarOrderMapper(const VarOrderPtree& vo);
     virtual ~VarOrderMapper();
 	
+    void Update(const VarOrderPtree& vo);
 	int GetNumVarGroups() const;
 	int GetNumTms() const;
 	const std::vector<wxString>& GetTimeIdsRef() const;

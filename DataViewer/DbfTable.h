@@ -60,6 +60,8 @@ public:
 	virtual bool PermitChangeDecimals() { return true; }
 	virtual bool PermitChangeDisplayedDecimals() { return true; }
 	
+    virtual void Update(const VarOrderPtree& var_order_ptree);
+    
 	virtual bool DbColNmToColAndTm(const wxString& name, int& col, int& tm);
 	virtual int FindColId(const wxString& name);
 	virtual void FillColIdMap(std::vector<int>& col_map);

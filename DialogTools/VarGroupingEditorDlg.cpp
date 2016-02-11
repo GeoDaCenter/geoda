@@ -120,7 +120,7 @@ common_empty(true), all_init(false)
     Centre();
 	
 	frames_manager->registerObserver(this);
-	//table_state->registerObserver(this);
+	table_state->registerObserver(this);
 	all_init = true;
 }
 
@@ -680,7 +680,7 @@ void VarGroupingEditorDlg::OnPlaceholderClick( wxCommandEvent& event )
     }
     
     LOG_MSG("Opening a new TimeEditorDlg");
-    TimeEditorDlg* dlg = new TimeEditorDlg(0,frames_manager, table_state,                                       table_int);
+    TimeEditorDlg* dlg = new TimeEditorDlg(0,frames_manager, table_state, table_int);
     dlg->Show(true);
     dlg->SetPosition(wxPoint(pt.x + 50, pt.y + 30));
 
@@ -1187,7 +1187,9 @@ void VarGroupingEditorDlg::OnLoadFromGda( wxCommandEvent& event )
     
     wxString full_proj_path = dlg.GetPath();
     
-    project->SetProjectFullPath(full_proj_path);
+    ProjectConfiguration* project_conf = new ProjectConfiguration(full_proj_path);
+    project->UpdateProjectConf(project_conf);
+
 }
 
 void VarGroupingEditorDlg::update(FramesManager* o)

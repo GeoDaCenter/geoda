@@ -85,9 +85,10 @@ public:
 	virtual void WritePtree(boost::property_tree::ptree& pt,
 							const wxString& proj_path);
     
+    void SetVariableOrder(VarOrderPtree* new_variable_order);
+
 private:
     void SetDataSource(IDataSource* new_datasource);
-    void SetVariableOrder(VarOrderPtree* new_variable_order);
     void SetCustomClassifs(CustomClassifPtree* new_custom_classifs);
     void SetSpatialWeights(WeightsManPtree* new_spatial_weights);
     void SetDefaultVars(DefaultVarsPtree* new_default_vars);

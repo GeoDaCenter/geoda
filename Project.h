@@ -108,6 +108,7 @@ public:
 	 False is returned on failure. */
 	bool SetWorkingDir(const wxString& path);
 	
+    void UpdateProjectConf(ProjectConfiguration* project_conf);
 	void SpecifyProjectConfFile(const wxString& proj_fname);
 	void SaveProjectConf();
 	void SaveDataSourceData();

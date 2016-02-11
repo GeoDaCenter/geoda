@@ -2997,12 +2997,17 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 
 void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 {
-	RegressionDlg* dlg = new RegressionDlg(project_p, this);
-	dlg->Show(true);
+    
+    Project* p = GetProject();
+    if (p) {
+        RegressionDlg* dlg = new RegressionDlg(project_p, this);
+        dlg->Show(true);
+    }
 }
 
 void GdaFrame::OnPublish(wxCommandEvent& event)
 {
+    
 	Project* p = GetProject();
     if (p) {
         PublishDlg dlg(this,p);
@@ -3013,6 +3018,9 @@ void GdaFrame::OnPublish(wxCommandEvent& event)
 
 void GdaFrame::DisplayRegression(const wxString dump)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	RegressionReportDlg *regReportDlg = new RegressionReportDlg(this, dump);
 	regReportDlg->Show(true);
 	regReportDlg->m_textbox->SetSelection(0, 0);
@@ -3020,6 +3028,9 @@ void GdaFrame::DisplayRegression(const wxString dump)
 
 void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	LOG_MSG("Entering GdaFrame::OnCondPlotChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_COND_MENU");
 	
@@ -3044,6 +3055,9 @@ void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false,
 													false, "Conditional Map Variables",
 													"Horizontal Cells", "Vertical Cells", "Map Theme");
@@ -3058,6 +3072,9 @@ void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
 
 void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false,
 													false,
 							"Conditional Histogram Variables",
@@ -3074,6 +3091,9 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
 							false, false,
 							"Conditional Scatter Plot Variables",
@@ -3092,6 +3112,9 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
 													false, "Cartogram Variables",
 							"Circle Size", "Circle Color", "", "",
@@ -3107,6 +3130,9 @@ void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
 
 void GdaFrame::OnCartogramImprove1(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3116,6 +3142,9 @@ void GdaFrame::OnCartogramImprove1(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove2(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3125,6 +3154,9 @@ void GdaFrame::OnCartogramImprove2(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove3(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3134,6 +3166,9 @@ void GdaFrame::OnCartogramImprove3(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove4(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3143,6 +3178,9 @@ void GdaFrame::OnCartogramImprove4(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove5(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3152,6 +3190,9 @@ void GdaFrame::OnCartogramImprove5(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove6(wxCommandEvent& event )
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
@@ -3162,7 +3203,9 @@ void GdaFrame::OnCartogramImprove6(wxCommandEvent& event )
 void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
 {
 	LOG_MSG("Entering GdaFrame::OnExploreHist");
-	
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate);
 	if (VS.ShowModal() != wxID_OK) return;
 	
@@ -3177,6 +3220,9 @@ void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
 													false, "Scatter Plot Variables",
 							"Independent Var X", "Dependent Var Y");
@@ -3193,6 +3239,9 @@ void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
 							false, false,
 							"Bubble Chart Variables",
@@ -3212,6 +3261,9 @@ void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreScatterPlotMat(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	ScatterPlotMatFrame* f =
 		new ScatterPlotMatFrame(GdaFrame::gda_frame, project_p,
 														"Scatter Plot Matrix", wxDefaultPosition,
@@ -3240,6 +3292,9 @@ void GdaFrame::OnExploreTestMap(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreNewBox(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate);
 	if (VS.ShowModal() != wxID_OK) return;
 	
@@ -3255,20 +3310,24 @@ void GdaFrame::OnExploreNewBox(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExplorePCP(wxCommandEvent& WXUNUSED(event))
 {
-	PCPDlg dlg(project_p,this);
+    Project* p = GetProject();
+    if (!p) return;
+    
+	PCPDlg dlg(p,this);
 	if (dlg.ShowModal() != wxID_OK) return;
-	PCPFrame* s = new PCPFrame(this, GetProject(), dlg.var_info,
-									 dlg.col_ids);
+	PCPFrame* s = new PCPFrame(this, p, dlg.var_info, dlg.col_ids);
 }
 
 void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 {
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false,
-													false, "3D Scatter Plot Variables", "X", "Y", "Z");
+    Project* p = GetProject();
+    if (!p) return;
+    
+	VariableSettingsDlg dlg(p, VariableSettingsDlg::trivariate, false, false, "3D Scatter Plot Variables", "X", "Y", "Z");
 	if (dlg.ShowModal() != wxID_OK) return;
 		
 	C3DPlotFrame *subframe =
-		new C3DPlotFrame(GdaFrame::gda_frame, project_p,
+		new C3DPlotFrame(GdaFrame::gda_frame, p,
 						 dlg.var_info, dlg.col_ids,
 						 "3D Plot", wxDefaultPosition,
 						 GdaConst::three_d_default_size,
@@ -3277,6 +3336,9 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+
     bool hide_time = true;
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, false, false,
                            "Variable Selection",
@@ -3288,8 +3350,10 @@ void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
 {
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate,
-												 false, true, "Variable Choice", "Variable");
+    Project* p = GetProject();
+    if (!p) return;
+    
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, false, true, "Variable Choice", "Variable");
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
 	std::vector<wxString> tm_strs;
@@ -3304,6 +3368,9 @@ void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
     CorrelParamsFrame dlg(project_p);
     if (dlg.ShowModal() != wxID_OK) return;
     
@@ -3317,6 +3384,9 @@ void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnMoranMenuChoices(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	LOG_MSG("Entering GdaFrame::OnMoranMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_MORAN_MENU");
 	
@@ -3326,8 +3396,10 @@ void GdaFrame::OnMoranMenuChoices(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 {
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
-												 false);
+    Project* p = GetProject();
+    if (!p) return;
+    
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
@@ -3346,6 +3418,9 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 }
 void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
     Project* project = GetProject();
     TableInterface* table_int = project->GetTableInt();
     
@@ -3392,6 +3467,9 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
     bool show_weights = true;
     bool show_distance = false;
     wxString title = "Differential Moran Variable Settings";
@@ -3421,6 +3499,9 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 
 void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
 												 false,
 												 "Empirical Bayes Rate Standardization Variables",
@@ -3445,6 +3526,9 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 
 void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	LOG_MSG("Entering GdaFrame::OnLisaMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_LISA_MENU");
 	
@@ -3454,6 +3538,9 @@ void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	LOG_MSG("Entering GdaFrame::OnGetisMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
 	
@@ -3463,6 +3550,8 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
 												 false);
@@ -3504,6 +3593,9 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	//VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true, false);
     
     Project* project = GetProject();
@@ -3563,6 +3655,9 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 
 void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	// Note: this is the only call to this particular constructor
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
 												 false, "Rates Variable Settings",
@@ -3604,6 +3699,9 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
@@ -3637,6 +3735,9 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
@@ -3677,6 +3778,9 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 
 void GdaFrame::OnNewCustomCatClassifA(wxCommandEvent& event)
 {
+    Project* p = GetProject();
+    if (!p) return;
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalMapFrame* f = dynamic_cast<ConditionalMapFrame*>(t)) {

@@ -83,6 +83,7 @@ public:
     
     
 	// Implementation of TableInterface pure virtual methods
+    virtual void Update(const VarOrderPtree& var_order_ptree);
     
 	virtual GdaConst::DataSourceType GetDataSourceType();
 	virtual void GetTimeStrings(std::vector<wxString>& tm_strs);

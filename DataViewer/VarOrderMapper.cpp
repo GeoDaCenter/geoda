@@ -40,6 +40,12 @@ VarOrderMapper::~VarOrderMapper()
 {
 }
 
+void VarOrderMapper::Update(const VarOrderPtree& vo)
+{
+    time_ids = vo.GetTimeIdsRef();
+    var_grps = vo.GetVarGroupsRef();
+}
+
 int VarOrderMapper::GetNumVarGroups() const
 {
 	return var_grps.size();

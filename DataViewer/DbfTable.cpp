@@ -169,6 +169,11 @@ void DbfTable::GetColNonPlaceholderTmStrs(int col,
 	}
 }
 
+void DbfTable::Update(const VarOrderPtree& var_order_ptree)
+{
+    
+}
+
 wxString DbfTable::GetTimeString(int time)
 {
 	if (time >= 0 && time < var_order.GetNumTms()) {

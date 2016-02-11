@@ -102,6 +102,7 @@ sourceSR(NULL)
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	layername = layer_conf->GetName();
 	datasource = layer_conf->GetDataSource();
+    
 	LOG_MSG("Custom Categories:");
 	if (layer_conf->GetCustClassifPtree()) {
 		LOG_MSG(layer_conf->GetCustClassifPtree()->ToStr());
@@ -224,6 +225,20 @@ Project::~Project()
 	//if (table_int) delete table_int; table_int = 0;
 	
 	LOG_MSG("Exiting Project::~Project");
+}
+
+void Project::UpdateProjectConf(ProjectConfiguration* conf)
+{
+    LayerConfiguration* layer_conf = conf->GetLayerConfiguration();
+    wxString _layername = layer_conf->GetName();
+    IDataSource* _ds = layer_conf->GetDataSource();
+    
+    if (layername == _layername) {
+        // we only update Custom Categories
+        VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
+        project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
+        table_int->Update(*variable_order);
+    }
 }
 
 GdaConst::DataSourceType Project::GetDatasourceType()
