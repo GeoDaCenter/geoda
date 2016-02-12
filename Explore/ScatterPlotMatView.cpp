@@ -280,19 +280,31 @@ void ScatterPlotMatFrame::update(TableState* o)
 void ScatterPlotMatFrame::update(TimeState* o)
 {
 	LOG_MSG("In ScatterPlotMatFrame::update(TimeState* o)");
-	var_man.UpdateGlobalTime(o->GetCurrTime());
-	if (var_man.GetVarsCount() > 1) {
-		SetupPanelForNumVariables(var_man.GetVarsCount());
-	}
-	UpdateTitle();
-	Refresh();
+	
+    
+    bool has_time_var = false;
+    for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
+        if (i->second.size() > 1) {
+            has_time_var = true;
+            break;
+        }
+    }
+    
+    if (has_time_var) {
+        var_man.UpdateGlobalTime(o->GetCurrTime());
+        if (var_man.GetVarsCount() > 1) {
+            SetupPanelForNumVariables(var_man.GetVarsCount());
+        }
+        UpdateTitle();
+        Refresh();
+    }
+    
 }
 
 void ScatterPlotMatFrame::update(LowessParamObservable* o)
 {
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
-		scatt_plots[i]->ChangeLoessParams(o->GetF(), o->GetIter(),
-																			o->GetDeltaFactor());
+		scatt_plots[i]->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
 	}
 	// Is Refresh() needed?
 }
@@ -363,85 +375,92 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 	}
 	horiz_labels.clear();
 	if (num_vars < 2) {
-		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-																	 wxSize(200,-1));
+		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
 		message_win->Bind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 		UpdateMessageWin();
 		bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
 		
 		bag_szr->SetFlexibleDirection(wxBOTH);
-		if (bag_szr->IsColGrowable(0)) bag_szr->RemoveGrowableCol(0);
+		if (bag_szr->IsColGrowable(0))
+            bag_szr->RemoveGrowableCol(0);
 		bag_szr->AddGrowableCol(0, 1);
-		if (bag_szr->IsRowGrowable(0)) bag_szr->RemoveGrowableRow(0);
+		if (bag_szr->IsRowGrowable(0))
+            bag_szr->RemoveGrowableRow(0);
 		bag_szr->AddGrowableRow(0, 1);
 		
 	} else {
 		for (int row=0; row<num_vars; ++row) {
 			wxString row_nm(var_man.GetName(row));
 			int row_tm(var_man.GetTime(row));
-			wxString row_title(var_man.GetNameWithTime(row));
+            
+            if (data_map[row_nm].size() == 1)
+                row_tm = 0;
+            
+            // We don't support time variable here
+            //int row_tm = 0;
+            wxString row_title(var_man.GetNameWithTime(row));
 			const std::vector<double>& Y(data_map[row_nm][row_tm]);
 			double row_min = var_man.GetMinOverAllTms(row);
 			double row_max = var_man.GetMaxOverAllTms(row);
 			SimpleAxisCanvas* sa_can = 0;
 			{
-				sa_can = new SimpleAxisCanvas(panel, this, project,
-																			project->GetHighlightState(),
-																			Y, row_title,
-																			row_min, row_max, false,
-																			show_outside_titles, false,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(50, -1));
+                sa_can = new SimpleAxisCanvas(panel, this, project,
+                                              project->GetHighlightState(),
+                                              Y, row_title,
+                                              row_min, row_max, false,
+                                              show_outside_titles, false,
+                                              true, true, -1, false, false, 0,
+                                              wxDefaultPosition, wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 				vert_labels.push_back(sa_can);
 			}
 			{
-				sa_can = new SimpleAxisCanvas(panel, this, project,
-																			project->GetHighlightState(),
-																			Y, row_title,
-																			row_min, row_max, true,
-																			show_outside_titles, false,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(-1, 50));
+                sa_can = new SimpleAxisCanvas(panel, this, project,
+                                              project->GetHighlightState(),
+                                              Y, row_title,
+                                              row_min, row_max, true,
+                                              show_outside_titles, false,
+                                              true, true, -1, false, false, 0,
+                                              wxDefaultPosition, wxSize(-1, 50));
 				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
 										 wxEXPAND);
 				horiz_labels.push_back(sa_can);
 			}
 			SimpleHistCanvas* sh_can = 0;
-			sh_can = new SimpleHistCanvas(panel, this, project,
-																		project->GetHighlightState(), Y, row_title,
-																		row_min, row_max,
-																		!show_outside_titles);
+            sh_can = new SimpleHistCanvas(panel, this, project,
+                                          project->GetHighlightState(), Y, row_title,
+                                          row_min, row_max,
+                                          !show_outside_titles);
 			bag_szr->Add(sh_can, wxGBPosition(row, row+1), wxGBSpan(1,1), wxEXPAND);
 			hist_plots.push_back(sh_can);
 			for (int col=0; col<num_vars; ++col) {
 				if (col == row) continue;
 				wxString col_nm(var_man.GetName(col));
 				int col_tm(var_man.GetTime(col));
+                
+                if (data_map[row_nm].size() == 1)
+                    col_tm = 0;
+                
 				wxString col_title(var_man.GetNameWithTime(col));
 				LOG_MSG("Creating Canvas Cell: ");
-				LOG_MSG(row_nm);
-				LOG_MSG(row_tm);
-				LOG_MSG(col_nm);
-				LOG_MSG(col_tm);
 				const std::vector<double>& X(data_map[col_nm][col_tm]);
 				double col_min = var_man.GetMinOverAllTms(col);
 				double col_max = var_man.GetMaxOverAllTms(col);
 				SimpleScatterPlotCanvas* sp_can = 0;
-				sp_can = new SimpleScatterPlotCanvas(panel, this, project,
-																						 project->GetHighlightState(), 0,
-																						 X, Y,
-																						 col_title, row_title,
-																						 col_min, col_max,
-																						 row_min, row_max,
-																						 true, true, false,
-																						 "ID_SCATTER_PLOT_MAT_MENU_OPTIONS",
-																						 !show_outside_titles,
-																						 false, false, //show axes thru org
-																						 show_regimes,
-																						 show_linear_smoother,
-																						 show_lowess_smoother,
-																						 show_slope_values);
+                sp_can = new SimpleScatterPlotCanvas(panel, this, project,
+                                                     project->GetHighlightState(), 0,
+                                                     X, Y,
+                                                     col_title, row_title,
+                                                     col_min, col_max,
+                                                     row_min, row_max,
+                                                     true, true, false,
+                                                     "ID_SCATTER_PLOT_MAT_MENU_OPTIONS",
+                                                     !show_outside_titles,
+                                                     false, false, //show axes thru org
+                                                     show_regimes,
+                                                     show_linear_smoother,
+                                                     show_lowess_smoother,
+                                                     show_slope_values);
 				bag_szr->Add(sp_can, wxGBPosition(row, col+1), wxGBSpan(1,1), wxEXPAND);
 				scatt_plots.push_back(sp_can);
 			}
@@ -465,7 +484,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	LOG(bag_szr->GetItemCount());
 	top_h_sizer->RecalcSizes();
-	Refresh();
+	//Refresh();
 	LOG_MSG("Exiting ScatterPlotMatFrame::SetupPanelForNumVariables");
 }
 

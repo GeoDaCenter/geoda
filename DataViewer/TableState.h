@@ -72,7 +72,8 @@ public:
 		col_order_change, // visual order of columns changed in Table
 		time_ids_add_remove,
 		time_ids_rename,
-		time_ids_swap
+		time_ids_swap,
+        refresh
 	};
 	TableState();
 	virtual ~TableState();
@@ -108,6 +109,7 @@ public:
 	void SetTimeIdsAddRemoveEvtTyp();
 	void SetTimeIdsRenameEvtTyp();
 	void SetTimeIdsSwapEvtTyp();
+    void SetRefreshEvtTyp();
 	
 	/** Number of TableStateObserver instances for which 
 	 TableStateObserver::AllowTimelineChanges() returns false.  If

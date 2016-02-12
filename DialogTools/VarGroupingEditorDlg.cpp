@@ -1199,8 +1199,7 @@ void VarGroupingEditorDlg::update(FramesManager* o)
 void VarGroupingEditorDlg::update(TableState* o)
 {
 	TableState::EventType ev_type = o->GetEventType();
-	if (ev_type != TableState::empty &&
-		ev_type != TableState::col_data_change)
+    if (ev_type == TableState::refresh || ev_type == TableState::col_rename)
 	{
 		common_empty = true;
 		InitAll();

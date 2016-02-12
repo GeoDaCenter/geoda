@@ -130,6 +130,11 @@ void TableState::SetTimeIdsSwapEvtTyp()
 	event_type = TableState::time_ids_swap;
 }
 
+void TableState::SetRefreshEvtTyp()
+{
+    event_type = TableState::refresh;
+}
+
 void TableState::SetColDispDecimalsEvtTyp(const wxString& name, int pos)
 {
 	event_type = TableState::col_disp_decimals_change;

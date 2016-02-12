@@ -123,7 +123,7 @@ void OGRTable::ChangeOGRLayer(OGRLayerProxy* new_ogr_layer)
 void OGRTable::Update(const VarOrderPtree& var_order_ptree)
 {
     var_order.Update(var_order_ptree);
-    table_state->SetTimeIdsAddRemoveEvtTyp();
+    table_state->SetRefreshEvtTyp();
     table_state->notifyObservers();
     SetChangedSinceLastSave(true);
 }

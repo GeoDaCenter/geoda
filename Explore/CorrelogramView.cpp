@@ -185,11 +185,24 @@ void CorrelogramFrame::update(TableState* o)
 void CorrelogramFrame::update(TimeState* o)
 {
 	LOG_MSG("In CorrelogramFrame::update(TimeState* o)");
-	var_man.UpdateGlobalTime(o->GetCurrTime());
-	UpdateDataMapFromVarMan();
-	UpdateCorrelogramData();
-	SetupPanelForNumVariables(var_man.GetVarsCount());
-	Refresh();
+	
+    
+    
+    bool has_time_var = false;
+    for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
+        if (i->second.size() > 1) {
+            has_time_var = true;
+            break;
+        }
+    }
+    
+    if (has_time_var) {
+        var_man.UpdateGlobalTime(o->GetCurrTime());
+        UpdateDataMapFromVarMan();
+        UpdateCorrelogramData();
+        SetupPanelForNumVariables(var_man.GetVarsCount());
+        Refresh();
+    }
 }
 
 void CorrelogramFrame::ReDraw()
@@ -553,7 +566,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	LOG(bag_szr->GetItemCount());
 	top_h_sizer->RecalcSizes();
-	Refresh();
+	//Refresh();
 	LOG_MSG("Exiting CorrelogramFrame::SetupPanelForNumVariables");
 }
 

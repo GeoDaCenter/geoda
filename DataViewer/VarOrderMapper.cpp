@@ -399,7 +399,7 @@ void VarOrderMapper::InsertTime(int time, const wxString& new_time_id)
 
 void VarOrderMapper::RenameTime(int time, const wxString& new_time_id)
 {
-	if (time < 0 || time > time_ids.size()) return;
+	if (time < 0 || time >= time_ids.size()) return;
 	time_ids[time] = new_time_id;
 }
 

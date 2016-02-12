@@ -183,7 +183,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				field_grid->SetCellValue(r, COL_PG, pg);
 				field_grid->SetCellAlignment(r, COL_PG, wxALIGN_CENTRE,
 											 wxALIGN_CENTRE);
-				
+				field_grid->SetReadOnly(r, COL_PG, true); 
 				// time
 				field_grid->SetCellValue(r, COL_TM,
 										 table_int->GetTimeString(t));
