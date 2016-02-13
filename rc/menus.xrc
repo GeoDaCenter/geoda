@@ -4111,6 +4111,14 @@
     <object class="wxMenuItem" name="IDM_LISA_EBRATE">
       <label>Local Moran's I with EB Rate</label>
     </object>
+    <object class="separator"/>
+    <label>Local G Maps</label>
+    <object class="wxMenuItem" name="IDM_LOCAL_G">
+        <label>Local G Cluster Map</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_LOCAL_G_STAR">
+        <label>Local G* Cluster Map</label>
+    </object>
   </object>
   <object class="wxMenu" name="ID_GETIS_MENU">
     <label>Local G Maps</label>

@@ -136,11 +136,13 @@
         <bitmap2>gray/32x32/23.png</bitmap2>
       <tooltip>Local Moran's I Maps</tooltip>
     </object>
+    <!--
     <object class="tool" name="IDM_GETIS_ORD_MENU">
         <bitmap>color/32x32/24.png</bitmap>
         <bitmap2>gray/32x32/24.png</bitmap2>
       <tooltip>Local G Statistics Maps</tooltip>
     </object>
+     -->
     <object class="separator"/>
     <object class="tool" name="ID_SHOW_TIME_CHOOSER">
         <bitmap>color/32x32/25.png</bitmap>
