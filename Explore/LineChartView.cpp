@@ -320,7 +320,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Time1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -329,7 +329,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Time2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
                 return;
             }
             
@@ -362,7 +362,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Time1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -371,7 +371,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Time2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
                 return;
             }
             
@@ -521,6 +521,9 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
     int nTests = var_man.GetVarsCount();
     TableInterface* table_int = project->GetTableInt();
     const std::vector<bool>& hs(highlight_state->GetHighlight());
+    int m_obs = project->GetNumRecords();
+   
+
     
     // regression options
     bool m_constant_term = true;
@@ -533,7 +536,6 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
        
         wxString m_Yname = var_man.GetName(i);
         std::vector<wxString> m_Xnames;
-        int m_obs = project->GetNumRecords();
         
         m_Xnames.push_back("CONSTANT");
         
@@ -545,6 +547,36 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
 		const vec_vec_dbl_type& Y(data_map[row_nm]);
         
         size_t n_ts = Y.size();
+
+        // check selection
+        if (compare_regimes || compare_r_and_t) {
+            bool has_selection = false;
+            for (int j=0; j<m_obs; j++) {
+                if (hs[j] == true) {
+                    has_selection = true;
+                }
+            }
+            if (!has_selection) {
+                wxMessageBox("Please define regimes by selecting on the map.");
+                return;
+            }
+            
+        } else if (compare_time_periods) {
+            bool has_time0_def = false;
+            bool has_time1_def = false;
+            for (int t=0; t<n_ts; t++) {
+                if (tms_subset0[t]) {
+                    has_time0_def = true;
+                }
+                if (tms_subset1[t]) {
+                    has_time1_def = true;
+                }
+            }
+            if (!has_time0_def || !has_time1_def) {
+                wxMessageBox("Please define time periods by selecting on the horizontal axis.");
+                return;
+            }
+        }
         
         if (compare_regimes) {
             m_Xnames.push_back("SPACE_DUMMY");
@@ -557,9 +589,10 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n == 0) {
-                wxMessageBox("Please choose time periods on the horizontal axis first.");
+                wxMessageBox("Please choose time periods by selecting on the horizontal axis first.");
                 return;
             }
+            
             
             double *y = new double[n];
             double **x = new double* [2];
@@ -611,7 +644,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Time1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -620,7 +653,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Time2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
                 return;
             }
             
@@ -680,7 +713,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Time1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -689,7 +722,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Time2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
                 return;
             }
             
@@ -1081,9 +1114,9 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 
 		if (compare_time_periods || compare_r_and_t) {
 			ctrls_h_szr = new wxBoxSizer(wxHORIZONTAL);
-			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"), "Time 1", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
+			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"), "Period 1", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
 			rb0->SetValue(true);
-			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"), "Time 2", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
+			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"), "Period 2", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 			rb1->SetValue(false);
 			Connect(XRCID("ID_RAD_BUT_0"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod0));
 			Connect(XRCID("ID_RAD_BUT_1"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod1));
@@ -1282,7 +1315,7 @@ void LineChartFrame::UpdateTitleText()
 	if (lc_stats.size() > 0 && tms > 1) {
 		if (compare_regimes) {
 
-            ln1 << "Compare the means of two groups over time:";
+            ln1 << "Compare the means of two groups over time periods:";
             ln1 << tm0_st;
             ln1 << ":\n";
             ln1 << "    Group 1 (" << span_clr_sel << "selected" << span_end << ")";
@@ -1295,11 +1328,11 @@ void LineChartFrame::UpdateTitleText()
 		if (compare_time_periods) {
             ln1 << "Compare the means of the same variable in two time periods:\n";
             ln1 << span_clr_tm1;
-            ln1 << "    Time 1 (" << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << ")";
+            ln1 << "    Period 1 (" << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << ")";
             ln1 << span_end;
             ln1 << " vs. ";
             ln1 << span_clr_tm2;
-            ln1 << "Time 2 (" << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << ")";
+            ln1 << "Period 2 (" << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << ")";
             ln1 << span_end;
             ln1 << "\n\n";
             ln1 << "    Select time period(s) on the horizontal axis below.";
@@ -1312,9 +1345,9 @@ void LineChartFrame::UpdateTitleText()
             ln1 << " vs. ";
             ln1 << "Group 2 (" << span_clr_exl << "excluded" << span_end << ")";
             ln1 << "\n";
-            ln1 << "    Time 1 (" << span_clr_tm1 << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << span_end << ")";
+            ln1 << "    Period 1 (" << span_clr_tm1 << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << span_end << ")";
             ln1 << " vs. ";
-            ln1 << "Time 2 (" << span_clr_tm2 << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << span_end << ")";
+            ln1 << "Period 2 (" << span_clr_tm2 << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << span_end << ")";
             ln1 << "\n\n";
             ln1 << "    Select observations in a map or plot.\n";
             ln1 << "    Select time periods on the horizontal axis below.";
@@ -1606,9 +1639,9 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         if (cmp_r)
             s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
+            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         if (cmp_r_t)
-            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
+            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
 		s<< "<td align=\"right\">" << lcs.s0.sz_i << "</td>";
 		s<< td_s0_mean;
@@ -1619,9 +1652,9 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         if (cmp_r)
             s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
+            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
         if (cmp_r_t)
-            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Time 1</font></td>";
+            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
 		s<< "<td align=\"right\">" << lcs.s1.sz_i << "</td>";
 		s<< td_s1_mean;
@@ -1631,13 +1664,13 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     
 	if (cmp_r_t && !single_sample) {
 		s<< "<tr>";
-		s<< "<td align=\"left\">3. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
+		s<< "<td align=\"left\">3. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
 		s<< "<td align=\"right\">" << lcs.s2.sz_i << "</td>";
 		s<< td_s2_mean;
 		s<< "<td align=\"right\">" << sd2 << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td align=\"left\">4. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Time 2</font></td>";
+		s<< "<td align=\"left\">4. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
 		s<< "<td align=\"right\">" << lcs.s3.sz_i << "</td>";
 		s<< td_s3_mean;
 		s<< "<td align=\"right\">" << sd3 << "</td>";
