@@ -198,7 +198,7 @@ ProjectConfiguration::ProjectConfiguration(const wxString& proj_path)
     project_fpath = proj_path;
 	ptree xml_tree;
 #ifdef __WIN32__
-	std::wstring ws(GET_ENCODED_FILENAME(project_fpath));
+	std::wstring ws(project_fpath.fn_str());
 	std::string s(ws.begin(), ws.end());
 	read_xml(s, xml_tree);
 #else
@@ -234,7 +234,7 @@ void ProjectConfiguration::Save(wxString saveFileName)
     boost::property_tree::xml_writer_settings<std::string> settings(' ', 4);
 	try {
 #ifdef __WIN32__
-		std::wstring ws(GET_ENCODED_FILENAME(saveFileName));
+		std::wstring ws(saveFileName.fn_str());
 		std::string s(ws.begin(), ws.end());
 		write_xml(s, pt, std::locale(), settings);
 #else
