@@ -6,3 +6,4 @@ VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space
 GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
 echo $GEODA_VERSION
 
+hdiutil create GeoDa$GEODA_VERSION.dmg -volname "GEODA_$GEODA_VERSION" -fs HFS+ -srcfolder "build"

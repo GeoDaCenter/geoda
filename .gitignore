@@ -8,10 +8,12 @@ BuildTools/windows/GeoDa.vcxproj.filters
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/temp/
+BuildTools/macosx/build/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 BuildTools/macosx/GeoDa-leopard.xcodeproj/
 
+*.dmg
 *.mode1v3
 *.pbxuser
 *.sdf
