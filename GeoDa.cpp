@@ -319,8 +319,8 @@ bool GdaApp::OnInit(void)
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
 		//   with GeneralWxUtils::isVista()
-		frameWidth = 790; // 656 // 678
-		frameHeight = 100;
+		frameWidth = 1060;
+		frameHeight = 120;
 		// Override default in case XP family of OSes is detected
 		//if (GeneralWxUtils::isXP()) {
 		//}
