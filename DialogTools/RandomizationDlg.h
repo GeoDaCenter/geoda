@@ -47,6 +47,9 @@ public:
 	void Init();
 	void CalcMoran();
    
+	void OnRunClick( wxCommandEvent& event );
+
+	void OnMouse( wxMouseEvent& event );
     void OnSize(wxSizeEvent& event);
     void OnPaint( wxPaintEvent& event );
     void CheckSize(const int width, const int height);
@@ -119,6 +122,7 @@ public:
 	virtual ~RandomizationDlg();
     void CreateControls();
 
+	void OnMouse( wxMouseEvent& event );
     void OnClose( wxCloseEvent& event );
     void OnOkClick( wxCommandEvent& event );
 

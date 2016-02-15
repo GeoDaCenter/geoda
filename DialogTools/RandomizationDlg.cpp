@@ -52,7 +52,8 @@ wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
     
     Connect(wxEVT_PAINT, wxPaintEventHandler(RandomizationPanel::OnPaint));
     Connect(wxEVT_SIZE, wxSizeEventHandler(RandomizationPanel::OnSize));
-    
+    Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(RandomizationPanel::OnMouse));
+
     if (reuse_user_seed)
         rng = new Randik(user_specified_seed);
     else
@@ -77,6 +78,7 @@ wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
     
     Connect(wxEVT_PAINT, wxPaintEventHandler(RandomizationPanel::OnPaint));
     Connect(wxEVT_SIZE, wxSizeEventHandler(RandomizationPanel::OnSize));
+	Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(RandomizationPanel::OnMouse));
     
     if (reuse_user_seed)
         rng = new Randik(user_specified_seed);
@@ -93,6 +95,22 @@ RandomizationPanel::~RandomizationPanel()
 	if (theRands) delete [] theRands;
 	if (rng) 
 		delete rng;
+}
+
+void RandomizationPanel::OnMouse( wxMouseEvent& event )
+{
+	if (event.RightUp()) {
+		wxMenu* popupMenu = new wxMenu(wxEmptyString);
+		popupMenu->Append(XRCID("RUN_RANDOM"), "Run");
+		Connect(XRCID("RUN_RANDOM"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(RandomizationPanel::OnRunClick));
+		PopupMenu(popupMenu, event.GetPosition());
+	}
+}
+
+void RandomizationPanel::OnRunClick( wxCommandEvent& event )
+{
+	RunRandomTrials();
+	Refresh();
 }
 
 void RandomizationPanel::CalcMoran()
@@ -287,9 +305,11 @@ void RandomizationPanel::Draw(wxDC* dc)
 	dc->DrawRectangle(hZero, Top-2 , 3, Height+2);
   
 	//int fs = 4 + Bottom/4;
-	wxFont nf(*wxSMALL_FONT);
-	nf.SetPointSize(13);
-	dc->SetFont(nf);
+	//wxFont nf(*wxSMALL_FONT);
+	//nf.SetPointSize(13);
+	//dc->SetFont(nf);
+
+	dc->SetFont(*GdaConst::small_font);
 	
 	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
@@ -370,6 +390,7 @@ const int ID_BUTTON = wxID_ANY;
 BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
     EVT_CLOSE( RandomizationDlg::OnClose)
     //EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
+	EVT_MOUSE_EVENTS(RandomizationDlg::OnMouse)
 END_EVENT_TABLE()
 
 RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
@@ -422,16 +443,16 @@ void RandomizationDlg::CreateControls()
 {    
     wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
-    hbox2->AddSpacer(100);
-    hbox2->Add(button);
+    //wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
+    //hbox2->AddSpacer(100);
+    //hbox2->Add(button);
     vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxLEFT | wxTOP, 100);
     
     panel->SetSizer(vbox);
     
     Centre();
     
-    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+    //Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
     
 }
 
@@ -449,4 +470,13 @@ void RandomizationDlg::OnOkClick( wxCommandEvent& event )
 	panel->Refresh();
 }
  
+void RandomizationDlg::OnMouse( wxMouseEvent& event )
+{
+	if (event.RightDown()) {
+		wxMenu* popupMenu = new wxMenu(wxEmptyString);
+		popupMenu->Append(XRCID("RUN_RANDOM"), "Run");
+		Connect(XRCID("RUN_RANDOM"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+		PopupMenu(popupMenu, event.GetPosition());
+	}
+}
 
