@@ -313,13 +313,13 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1060; // 643 // 665
+		frameWidth = 1012; // 643 // 665
 		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
 		// The default is assumed to be Vista / Win 7 family, but can check
 		//   with GeneralWxUtils::isVista()
-		frameWidth = 1060;
+		frameWidth = 1020;
 		frameHeight = 120;
 		// Override default in case XP family of OSes is detected
 		//if (GeneralWxUtils::isXP()) {
