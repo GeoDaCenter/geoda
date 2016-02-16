@@ -38,3 +38,31 @@ depends upon.
 
 5. Package GeoDa for distribution / installation.
 
+****************************************************
+*** Building GeoDa plugins for 64-bit OSX        ***
+****************************************************
+
+1. Download Oracle Instant Client Package - Basic & Oracle Instant Client Package - SDK
+
+2. Unzip SDK, then unzip "Basic", which will be copied to lib/
+
+3. Create the appropriate libclntsh.dylib link for the version of Instant Client. For example:
+```
+cd ~/instantclient_11_2
+ln -s libclntsh.dylib.11.1 libclntsh.dylib
+```
+
+4. Update ORACLE_HOME
+```
+export ORACLE_HOME=~/instantclient_11_2
+```
+
+5. Build Oracle plugin
+```
+cd GDAL_HOME/ogr/ogrsf_frmts/oci
+make plugin
+install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_OCI.so
+mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
+```
+
+
