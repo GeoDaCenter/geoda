@@ -133,9 +133,44 @@ echo "%%%%%%%%%%%%%%%%%%%%%%"
 }
 
 #########################################################################
+# install c-ares -- for cURL, prevent crash on Mac oSx with threads
+#########################################################################
+install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
+
+
+#########################################################################
 # install cURL
 #########################################################################
-install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a "--without-librtmp"
+#install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a "--without-librtmp"
+
+LIB_NAME=curl-7.46.0
+LIB_CHECKER=libcurl.a
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_FILENAME=curl-7.46.0.zip
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+    unzip $LIB_FILENAME
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX "--without-librtmp"
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 
 #########################################################################
 # install Xerces
@@ -216,11 +251,17 @@ echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="libkml"
     LIB_CHECKER="libkmlbase.a"
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libkml-r680.tar.gz
+    LIB_FILENAME=libkml-r680.tar.gz
     echo $LIB_NAME
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        svn checkout http://libkml.googlecode.com/svn/trunk/ libkml
+        curl -O $LIB_URL
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
+        tar -xf $LIB_FILENAME
     fi
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
@@ -278,7 +319,7 @@ echo "% Building: Spatialite %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
-    LIB_URL=http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.0.0.tar.gz
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=libspatialite.a
     echo $LIB_FILENAME
@@ -312,8 +353,7 @@ echo "% Building: MySQL %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=mysql-5.6.14
-    #LIB_URL=http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.14.tar.gz
-    LIB_URL=http://iweb.dl.sourceforge.net/project/mysql.mirror/MySQL%205.6.14/mysql-5.6.14.tar.gz
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14.tar.gz
     LIB_CHECKER=libmysqlclient.a
 
     echo $LIB_NAME
@@ -351,7 +391,7 @@ echo "% Building: Boost 1.57 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=boost_1_57_0
-    LIB_URL=http://hivelocity.dl.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.gz
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
     LIB_FILENAME=boost_1_57_0.tar.gz
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
@@ -398,7 +438,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Building: JSON Spirit %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 LIB_NAME="json_spirit_v4.08"
-LIB_URL="http://www.codeproject.com/KB/recipes/JSON_Spirit/json_spirit_v4.08.zip"
+LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
@@ -445,7 +485,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$CLAPACK_NAME" ]; then
-        curl -O http://www.netlib.org/clapack/clapack.tgz
+        curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz
         tar -xvf clapack.tgz
     fi
 
@@ -483,18 +523,17 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Building: Custom GDAL/OGR 1.9.2 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 {
-    LIB_NAME=gdal-1.9.2
-    LIB_URL=https://codeload.github.com/lixun910/gdal-1.9.2-work/zip/master
-    LIB_FILENAME=master
+    LIB_NAME=gdal
+    LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
+    LIB_FILENAME=GeoDa17Merge
     LIB_CHECKER=libgdal.a
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        #svn co https://github.com/lixun910/gdal-1.9.2-work/trunk gdal-1.9.2
         curl -k -O $LIB_URL
         unzip $LIB_FILENAME
-        mv gdal-1.9.2-work-master gdal-1.9.2
+        mv gdal-GeoDa17Merge/gdal gdal
     fi
 
     cp -rf $GEODA_HOME/dep/$LIB_NAME .
@@ -504,7 +543,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         chmod +x install-sh
         ./configure
         cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
-	cp GDALmake64.opt GDALmake.opt
+        cp GDALmake64.opt GDALmake.opt
         #make clean
         $MAKER
         make install
@@ -529,7 +568,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
     LIB_NAME=wxWidgets-3.0.2
-    LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2"
+    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2"
 
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config
@@ -537,15 +576,16 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+        curl -k -o $LIB_FILENAME $LIB_URL
     fi
 
     if ! [ -d "$LIB_NAME" ]; then
-	tar -xf $LIB_FILENAME
+        tar -xf $LIB_FILENAME
     fi
 
     if ! [ -f "$PREFIX/bin/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
+        cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
         ./configure --with-gtk=2 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
