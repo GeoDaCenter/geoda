@@ -65,4 +65,23 @@ install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal
 mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
 ```
 
+****************************************************
+*** Building GeoDa plugins for 64-bit OSX        ***
+****************************************************
 
+1. Download File Geodatabase API 1.3 version for Mac 64-bit 
+
+2. Unzip
+
+3. Update FGDB_HOME
+```
+export FGDB_HOME=~/FileGDB_API
+```
+
+5. Build FileGDB plugin
+```
+cd GDAL_HOME/ogr/ogrsf_frmts/filegdb
+make plugin
+nstall_name_tool -change '/Users/xun/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_FileGDB.so
+mv ogr_FileGDB.so ~/geoda_trunk/BuildTools/macosx/plugins/
+```
