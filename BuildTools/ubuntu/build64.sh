@@ -517,6 +517,37 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 }
 
 #########################################################################
+# install json-c
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: json-c                 "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+{
+
+    LIB_NAME=json-c
+    LIB_CHECKER=libjson-c.a
+
+    if ! [ -d "$LIB_NAME" ] ; then
+	git clone https://github.com/json-c/json-c.git
+    fi
+
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        cd $LIB_NAME
+	sh autogen.sh
+        ./configure --prefix=$PREFIX
+	make
+	make install
+    fi
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        echo "Error! Exit"
+        exit
+    fi
+}
+
+#########################################################################
 # install GDAL/OGR
 #########################################################################
 echo ""
