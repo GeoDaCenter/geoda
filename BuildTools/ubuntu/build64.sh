@@ -181,7 +181,7 @@ echo "% Building: Xerces %"
 echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="xerces-c-3.1.1"
-    LIB_URL="http://mirror.metrocast.net/apache//xerces/c/3/sources/xerces-c-3.1.1.tar.gz"
+    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
     LIB_CHECKER="libxerces-c.a"
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     echo $LIB_FILENAME
@@ -210,34 +210,34 @@ echo "%%%%%%%%%%%%%%%%%%%%"
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 http://download.osgeo.org/geos/geos-3.3.8.tar.bz2 libgeos.a
+install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2  libgeos.a
 
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 http://download.osgeo.org/proj/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f http://www.gaia-gis.it/gaia-sins/freexl-sources/freexl-1.0.0f.tar.gz libfreexl.a
+install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
 
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 http://www.sqlite.org/2013/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
 # libreadline, zlib
 echo "install libreadline, zlib"
-install_library postgresql-9.2.4 http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install libkml requires 1.3
@@ -446,6 +446,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
+    curl -o https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
     unzip $LIB_FILENAME
 fi
 
@@ -542,8 +543,8 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         chmod +x configure
         chmod +x install-sh
         ./configure
-        cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
-        cp GDALmake64.opt GDALmake.opt
+        #cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
+        #cp GDALmake64.opt GDALmake.opt
         #make clean
         $MAKER
         make install

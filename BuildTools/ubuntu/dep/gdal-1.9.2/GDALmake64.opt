@@ -1,4 +1,4 @@
-GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal-1.9.2
+GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal
 top_builddir	=	$(GDAL_ROOT)
 
 #
@@ -68,7 +68,7 @@ INST_DOCS	=	${prefix}/doc
 INST_MAN	=	${prefix}/share/gdal/man
 INST_HTML	=	$(HOME)/www/gdal
 
-CPPFLAGS	=  -I$(GDAL_ROOT)/port 
+CPPFLAGS	=  -I$(GDAL_ROOT)/port  -I$(GDAL_ROOT)/gcore  -I$(GDAL_ROOT)/ogr  -I$(GDAL_ROOT)/ogr/ogrsf_frmts -I$(GDAL_ROOT)/alg
 CFLAGS		=  -g -O2 -DDEBUG  -Wall -Wdeclaration-after-statement $(USER_DEFS)
 CXXFLAGS	=  -g -O2 -DDEBUG  -Wall $(USER_DEFS)
 LDFLAGS     = 
@@ -281,6 +281,12 @@ HAVE_VFK = yes
 CURL_SETTING 	=	yes
 CURL_LIB	=	$(GEODA_HOME)/libraries/lib/libcurl.a -lldap -lz
 CURL_INC	=	-I$(GEODA_HOME)/libraries/include
+
+#
+# libjson-c
+#
+LIBJSONC_SETTING = yes
+JSON_INCLUDE = -I/usr/include/json
 
 # 
 # OpenCL support
