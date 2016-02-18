@@ -38,7 +38,7 @@
 #include "../Regression/DiagnosticReport.h"
 #include "../Regression/Lite2.h"
 #include "../GenUtils.h"
-#include "../varCalc/WeightsManInterface.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/GalWeight.h"
 
 bool classicalRegression(GalElement *g, int num_obs, double * Y,

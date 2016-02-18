@@ -53,6 +53,7 @@ build-geoda-mac:
 	mkdir build/Resources
 	mkdir build/gdaldata
 	mkdir build/plugins
+	mkdir build/basemap_cache
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
@@ -61,7 +62,7 @@ build-geoda-mac:
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
 	cp $(GeoDa_ROOT)/rc/menus.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/toolbar.xrc build/Resources
-	cp $(GEODA_HOME)/libraries/lib/libgdal.so.1.16.2 build/plugins/libgdal.so.1
+	cp $(GEODA_HOME)/libraries/lib/libgdal.so.20.0.0 build/plugins/libgdal.so.20
 	cp $(GEODA_HOME)/libraries/lib/libkmldom.so.0.0.0 build/plugins/libkmldom.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlengine.so.0.0.0 build/plugins/libkmlengine.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlbase.so.0.0.0 build/plugins/libkmlbase.so.0

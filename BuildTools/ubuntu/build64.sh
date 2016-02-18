@@ -141,10 +141,9 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 #########################################################################
 # install cURL
 #########################################################################
-#install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a "--without-librtmp"
 
 LIB_NAME=curl-7.46.0
-LIB_CHECKER=libcurl.a
+LIB_CHECKER=libcurl.a1
 LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
 LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
@@ -162,7 +161,7 @@ fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
-    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX "--without-librtmp"
+    ./configure --enable-ares=$PREFIX --with-ssl=/usr/lib/x86_64-linux-gnu/openssl-1.0.0 CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX --without-librtmp
     $MAKER
     make install
 fi

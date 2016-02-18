@@ -26,6 +26,7 @@
 #include <wx/radiobut.h>
 #include <wx/button.h>
 #include <wx/combobox.h>
+#include <wx/panel.h>
 
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -74,7 +75,7 @@ bool DiffMoranVarSettingDlg::Init()
 
 void DiffMoranVarSettingDlg::CreateControls()
 {
-    wxPanel *panel = new wxPanel(this, -1);
+    wxPanel *panel = new wxPanel(this);
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
      wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
