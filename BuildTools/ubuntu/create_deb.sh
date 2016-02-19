@@ -15,6 +15,9 @@ rm -rf product
 cp -rf package product
 
 chmod +x product/DEBIAN/postinst
+mkdir product/usr/local
+mkdir product/usr/bin
+mkdir product/usr/local/geoda
 cp -rf build/* product/usr/local/geoda/
 cp run_geoda.sh product/usr/bin/
 
@@ -29,6 +32,6 @@ if [ $MACHINE_TYPE == 'x86_64' ]; then
     mv product/DEBIAN/control64 product/DEBIAN/control
 fi
 
-rm -f GeoDa-1.7.x-Ubuntu-XXbit.deb
-dpkg -b product/ GeoDa-1.7.x-Ubuntu-XXbit.deb
+rm -f GeoDa-1.8-Ubuntu-XXbit.deb
+dpkg -b product/ GeoDa-1.8-Ubuntu-XXbit.deb
 

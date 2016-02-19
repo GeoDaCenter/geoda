@@ -279,7 +279,7 @@ HAVE_VFK = yes
 # Curl
 #
 CURL_SETTING 	=	yes
-CURL_LIB	=	$(GEODA_HOME)/libraries/lib/libcurl.a -lldap -lz $(GEODA_HOME)/libraries/lib/libcares.a
+CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz -lcares
 CURL_INC	=	-I$(GEODA_HOME)/libraries/include
 
 #

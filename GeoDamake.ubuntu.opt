@@ -19,7 +19,7 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
         $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
         -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl -lcares \
-        -L/usr/lib/x86_64-linux-gnu -lGL -lGLU -lglut -lrt -lidn -lssl -lrtmp -lldap_r -lcrypto -llber -lidn 
+        -L/usr/lib/x86_64-linux-gnu -lGL -lGLU -lglut -lrt -lidn -lssl -lrtmp 
 # Note: Library -lrtmp causes a missing library problem at runtime on
 #       Ubuntu 14.10 and later.
 

@@ -161,7 +161,7 @@ fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
-    ./configure --enable-ares=$PREFIX --with-ssl=/usr/lib/x86_64-linux-gnu/openssl-1.0.0 CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX --without-librtmp
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX --without-librtmp
     $MAKER
     make install
 fi

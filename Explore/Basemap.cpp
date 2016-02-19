@@ -445,7 +445,6 @@ void Basemap::GetTiles()
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
   
-    
     if (bDownload && downloadThread) {
         bDownload = false;
 		downloadThread->join();
@@ -457,6 +456,18 @@ void Basemap::GetTiles()
         bDownload = true;
         downloadThread = new boost::thread(boost::bind(&Basemap::_GetTiles,this, startX, startY, endX, endY));
     }
+/*
+    for (int i=startX; i<=endX; i++) {
+        for (int j=startY; j<=endY; j++) {
+		int idx_x = i < 0 ? nn + i : i;
+		int idx_y = j < 0 ? nn + j : j;
+		if (idx_x > nn)
+		    idx_x = idx_x - nn;
+		DownloadTile(idx_x, idx_y);
+        }
+    }
+    isTileReady = true;
+*/
     delete topleft;
     delete bottomright;
 }
@@ -514,50 +525,55 @@ void Basemap::DownloadTile(int x, int y)
 {
     // detect if file exists in temp/ directory
     std::string filepathStr = GetTilePath(x, y);
-    const char* filepath = filepathStr.c_str();
+    char* filepath = new char[filepathStr.length() + 1];
+    std::strcpy(filepath, filepathStr.c_str());
+
     if (!is_file_exist(filepath)) {
         // otherwise, download the image
         std::string urlStr = GetTileUrl(x, y);
-		const char* url = urlStr.c_str();
+	char* url = new char[urlStr.length() + 1];
+	std::strcpy(url, urlStr.c_str());
         
-        FILE* fp = fopen(filepath, "wb");
-        if (!fp)
-        {
-            printf("!!! Failed to create file on the disk\n");
-            return;
-        }
-        
+        FILE* fp;
         CURL* image;
         CURLcode imgResult;
 
         image = curl_easy_init();
         if (image) {
-            
-            curl_easy_setopt(image, CURLOPT_URL, url); 
-            curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-            curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
-            curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
-            curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
-            curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
-            
-            // Grab image 
-            imgResult = curl_easy_perform(image); 
-            if( imgResult ){ 
-                cout << "Cannot grab the image!\n"; 
-            } 
-            
-            int res_code = 0;
-            curl_easy_getinfo(image, CURLINFO_RESPONSE_CODE, &res_code);
-            if (!((res_code == 200 || res_code == 201) && imgResult != CURLE_ABORTED_BY_CALLBACK))
+            fp = fopen(filepath, "wb");
+            if (fp)
             {
-                printf("!!! Response code: %d\n", res_code);
-            }
-			// Clean up the resources 
-			curl_easy_cleanup(image); 
+                curl_easy_setopt(image, CURLOPT_URL, url); 
+                curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
+                curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
+                //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                //curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
+                //curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
+            
+                // Grab image 
+                imgResult = curl_easy_perform(image); 
+           
+		/* 
+		if( imgResult ){ 
+                  cout << "Cannot grab the image!\n"; 
+                } 
+            
+            	int res_code = 0;
+            	curl_easy_getinfo(image, CURLINFO_RESPONSE_CODE, &res_code);
+            	if (!((res_code == 200 || res_code == 201) && imgResult != CURLE_ABORTED_BY_CALLBACK))
+            	{
+                	printf("!!! Response code: %d\n", res_code);
+            	}
+		*/
+		// Clean up the resources 
+		curl_easy_cleanup(image); 
+        	fclose(fp);
+	    }
         }
                 
-        fclose(fp);
+	delete[] url;
     }
+    delete[] filepath;
 }
 
 
