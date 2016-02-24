@@ -262,7 +262,7 @@ bool GdaApp::OnInit(void)
     // However, user can change the Separators in GeoDa, after re-open the
     // datasource, CSV reader will use the Separators
     struct lconv *poLconv = localeconv();
-    CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
+    //CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
     CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
     
     // forcing to C locale, which is used internally in GeoDa
@@ -331,8 +331,8 @@ bool GdaApp::OnInit(void)
 		//}
 	}
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
-		frameWidth = 870; // 826 // 848
- 		frameHeight = 84;
+		frameWidth = 1020; // 826 // 848
+ 		frameHeight = 80;
 	}
 
     
