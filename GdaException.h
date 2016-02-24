@@ -35,6 +35,8 @@ public:
 		CRITICLE = 2
 	} Type;
 
+    GdaException() {}
+    
 	GdaException(const char* message, Type _t_=GdaException::CRITICLE)
 	{
 		std::ostringstream s;
@@ -53,9 +55,26 @@ public:
     }
     virtual const Type type() const throw() { return t_; }
 	
-private:
+protected:
 	std::string what_;
     Type t_;
+};
+
+class GdaLocalSeparatorException : public GdaException {
+public:
+    GdaLocalSeparatorException(const char* message, Type _t_=GdaLocalSeparatorException::CRITICLE)
+    {
+        what_ = "Invalid Local Separtor found.";
+        t_ = _t_;
+    }
+    
+    virtual ~GdaLocalSeparatorException() throw () {}
+    virtual const char* what() const throw () {
+        if (what_.empty()) return "None";
+        return what_.c_str();
+    }
+    
+    virtual const Type type() const throw() { return t_; }
 };
 
 #endif

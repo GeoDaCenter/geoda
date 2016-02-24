@@ -7729,7 +7729,7 @@
           <orient>wxVERTICAL</orient>
           <object class="sizeritem">
             <object class="wxStaticText" name="IDC_STATIC">
-              <label>Number Separators</label>
+                <label>Setup Number Separators for reading numerics in GeoDa Table \n\n (Note: GeoDa uses period for decimal internally.)</label>
             </object>
             <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
             <border>5</border>

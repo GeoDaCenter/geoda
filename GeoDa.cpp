@@ -253,18 +253,23 @@ bool GdaApp::OnInit(void)
 		}
 	}
  
-    // By defaut, GeoDa will use user's system locale
+    // By defaut, GDAL will use user's system locale to read any input datasource
     int lan = wxLocale::GetSystemLanguage();
     wxString locale_name = wxLocale::GetLanguageCanonicalName(lan);
     setlocale(LC_ALL, locale_name.mb_str());
+    CPLsetlocale(LC_ALL, locale_name.mb_str());
+    
+    // However, user can change the Separators in GeoDa, after re-open the
+    // datasource, CSV reader will use the Separators
     struct lconv *poLconv = localeconv();
     CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
     CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
+    
     // forcing to C locale, which is used internally in GeoDa
     setlocale(LC_ALL, "C");
     
-    CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
-    //CPLSetConfigOption("SHAPE_ADJUST_TYPE", "YES");
+    // Other GDAL configurations
+    //CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac

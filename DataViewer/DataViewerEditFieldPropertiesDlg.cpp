@@ -468,13 +468,16 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     // rename
                     table_int->RenameSimpleCol(to_col, 0, var_name);
                     
-                }catch(GdaException& e) {
+                } catch(GdaLocalSeparatorException& e) {
+                    return;
+                    
+                } catch(GdaException& e) {
                     // clean up temporary data
                     int tmp_col = table_int->FindColId(tmp_name);
                     if (tmp_col >= 0) {
                         table_int->DeleteCol(tmp_col);
                     }
-                    wxString m = wxString::Format("Change variable type for \"%s\" has failed. Please check all values are valid.", var_name);
+                    wxString m = wxString::Format("Change variable type for \"%s\" has failed. Please check all values are valid for conversion.", var_name);
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;

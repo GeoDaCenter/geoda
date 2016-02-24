@@ -569,6 +569,7 @@ void OGRColumnString::FillData(vector<double> &data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             double val;
+            // internal is always local "C"
             if (!new_data[i].ToDouble(&val)) {
                 wxString error_msg;
                 error_msg << "Fill data error: can't convert '" << new_data[i]
@@ -579,16 +580,39 @@ void OGRColumnString::FillData(vector<double> &data)
         }
     } else {
         int col_idx = GetColIndex();
+        bool conv_success = true;
+        wxString tmp;
+        
         for (int i=0; i<rows; ++i) {
-            wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             double val;
             if (!tmp.ToDouble(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << tmp
-                << "' to floating-point number.";
-                throw GdaException(error_msg.mb_str());
+                conv_success = false;
+                break;
             }
             data[i] = val;
+        }
+        
+        if (conv_success == false) {
+            conv_success = true;
+            std::setlocale(LC_NUMERIC, "de_DE");
+            for (int i=0; i<rows; ++i) {
+                tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                double val;
+                if (!tmp.ToDouble(&val)) {
+                    conv_success = false;
+                    break;
+                }
+                data[i] = val;
+            }
+            std::setlocale(LC_NUMERIC, "C");
+        }
+        
+        if (conv_success == false ) {
+            wxString error_msg;
+            error_msg << "Fill data error: can't convert '" << tmp
+            << "' to floating-point number.";
+            throw GdaException(error_msg.mb_str());
         }
     }
 }

@@ -79,7 +79,7 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
     m_txt_decimal->SetValue(decimal_point);
     
     wxString msg = "Reset to system locale successfully. Please re-open "
-    "current project with reset system locale.";
+    "current project with system locale.";
     wxMessageDialog msg_dlg(this, msg,
                            "Reset to system locale information",
                            wxOK | wxOK_DEFAULT | wxICON_INFORMATION);

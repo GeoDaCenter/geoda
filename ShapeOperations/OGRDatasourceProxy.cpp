@@ -42,12 +42,12 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, bool bUpdate)
 : ds_name(_ds_name)
 {	
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
-    
-	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
+    const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
+	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
     is_writable = true;
 	if (!ds) {
         // try without UPDATE
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, papszOpenOptions, NULL);
         if (!ds) {
             // raise open fialed
             string error_detail = CPLGetLastErrorMsg();
@@ -96,7 +96,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 	}
 	
 	// create the output data source.
-	char *papszLCO[50] = {"OVERWRITE=yes"};
+	const char *papszLCO[50] = {"OVERWRITE=yes"};
 	//ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if(ds == NULL ) {
