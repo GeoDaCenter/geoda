@@ -6844,7 +6844,7 @@
                       <object class="wxStaticBitmap" name="IDC_DRAG_DROP_BOX">
                         <style>wxBORDER_NONE</style>
                         <bitmap>dragdrop.png</bitmap>
-                        <bitmap2>dragdrop2.png</bitmap2>
+                        <bitmap2>dragdrop.png</bitmap2>
                       </object>
                     </object>
                   </object>

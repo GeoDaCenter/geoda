@@ -10,13 +10,6 @@
       <bitmap2>color/32x32/01.png</bitmap2>
       <tooltip>Open</tooltip>
     </object>
-    <!--
-    <object class="tool" name="ID_OPEN_PROJECT">
-      <bitmap>ToolBar-new-project.png</bitmap>
-      <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
-      <tooltip>Open Project</tooltip>
-    </object>
-     -->
     <object class="tool" name="ID_CLOSE_PROJECT">
         <bitmap>color/32x32/02.png</bitmap>
         <bitmap2>gray/32x32/02.png</bitmap2>
@@ -38,25 +31,6 @@
         <bitmap2>gray/32x32/05.png</bitmap2>
         <tooltip>Weights Manager</tooltip>
     </object>
-    <!--
-    <object class="separator"/>
-    <object class="tool" name="ID_TOOLS_WEIGHTS_CREATE">
-        <bitmap>color/32x32/01.png</bitmap>
-        <bitmap2>gray/32x32/01.png</bitmap2>
-        <tooltip>Create weights</tooltip>
-    </object>
-    
-    <object class="tool" name="ID_CONNECTIVITY_HIST_VIEW">
-      <bitmap>ToolBarBitmaps_5.png</bitmap>
-      <bitmap2>ToolBarBitmaps_5_disabled.png</bitmap2>
-      <tooltip>Connectivity Histogram</tooltip>
-    </object>
-    <object class="tool" name="ID_CONNECTIVITY_MAP_VIEW">
-      <bitmap>ToolBarBitmaps_5a.png</bitmap>
-      <bitmap2>ToolBarBitmaps_5a_disabled.png</bitmap2>
-      <tooltip>Connectivity Map</tooltip>
-    </object>
-     -->
     <object class="separator"/>
     <object class="tool" name="ID_MAP_CHOICES">
         <bitmap>color/32x32/09.png</bitmap>
@@ -136,13 +110,6 @@
         <bitmap2>gray/32x32/23.png</bitmap2>
       <tooltip>Cluster Maps</tooltip>
     </object>
-    <!--
-    <object class="tool" name="IDM_GETIS_ORD_MENU">
-        <bitmap>color/32x32/24.png</bitmap>
-        <bitmap2>gray/32x32/24.png</bitmap2>
-      <tooltip>Local G Statistics Maps</tooltip>
-    </object>
-     -->
     <object class="separator"/>
     <object class="tool" name="ID_SHOW_TIME_CHOOSER">
         <bitmap>color/32x32/25.png</bitmap>
@@ -160,14 +127,6 @@
         <bitmap2>gray/32x32/27.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
-    <!--
-    <object class="separator"/>
-	<object class="tool" name="ID_PUBLISH">
-      <bitmap>share.png</bitmap>
-      <bitmap2>share_disabled.png</bitmap2>
-      <tooltip>Publish</tooltip>
-    </object>
-     -->
   </object>
 
   <object class="wxToolBar" name="ToolBar_MAP">
