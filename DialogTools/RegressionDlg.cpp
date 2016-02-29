@@ -1111,8 +1111,13 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
 	slog << "Data set            :  " << datasetname << "\n"; cnt++;
 	slog << "Dependent Variable  :";
-	slog << GenUtils::Pad(m_dependent->GetValue(), 12);
-	slog << "  Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
+    
+    if (m_dependent->GetValue().length() > 12 )
+        slog << "  " << GenUtils::Pad(m_dependent->GetValue(), 12) << "\n";
+    else
+        slog << GenUtils::Pad(m_dependent->GetValue(), 12) <<  "  ";
+        
+	slog << "Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
 	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
 	slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
 	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
@@ -1134,20 +1139,20 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
 	
-	slog << "--------------------------------";
+	slog << "--------------------------------------";
 	slog << "---------------------------------------\n"; cnt++;
-	slog << "    Variable   Coefficient      ";
+	slog << "    Variable         Coefficient      ";
 	slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
-	slog << "--------------------------------";
+	slog << "--------------------------------------";
 	slog << "---------------------------------------\n"; cnt++;
 	
 	for (int i=0; i<nX; i++) {
-		slog << GenUtils::Pad(r->GetXVarName(i), 12);
+		slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
 		slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
 								 r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i)); cnt++;
 	}
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n\n"; cnt++; cnt++;
 	
 	slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
@@ -1264,8 +1269,8 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 		yh = NULL;
 	}
 	
-	slog << "========================== END OF REPORT";
-	slog <<  " ==============================\n\n"; cnt++; cnt++;
+	slog << "============================== END OF REPORT";
+	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	slog << "\n\n"; cnt++; cnt++;
 	logReport << slog;
@@ -1289,7 +1294,13 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog << "MAXIMUM LIKELIHOOD ESTIMATION\n"; cnt++;
 	slog << "Data set            : " << datasetname << "\n"; cnt++;
 	slog << "Spatial Weight      : " << wname << "\n"; cnt++;
-	f = "Dependent Variable  :%12s  Number of Observations:%5d\n"; cnt++;
+    
+    if (m_Yname.length() > 12 )
+        f = "Dependent Variable  :  %12s  \nNumber of Observations:%5d\n";
+    else
+        f = "Dependent Variable  :%12s  Number of Observations:%5d\n";
+    cnt++;
+    
 	slog << wxString::Format(f, m_Yname, Obs);
 	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetMeanY(), nX+1);
@@ -1311,19 +1322,19 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()));
 	slog << "\n\n"; cnt++; cnt++;
 	
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
-	slog << "    Variable    Coefficient     ";
+	slog << "    Variable          Coefficient     ";
 	slog << "Std.Error       z-value    Probability\n"; cnt++;
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
-		slog << GenUtils::Pad(wxString(r->GetXVarName(i)), 12);
+		slog << GenUtils::PadTrim(wxString(r->GetXVarName(i)), 18);
 		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n\n"; cnt++; cnt++;
 	
 	slog << "REGRESSION DIAGNOSTICS\n"; cnt++;
@@ -1389,8 +1400,8 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 		yh = NULL;
 	}
 	
-	slog << "========================== END OF REPORT";
-	slog <<  " ==============================\n\n"; cnt++; cnt++;
+	slog << "============================== END OF REPORT";
+	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
 	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
@@ -1414,8 +1425,12 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	slog << "Data set            : " << datasetname << "\n"; cnt++;
 	slog << "Spatial Weight      : " << wname << "\n"; cnt++;
 	
-	slog << "Dependent Variable  :" << GenUtils::Pad(m_Yname, 12);
-	slog << wxString::Format("  Number of Observations:%5d\n", Obs); cnt++;
+    if (m_Yname.length() > 12 )
+        slog << "Dependent Variable  :  " << GenUtils::Pad(m_Yname, 12) << "\n";
+    else/Users/xun/Downloads/nyc2/nyc4.gda
+        slog << "Dependent Variable  :" << GenUtils::Pad(m_Yname, 12) << "  ";
+    
+	slog << wxString::Format("Number of Observations:%5d\n", Obs); cnt++;
 	f = "Mean dependent var  :%12.6f  Number of Variables   :%5d\n"; cnt++;
 	slog << wxString::Format(f, r->GetMeanY(), nX);
 	f = "S.D. dependent var  :%12.6f  Degrees of Freedom    :%5d\n"; cnt++;
@@ -1433,19 +1448,19 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	f = "S.E of regression   :%12.6g  Schwarz criterion     :%12.6g\n\n"; cnt++; cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
 	
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
-	slog << "    Variable    Coefficient     ";
+	slog << "    Variable          Coefficient     ";
 	slog << "Std.Error       z-value    Probability\n"; cnt++;
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
-		slog << GenUtils::Pad(wxString(r->GetXVarName(i)), 12);
+		slog << GenUtils::PadTrim(wxString(r->GetXVarName(i)), 18);
 		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}
-	slog << "----------------------------------";
+	slog << "----------------------------------------";
 	slog << "-------------------------------------\n\n"; cnt++; cnt++;
 	
 	slog << "REGRESSION DIAGNOSTICS\n"; cnt++;
@@ -1510,8 +1525,8 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 		yh = NULL;
 	}
 	
-	slog << "========================== END OF REPORT";
-	slog <<  " ==============================\n\n"; cnt++; cnt++;
+	slog << "============================== END OF REPORT";
+	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
 	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));

@@ -266,6 +266,7 @@ namespace GenUtils {
 	wxString BoolToStr(bool b);
 	bool StrToBool(const wxString& s);
 	wxString Pad(const wxString& s, int width, bool pad_left=true);
+    wxString PadTrim(const wxString& s, int width, bool pad_left=true);
 	wxString DblToStr(double x, int precision = 3);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);

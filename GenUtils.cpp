@@ -587,6 +587,24 @@ wxString GenUtils::Pad(const wxString& s, int width, bool pad_left)
 	return output;
 }
 
+wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
+{
+    if (s.length() > width) {
+        int trim_w = width - 2; //"xxx..xxx"
+        int second_w = trim_w / 2;
+        int first_w = trim_w - second_w;
+        wxString tmp = s.SubString(0, first_w-2);
+        tmp << ".." << s.SubString(s.length() - second_w -1, s.length()-1);
+        return tmp;
+    }
+    int pad_len = width - s.length();
+    wxString output;
+    if (!pad_left) output << s;
+    for (int i=0; i<pad_len; i++) output << " ";
+    if (pad_left) output << s;
+    return output;
+}
+
 wxString GenUtils::DblToStr(double x, int precision)
 {
 	std::stringstream ss;
