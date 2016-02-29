@@ -1427,7 +1427,7 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	
     if (m_Yname.length() > 12 )
         slog << "Dependent Variable  :  " << GenUtils::Pad(m_Yname, 12) << "\n";
-    else/Users/xun/Downloads/nyc2/nyc4.gda
+    else
         slog << "Dependent Variable  :" << GenUtils::Pad(m_Yname, 12) << "  ";
     
 	slog << wxString::Format("Number of Observations:%5d\n", Obs); cnt++;
