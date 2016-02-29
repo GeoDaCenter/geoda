@@ -114,6 +114,12 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 							} else if (key == "path") {
 								wxString s = v.second.data();
 								e.wmi.filename = GenUtils::RestorePath(proj_path, s);
+                                if (!wxFileExists(e.wmi.filename)) {
+                                    wxString msg;
+                                    msg << "Weights file not exists: " << e.wmi.filename;
+                                    throw GdaException(msg.mb_str());
+                                }
+                                
 							} else if (key == "id_variable") {
 								wxString s = v.second.data();
 								e.wmi.id_var = s;
@@ -219,6 +225,7 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 						LOG_MSG(msg);
 					}
 				}
+                
 				LOG_MSG(e.ToStr());
 				weights_list.push_back(e);
 			} else {

@@ -262,7 +262,7 @@ bool GdaApp::OnInit(void)
     // However, user can change the Separators in GeoDa, after re-open the
     // datasource, CSV reader will use the Separators
     struct lconv *poLconv = localeconv();
-    //CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
+    CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
     CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
     
     // forcing to C locale, which is used internally in GeoDa
@@ -3568,7 +3568,11 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL) return;
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
     
 	LisaWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
@@ -3635,7 +3639,11 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 	
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL) return;
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
@@ -3679,7 +3687,11 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL) return;
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
@@ -3712,6 +3724,16 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
    
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
 	GetisWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
@@ -3747,6 +3769,16 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
+    
+    Project* project = GetProject();
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
 		
 	GetisWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;

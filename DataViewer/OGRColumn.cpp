@@ -583,6 +583,7 @@ void OGRColumnString::FillData(vector<double> &data)
         bool conv_success = true;
         wxString tmp;
         
+        // default C locale
         for (int i=0; i<rows; ++i) {
             tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             double val;
@@ -595,17 +596,33 @@ void OGRColumnString::FillData(vector<double> &data)
         
         if (conv_success == false) {
             conv_success = true;
-            std::setlocale(LC_NUMERIC, "de_DE");
-            for (int i=0; i<rows; ++i) {
-                tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-                double val;
-                if (!tmp.ToDouble(&val)) {
-                    conv_success = false;
-                    break;
+            // test if C thousands separator inside
+            wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
+            if (thousands_sep == ",") {
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    tmp.Replace(thousands_sep, "");
+                    double val;
+                    if (!tmp.ToDouble(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
                 }
-                data[i] = val;
+            } else {
+                // try comma as decimal point
+                std::setlocale(LC_NUMERIC, "de_DE");
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    double val;
+                    if (!tmp.ToDouble(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+                std::setlocale(LC_NUMERIC, "C");
             }
-            std::setlocale(LC_NUMERIC, "C");
         }
         
         if (conv_success == false ) {
@@ -621,8 +638,8 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            long val;
-            if (!new_data[i].ToLong(&val)) {
+            wxInt64 val;
+            if (!new_data[i].ToLongLong(&val)) {
                 wxString error_msg;
                 error_msg << "Fill data error: can't convert '" << new_data[i]
                 << "' to floating-point number.";
@@ -632,16 +649,56 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         }
     } else {
         int col_idx = GetColIndex();
+        bool conv_success = true;
+        wxString tmp;
+        
+        // default C locale
         for (int i=0; i<rows; ++i) {
             wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-            long val;
-            if (!tmp.ToLong(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << tmp
-                << "' to floating-point number.";
-                throw GdaException(error_msg.mb_str());
+            wxInt64 val;
+            if (!tmp.ToLongLong(&val)) {
+                conv_success = false;
+                break;
             }
             data[i] = val;
+        }
+        
+        if (conv_success == false) {
+            conv_success = true;
+            // test if C thousands separator inside
+            wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
+            if (thousands_sep == ",") {
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    tmp.Replace(thousands_sep, "");
+                    wxInt64 val;
+                    if (!tmp.ToLongLong(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+            } else {
+                // try comma as decimal point
+                std::setlocale(LC_NUMERIC, "de_DE");
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    wxInt64 val;
+                    if (!tmp.ToLongLong(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+                std::setlocale(LC_NUMERIC, "C");
+            }
+        }
+        
+        if (conv_success == false ) {
+            wxString error_msg;
+            error_msg << "Fill data error: can't convert '" << tmp
+            << "' to numeric.";
+            throw GdaException(error_msg.mb_str());
         }
     }
 }
