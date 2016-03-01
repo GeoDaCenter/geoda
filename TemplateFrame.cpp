@@ -426,9 +426,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
-	wxString default_fname(project->GetProjectTitle() + type + ".png");
-	wxString filter("BMP|*.bmp|PNG|*.png|SVG|*.svg");
-	int filter_index = 2;
+	wxString default_fname(project->GetProjectTitle() + type);
+	wxString filter("BMP|*.bmp|PNG|*.png");
+	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
 	//
 	//	default_fname = wxEmptyString;
@@ -536,7 +536,6 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			}
 		}
 			break;
-		 */
 		case 2:
 		{
 			LOG_MSG("SVG selected");
@@ -544,6 +543,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			template_canvas->RenderToDC(dc, true);
 		}
 			break;
+		 */
 			
 		default:
 		{
