@@ -3440,7 +3440,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "No Weights Found:\n\n This feature requires weights, but none defined.\n Please use Tools > Weights > Weights Manager\n to define weights.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "No Weights Found:\n\n GeoDa could not find the required weights file.\n Please specify weights in Tools > Weights Manager.", "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
         
