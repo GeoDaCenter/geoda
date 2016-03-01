@@ -57,7 +57,8 @@ void HistIntervalDlg::CreateControls()
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_INTERVALS");
 	m_intervals = wxDynamicCast(FindWindow(XRCID("IDC_EDIT_INTERVAL")),
 								wxTextCtrl);
-	
+
+    m_intervals->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(HistIntervalDlg::OnOkClick),NULL, this);
     m_intervals->SetValidator( wxTextValidator(wxFILTER_NUMERIC, &s_int) );
 }
 
@@ -74,7 +75,7 @@ void HistIntervalDlg::OnOkClick( wxCommandEvent& event )
 	num_intervals = val;
 	
     event.Skip();
-	EndDialog(wxID_OK);
+	//EndDialog(wxID_OK);
 }
 
 void HistIntervalDlg::OnCancelClick( wxCommandEvent& event )

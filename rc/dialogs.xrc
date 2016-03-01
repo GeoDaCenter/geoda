@@ -893,7 +893,7 @@
             <object class="wxTextCtrl" name="IDC_EDIT_INTERVAL">
               <size>40,-1d</size>
               <value>7</value>
-              <style>wxTE_RIGHT</style>
+              <style>wxTE_RIGHT | wxTE_PROCESS_ENTER</style>
             </object>
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
           </object>

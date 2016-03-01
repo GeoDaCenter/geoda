@@ -848,7 +848,8 @@ CatClassifPanel::~CatClassifPanel()
 CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 											const wxString& suggested_title,
 											const wxString& field_name,
-											int field_tm)
+											int field_tm,
+                                            bool prompt_title_dlg)
 {
 	if (!all_init) return 0;
 	wxString msg;
@@ -858,51 +859,60 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 						  suggested_title);
 	bool retry = true;
 	bool success = false;
-	while (retry) {
-		wxTextEntryDialog dlg(this, msg, "New Categories Title");
-		dlg.SetValue(new_title);
-		if (dlg.ShowModal() == wxID_OK) {
-			new_title = dlg.GetValue();
-			new_title.Trim(false);
-			new_title.Trim(true);
-			if (new_title.IsEmpty()) {
-				retry = false;
-			} else if (IsDuplicateTitle(new_title)) {
-				wxString es;
-				es << "Categories title \"" << new_title << "\" already ";
-				es << "exists. Please choose a different title.";
-				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
-				ed.ShowModal();
-			} else {
-				success = true;
-				cc_data = ccd;
-				cc_data.title = new_title;
-				CatClassification::CatClassifTypeToBreakValsType(
-													cc_data.cat_classif_type);
-                cc_data.cat_classif_type = CatClassification::custom;
-				int f_sel = assoc_var_choice->FindString(field_name);
-				if (f_sel != wxNOT_FOUND) {
-					assoc_var_choice->SetSelection(f_sel);
-					if (table_int->IsColTimeVariant(field_name)) {
-						assoc_var_tm_choice->SetSelection(field_tm);
-                    } else {
-                        assoc_var_tm_choice->Enable(false);
-                    }
-				}
-				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
-				SetSyncVars(true);
-				InitFromCCData();
-                cc_state->SetCatClassif(cc_data);
-				cur_cats_choice->Append(new_title);
-				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
-				EnableControls(true);
-				retry = false;
-			}
-		} else {
-			retry = false;
-		}
-	}
-	return success ? cc_state : 0;
+    
+    if (prompt_title_dlg) {
+        while (retry) {
+            wxTextEntryDialog dlg(this, msg, "New Categories Title");
+            dlg.SetValue(new_title);
+            if (dlg.ShowModal() == wxID_OK) {
+                new_title = dlg.GetValue();
+                new_title.Trim(false);
+                new_title.Trim(true);
+                if (new_title.IsEmpty()) {
+                    retry = false;
+                } else if (IsDuplicateTitle(new_title)) {
+                    wxString es;
+                    es << "Categories title \"" << new_title << "\" already ";
+                    es << "exists. Please choose a different title.";
+                    wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+                    ed.ShowModal();
+                } else {
+                    success = true;
+                    retry = false;
+                }
+            } else {
+                retry = false;
+            }
+        }
+    }
+
+    
+    if (success || (prompt_title_dlg == false && !new_title.IsEmpty()) ) {
+        cc_data = ccd;
+        cc_data.title = new_title;
+        CatClassification::CatClassifTypeToBreakValsType(cc_data.cat_classif_type);
+        cc_data.cat_classif_type = CatClassification::custom;
+        int f_sel = assoc_var_choice->FindString(field_name);
+        if (f_sel != wxNOT_FOUND) {
+            assoc_var_choice->SetSelection(f_sel);
+            if (table_int->IsColTimeVariant(field_name)) {
+                assoc_var_tm_choice->SetSelection(field_tm);
+            } else {
+                assoc_var_tm_choice->Enable(false);
+            }
+        }
+        cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
+        SetSyncVars(true);
+        InitFromCCData();
+        cc_state->SetCatClassif(cc_data);
+        cur_cats_choice->Append(new_title);
+        cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
+        EnableControls(true);
+        
+        return cc_state;
+    }
+        
+    return NULL;    
 }
 
 /** A new Custom Category was selected.  Copy cc_data from cc_state and
@@ -2371,8 +2381,9 @@ void CatClassifFrame::update(TimeState* o)
 CatClassifState* CatClassifFrame::PromptNew(const CatClassifDef& ccd,
 											const wxString& suggested_title,
 											const wxString& field_name,
-											int field_tm)
+											int field_tm,
+                                            bool prompt_title_dlg)
 {
-	return panel->PromptNew(ccd, suggested_title, field_name, field_tm);
+	return panel->PromptNew(ccd, suggested_title, field_name, field_tm, prompt_title_dlg);
 }
 

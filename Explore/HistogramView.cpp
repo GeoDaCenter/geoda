@@ -653,7 +653,7 @@ void HistogramCanvas::NewCustomCatClassif()
     CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(false);
     if (!ccf) return;
 
-    CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time);
+    CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time, false);
     
     if (!ccs)
         return;
@@ -964,7 +964,7 @@ void HistogramFrame::OnHistClassification(wxCommandEvent& event)
     } else if (evtID > GdaConst::ID_HISTOGRAM_CLASSIFICATION) {
         ((HistogramCanvas*) template_canvas)->OnCustomCategorySelect(event);
     }
-    event.Skip();
+    //event.Skip();
     
 }
 void HistogramFrame::OnActivate(wxActivateEvent& event)

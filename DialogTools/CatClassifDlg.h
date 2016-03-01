@@ -142,7 +142,8 @@ public:
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
-							   int field_tm = 0);
+							   int field_tm = 0,
+                               bool prompt_title_dlg = true);
 
 	// Top level user actions
 	void OnCurCatsChoice(wxCommandEvent& event);
@@ -296,7 +297,8 @@ public:
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
-							   int field_tm = 0);
+							   int field_tm = 0,
+                               bool prompt_title_dlg = true);
 	
 private:
 	CatClassifHistCanvas* canvas;
