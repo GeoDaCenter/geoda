@@ -53,7 +53,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, bool bUpdate)
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
-                msg << "Failed to open data source. Please check if the data is valid and its data type/format is supported by GeoDa.\n\nTip: you can setup necessary GeoDa driver by following the instructions at:\n https://geodacenter.asu.edu/geoda/formats";
+                msg << "Failed to open data source. Please check the data and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n https://geodacenter.asu.edu/geoda/formats";
             } else {
                 msg << error_detail;
             }

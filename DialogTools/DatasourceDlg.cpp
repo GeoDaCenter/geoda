@@ -258,7 +258,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		delete[] choices;
         
 	} else if ( n_tables == 0) {
-		wxMessageDialog dlg(NULL, "There is no layer found in selected datasource.", "Info", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg(NULL, "No layer was found in the selected data source.", "Info", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         
 	} else {

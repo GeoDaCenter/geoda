@@ -288,8 +288,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 			}
 		}
 	} else {
-		wxString msg("Selected field is not a numeric type.  Please report "
-					 "this bug.");
+		wxString msg("Selected field is should be numeric.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;

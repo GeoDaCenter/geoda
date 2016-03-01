@@ -102,7 +102,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	int nrow = n_fields + 2;
 	int ncol = 3;
 	wxString warn_msg;
-	wxString DUP_WARN = "Duplicated field name.";
+	wxString DUP_WARN = "Duplicate field name.";
 	wxString INV_WARN = "Field name is not valid.";
 	
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 0, 0);
