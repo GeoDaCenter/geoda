@@ -1141,7 +1141,7 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	
 	slog << "--------------------------------------";
 	slog << "---------------------------------------\n"; cnt++;
-	slog << "    Variable         Coefficient      ";
+	slog << "       Variable      Coefficient      ";
 	slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
 	slog << "--------------------------------------";
 	slog << "---------------------------------------\n"; cnt++;
@@ -1324,7 +1324,7 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	
 	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
-	slog << "    Variable          Coefficient     ";
+	slog << "       Variable       Coefficient     ";
 	slog << "Std.Error       z-value    Probability\n"; cnt++;
 	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
@@ -1450,7 +1450,7 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	
 	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;
-	slog << "    Variable          Coefficient     ";
+	slog << "       Variable       Coefficient     ";
 	slog << "Std.Error       z-value    Probability\n"; cnt++;
 	slog << "----------------------------------------";
 	slog << "-------------------------------------\n"; cnt++;

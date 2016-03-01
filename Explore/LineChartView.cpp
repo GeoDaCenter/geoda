@@ -1801,8 +1801,13 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
     slog << "Data set            :  " << datasetname << "\n"; cnt++;
     slog << "Dependent Variable  :";
-    slog << GenUtils::Pad(yName, 12);
-    slog << "  Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
+    
+    if (yName.length() > 12 )
+        slog << "  " << GenUtils::Pad(yName, 12) << "\n";
+    else
+        slog << GenUtils::Pad(yName, 12) <<  "  ";
+    
+    slog << "Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
     f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
     slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
     f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
@@ -1824,20 +1829,20 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
     slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
     
-    slog << "--------------------------------";
+    slog << "--------------------------------------";
     slog << "---------------------------------------\n"; cnt++;
-    slog << "    Variable   Coefficient      ";
+    slog << "       Variable      Coefficient      ";
     slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
-    slog << "--------------------------------";
+    slog << "--------------------------------------";
     slog << "---------------------------------------\n"; cnt++;
     
     for (int i=0; i<nX; i++) {
-        slog << GenUtils::Pad(r->GetXVarName(i), 12);
+        slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
         slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
                                  r->GetCoefficient(i), r->GetStdError(i),
                                  r->GetZValue(i), r->GetProbability(i)); cnt++;
     }
-    slog << "----------------------------------";
+    slog << "----------------------------------------";
     slog << "-------------------------------------\n\n"; cnt++; cnt++;
    
     /*
@@ -1939,8 +1944,8 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     }
     */
     
-    slog << "========================== END OF REPORT";
-    slog <<  " ==============================\n\n"; cnt++; cnt++;
+    slog << "============================== END OF REPORT";
+    slog <<  " ================================\n\n"; cnt++; cnt++;
     
     slog << "\n\n"; cnt++; cnt++;
     logReport << slog;
