@@ -298,6 +298,12 @@ void LineChartCanvas::UpdateAll()
 	Refresh();
 }
 
+void LineChartCanvas::UpdateYAxis(wxString y_min, wxString y_max)
+{
+    def_y_min = y_min;
+    def_y_max = y_max;
+}
+
 void LineChartCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering LineChartCanvas::PopulateCanvas");
@@ -353,7 +359,16 @@ void LineChartCanvas::PopulateCanvas()
 		double y_pad = 0.1 * (y_max - y_min);
 		double axis_min = y_min - y_pad;
 		double axis_max = y_max + y_pad;
-		if (y_min >= 0 && axis_min < 0) axis_min = 0;
+        
+		if (y_min >= 0 && axis_min < 0)
+            axis_min = 0;
+        
+        if (!def_y_min.IsEmpty())
+              def_y_min.ToDouble(&axis_min);
+        
+        if (!def_y_max.IsEmpty())
+              def_y_max.ToDouble(&axis_max);
+
 		axis_scale_y = AxisScale(axis_min, axis_max, 4);
 	}
 	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));

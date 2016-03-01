@@ -3271,6 +3271,10 @@
       <checked>0</checked>
     </object>
     <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS">
+        <label>Adjust Value Range of Y-Axis</label>
+    </object>
+    <object class="separator"/>
 	<object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
       <label>Display Statistics</label>
       <checkable>1</checkable>

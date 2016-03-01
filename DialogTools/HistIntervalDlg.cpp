@@ -75,7 +75,7 @@ void HistIntervalDlg::OnOkClick( wxCommandEvent& event )
 	num_intervals = val;
 	
     event.Skip();
-	//EndDialog(wxID_OK);
+	EndDialog(wxID_OK);
 }
 
 void HistIntervalDlg::OnCancelClick( wxCommandEvent& event )

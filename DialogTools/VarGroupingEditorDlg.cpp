@@ -1138,7 +1138,7 @@ void VarGroupingEditorDlg::UpdateTimeStepsTxt()
 void VarGroupingEditorDlg::OnUngroupedVarsHelp( wxCommandEvent& event )
 {
 	wxString msg;
-    msg << "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\n For example, to group Pop80 and Pop90, select them on the left and move them to the right.";
+    msg << "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\nFor example, to group Pop80 and Pop90, select them on the left and move them to the right.";
 
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
@@ -1147,7 +1147,7 @@ void VarGroupingEditorDlg::OnUngroupedVarsHelp( wxCommandEvent& event )
 void VarGroupingEditorDlg::OnNewGroupHelp( wxCommandEvent& event )
 {
 	wxString msg;
-    msg << "Add a name for your group of variables. \n\n You can edit the time period labels for easier interpretation of results.";
+    msg << "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results.";
 
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();

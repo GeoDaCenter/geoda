@@ -50,6 +50,9 @@ class LineChartCanvas : public TemplateCanvas
 	virtual void UpdateStatusBar();
 	
 	virtual void UpdateAll();
+    
+    void UpdateYAxis(wxString y_min, wxString y_max);
+
 	
 protected:
     void OnDblClick(wxMouseEvent& event);
@@ -64,6 +67,9 @@ protected:
 	
 	AxisScale axis_scale_y;
 	double scaleY;
+    
+    wxString def_y_min;
+    wxString def_y_max;
 	
 	std::vector<GdaCircle*> comb_circs;
 	std::vector<GdaCircle*> sel_circs;

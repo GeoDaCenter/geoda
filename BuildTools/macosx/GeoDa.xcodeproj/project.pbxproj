@@ -15,6 +15,7 @@
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
+		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
@@ -238,6 +239,8 @@
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
+		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
+		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B13EE11C3EDFF90064AD87 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
 		A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasemapConfDlg.cpp; sourceTree = "<group>"; };
@@ -744,6 +747,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */,
+				A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */,
 				A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */,
 				A1B13EE11C3EDFF90064AD87 /* BasemapConfDlg.h */,
 				A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */,
@@ -1271,6 +1276,7 @@
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
+				A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */,
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,

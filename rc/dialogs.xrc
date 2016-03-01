@@ -875,6 +875,91 @@
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
+  <object class="wxDialog" name="IDD_ADJUST_YAXIS" subclass="AdjustYAxisDlg">
+      <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxStaticText" name="IDC_STATIC">
+                                  <label>Min value of Y axis</label>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <object class="spacer">
+                              <size>5,5d</size>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxTextCtrl" name="IDC_EDIT_YAXIS_MIN">
+                                  <size>40,-1d</size>
+                                  <value></value>
+                                  <style>wxTE_RIGHT | wxTE_PROCESS_ENTER</style>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                      <border>10</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxStaticText" name="IDC_STATIC">
+                                  <label>Max value of Y axis</label>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <object class="spacer">
+                              <size>4,5d</size>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxTextCtrl" name="IDC_EDIT_YAXIS_MAX">
+                                  <size>40,-1d</size>
+                                  <value></value>
+                                  <style>wxTE_RIGHT | wxTE_PROCESS_ENTER</style>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
+                      <border>10</border>
+                  </object>
+                  
+              </object>
+              <flag>wxALL</flag>
+              <border>10</border>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              <border>5</border>
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxButton" name="wxID_OK">
+                          <label>OK</label>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxButton" name="wxID_CANCEL">
+                          <label>Close</label>
+                      </object>
+                  </object>
+              </object>
+          </object>
+      </object>
+      <title>Adjust Value Range of Y Axis</title>
+      <centered>1</centered>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+  </object>
   <object class="wxDialog" name="IDD_INTERVALS" subclass="HistIntervalDlg">
     <object class="wxBoxSizer">
       <orient>wxHORIZONTAL</orient>

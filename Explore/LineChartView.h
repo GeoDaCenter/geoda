@@ -121,9 +121,11 @@ public:
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
     void OnDIDTest(wxCommandEvent& event);
+    void OnAdjustYAxis(wxCommandEvent& event);
     void OnSaveDummyTable(wxCommandEvent& event);
 	void OnReportClose(wxWindowDestroyEvent& event);
-	
+    
+    	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowObservationAddDelete() { return true; }
@@ -141,6 +143,8 @@ public:
 	virtual void notifyNewHoverMsg(const wxString& msg);
 	virtual void OnMouseEvent(wxMouseEvent& event);
 	
+
+    
 protected:
 	void SetupPanelForNumVariables(int num_vars);
 	void UpdateMessageWin();
@@ -184,6 +188,8 @@ protected:
 	wxPanel* panel;
 	wxHtmlWindow* message_win;
 	
+    wxString def_y_min;
+    wxString def_y_max;
 	
 	//bool show_regimes;
 	bool display_stats;

@@ -36,6 +36,8 @@
 #include "../DialogTools/RegressionReportDlg.h"
 #include "../DialogTools/ExportDataDlg.h"
 #include "../Regression/DiagnosticReport.h"
+#include "../DialogTools/AdjustYAxisDlg.h"
+
 #include "../Regression/Lite2.h"
 #include "../GenUtils.h"
 #include "../VarCalc/WeightsManInterface.h"
@@ -154,6 +156,10 @@ regReportDlg(0)
     Connect(XRCID("ID_SAVE_DUMMY"),
             wxEVT_MENU, 
             wxCommandEventHandler(LineChartFrame::OnSaveDummyTable));
+    
+    Connect(XRCID("ID_ADJUST_Y_AXIS"),
+            wxEVT_MENU,
+            wxCommandEventHandler(LineChartFrame::OnAdjustYAxis));
 	LOG_MSG("Exiting LineChartFrame::LineChartFrame");
 }
 
@@ -250,6 +256,23 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
             menu->Enable(XRCID("ID_COMPARE_REG_AND_TM_PER"), false);
         }
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
+}
+
+void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
+{
+    
+    AdjustYAxisDlg dlg(def_y_min, def_y_max, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    
+    def_y_min = dlg.s_min_val;
+    def_y_max = dlg.s_max_val;
+    
+    for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->UpdateYAxis(def_y_min, def_y_max);
+        line_charts[i]->UpdateAll();
+    }
+    
+    Refresh();
 }
 
 void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
