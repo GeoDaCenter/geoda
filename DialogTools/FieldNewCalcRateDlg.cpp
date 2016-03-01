@@ -111,7 +111,7 @@ void FieldNewCalcRateDlg::SaveValidSubsetAs()
 void FieldNewCalcRateDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a Result field.");
+		wxString msg("Please select a results field.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;

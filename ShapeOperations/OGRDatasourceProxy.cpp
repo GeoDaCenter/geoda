@@ -81,7 +81,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current data source format " << format << " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "This data source format " << format << " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
 	

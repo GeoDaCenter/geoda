@@ -111,7 +111,7 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
         }
         
 	} else {
-		wxMessageBox("the file is Unsupported type!");
+		wxMessageBox("This file type is not supported.");
 		return false;
 	}
 
@@ -308,7 +308,7 @@ void SHP2ASCDlg::CreateControls()
 void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 {
 	if(type == -1) {
-		wxMessageBox("Select options!");
+		wxMessageBox("Please select an option.");
 		return;
 	}
 

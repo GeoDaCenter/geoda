@@ -293,7 +293,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	colname.Trim(false); // trim white-space from left of string
 	
 	if (colname == wxEmptyString) {
-		wxString msg("Error: Table variable name empty.");
+		wxString msg("Error: The table variable name is empty.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;

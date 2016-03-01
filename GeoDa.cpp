@@ -391,7 +391,7 @@ int GdaApp::OnExit(void)
 void GdaApp::OnFatalException()
 {
 	LOG_MSG("In GdaApp::OnFatalException");
-	wxMessageBox("Fatal Excption.  Program will likely close now.");
+	wxMessageBox("GeoDa has run into a problem and will close.");
 }
 
 

@@ -92,7 +92,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	}
 	else
 	{
-		wxMessageBox("Wrong format!");
+		wxMessageBox("This format is not supported.");
 		return;
 	}
 	
@@ -101,7 +101,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	
 	if (nRows < 1 || ID_name == wxEmptyString)
 	{
-		wxMessageBox("Wrong format!");
+		wxMessageBox("This format is not supported.");
 		return;
 	}
    
@@ -141,7 +141,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 			}
 			else
 			{
-				wxMessageBox("Wrong format!");
+				wxMessageBox("This format is not supported.");
 				return;
 			}
             

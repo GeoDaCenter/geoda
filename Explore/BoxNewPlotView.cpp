@@ -109,7 +109,7 @@ hinge_15(true)
 	cur_last_ind = var_info[0].time_max;
 	
 	// NOTE: define Box Plot defaults
-	selectable_fill_color = GdaConst::map_default_fill_colour;
+	selectable_fill_color = GdaConst::boxplot_point_color;
 	highlight_color = GdaConst::highlight_color;
 	
 	fixed_aspect_ratio_mode = false;
@@ -328,7 +328,7 @@ void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
 		int ind_base = (t-cur_first_ind)*num_obs;
-		dc.SetPen(GdaConst::boxplot_point_color);
+		dc.SetPen(selectable_fill_color);
 		dc.SetBrush(*wxWHITE_BRUSH);
 		for (int i=0; i<min_IQR; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
@@ -607,7 +607,7 @@ void BoxPlotCanvas::PopulateCanvas()
 		//background_shps.push_back(s);
 		s = new GdaCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
 						 5.0);
-		s->setPen(GdaConst::boxplot_point_color);
+		s->setPen(selectable_fill_color);
 		s->setBrush(GdaConst::boxplot_mean_point_color);
 		foreground_shps.push_back(s);
 		double y0m = (hinge_stats[t].Q2-y_min)*scaleY - 0.2;
@@ -631,7 +631,7 @@ void BoxPlotCanvas::PopulateCanvas()
 			//						 data_sorted[t][i].first));
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
+			selectable_shps[ind]->setPen(selectable_fill_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 		}
 		for (int i=hinge_stats[t].max_IQR_ind+1; i<num_obs; i++) {
@@ -646,7 +646,7 @@ void BoxPlotCanvas::PopulateCanvas()
 			//} else {
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
+			selectable_shps[ind]->setPen(selectable_fill_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 			//}
 		}

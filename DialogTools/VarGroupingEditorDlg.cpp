@@ -1138,14 +1138,8 @@ void VarGroupingEditorDlg::UpdateTimeStepsTxt()
 void VarGroupingEditorDlg::OnUngroupedVarsHelp( wxCommandEvent& event )
 {
 	wxString msg;
-	msg << "List of existing variables that are not part of a group. ";
-	msg << "Move variables that measure the same property, ";
-	msg << "but at different times into the list to the right.\n\n";
-	msg << "For example, to combine the four population variables ";
-	msg << "POP_2000, POP_2001, POP_2002, and POP_2003 into one ";
-	msg << "grouped variable called Population, move each of these to the ";
-	msg << "list on the right and specify Population for the new grouped ";
-	msg << "variable name.";
+    msg << "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\n For example, to group Pop80 and Pop90, select them on the left and move them to the right.";
+
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }
@@ -1153,18 +1147,8 @@ void VarGroupingEditorDlg::OnUngroupedVarsHelp( wxCommandEvent& event )
 void VarGroupingEditorDlg::OnNewGroupHelp( wxCommandEvent& event )
 {
 	wxString msg;
-	msg << "Choose existing non-grouped variables, ";
-	msg << "one variable for each time period. ";
-	msg << "\n\n";
-	msg << "All variables to be grouped together must be of similar types.";
-	msg << "Enter desired name for new grouped variable. For example, ";
-	msg << "if grouping the four existing variables ";
-	msg << "POP_2000, POP_2001, POP_2002, and POP_2003, ";
-	msg << "a logical name-choice could be Population.";
-	msg << "\n\n";
-	msg << "Time periods with missing data can be denoted ";
-	msg << "by selecting the empty time-slot and pressing ";
-	msg << "the Placeholder button.";
+    msg << "Add a name for your group of variables. \n\n You can edit the time period labels for easier interpretation of results.";
+
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }
@@ -1172,9 +1156,8 @@ void VarGroupingEditorDlg::OnNewGroupHelp( wxCommandEvent& event )
 void VarGroupingEditorDlg::OnCurGroupedHelp( wxCommandEvent& event )
 {
 	wxString msg;
-	msg << "This is the list of existing grouped variables for ";
-	msg << "reference purposes. As new groups are ";
-	msg << "created, they will appear on this list.";
+	msg << "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here.";
+    
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }

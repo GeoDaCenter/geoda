@@ -459,7 +459,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
 			std::ostringstream error_message;
-			error_message << "GeoDa does not support creating data source "
+			error_message << "GeoDa does not support creating data "
 			<< "of " << ds_format << ". Please try to 'Export' to other "
 			<< "supported data source format.";
 			throw GdaException(error_message.str().c_str());
