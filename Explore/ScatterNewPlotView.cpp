@@ -130,7 +130,7 @@ show_origin_axes(true), display_stats(false),
 show_reg_selected(true), show_reg_excluded(true),
 sse_c(0), sse_sel(0), sse_unsel(0),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
-show_linear_smoother(true), show_lowess_smoother(false),
+show_linear_smoother(true), show_lowess_smoother(false), enableLowess(true),
 table_display_lines(0),
 X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()), Z(0),
 obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
@@ -189,7 +189,7 @@ x_axis_through_origin(0), y_axis_through_origin(0),
 show_origin_axes(true), display_stats(!is_bubble_plot_s),
 show_reg_selected(!is_bubble_plot_s), show_reg_excluded(!is_bubble_plot_s),
 sse_c(0), sse_sel(0), sse_unsel(0),
-show_linear_smoother(!is_bubble_plot_s), show_lowess_smoother(false),
+show_linear_smoother(!is_bubble_plot_s), show_lowess_smoother(false), enableLowess(true),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
 X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()),
@@ -546,6 +546,10 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  (GetCcType() ==
 								   CatClassification::natural_breaks)
 								  && GetNumCats() == 10);
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enableLowess);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EDIT_LOWESS_PARAMS"), enableLowess);
+    
 }
 
 /**
@@ -579,6 +583,14 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 		// regression lines have changed.
 		Refresh();
 	}
+    
+    if (o->GetTotalHighlighted() > 0) {
+        // disable LOWESS regress
+        enableLowess = false;
+    } else {
+        // enable LOWESS regress
+        enableLowess = true;
+    }
 	
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");	
 }
@@ -2041,6 +2053,12 @@ void ScatterNewPlotFrame::MapMenus()
 	((ScatterNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
+}
+
+void ScatterNewPlotFrame::ToggleLowessMenuItem(bool enabled)
+{
+    wxMenu* menu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enabled);
 }
 
 void ScatterNewPlotFrame::UpdateOptionMenuItems()

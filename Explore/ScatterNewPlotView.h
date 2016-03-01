@@ -223,6 +223,7 @@ protected:
 	
 	bool show_linear_smoother;
 	bool show_lowess_smoother;
+    bool enableLowess;
 	
 	SmoothingUtils::LowessCacheType lowess_cache;
 	void EmptyLowessCache();
@@ -272,6 +273,8 @@ public:
 public:
     void AdjustBubbleSize(wxCommandEvent& evt);
 	void OnActivate(wxActivateEvent& event);
+    void ToggleLowessMenuItem(bool enabled);
+    
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
