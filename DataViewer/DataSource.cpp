@@ -176,6 +176,8 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
         type == GdaConst::ds_kml ||
         type == GdaConst::ds_mapinfo ||
         type == GdaConst::ds_shapefile ||
+        type == GdaConst::ds_esri_personal_gdb ||
+        type == GdaConst::ds_odbc ||
         type == GdaConst::ds_sqlite ||
         type == GdaConst::ds_xls ||
         type == GdaConst::ds_xlsx ||
@@ -183,14 +185,16 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
     {
         // using <file>xxx</file> to create DataSource instance
         return new FileDataSource(subtree, type, proj_path);
+        
     } else if (type == GdaConst::ds_oci ||
+               type == GdaConst::ds_mysql ||
                type == GdaConst::ds_postgresql ||
                type == GdaConst::ds_esri_arc_sde )
     {
         // using <db_name>xxx</db_name>... to create DataSource instance
         return new DBDataSource(subtree, type, "");
-    } else if (type == GdaConst::ds_wfs)
-    {
+        
+    } else if (type == GdaConst::ds_wfs || type == GdaConst::ds_cartodb) {
         // using <url></url> to create Datasource instance
         return new WebServiceDataSource(subtree, type, "");
     }
@@ -245,7 +249,15 @@ void FileDataSource::ReadPtree(const ptree& pt,
         file_repository_path = pt.get<string>("path");
 		file_repository_path = GenUtils::RestorePath(proj_path,
 													 file_repository_path);
-		
+        
+        if (!wxFileExists(file_repository_path)) {
+            wxString msg;
+            msg << "GeoDa cannot find one or more associated datasource defined in GeoDa project file.\n\n";
+            msg << "Details: Datasource not exists: " << file_repository_path;
+            msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the datasource associated with your project.";
+            
+            throw GdaException(msg.mb_str());
+        }
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
