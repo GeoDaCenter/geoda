@@ -425,6 +425,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 // XXX encodings
                 vector<wxString> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                if (ds_type == GdaConst::ds_csv) {
+                    for (int m=0; m<col_data.size(); m++) {
+                        if (col_data[m].IsEmpty())
+                            col_data[m] = " ";
+                    }
+                }
                 for (size_t k=0; k<selected_rows.size();++k) {
                     data[k]->SetField(j, col_data[ selected_rows[k] ].mb_str());
                     if (stop_exporting) return;
