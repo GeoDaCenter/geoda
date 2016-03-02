@@ -383,10 +383,12 @@ OGRSpatialReference* Project::GetSpatialReference()
 	} else {
 		// DbfTable
 		wxString ds_name = datasource->GetOGRConnectStr();
+        GdaConst::DataSourceType ds_type = datasource->GetType();
+        
 		if (!wxFileExists(ds_name)) {
 			return NULL;
 		}
-		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, true);
+		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
 		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername.ToStdString());
 		spatial_ref = ogr_layer->GetSpatialReference();
 		if (spatial_ref) spatial_ref = spatial_ref->Clone();
@@ -1259,20 +1261,8 @@ void Project::CleanupPairsHLState()
  initialized differently. */
 bool Project::CommonProjectInit()
 {	
-	// If dBase or Shapefile, process as dBase, otherwise process as OGR source
-	if (datasource->GetType() == GdaConst::ds_dbf ||
-			datasource->GetType() == GdaConst::ds_shapefile) {
-		if (!InitFromOgrLayer()) return false;
-        /*
-		int rtn = InitFromShapefileLayer();
-		if (rtn ==0) return false;
-		else if (rtn == MULTI_POINT) {
-			if (!InitFromOgrLayer()) return false;
-		} 
-         */
-	} else {
-		if (!InitFromOgrLayer()) return false;
-	}
+	if (!InitFromOgrLayer())
+        return false;
 	
 	num_records = table_int->GetNumberRows();
    
@@ -1458,10 +1448,11 @@ bool Project::InitFromOgrLayer()
 {
 	LOG_MSG("Entering Project::InitFromOgrLayer");
 	wxString datasource_name = datasource->GetOGRConnectStr();
-	
+    GdaConst::DataSourceType ds_type = datasource->GetType();
+    
 	// OK. ReadLayer() is running in a seperate thread.
-	// That gives us a chance to get its progress from a Progress window.
-	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, layername.ToStdString());
+	// This gives us a chance to get its progress for a Progress window.
+	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, ds_type, layername.ToStdString());
 	
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     
@@ -1472,14 +1463,16 @@ bool Project::InitFromOgrLayer()
 	}
 	
 	int prog_n_max = layer_proxy->n_rows;
-	if (prog_n_max <= 0) 
-        prog_n_max = 2;
+	
+    // in case read a empty datasource or n_rows is not read
+    if (prog_n_max <= 0)  prog_n_max = 2;
+    
 	wxProgressDialog prog_dlg("Open data source progress dialog",
                               "Loading data...", prog_n_max,  NULL,
                               wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 	bool cont = true;
-	while (( layer_proxy->load_progress < layer_proxy->n_rows || 
-            layer_proxy->n_rows <= 0 ) && !layer_proxy->HasError())
+	while ((layer_proxy->load_progress < layer_proxy->n_rows ||  layer_proxy->n_rows <= 0) &&
+           !layer_proxy->HasError())
 	{
 		if (layer_proxy->n_rows == -1) {
 			// if cannot get n_rows, make the progress stay at the half position
@@ -1495,16 +1488,18 @@ bool Project::InitFromOgrLayer()
 		}
 		wxMilliSleep(100);
 	}
+    
 	if (!layer_proxy) {
 		open_err_msg << "There was a problem reading the layer";
 		throw GdaException(open_err_msg.c_str());
-		return false;
+        
 	} else if ( layer_proxy->HasError() ) {
 		open_err_msg << layer_proxy->error_message.str();
 		throw GdaException(open_err_msg.c_str());
-		return false;
+		
 	}
-	OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name.ToStdString());
+    
+	OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name.ToStdString(), ds_type);
     
 	datasource->UpdateWritable(ds_proxy->is_writable);
     
@@ -1519,16 +1514,12 @@ bool Project::InitFromOgrLayer()
 	
 	table_state = new TableState;
 	time_state = new TimeState;
-	table_int = new OGRTable(layer_proxy,
-                             datasource->GetType(),
-                             table_state,
-                             time_state,
-                             *variable_order);
+	table_int = new OGRTable(layer_proxy, ds_type, table_state, time_state, *variable_order);
+    
 	if (!table_int) {
 		open_err_msg << "There was a problem reading the table";
 		delete table_state;
 		throw GdaException(open_err_msg.c_str());
-		return false;
 	}
 	if (!table_int->IsValid()) {
 		open_err_msg = table_int->GetOpenErrorMessage();
@@ -1544,6 +1535,7 @@ bool Project::InitFromOgrLayer()
 	// run caching in background
 	// OGRDataAdapter::GetInstance().CacheLayer
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
+    
 	LOG_MSG("Exiting Project::InitFromOgrLayer");
 	return true;
 }

@@ -38,12 +38,15 @@ OGRDatasourceProxy::OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name)
 {
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, bool bUpdate)
-: ds_name(_ds_name)
-{	
+OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceType _ds_type, bool bUpdate)
+{
+    ds_name = _ds_name;
+    ds_type = _ds_type;
+    
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
     const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
 	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+    
     is_writable = true;
 	if (!ds) {
         // try without UPDATE
@@ -62,7 +65,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, bool bUpdate)
         }
         is_writable = false;
 	}
-	ds_type = GetGdaDataSourceType();
+
     
 	// deprecated by above logic
     //is_writable = ds->TestCapability( ODsCCreateLayer );
@@ -85,20 +88,14 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 		throw GdaException(error_message.str().c_str());
 	}
 	
-	// get datasource type
-	const char* drv_name = GDALGetDriverLongName(poDriver);
-	string ogr_ds_type(drv_name);
-	if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
-		GdaConst::datasrc_str_to_type.end()) {
-		ds_type = GdaConst::ds_unknown;
-	} else {
-		ds_type = GdaConst::datasrc_str_to_type[ogr_ds_type];
-	}
-	
+    ds_type = GetGdaDataSourceType(poDriver);
+    
 	// create the output data source.
 	const char *papszLCO[50] = {"OVERWRITE=yes"};
 	//ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
+    
+    
 	if(ds == NULL ) {
 		// driver failed to load
 		error_message << "Internal Error: GeoDa can't create output driver. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
@@ -109,6 +106,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 		error_message << "GeoDa can't write layer to this datasource. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }
+    
 	layer_count = ds->GetLayerCount();
 }
 
@@ -121,24 +119,27 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
             delete it->second;
 	}
 	layer_pool.clear();
+    
 	// clean ogr data sources
 	//OGRDataSource::DestroyDataSource(ds);
+    
 	GDALClose(ds);
 }
 
 GdaConst::DataSourceType
-OGRDatasourceProxy::GetGdaDataSourceType()
+OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
 {
-	string ogr_ds_type(GDALGetDriverLongName(ds));
-   
-    if (ogr_ds_type.empty()) ogr_ds_type = GDALGetDriverShortName(ds);
+    if (poDriver == NULL) return GdaConst::ds_unknown;
+    
+    const char* drv_name = GDALGetDriverShortName(poDriver);
+    string ogr_ds_type(drv_name);
     
     if (ogr_ds_type.find("CartoDB") != std::string::npos) {
        return GdaConst::datasrc_str_to_type["CartoDB"];
         
-    } else if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) ==
-		GdaConst::datasrc_str_to_type.end()) {
+    } else if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) == GdaConst::datasrc_str_to_type.end()) {
 		return GdaConst::ds_unknown;
+        
 	} else {
 		return GdaConst::datasrc_str_to_type[ogr_ds_type];
 	}
@@ -246,20 +247,23 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(string layer_name)
 	if (layer_pool.count(layer_name) > 0) {
 		// find it from pool and return it
 		layer_proxy = layer_pool[layer_name];
+        
 	} else {
 		// otherwise, create one and store it in pool
 		OGRLayer* layer = ds->GetLayerByName(layer_name.c_str());
-		if (!layer) {
+		if (layer == NULL) {
 			// for some files, there's no layer name. Just get the first one
 			layer = ds->GetLayer(0);
+            if (layer == NULL) {
+                ostringstream error_message;
+                error_message << "No layer was found in this datasource.";
+                throw GdaException(error_message.str().c_str());
+            }
 		}
-		if (layer == NULL) {
-            ostringstream error_message;
-            error_message << "No layer was found in this datasource.";
-			throw GdaException(error_message.str().c_str());
-		}
+		
 		//bool is_thread_safe = layer->TestCapability(OLCRandomRead);
 		layer_proxy = new OGRLayerProxy(layer_name, layer, ds_type);
+        
 		//todo: if there is one already existed, clean/delete the old first
 		layer_pool[layer_name] = layer_proxy;
 	}
@@ -375,7 +379,6 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
             }
         }
     }
-    
     OGRLayerProxy* layer =  new OGRLayerProxy(poDstLayer, ds_type, eGType);
     //layer->AddFeatures(geometries, table, field_dict, selected_rows);
     

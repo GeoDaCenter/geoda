@@ -44,7 +44,7 @@ public:
 	 * Construct function. Create a data source proxy according to the 
 	 * formated ds_name (datasource name).
 	 */
-	OGRDatasourceProxy(wxString _ds_name, bool bUpdate=true);
+	OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceType _ds_type, bool bUpdate=true);
 	/**
 	 */
 	OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name);
@@ -92,7 +92,7 @@ public:
 	/**
 	 * Return OGR data source type as string
 	 */
-    GdaConst::DataSourceType GetGdaDataSourceType();
+    GdaConst::DataSourceType GetGdaDataSourceType(GDALDriver *poDriver);
     
 	/**
 	 * Get all layer names in this data source

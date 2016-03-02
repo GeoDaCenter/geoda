@@ -233,13 +233,14 @@ void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
 void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 {
 	wxString ds_name = datasource->GetOGRConnectStr();
+    GdaConst::DataSourceType ds_type = datasource->GetType();
 
 	if (ds_name.IsEmpty()) {
         wxString msg = "Can't get layers from unknown datasource. Please complete the datasource fields.";
 		throw GdaException(msg.mb_str());
 	}
     
-	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString());
+	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString(), ds_type);
     
     int n_tables = table_names.size();
     

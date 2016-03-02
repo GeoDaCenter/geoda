@@ -431,8 +431,9 @@ void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
         wxString layer_name = dlg.GetLayerName();
         IDataSource* datasource = dlg.GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
+        GdaConst::DataSourceType ds_type = datasource->GetType();
         
-        ogr_ds = new OGRDatasourceProxy(ds_name,true);
+        ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
         ogr_layer = ogr_ds->GetLayerProxy(layer_name.ToStdString());
         ogr_layer->ReadData();
 

@@ -237,10 +237,10 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
         wxString layer_name = dlg.GetLayerName();
         IDataSource* datasource = dlg.GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
+        GdaConst::DataSourceType ds_type = datasource->GetType();
         
-        OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, false);
-        OGRLayerProxy* ogr_layer =
-            ogr_ds->GetLayerProxy(layer_name.ToStdString());
+        OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, false);
+        OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layer_name.ToStdString());
         bool validExt = ogr_layer->GetExtent(m_xBot, m_yBot, m_xTop, m_yTop);
         delete ogr_ds;
         ogr_ds = NULL;

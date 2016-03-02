@@ -145,9 +145,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString layer_name = dlg.GetLayerName();
         IDataSource* datasource = dlg.GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
-       
+        GdaConst::DataSourceType ds_type = datasource->GetType();
+        
         //XXX: ToStdString() needs to take care of weird file path
-        merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, true);
+        merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
         merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
         merge_layer_proxy->ReadData();
         m_input_file_name->SetValue(layer_name);

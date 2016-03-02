@@ -82,14 +82,14 @@ void OGRDataAdapter::Close()
 	if ( !gda_cache) delete gda_cache;
 }
 
-OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name)
+OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name, GdaConst::DataSourceType ds_type)
 {
 	OGRDatasourceProxy* ds_proxy;
 	
 	if (ogr_ds_pool.count(ds_name) > 0) {
 		ds_proxy = ogr_ds_pool[ds_name];
 	} else {
-		ds_proxy = new OGRDatasourceProxy(ds_name, true);
+		ds_proxy = new OGRDatasourceProxy(ds_name, ds_type, true);
 		ogr_ds_pool[ds_name] = ds_proxy;
 	}
 	
@@ -119,9 +119,9 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-vector<string> OGRDataAdapter::GetLayerNames(string ds_name)
+vector<string> OGRDataAdapter::GetLayerNames(string ds_name, GdaConst::DataSourceType ds_type)
 {	
-	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name);
+	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
 	return ds_proxy->GetLayerNames();
 }
 
@@ -129,29 +129,30 @@ vector<string> OGRDataAdapter::GetLayerNames(string ds_name)
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, string layer_name)
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, string layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
+    
 	//XXX: we don't cache layer in 1.5.x
 	//if (enable_cache && gda_cache) {
 	//	if (gda_cache->IsLayerCached(ds_name, layer_name)) {
 	//		layer_proxy =  gda_cache->GetLayerProxy(ds_name,layer_name);
 	//	}
-	//} 
+	//}
+    
 	if (layer_proxy == NULL) {
-		OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name);
+		OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
 		layer_proxy = ds_proxy->GetLayerProxy(layer_name);
 	}
 
-	// read actual data in a thread
+	// read actual data in a new thread
 	if (layer_thread != NULL) {
 		layer_thread->join();
 		delete layer_thread;
 		layer_thread = NULL;
 	}
 	
-	layer_thread = new boost::thread(
-		boost::bind(&OGRLayerProxy::ReadData, layer_proxy));
+	layer_thread = new boost::thread( boost::bind(&OGRLayerProxy::ReadData, layer_proxy) );
 	return layer_proxy;
 }
 
@@ -291,6 +292,8 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                                  OGRSpatialReference* spatial_ref,
 								 bool is_update)
 {
+    GdaConst::DataSourceType ds_type = IDataSource::FindDataSourceType(o_ds_format);
+    
     // field identifier: a pair value <column pos, time step> to indicate how to
     // retreive real field name and cell value for time-enabled table
     typedef pair<int, int> field_idn;
@@ -313,8 +316,7 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
             }
         }
         // try to correct
-        GdaConst::DataSourceType ds_type =
-            IDataSource::FindDataSourceType(o_ds_format);
+        
         FieldNameCorrectionDlg fname_correct_dlg(ds_type, all_fnames);
         if ( fname_correct_dlg.NeedCorrection()) {
             if (fname_correct_dlg.ShowModal() != wxID_OK) {
@@ -345,7 +347,7 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
 
     if (is_update) {
         // update layer in datasources, e.g. Sqlite
-        export_ds = new OGRDatasourceProxy(o_ds_name, true);
+        export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
         new_layer_proxy = export_ds->CreateLayer(
             o_layer_name, geom_type, ogr_geometries, table,
             field_dict, selected_rows, spatial_ref);
@@ -382,9 +384,7 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 	char**  papszLCO = NULL;
 	papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
 	
-	
-	//////////////////////////////////////////////////////////////
-	// get information from current layer: geomtype, layer_name
+    // get information from current layer: geomtype, layer_name
     // (don't consider coodinator system and translation here)
 	int bForceToPoint = FALSE;
     int bForceToPolygon = FALSE;
@@ -400,23 +400,18 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
+    
 	// Try opening the output datasource as an existing, writable
 	GDALDataset *poODS = NULL;
-	//OGRDataSource  *poODS = NULL;
-    //OGRSFDriver    *poDriver = NULL;
     
     if (is_update == true) {
         //poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
         poODS = (GDALDataset*)GDALOpenEx( dest_datasource.c_str(), 
 					GDAL_OF_VECTOR, NULL, NULL, NULL);
     } else {
-        //////////////////////////////////////////////////////////////
         // Find the output driver.
         GDALDriver *poDriver;
         poDriver  = GetGDALDriverManager()->GetDriverByName(pszFormat);
-        //OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-        //poDriver = poR->GetDriverByName(pszFormat);
         if( poDriver == NULL ) {
             // raise driver not supported failure
             error_message << "Current OGR dirver " + format + " is not "
@@ -424,14 +419,8 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
             export_progress = -1;
             return;
         }
-        //if( !poDriver->TestCapability( //ODrCCreateDataSource ) ) {
-            // raise driver does not support data source creation.\n",
-            //export_progress = -1;
-            //return;
-        //}
-        //////////////////////////////////////////////////////////////
+
         // Create the output data source.
-        //poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
         poODS = poDriver->Create( pszDestDataSource, 0, 0,0, GDT_Unknown, NULL);
     }
     
@@ -443,7 +432,7 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 		export_progress = -1;
 		return;
 	}
-    //////////////////////////////////////////////////////////////
+    
 	// Parse the output SRS definition if possible.
 	OGRSpatialReference *poOutputSRS = NULL;
 	if( pszOutputSRSDef != NULL ) {
@@ -462,7 +451,7 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
+    
 	// Create Layer
 	OGRLayer *poDstLayer = poODS->CreateLayer( pszNewLayerName, poOutputSRS,
 											  (OGRwkbGeometryType) eGType,
@@ -489,7 +478,7 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
 			}
         }
     }
-	//////////////////////////////////////////////////////////////
+    
 	// Create OGR geometry features
 	for(int row=0; row< number_rows; row++){
 		if(stop_exporting) return;
@@ -527,7 +516,6 @@ void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
         }
 		OGRFeature::DestroyFeature( poFeature );
 	}
-	//////////////////////////////////////////////////////////////
 	// Clean
 	//OGRDataSource::DestroyDataSource( poODS );
 	GDALClose(poODS);

@@ -133,6 +133,9 @@ wxString IDataSource::GetDataTypeNameByExt(wxString ext)
         ds_format = "CouchDB";
     else if(ext.CmpNoCase("vct")==0)
         ds_format = "Idrisi";
+    else if(ext.CmpNoCase("ods")==0)
+        ds_format = "ODS";
+
     //else
     //    ds_format = "Unknown";
     return ds_format;

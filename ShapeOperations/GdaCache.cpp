@@ -38,7 +38,8 @@ GdaCache::GdaCache()
     
 	// connect to cache file
     try {
-        cach_ds_proxy = new OGRDatasourceProxy(exePath, true);
+        
+        cach_ds_proxy = new OGRDatasourceProxy(exePath, GdaConst::ds_sqlite, true);
         layer_names = cach_ds_proxy->GetLayerNames();
         std::string sql = "SELECT * FROM history";
         history_table = cach_ds_proxy->GetLayerProxyBySQL(sql);
