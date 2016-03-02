@@ -44,6 +44,8 @@
 #include "../GdaConst.h"
 #include "VarGroupingEditorDlg.h"
 #include "TimeEditorDlg.h"
+#include "../GdaException.h"
+
 
 BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 	EVT_CLOSE( VarGroupingEditorDlg::OnClose )
@@ -1170,8 +1172,13 @@ void VarGroupingEditorDlg::OnLoadFromGda( wxCommandEvent& event )
     
     wxString full_proj_path = dlg.GetPath();
     
-    ProjectConfiguration* project_conf = new ProjectConfiguration(full_proj_path);
-    project->UpdateProjectConf(project_conf);
+    try {
+        ProjectConfiguration* project_conf = new ProjectConfiguration(full_proj_path);
+        project->UpdateProjectConf(project_conf);
+    } catch( GdaException& ex) {
+        wxMessageDialog dlg (this, ex.what(), "Error", wxOK | wxICON_ERROR );
+        dlg.ShowModal();
+    }
 
 }
 

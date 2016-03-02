@@ -238,6 +238,8 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
         VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
+    } else {
+        throw GdaException("Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource.");
     }
 }
 
