@@ -3431,7 +3431,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     
     bool has_time = table_int->IsTimeVariant();
     if (has_time == false) {
-        wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\n Please first group the a variable by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3623,7 +3623,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     
     bool has_time = table_int->IsTimeVariant();
     if (has_time == false) {
-        wxMessageDialog dlg (this, "Please define time first. \n\n Note: Goto menu: Time->Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
