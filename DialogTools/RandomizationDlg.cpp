@@ -389,7 +389,7 @@ const int ID_BUTTON = wxID_ANY;
 
 BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
     EVT_CLOSE( RandomizationDlg::OnClose)
-    //EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
+    EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
 	EVT_MOUSE_EVENTS(RandomizationDlg::OnMouse)
 END_EVENT_TABLE()
 
@@ -443,16 +443,16 @@ void RandomizationDlg::CreateControls()
 {    
     wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    //wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
-    //hbox2->AddSpacer(100);
-    //hbox2->Add(button);
+    wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
+    hbox2->AddSpacer(100);
+    hbox2->Add(button);
     vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxLEFT | wxTOP, 100);
     
     panel->SetSizer(vbox);
     
     Centre();
     
-    //Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
     
 }
 

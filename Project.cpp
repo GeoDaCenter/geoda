@@ -575,6 +575,7 @@ void Project::SaveDataSourceData()
 	}
 	
 	if (table_int->ChangedSinceLastSave()) {
+        
 		wxString save_err_msg;
 		try {
 			// for saving changes in database, call OGRTableInterface::Save()

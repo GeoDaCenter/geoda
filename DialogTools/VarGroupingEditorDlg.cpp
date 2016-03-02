@@ -1091,6 +1091,7 @@ void VarGroupingEditorDlg::UpdateButtons()
     
 	save_spacetime_button->Enable(grouped_list->GetCount() > 0);
 	
+
 	UpdateGroupButton();
 }
 

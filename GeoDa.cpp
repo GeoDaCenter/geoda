@@ -1523,8 +1523,9 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 			(project_p->GetSaveButtonManager() &&
 			 project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
 		bool unsaved_ds_data =
-			project_p->GetTableInt()->ChangedSinceLastSave();
+			project_p->GetTableInt()->ChangedSinceLastSave() || project_p->GetTableInt()->IsTimeVariant();
 	
+        
 		wxString msg;
 		wxString title;
 		//if (is_new_project || unsaved_ds_data || unsaved_ds_data) {
@@ -1534,13 +1535,22 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 			
 			msg << "\n";			
 			
-			msg << "There are unsaved data source (Table) changes.\n\n";			
+			msg << "There are unsaved data source or time definition changes.\n\n";
 			
-			msg << "To save your work, go to File > Save";
+			msg << "Do you want to save your changes?";
 			
 			wxMessageDialog msgDlg(this, msg, title,
 								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-			if (msgDlg.ShowModal() != wxID_YES) return false;
+            if (msgDlg.ShowModal() == wxID_YES) {
+                if (project_p) {
+                    if (project_p->GetTableInt()->IsTimeVariant()) {
+                        project_p->SaveProjectConf();
+                    }
+                    if (project_p->GetTableInt()->ChangedSinceLastSave()) {
+                        project_p->SaveDataSourceData();
+                    }
+                }
+            }
 		}
 	}
 	
