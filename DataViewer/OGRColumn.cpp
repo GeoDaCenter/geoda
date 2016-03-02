@@ -23,6 +23,7 @@
 #include <vector>
 #include <set>
 #include <boost/foreach.hpp>
+#include <locale>
 #include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -611,7 +612,7 @@ void OGRColumnString::FillData(vector<double> &data)
                 }
             } else {
                 // try comma as decimal point
-                std::setlocale(LC_NUMERIC, "de_DE");
+                setlocale(LC_NUMERIC, "de_DE");
                 for (int i=0; i<rows; ++i) {
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     double val;
@@ -621,7 +622,7 @@ void OGRColumnString::FillData(vector<double> &data)
                     }
                     data[i] = val;
                 }
-                std::setlocale(LC_NUMERIC, "C");
+                setlocale(LC_NUMERIC, "C");
             }
         }
         
@@ -680,7 +681,7 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 }
             } else {
                 // try comma as decimal point
-                std::setlocale(LC_NUMERIC, "de_DE");
+                setlocale(LC_NUMERIC, "de_DE");
                 for (int i=0; i<rows; ++i) {
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     wxInt64 val;
@@ -690,7 +691,7 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                     }
                     data[i] = val;
                 }
-                std::setlocale(LC_NUMERIC, "C");
+                setlocale(LC_NUMERIC, "C");
             }
         }
         

@@ -615,6 +615,9 @@
     <ClInclude Include="..\..\DialogTools\PublishDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1119,6 +1122,9 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>

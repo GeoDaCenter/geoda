@@ -257,7 +257,7 @@ bool GdaApp::OnInit(void)
     int lan = wxLocale::GetSystemLanguage();
     wxString locale_name = wxLocale::GetLanguageCanonicalName(lan);
     setlocale(LC_ALL, locale_name.mb_str());
-    CPLsetlocale(LC_ALL, locale_name.mb_str());
+    //CPLsetlocale(LC_ALL, locale_name.mb_str());
     
     // However, user can change the Separators in GeoDa, after re-open the
     // datasource, CSV reader will use the Separators

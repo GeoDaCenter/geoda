@@ -202,6 +202,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
+    <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="..\..\DataViewer\VarOrderMapper.h" />
     <ClInclude Include="..\..\DbfFile.h" />
     <ClInclude Include="..\..\DefaultVarsPtree.h" />
+    <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h" />
     <ClInclude Include="..\..\DialogTools\AutoCompTextCtrl.h" />
     <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
