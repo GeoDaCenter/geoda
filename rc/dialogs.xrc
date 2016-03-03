@@ -5542,6 +5542,7 @@
                   <object class="sizeritem">
                     <object class="wxButton" name="ID_ADD_FIELD">
                       <label>Add Variable</label>
+                      <hidden>1</hidden>
                     </object>
                   </object>
                   <object class="spacer">
@@ -5550,6 +5551,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Target Variable</label>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5559,6 +5561,7 @@
                   <object class="sizeritem">
                     <object class="wxChoice" name="ID_SAVE_FIELD_CHOICE">
                       <size>80,-1d</size>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5566,6 +5569,42 @@
                 </object>
                 <flag>wxTOP|wxBOTTOM</flag>
                 <border>5</border>
+              </object>
+              
+              <object class="sizeritem">
+                <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                  </object>
+                  <object class="spacer">
+                    <size>18,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>Varialbe Name</label>
+                      <size>60,-1d</size>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="spacer">
+                    <size>3,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="ID_SAVE_SEL_VAR_NAME">
+                      <size>50,-1d</size>
+                      <value>SELECTED</value>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <orient>wxHORIZONTAL</orient>
+                </object>
+                <flag>wxTOP|wxBOTTOM</flag>
+                <border>5</border>
+              </object>
+              
+              <object class="sizeritem">
+                  <object class="spacer">
+                    <size>7,15d</size>
+                  </object>
               </object>
               <object class="sizeritem">
                 <object class="wxBoxSizer">
@@ -5581,6 +5620,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Selected =</label>
+                      <size>50,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5613,6 +5653,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Unselected =</label>
+                      <size>50,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5678,6 +5719,7 @@
                   <object class="sizeritem">
                     <object class="wxButton" name="ID_ADD_FIELD">
                       <label>Add Variable</label>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
                     <border>8</border>
@@ -5685,6 +5727,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Target Variable</label>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5694,6 +5737,7 @@
                   <object class="sizeritem">
                     <object class="wxChoice" name="ID_SAVE_FIELD_CHOICE">
                       <size>80,-1d</size>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5704,6 +5748,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Time</label>
+                      <hidden>1</hidden>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5713,12 +5758,50 @@
                   <object class="sizeritem">
                     <object class="wxChoice" name="ID_SAVE_FIELD_CHOICE_TM">
                       <size>80,-1d</size>
+                      <hidden>1</hidden>
                     </object>
                   </object>
                 </object>
                 <flag>wxTOP|wxBOTTOM</flag>
                 <border>5</border>
               </object>
+              
+              <object class="sizeritem">
+                <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                  </object>
+                  <object class="spacer">
+                    <size>18,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>Varialbe Name</label>
+                      <size>60,-1d</size>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="spacer">
+                    <size>3,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="ID_SAVE_SEL_VAR_NAME">
+                      <size>50,-1d</size>
+                      <value>SELECTED</value>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <orient>wxHORIZONTAL</orient>
+                </object>
+                <flag>wxTOP|wxBOTTOM</flag>
+                <border>5</border>
+              </object>
+              
+              <object class="sizeritem">
+                  <object class="spacer">
+                    <size>7,15d</size>
+                  </object>
+              </object>
+              
               <object class="sizeritem">
                 <object class="wxBoxSizer">
                   <object class="sizeritem">
@@ -5733,6 +5816,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Selected =</label>
+                      <size>60,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5765,6 +5849,7 @@
                   <object class="sizeritem">
                     <object class="wxStaticText">
                       <label>Unselected =</label>
+                      <size>60,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>

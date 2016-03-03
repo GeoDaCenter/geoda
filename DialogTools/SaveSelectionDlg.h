@@ -60,6 +60,7 @@ private:
 	wxChoice* m_save_field_choice_tm;
 	wxCheckBox* m_sel_check_box;	
 	wxTextCtrl* m_sel_val_text;
+	wxTextCtrl* m_save_sel_var_name;
 	wxCheckBox* m_unsel_check_box;	
 	wxTextCtrl* m_unsel_val_text;
 	wxButton* m_apply_save_button;

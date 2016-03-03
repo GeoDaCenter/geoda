@@ -88,6 +88,10 @@ void SaveSelectionDlg::CreateControls()
 	
 	m_sel_val_text = wxDynamicCast(FindWindow(XRCID("ID_SEL_VAL_TEXT")),
 								   wxTextCtrl);
+   
+    m_save_sel_var_name = wxDynamicCast(FindWindow(XRCID("ID_SAVE_SEL_VAR_NAME")),
+                                        wxTextCtrl);
+    
 	m_sel_val_text->Clear();
 	m_sel_val_text->AppendText("1");
 	m_sel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
@@ -103,7 +107,7 @@ void SaveSelectionDlg::CreateControls()
 	
 	m_apply_save_button = wxDynamicCast(
 						FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
-	m_apply_save_button->Disable();
+	//m_apply_save_button->Disable();
 }
 
 void SaveSelectionDlg::InitTime()
@@ -221,8 +225,9 @@ void SaveSelectionDlg::CheckApplySaveSettings()
 {
 	if (!m_all_init) return;
 	
-	bool target_field_empty = m_save_field_choice->GetSelection()==wxNOT_FOUND;
-	
+	//bool target_field_empty = m_save_field_choice->GetSelection()==wxNOT_FOUND;
+    bool target_field_empty =m_save_sel_var_name->GetValue().IsEmpty();
+    
 	// Check that m_sel_val_text and m_unsel_val_text is valid.
 	// If not valid, set text color to red.
 	double val;
@@ -243,12 +248,14 @@ void SaveSelectionDlg::CheckApplySaveSettings()
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
-	
+
+
 	m_apply_save_button->Enable(!target_field_empty &&
 								(sel_checked || unsel_checked) &&
 								((sel_checked && sel_valid) || !sel_checked) &&
 								((unsel_checked && unsel_valid) ||
 								 !unsel_checked));
+
 }
 
 /** The Apply button is only enable when Selected / Unselected values
@@ -257,7 +264,31 @@ void SaveSelectionDlg::CheckApplySaveSettings()
  checked for validity. */
 void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
-	int write_col = col_id_map[m_save_field_choice->GetSelection()];
+    
+    wxString field_name = m_save_sel_var_name->GetValue();
+    if (field_name.empty()) {
+        wxMessageDialog dlg(this, "Variable name can't be empty.",
+                            "Error", wxOK | wxICON_ERROR );
+        dlg.ShowModal();
+        return;
+    }
+    
+    int col = table_int->FindColId(field_name);
+    
+    if ( col == wxNOT_FOUND) {
+        // create a new integer field
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_long_len;
+        int m_decimals_val = 0;
+        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    }
+   
+    if (col <= 0) {
+        return;
+    }
+    
+    int write_col = col;
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
