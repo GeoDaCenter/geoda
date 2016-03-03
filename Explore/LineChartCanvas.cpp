@@ -706,7 +706,7 @@ void LineChartCanvas::UpdateMargins()
 {
 	virtual_screen_marg_top = 3;//20;
 	virtual_screen_marg_right = 50;//20;//20;
-	virtual_screen_marg_bottom = 25;//45;
+	virtual_screen_marg_bottom = 40;//45;
 	virtual_screen_marg_left = 50;//45;
 }
 

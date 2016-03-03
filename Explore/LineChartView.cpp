@@ -580,7 +580,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (!has_selection) {
-                wxMessageBox("Please define regimes by selecting on the map.");
+                wxMessageBox("Please first select observations in one of the other data or map views.");
                 return;
             }
             

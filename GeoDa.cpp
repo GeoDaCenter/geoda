@@ -2951,7 +2951,7 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 	if (!GetProject() || !GetProject()->GetTableInt()) return;
 	Project* p = GetProject();
 	TableInterface* table_int = p->GetTableInt();
-	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate, false, false, "New Map Coordinates","First Variable (X/Longitude)", "Second Variable (Y/Latitue)");
+	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate, false, false, "New Map Coordinates","First Variable (X/Longitude)", "Second Variable (Y/Latitude)");
 	if (VS.ShowModal() != wxID_OK) return;
 	
 	std::vector<double> xs;
@@ -3413,16 +3413,29 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 {
     Project* p = GetProject();
     if (!p) return;
+  
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
    
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
-    if (gw == NULL) return;
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
 											  LisaCoordinator::univariate,
@@ -3435,25 +3448,23 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
 {
     Project* p = GetProject();
     if (!p) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
-    Project* project = GetProject();
-    TableInterface* table_int = project->GetTableInt();
+    TableInterface* table_int = p->GetTableInt();
     
     bool has_time = table_int->IsTimeVariant();
     if (has_time == false) {
         wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
-    }
-    
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "No Weights Found:\n\n GeoDa could not find the required weights file.\n Please specify weights in Tools > Weights Manager.", "Warning", wxOK | wxICON_WARNING);
-        dlg.ShowModal();
-        return;
-        
     }
     
     DiffMoranVarSettingDlg VS(project_p);
@@ -3467,8 +3478,11 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL)
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
         return;
+    }
     
     LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
                                               VS.var_info, VS.col_ids,
@@ -3484,6 +3498,15 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 {
     Project* p = GetProject();
     if (!p) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
     bool show_weights = true;
     bool show_distance = false;
@@ -3496,12 +3519,13 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 	if (w_id.is_nil())
         return;
 	
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL)
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
         return;
+    }
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
@@ -3516,6 +3540,15 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 {
     Project* p = GetProject();
     if (!p) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
 												 false,
@@ -3525,11 +3558,14 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 	
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
-    if (gw == NULL) return;
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 										VS.var_info, VS.col_ids,
 										LisaCoordinator::eb_rate_standardized,
@@ -3568,14 +3604,20 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true,
-												 false);
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+	VariableSettingsDlg VS(p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 		
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
@@ -3589,7 +3631,7 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
 	
     
-	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
+	LisaCoordinator* lc = new LisaCoordinator(w_id, p,
 											  VS.var_info,
 											  VS.col_ids,
 											  LisaCoordinator::univariate,
@@ -3597,14 +3639,14 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 
 	if (LWO.m_Moran) {
 		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
-															project_p, lc);
+															p, lc);
 	}
 	if (LWO.m_ClustMap) {
-		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
+		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
 												  lc, true, false, false);
 	}
 	if (LWO.m_SigMap) {
-		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
+		LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
 												  lc, false, false, false,
 												  wxDefaultPosition);
 	}
@@ -3620,12 +3662,11 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     Project* project = GetProject();
     TableInterface* table_int = project->GetTableInt();
     
-    
     std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "No Weights Found:\n\n This feature requires weights, but none defined.\n Please use Tools > Weights > Weights Manager\n to define weights.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
         
@@ -3680,6 +3721,15 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 {
     Project* p = GetProject();
     if (!p) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
 	// Note: this is the only call to this particular constructor
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
@@ -3689,20 +3739,17 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 	
-	LisaWhat2OpenDlg LWO(this);
-	if (LWO.ShowModal() != wxID_OK) return;
-	if (!LWO.m_ClustMap && !LWO.m_Moran && !LWO.m_SigMap) return;
-	
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
-    
     if (gw == NULL) {
         wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
     
+	LisaWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_Moran && !LWO.m_SigMap) return;
+	
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
@@ -3729,13 +3776,20 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     Project* p = GetProject();
     if (!p) return;
     
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
    
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = p->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
@@ -3775,13 +3829,20 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     Project* p = GetProject();
     if (!p) return;
     
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
     
-    Project* project = GetProject();
-    WeightsManInterface* w_man_int = p->GetWManInt();
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {

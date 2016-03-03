@@ -3291,7 +3291,7 @@ void TemplateCanvas::SaveCategories(const wxString& title,
 	}
 	
 	SaveToTableDlg dlg(project, this, data,
-										 title, wxDefaultPosition, wxSize(400,400));
+										 title, wxDefaultPosition, wxSize(500,400));
 	dlg.ShowModal();
 }
 

@@ -1020,14 +1020,14 @@
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxStaticText">
-              <label>This view requires weights, but none defined.</label>
+              <label>GeoDa could not find the required weights file.</label>
             </object>
             <flag>wxBOTTOM</flag>
             <border>2</border>
           </object>
           <object class="sizeritem">
             <object class="wxStaticText">
-              <label>Please use Tools &gt; Weights &gt; Weights Manager</label>
+              <label>Please specify weights in Tools > Weights Manager.</label>
             </object>
             <flag>wxBOTTOM</flag>
             <border>2</border>

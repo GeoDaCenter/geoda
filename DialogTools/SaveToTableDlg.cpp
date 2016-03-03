@@ -68,7 +68,7 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
 {
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(150, 30));
+		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(160, 30));
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
@@ -130,7 +130,7 @@ void SaveToTableDlg::CreateControls()
 		//if (is_space_time) {
 		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//}
-        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 5);
+        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 2);
         fg_sizer->Add(m_txt_field[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
 	

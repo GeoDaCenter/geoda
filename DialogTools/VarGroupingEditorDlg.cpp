@@ -97,6 +97,9 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 			   VarGroupingEditorDlg::OnNewGroupHelp )
 	EVT_BUTTON( XRCID("ID_CUR_GROUPED_HELP"),
 			   VarGroupingEditorDlg::OnCurGroupedHelp )
+	EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_TABLE"),
+			   VarGroupingEditorDlg::OnSaveSTHelp )
+
     EVT_BUTTON( XRCID("ID_TIME_LOAD_FROM_GDA"),
            VarGroupingEditorDlg::OnLoadFromGda )
 
@@ -747,24 +750,25 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 		fill_from_top = true;
 	}
 	
-		// add time periods as needed
-		int item_cnt = include_list->GetItemCount();
-		int room = item_cnt - GetIncListNonPlaceholderCnt();
-		if (sel_cnt > room) {
-			int diff = sel_cnt - room;
-			for (int i=0; i<diff; ++i) {
-				wxString t;
-				if (item_cnt+i == 0) {
-					t << table_int->GetTimeString(0);
-				} else {
-					t << "time " << item_cnt+i;
-                    table_int->InsertTimeStep(item_cnt+i, t);
-				}
-                include_list->InsertItem(item_cnt+i, t);
-                
-				include_list->SetItem(item_cnt+i, 1, wxEmptyString);
-			}
-		}
+    // add time periods as needed
+    int item_cnt = include_list->GetItemCount();
+    int room = item_cnt - GetIncListNonPlaceholderCnt();
+    if (sel_cnt > room) {
+        int diff = sel_cnt - room;
+        for (int i=0; i<diff; ++i) {
+            wxString t;
+            if (item_cnt+i == 0) {
+                t = table_int->GetTimeString(0);
+                if (t.IsEmpty()) t = "time 0";
+            } else {
+                t = GenerateTimeLabel();
+                table_int->InsertTimeStep(item_cnt+i, t);
+            }
+            include_list->InsertItem(item_cnt+i, t);
+            
+            include_list->SetItem(item_cnt+i, 1, wxEmptyString);
+        }
+    }
 	
 	list<wxString> ung_sel_strs = GetListSelStrs(ungrouped_list, 0);
 	
@@ -824,12 +828,18 @@ void VarGroupingEditorDlg::OnIncludeListItemActivate( wxListEvent& event )
 
 wxString VarGroupingEditorDlg::GetNewAppendTimeLabel()
 {
-    int cnt = 1;
+    wxString s = GenerateTimeLabel();
+    return s;
+}
+
+wxString VarGroupingEditorDlg::GenerateTimeLabel()
+{
     wxString s;
     for (int i=0; i<10000; i++) {
         s = "time ";
-        s << cnt++;
-        if (include_list->FindItem(-1, s) == wxNOT_FOUND) return s;
+        s << i;
+        if (include_list->FindItem(-1, s) == wxNOT_FOUND)
+            return s;
     }
     return s;
 }
@@ -849,6 +859,8 @@ void VarGroupingEditorDlg::includeListAddNewTime()
 void VarGroupingEditorDlg::includeListDeleteTime()
 {
     std::list<int> sels = GetListSel(include_list);
+    sels.sort();
+    sels.reverse();
     if (!sels.empty()) {
         BOOST_FOREACH(int i, sels) {
             include_list->DeleteItem(i);
@@ -1152,6 +1164,15 @@ void VarGroupingEditorDlg::OnNewGroupHelp( wxCommandEvent& event )
 	wxString msg;
     msg << "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results.";
 
+	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
+	dlg.ShowModal();
+}
+
+void VarGroupingEditorDlg::OnSaveSTHelp( wxCommandEvent& event )
+{
+	wxString msg;
+	msg << "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager).";
+    
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }
