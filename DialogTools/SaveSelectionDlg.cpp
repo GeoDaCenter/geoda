@@ -333,8 +333,8 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
-		wxString msg = "Chosen field is not a numeric type.  This is likely ";
-		msg << "a bug. Please report this.";
+		wxString msg = "Chosen field is not a numeric type.  Please select a numeric type field.";
+
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
