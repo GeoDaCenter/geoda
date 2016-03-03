@@ -88,7 +88,8 @@ public:
     
 	void OnGroupedListSelection( wxCommandEvent& event );
 	void OnNewGroupNameChange( wxCommandEvent& event );
-	
+
+	void OnSaveSTHelp( wxCommandEvent& event );
 	void OnUngroupedVarsHelp( wxCommandEvent& event );
 	void OnNewGroupHelp( wxCommandEvent& event );
 	void OnCurGroupedHelp( wxCommandEvent& event );

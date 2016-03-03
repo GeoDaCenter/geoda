@@ -819,13 +819,21 @@
                 <object class="wxBoxSizer">
                   <object class="sizeritem">
                     <object class="wxButton" name="ID_SAVE_SPACETIME_TABLE">
-                      <label>Save As Space Time Table...</label>
+                      <label>Save Space-Time Table/Weights</label>
                       <style>wxBU_EXACTFIT</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                     <border>5</border>
                   </object>
+                  <object class="sizeritem">
+                    <object class="wxBitmapButton" name="ID_SAVE_SPACETIME_HELP">
+                      <style>wxBORDER_NONE</style>
+                      <bitmap>8px_help.png</bitmap>
+                    </object>
+                    <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
                   <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  <orient>wxHORIZONTAL</orient>
                 </object>
               </object>
               <orient>wxVERTICAL</orient>

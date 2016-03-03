@@ -97,6 +97,9 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 			   VarGroupingEditorDlg::OnNewGroupHelp )
 	EVT_BUTTON( XRCID("ID_CUR_GROUPED_HELP"),
 			   VarGroupingEditorDlg::OnCurGroupedHelp )
+	EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_TABLE"),
+			   VarGroupingEditorDlg::OnSaveSTHelp )
+
     EVT_BUTTON( XRCID("ID_TIME_LOAD_FROM_GDA"),
            VarGroupingEditorDlg::OnLoadFromGda )
 
@@ -1161,6 +1164,15 @@ void VarGroupingEditorDlg::OnNewGroupHelp( wxCommandEvent& event )
 	wxString msg;
     msg << "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results.";
 
+	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
+	dlg.ShowModal();
+}
+
+void VarGroupingEditorDlg::OnSaveSTHelp( wxCommandEvent& event )
+{
+	wxString msg;
+	msg << "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager).";
+    
 	wxMessageDialog dlg (this, msg, "Help", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }
