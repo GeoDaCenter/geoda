@@ -120,12 +120,13 @@ public:
     
 
 	
-private:
+protected:
 	HighlightState* highlight_state;
     WeightsManInterface* wmi;
     
 	int GetIncListNameCnt();
 	int GetIncListNonPlaceholderCnt();
+    wxString GenerateTimeLabel();
 	
 	bool all_init;
 	wxButton* group_button;

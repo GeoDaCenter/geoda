@@ -390,17 +390,19 @@ void TimeChooserDlg::update(TableState* o)
     if (steps > 1 && is_time) ToggleButtons(true);
     if (steps <=1 || !is_time) ToggleButtons(false);
     
-	wxString t_cur;
-	t_cur << time_state->GetCurrTimeString();
-	cur_txt->SetLabelText(t_cur);
-	slider_val = time_state->GetCurrTime();
-	
-	suspend_notify = true;
-	slider->SetRange(0, steps-1);
-	slider->SetValue(time_state->GetCurrTime());
-	suspend_notify = false;
-	
-	speed_slider->GetValue();	
+    if (steps > 0) {
+        wxString t_cur;
+        t_cur << time_state->GetCurrTimeString();
+        cur_txt->SetLabelText(t_cur);
+        slider_val = time_state->GetCurrTime();
+        
+        suspend_notify = true;
+        slider->SetRange(0, steps-1);
+        slider->SetValue(time_state->GetCurrTime());
+        suspend_notify = false;
+        
+        speed_slider->GetValue();
+    }
 	
 	Refresh();
 	LOG_MSG("Exiting TimeChooserDlg::update(TableState* o)");
