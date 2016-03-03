@@ -39,6 +39,8 @@ AdjustYAxisDlg::AdjustYAxisDlg( wxString min_val_s,
 								 long style )
 : s_min_val(min_val_s), s_max_val(max_val_s)
 {
+    min_val_s.ToDouble(&o_min_val);
+    max_val_s.ToDouble(&o_max_val);
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -66,6 +68,22 @@ void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
     if (!m_max_val->GetValue().ToDouble(&max_val)) {
         wxMessageBox("Please enter a valid MAX value for Y axis");
         return;
+    }
+   
+    if (min_val > o_min_val) {
+        wxString msg;
+        msg << "Please make sure the input MIN value <= " << o_min_val;
+        wxMessageBox(msg);
+        return;
+        
+    }
+    if (max_val < o_max_val) {
+        wxString msg;
+        msg << "Please make sure the input MAX value >= " << o_max_val;
+        wxMessageBox(msg);
+
+        return;
+        
     }
     
 	wxString _min_val = m_min_val->GetValue();

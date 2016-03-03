@@ -144,7 +144,24 @@ regReportDlg(0)
         wxString name = v_info[0].name;
         int time = v_info[0].time;
     	var_man.AppendVar(name, min_vals, max_vals, time);
-       
+     
+        if (min_vals.size() > 0) {
+            double tmp_min = min_vals[0];
+            for (int i=0; i<min_vals.size(); i++) {
+                if (min_vals[i] < tmp_min ) {
+                    tmp_min = min_vals[i];
+                }
+            }
+            def_y_min << tmp_min;
+            double tmp_max = max_vals[0];
+            for (int i=0; i<max_vals.size(); i++) {
+                if (max_vals[i] > tmp_max ) {
+                    tmp_max = max_vals[i];
+                }
+            }
+            def_y_max << tmp_max;
+        }
+        
     	UpdateDataMapFromVarMan();
     	SetupPanelForNumVariables(var_man.GetVarsCount());
     	Refresh();

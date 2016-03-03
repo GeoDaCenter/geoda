@@ -47,6 +47,9 @@ public:
 	double min_val;
 	double max_val;
     
+	double o_min_val;
+	double o_max_val;
+    
     wxString s_min_val;
     wxString s_max_val;
 };
