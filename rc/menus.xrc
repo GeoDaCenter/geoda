@@ -391,7 +391,7 @@
       </object>
 	  <object class="separator"/>
       <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
-        <label>Animation</label>
+        <label>Map Movie</label>
       </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
