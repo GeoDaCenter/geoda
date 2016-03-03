@@ -3871,12 +3871,12 @@
     <object class="wxMenuItem" name="ID_TABLE_UNGROUP">
       <label>Ungroup Variable</label>
     </object>
-	-->
-    <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SHOW_CAT_CLASSIF">
       <label>Category Editor</label>
     </object>
+	-->
+    <object class="separator"/>
+    
     <object class="separator"/>
     <object class="wxMenu" name="ID_TABLE_ENCODING">
       <label>Encoding</label>
