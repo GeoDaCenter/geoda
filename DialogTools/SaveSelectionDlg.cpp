@@ -145,7 +145,7 @@ void SaveSelectionDlg::InitField()
 
 void SaveSelectionDlg::OnAddField( wxCommandEvent& event )
 {	
-	DataViewerAddColDlg dlg(project, this, false, true, "SELECT");
+	DataViewerAddColDlg dlg(project, this, false, true, "SELECT", GdaConst::long64_type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
 	if (table_int->GetColType(col) != GdaConst::long64_type &&
