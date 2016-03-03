@@ -116,7 +116,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								e.wmi.filename = GenUtils::RestorePath(proj_path, s);
                                 if (!wxFileExists(e.wmi.filename)) {
                                     wxString msg;
-                                    msg << "GeoDa cannot find one or more associated weights file(s) defined in GeoDa project file.\n\n";
+                                    
+                                    msg << "The GeoDa project file cannot find one or more associated data sources.\n\n";
                                     msg << "Details: Weights file (" << e.wmi.filename << ") is missing";
                                     msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the weights file(s) (.gwt or .gal extension) associated with your project.";
                                     
