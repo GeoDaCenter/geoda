@@ -114,7 +114,7 @@
     <object class="tool" name="ID_SHOW_TIME_CHOOSER">
         <bitmap>color/32x32/25.png</bitmap>
         <bitmap2>gray/32x32/25.png</bitmap2>
-      <tooltip>Time control</tooltip>
+      <tooltip>Time</tooltip>
     </object>
     <object class="tool" name="IDM_LINE_CHART">
         <bitmap>color/32x32/26.png</bitmap>
