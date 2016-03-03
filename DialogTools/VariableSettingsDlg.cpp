@@ -303,10 +303,8 @@ all_init(false)
 {
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
-		LOG_MSG("No Weights Found Error:\n"
-				"This view requires weights, but none defined.\n"
-				"Please use Tools > Weights > Weights Manager\n"
-				"to define weights.");
+		LOG_MSG("No Weights Found:\n"
+                "GeoDa could not find the required weights file.\nPlease specify weights in Tools > Weights Manager.");
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
 		SetTitle("No Weights Found");
