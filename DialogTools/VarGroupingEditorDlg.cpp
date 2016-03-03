@@ -856,6 +856,8 @@ void VarGroupingEditorDlg::includeListAddNewTime()
 void VarGroupingEditorDlg::includeListDeleteTime()
 {
     std::list<int> sels = GetListSel(include_list);
+    sels.sort();
+    sels.reverse();
     if (!sels.empty()) {
         BOOST_FOREACH(int i, sels) {
             include_list->DeleteItem(i);
