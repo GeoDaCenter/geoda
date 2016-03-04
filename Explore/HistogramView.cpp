@@ -143,6 +143,7 @@ HistogramCanvas::~HistogramCanvas()
 {
 	LOG_MSG("Entering HistogramCanvas::~HistogramCanvas");
 	highlight_state->removeObserver(this);
+    custom_classif_state->removeObserver(this);
 	LOG_MSG("Exiting HistogramCanvas::~HistogramCanvas");
 }
 
