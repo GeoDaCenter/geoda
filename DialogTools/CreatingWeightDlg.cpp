@@ -252,10 +252,10 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 	
 	wxFileDialog dlg(this,
                      "Choose an output weights file name.",
-                     "",
-                    defaultFile,
-					wildcard,
-					wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                     project->GetWorkingDir().GetPath(),
+                     defaultFile,
+                     wildcard,
+                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	
 	wxString outputfile;
 	if (dlg.ShowModal() != wxID_OK) return;
