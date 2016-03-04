@@ -236,7 +236,7 @@ void CorrelParamsFrame::OnClose(wxCloseEvent& ev)
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 {
 	LOG_MSG("In CorrelParamsFrame::OnHelpBtn");
-	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,  wxID_ANY,  "Correlogram Parameters Help");
+	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,  wxID_ANY,  "Correlogram Parameters Help", wxDefaultPosition, wxSize(500,500));
 }
 
 void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
@@ -354,7 +354,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
                 dlg.ShowModal();
                 valid_variable = false;
             }
-		}        
+		}
 	}
 	int var_man_cnt = var_man.GetVarsCount();
 

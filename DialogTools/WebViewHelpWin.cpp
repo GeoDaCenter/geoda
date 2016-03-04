@@ -58,7 +58,7 @@ void WebViewHelpWin::Init(const wxString& page_source)
 	
 	web_view = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
 														wxDefaultPosition,
-														wxSize(600, 400));
+														wxSize(600, 500));
 	
 	Connect(web_view->GetId(), wxEVT_WEBVIEW_LOADED,
 					wxWebViewEventHandler(WebViewHelpWin::OnDocumentLoaded),
