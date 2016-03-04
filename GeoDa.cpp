@@ -1531,13 +1531,12 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		//if (is_new_project || unsaved_ds_data || unsaved_ds_data) {
 		if (unsaved_ds_data) {
 
-			title = "Close with unsaved changes?";
+			title = "Do you want to save your data?";
 			
 			msg << "\n";			
 			
-			msg << "There are unsaved data source or time definition changes.\n\n";
+			msg << "There are unsaved data source or time definition changes.";
 			
-			msg << "Do you want to save your changes?";
 			
 			wxMessageDialog msgDlg(this, msg, title,
 								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
