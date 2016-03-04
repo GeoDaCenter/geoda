@@ -256,8 +256,8 @@ void FileDataSource::ReadPtree(const ptree& pt,
         if (!wxFileExists(file_repository_path)) {
             wxString msg;
             msg << "The GeoDa project file cannot find one or more associated data sources.\n\n";
-            msg << "Details: Datasource not exists: " << file_repository_path;
-            msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the datasource associated with your project.";
+            msg << "Details: GeoDa is looking for: " << file_repository_path;
+            msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.";
             
             throw GdaException(msg.mb_str());
         }
