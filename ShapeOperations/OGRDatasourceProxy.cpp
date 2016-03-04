@@ -98,12 +98,12 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
     
 	if(ds == NULL ) {
 		// driver failed to load
-		error_message << "Internal Error: GeoDa can't create output driver. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
+		error_message << "Unfortunately, GeoDa is not able to execute this request. \n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
     if(!ds->TestCapability(ODsCCreateLayer)) {
 		// driver failed to load
-		error_message << "GeoDa can't write layer to this datasource. Please contact GeoDa admin. \n\nDetails: "<< CPLGetLastErrorMsg();
+		error_message << "GeoDa can't write layer to this datasource. \n\nDetails: "<< CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }
     
