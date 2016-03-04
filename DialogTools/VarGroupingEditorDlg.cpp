@@ -97,7 +97,7 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 			   VarGroupingEditorDlg::OnNewGroupHelp )
 	EVT_BUTTON( XRCID("ID_CUR_GROUPED_HELP"),
 			   VarGroupingEditorDlg::OnCurGroupedHelp )
-	EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_TABLE"),
+	EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_HELP"),
 			   VarGroupingEditorDlg::OnSaveSTHelp )
 
     EVT_BUTTON( XRCID("ID_TIME_LOAD_FROM_GDA"),
