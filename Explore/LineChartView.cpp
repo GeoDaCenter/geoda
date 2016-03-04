@@ -145,25 +145,11 @@ regReportDlg(0)
         int time = v_info[0].time;
     	var_man.AppendVar(name, min_vals, max_vals, time);
      
-        if (min_vals.size() > 0) {
-            double tmp_min = min_vals[0];
-            for (int i=0; i<min_vals.size(); i++) {
-                if (min_vals[i] < tmp_min ) {
-                    tmp_min = min_vals[i];
-                }
-            }
-            def_y_min << tmp_min;
-            double tmp_max = max_vals[0];
-            for (int i=0; i<max_vals.size(); i++) {
-                if (max_vals[i] > tmp_max ) {
-                    tmp_max = max_vals[i];
-                }
-            }
-            def_y_max << tmp_max;
-        }
         
     	UpdateDataMapFromVarMan();
     	SetupPanelForNumVariables(var_man.GetVarsCount());
+        
+        
     	Refresh();
 	}
     
@@ -281,11 +267,11 @@ void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
     AdjustYAxisDlg dlg(def_y_min, def_y_max, this);
     if (dlg.ShowModal () != wxID_OK) return;
     
-    def_y_min = dlg.s_min_val;
-    def_y_max = dlg.s_max_val;
+    wxString y_min = dlg.s_min_val;
+    wxString y_max = dlg.s_max_val;
     
     for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-        line_charts[i]->UpdateYAxis(def_y_min, def_y_max);
+        line_charts[i]->UpdateYAxis(y_min, y_max);
         line_charts[i]->UpdateAll();
     }
     
@@ -914,6 +900,7 @@ void LineChartFrame::update(HLStateInt* o)
 		lc_stats[i]->UpdateOtherStats();
 	}
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->UpdateYAxis();
 		line_charts[i]->UpdateAll();
 	}
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
@@ -933,6 +920,7 @@ void LineChartFrame::update(TableState* o)
 		lc_stats[i]->UpdateOtherStats();
 	}
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->UpdateYAxis();
 		line_charts[i]->UpdateAll();
 	}
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
@@ -1057,6 +1045,7 @@ void LineChartFrame::notifyNewSelection(const std::vector<bool>& tms_sel,
 	}
 	
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->UpdateYAxis();
 		line_charts[i]->UpdateAll();
 	}
 	
@@ -1232,6 +1221,21 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	UpdateTitleText();
 	panel_h_szr->RecalcSizes();
+    
+    double y_min = lc_stats[0]->Y_avg_min;
+    double y_max = lc_stats[0]->Y_avg_max;
+    for (int i=0; i< lc_stats.size(); i++){
+        if (y_min > lc_stats[i]->Y_avg_min)
+            y_min = lc_stats[i]->Y_avg_min;
+        if (y_max < lc_stats[i]->Y_avg_max)
+            y_max = lc_stats[i]->Y_avg_max;
+    }
+    
+    double y_pad = 0.1 * (y_max - y_min);
+    def_y_min << floor(y_min - y_pad);
+    def_y_max << y_max + y_pad;
+
+    
 	Refresh();
 	LOG_MSG("Exiting LineChartFrame::SetupPanelForNumVariables");
 }

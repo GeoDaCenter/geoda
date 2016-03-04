@@ -51,7 +51,7 @@ class LineChartCanvas : public TemplateCanvas
 	
 	virtual void UpdateAll();
     
-    void UpdateYAxis(wxString y_min, wxString y_max);
+    void UpdateYAxis(wxString y_min="", wxString y_max="");
 
 	
 protected:
