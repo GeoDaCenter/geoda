@@ -40,6 +40,7 @@
 #include "../GenUtils.h"
 #include "../GdaConst.h"
 #include "CorrelParamsObservable.h"
+#include "CorrelogramAlgs.h"
 
 class Project;
 

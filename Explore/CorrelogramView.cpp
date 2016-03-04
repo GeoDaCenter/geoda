@@ -74,8 +74,10 @@ hist_plot(0), local_hl_state(0), message_win(0)
 	DisplayStatusBar(true);
 	
 	local_hl_state->SetSize(par.bins);
+    
 	UpdateDataMapFromVarMan();
 	UpdateCorrelogramData();
+    
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	
     
@@ -718,6 +720,15 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	}	else if (par.method == CorrelParams::RAND_SAMP_THRESH) {
 		success = MakeCorrRandSamp(pts, Z, is_arc, (is_arc ? th_rad : par.threshold), par.bins,  par.max_iterations, cbins);
 	}
+    
+    if (success == false) {
+        wxString msg = "Select Variable doesn't have valid values for computing correlogram. Please select another variable.";
+        wxString title = "Variable Value Error";
+        wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return success;
+    }
+    
 	if (success && par.bins != local_hl_state->GetHighlightSize()) {
 		local_hl_state->SetSize(par.bins);
 	}

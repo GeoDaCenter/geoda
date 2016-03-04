@@ -314,6 +314,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 			max_iter_tctrl->ChangeValue(sf);
 		}
 	}
+    bool valid_variable = true;
 	{
 		// update var_man with new selection
 		int vc_sel = var_choice->GetSelection();
@@ -332,15 +333,36 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 				std::vector<double> min_vals;
 				std::vector<double> max_vals;
 				table_int->GetMinMaxVals(col_id, min_vals, max_vals);
+                for (int i=0; i<min_vals.size(); i++) {
+                    if (min_vals[0] ==0 && max_vals[0] == 0) {
+                        valid_variable = false;
+                        break;
+                    }
+                }
 				var_man.AppendVar(var_nm, min_vals, max_vals, time);
 			}
-		}
+            
+            double mean = 0;
+            double var = 0;
+            vector<double> vals;
+            table_int->GetColData(col_id, 0, vals);
+            CorrelogramAlgs::GetSampMeanAndVar(vals, mean, var);
+            if (var <= 0) {
+                wxString msg = "Non-positive variance calculated. Please make sure selected Variable has valid values.";
+                wxString title = "Variable Value Error";
+                wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                valid_variable = false;
+            }
+		}        
 	}
 	int var_man_cnt = var_man.GetVarsCount();
 
-    
-    EndModal(wxID_OK);
-    Destroy();
+    if (valid_variable == true) {
+
+        EndModal(wxID_OK);
+        Destroy();
+    }
 }
 
 
