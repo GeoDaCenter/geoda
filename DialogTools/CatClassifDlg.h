@@ -172,6 +172,11 @@ public:
 	void OnButtonDelete(wxCommandEvent& event);
 	void OnButtonClose(wxCommandEvent& event);
 
+    void OnSaveCategories(wxCommandEvent& event);
+    void SaveCategories(const wxString& title,
+                        const wxString& label,
+                        const wxString& field_default);
+    
 	void ResetValuesToDefault();
 	void EnableControls(bool enable);
 	void InitFromCCData();
@@ -233,6 +238,8 @@ private:
 	CatClassifState* cc_state;
 	wxChoice* cur_cats_choice;
 	wxChoice* breaks_choice;
+    wxButton* save_categories_button;
+
 	wxButton* change_title_button;
 	wxButton* delete_button;
 	wxChoice* num_cats_choice;

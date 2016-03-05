@@ -209,6 +209,15 @@
             <size>-1,8d</size>
           </object>
           <object class="sizeritem">
+              <object class="wxButton" name="ID_CATEGORY_EDITOR_SAVE_CAT">
+                  <label>Save Categories to Table</label>
+              </object>
+          </object>
+          <object class="spacer">
+              <size>-1,8d</size>
+          </object>
+          
+          <object class="sizeritem">
             <object class="wxStaticLine" name="stline_id">
               <size>400,1</size>
               <style>wxLI_HORIZONTAL</style>
@@ -219,6 +228,7 @@
           <object class="spacer">
             <size>-1,8d</size>
           </object>
+          
           
           
           <!-- Edit Custom Breaks-->
@@ -741,7 +751,9 @@
               </object>
             </object>
           </object>
+          
         </object>
+        
       </object>
     </object>
   </object>

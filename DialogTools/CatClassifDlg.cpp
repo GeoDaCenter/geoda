@@ -44,6 +44,7 @@
 #include "../HighlightState.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "../logger.h"
+#include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 
 
@@ -610,6 +611,8 @@ bool int_win_pair_less(const int_win_pair_type& ind1,
 }
 
 BEGIN_EVENT_TABLE(CatClassifPanel, wxPanel)
+
+    EVT_BUTTON(XRCID("ID_CATEGORY_EDITOR_SAVE_CAT"), CatClassifPanel::OnSaveCategories)
 	EVT_CHOICE(XRCID("ID_CUR_CATS_CHOICE"), CatClassifPanel::OnCurCatsChoice)
 	EVT_CHOICE(XRCID("ID_BREAKS_CHOICE"), CatClassifPanel::OnBreaksChoice)
 	EVT_CHOICE(XRCID("ID_COLOR_SCHEME"), CatClassifPanel::OnColorSchemeChoice)
@@ -684,6 +687,7 @@ useScientificNotation(_useScientificNotation)
 	breaks_choice = wxDynamicCast(FindWindow(XRCID("ID_BREAKS_CHOICE")),
 								  wxChoice);
 
+    save_categories_button = wxDynamicCast(FindWindow(XRCID("ID_CATEGORY_EDITOR_SAVE_CAT")), wxButton);
 	change_title_button =
 		wxDynamicCast(FindWindow(XRCID("ID_CHANGE_TITLE")), wxButton);
 	delete_button =	wxDynamicCast(FindWindow(XRCID("wxID_DELETE")), wxButton);
@@ -1521,6 +1525,50 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 	}
 }
 
+void CatClassifPanel::OnSaveCategories(wxCommandEvent& event)
+{
+    wxString title = _("Save Categories to Table");
+    wxString label = _("Categories of ") + cc_data.assoc_db_fld_name;
+    SaveCategories(title, label, "CATEGORIES");
+}
+
+/** Mark each observation according to its
+ category with 1, 2, ...,#categories. */
+void CatClassifPanel::SaveCategories(const wxString& title,
+                                     const wxString& label,
+                                     const wxString& field_default)
+{
+    int col, tm;
+    table_int->DbColNmToColAndTm(cc_data.assoc_db_fld_name, col, tm);
+    std::vector<double> dd;
+    table_int->GetColData(col, tm, dd);
+    int num_cats = GetNumCats();
+    
+    
+    std::vector<SaveToTableEntry> data(1);
+    std::vector<wxInt64> dt(num_obs);
+    
+    data[0].type = GdaConst::long64_type;
+    data[0].l_val = &dt;
+    data[0].label = label;
+    data[0].field_default = field_default;
+    
+    for (int i=0; i<num_obs; i++ ) {
+        
+        double val = dd[i];
+        for (int j=0; j<cc_data.breaks.size(); j++) {
+            if (val < cc_data.breaks[i]) {
+                dt[i] = j+1;
+            }
+        }
+        
+    }
+    
+    SaveToTableDlg dlg(project, this, data,
+                       title, wxDefaultPosition, wxSize(500,400));
+    dlg.ShowModal();
+}
+
 void CatClassifPanel::OnButtonClose(wxCommandEvent& event)
 {
 	template_frame->Close();
@@ -1630,6 +1678,7 @@ void CatClassifPanel::EnableControls(bool enable)
 	cur_cats_choice->Enable(enable);
 	breaks_choice->Enable(enable);
 	change_title_button->Enable(enable);
+    save_categories_button->Enable(enable);
 	delete_button->Enable(enable);
 	num_cats_choice->Enable(enable);
 	auto_labels_cb->Enable(enable);
@@ -1781,9 +1830,10 @@ void CatClassifPanel::InitAssocVarChoices()
 	for (size_t i=0; i<names.size(); i++) {
 		assoc_var_choice->Append(names[i]);
 	}
-	assoc_var_choice->SetSelection(assoc_var_choice->
-										FindString(cur_fc_str));
+    
+	assoc_var_choice->SetSelection(assoc_var_choice->FindString(cur_fc_str));
 	assoc_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		assoc_var_tm_choice->SetSelection(0);
@@ -1809,12 +1859,14 @@ void CatClassifPanel::InitPreviewVarChoices()
 {
 	LOG_MSG("Entering CatClassifPanel::InitPreviewVarChoices");
 	if (!all_init) return;
+    
 	wxString cur_fc_str = preview_var_choice->GetStringSelection();
 	int cur_fc_tm_id = preview_var_tm_choice->GetSelection();
 	preview_var_choice->Clear();
 	preview_var_tm_choice->Clear();
 	std::vector<wxString> times;
 	project->GetTableInt()->GetTimeStrings(times);
+    
 	for (size_t i=0; i<times.size(); i++) {
 		preview_var_tm_choice->Append(times[i]);
 	}
@@ -1827,9 +1879,9 @@ void CatClassifPanel::InitPreviewVarChoices()
 	for (size_t i=0; i<names.size(); i++) {
 		preview_var_choice->Append(names[i]);
 	}
-	preview_var_choice->SetSelection(preview_var_choice->
-										FindString(cur_fc_str));
+	preview_var_choice->SetSelection(preview_var_choice->FindString(cur_fc_str));
 	preview_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		preview_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		preview_var_tm_choice->SetSelection(0);
@@ -1872,14 +1924,16 @@ void CatClassifPanel::InitCurCatsChoices()
 int CatClassifPanel::GetNumCats()
 {
 	if (!all_init) return default_intervals;
-	if (num_cats_choice->GetSelection() < 0) return default_intervals;
+	if (num_cats_choice->GetSelection() < 0)
+        return default_intervals;
 	return num_cats_choice->GetSelection()+1;
 }
 
 /** Sets num_cats_choice widget */
 void CatClassifPanel::SetNumCats(int num_cats)
 {
-	if (!all_init || num_cats < 1 || num_cats > max_intervals) return;
+	if (!all_init || num_cats < 1 || num_cats > max_intervals)
+        return;
 	num_cats_choice->SetSelection(num_cats-1);
 }
 
@@ -1981,9 +2035,8 @@ void CatClassifPanel::SetBreakValsTypeChoice(
 wxString CatClassifPanel::GetAssocDbFldNm()
 {
 	if (!assoc_var_choice || !assoc_var_tm_choice) return "";
-	if (assoc_var_choice->GetSelection() == 0) return "";
-	if (!assoc_var_choice->IsEnabled() ||
-		!assoc_var_choice->IsShown()) return "";
+	//if (assoc_var_choice->GetSelection() == 0) return "";
+	//if (!assoc_var_choice->IsEnabled() ) return "";
 	int tm = assoc_var_tm_choice->GetSelection();
 	if (tm < 0) tm = 0;
 	if (!assoc_var_tm_choice->IsEnabled() ||

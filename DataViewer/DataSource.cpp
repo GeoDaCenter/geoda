@@ -165,7 +165,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
     if (GdaConst::datasrc_str_to_type.find(data_type_name.ToStdString()) ==
         GdaConst::datasrc_str_to_type.end()) {
         stringstream ss;
-        ss << "datasource.type " << data_type_name << " unknown.";
+        ss << _("datasource.type ") << data_type_name << _(" unknown.");
         throw GdaException(ss.str().c_str());
     }
     
@@ -245,7 +245,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
         
 		if (ds_type == GdaConst::ds_unknown) {
 			stringstream ss;
-			ss << "datasource.type " << type_str << " unknown.";
+			ss << _("datasource.type ") << type_str << _(" unknown.");
 			throw GdaException(ss.str().c_str());
 		}
 		
@@ -255,9 +255,9 @@ void FileDataSource::ReadPtree(const ptree& pt,
         
         if (!wxFileExists(file_repository_path)) {
             wxString msg;
-            msg << "The GeoDa project file cannot find one or more associated data sources.\n\n";
-            msg << "Details: GeoDa is looking for: " << file_repository_path;
-            msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.";
+            msg << _("The GeoDa project file cannot find one or more associated data sources.\n\n");
+            msg << _("Details: GeoDa is looking for: ") << file_repository_path;
+            msg << _("\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
             
             throw GdaException(msg.mb_str());
         }
@@ -290,8 +290,7 @@ wxString FileDataSource::GetOGRConnectStr()
 	}
     
     wxString error_msg;
-    error_msg << "Datasource (" << file_repository_path << ") doesn't "
-              << "exist. Please check the project configuration file.";
+    error_msg << _("Data source (") << file_repository_path << _(") doesn't exist. Please check the project configuration file.");
     throw GdaException(error_msg.mb_str());
 }
 //------------------------------------------------------------------------------
@@ -326,7 +325,7 @@ void WebServiceDataSource::ReadPtree(const ptree& pt,
         
 		if (ds_type == GdaConst::ds_unknown) {
 			stringstream ss;
-			ss << "datasource.type " << type_str << " unknown.";
+			ss << _("datasource.type ") << type_str << _(" unknown.");
 			throw GdaException(ss.str().c_str());
 		}
 		
@@ -437,7 +436,7 @@ void DBDataSource::ReadPtree(const ptree& pt,
         
         if (ds_type == GdaConst::ds_unknown) {
             stringstream ss;
-            ss << "datasource.type " << type_str << " unknown.";
+            ss << _("datasource type ") << type_str << _(" unknown.");
             throw GdaException(ss.str().c_str());
         }
         
