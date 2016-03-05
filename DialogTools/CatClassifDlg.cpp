@@ -713,8 +713,9 @@ useScientificNotation(_useScientificNotation)
 	preview_var_choice->Clear();
 	//preview_var_choice->Append(unif_dist_txt);
 	//preview_var_choice->SetSelection(0);
-	preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
-
+	//preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
+    preview_var_tm_choice->Show(false);
+    
 	unif_dist_min_lbl = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_LBL")),
 									  wxStaticText);
 	unif_dist_min_txt = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_TXT")),
@@ -1556,11 +1557,17 @@ void CatClassifPanel::SaveCategories(const wxString& title,
     for (int i=0; i<num_obs; i++ ) {
         
         double val = dd[i];
-        for (int j=0; j<cc_data.breaks.size(); j++) {
-            if (val < cc_data.breaks[i]) {
+        bool found = false;
+        int j=0;
+        for (j=0; j<cc_data.breaks.size(); j++) {
+            if (val < cc_data.breaks[j]) {
                 dt[i] = j+1;
+                found = true;
+                break;
             }
         }
+        if (found == false)
+            dt[i] = j+1;
         
     }
     
@@ -2344,6 +2351,7 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
     preview_var_text->Show(false);
     preview_var_choice->Show(false);
     preview_var_tm_choice->Show(false);
+    
     sync_vars_chk->Show(false);
     
 	Connect(XRCID("ID_SYNC_VARS_CHK"), wxEVT_CHECKBOX,
