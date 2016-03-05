@@ -44,13 +44,20 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     ds_type = _ds_type;
     
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
-    const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
-	ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+    
+    
+    if (ds_type == GdaConst::ds_csv) {
+        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        
+    } else {
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
+    }
     
     is_writable = true;
 	if (!ds) {
         // try without UPDATE
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, papszOpenOptions, NULL);
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
         if (!ds) {
             // raise open fialed
             string error_detail = CPLGetLastErrorMsg();
