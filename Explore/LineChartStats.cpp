@@ -177,9 +177,14 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs)
 
 void LineChartStats::UpdateOtherStats()
 {
-	if (compare_time_periods) UpdateCompareTmsStats();
+	if (compare_time_periods)
+        UpdateCompareTmsStats();
+    
 	//if (compare_regimes) UpdateCompareRegimesStats();
-	if (compare_regimes || compare_r_and_t) UpdateCompareRegAndTmStats();
+    
+	if (compare_regimes || compare_r_and_t)
+        UpdateCompareRegAndTmStats();
+    
 	UpdateTtest();
 }
 

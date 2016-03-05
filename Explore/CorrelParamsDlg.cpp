@@ -348,7 +348,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
             table_int->GetColData(col_id, 0, vals);
             CorrelogramAlgs::GetSampMeanAndVar(vals, mean, var);
             if (var <= 0) {
-                wxString msg = "Non-positive variance calculated. Please make sure selected Variable has valid values.";
+                wxString msg = "Please check your variable, e.g. make sure it is not a constant.";
                 wxString title = "Variable Value Error";
                 wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
                 dlg.ShowModal();
