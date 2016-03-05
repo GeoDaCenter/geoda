@@ -3205,12 +3205,12 @@
         <label>Show</label>
 
         <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-            <label>Display Statistics</label>
+            <label>Statistics</label>
             <checkable>1</checkable>
             <checked>0</checked>
         </object>
         <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-            <label>Show Status Bar</label>
+            <label>Status Bar</label>
             <checkable>1</checkable>
             <checked>1</checked>
         </object>
@@ -3441,17 +3441,17 @@
             <checked>1</checked>
         </object>
         <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-            <label>Display Statistics</label>
+            <label>Statistics</label>
             <checkable>1</checkable>
             <checked>1</checked>
         </object>
         <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
-            <label>Show Axes Through Origin</label>
+            <label>Axes Through Origin</label>
             <checkable>1</checkable>
             <checked>1</checked>
         </object>
         <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-            <label>Show Status Bar</label>
+            <label>Status Bar</label>
             <checkable>1</checkable>
             <checked>1</checked>
         </object>
