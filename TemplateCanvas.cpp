@@ -918,6 +918,7 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     if (layer2_bm) {
     	wxSize sz = GetClientSize();
     	wxMemoryDC dc(*layer2_bm);
+        
     	wxPaintDC paint_dc(this);
     	paint_dc.Clear();
     	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
@@ -2347,13 +2348,13 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					UpdateSelectRegion();
 					UpdateSelection(remember_shiftdown);
 					UpdateStatusBar();
-					Refresh();
+					Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				UpdateSelectRegion();
 				UpdateSelection(event.ShiftDown(), true);
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			} else if (event.RightDown()) {
 				selectstate = start;
 			}
@@ -2363,14 +2364,14 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelectRegion();
 				UpdateSelection(remember_shiftdown);
 				UpdateStatusBar();
-				Refresh();
+				Refresh(false);
 			} else if (event.LeftUp() && !event.CmdDown()) {
 				sel2 = GetActualPos(event);
 				UpdateSelectRegion();
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			} else if (event.LeftUp() && event.CmdDown()) {
 				selectstate = brushing;
 				sel2 = GetActualPos(event);
@@ -2378,7 +2379,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelectRegion(false, diff);
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
-				Refresh();
+				Refresh(false);
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}			
@@ -2386,7 +2387,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 			if (event.LeftIsDown()) {
 			} else if (event.LeftUp()) {
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			}
 			else if (event.RightDown()) {
 				selectstate = start;
@@ -2398,7 +2399,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateStatusBar();
 				UpdateSelectRegion(true, diff);
 				UpdateSelection();
-				Refresh();
+				Refresh(false);
 			}
 		} else { // unknown state
 			LOG_MSG("TemplateCanvas::OnMouseEvent: ERROR, unknown SelectState");
@@ -2423,7 +2424,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					sel2 = GetActualPos(event);
 					selectstate = dragging;
 					remember_shiftdown = event.ShiftDown();
-					Refresh();
+					Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				if (event.ShiftDown() || event.CmdDown() || mousemode == zoomout) {
@@ -2440,21 +2441,21 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					ZoomShapes(false);
 				}
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			} else if (event.RightDown()) {
 				selectstate = start;
 			}
 		} else if (selectstate == dragging) {
 			if (event.Dragging()) { // mouse moved while buttons still down
 				sel2 = GetActualPos(event);
-				Refresh();
+				Refresh(false);
 			} else if (event.LeftUp() ) {
 				sel2 = GetActualPos(event);
 				remember_shiftdown = event.ShiftDown() || event.CmdDown() || mousemode == zoomout;
 				ZoomShapes(!remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}			
@@ -2481,13 +2482,13 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					//UpdateSelectRegion();
 					//UpdateSelection(remember_shiftdown);
 					//UpdateStatusBar();
-					Refresh();
+					Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				//UpdateSelectRegion();
 				//UpdateSelection(event.ShiftDown(), true);
 				selectstate = start;
-				Refresh();
+				Refresh(false);
 			} else if (event.RightDown()) {
 				selectstate = start;
 			}
@@ -2497,7 +2498,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				//UpdateSelectRegion();
 				//UpdateSelection(remember_shiftdown);
 				//UpdateStatusBar();
-				Refresh();
+				Refresh(false);
 			} else if (event.LeftUp() ) {
 				sel2 = GetActualPos(event);
 				//UpdateSelectRegion();
@@ -2505,7 +2506,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				remember_shiftdown = false;
 				selectstate = start;
 				PanShapes();
-				Refresh();
+				Refresh(false);
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}			
