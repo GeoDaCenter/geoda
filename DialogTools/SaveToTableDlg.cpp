@@ -68,7 +68,7 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
 {
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(190, 30));
+		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(-1, 30));
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));

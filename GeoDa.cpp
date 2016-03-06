@@ -3471,6 +3471,14 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
         return;
     }
     
+    int col_idx = VS.col_ids[0];
+    if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
+        table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
+        wxMessageDialog dlg (this, "The selected variable is not numeric type. Please select another variable", "Variable Type Error", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
     boost::uuids::uuid w_id = VS.GetWeightsId();
     if (w_id.is_nil())
         return;
@@ -3482,6 +3490,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
+    
     
     LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
                                               VS.var_info, VS.col_ids,
@@ -3680,6 +3689,15 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     
     DiffMoranVarSettingDlg VS(project_p);
 	if (VS.ShowModal() != wxID_OK) return;
+    
+    int col_idx = VS.col_ids[0];
+    if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
+        table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
+        wxMessageDialog dlg (this, "The selected variable is not numeric type. Please select another variable", "Variable Type Error", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
 
@@ -3694,6 +3712,8 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
+    
+    
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
