@@ -516,9 +516,10 @@ void LineChartStats::UpdateTtest()
         fisher_f dist(df_treat, df_res);
         double q = cdf(complement(dist, fabs(f_val)));
         
+        deg_free = (obs_sz_i-1);
         test_stat = f_val;
-        deg_free = df_tot;
         p_val = q;
+        
         /*
 		test_stat = (s0.mean-s1.mean) / sqrt(s0.var/s0.sz_d + s1.var/s1.sz_d);
 	
@@ -573,8 +574,18 @@ void LineChartStats::UpdateTtest()
                 
                 fisher_f dist(df_treat, df_res);
                 double q = cdf(complement(dist, fabs(f_val)));
-                
-                deg_free_c[c] = df_tot;
+                /*
+                if (si.sz_d == sj.sz_d) {
+                    if (i == 0 || i == 2)
+                        deg_free_c[c] = (sel_sz_i - 1 );
+                    else
+                        deg_free_c[c] = (excl_sz_i -1);
+                    
+                } else {
+                    deg_free_c[c] = (obs_sz_i - 1);
+                }
+                */
+                deg_free_c[c] = (obs_sz_i - 1);
                 test_stat_c[c] = f_val;
                 p_val_c[c] = q;
                 /*
