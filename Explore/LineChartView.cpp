@@ -1726,16 +1726,17 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     
     
 	if (lcs.test_stat_valid && !cmp_r_t) {
-        s<< "<br/>T-Test: Do Means Differ?<br/><br/>";
+        s<< "<br/>Do Means Differ? (ANOVA)<br/><br/>";
 		s<< "<table>";
 		s<< "<tr>";
 		s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
-        _s << std::fixed << std::setprecision(2) << lcs.deg_free;
+        _s << (int)lcs.deg_free;
+        _s << std::fixed << std::setprecision(2);
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
-		s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">T Stat&nbsp;</td>";
+		s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">F-val&nbsp;</td>";
         _s.str("");
         _s << lcs.test_stat;
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
@@ -1752,12 +1753,12 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	}
 	
 	if (cmp_r_t) {
-        s<< "<br/>T-Test: Do Means Differ?<br/><br/>";
+        s<< "<br/>Do Means Differ? (ANOVA)<br/><br/>";
 		s<< "<table>";
 		s<< "<tr bgcolor=\"#CCCCCC\">";
 		s<< "<td align=\"center\">&nbsp;Compare&nbsp;</td>";
 		s<< "<td align=\"center\">&nbsp;D.F.&nbsp;</td>";
-		s<< "<td align=\"center\">&nbsp;T Stat&nbsp;</td>";
+		s<< "<td align=\"center\">&nbsp;F-val&nbsp;</td>";
 		s<< "<td align=\"center\">&nbsp;p-val</td>";
 		s<< "</tr>";
 		size_t c=0;
@@ -1771,8 +1772,9 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     				s<< "<td align=\"center\">" << i+1 <<"&nbsp;vs&nbsp;"<< j+1 << "</td>";
     				if (lcs.test_stat_valid_c[c]) {
                         stringstream _s;
+                        _s << (int)lcs.deg_free_c[c];
                         _s << std::fixed << std::setprecision(2);
-                        _s << lcs.deg_free_c[c];
+
                         
     					s<< "<td align=\"right\">" << _s.str() << "&nbsp;</td>";
                         

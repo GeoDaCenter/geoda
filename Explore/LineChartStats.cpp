@@ -21,6 +21,7 @@
 #include <limits>
 #include <math.h>
 #include <boost/math/distributions/students_t.hpp>
+#include <boost/math/distributions/fisher_f.hpp>
 #include "../logger.h"
 #include "LineChartStats.h"
 
@@ -488,11 +489,42 @@ void LineChartStats::UpdateTtest()
 	using namespace boost::math;
 	test_stat_valid = false;
 	if (s0.var_v && s1.var_v) {
+        
+        double mu = (s0.mean * s0.sz_d + s1.mean * s1.sz_d ) /
+        (s0.sz_d + s1.sz_d);
+        
+        double est_eff_i = s0.mean - mu;
+        double est_eff_j = s1.mean - mu;
+        
+        double ss_treat = est_eff_i * est_eff_i * s0.sz_d +
+        est_eff_j * est_eff_j * s1.sz_d;
+        
+        double ss_res = s0.var * (s0.sz_d -1) + s1.var * (s1.sz_d -1);
+        
+        double ss_tot = ss_treat + ss_res;
+        
+        double df_treat = 2 - 1;
+        double df_tot = s0.sz_d + s1.sz_d -1;
+        double df_res = df_tot - df_treat;
+        
+        double MS_treat = ss_treat / df_treat;
+        
+        double MS_res = ss_res / df_res;
+        
+        double f_val = MS_treat / MS_res;
+        
+        fisher_f dist(df_treat, df_res);
+        double q = cdf(complement(dist, fabs(f_val)));
+        
+        test_stat = f_val;
+        deg_free = df_tot;
+        p_val = q;
+        /*
 		test_stat = (s0.mean-s1.mean) / sqrt(s0.var/s0.sz_d + s1.var/s1.sz_d);
 	
 		// Estimating the combined degrees of freedom we using the
-		// Welch-Satterthwaite approximation: 
-		deg_free = pow(s0.var/s0.sz_d + s1.var/s1.sz_d, 2) / 
+		// Welch-Satterthwaite approximation:
+		deg_free = pow(s0.var/s0.sz_d + s1.var/s1.sz_d, 2) /
 		(pow(s0.var/s0.sz_d,2)/(s0.sz_d-1) + 
 		 pow(s1.var/s1.sz_d,2)/(s1.sz_d-1) );
 	
@@ -504,6 +536,7 @@ void LineChartStats::UpdateTtest()
 		msg << "Probability that difference is due to chance" << " =  ";
 		msg << p_val;
 		LOG_MSG(msg);
+         */
 		test_stat_valid = true;
 	}
 	
@@ -514,6 +547,38 @@ void LineChartStats::UpdateTtest()
 			const SampStats& sj = *ss_ptrs[j];
 			test_stat_valid_c[c] = false;
 			if (si.var_v && sj.var_v) {
+                
+                double mu = (si.mean * si.sz_d + sj.mean * sj.sz_d ) /
+                            (si.sz_d + sj.sz_d);
+                
+                double est_eff_i = si.mean - mu;
+                double est_eff_j = sj.mean - mu;
+                
+                double ss_treat = est_eff_i * est_eff_i * si.sz_d +
+                                    est_eff_j * est_eff_j * sj.sz_d;
+                
+                double ss_res = si.var * (si.sz_d -1) + sj.var * (sj.sz_d -1);
+                
+                double ss_tot = ss_treat + ss_res;
+                
+                double df_treat = 2 - 1;
+                double df_tot = si.sz_d + sj.sz_d -1;
+                double df_res = df_tot - df_treat;
+                
+                double MS_treat = ss_treat / df_treat;
+                
+                double MS_res = ss_res / df_res;
+                
+                double f_val = MS_treat / MS_res;
+                
+                fisher_f dist(df_treat, df_res);
+                double q = cdf(complement(dist, fabs(f_val)));
+                
+                deg_free_c[c] = df_tot;
+                test_stat_c[c] = f_val;
+                p_val_c[c] = q;
+                /*
+                // following is t-test
 				test_stat_c[c] = ((si.mean-sj.mean) /
 								  sqrt(si.var/si.sz_d + sj.var/sj.sz_d));
 				
@@ -531,7 +596,9 @@ void LineChartStats::UpdateTtest()
 				msg << "Probability avg s"<<i<<", s"<<j<<" diff ";
 				msg << "due to chance:  " << p_val_c[c];
 				LOG_MSG(msg);
+                 */
 				test_stat_valid_c[c] = true;
+                
 			}
 			++c;
 		}
