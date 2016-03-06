@@ -1148,7 +1148,7 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	
 	for (int i=0; i<nX; i++) {
 		slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
-		slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
+		slog << wxString::Format("  %12.6g   %12.6g   %12.6g   %9.5f\n",
 								 r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i)); cnt++;
 	}
@@ -1330,7 +1330,7 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
 		slog << GenUtils::PadTrim(wxString(r->GetXVarName(i)), 18);
-		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
+		f = "  %12.6g   %12.6g   %12.6g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}
@@ -1456,7 +1456,7 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	slog << "-------------------------------------\n"; cnt++;
 	for (int i=0; i<nX+1; i++) {
 		slog << GenUtils::PadTrim(wxString(r->GetXVarName(i)), 18);
-		f = "  %12.7g   %12.7g   %12.7g   %9.5f\n"; cnt++;
+		f = "  %12.6g   %12.6g   %12.6g   %9.5f\n"; cnt++;
 		slog << wxString::Format(f, r->GetCoefficient(i), r->GetStdError(i),
 								 r->GetZValue(i), r->GetProbability(i));
 	}

@@ -1861,7 +1861,7 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     
     for (int i=0; i<nX; i++) {
         slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
-        slog << wxString::Format("  %12.7g   %12.7g   %12.7g   %9.5f\n",
+        slog << wxString::Format("  %12.6g   %12.6g   %12.6g   %9.5f\n",
                                  r->GetCoefficient(i), r->GetStdError(i),
                                  r->GetZValue(i), r->GetProbability(i)); cnt++;
     }

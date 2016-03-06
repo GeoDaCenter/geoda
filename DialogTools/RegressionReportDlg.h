@@ -39,7 +39,7 @@ public:
         wxWindowID id = wxID_ANY,
         const wxString& caption = "Regression Report",
         const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxSize(650, 480),
+        const wxSize& size = wxSize(680, 480),
         long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
 
     void CreateControls();
