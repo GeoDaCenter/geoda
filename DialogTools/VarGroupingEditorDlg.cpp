@@ -462,6 +462,7 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
     InitAll();
 	UpdateButtons();
 	GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
+    event.Skip();
 }
 
 
@@ -511,6 +512,7 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 	UpdateTimeStepsTxt();
 
 	UpdateButtons();
+    event.Skip();
 }
 
 /** Shift selected items, including selection highlighting,
@@ -1030,8 +1032,10 @@ void VarGroupingEditorDlg::UpdateAddToListButton()
 	// Enable add to list button when following conditions are met:
 
 	// 1) Non-empty selection
-	int sel_cnt = ungrouped_list->GetSelectedItemCount();
-	if (sel_cnt == 0) {
+    
+	//int sel_cnt = ungrouped_list->GetSelectedItemCount();
+    int sel_cnt = GetListSel(ungrouped_list).size();
+    if (sel_cnt == 0) {
 		add_to_list_button->Enable(false);
 		return;
 	}

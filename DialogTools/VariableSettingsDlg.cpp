@@ -227,8 +227,24 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    event.Skip();
-    EndDialog(wxID_OK);
+    //event.Skip();
+    
+    bool check_group_var = true;
+    try {
+        for (int i=0; i<col_ids.size(); i++) {
+            project->GetTableInt()->GetColTypes(col_ids[i]);
+        }
+    } catch(GdaException& ex) {
+        // place holder found
+        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
+        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        check_group_var = false;
+    }
+    
+    if (check_group_var == true)
+        EndDialog(wxID_OK);
+    
 }
 
 boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
@@ -759,8 +775,23 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		project->SetDefaultDistUnits(GetDistanceUnits());
 	}
 	
-	event.Skip();
-	EndDialog(wxID_OK);
+    
+    bool check_group_var = true;
+    try {
+        for (int i=0; i<col_ids.size(); i++) {
+            project->GetTableInt()->GetColTypes(col_ids[i]);
+        }
+    } catch(GdaException& ex) {
+        // place holder found
+        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
+        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        check_group_var = false;
+    }
+
+    if (check_group_var == true)
+        EndDialog(wxID_OK);
+    
 }
 
 // Theme choice for Rate Smoothed variable settings

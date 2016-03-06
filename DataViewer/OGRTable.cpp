@@ -493,7 +493,8 @@ GdaConst::FieldType OGRTable::GetColType(int col)
 	for (int t=0; t<ts; ++t) {
 		type = GetColType(col, t);
 		if (type != GdaConst::placeholder_type &&
-			type != GdaConst::unknown_type) return type;
+			type != GdaConst::unknown_type)
+            return type;
 	}
 	return type;
 }
@@ -504,6 +505,9 @@ std::vector<GdaConst::FieldType> OGRTable::GetColTypes(int col)
 	std::vector<GdaConst::FieldType> ret(ts);
 	for (size_t t=0; t<ts; ++t) {
 		ret[t] = GetColType(col, t);
+        if (ret[t] == GdaConst::placeholder_type) {
+            throw GdaException("Placeholder found in grouped column.");
+        }
 	}
 	return ret;
 }
