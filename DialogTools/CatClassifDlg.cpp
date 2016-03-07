@@ -991,9 +991,14 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	{
 		cc_data.break_vals_type = CatClassification::custom_break_vals;
 	} else {
+        if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
+            CatClassification::PickColorSet(cc_data.colors,
+                                            cc_data.color_scheme,
+                                            new_num_cats, false);
+        }
         if (cc_data.num_cats > 1) {
             for (size_t i=0; i<new_num_cats; i++) {
-                cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+                cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
             }
         } else if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
             // if create more than one breaks from themeless map,
