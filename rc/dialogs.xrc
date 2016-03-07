@@ -7911,7 +7911,7 @@
           <orient>wxVERTICAL</orient>
           <object class="sizeritem">
             <object class="wxStaticText" name="IDC_STATIC">
-                <label>Select whether to use periods or commas as separators in numeric fields. \n\nE.g., by default, GeoDa uses commas to separate thousands and periods for decimals (1,000.00).
+                <label>\nSelect whether to use periods or commas as\nseparators in numeric fields. \n\nE.g., by default, GeoDa uses commas to\nseparate thousands and periods\nfor decimals (1,000.00).
                 </label>
             </object>
             <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
