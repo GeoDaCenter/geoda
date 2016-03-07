@@ -1687,7 +1687,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         if (cmp_r_t)
             s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
-		s<< "<td align=\"right\">" << lcs.s0.sz_i << "</td>";
+		s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
 		s<< td_s0_mean;
 		s<< "<td align=\"right\">" << sd0 << "</td>";
 		s<< "</tr>";
@@ -1700,7 +1700,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         if (cmp_r_t)
             s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
-		s<< "<td align=\"right\">" << lcs.s1.sz_i << "</td>";
+		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
 		s<< td_s1_mean;
 		s<< "<td align=\"right\">" << sd1 << "</td>";
 		s<< "</tr>";
@@ -1709,13 +1709,13 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	if (cmp_r_t && !single_sample) {
 		s<< "<tr>";
 		s<< "<td align=\"left\">3. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
-		s<< "<td align=\"right\">" << lcs.s2.sz_i << "</td>";
+		s<< "<td align=\"right\">" << lcs.sel_sz_i  << "</td>";
 		s<< td_s2_mean;
 		s<< "<td align=\"right\">" << sd2 << "</td>";
 		s<< "</tr>";
 		s<< "<tr>";
 		s<< "<td align=\"left\">4. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
-		s<< "<td align=\"right\">" << lcs.s3.sz_i << "</td>";
+		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
 		s<< td_s3_mean;
 		s<< "<td align=\"right\">" << sd3 << "</td>";
 		s<< "</tr>";
