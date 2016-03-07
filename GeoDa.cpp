@@ -3474,7 +3474,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     int col_idx = VS.col_ids[0];
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
-        wxMessageDialog dlg (this, "The selected variable is not numeric type. Please select another variable", "Variable Type Error", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "The selected variable is not numeric. Please select another variable.", "Variable Type Error", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3693,7 +3693,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     int col_idx = VS.col_ids[0];
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
-        wxMessageDialog dlg (this, "The selected variable is not numeric type. Please select another variable", "Variable Type Error", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, "The selected variable is not numeric. Please select another variable.", "Variable Type Error", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
