@@ -1405,7 +1405,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		for (size_t i=0; i<htmlMenuItems.size(); ++i) {
 			html_menu->Append(base_id++, htmlMenuItems[i].menu_title);
 		}
-		exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
+		//exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
 	
     
