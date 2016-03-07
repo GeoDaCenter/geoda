@@ -242,7 +242,7 @@
         </object>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
-        <label>Setup Number Separators</label>
+        <label>Set Number Separators</label>
       </object>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
@@ -3983,7 +3983,7 @@
       </object>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
-      <label>Setup Number Separators</label>
+      <label>Set Number Separators</label>
     </object>
     <label>Table</label>
   </object>
