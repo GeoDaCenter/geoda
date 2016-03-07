@@ -4093,7 +4093,7 @@
     </object>
   </object>
   <object class="wxMenu" name="ID_MORAN_MENU">
-    <label>Moran's I Scatter Plots</label>
+    <label>Moran Scatter Plots</label>
     <object class="wxMenuItem" name="IDM_MSPL">
       <label>Univariate Moran's I</label>
     </object>

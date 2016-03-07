@@ -920,7 +920,8 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     	wxMemoryDC dc(*layer2_bm);
         
     	wxPaintDC paint_dc(this);
-    	paint_dc.Clear();
+        // this line cause flicking on windows machine
+    	//paint_dc.Clear();
     	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
     	
     	// Draw the the selection region if needed
