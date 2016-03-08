@@ -817,6 +817,7 @@ void VarGroupingEditorDlg::OnIncludePopupClick(wxCommandEvent &evt)
     } else if (menu_id == XRCID("INCLUDE_DELETE_TIME")) {
         includeListDeleteTime();
     }
+    evt.Skip();
 }
 
 void VarGroupingEditorDlg::OnIncludeListItemActivate( wxListEvent& event )
@@ -860,13 +861,15 @@ void VarGroupingEditorDlg::includeListAddNewTime()
 
 void VarGroupingEditorDlg::includeListDeleteTime()
 {
+    
     std::list<int> sels = GetListSel(include_list);
     sels.sort();
     sels.reverse();
     if (!sels.empty()) {
         BOOST_FOREACH(int i, sels) {
             include_list->DeleteItem(i);
-            table_int->RemoveTimeStep(i);
+            if (table_int->GetTimeSteps()>1)
+                table_int->RemoveTimeStep(i);
         }
     }
 
@@ -898,6 +901,8 @@ void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
                 wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
                 NULL, this);
     PopupMenu(&mnu);
+    
+    event.Skip();
 }
 
 void VarGroupingEditorDlg::OnRemoveFrListClick( wxCommandEvent& event )
@@ -1023,8 +1028,7 @@ void VarGroupingEditorDlg::UpdateGroupButton()
 {
 	group_button->Enable(!new_group_name_txt_ctrl->GetValue().IsEmpty() &&
 						 (GetIncListNameCnt() == table_int->GetTimeSteps() ||
-						  table_int->GetTimeSteps() == 1) &&
-						 GetIncListNonPlaceholderCnt() > 0);
+						  table_int->GetTimeSteps() == 1) );
 }
 
 void VarGroupingEditorDlg::UpdateAddToListButton()
