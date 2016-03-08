@@ -129,6 +129,8 @@ protected:
 	int GetIncListNonPlaceholderCnt();
     wxString GenerateTimeLabel();
 	
+    bool is_editing;
+    
 	bool all_init;
 	wxButton* group_button;
 	wxButton* ungroup_button;

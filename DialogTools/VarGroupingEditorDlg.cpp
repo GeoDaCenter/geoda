@@ -893,6 +893,7 @@ void VarGroupingEditorDlg::OnIncludeListDblClicked( wxMouseEvent& event)
 
 void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
 {
+    if (!is_editing) {
     wxMenu mnu;
     int id1 = XRCID("INCLUDE_ADD_TIME");
     mnu.Append(id1, 	"Add Time");
@@ -901,6 +902,7 @@ void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
                 wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
                 NULL, this);
     PopupMenu(&mnu);
+    }
     
     event.Skip();
 }
@@ -970,11 +972,13 @@ void VarGroupingEditorDlg::OnIncludeListEdit( wxListEvent& event )
 {
     wxListItem item = event.GetItem();
     wxString val = item.GetText();
+    is_editing = true;
 }
 
 
 void VarGroupingEditorDlg::OnIncludeListEditEnd( wxListEvent& event )
 {
+    is_editing = false;
     if (event.IsEditCancelled())
         return;
     
