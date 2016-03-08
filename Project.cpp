@@ -235,7 +235,14 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
     
     if (layername == _layername) {
         // we only update Custom Categories
+        // first correct variable_order
+        std::vector<wxString> var_list;
+        std::map<wxString, GdaConst::FieldType> var_type_map;
+        layer_proxy->GetVarTypeMap(var_list, var_type_map);
+        
         VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
+        variable_order->CorrectVarGroups(var_type_map, var_list);
+        
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
     } else {
@@ -514,6 +521,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 			delete geometries[i];
 		}
 	} catch( GdaException& e ) {
+        
 		// clean intermedia memory
 		for (size_t i=0; i < geometries.size(); i++) {
 			delete geometries[i];

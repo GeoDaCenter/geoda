@@ -32,7 +32,8 @@ public:
     typedef enum { 
 		NORMAL = 0, 
 		WARNING = 1, 
-		CRITICLE = 2
+		CRITICLE = 2,
+        FIELD_NAME_EMPTY = 3
 	} Type;
 
     GdaException() {}

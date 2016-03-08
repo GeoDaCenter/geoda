@@ -311,6 +311,11 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             for ( int t=0; t < time_steps; t++ ) {
                 wxString fname = table->GetColName(id, t);
+                if (fname.IsEmpty()) {
+                    wxString msg;
+                    msg << "Field name is empty at position: " << id << " and time " << t;
+                    throw GdaException(msg.mb_str(), GdaException::FIELD_NAME_EMPTY);
+                }
                 all_fnames.push_back(fname);
                 field_dict[fname] = make_pair(id, t);
             }
