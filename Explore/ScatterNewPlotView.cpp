@@ -774,6 +774,7 @@ void ScatterNewPlotCanvas::SetHighlightColor(wxColour color)
 
 void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 {
+    // In Scatter Plot, Fill color is for points
 	if (!is_bubble_plot) {
 		selectable_fill_color = color;
 		pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
@@ -791,6 +792,7 @@ void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 
 void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
 {
+    // In Scatter Plot, Outline color is for regression lines
 	if (!is_bubble_plot) {
 		selectable_outline_color = color;
 		pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
@@ -977,9 +979,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	lowess_reg_line = new GdaSpline;
 	lowess_reg_line_selected = new GdaSpline;
 	lowess_reg_line_excluded = new GdaSpline;
-	foreground_shps.push_back(lowess_reg_line);
 	foreground_shps.push_back(lowess_reg_line_selected);
 	foreground_shps.push_back(lowess_reg_line_excluded);
+    foreground_shps.push_back(lowess_reg_line);
+
 	
 	if (IsShowLowessSmoother() && X.size() > 1) {
 		LOG_MSG("Begin populating LOWESS curve (all obs)");
@@ -1050,9 +1053,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
 	reg_line_excluded->setBrush(*wxTRANSPARENT_BRUSH);
 
-	foreground_shps.push_back(reg_line);
 	foreground_shps.push_back(reg_line_selected);
-	foreground_shps.push_back(reg_line_excluded);	
+	foreground_shps.push_back(reg_line_excluded);
+    foreground_shps.push_back(reg_line);
+
 	
 	if (IsShowLinearSmoother() && !is_bubble_plot) {
 		double cc_degs_of_rot;
