@@ -117,7 +117,7 @@ frames_manager(project_p->GetFramesManager()),
 table_state(project_p->GetTableState()),
 highlight_state(project_p->GetHighlightState()),
 wmi(project_p->GetWManInt()),
-common_empty(true), all_init(false)
+common_empty(true), all_init(false), pos_ungrouped_list(0)
 {
 	CreateControls();
 	SetPosition(pos);
@@ -213,7 +213,8 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
 	ungrouped_list->DeleteAllItems();
 	std::vector<int> col_id_map;
 	table_int->FillColIdMap(col_id_map);
-	for (int i=0, ug_cnt=0, cid_sz=col_id_map.size(); i<cid_sz; ++i) {
+    int ug_cnt = 0;
+	for (int i=0, cid_sz=col_id_map.size(); i<cid_sz; ++i) {
 		int col = col_id_map[i];
 		if (table_int->IsColTimeVariant(col) ||
 			excl_nms.find(table_int->GetColName(col)) != excl_nms.end()) {
@@ -234,6 +235,14 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
 		ungrouped_list->SetItem(ug_cnt, 1, type_str);
 		++ug_cnt;
 	}
+    
+    if (pos_ungrouped_list > 0) {
+        if (pos_ungrouped_list >= ug_cnt) {
+            pos_ungrouped_list = ug_cnt -1;
+        }
+        ungrouped_list->SetItemState(pos_ungrouped_list, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+        ungrouped_list->EnsureVisible(pos_ungrouped_list);
+    }
 }
 
 void VarGroupingEditorDlg::InitGroupedList()
@@ -951,6 +960,11 @@ void VarGroupingEditorDlg::OnUngroupedListSelection( wxListEvent& event )
 {
 	LOG_MSG("In VarGroupingEditorDlg::OnUngroupedListSelection");
 	if (!all_init) return;
+    
+    long item = -1;
+    item = ungrouped_list->GetNextItem(item,  wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+    pos_ungrouped_list = item > -1 ? item : 0;
+
 	UpdateButtons();
 }
 

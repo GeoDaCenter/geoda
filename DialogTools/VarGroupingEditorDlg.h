@@ -130,6 +130,7 @@ protected:
     wxString GenerateTimeLabel();
 	
     bool is_editing;
+    int pos_ungrouped_list;
     
 	bool all_init;
 	wxButton* group_button;
