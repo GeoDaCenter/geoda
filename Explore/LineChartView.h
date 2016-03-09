@@ -122,6 +122,8 @@ public:
 	void OnDisplayStatistics(wxCommandEvent& event);
     void OnDIDTest(wxCommandEvent& event);
     void OnAdjustYAxis(wxCommandEvent& event);
+    void OnAdjustYAxisPrecision(wxCommandEvent& event);
+
     void OnSaveDummyTable(wxCommandEvent& event);
 	void OnReportClose(wxWindowDestroyEvent& event);
     
@@ -188,8 +190,11 @@ protected:
 	wxPanel* panel;
 	wxHtmlWindow* message_win;
 	
+    int def_y_precision;
+    bool use_def_y_range;
     wxString def_y_min;
     wxString def_y_max;
+
 	
 	//bool show_regimes;
 	bool display_stats;

@@ -30,17 +30,18 @@ BEGIN_EVENT_TABLE( AdjustYAxisDlg, wxDialog )
     EVT_BUTTON( wxID_CANCEL, AdjustYAxisDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-AdjustYAxisDlg::AdjustYAxisDlg( wxString min_val_s,
-								 wxString max_val_s,
+AdjustYAxisDlg::AdjustYAxisDlg( double min_val_s,
+								 double max_val_s,
 								 wxWindow* parent,
 								 wxWindowID id,
 								 const wxString& caption,
 								 const wxPoint& pos, const wxSize& size,
 								 long style )
-: s_min_val(min_val_s), s_max_val(max_val_s)
+: o_min_val(min_val_s), o_max_val(max_val_s)
 {
-    min_val_s.ToDouble(&o_min_val);
-    max_val_s.ToDouble(&o_max_val);
+    s_min_val << min_val_s;
+    s_max_val << max_val_s;
+    
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -62,24 +63,24 @@ void AdjustYAxisDlg::CreateControls()
 void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
 {
 	if (!m_min_val->GetValue().ToDouble(&min_val)) {
-		wxMessageBox("Please enter a valid MIN value for Y axis");
+		wxMessageBox("Please enter a valid Min value for Y axis");
 		return;
 	}
     if (!m_max_val->GetValue().ToDouble(&max_val)) {
-        wxMessageBox("Please enter a valid MAX value for Y axis");
+        wxMessageBox("Please enter a valid Max value for Y axis");
         return;
     }
    
     if (min_val > o_min_val) {
         wxString msg;
-        msg << "Please make sure the input MIN value <= " << o_min_val;
+        msg << "Please make sure the input Min value <= " << o_min_val;
         wxMessageBox(msg);
         return;
         
     }
-    if (max_val < o_max_val) {
+    if (max_val < o_max_val - 0.0000001) {
         wxString msg;
-        msg << "Please make sure the input MAX value >= " << o_max_val;
+        msg << "Please make sure the input Max value >= " << o_max_val;
         wxMessageBox(msg);
 
         return;
@@ -91,7 +92,7 @@ void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
 
     
     if (max_val <= min_val) {
-        wxMessageBox("Please make sure input MAX value is larger than input MIN value");
+        wxMessageBox("Please make sure input Max value is larger than input Min value");
         return;
     }
     
@@ -107,4 +108,50 @@ void AdjustYAxisDlg::OnCancelClick( wxCommandEvent& event )
     event.Skip();
 	EndDialog(wxID_CANCEL);
 
+}
+
+IMPLEMENT_CLASS( AxisLabelPrecisionDlg, wxDialog )
+
+BEGIN_EVENT_TABLE( AxisLabelPrecisionDlg, wxDialog )
+EVT_BUTTON( wxID_OK, AxisLabelPrecisionDlg::OnOkClick )
+EVT_BUTTON( wxID_CANCEL, AxisLabelPrecisionDlg::OnCancelClick )
+END_EVENT_TABLE()
+
+AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
+                                             wxWindow* parent,
+                                             wxWindowID id,
+                                             const wxString& caption,
+                                             const wxPoint& pos,
+                                             const wxSize& size,
+                                             long style)
+{
+    precision = precision_s;
+    
+    SetParent(parent);
+    CreateControls();
+    Centre();
+}
+
+void AxisLabelPrecisionDlg::CreateControls()
+{
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_AXIS_LABEL_PRECISION_DLG");
+    m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")), wxSpinCtrl);
+    m_precision_spin->SetRange(1, 6);
+    
+
+}
+void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
+{
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+    
+}
+
+void AxisLabelPrecisionDlg::OnOkClick( wxCommandEvent& event )
+{
+    precision = m_precision_spin->GetValue();
+    if (precision < 0 || precision > 6) {
+        precision = 1;
+    }
+    EndDialog(wxID_OK);
 }

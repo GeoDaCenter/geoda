@@ -831,6 +831,62 @@
     <centered>1</centered>
     <style>wxCAPTION|wxCLOSE_BOX</style>
   </object>
+  <object class="wxDialog" name="ID_AXIS_LABEL_PRECISION_DLG" subclass="AxisLabelPrecisionDlg">
+      <object class="wxBoxSizer">
+          <object class="sizeritem">
+              <object class="wxBoxSizer">
+                  <object class="spacer">
+                      <size>115,-1d</size>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxStaticText" name="IDC_STATIC">
+                                  <label>Set the Decimal Precision</label>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <object class="spacer">
+                              <size>5,-1d</size>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxSpinCtrl" name="ID_AXIS_LABEL_PRECISION_SPIN">
+                                  <size>40,-1d</size>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxTOP|wxALIGN_CENTRE_HORIZONTAL</flag>
+                      <border>5</border>
+                  </object>
+                  <object class="spacer">
+                      <size>-1,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxButton" name="wxID_OK">
+                                  <label>OK</label>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
+                      <border>10</border>
+                  </object>
+                  <orient>wxVERTICAL</orient>
+              </object>
+              <flag>wxALL</flag>
+              <border>8</border>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+      </object>
+      <title>Set the Decimal Precision of Floating-point Values on Axis</title>
+      <centered>1</centered>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+  </object>
   <object class="wxDialog" name="ID_NUM_CATEGORIES_DLG" subclass="NumCategoriesDlg">
     <object class="wxBoxSizer">
       <object class="sizeritem">

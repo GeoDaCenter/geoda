@@ -447,9 +447,9 @@ string SimpleLinearRegression::ToString()
 	return ss.str();
 }
 
-AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s)
+AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
-scale_range(0), tic_inc(0), p(0), ticks(ticks_s)
+scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
 {
 	CalculateScale(data_min_s, data_max_s, ticks_s);
 }
@@ -526,7 +526,7 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
         if (tics[i] < 10000000) {
             ss << std::fixed;
         }
-        ss << std::setprecision(1) << tics[i];
+        ss << std::setprecision(lbl_precision) << tics[i];
 		tics_str[i] = ss.str();
 		tics_str_show[i] = true;
 	}

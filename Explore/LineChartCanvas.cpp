@@ -51,7 +51,7 @@ const double LineChartCanvas::ss_circ_rad = 6.0;
 const double LineChartCanvas::ray_len = 10.0;
 
 LineChartCanvas::LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const LineChartStats& lcs_, LineChartCanvasCallbackInt* lc_canv_cb_, const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true), lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0)
+: TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true), lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0), y_axis_precision(1)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
 	shps_orig_xmin = 0;
@@ -304,6 +304,11 @@ void LineChartCanvas::UpdateYAxis(wxString y_min, wxString y_max)
     def_y_max = y_max;
 }
 
+void LineChartCanvas::UpdateYAxisPrecision(int precision_s)
+{
+    y_axis_precision = precision_s;
+}
+
 void LineChartCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering LineChartCanvas::PopulateCanvas");
@@ -369,7 +374,7 @@ void LineChartCanvas::PopulateCanvas()
         if (!def_y_max.IsEmpty())
               def_y_max.ToDouble(&axis_max);
 
-		axis_scale_y = AxisScale(axis_min, axis_max, 4);
+		axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
 	}
 	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
 	scaleY = 100.0 / (axis_scale_y.scale_range);

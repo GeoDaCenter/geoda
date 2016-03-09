@@ -237,7 +237,7 @@ struct AxisScale {
 	AxisScale() : data_min(0), data_max(0),
 		scale_min(0), scale_max(0), scale_range(0), tic_inc(0), p(0),
 		ticks(5) {}
-	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5);
+	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=1);
 	AxisScale(const AxisScale& s);
 	virtual AxisScale& operator=(const AxisScale& s);
 	virtual ~AxisScale() {}
@@ -253,6 +253,7 @@ struct AxisScale {
 	double scale_max;
 	double scale_range;
 	double tic_inc;
+    int lbl_precision;
 	int ticks;
 	int p; // power of ten to scale significant digit
 	std::vector<double>tics; // numerical tic values

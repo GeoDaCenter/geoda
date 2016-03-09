@@ -22,6 +22,7 @@
 
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
+#include <wx/spinctrl.h>
 
 class AdjustYAxisDlg: public wxDialog
 {    
@@ -29,8 +30,8 @@ class AdjustYAxisDlg: public wxDialog
     DECLARE_EVENT_TABLE()
 
 public:
-    AdjustYAxisDlg( wxString min_val,
-					wxString max_val,
+    AdjustYAxisDlg( double min_val,
+					double max_val,
 					wxWindow* parent, wxWindowID id = -1,
 					const wxString& caption = "Adjust Values of Y Axis",
 					const wxPoint& pos = wxDefaultPosition,
@@ -52,6 +53,27 @@ public:
     
     wxString s_min_val;
     wxString s_max_val;
+};
+
+class AxisLabelPrecisionDlg : public wxDialog{
+    DECLARE_CLASS( AdjustYAxisDlg )
+    DECLARE_EVENT_TABLE()
+    
+public:
+    AxisLabelPrecisionDlg( int precision,
+                   wxWindow* parent, wxWindowID id = -1,
+                   const wxString& caption = "Set the Decimal Precision of Values on Axis",
+                   const wxPoint& pos = wxDefaultPosition,
+                   const wxSize& size = wxDefaultSize,
+                   long style = wxCAPTION|wxSYSTEM_MENU );
+    
+    void CreateControls();
+    void OnOkClick( wxCommandEvent& event );
+    void OnCancelClick( wxCommandEvent& event );
+    
+    wxSpinCtrl* m_precision_spin;
+    
+    int precision;
 };
 
 #endif

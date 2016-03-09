@@ -52,21 +52,30 @@ class LineChartCanvas : public TemplateCanvas
 	virtual void UpdateAll();
     
     void UpdateYAxis(wxString y_min="", wxString y_max="");
-
-	
+    
+    void UpdateYAxisPrecision(int precision_s);
+    
+    double GetYAxisMinVal() {return axis_scale_y.scale_min;}
+    double GetYAxisMaxVal() {return axis_scale_y.scale_max;}
+    
 protected:
     void OnDblClick(wxMouseEvent& event);
     
 	virtual void PopulateCanvas();
 	void UpdateMargins();
-	GdaCircle* MakeSummAvgHelper(double y_avg, const wxColour& fg_clr,
-															 const wxColour& bg_clr = wxTransparentColor);
+	GdaCircle* MakeSummAvgHelper(double y_avg,
+                                 const wxColour& fg_clr,
+                                 const wxColour& bg_clr = wxTransparentColor);
 	
 	const LineChartStats& lcs;
 	LineChartCanvasCallbackInt* lc_canv_cb;
 	
 	AxisScale axis_scale_y;
 	double scaleY;
+    int y_axis_precision;
+    
+    double y_axis_min;
+    double y_axis_max;
     
     wxString def_y_min;
     wxString def_y_max;
