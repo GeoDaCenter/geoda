@@ -464,8 +464,6 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	try {
 		// SaveAs only to same datasource
 		GdaConst::DataSourceType ds_type = datasource->GetType();
-        if (ds_type == GdaConst::ds_dbf )
-            ds_type = GdaConst::ds_shapefile;
         
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
@@ -575,8 +573,9 @@ void Project::SaveDataSourceData()
 	// for some read-only datasources, suggest Export dialog
 	GdaConst::DataSourceType ds_type = datasource->GetType();
 	if (ds_type == GdaConst::ds_wfs ||
-			ds_type == GdaConst::ds_kml ||
-			ds_type == GdaConst::ds_esri_arc_sde ) {
+        ds_type == GdaConst::ds_kml ||
+        ds_type == GdaConst::ds_esri_arc_sde )
+    {
 		wxString msg = "The data source is read only. Please try to export "
 		"to other data source.";
 		throw GdaException(msg.mb_str());
@@ -686,11 +685,11 @@ void Project::ExportCenters(bool is_mean_centers)
 {	
 	if (is_mean_centers) {
 		GetMeanCenters();
-		ExportDataDlg dlg(NULL, mean_centers, Shapefile::POINT_TYP, this);
+		ExportDataDlg dlg(NULL, mean_centers, Shapefile::NULL_SHAPE, "COORD", this);
 		dlg.ShowModal();
 	} else {
 		GetCentroids();
-		ExportDataDlg dlg(NULL, centroids, Shapefile::POINT_TYP, this);
+		ExportDataDlg dlg(NULL, centroids, Shapefile::NULL_SHAPE, "COORD", this);
 		dlg.ShowModal();
 	}
 }
@@ -879,13 +878,13 @@ void Project::AddMeanCenters()
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
 	data[0].label = "X-Coordinates";
-	data[0].field_default = "XMCTR";
+	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
 	data[1].label = "Y-Coordinates";
-	data[1].field_default = "YMCTR";
+	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
 	SaveToTableDlg dlg(this, NULL, data, "Add Mean Centers to Table", wxDefaultPosition, wxSize(400,400));
@@ -918,13 +917,13 @@ void Project::AddCentroids()
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
 	data[0].label = "X-Coordinates";
-	data[0].field_default = "XCNTRD";
+	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
 	data[1].label = "Y-Coordinates";
-	data[1].field_default = "YCNTRD";
+	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
 	SaveToTableDlg dlg(this, NULL, data, "Add Centroids to Table", wxDefaultPosition, wxSize(400,400));

@@ -1517,19 +1517,20 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 	LOG_MSG("Entering GdaFrame::OnCloseProject");
 	
 	if (IsProjectOpen() && !ignore_unsaved_changes) {
-		bool is_new_project = (project_p->GetProjectFullPath().empty() ||
-							   !wxFileExists(project_p->GetProjectFullPath()));
+		bool is_new_project = project_p->GetProjectFullPath().empty() || !wxFileExists(project_p->GetProjectFullPath());
+        
 		bool unsaved_meta_data = is_new_project ||
-			(project_p->GetSaveButtonManager() &&
-			 project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
-		bool unsaved_ds_data =
-			project_p->GetTableInt()->ChangedSinceLastSave() || project_p->GetTableInt()->IsTimeVariant();
+            (project_p->GetSaveButtonManager() &&
+			 project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded()) ||
+            project_p->GetTableInt()->ProjectChangedSinceLastSave();
+        
+		bool unsaved_ds_data = project_p->GetTableInt()->ChangedSinceLastSave();
 	
         
 		wxString msg;
 		wxString title;
 		//if (is_new_project || unsaved_ds_data || unsaved_ds_data) {
-		if (unsaved_ds_data) {
+		if (unsaved_ds_data || unsaved_meta_data) {
 
 			title = "Do you want to save your data?";
 			
@@ -1543,9 +1544,10 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
             if (msgDlg.ShowModal() == wxID_YES) {
                 if (project_p) {
                     if (project_p->GetTableInt()->IsTimeVariant()) {
+                        // always try to save a project file for user
                         project_p->SaveProjectConf();
                     }
-                    if (project_p->GetTableInt()->ChangedSinceLastSave()) {
+                    if (unsaved_ds_data) {
                         project_p->SaveDataSourceData();
                     }
                 }

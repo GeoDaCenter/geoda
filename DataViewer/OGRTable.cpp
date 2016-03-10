@@ -89,6 +89,7 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 	rows = ogr_layer->n_rows;
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	changed_since_last_save = false;
+	project_changed_since_last_save = false;
 	is_valid = true;
     
     table_state->registerObserver(this);
@@ -125,7 +126,8 @@ void OGRTable::Update(const VarOrderPtree& var_order_ptree)
     var_order.Update(var_order_ptree);
     table_state->SetRefreshEvtTyp();
     table_state->notifyObservers();
-    SetChangedSinceLastSave(true);
+    
+	SetProjectChangedSinceLastSave(true);
 }
 
 void OGRTable::update(TableState* o)
@@ -134,6 +136,7 @@ void OGRTable::update(TableState* o)
         this->SetChangedSinceLastSave(true);
     }
 }
+
 GdaConst::DataSourceType OGRTable::GetDataSourceType()
 {
     return datasource_type;
@@ -910,12 +913,16 @@ bool OGRTable::ColChangeDisplayedDecimals(int col, int new_disp_dec)
 	table_state->SetColDispDecimalsEvtTyp(GetColName(col), col);
 	table_state->notifyObservers();
 	//SetChangedSinceLastSave(true);
+    
 	return true;
 }
 
 bool OGRTable::RenameGroup(int col, const wxString& new_name)
 {
-	if (!IsColTimeVariant(col)) return RenameSimpleCol(col, 0, new_name);
+    if (!IsColTimeVariant(col)) {
+        return RenameSimpleCol(col, 0, new_name);
+    }
+    
 	if (DoesNameExist(new_name, false) ||
 		!IsValidGroupName(new_name)) return false;
 	wxString old_name = GetColName(col);
@@ -923,7 +930,8 @@ bool OGRTable::RenameGroup(int col, const wxString& new_name)
 	var_order.SetGroupName(col, new_name);
 	table_state->SetColRenameEvtTyp(old_name, new_name, false);
 	table_state->notifyObservers();
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	return true;
 }
 
@@ -1135,7 +1143,9 @@ bool OGRTable::DeleteCol(int pos)
 	tdl.push_back(tde);
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
+    
 	SetChangedSinceLastSave(true);
+    
 	return true;
 }
 
@@ -1173,7 +1183,8 @@ void OGRTable::UngroupCol(int col)
 	LOG_MSG("Table delta entries:");
 	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
 }
@@ -1229,7 +1240,8 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 	LOG_MSG("Table delta entries:");
 	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
 }
@@ -1237,7 +1249,11 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 void OGRTable::InsertTimeStep(int time, const wxString& name)
 {
 	if (time < 0 || time > var_order.GetNumTms()) return;
+    
 	var_order.InsertTime(time, name);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsAddRemoveEvtTyp();
 	table_state->notifyObservers();
@@ -1268,6 +1284,8 @@ void OGRTable::RemoveTimeStep(int time)
 		table_state->notifyObservers();
 	}
 	
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsAddRemoveEvtTyp();
 	table_state->notifyObservers();
@@ -1276,6 +1294,9 @@ void OGRTable::RemoveTimeStep(int time)
 void OGRTable::SwapTimeSteps(int time1, int time2)
 {
 	var_order.SwapTimes(time1, time2);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsSwapEvtTyp();
 	table_state->notifyObservers();
@@ -1284,6 +1305,9 @@ void OGRTable::SwapTimeSteps(int time1, int time2)
 void OGRTable::RenameTimeStep(int time, const wxString& new_name)
 {
 	var_order.RenameTime(time, new_name);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsRenameEvtTyp();
 	table_state->notifyObservers();

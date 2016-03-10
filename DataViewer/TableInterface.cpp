@@ -67,6 +67,16 @@ void TableInterface::SetChangedSinceLastSave(bool chg)
 	changed_since_last_save = chg;
 }
 
+bool TableInterface::ProjectChangedSinceLastSave()
+{
+    return project_changed_since_last_save;
+}
+
+void TableInterface::SetProjectChangedSinceLastSave(bool chg)
+{
+    project_changed_since_last_save = chg;
+}
+
 bool TableInterface::ColNameExists(const wxString& name)
 {
 	return (FindColId(name) != wxNOT_FOUND);

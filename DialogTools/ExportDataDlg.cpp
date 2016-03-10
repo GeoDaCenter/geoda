@@ -57,7 +57,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              wxString projectFileName,
                              const wxPoint& pos,
                              const wxSize& size )
-: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false), is_table_only(false)
+: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false), is_table_only(false), is_save_centroids(false)
 {
     if( project_p ) {
         project_file_name = project_p->GetProjectTitle();
@@ -74,7 +74,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false)
+: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(false)
 {
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
@@ -83,20 +83,23 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
     Init(parent, pos);
 }
 
-// Export POINT data only, e.g. centroids
+// Export POINT data only, e.g. centroids/mean centers
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              vector<GdaPoint*>& _geometries,
                              Shapefile::ShapeType _shape_type,
+                             wxString _point_name,
                              Project* _project,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false)
+: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(true)
 {
+    
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
         table_p = project_p->GetTableInt();
     }
+
     for(size_t i=0; i<_geometries.size(); i++) {
         geometries.push_back((GdaShape*)_geometries[i]);
     }
@@ -108,7 +111,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              TableInterface* _table,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table)
+: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false)
 {
     Init(parent, pos);
 }
@@ -254,6 +257,39 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             GdaConst::DataSourceType o_ds_type = project_p->GetDatasourceType();
             bool o_ds_table_only = IDataSource::IsTableOnly(o_ds_type);
             bool n_ds_table_only = IDataSource::IsTableOnly(ds_type);
+           
+            if (is_save_centroids) {
+                if (n_ds_table_only == false) {
+                    // make sure geometries are saved as well if needed
+                    shape_type = Shapefile::POINT_TYP;
+                }
+                // Add points to Table
+                if (table_p) {
+                    wxString x_field_name = "COORD_X";
+                    wxString y_field_name = "COORD_Y";
+                    x_field_name.UpperCase();
+                    y_field_name.UpperCase();
+                    
+                    int col_x = table_p->FindColId(x_field_name);
+                    int col_y = table_p->FindColId(y_field_name);
+                    
+                    if (col_x == wxNOT_FOUND)
+                        col_x = table_p->InsertCol(GdaConst::double_type, x_field_name);
+                    
+                    if (col_y == wxNOT_FOUND)
+                        col_y = table_p->InsertCol(GdaConst::double_type, y_field_name);
+                    
+                    vector<double> x_data;
+                    vector<double> y_data;
+                    for(size_t i=0; i<geometries.size(); i++) {
+                        x_data.push_back(((GdaPoint*)(geometries[i]))->GetX());
+                        y_data.push_back(((GdaPoint*)(geometries[i]))->GetY());
+                    }
+                    
+                    table_p->SetColData(col_x, 0, x_data);
+                    table_p->SetColData(col_y, 0, y_data);
+                }
+            }
             
             if (o_ds_table_only && !n_ds_table_only) {
                 if (project_p && project_p->main_data.records.size() ==0) {
@@ -269,14 +305,15 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     }
                 }
             } else if ( !o_ds_table_only && n_ds_table_only) {
-                // possible loss geom data save a non-table ds to table-only ds
-                wxString msg = "The geometries will not be saved when exporting "
-                "a Geometry data source to a Table-only data source.\n\n"
-                "Do you want to continue?";
-                wxMessageDialog dlg(this, msg, "Warning: loss data",
-                                    wxYES_NO | wxICON_WARNING);
-                if (dlg.ShowModal() != wxID_YES)
-                    return;
+                if (is_save_centroids == false && shape_type == Shapefile::NULL_SHAPE) {
+                    // possible loss geom data save a non-table ds to table-only ds
+                    wxString msg = "The geometries will not be saved when exporting to a Table-only data source.\n\n"
+                    "Do you want to continue?";
+                    wxMessageDialog dlg(this, msg, "Warning: loss data",
+                                        wxYES_NO | wxICON_WARNING);
+                    if (dlg.ShowModal() != wxID_YES)
+                        return;
+                }
             }
 		}
 
@@ -303,6 +340,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 			}
 		}
 
+
+        
         if( !CreateOGRLayer(ds_name, spatial_ref, is_update) ) {
             wxString msg = "Exporting has been cancelled.";
             throw GdaException(msg.mb_str(), GdaException::NORMAL);
@@ -432,7 +471,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     // this will spend some time, but keep the rest of code clean.
     // Note: potential speed/memory performance issue
     vector<int> selected_rows;
-    if ( project_p != NULL && geometries.empty() ) {
+    if ( project_p != NULL && geometries.empty() && !is_save_centroids ) {
         shape_type = Shapefile::NULL_SHAPE;
         int num_obs = project_p->main_data.records.size();
         if (num_obs == 0) num_obs = project_p->GetNumRecords();
@@ -478,9 +517,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
 
 	// convert to OGR geometries
 	vector<OGRGeometry*> ogr_geometries;
-	OGRwkbGeometryType geom_type = 
-		OGRDataAdapter::GetInstance().MakeOGRGeometries(
-			geometries, shape_type, ogr_geometries, selected_rows);
+	OGRwkbGeometryType geom_type =  OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
 
 	// take care of empty layer name
     if (layer_name.empty()) {
@@ -488,12 +525,11 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     }
     
     int prog_n_max = selected_rows.size();
-    if (prog_n_max == 0 && table_p) prog_n_max = table_p->GetNumberRows();
     
-    OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(
-                ds_format.ToStdString(), ds_name.ToStdString(),
-                layer_name.ToStdString(), geom_type,
-                ogr_geometries, table_p, selected_rows, spatial_ref, is_update);
+    if (prog_n_max == 0 && table_p)
+        prog_n_max = table_p->GetNumberRows();
+    
+    OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), ds_name.ToStdString(), layer_name.ToStdString(), geom_type, ogr_geometries, table_p, selected_rows, spatial_ref, is_update);
     
     if (new_layer == NULL)
         return false;

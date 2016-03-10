@@ -44,6 +44,7 @@ public:
                   wxString projectFileName = "",
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize );
+    
 	/** NOTE: Project could be NULL in case of creating
 	 *  a GRID shape ds or from a BOUNDARY.
 	 */
@@ -54,13 +55,16 @@ public:
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
+    
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaPoint*>& _geometries,
                   Shapefile::ShapeType _shape_type,
+                  wxString _point_name,
 				  Project* _project=NULL,
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
+    
     ExportDataDlg(wxWindow* parent,
                   TableInterface* _table,
                   const wxPoint& pos = wxDefaultPosition,
@@ -76,7 +80,7 @@ public:
     wxString GetDatasourceName() { return datasource_name; }
     wxString GetDatasourceFormat() { return ds_format; }
     
-private:
+protected:
 	AutoTextCtrl* m_database_table;
 	wxCheckBox* m_chk_create_project;
     
@@ -97,6 +101,8 @@ private:
 	// so its memory will be maintained (no cleanup).
 	bool is_geometry_only;
     bool is_table_only;
+    
+    bool is_save_centroids;
     
 	IDataSource* GetDatasource();
     void OpenDatasourceFile(const wxFileName& ds_fname);

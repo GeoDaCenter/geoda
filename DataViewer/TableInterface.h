@@ -66,6 +66,12 @@ public:
 	virtual bool ChangedSinceLastSave();
 	/** Indicate whether Table data is unsaved. */
 	virtual void SetChangedSinceLastSave(bool chg);
+    
+	/** Has Table data changed since last save. */
+	virtual bool ProjectChangedSinceLastSave();
+	/** Indicate whether Table data is unsaved. */
+	virtual void SetProjectChangedSinceLastSave(bool chg);
+    
 	/** Save table data to data source associated with this table.  True
 	 is returned on success.  On failure false is returned along with
 	 an error message in err_msg reference. */
@@ -288,6 +294,7 @@ protected:
 	wxString open_err_msg;
 	int rows;
 	bool changed_since_last_save;
+    bool project_changed_since_last_save;
 	
 	bool is_set_cell_from_string_fail;
 	wxString set_cell_from_string_fail_msg;
