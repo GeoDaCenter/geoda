@@ -1517,19 +1517,17 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 	LOG_MSG("Entering GdaFrame::OnCloseProject");
 	
 	if (IsProjectOpen() && !ignore_unsaved_changes) {
+        
 		bool is_new_project = project_p->GetProjectFullPath().empty() || !wxFileExists(project_p->GetProjectFullPath());
         
-		bool unsaved_meta_data = is_new_project ||
-            (project_p->GetSaveButtonManager() &&
-			 project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded()) ||
-            project_p->GetTableInt()->ProjectChangedSinceLastSave();
+		bool unsaved_meta_data = project_p->GetTableInt()->ProjectChangedSinceLastSave();
         
 		bool unsaved_ds_data = project_p->GetTableInt()->ChangedSinceLastSave();
 	
         
 		wxString msg;
 		wxString title;
-		//if (is_new_project || unsaved_ds_data || unsaved_ds_data) {
+        
 		if (unsaved_ds_data || unsaved_meta_data) {
 
 			title = "Do you want to save your data?";
@@ -1553,6 +1551,18 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
                 }
             }
 		}
+        
+        if (project_p->IsDataTypeChanged()) {
+            wxString msg = "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?";
+            wxMessageDialog show_export_dlg(this, msg, "Geometries not saved",
+                                            wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
+            if (show_export_dlg.ShowModal() == wxID_YES) {
+                // e.g. dbf, add geometries (points), to shapefile
+                ExportDataDlg dlg(this, project_p);
+                dlg.ShowModal();
+            }
+            
+        }
 	}
 	
 	SetProjectOpen(false);
@@ -2087,18 +2097,13 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
     
 	// Save Data Source changes first if needed
 	try {
-        if (project_p->IsDataTypeChanged()) {
-            // e.g. dbf, add geometries (points), to shapefile
-        	ExportDataDlg dlg(this, project_p);
-        	dlg.ShowModal();
-        } else {
-    		project_p->SaveDataSourceData();
-            try {
-                project_p->SaveProjectConf();
-            } catch( GdaException& e) {}
-        }
-	}
-	catch (GdaException& e) {
+        
+        project_p->SaveDataSourceData();
+        try {
+            project_p->SaveProjectConf();
+        } catch( GdaException& e) {}
+
+	} catch (GdaException& e) {
 		wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
