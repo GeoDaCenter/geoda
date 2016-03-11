@@ -7536,7 +7536,7 @@
                     </object>
                     <object class="sizeritem">
                       <object class="wxTextCtrl" name="IDC_FIELD_ASC">
-                        <size>172,-1d</size>
+                        <size>186,-1d</size>
                         <style>wxTE_READONLY</style>
                       </object>
                       <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
@@ -7795,7 +7795,7 @@
             <label>CartoDB</label>
           </object>
           
-          <size>660,340</size>
+          <size>580,340</size>
         </object>
         <option>30</option>
         <flag>wxALL|wxEXPAND</flag>
