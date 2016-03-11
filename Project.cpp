@@ -507,7 +507,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 			}
 			if ( new_layer->export_progress == -1 ) {
 				std::ostringstream msg;
-				msg << "Exporting to data source (" << new_ds_name.ToStdString()
+				msg << "Save as data source (" << new_ds_name.ToStdString()
 				<< ") failed." << "\n\nDetails:"
 				<< new_layer->error_message.str();
 				throw GdaException(msg.str().c_str());
@@ -576,8 +576,7 @@ void Project::SaveDataSourceData()
         ds_type == GdaConst::ds_kml ||
         ds_type == GdaConst::ds_esri_arc_sde )
     {
-		wxString msg = "The data source is read only. Please try to export "
-		"to other data source.";
+		wxString msg = "The data source is read only. Please try to save as other data source.";
 		throw GdaException(msg.mb_str());
 	}
 	

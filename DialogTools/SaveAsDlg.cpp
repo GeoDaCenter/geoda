@@ -123,8 +123,8 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
         ds_type != GdaConst::ds_mapinfo &&
         ds_type != GdaConst::ds_sqlite &&
         ds_type != GdaConst::ds_csv) {
-        msg << "SaveAs is not supported on current data source type: "
-        << ds_format << ". Please try to \"Export\" to other data source. "
+        msg << "Save is not supported on current data source type: "
+        << ds_format << ". Please try to use \"File->Save As\" other data source. "
         << "However, the project file can still be saved as other project file.";
 		wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
@@ -136,7 +136,7 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     wxString suffix = ds_path.AfterLast('.');
     if ( suffix.empty() ) {
         msg << "The original datasource " << ds_path << " is not a valid file."
-        "GeoDa \"SaveAs\" only works on file datasource.";
+        "GeoDa \"Save\" only works on file datasource.";
         wxMessageDialog dlg(this, msg , "Warning", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;

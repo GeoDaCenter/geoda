@@ -540,7 +540,7 @@
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
-              <label>Export</label>
+              <label>OK</label>
             </object>
             <flag>wxRIGHT</flag>
             <border>10</border>
@@ -556,7 +556,7 @@
         <border>15</border>
       </object>
     </object>
-    <title>Export Table to CSV File</title>
+    <title>Save Table As CSV File</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>

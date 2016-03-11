@@ -7529,7 +7529,7 @@
                     <hgap>0</hgap>
                     <object class="sizeritem">
                       <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Export file name</label>
+                        <label>File Path</label>
                       </object>
                       <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
                       <border>5</border>
@@ -7825,7 +7825,7 @@
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
-              <label>Export</label>
+              <label>OK</label>
             </object>
             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
             <border>5</border>
@@ -7842,7 +7842,7 @@
         <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
-    <title>Export data </title>
+    <title>Save As</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>

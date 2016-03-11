@@ -49,10 +49,10 @@
         <label>Save</label>
       </object>
       <object class="wxMenuItem" name="ID_EXPORT_LAYER">
-        <label>Export</label>
+        <label>Save As</label>
       </object>
       <object class="wxMenuItem" name="ID_EXPORT_SELECTED">
-        <label>Export Selected</label>
+        <label>Save Selected As</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SHOW_PROJECT_INFO">
@@ -2927,6 +2927,7 @@
       <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
         <label>Add Centroids to Table</label>
       </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
         <label>Display Mean Centers</label>
         <checkable>1</checkable>
@@ -2937,6 +2938,7 @@
         <checkable>1</checkable>
         <enabled>0</enabled>
       </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
         <label>Save Mean Centers</label>
         <enabled>1</enabled>

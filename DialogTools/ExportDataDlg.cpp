@@ -298,9 +298,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                         ds_type == GdaConst::ds_shapefile) {
                         // can't save a table-only ds to non-table-only ds,
                         // if there is no new geometries to be saved.
-                        wxString msg = "GeoDa can't export a Table-only data "
-                        "source to a Geometry data source. Please try to add a "
-                        "geometry layer and then export.";
+                        wxString msg = "GeoDa can't save a Table-only data "
+                        "source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As.";
                         throw GdaException(msg.mb_str());
                     }
                 }
@@ -343,7 +342,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 
         
         if( !CreateOGRLayer(ds_name, spatial_ref, is_update) ) {
-            wxString msg = "Exporting has been cancelled.";
+            wxString msg = "Save As has been cancelled.";
             throw GdaException(msg.mb_str(), GdaException::NORMAL);
         }
         // save project file
@@ -402,11 +401,11 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 		return;
 	}
 
-	wxString msg = "Export successfully.";
+	//wxString msg = "Export successfully.";
     //msg << "\n\nTips: if you want to use exported project/datasource, please"
     //    << " close current project and then open exported project/datasource.";
-	wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
-    dlg.ShowModal();
+	//wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+    //dlg.ShowModal();
     
 	EndDialog(wxID_OK);
 }
@@ -422,7 +421,7 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
     OGRTable* tbl = dynamic_cast<OGRTable*>(project_p->GetTableInt());
 	if (!tbl) {
 		// DBFTable case, try to read into
-        wxString msg = "Only OGR datasource can be exported now.";
+        wxString msg = "Only OGR datasource can be saved as.";
 		throw GdaException(msg.mb_str());
 	}
 
@@ -431,8 +430,8 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
     layer->T_Export(ds_format.ToStdString(), ds_name.ToStdString(),
                     layer_name.ToStdString(), is_update);
     int prog_n_max = project_p->GetNumRecords();
-    wxProgressDialog prog_dlg("Export data source progress dialog",
-                              "Exporting data...",
+    wxProgressDialog prog_dlg("Save As progress dialog",
+                              "Saving data...",
                               prog_n_max, // range
                               this,
                               wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
@@ -447,7 +446,7 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
         }
         if (layer->export_progress == -1){
             ostringstream msg;
-            msg << "Exporting to data source (" << ds_name.ToStdString()
+            msg << "Saving to data source (" << ds_name.ToStdString()
             << ") failed." << "\n\nDetails:" 
             << layer->error_message.str();
             throw GdaException(msg.str().c_str());
@@ -477,7 +476,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         if (num_obs == 0) num_obs = project_p->GetNumRecords();
         if (num_obs == 0) {
             ostringstream msg;
-            msg << "Export failed: GeoDa wan't export empty datasource.";
+            msg << "Saving failed: GeoDa can't save as empty datasource.";
             throw GdaException(msg.str().c_str());
         }
         
@@ -552,7 +551,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         }
         if (new_layer->export_progress == -1){
             ostringstream msg;
-            msg << "Exporting to data source (" << ds_name.ToStdString()
+            msg << "Saving as data source (" << ds_name.ToStdString()
             << ") failed." << "\n\nDetails:" << new_layer->error_message.str();
             throw GdaException(msg.str().c_str());
         }

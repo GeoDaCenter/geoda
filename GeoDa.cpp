@@ -2159,8 +2159,8 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
         if ( project_p->IsTableOnlyProject() &&
             !project_p->main_data.records.empty() ) {
             // case: users create geometries in a table-only project
-            msg << "\n\nWarning: newly created geometries are not saved. ";
-            msg << "Please use \"Export\" to save geometries and related data.";
+            msg << "\n\nWarning: Geometries will not be saved. ";
+            msg << "Please use \"File->Save As\" to save geometries and related data.";
         }
         wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
