@@ -252,7 +252,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             //geometries only, e.g. boundray file
         } else {
             //case: save current open datasource as a new datasource
-			spatial_ref = project_p->GetSpatialReference();
+            
             // warning if saveas not compaptible
             GdaConst::DataSourceType o_ds_type = project_p->GetDatasourceType();
             bool o_ds_table_only = IDataSource::IsTableOnly(o_ds_type);
@@ -288,6 +288,9 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     
                     table_p->SetColData(col_x, 0, x_data);
                     table_p->SetColData(col_y, 0, y_data);
+                    
+                } else {
+                    spatial_ref = project_p->GetSpatialReference();
                 }
             }
             

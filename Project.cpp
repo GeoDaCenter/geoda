@@ -1275,16 +1275,17 @@ bool Project::CommonProjectInit()
    
     if (!isTableOnly) {
         OGRDataAdapter::GetInstance().GetHistory("db_host");
-        // convert projection to WGS84 by default if there is projection
-        sourceSR = GetSpatialReference();
     }
+    
+    // convert projection to WGS84 by default if there is projection
+    sourceSR = GetSpatialReference();
 	
 	// Initialize various managers
 	frames_manager = new FramesManager;
 	highlight_state = new HighlightState;
 	con_map_hl_state = new HighlightState;
 	cat_classif_manager = new CatClassifManager(table_int, GetTableState(),
-								project_conf->GetLayerConfiguration()->GetCustClassifPtree());
+                project_conf->GetLayerConfiguration()->GetCustClassifPtree());
 	highlight_state->SetSize(num_records);
 	con_map_hl_state->SetSize(num_records);
 	w_man_state = new WeightsManState;

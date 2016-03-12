@@ -2906,7 +2906,8 @@ void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
 
 void GdaFrame::OnExportToOGR(wxCommandEvent& event)
 {
-	if (!project_p || !project_p->GetTableInt()) return;
+	if (!project_p || !project_p->GetTableInt())
+        return;
 	ExportDataDlg dlg(this, project_p);
 	dlg.ShowModal();
 }
@@ -2914,7 +2915,8 @@ void GdaFrame::OnExportToOGR(wxCommandEvent& event)
 /** Export to CSV.  This is not used currently. */
 void GdaFrame::OnExportToCsvFile(wxCommandEvent& event)
 {
-	if (!project_p || !project_p->GetTableInt()) return;
+	if (!project_p || !project_p->GetTableInt())
+        return;
 	ExportCsvDlg dlg(this, project_p);
 	dlg.ShowModal();
 }
