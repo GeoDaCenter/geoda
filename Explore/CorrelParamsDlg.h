@@ -55,6 +55,7 @@ public:
 	void OnHelpBtn(wxCommandEvent& ev);
 	void OnApplyBtn(wxCommandEvent& ev);
 
+	void OnVarChoiceSelected(wxCommandEvent& ev);
 	void OnAllPairsRadioSelected(wxCommandEvent& ev);
 	void OnRandSampRadioSelected(wxCommandEvent& ev);
 	void OnBinsTextCtrl(wxCommandEvent& ev);

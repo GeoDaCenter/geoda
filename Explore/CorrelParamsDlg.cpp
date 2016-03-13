@@ -53,6 +53,7 @@ help_btn(0), apply_btn(0)
 		if (var_man.GetVarsCount() > 0)
             var_nm = var_man.GetName(0);
 		UpdateVarChoiceFromTable(var_nm);
+        Connect(XRCID("ID_VAR_CHOICE"), wxEVT_CHOICE, wxCommandEventHandler(CorrelParamsFrame::OnVarChoiceSelected));
 	}
 	wxBoxSizer* var_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	var_h_szr->Add(var_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -83,9 +84,10 @@ help_btn(0), apply_btn(0)
 		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), "Number Bins:");
 		wxString vs;
 		vs << correl_params.bins;
-		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,  wxDefaultPosition, wxSize(75,-1),  wxSP_ARROW_KEYS,  CorrelParams::min_bins_cnst, CorrelParams::max_bins_cnst, correl_params.bins);
+		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,  wxDefaultPosition, wxSize(75,-1),  wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER,  CorrelParams::min_bins_cnst, CorrelParams::max_bins_cnst, correl_params.bins);
 		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL, wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		//Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxTE_PROCESS_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
 	}
 	wxBoxSizer* bins_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	bins_h_szr->Add(bins_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -145,10 +147,11 @@ help_btn(0), apply_btn(0)
 	{
 		wxString vs;
 		vs << correl_params.max_iterations;
-		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs, wxDefaultPosition, wxSize(100,-1));
+		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs, wxDefaultPosition, wxSize(100,-1), wxTE_PROCESS_ENTER);
 		max_iter_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
         max_iter_tctrl->Bind(wxEVT_KILL_FOCUS, &CorrelParamsFrame::OnMaxIterTctrlKillFocus, this);
+		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxTE_PROCESS_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
 	}
 	wxBoxSizer* max_iter_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	max_iter_h_szr->Add(max_iter_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -344,6 +347,11 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 	notifyObservers();
 }
 
+void CorrelParamsFrame::OnVarChoiceSelected(wxCommandEvent& ev)
+{
+    OnApplyBtn(ev);
+    ev.Skip();
+}
 
 void CorrelParamsFrame::OnAllPairsRadioSelected(wxCommandEvent& ev)
 {
@@ -355,6 +363,9 @@ void CorrelParamsFrame::OnAllPairsRadioSelected(wxCommandEvent& ev)
 	rand_samp_rad->SetValue(false);
 	max_iter_txt->Enable(false);
 	max_iter_tctrl->Enable(false);
+    
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnRandSampRadioSelected(wxCommandEvent& ev)
@@ -367,19 +378,28 @@ void CorrelParamsFrame::OnRandSampRadioSelected(wxCommandEvent& ev)
 	rand_samp_rad->SetValue(true);
 	max_iter_txt->Enable(true);
 	max_iter_tctrl->Enable(true);
+    
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnBinsTextCtrl(wxCommandEvent& ev)
 {
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnBinsSpinEvent(wxSpinEvent& ev)
 {
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnDistanceChoiceSelected(wxCommandEvent& ev)
 {
 	UpdateThreshTctrlVal();
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnThreshCheckBox(wxCommandEvent& ev)
@@ -389,6 +409,10 @@ void CorrelParamsFrame::OnThreshCheckBox(wxCommandEvent& ev)
 	thresh_tctrl->Enable(checked);
 	thresh_slider->Enable(checked);
 	UpdateEstPairs();
+    
+    
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnThreshTextCtrl(wxCommandEvent& ev)
@@ -412,6 +436,7 @@ void CorrelParamsFrame::OnThreshTextCtrl(wxCommandEvent& ev)
 	} else {
 		UpdateThreshTctrlVal();
 	}
+    
 }
 
 void CorrelParamsFrame::OnThreshTctrlKillFocus(wxFocusEvent& ev)
@@ -433,7 +458,11 @@ void CorrelParamsFrame::OnThreshTctrlKillFocus(wxFocusEvent& ev)
 		}
 	} else {
 		UpdateThreshTctrlVal();
-	}	
+	}
+
+    wxCommandEvent evt;
+    OnApplyBtn(evt);
+    evt.Skip();
 }
 
 void CorrelParamsFrame::OnThreshSlider(wxCommandEvent& ev)
@@ -441,10 +470,14 @@ void CorrelParamsFrame::OnThreshSlider(wxCommandEvent& ev)
 	if (!thresh_tctrl || !thresh_slider) return;
 	UpdateThreshTctrlVal();
 	if (thresh_cbx && thresh_cbx->GetValue()) UpdateEstPairs();
+    
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnMaxIterTextCtrl(wxCommandEvent& ev)
 {
+    
 }
 
 void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
@@ -468,7 +501,11 @@ void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
 		wxString s;
 		s << CorrelParams::def_iter_cnst;
 		max_iter_tctrl->ChangeValue(s);
-	}	
+	}
+    
+    wxCommandEvent evt;
+    OnApplyBtn(evt);
+    evt.Skip();
 }
 
 void CorrelParamsFrame::UpdateFromTable()

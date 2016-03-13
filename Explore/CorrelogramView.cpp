@@ -38,9 +38,9 @@ BEGIN_EVENT_TABLE(CorrelogramFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
-																				 const wxString& title,
-																				 const wxPoint& pos,
-																				 const wxSize& size)
+                                   const wxString& title,
+                                   const wxPoint& pos,
+                                   const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
@@ -250,7 +250,8 @@ void CorrelogramFrame::notifyOfClosing(CorrelParamsObservable* o)
     UpdateMessageWin();
 }
 
-void CorrelogramFrame::notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs)
+void CorrelogramFrame::notifyNewHover(const std::vector<int>& hover_obs,
+                                      int total_hover_obs)
 {
 	wxStatusBar* sb = GetStatusBar();
 	if (!sb) return;
@@ -266,7 +267,8 @@ void CorrelogramFrame::notifyNewHover(const std::vector<int>& hover_obs, int tot
 }
 
 /** Implementation of SimpleScatterPlotCanvasCbInt interface */	
-void CorrelogramFrame::notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs)
+void CorrelogramFrame::notifyNewHistHover(const std::vector<int>& hover_obs,
+                                          int total_hover_obs)
 {
 	wxStatusBar* sb = GetStatusBar();
 	if (!sb) return;
