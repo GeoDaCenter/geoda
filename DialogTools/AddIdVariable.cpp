@@ -49,11 +49,12 @@ AddIdVariable::AddIdVariable(TableInterface* table_int_s,
 
 void AddIdVariable::CreateControls()
 {
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "IDD_ADD_ID_VARIABLE");
-	new_id_var = wxDynamicCast(FindWindow(XRCID("IDC_NEW_ID_VAR")),
-							   wxTextCtrl);
-	existing_vars_list = 
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_ADD_ID_VARIABLE");
+	new_id_var = wxDynamicCast(FindWindow(XRCID("IDC_NEW_ID_VAR")), wxTextCtrl);
+    Connect(XRCID("IDC_NEW_ID_VAR"), wxEVT_COMMAND_TEXT_ENTER,
+           wxCommandEventHandler(AddIdVariable::OnOkClick));
+
+	existing_vars_list =
 		wxDynamicCast(FindWindow(XRCID("IDC_EXISTING_VARS_LIST")), wxListBox);
 	existing_vars_list->Clear();
 

@@ -65,22 +65,27 @@ project(project_)
                             XRCID("ID_F_TEXT"),
                             wxString::Format("%.2f", GetF()),
                             wxDefaultPosition, 
-                            wxSize(100, -1));
+                            wxSize(100, -1),
+                            wxTE_PROCESS_ENTER);
 	f_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-	Connect(XRCID("ID_F_TEXT"), 
-            wxEVT_TEXT,
+	Connect(XRCID("ID_F_TEXT"), wxEVT_TEXT,
             wxCommandEventHandler(LowessParamFrame::OnFTextChange));
+    Connect(XRCID("ID_F_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 
 	wxStaticText* iter_stat_t = new wxStaticText(panel, wxID_ANY, "Iterations:");
 	iter_text = new wxTextCtrl(panel, 
                                XRCID("ID_ITER_TEXT"),
                                wxString::Format("%d", GetIter()),
                                wxDefaultPosition, 
-                               wxSize(100, -1));
+                               wxSize(100, -1),
+                               wxTE_PROCESS_ENTER);
 	iter_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	Connect(XRCID("ID_ITER_TEXT"), 
             wxEVT_TEXT,
             wxCommandEventHandler(LowessParamFrame::OnIterTextChange));
+    Connect(XRCID("ID_ITER_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 	
 	wxStaticText* delta_factor_stat_t =
 		new wxStaticText(panel, wxID_ANY, "Delta Factor:");
@@ -88,12 +93,15 @@ project(project_)
                                        XRCID("ID_DELTA_FACTOR_TEXT"),
                                        wxString::Format("%.4f", GetDeltaFactor()),
                                        wxDefaultPosition, 
-                                       wxSize(100, -1));
+                                       wxSize(100, -1),
+                                       wxTE_PROCESS_ENTER);
 	delta_factor_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     
 	Connect(XRCID("ID_DELTA_FACTOR_TEXT"), 
             wxEVT_TEXT,
             wxCommandEventHandler(LowessParamFrame::OnDeltaFactorTextChange));
+    Connect(XRCID("ID_DELTA_FACTOR_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 	Connect(XRCID("ID_HELP_BTN"), 
             wxEVT_BUTTON,
             wxCommandEventHandler(LowessParamFrame::OnHelpBtn));
@@ -177,6 +185,8 @@ void LowessParamFrame::OnResetDefaultsBtn(wxCommandEvent& ev)
 	f_text->ChangeValue(wxString::Format("%.2f", GetF()));
 	iter_text->ChangeValue(wxString::Format("%d", GetIter()));
 	delta_factor_text->ChangeValue(wxString::Format("%.4f", GetDeltaFactor()));
+    
+    OnApplyBtn(ev);
 }
 
 void LowessParamFrame::OnFTextChange(wxCommandEvent& ev)

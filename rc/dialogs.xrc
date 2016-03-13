@@ -3757,6 +3757,7 @@
             <object class="wxTextCtrl" name="IDC_NEW_ID_VAR">
               <value>POLY_ID</value>
               <size>90,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
             <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
             <border>5</border>
