@@ -88,9 +88,15 @@ void SaveSelectionDlg::CreateControls()
 	
 	m_sel_val_text = wxDynamicCast(FindWindow(XRCID("ID_SEL_VAL_TEXT")),
 								   wxTextCtrl);
+
+    Connect(XRCID("ID_SEL_VAL_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
    
     m_save_sel_var_name = wxDynamicCast(FindWindow(XRCID("ID_SAVE_SEL_VAR_NAME")),
                                         wxTextCtrl);
+    
+    Connect(XRCID("ID_SAVE_SEL_VAR_NAME"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
     
 	m_sel_val_text->Clear();
 	m_sel_val_text->AppendText("1");
@@ -100,7 +106,11 @@ void SaveSelectionDlg::CreateControls()
 									  wxCheckBox); 
 	
 	m_unsel_val_text = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_VAL_TEXT")),
-									 wxTextCtrl);	
+									 wxTextCtrl);
+    
+    Connect(XRCID("ID_UNSEL_VAL_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
+    
 	m_unsel_val_text->Clear();
 	m_unsel_val_text->AppendText("0");
 	m_unsel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));

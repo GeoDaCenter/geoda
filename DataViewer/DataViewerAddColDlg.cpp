@@ -180,7 +180,12 @@ void DataViewerAddColDlg::CreateControls()
 	} else {
 		m_type->SetSelection(0);
 	}
-	
+
+    
+    Connect(XRCID("ID_TEXT_NEW_NAME"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    Connect(XRCID("ID_TEXT_LENGTH"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    Connect(XRCID("ID_TEXT_DECIMALS"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    
 	CheckName();
 	SetDefaultsByType(default_field_type);
 }

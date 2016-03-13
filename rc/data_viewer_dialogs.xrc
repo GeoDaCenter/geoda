@@ -974,6 +974,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_NEW_NAME">
               <size>110,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
           </object>
@@ -1001,6 +1002,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_LENGTH">
               <size>25,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
           </object>
           <object class="sizeritem">
@@ -1011,6 +1013,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_DECIMALS">
               <size>25,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
           </object>
           <object class="sizeritem">
@@ -1168,6 +1171,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_NEW_NAME">
               <size>110,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
           </object>
@@ -1222,6 +1226,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_LENGTH">
               <size>25,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
           </object>
           <object class="sizeritem">
@@ -1233,6 +1238,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxTextCtrl" name="ID_TEXT_DECIMALS">
               <size>25,-1d</size>
+              <style>wxTE_PROCESS_ENTER</style>
             </object>
           </object>
           <object class="sizeritem">

@@ -5661,6 +5661,7 @@
                     <object class="wxTextCtrl" name="ID_SAVE_SEL_VAR_NAME">
                       <size>50,-1d</size>
                       <value>SELECTED</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5700,6 +5701,7 @@
                     <object class="wxTextCtrl" name="ID_SEL_VAL_TEXT">
                       <size>50,-1d</size>
                       <value>1</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5733,6 +5735,7 @@
                     <object class="wxTextCtrl" name="ID_UNSEL_VAL_TEXT">
                       <size>50,-1d</size>
                       <value>0</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5856,6 +5859,7 @@
                     <object class="wxTextCtrl" name="ID_SAVE_SEL_VAR_NAME">
                       <size>50,-1d</size>
                       <value>SELECTED</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5896,6 +5900,7 @@
                     <object class="wxTextCtrl" name="ID_SEL_VAL_TEXT">
                       <size>50,-1d</size>
                       <value>1</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
@@ -5929,6 +5934,7 @@
                     <object class="wxTextCtrl" name="ID_UNSEL_VAL_TEXT">
                       <size>50,-1d</size>
                       <value>0</value>
+                      <style>wxTE_PROCESS_ENTER</style>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>

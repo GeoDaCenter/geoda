@@ -72,7 +72,9 @@ all_init(false)
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
-        m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20));
+        m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20), wxTE_PROCESS_ENTER);
+        
+        m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(SaveToTableDlg::OnOkClick),NULL, this);
         
 		if (is_space_time) {
 			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
@@ -84,6 +86,7 @@ all_init(false)
         m_add_button[i]->Hide();
         m_field[i]->Hide();
 	}
+   
     
     m_field_label = new wxStaticText(this, wxID_ANY, "Variable Name");
 	if (data.size() == 1)
