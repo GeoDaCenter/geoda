@@ -3334,12 +3334,10 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_CORRELOGRAM_MENU_OPTIONS">
-      <!--
 	<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
       <label>Change Parameters</label>
       <checkable>0</checkable>
     </object>
-       -->
 	<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
       <label>Show Status Bar</label>
       <checkable>1</checkable>

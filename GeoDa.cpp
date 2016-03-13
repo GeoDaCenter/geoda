@@ -3394,10 +3394,8 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-    CorrelParamsFrame dlg(project_p);
-    if (dlg.ShowModal() != wxID_OK) return;
     
-    CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, project_p, dlg.correl_params, dlg.var_man, "Correlogram", wxDefaultPosition, GdaConst::scatterplot_default_size);
+    CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, p, "Correlogram", wxDefaultPosition, GdaConst::scatterplot_default_size);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))

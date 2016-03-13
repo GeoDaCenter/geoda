@@ -29,13 +29,12 @@
 #include "../DialogTools/WebViewHelpWin.h"
 #include "CorrelParamsDlg.h"
 
-BEGIN_EVENT_TABLE( CorrelParamsFrame, wxDialog )
-EVT_CLOSE( CorrelParamsFrame::OnClose )
-END_EVENT_TABLE()
-
-CorrelParamsFrame::CorrelParamsFrame(Project* project_)
-: wxDialog(NULL, wxID_ANY, "Correlogram Parameters" , wxDefaultPosition, wxDefaultSize),
-project(project_),
+CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params,
+																		 GdaVarTools::Manager& var_man,
+																		 Project* project_)
+: wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
+					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
+CorrelParamsObservable(correl_params, var_man), project(project_),
 var_txt(0), var_choice(0), dist_txt(0), dist_choice(0), bins_txt(0),
 bins_spn_ctrl(0), thresh_cbx(0), thresh_tctrl(0), thresh_slider(0),
 all_pairs_rad(0), est_pairs_txt(0), est_pairs_num_txt(0),
@@ -44,16 +43,6 @@ help_btn(0), apply_btn(0)
 {
 	LOG_MSG("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
-    {
-        std::vector<wxString> tm_strs;
-        project->GetTableInt()->GetTimeStrings(tm_strs);
-        var_man.ClearAndInit(tm_strs);
-        
-        correl_params.dist_metric = project->GetDefaultDistMetric();
-        correl_params.dist_units = project->GetDefaultDistUnits();
-
-    }
-    
 	wxPanel* panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
@@ -211,26 +200,19 @@ help_btn(0), apply_btn(0)
 	SetSizerAndFit(top_h_sizer);
 	
 	wxCommandEvent ev;
-    if (correl_params.method == CorrelParams::ALL_PAIRS)
-        OnAllPairsRadioSelected(ev);
-    else
+    if (project->GetNumRecords() > 5000)
         OnRandSampRadioSelected(ev);
-	
-    Center();
-    
+    else
+        OnAllPairsRadioSelected(ev);
+        
+    Show(true);
 	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }
 
 CorrelParamsFrame::~CorrelParamsFrame()
 {
 	LOG_MSG("In CorrelParamsFrame::~CorrelParamsFrame");
-}
-
-void CorrelParamsFrame::OnClose(wxCloseEvent& ev)
-{
-    EndModal(wxID_CANCEL);
-    Destroy();
-    ev.Skip();
+	notifyObserversOfClosing();
 }
 
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
@@ -357,12 +339,9 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 		}
 	}
 	int var_man_cnt = var_man.GetVarsCount();
-
-    if (valid_variable == true) {
-
-        EndModal(wxID_OK);
-        Destroy();
-    }
+	LOG(var_man_cnt);
+	if (var_man_cnt) LOG(var_man.GetName(0));
+	notifyObservers();
 }
 
 
@@ -492,6 +471,18 @@ void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
 	}	
 }
 
+void CorrelParamsFrame::UpdateFromTable()
+{
+	LOG_MSG("Entering CorrelParamsFrame::UpdateFromTable");
+	TableInterface* table_int = project->GetTableInt();
+	notifyObservers();
+	LOG_MSG("Exiting CorrelParamsFrame::UpdateFromTable");
+}
+
+void CorrelParamsFrame::closeAndDeleteWhenEmpty()
+{
+	Close(true);
+}
 
 bool CorrelParamsFrame::IsArc()
 {

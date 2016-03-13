@@ -44,10 +44,12 @@
 
 class Project;
 
-class CorrelParamsFrame : public wxDialog
+class CorrelParamsFrame : public wxFrame, public CorrelParamsObservable
 {
 public:
-	CorrelParamsFrame(Project* project);
+	CorrelParamsFrame(const CorrelParams& correl_params,
+										GdaVarTools::Manager& var_man,
+										Project* project);
 	virtual ~CorrelParamsFrame();
 	
 	void OnHelpBtn(wxCommandEvent& ev);
@@ -65,11 +67,15 @@ public:
 	void OnMaxIterTextCtrl(wxCommandEvent& ev);
 	void OnMaxIterTctrlKillFocus(wxFocusEvent& ev);
 	
-    void OnClose(wxCloseEvent& ev);
+	/** Validates variable list against table.
+	 New variables are added, order is updated, and missing variables are removed.
+	 If any changes to GdaVarTools::Manager are made, a notify event is
+	 generated. */
+	void UpdateFromTable();
 	
-	CorrelParams correl_params;
-    GdaVarTools::Manager var_man;
-    
+	/** Override CorrelParamsObservable::closeAndDeleteWhenEmpty */
+	virtual void closeAndDeleteWhenEmpty();
+	
 private:
 	bool IsArc();
 	bool IsMi();
@@ -88,8 +94,6 @@ private:
 	wxString GetHelpPageHtml() const;
 	
 	Project* project;
-    
-    
 
 	wxStaticText* var_txt; // ID_VAR_TXT
 	wxChoice* var_choice; // ID_VAR_CHOICE
@@ -110,8 +114,6 @@ private:
 	wxButton* apply_btn; // ID_APPLY_BTN
 	
 	static const long sldr_tcks = 1000;
-    
-    DECLARE_EVENT_TABLE()
 };
 
 #endif

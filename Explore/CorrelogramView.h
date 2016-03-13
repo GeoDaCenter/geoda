@@ -48,12 +48,11 @@ typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
 /**
  CorrelogramFrame manages all of its canvas child windows.
  */
-class CorrelogramFrame : public TemplateFrame, 
+class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
 public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt
 {
 public:
-	CorrelogramFrame(wxFrame *parent, Project* project, CorrelParams &par,
-                     GdaVarTools::Manager &var_man,
+	CorrelogramFrame(wxFrame *parent, Project* project,
 											const wxString& title = "Scatter Plot Matrix",
 											const wxPoint& pos = wxDefaultPosition,
 											const wxSize& size = wxDefaultSize);
@@ -75,12 +74,17 @@ public:
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
+	/** Implementation of CorrelParamsObserver interface */
+	virtual void update(CorrelParamsObservable* o);
+	virtual void notifyOfClosing(CorrelParamsObservable* o);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
-	virtual void notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs);
+	virtual void notifyNewHover(const std::vector<int>& hover_obs,
+															int total_hover_obs);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
-	virtual void notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs);
+	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
+															int total_hover_obs);
 	
 protected:
     void ReDraw();
