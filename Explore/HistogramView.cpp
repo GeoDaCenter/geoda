@@ -522,6 +522,12 @@ void HistogramCanvas::PopulateCanvas()
             double y0 = 0;
            
             double y00 = -shps_orig_ymax / 100.0;
+            wxRealPoint p0;
+            wxRealPoint p1;
+            last_scale_trans.transform_back(wxPoint(0,0), p0);
+            last_scale_trans.transform_back(wxPoint(0,4), p1);
+            y00 = p1.y - p0.y;
+            
             GdaPolyLine* xline = new GdaPolyLine(x0, y0, x1, y0);
             xline->setNudge(0, 10);
             background_shps.push_back(xline);
@@ -578,7 +584,14 @@ void HistogramCanvas::PopulateCanvas()
             }
             axis_scale_x.tics_str_show[i] = true;
         }
-	
+
+        GdaShapeText* brk =
+        new GdaShapeText(GetNameWithTime(0),
+                         *GdaConst::small_font,
+                         wxRealPoint((x_max -x_min)/2.0, 0), 0,
+                         GdaShapeText::h_center,
+                         GdaShapeText::v_center, 0, 35);
+        background_shps.push_back(brk);
 
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
 		//x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
