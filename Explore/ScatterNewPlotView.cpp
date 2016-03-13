@@ -1879,9 +1879,9 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 																	 pt2.y));
 			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
 																	 pt2.y));
-			s << ", select rect: ";
-			s << GetNameWithTime(0) << "=[" << xmin << "," << xmax << "] and ";
-			s << GetNameWithTime(1) << "=[" << ymin << "," << ymax << "]";
+			//s << ", select rect: ";
+			//s << GetNameWithTime(0) << "=[" << xmin << "," << xmax << "] and ";
+			//s << GetNameWithTime(1) << "=[" << ymin << "," << ymax << "]";
 		}
         s <<"  ";
 	}
