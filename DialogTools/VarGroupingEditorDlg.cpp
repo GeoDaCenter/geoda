@@ -117,7 +117,7 @@ frames_manager(project_p->GetFramesManager()),
 table_state(project_p->GetTableState()),
 highlight_state(project_p->GetHighlightState()),
 wmi(project_p->GetWManInt()),
-common_empty(true), all_init(false), pos_ungrouped_list(0)
+common_empty(true), all_init(false), pos_ungrouped_list(0),is_editing(false)
 {
 	CreateControls();
 	SetPosition(pos);
