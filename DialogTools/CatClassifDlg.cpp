@@ -367,6 +367,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
+        /*
         if (i==0) {
             GdaShapeText* brk =
             new GdaShapeText(GenUtils::DblToStr(min_val),
@@ -394,8 +395,45 @@ void CatClassifHistCanvas::PopulateCanvas()
                              GdaShapeText::v_center, 0, 10);
             background_shps.push_back(brk);
         }
+        */
 	}
-	
+    
+    axis_scale_x = AxisScale(shps_orig_xmin, shps_orig_xmax);
+    //shps_orig_xmax = axis_scale_x.scale_max;
+    axis_scale_x.data_min = min_val;
+    axis_scale_x.data_max = max_val;
+    axis_scale_x.scale_min = axis_scale_x.data_min;
+    axis_scale_x.scale_max = axis_scale_x.data_max;
+    
+    double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
+    LOG(axis_scale_x.data_max);
+    axis_scale_x.scale_range = range;
+    axis_scale_x.p = floor(log10(range));
+    axis_scale_x.ticks = cur_intervals+1;
+    axis_scale_x.tics.resize(axis_scale_x.ticks);
+    axis_scale_x.tics_str.resize(axis_scale_x.ticks);
+    axis_scale_x.tics_str_show.resize(axis_scale_x.tics_str.size());
+    
+    for (int i=0; i<axis_scale_x.ticks; i++) {
+        axis_scale_x.tics[i] = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
+        std::ostringstream ss;
+        ss << std::setprecision(3) << axis_scale_x.tics[i];
+        axis_scale_x.tics_str[i] = ss.str();
+        axis_scale_x.tics_str_show[i] = false;
+    }
+    
+    int tick_freq = ceil(((double) cur_intervals)/10.0);
+    for (int i=0; i<axis_scale_x.ticks; i++) {
+        if (i % tick_freq == 0) {
+            axis_scale_x.tics_str_show[i] = true;
+           
+            
+        }
+    }
+    axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
+    x_axis = new GdaAxis("", axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
+    background_shps.push_back(x_axis);
+    
 	ResizeSelectableShps();
 	
 	LOG_MSG("Exiting CatClassifHistCanvas::PopulateCanvas");

@@ -260,8 +260,10 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
            
             if (is_save_centroids) {
                 if (n_ds_table_only == false) {
-                    // make sure geometries are saved as well if needed
+                    // make sure geometries are saved as well if needed for
+                    // non-table-only datasource
                     shape_type = Shapefile::POINT_TYP;
+                    spatial_ref = project_p->GetSpatialReference();
                 }
                 // Add points to Table
                 if (table_p) {
@@ -289,8 +291,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     table_p->SetColData(col_x, 0, x_data);
                     table_p->SetColData(col_y, 0, y_data);
                     
-                } else {
-                    spatial_ref = project_p->GetSpatialReference();
                 }
             }
             

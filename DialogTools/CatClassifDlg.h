@@ -99,7 +99,10 @@ protected:
 	Gda::dbl_int_pair_vec_type default_data;
 	
 	AxisScale axis_scale_y;
+	AxisScale axis_scale_x;
+    
 	GdaAxis* y_axis;
+	GdaAxis* x_axis;
 	
     double max_val;
     double min_val;

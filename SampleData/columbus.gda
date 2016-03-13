@@ -5,7 +5,7 @@
         <layer>
             <datasource>
                 <type>ESRI Shapefile</type>
-                <path>columbus.shp</path>
+                <path>Examples/columbus/shapefile/columbus.shp</path>
             </datasource>
             <layername>columbus</layername>
             <title>Columbus Neigh. Crime</title>
