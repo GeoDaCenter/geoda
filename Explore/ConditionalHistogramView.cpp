@@ -477,7 +477,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0),
+		x_axis = new GdaAxis(GetNameWithTime(2), axis_scale_x, wxRealPoint(0,0),
 							wxRealPoint(shps_orig_xmax, 0), 0, 9);
 	}
 	
