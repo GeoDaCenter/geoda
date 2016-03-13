@@ -1029,7 +1029,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	{
 		cc_data.break_vals_type = CatClassification::custom_break_vals;
 	} else {
-        if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
+        if (event.GetSelection() > 0 ){
             CatClassification::PickColorSet(cc_data.colors,
                                             cc_data.color_scheme,
                                             new_num_cats, false);
@@ -1050,6 +1050,8 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	cc_data.num_cats = new_num_cats;
 	InitFromCCData();
 	UpdateCCState();
+   
+	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
 }
 
 void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
