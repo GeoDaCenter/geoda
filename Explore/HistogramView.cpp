@@ -70,7 +70,7 @@ HistogramCanvas::HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
 var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
-scale_x_over_time(false), scale_y_over_time(true),
+scale_x_over_time(true), scale_y_over_time(true),
 custom_classif_state(0), is_custom_category(false)
 {
 	using namespace Shapefile;
@@ -511,33 +511,78 @@ void HistogramCanvas::PopulateCanvas()
 		axis_scale_x.data_max = max_ival_val[time];
 		axis_scale_x.scale_min = axis_scale_x.data_min;
 		axis_scale_x.scale_max = axis_scale_x.data_max;
-        
-		double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
-		LOG(axis_scale_x.data_max);
-		axis_scale_x.scale_range = range;
-		axis_scale_x.p = floor(log10(range));
-		axis_scale_x.ticks = cur_intervals+1;
-		axis_scale_x.tics.resize(axis_scale_x.ticks);
-		axis_scale_x.tics_str.resize(axis_scale_x.ticks);
-		axis_scale_x.tics_str_show.resize(axis_scale_x.tics_str.size());
-        
-		for (int i=0; i<axis_scale_x.ticks; i++) {
-			axis_scale_x.tics[i] = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
-			std::ostringstream ss;
-			ss << std::setprecision(3) << axis_scale_x.tics[i];
-			axis_scale_x.tics_str[i] = ss.str();
-			axis_scale_x.tics_str_show[i] = false;
-		}
-        
-		int tick_freq = ceil(((double) cur_intervals)/10.0);
-		for (int i=0; i<axis_scale_x.ticks; i++) {
-			if (i % tick_freq == 0) {
-				axis_scale_x.tics_str_show[i] = true;
-			}
-		}
+      
+        axis_scale_x.tics.resize(cur_intervals);
+        axis_scale_x.tics_str.resize(cur_intervals);
+        axis_scale_x.tics_str_show.resize(cur_intervals);
+       
+        for (int i=0; i<cur_intervals; i++) {
+            double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
+            double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
+            double y0 = 0;
+           
+            double y00 = -shps_orig_ymax / 100.0;
+            GdaPolyLine* xline = new GdaPolyLine(x0, y0, x1, y0);
+            xline->setNudge(0, 10);
+            background_shps.push_back(xline);
+            
+            GdaPolyLine* xdline = new GdaPolyLine(x0, y0, x0, y00);
+            xdline->setNudge(0, 10);
+            background_shps.push_back(xdline);
+            
+            if (i==0) {
+                axis_scale_x.tics[i] = axis_scale_x.data_min;
+                wxString tic_str;
+                tic_str << axis_scale_x.data_min;
+                axis_scale_x.tics_str[i] = tic_str;
+                
+                GdaShapeText* brk =
+                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min),
+                                 *GdaConst::small_font,
+                                 wxRealPoint(x0, y0), 0,
+                                 GdaShapeText::h_center,
+                                 GdaShapeText::v_center, 0, 25);
+                background_shps.push_back(brk);
+            }
+            if (i<cur_intervals-1) {
+                axis_scale_x.tics[i] = ival_breaks[time][i];
+                wxString tic_str;
+                tic_str << ival_breaks[time][i];
+                axis_scale_x.tics_str[i] = tic_str;
+                
+                GdaShapeText* brk =
+                new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i]),
+                                 *GdaConst::small_font,
+                                 wxRealPoint(x1, y0), 0,
+                                 GdaShapeText::h_center,
+                                 GdaShapeText::v_center, 0, 25);
+                background_shps.push_back(brk);
+            }
+            if (i==cur_intervals-1) {
+                axis_scale_x.tics[i] = axis_scale_x.data_max;
+                wxString tic_str;
+                tic_str << axis_scale_x.data_max;
+                axis_scale_x.tics_str[i] = tic_str;
+                GdaShapeText* brk =
+                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max),
+                                 *GdaConst::small_font,
+                                 wxRealPoint(x1, y0), 0,
+                                 GdaShapeText::h_center,
+                                 GdaShapeText::v_center, 0, 25);
+                background_shps.push_back(brk);
+                
+                
+                GdaPolyLine* xdline = new GdaPolyLine(x1, y0, x1, y00);
+                xdline->setNudge(0, 10);
+                background_shps.push_back(xdline);
+            }
+            axis_scale_x.tics_str_show[i] = true;
+        }
+	
+
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
-		background_shps.push_back(x_axis);
+		//x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
+		//background_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
