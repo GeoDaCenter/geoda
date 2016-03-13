@@ -70,7 +70,7 @@ HistogramCanvas::HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
 var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
-scale_x_over_time(true), scale_y_over_time(true),
+scale_x_over_time(false), scale_y_over_time(true),
 custom_classif_state(0), is_custom_category(false)
 {
 	using namespace Shapefile;
