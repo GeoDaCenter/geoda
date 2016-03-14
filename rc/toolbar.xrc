@@ -98,7 +98,7 @@
     <object class="tool" name="ID_MORAN_MENU">
         <bitmap>color/32x32/21.png</bitmap>
         <bitmap2>gray/32x32/21.png</bitmap2>
-      <tooltip>Moran I Scatter Plot</tooltip>
+      <tooltip>Moran Scatter Plot</tooltip>
     </object>
     <object class="tool" name="IDM_CORRELOGRAM">
         <bitmap>color/32x32/22.png</bitmap>
