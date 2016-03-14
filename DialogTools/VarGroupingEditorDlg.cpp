@@ -182,6 +182,7 @@ void VarGroupingEditorDlg::CreateControls()
     
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
+    include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
 
 }
 
@@ -899,6 +900,9 @@ void VarGroupingEditorDlg::OnIncludeListDblClicked( wxMouseEvent& event)
     }
 }
 
+void VarGroupingEditorDlg::OnIncludeListRightDown( wxMouseEvent& event)
+{
+}
 
 void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
 {
@@ -910,6 +914,10 @@ void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
     mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
                 wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
                 NULL, this);
+    if (GetListSel(include_list).size() == 0) {
+        mnu.Enable(XRCID("INCLUDE_DELETE_TIME"), false);
+    }
+    
     PopupMenu(&mnu);
     }
     

@@ -78,6 +78,7 @@ public:
     
     void OnIncludeListDblClicked( wxMouseEvent& event);
     void OnIncludeListRightUp( wxMouseEvent& event);
+    void OnIncludeListRightDown( wxMouseEvent& event);
     void OnIncludePopupClick(wxCommandEvent &evt);
     
     void includeListAddNewTime();
