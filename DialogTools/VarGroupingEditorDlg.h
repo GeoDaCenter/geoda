@@ -86,6 +86,7 @@ public:
     void sortColumn(int col, bool asc=false);
     wxString GetNewAppendTimeLabel();
 
+    void OnUngroupedListLeftDown(wxMouseEvent& event);
     
 	void OnGroupedListSelection( wxCommandEvent& event );
 	void OnNewGroupNameChange( wxCommandEvent& event );

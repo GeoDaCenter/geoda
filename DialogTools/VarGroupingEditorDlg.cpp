@@ -180,6 +180,9 @@ void VarGroupingEditorDlg::CreateControls()
 	InitAll();
 	UpdateButtons();
     
+    ungrouped_list->Bind(wxEVT_LEFT_DOWN, &VarGroupingEditorDlg::OnUngroupedListLeftDown, this);
+
+    
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
     include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
@@ -241,9 +244,15 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
         if (pos_ungrouped_list >= ug_cnt) {
             pos_ungrouped_list = ug_cnt -1;
         }
-        ungrouped_list->SetItemState(pos_ungrouped_list, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
         ungrouped_list->EnsureVisible(pos_ungrouped_list);
+        ungrouped_list->SetItemState(pos_ungrouped_list, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED);
+        
     }
+}
+
+void VarGroupingEditorDlg::OnUngroupedListLeftDown(wxMouseEvent& ev)
+{
+    ev.Skip();
 }
 
 void VarGroupingEditorDlg::InitGroupedList()

@@ -593,7 +593,7 @@
               <object class="sizeritem">
                 <object class="wxListCtrl" name="ID_UNGROUPED_LIST">
                   <size>60,100d</size>
-                  <style>wxLC_REPORT</style>
+                  <style>wxLC_REPORT | wxLB_EXTENDED</style>
                 </object>
                 <option>1</option>
                 <flag>wxEXPAND</flag>
