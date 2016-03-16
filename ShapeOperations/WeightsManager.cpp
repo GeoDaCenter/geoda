@@ -349,7 +349,7 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	Entry& e = it->second;
     wxString tmpName = e.wpte.wmi.filename;
     if (e.gal_weight) {
-        delete e.gal_weight;
+        return e.gal_weight;
     }
 	
 	// Load file for first use
