@@ -501,6 +501,11 @@ fi
 #########################################################################
 cd $GEODA_HOME
 cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+
+if [[ $NODEBUG -eq 0 ]] ; then
+    USER_DEFS = "-DLOG_ON "
+fi
+
 make clean
 mkdir ../../o
 $MAKER

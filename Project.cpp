@@ -490,12 +490,17 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		
 		vector<OGRGeometry*> ogr_geometries;
 		OGRwkbGeometryType geom_type =
-		OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+		OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type,
+                                                        ogr_geometries,
+                                                        selected_rows);
 		
 		// Start saving
 		int prog_n_max = 0;
 		if (table_int) prog_n_max = table_int->GetNumberRows();
-		wxProgressDialog prog_dlg("Save data source progress dialog", "Saving data...", prog_n_max, NULL, wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
+		wxProgressDialog prog_dlg("Save data source progress dialog",
+                                  "Saving data...",
+                                  prog_n_max, NULL,
+                                  wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
 		OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), new_ds_name.ToStdString(), layername.ToStdString(), geom_type, ogr_geometries, table_int, selected_rows, spatial_ref, is_update);
 		bool cont = true;
 		while ( new_layer->export_progress < prog_n_max ) {
@@ -1539,7 +1544,10 @@ bool Project::InitFromOgrLayer()
 	isTableOnly = layer_proxy->IsTableOnly();
 	if (!isTableOnly) {
 		layer_proxy->ReadGeometries(main_data);
-	}
+    } else {
+        // prompt user to select X/Y columns to create a geometry layer
+
+    }
 	// run caching in background
 	// OGRDataAdapter::GetInstance().CacheLayer
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
