@@ -45,6 +45,7 @@ bool GalElement::Check(long nbrIdx)
     return false;
 }
 
+// return row standardized weights value
 double GalElement::GetRW(int idx)
 {
     if (nbrAvgW.empty()) {
@@ -98,6 +99,7 @@ void GalElement::SetNbr(size_t pos, long n, double w)
     }
 }
 
+/*
 void GalElement::SetNbrs(const std::vector<long>& nbrs)
 {
 	nbr = nbrs;
@@ -110,10 +112,26 @@ void GalElement::SetNbrs(const std::vector<long>& nbrs)
         }
     }
 }
+ */
+
+void GalElement::SetNbrs(const GalElement& gal)
+{
+    size_t sz = gal.Size();
+    nbr.resize(sz);
+    nbrWeight.resize(sz);
+    
+    nbr = gal.GetNbrs();
+    nbrWeight = gal.GetNbrWeights();
+}
 
 const std::vector<long> & GalElement::GetNbrs() const
 {
 	return nbr;
+}
+
+const std::vector<double> & GalElement::GetNbrWeights() const
+{
+	return nbrWeight;
 }
 
 void GalElement::SortNbrs()
@@ -191,7 +209,10 @@ GalWeight& GalWeight::operator=(const GalWeight& gw)
 {
 	GeoDaWeight::operator=(gw);
 	gal = new GalElement[num_obs];
-	for (int i=0; i<num_obs; ++i) gal[i].SetNbrs(gw.gal[i].GetNbrs());
+    
+    for (int i=0; i<num_obs; ++i) {
+        gal[i].SetNbrs(gw.gal[i]);
+    }
     
     this->num_obs = gw.num_obs;
     this->wflnm = gw.wflnm;
