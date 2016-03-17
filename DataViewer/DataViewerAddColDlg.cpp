@@ -64,6 +64,7 @@ m_decimals_val(0), m_length_valid(true),
 time_variant(project_s->GetTableInt()->IsTimeVariant()),
 fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 {
+    LOG_MSG("Entering DataViewerAddColDlg::DataViewerAddColDlg(..)");
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -86,6 +87,8 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	m_insert_pos->SetSelection(0);
      
 	UpdateApplyButton();
+    
+    LOG_MSG("Exiting DataViewerAddColDlg::DataViewerAddColDlg(..)");
 }
 
 

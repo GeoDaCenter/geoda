@@ -29,7 +29,7 @@
 #include "../Project.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 
-
+#include "../logger.h"
 #include "BasemapConfDlg.h"
 
 
@@ -44,6 +44,8 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
                        const wxPoint& pos,
                        const wxSize& size )
 {
+    
+    LOG_MSG("Entering BasemapConfDlg::BasemapConfDlg(..)");
     p = _p;
     
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_BASEMAP_CONF_DLG");
@@ -55,6 +57,7 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
     SetParent(parent);
     SetPosition(pos);
     Centre();
+    LOG_MSG("Exiting BasemapConfDlg::BasemapConfDlg(..)");
 }
 
 

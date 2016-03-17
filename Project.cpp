@@ -460,6 +460,8 @@ void Project::SaveOGRDataSource()
 
 void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 {
+	LOG_MSG("Entering Project::SaveDataSourceAs");
+    LOG_MSG("New Datasource Name:" + new_ds_name);
 	vector<GdaShape*> geometries;
 	try {
 		// SaveAs only to same datasource
@@ -531,6 +533,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		}
 		throw e;
 	}
+	LOG_MSG("Entering Project::SaveDataSourceAs");
 }
 
 void Project::SpecifyProjectConfFile(const wxString& proj_fname)
@@ -544,6 +547,7 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 
 void Project::SaveProjectConf()
 {
+	LOG_MSG("Entering Project::SaveProjectConf");
 	if (project_conf->GetFilePath().IsEmpty()) {
 		
         // save project file at the same directory of the file datasource
@@ -563,6 +567,7 @@ void Project::SaveProjectConf()
         UpdateProjectConf();
         project_conf->Save(project_conf->GetFilePath());
     }
+	LOG_MSG("Exiting Project::SaveProjectConf");
 }
 
 bool Project::IsFileDataSource() {
@@ -1461,6 +1466,7 @@ bool Project::InitFromOgrLayer()
 {
 	LOG_MSG("Entering Project::InitFromOgrLayer");
 	wxString datasource_name = datasource->GetOGRConnectStr();
+    LOG_MSG("Datasource name:" + datasource_name);
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
 	// OK. ReadLayer() is running in a seperate thread.

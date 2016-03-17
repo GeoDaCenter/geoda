@@ -26,6 +26,7 @@
 #include <wx/xrc/xmlres.h>
 #include "DataViewerDeleteColDlg.h"
 #include "../GdaException.h"
+#include "../logger.h"
 
 BEGIN_EVENT_TABLE( DataViewerDeleteColDlg, wxDialog )
 	EVT_BUTTON( XRCID("ID_DELETE_BUTTON"), DataViewerDeleteColDlg::OnDelete )
@@ -40,9 +41,11 @@ DataViewerDeleteColDlg::DataViewerDeleteColDlg( TableInterface* table_int_s,
 											   wxWindow* parent)
 : table_int(table_int_s)
 {
+    LOG_MSG("Entering DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
 	SetParent(parent);
     CreateControls();
     Centre();
+    LOG_MSG("Exiting DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
 }
 
 void DataViewerDeleteColDlg::CreateControls()

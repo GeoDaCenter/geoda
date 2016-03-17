@@ -118,6 +118,8 @@ data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
+    
+    LOG_MSG("Entering LisaCoordinator::LisaCoordinator(..)");
 	GalWeight* gw = w_man_int->GetGal(w_id);
 	W = (gw ? gw->gal : 0);
 	weight_name = w_man_int->GetLongDispName(w_id);
@@ -130,6 +132,7 @@ row_standardize(row_standardize_s)
     
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
+    LOG_MSG("Exiting LisaCoordinator::LisaCoordinator(..)");
 }
 
 

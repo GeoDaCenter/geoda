@@ -59,12 +59,15 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              const wxSize& size )
 : is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false), is_table_only(false), is_save_centroids(false)
 {
+    
+    LOG_MSG("Exiting ExportDataDlg::ExportDataDlg(..)");
     if( project_p ) {
         project_file_name = project_p->GetProjectTitle();
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
     
+    LOG_MSG("Exiting ExportDataDlg::ExportDataDlg(..)");
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,

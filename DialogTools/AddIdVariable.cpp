@@ -39,12 +39,17 @@ AddIdVariable::AddIdVariable(TableInterface* table_int_s,
 							 const wxPoint& pos, const wxSize& size,
 							 long style )
 : table_int(table_int_s)
-{	
+{
+    LOG_MSG("Entering AddIdVariable::AddIdVariable(..)");
+    
     SetParent(parent);
     CreateControls();
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
     Centre();
+    
+    
+    LOG_MSG("Exiting AddIdVariable::AddIdVariable(..)");
 }
 
 void AddIdVariable::CreateControls()

@@ -22,6 +22,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/valtext.h>
 #include "AdjustYAxisDlg.h"
+#include "../logger.h"
 
 IMPLEMENT_CLASS( AdjustYAxisDlg, wxDialog )
 
@@ -39,12 +40,16 @@ AdjustYAxisDlg::AdjustYAxisDlg( double min_val_s,
 								 long style )
 : o_min_val(min_val_s), o_max_val(max_val_s)
 {
+    
+    LOG_MSG("Entering AdjustYAxisDlg::AdjustYAxisDlg(..)");
     s_min_val << min_val_s;
     s_max_val << max_val_s;
     
 	SetParent(parent);
     CreateControls();
     Centre();
+    
+    LOG_MSG("Exiting AdjustYAxisDlg::AdjustYAxisDlg(..)");
 }
 
 void AdjustYAxisDlg::CreateControls()

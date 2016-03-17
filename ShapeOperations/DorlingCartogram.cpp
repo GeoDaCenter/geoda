@@ -105,6 +105,7 @@ nbours(nbs->nbours), nbour(nbs->nbour), border(nbs->border),
 perimeter(nbs->perimeter),
 secs_per_iter(0.01)
 {
+    LOG_MSG("Entering DorlingCartogram()");
 	x = new double[bodies];
 	y = new double[bodies];
 	people = new double[bodies];
@@ -115,6 +116,8 @@ secs_per_iter(0.01)
 	tree = new leaf[bodies];
 	
 	init_cartogram(orig_x, orig_y, orig_data, orig_data_min, orig_data_max);
+    
+    LOG_MSG("Exiting DorlingCartogram()");
 }
 
 DorlingCartogram::~DorlingCartogram()

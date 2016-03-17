@@ -61,6 +61,7 @@ using namespace std;
 MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 : table_int(_table_int)
 {
+    LOG_MSG("Entering MergeTableDlg::MergeTableDlg(..)");
 	SetParent(NULL);
 	//table_int->FillColIdMap(col_id_map);
 	CreateControls();
@@ -69,6 +70,9 @@ MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 	SetTitle("Merge - " + table_int->GetTableName());
 	SetPosition(pos);
     Centre();
+    
+    
+    LOG_MSG("Exiting MergeTableDlg::MergeTableDlg(..)");
 }
 
 MergeTableDlg::~MergeTableDlg()
@@ -98,6 +102,8 @@ void MergeTableDlg::CreateControls()
 
 void MergeTableDlg::Init()
 {
+    LOG_MSG("Entering MergeTableDlg::Init()");
+    
 	vector<wxString> col_names;
 	table_fnames.clear();
 	// get the field names from table interface
@@ -123,6 +129,9 @@ void MergeTableDlg::Init()
         }
     }
 	UpdateMergeButton();
+    
+    
+    LOG_MSG("Exiting MergeTableDlg::Init()");
 }
 
 void MergeTableDlg::OnKeyValRB( wxCommandEvent& ev )
@@ -137,6 +146,8 @@ void MergeTableDlg::OnRecOrderRB( wxCommandEvent& ev )
 
 void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 {
+    
+    LOG_MSG("Entering MergeTableDlg::OnOpenClick()");
     try {
         ConnectDatasourceDlg dlg(this);
         if (dlg.ShowModal() != wxID_OK) return;
@@ -181,6 +192,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 		dlg.ShowModal();
         return;
     }
+    LOG_MSG("Exiting MergeTableDlg::OnOpenClick()");
 }
 
 void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)

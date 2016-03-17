@@ -32,9 +32,12 @@ DataViewerResizeColDlg::DataViewerResizeColDlg(wxGrid* grid_s,
 										 wxWindow* parent)
 : grid(grid_s), table_int(table_int_s)
 {
+    
+    LOG_MSG("Entering DataViewerResizeColDlg::DataViewerResizeColDlg(..)");
 	SetParent(parent);
     CreateControls();
     Centre();
+    LOG_MSG("Exiting DataViewerResizeColDlg::DataViewerResizeColDlg(..)");
 }
 
 

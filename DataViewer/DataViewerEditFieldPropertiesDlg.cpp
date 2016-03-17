@@ -55,6 +55,8 @@ cell_editor_open(false),
 field_grid(0), frames_manager(project_s->GetFramesManager()),
 table_state(project_s->GetTableState())
 {
+    
+    LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::DataViewerEditFieldPropertiesDlg(..)");
 	// determine columns to show and assign ids
 	NUM_COLS = 0;
 	COL_N = NUM_COLS++; // field name
@@ -80,6 +82,8 @@ table_state(project_s->GetTableState())
     Centre();
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
+    
+    LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::DataViewerEditFieldPropertiesDlg(..)");
 }
 
 DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
