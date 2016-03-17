@@ -1,15 +1,16 @@
 #!/bin/sh
 
 VERSION=$1
-NODEBUG=$2
+CPU=$2
+NODEBUG=$3
 
 #launchctl load auto_build.plist
 cd ~/geoda_trunk/
 git checkout rc/GdaAppResources.cpp
 git pull
 cd ~/geoda_trunk/BuildTools/macosx
-./build.sh 16 $DEBUG
+./build.sh $CPU $DEBUG
 cd ~/Dropbox/yoursway-create-dmg
-geoda.sh $VERSION
+./geoda.sh $VERSION
 mv GeoDa$VERSION-Installer.dmg ~/Dropbox
 cd ..

@@ -52,6 +52,9 @@ DOWNLOAD_HOME=$GEODA_HOME/temp
 echo $PREFIX
 
 MAKER="make -j $CPUS"
+if [[ $NODEBUG -eq 0 ]] ; then
+    MAKER="make -j $CPUS USER_LOG=-DDEBUG"
+fi
 GDA_CC="gcc"
 GDA_CFLAGS="-Os -arch x86_64"
 GDA_CXX="g++"
@@ -501,11 +504,6 @@ fi
 #########################################################################
 cd $GEODA_HOME
 cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-
-if [[ $NODEBUG -eq 0 ]] ; then
-    USER_DEFS = "-DLOG_ON "
-fi
-
 make clean
 mkdir ../../o
 $MAKER

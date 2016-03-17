@@ -12,11 +12,13 @@
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
+		A14CB4651C866E110082B436 /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */; };
+		A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */; };
+		A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB46C1C86705B0082B436 /* PublishDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
-		A1B634321C18DD2700519276 /* GeoDaWebProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B634301C18DD2700519276 /* GeoDaWebProxy.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
@@ -229,6 +231,12 @@
 		A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRDataAdapter.cpp; sourceTree = "<group>"; };
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
 		A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveAsDlg.cpp; sourceTree = "<group>"; };
+		A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
+		A14CB4621C866E110082B436 /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
+		A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasemapConfDlg.cpp; sourceTree = "<group>"; };
+		A14CB4641C866E110082B436 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
+		A14CB46C1C86705B0082B436 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
+		A14CB46D1C86705B0082B436 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
@@ -237,8 +245,6 @@
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
-		A1B634301C18DD2700519276 /* GeoDaWebProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoDaWebProxy.cpp; sourceTree = "<group>"; };
-		A1B634311C18DD2700519276 /* GeoDaWebProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoDaWebProxy.h; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
 		A1B93ABF17D18735007F8195 /* ProjectConf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectConf.cpp; sourceTree = "<group>"; };
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
@@ -684,8 +690,6 @@
 				DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */,
 				DD64925B16DFF63400B3B0AB /* GeoDa.h */,
 				DD64925A16DFF63400B3B0AB /* GeoDa.cpp */,
-				A1B634301C18DD2700519276 /* GeoDaWebProxy.cpp */,
-				A1B634311C18DD2700519276 /* GeoDaWebProxy.h */,
 				DDD13F040F2F8BE1009F7F13 /* GenGeomAlgs.h */,
 				DDD13F050F2F8BE1009F7F13 /* GenGeomAlgs.cpp */,
 				DD64A7230F2E26AA006B1E6D /* GenUtils.h */,
@@ -739,6 +743,12 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A14CB46C1C86705B0082B436 /* PublishDlg.cpp */,
+				A14CB46D1C86705B0082B436 /* PublishDlg.h */,
+				A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */,
+				A14CB4621C866E110082B436 /* AdjustYAxisDlg.h */,
+				A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */,
+				A14CB4641C866E110082B436 /* BasemapConfDlg.h */,
 				DDEA3CFF193D17130028B746 /* CalculatorDlg.cpp */,
 				DDEA3D00193D17130028B746 /* CalculatorDlg.h */,
 				DD7974FF0F1D296F00496A84 /* 3DControlPan.cpp */,
@@ -1392,7 +1402,9 @@
 				DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */,
 				DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */,
 				A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */,
-				A1B634321C18DD2700519276 /* GeoDaWebProxy.cpp in Sources */,
+				A14CB4651C866E110082B436 /* AdjustYAxisDlg.cpp in Sources */,
+				A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */,
+				A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

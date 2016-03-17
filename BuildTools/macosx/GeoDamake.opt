@@ -25,9 +25,9 @@ BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost
 
 GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
 
-CPPFLAGS	=  -I$(GeoDa_ROOT)
-CFLAGS		=  -Os -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER)
-CXXFLAGS	=  -Os -arch x86_64  -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER)
+CPPFLAGS	=  -I$(GeoDa_ROOT) $(USER_DEFS) -DLOG_ON
+CFLAGS		=  -Os -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) -DLOG_ON
+CXXFLAGS	=  -Os -arch x86_64  -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) -DLOG_ON
 LDFLAGS     = -arch x86_64
 
 OBJ_EXT     = o
