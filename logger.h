@@ -1,74 +1,60 @@
-// Copyright (c) 2005, 2006
-// Seweryn Habdank-Wojewodzki
-// Distributed under the Boost Software License,
-// Version 1.0.
-// ( copy at http://www.boost.org/LICENSE_1_0.txt )
+/**
+ * geoda tm, copyright (c) 2011-2015 by luc anselin - all rights reserved
+ *
+ * this file is part of geoda.
+ * 
+ * geoda is free software: you can redistribute it and/or modify
+ * it under the terms of the gnu general public license as published by
+ * the free software foundation, either version 3 of the license, or
+ * (at your option) any later version.
+ *
+ * geoda is distributed in the hope that it will be useful,
+ * but without any warranty; without even the implied warranty of
+ * merchantability or fitness for a particular purpose.  see the
+ * gnu general public license for more details.
+ *
+ * you should have received a copy of the gnu general public license
+ * along with this program.  if not, see <http://www.gnu.org/licenses/>.
+ */
 #ifndef __GEODA_CENTER_LOGGER_H__
 #define __GEODA_CENTER_LOGGER_H__
+
 #include <ostream>
 #include <iomanip>
 #include <memory>
 #include <ctime>
 
-class logger_t {
+class GdaLogger {
 public:
-	static bool is_activated;
-	static std::auto_ptr < std::ostream >
-	outstream_helper_ptr;
-	static std::ostream * outstream;
-	logger_t ();private:
-	logger_t ( const logger_t & );
-	logger_t & operator= ( const logger_t & );
+    static GdaLogger & GetInstance() {
+        static GdaLogger instance;
+        return instance;
+    }
+    
+    void Close();
+    
+	bool is_activated;
+	std::auto_ptr < std::ostream > outstream_helper_ptr;
+	std::ostream * outstream;
+
+private:
+    GdaLogger ();
+	//GdaLogger ( const logger_t & );
+	//GdaLogger & operator= ( const logger_t & );
 };
-extern logger_t & logger();
 
-#define LOG(name)do {if (logger().is_activated ){\
-*logger().outstream << __FILE__ \
-<< " [" << __LINE__ << "] : " << #name << " = " \
-<< (name) << std::endl;} }while(false)
+#define LOG(name)do {if (GdaLogger::GetInstance().is_activated ){\
+        *GdaLogger::GetInstance().outstream << __FILE__ \
+        << " [" << __LINE__ << "] : " << #name << " = " \
+        << (name) << std::endl;} }while(false)
 
-#define LOG_MSG(name)do {if (logger().is_activated ){\
-std::time_t now = std::time(0);\
-std::tm* ltm = std::localtime(&now);\
-*logger().outstream << "[" << ltm->tm_hour \
-<< ":" << std::setw(2) << std::setfill('0') << ltm->tm_min \
-<< ":" << std::setw(2) << std::setfill('0') << ltm->tm_sec \
-<< ", line " << __LINE__ << "] : " << name << std::endl;} }while(false)
-
-namespace logger_n {
-	template < typename T1, typename T2, \
-	typename T3, typename T4 >
-	void put_debug_info ( logger_t & log, \
-						 T1 const & t1, T2 const & t2, \
-						 T3 const & t3, T4 const & t4 )
-	{
-		if ( log.is_activated )
-		{
-			*(log.outstream) << t1 << " (" \
-			<< t2 << ") : ";
-			*(log.outstream) << t3 << " = " \
-			<< t4 << std::endl;
-		}
-	}
-}
-#define LOG_FN(name) logger_n::put_debug_info ( \
-logger(), __FILE__, __LINE__, #name, (name) )
-// place for user defined logger formating data
-#define LOG_ON() do { \
-logger().is_activated = true; } while(false)
-#define LOG_OFF() do { \
-logger().is_activated = false; } while(false)
-
-//#if defined(CLEANLOG)
-//  #undef LOG
-//  #undef LOG_ON
-//  #undef LOG_OFF
-//  #undef LOG_FN
-//  #define LOG(name) do{}while(false)
-//  #define LOG_FN(name) do{}while(false)
-//  #define LOG_ON() do{}while(false)
-//  #define LOG_OFF() do{}while(false)
-//#endif
+#define LOG_MSG(name)do {if (GdaLogger::GetInstance().is_activated ){\
+        std::time_t now = std::time(0);\
+        std::tm* ltm = std::localtime(&now);\
+        *GdaLogger::GetInstance().outstream << "[" << ltm->tm_hour \
+        << ":" << std::setw(2) << std::setfill('0') << ltm->tm_min \
+        << ":" << std::setw(2) << std::setfill('0') << ltm->tm_sec \
+        << ", line " << __LINE__ << "] : " << name << std::endl;} }while(false)
 
 #endif
 

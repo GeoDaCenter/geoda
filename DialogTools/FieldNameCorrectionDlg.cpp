@@ -310,8 +310,7 @@ void ScrolledWidgetsPane::CheckUserInput()
 				txt_input[i]->SetForegroundColour(*wxBLACK);
 			}
 		} else {
-			wxString msg("Error: could not find text input field!");
-			LOG_MSG(msg);
+			LOG_MSG("Error: could not find text input field!");
 		}
 	}
 }

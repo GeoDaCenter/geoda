@@ -1855,7 +1855,6 @@ bool ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins()
 	
 	table_display_lines = lines;
 	LOG(table_display_lines);
-	LOG(changed ? "true" : "false");
 	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins");
 	return changed;
 }

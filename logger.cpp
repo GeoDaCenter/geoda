@@ -1,59 +1,33 @@
-// Copyright (c) 2005, 2006
-// Seweryn Habdank-Wojewodzki
-// Distributed under the Boost Software License,
-// Version 1.0.
-// (copy at http://www.boost.org/LICENSE_1_0.txt)
+/**
+ * geoda tm, copyright (c) 2011-2015 by luc anselin - all rights reserved
+ *
+ * this file is part of geoda.
+ * 
+ * geoda is free software: you can redistribute it and/or modify
+ * it under the terms of the gnu general public license as published by
+ * the free software foundation, either version 3 of the license, or
+ * (at your option) any later version.
+ *
+ * geoda is distributed in the hope that it will be useful,
+ * but without any warranty; without even the implied warranty of
+ * merchantability or fitness for a particular purpose.  see the
+ * gnu general public license for more details.
+ *
+ * you should have received a copy of the gnu general public license
+ * along with this program.  if not, see <http://www.gnu.org/licenses/>.
+ */
 #include "logger.h"
 
-#if !defined(CLEANLOG)
-
-#define LOGGER_FIL
-
-#if !defined(DEBUG)
-#undef LOGGER_FIL
-#undef LOGGER_TER
-#endif
-
-#if defined (LOGGER_FIL)
 #include <fstream>
-#else
-#include <iostream>
-// http://www.msobczak.com/prog/bin/nullstream.zip
-#include "nullstream.h"
-#endif
-logger_t::logger_t()
-{}
-bool logger_t::is_activated = true;
 
-#if defined(LOGGER_TER)
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-	= std::auto_ptr<std::ostream>( new NullStream );
-std::ostream * logger_t::outstream = &std::cout;
-
-#elif defined (LOGGER_ERR)
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-	= std::auto_ptr <std::ostream>( new NullStream );
-std::ostream * logger_t::outstream = &std::cerr;
-
-#elif defined (LOGGER_FIL)
-std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
-	= std::auto_ptr<std::ostream>( new std::ofstream ("logger.txt"));
-std::ostream * logger_t::outstream = outstream_helper_ptr.get();
-
-// here is a place for user defined output stream
-// and compiler flag
-
-#else
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-	= std::auto_ptr<std::ostream>( new NullStream );
-std::ostream* logger_t::outstream = outstream_helper_ptr.get();
-#endif
-
-logger_t & logger()
+GdaLogger::GdaLogger()
 {
-	static logger_t* ans = new logger_t();
-	return *ans;
-}
-
+#ifdef DEBUG
+    is_activated = true;
+    outstream_helper_ptr = std::auto_ptr<std::ostream>( new std::ofstream ("logger.txt"));
+    outstream = outstream_helper_ptr.get();
+#else
+    is_activated = false;
 #endif
-// endif for CLEANLOG
+    
+}
