@@ -1029,10 +1029,10 @@ IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exp
 IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exe
 if %GDA_BUILD% == BUILD_32 (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
-  REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
+  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
 ) else (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
-  REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib
 REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END

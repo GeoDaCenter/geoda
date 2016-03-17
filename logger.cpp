@@ -37,7 +37,7 @@ GdaLogger::GdaLogger()
 #ifdef DEBUG
     is_activated = true;
 	std::ostringstream filepathBuf;
-	if (GeneralWxUtils::isMac) {
+	if (GeneralWxUtils::isMac()) {
 		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "../../../logger.txt";
 	} else {
 		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "logger.txt";
