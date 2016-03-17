@@ -504,7 +504,6 @@ fi
 #########################################################################
 cd $GEODA_HOME
 cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-make clean
 mkdir ../../o
 $MAKER
 if [ -d "build" ] ; then

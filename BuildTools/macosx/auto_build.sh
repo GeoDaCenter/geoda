@@ -8,6 +8,8 @@ NODEBUG=$3
 cd ~/geoda_trunk/
 git checkout rc/GdaAppResources.cpp
 git pull
+cd ~/geoda_trunk/o
+rm *
 cd ~/geoda_trunk/BuildTools/macosx
 ./build.sh $CPU $DEBUG
 cd ~/Dropbox/yoursway-create-dmg

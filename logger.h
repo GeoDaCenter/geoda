@@ -30,9 +30,7 @@ public:
         static GdaLogger instance;
         return instance;
     }
-    
-    void Close();
-    
+        
 	bool is_activated;
 	std::auto_ptr < std::ostream > outstream_helper_ptr;
 	std::ostream * outstream;

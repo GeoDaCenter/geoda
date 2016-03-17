@@ -17,14 +17,33 @@
  * along with this program.  if not, see <http://www.gnu.org/licenses/>.
  */
 #include "logger.h"
+#include "GenUtils.h"
+#include "GeneralWxUtils.h"
 
+#include <sstream>
 #include <fstream>
+
+inline char separator()
+{
+#ifdef __WIN32__
+    return '\\';
+#else
+    return '/';
+#endif
+}
 
 GdaLogger::GdaLogger()
 {
 #ifdef DEBUG
     is_activated = true;
-    outstream_helper_ptr = std::auto_ptr<std::ostream>( new std::ofstream ("logger.txt"));
+	std::ostringstream filepathBuf;
+	if (GeneralWxUtils::isMac) {
+		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "../../../logger.txt";
+	} else {
+		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "logger.txt";
+	}
+	
+    outstream_helper_ptr = std::auto_ptr<std::ostream>( new std::ofstream (filepathBuf.str().c_str()));
     outstream = outstream_helper_ptr.get();
 #else
     is_activated = false;
