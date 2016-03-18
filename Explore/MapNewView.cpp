@@ -1179,7 +1179,8 @@ w_man_state(project->GetWManState())
 	GetClientSize(&width, &height);
     
 	wxSplitterWindow* splitter_win = 0;
-	splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition, wxDefaultSize, wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+	splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition, wxDefaultSize,
+                                        wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
 	wxPanel* rpanel = new wxPanel(splitter_win);

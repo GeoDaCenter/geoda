@@ -25,6 +25,8 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include <wx/gauge.h>
+#include <wx/splitter.h>
+#include <wx/checkbox.h>
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
@@ -91,11 +93,96 @@ use_def_y_range(false)
 		project->GetTableInt()->GetTimeStrings(tm_strs);
 		var_man.ClearAndInit(tm_strs);
     }
-	
-	panel = new wxPanel(this);
+    // UI
+    SetBackgroundColour(*wxWHITE);
+    wxSplitterWindow* splitter_win = 0;
+    splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition,
+                                        wxDefaultSize,
+                                        wxSP_THIN_SASH |wxSP_NOBORDER | wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+    splitter_win->SetMinimumPaneSize(10);
+    
+    // Left Panel
+    wxPanel* lpanel = new wxPanel(splitter_win);
+    lpanel->SetBackgroundColour(*wxWHITE);
+    
+    // 0 vgap, 0 hgap
+    wxFlexGridSizer* variable_sizer = new wxFlexGridSizer(2,2, 10, 5);
+    variable_sizer->SetFlexibleDirection(wxBOTH);
+    variable_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
+    
+    wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, "Variable:");
+    wxChoice* choice_variable = new wxChoice(lpanel,
+                                             XRCID("ID_AVERAGE_VAR_CHOICE"),
+                                             wxDefaultPosition,
+                                             wxSize(120, -1));
+    wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, "Groups:");
+    wxChoice* choice_groups = new wxChoice(lpanel,
+                                           XRCID("ID_AVERAGE_GROUP_CHOICE"),
+                                           wxDefaultPosition,
+                                           wxSize(120, -1));
+    variable_sizer->Add(lbl_variable, 1, wxEXPAND);
+    variable_sizer->Add(choice_variable, 1, wxEXPAND);
+    variable_sizer->Add(lbl_groups, 1, wxEXPAND);
+    variable_sizer->Add(choice_groups, 1, wxEXPAND);
+    
+    wxStaticText* lbl_tests =new wxStaticText(lpanel, wxID_ANY,
+                                              "Difference-in-Means Test:");
+    
+    wxFlexGridSizer* tests_sizer = new wxFlexGridSizer(2,4, 10, 5);
+    tests_sizer->SetFlexibleDirection(wxBOTH);
+    tests_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
+    
+    wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, "Group 1:");
+    wxChoice* choice_group1 = new wxChoice(lpanel,
+                                           XRCID("ID_AVERAGE_GROUP1_CHOICE"),
+                                           wxDefaultPosition,
+                                           wxSize(80, -1));
+    wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, "Period 1:");
+    wxChoice* choice_time1 = new wxChoice(lpanel,
+                                          XRCID("ID_AVERAGE_PERIOD1_CHOICE"),
+                                          wxDefaultPosition,
+                                          wxSize(80, -1));
+    wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, "Group 2:");
+    wxChoice* choice_group2 = new wxChoice(lpanel,
+                                           XRCID("ID_AVERAGE_GROUP2_CHOICE"),
+                                           wxDefaultPosition,
+                                           wxSize(80, -1));
+    wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, "Period 2:");
+    wxChoice* choice_time2 = new wxChoice(lpanel,
+                                          XRCID("ID_AVERAGE_PERIOD2_CHOICE"),
+                                          wxDefaultPosition,
+                                          wxSize(80, -1));
+    
+    tests_sizer->Add(lbl_group1, 1, wxEXPAND);
+    tests_sizer->Add(choice_group1, 1, wxEXPAND);
+    tests_sizer->Add(lbl_time1, 1, wxEXPAND);
+    tests_sizer->Add(choice_time1, 1, wxEXPAND);
+    tests_sizer->Add(lbl_group2, 1, wxEXPAND);
+    tests_sizer->Add(choice_group2, 1, wxEXPAND);
+    tests_sizer->Add(lbl_time2, 1, wxEXPAND);
+    tests_sizer->Add(choice_time2, 1, wxEXPAND);
+    
+    wxCheckBox* chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
+    
+    wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, "Save Dummy");
+    wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Apply");
+    wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
+    btn_box->Add(btn_save_dummy, 0, wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_apply, 0, wxEXPAND | wxALL, 10);
+    
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(variable_sizer, 0, wxALIGN_TOP | wxALL, 20);
+    rbox->Add(lbl_tests, 0, wxALIGN_TOP| wxLEFT | wxRIGHT, 20);
+    rbox->Add(tests_sizer, 0, wxALIGN_TOP | wxALL, 20);
+    rbox->Add(chk_run_test, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxBOTTOM, 20);
+    rbox->Add(btn_box, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxTOP, 10);
+    lpanel->SetSizerAndFit(rbox);
+    
+    // Right Panel
+	panel = new wxPanel(splitter_win);
 	panel->SetBackgroundColour(*wxWHITE);
-	SetBackgroundColour(*wxWHITE);
-	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this); // MMLCu
+	
+	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
@@ -125,7 +212,13 @@ use_def_y_range(false)
 	
 	panel->SetSizer(panel_h_szr);
 		
-	//UpdateMessageWin();
+    splitter_win->SplitVertically(lpanel, panel, 200);
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    
+	UpdateMessageWin();
 	UpdateTitleWin();
 	
 	DisplayStatusBar(true);
@@ -1909,105 +2002,6 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     }
     slog << "----------------------------------------";
     slog << "-------------------------------------\n\n"; cnt++; cnt++;
-   
-    /*
-    slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
-    double *rr = r->GetBPtest();
-    if (rr[1] > 1) {
-        slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-                                 r->GetConditionNumber()); cnt++;
-    } else {
-        slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-                                 r->GetConditionNumber()); cnt++;
-        slog << "                                ";
-        slog << "      (Extreme Multicollinearity)\n"; cnt++;
-    }
-    slog << "TEST ON NORMALITY OF ERRORS\n"; cnt++;
-    slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
-    rr = r->GetJBtest();
-    f = "Jarque-Bera           %2.0f        %11.4f        %9.5f\n"; cnt++;
-    slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-    
-    slog << "\n"; cnt++;
-    slog << "DIAGNOSTICS FOR HETEROSKEDASTICITY  \n"; cnt++;
-    slog << "RANDOM COEFFICIENTS\n"; cnt++;
-    slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
-    rr = r->GetBPtest();
-    if (rr[1] > 0) {
-        f = "Breusch-Pagan test    %2.0f        %11.4f        %9.5f\n"; cnt++;
-        slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-    } else {
-        f = "Breusch-Pagan test    %2.0f        %11.4f        N/A\n"; cnt++;
-        slog << wxString::Format(f, rr[0], rr[1]);
-    }
-    rr = r->GetKBtest();
-    if (rr[1]>0) {
-        f = "Koenker-Bassett test  %2.0f        %11.4f        %9.5f\n"; cnt++;
-        slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-    } else {
-        f = "Koenker-Bassett test  %2.0f        %11.4f        N/A\n"; cnt++;
-        slog << wxString::Format(f, rr[0], rr[1]);
-    }
-    if (do_white_test) {
-        slog << "SPECIFICATION ROBUST TEST\n"; cnt++;
-        rr = r->GetWhitetest();
-        slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
-        if (rr[2] < 0.0) {
-            f = "White                 %2.0f            N/A            N/A\n"; cnt++;
-            slog << wxString::Format(f, rr[0]);
-        } else {
-            f = "White                 %2.0f        %11.4f        %9.5f\n"; cnt++;
-            slog << wxString::Format(f, rr[0], rr[1], rr[2]);
-        }
-    }
-    
-    if (true) {
-        slog << "\n"; cnt++;
-        slog << "COEFFICIENTS VARIANCE MATRIX\n"; cnt++;
-        int start = 0;
-        while (start < nX) {
-            wxString st = wxEmptyString;
-            for (int j=start; j<nX && j<start+5; j++) {
-                slog << " " << GenUtils::Pad(r->GetXVarName(j), 10) << " ";
-            }
-            slog << "\n"; cnt++;
-            for (int i=0; i<nX; i++) {
-                st = wxEmptyString;
-                for (int j=start; j<nX && j<start+5; j++) {
-                    slog << wxString::Format(" %10.6f ", r->GetCovariance(i,j));
-                }
-                slog << "\n"; cnt++;
-            }
-            slog << "\n"; cnt++;
-            start += 5;
-        }
-    }
-
-    
-    if (true) {
-        slog << "\n";
-        cnt++;
-        slog << "  OBS    " << GenUtils::Pad(yName, 12);
-        slog << "        PREDICTED        RESIDUAL";
-        for (int ii=1; ii<nX; ii++)
-            slog << "        " << GenUtils::Pad(r->GetXVarName(ii), 12);
-        slog << "\n";
-        
-        cnt++;
-        double *res = r->GetResidual();
-        double *yh = r->GetYHAT();
-        for (int i=0; i<Obs; i++) {
-            slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f",
-                                     i+1, y[i], yh[i], res[i]);
-            for (int ii=1; ii<nX; ii++)
-                slog << wxString::Format("     %12.5f", X[ii-1][i]);
-            slog << "\n";
-            cnt++;
-        }
-        res = NULL;
-        yh = NULL;
-    }
-    */
     
     slog << "============================== END OF REPORT";
     slog <<  " ================================\n\n"; cnt++; cnt++;
