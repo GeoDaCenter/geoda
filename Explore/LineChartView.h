@@ -162,6 +162,24 @@ protected:
                                       DiagnosticReport *r,
                                       int Obs, int nX,
                                       bool do_white_test);
+   
+    wxChoice* choice_variable;
+    wxChoice* choice_groups;
+    wxChoice* choice_group1;
+    wxChoice* choice_group2;
+    wxChoice* choice_time1;
+    wxChoice* choice_time2;
+   
+    void InitVariableChoiceCtrl();
+    void InitGroupsChoiceCtrl();
+    void InitTimeChoiceCtrl();
+    void OnGroupsChoice(wxCommandEvent& event);
+    void OnGroup1Choice(wxCommandEvent& event);
+    void OnGroup2Choice(wxCommandEvent& event);
+    void OnTime1Choice(wxCommandEvent& event);
+    void OnTime2Choice(wxCommandEvent& event);
+    
+    void InitGroup12ChoiceCtrl();
     
     wxString logReport;
     RegressionReportDlg *regReportDlg;

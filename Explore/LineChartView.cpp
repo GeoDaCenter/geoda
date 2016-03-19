@@ -94,6 +94,14 @@ use_def_y_range(false)
 		var_man.ClearAndInit(tm_strs);
     }
     // UI
+    /*
+      -----------------------------------
+     |       |                           |
+     |lpanel |       rpanel              |
+     |       |                           |
+     |       |                           |
+      -----------------------------------
+     */
     SetBackgroundColour(*wxWHITE);
     wxSplitterWindow* splitter_win = 0;
     splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition,
@@ -111,15 +119,11 @@ use_def_y_range(false)
     variable_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
     
     wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, "Variable:");
-    wxChoice* choice_variable = new wxChoice(lpanel,
-                                             XRCID("ID_AVERAGE_VAR_CHOICE"),
-                                             wxDefaultPosition,
-                                             wxSize(120, -1));
+    choice_variable = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(220, -1));
     wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, "Groups:");
-    wxChoice* choice_groups = new wxChoice(lpanel,
-                                           XRCID("ID_AVERAGE_GROUP_CHOICE"),
-                                           wxDefaultPosition,
-                                           wxSize(120, -1));
+    choice_groups = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
+                                 wxSize(220, -1));
     variable_sizer->Add(lbl_variable, 1, wxEXPAND);
     variable_sizer->Add(choice_variable, 1, wxEXPAND);
     variable_sizer->Add(lbl_groups, 1, wxEXPAND);
@@ -133,25 +137,17 @@ use_def_y_range(false)
     tests_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
     
     wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, "Group 1:");
-    wxChoice* choice_group1 = new wxChoice(lpanel,
-                                           XRCID("ID_AVERAGE_GROUP1_CHOICE"),
-                                           wxDefaultPosition,
-                                           wxSize(80, -1));
+    choice_group1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
+                                 wxSize(80, -1));
     wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, "Period 1:");
-    wxChoice* choice_time1 = new wxChoice(lpanel,
-                                          XRCID("ID_AVERAGE_PERIOD1_CHOICE"),
-                                          wxDefaultPosition,
-                                          wxSize(80, -1));
+    choice_time1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
+                                wxSize(80, -1));
     wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, "Group 2:");
-    wxChoice* choice_group2 = new wxChoice(lpanel,
-                                           XRCID("ID_AVERAGE_GROUP2_CHOICE"),
-                                           wxDefaultPosition,
-                                           wxSize(80, -1));
+    choice_group2 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
+                                 wxSize(80, -1));
     wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, "Period 2:");
-    wxChoice* choice_time2 = new wxChoice(lpanel,
-                                          XRCID("ID_AVERAGE_PERIOD2_CHOICE"),
-                                          wxDefaultPosition,
-                                          wxSize(80, -1));
+    choice_time2 = new wxChoice(lpanel,wxID_ANY, wxDefaultPosition,
+                                wxSize(80, -1));
     
     tests_sizer->Add(lbl_group1, 1, wxEXPAND);
     tests_sizer->Add(choice_group1, 1, wxEXPAND);
@@ -217,6 +213,13 @@ use_def_y_range(false)
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);
     SetAutoLayout(true);
+   
+    // Init controls
+    // -- variable control
+    InitVariableChoiceCtrl();
+    InitGroupsChoiceCtrl();
+    InitGroup12ChoiceCtrl();
+    InitTimeChoiceCtrl();
     
 	UpdateMessageWin();
 	UpdateTitleWin();
@@ -227,7 +230,6 @@ use_def_y_range(false)
 	highlight_state->registerObserver(this);
 	Show(true);
 	
-	wxCommandEvent ev;
 	//OnShowVarsChooser(ev);
     {
         // this block of code is used to force 1-variable selection
@@ -243,7 +245,6 @@ use_def_y_range(false)
         
     	UpdateDataMapFromVarMan();
     	SetupPanelForNumVariables(var_man.GetVarsCount());
-        
         
     	Refresh();
 	}
@@ -275,6 +276,155 @@ LineChartFrame::~LineChartFrame()
 	}
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
+}
+
+void LineChartFrame::InitVariableChoiceCtrl()
+{
+    LOG_MSG("LineChartFrame::InitVariableChoiceCtrl()");
+    TableInterface* table_int = project->GetTableInt();
+    if (table_int == NULL) {
+        LOG_MSG("Table interface NULL.");
+        return;
+    }
+    
+    std::set<wxString> vm_names;
+    for (size_t i=0, sz=var_man.GetVarsCount(); i<sz; ++i) {
+        choice_variable->Append(var_man.GetName(i));
+        vm_names.insert(var_man.GetName(i));
+    }
+}
+
+void LineChartFrame::InitGroupsChoiceCtrl()
+{
+    choice_groups->Append("Selected vs. Excluded");
+    choice_groups->Append("All");
+    choice_groups->SetSelection(0);
+    
+	choice_groups->Connect(wxEVT_CHOICE,
+                           wxCommandEventHandler(LineChartFrame::OnGroupsChoice),
+                           NULL, this);
+    choice_group1->Connect(wxEVT_CHOICE,
+                           wxCommandEventHandler(LineChartFrame::OnGroup1Choice),
+                           NULL, this);
+    choice_group2->Connect(wxEVT_CHOICE,
+                           wxCommandEventHandler(LineChartFrame::OnGroup2Choice),
+                           NULL, this);
+}
+
+void LineChartFrame::InitTimeChoiceCtrl()
+{
+    std::vector<wxString> tm_strs;
+    project->GetTableInt()->GetTimeStrings(tm_strs);
+
+    for (size_t i=0; i<tm_strs.size(); i++ ) {
+        wxString t_str = tm_strs[i];
+        choice_time1->Append(t_str);
+        choice_time2->Append(t_str);
+    }
+   
+    if (tm_strs.size() > 0) {
+        int group_selection = choice_groups->GetSelection();
+        if (group_selection == 0 ) {
+            choice_time1->SetSelection(0);
+            choice_time2->SetSelection(0);
+        } else {
+            choice_time1->SetSelection(0);
+            choice_time2->SetSelection(1);
+        }
+        
+        choice_time1->Connect(wxEVT_CHOICE,
+                              wxCommandEventHandler(LineChartFrame::OnTime1Choice),
+                              NULL, this);
+        choice_time2->Connect(wxEVT_CHOICE,
+                              wxCommandEventHandler(LineChartFrame::OnTime2Choice),
+                              NULL, this);
+    }
+}
+
+void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
+{
+    int time1_selection = choice_time1->GetSelection();
+    
+    int group_selection = choice_groups->GetSelection();
+    if (group_selection == 0 ) {
+        // sel vs excl
+        choice_time2->SetSelection(time1_selection);
+    } else {
+        int time2_selection = choice_time2->GetSelection();
+        if (time2_selection == time1_selection) {
+            choice_time2->SetSelection(-1);
+        }
+    }
+}
+
+void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
+{
+    int time2_selection = choice_time2->GetSelection();
+    
+    int group_selection = choice_groups->GetSelection();
+    if (group_selection == 0 ) {
+        // sel vs excl
+        choice_time1->SetSelection(time2_selection);
+    } else {
+        int time1_selection = choice_time1->GetSelection();
+        if (time2_selection == time1_selection) {
+            choice_time1->SetSelection(-1);
+        }
+    }
+}
+
+void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
+{
+    InitGroup12ChoiceCtrl();
+    InitTimeChoiceCtrl();
+}
+
+void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
+{
+    int group_selection = choice_groups->GetSelection();
+    if (group_selection == 0 ) {
+        if (choice_group1->GetSelection() == 0) {
+            choice_group2->SetSelection(1);
+        } else {
+            choice_group2->SetSelection(0);
+        }
+    }
+}
+
+void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
+{
+    int group_selection = choice_groups->GetSelection();
+    if (group_selection == 0 ) {
+        if (choice_group2->GetSelection() == 0) {
+            choice_group1->SetSelection(1);
+        } else {
+            choice_group1->SetSelection(0);
+        }
+    }
+}
+
+void LineChartFrame::InitGroup12ChoiceCtrl()
+{
+    int group_selection = choice_groups->GetSelection();
+    if (group_selection == 0 ) {
+        choice_group1->Clear();
+        choice_group1->Append("Selected");
+        choice_group1->Append("Excluded");
+        choice_group1->SetSelection(0);
+        choice_group2->Enable(true);
+        choice_group2->Clear();
+        choice_group2->Append("Selected");
+        choice_group2->Append("Excluded");
+        choice_group1->SetSelection(1);
+        choice_group2->Enable(true);
+    } else {
+        choice_group1->Clear();
+        choice_group1->Append("All");
+        choice_group1->Enable(false);
+        choice_group2->Clear();
+        choice_group2->Append("All");
+        choice_group2->Enable(false);
+    }
 }
 
 void LineChartFrame::OnMouseEvent(wxMouseEvent& event)
