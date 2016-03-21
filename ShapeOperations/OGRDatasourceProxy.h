@@ -51,7 +51,7 @@ public:
 	/**
 	 * Create a new OGRDatasourceProxy by given OGR format and ds name
 	 */
-	OGRDatasourceProxy(string format, wxString dest_datasources);
+	OGRDatasourceProxy(wxString format, wxString dest_datasources);
 	/**
 	 * Deconstructor. Will clean the layer proxies (OGRLayerProxy) in the layer
 	 * pool (map)

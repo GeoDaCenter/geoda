@@ -466,6 +466,11 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	try {
 		// SaveAs only to same datasource
 		GdaConst::DataSourceType ds_type = datasource->GetType();
+        if (ds_type == GdaConst::ds_dbf ) {
+            // OGR only support ESRI Shapefile, and doesn't support DBF separatly.
+            // see : http://www.gdal.org/ogr_formats.html
+            ds_type = GdaConst::ds_shapefile;
+        }
         
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
@@ -503,7 +508,16 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                   "Saving data...",
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
-		OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), new_ds_name.ToStdString(), layername.ToStdString(), geom_type, ogr_geometries, table_int, selected_rows, spatial_ref, is_update);
+        OGRLayerProxy* new_layer;
+        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(),
+                                                                   new_ds_name.ToStdString(),
+                                                                   layername.ToStdString(),
+                                                                   geom_type,
+                                                                   ogr_geometries,
+                                                                   table_int,
+                                                                   selected_rows,
+                                                                   spatial_ref,
+                                                                   is_update);
 		bool cont = true;
 		while ( new_layer->export_progress < prog_n_max ) {
 			cont = prog_dlg.Update(new_layer->export_progress);

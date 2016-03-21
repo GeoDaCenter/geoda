@@ -79,7 +79,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 	layer_count = ds->GetLayerCount();
 }
 
-OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
+OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource)
 : ds_name(dest_datasource)
 {
 	// create a OGRDatasourceProxy with a geometry layer
@@ -91,7 +91,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(string format, wxString dest_datasource)
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "This data source format " << format << " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "This " << format << " format is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
 	
