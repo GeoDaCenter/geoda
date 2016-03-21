@@ -58,10 +58,11 @@ void Manager::ClearAndInit(const std::vector<wxString>& tm_strs_)
 }
 
 void Manager::AppendVar(const wxString& name,
-												const std::vector<double>& min_vals,
-												const std::vector<double>& max_vals,
-												int time, bool sync_with_global_time,
-												bool fixed_scale)
+						const std::vector<double>& min_vals,
+						const std::vector<double>& max_vals,
+						int time,
+                        bool sync_with_global_time,
+						bool fixed_scale)
 {
 	bool tm_variant = min_vals.size() > 1;
 	Entry e(name, time, tm_variant, sync_with_global_time && tm_variant,

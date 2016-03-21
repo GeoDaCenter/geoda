@@ -101,8 +101,6 @@ public HighlightStateObserver, public LineChartCanvasCallbackInt
 {
 public:
 	LineChartFrame(wxFrame *parent, Project* project,
-                const std::vector<GdaVarTools::VarInfo>& v_info,
-                const std::vector<int>& col_ids,
                  const wxString& title = "Averages Chart",
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);
@@ -163,6 +161,7 @@ protected:
                                       int Obs, int nX,
                                       bool do_white_test);
    
+    std::vector<wxString> variable_names;
     wxChoice* choice_variable;
     wxChoice* choice_groups;
     wxChoice* choice_group1;
@@ -173,11 +172,14 @@ protected:
     void InitVariableChoiceCtrl();
     void InitGroupsChoiceCtrl();
     void InitTimeChoiceCtrl();
+    void OnVariableChoice(wxCommandEvent& event);
     void OnGroupsChoice(wxCommandEvent& event);
     void OnGroup1Choice(wxCommandEvent& event);
     void OnGroup2Choice(wxCommandEvent& event);
     void OnTime1Choice(wxCommandEvent& event);
     void OnTime2Choice(wxCommandEvent& event);
+    
+    void OnSelectVariable(wxString col_name);
     
     void InitGroup12ChoiceCtrl();
     

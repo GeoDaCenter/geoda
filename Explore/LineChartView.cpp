@@ -56,8 +56,6 @@ BEGIN_EVENT_TABLE(LineChartFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 LineChartFrame::LineChartFrame(wxFrame *parent, Project* project,
-                               const std::vector<GdaVarTools::VarInfo>& v_info,
-                               const std::vector<int>& col_ids,
 							   const wxString& title,
 							   const wxPoint& pos,
 							   const wxSize& size)
@@ -87,12 +85,17 @@ def_y_precision(1),
 use_def_y_range(false)
 {
 	LOG_MSG("Entering LineChartFrame::LineChartFrame");
+    
+    // Init variables
 	supports_timeline_changes = true;
-	{
-		std::vector<wxString> tm_strs;
-		project->GetTableInt()->GetTimeStrings(tm_strs);
-		var_man.ClearAndInit(tm_strs);
+    int n_cols = project->GetTableInt()->GetNumberCols();
+    for (int i=0; i<n_cols; i++) {
+        if (project->GetTableInt()->IsColNumeric(i)) {
+            wxString col_name = project->GetTableInt()->GetColName(i);
+            variable_names.push_back(col_name);
+        }
     }
+    
     // UI
     /*
       -----------------------------------
@@ -221,33 +224,15 @@ use_def_y_range(false)
     InitGroup12ChoiceCtrl();
     InitTimeChoiceCtrl();
     
-	UpdateMessageWin();
-	UpdateTitleWin();
-	
 	DisplayStatusBar(true);
 	notifyNewHoverMsg("");
 	
 	highlight_state->registerObserver(this);
 	Show(true);
-	
-	//OnShowVarsChooser(ev);
-    {
-        // this block of code is used to force 1-variable selection
-        // instead of VarsChooseDlg
-    	std::vector<double> min_vals;
-    	std::vector<double> max_vals;
-        int col_id = col_ids[0];
-    	project->GetTableInt()->GetMinMaxVals(col_id, min_vals, max_vals);
-        wxString name = v_info[0].name;
-        int time = v_info[0].time;
-    	var_man.AppendVar(name, min_vals, max_vals, time);
-     
-        
-    	UpdateDataMapFromVarMan();
-    	SetupPanelForNumVariables(var_man.GetVarsCount());
-        
-    	Refresh();
-	}
+
+    // Init Canvas
+    wxCommandEvent ev;
+	OnVariableChoice(ev);
     
     Connect(XRCID("ID_DID_TEST"),
             wxEVT_MENU, 
@@ -286,12 +271,29 @@ void LineChartFrame::InitVariableChoiceCtrl()
         LOG_MSG("Table interface NULL.");
         return;
     }
-    
-    std::set<wxString> vm_names;
-    for (size_t i=0, sz=var_man.GetVarsCount(); i<sz; ++i) {
-        choice_variable->Append(var_man.GetName(i));
-        vm_names.insert(var_man.GetName(i));
+  
+    int n_times = table_int->GetTimeSteps();
+
+    wxString time_range_str("");
+    if (n_times == 1) {
+        time_range_str = wxString::Format("(%s)", table_int->GetTimeString(0));
+    } else {
+        time_range_str = wxString::Format("(%s-%s)",
+                                          table_int->GetTimeString(0),
+                                          table_int->GetTimeString(n_times-1));
     }
+    
+    for (size_t i=0, sz=variable_names.size(); i<sz; ++i) {
+        wxString col_name = variable_names[i];
+        int col = table_int->FindColId(col_name);
+        if (table_int->IsColTimeVariant(col)) {
+            col_name = col_name + " " + time_range_str;
+        }
+        choice_variable->Append(col_name);
+    }
+	choice_variable->Connect(wxEVT_CHOICE,
+                             wxCommandEventHandler(LineChartFrame::OnVariableChoice),
+                             NULL, this);
 }
 
 void LineChartFrame::InitGroupsChoiceCtrl()
@@ -339,6 +341,36 @@ void LineChartFrame::InitTimeChoiceCtrl()
                               wxCommandEventHandler(LineChartFrame::OnTime2Choice),
                               NULL, this);
     }
+}
+
+void LineChartFrame::OnSelectVariable(wxString col_name)
+{
+    TableInterface* table_int = project->GetTableInt();
+    int col = table_int->FindColId(col_name);
+    
+    std::vector<double> min_vals;
+    std::vector<double> max_vals;
+    project->GetTableInt()->GetMinMaxVals(col, min_vals, max_vals);
+    
+    std::vector<wxString> tm_strs;
+    project->GetTableInt()->GetTimeStrings(tm_strs);
+    var_man.ClearAndInit(tm_strs);
+    
+    int time = 0;
+    var_man.AppendVar(col_name, min_vals, max_vals, time);
+    
+    UpdateDataMapFromVarMan();
+    SetupPanelForNumVariables(1);
+    
+    Refresh();
+}
+
+void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
+{
+    int variable_selection = choice_variable->GetSelection();
+    wxString col_name = variable_names[variable_selection];
+
+    OnSelectVariable(col_name);
 }
 
 void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
@@ -1374,7 +1406,8 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 		message_win->Destroy();
 		message_win = 0;
 	}
-	if (ctrls_h_szr) ctrls_h_szr->Clear(true);
+	if (ctrls_h_szr)
+        ctrls_h_szr->Clear(true);
 	if (title1_txt) {
 		title1_txt->Destroy();
 		title1_txt = 0;
@@ -1742,7 +1775,8 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 	LOG_MSG("to_remove from data_map:");
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
-		if (vm_nms.find(nm) != vm_nms.end()) continue;
+		if (vm_nms.find(nm) != vm_nms.end())
+            continue;
 		to_remove.insert(nm);
 		LOG_MSG("  " + nm);
 	}
