@@ -111,14 +111,12 @@ public:
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
 
-	void OnShowVarsChooser(wxCommandEvent& event);
 	void OnCompareRegimes(wxCommandEvent& event);
 	void OnCompareTimePeriods(wxCommandEvent& event);
 	void OnCompareRegAndTmPer(wxCommandEvent& event);
 	void OnSelectPeriod0(wxCommandEvent& event);
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
-    void OnDIDTest(wxCommandEvent& event);
     void OnAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxisPrecision(wxCommandEvent& event);
 
@@ -168,26 +166,28 @@ protected:
     wxChoice* choice_group2;
     wxChoice* choice_time1;
     wxChoice* choice_time2;
+    wxCheckBox* chk_run_test;
    
+    void OnSelectionChange();
+    void RunDIDTest();
     void InitVariableChoiceCtrl();
     void InitGroupsChoiceCtrl();
     void InitTimeChoiceCtrl();
+    void InitGroup12ChoiceCtrl();
+    
     void OnVariableChoice(wxCommandEvent& event);
     void OnGroupsChoice(wxCommandEvent& event);
     void OnGroup1Choice(wxCommandEvent& event);
     void OnGroup2Choice(wxCommandEvent& event);
     void OnTime1Choice(wxCommandEvent& event);
     void OnTime2Choice(wxCommandEvent& event);
+    void OnApplyButton(wxCommandEvent& event);
     
-    void OnSelectVariable(wxString col_name);
-    
-    void InitGroup12ChoiceCtrl();
-    
+   
     wxString logReport;
     RegressionReportDlg *regReportDlg;
 	
 	HighlightState* highlight_state;
-	VarsChooserFrame* vars_chooser_frame;
 	GdaVarTools::Manager var_man;
 	data_map_type data_map; 
 	std::vector<LineChartCanvas*> line_charts;

@@ -3257,6 +3257,20 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
+      <object class="wxMenu" name="ID_MENU">
+          <label>Axis</label>
+          <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS">
+              <label>Adjust Value Range of Y-Axis</label>
+              <checkable>1</checkable>
+              <checked>0</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS_PRECISION">
+              <label>Adjust Numeric Precision of Y-Axis</label>
+          </object>
+      </object>
+      
+
+      <!--
     <object class="wxMenuItem" name="ID_COMPARE_REGIMES">
       <label>Compare Regimes</label>
       <checkable>1</checkable>
@@ -3274,17 +3288,11 @@
     </object>
     <object class="separator"/>
     
-    <object class="wxMenu" name="ID_MENU">
-        <label>Axis</label>
-        <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS">
-            <label>Adjust Value Range of Y-Axis</label>
-            <checkable>1</checkable>
-            <checked>0</checked>
-        </object>
-        <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS_PRECISION">
-            <label>Adjust Numeric Precision of Y-Axis</label>
-        </object>
-    </object>
+       <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+       <label>Display Statistics</label>
+       <checkable>1</checkable>
+       <checked>1</checked>
+       </object>
     <object class="separator"/>
 	<object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
       <label>Display Statistics</label>
@@ -3301,6 +3309,7 @@
       <checkable>0</checkable>
       <checked>0</checked>
     </object>
+       -->
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">

@@ -152,7 +152,7 @@ void LineChartCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_LINE_CHART_MENU_OPTIONS");
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
+    template_frame->PopupMenu(optMenu);//, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting LineChartCanvas::DisplayRightClickMenu");
 }
@@ -163,6 +163,7 @@ void LineChartCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
 	bool rect_sel = (!pointsel && (brushtype == rectangle));
 		
+    /*
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
@@ -185,6 +186,7 @@ void LineChartCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if (lc_canv_cb) {
 		lc_canv_cb->notifyNewSelection(new_sel_tms, shiftdown, pointsel);
 	}
+     */
 }
 
 void LineChartCanvas::UpdateStatusBar()

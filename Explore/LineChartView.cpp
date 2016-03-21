@@ -61,7 +61,6 @@ LineChartFrame::LineChartFrame(wxFrame *parent, Project* project,
 							   const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 highlight_state(project->GetHighlightState()), 
-vars_chooser_frame(0), 
 panel(0),
 panel_v_szr(0), 
 panel_h_szr(0), 
@@ -71,7 +70,7 @@ title2_h_szr(0),
 bag_szr(0), 
 title1_txt(0), 
 title2_txt(0),
-display_stats(true), 
+display_stats(true),
 compare_regimes(true),
 compare_time_periods(false), 
 compare_r_and_t(false),
@@ -161,20 +160,27 @@ use_def_y_range(false)
     tests_sizer->Add(lbl_time2, 1, wxEXPAND);
     tests_sizer->Add(choice_time2, 1, wxEXPAND);
     
-    wxCheckBox* chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
+    chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
     
     wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, "Save Dummy");
     wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Apply");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_save_dummy, 0, wxEXPAND | wxALL, 10);
-    btn_box->Add(btn_apply, 0, wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+   
+    wxHtmlWindow* wv = 0;
+    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
+    stats_wins.push_back(wv);
+    wxBoxSizer* stats_box = new wxBoxSizer(wxHORIZONTAL);
+    stats_box->Add(wv, 1, wxEXPAND | wxALL, 10);
     
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(variable_sizer, 0, wxALIGN_TOP | wxALL, 20);
     rbox->Add(lbl_tests, 0, wxALIGN_TOP| wxLEFT | wxRIGHT, 20);
     rbox->Add(tests_sizer, 0, wxALIGN_TOP | wxALL, 20);
     rbox->Add(chk_run_test, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxBOTTOM, 20);
-    rbox->Add(btn_box, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxTOP, 10);
+    rbox->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    rbox->Add(stats_box, 1, wxALIGN_TOP | wxEXPAND | wxALL, 10);
     lpanel->SetSizerAndFit(rbox);
     
     // Right Panel
@@ -185,25 +191,13 @@ use_def_y_range(false)
 	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
-	//title_win = new wxHtmlWindow(panel);
-	//title_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
-	//													 wxDefaultPosition, wxSize(500, 30));
-	//title_win->SetMinSize(wxSize(500, 30));
-	
-	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap	
+	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
 	bag_szr->SetFlexibleDirection(wxBOTH);
 	bag_szr->AddGrowableCol(0, 1);
 	bag_szr->AddGrowableRow(0, 1);
 
-	// new flex grid sizer with 1 row, and 1 column
-	//wxFlexGridSizer* title_fg_szr = new wxFlexGridSizer(1, 1, 0, 0);
-	//title_fg_szr->SetFlexibleDirection(wxHORIZONTAL);
-	//title_fg_szr->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
-	//title_fg_szr->Add(title_win, 1, wxEXPAND);
-	
 	panel_v_szr = new wxBoxSizer(wxVERTICAL);
-	//panel_v_szr->Add(title_fg_szr, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	
 	panel_h_szr = new wxBoxSizer(wxHORIZONTAL);
@@ -234,12 +228,12 @@ use_def_y_range(false)
     wxCommandEvent ev;
 	OnVariableChoice(ev);
     
-    Connect(XRCID("ID_DID_TEST"),
-            wxEVT_MENU, 
-            wxCommandEventHandler(LineChartFrame::OnDIDTest));
-    Connect(XRCID("ID_SAVE_DUMMY"),
-            wxEVT_MENU, 
-            wxCommandEventHandler(LineChartFrame::OnSaveDummyTable));
+    btn_apply->Connect(wxEVT_BUTTON,
+                       wxCommandEventHandler(LineChartFrame::OnApplyButton),
+                       NULL, this);
+    btn_save_dummy->Connect(wxEVT_BUTTON,
+                            wxCommandEventHandler(LineChartFrame::OnSaveDummyTable),
+                            NULL, this);
     
     Connect(XRCID("ID_ADJUST_Y_AXIS"),
             wxEVT_MENU,
@@ -255,11 +249,8 @@ LineChartFrame::~LineChartFrame()
 {
 	LOG_MSG("In LineChartFrame::~LineChartFrame");
 	highlight_state->removeObserver(this);
-	if (vars_chooser_frame) {
-		vars_chooser_frame->removeObserver(this);
-		vars_chooser_frame->closeAndDeleteWhenEmpty();
-	}
-	if (HasCapture()) ReleaseMouse();
+	if (HasCapture())
+        ReleaseMouse();
 	DeregisterAsActive();
 }
 
@@ -318,6 +309,8 @@ void LineChartFrame::InitTimeChoiceCtrl()
     std::vector<wxString> tm_strs;
     project->GetTableInt()->GetTimeStrings(tm_strs);
 
+    choice_time1->Clear();
+    choice_time2->Clear();
     for (size_t i=0; i<tm_strs.size(); i++ ) {
         wxString t_str = tm_strs[i];
         choice_time1->Append(t_str);
@@ -326,7 +319,9 @@ void LineChartFrame::InitTimeChoiceCtrl()
    
     if (tm_strs.size() > 0) {
         int group_selection = choice_groups->GetSelection();
-        if (group_selection == 0 ) {
+        if (group_selection == 0 &&
+            choice_group1->GetSelection() != choice_group2->GetSelection())
+        {
             choice_time1->SetSelection(0);
             choice_time2->SetSelection(0);
         } else {
@@ -343,9 +338,26 @@ void LineChartFrame::InitTimeChoiceCtrl()
     }
 }
 
-void LineChartFrame::OnSelectVariable(wxString col_name)
+void LineChartFrame::OnSelectionChange()
 {
+    int var_selection = choice_variable->GetSelection();
+    int group_type = choice_groups->GetSelection();
+    int group1 = choice_group1->GetSelection();
+    int group2 = choice_group2->GetSelection();
+    int time1 = choice_time1->GetSelection();
+    int time2 = choice_time2->GetSelection();
+   
+    /*
+    if (group1 == -1 || group2 == -1 || group_type == -1 || time1 == -1 ||
+        time2 == -1 || var_selection == -1 )
+    {
+        return;
+    }
+     */
+    
+    // process variable name selection change
     TableInterface* table_int = project->GetTableInt();
+    wxString col_name = variable_names[var_selection];
     int col = table_int->FindColId(col_name);
     
     std::vector<double> min_vals;
@@ -358,11 +370,58 @@ void LineChartFrame::OnSelectVariable(wxString col_name)
     
     int time = 0;
     var_man.AppendVar(col_name, min_vals, max_vals, time);
+   
+    // process group selection
+    if (group_type == 0 ) {
+        if (group1 != group2) {
+            compare_time_periods = false;
+            if (time1 > -1 && time2 > -1 && (time1 != time2) ) {
+                compare_regimes = false;
+                compare_r_and_t = true;
+            } else {
+                compare_regimes = true;
+                compare_r_and_t = false;
+            }
+        } else {
+            compare_time_periods = false;
+            compare_regimes = false;
+            compare_r_and_t = true;
+        }
+        
+    } else {
+        compare_time_periods = true;
+        compare_regimes = false;
+        compare_r_and_t = false;
+    }
     
+    // process Time Selection
+    for (size_t i=0; i< tms_subset0.size(); i++) {
+        tms_subset0[i] = false;
+        tms_subset1[i] = false;
+    }
+    if (time1 >= 0) {
+        for (size_t i=0; i< tms_subset0.size(); i++) {
+            tms_subset0[i] = (i == time1) ? true : false;
+        }
+    }
+    if (time2 >= 0) {
+        for (size_t i=0; i< tms_subset1.size(); i++) {
+            tms_subset1[i] = (i == time2) ? true : false;
+        }
+    }
+   
+    // Update draw
     UpdateDataMapFromVarMan();
     SetupPanelForNumVariables(1);
     
     Refresh();
+}
+
+void LineChartFrame::OnApplyButton(wxCommandEvent &event)
+{
+    if (chk_run_test->IsChecked()) {
+        RunDIDTest();
+    }
 }
 
 void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
@@ -370,69 +429,166 @@ void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
     int variable_selection = choice_variable->GetSelection();
     wxString col_name = variable_names[variable_selection];
 
-    OnSelectVariable(col_name);
+    TableInterface* table_int = project->GetTableInt();
+    int col = table_int->FindColId(col_name);
+    
+    if (!table_int->IsColTimeVariant(col_name)) {
+        choice_groups->SetSelection(0);
+    }
+    
+    InitGroup12ChoiceCtrl();
+    InitTimeChoiceCtrl();
+    
+    if (table_int->IsColTimeVariant(col_name)) {
+        choice_time1->Enable(true);
+        choice_time2->Enable(true);
+        choice_time1->SetSelection(0);
+        choice_time2->SetSelection(0);
+    } else {
+        choice_groups->SetSelection(0);
+        choice_group1->Enable(true);
+        choice_group2->Enable(true);
+        choice_time1->SetSelection(-1);
+        choice_time2->SetSelection(-1);
+        choice_time1->Enable(false);
+        choice_time2->Enable(false);
+    }
+
+    OnSelectionChange();
 }
 
 void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
 {
     int time1_selection = choice_time1->GetSelection();
-    
+    int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
+    
     if (group_selection == 0 ) {
-        // sel vs excl
-        choice_time2->SetSelection(time1_selection);
+        if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
+            // sel vs excl
+            choice_time2->SetSelection(time1_selection);
+        } else {
+            // sel vs sel or excl vs excl
+            if (time2_selection == time1_selection) {
+                if (time2_selection -1 >=0)
+                    choice_time2->SetSelection(time2_selection-1);
+                else if (time2_selection + 1 < choice_time2->GetCount()) {
+                    choice_time2->SetSelection(time2_selection+1);
+                } else {
+                    choice_time2->SetSelection(-1);
+                }
+            }
+        }
     } else {
-        int time2_selection = choice_time2->GetSelection();
         if (time2_selection == time1_selection) {
-            choice_time2->SetSelection(-1);
+            if (time2_selection -1 >=0)
+                choice_time2->SetSelection(time2_selection-1);
+            else if (time2_selection + 1 < choice_time2->GetCount()) {
+                choice_time2->SetSelection(time2_selection+1);
+            } else {
+                choice_time2->SetSelection(-1);
+            }
         }
     }
+    
+    OnSelectionChange();
 }
 
 void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 {
+    int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
-    
     int group_selection = choice_groups->GetSelection();
+    
     if (group_selection == 0 ) {
-        // sel vs excl
-        choice_time1->SetSelection(time2_selection);
+        if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
+            // sel vs excl
+            choice_time1->SetSelection(time2_selection);
+        } else {
+            if (time2_selection == time1_selection) {
+                if (time1_selection -1 >=0)
+                    choice_time1->SetSelection(time1_selection-1);
+                else if (time1_selection + 1 < choice_time1->GetCount()) {
+                    choice_time1->SetSelection(time1_selection+1);
+                } else {
+                    choice_time1->SetSelection(-1);
+                }
+            }
+        }
+        
     } else {
-        int time1_selection = choice_time1->GetSelection();
         if (time2_selection == time1_selection) {
-            choice_time1->SetSelection(-1);
+            if (time1_selection -1 >=0)
+                choice_time1->SetSelection(time1_selection-1);
+            else if (time1_selection + 1 < choice_time1->GetCount()) {
+                choice_time1->SetSelection(time1_selection+1);
+            } else {
+                choice_time1->SetSelection(-1);
+            }
         }
     }
+    
+    OnSelectionChange();
 }
 
 void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 {
     InitGroup12ChoiceCtrl();
     InitTimeChoiceCtrl();
+    
+    OnSelectionChange();
 }
 
 void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 {
     int group_selection = choice_groups->GetSelection();
+    int time1_selection = choice_time1->GetSelection();
+    int time2_selection = choice_time2->GetSelection();
+    
     if (group_selection == 0 ) {
-        if (choice_group1->GetSelection() == 0) {
-            choice_group2->SetSelection(1);
+        if (choice_group1->GetSelection() == choice_group2->GetSelection())
+        {
+            if (time2_selection == time1_selection) {
+                if (time1_selection -1 >=0)
+                    choice_time1->SetSelection(time1_selection-1);
+                else if (time1_selection + 1 < choice_time1->GetCount()) {
+                    choice_time1->SetSelection(time1_selection+1);
+                } else {
+                    choice_time1->SetSelection(-1);
+                }
+            }
+            //choice_group2->SetSelection(1- choice_group1->GetSelection());
         } else {
-            choice_group2->SetSelection(0);
+            choice_time1->SetSelection(choice_time2->GetSelection());
         }
     }
+    OnSelectionChange();
 }
 
 void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
 {
     int group_selection = choice_groups->GetSelection();
+    int time1_selection = choice_time1->GetSelection();
+    int time2_selection = choice_time2->GetSelection();
+    
     if (group_selection == 0 ) {
-        if (choice_group2->GetSelection() == 0) {
-            choice_group1->SetSelection(1);
+        if (choice_group1->GetSelection() == choice_group2->GetSelection())
+        {
+            if (time2_selection == time1_selection) {
+                if (time2_selection -1 >=0)
+                    choice_time2->SetSelection(time2_selection-1);
+                else if (time2_selection + 1 < choice_time2->GetCount()) {
+                    choice_time2->SetSelection(time2_selection+1);
+                } else {
+                    choice_time2->SetSelection(-1);
+                }
+            }
+            //choice_group1->SetSelection(1- choice_group2->GetSelection());
         } else {
-            choice_group1->SetSelection(0);
+            choice_time2->SetSelection(choice_time1->GetSelection());
         }
     }
+    OnSelectionChange();
 }
 
 void LineChartFrame::InitGroup12ChoiceCtrl()
@@ -443,16 +599,18 @@ void LineChartFrame::InitGroup12ChoiceCtrl()
         choice_group1->Append("Selected");
         choice_group1->Append("Excluded");
         choice_group1->SetSelection(0);
-        choice_group2->Enable(true);
+        choice_group1->Enable(true);
+        
         choice_group2->Clear();
         choice_group2->Append("Selected");
         choice_group2->Append("Excluded");
-        choice_group1->SetSelection(1);
+        choice_group2->SetSelection(1);
         choice_group2->Enable(true);
     } else {
         choice_group1->Clear();
         choice_group1->Append("All");
         choice_group1->Enable(false);
+        
         choice_group2->Clear();
         choice_group2->Append("All");
         choice_group2->Enable(false);
@@ -602,6 +760,7 @@ void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 
 void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
 {
+    LOG_MSG("Start LineChartFrame::OnSaveDummyTable");
     int nTests = var_man.GetVarsCount();
     TableInterface* table_int = project->GetTableInt();
     const std::vector<bool>& hs(highlight_state->GetHighlight());
@@ -722,7 +881,8 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 wxMessageBox("Please choose Period 2 on the horizontal axis first.");
                 return;
             }
-            
+           
+            /*
             int n = n1 + n2;
             
             var_stack_array[i].resize(n);
@@ -730,18 +890,23 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             dummy_select_stack.resize(n);
             interaction_stack.resize(n);
             id_stack.resize(n);
-            
+           
+            */
+            bool filter_flag = choice_group1->GetSelection() == 0 ? true : false;
+                
             int idx = 0;
             for (int t=0; t<n_ts; t++) {
                 if (tms_subset0[t] || tms_subset1[t]) {
                     for (int j=0; j<n_obs; j++) {
-                        var_stack_array[i][idx] = Y[t][j];
-                        dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
-                        dummy_time_stack[idx] = tms_subset0[t] == true ? 0 : 1;
-                        interaction_stack[idx] = dummy_select_stack[idx] * dummy_time_stack[idx];
-                        id_stack[idx] = j;
-                        newids.push_back(idx+1);
-                        idx += 1;
+                        if (hs[j] == filter_flag) {
+                            var_stack_array[i].push_back(Y[t][j]);
+                            dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
+                            dummy_time_stack.push_back(tms_subset0[t] == true ? 0 : 1);
+                            interaction_stack.push_back(dummy_select_stack[idx] * dummy_time_stack[idx]);
+                            id_stack.push_back(j);
+                            newids.push_back(idx+1);
+                            idx += 1;
+                        }
                     }
                 }
             }
@@ -789,14 +954,6 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
         }
-        /*
-        if (using_default_id) {
-            // if no weights/id_field, then use 0,1,2,...
-            OGRColumn* id_col = new OGRColumnInteger("ORIG_ID", 18, 0, n);
-            id_col->UpdateData(id_stack);
-            mem_table_int->AddOGRColumn(id_col);
-        }
-         */
     }
     
     if (!dummy_time_stack.empty()) {
@@ -862,17 +1019,18 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     
     // clean memory
     delete mem_table_int;
+    LOG_MSG("End LineChartFrame::OnSaveDummyTable");
 }
 
-void LineChartFrame::OnDIDTest(wxCommandEvent& event)
+void LineChartFrame::RunDIDTest()
 {
+    LOG_MSG("Run LineChartFrame::RunDIDTest");
+    
     int nTests = var_man.GetVarsCount();
     TableInterface* table_int = project->GetTableInt();
     const std::vector<bool>& hs(highlight_state->GetHighlight());
     int m_obs = project->GetNumRecords();
    
-
-    
     // regression options
     bool m_constant_term = true;
     int RegressModel = 1; // for classic linear regression
@@ -889,7 +1047,6 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
         
         
         // Y and X data
-        
 		wxString row_nm(var_man.GetName(i));
 		wxString row_title(row_nm);
 		const vec_vec_dbl_type& Y(data_map[row_nm]);
@@ -921,7 +1078,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (!has_time0_def || !has_time1_def) {
-                wxMessageBox("Please define time periods by selecting on the horizontal axis.");
+                wxMessageBox("Please choose time periods first.");
                 return;
             }
         }
@@ -937,7 +1094,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n == 0) {
-                wxMessageBox("Please choose time periods by selecting on the horizontal axis first.");
+                wxMessageBox("Please choose time periods first.");
                 return;
             }
             
@@ -992,7 +1149,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1001,7 +1158,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 first.");
                 return;
             }
             
@@ -1061,7 +1218,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1 first.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1070,7 +1227,7 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2 first.");
                 return;
             }
             
@@ -1133,30 +1290,12 @@ void LineChartFrame::OnDIDTest(wxCommandEvent& event)
         
     }
     
-
+    LOG_MSG("End LineChartFrame::RunDIDTest");
 }
 
 void LineChartFrame::OnReportClose(wxWindowDestroyEvent& event)
 {
     regReportDlg = 0;
-}
-
-void LineChartFrame::OnShowVarsChooser(wxCommandEvent& event)
-{
-	LOG_MSG("In LineChartFrame::OnShowVarsChooser");
-	if (vars_chooser_frame) {
-		vars_chooser_frame->Iconize(false);
-		vars_chooser_frame->Raise();
-		vars_chooser_frame->SetFocus();
-	} else {
-		wxString title("Averages Chart Variables Add/Remove");
-		vars_chooser_frame = new VarsChooserFrame(var_man, project, false, false,
-												  GetHelpHtml(),
-												  "Averages Chart Help",
-												  title);
-		vars_chooser_frame->registerObserver(this);
-		vars_chooser_frame->SetSize(-1, -1, -1, 400);
-	}
 }
 
 void LineChartFrame::OnCompareRegimes(wxCommandEvent& event)
@@ -1238,7 +1377,6 @@ void LineChartFrame::update(TableState* o)
 {
 	LOG_MSG("In LineChartFrame::update(TableState*)");
 	UpdateDataMapFromVarMan();
-	if (vars_chooser_frame) vars_chooser_frame->UpdateFromTable();
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
 		lc_stats[i]->UpdateRegimesStats(hs);
@@ -1266,7 +1404,6 @@ void LineChartFrame::update(VarsChooserObservable* o)
 
 void LineChartFrame::notifyOfClosing(VarsChooserObservable* o)
 {
-	vars_chooser_frame = 0;
     UpdateMessageWin();
 }
 
@@ -1383,7 +1520,6 @@ void LineChartFrame::notifyNewSelection(const std::vector<bool>& tms_sel,
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
 		UpdateStatsWinContent(i);
 	}
-	UpdateTitleText();
 	panel_h_szr->RecalcSizes();
 }
 
@@ -1431,19 +1567,11 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
 		if (line_charts[i]) {
-			//line_charts[i]->Unbind(wxEVT_MOTION, &LineChartFrame::OnMouseEvent, this); //MMLCu
 			line_charts[i]->Destroy();
 		}
 	}
 	line_charts.clear();
 	lc_stats.clear();
-	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
-		if (stats_wins[i]) {
-            stats_wins[i]->Unbind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-			stats_wins[i]->Destroy();
-		}
-	}	
-	stats_wins.clear();
 	size_t tms = project->GetTableInt()->GetTimeSteps();
 	if (tms_subset0.size() != tms) {
 		tms_subset0.resize(tms);
@@ -1457,9 +1585,6 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	if (num_vars < 1) {
 		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
 		message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-        if (vars_chooser_frame) {
-            UpdateMessageWin();
-        }
 		bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
 		bag_szr->SetFlexibleDirection(wxBOTH);
 		if (bag_szr->IsColGrowable(0)) bag_szr->RemoveGrowableCol(0);
@@ -1468,28 +1593,6 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 		bag_szr->AddGrowableRow(0, 1);
 		
 	} else {
-		title1_h_szr = new wxBoxSizer(wxHORIZONTAL);
-		title1_txt = new wxStaticText(panel, wxID_ANY, "New Title Text", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
-		title1_h_szr->Add(title1_txt);
-		panel_v_szr->Add(title1_h_szr, 0, wxALIGN_LEFT|wxBOTTOM, 5);
-
-		if (compare_time_periods || compare_r_and_t) {
-			ctrls_h_szr = new wxBoxSizer(wxHORIZONTAL);
-			wxRadioButton* rb0 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_0"), "Period 1", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
-			rb0->SetValue(true);
-			wxRadioButton* rb1 = new wxRadioButton(panel, XRCID("ID_RAD_BUT_1"), "Period 2", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
-			rb1->SetValue(false);
-			Connect(XRCID("ID_RAD_BUT_0"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod0));
-			Connect(XRCID("ID_RAD_BUT_1"), wxEVT_RADIOBUTTON, wxCommandEventHandler(LineChartFrame::OnSelectPeriod1));
-
-            ctrls_h_szr->AddSpacer(15);
-			ctrls_h_szr->Add(rb0);
-			ctrls_h_szr->Add(rb1);
-            ctrls_h_szr->AddSpacer(15);
-
-			panel_v_szr->Add(ctrls_h_szr, 0, wxALIGN_LEFT|wxBOTTOM, 5);
-		}
-		
 		for (int row=0; row<num_vars; ++row) {
 			wxString row_nm(var_man.GetName(row));
 			wxString row_title(row_nm);
@@ -1511,26 +1614,12 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			lcs_p->UpdateOtherStats();
 			lc_stats.push_back(lcs_p);
 			
-			//wxWebView* wv = 0;
-			wxHtmlWindow* wv = 0;
-			if (display_stats) {
-				wv = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200, -1));
-				//wv = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize);
-                wv->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-				stats_wins.push_back(wv);
-				UpdateStatsWinContent(row);
-			}
 			LineChartCanvas* canvas = 0;
 			canvas = new LineChartCanvas(panel, this, project, *lcs_p, this);
 			bag_szr->Add(canvas, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 			line_charts.push_back(canvas);
-			if (display_stats && wv) {
-				bag_szr->Add(wv, wxGBPosition(row, 1), wxGBSpan(1,1), wxEXPAND);
-			}
 		}
 		int col0_proportion = 1;
-		if (display_stats)
-            col0_proportion = compare_r_and_t ? 2 : 3;
 		
         int col1_proportion = 1;
 		bag_szr->SetFlexibleDirection(wxBOTH);
@@ -1538,22 +1627,17 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
             bag_szr->RemoveGrowableCol(0);
 		bag_szr->AddGrowableCol(0, col0_proportion);
 		
-        if (display_stats) {
-			if (bag_szr->IsColGrowable(1))
-                bag_szr->RemoveGrowableCol(1);
-			bag_szr->AddGrowableCol(1, col1_proportion);
-		}
 		for (int i=0; i<num_vars; ++i) {
 			if (bag_szr->IsRowGrowable(i))
                 bag_szr->RemoveGrowableRow(i);
 			bag_szr->AddGrowableRow(i, 1);
 		}
 	}
-    //panel_v_szr->AddSpacer(15);
+    panel_v_szr->AddSpacer(5);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
-	UpdateTitleText();
 	panel_h_szr->RecalcSizes();
-    
+   
+    UpdateStatsWinContent(0);
 	Refresh();
 	LOG_MSG("Exiting LineChartFrame::SetupPanelForNumVariables");
 }
@@ -1562,32 +1646,7 @@ void LineChartFrame::UpdateMessageWin()
 {
 	if (!message_win) return;
 	wxString s;
-	s << "<!DOCTYPE html>";
-	s << "<html>";
-	s << "<head>";
-	s << "</head>";
-	s << "<body>";
-	s << "<br /><br /><br />";
-	s << "<center><p>";
-	s << "<font face=\"verdana,arial,sans-serif\" color=\"black\" size=\"5\">";
-	
-	int count = var_man.GetVarsCount();
-	if (count == 0) {
-		s << "Please right-click or use<br />";
-		s << "<font color=\"blue\">Options > Add/Remove Variables<br /></font>";
-		s << "to specify one or more variables.";
-	} if (count > 1) {
-		s << "Variables specified: <br />";
-		for (int i=0; i<count; ++i) {
-			s << "<font color=\"blue\">" << var_man.GetName(i) << "</font>";
-			if (i+1 < count) s << "<br />";
-		}
-	}
-	
-	s << "  </font></p></center>";
-	s << "</body>";
-	s << "</html>";
-	message_win->SetPage(s );
+	message_win->SetPage(s);
 }
 
 void LineChartFrame::UpdateTitleText()
@@ -1721,41 +1780,12 @@ void LineChartFrame::UpdateTitleText()
 	}
     title1_txt->SetLabel("");
 	title1_txt->SetLabelMarkup(ln1);
-	//if (title2_txt && compare_r_and_t) title2_txt->SetLabelMarkup(ln2);
     
 	Refresh();
 }
 
 void LineChartFrame::UpdateTitleWin()
 {
-	/*
-	if (!title_win) return;
-	wxString s;
-	s<< "<!DOCTYPE html>";
-	s<< "<html>";
-	s<< "<head>";
-	s<<   "<meta charset=\"utf-8\">\n";
-	//s<<   "<style>\n";
-  //border: 0; outline: 0;"
-	//"-webkit-margin-before: 0em;"
-	//"-webkit-margin-after: 0em; }";
-	//s<<     "body {\n";
-	//s<<       "overflow: hidden;";
-	//s<<       "background-color:#E6E6FA;";
-	//s<<       "font: 12px verdana,arial,sans-serif;";
-	//s<<     "}\n";
-	//s<<     "html, body, h1, h2, h3, p, table { margin: 0; padding: 0;}";
-	//s<<     "html, body, h1 {text-align: center;}";
-	//s<<   "</style>\n";
-	s<< "</head>";
-	s<< "<body>";
-	s<< "<h3>";
-	s<< "Title window is so very very long";
-	s<< "</h3>";
-	s<< "</body>";
-	s<< "</html>";
-	title_win->SetPage(s);
-*/
 }
 
 /** Adds/removes variables from data_map according to variables present
@@ -1825,13 +1855,6 @@ wxString LineChartFrame::GetHelpHtml()
 {
 	return "";
 }
-
-/*
- s<< "<tr>";
- s<< "<td>" << << "</td>";
- s<< "</tr>"
- */
-
 
 void LineChartFrame::UpdateStatsWinContent(int var)
 {
@@ -1983,7 +2006,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	s<< "<table width=100% rules=\"rows\" >";
 	s<< "<tr bgcolor=\"#CCCCCC\" >";
-	s<< "<th width=125 align=\"center\">Group</th>";
+	s<< "<th width=100 align=\"center\">Group</th>";
 	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";
@@ -2000,49 +2023,71 @@ void LineChartFrame::UpdateStatsWinContent(int var)
     } else {
 		s<< "<tr>";
         if (cmp_r)
-            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font></td>";
+            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
-        if (cmp_r_t)
-            s<< "<td align=\"left\">1. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
+            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
-		s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
-		s<< td_s0_mean;
-		s<< "<td align=\"right\">" << sd0 << "</td>";
-		s<< "</tr>";
-		s<< "<tr>";
+        if (cmp_r || cmp_t) {
+    		s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
+    		s<< td_s0_mean;
+    		s<< "<td align=\"right\">" << sd0 << "</td>";
+    		s<< "</tr>";
+    		s<< "<tr>";
+        }
+        
+        if (cmp_r_t) {
+            if (choice_group1->GetSelection() == 0) {
+                s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
+        		s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
+        		s<< td_s0_mean;
+        		s<< "<td align=\"right\">" << sd0 << "</td>";
+        		s<< "</tr>";
+        		s<< "<tr>";
+            } else {
+                s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
+            
+        		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
+        		s<< td_s1_mean;
+        		s<< "<td align=\"right\">" << sd1 << "</td>";
+        		s<< "</tr>";
+        		s<< "<tr>";
+            }
+        }
+        
         
         if (cmp_r)
-            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font></td>";
+            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font></td>";
         if (cmp_t)
-            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
-        if (cmp_r_t)
-            s<< "<td align=\"left\">2. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
+            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
         
-		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
-		s<< td_s1_mean;
-		s<< "<td align=\"right\">" << sd1 << "</td>";
-		s<< "</tr>";
+        if (cmp_r || cmp_t) {
+    		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
+    		s<< td_s1_mean;
+    		s<< "<td align=\"right\">" << sd1 << "</td>";
+    		s<< "</tr>";
+        }
+        
+        if (cmp_r_t) {
+            if (choice_group2->GetSelection() == 0) {
+                s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
+        		s<< "<td align=\"right\">" << lcs.sel_sz_i  << "</td>";
+        		s<< td_s2_mean;
+        		s<< "<td align=\"right\">" << sd2 << "</td>";
+        		s<< "</tr>";
+                
+            } else {
+        		s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
+        		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
+        		s<< td_s3_mean;
+        		s<< "<td align=\"right\">" << sd3 << "</td>";
+        		s<< "</tr>";
+            }
+        }
+       
 	}
-    
-	if (cmp_r_t && !single_sample) {
-		s<< "<tr>";
-		s<< "<td align=\"left\">3. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << ">Selected</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
-		s<< "<td align=\"right\">" << lcs.sel_sz_i  << "</td>";
-		s<< td_s2_mean;
-		s<< "<td align=\"right\">" << sd2 << "</td>";
-		s<< "</tr>";
-		s<< "<tr>";
-		s<< "<td align=\"left\">4. <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font> in <font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
-		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
-		s<< td_s3_mean;
-		s<< "<td align=\"right\">" << sd3 << "</td>";
-		s<< "</tr>";
-	}
+   
 	s<< "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
 	s<< "</table>\n";
-
-    
     
 	if (lcs.test_stat_valid && !cmp_r_t) {
         s<< "<br/>Do Means Differ? (ANOVA)<br/><br/>";
@@ -2068,53 +2113,45 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
 		s<< "</table>\n";
-        s<< "<br/><br/>Right-click for diff-in-diff test.";
 	}
 	
 	if (cmp_r_t) {
         s<< "<br/>Do Means Differ? (ANOVA)<br/><br/>";
-		s<< "<table>";
-		s<< "<tr bgcolor=\"#CCCCCC\">";
-		s<< "<td align=\"center\">&nbsp;Compare&nbsp;</td>";
-		s<< "<td align=\"center\">&nbsp;D.F.&nbsp;</td>";
-		s<< "<td align=\"center\">&nbsp;F-val&nbsp;</td>";
-		s<< "<td align=\"center\">&nbsp;p-val</td>";
-		s<< "</tr>";
-		size_t c=0;
-		for (size_t i=0; i<lcs.ss_ptrs.size(); ++i) {
-			for (size_t j=i+1; j<lcs.ss_ptrs.size(); ++j) {
-                if ((i+1 == 1 && j+1 == 4 ) || (i+1 == 2 && j+1 == 3)) {
-                    // escape unnecessary comparison result, only pre- and
-                    // post- comparisons are needed. issue 168
-                } else {
-    				s<< "<tr>";
-    				s<< "<td align=\"center\">" << i+1 <<"&nbsp;vs&nbsp;"<< j+1 << "</td>";
-    				if (lcs.test_stat_valid_c[c]) {
-                        stringstream _s;
-                        _s << (int)lcs.deg_free_c[c];
-                        _s << std::fixed << std::setprecision(2);
-
-                        
-    					s<< "<td align=\"right\">" << _s.str() << "&nbsp;</td>";
-                        
-                        _s.str("");
-                        _s << lcs.test_stat_c[c];
-    					s<< "<td align=\"right\">" << _s.str() << "&nbsp;</td>";
-                        
-    					double pval = lcs.p_val_c[c];
-                        _s.str("");
-                        _s << std::fixed << std::setprecision(3) << pval;
-    					s<< "<td align=\"right\">" << _s.str() << "</td>";
-    				} else {
-    					s<< "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
-    				}
-    				s<< "</tr>";
-                }
-				++c;
-			}
-		}
-		s<< "</table>\n";
-        s<< "<br/><br/>Right-click for diff-in-diff test.";
+        s<< "<table>";
+        s<< "<tr>";
+        s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
+        stringstream _s;
+        if (choice_group1->GetSelection() == 0) {
+            _s << (int)lcs.deg_free_c[1];
+        } else {
+            _s << (int)lcs.deg_free_c[4];
+        }
+        _s << std::fixed << std::setprecision(2);
+        s<< "<td align=\"center\">" << _s.str() << "</td>";
+        s<< "</tr>";
+        s<< "<tr>";
+        s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">F-val&nbsp;</td>";
+        _s.str("");
+        if (choice_group1->GetSelection() == 0) {
+            _s << lcs.test_stat_c[1];
+        } else {
+            _s << lcs.test_stat_c[4];
+        }
+        s<< "<td align=\"center\">" << _s.str() << "</td>";
+        s<< "</tr>";
+        s<< "<tr>";
+        s<< "<td bgcolor=\"#CCCCCC\" align=\"right\">p-val&nbsp;</td>";
+        double pval = 0;
+        if (choice_group1->GetSelection() == 0) {
+            _s << lcs.p_val_c[1];
+        } else {
+            _s << lcs.p_val_c[4];
+        }
+        _s.str("");
+        _s << std::setprecision(3) << pval;
+        s<< "<td align=\"center\">" << _s.str() << "</td>";
+        s<< "</tr>";
+        s<< "</table>\n";
 	}
 	
 	s<< "</center>\n";
@@ -2126,7 +2163,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	stats_win->SetPage(s);
 }
 
-void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double* y,
+void LineChartFrame::printAndShowClassicalResults(const wxString& _yName, double* y,
                                                   const wxString& datasetname,
                                                  const wxString& wname,
                                                  DiagnosticReport *r,
@@ -2134,6 +2171,26 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
                                                  bool do_white_test)
 {
     LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
+    
+    wxString yName(_yName);
+    wxString time1, time2;
+    for(size_t i=0; i < tms_subset0.size(); i++) {
+        if (tms_subset0[i] == true) {
+            time1 = project->GetTableInt()->GetTimeString(i);
+        }
+        if (tms_subset1[i] == true) {
+            time2 = project->GetTableInt()->GetTimeString(i);
+        }
+    }
+    if (!time1.IsEmpty() && !time2.IsEmpty() && time1 != time2) {
+        yName = wxString::Format("%s (%s,%s)", yName, time1, time2);
+    } else if (!time1.IsEmpty()) {
+        yName = wxString::Format("%s (%s)", yName, time1);
+    } else if (!time2.IsEmpty()) {
+        yName = wxString::Format("%s (%s)", yName, time2);
+    }
+    
+    
     wxString f; // temporary formatting string
     wxString slog;
     
@@ -2141,7 +2198,7 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& yName, double*
     int cnt = 0;
     
     slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
-    slog << "Data set            :  " << datasetname << "\n"; cnt++;
+    slog << "Data Set            :  " << datasetname << "\n"; cnt++;
     slog << "Dependent Variable  :";
     
     if (yName.length() > 12 )

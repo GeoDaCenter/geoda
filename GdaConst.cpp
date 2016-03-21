@@ -303,7 +303,7 @@ const wxColour GdaConst::pcp_line_color(128, 0, 64); // dark cherry
 const wxColour GdaConst::pcp_horiz_line_color(0, 98, 0); // dark green
 
 // Averages Chart
-const wxSize GdaConst::line_chart_default_size(740, 500);
+const wxSize GdaConst::line_chart_default_size(720, 580);
 
 // colors defined in init()
 wxColour GdaConst::ln_cht_clr_regimes_hl;

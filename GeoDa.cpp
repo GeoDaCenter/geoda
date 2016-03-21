@@ -3362,7 +3362,10 @@ void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
 
-	LineChartFrame* f = new LineChartFrame(GdaFrame::gda_frame, project_p, "Average Comparison Chart", wxDefaultPosition, GdaConst::line_chart_default_size);
+	LineChartFrame* f = new LineChartFrame(GdaFrame::gda_frame, project_p,
+                                           "Average Comparison Chart",
+                                           wxDefaultPosition,
+                                           GdaConst::line_chart_default_size);
 }
 
 void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
@@ -5343,7 +5346,7 @@ void GdaFrame::OnEditVariables(wxCommandEvent& event)
 	} else if (CovSpFrame* f = dynamic_cast<CovSpFrame*>(t)) {
 		f->OnShowVarsChooser(event);
 	} else if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
-		f->OnShowVarsChooser(event);
+		//f->OnShowVarsChooser(event);
 	}
 }
 
@@ -6077,7 +6080,7 @@ LineChartEventDelay::LineChartEventDelay()
 }
 
 LineChartEventDelay::LineChartEventDelay(LineChartFrame* lc_frame_,
-																				 const wxString& cb_name_)
+                                         const wxString& cb_name_)
 : lc_frame(lc_frame_), cb_name(cb_name_)
 {
 	LOG_MSG("Created LineChartEventDelay::LineChartEventDelay for callback: "
