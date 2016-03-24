@@ -349,13 +349,7 @@ void LineChartFrame::OnSelectionChange()
     int time1 = choice_time1->GetSelection();
     int time2 = choice_time2->GetSelection();
    
-    /*
-    if (group1 == -1 || group2 == -1 || group_type == -1 || time1 == -1 ||
-        time2 == -1 || var_selection == -1 )
-    {
-        return;
-    }
-     */
+    UpdateTitleText();
     
     // process variable name selection change
     TableInterface* table_int = project->GetTableInt();
@@ -1665,134 +1659,24 @@ void LineChartFrame::UpdateMessageWin()
 void LineChartFrame::UpdateTitleText()
 {
 	wxString frame_title("Averages Chart");
-	if (var_man.GetVarsCount() > 0) {
-		if (compare_regimes) {
-			frame_title << " - Compare Regimes - " << var_man.GetName(0);
-		} else if (compare_time_periods) {
-			frame_title << " - Compare Time Periods - " << var_man.GetName(0);
-		} else if (compare_r_and_t) {
-			frame_title << " - Compare Regimes and Times - " << var_man.GetName(0);
-		}
-	}
-	SetTitle(frame_title);
-	
-	if (!title1_txt)
-        return;
-	//if (compare_r_and_t && !title2_txt) return;
-	TableInterface* table_int = project->GetTableInt();
-	
-	wxString span_end("</span>");
-	wxString span_clr_sel("<span foreground='");
-	span_clr_sel
-		<< GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_sel_dark) << "'>";
-	wxString span_clr_exl("<span foreground='");
-	span_clr_exl
-		<< GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << "'>";
-	wxString span_clr_tm1("<span foreground='");
-	span_clr_tm1 
-		<< GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << "'>";
-	wxString span_clr_tm2("<span foreground='");
-	span_clr_tm2 
-		<< GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << "'>";
     
-	wxString selected_str;
-	wxString excluded_str;
-	if (compare_regimes || compare_r_and_t) {
-		selected_str << span_clr_sel << "selected" << span_end;
-		excluded_str << span_clr_exl << "excluded" << span_end;
-	}
-	wxString ln1;
-	wxString ln2;
-	size_t tms = tms_subset0.size();
-	if (!var_man.IsAnyTimeVariant()) 
-        tms = 1;
-	
-	wxString tm0_st;
-	if (tms_subset0.size() > 1) {
-		bool any_found=false;
-		bool lfl=false; // looking for last
-		for (size_t t=0; t<tms; ++t) {
-			if (tms_subset0[t] && !lfl) {
-				if (any_found) 
-                    tm0_st << ", ";
-				any_found = true;
-				tm0_st << table_int->GetTimeString(t);
-				if (t+1 < tms && tms_subset0[t+1]) 
-                    lfl = true;
-			} else if (tms_subset0[t] && lfl) {
-				if (t+1 == tms || !tms_subset0[t+1]) {
-					tm0_st << "-" << table_int->GetTimeString(t);
-					lfl = false;
-				}
-			}
-		}
-	}
-	wxString tm1_st;
-	if (tms_subset1.size() > 1) {
-		bool any_found=false;
-		bool lfl=false; // looking for last
-		for (size_t t=0; t<tms; ++t) {
-			if (tms_subset1[t] && !lfl) {
-				if (any_found) tm1_st << ", ";
-				any_found = true;
-				tm1_st << table_int->GetTimeString(t);
-				if (t+1 < tms && tms_subset1[t+1]) lfl = true;
-			} else if (tms_subset1[t] && lfl) {
-				if (t+1 == tms || !tms_subset1[t+1]) {
-					tm1_st << "-" << table_int->GetTimeString(t);
-					lfl = false;
-				}
-			}
-		}
-	}
-	
-	if (lc_stats.size() > 0 && tms > 1) {
-		if (compare_regimes) {
-
-            ln1 << "Compare the means of two groups over time periods:";
-            ln1 << tm0_st;
-            ln1 << ":\n";
-            ln1 << "    Group 1 (" << span_clr_sel << "selected" << span_end << ")";
-            ln1 << " vs. ";
-            ln1 << "Group 2 (" << span_clr_exl << "excluded" << span_end << ")";
-            ln1 << "\n\n";
-            ln1 << "    Select observations in a map or plot.\n";
-            ln1 << "    Select time period(s) on the horizontal axis below.";
-		}
-		if (compare_time_periods) {
-            ln1 << "Compare the means of the same variable in two time periods:\n";
-            ln1 << span_clr_tm1;
-            ln1 << "    Period 1 (" << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << ")";
-            ln1 << span_end;
-            ln1 << " vs. ";
-            ln1 << span_clr_tm2;
-            ln1 << "Period 2 (" << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << ")";
-            ln1 << span_end;
-            ln1 << "\n\n";
-            ln1 << "    Select time period(s) on the horizontal axis below.";
-
-		}
-		if (compare_r_and_t) {
-            
-            ln1 << "Compare the means of two groups in two time periods:\n";
-            ln1 << "    Group 1 (" << span_clr_sel << "selected" << span_end << ")";
-            ln1 << " vs. ";
-            ln1 << "Group 2 (" << span_clr_exl << "excluded" << span_end << ")";
-            ln1 << "\n";
-            ln1 << "    Period 1 (" << span_clr_tm1 << (tm0_st.IsEmpty() ? "choose time" : tm0_st) << span_end << ")";
-            ln1 << " vs. ";
-            ln1 << "Period 2 (" << span_clr_tm2 << (tm1_st.IsEmpty() ? "choose time" : tm1_st) << span_end << ")";
-            ln1 << "\n\n";
-            ln1 << "    Select observations in a map or plot.\n";
-            ln1 << "    Select time periods on the horizontal axis below.";
-		}
-	} else {
-		if (compare_regimes || compare_r_and_t) {
-			ln1 << "Sample 1: " << selected_str << "    Sample 2: " << excluded_str;
-		}
-	}
-    title1_txt->SetLabel("");
-	title1_txt->SetLabelMarkup(ln1);
+    int sel = choice_variable->GetSelection();
+    if (sel >=0 ) {
+        frame_title << " - " << choice_variable->GetString(sel);
+        
+        int group1 = choice_group1->GetSelection();
+        int group2 = choice_group2->GetSelection();
+        int time1 = choice_time1->GetSelection();
+        int time2 = choice_time2->GetSelection();
+        
+        if (time1 == time2 ) {
+            frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2) << " " << choice_time1->GetString(time1);
+        } else {
+            frame_title << " - " << choice_group1->GetString(group1) << " " << choice_time1->GetString(time1) << " vs " << choice_time2->GetString(time2);
+        }
+    }
+    
+	SetTitle(frame_title);
     
 	Refresh();
 }
