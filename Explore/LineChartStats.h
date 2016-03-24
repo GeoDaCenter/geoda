@@ -150,9 +150,15 @@ struct LineChartStats {
 	 should be called first. */
 	void UpdateNonRegimesNonTmsStats();
 	
-	/** Update all stats for regimes, but not stats dependent on time
-	 subsets. */
-	void UpdateRegimesStats(const std::vector<bool>& hs);
+	/** 
+     * Update all stats for regimes, but not stats dependent on time
+	 * subsets.
+     * default_Y_sel_avg_valid: -1 not set 0 set to false 1 set to true
+     * default_Y_excl_avg_valid: -1 not set 0 set to false 1 set to true
+     */
+	void UpdateRegimesStats(const std::vector<bool>& hs,
+                            int default_Y_sel_avg_valid = -1,
+                            int default_Y_excl_avg_valid = -1);
 	
 	/** The following will update stats according to compare_regimes or
 	 compare_time_periods */

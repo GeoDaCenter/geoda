@@ -110,7 +110,9 @@ void LineChartStats::UpdateNonRegimesNonTmsStats()
 	}
 }
 
-void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs)
+void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
+                                        int default_Y_sel_avg_valid,
+                                        int default_Y_excl_avg_valid)
 {
 	Y_sel_avg_valid = false;
 	Y_excl_avg_valid = false;
@@ -174,6 +176,14 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs)
 			}
 		}
 	}
+    
+    // override Y_sel_avg_valid if user selected in UI
+    if (default_Y_excl_avg_valid >=0) {
+        Y_excl_avg_valid = default_Y_excl_avg_valid;
+    }
+    if (default_Y_sel_avg_valid >= 0 ) {
+        Y_sel_avg_valid = default_Y_sel_avg_valid;
+    }
 }
 
 void LineChartStats::UpdateOtherStats()

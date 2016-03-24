@@ -548,7 +548,7 @@ void LineChartCanvas::PopulateCanvas()
 				}
 			}
 		}
-		if (lcs.Y_avg_valid) {
+		if (lcs.Y_avg_valid && lcs.Y_excl_avg_valid == lcs.Y_sel_avg_valid) {
 			for (size_t t=0; t<tms; ++t) {
 				double fracX = ((double) t)/((double) (tms-1));
 				double x = fracX * 100.0;
@@ -620,7 +620,7 @@ void LineChartCanvas::PopulateCanvas()
 			}
 		}
 		
-		if (lcs.Y_avg_valid) {
+		if (lcs.Y_avg_valid && lcs.Y_excl_avg_valid == lcs.Y_sel_avg_valid) {
 			for (size_t t=0; t<tms; ++t) {
 				double fracX = ((double) t)/((double) (tms-1));
 				double x = fracX * 100.0;
@@ -673,7 +673,7 @@ void LineChartCanvas::PopulateCanvas()
 			background_shps.push_back(c);
 			sel_circs.push_back(c);
 		}
-		if (lcs.Y_avg_valid) {
+		if (lcs.Y_avg_valid && lcs.Y_excl_avg_valid == lcs.Y_sel_avg_valid) {
 			double y = (lcs.Y_avg[t] - axis_scale_y.scale_min) * scaleY;
 			GdaPolyLine* p = new GdaPolyLine(x-d, y, x+d, y);
 			p->setPen(*wxBLACK_PEN);

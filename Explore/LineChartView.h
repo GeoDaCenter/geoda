@@ -168,6 +168,9 @@ protected:
     wxChoice* choice_time2;
     wxCheckBox* chk_run_test;
    
+    int has_selection;
+    int has_excluded;
+    
     void OnSelectionChange();
     void RunDIDTest();
     void InitVariableChoiceCtrl();

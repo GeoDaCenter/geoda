@@ -81,7 +81,9 @@ tms_subset0_tm_inv(1, true),
 tms_subset1_tm_inv(1, false),
 regReportDlg(0),
 def_y_precision(1),
-use_def_y_range(false)
+use_def_y_range(false),
+has_selection(-1),
+has_excluded(-1)
 {
 	LOG_MSG("Entering LineChartFrame::LineChartFrame");
     
@@ -382,16 +384,27 @@ void LineChartFrame::OnSelectionChange()
                 compare_regimes = true;
                 compare_r_and_t = false;
             }
+            has_selection = 1;
+            has_excluded = 1;
         } else {
             compare_time_periods = false;
             compare_regimes = false;
             compare_r_and_t = true;
+            if (group1 == 0) {
+                has_selection = 1;
+                has_excluded = 0;
+            } else {
+                has_selection = 0;
+                has_excluded = 1;
+            }
         }
         
     } else {
         compare_time_periods = true;
         compare_regimes = false;
         compare_r_and_t = false;
+        has_selection = -1;
+        has_excluded = -1;
     }
     
     // process Time Selection
@@ -1357,7 +1370,7 @@ void LineChartFrame::update(HLStateInt* o)
 	if (!compare_regimes && !compare_r_and_t) return;
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
-		lc_stats[i]->UpdateRegimesStats(hs);
+		lc_stats[i]->UpdateRegimesStats(hs, has_selection, has_excluded);
 		lc_stats[i]->UpdateOtherStats();
 	}
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
@@ -1379,7 +1392,7 @@ void LineChartFrame::update(TableState* o)
 	UpdateDataMapFromVarMan();
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
-		lc_stats[i]->UpdateRegimesStats(hs);
+		lc_stats[i]->UpdateRegimesStats(hs, has_selection, has_excluded);
 		lc_stats[i]->UpdateOtherStats();
 	}
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
@@ -1610,7 +1623,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 										 compare_r_and_t);
 			}
 			lcs_p->UpdateNonRegimesNonTmsStats();
-			lcs_p->UpdateRegimesStats(highlight_state->GetHighlight());
+			lcs_p->UpdateRegimesStats(highlight_state->GetHighlight(), has_selection, has_excluded);
 			lcs_p->UpdateOtherStats();
 			lc_stats.push_back(lcs_p);
 			
