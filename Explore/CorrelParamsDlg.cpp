@@ -86,8 +86,7 @@ help_btn(0), apply_btn(0)
 		vs << correl_params.bins;
 		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,  wxDefaultPosition, wxSize(75,-1),  wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER,  CorrelParams::min_bins_cnst, CorrelParams::max_bins_cnst, correl_params.bins);
 		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL, wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
-		//Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxTE_PROCESS_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
 	}
 	wxBoxSizer* bins_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	bins_h_szr->Add(bins_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -96,19 +95,15 @@ help_btn(0), apply_btn(0)
 	
 	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), "Max Distance:");
 	thresh_cbx->SetValue(false);
-	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "", wxDefaultPosition, wxSize(100,-1));
+	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "", wxDefaultPosition, wxSize(100,-1), wxTE_PROCESS_ENTER);
 	thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	thresh_tctrl->Enable(false);
 	//UpdateThreshTctrlVal();
 	Connect(XRCID("ID_THRESH_CBX"), wxEVT_CHECKBOX,
 					wxCommandEventHandler(CorrelParamsFrame::OnThreshCheckBox));
-	Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_TEXT,
+	Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_TEXT_ENTER,
 					wxCommandEventHandler(CorrelParamsFrame::OnThreshTextCtrl));
-	//Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_KILL_FOCUS,
-	//				wxFocusEventHandler(CorrelParamsFrame::OnThreshTctrlKillFocus));
-	thresh_tctrl->Bind(wxEVT_KILL_FOCUS,
-										 &CorrelParamsFrame::OnThreshTctrlKillFocus,
-										 this);
+
 	wxBoxSizer* thresh_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	thresh_h_szr->Add(thresh_cbx, 0, wxALIGN_CENTER_VERTICAL);
 	thresh_h_szr->AddSpacer(5);
@@ -149,9 +144,7 @@ help_btn(0), apply_btn(0)
 		vs << correl_params.max_iterations;
 		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs, wxDefaultPosition, wxSize(100,-1), wxTE_PROCESS_ENTER);
 		max_iter_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT, wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
-        max_iter_tctrl->Bind(wxEVT_KILL_FOCUS, &CorrelParamsFrame::OnMaxIterTctrlKillFocus, this);
-		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxTE_PROCESS_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
 	}
 	wxBoxSizer* max_iter_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	max_iter_h_szr->Add(max_iter_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -436,7 +429,8 @@ void CorrelParamsFrame::OnThreshTextCtrl(wxCommandEvent& ev)
 	} else {
 		UpdateThreshTctrlVal();
 	}
-    
+    OnApplyBtn(ev);
+    ev.Skip();
 }
 
 void CorrelParamsFrame::OnThreshTctrlKillFocus(wxFocusEvent& ev)
@@ -477,7 +471,30 @@ void CorrelParamsFrame::OnThreshSlider(wxCommandEvent& ev)
 
 void CorrelParamsFrame::OnMaxIterTextCtrl(wxCommandEvent& ev)
 {
+    wxString val = max_iter_tctrl->GetValue();
+    val.Trim(false);
+    val.Trim(true);
+    long t;
+    bool is_valid = val.ToLong(&t);
+    if (is_valid) {
+        if (t < CorrelParams::min_iter_cnst) {
+            wxString s;
+            s << CorrelParams::min_iter_cnst;
+            max_iter_tctrl->ChangeValue(s);
+        } else if (t > CorrelParams::max_iter_cnst) {
+            wxString s;
+            s << CorrelParams::max_iter_cnst;
+            max_iter_tctrl->ChangeValue(s);
+        }
+    } else {
+        wxString s;
+        s << CorrelParams::def_iter_cnst;
+        max_iter_tctrl->ChangeValue(s);
+    }
     
+    wxCommandEvent evt;
+    OnApplyBtn(evt);
+    evt.Skip();
 }
 
 void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
@@ -570,6 +587,7 @@ void CorrelParamsFrame::UpdateVarChoiceFromTable(const wxString& default_var)
 		var_choice->Append(names[i]);
 		if (names[i] == default_var) var_pos = i;
 	}
+    
 	if (var_pos >= 0) {
 		var_choice->SetSelection(var_pos);
 	}

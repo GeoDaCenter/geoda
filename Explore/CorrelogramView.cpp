@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
 #include <iostream>
 #include <iomanip>
 #include <utility> // std::pair
@@ -341,6 +342,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			par.method == CorrelParams::RAND_SAMP_THRESH) {
 		type_str << ", cutoff: " << GenUtils::DblToStr(par.threshold, 4); 
 	}
+    
+    bool valid_sampling = true;
 	
 	double freq_min = 0;
 	double freq_max = 0;
@@ -378,12 +381,20 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			if (row == 0) {
 				SetTitle("Correlogram - " + var_man.GetNameWithTime(row) + type_str);
 			}
+            
+            
+            
 			wxString title("Autocorr. of " + var_man.GetNameWithTime(row));
 			std::vector<double> Y(cbins.size());
 			for (size_t i=0; i<cbins.size(); ++i) {
 				Y[i] = cbins[i].corr_avg;
+                if (isnan(Y[i])) {
+                    valid_sampling = false;
+                }
 			}
 			
+            
+            
 			AxisScale v_axs;
 			v_axs.ticks = 5;
 			v_axs.data_min = -1;
@@ -429,7 +440,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			for (size_t i=0; i<cbins.size(); ++i) {
 				X[i] = cbins[i].dist_min + (cbins[i].dist_max - cbins[i].dist_min)/2.0;
 			}
-			
+            
 			SimpleScatterPlotCanvas* sp_can = 0;
 			sp_can = new SimpleScatterPlotCanvas(panel, this, project,
 												 local_hl_state, this,
@@ -442,7 +453,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 												 true, // show horiz axis thru orig
 												 false, // show vert axis thru orig
 												 false, false, 
-												 true, // show LOWESS fit
+												 valid_sampling, // show LOWESS fit
 												 false);
 			sp_can->ChangeLoessParams(0.2,5,0.02);
 			bag_szr->Add(sp_can, wxGBPosition(row, 1), wxGBSpan(1,1), wxEXPAND);
@@ -573,6 +584,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		horiz_labels.push_back(sa_can);
 			
 	}
+    
 	
 	bag_szr->SetFlexibleDirection(wxBOTH);
 	// first column
@@ -601,7 +613,13 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	LOG(bag_szr->GetItemCount());
 	top_h_sizer->RecalcSizes();
-	//Refresh();
+    
+    if (valid_sampling == false ) {
+        wxString msg = "The sample size for random sampling is too small. Please increase the number of iterations.";
+        wxString title = "Insufficient Random Sampling";
+        wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
 	LOG_MSG("Exiting CorrelogramFrame::SetupPanelForNumVariables");
 }
 
@@ -755,7 +773,7 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	}
     
     if (success == false) {
-        wxString msg = "Select Variable doesn't have valid values for computing correlogram. Please select another variable.";
+        wxString msg = "Please select another variable with values more suitable for computing a correlogram.";
         wxString title = "Variable Value Error";
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
         dlg.ShowModal();
