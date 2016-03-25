@@ -284,6 +284,7 @@ void LineChartFrame::InitVariableChoiceCtrl()
         }
         choice_variable->Append(col_name);
     }
+	choice_variable->SetSelection(0);
 	choice_variable->Connect(wxEVT_CHOICE,
                              wxCommandEventHandler(LineChartFrame::OnVariableChoice),
                              NULL, this);
