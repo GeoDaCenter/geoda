@@ -470,6 +470,7 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
     
+    
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
             // sel vs excl
@@ -540,6 +541,18 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 {
+    int variable_selection = choice_variable->GetSelection();
+    wxString col_name = variable_names[variable_selection];
+    
+    TableInterface* table_int = project->GetTableInt();
+    if (!table_int->IsColTimeVariant(col_name)) {
+        if (choice_groups->GetSelection() == 1) {
+            wxMessageBox("Please select a time variable first.");
+            choice_groups->SetSelection(0);
+            return;
+        }
+    }
+    
     InitGroup12ChoiceCtrl();
     InitTimeChoiceCtrl();
     
@@ -548,6 +561,11 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 {
+    int variable_selection = choice_variable->GetSelection();
+    wxString col_name = variable_names[variable_selection];
+    
+    TableInterface* table_int = project->GetTableInt();
+    
     int group_selection = choice_groups->GetSelection();
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
@@ -555,16 +573,21 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() == choice_group2->GetSelection())
         {
-            if (time2_selection == time1_selection) {
-                if (time1_selection -1 >=0)
-                    choice_time1->SetSelection(time1_selection-1);
-                else if (time1_selection + 1 < choice_time1->GetCount()) {
-                    choice_time1->SetSelection(time1_selection+1);
-                } else {
-                    choice_time1->SetSelection(-1);
+            if (!table_int->IsColTimeVariant(col_name)) {
+                choice_group2->SetSelection(1-choice_group1->GetSelection());
+            } else {
+                if (time2_selection == time1_selection) {
+                    if (time1_selection -1 >=0)
+                        choice_time1->SetSelection(time1_selection-1);
+                    else if (time1_selection + 1 < choice_time1->GetCount()) {
+                        choice_time1->SetSelection(time1_selection+1);
+                    } else {
+                        choice_time1->SetSelection(-1);
+                    }
                 }
+
             }
-            //choice_group2->SetSelection(1- choice_group1->GetSelection());
+            
         } else {
             choice_time1->SetSelection(choice_time2->GetSelection());
         }
@@ -574,6 +597,11 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
 {
+    int variable_selection = choice_variable->GetSelection();
+    wxString col_name = variable_names[variable_selection];
+    
+    TableInterface* table_int = project->GetTableInt();
+    
     int group_selection = choice_groups->GetSelection();
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
@@ -581,16 +609,22 @@ void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() == choice_group2->GetSelection())
         {
-            if (time2_selection == time1_selection) {
-                if (time2_selection -1 >=0)
-                    choice_time2->SetSelection(time2_selection-1);
-                else if (time2_selection + 1 < choice_time2->GetCount()) {
-                    choice_time2->SetSelection(time2_selection+1);
-                } else {
-                    choice_time2->SetSelection(-1);
+            if (!table_int->IsColTimeVariant(col_name)) {
+                choice_group1->SetSelection(1- choice_group2->GetSelection());
+            } else {
+                if (time2_selection == time1_selection) {
+                    if (time2_selection -1 >=0)
+                        choice_time2->SetSelection(time2_selection-1);
+                    else if (time2_selection + 1 < choice_time2->GetCount()) {
+                        choice_time2->SetSelection(time2_selection+1);
+                    } else {
+                        choice_time2->SetSelection(-1);
+                    }
                 }
             }
-            //choice_group1->SetSelection(1- choice_group2->GetSelection());
+            
+            
+            //
         } else {
             choice_time2->SetSelection(choice_time1->GetSelection());
         }
@@ -1661,6 +1695,9 @@ void LineChartFrame::UpdateTitleText()
 	wxString frame_title("Averages Chart");
     
     int sel = choice_variable->GetSelection();
+    wxString col_name = variable_names[sel];
+    int col = project->GetTableInt()->FindColId(col_name);
+    
     if (sel >=0 ) {
         frame_title << " - " << choice_variable->GetString(sel);
         
@@ -1670,9 +1707,19 @@ void LineChartFrame::UpdateTitleText()
         int time2 = choice_time2->GetSelection();
         
         if (time1 == time2 ) {
-            frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2) << " " << choice_time1->GetString(time1);
+            
+            if (project->GetTableInt()->IsColTimeVariant(col)) {
+                
+                frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2) << " " << choice_time1->GetString(time1);
+            } else {
+                frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2);
+            }
         } else {
-            frame_title << " - " << choice_group1->GetString(group1) << " " << choice_time1->GetString(time1) << " vs " << choice_time2->GetString(time2);
+            if (project->GetTableInt()->IsColTimeVariant(col)) {
+                frame_title << " - " << choice_group1->GetString(group1) << " " << choice_time1->GetString(time1) << " vs " << choice_time2->GetString(time2);
+            } else {
+                frame_title << " - " << choice_group1->GetString(group1);
+            }
         }
     }
     

@@ -621,9 +621,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	top_h_sizer->RecalcSizes();
     
     if (valid_sampling == false ) {
-        wxString msg = "The sample size for random sampling is too small. Please increase the number of iterations.";
+        wxString msg = "The sample size for random sampling is too small.\nPlease increase the number of iterations.";
         wxString title = "Insufficient Random Sampling";
-        wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, title, wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
 	LOG_MSG("Exiting CorrelogramFrame::SetupPanelForNumVariables");
