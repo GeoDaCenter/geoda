@@ -82,8 +82,8 @@ tms_subset1_tm_inv(1, false),
 regReportDlg(0),
 def_y_precision(1),
 use_def_y_range(false),
-has_selection(-1),
-has_excluded(-1)
+has_selection(1),
+has_excluded(1)
 {
 	LOG_MSG("Entering LineChartFrame::LineChartFrame");
     

@@ -32,8 +32,10 @@
 #include "SimpleAxisCanvas.h"
 #include "CorrelogramView.h"
 
+#ifdef __WIN32__
 #ifndef isnan
 #define isnan(x) _isnan(x)
+#endif
 #endif
 
 
