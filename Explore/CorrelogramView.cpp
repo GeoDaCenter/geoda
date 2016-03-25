@@ -32,6 +32,10 @@
 #include "SimpleAxisCanvas.h"
 #include "CorrelogramView.h"
 
+#ifndef isnan
+#define isnan(x) _isnan(x)
+#endif
+
 
 BEGIN_EVENT_TABLE(CorrelogramFrame, TemplateFrame)
 	EVT_MOUSE_EVENTS(CorrelogramFrame::OnMouseEvent)
