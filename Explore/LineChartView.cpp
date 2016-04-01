@@ -207,7 +207,7 @@ has_excluded(1)
 	
 	panel->SetSizer(panel_h_szr);
 		
-    splitter_win->SplitVertically(lpanel, panel, 200);
+    splitter_win->SplitVertically(lpanel, panel, 208);
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);

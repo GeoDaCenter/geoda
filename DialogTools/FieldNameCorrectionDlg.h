@@ -77,7 +77,7 @@ public:
 	void Init(vector<wxString>& merged_field_names,
 						set<wxString>& dup_fname, set<wxString>& bad_fname);
 	
-	void CheckUserInput();
+	bool CheckUserInput();
 		
 };
 

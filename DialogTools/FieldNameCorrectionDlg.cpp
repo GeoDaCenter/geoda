@@ -271,10 +271,11 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 
 bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 {
+    
 	if ( GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end() )
 	{
-		// no valid entry in datasrc_field_lens, could be a unwritable ds
+        LOG_MSG("Error:no valid entry in datasrc_field_lens, could be a unwritable ds");
 		return false;
 	}
 	
@@ -297,7 +298,7 @@ bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 	return false;
 }
 
-void ScrolledWidgetsPane::CheckUserInput()
+bool ScrolledWidgetsPane::CheckUserInput()
 {
 	// check user input
 	for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
@@ -305,14 +306,52 @@ void ScrolledWidgetsPane::CheckUserInput()
 			wxString user_field_name = txt_input[i]->GetValue();
 			if ( !IsFieldNameValid(user_field_name) ) {
 				txt_input[i]->SetForegroundColour(*wxRED);
-				return;
+                txt_info[i]->SetLabel("Field name is not valid.");
+				return false;
 			} else {
 				txt_input[i]->SetForegroundColour(*wxBLACK);
+                wxString orig_fname = txt_fname[i]->GetLabel();
+                
+                if (field_names_dict.find(orig_fname) != field_names_dict.end())
+                {
+                    field_names_dict[orig_fname] = user_field_name;
+                }
 			}
 		} else {
-			LOG_MSG("Error: could not find text input field!");
+			LOG_MSG("Error: text input field empty!");
+            txt_input[i]->SetForegroundColour(*wxRED);
+            txt_info[i]->SetLabel("Field name is not valid.");
+            return false;
 		}
 	}
+    
+    // re-check for duplicated names
+    map<wxString, int> uniq_fnames;
+    
+    map<wxString,wxString>::iterator iter;
+    for (iter = field_names_dict.begin();
+         iter != field_names_dict.end(); ++iter )
+    {
+        if (uniq_fnames.find(iter->second) == uniq_fnames.end()){
+            uniq_fnames[iter->second] = 1;
+        } else {
+            uniq_fnames[iter->second] += 1;
+        }
+    }
+    
+    if (uniq_fnames.size() != field_names_dict.size()) {
+        LOG_MSG("Current user inputs still have conflict with duplicated field names");
+        for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
+            wxString user_field_name = txt_input[i]->GetValue();
+            if (uniq_fnames[user_field_name] > 1) {
+                txt_input[i]->SetForegroundColour(*wxRED);
+                txt_info[i]->SetLabel("Duplicate field name.");
+            }
+        }
+        
+        return false;
+    }
+    return true;
 }
 
 
@@ -391,9 +430,11 @@ void FieldNameCorrectionDlg::OnOkClick(wxCommandEvent& event)
 {
 	LOG_MSG("Entering FieldNameCorrectionDlg::OnOkClick");
 	// check user input
-	fieldPane->CheckUserInput();
-	EndDialog(wxID_OK);
-	event.Skip();
+    if (fieldPane->CheckUserInput()) {
+        EndDialog(wxID_OK);
+        event.Skip();
+    }
+	
 	LOG_MSG("Exiting FieldNameCorrectionDlg::OnOkClick");
 }
 

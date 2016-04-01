@@ -325,6 +325,7 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
         FieldNameCorrectionDlg fname_correct_dlg(ds_type, all_fnames);
         if ( fname_correct_dlg.NeedCorrection()) {
             if (fname_correct_dlg.ShowModal() != wxID_OK) {
+                // cancel at Field Name Correction
                 return NULL;
             }
             // record which field name needs to be updated
