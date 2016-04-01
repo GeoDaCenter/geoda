@@ -947,7 +947,7 @@ void OGRLayerProxy::Export(std::string format,
 	}
 
     // Parse the output SRS definition if possible.
-	OGRSpatialReference *poOutputSRS = NULL;
+	OGRSpatialReference *poOutputSRS = this->GetSpatialReference();
 	if( pszOutputSRSDef != NULL ) {
 		poOutputSRS = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
         if( poOutputSRS->SetFromUserInput( pszOutputSRSDef ) != OGRERR_NONE){

@@ -248,7 +248,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString tmp_ds_name;
     
 	try{
-		OGRSpatialReference* spatial_ref = NULL;
+		OGRSpatialReference* spatial_ref = project_p->GetSpatialReference();
         
         if ( project_p == NULL ) {
             //project does not exist, could be created a datasource from
@@ -266,7 +266,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     // make sure geometries are saved as well if needed for
                     // non-table-only datasource
                     shape_type = Shapefile::POINT_TYP;
-                    spatial_ref = project_p->GetSpatialReference();
                 }
                 // Add points to Table
                 if (table_p) {
