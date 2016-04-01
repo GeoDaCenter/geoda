@@ -562,7 +562,7 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 void Project::SaveProjectConf()
 {
 	LOG_MSG("Entering Project::SaveProjectConf");
-	if (project_conf->GetFilePath().IsEmpty()) {
+	if (project_conf->GetFilePath().IsEmpty() && GetTableInt()->IsTimeVariant()) {
 		
         // save project file at the same directory of the file datasource
         if ( IsFileDataSource()) {
