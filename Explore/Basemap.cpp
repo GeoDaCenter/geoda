@@ -160,22 +160,22 @@ void Basemap::SetupMapType(int map_type)
         imageSuffix = ".png";
     } else if (mapType == 5) {
         // nokia day
-        basemapUrl = "http://1.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.day/";
+        basemapUrl = "http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 6) {
         // nokia night
-        basemapUrl = "http://4.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.night/";
+        basemapUrl = "http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 7) {
         // nokia terrian
-        basemapUrl = "http://3.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
+        basemapUrl = "http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 8) {
         // nokia hybrid
-        basemapUrl = "http://4.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
+        basemapUrl = "http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else {
