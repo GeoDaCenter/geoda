@@ -166,7 +166,7 @@ protected:
     wxChoice* choice_group2;
     wxChoice* choice_time1;
     wxChoice* choice_time2;
-    wxCheckBox* chk_run_test;
+    //wxCheckBox* chk_run_test;
    
     int has_selection;
     int has_excluded;

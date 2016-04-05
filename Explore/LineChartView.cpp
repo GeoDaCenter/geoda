@@ -162,10 +162,10 @@ has_excluded(1)
     tests_sizer->Add(lbl_time2, 1, wxEXPAND);
     tests_sizer->Add(choice_time2, 1, wxEXPAND);
     
-    chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
+    //chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
     
     wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, "Save Dummy");
-    wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Apply");
+    wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
@@ -180,7 +180,7 @@ has_excluded(1)
     rbox->Add(variable_sizer, 0, wxALIGN_TOP | wxALL, 20);
     rbox->Add(lbl_tests, 0, wxALIGN_TOP| wxLEFT | wxRIGHT, 20);
     rbox->Add(tests_sizer, 0, wxALIGN_TOP | wxALL, 20);
-    rbox->Add(chk_run_test, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxBOTTOM, 20);
+    //rbox->Add(chk_run_test, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxBOTTOM, 20);
     rbox->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     rbox->Add(stats_box, 1, wxALIGN_TOP | wxEXPAND | wxALL, 10);
     lpanel->SetSizerAndFit(rbox);
@@ -427,9 +427,7 @@ void LineChartFrame::OnSelectionChange()
 
 void LineChartFrame::OnApplyButton(wxCommandEvent &event)
 {
-    if (chk_run_test->IsChecked()) {
-        RunDIDTest();
-    }
+    RunDIDTest();
 }
 
 void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
@@ -833,29 +831,55 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
         if (compare_regimes) {
             
             int n= 0;
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    n+= n_obs;
-                }
-            }
-            if (n== 0) {
-                wxMessageBox("Please choose times on the time axis first.");
-                return;
-            }
-   
-            var_stack_array[i].resize(n);
-            dummy_select_stack.resize(n);
-            id_stack.resize(n);
             
-            int idx = 0;
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    for (int j=0; j<n_obs; j++) {
-                        var_stack_array[i][idx] = Y[t][j];
-                        dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
-                        id_stack[idx] = j;
-                        newids.push_back(idx+1);
-                        idx += 1;
+            int variable_selection = choice_variable->GetSelection();
+            wxString col_name = variable_names[variable_selection];
+
+            TableInterface* table_int = project->GetTableInt();
+            int col = table_int->FindColId(col_name);
+            
+            if (!table_int->IsColTimeVariant(col_name)) {
+                n = n_obs;
+                
+                var_stack_array[i].resize(n);
+                dummy_select_stack.resize(n);
+                id_stack.resize(n);
+                
+                int idx = 0;
+                for (int j=0; j<n_obs; j++) {
+                    var_stack_array[i][idx] = Y[0][j];
+                    dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
+                    id_stack[idx] = j;
+                    newids.push_back(idx+1);
+                    idx += 1;
+                }
+                
+            } else {
+            
+        		for (size_t t=0; t<n_ts; ++t) {
+                    if (tms_subset0[t]) {
+                        n+= n_obs;
+                    }
+                }
+                if (n== 0) {
+                    wxMessageBox("Please choose Periods first.");
+                    return;
+                }
+       
+                var_stack_array[i].resize(n);
+                dummy_select_stack.resize(n);
+                id_stack.resize(n);
+                
+                int idx = 0;
+        		for (size_t t=0; t<n_ts; ++t) {
+                    if (tms_subset0[t]) {
+                        for (int j=0; j<n_obs; j++) {
+                            var_stack_array[i][idx] = Y[t][j];
+                            dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
+                            id_stack[idx] = j;
+                            newids.push_back(idx+1);
+                            idx += 1;
+                        }
                     }
                 }
             }
@@ -869,7 +893,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -878,7 +902,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2.");
                 return;
             }
             
@@ -911,7 +935,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n1 == 0) {
-                wxMessageBox("Please choose Period 1 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 1.");
                 return;
             }
     		for (size_t t=0; t<n_ts; ++t) {
@@ -920,7 +944,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
             if (n2 == 0) {
-                wxMessageBox("Please choose Period 2 on the horizontal axis first.");
+                wxMessageBox("Please choose Period 2.");
                 return;
             }
            
@@ -1120,7 +1144,7 @@ void LineChartFrame::RunDIDTest()
                 }
             }
             if (!has_time0_def || !has_time1_def) {
-                wxMessageBox("Please choose time periods first.");
+                wxMessageBox("Please choose Periods first.");
                 return;
             }
         }
@@ -1136,7 +1160,7 @@ void LineChartFrame::RunDIDTest()
                 }
             }
             if (n == 0) {
-                wxMessageBox("Please choose time periods first.");
+                wxMessageBox("Please choose Periods first.");
                 return;
             }
             
@@ -1973,7 +1997,10 @@ void LineChartFrame::UpdateStatsWinContent(int var)
             s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
         
         if (cmp_r || cmp_t) {
-    		s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
+            if (cmp_r)
+                s<< "<td align=\"right\">" << lcs.sel_sz_i << "</td>";
+            if (cmp_t)
+                s<< "<td align=\"right\">" << lcs.obs_sz_i << "</td>";
     		s<< td_s0_mean;
     		s<< "<td align=\"right\">" << sd0 << "</td>";
     		s<< "</tr>";
@@ -2006,7 +2033,10 @@ void LineChartFrame::UpdateStatsWinContent(int var)
             s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
         
         if (cmp_r || cmp_t) {
-    		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
+            if (cmp_r)
+                s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
+            if (cmp_t)
+                s<< "<td align=\"right\">" << lcs.obs_sz_i << "</td>";
     		s<< td_s1_mean;
     		s<< "<td align=\"right\">" << sd1 << "</td>";
     		s<< "</tr>";

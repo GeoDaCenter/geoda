@@ -248,7 +248,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString tmp_ds_name;
     
 	try{
-		OGRSpatialReference* spatial_ref = project_p->GetSpatialReference();
+        OGRSpatialReference* spatial_ref; 
         
         if ( project_p == NULL ) {
             //project does not exist, could be created a datasource from
@@ -256,6 +256,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
         } else {
             //case: save current open datasource as a new datasource
             
+            spatial_ref = project_p->GetSpatialReference();
             // warning if saveas not compaptible
             GdaConst::DataSourceType o_ds_type = project_p->GetDatasourceType();
             bool o_ds_table_only = IDataSource::IsTableOnly(o_ds_type);
