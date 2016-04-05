@@ -29,6 +29,7 @@
 #include "OGRLayerProxy.h"
 #include "../GdaException.h"
 #include "../GenUtils.h"
+#include "../GeneralWxUtils.h"
 
 using namespace std;
 
@@ -91,7 +92,15 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "This " << format << " format is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "The format \"" << format << "\" is not supprted by GeoDa";
+        if (GeneralWxUtils::isMac()) {
+            error_message << " on Mac OSX";
+        } else if (GeneralWxUtils::isWindows()) {
+            error_message << " on Windows";
+        } else if (GeneralWxUtils::isUnix()) {
+            error_message << " on Unix";
+        }
+        error_message <<".\n\n Note: Please check if related plugin has been installed.";
 		throw GdaException(error_message.str().c_str());
 	}
 	
