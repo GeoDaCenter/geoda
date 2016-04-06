@@ -186,7 +186,7 @@ void Basemap::SetupMapType(int map_type)
     }
     isTileReady = false;
     isTileDrawn = false;
-    GetTiles();
+    //GetTiles();
 }
 
 void Basemap::Reset()
@@ -197,6 +197,7 @@ void Basemap::Reset()
     map->east= origMap->east;
     GetEasyZoomLevel();
     SetupMapType(mapType);
+    GetTiles();
 }
 
 void Basemap::Reset(int map_type)
@@ -208,6 +209,7 @@ void Basemap::Reset(int map_type)
     mapType = map_type;
     GetEasyZoomLevel();
     SetupMapType(mapType);
+    GetTiles();
 }
 
 void Basemap::ResizeScreen(int _width, int _height)
@@ -456,18 +458,7 @@ void Basemap::GetTiles()
         bDownload = true;
         downloadThread = new boost::thread(boost::bind(&Basemap::_GetTiles,this, startX, startY, endX, endY));
     }
-/*
-    for (int i=startX; i<=endX; i++) {
-        for (int j=startY; j<=endY; j++) {
-		int idx_x = i < 0 ? nn + i : i;
-		int idx_y = j < 0 ? nn + j : j;
-		if (idx_x > nn)
-		    idx_x = idx_x - nn;
-		DownloadTile(idx_x, idx_y);
-        }
-    }
-    isTileReady = true;
-*/
+
     delete topleft;
     delete bottomright;
 }
@@ -490,7 +481,6 @@ void Basemap::_GetTiles(int start_x, int start_y, int end_x, int end_y)
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
-    isTileReady = true;
 }
 
 
@@ -531,8 +521,8 @@ void Basemap::DownloadTile(int x, int y)
     if (!is_file_exist(filepath)) {
         // otherwise, download the image
         std::string urlStr = GetTileUrl(x, y);
-	char* url = new char[urlStr.length() + 1];
-	std::strcpy(url, urlStr.c_str());
+        char* url = new char[urlStr.length() + 1];
+        std::strcpy(url, urlStr.c_str());
         
         FILE* fp;
         CURL* image;
@@ -547,8 +537,8 @@ void Basemap::DownloadTile(int x, int y)
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
-                //curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
-                //curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
+                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
+                curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
                 // Grab image 
                 imgResult = curl_easy_perform(image); 
@@ -566,12 +556,16 @@ void Basemap::DownloadTile(int x, int y)
             	}
 		*/
 		// Clean up the resources 
-		curl_easy_cleanup(image); 
-        	fclose(fp);
-	    }
+                curl_easy_cleanup(image);
+                fclose(fp);
+                isTileReady = true;
+            }
         }
                 
-	delete[] url;
+        delete[] url;
+        
+    } else {
+        isTileReady = true;
     }
     delete[] filepath;
 }
@@ -665,7 +659,8 @@ void Basemap::Draw(wxBitmap* buffer)
 
 	wxMemoryDC dc(*buffer);
     dc.Clear();
-    
+   
+    int cnt=0;
     int x0 = startX;
     int x1 = endX;
 	for (int i=x0; i<=x1; i++) {
@@ -682,6 +677,10 @@ void Basemap::Draw(wxBitmap* buffer)
             int idx_y = j < 0 ? nn + j : j;
             std::string filepathStr = GetTilePath(idx_x, idx_y);
             wxString wxFilePath(filepathStr);
+            wxFileName fp(wxFilePath);
+            if(fp.FileExists()) {
+                cnt += 1;
+            }
 			wxBitmap bmp;
             if (imageSuffix == ".png") {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
@@ -695,6 +694,5 @@ void Basemap::Draw(wxBitmap* buffer)
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}
-    isTileReady = false;
     isTileDrawn = true;
 }

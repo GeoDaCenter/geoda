@@ -850,6 +850,8 @@ void TemplateCanvas::ReDraw()
 void TemplateCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
+        isResize = false;
+        
         // we know there has been a change in the client size
         int cs_w=0, cs_h=0;
         GetClientSize(&cs_w, &cs_h);
@@ -883,7 +885,7 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         //SetVirtualSize(cs_w, cs_h);
         ResizeSelectableShps();
         
-        isResize = false;
+
         
     } else {
         // waiting for basemap draw if needed
