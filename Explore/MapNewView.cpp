@@ -55,7 +55,7 @@ IMPLEMENT_CLASS(SliderDialog, wxDialog)
 BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
     EVT_COMMAND_SCROLL_THUMBRELEASE( ID_SLIDER, SliderDialog::OnSliderChange)
 #ifdef __WIN32__
-    EVT_SCROLL_CHANGED(ID_SLIDER, SliderDialog::OnSliderChange)
+    EVT_COMMAND_SCROLL_CHANGED(ID_SLIDER, SliderDialog::OnSliderChange)
 #endif
 END_EVENT_TABLE()
 
@@ -214,6 +214,24 @@ MapCanvas::~MapCanvas()
 	if (highlight_state) highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
 	LOG_MSG("Exiting MapCanvas::~MapCanvas");
+}
+
+void MapCanvas::resizeLayerBms(int width, int height)
+{
+	deleteLayerBms();
+	basemap_bm = new wxBitmap(width, height);
+	layer0_bm = new wxBitmap(width, height, 32);
+	layer1_bm = new wxBitmap(width, height, 32);
+	layer2_bm = new wxBitmap(width, height, 32);
+	final_bm = new wxBitmap(width, height);
+	
+	layer0_bm->UseAlpha();
+	layer1_bm->UseAlpha();
+	layer2_bm->UseAlpha();
+	
+	layer0_valid = false;
+	layer1_valid = false;
+	layer2_valid = false;
 }
 
 bool MapCanvas::DrawBasemap(bool flag, int map_type)

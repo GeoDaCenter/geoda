@@ -1605,11 +1605,16 @@ void CatClassification::ChangeNumCats(int num_cats, CatClassifDef& cc)
 			}
 			cc.breaks[i] = last;
 		}
+	} 
+	
+	{
+		int nn = cc.num_cats < t_cc.num_cats ? cc.num_cats : t_cc.num_cats;
+		for (int i=0; i<nn; i++) {
+			cc.names[i] = t_cc.names[i];
+			cc.colors[i] = t_cc.colors[i];
+		}
 	}
-	for (int i=0; i<t_cc.num_cats; i++) {
-		cc.names[i] = t_cc.names[i];
-		cc.colors[i] = t_cc.colors[i];
-	}
+
 	if (t_cc.num_cats < cc.num_cats) {
 		for (int i=t_cc.num_cats; i<cc.num_cats; i++) {
 			if (cc.names[i] == "") cc.names[i] << "category " << i+1;

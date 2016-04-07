@@ -171,7 +171,7 @@ has_excluded(1)
     btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
    
     wxHtmlWindow* wv = 0;
-    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
+    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(220, 100));
     stats_wins.push_back(wv);
     wxBoxSizer* stats_box = new wxBoxSizer(wxHORIZONTAL);
     stats_box->Add(wv, 1, wxEXPAND | wxALL, 10);
@@ -207,7 +207,7 @@ has_excluded(1)
 	
 	panel->SetSizer(panel_h_szr);
 		
-    splitter_win->SplitVertically(lpanel, panel, 208);
+    splitter_win->SplitVertically(lpanel, panel, 320);
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);

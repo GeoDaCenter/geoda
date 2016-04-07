@@ -89,6 +89,7 @@ public:
 				 const wxSize& size = wxDefaultSize);
 	virtual ~MapCanvas();
 
+
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
@@ -115,7 +116,7 @@ public:
     
     
 public:
-    
+    virtual void resizeLayerBms(int width, int height);
     virtual void OnPaint(wxPaintEvent& event);
 	virtual void DrawLayerBase();
 	virtual void DrawLayer0();

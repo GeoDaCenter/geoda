@@ -179,14 +179,10 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 	basemap_bm = new wxBitmap(width, height);
-	layer0_bm = new wxBitmap(width, height, 32);
-	layer1_bm = new wxBitmap(width, height, 32);
-	layer2_bm = new wxBitmap(width, height, 32);
+	layer0_bm = new wxBitmap(width, height);
+	layer1_bm = new wxBitmap(width, height);
+	layer2_bm = new wxBitmap(width, height);
 	final_bm = new wxBitmap(width, height);
-	
-	layer0_bm->UseAlpha();
-	layer1_bm->UseAlpha();
-	layer2_bm->UseAlpha();
 	
 	layer0_valid = false;
 	layer1_valid = false;
@@ -912,14 +908,11 @@ void TemplateCanvas::DrawLayer0()
     //LOG_MSG("In TemplateCanvas::DrawLayer0");
     wxSize sz = GetVirtualSize();
     wxMemoryDC dc(*layer0_bm);
-    dc.Clear();
-    if (isDrawBasemap) {
-        dc.DrawBitmap(*basemap_bm, 0, 0);
-    } else {
-        dc.SetPen(canvas_background_color);
-        dc.SetBrush(canvas_background_color);
-        dc.DrawRectangle(wxPoint(0,0), sz);
-    }
+
+    dc.SetPen(canvas_background_color);
+    dc.SetBrush(canvas_background_color);
+    dc.DrawRectangle(wxPoint(0,0), sz);
+
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
