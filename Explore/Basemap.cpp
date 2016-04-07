@@ -29,7 +29,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 #include "curl/curl.h"
-#include "MapNewView.h"
+//#include "MapNewView.h"
 
 using namespace std;
 using namespace GDA;
@@ -46,15 +46,13 @@ Basemap::Basemap(Screen* _screen,
                  MapLayer *_map,
                  int map_type,
                  string _cachePath,
-                 OGRCoordinateTransformation *_poCT,
-                 MapCanvas* _canvas
-                 )
+                 OGRCoordinateTransformation *_poCT )
 {
     poCT = _poCT;
     mapType = map_type;
     screen = _screen;
     map = _map;
-    canvas = _canvas;
+    //canvas = _canvas;
     
     origMap = new MapLayer(map);
     
@@ -566,7 +564,7 @@ void Basemap::DownloadTile(int x, int y)
         
     }
     isTileReady = false; // notice template_canvas to draw
-    canvas->Refresh(true);
+    //canvas->Refresh(true);
     delete[] filepath;
 }
 

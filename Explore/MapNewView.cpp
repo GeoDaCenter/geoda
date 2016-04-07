@@ -265,7 +265,7 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type)
             } else {
                 basemap = new GDA::Basemap(screen, map, map_type,
                                            GenUtils::GetBasemapCacheDir(),
-                                           poCT, this);
+                                           poCT);
             }
             ResizeSelectableShps();
         } else {
@@ -320,7 +320,7 @@ void MapCanvas::DrawLayerBase()
     if (isDrawBasemap) {
         if (basemap != 0) {
             layerbase_valid = basemap->Draw(basemap_bm);
-            Refresh(false);
+            wxWakeUpIdle();
         }
     }
 }

@@ -1031,11 +1031,13 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         resizeLayerBms(cs_w, cs_h);
 
         ResizeSelectableShps();
-        
+        event.RequestMore(); // render continuously, not only once on idle
     }
     
-	if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid)
+    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
         DrawLayers();
+        event.RequestMore(); // render continuously, not only once on idle
+    }
 }
 
 void TemplateCanvas::OnSize(wxSizeEvent& event)

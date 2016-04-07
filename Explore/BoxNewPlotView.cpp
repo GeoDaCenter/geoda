@@ -312,6 +312,7 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 	}
+    
 	if (total_newly_selected > 0 || total_newly_unselected > 0) {
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
