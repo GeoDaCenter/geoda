@@ -1531,26 +1531,22 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		if (unsaved_ds_data || unsaved_meta_data) {
 
 			title = "Do you want to save your data?";
-			
-			msg << "\n";			
-			
+			msg << "\n";
 			msg << "There are unsaved data source or time definition changes.";
-			
 			
 			wxMessageDialog msgDlg(this, msg, title,
 								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
             if (msgDlg.ShowModal() == wxID_YES) {
                 if (project_p) {
-                    if (project_p->GetTableInt()->IsTimeVariant()) {
-                        // always try to save a project file for user
-                        project_p->SaveProjectConf();
-                    }
                     if (unsaved_ds_data) {
                         project_p->SaveDataSourceData();
                     }
                 }
             }
 		}
+        
+        // always try to save a project file for user, if time or weights
+        project_p->SaveProjectConf();
         
         if (project_p->IsDataTypeChanged()) {
             wxString msg = "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?";
@@ -1631,7 +1627,7 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 		(IsProjectOpen() && project_p->GetSaveButtonManager() &&
 		project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
 	bool unsaved_ds_data = (IsProjectOpen() &&
-							project_p->GetTableInt()->ChangedSinceLastSave());
+							project_p->HasUnsavedChange());
 	
 	wxString msg;
 	wxString title;

@@ -559,10 +559,24 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 	SetProjectFullPath(proj_fname);
 }
 
+bool Project::HasUnsavedChange()
+{
+    if (GetTableInt()->ChangedSinceLastSave())
+        return true;
+    
+    if (GetTableInt()->IsTimeVariant() ||
+         (w_man_int && w_man_int->GetIds().size()>0) )
+        return true;
+    
+    return false;
+}
+
 void Project::SaveProjectConf()
 {
 	LOG_MSG("Entering Project::SaveProjectConf");
-	if (project_conf->GetFilePath().IsEmpty() && GetTableInt()->IsTimeVariant()) {
+	if (project_conf->GetFilePath().IsEmpty() &&
+        (GetTableInt()->IsTimeVariant() ||
+         (w_man_int && w_man_int->GetIds().size()>0)) ) {
 		
         // save project file at the same directory of the file datasource
         if ( IsFileDataSource()) {

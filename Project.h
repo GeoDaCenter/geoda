@@ -87,6 +87,8 @@ public:
     
     bool IsFileDataSource();
     
+    bool HasUnsavedChange();
+    
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
