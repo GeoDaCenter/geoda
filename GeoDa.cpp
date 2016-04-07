@@ -2259,56 +2259,83 @@ void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
 void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(false,0);
+	if (!t) return;
+    
+	MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(false,0);
     SetBasemapCheckmarks(0);
 }
 void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,1);
+	if (!t) return;
+    
+	MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,1);
     SetBasemapCheckmarks(1);
 }
 void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,2);
+	if (!t) return;
+    
+	MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,2);
     SetBasemapCheckmarks(2);
 }
 void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,3);
+	if (!t) return;
+    
+	MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,3);
     SetBasemapCheckmarks(3);
 }
 void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,4);
+    if (!t) return;
+    
+    MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,4);
     SetBasemapCheckmarks(4);
 }
 void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,5);
+    if (!t) return;
+    
+    MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,5);
     SetBasemapCheckmarks(5);
 }
 void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,6);
+    if (!t) return;
+    
+    MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,6);
     SetBasemapCheckmarks(6);
 }
 void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,7);
+    if (!t) return;
+    
+    MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,7);
     SetBasemapCheckmarks(7);
 }
 
 void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnDrawBasemap(true,8);
+    if (!t) return;
+    
+    MapFrame* f = dynamic_cast<MapFrame*>(t);
+    if (f) f->OnDrawBasemap(true,8);
     SetBasemapCheckmarks(8);
 }
 

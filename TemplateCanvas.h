@@ -393,11 +393,11 @@ public:
     
     void ReDraw();
     
-	void DrawLayerBase();
 	virtual void DrawLayer0();
-	void DrawLayer1();
-	void DrawLayer2();
-	void DrawLayers();
+	virtual void DrawLayer1();
+	virtual void DrawLayer2();
+	virtual void DrawLayers();
+    
 	// draw everything
 	void DrawSelectableShapesByZVal(wxDC &dc,
 									bool disable_crosshatch_brush = false);
@@ -419,7 +419,6 @@ public:
 	void EraseNewUnSelShapes_gc(wxMemoryDC &dc);
 	void EraseNewUnSelShapes_dc(wxMemoryDC &dc);
 
-    bool DrawBasemap(bool flag, int map_type);
     void SetTransparency(double _transparency) {
         transparency = _transparency;
     };

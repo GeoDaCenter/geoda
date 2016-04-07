@@ -60,7 +60,6 @@ public:
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     virtual void OnChangeMapTransparency();
-    virtual void OnDrawBasemap(bool flag, int map_type);
 	virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	virtual void OnCopyLegendToClipboard(wxCommandEvent& event);
 	virtual void OnCopyImageToClipboard(wxCommandEvent& event);

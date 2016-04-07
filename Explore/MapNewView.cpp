@@ -54,6 +54,9 @@ wxWindowID ID_SLIDER = wxID_ANY;
 IMPLEMENT_CLASS(SliderDialog, wxDialog)
 BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
     EVT_COMMAND_SCROLL_THUMBRELEASE( ID_SLIDER, SliderDialog::OnSliderChange)
+#ifdef __WIN32__
+    EVT_SCROLL_CHANGED(ID_SLIDER, SliderDialog::OnSliderChange)
+#endif
 END_EVENT_TABLE()
 
 SliderDialog::SliderDialog ( wxWindow * parent, TemplateCanvas* _canvas, wxWindowID id, const wxString & caption, const wxPoint & position, const wxSize & size, long style )
@@ -211,6 +214,214 @@ MapCanvas::~MapCanvas()
 	if (highlight_state) highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
 	LOG_MSG("Exiting MapCanvas::~MapCanvas");
+}
+
+bool MapCanvas::DrawBasemap(bool flag, int map_type)
+{
+    isDrawBasemap = flag;
+    
+    if (isDrawBasemap == true) {
+        if (basemap == 0) {
+            wxSize sz = GetVirtualSize();
+            int screenW = sz.GetWidth();
+            int screenH = sz.GetHeight();
+            OGRCoordinateTransformation *poCT = NULL;
+            
+            if (project->sourceSR != NULL) {
+                int nGCS = project->sourceSR->GetEPSGGeogCS();
+                if (nGCS != 4326) {
+                    OGRSpatialReference destSR;
+                    destSR.importFromEPSG(4326);
+                    poCT = OGRCreateCoordinateTransformation(project->sourceSR,
+                                                             &destSR);
+                }
+            }
+            
+            GDA::Screen* screen = new GDA::Screen(screenW, screenH);
+            GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin,
+                                                   shps_orig_ymin, shps_orig_xmax,
+                                                   poCT);
+            if (poCT == NULL && !map->IsWGS84Valid()) {
+                isDrawBasemap = false;
+                return false;
+            } else {
+                basemap = new GDA::Basemap(screen, map, map_type,
+                                           GenUtils::GetBasemapCacheDir(),
+                                           poCT);
+            }
+            ResizeSelectableShps();
+        } else {
+            basemap->SetupMapType(map_type);
+        }
+        
+    } else {
+        // isDrawBasemap == false
+        if (basemap)
+            basemap->mapType=0;
+    }
+    
+    layerbase_valid = false;
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+    
+    DrawLayers();
+    return true;
+}
+
+
+void MapCanvas::DrawLayers()
+{
+    if (layerbase_valid && layer2_valid && layer1_valid && layer0_valid)
+        return;
+    
+    wxSize sz = GetVirtualSize();
+    if (!layer0_bm)
+        resizeLayerBms(sz.GetWidth(), sz.GetHeight());
+    
+    if (!layerbase_valid && isDrawBasemap)
+        DrawLayerBase();
+    
+    if (!layer0_valid)
+        DrawLayer0();
+    
+    if (!layer1_valid)
+        DrawLayer1();
+    
+    if (!layer2_valid) {
+        DrawLayer1();
+        DrawLayer2();
+    }
+    
+    isRepaint = true;
+    Refresh(false);
+}
+
+void MapCanvas::DrawLayerBase()
+{
+    if (isDrawBasemap) {
+        if (basemap != 0) {
+            layerbase_valid = basemap->Draw(basemap_bm);
+            wxMilliSleep(5);
+        }
+    }
+}
+
+// Draw all solid background, background decorations and unhighlighted
+// shapes.
+void MapCanvas::DrawLayer0()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer0");
+	wxSize sz = GetVirtualSize();
+    if (layer0_bm) {
+        delete layer0_bm;
+        layer0_bm = NULL;
+    }
+    layer0_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
+	layer0_bm->UseAlpha();
+	wxMemoryDC dc(*layer0_bm);
+   
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    dc.Clear();
+
+	BOOST_FOREACH( GdaShape* shp, background_shps ) {
+		shp->paintSelf(dc);
+	}
+    
+	if (draw_sel_shps_by_z_val) {
+		DrawSelectableShapesByZVal(dc);
+	} else {
+		DrawSelectableShapes(dc);
+	}
+	
+	layer0_valid = true;
+}
+
+
+// Copy in layer0_bm
+// draw highlighted shapes.
+void MapCanvas::DrawLayer1()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer1");
+    // recreate highlight layer
+	wxSize sz = GetVirtualSize();
+    if (layer1_bm) {
+        delete layer1_bm;
+        layer1_bm = NULL;
+    }
+    layer1_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
+    layer1_bm->UseAlpha();
+
+	wxMemoryDC dc(*layer1_bm);
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    dc.Clear();
+    
+	if (!draw_sel_shps_by_z_val)
+        DrawHighlightedShapes(dc);
+    
+	layer1_valid = true;
+}
+
+void MapCanvas::DrawLayer2()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer2");
+	wxSize sz = GetVirtualSize();
+
+    if (layer2_bm) {
+        delete layer2_bm;
+        layer2_bm = NULL;
+    }
+    layer2_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(),32 );
+    layer2_bm->UseAlpha();
+
+	wxMemoryDC dc(*layer2_bm);
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    dc.Clear();
+    
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+		shp->paintSelf(dc);
+	}
+	layer2_valid = true;
+}
+
+void MapCanvas::OnPaint(wxPaintEvent& event)
+{
+    if (layer2_bm) {
+    	wxSize sz = GetClientSize();
+        
+        wxMemoryDC dc(*final_bm);
+        dc.SetBackground(canvas_background_color);
+        dc.Clear();
+        
+        if (isDrawBasemap) {
+            dc.DrawBitmap(*basemap_bm, 0, 0, true);
+        }
+        
+        dc.DrawBitmap(*layer0_bm, 0, 0, true);
+        dc.DrawBitmap(*layer1_bm, 0, 0, true);
+        dc.DrawBitmap(*layer2_bm, 0, 0, true);
+
+        
+    	wxPaintDC paint_dc(this);
+        // the following line cause flicking on windows machine
+    	// paint_dc.Clear();
+        
+    	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+    	
+    	// Draw the the selection region "the black selection box" if needed
+    	PaintSelectionOutline(paint_dc);
+    	
+    	// Draw optional control objects if needed, should be in memeory
+    	// PaintControls(paint_dc);
+    	
+    	// The resize event will ruin the position of scroll bars, so we reset the
+    	// position of scroll bars again.
+    	//if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
+    	//if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
+        
+        isRepaint = false;
+    }
+    event.Skip();
 }
 
 int MapCanvas::GetBasemapType()
@@ -1263,6 +1474,17 @@ void MapFrame::SetupToolbar()
 	Connect(XRCID("ID_REFRESH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapRefresh));
 	//Connect(XRCID("ID_BRUSH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapBrush));
 	Connect(XRCID("ID_TOOLBAR_BASEMAP"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapBasemap));
+}
+
+void MapFrame::OnDrawBasemap(bool flag, int map_type)
+{
+	if (!template_canvas) return;
+
+    bool drawSuccess = ((MapCanvas*)template_canvas)->DrawBasemap(flag, map_type);
+    
+    if (drawSuccess==false) {
+        wxMessageBox("To add the base map, you need a .prj file (WGS84 format) in the same directory as your spatial files.");
+    }
 }
 
 void MapFrame::OnMapSelect(wxCommandEvent& e)

@@ -26,6 +26,8 @@
 #include <wx/region.h>
 #include <wx/string.h>
 #include <wx/dc.h>
+#include <wx/graphics.h>
+
 #include "ShpFile.h"
 #include <cmath>
 #include "GenUtils.h"
@@ -126,6 +128,7 @@ public:
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
     virtual void projectToBasemap(GDA::Basemap* basemap);
 	virtual void paintSelf(wxDC& dc) = 0;
+	virtual void paintSelf(wxGraphicsContext* gc) = 0;
 	
 public:
 	// calls allocAttribs if needed, a convenience function.
@@ -162,6 +165,7 @@ public:
 	virtual bool regionIntersect(const wxRegion& r);
 	//virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
 	double GetX();
 	double GetY();
 };
@@ -180,6 +184,8 @@ public:
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 public:
 	//wxPoint center; // inherited from GdaShape
 	double radius;
@@ -202,6 +208,8 @@ public:
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
     virtual void projectToBasemap(GDA::Basemap* basemap);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 public:
 	wxPoint lower_left;
 	wxPoint upper_right;
@@ -226,6 +234,8 @@ public:
 	virtual void projectToBasemap(GDA::Basemap* basemap);
 	static wxRealPoint CalculateCentroid(int n, wxRealPoint* pts);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 public:
 	// All values in points array are the same.  Can render render
 	// as a single point at points[0]
@@ -262,7 +272,10 @@ public:
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
+    
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 	virtual wxString printDetails();
 	
 	static wxRealPoint CalculateCentroid(int n, wxRealPoint* pts)
@@ -311,6 +324,8 @@ public:
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 	virtual wxString printDetails();
 	
 public:
@@ -332,6 +347,8 @@ public:
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 public:
 	//wxPoint center; // inherited from GdaShape
 	double degs_rot_cc_from_horiz;
@@ -359,6 +376,7 @@ public:
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
 	
 	static wxPoint calcRefPoint(wxDC& dc, const wxString& text,
 								const wxFont& font,
@@ -406,6 +424,8 @@ public:
 	
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
+    
 	virtual void GetSize(wxDC& dc, int& w, int& h);
 	
 public:
@@ -442,6 +462,7 @@ public:
 	
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
+	virtual void paintSelf(wxGraphicsContext* gc);
 	
 public:
 	wxString getCaption() { return caption; }

@@ -640,6 +640,19 @@ void GdaPoint::paintSelf(wxDC& dc)
 	dc.DrawCircle(n_center, GdaConst::my_point_click_radius);
 }
 
+void GdaPoint::paintSelf(wxGraphicsContext* gc)
+{
+	if (null_shape) return;
+	gc->SetPen(getPen());
+	gc->SetBrush(getBrush());
+	wxPoint n_center(center.x+getXNudge(), center.y+getYNudge());
+    
+    
+	wxGraphicsPath path = gc->CreatePath();
+	path.AddCircle(n_center.x, n_center.y, GdaConst::my_point_click_radius);
+	gc->StrokePath(path);
+}
+
 GdaCircle::GdaCircle()
 {
 	null_shape = true;
@@ -694,6 +707,19 @@ void GdaCircle::paintSelf(wxDC& dc)
 	dc.SetBrush(getBrush());
 	wxPoint n_center(center.x+getXNudge(), center.y+getYNudge()); 
 	dc.DrawCircle(n_center, radius);
+}
+
+void GdaCircle::paintSelf(wxGraphicsContext* gc)
+{
+    if (null_shape) return;
+    gc->SetPen(getPen());
+    gc->SetBrush(getBrush());
+    wxPoint n_center(center.x+getXNudge(), center.y+getYNudge());
+    
+    
+    wxGraphicsPath path = gc->CreatePath();
+    path.AddCircle(n_center.x, n_center.y, radius);
+    gc->StrokePath(path);
 }
 
 GdaRectangle::GdaRectangle()
@@ -755,6 +781,16 @@ void GdaRectangle::paintSelf(wxDC& dc)
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
 	dc.DrawRectangle(lower_left.x+getXNudge(), lower_left.y+getYNudge(),
+					 upper_right.x - lower_left.x,
+					 upper_right.y - lower_left.y);
+}
+
+void GdaRectangle::paintSelf(wxGraphicsContext* gc)
+{
+	if (null_shape) return;
+	gc->SetPen(getPen());
+	gc->SetBrush(getBrush());
+	gc->DrawRectangle(lower_left.x+getXNudge(), lower_left.y+getYNudge(),
 					 upper_right.x - lower_left.x,
 					 upper_right.y - lower_left.y);
 }
@@ -988,6 +1024,44 @@ void GdaPolygon::paintSelf(wxDC& dc)
 	}
 }
 
+void GdaPolygon::paintSelf(wxGraphicsContext* gc)
+{
+	if (null_shape) return;
+	gc->SetPen(getPen());
+	gc->SetBrush(getBrush());
+    
+	if (n_count > 1) {
+		//dc.DrawPolyPolygon(n_count, count, points);
+        int start = 0;
+        for (int c=0; c<n_count; c++) {
+            wxGraphicsPath path = gc->CreatePath();
+            int n = count[c];
+            start += n;
+            for (int i=0; i<n-1; i++) {
+                path.MoveToPoint(points[start+i].x, points[start+i].y);
+                int j = i + 1;
+                if (j < n) {
+                    path.AddLineToPoint(points[start+j].x, points[start+j].y);
+                }
+            }
+            gc->FillPath(path, wxWINDING_RULE);
+            gc->StrokePath(path);
+        }
+        
+	} else {
+		//dc.DrawPolygon(n, points);
+        wxGraphicsPath path = gc->CreatePath();
+        for (int i=0; i<n-1; i++) {
+            path.MoveToPoint(points[i].x, points[i].y);
+            int j = i + 1;
+            if (j < n) {
+                path.AddLineToPoint(points[j].x, points[j].y);
+            }
+        }
+        gc->FillPath(path, wxWINDING_RULE);
+        gc->StrokePath(path);
+	}
+}
 
 GdaPolyLine::GdaPolyLine()
 	: n(2), pc(0), n_count(1), count(0), points(0), points_o(0)
@@ -1258,21 +1332,16 @@ void GdaPolyLine::paintSelf(wxDC& dc)
 	int ny = getYNudge();
 	if (n > 1) {
 		for (int i=0, its=n-1; i<its; i++) {
-			//LOG(i);
-			//LOG(points[i].x);
-			//LOG(points[i].y);
-			//LOG(points[i+1].x);
-			//LOG(points[i+1].y);
-			//dc.DrawLine(45, 50, 200, 16);
-			//dc.DrawLine(200, 16, 200, 70);
-			//dc.DrawLine(25, 235, 250, 130);
-			//dc.DrawLine(250, 130, 475, 25);
 			dc.DrawLine(points[i].x+nx, points[i].y+ny,
 						points[i+1].x+nx, points[i+1].y+ny);
 		}
 	} else {
 		dc.DrawPoint(points[0].x+nx, points[0].y+ny);
 	}
+}
+
+void GdaPolyLine::paintSelf(wxGraphicsContext* gc)
+{
 }
 
 wxString GdaPolyLine::printDetails()
@@ -1287,24 +1356,6 @@ wxString GdaPolyLine::printDetails()
 	s << "\n  points[0].y : " << points[0].y;
 	return s;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1560,6 +1611,10 @@ void GdaSpline::paintSelf(wxDC& dc)
 	dc.DrawSpline(n, points);
 }
 
+void GdaSpline::paintSelf(wxGraphicsContext* gc)
+{
+    
+}
 wxString GdaSpline::printDetails()
 {
 	wxString s;
@@ -1635,6 +1690,10 @@ void GdaRay::paintSelf(wxDC& dc)
 				center.y+getYNudge()+floor(rot_dy+0.5));
 }
 
+void GdaRay::paintSelf(wxGraphicsContext* gc)
+{
+    
+}
 
 GdaShapeText::GdaShapeText()
 : text(""), font(*GdaConst::medium_font),
@@ -1759,6 +1818,11 @@ void GdaShapeText::paintSelf(wxDC& dc)
 	
 	dc.SetTextForeground(*wxBLACK);
 	//LOG_MSG("Exiting GdaShapeText::paintSelf");
+}
+
+void GdaShapeText::paintSelf(wxGraphicsContext* gc)
+{
+    
 }
 
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)
@@ -2014,6 +2078,11 @@ void GdaShapeTable::paintSelf(wxDC& dc)
 	//LOG_MSG("Exiting GdaShapeTable::paintSelf");
 }
 
+void GdaShapeTable::paintSelf(wxGraphicsContext* gc)
+{
+    
+}
+
 void GdaShapeTable::GetSize(wxDC& dc, int& w, int& h)
 {
 	using namespace std;
@@ -2106,6 +2175,10 @@ void GdaAxis::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(b_o, &b);
 }
 
+void GdaAxis::paintSelf(wxGraphicsContext* gc)
+{
+    
+}
 void GdaAxis::paintSelf(wxDC& dc)
 {
 	if (hidden) return;

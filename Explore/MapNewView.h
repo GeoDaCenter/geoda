@@ -113,7 +113,17 @@ public:
     int GetBasemapType();
     void CleanBasemapCache();
     
+    
 public:
+    
+    virtual void OnPaint(wxPaintEvent& event);
+	virtual void DrawLayerBase();
+	virtual void DrawLayer0();
+	virtual void DrawLayer1();
+	virtual void DrawLayer2();
+	virtual void DrawLayers();
+    bool DrawBasemap(bool flag, int map_type);
+    
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	virtual void CreateAndUpdateCategories();
@@ -196,6 +206,7 @@ public:
 
     void SetupToolbar();
     void OnActivate(wxActivateEvent& event);
+    
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
@@ -233,7 +244,9 @@ public:
 	virtual void OnExportMeanCntrs();
 	virtual void OnExportCentroids();
 	virtual void OnSaveVoronoiDupsToTable();
+    
     virtual void OnChangeMapTransparency();
+    virtual void OnDrawBasemap(bool flag, int map_type);
     
     void CleanBasemap();
     

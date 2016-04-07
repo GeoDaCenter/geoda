@@ -880,71 +880,14 @@ void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
 	
 }
 
-
-bool TemplateCanvas::DrawBasemap(bool flag, int map_type)
-{
-    isDrawBasemap = flag;
-    
-    if (isDrawBasemap == true) {
-        if (basemap == 0) {
-            wxSize sz = GetVirtualSize();
-            int screenW = sz.GetWidth();
-            int screenH = sz.GetHeight();
-            OGRCoordinateTransformation *poCT = NULL;
-            
-            if (project->sourceSR != NULL) {
-                int nGCS = project->sourceSR->GetEPSGGeogCS();
-                if (nGCS != 4326) {
-                    OGRSpatialReference destSR;
-                    destSR.importFromEPSG(4326);
-                    poCT = OGRCreateCoordinateTransformation(project->sourceSR,
-                                                             &destSR);
-                }
-            }
-            
-            GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-            GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin,
-                                                   shps_orig_ymin, shps_orig_xmax,
-                                                   poCT);
-            if (poCT == NULL && !map->IsWGS84Valid()) {
-                isDrawBasemap = false;
-                return false;
-            } else {
-                basemap = new GDA::Basemap(screen, map, map_type,
-                                           GenUtils::GetBasemapCacheDir(),
-                                           poCT);
-            }
-            ResizeSelectableShps();
-        } else {
-            basemap->SetupMapType(map_type);
-        }
-        
-    } else {
-        // isDrawBasemap == false
-        if (basemap)
-            basemap->mapType=0;
-    }
-    
-    layerbase_valid = false;
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    
-    DrawLayers();
-    return true;
-}
-
 void TemplateCanvas::DrawLayers()
 {
-	if (layerbase_valid && layer2_valid && layer1_valid && layer0_valid)
+	if (layer2_valid && layer1_valid && layer0_valid)
 		return;
   
 	wxSize sz = GetVirtualSize();
 	if (!layer0_bm) 
         resizeLayerBms(sz.GetWidth(), sz.GetHeight());
-    
-    if (!layerbase_valid && isDrawBasemap)
-        DrawLayerBase();
     
     if (!layer0_valid)
         DrawLayer0();
@@ -961,44 +904,33 @@ void TemplateCanvas::DrawLayers()
     Refresh(false);
 }
 
-void TemplateCanvas::DrawLayerBase()
-{
-    if (isDrawBasemap) {
-        if (basemap != 0) {
-            layerbase_valid = basemap->Draw(basemap_bm);
-            wxMilliSleep(5);
-        }
-    }
-}
 
 // Draw all solid background, background decorations and unhighlighted
 // shapes.
 void TemplateCanvas::DrawLayer0()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer0");
-	wxSize sz = GetVirtualSize();
-    if (layer0_bm) {
-        delete layer0_bm;
-        layer0_bm = NULL;
-    }
-    layer0_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
-	layer0_bm->UseAlpha();
-	wxMemoryDC dc(*layer0_bm);
-   
-    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    //LOG_MSG("In TemplateCanvas::DrawLayer0");
+    wxSize sz = GetVirtualSize();
+    wxMemoryDC dc(*layer0_bm);
     dc.Clear();
-
-	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
-	}
+    if (isDrawBasemap) {
+        dc.DrawBitmap(*basemap_bm, 0, 0);
+    } else {
+        dc.SetPen(canvas_background_color);
+        dc.SetBrush(canvas_background_color);
+        dc.DrawRectangle(wxPoint(0,0), sz);
+    }
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    if (draw_sel_shps_by_z_val) {
+        DrawSelectableShapesByZVal(dc);
+    } else {
+        DrawSelectableShapes(dc);
+    }
     
-	if (draw_sel_shps_by_z_val) {
-		DrawSelectableShapesByZVal(dc);
-	} else {
-		DrawSelectableShapes(dc);
-	}
-	
-	layer0_valid = true;
+    layer0_valid = true;
+    layer1_valid = false;
 }
 
 
@@ -1006,46 +938,26 @@ void TemplateCanvas::DrawLayer0()
 // draw highlighted shapes.
 void TemplateCanvas::DrawLayer1()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer1");
-    // recreate highlight layer
-	wxSize sz = GetVirtualSize();
-    if (layer1_bm) {
-        delete layer1_bm;
-        layer1_bm = NULL;
-    }
-    layer1_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
-    layer1_bm->UseAlpha();
-
-	wxMemoryDC dc(*layer1_bm);
-    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    //LOG_MSG("In TemplateCanvas::DrawLayer1");
+    wxMemoryDC dc(*layer1_bm);
     dc.Clear();
-    
-	if (!draw_sel_shps_by_z_val)
+    dc.DrawBitmap(*layer0_bm, 0, 0);
+    if (!draw_sel_shps_by_z_val)
         DrawHighlightedShapes(dc);
-    
-	layer1_valid = true;
+    layer1_valid = true;
+    layer2_valid = false;
 }
 
 void TemplateCanvas::DrawLayer2()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer2");
-	wxSize sz = GetVirtualSize();
-
-    if (layer2_bm) {
-        delete layer2_bm;
-        layer2_bm = NULL;
-    }
-    layer2_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(),32 );
-    layer2_bm->UseAlpha();
-
-	wxMemoryDC dc(*layer2_bm);
-    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    //LOG_MSG("In TemplateCanvas::DrawLayer2");
+    wxMemoryDC dc(*layer2_bm);
     dc.Clear();
-    
-	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
-	}
-	layer2_valid = true;
+    dc.DrawBitmap(*layer1_bm, 0, 0);
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(dc);
+    }
+    layer2_valid = true;
 }
 
 // Paint events are generated when user interaction
@@ -1060,37 +972,24 @@ void TemplateCanvas::DrawLayer2()
 void TemplateCanvas::OnPaint(wxPaintEvent& event)
 {
     if (layer2_bm) {
-    	wxSize sz = GetClientSize();
+        wxSize sz = GetClientSize();
+        wxMemoryDC dc(*layer2_bm);
         
-        wxMemoryDC dc(*final_bm);
-        dc.SetBackground(canvas_background_color);
-        dc.Clear();
+        wxPaintDC paint_dc(this);
+        // this line cause flicking on windows machine
+        //paint_dc.Clear();
+        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
         
-        if (isDrawBasemap) {
-            dc.DrawBitmap(*basemap_bm, 0, 0, true);
-        }
+        // Draw the the selection region if needed
+        PaintSelectionOutline(paint_dc);
         
-        dc.DrawBitmap(*layer0_bm, 0, 0, true);
-        dc.DrawBitmap(*layer1_bm, 0, 0, true);
-        dc.DrawBitmap(*layer2_bm, 0, 0, true);
-
+        // Draw optional control objects if needed, should be in memeory
+        // PaintControls(paint_dc);
         
-    	wxPaintDC paint_dc(this);
-        // the following line cause flicking on windows machine
-    	// paint_dc.Clear();
-        
-    	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
-    	
-    	// Draw the the selection region "the black selection box" if needed
-    	PaintSelectionOutline(paint_dc);
-    	
-    	// Draw optional control objects if needed, should be in memeory
-    	// PaintControls(paint_dc);
-    	
-    	// The resize event will ruin the position of scroll bars, so we reset the
-    	// position of scroll bars again.
-    	//if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-    	//if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
+        // The resize event will ruin the position of scroll bars, so we reset the
+        // position of scroll bars again.
+        //if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
+        //if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
         
         isRepaint = false;
     }
