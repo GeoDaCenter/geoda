@@ -100,7 +100,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
         } else if (GeneralWxUtils::isUnix()) {
             error_message << " on Unix";
         }
-        error_message <<".\n\n Note: Please check if related plugin has been installed.";
+        error_message <<".\n\n Note: Please check if the related plugin has been installed.";
 		throw GdaException(error_message.str().c_str());
 	}
 	
