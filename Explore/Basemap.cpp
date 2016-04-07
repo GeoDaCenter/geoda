@@ -652,7 +652,6 @@ std::string Basemap::GetTilePath(int x, int y)
 bool Basemap::Draw(wxBitmap* buffer)
 {
 	// when tiles pngs are ready, draw them on a buffer
-
 	wxMemoryDC dc(*buffer);
     dc.Clear();
    

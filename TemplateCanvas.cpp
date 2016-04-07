@@ -179,10 +179,15 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 	basemap_bm = new wxBitmap(width, height);
-	layer0_bm = new wxBitmap(width, height);
-	layer1_bm = new wxBitmap(width, height);
-	layer2_bm = new wxBitmap(width, height);
+	layer0_bm = new wxBitmap(width, height, 32);
+	layer1_bm = new wxBitmap(width, height, 32);
+	layer2_bm = new wxBitmap(width, height, 32);
 	final_bm = new wxBitmap(width, height);
+	
+	layer0_bm->UseAlpha();
+	layer1_bm->UseAlpha();
+	layer2_bm->UseAlpha();
+	
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -976,13 +981,11 @@ void TemplateCanvas::DrawLayer0()
         delete layer0_bm;
         layer0_bm = NULL;
     }
-    layer0_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
+    layer0_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
+	layer0_bm->UseAlpha();
 	wxMemoryDC dc(*layer0_bm);
-    if (isDrawBasemap) {
-        dc.SetBackground( *wxTRANSPARENT_BRUSH );
-    } else {
-        dc.SetBackground( canvas_background_color);
-    }
+   
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
 
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
@@ -1010,8 +1013,9 @@ void TemplateCanvas::DrawLayer1()
         delete layer1_bm;
         layer1_bm = NULL;
     }
-    layer1_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
-    
+    layer1_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(), 32);
+    layer1_bm->UseAlpha();
+
 	wxMemoryDC dc(*layer1_bm);
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
@@ -1031,8 +1035,9 @@ void TemplateCanvas::DrawLayer2()
         delete layer2_bm;
         layer2_bm = NULL;
     }
-    layer2_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
-    
+    layer2_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight(),32 );
+    layer2_bm->UseAlpha();
+
 	wxMemoryDC dc(*layer2_bm);
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
@@ -1058,16 +1063,16 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     	wxSize sz = GetClientSize();
         
         wxMemoryDC dc(*final_bm);
-        dc.SetBackground(*wxWHITE_BRUSH);
+        dc.SetBackground(canvas_background_color);
         dc.Clear();
         
         if (isDrawBasemap) {
-            dc.DrawBitmap(*basemap_bm, 0, 0);
+            dc.DrawBitmap(*basemap_bm, 0, 0, true);
         }
         
-        dc.DrawBitmap(*layer0_bm, 0, 0);
-        dc.DrawBitmap(*layer1_bm, 0, 0);
-        dc.DrawBitmap(*layer2_bm, 0, 0);
+        dc.DrawBitmap(*layer0_bm, 0, 0, true);
+        dc.DrawBitmap(*layer1_bm, 0, 0, true);
+        dc.DrawBitmap(*layer2_bm, 0, 0, true);
 
         
     	wxPaintDC paint_dc(this);
@@ -1203,7 +1208,7 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawSelectableShapes_gc(dc);
 #else
-        DrawSelectableShapes_dc(dc);
+        DrawSelectableShapes_gc(dc);
 #endif
 	} else {
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
@@ -1363,7 +1368,7 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc)
 {	
 	if (isDrawBasemap) {
 		wxSize sz = dc.GetSize();
-		wxBitmap bmp( sz.GetWidth(), sz.GetHeight());
+		wxBitmap bmp( sz.GetWidth(), sz.GetHeight(), 32);
 		wxMemoryDC _dc;
 		// use a special color for mask transparency: 244, 243, 242c
 		wxColour maskColor(244, 243, 242);
@@ -1524,7 +1529,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawHighlightedShapes_gc(dc);
 #else
-		DrawHighlightedShapes_dc(dc);
+		DrawHighlightedShapes_gc(dc);
 #endif
 		return;
 	}
@@ -1769,7 +1774,7 @@ void TemplateCanvas::DrawNewSelShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawNewSelShapes_gc(dc);
 #else
-		DrawNewSelShapes_dc(dc);
+		DrawNewSelShapes_gc(dc);
 #endif
 		return;
 	}
@@ -1990,7 +1995,7 @@ void TemplateCanvas::EraseNewUnSelShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		EraseNewUnSelShapes_gc(dc);
 #else
-		EraseNewUnSelShapes_dc(dc);
+		EraseNewUnSelShapes_gc(dc);
 #endif
 		return;
 	}
