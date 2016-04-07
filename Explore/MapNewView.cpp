@@ -110,7 +110,7 @@ void SliderDialog::OnSliderChange( wxScrollEvent & event )
 
 IMPLEMENT_CLASS(MapCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
-	EVT_PAINT(TemplateCanvas::OnPaint)
+	EVT_PAINT(MapCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
@@ -265,7 +265,7 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type)
             } else {
                 basemap = new GDA::Basemap(screen, map, map_type,
                                            GenUtils::GetBasemapCacheDir(),
-                                           poCT);
+                                           poCT, this);
             }
             ResizeSelectableShps();
         } else {
@@ -312,7 +312,7 @@ void MapCanvas::DrawLayers()
     }
     
     isRepaint = true;
-    Refresh(false);
+    Refresh(true);
 }
 
 void MapCanvas::DrawLayerBase()
@@ -320,7 +320,7 @@ void MapCanvas::DrawLayerBase()
     if (isDrawBasemap) {
         if (basemap != 0) {
             layerbase_valid = basemap->Draw(basemap_bm);
-            wxMilliSleep(5);
+            Refresh(false);
         }
     }
 }

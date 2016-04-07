@@ -85,7 +85,7 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
                              bool fixed_aspect_ratio_mode_s,
                              bool fit_to_window_mode_s)
 : wxScrolledWindow(parent, -1, pos, size,
-				   wxHSCROLL | wxVSCROLL | wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
+				   wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
 	mousemode(select), selectstate(start), brushtype(rectangle),
 	scrollbarmode(none),
 	fixed_aspect_ratio_mode(fixed_aspect_ratio_mode_s),

@@ -23,6 +23,9 @@
 #include <fstream>
 #include <ogr_spatialref.h>
 
+
+class MapCanvas;
+
 using namespace std;
 
 namespace GDA {
@@ -214,11 +217,13 @@ public:
             MapLayer *_map,
             int map_type,
             std::string _cachePath,
-            OGRCoordinateTransformation *_poCT);
+            OGRCoordinateTransformation *_poCT,
+            MapCanvas* _canvas);
     ~Basemap();
     
     OGRCoordinateTransformation *poCT;
-    
+   
+    MapCanvas* canvas;
     int mapType;
     std::string basemapUrl;
     std::string urlSuffix; // ?a=b&c=d
