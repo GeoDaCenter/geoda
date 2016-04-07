@@ -84,6 +84,7 @@ public:
 public:
 	/** Colors */
 	bool selectable_outline_visible;
+	bool user_canvas_background_color;
 	wxColour selectable_outline_color;
 	wxColour selectable_fill_color;
 	wxColour highlight_color;
@@ -91,6 +92,10 @@ public:
 	
 	virtual void SetSelectableOutlineVisible(bool visible);
 	virtual bool IsSelectableOutlineVisible();
+    
+	virtual void SetBackgroundColorVisible(bool visible);
+	virtual bool IsUserBackgroundColorVisible();
+    
 	virtual void SetSelectableOutlineColor(wxColour color);
 	virtual void SetSelectableFillColor(wxColour color);
 	virtual void SetHighlightColor(wxColour color);

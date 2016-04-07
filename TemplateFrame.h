@@ -70,6 +70,7 @@ public:
 	virtual void OnCanvasBackgroundColor(wxCommandEvent& event);
 	virtual void OnSelectableFillColor(wxCommandEvent& event);
 	virtual void OnSelectableOutlineColor(wxCommandEvent& event);
+	virtual void OnUserBackgroundColorVisible(wxCommandEvent& event);
 	virtual void OnSelectableOutlineVisible(wxCommandEvent& event);
 	virtual void OnHighlightColor(wxCommandEvent& event);
 	virtual void OnSelectWithRect(wxCommandEvent& event);

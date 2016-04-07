@@ -256,7 +256,7 @@ public:
 	std::string GetTileUrl(int x, int y);
     std::string GetTilePath(int x, int y);
 
-	void Draw(wxBitmap* buffer);
+	bool Draw(wxBitmap* buffer);
 	
     void ResizeScreen(int _width, int _height);
     void ZoomIn(int mouseX, int mouseY);

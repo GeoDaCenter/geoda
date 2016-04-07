@@ -103,6 +103,7 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
 	shps_orig_xmin(0), shps_orig_ymin(0),
 	shps_orig_xmax(0), shps_orig_ymax(0),
 	selectable_outline_visible(true),
+    user_canvas_background_color(false),
 	selectable_outline_color(GdaConst::selectable_outline_color),
 	selectable_fill_color(GdaConst::selectable_fill_color),
 	highlight_color(GdaConst::highlight_color),
@@ -400,12 +401,13 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
         }
         
         layerbase_valid = false;
+        layer0_valid = false;
+        layer1_valid = false;
+        layer2_valid = false;
         return;
 	}
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
-	//LOG_MSG("Entering TemplateCanvas::ResizeSelectableShps");
-	wxStopWatch sw;
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 
 	double image_width, image_height;
@@ -464,12 +466,11 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			ms->applyScaleTrans(last_scale_trans);
 		}
 	}
-	LOG_MSG(wxString::Format("ResizeSelectableShps scale shapes: %ld ms",
-							 sw.Time()));
+
 	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
 		ms->applyScaleTrans(last_scale_trans);
 	}
-	layer0_valid = false;
+
 	if ( resize_xmax == shps_orig_xmax && resize_ymin == shps_orig_ymin){
 		wxRealPoint map_topleft, map_bottomright;
 		last_scale_trans.transform_back(wxPoint(0,0), map_topleft);
@@ -497,12 +498,14 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		SetScrollRate(1,1);
 		prev_scroll_pos_x =  offset_vs_x > 0 ? offset_vs_x:0;
 		prev_scroll_pos_y =  offset_vs_y > 0 ? offset_vs_y:0;
-		SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-		SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
+		//SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
+		//SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
 	}
 	is_scrolled = false;
-	LOG_MSG(wxString::Format("ResizeSelectableShps run time: %ld ms",sw.Time()));
-	//LOG_MSG("Exiting TemplateCanvas::ResizeSelectableShps");
+    
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
 }
 
 void TemplateCanvas::ResetShapes()
@@ -532,8 +535,7 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
         ResizeSelectableShps();
-        layer0_valid = false;
-        layerbase_valid = false;
+
         return;
     }
     
@@ -592,8 +594,6 @@ void TemplateCanvas::PanShapes()
         if (delta_x !=0 && delta_y != 0) {
             basemap->Pan(sel1.x, sel1.y, sel2.x, sel2.y);
             ResizeSelectableShps();
-            layer0_valid = false;
-            layerbase_valid = false;
         }
         return;
     }
@@ -739,7 +739,9 @@ void TemplateCanvas::SetSelectableOutlineVisible(bool visible)
 	if (visible) { msg << "true)"; } else { msg << "false)"; }
 	LOG_MSG(msg);
 	selectable_outline_visible = visible;
+    
 	layer0_valid = false;
+
 	UpdateSelectableOutlineColors();
 }
 
@@ -748,11 +750,27 @@ bool TemplateCanvas::IsSelectableOutlineVisible()
 	return selectable_outline_visible;
 }
 
+void TemplateCanvas::SetBackgroundColorVisible(bool visible)
+{
+	user_canvas_background_color = visible;
+    
+	layer0_valid = false;
+}
+
+bool TemplateCanvas::IsUserBackgroundColorVisible()
+{
+	return user_canvas_background_color;
+}
+
 void TemplateCanvas::SetSelectableOutlineColor(wxColour color)
 {
 	LOG_MSG("Called TemplateCanvas::SetSelectableOutlineColor");
 	selectable_outline_color = color;
+    
 	layer0_valid = false;
+	layer1_valid = false;
+	layer2_valid = false;
+    
 	UpdateSelectableOutlineColors();
 }
 
@@ -760,7 +778,10 @@ void TemplateCanvas::SetSelectableFillColor(wxColour color)
 {
 	selectable_fill_color = color;
 	UpdateSelectableOutlineColors();
+    
 	layer0_valid = false;
+	layer1_valid = false;
+	layer2_valid = false;
 }
 
 void TemplateCanvas::SetHighlightColor(wxColour color)
@@ -809,37 +830,266 @@ void TemplateCanvas::update(HLStateInt* o)
 	
 	int nh_cnt = o->GetTotalNewlyHighlighted();
 	int nuh_cnt = o->GetTotalNewlyUnhighlighted();
-	//std::vector<int>& nh = o->GetNewlyHighlighted();
     
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::delta) {
 		LOG_MSG("processing HLStateInt::delta");
-		wxMemoryDC dc(*layer1_bm);
-		if (!layer0_valid) {
-			DrawLayer0();
-			dc.DrawBitmap(*layer0_bm, 0, 0);
-		}
-		//if (nuh_cnt > 0) EraseNewUnSelShapes(dc);
-		if (nh_cnt > 0) DrawNewSelShapes(dc);
-		layer1_valid = true;
-		layer2_valid = false;
-       
-        DrawLayers();
-        Refresh();
+
 	} else {
 		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
 		// type == HLStateInt::unhighlight_all
 		// type == HLStateInt::invert
-		//layer0_valid = false;
-		layer1_valid = false;
-		layer2_valid = false;
-		
-        DrawLayers();
-        Refresh();
 	}
-   
+  
+    // re-paint highlight layer (layer1_bm)
+	layer1_valid = false;
+    DrawLayers();
+    Refresh();
+    
     UpdateStatusBar();
 	LOG_MSG("Exiting TemplateCanvas::update");
+}
+
+void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
+{
+	wxSize sz = GetVirtualSize();
+	dc.SetPen(canvas_background_color);
+	dc.SetBrush(canvas_background_color);
+	dc.DrawRectangle(wxPoint(0,0), sz);
+	BOOST_FOREACH( GdaShape* shp, background_shps ) {
+		shp->paintSelf(dc);
+	}
+	if (draw_sel_shps_by_z_val) {
+		DrawSelectableShapesByZVal(dc, disable_crosshatch_brush);
+	} else {
+		DrawSelectableShapes_gen_dc(dc);
+	}
+	
+	if (!draw_sel_shps_by_z_val) {
+		DrawHighlightedShapes_gen_dc(dc, disable_crosshatch_brush);
+	}
+	
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+		shp->paintSelf(dc);
+	}
+	
+}
+
+
+bool TemplateCanvas::DrawBasemap(bool flag, int map_type)
+{
+    isDrawBasemap = flag;
+    
+    if (isDrawBasemap == true) {
+        if (basemap == 0) {
+            wxSize sz = GetVirtualSize();
+            int screenW = sz.GetWidth();
+            int screenH = sz.GetHeight();
+            OGRCoordinateTransformation *poCT = NULL;
+            
+            if (project->sourceSR != NULL) {
+                int nGCS = project->sourceSR->GetEPSGGeogCS();
+                if (nGCS != 4326) {
+                    OGRSpatialReference destSR;
+                    destSR.importFromEPSG(4326);
+                    poCT = OGRCreateCoordinateTransformation(project->sourceSR,
+                                                             &destSR);
+                }
+            }
+            
+            GDA::Screen* screen = new GDA::Screen(screenW, screenH);
+            GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin,
+                                                   shps_orig_ymin, shps_orig_xmax,
+                                                   poCT);
+            if (poCT == NULL && !map->IsWGS84Valid()) {
+                isDrawBasemap = false;
+                return false;
+            } else {
+                basemap = new GDA::Basemap(screen, map, map_type,
+                                           GenUtils::GetBasemapCacheDir(),
+                                           poCT);
+            }
+            ResizeSelectableShps();
+        } else {
+            basemap->SetupMapType(map_type);
+        }
+        
+    } else {
+        // isDrawBasemap == false
+        if (basemap)
+            basemap->mapType=0;
+    }
+    
+    layerbase_valid = false;
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+    
+    DrawLayers();
+    return true;
+}
+
+void TemplateCanvas::DrawLayers()
+{
+	if (layerbase_valid && layer2_valid && layer1_valid && layer0_valid)
+		return;
+  
+	wxSize sz = GetVirtualSize();
+	if (!layer0_bm) 
+        resizeLayerBms(sz.GetWidth(), sz.GetHeight());
+    
+    if (!layerbase_valid && isDrawBasemap)
+        DrawLayerBase();
+    
+    if (!layer0_valid)
+        DrawLayer0();
+    
+    if (!layer1_valid)
+        DrawLayer1();
+    
+    if (!layer2_valid) {
+        DrawLayer1();
+        DrawLayer2();
+    }
+   
+    isRepaint = true;
+    Refresh(false);
+}
+
+void TemplateCanvas::DrawLayerBase()
+{
+    if (isDrawBasemap) {
+        if (basemap != 0) {
+            layerbase_valid = basemap->Draw(basemap_bm);
+            wxMilliSleep(5);
+        }
+    }
+}
+
+// Draw all solid background, background decorations and unhighlighted
+// shapes.
+void TemplateCanvas::DrawLayer0()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer0");
+	wxSize sz = GetVirtualSize();
+    if (layer0_bm) {
+        delete layer0_bm;
+        layer0_bm = NULL;
+    }
+    layer0_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
+	wxMemoryDC dc(*layer0_bm);
+    if (isDrawBasemap) {
+        dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    } else {
+        dc.SetBackground( canvas_background_color);
+    }
+    dc.Clear();
+
+	BOOST_FOREACH( GdaShape* shp, background_shps ) {
+		shp->paintSelf(dc);
+	}
+    
+	if (draw_sel_shps_by_z_val) {
+		DrawSelectableShapesByZVal(dc);
+	} else {
+		DrawSelectableShapes(dc);
+	}
+	
+	layer0_valid = true;
+}
+
+
+// Copy in layer0_bm
+// draw highlighted shapes.
+void TemplateCanvas::DrawLayer1()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer1");
+    // recreate highlight layer
+	wxSize sz = GetVirtualSize();
+    if (layer1_bm) {
+        delete layer1_bm;
+        layer1_bm = NULL;
+    }
+    layer1_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
+    
+	wxMemoryDC dc(*layer1_bm);
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    dc.Clear();
+    
+	if (!draw_sel_shps_by_z_val)
+        DrawHighlightedShapes(dc);
+    
+	layer1_valid = true;
+}
+
+void TemplateCanvas::DrawLayer2()
+{
+	//LOG_MSG("In TemplateCanvas::DrawLayer2");
+	wxSize sz = GetVirtualSize();
+
+    if (layer2_bm) {
+        delete layer2_bm;
+        layer2_bm = NULL;
+    }
+    layer2_bm = new wxBitmap(sz.GetWidth(), sz.GetHeight());
+    
+	wxMemoryDC dc(*layer2_bm);
+    dc.SetBackground( *wxTRANSPARENT_BRUSH );
+    dc.Clear();
+    
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+		shp->paintSelf(dc);
+	}
+	layer2_valid = true;
+}
+
+// Paint events are generated when user interaction
+// causes regions to need repainting, or when wxWindow::Refresh
+// wxWindow::RefreshRect is called.  wxWindow::Update can be
+// called immediately after Refresh or RefreshRect to force the
+// paint event to be called immediately.  Use the
+// wxFULL_REPAINT_ON_RESIZE window style to have the entire
+// window included in the update region.  This is important in the
+// case where resizing the window changes the position of all of
+// the window graphics.
+void TemplateCanvas::OnPaint(wxPaintEvent& event)
+{
+    if (layer2_bm) {
+    	wxSize sz = GetClientSize();
+        
+        wxMemoryDC dc(*final_bm);
+        dc.SetBackground(*wxWHITE_BRUSH);
+        dc.Clear();
+        
+        if (isDrawBasemap) {
+            dc.DrawBitmap(*basemap_bm, 0, 0);
+        }
+        
+        dc.DrawBitmap(*layer0_bm, 0, 0);
+        dc.DrawBitmap(*layer1_bm, 0, 0);
+        dc.DrawBitmap(*layer2_bm, 0, 0);
+
+        
+    	wxPaintDC paint_dc(this);
+        // the following line cause flicking on windows machine
+    	// paint_dc.Clear();
+        
+    	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+    	
+    	// Draw the the selection region "the black selection box" if needed
+    	PaintSelectionOutline(paint_dc);
+    	
+    	// Draw optional control objects if needed, should be in memeory
+    	// PaintControls(paint_dc);
+    	
+    	// The resize event will ruin the position of scroll bars, so we reset the
+    	// position of scroll bars again.
+    	//if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
+    	//if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
+        
+        isRepaint = false;
+    }
+    event.Skip();
 }
 
 void TemplateCanvas::ReDraw()
@@ -882,16 +1132,9 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         }
  
         resizeLayerBms(cs_w, cs_h);
-        //SetVirtualSize(cs_w, cs_h);
+
         ResizeSelectableShps();
         
-
-        
-    } else {
-        // waiting for basemap draw if needed
-        if (isDrawBasemap && basemap->IsReady()) {
-            layerbase_valid = false;
-        }
     }
     
 	if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid)
@@ -906,256 +1149,6 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
     //LOG_MSG("Exiting TemplateCanvas::OnSize");
 }
 
-// Paint events are generated when user interaction
-// causes regions to need repainting, or when wxWindow::Refresh
-// wxWindow::RefreshRect is called.  wxWindow::Update can be
-// called immediately after Refresh or RefreshRect to force the
-// paint event to be called immediately.  Use the
-// wxFULL_REPAINT_ON_RESIZE window style to have the entire
-// window included in the update region.  This is important in the
-// case where resizing the window changes the position of all of
-// the window graphics.
-void TemplateCanvas::OnPaint(wxPaintEvent& event)
-{
-    if (layer2_bm) {
-    	wxSize sz = GetClientSize();
-    	wxMemoryDC dc(*layer2_bm);
-        
-    	wxPaintDC paint_dc(this);
-        // this line cause flicking on windows machine
-    	//paint_dc.Clear();
-    	paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
-    	
-    	// Draw the the selection region if needed
-    	PaintSelectionOutline(paint_dc);
-    	
-    	// Draw optional control objects if needed, should be in memeory
-    	// PaintControls(paint_dc);
-    	
-    	// The resize event will ruin the position of scroll bars, so we reset the
-    	// position of scroll bars again.
-    	if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-    	if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
-        
-        isRepaint = false;
-    }
-    event.Skip();
-}
-
-void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
-{
-	wxSize sz = GetVirtualSize();
-	dc.SetPen(canvas_background_color);
-	dc.SetBrush(canvas_background_color);
-	dc.DrawRectangle(wxPoint(0,0), sz);
-	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
-	}
-	if (draw_sel_shps_by_z_val) {
-		DrawSelectableShapesByZVal(dc, disable_crosshatch_brush);
-	} else {
-		DrawSelectableShapes_gen_dc(dc);
-	}
-	
-	if (!draw_sel_shps_by_z_val) {
-		DrawHighlightedShapes_gen_dc(dc, disable_crosshatch_brush);
-	}
-	
-	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
-	}
-	
-}
-
-void TemplateCanvas::DrawLayers()
-{
-	if (layerbase_valid && layer2_valid && layer1_valid && layer0_valid)
-		return;
-  
-	wxSize sz = GetVirtualSize();
-	if (!layer0_bm) 
-        resizeLayerBms(sz.GetWidth(), sz.GetHeight());
-    
-    if (!layerbase_valid && isDrawBasemap)
-        DrawLayerBase();
-    
-    if (!layer0_valid)
-        DrawLayer0();
-    
-    if (!layer1_valid)
-        DrawLayer1();
-    
-    if (!layer2_valid) {
-        DrawLayer1();
-        DrawLayer2();
-    }
-    
-    
-    isRepaint = true;
-    Refresh(false);
-}
-
-bool TemplateCanvas::DrawBasemap(bool flag, int map_type)
-{
-    isDrawBasemap = flag;
-    
-    if (isDrawBasemap) {
-        if (basemap == 0) {
-            wxSize sz = GetVirtualSize();
-            int screenW = sz.GetWidth();
-            int screenH = sz.GetHeight();
-            OGRCoordinateTransformation *poCT = NULL;
-            
-            if (project->sourceSR != NULL) {
-                int nGCS = project->sourceSR->GetEPSGGeogCS();
-                if (nGCS != 4326) {
-                    OGRSpatialReference destSR;
-                    destSR.importFromEPSG(4326);
-                    poCT = OGRCreateCoordinateTransformation(project->sourceSR,
-                                                             &destSR);
-                }
-            }
-            
-            GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-            GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin,
-                                                   shps_orig_ymin, shps_orig_xmax,
-                                                   poCT);
-            if (poCT == NULL && !map->IsWGS84Valid()) {
-                isDrawBasemap = false;
-                return false;
-            } else {
-                basemap = new GDA::Basemap(screen, map, map_type,
-                                           GenUtils::GetBasemapCacheDir(),
-                                           poCT);
-                isResize = true;
-            }
-        } else {
-            basemap->SetupMapType(map_type);
-            isResize = true;
-        }
-    } else {
-        if (basemap) basemap->mapType=0;
-        // triger to draw plain map
-        layer0_valid = false;
-        isResize = true;
-    }
-    return true;
-}
-
-void TemplateCanvas::DrawLayerBase()
-{
-    if (isDrawBasemap) {
-        if (basemap != 0) {
-            if (basemap->IsReady()) {
-                basemap->Draw(basemap_bm);
-            } else {
-                wxMemoryDC dc(*basemap_bm);
-                dc.Clear();
-            }
-        }
-    }
-    layerbase_valid = true;
-	layer0_valid = false;
-}
-
-// Draw all solid background, background decorations and unhighlighted
-// shapes.
-void TemplateCanvas::DrawLayer0()
-{
-	//LOG_MSG("In TemplateCanvas::DrawLayer0");
-	wxSize sz = GetVirtualSize();
-	wxMemoryDC dc(*layer0_bm);
-    dc.Clear();
-    if (isDrawBasemap) {
-        dc.DrawBitmap(*basemap_bm, 0, 0);
-    } else {
-        dc.SetPen(canvas_background_color);
-        dc.SetBrush(canvas_background_color);
-        dc.DrawRectangle(wxPoint(0,0), sz);
-    }
-	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
-	}
-	if (draw_sel_shps_by_z_val) {
-		DrawSelectableShapesByZVal(dc);
-	} else {
-		DrawSelectableShapes(dc);
-	}
-	
-	layer0_valid = true;
-	layer1_valid = false;
-	
-	
-	
-}
-
-void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
-{
-	int cc_ts = cat_data.curr_canvas_tm_step;
-	int num_cats=cat_data.GetNumCategories(cc_ts);
-	
-	for (int cat=0; cat<num_cats; cat++) {
-		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
-		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
-			
-		std::vector<int> ids_copy;
-		colors[clr] = ids_copy;
-		
-		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-		
-		for (int i=0, iend=ids.size(); i<iend; i++) {
-			colors[clr].push_back(ids[i]);
-		}
-	}	
-}
-
-void TemplateCanvas::GetVizInfo(wxString& shape_type,  std::vector<wxString>& clrs, std::vector<double>& bins)
-{
-    
-	if (selectable_shps_type == points) {
-        shape_type = "POINT";
-	} else if (selectable_shps_type == polygons) {
-        shape_type = "POLYGON";
-	}
-   
-	int cc_ts = cat_data.curr_canvas_tm_step;
-	int num_cats=cat_data.GetNumCategories(cc_ts);
-	
-    if (num_cats >1) {
-	for (int cat=0; cat<num_cats; cat++) {
-		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
-		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
-			
-        clrs.push_back(clr);
-        bins.push_back(cat_data.GetCategoryMax(cc_ts, cat));
-    }
-    }
-}
-
-// Copy in layer0_bm and draw highlighted shapes.
-void TemplateCanvas::DrawLayer1()
-{
-	//LOG_MSG("In TemplateCanvas::DrawLayer1");
-	wxMemoryDC dc(*layer1_bm);
-    dc.Clear();
-    dc.DrawBitmap(*layer0_bm, 0, 0);
-	if (!draw_sel_shps_by_z_val)
-        DrawHighlightedShapes(dc);
-	layer1_valid = true;
-	layer2_valid = false;
-}
-
-void TemplateCanvas::DrawLayer2()
-{
-	//LOG_MSG("In TemplateCanvas::DrawLayer2");
-	wxMemoryDC dc(*layer2_bm);
-    dc.Clear();
-    dc.DrawBitmap(*layer1_bm, 0, 0);
-	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
-	}
-	layer2_valid = true;
-}
 
 /** Called only when draw_sel_shps_by_z_val is true.  This method renders
  all selectable shapes according to the order in the height permutation
@@ -3299,3 +3292,46 @@ void TemplateCanvas::SaveCategories(const wxString& title,
 	dlg.ShowModal();
 }
 
+
+void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
+{
+	int cc_ts = cat_data.curr_canvas_tm_step;
+	int num_cats=cat_data.GetNumCategories(cc_ts);
+	
+	for (int cat=0; cat<num_cats; cat++) {
+		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
+		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
+			
+		std::vector<int> ids_copy;
+		colors[clr] = ids_copy;
+		
+		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		
+		for (int i=0, iend=ids.size(); i<iend; i++) {
+			colors[clr].push_back(ids[i]);
+		}
+	}	
+}
+
+void TemplateCanvas::GetVizInfo(wxString& shape_type,  std::vector<wxString>& clrs, std::vector<double>& bins)
+{
+    
+	if (selectable_shps_type == points) {
+        shape_type = "POINT";
+	} else if (selectable_shps_type == polygons) {
+        shape_type = "POLYGON";
+	}
+   
+	int cc_ts = cat_data.curr_canvas_tm_step;
+	int num_cats=cat_data.GetNumCategories(cc_ts);
+	
+    if (num_cats >1) {
+	for (int cat=0; cat<num_cats; cat++) {
+		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
+		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
+			
+        clrs.push_back(clr);
+        bins.push_back(cat_data.GetCategoryMax(cc_ts, cat));
+    }
+    }
+}

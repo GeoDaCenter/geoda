@@ -221,6 +221,9 @@ void TemplateFrame::UpdateOptionMenuItems()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
 								  template_canvas->
 									IsSelectableOutlineVisible());
+	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_CANVAS_BACKGROUND_COLOR"),
+								  template_canvas->
+									IsUserBackgroundColorVisible());
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_DISPLAY_STATUS_BAR"),
 								  IsStatusBarVisible());
 }
@@ -258,6 +261,9 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
 								  template_canvas->
 									IsSelectableOutlineVisible());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_CANVAS_BACKGROUND_COLOR"),
+								  template_canvas->
+									IsUserBackgroundColorVisible());
 	
 }
 
@@ -740,6 +746,13 @@ void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 						  "Outline Color") ) {
 		template_canvas->SetSelectableOutlineColor(new_color);
 	}	
+}
+
+void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
+{
+	if (!template_canvas) return;
+	template_canvas->SetBackgroundColorVisible(
+						!template_canvas->user_canvas_background_color);
 }
 
 void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
