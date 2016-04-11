@@ -36,6 +36,10 @@ LineChartStats::LineChartStats(const vec_vec_dbl_type& Y_,
 Yname(Yname_), 
 Y_avg_min(0), 
 Y_avg_max(0),
+Y_sel_avg_min(0),
+Y_excl_avg_min(0),
+Y_sel_avg_max(0),
+Y_excl_avg_max(0),
 tms_subset0(tms_subset0_), 
 tms_subset1(tms_subset1_),
 compare_regimes(compare_regimes_), 
@@ -150,11 +154,15 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 			}
 		}
 		if (num_sel > 0) {
-			Y_sel_avg[t] /= num_sel;
+            if (num_sel > 0)
+                Y_sel_avg[t] /= num_sel;
+            else
+                Y_sel_avg[t] = 0.0;
+                
 			Y_sel_avg_valid = true;
 			if (t==0) {
-				Y_sel_avg_min = Y_sel_avg[0];
-				Y_sel_avg_max = Y_sel_avg[0];
+				Y_sel_avg_min = Y_sel_avg[t];
+				Y_sel_avg_max = Y_sel_avg[t];
 			}
 			if (Y_sel_avg[t] < Y_sel_avg_min) {
 				Y_sel_avg_min = Y_sel_avg[t];
@@ -163,11 +171,15 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 			}
 		}
 		if (num_excl > 0) {
-			Y_excl_avg[t] /= num_excl;
+            if (num_excl > 0)
+                Y_excl_avg[t] /= num_excl;
+            else
+                Y_excl_avg[t] = 0.0;
+            
 			Y_excl_avg_valid = true;
 			if (t==0) {
-				Y_excl_avg_min = Y_excl_avg[0];
-				Y_excl_avg_max = Y_excl_avg[0];
+				Y_excl_avg_min = Y_excl_avg[t];
+				Y_excl_avg_max = Y_excl_avg[t];
 			}
 			if (Y_excl_avg[t] < Y_excl_avg_min) {
 				Y_excl_avg_min = Y_excl_avg[t];

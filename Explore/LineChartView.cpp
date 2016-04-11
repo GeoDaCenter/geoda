@@ -1699,7 +1699,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			bag_szr->AddGrowableRow(i, 1);
 		}
 	}
-    panel_v_szr->AddSpacer(5);
+    //panel_v_szr->AddSpacer(5);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	panel_h_szr->RecalcSizes();
    

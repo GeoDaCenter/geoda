@@ -354,36 +354,36 @@ void LineChartCanvas::PopulateCanvas()
 																	
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 	
-	{
-		double y_min = 0;
-		double y_max = 100;
-		if (lcs.Y_avg_valid) {
-			y_min = lcs.Y_avg_min;
-			y_max = lcs.Y_avg_max;
-		}
-		if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_sel_avg_valid) {
-			if (lcs.Y_sel_avg_min < y_min) y_min = lcs.Y_sel_avg_min;
-			if (lcs.Y_sel_avg_max > y_max) y_max = lcs.Y_sel_avg_max;
-		}
-		if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_excl_avg_valid) {
-			if (lcs.Y_excl_avg_min < y_min) y_min = lcs.Y_excl_avg_min;
-			if (lcs.Y_excl_avg_max > y_max) y_max = lcs.Y_excl_avg_max;
-		}
-		double y_pad = 0.1 * (y_max - y_min);
-		double axis_min = y_min - y_pad;
-		double axis_max = y_max + y_pad;
-        
-		if (y_min >= 0 && axis_min < 0)
-            axis_min = 0;
-        
-        if (!def_y_min.IsEmpty())
-              def_y_min.ToDouble(&axis_min);
-        
-        if (!def_y_max.IsEmpty())
-              def_y_max.ToDouble(&axis_max);
-
-		axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
+	
+	double y_min = 0;
+	double y_max = 100;
+	if (lcs.Y_avg_valid) {
+		y_min = lcs.Y_avg_min;
+		y_max = lcs.Y_avg_max;
 	}
+	if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_sel_avg_valid) {
+		if (lcs.Y_sel_avg_min < y_min) y_min = lcs.Y_sel_avg_min;
+		if (lcs.Y_sel_avg_max > y_max) y_max = lcs.Y_sel_avg_max;
+	}
+	if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_excl_avg_valid) {
+		if (lcs.Y_excl_avg_min < y_min) y_min = lcs.Y_excl_avg_min;
+		if (lcs.Y_excl_avg_max > y_max) y_max = lcs.Y_excl_avg_max;
+	}
+	double y_pad = 0.1 * (y_max - y_min);
+	double axis_min = y_min - y_pad;
+	double axis_max = y_max + y_pad;
+    
+	if (y_min >= 0 && axis_min < 0)
+        axis_min = 0;
+    
+    if (!def_y_min.IsEmpty())
+          def_y_min.ToDouble(&axis_min);
+    
+    if (!def_y_max.IsEmpty())
+          def_y_max.ToDouble(&axis_max);
+
+	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
+	
 	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
 	scaleY = 100.0 / (axis_scale_y.scale_range);
 	
@@ -714,13 +714,14 @@ void LineChartCanvas::PopulateCanvas()
 	
 	if (y_pts) delete [] y_pts;
 	
-	ResizeSelectableShps();
+	//ResizeSelectableShps();
+    Refresh(false);
 	LOG_MSG("Exiting LineChartCanvas::PopulateCanvas");
 }
 
 void LineChartCanvas::UpdateMargins()
 {
-	virtual_screen_marg_top = 3;//20;
+	virtual_screen_marg_top = 10;//20;
 	virtual_screen_marg_right = 50;//20;//20;
 	virtual_screen_marg_bottom = 40;//45;
 	virtual_screen_marg_left = 50;//45;
