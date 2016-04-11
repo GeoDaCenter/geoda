@@ -292,7 +292,7 @@ void LineChartFrame::InitVariableChoiceCtrl()
 
 void LineChartFrame::InitGroupsChoiceCtrl()
 {
-    choice_groups->Append("Selected vs. Excluded");
+    choice_groups->Append("Selected vs. Unselected");
     choice_groups->Append("All");
     choice_groups->SetSelection(0);
     
@@ -637,13 +637,13 @@ void LineChartFrame::InitGroup12ChoiceCtrl()
     if (group_selection == 0 ) {
         choice_group1->Clear();
         choice_group1->Append("Selected");
-        choice_group1->Append("Excluded");
+        choice_group1->Append("Unselected");
         choice_group1->SetSelection(0);
         choice_group1->Enable(true);
         
         choice_group2->Clear();
         choice_group2->Append("Selected");
-        choice_group2->Append("Excluded");
+        choice_group2->Append("Unselected");
         choice_group2->SetSelection(1);
         choice_group2->Enable(true);
     } else {
@@ -2016,7 +2016,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         		s<< "</tr>";
         		s<< "<tr>";
             } else {
-                s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
+                s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Unselected</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm1_dark) << ">Period 1</font></td>";
             
         		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
         		s<< td_s1_mean;
@@ -2028,7 +2028,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         
         
         if (cmp_r)
-            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font></td>";
+            s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Unselected</font></td>";
         if (cmp_t)
             s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
         
@@ -2051,7 +2051,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         		s<< "</tr>";
                 
             } else {
-        		s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Excluded</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
+        		s<< "<td align=\"left\"><font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_exl_dark) << ">Unselected</font>/<font color=" << GdaColorUtils::ToHexColorStr(GdaConst::ln_cht_clr_tm2_dark) << ">Period 2</font></td>";
         		s<< "<td align=\"right\">" << lcs.excl_sz_i << "</td>";
         		s<< td_s3_mean;
         		s<< "<td align=\"right\">" << sd3 << "</td>";
