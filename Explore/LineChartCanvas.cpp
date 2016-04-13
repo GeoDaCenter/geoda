@@ -714,7 +714,7 @@ void LineChartCanvas::PopulateCanvas()
 	
 	if (y_pts) delete [] y_pts;
 	
-	//ResizeSelectableShps();
+	ResizeSelectableShps();
     Refresh(false);
 	LOG_MSG("Exiting LineChartCanvas::PopulateCanvas");
 }
