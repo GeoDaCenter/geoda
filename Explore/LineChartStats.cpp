@@ -161,8 +161,8 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
                 
 			Y_sel_avg_valid = true;
 			if (t==0) {
-				Y_sel_avg_min = Y_sel_avg[t];
-				Y_sel_avg_max = Y_sel_avg[t];
+				Y_sel_avg_min = Y_sel_avg[0];
+				Y_sel_avg_max = Y_sel_avg[0];
 			}
 			if (Y_sel_avg[t] < Y_sel_avg_min) {
 				Y_sel_avg_min = Y_sel_avg[t];
@@ -178,8 +178,8 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
             
 			Y_excl_avg_valid = true;
 			if (t==0) {
-				Y_excl_avg_min = Y_excl_avg[t];
-				Y_excl_avg_max = Y_excl_avg[t];
+				Y_excl_avg_min = Y_excl_avg[0];
+				Y_excl_avg_max = Y_excl_avg[0];
 			}
 			if (Y_excl_avg[t] < Y_excl_avg_min) {
 				Y_excl_avg_min = Y_excl_avg[t];
