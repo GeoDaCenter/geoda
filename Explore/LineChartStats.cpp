@@ -118,6 +118,11 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
                                         int default_Y_sel_avg_valid,
                                         int default_Y_excl_avg_valid)
 {
+    Y_sel_avg_min = 0;
+    Y_sel_avg_max = 0;
+    Y_excl_avg_min = 0;
+    Y_excl_avg_max = 0;
+    
 	Y_sel_avg_valid = false;
 	Y_excl_avg_valid = false;
 	size_t tms=Y.size();

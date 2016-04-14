@@ -582,7 +582,7 @@ void LineChartCanvas::PopulateCanvas()
 		}
 		
 		// Draw everything else
-        if (lcs.Y_avg_valid && lcs.Y_excl_avg_valid == lcs.Y_sel_avg_valid) {
+        if (lcs.Y_avg_valid) {
 			for (size_t t=0; t<tms; ++t) {
 				double fracX = ((double) t)/((double) (tms-1));
 				double x = fracX * 100.0;
@@ -647,8 +647,6 @@ void LineChartCanvas::PopulateCanvas()
 				sel_circs.push_back(c);
 			}
 		}
-		
-		
 	}
 	
 	if (!time_variant) {
