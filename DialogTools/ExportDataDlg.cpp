@@ -248,7 +248,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString tmp_ds_name;
     
 	try{
-        OGRSpatialReference* spatial_ref; 
+        OGRSpatialReference* spatial_ref = NULL;
         
         if ( project_p == NULL ) {
             //project does not exist, could be created a datasource from
