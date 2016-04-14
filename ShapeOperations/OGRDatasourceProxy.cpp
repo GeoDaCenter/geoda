@@ -59,8 +59,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 	if (!ds) {
         // try without UPDATE
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
-        if (!ds) {
+        wxString drv_name(ds->GetDriverName());
+        if (!ds || (drv_name == "OpenFileGDB")) {
             // raise open fialed
+            // we don't use OpenFileGDB since it has some bugs
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
@@ -92,7 +94,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "The format \"" << format << "\" is not supprted by GeoDa";
+		error_message << "The format \"" << format << "\" is not supported (or read-only) by GeoDa";
         if (GeneralWxUtils::isMac()) {
             error_message << " on Mac OSX";
         } else if (GeneralWxUtils::isWindows()) {
@@ -100,7 +102,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
         } else if (GeneralWxUtils::isUnix()) {
             error_message << " on Unix";
         }
-        error_message <<".\n\n Note: Please check if the related plugin has been installed.";
+        error_message <<".\n\nNote: Please check if the related plugin has been installed.";
 		throw GdaException(error_message.str().c_str());
 	}
 	
@@ -297,7 +299,7 @@ void OGRDatasourceProxy::CreateDataSource(string format,
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current OGR dirver " + format + " is not supprted by GeoDa.\n" << CPLGetLastErrorMsg();
+		error_message << "Current OGR dirver " + format + " is not supported by GeoDa.\n" << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
 	}
 	
