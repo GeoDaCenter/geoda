@@ -117,6 +117,7 @@ public:
 	void OnSelectPeriod0(wxCommandEvent& event);
 	void OnSelectPeriod1(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
+    void OnUseAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxisPrecision(wxCommandEvent& event);
 

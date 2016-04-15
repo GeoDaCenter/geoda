@@ -75,7 +75,8 @@ void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
         wxMessageBox("Please enter a valid Max value for Y axis");
         return;
     }
-   
+  
+    /*
     if (min_val > o_min_val) {
         wxString msg;
         msg << "Please make sure the input Min value <= " << o_min_val;
@@ -91,6 +92,7 @@ void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
         return;
         
     }
+    */
     
 	wxString _min_val = m_min_val->GetValue();
     wxString _max_val = m_max_val->GetValue();

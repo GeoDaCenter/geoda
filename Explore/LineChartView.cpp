@@ -237,6 +237,9 @@ has_excluded(1)
                             wxCommandEventHandler(LineChartFrame::OnSaveDummyTable),
                             NULL, this);
     
+    Connect(XRCID("ID_USE_ADJUST_Y_AXIS"),
+            wxEVT_MENU,
+            wxCommandEventHandler(LineChartFrame::OnUseAdjustYAxis));
     Connect(XRCID("ID_ADJUST_Y_AXIS"),
             wxEVT_MENU,
             wxCommandEventHandler(LineChartFrame::OnAdjustYAxis));
@@ -421,7 +424,7 @@ void LineChartFrame::OnSelectionChange()
     // Update draw
     UpdateDataMapFromVarMan();
     SetupPanelForNumVariables(1);
-    
+   
     Refresh();
 }
 
@@ -732,8 +735,9 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 								  compare_r_and_t);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"),
 								  display_stats);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_ADJUST_Y_AXIS"),
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_ADJUST_Y_AXIS"),
                                   use_def_y_range);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_ADJUST_Y_AXIS"), use_def_y_range);
     
     if (var_man.IsAnyTimeVariant() == false) {
         GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COMPARE_TIME_PERIODS"), false);
@@ -742,42 +746,43 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
+void LineChartFrame::OnUseAdjustYAxis(wxCommandEvent& event)
 {
+    
     if (use_def_y_range == false) {
-        
-        double y_axis_min;
-        double y_axis_max;
-        
-        for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-            y_axis_min = line_charts[i]->GetYAxisMinVal();
-            y_axis_max = line_charts[i]->GetYAxisMaxVal();
-        }
-        
-        AdjustYAxisDlg dlg(y_axis_min, y_axis_max, this);
-        if (dlg.ShowModal () != wxID_OK)
-            return;
-        
-        def_y_min = dlg.s_min_val;
-        def_y_max = dlg.s_max_val;
-        
-        for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-            line_charts[i]->UpdateYAxis(def_y_min, def_y_max);
-            line_charts[i]->UpdateAll();
-        }
-        
         use_def_y_range = true;
+        OnAdjustYAxis(event);
         
     } else {
         use_def_y_range = false;
-        
         for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
             line_charts[i]->UpdateYAxis();
             line_charts[i]->UpdateAll();
         }
     }
-    
+}
 
+void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
+{
+    double y_axis_min = 0;
+    double y_axis_max = 0;
+    
+    for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        y_axis_min = line_charts[i]->GetYAxisMinVal();
+        y_axis_max = line_charts[i]->GetYAxisMaxVal();
+    }
+    
+    AdjustYAxisDlg dlg(y_axis_min, y_axis_max, this);
+    if (dlg.ShowModal () != wxID_OK)
+        return;
+    
+    def_y_min = dlg.s_min_val;
+    def_y_max = dlg.s_max_val;
+    
+    for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->UpdateYAxis(def_y_min, def_y_max);
+        line_charts[i]->UpdateAll();
+    }
     
     Refresh();
 }
@@ -1682,6 +1687,14 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			
 			LineChartCanvas* canvas = 0;
 			canvas = new LineChartCanvas(panel, this, project, *lcs_p, this);
+            if (use_def_y_range) {
+                canvas->UpdateYAxis(def_y_min, def_y_max);
+                canvas->UpdateAll();
+            }
+            if (def_y_precision !=1) {
+                canvas->UpdateYAxisPrecision(def_y_precision);
+                canvas->UpdateAll();
+            }
 			bag_szr->Add(canvas, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 			line_charts.push_back(canvas);
 		}
