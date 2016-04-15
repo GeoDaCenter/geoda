@@ -161,13 +161,13 @@ void ConnectDatasourceDlg::OnLookupDSTableBtn( wxCommandEvent& event )
         if( datasource!= NULL &&
             msg.StartsWith("Failed to open data source") ) {
             if ( datasource->GetType() == GdaConst::ds_oci ){
-               wxExecute("open https://geodacenter.asu.edu/geoda/setup-oracle");
+               wxExecute("open http://geodacenter.github.io/setup-oracle.html");
             } else if ( datasource->GetType() == GdaConst::ds_esri_arc_sde ){
-               wxExecute("open https://geodacenter.asu.edu/geoda/setup-arcsde");
+               wxExecute("open http://geodacenter.github.io/etup-arcsde.html");
 			} else if ( datasource->GetType() == GdaConst::ds_esri_file_geodb ){
-				wxExecute("open https://geodacenter.asu.edu/geoda/setup-esri-fgdb");
+				wxExecute("open http://geodacenter.github.io/setup-esri-fgdb.html");
             } else {
-				wxExecute("open https://geodacenter.asu.edu/geoda/formats");
+				wxExecute("open http://geodacenter.github.io/formats.html");
 			}
         }
 	}

@@ -499,10 +499,9 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			wxString m;
 			m << "Variable name \"" << new_str << "\" is either a duplicate ";
 			m << "or is invalid. Please enter an alternative, non-duplicate ";
-			m << "variable name. A valid variable name is between one and ";
-			m << "ten characters long. The first character must be a letter, ";
+			m << "variable name. The first character must be a letter, ";
 			m << "and the remaining characters can be either letters, ";
-			m << "numbers or underscores.";
+			m << "numbers or underscores. For DBF table, a valid variable name is between one and ten characters long.";
 			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();

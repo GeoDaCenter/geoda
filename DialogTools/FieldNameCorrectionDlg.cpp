@@ -43,16 +43,23 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 : wxScrolledWindow(parent, id), ds_type(ds_type), need_correction(false)
 {
 	vector<wxString> merged_field_names;
-	set<wxString> bad_fnames, dup_fname;
+	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
+    
 	for (int i=0; i < all_fname.size(); i++) {
 		wxString field_name = all_fname[i];
 		field_names_dict[field_name] = field_name;
+        
 		if (!IsFieldNameValid(field_name) ) {
 			bad_fnames.insert(field_name);
-			merged_field_names.push_back(field_name);
-		}
+            
+        } else if (uniq_upper_fname.find(field_name.Upper()) !=
+                   uniq_upper_fname.end()) {
+            dup_fname.insert(field_name);
+        }
+        uniq_upper_fname.insert(field_name.Upper());
+        merged_field_names.push_back(field_name);
 	}
-	if (!bad_fnames.empty()) {
+	if (!bad_fnames.empty() || !dup_fname.empty()) {
 		need_correction = true;
         Init(merged_field_names, dup_fname, bad_fnames);
     }

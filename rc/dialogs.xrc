@@ -7110,7 +7110,7 @@
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                       <object class="wxHyperlinkCtrl">
-                        <url>https://geodacenter.asu.edu/geoda/formats</url>
+                        <url>http://geodacenter.github.io/formats.html</url>
                       </object>
                     </object>
                     <object class="sizeritem">
@@ -7575,7 +7575,7 @@
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                       <object class="wxHyperlinkCtrl">
-                        <url>https://geodacenter.asu.edu/geoda/formats</url>
+                        <url>http://geodacenter.github.io/formats.html</url>
                       </object>
                     </object>
                     <object class="sizeritem">

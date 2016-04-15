@@ -290,10 +290,20 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
     for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
         wxString inc_n = m_include_list->GetString(i);
         merged_field_names.push_back(inc_n);
-        if (table_fnames.find(inc_n) != table_fnames.end())
-            dup_merged_field_names.insert(inc_n);
-        else if (!table_int->IsValidDBColName(inc_n))
+        
+        if (!table_int->IsValidDBColName(inc_n)) {
             bad_merged_field_names.insert(inc_n);
+        } else {
+            // Detect duplicate field names
+            std::set<wxString>::iterator it;
+            for (it = table_fnames.begin(); it != table_fnames.end(); it ++) {
+                wxString nm = *it;
+                if (nm.Upper() == inc_n.Upper()) {
+                    dup_merged_field_names.insert(inc_n);
+                    break;
+                }
+            }
+        }
     }
     
     if ( bad_merged_field_names.size() + dup_merged_field_names.size() > 0) {
@@ -326,7 +336,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         vector<wxString> merged_field_names =
             GetSelectedFieldNames(merged_fnames_dict);
         
-        if (merged_field_names.empty()) return;
+        if (merged_field_names.empty())
+            return;
         
         int n_rows = table_int->GetNumberRows();
         int n_merge_field = merged_field_names.size();

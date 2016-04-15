@@ -73,12 +73,13 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	new_id_var_name = new_id_var->GetValue();
 	new_id_var_name.Trim(true);
 	new_id_var_name.Trim(false);
-	
-	if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+
+    bool m_name_valid = table_int->IsValidDBColName(new_id_var_name);
+	//if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+    if (!m_name_valid) {
 		wxString msg;
 		msg << "Error: \"" + new_id_var_name + "\" is an invalid ";
-		msg << "variable name.  A valid variable name is between one and ten ";
-		msg << "characters long.  The first character must be alphabetic,";
+		msg << "variable name. The first character must be alphabetic,";
 		msg << " and the remaining characters can be either alphanumeric ";
 		msg << "or underscores.";
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );

@@ -306,8 +306,6 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
         vector<wxString> all_fnames;
         int time_steps = table->GetTimeSteps();
         
-
-        
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             for ( int t=0; t < time_steps; t++ ) {
                 wxString fname = table->GetColName(id, t);
@@ -320,8 +318,8 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                 field_dict[fname] = make_pair(id, t);
             }
         }
-        // try to correct
         
+        // try to correct
         FieldNameCorrectionDlg fname_correct_dlg(ds_type, all_fnames);
         if ( fname_correct_dlg.NeedCorrection()) {
             if (fname_correct_dlg.ShowModal() != wxID_OK) {
