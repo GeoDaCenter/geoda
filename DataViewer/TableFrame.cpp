@@ -90,11 +90,12 @@ popup_col(-1)
 {
 	LOG_MSG("Entering TableFrame::TableFrame");
 	
+	DisplayStatusBar(true);
 	wxString new_title(title);
 	new_title << " - " << project->GetProjectTitle();
 	SetTitle(new_title);
 	supports_timeline_changes = true;
-	table_base = new TableBase(project);
+	table_base = new TableBase(project, this);
 	TableInterface* table_int = project->GetTableInt();
 	grid = new wxGrid(this, wxID_ANY, wxPoint(0,0), wxDefaultSize);
 	grid->SetDefaultColSize((grid->GetDefaultColSize() * 4)/3);
@@ -178,6 +179,8 @@ TableFrame::~TableFrame()
 	LOG_MSG("In TableFrame::~TableFrame");
 	DeregisterAsActive();
 }
+
+
 
 void TableFrame::OnActivate(wxActivateEvent& event)
 {

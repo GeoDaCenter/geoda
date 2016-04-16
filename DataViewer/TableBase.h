@@ -31,12 +31,13 @@ class TableInterface;
 class TableState;
 class TimeState;
 class HighlightState;
+class TemplateFrame;
 
 class TableBase : public TableStateObserver, public TimeStateObserver,
 public HighlightStateObserver,  public wxGridTableBase
 {
 public:
-	TableBase(Project* _project);
+	TableBase(Project* _project, TemplateFrame* t_frame);
 	virtual ~TableBase();
 	
 	virtual bool FromGridIsSelectedRow(int row);
@@ -86,6 +87,8 @@ public:
 	virtual void notifyColMove();
 	virtual TableInterface* GetTableInt();
 	
+    void UpdateStatusBar();
+    
 private:
 	HighlightState* highlight_state;
 	std::vector<bool>& hs; //shortcut to HighlightState::highlight, read only!
@@ -94,6 +97,7 @@ private:
 	TableInterface* table_int;
 	TimeState* time_state;
     Project* project;
+	TemplateFrame* template_frame;
     
 	int rows;
     int cols;

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/statusbr.h>
 #include <boost/foreach.hpp>
 #include <vector>
 #include "../HighlightState.h"
@@ -29,6 +30,7 @@
 #include "../Project.h"
 #include "../logger.h"
 #include "../SaveButtonManager.h"
+#include "TableFrame.h"
 
 class TableCellAttrProvider : public wxGridCellAttrProvider
 {
@@ -99,7 +101,7 @@ wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 }
 
 
-TableBase::TableBase(Project* _project)
+TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	: project(_project), highlight_state(_project->GetHighlightState()),
 	hs(_project->GetHighlightState()->GetHighlight()),
 	table_state(_project->GetTableState()), table_int(_project->GetTableInt()),
@@ -108,6 +110,7 @@ TableBase::TableBase(Project* _project)
 	sorting_col(-1), sorting_ascending(false)
 {
 	LOG_MSG("Entering TableBase::TableBase");
+    template_frame = t_frame;
 	SortByDefaultDecending();
 	
     for(int i=0;i<cols;i++) 
@@ -117,6 +120,8 @@ TableBase::TableBase(Project* _project)
 	highlight_state->registerObserver(this);
 	table_state->registerTableBase(this);
 	time_state->registerObserver(this);
+    
+    UpdateStatusBar();
 	LOG_MSG("Exiting TableBase::TableBase");
 }
 
@@ -126,6 +131,19 @@ TableBase::~TableBase()
 	highlight_state->removeObserver(this);
 	table_state->removeObserver(this);
 	time_state->removeObserver(this);
+}
+
+void TableBase::UpdateStatusBar()
+{
+    wxStatusBar* sb = template_frame->GetStatusBar();
+    if (!sb) return;
+    wxString s;
+    s << "#observations=" << project->GetNumRecords() << " ";
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+    }
+    
+    sb->SetStatusText(s);
 }
 
 /** Only wxGrid should call this, others should use Selected(int row) */
@@ -468,6 +486,7 @@ wxString TableBase::GetColLabelValue(int col)
 void TableBase::update(HLStateInt* o)
 {
 	if (GetView()) GetView()->Refresh();
+    UpdateStatusBar();
 }
 
 void TableBase::update(TableState* o)
