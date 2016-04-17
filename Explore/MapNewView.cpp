@@ -1350,6 +1350,8 @@ void MapCanvas::UpdateStatusBar()
 	if (!sb) 
         return;
 	wxString s;
+    s << "#obs=" << project->GetNumRecords() <<" ";
+    
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows
 		s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
