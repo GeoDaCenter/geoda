@@ -7,7 +7,7 @@
 # ./build.sh 8 1 (no debug)
 #############################################################################
 CPUS=2
-NODEBUG=0
+NODEBUG=1
 
 if ! type "cmake" > /dev/null; then
     echo "You need to install cmake to run this script."
