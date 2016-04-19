@@ -143,7 +143,7 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 #########################################################################
 
 LIB_NAME=curl-7.46.0
-LIB_CHECKER=libcurl.a1
+LIB_CHECKER=libcurl.a
 LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
 LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
@@ -573,9 +573,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         chmod +x configure
         chmod +x install-sh
         ./configure
-        #cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
-        #cp GDALmake64.opt GDALmake.opt
-        #make clean
+        cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
+        cp GDALmake64.opt GDALmake.opt
+        make clean
         $MAKER
         make install
         #cd ogr/ogrsf_frmts/oci

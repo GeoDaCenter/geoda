@@ -116,14 +116,26 @@ public:
     
     
 public:
-    virtual void resizeLayerBms(int width, int height);
-    virtual void OnPaint(wxPaintEvent& event);
+	bool DrawBasemap(bool flag, int map_type);
 	virtual void DrawLayerBase();
+	virtual void DrawLayers();
+#ifdef __linux__
+	// in linux, use old style drawing without transparency support
+	// the commented out functions are inherited from TemplateCanvas class
+	// TODO will be replace by wxImage drawing code
+    	virtual void resizeLayerBms(int width, int height);
+	virtual void DrawLayer0();
+	//virtual void DrawLayer1();
+	//virtual void DrawLayer2();
+	//virtual void OnPaint(wxPaintEvent& event);
+#else
+    	virtual void resizeLayerBms(int width, int height);
 	virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
-	virtual void DrawLayers();
-    bool DrawBasemap(bool flag, int map_type);
+	virtual void OnPaint(wxPaintEvent& event);
+#endif
+
     
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
