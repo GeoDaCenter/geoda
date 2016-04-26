@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,8 +20,10 @@
 #ifndef __GEODA_CENTER_GEODA_H__
 #define __GEODA_CENTER_GEODA_H__
 
-#include <string>
 #include <list>
+#include <string>
+#include <vector>
+#include <boost/uuid/uuid.hpp>
 #include <wx/arrstr.h>
 #include <wx/app.h>
 #include <wx/clipbrd.h>
@@ -32,10 +34,11 @@
 #include <wx/ipc.h>
 #include <wx/string.h>
 #include <wx/snglinst.h>
+#include <wx/timer.h>
 #include <wx/toolbar.h>
+#include <wx/xrc/xh_auitoolb.h>
 
 // Forward Declarations
-class GalWeight;
 class ProgressDlg;
 class Project;
 class CatClassifFrame;
@@ -44,6 +47,7 @@ class GdaFrame;
 class GdaServer;
 class GdaClient;
 class GdaConnection;
+class LineChartFrame;
 
 /** Main appilcation class. */
 class GdaApp: public wxApp
@@ -75,10 +79,12 @@ public:
 			const wxPoint& pos, const wxSize& size, long style);
 	virtual ~GdaFrame();
 	
+    
 	void EnableTool(const wxString& id_str, bool enable);
 	void EnableTool(int xrc_id, bool enable);
-	GalWeight* GetGal();
+	boost::uuids::uuid GetWeightsId(const wxString& caption = "Choose Weights");
 
+    void OnSize(wxSizeEvent& event);
 	void OnKeyEvent(wxKeyEvent& event);
 	void OnToolOpenNewTable(wxCommandEvent& event);
 	void OnOpenNewTable();
@@ -87,14 +93,37 @@ public:
 	void OnMenuClose(wxCommandEvent& event);
 	void OnCloseProjectEvt(wxCommandEvent& event);
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
-
+	
+	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
+	void OnNewProjectFromShp(wxCommandEvent& event);
+	void OnNewProjectFromSqlite(wxCommandEvent& event);
+	void OnNewProjectFromCsv(wxCommandEvent& event);
+	void OnNewProjectFromDbf(wxCommandEvent& event);
+	void OnNewProjectFromGdb(wxCommandEvent& event);
+	void OnNewProjectFromJson(wxCommandEvent& event);
+	void OnNewProjectFromGml(wxCommandEvent& event);
+	void OnNewProjectFromKml(wxCommandEvent& event);
+	void OnNewProjectFromMapinfo(wxCommandEvent& event);
+	void OnNewProjectFromXls(wxCommandEvent& event);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
 	void OnSaveProject(wxCommandEvent& event);
 	void OnSaveAsProject(wxCommandEvent& event);
 	
 	void OnShowProjectInfo(wxCommandEvent& event);
+	
+	void OnHtmlEntry(int entry);
+	void OnHtmlEntry0(wxCommandEvent& event);
+	void OnHtmlEntry1(wxCommandEvent& event);
+	void OnHtmlEntry2(wxCommandEvent& event);
+	void OnHtmlEntry3(wxCommandEvent& event);
+	void OnHtmlEntry4(wxCommandEvent& event);
+	void OnHtmlEntry5(wxCommandEvent& event);
+	void OnHtmlEntry6(wxCommandEvent& event);
+	void OnHtmlEntry7(wxCommandEvent& event);
+	void OnHtmlEntry8(wxCommandEvent& event);
+	void OnHtmlEntry9(wxCommandEvent& event);
 	
 	void OnSelectWithRect(wxCommandEvent& event);
 	void OnSelectWithCircle(wxCommandEvent& event);
@@ -106,23 +135,38 @@ public:
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
 	
+    void OnChangeMapTransparency(wxCommandEvent& event);
+    void OnCleanBasemap(wxCommandEvent& event);
+    void OnSetNoBasemap(wxCommandEvent& event);
+    void OnSetBasemap1(wxCommandEvent& event);
+    void OnSetBasemap2(wxCommandEvent& event);
+    void OnSetBasemap3(wxCommandEvent& event);
+    void OnSetBasemap4(wxCommandEvent& event);
+    void OnSetBasemap5(wxCommandEvent& event);
+    void OnSetBasemap6(wxCommandEvent& event);
+    void OnSetBasemap7(wxCommandEvent& event);
+    void OnSetBasemap8(wxCommandEvent& event);
+    void OnBasemapConfig(wxCommandEvent& event);
+    
 	void OnSaveCanvasImageAs(wxCommandEvent& event);
 	void OnSaveSelectedToColumn(wxCommandEvent& event);
 	void OnCanvasBackgroundColor(wxCommandEvent& event);
+	void OnLegendUseScientificNotation(wxCommandEvent& event);
 	void OnLegendBackgroundColor(wxCommandEvent& event);
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
 	void OnSelectableOutlineVisible(wxCommandEvent& event);
 	void OnHighlightColor(wxCommandEvent& event);
 	
-	void OnSetDefaultVariableSettings(wxCommandEvent& WXUNUSED(event));
 	void OnCopyImageToClipboard(wxCommandEvent& event);
 	void OnCopyLegendToClipboard(wxCommandEvent& event);
 	
-	void OnToolsWeightsOpen(wxCommandEvent& event);  
+	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
 	void OnConnectivityHistView(wxCommandEvent& event);
-
+	void OnConnectivityMapView(wxCommandEvent& event);
+	void ShowConnectivityMapView(boost::uuids::uuid weights_id);
+	
 	void OnMapChoices(wxCommandEvent& event);
 	
 	void OnShapePointsFromASCII(wxCommandEvent& event);
@@ -133,10 +177,11 @@ public:
 	void OnShowTimeChooser(wxCommandEvent& event);
 	void OnShowDataMovie(wxCommandEvent& event);
 	void OnShowCatClassif(wxCommandEvent& event);
-	CatClassifFrame* GetCatClassifFrame();
+	CatClassifFrame* GetCatClassifFrame(bool useScientificNotation=false);
 	void OnVarGroupingEditor(wxCommandEvent& event);
 	void OnTimeEditor(wxCommandEvent& event);
 	void OnMoveSelectedToTop(wxCommandEvent& event);
+	void OnInvertSelection(wxCommandEvent& event);
 	void OnClearSelection(wxCommandEvent& event);
 	void OnRangeSelection(wxCommandEvent& event);
 	void OnFieldCalculation(wxCommandEvent& event);
@@ -144,6 +189,7 @@ public:
 	void OnAddCol(wxCommandEvent& event);
 	void OnDeleteCol(wxCommandEvent& event);
 	void OnEditFieldProperties(wxCommandEvent& event);
+	void OnChangeFieldType(wxCommandEvent& event);
 	void OnMergeTableData(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
@@ -151,6 +197,8 @@ public:
 	void OnGeneratePointShpFile(wxCommandEvent& event);
 	
 	void OnRegressionClassic(wxCommandEvent& event);
+	
+	void OnPublish(wxCommandEvent& event);
 
 	void OnCondPlotChoices(wxCommandEvent& event);
 	void OnShowConditionalMapView(wxCommandEvent& event);
@@ -166,24 +214,30 @@ public:
 	void OnCartogramImprove6(wxCommandEvent& event);
 
 	void OnExploreHist(wxCommandEvent& event);
-	void OnExploreScatterplot(wxCommandEvent& event);
 	void OnExploreScatterNewPlot(wxCommandEvent& event);
 	void OnExploreBubbleChart(wxCommandEvent& event);
+	void OnExploreScatterPlotMat(wxCommandEvent& event);
 	void OnExploreTestMap(wxCommandEvent& event);
 	void OnExploreBox(wxCommandEvent& event);
 	void OnExploreNewBox(wxCommandEvent& event);
 	void OnExplorePCP(wxCommandEvent& event);
 	void OnExplore3DP(wxCommandEvent& event);
-
+	void OnExploreLineChart(wxCommandEvent& event);
+	void OnExploreCovScatterPlot(wxCommandEvent& event);
+	void OnExploreCorrelogram(wxCommandEvent& event);
+	
 	void OnMoranMenuChoices(wxCommandEvent& event);
 	void OnOpenMSPL(wxCommandEvent& event);
 	void OnOpenGMoran(wxCommandEvent& event);
+    void OnOpenDiffMoran(wxCommandEvent& event);
 	void OnOpenMoranEB(wxCommandEvent& event);
 	void OnLisaMenuChoices(wxCommandEvent& event);
+	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
+	void OnOpenGetisOrdStar(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
@@ -504,7 +558,6 @@ public:
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
-	void OnAddNeighborsToSelection(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);
@@ -520,9 +573,16 @@ public:
 	void OnViewStandardizedData(wxCommandEvent& event);
 	void OnViewOriginalData(wxCommandEvent& event);
 	// ScatterPlot specific callbacks
+	void OnViewLinearSmoother(wxCommandEvent& event);
+	void OnViewLowessSmoother(wxCommandEvent& event);
+	void OnEditLowessParams(wxCommandEvent& event);
+	void OnEditVariables(wxCommandEvent& event);
 	void OnViewRegimesRegression(wxCommandEvent& event);
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnViewRegressionSelected(wxCommandEvent& event);
+	void OnCompareRegimes(wxCommandEvent& event);
+	void OnCompareTimePeriods(wxCommandEvent& event);
+	void OnCompareRegAndTmPer(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
 	void OnShowAxesThroughOrigin(wxCommandEvent& event);
 	// BoxPlot and Histogram specific callback
@@ -588,6 +648,7 @@ public:
 	void OnEncodingEUC_JP(wxCommandEvent& event);
 	void OnEncodingEUC_KR(wxCommandEvent& event);
     void SetEncodingCheckmarks(wxFontEncoding e);
+    void SetBasemapCheckmarks(int idx);
     
 	void DisplayRegression(const wxString dump);
 
@@ -597,6 +658,19 @@ public:
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
 	static GdaFrame* GetGdaFrame() { return gda_frame; }
 	static bool IsProjectOpen();
+	
+	struct MenuItem {
+		MenuItem(const wxString& t, const wxString& u) :menu_title(t), url(u){};
+		wxString menu_title; wxString url; };
+	static std::vector<MenuItem> htmlMenuItems;
+	static bool GetHtmlMenuItems();
+	
+	// GetHtmlMenuItems helper functions
+	static bool GetHtmlMenuItemsJson();
+	static bool GetHtmlMenuItemsSqlite();
+	static int sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
+										  char **argv, char **azColName);
+	
 
 private:
 	static void SetProjectOpen(bool open);
@@ -604,7 +678,7 @@ private:
 	static GdaFrame* gda_frame;
 	static Project* project_p;
 	static bool projectOpen;
-	static std::list<wxToolBar*> toolbar_list; // not currently used
+	static std::list<wxAuiToolBar*> toolbar_list; // not currently used
 	
 	DECLARE_EVENT_TABLE()
 };
@@ -626,6 +700,24 @@ public:
 	virtual ~GdaConnection() {}
 	
 	virtual bool OnExec(const wxString &topic, const wxString &data);
+};
+
+/** This helper class is a workaround for an issue that is currently unique
+ to LineChartCanvas, but might apply to other views in the future.
+ Several menu items in LineChartCanvas result in an action that deletes
+ the current LineChartCanvas from the parent Frame.  This timer class
+ decouples the this action from the original wxWidgets menu popup callback
+ by calling the indended callback again after a 100 ms delay. */
+class LineChartEventDelay : public wxTimer
+{
+public:
+	LineChartEventDelay();
+	LineChartEventDelay(LineChartFrame* lc_frame, const wxString& cb_name);
+	virtual ~LineChartEventDelay();
+	
+	LineChartFrame* lc_frame;
+	wxString cb_name;
+	virtual void Notify();
 };
 
 #endif

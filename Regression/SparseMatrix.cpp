@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,10 +23,7 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/GwtWeight.h"
 
 #include "mix.h"
 #include "SparseMatrix.h"
@@ -71,14 +68,12 @@ void SparseMatrix::createGAL(const GalElement* my_gal, int obs)
     for (cnt = 0; cnt < dim; ++cnt) { // for each row in the matrix ...
         int row, nbs;
 		row = cnt;
-		long *neigh = my_gal[cnt].dt();
 		nbs = my_gal[cnt].Size();
         key[cnt] = Map(row, cnt);
         this->row[cnt].alloc( nbs );
 
         for (int nb = 0; nb < nbs; nb++) {	// process each neighbor
-            long nbId = neigh[nb]; 
-            this->row[cnt].setNb( nb, nbId, 1.0 );
+            this->row[cnt].setNb( nb, my_gal[cnt][nb], 1.0 );
         }
     }
     

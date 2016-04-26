@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -37,20 +37,22 @@ public:
 	ConnectDatasourceDlg(wxWindow* parent,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize );
-    ~ConnectDatasourceDlg();
+    virtual ~ConnectDatasourceDlg();
     
     void CreateControls();
-    void OnOkClick( wxCommandEvent& event );
+    virtual void OnOkClick( wxCommandEvent& event );
 	void OnLookupWSLayerBtn( wxCommandEvent& event );
 	void OnLookupDSTableBtn( wxCommandEvent& event );
-	IDataSource* GetDataSource(){ return datasource;}
-    
+	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
+	IDataSource* GetDataSource(){ return datasource; }
+        
 private:
+    wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
     wxTextCtrl*   m_database_table;
-	AutoTextCtrl*   m_webservice_url;
-	IDataSource*    datasource;
+	AutoTextCtrl*  m_webservice_url;
+	IDataSource*   datasource;
     
 private:
     IDataSource* CreateDataSource();

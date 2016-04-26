@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,7 +26,6 @@
 
 class Project;
 class TableInterface;
-class WeightsManager;
 class FieldNewCalcSpecialDlg;
 class FieldNewCalcUniDlg;
 class FieldNewCalcBinDlg;
@@ -69,17 +68,20 @@ public:
 	
 	bool IsTimeVariant(int col_id);
 	bool IsAllTime(int col_id, int tm_sel);
+	void InitWeightsList();
+	boost::uuids::uuid GetWeightsId();
 	
 	bool all_init;
 	bool is_space_time;
     wxChoice* m_result;
 	wxChoice* m_result_tm;
-    wxChoice* m_weight;
+    wxChoice* m_weights;
+	std::vector<boost::uuids::uuid> w_ids;
     wxChoice* m_var;
 	wxChoice* m_var_tm;
     wxTextCtrl* m_text;
 	Project* project;
-	WeightsManager* w_manager;
+	WeightsManInterface* w_man_int;
 	TableInterface* table_int;
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items

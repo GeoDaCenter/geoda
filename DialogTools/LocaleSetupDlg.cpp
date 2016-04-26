@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -79,7 +79,7 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
     m_txt_decimal->SetValue(decimal_point);
     
     wxString msg = "Reset to system locale successfully. Please re-open "
-    "current project with reset system locale.";
+    "current project with system locale.";
     wxMessageDialog msg_dlg(this, msg,
                            "Reset to system locale information",
                            wxOK | wxOK_DEFAULT | wxICON_INFORMATION);

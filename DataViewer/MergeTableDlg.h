@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -56,6 +56,7 @@ public:
     void OnMergeClick( wxCommandEvent& ev );
 	void OnKeyChoice( wxCommandEvent& ev );
 	void OnCloseClick( wxCommandEvent& ev );
+    void OnClose( wxCloseEvent& ev);
 	void UpdateMergeButton();
 	//void RemoveDbfReader();
 	//void UpdateIncListItems();

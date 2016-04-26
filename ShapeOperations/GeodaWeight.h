@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,23 +20,46 @@
 #ifndef __GEODA_CENTER_GEODA_WEIGHTS_H__
 #define __GEODA_CENTER_GEODA_WEIGHTS_H__
 
+#include <vector>
 #include <wx/string.h>
+
+class Project;
+class WeightsManInterface;
+class TableInterface;
 
 class GeoDaWeight {
 public:
 	GeoDaWeight() : symmetry_checked(false), num_obs(0) {}
+	GeoDaWeight(const GeoDaWeight& gw);
+    
 	virtual ~GeoDaWeight() {}
+
+public:
+	virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
+	virtual wxString GetTitle(); // returns portion of wflnm if title empty
+	virtual bool HasIsolates() { return true; } // implement in
+    
+    // following two implemented in inherited classes: GalWeights and GwtWeights
+    virtual bool SaveDIDWeights(Project* project,
+                                int num_obs,
+                                std::vector<wxInt64>& newids,
+                                std::vector<wxInt64>& stack_ids,
+                                const wxString& ofname)=0;
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)=0;
+   
+public:
 	enum WeightType { gal_type, gwt_type };
+	// subclasses
+	
 	WeightType weight_type;
 	wxString wflnm; // filename
+    wxString id_field; 
 	wxString title; // optional title.  Use wflnm if empty
 	bool symmetry_checked; // indicates validity of is_symmetric bool
 	bool is_symmetric; // true iff matrix is symmetric
 	int num_obs;
-	virtual bool HasIsolates() { return true; } // implement in
-												// subclasses
-	wxString GetTitle(); // returns portion of wflnm if title empty
-
+    
+    wxString GetIDName() { return id_field;}
 };
 
 #endif

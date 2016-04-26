@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,11 +34,13 @@ public:
 	VarOrderMapper(const VarOrderPtree& vo);
     virtual ~VarOrderMapper();
 	
+    void Update(const VarOrderPtree& vo);
 	int GetNumVarGroups() const;
 	int GetNumTms() const;
 	const std::vector<wxString>& GetTimeIdsRef() const;
 	const VarGroup_container& GetVarGroupsRef() const;
 	int GetColId(const wxString& name) const;
+    int GetColIdx(const wxString& name) const;
 	VarGroup FindVarGroup(const wxString& name) const;
 	VarGroup FindVarGroup(int i) const;
 	bool SimpleColNameToColAndTm(const wxString& name, int& col, int& tm);

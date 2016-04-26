@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,8 +22,8 @@
 #include "../GenUtils.h"
 #include "../logger.h"
 
-#ifndef SWAP
-#define SWAP(x, y, t) ((t) = (x), (x) = (y), (y) = (t))
+#ifndef GDA_SWAP
+#define GDA_SWAP(x, y, t) ((t) = (x), (x) = (y), (y) = (t))
 #endif
 
 ShapeFileHdr::ShapeFileHdr(const ShapeFileTypes::ShapeType FileShape)
@@ -69,22 +69,22 @@ ShapeFileHdr::ShapeFileHdr(const char* s)
 	char r[32], t;
 	memcpy(&r[0], &s[36], sizeof(double) * 4);
 	double m1, m2, n1, n2;
-	SWAP(r[0], r[31], t);
-	SWAP(r[1], r[30], t);
-	SWAP(r[2], r[29], t);
-	SWAP(r[3], r[28], t);
-	SWAP(r[4], r[27], t);
-	SWAP(r[5], r[26], t);
-	SWAP(r[6], r[25], t);
-	SWAP(r[7], r[24], t);
-	SWAP(r[8], r[23], t);
-	SWAP(r[9], r[22], t);
-	SWAP(r[10], r[21], t);
-	SWAP(r[11], r[20], t);
-	SWAP(r[12], r[19], t);
-	SWAP(r[13], r[18], t);
-	SWAP(r[14], r[17], t);
-	SWAP(r[15], r[16], t);
+	GDA_SWAP(r[0], r[31], t);
+	GDA_SWAP(r[1], r[30], t);
+	GDA_SWAP(r[2], r[29], t);
+	GDA_SWAP(r[3], r[28], t);
+	GDA_SWAP(r[4], r[27], t);
+	GDA_SWAP(r[5], r[26], t);
+	GDA_SWAP(r[6], r[25], t);
+	GDA_SWAP(r[7], r[24], t);
+	GDA_SWAP(r[8], r[23], t);
+	GDA_SWAP(r[9], r[22], t);
+	GDA_SWAP(r[10], r[21], t);
+	GDA_SWAP(r[11], r[20], t);
+	GDA_SWAP(r[12], r[19], t);
+	GDA_SWAP(r[13], r[18], t);
+	GDA_SWAP(r[14], r[17], t);
+	GDA_SWAP(r[15], r[16], t);
 	memcpy(&m1, &r[24], sizeof(double));
 	memcpy(&m2, &r[16], sizeof(double));
 	memcpy(&n1, &r[8], sizeof(double));
@@ -132,22 +132,22 @@ void ShapeFileHdr::MakeBuffer(char* s) const
 	hr->b = FileBox;
 	char r[32], t;
 	// MMM: This can't be correct.  Verify this!
-	SWAP(r[0], r[31], t);
-	SWAP(r[1], r[30], t);
-	SWAP(r[2], r[29], t);
-	SWAP(r[3], r[28], t);
-	SWAP(r[4], r[27], t);
-	SWAP(r[5], r[26], t);
-	SWAP(r[6], r[25], t);
-	SWAP(r[7], r[24], t);
-	SWAP(r[8], r[23], t);
-	SWAP(r[9], r[22], t);
-	SWAP(r[10], r[21], t);
-	SWAP(r[11], r[20], t);
-	SWAP(r[12], r[19], t);
-	SWAP(r[13], r[18], t);
-	SWAP(r[14], r[17], t);
-	SWAP(r[15], r[16], t);
+	GDA_SWAP(r[0], r[31], t);
+	GDA_SWAP(r[1], r[30], t);
+	GDA_SWAP(r[2], r[29], t);
+	GDA_SWAP(r[3], r[28], t);
+	GDA_SWAP(r[4], r[27], t);
+	GDA_SWAP(r[5], r[26], t);
+	GDA_SWAP(r[6], r[25], t);
+	GDA_SWAP(r[7], r[24], t);
+	GDA_SWAP(r[8], r[23], t);
+	GDA_SWAP(r[9], r[22], t);
+	GDA_SWAP(r[10], r[21], t);
+	GDA_SWAP(r[11], r[20], t);
+	GDA_SWAP(r[12], r[19], t);
+	GDA_SWAP(r[13], r[18], t);
+	GDA_SWAP(r[14], r[17], t);
+	GDA_SWAP(r[15], r[16], t);
 	memcpy(&r[0], &s[36], sizeof(double) * 4);
 #else
 	hr->f[0]= GenUtils::Reverse(FileCode);

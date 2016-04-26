@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,8 +33,8 @@
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/functional/hash.hpp>
-#include "ShpFile.h"
-#include "../Generic/GdaShape.h"
+#include "../ShpFile.h"
+#include "../GdaShape.h"
 
 // note: might want to use model::multi_polygon
 

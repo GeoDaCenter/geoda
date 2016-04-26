@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,14 +20,17 @@
 #include <string>
 #include <vector>
 #include <ogrsf_frmts.h>
+#include <climits>
 #include <boost/thread.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "../ShapeOperations/ShpFile.h"
+#include "../ShpFile.h"
 #include "../GdaException.h"
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
+#include "../GdaCartoDB.h"
+#include "../GdaException.h"
 
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
@@ -45,6 +48,7 @@ load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount();
     is_writable = layer->TestCapability(OLCCreateField) != 0;
+    
 	eGType = layer->GetGeomType();
     spatialRef = layer->GetSpatialRef();
     
@@ -64,8 +68,9 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
 : layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
 eLayerType(eGType), load_progress(0), stop_reading(false)
 {
-    //if (n_rows==0)
-    //    n_rows = layer->GetFeatureCount();
+    if (n_rows==0) {
+        n_rows = layer->GetFeatureCount();
+    }
     
     is_writable = layer->TestCapability(OLCCreateField) != 0;
     
@@ -171,7 +176,7 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 		ogr_type = OFTString;
 	}
 	else if (field_type == GdaConst::long64_type) {
-		ogr_type = OFTInteger;
+		ogr_type = OFTInteger64;
 	}
 	else if (field_type == GdaConst::double_type) {
 		ogr_type = OFTReal;
@@ -272,8 +277,9 @@ bool OGRLayerProxy::IsTableOnly()
 
 bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
 {
-	layer->SetFeature(feature);
-	return true;
+	if (layer->SetFeature(feature) == OGRERR_NONE)
+        return true;
+    return false;
 }
 
 bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
@@ -290,8 +296,69 @@ bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
 	return true;
 }
 
-bool OGRLayerProxy::UpdateColumn()
+
+bool OGRLayerProxy::CallCartoDBAPI(wxString url)
 {
+    return true;
+}
+
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
+{
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, vals[rid]);
+        }
+        
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, vals[rid]);
+        }
+    }
+	return true;
+    
+}
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
+{
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, (GIntBig)vals[rid]);
+        }
+        
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
+        }
+    }
+	return true;
+}
+
+bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
+{
+    if (ds_type == GdaConst::ds_cartodb) {
+        // update column using CARTODB_API directly, avoid single UPDATE clause
+        string col_name(GetFieldName(col_idx).mb_str());
+        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
+        
+        // update memory still
+        for (int rid=0; rid < n_rows; rid++) {
+            data[rid]->SetField(col_idx, vals[rid].mb_str());
+        }
+        
+    } else {
+        for (int rid=0; rid < n_rows; rid++) {
+            SetValueAt(rid, col_idx, vals[rid].mb_str());
+        }
+    }
 	return true;
 }
 
@@ -328,7 +395,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 vector<wxInt64> col_data;
                 table->GetColData(col_pos, time_step, col_data);
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    data[k]->SetField(j, (int)col_data[ selected_rows[k] ]);
+                    data[k]->SetField(j, (GIntBig)(col_data[selected_rows[k]]));
                     if (stop_exporting) return;
                 }
             } else if (ftype == GdaConst::double_type) {
@@ -358,6 +425,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 // XXX encodings
                 vector<wxString> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                if (ds_type == GdaConst::ds_csv) {
+                    for (int m=0; m<col_data.size(); m++) {
+                        if (col_data[m].IsEmpty())
+                            col_data[m] = " ";
+                    }
+                }
                 for (size_t k=0; k<selected_rows.size();++k) {
                     data[k]->SetField(j, col_data[ selected_rows[k] ].mb_str());
                     if (stop_exporting) return;
@@ -372,9 +445,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (stop_exporting) return;
         if ((i+1)%2==0) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-			// raise "Failed to create feature.\n"
-			error_message << " Object Geometry contains NULL rings. "
-            << CPLGetLastErrorMsg();
+			error_message << "Failed to create feature.\n" << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;
         }
@@ -515,17 +586,18 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     int n_geom = p_main.records.size();
     if (n_geom < n_rows)
         return false;
+    
     vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     int num_geometries = p_main.records.size();
-    if ( p_main.header.shape_type == Shapefile::POINT) {
+    if ( p_main.header.shape_type == Shapefile::POINT_TYP) {
         Shapefile::PointContents* pc;
         for (int i=0; i<num_geometries; i++) {
             pc = (Shapefile::PointContents*)p_main.records[i].contents_p;
             //xxx
             geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
         }
-        shape_type = Shapefile::POINT;
+        shape_type = Shapefile::POINT_TYP;
         
     } else if (p_main.header.shape_type == Shapefile::POLYGON) {
         Shapefile::PolygonContents* pc;
@@ -537,7 +609,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     }
     
     for (int id=0; id < n_geom; id++) {
-        if ( shape_type == Shapefile::POINT ) {
+        if ( shape_type == Shapefile::POINT_TYP ) {
             OGRwkbGeometryType eGType = wkbPoint;
             GdaPoint* pc = (GdaPoint*) geometries[id];
             OGRPoint pt;
@@ -620,36 +692,40 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 {
 	// get geometry envelope
 	OGREnvelope pEnvelope;
-	layer->GetExtent(&pEnvelope);
-	p_main.header.bbox_x_min = pEnvelope.MinX;
-	p_main.header.bbox_y_min = pEnvelope.MinY;
-	p_main.header.bbox_x_max = pEnvelope.MaxX;
-	p_main.header.bbox_y_max = pEnvelope.MaxY;
-	p_main.header.bbox_z_min = 0;
+    if (layer->GetExtent(&pEnvelope) == OGRERR_NONE) {
+        p_main.header.bbox_x_min = pEnvelope.MinX;
+        p_main.header.bbox_y_min = pEnvelope.MinY;
+        p_main.header.bbox_x_max = pEnvelope.MaxX;
+        p_main.header.bbox_y_max = pEnvelope.MaxY;
+
+    }
+    p_main.header.bbox_z_min = 0;
 	p_main.header.bbox_z_max = 0;
 	p_main.header.bbox_m_min = 0;
 	p_main.header.bbox_m_max = 0;
+    
 	// resize geometry records
 	p_main.records.resize(n_rows);
 	bool noExtent = (pEnvelope.MinX == pEnvelope.MaxX) &&
                     (pEnvelope.MinY == pEnvelope.MaxY);
     noExtent = false;
+    
 	//read OGR geometry features
 	int feature_counter =0;
 	for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
 		OGRFeature* feature = data[row_idx];
 		OGRGeometry* geometry= feature->GetGeometryRef();
-		OGRwkbGeometryType eType = geometry ?wkbFlatten(geometry->getGeometryType()) : eGType;
+		OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
 		// sometime OGR can't return correct value from GetGeomType() call
 		if (eGType == wkbUnknown)
             eGType = eType;
         
 		if (eType == wkbPoint) {
 			Shapefile::PointContents* pc = new Shapefile::PointContents();
-			pc->shape_type = Shapefile::POINT;
+			pc->shape_type = Shapefile::POINT_TYP;
             if (geometry) {
                 if (feature_counter==0)
-                    p_main.header.shape_type = Shapefile::POINT;
+                    p_main.header.shape_type = Shapefile::POINT_TYP;
                 OGRPoint* p = (OGRPoint *) geometry;
                 pc->x = p->getX();
                 pc->y = p->getY();
@@ -657,7 +733,29 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     GetExtent(p_main, pc, row_idx);
             }
 			p_main.records[feature_counter++].contents_p = pc;
-            
+			
+		} else if (eType == wkbMultiPoint) {
+			Shapefile::PointContents* pc = new Shapefile::PointContents();
+			pc->shape_type = Shapefile::POINT_TYP;
+			if (geometry) {
+                if (feature_counter==0)
+                    p_main.header.shape_type = Shapefile::POINT_TYP;
+                OGRMultiPoint* mp = (OGRMultiPoint*) geometry;
+				int n_geom = mp->getNumGeometries();
+				for (size_t i = 0; i < n_geom; i++ )
+                {	
+					// only consider first point
+                    OGRGeometry* ogrGeom = mp->getGeometryRef(i);
+                    OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
+					pc->x = p->getX();
+					pc->y = p->getY();
+					if (noExtent)
+						GetExtent(p_main, pc, row_idx);
+					
+				}
+            }
+			p_main.records[feature_counter++].contents_p = pc;
+			
 		} else if (eType == wkbPolygon ) {
 			Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
 			pc->shape_type = Shapefile::POLYGON;
@@ -754,14 +852,20 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                 }
             }
 			p_main.records[feature_counter++].contents_p = pc;
-		}
+            
+        } else {
+            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            throw GdaException(open_err_msg.c_str());
+        }
 	}
     
 	return true;
 }
 
-void OGRLayerProxy::T_Export(std::string format, std::string dest_datasource,
-							 std::string new_layer_name, bool is_update)
+void OGRLayerProxy::T_Export(std::string format,
+                             std::string dest_datasource,
+							 std::string new_layer_name,
+                             bool is_update)
 {
 	export_progress = 0;
 	stop_exporting = FALSE;
@@ -790,7 +894,7 @@ void OGRLayerProxy::Export(std::string format,
 	papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
 	OGRLayer* poSrcLayer = this->layer;
 	OGRFeatureDefn *poSrcFDefn = poSrcLayer->GetLayerDefn();
-	//////////////////////////////////////////////////////////////
+    
 	// get information from current layer: geomtype, layer_name
     // (don't consider coodinator system and translation here)
 	int bForceToPoint = FALSE;
@@ -798,27 +902,29 @@ void OGRLayerProxy::Export(std::string format,
     int bForceToMultiPolygon = FALSE;
     int bForceToMultiLineString = FALSE;
 	
-	if( wkbFlatten(eGType) == wkbPoint ) bForceToPoint = TRUE;
-    else if(wkbFlatten(eGType) == wkbPolygon)  bForceToPolygon = TRUE;
-    else if(wkbFlatten(eGType) == wkbMultiPolygon) bForceToMultiPolygon = TRUE;
+	if( wkbFlatten(eGType) == wkbPoint ) 
+        bForceToPoint = TRUE;
+    else if(wkbFlatten(eGType) == wkbPolygon)  
+        bForceToPolygon = TRUE;
+    else if(wkbFlatten(eGType) == wkbMultiPolygon) 
+        bForceToMultiPolygon = TRUE;
     else if(wkbFlatten(eGType) == wkbMultiLineString) {
 		bForceToMultiLineString = TRUE;
 	} else { // not supported geometry type
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
-	// Try opening the output datasource as an existing, writable 
-	OGRDataSource  *poODS = NULL;
-    OGRSFDriver    *poDriver = NULL;
+	// Try opening the output datasource as an existing, writable
+    GDALDataset  *poODS = NULL;
     
     if (is_update == true) {
-       poODS = OGRSFDriverRegistrar::Open( dest_datasource.c_str(), true);
+        poODS = (GDALDataset*) GDALOpenEx( pszDestDataSource,
+                                          GDAL_OF_VECTOR, NULL, NULL, NULL );
     } else {
-        //////////////////////////////////////////////////////////////
-        // Find the output driver.       
-        OGRSFDriverRegistrar *poR = OGRSFDriverRegistrar::GetRegistrar();
-        poDriver = poR->GetDriverByName(pszFormat);
+        // Find the output driver.
+        GDALDriver *poDriver;
+        poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
+        
         if( poDriver == NULL ) {
             // raise driver not supported failure
             error_message << "Current OGR dirver " + format + " is not "
@@ -826,27 +932,22 @@ void OGRLayerProxy::Export(std::string format,
             export_progress = -1;
             return;
         }
-        if( !poDriver->TestCapability( ODrCCreateDataSource ) ) {
-            // raise driver does not support data source creation.\n",
-            export_progress = -1;
-            return;
-        }
-        //////////////////////////////////////////////////////////////
+
         // Create the output data source.  
-        poODS = poDriver->CreateDataSource( pszDestDataSource, papszDSCO );
+        poODS = poDriver->Create(pszDestDataSource, 0, 0, 0, GDT_Unknown, NULL);
     }
     
 	if( poODS == NULL ) {
 		// driver failed to create
-		//throw GdaException("Can't create output OGR driver.");
+		// throw GdaException("Can't create output OGR driver.");
 		error_message << "Can't create output OGR driver."
                       <<"\n\nDetails:"<< CPLGetLastErrorMsg();
 		export_progress = -1;
 		return;
 	}
-    //////////////////////////////////////////////////////////////
-	// Parse the output SRS definition if possible.
-	OGRSpatialReference *poOutputSRS = NULL;
+
+    // Parse the output SRS definition if possible.
+	OGRSpatialReference *poOutputSRS = this->GetSpatialReference();
 	if( pszOutputSRSDef != NULL ) {
 		poOutputSRS = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
         if( poOutputSRS->SetFromUserInput( pszOutputSRSDef ) != OGRERR_NONE){
@@ -863,8 +964,8 @@ void OGRLayerProxy::Export(std::string format,
 		export_progress = -1;
 		return;
 	}
-	//////////////////////////////////////////////////////////////
-	// Create Layer
+
+    // Create Layer
 	OGRLayer *poDstLayer = poODS->CreateLayer( pszNewLayerName, poOutputSRS,
 											  (OGRwkbGeometryType) eGType, 
 											  papszLCO );
@@ -874,6 +975,7 @@ void OGRLayerProxy::Export(std::string format,
 		export_progress = -1;
 		return;
 	}
+    
 	// Process Layer style table
 	poDstLayer->SetStyleTable( poSrcLayer->GetStyleTable() );
 	OGRFeatureDefn *poDstFDefn = poDstLayer->GetLayerDefn();
@@ -890,8 +992,8 @@ void OGRLayerProxy::Export(std::string format,
 			}
         }   
     }
-	//////////////////////////////////////////////////////////////
-	// Create OGR geometry features
+
+    // Create OGR geometry features
 	for(int row=0; row< this->n_rows; row++){
 		if(stop_exporting) return;
 		export_progress++;
@@ -928,7 +1030,7 @@ void OGRLayerProxy::Export(std::string format,
         }
 		OGRFeature::DestroyFeature( poFeature );
 	}
-	//////////////////////////////////////////////////////////////
-	// Clean
-	OGRDataSource::DestroyDataSource( poODS );	
+
+    // Clean
+    GDALClose(poODS);
 }

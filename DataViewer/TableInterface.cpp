@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,7 +20,7 @@
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 
 TableInterface::TableInterface(TableState* table_state_s,
 							   TimeState* time_state_s)
@@ -65,6 +65,16 @@ bool TableInterface::ChangedSinceLastSave()
 void TableInterface::SetChangedSinceLastSave(bool chg)
 {
 	changed_since_last_save = chg;
+}
+
+bool TableInterface::ProjectChangedSinceLastSave()
+{
+    return project_changed_since_last_save;
+}
+
+void TableInterface::SetProjectChangedSinceLastSave(bool chg)
+{
+    project_changed_since_last_save = chg;
 }
 
 bool TableInterface::ColNameExists(const wxString& name)
@@ -130,8 +140,7 @@ wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 	return GetUniqueGroupName(nm);
 }
 
-std::vector<wxString> TableInterface::SuggestDBColNames(
-						wxString new_grp_name, wxString prefix, int n) const
+std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, wxString prefix, int n) const
 {
 	return GetUniqueColNames(prefix, n);
 }
@@ -154,7 +163,8 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 {
 	using namespace std;
 	vector<wxString> ret(n, col_nm);
-	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive)) return ret;
+	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive))
+        return ret;
 	
 	const int MAX_TRIES = 100000;
 	if (col_nm.IsEmpty()) col_nm = "VAR";
@@ -171,7 +181,8 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 		}
 		wxString u = col_nm;
 		u << "_" << i;
-		if (!DoesNameExist(u, cols_case_sensitive)) ret[ret_cnt++] = u;
+		if (!DoesNameExist(u, cols_case_sensitive))
+            ret[ret_cnt++] = u;
 	}
 	return ret;
 }
@@ -181,4 +192,24 @@ bool TableInterface::IsValidGroupName(const wxString& grp_nm) const
 	// Almost no restrictions on group names since this info is stored
 	// in project file.
 	return true;
+}
+
+std::vector<wxString> TableInterface::GetGroupNames()
+{
+    std::vector<wxString> grp_names;
+    
+    int n_col = GetNumberCols();
+    for (int i=0; i<n_col; i++) {
+        if (IsColTimeVariant(i)) {
+            grp_names.push_back(GetColName(i));
+        }
+    }
+    
+    return grp_names;
+}
+
+
+int TableInterface::GetColIdx(const wxString& name)
+{
+    return -1;
 }

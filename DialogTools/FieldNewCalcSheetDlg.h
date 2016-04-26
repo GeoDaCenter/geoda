@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,37 +27,67 @@
 #include "FieldNewCalcLagDlg.h"
 #include "FieldNewCalcRateDlg.h"
 #include "FieldNewCalcUniDlg.h"
+#include "../FramesManagerObserver.h"
+#include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 
+class FramesManager;
+class TableState;
 class Project;
+class WeightsManState;
 
-class FieldNewCalcSheetDlg: public wxDialog
+class FieldNewCalcSheetDlg: public wxDialog, public FramesManagerObserver,
+	public TableStateObserver, public WeightsManStateObserver
 {    
     DECLARE_EVENT_TABLE()
 
 public:
     FieldNewCalcSheetDlg(Project* project,
 						 wxWindow* parent, wxWindowID id = wxID_ANY,
-						 const wxString& caption = "FieldCal Container",
+						 const wxString& caption = "Var Calc Container",
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = wxDefaultSize,
 						 long style = wxDEFAULT_DIALOG_STYLE );
+	virtual ~FieldNewCalcSheetDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "FieldCal Container",
+				const wxString& caption = "Var Calc Container",
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
 
+	void OnPageChange( wxBookCtrlEvent& event );
     void OnApplyClick( wxCommandEvent& event );
+	void OnClose(wxCloseEvent& event);
+	
+	/** Implementation of FramesManagerObserver interface */
+	virtual void update(FramesManager* o);
+	
+	/** Implementation of TableStateObserver interface */
+	virtual void update(TableState* o);
+	virtual bool AllowTimelineChanges() { return true; }
+	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+	virtual bool AllowObservationAddDelete() { return true; }
+	
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return 0; }
+	virtual void closeObserver(boost::uuids::uuid id) {};
 
+private:
     wxNotebook* m_note;
 	FieldNewCalcSpecialDlg* pSpecial;
 	FieldNewCalcBinDlg* pBin;
 	FieldNewCalcLagDlg* pLag;
 	FieldNewCalcRateDlg* pRate;
 	FieldNewCalcUniDlg* pUni;
+	
+	FramesManager* frames_manager;
+	TableState* table_state;
+	WeightsManState* w_man_state;
 	Project* project;
 };
 

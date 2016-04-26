@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,6 +28,7 @@
 #ifndef __GEODA_CENTER_LITE2_H__
 #define __GEODA_CENTER_LITE2_H__
 
+#include <vector>
 #include <ostream>
 
 class SL_InputIterator {};
@@ -38,13 +39,14 @@ class SL_OutputIterator {};
         Definitions for the types used in defining spatial
         weights matrix.
  */
-#define			CNT     int
-#define			VALUE   double
-#define			INDEX   size_t
+#define		CNT     int
+#define		VALUE   double
+#define		INDEX   size_t
 #define     sl_max(x,y)     ( (x) < (y) ? (y) : (x) )
 #define     sl_min(x,y)     ( (x) < (y) ? (x) : (y) )
-
-const int NAMELEN = 12;
+#ifndef GDA_SWAP
+#define GDA_SWAP(x, y, t) ((t) = (x), (x) = (y), (y) = (t))
+#endif
 
 enum WeightsType  
 {
@@ -53,8 +55,6 @@ enum WeightsType
     W_GWT,
     W_GAL
 };
-
-static const char W_extension[][4] = {  "_+_", "mat",  "gwt",  "gal",  };
 
 inline double ComputeMean(double *dt, int dim)
 {
@@ -99,7 +99,7 @@ struct SL_function {
 /*
         Sqr
   Template SL function. Operator () overloaded to return square
-  of an expression (see template function geoda_sqr()) .
+  of an expression.
  */
 template <class T>
 struct Sqr : SL_function<T>  {
@@ -426,7 +426,7 @@ void Vector<T>::Swap(Vector<T> &with)  {
   begin= with.begin;  with.begin= buffer;                   // swap begin
   buffer= ShortIterator<T>::ptr;    ShortIterator<T>::ptr= with.ptr;      with.ptr= buffer;     // swap ptr
   buffer= end;    end= with.end;      with.end= buffer;     // swap end
-  SWAP(sz, with.sz, t);
+  GDA_SWAP(sz, with.sz, t);
   return;
 }
 
@@ -539,46 +539,29 @@ inline void Destroy(Iterator<T> it)  {
   return;
 }
 
-/*
- */
-/*
 template <class X>
-inline void CopyInput(Vector<X> & dest, INPUTstream & src, INDEX size)  
+inline void CopyInput(Vector<X> & dest, const std::vector<long>& nbl,
+					  INDEX size)  
 {
-  X   v;
-  while (src && size--)  
-	{
-    src >> v;
-    dest << v;
-  };
-  return;
-};
-*/
-/*
- */
-template <class X>
-inline void CopyInput(Vector<X> & dest, const long* nbl, INDEX size)  
-{
-
-  X   v;
-	for(INDEX i=0;i<size;i++)
-	{
+	X   v;
+	for(INDEX i=0;i<size;i++) {
 		v = nbl[i];
 		dest << v;
 	}
-};
+}
+
 
 template <class X>
-inline void CopyInput(Vector<X> & dest, const long* nbl, const double* wtl, INDEX size)  
+inline void CopyInput(Vector<X> & dest, const std::vector<long>& nbl,
+					  const std::vector<double>& wtl, INDEX size)  
 {
-
-  X   v;
+	X   v;
 	for(INDEX i=0;i<size;i++)
 	{
 		v = pairstruct<INDEX, VALUE>(nbl[i], wtl[i]);
 		dest << v;
 	}
-};
+}
 
 /*
  */

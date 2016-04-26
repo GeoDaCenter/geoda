@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,8 +21,10 @@
 #define __GEODA_CENTER_SAVE_MANAGER_H__
 
 #include "DataViewer/TableStateObserver.h"
+#include "ShapeOperations/WeightsManStateObserver.h"
 
 class TableState;
+class WeightsManState;
 
 /**
  * SaveButtonManager is responsible for keeping keeping track of when there
@@ -31,9 +33,11 @@ class TableState;
  * events.
  */
 
-class SaveButtonManager : public TableStateObserver {
+class SaveButtonManager : public TableStateObserver,
+	public WeightsManStateObserver
+{
 public:
-	SaveButtonManager(TableState* table_state);
+	SaveButtonManager(TableState* table_state, WeightsManState* w_man_state);
 	virtual ~SaveButtonManager();
 	
 	/** SetAllowEnableSave is used to notify the project that the Save
@@ -66,11 +70,18 @@ public:
 	virtual bool AllowTimelineChanges() { return true; }
 	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
 	virtual bool AllowObservationAddDelete() { return true; }
+
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return 0; }
+	virtual void closeObserver(boost::uuids::uuid id) {};
 	
 private:
 	void UpdateSaveMenuItems();
 	
 	TableState* table_state;
+	WeightsManState* w_man_state;
 	bool allow_enable_save;
 	bool metadata_chgs_since_last_save;
 	bool db_chgs_since_last_save;

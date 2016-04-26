@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,9 +29,8 @@
 #include "../GeneralWxUtils.h"
 #include "RegressionReportDlg.h"
 
-IMPLEMENT_DYNAMIC_CLASS( RegressionReportDlg, wxDialog )
 
-BEGIN_EVENT_TABLE( RegressionReportDlg, wxDialog )
+BEGIN_EVENT_TABLE( RegressionReportDlg, wxFrame)
     EVT_CLOSE( RegressionReportDlg::OnClose )
 	EVT_MOUSE_EVENTS(RegressionReportDlg::OnMouseEvent)
 	EVT_MENU(XRCID("ID_FONT"), RegressionReportDlg::OnFontChanged)
@@ -47,9 +46,14 @@ RegressionReportDlg::RegressionReportDlg( wxWindow* parent,
 										   const wxString& caption,
 										   const wxPoint& pos,
 										   const wxSize& size, long style )
+:wxFrame(parent, id, caption, pos, size, style)
 {
 	results = showText;
-    Create(parent, id, caption, pos, size, style);
+    //Create(parent, id, caption, pos, size, style);
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
+    CreateControls();
+    Centre();
+	m_textbox->AppendText(results);
 }
 
 bool RegressionReportDlg::Create( wxWindow* parent, wxWindowID id,
@@ -67,21 +71,36 @@ bool RegressionReportDlg::Create( wxWindow* parent, wxWindowID id,
 
 void RegressionReportDlg::CreateControls()
 {    
-    wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "IDD_REGRESSION_REPORT");
-    m_textbox = XRCCTRL(*this, "ID_TEXTCTRL1", wxTextCtrl);
-	wxTextAttr style(m_textbox->GetDefaultStyle());
-	style.SetFontFamily(wxFONTFAMILY_TELETYPE);
-	if (GeneralWxUtils::isMac()) {
-		style.SetFontSize(14);
-	} else {
-		style.SetFontSize(10);
-	}
-	if (GeneralWxUtils::isUnix()) {
-		style.SetFontEncoding(wxFONTENCODING_UTF8);
-		style.SetFontFaceName("Monospace");
-	}
-	m_textbox->SetDefaultStyle(style);
+    //wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_REGRESSION_REPORT");
+    //m_textbox = XRCCTRL(*this, "ID_TEXTCTRL1", wxTextCtrl);
+    wxPanel *panel = new wxPanel(this, -1);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new wxTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560), wxTE_MULTILINE | wxTE_READONLY);
+    
+    if (GeneralWxUtils::isWindows()) {
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+    } else {
+        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+        
+    }
+    
+    vbox->Add(m_textbox, 1, wxEXPAND|wxALL|wxALIGN_CENTRE);
+    panel->SetSizer(vbox);
+    
+    Center();
+}
+void RegressionReportDlg::AddNewReport(const wxString report)
+{
+    results = report + results;
+	m_textbox->SetValue(results);
+}
+
+void RegressionReportDlg::SetReport(const wxString report)
+{
+    results = report;
+    m_textbox->SetValue(results);
 }
 
 void RegressionReportDlg::OnMouseEvent(wxMouseEvent& event)
@@ -110,4 +129,5 @@ void RegressionReportDlg::OnFontChanged(wxCommandEvent& event)
 void RegressionReportDlg::OnClose( wxCloseEvent& event )
 {
     Destroy();
+    event.Skip();
 }

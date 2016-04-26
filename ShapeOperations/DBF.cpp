@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -489,7 +489,6 @@ int oDBF::OpenDBF()
 	long l_day;
 	wxDateTime::Now().FormatISODate().SubString(8, 9).ToCLong(&l_day);
 	int day = (int) l_day;
-    //open(fn.fn_str(), std::ios::binary | std::ios::out);
 	open(GET_ENCODED_FILENAME(fn), std::ios::out | std::ios::binary);	
 	//	_finddata_t *info = new _finddata_t;
 	//	long s = _findfirst(fn, info);

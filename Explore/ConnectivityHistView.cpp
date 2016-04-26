@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,13 +33,15 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DialogTools/HistIntervalDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
+#include "../DialogTools/WeightsManDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/ShapeUtils.h"
+#include "../ShapeOperations/WeightsManState.h"
 #include "ConnectivityHistView.h"
 
 IMPLEMENT_CLASS(ConnectivityHistCanvas, TemplateCanvas)
@@ -59,51 +61,19 @@ const double ConnectivityHistCanvas::interval_gap_const = 0;
 ConnectivityHistCanvas::ConnectivityHistCanvas(wxWindow *parent,
 									TemplateFrame* t_frame,
 									Project* project_s,
-									GalWeight* gal_w,
+									boost::uuids::uuid w_uuid_s,
 									const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), num_obs(project_s->GetNumRecords()),
-connectivity(project_s->GetNumRecords()),
-has_isolates(gal_w->HasIsolates()), num_isolates(0),
-highlight_state(project_s->GetHighlightState()),
-x_axis(0), y_axis(0), display_stats(false), show_axes(true)
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+num_obs(project_s->GetNumRecords()),
+connectivity(project_s->GetNumRecords()), num_isolates(0),
+x_axis(0), y_axis(0), display_stats(false), show_axes(true),
+w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering ConnectivityHistCanvas::ConnectivityHistCanvas");
-	template_frame = t_frame;
 	
-	wxFileName weights_fname(gal_w->wflnm);
-	weights_name = weights_fname.GetName();
-	GalElement* gal = gal_w->gal;
-	for (int i=0; i<num_obs; i++) connectivity[i] = gal[i].Size();
-	
-	data_sorted.resize(num_obs);
-	for (int i=0; i<num_obs; i++) {
-		data_sorted[i].first = connectivity[i];
-		data_sorted[i].second = i;
-		if (connectivity[i] == 0) num_isolates++;
-	}
-	
-	std::sort(data_sorted.begin(), data_sorted.end(),
-				Gda::dbl_int_pair_cmp_less);
-	data_stats.CalculateFromSample(data_sorted);
-	hinge_stats.CalculateHingeStats(data_sorted);
-	int min_connectivity = data_sorted[0].first;
-	int max_connectivity = data_sorted[num_obs-1].first;
-	LOG(min_connectivity);
-	LOG(max_connectivity);
-	int range = max_connectivity - min_connectivity;
-	if (range == 0) {
-		range = 1;
-		default_intervals = 1;
-	} else {
-		default_intervals = GenUtils::min<int>(MAX_INTERVALS, range+1);
-	}
-	
-	obs_id_to_ival.resize(num_obs);
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
-	
+	InitData();
 	InitIntervals();
 	
 	highlight_color = GdaConst::highlight_color;
@@ -131,7 +101,20 @@ void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	LOG_MSG("Entering ConnectivityHistCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((ConnectivityHistFrame*) template_frame)->OnActivate(ae);
+	if (ConnectivityHistFrame* f =
+			dynamic_cast<ConnectivityHistFrame*>(template_frame)) {
+		f->OnActivate(ae);
+	} else if (WeightsManFrame* f =
+			   dynamic_cast<WeightsManFrame*>(template_frame)) {
+		f->OnActivate(ae);
+	}
+	
+	// Correction for when canvas is offset in parent.
+	wxPoint cp_pos(pos);
+	wxPoint my_pos = this->GetPosition();
+	if (my_pos != cp_pos) {
+		cp_pos += my_pos;
+	}
 	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
@@ -139,7 +122,7 @@ void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, cp_pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting ConnectivityHistCanvas::DisplayRightClickMenu");
 }
@@ -189,7 +172,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
-		GenUtils::StandardizeRect(sel1, sel2, lower_left, upper_right);
+		GenGeomAlgs::StandardizeRect(sel1, sel2, lower_left, upper_right);
 	}
 	if (!shiftdown) {
 		bool any_selected = false;
@@ -197,7 +180,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
-				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
+				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right))) {
 				//LOG_MSG(wxString::Format("ival %d selected", i));
 				any_selected = true;
@@ -208,7 +191,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 		if (!any_selected) {
-			highlight_state->SetEventType(HighlightState::unhighlight_all);
+			highlight_state->SetEventType(HLStateInt::unhighlight_all);
 			highlight_state->notifyObservers();
 			return;
 		}
@@ -218,7 +201,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
-						  GenUtils::RectsIntersect(rec->lower_left,
+						  GenGeomAlgs::RectsIntersect(rec->lower_left,
 												   rec->upper_right,
 												   lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
@@ -278,14 +261,14 @@ void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 }
 
 /** Override of TemplateCanvas method. */
-void ConnectivityHistCanvas::update(HighlightState* o)
+void ConnectivityHistCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering ConnectivityHistCanvas::update");
 	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
-	HighlightState::EventType type = highlight_state->GetEventType();
+	HLStateInt::EventType type = highlight_state->GetEventType();
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -297,10 +280,13 @@ void ConnectivityHistCanvas::update(HighlightState* o)
 	LOG_MSG("Entering ConnectivityHistCanvas::update");	
 }
 
+
+
+
 wxString ConnectivityHistCanvas::GetCanvasTitle()
 {
 	wxString s;
-	s << "Connectivity Histogram - " << weights_name;
+	s << "Connectivity Histogram - " << w_man_int->GetLongDispName(w_uuid);
 	return s;
 }
 
@@ -313,6 +299,20 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
+	
+	if (w_uuid.is_nil()) {
+		virtual_screen_marg_top = 0;
+		virtual_screen_marg_bottom = 0;
+		virtual_screen_marg_left = 0;
+		virtual_screen_marg_right = 0;
+		shps_orig_xmin = 0;
+		shps_orig_xmax = 100;
+		shps_orig_ymin = 0;
+		shps_orig_ymax = 100;
+		
+		ResizeSelectableShps();
+		return;
+	}
 	
 	double x_min = 0;
 	double x_max = left_pad_const + right_pad_const
@@ -377,7 +377,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	}
 	
 	GdaShape* s = 0;
-	if (has_isolates) {
+	if (HasIsolates()) {
 		wxString msg;
 		msg << "Warning: " << num_isolates << " observation";
 		if (num_isolates > 1) {
@@ -385,7 +385,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		} else {
 			msg << " is ";
 		}
-		msg << "neighborless. See Options menu.";
+		msg << "neighborless.";
 		s = new GdaShapeText(msg, *GdaConst::small_font,
 					   wxRealPoint(((double) shps_orig_xmax)/2.0,
 								   shps_orig_ymax), 0, GdaShapeText::h_center,
@@ -406,8 +406,10 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		vals[4] << "sd from mean";
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
-						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -62, 53+y_d);
+						wxRealPoint(0, 0), GdaShapeText::h_center,
+							  GdaShapeText::top,
+						GdaShapeText::right, GdaShapeText::v_center,
+							  3, 10, -62, 53+y_d);
 		background_shps.push_back(s);
 		{
 			wxClientDC dc(this);
@@ -434,10 +436,12 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
 			
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
-			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-							wxRealPoint(orig_x_pos[i], 0),
-							GdaShapeText::h_center, GdaShapeText::top,
-							GdaShapeText::h_center, GdaShapeText::v_center, 3, 10, 0,
+			s = new GdaShapeTable(vals, attribs, rows, cols,
+								  *GdaConst::small_font,
+								  wxRealPoint(orig_x_pos[i], 0),
+								  GdaShapeText::h_center, GdaShapeText::top,
+								  GdaShapeText::h_center, GdaShapeText::v_center,
+								  3, 10, 0,
 							53+y_d);
 			background_shps.push_back(s);
 		}
@@ -458,7 +462,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	}
 	
 	virtual_screen_marg_top = 25;
-	if (has_isolates) virtual_screen_marg_top += 20;
+	if (HasIsolates()) virtual_screen_marg_top += 20;
 	virtual_screen_marg_bottom = 25;
 	virtual_screen_marg_left = 25;
 	virtual_screen_marg_right = 25;
@@ -492,6 +496,17 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	LOG_MSG("Exiting ConnectivityHistCanvas::PopulateCanvas");
 }
 
+void ConnectivityHistCanvas::ChangeWeights(boost::uuids::uuid new_id)
+{
+	if (new_id == w_uuid) return;
+	w_uuid = new_id;
+	InitData();
+	InitIntervals();
+	invalidateBms();
+	PopulateCanvas();
+	Refresh();
+}
+
 void ConnectivityHistCanvas::SelectIsolates()
 {
 	std::vector<bool>& hs = highlight_state->GetHighlight();
@@ -508,7 +523,7 @@ void ConnectivityHistCanvas::SelectIsolates()
 		}
 	}
 	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetEventType(HighlightState::delta);
+		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
@@ -521,7 +536,7 @@ void ConnectivityHistCanvas::SaveConnectivityToTable()
 	for (int i=0; i<num_obs; i++) t_con[i] = connectivity[i];
 	std::vector<SaveToTableEntry> data(1);
 	data[0].l_val = &t_con;
-	data[0].label << "Connectivity of " << weights_name;
+	data[0].label << "Connectivity of " << w_man_int->GetLongDispName(w_uuid);
 	data[0].field_default = "NUM_NBRS";
 	data[0].type = GdaConst::long64_type;
 	
@@ -541,6 +556,40 @@ void ConnectivityHistCanvas::HistogramIntervals()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
+}
+
+void ConnectivityHistCanvas::InitData()
+{
+	w_man_int->GetCounts(w_uuid, connectivity);
+	data_sorted.resize(num_obs);
+	num_isolates = 0;
+	for (int i=0; i<num_obs; i++) {
+		data_sorted[i].first = connectivity[i];
+		data_sorted[i].second = i;
+		if (connectivity[i] == 0) num_isolates++;
+	}
+	
+	std::sort(data_sorted.begin(), data_sorted.end(),
+			  Gda::dbl_int_pair_cmp_less);
+	has_isolates = data_sorted[0].first == 0;
+	
+	data_stats.CalculateFromSample(data_sorted);
+	hinge_stats.CalculateHingeStats(data_sorted);
+	int min_connectivity = data_sorted[0].first;
+	int max_connectivity = data_sorted[num_obs-1].first;
+	LOG(min_connectivity);
+	LOG(max_connectivity);
+	int range = max_connectivity - min_connectivity;
+	if (range == 0) {
+		range = 1;
+		default_intervals = 1;
+	} else {
+		default_intervals = GenUtils::min<int>(MAX_INTERVALS, range+1);
+	}
+	
+	obs_id_to_ival.resize(num_obs);
+	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
+	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
 }
 
 /** based on cur_intervals, calculate interval breaks and populate
@@ -598,12 +647,12 @@ void ConnectivityHistCanvas::InitIntervals()
 
 void ConnectivityHistCanvas::UpdateIvalSelCnts()
 {
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::unhighlight_all) {
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::unhighlight_all) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 0;
 		}
-	} else if (type == HighlightState::delta) {
+	} else if (type == HLStateInt::delta) {
 		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
 		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
@@ -615,7 +664,7 @@ void ConnectivityHistCanvas::UpdateIvalSelCnts()
 		for (int i=0; i<nuh_cnt; i++) {
 			ival_obs_sel_cnt[obs_id_to_ival[nuh[i]]]--;
 		}
-	} else if (type == HighlightState::invert) {
+	} else if (type == HLStateInt::invert) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 
 				ival_obs_cnt[i] - ival_obs_sel_cnt[i];
@@ -679,12 +728,14 @@ IMPLEMENT_CLASS(ConnectivityHistFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 ConnectivityHistFrame::ConnectivityHistFrame(wxFrame *parent, Project* project,
-											 GalWeight* gal,
+											 boost::uuids::uuid w_uuid_s,
 											 const wxString& title,
 											 const wxPoint& pos,
 											 const wxSize& size,
 											 const long style)
-: TemplateFrame(parent, project, title, pos, size, style)
+: TemplateFrame(parent, project, title, pos, size, style),
+w_man_state(project->GetWManState()), w_man_int(project->GetWManInt()),
+w_uuid(w_uuid_s)
 {
 	LOG_MSG("Entering ConnectivityHistFrame::ConnectivityHistFrame");
 	
@@ -692,11 +743,12 @@ ConnectivityHistFrame::ConnectivityHistFrame(wxFrame *parent, Project* project,
 	GetClientSize(&width, &height);
 	
 	template_canvas = new ConnectivityHistCanvas(this, this, project,
-												 gal, wxDefaultPosition,
+												 w_uuid, wxDefaultPosition,
 												 wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
+	w_man_state->registerObserver(this);
 		
 	Show(true);
 	LOG_MSG("Exiting ConnectivityHistFrame::ConnectivityHistFrame");
@@ -707,6 +759,10 @@ ConnectivityHistFrame::~ConnectivityHistFrame()
 	LOG_MSG("In ConnectivityHistFrame::~ConnectivityHistFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
+	if (w_man_state) {
+		w_man_state->removeObserver(this);
+		w_man_state = 0;
+	}
 }
 
 void ConnectivityHistFrame::OnActivate(wxActivateEvent& event)
@@ -757,8 +813,41 @@ void ConnectivityHistFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void ConnectivityHistFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(TimeState* o)");
+	LOG_MSG("In ConnectivityHistFrame::update(TimeState*)");
 	UpdateTitle();
+}
+
+/** Implementation of WeightsManStateObserver interface */
+void ConnectivityHistFrame::update(WeightsManState* o)
+{
+	LOG_MSG("In ConnectivityHistFrame::update(WeightsManState*)");
+	if (o->GetWeightsId() != w_uuid) return;
+	if (o->GetEventType() == WeightsManState::name_change_evt) {
+		UpdateTitle();
+		return;
+	}
+	if (o->GetEventType() == WeightsManState::remove_evt) {
+		Destroy();
+	}
+}
+
+void ConnectivityHistFrame::closeObserver(boost::uuids::uuid id)
+{
+	if (numMustCloseToRemove(id) > 0) {
+		if (w_man_state) {
+			w_man_state->removeObserver(this);
+			w_man_state = 0;
+		}
+		Close(true);
+	}
+}
+
+void ConnectivityHistFrame::ChangeWeights(boost::uuids::uuid new_id)
+{
+	if (new_id == w_uuid || new_id.is_nil()) return;
+	w_uuid = new_id;
+	UpdateTitle();
+	((ConnectivityHistCanvas*) template_canvas)->ChangeWeights(new_id);
 }
 
 void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)

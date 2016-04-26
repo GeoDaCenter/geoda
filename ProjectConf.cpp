@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 LayerConfiguration::~LayerConfiguration()
 {
-    if (datasource) delete datasource;
+    if (datasource) delete datasource; datasource= 0;
     if (variable_order) delete variable_order;
 	if (custom_classifs) delete custom_classifs;
 	if (spatial_weights) delete spatial_weights;
@@ -198,7 +198,7 @@ ProjectConfiguration::ProjectConfiguration(const wxString& proj_path)
     project_fpath = proj_path;
 	ptree xml_tree;
 #ifdef __WIN32__
-	std::wstring ws(GET_ENCODED_FILENAME(project_fpath));
+	std::wstring ws(project_fpath.fn_str());
 	std::string s(ws.begin(), ws.end());
 	read_xml(s, xml_tree);
 #else
@@ -230,10 +230,11 @@ void ProjectConfiguration::Save(wxString saveFileName)
 {
     ptree pt;
     WritePtree(pt, saveFileName);
-    boost::property_tree::xml_writer_settings<char> settings(' ', 4);
+    //boost::property_tree::xml_writer_settings<char> settings(' ', 4);
+    boost::property_tree::xml_writer_settings<std::string> settings(' ', 4);
 	try {
 #ifdef __WIN32__
-		std::wstring ws(GET_ENCODED_FILENAME(saveFileName));
+		std::wstring ws(saveFileName.fn_str());
 		std::string s(ws.begin(), ws.end());
 		write_xml(s, pt, std::locale(), settings);
 #else

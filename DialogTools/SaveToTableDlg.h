@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,6 +25,9 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/dialog.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
+
 #include "../GdaConst.h"
 
 class Project;
@@ -74,6 +77,8 @@ private:
 	bool all_init;
 	bool is_space_time;
 	wxButton* m_ok_button;
+    wxStaticText* m_field_label;
+    std::vector<wxTextCtrl*> m_txt_field;
 	std::vector<wxCheckBox*> m_check;
 	std::vector<wxButton*> m_add_button;
 	std::vector<wxChoice*> m_field;

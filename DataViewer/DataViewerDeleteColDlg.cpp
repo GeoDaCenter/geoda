@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,10 +26,11 @@
 #include <wx/xrc/xmlres.h>
 #include "DataViewerDeleteColDlg.h"
 #include "../GdaException.h"
+#include "../logger.h"
 
 BEGIN_EVENT_TABLE( DataViewerDeleteColDlg, wxDialog )
 	EVT_BUTTON( XRCID("ID_DELETE_BUTTON"), DataViewerDeleteColDlg::OnDelete )
-	EVT_CHOICE( XRCID("ID_FIELD_CHOICE"), DataViewerDeleteColDlg::OnChoice )
+	EVT_LISTBOX( XRCID("ID_FIELD_CHOICE"), DataViewerDeleteColDlg::OnChoice )
 END_EVENT_TABLE()
 
 DataViewerDeleteColDlg::DataViewerDeleteColDlg( )
@@ -40,9 +41,11 @@ DataViewerDeleteColDlg::DataViewerDeleteColDlg( TableInterface* table_int_s,
 											   wxWindow* parent)
 : table_int(table_int_s)
 {
+    LOG_MSG("Entering DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
 	SetParent(parent);
     CreateControls();
     Centre();
+    LOG_MSG("Exiting DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
 }
 
 void DataViewerDeleteColDlg::CreateControls()
@@ -52,7 +55,7 @@ void DataViewerDeleteColDlg::CreateControls()
 	m_del_button = wxDynamicCast(FindWindow(XRCID("ID_DELETE_BUTTON")),
 								 wxButton);
 	m_del_button->Enable(false);
-	m_field = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE")), wxChoice);
+	m_field = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE")), wxListBox);
 	InitFieldChoices();
 	m_message = wxDynamicCast(FindWindow(XRCID("ID_TEXT_MSG")),
 							  wxStaticText);
@@ -61,35 +64,53 @@ void DataViewerDeleteColDlg::CreateControls()
 
 void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 {
-	if (m_field->GetSelection() == wxNOT_FOUND) {
+    wxArrayInt selections;
+    m_field->GetSelections(selections);
+    
+    int n =selections.GetCount();
+	if (n== 0) {
 		m_del_button->Enable(false);
 		return;
 	}
-	int col_del_pos = col_id_map[m_field->GetSelection()];
-	wxString del_name = table_int->GetColName(col_del_pos);
-	
-	try{
-		table_int->DeleteCol(col_del_pos);
-		InitFieldChoices();
-		m_del_button->Enable(false);
-		m_message->SetLabelText("Deleted " + del_name.Upper());
-	} catch (GdaException e) {
-		wxString msg;
-		msg << e.what();
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		return;
-	}
+    col_id_map.clear();
+    table_int->FillColIdMap(col_id_map);
+    
+    for (int i=n-1; i>=0; i--) {
+        int idx = selections[i];
+    	int col_del_pos = col_id_map[idx];
+        wxString del_name;
+    	del_name = table_int->GetColName(col_del_pos);
+
+
+    	try{
+    		table_int->DeleteCol(col_del_pos);
+
+    		m_del_button->Enable(false);
+
+    	} catch (GdaException e) {
+    		wxString msg;
+    		msg << "Delete " << del_name << ". " <<e.what();
+    		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+    		dlg.ShowModal();
+    		return;
+    	}
+    }
+    InitFieldChoices();
+    wxString msg;
+    msg <<"Deleted " << n << " fields";
+    m_message->SetLabelText(msg);
 }
 
 void DataViewerDeleteColDlg::OnChoice( wxCommandEvent& ev )
 {
 	m_message->SetLabelText("");
-	if (m_field->GetSelection() != wxNOT_FOUND) {
-		int col_del_pos = col_id_map[m_field->GetSelection()];
-		wxString del_name = table_int->GetColName(col_del_pos);
+    wxArrayInt selections;
+    m_field->GetSelections(selections);
+	if (selections.GetCount() > 0) {
 		m_del_button->Enable(true);
-	}
+	} else {
+		m_del_button->Enable(false);
+    }
 }
 
 void DataViewerDeleteColDlg::InitFieldChoices()
@@ -97,8 +118,10 @@ void DataViewerDeleteColDlg::InitFieldChoices()
 	col_id_map.clear();
 	m_field->Clear();
 	table_int->FillColIdMap(col_id_map);
+    items.clear();
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
-		m_field->Append(table_int->GetColName(col_id_map[i]).Upper());
+		items.Add(table_int->GetColName(col_id_map[i]));
 	}
-	m_field->SetSelection(-1);
+    m_field->InsertItems(items, 0);
+
 }

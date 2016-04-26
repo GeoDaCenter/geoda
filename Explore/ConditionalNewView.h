@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -26,8 +26,8 @@
 #include "CatClassifStateObserver.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
 
 class CatClassifState;
 class ConditionalNewFrame;
@@ -46,7 +46,7 @@ public:
 	
 	ConditionalNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
 						 Project* project,
-						 const std::vector<GeoDaVarInfo>& var_info,
+						 const std::vector<GdaVarTools::VarInfo>& var_info,
 						 const std::vector<int>& col_ids,
 						 bool fixed_aspect_ratio_mode = false,
 						 bool fit_to_window_mode = true,
@@ -91,9 +91,7 @@ public:
 	int GetVertNumCats() { return vert_num_cats; }
 
 protected:
-	Project* project;
 	TableInterface* table_int;
-	HighlightState* highlight_state;
 	CatClassifState* cc_state_vert;
 	CatClassifState* cc_state_horiz;
 	
@@ -102,7 +100,7 @@ protected:
 	int vert_num_time_vals;
 	int horiz_num_time_vals;
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
 	
 	bool is_any_time_variant;
@@ -134,7 +132,7 @@ class ConditionalNewFrame : public TemplateFrame {
    DECLARE_CLASS(ConditionalNewFrame)
 public:
     ConditionalNewFrame(wxFrame *parent, Project* project,
-					  const std::vector<GeoDaVarInfo>& var_info,
+					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
 					  const wxString& title = "Conditional Map",
 					  const wxPoint& pos = wxDefaultPosition,

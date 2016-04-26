@@ -1,7 +1,19 @@
 --- Acknowledgements ----
 
 GeoDa TM is built upon several open source libraries and source-code files.
+
+GeoDa is the flagship program of the GeoDa Center, following a long line of software tools developed by Dr. Luc Anselin. It is designed to implement techniques for exploratory spatial data analysis (ESDA) on lattice data (points and polygons). The free program provides a user friendly and graphical interface to methods of descriptive spatial data analysis, such as spatial autocorrelation statistics, as well as basic spatial regression functionality. The latest version contains several new features such as full space-time data support in all views, a new cartogram, a refined map movie, parallel coordinate plot, 3D visualization, conditional plots (and maps) and spatial regression.
+
+Since its initial release in February 2003, GeoDa's user numbers have increased exponentially, as the chart and map of global users above shows. This includes lab users at universities such as Harvard, MIT, and Cornell. The user community and press embraced the program enthusiastically, calling it a "hugely important analytic tool," a "very fine piece of software," an "exciting development" and more.
+
+--- Dependencies ----
+
 Below is a list of some of these that we'd like to acknowledge.
+
+GDAL Libraries, version 1.10
+License: X/MIT style Open Source license 
+Authors: many
+Links: http://www.gdal.org/
 
 Boost Libraries, version 1.53
 License: Boost Software License - Version 1.0

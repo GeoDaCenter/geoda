@@ -98,6 +98,7 @@ JAR=$(JAVA_HOME)\bin\jar
 JAVA_INCLUDE=-I$(JAVA_HOME)\include -I$(JAVA_HOME)\include\win32
 
 # Compilation flags
+GDAL_COMPILATION=YES
 
 # Enable code analyzis on request
 # http://msdn.microsoft.com/en-us/library/ms173498.aspx
@@ -525,7 +526,7 @@ ADD_LIBS	=
 # Location of MS Data Access SDK (not really needed anymore I think)
 #MSDASDK =	D:\Software\MDAC_2.6
 
-GDAL_DLL =	gdal$(VERSION).dll
+GDAL_DLL =	gdal_geoda$(VERSION).dll
 
 INC	=	-I$(GDAL_ROOT)\port -I$(GDAL_ROOT)\ogr -I$(GDAL_ROOT)\gcore \
 		-I$(GDAL_ROOT)\alg -I$(GDAL_ROOT)\ogr\ogrsf_frmts

@@ -1,4 +1,97 @@
-GeoDa 1.6.0 Release Notes
+GeoDa 1.7.15 Release Notes:
+
+Changes since 1.7.9:
+- LOWESS smoothing added to all scatter plots
+- New Scatter Plot Matrix view added
+
+Changes since 1.7.8:
+- User now specifies number of observation to randomly select.
+ Default value is about 10% of total number of observations.
+- When a weights matrix is removed using Weights Manager and one or
+ more views depend on that matrix, a dialog is displayed offering to
+ automatically close those views.  The number of such views is
+ calculated correctly.
+
+Changes since 1.7.6:
+
+New Weights/Variable Selection:
+- All views now use an integrated weights/variable selection dialog
+that is precisely  tailored to the requirements of the particular view.
+- The last-chosen weight / variable is the default for the next time
+the dialog is displayed.  These defaults are remembered in the
+project file.
+- If no weights are defined for view that requires weights, a helpful
+information dialog is displayed.
+
+New Weights Manager:
+- Shows a combined view of weights list and details and histogram
+  for currently selected weights.
+- Details presented in nicely formated table.
+- Weights Title intelligently extracted from full weights filename.
+- Duplicate weights filenames are automatically handled
+
+New Weight Selection Dialog:
+- Used by Connectivity Map and Histogram views.
+- Similar to New Weights Manager, but no option to load/create
+ and no connectivity histogram shown.
+- Double click on weight automatically selects and closes the
+ dialog.
+- Helpful information message shown when no weights currently
+ defined.
+
+Enhanced Selection Tool Dialog:
+- Dialog is non-modal.
+- "Add Neighbors To Selection" has moved from Table menu to a
+new button in this dialog.  Makes it easy to "animate" weights
+selection by repeatedly pressing button.
+- "Add Neighbors To Selection" button uses currently chosen
+weights from adjacent weights list.
+- Added "Clear Selection" button.
+
+
+Changes since 1.7.2:
+- Weights available in new command-line calculator.  For example,
+using columbus_sqlite project in Examples can calculate spatial lag
+of HOVAL with rook contiguity with expression: lag(R, HOVAL)
+
+Changes since 1.6.4
+- New "Change Variable Type" tool added to Table menu to
+  allow copying data from one variable to another.  For example,
+  a string variable can converted into an integer variable.
+  Conversion is fast and results are immediately shown.
+
+Changes since 1.6.3:
+- New Weights Manager dialog for adding/removing/creating weights.
+- Weights Manager displays weights meta data.
+- Weights Manager state information stored to project file.
+- Weights Manager shows histogram for currently selected weights.
+- Weights Creation dialog now non-modal.  Newly created
+ weights instantly shown in Weights Manager.
+- New Connectivity Map view to browse neighbor relations
+ interactively.
+- Variable Calculations now non-modal.
+- New Calculator available in alpha.
+
+Changes since 1.6.2
+- Radio button bug fixed in Weight Creation Dialog.
+- Can now choose "Open With GeoDa" for GeoDa file data sources
+ such as Shapefile, CSV, Mapinfo, etc.
+- Can now quickly open a file data source using
+ File > New Project From menu option.
+- No longer need to click "Connect" after choosing a
+ file data source.
+- Table Merge now supports floating point key fields and string,
+ integer and floating point key fields can be used in any combination
+ so long as all values are unique and number of records is equal.
+- Table Merge dialog now resizable.
+
+Changes since 1.6.1
+- Fixed a problem where Add Variable wasn't enabled
+ by default when saving LISA cluster numbers to Table.
+
+Changes since 1.6.0
+- Fixed a problem where buttons and windows were
+ being cut off in Windows 8.1 with high-DPI displays.
 
 Changes since 1.5.43:
 - More helpful messages concerning the Project
@@ -644,7 +737,7 @@ Changes since 0.9.8.13:
   file without specifying an ID Variable.
 - Weights File Creation dialog now opens the current project
   Shapefile by default.
-- Select Weightss dialog now opens up to the same directory
+- Weights Managers dialog now opens up to the same directory
   as the currently open Shapefile.
 
 Changes since 0.9.8.12:

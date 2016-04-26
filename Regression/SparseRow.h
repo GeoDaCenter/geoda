@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,6 @@
 #include "DenseVector.h"
 #include "Link.h"
 
-/*  ---  SparseRow  ---  */
 class SparseRow  {
 public :
     SparseRow() : size(0), nb(NULL), Status_flag(false)  {};
@@ -50,7 +49,7 @@ public :
 
     int getIx(const int loc)  const {  return nb[ loc ].getIx();  }
     double getWeight(const int loc)  const  {  return nb[ loc ].getWeight();  }
-    void setWeight(const int loc, const double &w)  {  nb[ loc ].setWeight( w );  }
+    void setWeight(const int loc, const double &w) { nb[ loc ].setWeight( w );}
     void setIx(const int loc, const int nbr)  {  nb[ loc ].setIx( nbr );  }
     Link & getLink(int loc)  {  return nb[ loc ];  }
     double sum()  const;
@@ -64,6 +63,7 @@ private:
     Link	* nb;
 
 };
+
 #endif
 
 

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -36,11 +36,14 @@
 #include <boost/multi_array.hpp>
 #include <wx/string.h>
 #include <wx/thread.h>
-#include "../GenUtils.h"
+#include "../VarTools.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 
-class GetisOrdMapNewFrame; // instead of GStatCoordinatorObserver
+class GetisOrdMapFrame; // instead of GStatCoordinatorObserver
 class GStatCoordinator;
+class Project;
+class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
 
 class GStatWorkerThread : public wxThread
@@ -66,12 +69,11 @@ public:
 	std::list<wxThread*> *worker_list;
 };
 
-class GStatCoordinator
+class GStatCoordinator : public WeightsManStateObserver
 {
 public:
-	GStatCoordinator(const GalWeight* gal_weights,
-					 TableInterface* table_int,
-					 const std::vector<GeoDaVarInfo>& var_info,
+	GStatCoordinator(boost::uuids::uuid weights_id, Project* project,
+					 const std::vector<GdaVarTools::VarInfo>& var_info,
 					 const std::vector<int>& col_ids,
 					 bool row_standardize_weights);
 	virtual ~GStatCoordinator();
@@ -89,6 +91,11 @@ public:
 	void SetLastUsedSeed(uint64_t seed) { last_seed_used = seed; }
 	bool IsReuseLastSeed() { return reuse_last_seed; }
 	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
+	
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
+	virtual void closeObserver(boost::uuids::uuid id);
 	
 	std::vector<double> n; // # non-neighborless observations
 	
@@ -140,19 +147,20 @@ public:
 	std::vector<double*> pseudo_p_star_vecs; //threaded
 	std::vector<double*> x_vecs; //threaded
 
+	boost::uuids::uuid w_id;
 	const GalElement* W;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
 	int num_time_vals; // number of valid time periods based on var_info
 	
-	// This variable should be empty for GStatMapNewCanvas
+	// This variable should be empty for GStatMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	
-	// All GetisOrdMapNewCanvas objects synchronize themselves
+	// All GetisOrdMapCanvas objects synchronize themselves
 	// from the following 6 variables.
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
@@ -161,11 +169,11 @@ public:
 	bool GetHasIsolates(int time) { return has_isolates[time]; }
 	bool GetHasUndefined(int time) { return has_undefined[time]; }
 	
-	void registerObserver(GetisOrdMapNewFrame* o);
-	void removeObserver(GetisOrdMapNewFrame* o);
+	void registerObserver(GetisOrdMapFrame* o);
+	void removeObserver(GetisOrdMapFrame* o);
 	void notifyObservers();
 	/** The array of registered observer objects. */
-	std::vector<GetisOrdMapNewFrame*> maps;	
+	std::vector<GetisOrdMapFrame*> maps;
 	
 	void CalcPseudoP();
 	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
@@ -186,6 +194,9 @@ protected:
 	bool row_standardize;
 	uint64_t last_seed_used;
 	bool reuse_last_seed;
+	
+	WeightsManState* w_man_state;
+	WeightsManInterface* w_man_int;
 };
 
 #endif

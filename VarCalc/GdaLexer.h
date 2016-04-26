@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -39,9 +39,18 @@ private:
 
 namespace Gda {
 enum TokenEnum {
-	NAME, NUMBER, END,
+	NAME, NUMBER, STRING, END,
+	EQ, // "=" equality test
+	NE, // "<>" not equal
+	LT, // "<" less than
+	GT, // ">" greater than
+	LE, // "<=" less than or equal
+	GE, // ">=" greater than or equal
+	AND, OR, NOT, XOR,
+	// printable ascii char codes start at 33,
 	PLUS='+', MINUS='-', MUL='*', DIV='/',
-	LP='(', RP=')', POW='^', COMMA=',' };
+	LP='(', RP=')', POW='^', COMMA=','
+	};
 }
 
 struct GdaTokenDetails
@@ -74,11 +83,12 @@ public:
 	wxString GetErrorMsg() { return error_msg; }
 	static wxString TokToStr(Gda::TokenEnum tok);
 
-private:
-	wxRegEx regex_ws;
-	wxRegEx regex_num;
-	wxRegEx regex_name;
+	static wxRegEx regex_ws;
+	static wxRegEx regex_num;
+	static wxRegEx regex_name;
+	static wxRegEx regex_str_lit;
 
+private:
 	GdaTokenDetails get_token();
 
 	size_t chars_consumed;

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,7 +27,7 @@
 #include <boost/thread.hpp>
 
 #include "OGRLayerProxy.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
 #include "../DataViewer/TableInterface.h"
 
 using namespace std;
@@ -44,14 +44,14 @@ public:
 	 * Construct function. Create a data source proxy according to the 
 	 * formated ds_name (datasource name).
 	 */
-	OGRDatasourceProxy(string ds_name, bool bUpdate=true);
+	OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceType _ds_type, bool bUpdate=true);
 	/**
 	 */
-	OGRDatasourceProxy(OGRDataSource* _ds, string _ds_name);
+	OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name);
 	/**
 	 * Create a new OGRDatasourceProxy by given OGR format and ds name
 	 */
-	OGRDatasourceProxy(string format, string dest_datasources);
+	OGRDatasourceProxy(wxString format, wxString dest_datasources);
 	/**
 	 * Deconstructor. Will clean the layer proxies (OGRLayerProxy) in the layer
 	 * pool (map)
@@ -66,9 +66,9 @@ public:
    
     GdaConst::DataSourceType ds_type;
     
-    string ds_name; //!< formated name of data source
+    wxString ds_name; //!< formated name of data source
     
-    OGRDataSource* ds; //!< maintain the datasource after connecting to it
+    GDALDataset* ds; //!< maintain the datasource after connecting to it
     
     size_t layer_count;	//!< number of layer in this data source
     
@@ -87,12 +87,12 @@ public:
 	 * Note: this function now is working in GdaCache only, so the created
 	 * datasource will be added to layer_pool.
 	 */
-	static void CreateDataSource(string format, string dest_datasource);
+	static void CreateDataSource(string format, wxString dest_datasource);
 	
 	/**
 	 * Return OGR data source type as string
 	 */
-    GdaConst::DataSourceType GetGdaDataSourceType();
+    GdaConst::DataSourceType GetGdaDataSourceType(GDALDriver *poDriver);
     
 	/**
 	 * Get all layer names in this data source

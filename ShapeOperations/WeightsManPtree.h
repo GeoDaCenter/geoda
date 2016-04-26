@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,16 +22,17 @@
 
 #include <list>
 #include "../DataViewer/PtreeInterface.h"
+#include "../VarCalc/WeightsMetaInfo.h"
 
-struct WeightsMetaInfo {
-	WeightsMetaInfo() : is_default(false) {}
-	wxString filename; // weights file filename
-	wxString title; // if empty, then filename is used
-	bool is_default; // only one weights file should be set as default
+struct WeightsPtreeEntry {
+	WeightsPtreeEntry() : is_default(false) {}
+	WeightsPtreeEntry(const WeightsMetaInfo& w) : wmi(w), is_default(false) {}
+	WeightsMetaInfo wmi;
+	wxString title;
+	bool is_default;
+	
 	wxString ToStr() const;
 };
-
-class WeightsManager;
 
 class WeightsManPtree : public PtreeInterface {
 public:
@@ -48,15 +49,15 @@ public:
 	virtual void WritePtree(boost::property_tree::ptree& pt,
 							const wxString& proj_path);
 
-	const std::list<WeightsMetaInfo>& GetWeightsMetaInfoList() const;
-	void SetWeightsMetaInfoList(WeightsManager* w_manager);
+	const std::list<WeightsPtreeEntry>& GetWeightsMetaInfoList() const;
+	void SetWeightsMetaInfoList(const std::list<WeightsPtreeEntry>& w_list);
 
 	wxString ToStr() const;
     
     WeightsManPtree* Clone();
 	
 private:
-	std::list<WeightsMetaInfo> weights_list;
+	std::list<WeightsPtreeEntry> weights_list;
 };
 
 #endif

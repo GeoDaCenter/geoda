@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,37 +23,35 @@
 #include <vector>
 #include "../ShapeOperations/Randik.h"
 
+
+
 class GalElement;
 
-class RandomizationDlg: public wxDialog
-{    
-    DECLARE_CLASS( RandomizationDlg )
-    DECLARE_EVENT_TABLE()
-
+class RandomizationPanel: public wxPanel
+{
 public:
-	RandomizationDlg( const std::vector<double>& raw_data1,
-					 const GalElement* W, int NumPermutations,
-					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
-					 const wxPoint& pos = wxDefaultPosition,
-					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
-	RandomizationDlg( const std::vector<double>& raw_data1,
-					 const std::vector<double>& raw_data2,
-					 const GalElement* W, int NumPermutations,
-					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
-					 const wxPoint& pos = wxDefaultPosition,
-					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
-	virtual ~RandomizationDlg();
-    void CreateControls();
+    RandomizationPanel(const std::vector<double>& raw_data1,
+                       const GalElement* W, int NumPermutations,
+                       bool reuse_user_seed,
+                       uint64_t user_specified_seed,
+                       wxFrame* parent);
+    RandomizationPanel(const std::vector<double>& raw_data1,
+                       const std::vector<double>& raw_data2,
+                       const GalElement* W, int NumPermutations,
+                       bool reuse_user_seed,
+                       uint64_t user_specified_seed,
+                       wxFrame* parent);
+   
+    virtual ~RandomizationPanel();
+    
 	void Init();
 	void CalcMoran();
+   
+	void OnRunClick( wxCommandEvent& event );
 
+	void OnMouse( wxMouseEvent& event );
+    void OnSize(wxSizeEvent& event);
     void OnPaint( wxPaintEvent& event );
-    void OnCloseClick( wxCommandEvent& event );
-    void OnOkClick( wxCommandEvent& event );
     void CheckSize(const int width, const int height);
     void Paint(wxDC *dc);
 	void Draw(wxDC* dc);
@@ -70,7 +68,7 @@ public:
     const int Permutations;
 	// vector of Moran's I for every permutation experiment
 	std::vector<double> MoranI;
-
+    
 	const double start, stop;
     double  range;
     int	    bins, minBin, maxBin;
@@ -92,11 +90,43 @@ public:
 	int* perm;
 	long* theRands;
 	
-    Randik  rng;
+	Randik*  rng;
 	bool    experiment_run_once;
+};
 
-private:
-	RandomizationDlg() : start(-1), stop(1), Moran(0), Permutations(0) {}
+class RandomizationDlg: public wxFrame
+{    
+    //DECLARE_CLASS( RandomizationDlg )
+    DECLARE_EVENT_TABLE()
+
+public:
+	RandomizationDlg(const std::vector<double>& raw_data1,
+					 const GalElement* W, int NumPermutations,
+                     bool reuse_user_seed,
+					 uint64_t user_specified_seed,                    
+					 wxWindow* parent, wxWindowID id = wxID_ANY,
+					 const wxString& caption = "Randomization",
+					 const wxPoint& pos = wxDefaultPosition,
+					 const wxSize& my_size = wxDefaultSize,
+					 long style = wxCAPTION|wxSYSTEM_MENU);
+	RandomizationDlg( const std::vector<double>& raw_data1,
+					 const std::vector<double>& raw_data2,
+					 const GalElement* W, int NumPermutations,
+                     bool reuse_user_seed,
+					 uint64_t user_specified_seed,
+					 wxWindow* parent, wxWindowID id = wxID_ANY,
+					 const wxString& caption = "Randomization",
+					 const wxPoint& pos = wxDefaultPosition,
+					 const wxSize& my_size = wxDefaultSize,
+					 long style = wxCAPTION|wxSYSTEM_MENU);
+	virtual ~RandomizationDlg();
+    void CreateControls();
+
+	void OnMouse( wxMouseEvent& event );
+    void OnClose( wxCloseEvent& event );
+    void OnOkClick( wxCommandEvent& event );
+
+    RandomizationPanel* panel;
 };
 
 #endif

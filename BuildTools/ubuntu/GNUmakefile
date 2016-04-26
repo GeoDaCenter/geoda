@@ -10,8 +10,8 @@ default:	compile-geoda
 
 app:  build-geoda-mac
 
-compile-geoda:	dataviewer-target generic-target dialogtools-target \
-		explore-target knn-target regression-target \
+compile-geoda:	dataviewer-target dialogtools-target \
+		explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
 		geoda-target
 
@@ -26,17 +26,14 @@ resource-target:
 dataviewer-target:
 	(cd $(GeoDa_ROOT)/DataViewer; $(MAKE))
 
-generic-target:
-	(cd $(GeoDa_ROOT)/Generic; $(MAKE))
-
 dialogtools-target:
 	(cd $(GeoDa_ROOT)/DialogTools; $(MAKE))
 
 explore-target:
 	(cd $(GeoDa_ROOT)/Explore; $(MAKE))
 
-knn-target:
-	(cd $(GeoDa_ROOT)/kNN; $(MAKE))
+libgdiam-target:
+	(cd $(GeoDa_ROOT)/libgdiam; $(MAKE))
 
 regression-target:
 	(cd $(GeoDa_ROOT)/Regression; $(MAKE))
@@ -56,6 +53,7 @@ build-geoda-mac:
 	mkdir build/Resources
 	mkdir build/gdaldata
 	mkdir build/plugins
+	mkdir build/basemap_cache
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
@@ -64,7 +62,7 @@ build-geoda-mac:
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
 	cp $(GeoDa_ROOT)/rc/menus.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/toolbar.xrc build/Resources
-	cp $(GEODA_HOME)/libraries/lib/libgdal.so.1.16.2 build/plugins/libgdal.so.1
+	cp $(GEODA_HOME)/libraries/lib/libgdal.so.20.0.0 build/plugins/libgdal.so.20
 	cp $(GEODA_HOME)/libraries/lib/libkmldom.so.0.0.0 build/plugins/libkmldom.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlengine.so.0.0.0 build/plugins/libkmlengine.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlbase.so.0.0.0 build/plugins/libkmlbase.so.0

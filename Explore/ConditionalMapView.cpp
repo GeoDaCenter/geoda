@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,8 +34,6 @@
 #include "../DialogTools/CatClassifDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
-#include "../GenUtils.h"
-#include "../FramesManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
@@ -56,7 +54,7 @@ const int ConditionalMapCanvas::CAT_VAR = 2; // main theme variable
 ConditionalMapCanvas::ConditionalMapCanvas(wxWindow *parent,
 									   TemplateFrame* t_frame,
 									   Project* project_s,
-									   const std::vector<GeoDaVarInfo>& v_info,
+									   const std::vector<GdaVarTools::VarInfo>& v_info,
 									   const std::vector<int>& col_ids,
 									   const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
@@ -95,7 +93,7 @@ full_map_redraw_needed(true)
 								   &current_shps_width, &current_shps_height);
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 
-	if (project->main_data.header.shape_type == Shapefile::POINT) {
+	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
 		selectable_shps_type = points;
 		highlight_color = *wxRED;
 	} else {
@@ -161,7 +159,7 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting ConditionalMapCanvas::DisplayRightClickMenu");
 }
@@ -384,7 +382,7 @@ void ConditionalMapCanvas::OnSaveCategories()
 void ConditionalMapCanvas::NewCustomCatClassifMap()
 {
 	// we know that all three var_info variables are defined, so need
-	// need to prompt user as with MapNewCanvas
+	// need to prompt user as with MapCanvas
 	
 	// Fully update cat_classif_def fields according to current
 	// categorization state
@@ -404,7 +402,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 		}
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_map, "",
 										  var_info[CAT_VAR].name,
@@ -1291,7 +1289,8 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
 											  cat_data, map_valid,
-											  map_error_message);
+											  map_error_message,
+                                              this->useScientificNotation);
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
 										- var_info[ref_var_index].time_min);
@@ -1327,9 +1326,12 @@ void ConditionalMapCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+		s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "obs " << hover_obs[0]+1 << " = ";
+			s << "hover obs " << hover_obs[0]+1 << " = ";
 			s << data[CAT_VAR][var_info[CAT_VAR].time][hover_obs[0]];
 		}
 		if (total_hover_obs >= 2) {
@@ -1345,10 +1347,7 @@ void ConditionalMapCanvas::UpdateStatusBar()
 		if (total_hover_obs >= 4) {
 			s << ", ...";
 		}
-	} else if (mousemode == select &&
-			   (selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
-	}
+	} 
 	sb->SetStatusText(s);
 }
 
@@ -1372,7 +1371,7 @@ BEGIN_EVENT_TABLE(ConditionalMapFrame, ConditionalNewFrame)
 END_EVENT_TABLE()
 
 ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
-									 const std::vector<GeoDaVarInfo>& var_info,
+									 const std::vector<GdaVarTools::VarInfo>& var_info,
 									 const std::vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)
@@ -1406,6 +1405,7 @@ ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
 	template_legend = new ConditionalMapLegend(lpanel, template_canvas,
 									   wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    template_legend->GetContainingSizer()->Detach(template_legend);
     lbox->Add(template_legend, 1, wxEXPAND);
     lpanel->SetSizer(lbox);
 

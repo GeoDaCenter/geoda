@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -51,23 +51,24 @@ namespace CatClassification {
 		unique_values_break_vals, natural_breaks_break_vals,
 		equal_intervals_break_vals, custom_break_vals };
 	
-	enum ColorScheme { sequential_color_scheme,
-		diverging_color_scheme, qualitative_color_scheme,
-		custom_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
-							 std::vector<wxString>& cat_labels);
+                             std::vector<wxString>& cat_labels,
+                             bool useScientifcNotation=false);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
-						const CatClassifType theme, int num_cats);
+						const CatClassifType theme, int num_cats,
+                        bool useScientificNotation=false);
 	
 	void PopulateCatClassifData(const CatClassifDef& cat_def,
 				const std::vector<Gda::dbl_int_pair_vec_type>& var,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				std::vector<wxString>& cats_error_message);
+				std::vector<wxString>& cats_error_message,
+                bool useSciNotation=false);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int);
@@ -86,7 +87,6 @@ namespace CatClassification {
 	
 	void PickColorSet(std::vector<wxColour>& color_vec,
 					  ColorScheme coltype, int num_color, bool reversed=false);
-	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
 	
 	void ChangeNumCats(int num_cats, CatClassifDef& cc);
 	int ChangeBreakValue(int brk, double new_val, CatClassifDef& cc);
@@ -142,6 +142,9 @@ struct Category {
 	wxBrush brush;
 	wxPen pen; // always derived from brush
 	wxString label;
+    // used for a special case in percentile like legend
+    // e.g. 1% - 10% (34) 0.1 - 0.9
+	wxString label_ext;
 	int count;
 	std::vector<int> ids;
 	double min_val;
@@ -184,6 +187,7 @@ struct CatClassifData {
 	wxString GetCatLblWithCnt(int canvas_tm, int cat);
 	wxString GetCategoryLabel(int canvas_tm, int cat);
 	void SetCategoryLabel(int canvas_tm, int cat, const wxString& label);
+	void SetCategoryLabelExt(int canvas_tm, int cat, const wxString& label);
 	int GetCategoryCount(int canvas_tm, int cat);
 	void SetCategoryCount(int canvas_tm, int cat, int count);
 	void ResetCategoryMinMax(int canvas_tm, int cat);

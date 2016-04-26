@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -49,13 +49,13 @@ CartNbrInfo::CartNbrInfo(GalElement* gal, int num_obs)
 	perimeter = new double[bodies];
 
 	for (int i=0; i<num_obs; i++) {
-		int n_cnt = gal[i].size;
+		int n_cnt = gal[i].Size();
 		nbours[i+1] = n_cnt;
 		nbour[i+1] = new int[n_cnt+1];
 		border[i+1] = new double[n_cnt+1];
 		perimeter[i+1] = n_cnt;
 		for (int j=0; j<n_cnt; j++) {
-			nbour[i+1][j+1] = gal[i].data[j]+1;
+			nbour[i+1][j+1] = gal[i][j]+1;
 			border[i+1][j+1] = 1;
 		}
 	}
@@ -90,7 +90,7 @@ CartNbrInfo::~CartNbrInfo()
 
 const double DorlingCartogram::friction = 0.25;
 const double DorlingCartogram::ratio = 0.1;
-const double DorlingCartogram::pi = 3.14159265;
+const double DorlingCartogram::pi = 3.141592653589793238463;
 
 DorlingCartogram::DorlingCartogram(CartNbrInfo* nbs,
 								   const std::vector<double>& orig_x,
@@ -105,6 +105,7 @@ nbours(nbs->nbours), nbour(nbs->nbour), border(nbs->border),
 perimeter(nbs->perimeter),
 secs_per_iter(0.01)
 {
+    LOG_MSG("Entering DorlingCartogram()");
 	x = new double[bodies];
 	y = new double[bodies];
 	people = new double[bodies];
@@ -115,6 +116,8 @@ secs_per_iter(0.01)
 	tree = new leaf[bodies];
 	
 	init_cartogram(orig_x, orig_y, orig_data, orig_data_min, orig_data_max);
+    
+    LOG_MSG("Exiting DorlingCartogram()");
 }
 
 DorlingCartogram::~DorlingCartogram()

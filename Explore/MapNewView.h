@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,40 +21,74 @@
 #define __GEODA_CENTER_MAP_NEW_VIEW_H__
 
 #include <vector>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/nil_generator.hpp>
+#include <wx/slider.h>
+#include <wx/stattext.h>
+#include <wx/dialog.h>
+#include <wx/textctrl.h>
+#include <wx/window.h>
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 
 class CatClassifState;
-class MapNewFrame;
-class MapNewCanvas;
+class MapFrame;
+class MapCanvas;
 class MapNewLegend;
 class TableInterface;
-class GalWeight;
+class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
 
-class MapNewCanvas : public TemplateCanvas, public CatClassifStateObserver {
-	DECLARE_CLASS(MapNewCanvas)
+
+// Transparency SliderBar dialog for Basemap
+class SliderDialog: public wxDialog
+{
+    DECLARE_CLASS( SliderDialog )
+    DECLARE_EVENT_TABLE()
+public:
+    SliderDialog ();
+	SliderDialog (wxWindow * parent, TemplateCanvas* _canvas, wxWindowID id=wxID_ANY,
+                  const wxString & caption="Slider Dialog",
+                 const wxPoint & pos = wxDefaultPosition,
+                 const wxSize & size = wxDefaultSize,
+                 long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~SliderDialog ();
+    
+private:
+    TemplateCanvas* canvas;
+    wxSlider* slider;
+    wxStaticText* slider_text;
+	void OnSliderChange(wxScrollEvent& event );
+    
+};
+
+class MapCanvas : public TemplateCanvas, public CatClassifStateObserver
+{
+	DECLARE_CLASS(MapCanvas)
 public:
 	
 	enum SmoothingType { no_smoothing, raw_rate, excess_risk, empirical_bayes,
 		spatial_rate, spatial_empirical_bayes };
 	
-	MapNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
+	MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 				 Project* project,
-				 const std::vector<GeoDaVarInfo>& var_info,
+				 const std::vector<GdaVarTools::VarInfo>& var_info,
 				 const std::vector<int>& col_ids,
 				 CatClassification::CatClassifType theme_type =
 					CatClassification::no_theme,
 				 SmoothingType smoothing_type = no_smoothing,
 				 int num_categories = 1,
+				 boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
 				 const wxPoint& pos = wxDefaultPosition,
 				 const wxSize& size = wxDefaultSize);
-	virtual ~MapNewCanvas();
+	virtual ~MapCanvas();
+
 
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
@@ -65,28 +99,56 @@ public:
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 						SmoothingType new_map_smoothing,
 						int num_categories,
+						boost::uuids::uuid weights_id,
 						bool use_new_var_info_and_col_ids,
-						const std::vector<GeoDaVarInfo>& new_var_info,
+						const std::vector<GdaVarTools::VarInfo>& new_var_info,
 						const std::vector<int>& new_col_ids,
 						const wxString& custom_classif_title = wxEmptyString);
+	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
 	virtual void SaveRates();
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
-protected:
+    int GetBasemapType();
+    void CleanBasemapCache();
+    
+    
+public:
+	bool DrawBasemap(bool flag, int map_type);
+	virtual void DrawLayerBase();
+	virtual void DrawLayers();
+#ifdef __linux__
+	// in linux, use old style drawing without transparency support
+	// the commented out functions are inherited from TemplateCanvas class
+	// TODO will be replace by wxImage drawing code
+    	virtual void resizeLayerBms(int width, int height);
+	virtual void DrawLayer0();
+	//virtual void DrawLayer1();
+	//virtual void DrawLayer2();
+	//virtual void OnPaint(wxPaintEvent& event);
+#else
+    	virtual void resizeLayerBms(int width, int height);
+	virtual void DrawLayer0();
+	virtual void DrawLayer1();
+	virtual void DrawLayer2();
+	virtual void OnPaint(wxPaintEvent& event);
+#endif
+
+    
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	virtual void CreateAndUpdateCategories();
 
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void DisplayMeanCenters();
 	virtual void DisplayCentroids();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
+	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
+	virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
 	
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
@@ -97,10 +159,11 @@ public:
 	bool display_voronoi_diagram;
 	bool voronoi_diagram_duplicates_exist;
 	
+	std::vector<GdaVarTools::VarInfo> var_info;
+    
 protected:
-	Project* project;
+    
 	TableInterface* table_int;
-	HighlightState* highlight_state;
 	CatClassifState* custom_classif_state;
 	
 	int num_obs;
@@ -110,7 +173,6 @@ protected:
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
@@ -118,7 +180,7 @@ protected:
 	
 	bool full_map_redraw_needed;
 	
-	GalWeight* gal_weight;
+	boost::uuids::uuid weights_id;
 	
 	virtual void UpdateStatusBar();
 		
@@ -132,34 +194,43 @@ public:
 	virtual ~MapNewLegend();
 };
 
-class MapNewFrame : public TemplateFrame {
-   DECLARE_CLASS(MapNewFrame)
+class MapFrame : public TemplateFrame, public WeightsManStateObserver
+{
+   DECLARE_CLASS(MapFrame)
 public:
-    MapNewFrame(wxFrame *parent, Project* project,
-				const std::vector<GeoDaVarInfo>& var_info,
+    MapFrame(wxFrame *parent, Project* project,
+				const std::vector<GdaVarTools::VarInfo>& var_info,
 				const std::vector<int>& col_ids,
 				CatClassification::CatClassifType theme_type =
 					CatClassification::no_theme,
-				MapNewCanvas::SmoothingType smoothing_type
-				  = MapNewCanvas::no_smoothing,
+				MapCanvas::SmoothingType smoothing_type
+				  = MapCanvas::no_smoothing,
 				int num_categories = 1,
+				boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				const long style = wxDEFAULT_FRAME_STYLE);
 	/** This constructor should only be called by derived classes */
-	MapNewFrame(wxFrame *parent, Project* project,
+	MapFrame(wxFrame *parent, Project* project,
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~MapNewFrame();
+    virtual ~MapFrame();
 
+    void SetupToolbar();
     void OnActivate(wxActivateEvent& event);
+    
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
+	
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
+	virtual void closeObserver(boost::uuids::uuid id);
 	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
@@ -186,15 +257,43 @@ public:
 	virtual void OnExportMeanCntrs();
 	virtual void OnExportCentroids();
 	virtual void OnSaveVoronoiDupsToTable();
+    
+    virtual void OnChangeMapTransparency();
+    virtual void OnDrawBasemap(bool flag, int map_type);
+    
+    void CleanBasemap();
+    
+	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
+	
+    void GetVizInfo(wxString& shape_type,
+                    wxString& field_name,
+                    std::vector<wxString>& clrs,
+                    std::vector<double>& bins);
+    
+protected:
+    
+    void OnMapSelect(wxCommandEvent& e);
+    void OnMapInvertSelect(wxCommandEvent& e);
+    void OnMapPan(wxCommandEvent& e);
+    void OnMapZoom(wxCommandEvent& e);
+    void OnMapZoomOut(wxCommandEvent& e);
+    void OnMapExtent(wxCommandEvent& e);
+    void OnMapRefresh(wxCommandEvent& e);
+    //void OnMapBrush(wxCommandEvent& e);
+    void OnMapBasemap(wxCommandEvent& e);
+    
 	
 protected:
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
-					   MapNewCanvas::SmoothingType new_map_smoothing,
+					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
+					   boost::uuids::uuid weights_id,
 					   bool use_new_var_info_and_col_ids,
-					   const std::vector<GeoDaVarInfo>& new_var_info,
+					   const std::vector<GdaVarTools::VarInfo>& new_var_info,
 					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
+	
+	WeightsManState* w_man_state;
 	
     DECLARE_EVENT_TABLE()
 };

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -38,13 +38,14 @@ class FramesManager;
 class TableState;
 class TableInterface;
 class Project;
+class WeightsManInterface;
 
 class VarGroupingEditorDlg: public wxDialog, public FramesManagerObserver,
 public TableStateObserver
 {    
 public:
     VarGroupingEditorDlg(Project* project, wxWindow* parent,
-				   const wxString& title = "Variable Grouping Editor", 
+				   const wxString& title = "Time Editor", 
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
 				   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );
@@ -56,6 +57,7 @@ public:
 	void InitGroupedList();
 	
 	void OnClose(wxCloseEvent& event);
+    void OnSaveSpaceTimeTableClick( wxCommandEvent& event );
     void OnCreateGrpClick( wxCommandEvent& event );
 	void OnUngroupClick( wxCommandEvent& event );
 	
@@ -67,14 +69,33 @@ public:
 	void OnRemoveFrListClick( wxCommandEvent& event );
 	void OnUngroupedListSelection( wxListEvent& event );
 	void OnUngroupedListItemActivate( wxListEvent& event );
-	void OnIncludeListSelection( wxListEvent& event );
+	
+    void OnIncludeListSelection( wxListEvent& event );
 	void OnIncludeListItemActivate( wxListEvent& event);
+    void OnIncludeListEdit( wxListEvent& event );
+    void OnIncludeListEditEnd( wxListEvent& event );
+    void OnIncludeListColClick( wxListEvent& event );
+    
+    void OnIncludeListDblClicked( wxMouseEvent& event);
+    void OnIncludeListRightUp( wxMouseEvent& event);
+    void OnIncludeListRightDown( wxMouseEvent& event);
+    void OnIncludePopupClick(wxCommandEvent &evt);
+    
+    void includeListAddNewTime();
+    void includeListDeleteTime();
+    void sortColumn(int col, bool asc=false);
+    wxString GetNewAppendTimeLabel();
+
+    void OnUngroupedListLeftDown(wxMouseEvent& event);
+    
 	void OnGroupedListSelection( wxCommandEvent& event );
 	void OnNewGroupNameChange( wxCommandEvent& event );
-	
+
+	void OnSaveSTHelp( wxCommandEvent& event );
 	void OnUngroupedVarsHelp( wxCommandEvent& event );
 	void OnNewGroupHelp( wxCommandEvent& event );
 	void OnCurGroupedHelp( wxCommandEvent& event );
+    void OnLoadFromGda( wxCommandEvent& event );
 	
 	void UpdateGroupButton();
 	void UpdateAddToListButton();
@@ -85,6 +106,7 @@ public:
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowTimelineChanges() { return true; }
@@ -98,11 +120,20 @@ public:
 	void SelectItem(wxListCtrl* lc, int i);
 	void UnselectItem(wxListCtrl* lc, int i);
 	bool IsItemSel(wxListCtrl* lc, int i);
+    
+
 	
-private:
+protected:
+	HighlightState* highlight_state;
+    WeightsManInterface* wmi;
+    
 	int GetIncListNameCnt();
 	int GetIncListNonPlaceholderCnt();
+    wxString GenerateTimeLabel();
 	
+    bool is_editing;
+    int pos_ungrouped_list;
+    
 	bool all_init;
 	wxButton* group_button;
 	wxButton* ungroup_button;
@@ -110,7 +141,8 @@ private:
 	wxTextCtrl* new_group_name_txt_ctrl;
 	wxStaticText* new_field_type_stat_txt;
 	wxStaticText* include_list_stat_txt;
-	
+
+    wxButton* save_spacetime_button;
 	wxButton* move_up_button;
 	wxButton* move_down_button;
 	wxButton* sort_button;
@@ -121,12 +153,15 @@ private:
 	
 	wxListCtrl* ungrouped_list;
 	wxListCtrl* include_list;
+    bool sort_asc;
+    
 	wxListBox* grouped_list;
 	
 	FramesManager* frames_manager;
 	TableState* table_state;
 	TableInterface* table_int;
-
+    Project* project;
+    
 	bool common_empty;
 	wxString common_type;
 	

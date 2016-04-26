@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,7 +34,7 @@ public:
 	
 	ConditionalMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 					   Project* project,
-					   const std::vector<GeoDaVarInfo>& var_info,
+					   const std::vector<GdaVarTools::VarInfo>& var_info,
 					   const std::vector<int>& col_ids,
 					   const wxPoint& pos = wxDefaultPosition,
 					   const wxSize& size = wxDefaultSize);
@@ -107,7 +107,7 @@ class ConditionalMapFrame : public ConditionalNewFrame {
    DECLARE_CLASS(ConditionalMapFrame)
 public:
     ConditionalMapFrame(wxFrame *parent, Project* project,
-					  const std::vector<GeoDaVarInfo>& var_info,
+					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
 					  const wxString& title = "Conditional Map",
 					  const wxPoint& pos = wxDefaultPosition,

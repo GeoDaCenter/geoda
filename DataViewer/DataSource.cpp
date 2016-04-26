@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -133,6 +133,9 @@ wxString IDataSource::GetDataTypeNameByExt(wxString ext)
         ds_format = "CouchDB";
     else if(ext.CmpNoCase("vct")==0)
         ds_format = "Idrisi";
+    else if(ext.CmpNoCase("ods")==0)
+        ds_format = "ODS";
+
     //else
     //    ds_format = "Unknown";
     return ds_format;
@@ -162,7 +165,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
     if (GdaConst::datasrc_str_to_type.find(data_type_name.ToStdString()) ==
         GdaConst::datasrc_str_to_type.end()) {
         stringstream ss;
-        ss << "datasource.type " << data_type_name << " unknown.";
+        ss << _("datasource.type ") << data_type_name << _(" unknown.");
         throw GdaException(ss.str().c_str());
     }
     
@@ -176,6 +179,8 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
         type == GdaConst::ds_kml ||
         type == GdaConst::ds_mapinfo ||
         type == GdaConst::ds_shapefile ||
+        type == GdaConst::ds_esri_personal_gdb ||
+        type == GdaConst::ds_odbc ||
         type == GdaConst::ds_sqlite ||
         type == GdaConst::ds_xls ||
         type == GdaConst::ds_xlsx ||
@@ -183,14 +188,16 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
     {
         // using <file>xxx</file> to create DataSource instance
         return new FileDataSource(subtree, type, proj_path);
+        
     } else if (type == GdaConst::ds_oci ||
+               type == GdaConst::ds_mysql ||
                type == GdaConst::ds_postgresql ||
                type == GdaConst::ds_esri_arc_sde )
     {
         // using <db_name>xxx</db_name>... to create DataSource instance
         return new DBDataSource(subtree, type, "");
-    } else if (type == GdaConst::ds_wfs)
-    {
+        
+    } else if (type == GdaConst::ds_wfs || type == GdaConst::ds_cartodb) {
         // using <url></url> to create Datasource instance
         return new WebServiceDataSource(subtree, type, "");
     }
@@ -238,14 +245,22 @@ void FileDataSource::ReadPtree(const ptree& pt,
         
 		if (ds_type == GdaConst::ds_unknown) {
 			stringstream ss;
-			ss << "datasource.type " << type_str << " unknown.";
+			ss << _("datasource.type ") << type_str << _(" unknown.");
 			throw GdaException(ss.str().c_str());
 		}
 		
         file_repository_path = pt.get<string>("path");
 		file_repository_path = GenUtils::RestorePath(proj_path,
 													 file_repository_path);
-		
+        
+        if (!wxFileExists(file_repository_path)) {
+            wxString msg;
+            msg << _("The GeoDa project file cannot find one or more associated data sources.\n\n");
+            msg << _("Details: GeoDa is looking for: ") << file_repository_path;
+            msg << _("\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
+            
+            throw GdaException(msg.mb_str());
+        }
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
@@ -275,8 +290,7 @@ wxString FileDataSource::GetOGRConnectStr()
 	}
     
     wxString error_msg;
-    error_msg << "Datasource (" << file_repository_path << ") doesn't "
-              << "exist. Please check the project configuration file.";
+    error_msg << _("Data source (") << file_repository_path << _(") doesn't exist. Please check the project configuration file.");
     throw GdaException(error_msg.mb_str());
 }
 //------------------------------------------------------------------------------
@@ -299,7 +313,7 @@ WebServiceDataSource::WebServiceDataSource(wxString ws_url,
 
 IDataSource* WebServiceDataSource::Clone()
 {
-    return new WebServiceDataSource(webservice_url);
+    return new WebServiceDataSource(webservice_url, ds_type);
 }
 
 void WebServiceDataSource::ReadPtree(const ptree& pt,
@@ -311,7 +325,7 @@ void WebServiceDataSource::ReadPtree(const ptree& pt,
         
 		if (ds_type == GdaConst::ds_unknown) {
 			stringstream ss;
-			ss << "datasource.type " << type_str << " unknown.";
+			ss << _("datasource.type ") << type_str << _(" unknown.");
 			throw GdaException(ss.str().c_str());
 		}
 		
@@ -422,7 +436,7 @@ void DBDataSource::ReadPtree(const ptree& pt,
         
         if (ds_type == GdaConst::ds_unknown) {
             stringstream ss;
-            ss << "datasource.type " << type_str << " unknown.";
+            ss << _("datasource type ") << type_str << _(" unknown.");
             throw GdaException(ss.str().c_str());
         }
         

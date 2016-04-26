@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -68,7 +68,10 @@ void TableState::removeObserver(TableStateObserver* o)
 	LOG_MSG("Entering TableState::removeObserver");
 	observers.remove(o);
 	LOG(observers.size());
-	if (observers.size() == 0 && delete_self_when_empty) delete this;
+	if (observers.size() == 0 && delete_self_when_empty) {
+		LOG_MSG("No more observers left, so deleting self");
+		delete this;
+	}
 	LOG_MSG("Exiting TableState::removeObserver");
 }
 
@@ -125,6 +128,11 @@ void TableState::SetTimeIdsRenameEvtTyp()
 void TableState::SetTimeIdsSwapEvtTyp()
 {
 	event_type = TableState::time_ids_swap;
+}
+
+void TableState::SetRefreshEvtTyp()
+{
+    event_type = TableState::refresh;
 }
 
 void TableState::SetColDispDecimalsEvtTyp(const wxString& name, int pos)

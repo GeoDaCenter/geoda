@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,13 +35,16 @@
 
 using namespace std;
 
-class OGRTable : public TableInterface
+class OGRTable : public TableInterface, TableStateObserver
 {
 public:
 	OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
              TableState* table_state, TimeState* time_state,
              const VarOrderPtree& var_order_ptree);
-	virtual ~OGRTable();
+    
+    OGRTable(int n_rows);
+    
+    virtual ~OGRTable();
 
 private:
     GdaConst::DataSourceType datasource_type;
@@ -63,12 +66,24 @@ private:
     void AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx);
 	
 public:
+    /** Implementation of TableStateObserver interface */
+    virtual void update(TableState* o);
+    virtual bool AllowTimelineChanges() { return true; }
+    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+    virtual bool AllowObservationAddDelete() { return true; }
+    
     // Public methods specific to OGRTable
 	OGRLayerProxy* GetOGRLayer() { return ogr_layer; }
     //void ChangeOGRLayer(OGRLayerProxy* new_ogr_layer);
 
 public:
+    // These functions for in-memory table
+    void AddOGRColumn(OGRColumn* ogr_col);
+    OGRColumn* GetOGRColumn(int idx);
+    
+    
 	// Implementation of TableInterface pure virtual methods
+    virtual void Update(const VarOrderPtree& var_order_ptree);
     
 	virtual GdaConst::DataSourceType GetDataSourceType();
 	virtual void GetTimeStrings(std::vector<wxString>& tm_strs);
@@ -92,6 +107,7 @@ public:
 	
 	virtual bool DbColNmToColAndTm(const wxString& name, int& col, int& tm);
 	virtual int  FindColId(const wxString& name);
+    virtual int  GetColIdx(const wxString& name);
 	virtual void FillColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
@@ -102,6 +118,7 @@ public:
 	virtual int  GetColTimeSteps(int col);
 	virtual bool IsColNumeric(int col);
 	virtual GdaConst::FieldType GetColType(int col);
+	virtual std::vector<GdaConst::FieldType> GetColTypes(int col);
 	virtual GdaConst::FieldType GetColType(int col, int time);
 	virtual bool DoesNameExist(const wxString& name, bool case_sensitive) const;
 	virtual wxString GetColName(int col);
@@ -110,7 +127,9 @@ public:
 	virtual int  GetColDecimals(int col, int time=0);
 	virtual int  GetColDispDecimals(int col);
 	virtual void GetColData(int col, GdaFlexValue& data);
-	virtual void GetColData(int col, d_array_type& dbl_data);
+	virtual void GetColData(int col, d_array_type& data);
+	virtual void GetColData(int col, l_array_type& data);
+	virtual void GetColData(int col, s_array_type& data);
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,14 +21,20 @@
 #include <wx/wxprec.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
+#include "../FramesManager.h"
+#include "../DataViewer/TableState.h"
+#include "../ShapeOperations/WeightsManState.h"
 #include "../Project.h"
-#include "../DataViewer/TableInterface.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
+#include "../logger.h"
 #include "FieldNewCalcSheetDlg.h"
 
 BEGIN_EVENT_TABLE( FieldNewCalcSheetDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_APPLY"), FieldNewCalcSheetDlg::OnApplyClick )
+	EVT_NOTEBOOK_PAGE_CHANGED( XRCID("ID_NOTEBOOK"), 
+							  FieldNewCalcSheetDlg::OnPageChange )
+	EVT_CLOSE( FieldNewCalcSheetDlg::OnClose )
 END_EVENT_TABLE()
 
 FieldNewCalcSheetDlg::FieldNewCalcSheetDlg(Project* project_s,
@@ -36,7 +42,10 @@ FieldNewCalcSheetDlg::FieldNewCalcSheetDlg(Project* project_s,
 										   const wxString& caption, 
 										   const wxPoint& pos,
 										   const wxSize& size, long style )
-: project(project_s)
+: project(project_s), frames_manager(project_s->GetFramesManager()),
+table_state(project_s->GetTableState()),
+w_man_state(project_s->GetWManState())
+
 {
 	Create(parent, id, caption, pos, size, style);
 
@@ -56,7 +65,21 @@ FieldNewCalcSheetDlg::FieldNewCalcSheetDlg(Project* project_s,
 	m_note->AddPage(pBin, "Bivariate");
 	m_note->AddPage(pLag, "Spatial Lag");
 	m_note->AddPage(pRate, "Rates");
+	pLag->InitWeightsList();
+	pRate->InitWeightsList();
 	this->SetSize(-1,-1,-1,-1);
+	frames_manager->registerObserver(this);
+	table_state->registerObserver(this);
+	w_man_state->registerObserver(this);
+}
+
+FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg()
+{
+	LOG_MSG("In FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg");
+    
+    frames_manager->removeObserver(this);
+    table_state->removeObserver(this);
+    w_man_state->removeObserver(this);
 }
 
 bool FieldNewCalcSheetDlg::Create( wxWindow* parent, wxWindowID id,
@@ -78,6 +101,29 @@ void FieldNewCalcSheetDlg::CreateControls()
     m_note = XRCCTRL(*this, "ID_NOTEBOOK", wxNotebook);
 }
 
+void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
+{
+	int tab_idx = event.GetOldSelection();
+	int var_sel_idx = -1;
+	if (tab_idx == 0) 
+		var_sel_idx = pSpecial->m_result->GetCurrentSelection();
+	else if (tab_idx == 1) 
+		var_sel_idx = pUni->m_result->GetCurrentSelection();
+	else if (tab_idx == 2) 
+		var_sel_idx = pBin->m_result->GetCurrentSelection();
+	else if (tab_idx == 3) 
+		var_sel_idx = pLag->m_result->GetCurrentSelection();
+	else if (tab_idx == 4) 
+		var_sel_idx = pRate->m_result->GetCurrentSelection();
+	
+	{
+		pSpecial->m_result->SetSelection(var_sel_idx);
+		pUni->m_result->SetSelection(var_sel_idx);
+		pBin->m_result->SetSelection(var_sel_idx);
+		pLag->m_result->SetSelection(var_sel_idx);
+		pRate->m_result->SetSelection(var_sel_idx);
+	}
+}
 
 void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 {
@@ -128,3 +174,27 @@ void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 	}
 }
 
+void FieldNewCalcSheetDlg::OnClose(wxCloseEvent& event)
+{
+	LOG_MSG("In FieldNewCalcSheetDlg::OnClose");
+    Destroy();
+}
+
+void FieldNewCalcSheetDlg::update(FramesManager* o)
+{
+}
+
+void FieldNewCalcSheetDlg::update(TableState* o)
+{
+	pSpecial->InitFieldChoices();
+	pUni->InitFieldChoices();
+	pBin->InitFieldChoices();
+	pLag->InitFieldChoices();
+	pRate->InitFieldChoices();
+}
+
+void FieldNewCalcSheetDlg::update(WeightsManState* o)
+{
+	pLag->InitWeightsList();
+	pRate->InitWeightsList();
+}

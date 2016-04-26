@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,11 +35,69 @@
 #include "../DialogTools/CatClassifDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
+#include "../ShapeOperations/Lowess.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "ScatterNewPlotView.h"
+
+
+BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption )
+: wxDialog( NULL, -1, caption, wxDefaultPosition, wxDefaultSize)
+{
+    canvas = _canvas;
+    
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(topSizer);
+    
+    wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    
+    double pos = canvas->bubble_size_scaler;
+    pos = pos < 1 ? pos * 100.0 - 101 : (pos - 1.0) * 100.0;
+	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
+    slider = new wxSlider(this, XRCID("ID_BUBBLE_SLIDER"), int(pos), -95, 80,
+                          wxDefaultPosition, wxSize(200, -1),
+                          wxSL_HORIZONTAL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"small"), 0, wxALIGN_CENTER_VERTICAL|wxALL);
+    subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"large"), 0,wxALIGN_CENTER_VERTICAL|wxALL);
+    
+	boxSizer->Add(subSizer);
+    resetBtn = new wxButton(this, XRCID("ID_RESET"), wxT("Reset"), wxDefaultPosition, wxSize(100, -1));
+    topSizer->Add(resetBtn, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
+    
+    topSizer->Fit(this);
+    
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
+}
+
+void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
+{
+    slider->SetValue(0);
+    canvas->UpdateBubbleSize(1);
+}
+void BubbleSizeSliderDlg::OnSliderChange( wxScrollEvent & event )
+{
+    int val = event.GetInt();
+    if (val == 0){
+        canvas->UpdateBubbleSize(1);
+        return;
+    }
+    
+    double size_scaler = 0.0;
+    
+    if (val < 0)
+        size_scaler = (100 + val) / 100.0;
+    
+    if (val > 0)
+        size_scaler = 1.0 + val / 100.0;
+    
+    canvas->UpdateBubbleSize(size_scaler);
+}
 
 IMPLEMENT_CLASS(ScatterNewPlotCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(ScatterNewPlotCanvas, TemplateCanvas)
@@ -49,42 +107,43 @@ BEGIN_EVENT_TABLE(ScatterNewPlotCanvas, TemplateCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-/** This is a more-basic constructor that does not populate the canvas. It
+/** This is a basic constructor that does not populate the canvas. It
  is intended to be used in derived classes. */
 ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
 										   TemplateFrame* t_frame,
 										   Project* project_s,
 										   const wxPoint& pos,
 										   const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
 project(project_s), num_obs(project_s->GetNumRecords()),
 num_categories(1), num_time_vals(1),
-highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
+custom_classif_state(0),
 is_bubble_plot(false), axis_scale_x(), axis_scale_y(),
-standardized(false), reg_line(0), stats_table(0),
-reg_line_selected(0), reg_line_selected_slope(0),
+standardized(false), reg_line(0), lowess_reg_line(0), stats_table(0),
+reg_line_selected(0), lowess_reg_line_selected(0), reg_line_selected_slope(0),
 reg_line_selected_infinite_slope(false), reg_line_selected_defined(false),
-reg_line_excluded(0), reg_line_excluded_slope(0),
+reg_line_excluded(0), lowess_reg_line_excluded(0), reg_line_excluded_slope(0),
 reg_line_excluded_infinite_slope(false), reg_line_excluded_defined(false),
 x_axis_through_origin(0), y_axis_through_origin(0),
 show_origin_axes(true), display_stats(false),
 show_reg_selected(true), show_reg_excluded(true),
 sse_c(0), sse_sel(0), sse_unsel(0),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
+show_linear_smoother(true), show_lowess_smoother(false), enableLowess(true),
 table_display_lines(0),
 X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()), Z(0),
-obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
+obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
+bubble_size_scaler(1.0)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
-	template_frame = t_frame;
 	use_category_brushes = true;
 	draw_sel_shps_by_z_val = false;
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
-	selectable_fill_color =
-		GdaConst::scatterplot_regression_excluded_color;
+	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
-		
+	
 	shps_orig_xmin = 0;
 	shps_orig_ymin = 0;
 	shps_orig_xmax = 100;
@@ -107,37 +166,39 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
 										    TemplateFrame* t_frame,
 										   Project* project_s,
-										const std::vector<GeoDaVarInfo>& v_info,
+										const std::vector<GdaVarTools::VarInfo>& v_info,
 										   const std::vector<int>& col_ids,
 										   bool is_bubble_plot_s,
 										   bool standardized_s,
 										   const wxPoint& pos,
 										   const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_categories(is_bubble_plot ? 1 : 3), num_time_vals(1),
 data(v_info.size()),
-highlight_state(project_s->GetHighlightState()), custom_classif_state(0),
+custom_classif_state(0),
 is_bubble_plot(is_bubble_plot_s),
 axis_scale_x(), axis_scale_y(),
-standardized(standardized_s), reg_line(0), stats_table(0),
-reg_line_selected(0), reg_line_selected_slope(0),
+standardized(standardized_s), reg_line(0), lowess_reg_line(0), stats_table(0),
+reg_line_selected(0), lowess_reg_line_selected(0), reg_line_selected_slope(0),
 reg_line_selected_infinite_slope(false), reg_line_selected_defined(false),
-reg_line_excluded(0), reg_line_excluded_slope(0),
+reg_line_excluded(0), lowess_reg_line_excluded(0), reg_line_excluded_slope(0),
 reg_line_excluded_infinite_slope(false), reg_line_excluded_defined(false),
 x_axis_through_origin(0), y_axis_through_origin(0),
 show_origin_axes(true), display_stats(!is_bubble_plot_s),
 show_reg_selected(!is_bubble_plot_s), show_reg_excluded(!is_bubble_plot_s),
 sse_c(0), sse_sel(0), sse_unsel(0),
+show_linear_smoother(!is_bubble_plot_s), show_lowess_smoother(false), enableLowess(true),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
 X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()),
 Z(is_bubble_plot_s ? project_s->GetNumRecords() : 0),
-obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
+obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
+bubble_size_scaler(1.0)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
-	template_frame = t_frame;
 	
 	TableInterface* table_int = project->GetTableInt();
 	for (size_t i=0; i<var_info.size(); i++) {
@@ -229,9 +290,16 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false)
 ScatterNewPlotCanvas::~ScatterNewPlotCanvas()
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::~ScatterNewPlotCanvas");
+	EmptyLowessCache();
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
 	LOG_MSG("Exiting ScatterNewPlotCanvas::~ScatterNewPlotCanvas");
+}
+void ScatterNewPlotCanvas::UpdateBubbleSize(double size_scaler)
+{
+    bubble_size_scaler = size_scaler;
+    this->PopulateCanvas();
+    Refresh();
 }
 
 void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -245,8 +313,10 @@ void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	if (is_bubble_plot) {
 		optMenu = wxXmlResource::Get()->
 			LoadMenu("ID_BUBBLE_CHART_VIEW_MENU_OPTIONS");
-		TemplateCanvas::AppendCustomCategories(optMenu,
-											   project->GetCatClassifManager());
+		TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
+        optMenu->AppendSeparator();
+        wxMenuItem* menu_item = optMenu->Append(XRCID("IDM_BUBBLE_SLIDER"), wxT("Adjust Bubble Size"));
+        template_frame->Connect(XRCID("IDM_BUBBLE_SLIDER"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ScatterNewPlotFrame::AdjustBubbleSize));
 	} else {
 		optMenu = wxXmlResource::Get()->
 			LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
@@ -255,7 +325,7 @@ void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting ScatterNewPlotCanvas::DisplayRightClickMenu");
 }
@@ -291,7 +361,8 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	}
 	
 	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
+    menu->AppendSeparator();
+    menu->Append(wxID_ANY, "Time Variable Options", menu1,
 				  "Time Variable Options");
 }
 
@@ -328,13 +399,17 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  IsStandardized());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_ORIGINAL_DATA"),
 								  !IsStandardized());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGRESSION_SELECTED"),
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
+																IsShowLinearSmoother());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
+																IsShowLowessSmoother());
+	//GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGRESSION_SELECTED"),
+	//							  IsRegressionSelected());
+	//GeneralWxUtils::CheckMenuItem(menu,
+	//							  XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"),
+	//							  IsRegressionExcluded());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
 								  IsRegressionSelected());
-	
-	
-	GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"),
-								  IsRegressionExcluded());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"),
 								  IsDisplayStats());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"),
@@ -471,22 +546,34 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  (GetCcType() ==
 								   CatClassification::natural_breaks)
 								  && GetNumCats() == 10);
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enableLowess);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EDIT_LOWESS_PARAMS"), enableLowess);
+    
 }
 
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines
  as needed. */
-void ScatterNewPlotCanvas::update(HighlightState* o)
+void ScatterNewPlotCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
-		CalcStatsFromSelected(); // update both selected and excluded stats
+		SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+																		 highlight_state->GetHighlight(),
+																		 statsXselected, statsYselected,
+																		 statsXexcluded, statsYexcluded,
+																		 regressionXYselected, regressionXYexcluded,
+																		 sse_sel, sse_unsel);
 		if (IsRegressionSelected()) UpdateRegSelectedLine();
 		if (IsRegressionExcluded()) UpdateRegExcludedLine();
+		if (IsShowLowessSmoother() && IsShowRegimes()) {
+			UpdateLowessOnRegimes();
+		}
 	}
-	if (IsDisplayStats()) UpdateDisplayStats();
+	if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
 	
 	// Call TemplateCanvas::update to redraw objects as needed.
 	TemplateCanvas::update(o);
@@ -496,6 +583,14 @@ void ScatterNewPlotCanvas::update(HighlightState* o)
 		// regression lines have changed.
 		Refresh();
 	}
+    
+    if (o->GetTotalHighlighted() > 0) {
+        // disable LOWESS regress
+        enableLowess = false;
+    } else {
+        // enable LOWESS regress
+        enableLowess = true;
+    }
 	
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");	
 }
@@ -576,7 +671,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 			project->GetTableInt()->GetColName(col, tm);
 	}
 	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
+	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(useScientificNotation);
 	if (!ccf) return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[3].name,
@@ -668,22 +763,28 @@ void ScatterNewPlotCanvas::OnSaveCategories()
 void ScatterNewPlotCanvas::SetHighlightColor(wxColour color)
 {	
 	highlight_color = color;
-	//GdaConst::scatterplot_reg_selected_pen->SetColour(highlight_color);
+	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
 	UpdateRegSelectedLine();
+	if (IsShowLowessSmoother() && IsShowRegimes()) {
+		UpdateLowessOnRegimes();
+	}
 	UpdateDisplayStats();
 	TemplateCanvas::SetHighlightColor(color);
 }
 
 void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 {
+    // In Scatter Plot, Fill color is for points
 	if (!is_bubble_plot) {
 		selectable_fill_color = color;
-		//GdaConst::scatterplot_reg_excluded_pen->
-		//	SetColour(selectable_fill_color);
+		pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
 		for (int t=0; t<cat_data.GetCanvasTmSteps(); t++) {
 			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
 		}
 		UpdateRegExcludedLine();
+		if (IsShowLowessSmoother() && IsShowRegimes()) {
+			UpdateLowessOnRegimes();
+		}
 		UpdateDisplayStats();
 	}
 	TemplateCanvas::SetSelectableFillColor(color);
@@ -691,11 +792,15 @@ void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 
 void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
 {
+    // In Scatter Plot, Outline color is for regression lines
 	if (!is_bubble_plot) {
 		selectable_outline_color = color;
-		//GdaConst::scatterplot_reg_pen->SetColour(selectable_outline_color);
-		if (reg_line) {
-			reg_line->setPen(selectable_outline_color);
+		pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
+		if (IsShowLinearSmoother() && reg_line) {
+			reg_line->setPen(*pens.GetRegPen());
+		}
+		if (IsShowLinearSmoother() && lowess_reg_line) {
+			lowess_reg_line->setPen(*pens.GetRegPen());
 		}
 		UpdateDisplayStats();
 	}
@@ -742,6 +847,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	int yt = var_info[1].time-var_info[1].time_min;
 	LOG(xt);
 	LOG(yt);
+
 	for (int i=0; i<num_obs; i++) {
 		X[i] = x_data[xt][i];
 		Y[i] = y_data[yt][i];
@@ -753,6 +859,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		}
 	}
 	
+	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
+	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+	
 	// global scaling only supported for non-standardized values at this time
 	double x_max = var_info[0].max_over_time;
 	double x_min = var_info[0].min_over_time;
@@ -761,12 +871,14 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	statsX = SampleStatistics(X);
 	statsY = SampleStatistics(Y);
-	if (is_bubble_plot) statsZ = SampleStatistics(Z);
+	if (is_bubble_plot)
+        statsZ = SampleStatistics(Z);
 	if (standardized) {
 		for (int i=0, iend=X.size(); i<iend; i++) {
 			X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
 			Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
-			if (is_bubble_plot) Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
+			if (is_bubble_plot)
+                Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
 		}
 		// we are ignoring the global scaling option here
 		x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
@@ -775,7 +887,8 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
 		statsX = SampleStatistics(X);
 		statsY = SampleStatistics(Y);
-		if (is_bubble_plot) statsZ = SampleStatistics(Z);
+		if (is_bubble_plot)
+            statsZ = SampleStatistics(Z);
 		// mean shold be 0 and biased standard deviation should be 1
 		double eps = 0.000001;
 		if (-eps < statsX.mean && statsX.mean < eps) statsX.mean = 0;
@@ -821,12 +934,12 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(num_obs);
-	double scaleX = 100.0 / (axis_scale_x.scale_range);
-	double scaleY = 100.0 / (axis_scale_y.scale_range);
+	scaleX = 100.0 / (axis_scale_x.scale_range);
+	scaleY = 100.0 / (axis_scale_y.scale_range);
 	if (is_bubble_plot) {
 		selectable_shps_type = circles;
 		
-		const double pi = 3.14159265;
+		const double pi = 3.141592653589793238463;
 		const double rad_mn = 10;
 		const double area_mn = pi * rad_mn * rad_mn;
 		const double rad_sd = 20;
@@ -841,7 +954,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 			for (int i=0; i<num_obs; i++) {
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
-				selectable_shps[i] = new GdaCircle(pt, rad_mn);
+				selectable_shps[i] = new GdaCircle(pt, rad_mn * bubble_size_scaler);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
@@ -851,7 +964,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 				double r = sqrt(area_z/pi);
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
-				selectable_shps[i] = new GdaCircle(pt, r);
+				selectable_shps[i] = new GdaCircle(pt, r * bubble_size_scaler);
 			}
 		}
 	} else {
@@ -860,6 +973,54 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 			selectable_shps[i] = 
 			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 									(Y[i] - axis_scale_y.scale_min) * scaleY));
+		}
+	}
+	
+	lowess_reg_line = new GdaSpline;
+	lowess_reg_line_selected = new GdaSpline;
+	lowess_reg_line_excluded = new GdaSpline;
+	foreground_shps.push_back(lowess_reg_line_selected);
+	foreground_shps.push_back(lowess_reg_line_excluded);
+    foreground_shps.push_back(lowess_reg_line);
+
+	
+	if (IsShowLowessSmoother() && X.size() > 1) {
+		LOG_MSG("Begin populating LOWESS curve (all obs)");
+		size_t n = X.size();
+		wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
+		
+		SmoothingUtils::LowessCacheEntry* lce =
+			SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+		
+		if (!lce) {
+			LOG_MSG("Error: could not create or find LOWESS cache entry");
+		} else {
+			/*
+			double x_first, y_first, x_last, y_last;
+			SmoothingUtils::ExtendEndpointsToBB(lce->X_srt, lce->YS_srt,
+																					axis_scale_x.scale_min,
+																					axis_scale_y.scale_min,
+																					axis_scale_x.scale_max,
+																					axis_scale_y.scale_max,
+																					x_first, y_first, x_last, y_last);
+			
+			lowess_reg_line->addExtensions(x_first, y_first,
+																		 lce->X_srt, lce->YS_srt,
+																		 x_last, y_last,
+																		 axis_scale_x.scale_min,
+																		 axis_scale_y.scale_min,
+																		 scaleX, scaleY);
+			 */
+			lowess_reg_line->reInit(lce->X_srt, lce->YS_srt,
+															axis_scale_x.scale_min,
+															axis_scale_y.scale_min,
+															scaleX, scaleY);
+			lowess_reg_line->setPen(*pens.GetRegPen());
+			
+			LOG_MSG("End populating LOWESS curve (all obs)");
+		}
+		if (IsShowRegimes()) {
+			UpdateLowessOnRegimes();
 		}
 	}
 	
@@ -884,15 +1045,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	// show regression lines
 	reg_line = new GdaPolyLine(0,100,0,100);
-	double cc_degs_of_rot;
-	double reg_line_slope;
-	bool reg_line_infinite_slope;
-	bool reg_line_defined;
-	wxRealPoint a, b;
-	CalcRegressionLine(*reg_line, reg_line_slope, reg_line_infinite_slope,
-					   reg_line_defined, a, b, cc_degs_of_rot,
-					   axis_scale_x, axis_scale_y,
-					   regressionXY, wxPen(selectable_outline_color));
+	reg_line->setPen(*wxTRANSPARENT_PEN);
 	reg_line_selected = new GdaPolyLine(0,100,0,100);
 	reg_line_selected->setPen(*wxTRANSPARENT_PEN);
 	reg_line_selected->setBrush(*wxTRANSPARENT_BRUSH);
@@ -900,17 +1053,32 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
 	reg_line_excluded->setBrush(*wxTRANSPARENT_BRUSH);
 
-	foreground_shps.push_back(reg_line);
 	foreground_shps.push_back(reg_line_selected);
 	foreground_shps.push_back(reg_line_excluded);
+    foreground_shps.push_back(reg_line);
 
-	if (is_bubble_plot) {
-		reg_line->setPen(*wxTRANSPARENT_PEN);
-		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
-		reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
+	
+	if (IsShowLinearSmoother() && !is_bubble_plot) {
+		double cc_degs_of_rot;
+		double reg_line_slope;
+		bool reg_line_infinite_slope;
+		bool reg_line_defined;
+		wxRealPoint a, b;
+		SmoothingUtils::CalcRegressionLine(*reg_line,
+																			 reg_line_slope, reg_line_infinite_slope,
+																			 reg_line_defined, a, b, cc_degs_of_rot,
+																			 axis_scale_x, axis_scale_y,
+																			 regressionXY, *pens.GetRegPen());
 	}
+	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
-		CalcStatsFromSelected(); // update both selected and excluded stats
+		// update both selected and excluded stats
+		SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+																		 highlight_state->GetHighlight(),
+																		 statsXselected, statsYselected,
+																		 statsXexcluded, statsYexcluded,
+																		 regressionXYselected, regressionXYexcluded,
+																		 sse_sel, sse_unsel);
 	}
 	if (IsRegressionSelected()) UpdateRegSelectedLine();
 	if (IsRegressionExcluded()) UpdateRegExcludedLine();
@@ -979,7 +1147,7 @@ void ScatterNewPlotCanvas::TimeChange()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void ScatterNewPlotCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -1020,7 +1188,7 @@ void ScatterNewPlotCanvas::VarInfoAttributeChange()
 			for (int i=0; i<num_obs; i++) z_data[tt][i] = data[2][t][i];
 		}
 	}
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index
@@ -1104,7 +1272,8 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
 											  cat_data, cats_valid,
-											  cats_error_message);
+											  cats_error_message,
+                                              this->useScientificNotation);
 	
 	CreateZValArrays(num_time_vals, num_obs);
 	for (int t=0; t<num_time_vals; t++) {
@@ -1160,6 +1329,7 @@ void ScatterNewPlotCanvas::ViewStandardizedData()
 {
 	LOG_MSG("In ScatterNewPlotCanvas::ViewStandardizedData");
 	standardized = true;
+	EmptyLowessCache();
 	PopulateCanvas();
 }
 
@@ -1167,7 +1337,32 @@ void ScatterNewPlotCanvas::ViewOriginalData()
 {
 	LOG_MSG("In ScatterNewPlotCanvas::ViewOriginalData");
 	standardized = false;
+	EmptyLowessCache();
 	PopulateCanvas();
+}
+
+void ScatterNewPlotCanvas::ShowLinearSmoother(bool display)
+{
+	show_linear_smoother = display;
+	UpdateDisplayStats();
+	UpdateDisplayLinesAndMargins();
+	PopulateCanvas();
+}
+
+void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
+{
+	show_lowess_smoother = display;
+	PopulateCanvas();
+}
+
+void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter, 
+																						 double delta_factor)
+{
+	EmptyLowessCache();
+	lowess.SetF(f);
+	lowess.SetIter(iter);
+	lowess.SetDeltaFactor(delta_factor);
+	if (IsShowLowessSmoother()) PopulateCanvas();
 }
 
 void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
@@ -1176,7 +1371,8 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 	bool changed = false;
 	if (!display) {
 		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
-		if ((show_reg_selected && !show_reg_excluded) && display_stats) {
+		if ((IsRegressionSelected() && !IsRegressionExcluded()) &&
+				IsDisplayStats()) {
 			// there is no longer anything showing, but there
 			// was previously something showing
 			show_reg_selected = false;
@@ -1190,7 +1386,8 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	} else {
-		if ((!show_reg_selected && !show_reg_excluded) && display_stats) {
+		if ((!IsRegressionSelected() && !IsRegressionExcluded()) &&
+				IsDisplayStats()) {
 			// we want to show something now, but there was previously
 			// nothing showing
 			show_reg_selected = true;
@@ -1199,7 +1396,12 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			PopulateCanvas();
 		} else {
 			show_reg_selected = true;
-			CalcStatsFromSelected();
+			SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+																			 highlight_state->GetHighlight(),
+																			 statsXselected, statsYselected,
+																			 statsXexcluded, statsYexcluded,
+																			 regressionXYselected, regressionXYexcluded,
+																			 sse_sel, sse_unsel);
 			UpdateRegSelectedLine();
 			UpdateDisplayStats();
 			changed = UpdateDisplayLinesAndMargins();
@@ -1213,16 +1415,23 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 void ScatterNewPlotCanvas::UpdateRegSelectedLine()
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::UpdateRegSelectedLine");
-	double cc_degs_of_rot;
-	wxRealPoint a, b;
-	CalcRegressionLine(*reg_line_selected, reg_line_selected_slope,
-					   reg_line_selected_infinite_slope,
-					   reg_line_selected_defined, a, b, cc_degs_of_rot,
-					   axis_scale_x, axis_scale_y,
-					   regressionXYselected,
-					   wxPen(highlight_color));
-	ApplyLastResizeToShp(reg_line_selected);
-	layer2_valid = false;
+	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+	if (IsShowLinearSmoother()) {
+		double cc_degs_of_rot;
+		wxRealPoint a, b;
+		SmoothingUtils::CalcRegressionLine(*reg_line_selected,
+																			 reg_line_selected_slope,
+																			 reg_line_selected_infinite_slope,
+																			 reg_line_selected_defined, a, b,
+																			 cc_degs_of_rot,
+																			 axis_scale_x, axis_scale_y,
+																			 regressionXYselected,
+																			 *pens.GetRegSelPen());
+		ApplyLastResizeToShp(reg_line_selected);
+		layer2_valid = false;
+	} else {
+		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
+	}
 	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateRegSelectedLine");	
 }
 
@@ -1232,7 +1441,8 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 	bool changed = false;
 	if (!display) {
 		reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
-		if ((!show_reg_selected && show_reg_excluded) && display_stats) {
+		if ((!IsRegressionSelected() && IsRegressionExcluded()) &&
+				IsDisplayStats()) {
 			// there is no longer anything showing, but there
 			// was previously something showing
 			show_reg_excluded = false;
@@ -1246,7 +1456,8 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	} else {
-		if ((!show_reg_selected && !show_reg_excluded) && display_stats) {
+		if ((!IsRegressionSelected() && !IsRegressionExcluded()) &&
+				IsDisplayStats()) {
 			// we want to show something now, but there was previously
 			// nothing showing
 			show_reg_excluded = true;
@@ -1254,7 +1465,12 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			changed = UpdateDisplayLinesAndMargins();
 			PopulateCanvas();
 		} else {
-			CalcStatsFromSelected();
+			SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+																			 highlight_state->GetHighlight(),
+																			 statsXselected, statsYselected,
+																			 statsXexcluded, statsYexcluded,
+																			 regressionXYselected, regressionXYexcluded,
+																			 sse_sel, sse_unsel);
 			show_reg_excluded = true;
 			UpdateRegExcludedLine();
 			UpdateDisplayStats();
@@ -1269,16 +1485,23 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 void ScatterNewPlotCanvas::UpdateRegExcludedLine()
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::UpdateRegExcludedLine");
-	double cc_degs_of_rot;
-	wxRealPoint a, b;
-	CalcRegressionLine(*reg_line_excluded, reg_line_excluded_slope,
-					   reg_line_excluded_infinite_slope,
-					   reg_line_excluded_defined, a, b, cc_degs_of_rot,
-					   axis_scale_x, axis_scale_y,
-					   regressionXYexcluded,
-					   wxPen(selectable_fill_color));
-	ApplyLastResizeToShp(reg_line_excluded);
-	layer2_valid = false;
+	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+	if (IsShowLinearSmoother()) {
+		double cc_degs_of_rot;
+		wxRealPoint a, b;
+		SmoothingUtils::CalcRegressionLine(*reg_line_excluded,
+																			 reg_line_excluded_slope,
+																			 reg_line_excluded_infinite_slope,
+																			 reg_line_excluded_defined, a, b,
+																			 cc_degs_of_rot,
+																			 axis_scale_x, axis_scale_y,
+																			 regressionXYexcluded,
+																			 *pens.GetRegExlPen());
+		ApplyLastResizeToShp(reg_line_excluded);
+		layer2_valid = false;
+	} else {
+		reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
+	}
 	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateRegExcludedLine");
 }
 
@@ -1299,208 +1522,100 @@ void ScatterNewPlotCanvas::ShowAxesThroughOrigin(bool show_origin_axes_s)
 	Refresh();
 }
 
-void ScatterNewPlotCanvas::CalcStatsFromSelected()
+/** Called when selection changes */
+void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsFromSelected");
-	// find mean for X and Y according to highlight_state for both
-	// the currently selected, and the complement.
-	statsXselected = SampleStatistics();
-	statsYselected = SampleStatistics();
-	statsXexcluded = SampleStatistics();
-	statsYexcluded = SampleStatistics();
-	regressionXYselected = SimpleLinearRegression();
-	regressionXYexcluded = SimpleLinearRegression();
-	int selected_cnt = 0;
-	int excluded_cnt = 0;
+	if (!lowess_reg_line_selected && !lowess_reg_line_excluded) return;
+	size_t n = num_obs;
+	int xt = var_info[0].time-var_info[0].time_min;
+	int yt = var_info[1].time-var_info[1].time_min;
+	wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
+	LOG(key);
+	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
+	SmoothingUtils::LowessCacheEntry* lce = 0;
+	if (it != lowess_cache.end()) {
+		lce = it->second ;
+	} else {
+		LOG_MSG("Error: could not find LowessCacheEntry for key: " + key);
+	}
+	if (!lce) {
+		LOG_MSG("Error: LowessCacheEntry NULL for key: " + key);
+		return;
+	}
+	
+	std::vector<double> sel_smthd_srt_x;
+	std::vector<double> sel_smthd_srt_y;
+	std::vector<double> unsel_smthd_srt_x;
+	std::vector<double> unsel_smthd_srt_y;
+	
+	if (IsShowRegimes()) {
+		SmoothingUtils::CalcLowessRegimes(lce, lowess,
+																			highlight_state->GetHighlight(),
+																			sel_smthd_srt_x, sel_smthd_srt_y,
+																			unsel_smthd_srt_x, unsel_smthd_srt_y);
+	}
+	if (lowess_reg_line_selected) {
+		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
+			/*
+			double x_first, y_first, x_last, y_last;
+			SmoothingUtils::ExtendEndpointsToBB(sel_smthd_srt_x, sel_smthd_srt_y,
+																					axis_scale_x.scale_min,
+																					axis_scale_y.scale_min,
+																					axis_scale_x.scale_max,
+																					axis_scale_y.scale_max,
+																					x_first, y_first, x_last, y_last);
 
-	std::vector<bool>& hl = highlight_state->GetHighlight();
-	// calculate mean, min and max
-	statsXselected.min = std::numeric_limits<double>::max();
-	statsYselected.min = std::numeric_limits<double>::max();
-	statsXexcluded.min = std::numeric_limits<double>::max();
-	statsYexcluded.min = std::numeric_limits<double>::max();
-	statsXselected.max = -std::numeric_limits<double>::max();
-	statsYselected.max = -std::numeric_limits<double>::max();
-	statsXexcluded.max = -std::numeric_limits<double>::max();
-	statsYexcluded.max = -std::numeric_limits<double>::max();
-	for (int i=0, iend=X.size(); i<iend; i++) {
-		if (hl[i]) {
-			selected_cnt++;
-			statsXselected.mean += X[i];
-			statsYselected.mean += Y[i];
-			if (X[i] < statsXselected.min) statsXselected.min = X[i];
-			if (Y[i] < statsYselected.min) statsYselected.min = Y[i];
-			if (X[i] > statsXselected.max) statsXselected.max = X[i];
-			if (Y[i] > statsYselected.max) statsYselected.max = Y[i];
+			lowess_reg_line_selected->addExtensions(x_first, y_first,
+																							sel_smthd_srt_x,
+																							sel_smthd_srt_y,
+																							x_last, y_last,
+																							axis_scale_x.scale_min,
+																							axis_scale_y.scale_min,
+																							scaleX, scaleY);
+			*/
+			lowess_reg_line_selected->reInit(sel_smthd_srt_x, sel_smthd_srt_y,
+																			 axis_scale_x.scale_min,
+																			 axis_scale_y.scale_min,
+																			 scaleX, scaleY);
+			
+			lowess_reg_line_selected->setPen(*pens.GetRegSelPen());
 		} else {
-			excluded_cnt++;
-			statsXexcluded.mean += X[i];
-			statsYexcluded.mean += Y[i];
-			if (X[i] < statsXexcluded.min) statsXexcluded.min = X[i];
-			if (Y[i] < statsYexcluded.min) statsYexcluded.min = Y[i];
-			if (X[i] > statsXexcluded.max) statsXexcluded.max = X[i];
-			if (Y[i] > statsYexcluded.max) statsYexcluded.max = Y[i];
+			lowess_reg_line_selected->operator=(GdaSpline());
 		}
-	}
-	if (selected_cnt == 0) {
-		statsXexcluded = statsX;
-		statsYexcluded = statsY;
-		regressionXYexcluded = regressionXY;
-	} else if (excluded_cnt == 0) {
-		statsXselected = statsX;
-		statsYselected = statsY;
-		regressionXYselected = regressionXY;
-	} else {
-		statsXselected.mean /= selected_cnt;
-		statsYselected.mean /= selected_cnt;
-		statsXexcluded.mean /= excluded_cnt;
-		statsYexcluded.mean /= excluded_cnt;
-		statsXselected.sample_size = selected_cnt;
-		statsYselected.sample_size = selected_cnt;
-		statsXexcluded.sample_size = excluded_cnt;
-		statsYexcluded.sample_size = excluded_cnt;
-	
-		double sum_squaresXselected = 0;
-		double sum_squaresYselected = 0;
-		double sum_squaresXexcluded = 0;
-		double sum_squaresYexcluded = 0;
-		// calculate standard deviations and variances
-		for (int i=0, iend=X.size(); i<iend; i++) {
-			if (hl[i]) {
-				sum_squaresXselected += X[i] * X[i];
-				sum_squaresYselected += Y[i] * Y[i];
-			} else {
-				sum_squaresXexcluded += X[i] * X[i];
-				sum_squaresYexcluded += Y[i] * Y[i];
-			}
-		}
-	
-		CalcVarSdFromSumSquares(statsXselected, sum_squaresXselected);
-		CalcVarSdFromSumSquares(statsYselected, sum_squaresYselected);
-		CalcVarSdFromSumSquares(statsXexcluded, sum_squaresXexcluded);
-		CalcVarSdFromSumSquares(statsYexcluded, sum_squaresYexcluded);
-	
-		CalcRegressionSelOrExcl(statsXselected, statsYselected,
-								regressionXYselected, true);
-		CalcRegressionSelOrExcl(statsXexcluded, statsYexcluded,
-								regressionXYexcluded, false);
+		ApplyLastResizeToShp(lowess_reg_line_selected);
 	}
 	
-	LOG(wxString(regressionXYselected.ToString().c_str(), wxConvUTF8));
-	LOG(wxString(regressionXYexcluded.ToString().c_str(), wxConvUTF8));
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsFromSelected");
-}
-
-void ScatterNewPlotCanvas::CalcVarSdFromSumSquares(SampleStatistics& ss,
-												   double sum_squares)
-{
-	double n = ss.sample_size;
-	ss.var_without_bessel = (sum_squares/n) - (ss.mean*ss.mean);
-	ss.sd_without_bessel = sqrt(ss.var_without_bessel);
-	
-	if (ss.sample_size == 1) {
-		ss.var_with_bessel = ss.var_without_bessel;
-		ss.sd_with_bessel = ss.sd_without_bessel;
-	} else {
-		ss.var_with_bessel = (n/(n-1)) * ss.var_without_bessel;
-		ss.sd_with_bessel = sqrt(ss.var_with_bessel);
-	}
-}
-
-void ScatterNewPlotCanvas::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
-												   const SampleStatistics& ss_Y,
-												   SimpleLinearRegression& r,
-												   bool selected)
-{
-	if (ss_X.sample_size != ss_Y.sample_size || ss_X.sample_size < 2 ||
-		ss_X.var_without_bessel <= 4*DBL_MIN ) return;
-
-	int n=0;
-	double expectXY = 0;
-	std::vector<bool>& hl = highlight_state->GetHighlight();
-	double sum_x_squared = 0;
-	if (selected) {
-		for (int i=0, iend=X.size(); i<iend; i++) {
-			if (hl[i]) {
-				expectXY += X[i]*Y[i];
-				sum_x_squared += X[i] * X[i];
-				n++;
-			}
-		}
-	} else {
-		for (int i=0, iend=X.size(); i<iend; i++) {
-			if (!hl[i]) {
-				expectXY += X[i]*Y[i];
-				sum_x_squared += X[i] * X[i];
-				n++;
-			}
-		}
-	}
-	expectXY /= (double) ss_X.sample_size;
-	
-	r.covariance = expectXY - ss_X.mean * ss_Y.mean;
-	r.beta = r.covariance / ss_X.var_without_bessel;
-	double d = ss_X.sd_without_bessel * ss_Y.sd_without_bessel;
-	if (d > 4*DBL_MIN) {
-		r.correlation = r.covariance / d;
-		r.valid_correlation = true;
-	} else {
-		r.valid_correlation = false;
-	}
-	
-	r.alpha = ss_Y.mean - r.beta * ss_X.mean;
-	r.valid = true;
-	
-	double SS_tot = ss_Y.var_without_bessel * ss_Y.sample_size;
-	double SS_err = 0;
-	double err=0;
-	if (selected) {
-		for (int i=0, iend=Y.size(); i<iend; i++) {
-			if (hl[i]) {
-				err = Y[i] - (r.alpha + r.beta * X[i]);
-				SS_err += err * err;
-			}
-		}
-		sse_sel = SS_err;
-	} else {
-		for (int i=0, iend=Y.size(); i<iend; i++) {
-			if (!hl[i]) {
-				err = Y[i] - (r.alpha + r.beta * X[i]);
-				SS_err += err * err;
-			}
-		}
-		sse_unsel = SS_err;
-	}
-	if (SS_err < 16*DBL_MIN) {
-		r.r_squared = 1;
-	} else {
-		r.r_squared = 1 - SS_err / SS_tot;
-	}
-	if (n>2 && ss_X.var_without_bessel > 4*DBL_MIN) {
-		r.std_err_of_estimate = SS_err/(n-2); // SS_err/(n-k-1), k=1
-		r.std_err_of_estimate = sqrt(r.std_err_of_estimate);
-		r.std_err_of_beta = r.std_err_of_estimate/
-			sqrt(n*ss_X.var_without_bessel);
-		r.std_err_of_alpha = r.std_err_of_beta * sqrt(sum_x_squared / n);
+	if (lowess_reg_line_excluded) {
+		if (unsel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
+			/*
+			double x_first, y_first, x_last, y_last;
+			SmoothingUtils::ExtendEndpointsToBB(unsel_smthd_srt_x, unsel_smthd_srt_y,
+																					axis_scale_x.scale_min,
+																					axis_scale_y.scale_min,
+																					axis_scale_x.scale_max,
+																					axis_scale_y.scale_max,
+																					x_first, y_first, x_last, y_last);
 		
-		if (r.std_err_of_alpha >= 16*DBL_MIN) {
-			r.t_score_alpha = r.alpha / r.std_err_of_alpha;
+			lowess_reg_line_excluded->addExtensions(x_first, y_first,
+																							unsel_smthd_srt_x,
+																							unsel_smthd_srt_y,
+																							x_last, y_last,
+																							axis_scale_x.scale_min,
+																							axis_scale_y.scale_min,
+																							scaleX, scaleY);
+			*/
+			lowess_reg_line_excluded->reInit(unsel_smthd_srt_x, unsel_smthd_srt_y,
+																			 axis_scale_x.scale_min,
+																			 axis_scale_y.scale_min,
+																			 scaleX, scaleY);
+			 
+			lowess_reg_line_excluded->setPen(*pens.GetRegExlPen());
 		} else {
-			r.t_score_alpha = 100;
+			lowess_reg_line_excluded->operator=(GdaSpline());
 		}
-		if (r.std_err_of_beta >= 16*DBL_MIN) {
-			r.t_score_beta = r.beta / r.std_err_of_beta;
-		} else {
-			r.t_score_beta = 100;
-		}
-		r.p_value_alpha =
-		SimpleLinearRegression::TScoreTo2SidedPValue(r.t_score_alpha, n-2);
-		r.p_value_beta =
-		SimpleLinearRegression::TScoreTo2SidedPValue(r.t_score_beta, n-2);
-
-		r.valid_std_err = true;
+		ApplyLastResizeToShp(lowess_reg_line_excluded);
 	}
-	
+	layer2_valid = false;
 }
 
 void ScatterNewPlotCanvas::ComputeChowTest()
@@ -1557,106 +1672,21 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 	LOG_MSG("Exiting ScatterNewPlotCanvas::ComputeChowTest");
 }
 
-/** reg_line, slope, infinite_slope and regression_defined are all return
- values. */
-void ScatterNewPlotCanvas::CalcRegressionLine(GdaPolyLine& reg_line,
-											  double& slope,
-											  bool& infinite_slope,
-											  bool& regression_defined,
-											  wxRealPoint& reg_a,
-											  wxRealPoint& reg_b,
-											  double& cc_degs_of_rot,
-											  const AxisScale& axis_scale_x,
-											  const AxisScale& axis_scale_y,
-											  const SimpleLinearRegression& reg,
-											  const wxPen& pen)
+/** Free allocated points arrays in lowess_cache and clear cache */
+void ScatterNewPlotCanvas::EmptyLowessCache()
 {
-	//LOG_MSG("Entering ScatterNewPlotCanvas::CalcRegressionLine");
-	reg_line.setBrush(*wxTRANSPARENT_BRUSH); // ensure brush is transparent
-	slope = 0; //default
-	infinite_slope = false; // default
-	regression_defined = true; // default
-
-	if (!reg.valid) {
-		regression_defined = false;
-		reg_line.setPen(*wxTRANSPARENT_PEN);
-		return;
-	}
-	
-	reg_a = wxRealPoint(0, 0);
-	reg_b = wxRealPoint(0, 0);
-	
-	//LOG(reg.beta);
-	
-	// bounding box is [axis_scale_x.scale_min, axis_scale_y.scale_max] x
-	// [axis_scale_y.scale_min, axis_scale_y.scale_max]
-	// By the constuction of the scale, we know that regression line is
-	// not equal to any of the four bounding box lines.  Therefore, the
-	// regression_line intersects the box at two unique points.  We must
-	// determine the two points of interesection.
-	if (reg.valid) {
-		// It should be the case that the slope beta is at most 1/2.
-		// So, we should calculate the points of intersection with the
-		// two vertical bounding box lines.
-		reg_a = wxRealPoint(axis_scale_x.scale_min,
-							reg.alpha + reg.beta*axis_scale_x.scale_min);
-		reg_b = wxRealPoint(axis_scale_x.scale_max,
-							reg.alpha + reg.beta*axis_scale_x.scale_max);
-		if (reg_a.y < axis_scale_y.scale_min) {
-			reg_a.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
-			reg_a.y = axis_scale_y.scale_min;
-		} else if (reg_a.y > axis_scale_y.scale_max) {
-			reg_a.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
-			reg_a.y = axis_scale_y.scale_max;
-		}
-		if (reg_b.y < axis_scale_y.scale_min) {
-			reg_b.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
-			reg_b.y = axis_scale_y.scale_min;
-		} else if (reg_b.y > axis_scale_y.scale_max) {
-			reg_b.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
-			reg_b.y = axis_scale_y.scale_max;
-		}
-		slope = reg.beta;
-	} else {
-		regression_defined = false;
-		reg_line.setPen(*wxTRANSPARENT_PEN);
-		return;
-	}
-	
-	// scaling factors to transform to screen coordinates.
-	double scaleX = 100.0 / (axis_scale_x.scale_range);
-	double scaleY = 100.0 / (axis_scale_y.scale_range);	
-	reg_a.x = (reg_a.x - axis_scale_x.scale_min) * scaleX;
-	reg_a.y = (reg_a.y - axis_scale_y.scale_min) * scaleY;
-	reg_b.x = (reg_b.x - axis_scale_x.scale_min) * scaleX;
-	reg_b.y = (reg_b.y - axis_scale_y.scale_min) * scaleY;
-	
-	reg_line = GdaPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
-	cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
-											 reg_b.x, reg_b.y);
-	
-	//LOG(slope);
-	//LOG(infinite_slope);
-	//LOG(regression_defined);
-	//LOG(cc_degs_of_rot);
-	//LOG(reg_a.x);
-	//LOG(reg_a.y);
-	//LOG(reg_b.x);
-	//LOG(reg_b.y);
-	
-	reg_line.setPen(pen);
-	//LOG_MSG("Exiting ScatterNewPlotCanvas::CalcRegressionLine");
+	SmoothingUtils::EmptyLowessCache(lowess_cache);
 }
 
 /** This method builds up the display optional stats string from scratch every
  time. It assumes the calling function will do the screen Refresh. */
 void ScatterNewPlotCanvas::UpdateDisplayStats()
 {
-	if (display_stats) {
+	if (IsDisplayStats() && IsShowLinearSmoother()) {
 		// fill out the regression stats table
 		int rows = 2;
-		if (show_reg_selected) rows++;
-		if (show_reg_excluded) rows++;
+		if (IsRegressionSelected()) rows++;
+		if (IsRegressionExcluded()) rows++;
 		int cols = 10;
 		std::vector<wxString> vals(rows*cols);
 		std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
@@ -1691,7 +1721,7 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_beta);
 		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_beta);
 		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_beta);
-		if (show_reg_selected) {
+		if (IsRegressionSelected()) {
 			i++; j=0;
 			for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 				attributes[k].color = highlight_color;
@@ -1707,7 +1737,7 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_beta);
 			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_beta);
 		}
-		if (show_reg_excluded) {
+		if (IsRegressionExcluded()) {
 			i++; j=0;
 			for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 				attributes[k].color = selectable_fill_color;
@@ -1734,7 +1764,7 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		stats_table->setPen(*wxBLACK_PEN);
 		stats_table->hidden = false;
 		
-		if (show_reg_selected && show_reg_excluded) {
+		if (IsRegressionSelected() && IsRegressionExcluded()) {
 			int table_w=0, table_h=0;
 			wxClientDC dc(this);
 			stats_table->GetSize(dc, table_w, table_h);
@@ -1792,21 +1822,21 @@ bool ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins()
 	bool changed = false;
 	int lines = 0;
 	int table_w=0, table_h=0;
-	if (display_stats && stats_table) {
+	if (IsDisplayStats() && stats_table && IsShowLinearSmoother()) {
 		wxClientDC dc(this);	
 		stats_table->GetSize(dc, table_w, table_h);
 		LOG(table_w);
 		LOG(table_h);
 	}
 	virtual_screen_marg_bottom = 50;
-	if (!display_stats) {
+	if (!IsDisplayStats() || !IsShowLinearSmoother()) {
 		lines = 0;
 		//virtual_screen_marg_bottom = 50;
-	} else if (!show_reg_selected && !show_reg_excluded) {
+	} else if (!IsRegressionSelected() && !IsRegressionExcluded()) {
 		lines = 1;
 		virtual_screen_marg_bottom += 10;
 		//virtual_screen_marg_bottom = 90;
-	} else if (show_reg_selected != show_reg_excluded) {
+	} else if (IsRegressionSelected() != IsRegressionExcluded()) {
 		lines = 2;
 		virtual_screen_marg_bottom += 10;
 		//virtual_screen_marg_bottom = 90+13;
@@ -1825,85 +1855,8 @@ bool ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins()
 	
 	table_display_lines = lines;
 	LOG(table_display_lines);
-	LOG(changed ? "true" : "false");
 	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins");
 	return changed;
-}
-
-wxString ScatterNewPlotCanvas::CreateStatsString(const SampleStatistics& s)
-{
-	std::stringstream ss;
-	ss << std::setprecision(3);
-	if (s.sample_size > 0) {
-		ss << "[" << s.min << ", " << s.max << "], m=";
-		ss << s.mean << ", sd=" << s.sd_with_bessel;
-	} else {
-		ss << "no observations";
-	}
-	return wxString(ss.str().c_str(), wxConvUTF8);
-}
-
-/** This method will be used for adding text annotations to the displayed
- regression lines.  To avoid drawing text upside down, we will only
- returns values in the range [90,-90). The return value is the degrees
- of counter-clockwise rotation from the x-axis. */
-double ScatterNewPlotCanvas::RegLineToDegCCFromHoriz(double a_x, double a_y,
-													 double b_x, double b_y)
-{	
-	//LOG_MSG("Entering ScatterNewPlotCanvas::RegLineToDegCCFromHoriz");
-	double dist = GenUtils::distance(wxRealPoint(a_x,a_y),
-									 wxRealPoint(b_x,b_y));
-	if (dist <= 4*DBL_MIN) return 0;
-	// normalize slope vector c = (c_x, c_y)
-	double x = (b_x - a_x) / dist;
-	double y = (b_y - a_y) / dist;
-	const double eps = 0.00001;
-	if (-eps <= x && x <= eps) return 90;
-	if (-eps <= y && y <= eps) return 0;
-	
-	//Recall: (x,y) = (cos(theta), sin(theta))  and  theta = acos(x)
-	double theta = acos(x) * 57.2957796; // 180/pi = 57.2957796
-	if (y < 0) theta = 360.0 - theta;
-
-	//LOG_MSG("Exiting ScatterNewPlotCanvas::RegLineToDegCCFromHoriz");
-	return theta;
-}
-
-wxString ScatterNewPlotCanvas::RegLineTextFromReg(
-										const SimpleLinearRegression& reg,
-										int line)
-{
-	using namespace std;
-	stringstream ss;
-	ss << setprecision(3);
-	if (line == 1) {
-		ss << "y=" << reg.alpha;
-		if (reg.beta >= 0) {
-			ss << "+" << reg.beta << "x";
-		} else {
-			ss << "-" << -reg.beta << "x";
-		}
-		ss << ", r2=" << reg.r_squared;
-	}
-	if (line == 2) {
-		ss << "std errs a,b=";
-		if (reg.valid_std_err) {
-			ss << reg.std_err_of_alpha << "," << reg.std_err_of_beta;
-			ss << ", t-stat a,b=" << reg.t_score_alpha << ",";
-			ss << reg.t_score_beta;
-			ss << ", p-vals a,b=" << reg.p_value_alpha << ",";
-			ss << reg.p_value_beta;
-		} else {
-			ss << "undef";
-		}
-		//ss << ", corr=";
-		//if (reg.valid_correlation) {
-		//	ss << reg.correlation;
-		//} else {
-		//	ss << "undef";
-		//}
-	}
-	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
 void ScatterNewPlotCanvas::UpdateStatusBar()
@@ -1911,9 +1864,29 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+		s << "#selected=" << highlight_state->GetTotalHighlighted();
+        
+		if (brushtype == rectangle) {
+			wxRealPoint pt1 = MousePntToObsPnt(sel1);
+			wxRealPoint pt2 = MousePntToObsPnt(sel2);
+			wxString xmin = GenUtils::DblToStr(GenUtils::min<double>(pt1.x,
+																	 pt2.x));
+			wxString xmax = GenUtils::DblToStr(GenUtils::max<double>(pt1.x,
+																	 pt2.x));
+			wxString ymin = GenUtils::DblToStr(GenUtils::min<double>(pt1.y,
+																	 pt2.y));
+			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
+																	 pt2.y));
+			//s << ", select rect: ";
+			//s << GetNameWithTime(0) << "=[" << xmin << "," << xmax << "] and ";
+			//s << GetNameWithTime(1) << "=[" << ymin << "," << ymax << "]";
+		}
+        s <<"  ";
+	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "obs " << hover_obs[0]+1 << " = (";
+			s << "hover obs " << hover_obs[0]+1 << " = (";
 			s << X[hover_obs[0]] << ", " << Y[hover_obs[0]];
 			if (is_bubble_plot) {
 				s << ", " << Z[hover_obs[0]];
@@ -1944,26 +1917,7 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 		if (total_hover_obs >= 4) {
 			s << ", ...";
 		}
-	} else if (mousemode == select &&
-			   (selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
-		if (brushtype == rectangle) {
-			wxRealPoint pt1 = MousePntToObsPnt(sel1);
-			wxRealPoint pt2 = MousePntToObsPnt(sel2);
-			wxString xmin = GenUtils::DblToStr(GenUtils::min<double>(pt1.x,
-																	 pt2.x));
-			wxString xmax = GenUtils::DblToStr(GenUtils::max<double>(pt1.x,
-																	 pt2.x));
-			wxString ymin = GenUtils::DblToStr(GenUtils::min<double>(pt1.y,
-																	 pt2.y));
-			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
-																	 pt2.y));
-			s << ", select rect: ";
-			s << GetNameWithTime(0) << "=[" << xmin << "," << xmax << "] and ";
-			s << GetNameWithTime(1) << "=[" << ymin << "," << ymax << "]";
-		}
-		
-	}
+	} 
 	sb->SetStatusText(s);
 }
 
@@ -1989,7 +1943,7 @@ ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
 										 const wxPoint& pos, const wxSize& size,
 										 const long style)
 : TemplateFrame(parent, project, "", pos, size, style),
-is_bubble_plot(false)
+is_bubble_plot(false), lowess_param_frame(0)
 {
 	LOG_MSG("Entering ScatterNewPlotFrame::ScatterNewPlotFrame");
 	LOG_MSG("Exiting ScatterNewPlotFrame::ScatterNewPlotFrame");
@@ -1997,7 +1951,7 @@ is_bubble_plot(false)
 
 
 ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
-									const std::vector<GeoDaVarInfo>& var_info,
+										 const std::vector<GdaVarTools::VarInfo>& var_info,
 										 const std::vector<int>& col_ids,
 										 bool is_bubble_plot_s,
 										 const wxString& title,
@@ -2005,7 +1959,8 @@ ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
 										 const wxSize& size,
 										 const long style)
 : TemplateFrame(parent, project, title, pos, size, style),
-is_bubble_plot(is_bubble_plot_s)
+var_info(var_info),
+is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 {
 	LOG_MSG("Entering ScatterNewPlotFrame::ScatterNewPlotFrame");
 	
@@ -2014,9 +1969,7 @@ is_bubble_plot(is_bubble_plot_s)
 	
 	wxSplitterWindow* splitter_win = 0;
 	if (is_bubble_plot) {
-		splitter_win = new wxSplitterWindow(this,-1,
-                                            wxDefaultPosition, wxDefaultSize,
-                                            wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+		splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 		splitter_win->SetMinimumPaneSize(10);
 	}
 	wxPanel* rpanel = NULL;
@@ -2066,6 +2019,10 @@ is_bubble_plot(is_bubble_plot_s)
 ScatterNewPlotFrame::~ScatterNewPlotFrame()
 {
 	LOG_MSG("In ScatterNewPlotFrame::~ScatterNewPlotFrame");
+	if (lowess_param_frame) {
+		lowess_param_frame->removeObserver(this);
+		lowess_param_frame->closeAndDeleteWhenEmpty();
+	}
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
@@ -2101,6 +2058,12 @@ void ScatterNewPlotFrame::MapMenus()
 	UpdateOptionMenuItems();
 }
 
+void ScatterNewPlotFrame::ToggleLowessMenuItem(bool enabled)
+{
+    wxMenu* menu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enabled);
+}
+
 void ScatterNewPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
@@ -2112,6 +2075,7 @@ void ScatterNewPlotFrame::UpdateOptionMenuItems()
 	} else {
 		((ScatterNewPlotCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));
+        
 	}
 }
 
@@ -2148,6 +2112,37 @@ void ScatterNewPlotFrame::OnViewOriginalData(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
+void ScatterNewPlotFrame::OnViewLinearSmoother(wxCommandEvent& event)
+{
+	LOG_MSG("In ScatterNewPlotFrame::OnViewLinearSmoother");
+	ScatterNewPlotCanvas* t = (ScatterNewPlotCanvas*) template_canvas;
+	t->ShowLinearSmoother(!t->IsShowLinearSmoother());
+	UpdateOptionMenuItems();
+}
+
+void ScatterNewPlotFrame::OnViewLowessSmoother(wxCommandEvent& event)
+{
+	LOG_MSG("In ScatterNewPlotFrame::OnViewLowessSmoother");
+	ScatterNewPlotCanvas* t = (ScatterNewPlotCanvas*) template_canvas;
+	t->ShowLowessSmoother(!t->IsShowLowessSmoother());
+	UpdateOptionMenuItems();
+}
+
+void ScatterNewPlotFrame::OnEditLowessParams(wxCommandEvent& event)
+{
+	LOG_MSG("In ScatterNewPlotFrame::OnEditLowessParams");
+	ScatterNewPlotCanvas* t = (ScatterNewPlotCanvas*) template_canvas;
+	if (lowess_param_frame) {
+		lowess_param_frame->Iconize(false);
+		lowess_param_frame->Raise();
+		lowess_param_frame->SetFocus();
+	} else {
+		Lowess l = t->GetLowess();
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),l.GetDeltaFactor(),project);
+		lowess_param_frame->registerObserver(this);
+	}
+}
+
 void ScatterNewPlotFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
 	LOG_MSG("In ScatterNewPlotFrame::OnViewRegimesRegression");
@@ -2161,6 +2156,7 @@ void ScatterNewPlotFrame::OnViewRegimesRegression(wxCommandEvent& event)
 		t->ViewRegressionSelected(false);
 		t->ViewRegressionSelectedExcluded(false);
 	}
+	t->UpdateLowessOnRegimes();
 	UpdateOptionMenuItems();
 }
 
@@ -2257,6 +2253,17 @@ void ScatterNewPlotFrame::OnSaveCategories()
 	((ScatterNewPlotCanvas*) template_canvas)->OnSaveCategories();
 }
 
+void ScatterNewPlotFrame::update(LowessParamObservable* o)
+{
+	ScatterNewPlotCanvas* t = (ScatterNewPlotCanvas*) template_canvas;
+	t->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
+}
+
+void ScatterNewPlotFrame::notifyOfClosing(LowessParamObservable* o)
+{
+	lowess_param_frame = 0;
+}
+
 void ScatterNewPlotFrame::ChangeThemeType(
 								CatClassification::CatClassifType new_theme,
 								int num_categories,
@@ -2269,5 +2276,17 @@ void ScatterNewPlotFrame::ChangeThemeType(
 	if (template_legend) template_legend->Refresh();
 }
 
+void ScatterNewPlotFrame::AdjustBubbleSize(wxCommandEvent& evt)
+{
+    BubbleSizeSliderDlg sliderDlg(dynamic_cast<ScatterNewPlotCanvas*>(template_canvas));
+    sliderDlg.ShowModal();
+}
 
+void ScatterNewPlotFrame::GetVizInfo(wxString& x, wxString& y)
+{
+	if (var_info.size() > 1) {
+		x = var_info[0].name;
+		y = var_info[1].name;
+	}
+}
 

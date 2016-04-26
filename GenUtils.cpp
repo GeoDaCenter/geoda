@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,12 +25,29 @@
 #include <boost/math/distributions/students_t.hpp>
 #include <wx/dc.h>
 #include <wx/msgdlg.h>
-#include "DataViewer/TableState.h"
+#include <wx/stdpaths.h>
 #include "GdaConst.h"
 #include "logger.h"
 #include "GenUtils.h"
 
 using namespace std;
+
+
+wxString GdaColorUtils::ToHexColorStr(const wxColour& c)
+{
+	return c.GetAsString(wxC2S_HTML_SYNTAX);
+}
+
+wxColour GdaColorUtils::ChangeBrightness(const wxColour& input_col,
+										 int brightness)
+{
+	unsigned char r = input_col.Red(); 
+	unsigned char g = input_col.Green();
+	unsigned char b = input_col.Blue();
+	unsigned char alpha = input_col.Alpha();
+	wxColour::ChangeLightness(&r, &g, &b, brightness);
+	return wxColour(r,g,b,alpha);
+}
 
 uint64_t Gda::ThomasWangHashUInt64(uint64_t key) {
 	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
@@ -52,92 +69,6 @@ double Gda::ThomasWangHashDouble(uint64_t key) {
 	key = key ^ (key >> 28);
 	key = key + (key << 31);
 	return 5.42101086242752217E-20 * key;
-}
-
-GeoDaVarInfo::GeoDaVarInfo() : is_time_variant(false), time(0),
-min(1, 0), max(1, 0), sync_with_global_time(true), fixed_scale(true),
-is_ref_variable(false), time_min(0), time_max(0), min_over_time(0),
-max_over_time(0)
-{
-}
-
-// Sets all Secondary Attributes in GeoDaVarInfo based on Primary Attributes.
-// This method must be called whenever a Primary attribute of any item in the
-// GeoDaVarInfo vector changes.
-int Gda::UpdateVarInfoSecondaryAttribs(std::vector<GeoDaVarInfo>& var_info)
-{
-	PrintVarInfoVector(var_info);
-	int num_vars = var_info.size();
-	int ref_var = -1;
-	for (int i=0; i<num_vars; i++) {
-		if (ref_var == -1 && var_info[i].sync_with_global_time) ref_var = i;
-		var_info[i].is_ref_variable = (i == ref_var);
-		// The following parameters are set to default values here
-		var_info[i].ref_time_offset = 0;
-		var_info[i].time_min = var_info[i].time;
-		var_info[i].time_max = var_info[i].time;
-		LOG(var_info[i].min.size());
-		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
-		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
-	}
-	
-	if (ref_var == -1) return ref_var;
-	int ref_time = var_info[ref_var].time;
-	int min_time = ref_time;
-	int max_time = ref_time;
-	for (int i=0; i<num_vars; i++) {
-		if (var_info[i].sync_with_global_time) {
-			var_info[i].ref_time_offset = var_info[i].time - ref_time;
-			if (var_info[i].time < min_time) min_time = var_info[i].time;
-			if (var_info[i].time > max_time) max_time = var_info[i].time;
-		}
-	}
-	int global_max_time = var_info[ref_var].max.size()-1;
-	int min_ref_time = ref_time - min_time;
-	int max_ref_time = global_max_time - (max_time - ref_time);
-	for (int i=0; i<num_vars; i++) {
-		if (var_info[i].sync_with_global_time) {
-			var_info[i].time_min = min_ref_time + var_info[i].ref_time_offset;
-			var_info[i].time_max = max_ref_time + var_info[i].ref_time_offset;
-			for (int t=var_info[i].time_min; t<=var_info[i].time_max; t++) {
-				if (var_info[i].min[t] < var_info[i].min_over_time) {
-					var_info[i].min_over_time = var_info[i].min[t];
-				}
-				if (var_info[i].max[t] > var_info[i].max_over_time) {
-					var_info[i].max_over_time = var_info[i].max[t];
-				}
-			}
-		}
-	}
-	return ref_var;
-}
-
-void Gda::PrintVarInfoVector(std::vector<GeoDaVarInfo>& var_info)
-{
-	LOG_MSG("Entering Gda::PrintVarInfoVector");
-	LOG(var_info.size());
-	for (int i=0; i<var_info.size(); i++) {
-		LOG_MSG("Primary Attributes:");
-		LOG(var_info[i].name);
-		LOG(var_info[i].is_time_variant);
-		LOG(var_info[i].time);
-		for (int t=0; t<var_info[i].min.size(); t++) {
-			LOG(var_info[i].min[t]);
-			LOG(var_info[i].max[t]);
-		}
-		LOG(var_info[i].sync_with_global_time);
-		LOG(var_info[i].fixed_scale);
-		
-		LOG_MSG("Secondary Attributes:");
-		LOG(var_info[i].is_ref_variable);
-		LOG(var_info[i].ref_time_offset);
-		LOG(var_info[i].time_min);
-		LOG(var_info[i].time_max);
-		LOG(var_info[i].min_over_time);
-		LOG(var_info[i].max_over_time);
-		LOG_MSG("\n");
-	}
-	LOG_MSG("Exiting Gda::PrintVarInfoVector");
 }
 
 /** Use with std::sort for sorting in ascending order */
@@ -516,9 +447,9 @@ string SimpleLinearRegression::ToString()
 	return ss.str();
 }
 
-AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s)
+AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
-scale_range(0), tic_inc(0), p(0), ticks(ticks_s)
+scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
 {
 	CalculateScale(data_min_s, data_max_s, ticks_s);
 }
@@ -592,7 +523,10 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
 		ostringstream ss;
-		ss << tics[i];
+        if (tics[i] < 10000000) {
+            ss << std::fixed;
+        }
+        ss << std::setprecision(lbl_precision) << tics[i];
 		tics_str[i] = ss.str();
 		tics_str_show[i] = true;
 	}
@@ -627,51 +561,6 @@ string AxisScale::ToString()
 	return ss.str();
 }
 
-
-/** convert input rectangle corners s1 and s2 into screen-coordinate corners */
-void GenUtils::StandardizeRect(const wxPoint& s1, const wxPoint& s2,
-							   wxPoint& lower_left, wxPoint& upper_right)
-{
-	lower_left = s1;
-	upper_right = s2;
-	if (lower_left.x > upper_right.x) {
-		GenUtils::swap<int>(lower_left.x, upper_right.x);
-	}
-	if (lower_left.y < upper_right.y) {
-		GenUtils::swap<int>(lower_left.y, upper_right.y);
-	}
-}
-
-/** assumes input corners are all screen-coordinate correct for
- lower left and upper right corners */
-bool GenUtils::RectsIntersect(const wxPoint& r1_lower_left,
-							  const wxPoint& r1_upper_right,
-							  const wxPoint& r2_lower_left,
-							  const wxPoint& r2_upper_right)
-{
-	// return negation of all situations where rectangles
-	// do not intersect.
-	return (!((r1_lower_left.x > r2_upper_right.x) ||
-			  (r1_upper_right.x < r2_lower_left.x) ||
-			  (r1_lower_left.y < r2_upper_right.y) ||
-			  (r1_upper_right.y > r2_lower_left.y)));
-}
-
-bool GenUtils::CounterClockwise(const wxPoint& p1, const wxPoint& p2,
-								const wxPoint& p3)
-{
-	return ((p2.y-p1.y)*(p3.x-p2.x) < (p3.y-p2.y)*(p2.x-p1.x));
-}
-
-bool GenUtils::LineSegsIntersect(const wxPoint& l1_p1, const wxPoint& l1_p2,
-								 const wxPoint& l2_p1, const wxPoint& l2_p2)
-{
-	return ((CounterClockwise(l2_p1, l2_p2, l1_p1) !=
-			 CounterClockwise(l2_p1, l2_p2, l1_p2)) &&
-			(CounterClockwise(l1_p1, l1_p2, l2_p1) !=
-			 CounterClockwise(l1_p1, l1_p2, l2_p2)));
-}
-
 wxString GenUtils::BoolToStr(bool b)
 {
 	return b ? "true" : "false";
@@ -696,6 +585,24 @@ wxString GenUtils::Pad(const wxString& s, int width, bool pad_left)
 	for (int i=0; i<pad_len; i++) output << " ";
 	if (pad_left) output << s;
 	return output;
+}
+
+wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
+{
+    if (s.length() > width) {
+        int trim_w = width - 2; //"xxx..xxx"
+        int second_w = trim_w / 2;
+        int first_w = trim_w - second_w;
+        wxString tmp = s.SubString(0, first_w-2);
+        tmp << ".." << s.SubString(s.length() - second_w -1, s.length()-1);
+        return tmp;
+    }
+    int pad_len = width - s.length();
+    wxString output;
+    if (!pad_left) output << s;
+    for (int i=0; i<pad_len; i++) output << " ";
+    if (pad_left) output << s;
+    return output;
 }
 
 wxString GenUtils::DblToStr(double x, int precision)
@@ -783,10 +690,10 @@ wxString GenUtils::GetFileDirectory(const wxString& path)
 {
 	int pos = path.Find('/',true);
 	if (pos >= 0)
-		return path.Left(pos);
+		return path.Left(pos) + '/';
 	pos = path.Find('\\',true);
 	if (pos >= 0)
-		return path.Left(pos);
+		return path.Left(pos) + '\\';
 	return wxEmptyString;
 }
 
@@ -799,6 +706,15 @@ wxString GenUtils::GetFileName(const wxString& path)
 	if (pos >= 0)
 		return path.Right(path.length() - pos - 1);
 	return wxEmptyString;
+}
+
+wxString GenUtils::GetFileNameNoExt(const wxString& path)
+{
+    wxString fname = GetFileName(path);
+    int pos = fname.Find('.');
+    if (pos >=0)
+        return fname.SubString(0, pos-1);
+    return fname;
 }
 
 wxString GenUtils::GetFileExt(const wxString& path)
@@ -883,6 +799,69 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 	}
 	LOG_MSG("Exiting GenUtils::SimplifyPath");
 	return path;
+}
+
+void GenUtils::SplitLongPath(const wxString& path,
+							 std::vector<wxString>& parts,
+							 wxString& html_formatted,
+							 int max_chars_per_part)
+{
+	if (max_chars_per_part < 15) max_chars_per_part = 15;
+	parts.clear();
+	html_formatted = "";
+	if (path.size() <= max_chars_per_part) {
+		parts.push_back(path);
+		html_formatted = path;
+		return;
+	}
+	wxFileName fn(path);
+	wxArrayString dirs(fn.GetDirs());
+	if (dirs.size() <= 1) {
+		parts.push_back(path);
+		html_formatted = path;
+		return;
+	}
+	wxString sep = wxFileName::GetPathSeparator();
+	// Note: always add sep char after dir added
+	if (path.SubString(0,0) == sep) {
+		parts.push_back(sep);
+	} else if (fn.HasVolume()) {
+		// We'll assume this is a Windows system since only other
+		// supported are OSX and Linux and HasVolume should always
+		// be false for these.
+		parts.push_back(fn.GetVolume());
+		parts[0] << wxFileName::GetVolumeSeparator(wxPATH_WIN);
+		parts[0] << wxFileName::GetPathSeparator(wxPATH_WIN);
+	} else {
+		parts.push_back("");
+	}
+	size_t cp = 0; // current part
+	for (size_t i=0; i<dirs.size(); ++i) {
+		if (parts[cp].size() > max_chars_per_part) {
+			++cp;
+			parts.push_back("");
+		}
+		if ((parts[cp].size() + dirs[i].size() > max_chars_per_part) &&
+			(parts[cp].size() > 0)) {
+			++cp;
+			parts.push_back("");
+		}
+		parts[cp] << dirs[i] << sep;
+	}
+	if (fn.HasName()) {
+		wxString name = fn.GetName();
+		name << "." << fn.GetExt();
+		if ((parts[cp].size() + name.size() > max_chars_per_part) &&
+			(parts[cp].size() > 0)) {
+			++cp;
+			parts.push_back("");
+		}
+		parts[cp] << name;
+	}
+	for (size_t i=0, last_part=parts.size()-1; i<=last_part; ++i) {
+		html_formatted << parts[i];
+		if (i < last_part) html_formatted << "<br />&nbsp;&nbsp;&nbsp;&nbsp;";
+	}
 }
 
 /*
@@ -1156,16 +1135,6 @@ wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 	return ""; // no substring match, return empty string.
 }
 
-bool GenUtils::CanModifyGrpAndShowMsgIfNot(TableState* table_state,
-											const wxString& grp_nm)
-{
-	int n = table_state->GetNumDisallowGroupModify(grp_nm);
-	if (n == 0) return true;
-	wxString msg(table_state->GetDisallowGroupModifyMsg(grp_nm));
-	wxMessageDialog dlg(NULL, msg, "Warning", wxOK | wxICON_WARNING);
-	dlg.ShowModal();
-	return false;
-}
 
 wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 {
@@ -1188,4 +1157,12 @@ wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 	};
 	HardBreakWrapper wrapper(win, text, widthMax);
 	return wrapper.GetWrapped();
+}
+
+std::string GenUtils::GetBasemapCacheDir()
+{
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	wxFileName exeFile(exePath);
+	wxString exeDir = exeFile.GetPathWithSep();
+	return std::string(exeDir.mb_str());
 }

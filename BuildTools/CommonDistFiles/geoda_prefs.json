@@ -1,0 +1,14 @@
+{
+	"html_entries": [
+		{ "menu_title": "Hex Bins Example",
+		 "url": "http://localhost:8888/hex_bins.html" },
+		{ "menu_title": "Scatter Plot Example",
+		 "url": "http://localhost:8888/scatterplot_example6.html" },
+		{ "menu_title": "Scatter Plot Example (relative path)",
+		 "url": "web_plugins/scatterplot_example6.html" },
+		{ "menu_title": "GeoDa Center",
+		 "url": "http://geodacenter.asu.edu/" },
+		{ "menu_title": "LOESS curve Example",
+		 "url": "http://localhost:8888/loess_curve.html" }
+    ]
+}

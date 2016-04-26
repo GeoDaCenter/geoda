@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,6 +21,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include "../GeoDa.h"
 #include "../GenUtils.h"
 #include "../Project.h"
 #include "../ShapeOperations/WeightsManager.h"
@@ -28,7 +29,6 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "SelectWeightDlg.h"
 #include "../logger.h"
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcUniDlg.h"
@@ -57,7 +57,7 @@ FieldNewCalcLagDlg::FieldNewCalcLagDlg(Project* project_s,
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
 : all_init(false), project(project_s),
-table_int(project_s->GetTableInt()), w_manager(project_s->GetWManager()),
+table_int(project_s->GetTableInt()), w_man_int(project_s->GetWManInt()),
 is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
@@ -65,11 +65,9 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
     Centre();
 	
 	InitFieldChoices();
+	InitWeightsList();
 	m_text->SetValue(wxEmptyString);
 
-	if (w_manager->IsDefaultWeight()) {
-		m_weight->SetSelection(w_manager->GetCurrWeightInd());
-	}
 	all_init = true;
 	Display();
 }
@@ -80,7 +78,7 @@ void FieldNewCalcLagDlg::CreateControls()
     m_result = XRCCTRL(*this, "IDC_LAG_RESULT", wxChoice);
 	m_result_tm = XRCCTRL(*this, "IDC_LAG_RESULT_TM", wxChoice);
 	InitTime(m_result_tm);
-    m_weight = XRCCTRL(*this, "IDC_CURRENTUSED_W", wxChoice);
+    m_weights = XRCCTRL(*this, "IDC_CURRENTUSED_W", wxChoice);
     m_var = XRCCTRL(*this, "IDC_LAG_OPERAND", wxChoice);
 	m_var_tm = XRCCTRL(*this, "IDC_LAG_OPERAND_TM", wxChoice);
     InitTime(m_var_tm);
@@ -91,13 +89,13 @@ void FieldNewCalcLagDlg::CreateControls()
 void FieldNewCalcLagDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a Result field.");
+		wxString msg("Please select a results field.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
-	if (m_weight->GetSelection() == wxNOT_FOUND) {
+	if (GetWeightsId().is_nil()) {
 		wxString msg("Please specify a Weights matrix.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
@@ -116,7 +114,7 @@ void FieldNewCalcLagDlg::Apply()
 	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(result_col);
-	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 	
 	if (is_space_time &&
 		!IsAllTime(result_col, m_result_tm->GetSelection()) &&
@@ -151,9 +149,18 @@ void FieldNewCalcLagDlg::Apply()
 	std::vector<double> r_data(table_int->GetNumberRows(), 0);
 	std::vector<bool> r_undefined(table_int->GetNumberRows(), false);
 	
-	GalWeight* gal_w = w_manager->GetGalWeight(m_weight->GetSelection());
-	if (gal_w == NULL) return;
-	GalElement* W = gal_w->gal;
+	boost::uuids::uuid id = GetWeightsId();
+	GalElement* W = NULL;
+	{
+		GalWeight* gw = w_man_int->GetGal(id);
+		W = gw ? gw->gal : NULL;
+		if (W == NULL) {
+			wxString msg("Was not able to load weights matrix.");
+			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			dlg.ShowModal();
+			return;
+		}
+	}
 	
 	for (int t=0; t<time_list.size(); t++) {
 		for (int i=0; i<rows; i++) {
@@ -167,15 +174,16 @@ void FieldNewCalcLagDlg::Apply()
 		// Row-standardized lag calculation.
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			double lag = 0;
-			if (W[i].size == 0) r_undefined[i] = true;
-			for (int j=0; j<W[i].size && !r_undefined[i]; j++) {
-				if (undefined[W[i].data[j]]) {
+			const GalElement& elm_i = W[i];
+			if (elm_i.Size() == 0) r_undefined[i] = true;
+			for (int j=0, sz=W[i].Size(); j<sz && !r_undefined[i]; j++) {
+				if (undefined[elm_i[j]]) {
 					r_undefined[i] = true;
 				} else {
-					lag += data[W[i].data[j]];
+					lag += data[elm_i[j]];
 				}
 			}
-			r_data[i] = r_undefined[i] ? 0 : lag /= W[i].size;
+			r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();
 		}
 		table_int->SetColData(result_col, time_list[t], r_data);
 		table_int->SetColUndefined(result_col, time_list[t], r_undefined);
@@ -191,10 +199,8 @@ void FieldNewCalcLagDlg::InitFieldChoices()
 	int prev_cnt = m_result->GetCount();
 	wxString v_str_sel = m_var->GetStringSelection();
 	int v_sel = m_var->GetSelection();
-	wxString w_str_sel = m_weight->GetStringSelection();
 	m_result->Clear();
 	m_var->Clear();
-	m_weight->Clear();
 
 	table_int->FillNumericColIdMap(col_id_map);
 	
@@ -214,11 +220,6 @@ void FieldNewCalcLagDlg::InitFieldChoices()
 		}
 	}
 	
-	if (w_manager->GetNumWeights() > 0) {
-		for (int i=0; i<w_manager->GetNumWeights(); i++) {
-			m_weight->Append(w_manager->GetWFilename(i));
-		}
-	}
 	if (m_result->GetCount() == prev_cnt) {
 		m_result->SetSelection(r_sel);
 	} else {
@@ -229,7 +230,6 @@ void FieldNewCalcLagDlg::InitFieldChoices()
 	} else {
 		m_var->SetSelection(m_var->FindString(v_str_sel));
 	}
-	m_weight->SetSelection(m_weight->FindString(w_str_sel));
 
 	Display();
 }
@@ -245,28 +245,24 @@ void FieldNewCalcLagDlg::UpdateOtherPanels()
 void FieldNewCalcLagDlg::Display()
 {
 	wxString s = "";
-	wxString pre = "";
 	wxString lhs = m_result->GetStringSelection();
 	wxString rhs = "";
 	wxString w_str = "";
 	
-	if (m_weight->GetSelection() != wxNOT_FOUND &&
-		m_var->GetSelection() != wxNOT_FOUND)
+	if (!GetWeightsId().is_nil() && m_var->GetSelection() != wxNOT_FOUND)
 	{
-		wxFileName w_fn(m_weight->GetString(m_weight->GetSelection()));
-		wxString w_str = w_fn.GetFullName();
-		rhs << "W * " << m_var->GetStringSelection();
-		pre << w_str << " is W matrix ==> ";
+		wxString wname = w_man_int->GetShortDispName(GetWeightsId());
+		rhs << wname << " * " << m_var->GetStringSelection();
 	}
 	if (lhs.IsEmpty() && rhs.IsEmpty()) {
 		s = "";
 	} else if (!lhs.IsEmpty() && rhs.IsEmpty()) {
 		s << lhs << " =";
 	} else if (lhs.IsEmpty() && !rhs.IsEmpty()) {
-		s << pre << rhs;
+		s << rhs;
 	} else {
 		// a good time to enable the apply button.
-		s << pre << lhs << " = " << rhs;
+		s << lhs << " = " << rhs;
 	}
 	
 	m_text->SetValue(s);
@@ -283,6 +279,41 @@ bool FieldNewCalcLagDlg::IsAllTime(int col_id, int tm_sel)
 	if (!is_space_time) return false;
 	if (!table_int->IsColTimeVariant(col_id)) return false;
 	return tm_sel == project->GetTableInt()->GetTimeSteps();
+}
+
+/** Refreshes weights list and remembers previous selection if
+ weights choice is still there and a selection was previously made */
+void FieldNewCalcLagDlg::InitWeightsList()
+{
+	boost::uuids::uuid old_id = GetWeightsId();
+	w_ids.clear();
+	w_man_int->GetIds(w_ids);
+	m_weights->Clear();
+	for (size_t i=0; i<w_ids.size(); ++i) {
+		m_weights->Append(w_man_int->GetLongDispName(w_ids[i]));
+	}
+	m_weights->SetSelection(wxNOT_FOUND);
+	if (old_id.is_nil() && !w_man_int->GetDefault().is_nil()) {
+		for (long i=0; i<w_ids.size(); ++i) {
+			if (w_ids[i] == w_man_int->GetDefault()) {
+				m_weights->SetSelection(i);
+			}
+		}
+	} else if (!old_id.is_nil()) {
+		for (long i=0; i<w_ids.size(); ++i) {
+			if (w_ids[i] == old_id) m_weights->SetSelection(i);
+		}
+	}
+}
+
+/** Returns weights selection or nil if none selected */
+boost::uuids::uuid FieldNewCalcLagDlg::GetWeightsId()
+{
+	long sel = m_weights->GetSelection();
+	if (w_ids.size() == 0 || sel == wxNOT_FOUND) {
+		return boost::uuids::nil_uuid();
+	}
+	return w_ids[sel];
 }
 
 void FieldNewCalcLagDlg::OnLagResultUpdated( wxCommandEvent& event )
@@ -320,19 +351,7 @@ void FieldNewCalcLagDlg::OnLagOperandTmUpdated( wxCommandEvent& event )
 
 void FieldNewCalcLagDlg::OnOpenWeightClick( wxCommandEvent& event )
 {
-	SelectWeightDlg dlg(project, this);
-	dlg.ShowModal();
-	
-	m_weight->Clear();
-	for (int i=0; i<w_manager->GetNumWeights(); i++) {
-		m_weight->Append(w_manager->GetWFilename(i));
-	}
-	if (w_manager->GetCurrWeightInd() >=0 ) {
-		m_weight->SetSelection(w_manager->GetCurrWeightInd());
-	}
-	InitFieldChoices(); // Need to call this in case AddId was called.
-	Display();
-	UpdateOtherPanels();
+	GdaFrame::GetGdaFrame()->OnToolsWeightsManager(event);
 }
 
 void FieldNewCalcLagDlg::OnAddColumnClick( wxCommandEvent& event )

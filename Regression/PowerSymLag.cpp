@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,12 +23,8 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
-
 #include "mix.h"
 #include "Lite2.h"
-
 #include "PowerLag.h"
 #include "PowerSymLag.h"
 
@@ -56,7 +52,7 @@ VALUE PowerSymLag::Init()  {
         Order[Neighbor.first]= 1;
         NonZero << Neighbor.first;
         RowLag[Neighbor.first]= Neighbor.second;
-        Product += geoda_sqr(Neighbor.second);
+        Product += Neighbor.second * Neighbor.second;
     };
     return Product;
 };
@@ -116,7 +112,7 @@ VALUE PowerSymLag::SparseColumnLag()  {
     VALUE   Product= 0;
     for (Iterator<INDEX> Inz= NonZero(); Inz; ++Inz)
         if (Order[Current= *Inz] == NewLag)
-            Product += geoda_sqr(Row[Current]);
+            Product += Row[Current] * Row[Current];
     AdvanceLag();
     return Product;
 };

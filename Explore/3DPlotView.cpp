@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -46,8 +46,8 @@ BEGIN_EVENT_TABLE(C3DPlotCanvas, wxGLCanvas)
 END_EVENT_TABLE()
 
 C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
-							 HighlightState* highlight_state_s,
-							 const std::vector<GeoDaVarInfo>& v_info,
+							 HLStateInt* highlight_state_s,
+							 const std::vector<GdaVarTools::VarInfo>& v_info,
 							 const std::vector<int>& col_ids,
 							 wxWindow *parent,
 							 wxWindowID id, const wxPoint& pos,
@@ -146,8 +146,8 @@ void C3DPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 	}
 	
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->AppendSeparator();
+	menu->Append(wxID_ANY, "Time Variable Options", menu1, "Time Variable Options");
 }
 
 void C3DPlotCanvas::SetCheckMarks(wxMenu* menu)
@@ -433,10 +433,10 @@ void C3DPlotCanvas::UpdateSelect()
 	if (total_newly_selected == 0 && total_newly_unselected == 0) return;
 	if (total_newly_selected == 0 &&
 		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-		highlight_state->SetEventType(HighlightState::unhighlight_all);
+		highlight_state->SetEventType(HLStateInt::unhighlight_all);
 		highlight_state->notifyObservers();
 	} else {
-		highlight_state->SetEventType(HighlightState::delta);
+		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
@@ -554,10 +554,10 @@ void C3DPlotCanvas::SelectByRect()
 	if (total_newly_selected == 0 && total_newly_unselected == 0) return;
 	if (total_newly_selected == 0 &&
 		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-		highlight_state->SetEventType(HighlightState::unhighlight_all);
+		highlight_state->SetEventType(HLStateInt::unhighlight_all);
 		highlight_state->notifyObservers();
 	} else {
-		highlight_state->SetEventType(HighlightState::delta);
+		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
@@ -963,7 +963,7 @@ void C3DPlotCanvas::TimeChange()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void C3DPlotCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -984,7 +984,7 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void C3DPlotCanvas::UpdateScaledData()
@@ -1022,7 +1022,7 @@ void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
 /** Impelmentation of HighlightStateObserver interface function.  This
  is called by HighlightState when it notifies all observers
  that its state has changed. */
-void C3DPlotCanvas::update(HighlightState* o)
+void C3DPlotCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("In C3DPlotCanvas::update");
 	
@@ -1030,15 +1030,15 @@ void C3DPlotCanvas::update(HighlightState* o)
 	int nuh_cnt = highlight_state->GetTotalNewlyUnhighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::delta) {
-		LOG_MSG("processing HighlightState::delta");
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::delta) {
+		LOG_MSG("processing HLStateInt::delta");
 			
 		Refresh();
 	} else {
-		LOG_MSG("processing  HighlightState::unhighlight_all or invert");
-		// type == HighlightState::unhighlight_all
-		// type == HighlightState::invert
+		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
+		// type == HLStateInt::unhighlight_all
+		// type == HLStateInt::invert
 			
 		Refresh();
 	}
@@ -1054,7 +1054,7 @@ END_EVENT_TABLE()
 
 
 C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
-						   const std::vector<GeoDaVarInfo>& var_info,
+						   const std::vector<GdaVarTools::VarInfo>& var_info,
 						   const std::vector<int>& col_ids,
 						   const wxString& title, const wxPoint& pos,
 						   const wxSize& size, const long style)

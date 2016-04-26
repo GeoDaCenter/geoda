@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -33,6 +33,14 @@
 #include "TemplateFrame.h"
 #include "TemplateCanvas.h"
 #include "TemplateLegend.h"
+#include "Explore/MapNewView.h"
+#include "Explore/CartogramNewView.h"
+#include "Explore/ConditionalMapView.h"
+#include "Explore/LisaScatterPlotView.h"
+#include "Explore/PCPNewView.h"
+#include "Explore/ScatterNewPlotView.h"
+
+
 #include "rc/GeoDaIcon-16x16.xpm"
 #include "GeneralWxUtils.h"
 #include "GeoDa.h"
@@ -57,8 +65,10 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 	frames_manager(project_s->GetFramesManager()),
 	table_state(project_s->GetTableState()),
 	time_state(project_s->GetTimeState()),
-	is_status_bar_visible(false), supports_timeline_changes(false),
-    depends_on_non_simple_groups(true)
+	is_status_bar_visible(false),
+	get_status_bar_string_from_frame(false),
+	supports_timeline_changes(false),
+	depends_on_non_simple_groups(true)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);
@@ -118,6 +128,14 @@ void TemplateFrame::OnResetMap(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
+void TemplateFrame::OnRefreshMap(wxCommandEvent& event)
+{
+	LOG_MSG("Called TemplateFrame::OnResetMap");
+	if (!template_canvas) return;
+	template_canvas->ReDraw();
+}
+
+
 void TemplateFrame::OnFitToWindowMode(wxCommandEvent& event)
 {
 	LOG_MSG("Entering TemplateFrame::OnFitToWindowMode");
@@ -143,6 +161,14 @@ void TemplateFrame::OnZoomMode(wxCommandEvent& event)
 	LOG_MSG("Called TemplateFrame::OnZoomMode");
 	if (!template_canvas) return;
 	template_canvas->SetMouseMode(TemplateCanvas::zoom);
+	UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnZoomOutMode(wxCommandEvent& event)
+{
+	LOG_MSG("Called TemplateFrame::OnZoomMode");
+	if (!template_canvas) return;
+	template_canvas->SetMouseMode(TemplateCanvas::zoomout);
 	UpdateOptionMenuItems();
 }
 
@@ -195,16 +221,20 @@ void TemplateFrame::UpdateOptionMenuItems()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
 								  template_canvas->
 									IsSelectableOutlineVisible());
+	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_CANVAS_BACKGROUND_COLOR"),
+								  template_canvas->
+									IsUserBackgroundColorVisible());
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_DISPLAY_STATUS_BAR"),
 								  IsStatusBarVisible());
 }
 
 void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 {
-	if (template_canvas == 0) return;
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),IsStatusBarVisible());
+	if (template_canvas == 0) return;
 	// or are not checkable do not appear.
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
 								  template_canvas->GetBrushType() ==
@@ -231,8 +261,10 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
 								  template_canvas->
 									IsSelectableOutlineVisible());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),
-								  IsStatusBarVisible());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_CANVAS_BACKGROUND_COLOR"),
+								  template_canvas->
+									IsUserBackgroundColorVisible());
+	
 }
 
 void TemplateFrame::UpdateTitle()
@@ -301,6 +333,21 @@ void TemplateFrame::DisplayStatusBar(bool show)
 	}
 	LOG(is_status_bar_visible);
 	LOG_MSG("Exiting TemplateFrame::DisplayStatusBar");
+}
+
+bool TemplateFrame::GetStatusBarStringFromFrame()
+{
+	return get_status_bar_string_from_frame;
+}
+
+void TemplateFrame::SetGetStatusBarStringFromFrame(bool get_sb_string)
+{
+	get_status_bar_string_from_frame = get_sb_string;
+}
+
+wxString TemplateFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs, int total_hover_obs)
+{
+	return "";
 }
 
 void TemplateFrame::RegisterAsActive(const wxString& name,
@@ -380,15 +427,14 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 
 /** MMM: ExportImage assumes the old style template canvas.  We should have
       a second version available.  OnDraw is used by the older
-      TemplateCanvas chidren classes.  Perhaps we can just call
-      PaintBackground(dc) followed by PaintShapes(dc). */
+      TemplateCanvas chidren classes. */
 void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
-	wxString default_fname(project->GetProjectTitle() + type + ".svg");
-	wxString filter("BMP|*.bmp|PNG|*.png|SVG|*.svg");
-	int filter_index = 2;
+	wxString default_fname(project->GetProjectTitle() + type);
+	wxString filter("BMP|*.bmp|PNG|*.png");
+	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
 	//
 	//	default_fname = wxEmptyString;
@@ -422,7 +468,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxImage image = bitmap.ConvertToImage();
 			
 			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
-				wxMessageBox("Can't Save file");
+				wxMessageBox("GeoDa was unable to save the file.");
 			}			
 			image.Destroy();
 		}
@@ -440,7 +486,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxImage image = bitmap.ConvertToImage();
 			
 			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
-				wxMessageBox("Can't Save file");
+				wxMessageBox("GeoDa was unable to save the file.");
 			}
 			
 			image.Destroy();
@@ -496,7 +542,6 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			}
 		}
 			break;
-		 */
 		case 2:
 		{
 			LOG_MSG("SVG selected");
@@ -504,6 +549,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			template_canvas->RenderToDC(dc, true);
 		}
 			break;
+		 */
 			
 		default:
 		{
@@ -516,8 +562,16 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	LOG_MSG("Exiting TemplateFrame::ExportImage");
 }
 
+void TemplateFrame::OnChangeMapTransparency()
+{
+    // should be overrided.
+}
+
+
 void TemplateFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
 {
+	if (!template_canvas) return;
+    
 	ExportImage(template_canvas, activeFrName);
 }
 
@@ -551,11 +605,11 @@ void TemplateFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 }
 
 
-// MMM: This is for new style TemplateCanvas children.  We should
-// improve this function to use the PaintBackground function.
+// MMM: This is for new style TemplateCanvas children.
 void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 {
 	LOG_MSG("Entering TemplateFrame::OnCopyImageToClipboard");
+	if (!template_canvas) return;
 	wxSize sz = template_canvas->GetVirtualSize();
 		
 	wxBitmap bitmap( sz.x, sz.y );
@@ -574,6 +628,28 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 	LOG_MSG("Exiting TemplateFrame::OnCopyImageToClipboard");
 }
 
+void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
+{
+    bool flag = template_canvas->useScientificNotation;
+  
+    
+    template_canvas->SetScientificNotation(!flag);
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        //MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas);
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    }
+    template_legend->Refresh();
+}
 
 void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
 {
@@ -625,6 +701,7 @@ bool TemplateFrame::GetColorFromUser(wxWindow* parent,
 void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnCanvasBackgroundColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->canvas_background_color,
@@ -637,6 +714,7 @@ void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->selectable_fill_color,
@@ -649,6 +727,7 @@ void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->selectable_outline_color,
@@ -658,9 +737,17 @@ void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 	}	
 }
 
+void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
+{
+	if (!template_canvas) return;
+	template_canvas->SetBackgroundColorVisible(
+						!template_canvas->user_canvas_background_color);
+}
+
 void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectableOutlineVisible");
+	if (!template_canvas) return;
 	template_canvas->SetSelectableOutlineVisible(
 						!template_canvas->selectable_outline_visible);
 }
@@ -668,6 +755,7 @@ void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnHighlightColor");
+	if (!template_canvas) return;
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  template_canvas->highlight_color,

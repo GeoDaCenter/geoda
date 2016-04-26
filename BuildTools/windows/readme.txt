@@ -135,3 +135,11 @@ NOTE: the boost library may not be compiled automatically. In this case,
 --double click GeoDa.iss (You need to install Inno Setup Compiler http://www.jrsoftware.org/isdl.php), 
   click run icon. You will find a setup.exe in your local "Document\Inno Setup Examples Output"  directory
 
+***************************************************************
+*** About ArcSDE plugin 32-bit windows                     ***
+***************************************************************
+From the 10.1 deprecation doc…
+http://downloads2.esri.com/support/TechArticles/ArcGIS10and101Deprecation_Plan.pdf
+ 
+[Added 8/18/2011]
+ArcGIS Server 10.1’s ArcSDE technology component will no longer support 32-bit versions of the SDE command line utilities or 32-bit versions of the C and Java APIs. With the migration of ArcGIS Server to be 64-bit, the SDE command line utilities and the ArcSDE SDK will be 64-bit only.

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,10 +23,6 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../ShapeOperations/shp2cnt.h"
-
 #include "mix.h"
 #include "Lite2.h"
 #include "DenseVector.h"
@@ -47,6 +43,8 @@
         doublereal *w, doublereal *z__, integer *ldz, doublereal *work,
         integer *info);
 #endif
+
+#define geoda_sqr(x) ( (x) * (x) )
 
 extern bool ordinaryLS(DenseVector &y, 
 				 DenseVector * X, 
@@ -460,7 +458,7 @@ chi-square value and df.  Adapted from chisq.c in Gary Perlman's |Stat.
 double chicdf(double chisq, int df)
 {
     const double BIG = 20.0;
-		double const pi = 3.141592653589793;
+		double const pi = 3.141592653589793238463;
 		double a,c,e,s,y,z;
 		bool even = false;
 		int k = df /2;

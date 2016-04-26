@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,31 +27,30 @@
 
 #include <wx/gauge.h>
 #include "../logger.h"
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../ShapeOperations/shp2cnt.h"
+#include "../ShapeOperations/GalWeight.h"
 
 #include "mix.h"
-
 #include "Lite2.h"
 #include "ML_im.h"
 #include "smile.h"
 #include "../Regression/DiagnosticReport.h"
 
+#define geoda_sqr(x) ( (x) * (x) )
+
 extern double fprob (int dfnum, int dfden, double F);
 extern double* JarqueBera(double* e, long n, long k);
 
-void Compute_MoranI(const GalElement* g, 
+void Compute_MoranI(GalElement* g,
 												double *resid,
 												int dim,
 												double* rst);
-void Compute_RSLmError(const GalElement* g, 
+void Compute_RSLmError(GalElement* g,
 					   double *resid,
 					   int dim,
 					   double* rst,
 					   const std::vector< std::set<int> >& g_lookup);
 
-void Compute_RSLmErrorRobust(const GalElement* g, 
+void Compute_RSLmErrorRobust(GalElement* g,
 							 double** cov,
 							 DenseVector y,
 							 DenseVector *x,
@@ -62,7 +61,7 @@ void Compute_RSLmErrorRobust(const GalElement* g,
 							 double* rst,
 							 const std::vector< std::set<int> >& g_lookup);
 
-void Compute_RSLmLag(const GalElement* g, 
+void Compute_RSLmLag(GalElement* g,
 					 double** cov,
 					 DenseVector y,
 					 DenseVector *x,
@@ -73,7 +72,7 @@ void Compute_RSLmLag(const GalElement* g,
 					 double* rst,
 					 const std::vector< std::set<int> >& g_lookup);
 
-void Compute_RSLmLagRobust(const GalElement* g, 
+void Compute_RSLmLagRobust(GalElement* g,
 						   double** cov,
 						   DenseVector y,
 						   DenseVector *x,
@@ -84,7 +83,7 @@ void Compute_RSLmLagRobust(const GalElement* g,
 						   double* rst,
 						   const std::vector< std::set<int> >& g_lookup);
 
-void Compute_RSLmSarma(const GalElement* g, 
+void Compute_RSLmSarma(GalElement* g,
 					   double** cov,
 					   DenseVector y,
 					   DenseVector *x,
@@ -107,53 +106,79 @@ extern double product(const double * v1, const double * v2, const int &sz);
 extern double cdf(double x);
 extern float betai(float a, float b, float x);
 extern double MC_Condition_Number(double**, int,int);
-extern void DevFromMean(int, double*);
 extern double *BP_Test(double *resid, int obs, double** X, int expl,
 					   bool InclConst);
 extern double *WhiteTest(int obs, int nvar, double* resid, double** X,
 						 bool InclConstant);
 
-void Lag(DenseVector &lag, const DenseVector &x, const GalElement *g)  
+void Lag(DenseVector &lag, const DenseVector &x, GalElement *g)
 {
     for (int cnt = 0; cnt < x.getSize(); ++cnt)
         lag.setAt( cnt, g[cnt].SpatialLag(x.getThis()) );
 }
 
-void MakeFastLookupMat(const GalElement *g, int dim,
+void MakeFastLookupMat(GalElement *g, int dim,
 					   std::vector< std::set<int> >& g_lookup)
 {
 	using namespace std;
 	g_lookup.resize(dim);
     for (int cnt = 0; cnt < dim; ++cnt) {
         for (int cp = 0; cp < g[cnt].Size(); ++cp) {
-			g_lookup[cnt].insert(g[cnt].elt(cp));
+			g_lookup[cnt].insert(g[cnt][cp]);
 		}
 	}
 }
 
 // Note: it is expected that input g_lookup was initialized as follows:
 // MakeFastLookupMat(g, dim, g_lookup);
-double T(const GalElement *g, int dim,
+double T(GalElement *g, int dim,
 		 const std::vector< std::set<int> >& g_lookup)  
 {
+    // tr(W'W+WW)
+    // = tr(W'W) + tr(WW)
+    // = w'_ij*w_ji + w_ij*w_ji
+    
 	using namespace std;
     double	sum = 0;
+    
+    int i=0, j=0;
+    for (i = 0; i < dim; ++i) {
+        for (j = 0; j < dim; ++j) {
+            //w_ij * w_ji
+            
+                //sum += g[i][j] * g[j][i];
+                sum += g[i].GetRW(j) * g[j].GetRW(i);
+        }
+    }
+    for (i = 0; i < dim; ++i) {
+        for (j = 0; j < dim; ++j) {
+            //w'_ij * w_ji
+                //sum += g[j][i] * g[j][i];
+                sum += g[j].GetRW(i) * g[j].GetRW(i);
+        }
+    }
+    
+    /*
+     // below is also incorrect when handling knn weights matrix
     int cnt = 0, cp = 0;
-    for (cnt = 0; cnt < dim; ++cnt)  
-        for (cp = 0; cp < g[cnt].Size(); ++cp)
+    for (cnt = 0; cnt < dim; ++cnt) {
+        for (cp = 0; cp < g[cnt].Size(); ++cp) {
             sum += geoda_sqr(1.0/g[cnt].Size());
+        }
+    }
 		
 	for (cnt = 0; cnt < dim; ++cnt) {
         for (cp = 0; cp < g[cnt].Size(); ++cp) {
-			if ( g_lookup[g[cnt].elt(cp)].find(cnt) 
-				!= g_lookup[g[cnt].elt(cp)].end() )
-			{ // check if transpose element exists (ie, non-zero)
-				sum += (1.0/g[cnt].Size()/g[ g[cnt].elt(cp) ].Size());
+			if (g_lookup[g[cnt][cp]].find(cnt)  != g_lookup[g[cnt][cp]].end()) {
+                // check if transpose element exists (ie, non-zero)
+				sum += (1.0/g[cnt].Size()/g[ g[cnt][cp] ].Size());
 			}
 		}
 	}
-	
+	*/
+    
     return sum;
+    //return 21.738295484789607;
 }
 
 // This original version of T computes the trace of W'W + WW where W
@@ -175,7 +200,7 @@ double T(const GalElement *g, int dim,
 //
 // Performs spatial LAG test specification: computes RS statistic
 //
-void Compute_RSLmLag(const GalElement* g,
+void Compute_RSLmLag(GalElement* g,
 					 double** cov,
 					 DenseVector y,
 					 DenseVector *x,
@@ -186,15 +211,16 @@ void Compute_RSLmLag(const GalElement* g,
 					 double *rst,
 					 const std::vector< std::set<int> >& g_lookup)
 {
-		double *Y = y.getThis();
-		double const ee = norm(resid, dim); 
+    double *Y = y.getThis();
+    double const ee = norm(resid, dim);
     double const sigma2		=  ee / (dim);
-
 
 	int cnt = 0;
     DenseVector	lag(dim), re(resid, dim);
-    for (cnt = 0; cnt < dim; ++cnt)
+    
+    for (cnt = 0; cnt < dim; ++cnt) {
         lag.setAt( cnt, g[cnt].SpatialLag(Y) ); // Wy
+    }
 
     double RS = geoda_sqr(re.product( lag ) / sigma2); // [e'Wy/sigma2]^2
 
@@ -208,22 +234,21 @@ void Compute_RSLmLag(const GalElement* g,
 
     z.squareTimesColumn( z2, cov );			// z2 = (X'X)^(-1)X'WXb
     const double xMx = z.product(z2); // (WXb)'X(X'X)^(-1)X'WXb
-		// lag.norm : (WXb)'(WXb)
+    // lag.norm : (WXb)'(WXb)
     double v = (lag.norm() - xMx + T(g, dim, g_lookup) * sigma2) / sigma2;
     RS /= v;
 
-		double const RS_stat = gammp( 0.5, RS * 0.5);
-		rst[0] = RS;
-		rst[1] = RS_stat;
-		return;
-    
+    double const RS_stat = gammp( 0.5, RS * 0.5);
+    rst[0] = RS;
+    rst[1] = RS_stat;
+    return;
 }
 
 
 //
 // Performs Lag Robus test specification: computes RS statistic
 //
-void Compute_RSLmLagRobust(const GalElement* g, 
+void Compute_RSLmLagRobust(GalElement* g,
 						   double** cov,
 						   DenseVector y,
 						   DenseVector *x,
@@ -234,56 +259,52 @@ void Compute_RSLmLagRobust(const GalElement* g,
 						   double *rst,
 						   const std::vector< std::set<int> >& g_lookup)
 {
-		double *Y = y.getThis();
-		double const ee = norm(resid, dim); 
+    double *Y = y.getThis();
+    double const ee = norm(resid, dim);
     double const sigma2		=  ee / (dim);
 
 
 	int cnt = 0;
     DenseVector	Wy(dim), We(dim), e(resid, dim);
     for (cnt = 0; cnt < dim; ++cnt)
-		{
+    {
         Wy.setAt( cnt, g[cnt].SpatialLag(Y)); // Wy
         We.setAt( cnt, g[cnt].SpatialLag(resid)); // We
-		}
+    }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
-		double RS2 = e.product(We) / sigma2;  // e'We/sigma2
-
-		double RS = geoda_sqr(RS1-RS2);
-
-
+    double RS2 = e.product(We) / sigma2;  // e'We/sigma2
+    double RS = geoda_sqr(RS1-RS2);
 
     ols.timesMatrix(e, x);		// e = Xb ~ y_hat
 
     Lag(Wy, e, g);			// Wy = WXb 
-    DenseVector		z(expl), z2(expl);
+    DenseVector	z(expl), z2(expl);
 
     for (cnt = 0; cnt < expl; ++cnt)
         z.setAt( cnt, x[cnt].product(Wy) );		// z = X'WXb
 
     z.squareTimesColumn( z2, cov );			// z2 = (X'X)^(-1)X'WXb
 
-		// T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
-		// (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
-		// Wy.norm : (WXb)'(WXb)
-		// z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
+    // T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
+    // (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
+    // Wy.norm : (WXb)'(WXb)
+    // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
-		const double T1 = T11 / sigma2;
-		const double T21 = T(g, dim, g_lookup);
-		const double T2 = 1.0 / (T1 + T21);
+    const double T1 = T11 / sigma2;
+    const double T21 = T(g, dim, g_lookup);
+    const double T2 = 1.0 / (T1 + T21);
 
     RS /= (1.0 / T2 - T21);
 
-		double const RS_stat = gammp( 0.5, RS * 0.5 );
-		rst[0] = RS;
-		rst[1] = RS_stat;
-		return;
-    
+    double const RS_stat = gammp( 0.5, RS * 0.5 );
+    rst[0] = RS;
+    rst[1] = RS_stat;
+    return;
 }
 
 
-void Compute_MoranI(const GalElement* g, 
+void Compute_MoranI(GalElement* g,
 					double *resid,
 					int dim,
 					double *rst)
@@ -293,11 +314,20 @@ void Compute_MoranI(const GalElement* g,
     DenseVector		re(resid, dim, false);
     DenseVector		lag( re.getSize() );
 
-    SparseMatrix orig(g, dim);
-    orig.rowStandardize();
-    orig.matrixColumn(lag, re);
+    
+    //SparseMatrix orig(g, dim);
+    //orig.rowStandardize();
+    //orig.matrixColumn(lag, re);
+
+    //double MoranI = re.product( lag ) / ee; // [e'We] / [ee]
+    for (int cnt = 0; cnt < dim; ++cnt)
+    {
+        lag.setAt( cnt, g[cnt].SpatialLag(resid) ); // We
+		re.setAt(cnt, resid[cnt]);
+    }
 
     double MoranI = re.product( lag ) / ee; // [e'We] / [ee]
+    
 	double const M_stat = gammp( 0.5, fabs(MoranI) * 0.5);
 	rst[0] = MoranI;
 	rst[1] = M_stat;
@@ -324,7 +354,7 @@ void ReportDenseVector(const wxString ttl, DenseVector* X, int n, int k)
 extern bool SymMatInverse(double ** mt, const int dim);
 
 
-double Compute_MoranZ(const GalElement* g, 
+double Compute_MoranZ(GalElement* g,
 					  double** D, // inverse([X'X]), size k by k
 					  DenseVector *X, // size n by k, including constant term
 					  int n,
@@ -457,33 +487,34 @@ double Compute_MoranZ(const GalElement* g,
 //
 // Performs spatial error test specification: computes RS statistic
 //
-void Compute_RSLmError(const GalElement* g, 
+void Compute_RSLmError(GalElement* g,
 					   double *resid,
 					   int dim, double *rst,
 					   const std::vector< std::set<int> >& g_lookup)
 {
-		double const ee = norm(resid, dim); 
-    double const sigma2		=  ee / (dim);
+    double const ee = norm(resid, dim);
+    double const sigma2	=  ee / (dim);
 
 
     DenseVector	lag(dim), re(dim);
     for (int cnt = 0; cnt < dim; ++cnt)
-		{
+    {
         lag.setAt( cnt, g[cnt].SpatialLag(resid) ); // We
-				re.setAt(cnt, resid[cnt]);
-		}
+		re.setAt(cnt, resid[cnt]);
+    }
 
     double RS = geoda_sqr(re.product( lag ) / sigma2); // [e'We/sigma2]^2
 
-    RS /= T(g, dim, g_lookup);
-
+    double t = T(g, dim, g_lookup); // tr[(W'+W)*W]
+    RS /= t;
+    
 	double const RS_stat = gammp( 0.5, RS * 0.5);
 	rst[0] = RS;
 	rst[1] = RS_stat;
 	return;
 }
 
-void Compute_RSLmErrorRobust(const GalElement* g, 
+void Compute_RSLmErrorRobust(GalElement* g,
 							 double** cov,
 							 DenseVector y,
 							 DenseVector *x,
@@ -494,50 +525,49 @@ void Compute_RSLmErrorRobust(const GalElement* g,
 							 double *rst,
 							 const std::vector< std::set<int> >& g_lookup)
 {
-		double *Y = y.getThis();
-		double const ee = norm(resid, dim); 
+    double *Y = y.getThis();
+    double const ee = norm(resid, dim);
     double const sigma2		=  ee / (dim);
 
 
 	int cnt = 0;
     DenseVector	Wy(dim), We(dim), e(resid, dim);
-    for (cnt = 0; cnt < dim; ++cnt)
-		{
+    for (cnt = 0; cnt < dim; ++cnt) {
         Wy.setAt( cnt, g[cnt].SpatialLag(Y)); // Wy
         We.setAt( cnt, g[cnt].SpatialLag(resid)); // We
-		}
+    }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
-		double RS2 = e.product(We) / sigma2;  // e'We/sigma2
+    double RS2 = e.product(We) / sigma2;  // e'We/sigma2
 
     ols.timesMatrix(e, x);		// e = Xb ~ y_hat
 
     Lag(Wy, e, g);			// Wy = WXb 
-    DenseVector		z(expl), z2(expl);
+    DenseVector	z(expl), z2(expl);
 
     for (cnt = 0; cnt < expl; ++cnt)
         z.setAt( cnt, x[cnt].product(Wy) );		// z = X'WXb
 
     z.squareTimesColumn( z2, cov );			// z2 = (X'X)^(-1)X'WXb
 
-		// T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
-		// (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
-		// Wy.norm : (WXb)'(WXb)
-		// z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
+    // T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
+    // (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
+    // Wy.norm : (WXb)'(WXb)
+    // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
-		const double T1 = T11 / sigma2;
-		const double T21 = T(g, dim, g_lookup);
-		const double T2 = 1.0 / (T1 + T21);
+    const double T1 = T11 / sigma2;
+    const double T21 = T(g, dim, g_lookup);
+    const double T2 = 1.0 / (T1 + T21);
 
     const double RS = geoda_sqr(RS2 - (RS1 * T2 * T21)) / (T21-(T21*T21*T2));
 
-		double const RS_stat = gammp( 0.5, RS * 0.5);
-		rst[0] = RS;
-		rst[1] = RS_stat;
+    double const RS_stat = gammp( 0.5, RS * 0.5);
+    rst[0] = RS;
+    rst[1] = RS_stat;
     
 }
 
-void Compute_RSLmSarma(const GalElement* g, 
+void Compute_RSLmSarma(GalElement* g,
 					   double** cov,
 					   DenseVector y,
 					   DenseVector *x,
@@ -548,47 +578,46 @@ void Compute_RSLmSarma(const GalElement* g,
 					   double *rst,
 					   const std::vector< std::set<int> >& g_lookup)
 {
-		double *Y = y.getThis();
-		double const ee = norm(resid, dim); 
+    double *Y = y.getThis();
+    double const ee = norm(resid, dim);
     double const sigma2		=  ee / (dim);
 
 
 	int cnt = 0;
     DenseVector	Wy(dim), We(dim), e(resid, dim);
-    for (cnt = 0; cnt < dim; ++cnt)
-		{
+    for (cnt = 0; cnt < dim; ++cnt) {
         Wy.setAt( cnt, g[cnt].SpatialLag(Y)); // Wy
         We.setAt( cnt, g[cnt].SpatialLag(resid)); // We
-		}
+    }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
-		double RS2 = e.product(We) / sigma2;  // e'We/sigma2
+    double RS2 = e.product(We) / sigma2;  // e'We/sigma2
 
     ols.timesMatrix(e, x);		// e = Xb ~ y_hat
 
     Lag(Wy, e, g);			// Wy = WXb 
-    DenseVector		z(expl), z2(expl);
+    DenseVector	z(expl), z2(expl);
 
     for (cnt = 0; cnt < expl; ++cnt)
         z.setAt( cnt, x[cnt].product(Wy) );		// z = X'WXb
 
     z.squareTimesColumn( z2, cov );			// z2 = (X'X)^(-1)X'WXb
 
-		// T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
-		// (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
-		// Wy.norm : (WXb)'(WXb)
-		// z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
+    // T11 = (WXb)'[I - X(X'X)^(-1)X'](WXb)
+    // (WXb)'(WXb) - (WXb)'(X(X'X)^(-1)X')(WXb)
+    // Wy.norm : (WXb)'(WXb)
+    // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
-		const double T1 = T11 / sigma2;
-		const double T21 = T(g, dim, g_lookup);
-		const double T2 = 1.0 / (T1 + T21);
+    const double T1 = T11 / sigma2;
+    const double T21 = T(g, dim, g_lookup);
+    const double T2 = 1.0 / (T1 + T21);
 
     const double RS = (geoda_sqr(RS1 - RS2)/ (1.0/T2 - T21)) + (RS2*RS2/T21);
 
-		double const RS_stat = gammp( 1.0, RS * 0.5 );
-		rst[0] = RS;
-		rst[1] = RS_stat;
-		return;
+    double const RS_stat = gammp( 1.0, RS * 0.5 );
+    rst[0] = RS;
+    rst[1] = RS_stat;
+    return;
 }
 
 
@@ -620,9 +649,24 @@ extern void run1(SparseMatrix &w,
 bool SymMatInverse(double ** mt, const int dim);
 
 
+void DevFromMean(int nObs, double* RawData)
+{
+	double sumX = 0.0;
+	int cnt = 0;
+	for (cnt= 0; cnt < nObs; ++cnt) 
+	{
+		sumX += RawData[cnt];
+	}
+	const double  meanX = sumX / nObs;
+	for (cnt= 0; cnt < nObs; ++cnt)
+	{
+		RawData[cnt] -= meanX;
+	}
+}
+
 // yuntien: August 2005
 // Regression
-bool classicalRegression(const GalElement *g,
+bool classicalRegression(GalElement *g,
 						 int num_obs,
 						 double * Y, int dim, 
 						 double ** X, int expl, 
@@ -849,7 +893,7 @@ bool classicalRegression(const GalElement *g,
     return true;
 }
 
-bool spatialLagRegression(const GalElement *g,
+bool spatialLagRegression(GalElement *g,
 						  int num_obs,
 						  double * Y, 
 						  int dim, 
@@ -1109,7 +1153,7 @@ double mie(const DenseVector &rsd, const DenseVector &lag_resid,
 		   const SparseMatrix &w, const int vars, const double lambda);
 
 
-bool spatialErrorRegression(const GalElement *g,
+bool spatialErrorRegression(GalElement *g,
 							int num_obs,
 							double * Y, 
 							int dim, 

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,7 +35,8 @@ class DataViewerAddColDlg: public wxDialog
 {
 public:
     DataViewerAddColDlg(Project* project,
-						wxWindow* parent, bool time_variant_no_as_default=true,
+						wxWindow* parent,
+                        bool time_variant_no_as_default=true,
 						bool can_change_time_variant=true,
 						wxString default_name=wxEmptyString,
 			GdaConst::FieldType default_field_type=GdaConst::double_type);

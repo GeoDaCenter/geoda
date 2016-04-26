@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,21 +27,27 @@
 #include <boost/multi_array.hpp>
 #include "TableState.h"
 #include "TimeState.h"
+#include "TableStateObserver.h"
+
 #include "../GdaConst.h"
 #include "../VarCalc/GdaFlexValue.h"
 
 class TimeState;
+class VarOrderPtree;
+
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<wxInt64, 2> l_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
 
-class TableInterface
+class TableInterface 
 {
 public:
 	TableInterface(TableState* table_state, TimeState* time_state);
 	virtual ~TableInterface();
 
+    virtual void update(TableState* o) = 0;
+    
 	virtual bool IsValid();
 	virtual wxString GetOpenErrorMessage();
 	
@@ -60,6 +66,12 @@ public:
 	virtual bool ChangedSinceLastSave();
 	/** Indicate whether Table data is unsaved. */
 	virtual void SetChangedSinceLastSave(bool chg);
+    
+	/** Has Table data changed since last save. */
+	virtual bool ProjectChangedSinceLastSave();
+	/** Indicate whether Table data is unsaved. */
+	virtual void SetProjectChangedSinceLastSave(bool chg);
+    
 	/** Save table data to data source associated with this table.  True
 	 is returned on success.  On failure false is returned along with
 	 an error message in err_msg reference. */
@@ -84,6 +96,8 @@ public:
 	 is supported.  This is saved the project file meta-data, so should
 	 generally be supported. */
 	virtual bool PermitChangeDisplayedDecimals() = 0;
+    
+    virtual void Update(const VarOrderPtree& var_order_ptree) = 0;
     
 	/** Searches for database field/col name and returns true if found
 	 as well as col and time in.  If not found, returns false and col
@@ -113,6 +127,10 @@ public:
     
 	/** Returns type for entire group, cannot be a placeholder type */
 	virtual GdaConst::FieldType GetColType(int col) = 0;
+	
+	/** Returns types for each timestep in group.
+	 Can include placeholder types */
+	virtual std::vector<GdaConst::FieldType> GetColTypes(int col) = 0;
     
 	/** Returns type for each specific column.  Can be a placeholder type */
 	virtual GdaConst::FieldType GetColType(int col, int time) = 0;
@@ -123,7 +141,9 @@ public:
 	virtual int GetColDispDecimals(int col) = 0;
 	
 	virtual void GetColData(int col, GdaFlexValue& data) = 0;
-	virtual void GetColData(int col, d_array_type& dbl_data) = 0;
+	virtual void GetColData(int col, d_array_type& data) = 0;
+	virtual void GetColData(int col, l_array_type& data) = 0;
+	virtual void GetColData(int col, s_array_type& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
@@ -195,7 +215,23 @@ public:
 	virtual void RemoveTimeStep(int time) = 0;
 	virtual void SwapTimeSteps(int time1, int time2) = 0;
 	virtual void RenameTimeStep(int time, const wxString& new_name) = 0;
+    
+    /** Checks is name is a valid database column name given naming
+     * restrctions for database as specified by cols_max_length,
+     * cols_case_sensitive and cols_ascii_only or other encoding restrictions.
+     * This is generally much more strict than space-time group names.
+     * Does not verify that name is unique. */
+    virtual bool IsValidDBColName(const wxString& col_nm,
+                                  wxString* fld_warn_msg=0) =0;
+
 	
+    /**
+     * belows are non-virtual functions
+     *
+     */
+    virtual std::vector<wxString> GetGroupNames();
+    virtual int GetColIdx(const wxString& name);
+    
 	/** Sets encoding of string column data.  Can possibly use for data base
 	 * column name encoding, but for now remain more restrictive */
 	virtual void SetEncoding(wxFontEncoding enc_type);
@@ -246,14 +282,9 @@ public:
 	 * for groups.  This is generally much less strict than database
 	 * column names.  Does not verify that name is unique. */
 	virtual bool IsValidGroupName(const wxString&  grp_nm) const;
-	/** Checks is name is a valid database column name given naming
-	 * restrctions for database as specified by cols_max_length,
-	 * cols_case_sensitive and cols_ascii_only or other encoding restrictions.
-	 * This is generally much more strict than space-time group names.
-	 * Does not verify that name is unique. */	
-	virtual bool IsValidDBColName(const wxString& col_nm, 
-								  wxString* fld_warn_msg=0) =0;
-	
+    
+    
+		
 protected:
 	
 	TableState* table_state;
@@ -263,6 +294,7 @@ protected:
 	wxString open_err_msg;
 	int rows;
 	bool changed_since_last_save;
+    bool project_changed_since_last_save;
 	
 	bool is_set_cell_from_string_fail;
 	wxString set_cell_from_string_fail_msg;

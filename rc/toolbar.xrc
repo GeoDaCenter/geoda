@@ -1,182 +1,171 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <resource>
-  <object class="wxToolBar" name="ToolBar">
+  <object class="wxAuiToolBar" name="ToolBar">
+    <bitmapsize>32, 32</bitmapsize>
+    <dontattachtoframe>1</dontattachtoframe>
+    <margins>2,2</margins>
+    <style>wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW</style>
     <object class="tool" name="ID_NEW_PROJECT">
-      <bitmap>ToolBar-new-project.png</bitmap>
-      <bitmap2>ToolBar-new-project_disabled.png</bitmap2>
-      <tooltip>New Project</tooltip>
-    </object>
-    <object class="tool" name="ID_OPEN_PROJECT">
-      <bitmap>ToolBar-open-folder.png</bitmap>
-      <bitmap2>ToolBar-open-folder_disabled.png</bitmap2>
-      <tooltip>Open Project</tooltip>
+      <bitmap>color/32x32/01.png</bitmap>
+      <bitmap2>color/32x32/01.png</bitmap2>
+      <tooltip>Open</tooltip>
     </object>
     <object class="tool" name="ID_CLOSE_PROJECT">
-      <bitmap>ToolBar-close-folder.png</bitmap>
-      <bitmap2>ToolBar-close-folder_disabled.png</bitmap2>
-      <tooltip>Close Project</tooltip>
+        <bitmap>color/32x32/02.png</bitmap>
+        <bitmap2>gray/32x32/02.png</bitmap2>
+      <tooltip>Close</tooltip>
     </object>
     <object class="tool" name="ID_SAVE_PROJECT">
-      <bitmap>ToolBar-save-project.png</bitmap>
-      <bitmap2>ToolBar-save-project_disabled.png</bitmap2>
-      <tooltip>Save Project</tooltip>
+        <bitmap>color/32x32/03.png</bitmap>
+        <bitmap2>gray/32x32/03.png</bitmap2>
+        <tooltip>Save</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_NEW_TABLE">
-      <bitmap>ToolBar-table.png</bitmap>
-      <bitmap2>ToolBar-table_disabled.png</bitmap2>
-      <tooltip>Open Table</tooltip>
+        <bitmap>color/32x32/04.png</bitmap>
+        <bitmap2>gray/32x32/04.png</bitmap2>
+      <tooltip>Table</tooltip>
     </object>
-    <object class="tool" name="ID_SET_DEFAULT_VARIABLE_SETTINGS">
-      <bitmap>ToolBarBitmaps_10.png</bitmap>
-      <bitmap2>ToolBarBitmaps_10_disabled.png</bitmap2>
-      <tooltip>Set default variables</tooltip>
-    </object>
-    <object class="separator"/>
-    <object class="tool" name="ID_TOOLS_WEIGHTS_CREATE">
-      <bitmap>ToolBarBitmaps_4.png</bitmap>
-      <bitmap2>ToolBarBitmaps_4_disabled.png</bitmap2>
-      <tooltip>Create weights</tooltip>
-    </object>
-    <object class="tool" name="ID_TOOLS_WEIGHTS_OPEN">
-      <bitmap>ToolBarBitmaps_3.png</bitmap>
-      <bitmap2>ToolBarBitmaps_3_disabled.png</bitmap2>
-      <tooltip>Open weights file</tooltip>
-    </object>
-    <object class="tool" name="ID_CONNECTIVITY_HIST_VIEW">
-      <bitmap>ToolBarBitmaps_5.png</bitmap>
-      <bitmap2>ToolBarBitmaps_5_disabled.png</bitmap2>
-      <tooltip>Connectivity Histogram</tooltip>
-    </object>
-    <object class="separator"/>
-    <object class="tool" name="ID_SHOW_TIME_CHOOSER">
-      <bitmap>ToolBarBitmaps_42.png</bitmap>
-      <bitmap2>ToolBarBitmaps_42_disabled.png</bitmap2>
-      <tooltip>Time Control</tooltip>
-    </object>
-    <object class="tool" name="ID_SHOW_DATA_MOVIE">
-      <bitmap>ToolBar-movie.png</bitmap>
-      <bitmap2>ToolBar-movie_disabled.png</bitmap2>
-      <tooltip>Animation</tooltip>
-    </object>
-    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
-      <bitmap>ToolBarBitmaps_44.png</bitmap>
-      <bitmap2>ToolBarBitmaps_44_disabled.png</bitmap2>
-      <tooltip>Category Editor</tooltip>
+    <object class="tool" name="ID_TOOLS_WEIGHTS_MANAGER">
+        <bitmap>color/32x32/05.png</bitmap>
+        <bitmap2>gray/32x32/05.png</bitmap2>
+        <tooltip>Weights Manager</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_MAP_CHOICES">
-      <bitmap>ToolBarBitmaps_MapChoices2.png</bitmap>
-      <bitmap2>ToolBarBitmaps_MapChoices2_disabled.png</bitmap2>
-      <tooltip>Maps and Rates</tooltip>
+        <bitmap>color/32x32/09.png</bitmap>
+        <bitmap2>gray/32x32/09.png</bitmap2>
+        <tooltip>Maps and Rates</tooltip>
     </object>
     <object class="tool" name="ID_SHOW_CARTOGRAM_NEW_VIEW">
-      <bitmap>ToolBarBitmaps_30.png</bitmap>
-      <bitmap2>ToolBarBitmaps_30_disabled.png</bitmap2>
+        <bitmap>color/32x32/10.png</bitmap>
+        <bitmap2>gray/32x32/10.png</bitmap2>
       <tooltip>Cartogram</tooltip>
+    </object>
+    <object class="tool" name="ID_SHOW_DATA_MOVIE">
+        <bitmap>color/32x32/11.png</bitmap>
+        <bitmap2>gray/32x32/11.png</bitmap2>
+      <tooltip>Map Movie</tooltip>
+    </object>
+    <object class="separator"/>
+    <object class="tool" name="ID_SHOW_CAT_CLASSIF">
+        <bitmap>color/32x32/12.png</bitmap>
+        <bitmap2>gray/32x32/12.png</bitmap2>
+      <tooltip>Category Editor</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="IDM_HIST">
-      <bitmap>ToolBarBitmaps_12.png</bitmap>
-      <bitmap2>ToolBarBitmaps_12_disabled.png</bitmap2>
+        <bitmap>color/32x32/13.png</bitmap>
+        <bitmap2>gray/32x32/13.png</bitmap2>
       <tooltip>Histogram</tooltip>
     </object>
     <object class="tool" name="IDM_BOX">
-      <bitmap>ToolBarBitmaps_14.png</bitmap>
-      <bitmap2>ToolBarBitmaps_14_disabled.png</bitmap2>
+        <bitmap>color/32x32/14.png</bitmap>
+        <bitmap2>gray/32x32/14.png</bitmap2>
       <tooltip>Box Plot</tooltip>
     </object>
     <object class="tool" name="IDM_SCATTERPLOT">
-      <bitmap>ToolBarBitmaps_13.png</bitmap>
-      <bitmap2>ToolBarBitmaps_13_disabled.png</bitmap2>
+        <bitmap>color/32x32/15.png</bitmap>
+        <bitmap2>gray/32x32/15.png</bitmap2>
       <tooltip>Scatter Plot</tooltip>
     </object>
+    <object class="tool" name="IDM_SCATTERPLOT_MAT">
+        <bitmap>color/32x32/16.png</bitmap>
+        <bitmap2>gray/32x32/16.png</bitmap2>
+      <tooltip>Scatter Plot Matrix</tooltip>
+    </object>
     <object class="tool" name="IDM_BUBBLECHART">
-      <bitmap>ToolBarBitmaps_41.png</bitmap>
-      <bitmap2>ToolBarBitmaps_41_disabled.png</bitmap2>
+        <bitmap>color/32x32/17.png</bitmap>
+        <bitmap2>gray/32x32/17.png</bitmap2>
       <tooltip>Bubble Chart</tooltip>
     </object>
     <object class="tool" name="IDM_3DP">
-      <bitmap>ToolBar-3D.png</bitmap>
-      <bitmap2>ToolBar-3D_disabled.png</bitmap2>
+        <bitmap>color/32x32/18.png</bitmap>
+        <bitmap2>gray/32x32/18.png</bitmap2>
       <tooltip>3D Scatter Plot</tooltip>
     </object>
     <object class="tool" name="IDM_PCP">
-      <bitmap>ToolBarBitmaps_15.png</bitmap>
-      <bitmap2>ToolBarBitmaps_15_disabled.png</bitmap2>
+        <bitmap>color/32x32/19.png</bitmap>
+        <bitmap2>gray/32x32/19.png</bitmap2>
       <tooltip>Parallel Coordinate Plot</tooltip>
     </object>
     <object class="tool" name="ID_COND_PLOT_CHOICES">
-      <bitmap>ToolBarBitmaps_17.png</bitmap>
-      <bitmap2>ToolBarBitmaps_17_disabled.png</bitmap2>
+        <bitmap>color/32x32/20.png</bitmap>
+        <bitmap2>gray/32x32/20.png</bitmap2>
       <tooltip>Conditional Plot</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_MORAN_MENU">
-      <bitmap>ToolBarBitmaps_19.png</bitmap>
-      <bitmap2>ToolBarBitmaps_19_disabled.png</bitmap2>
-      <tooltip>Moran's I Scatter Plots</tooltip>
+        <bitmap>color/32x32/21.png</bitmap>
+        <bitmap2>gray/32x32/21.png</bitmap2>
+      <tooltip>Moran Scatter Plot</tooltip>
+    </object>
+    <object class="tool" name="IDM_CORRELOGRAM">
+        <bitmap>color/32x32/22.png</bitmap>
+        <bitmap2>gray/32x32/22.png</bitmap2>
+      <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
     </object>
     <object class="tool" name="ID_LISA_MENU">
-      <bitmap>ToolBarBitmaps_22.png</bitmap>
-      <bitmap2>ToolBarBitmaps_22_disabled.png</bitmap2>
-      <tooltip>Local Moran's I Maps</tooltip>
+        <bitmap>color/32x32/23.png</bitmap>
+        <bitmap2>gray/32x32/23.png</bitmap2>
+      <tooltip>Cluster Maps</tooltip>
     </object>
-    <object class="tool" name="IDM_GETIS_ORD">
-      <bitmap>ToolBarBitmaps_37.png</bitmap>
-      <bitmap2>ToolBarBitmaps_37_disabled.png</bitmap2>
-      <tooltip>Local G Statistics Maps</tooltip>
+    <object class="separator"/>
+    <object class="tool" name="ID_SHOW_TIME_CHOOSER">
+        <bitmap>color/32x32/25.png</bitmap>
+        <bitmap2>gray/32x32/25.png</bitmap2>
+      <tooltip>Time</tooltip>
+    </object>
+    <object class="tool" name="IDM_LINE_CHART">
+        <bitmap>color/32x32/26.png</bitmap>
+        <bitmap2>gray/32x32/26.png</bitmap2>
+      <tooltip>Averages Chart</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_REGRESSION_CLASSIC">
-      <bitmap>ToolBarBitmaps_43.png</bitmap>
-      <bitmap2>ToolBarBitmaps_43_disabled.png</bitmap2>
+        <bitmap>color/32x32/27.png</bitmap>
+        <bitmap2>gray/32x32/27.png</bitmap2>
       <tooltip>Regression</tooltip>
     </object>
   </object>
-  <object class="wxToolBar" name="ToolBar2">
-    <object class="tool" name="ID_CD_ROM">
-      <bitmap stock_id="wxART_CDROM"/>
-      <tooltip>CD ROM</tooltip>
+
+  <object class="wxToolBar" name="ToolBar_MAP">
+    <style>wxTB_FLAT|wxTB_HORIZONTAL</style>
+    <bitmapsize>24,24</bitmapsize>
+    <margins>1,1</margins>
+    <object class="tool" name="ID_SELECT_LAYER">
+      <bitmap>color/24x24/28.png</bitmap>
+      <tooltip>Select</tooltip>
     </object>
-    <object class="tool" name="ID_FLOPPY">
-      <bitmap stock_id="wxART_FLOPPY"/>
+    <object class="tool" name="ID_SELECT_INVERT">
+      <bitmap>color/24x24/29.png</bitmap>
+      <tooltip>Invert Select</tooltip>
     </object>
-    <bitmapsize>16,15</bitmapsize>
-    <margins>2,2</margins>
-    <style>wxTB_FLAT|wxTB_NODIVIDER</style>
-    <object class="tool" name="ID_EXPORT_MEAN_CENTERS">
-      <bitmap>ToolBarBitmaps_36.png</bitmap>
-      <bitmap2>ToolBarBitmaps_36_disabled.png</bitmap2>
-      <tooltip>Export Mean Centers</tooltip>
+    <object class="separator"/>
+    <object class="tool" name="ID_ZOOM_LAYER">
+      <bitmap>color/24x24/30.png</bitmap>
+      <tooltip>Zoom In</tooltip>
     </object>
-    <object class="tool" name="ID_EXPORT_CENTROIDS">
-      <bitmap>ToolBarBitmaps_2.png</bitmap>
-      <bitmap2>ToolBarBitmaps_2_disabled.png</bitmap2>
-      <tooltip>Export Centroids</tooltip>
+    <object class="tool" name="ID_ZOOM_OUT_LAYER">
+      <bitmap>color/24x24/31.png</bitmap>
+      <tooltip>Zoom Out</tooltip>
     </object>
-    <object class="tool" name="ID_TOOLS_WEIGHTS_OPEN">
-      <bitmap>ToolBarBitmaps_3.png</bitmap>
-      <bitmap2>ToolBarBitmaps_3_disabled.png</bitmap2>
-      <tooltip>Select Weights</tooltip>
+    <object class="tool" name="ID_PAN_LAYER">
+      <bitmap>color/24x24/32.png</bitmap>
+      <tooltip>Pan</tooltip>
     </object>
-    <object class="tool" name="ID_OPEN_MATCHING_MAP">
-      <bitmap>ToolBarBitmaps_6.png</bitmap>
-      <bitmap2>ToolBarBitmaps_6_disabled.png</bitmap2>
-      <tooltip>Show Converted Features</tooltip>
+    <object class="tool" name="ID_EXTENT_LAYER">
+      <bitmap>color/24x24/33.png</bitmap>
+      <tooltip>Full Extent</tooltip>
     </object>
-    <object class="tool" name="ID_SET_DEFAULT_VARIABLE_SETTINGS">
-      <bitmap>ToolBarBitmaps_10.png</bitmap>
-      <bitmap2>ToolBarBitmaps_10_disabled.png</bitmap2>
-      <tooltip>Default Variable Settings</tooltip>
+    <object class="separator"/>
+    <object class="tool" name="ID_TOOLBAR_BASEMAP">
+      <bitmap>color/24x24/34.png</bitmap>
+      <tooltip>Base Map </tooltip>
     </object>
-  </object>
-  <object class="wxToolBar" name="ToolBar3">
-    <object class="tool" name="ID_HELP">
-      <bitmap stock_id="wxART_HELP_BOOK"/>
+    <object class="tool" name="ID_REFRESH_LAYER">
+      <bitmap>color/24x24/36.png</bitmap>
+      <tooltip>Refresh</tooltip>
     </object>
-    <bitmapsize>16,16</bitmapsize>
-    <margins>2,2</margins>
-    <style>wxTB_NODIVIDER</style>
   </object>
 </resource>

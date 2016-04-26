@@ -1,0 +1,73 @@
+GeoDa_ROOT	=	$(GEODA_HOME)/../..
+
+TARGET      = GeoDa
+
+CC	=	gcc
+CXX     =	g++ -Os -arch x86_64
+LD	=	g++ -arch x86_64
+RM	=	/bin/rm -f
+
+WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,webview,xml,net,base)
+WX_HEADER = $(shell $(GEODA_HOME)/libraries/bin/wx-config --cppflags)
+
+LIBS	=	$(WXLIBS) \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
+            -L/usr/lib -liconv \
+            -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
+            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
+            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
+	    $(GEODA_HOME)/libraries/lib/libjson_spirit.a
+
+
+BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
+
+GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
+
+CPPFLAGS	=  -I$(GeoDa_ROOT) $(USER_DEFS) -DLOG_ON
+CFLAGS		=  -Os -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) -DLOG_ON
+CXXFLAGS	=  -Os -arch x86_64  -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) -DLOG_ON
+LDFLAGS     = -arch x86_64
+
+OBJ_EXT     = o
+
+#
+# generic library rules
+#
+
+#
+# gdal and ogr low level drivers use the following default rules in order to
+# populate the ../o/ directory with all object and library object files
+#
+
+O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
+T_OBJ =	$(foreach file,$(OBJ),o/$(file))
+
+../o/%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+../o/%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+o/%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+o/%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $< 
+
+#
+# default rules for handling subdirectories
+#
+
+%-target:
+	$(MAKE) -C $*
+
+%-clean:
+	$(MAKE) -C $* clean

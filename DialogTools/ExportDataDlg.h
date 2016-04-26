@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -39,60 +39,75 @@ class ExportDataDlg: public DatasourceDlg
 {
 public:
 	ExportDataDlg(wxWindow* parent,
-				  Project* project,
+				  Project* _project,
                   bool isSelectedOnly=false,
                   wxString projectFileName = "",
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize );
+    
 	/** NOTE: Project could be NULL in case of creating
 	 *  a GRID shape ds or from a BOUNDARY.
 	 */
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaShape*>& _geometries,
                   Shapefile::ShapeType _shape_type,
-				  Project* project=NULL,
+				  Project* _project=NULL,
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
+    
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaPoint*>& _geometries,
                   Shapefile::ShapeType _shape_type,
-				  Project* project=NULL,
+                  wxString _point_name,
+				  Project* _project=NULL,
                   bool isSelectedOnly=false,
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
+    
+    ExportDataDlg(wxWindow* parent,
+                  TableInterface* _table,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    
     void Init(wxWindow* parent, const wxPoint& pos);
     void CreateControls();
     void BrowseExportDataSource( wxCommandEvent& event );
-    void OnOkClick( wxCommandEvent& event );
+    virtual void OnOkClick( wxCommandEvent& event );
 
 public:
 	bool IsTableOnly();
-	
-private:
+    wxString GetDatasourceName() { return datasource_name; }
+    wxString GetDatasourceFormat() { return ds_format; }
+    
+protected:
 	AutoTextCtrl* m_database_table;
 	wxCheckBox* m_chk_create_project;
     
 	Project* project_p;
+    TableInterface* table_p;
 	vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type;
     wxString project_file_name;
 	wxFileName ds_file_path;
 	wxString ds_format;
 	wxString ds_srs;
+    wxString datasource_name;
     bool is_selected_only;
     bool is_create_project;
     bool is_saveas_op;
 	// e.g. centroids, grids. vector<GdaShape*> geometries
 	// take ownership of external geometries temporarily, 
 	// so its memory will be maintained (no cleanup).
-	bool is_geometry_only; 
+	bool is_geometry_only;
+    bool is_table_only;
+    
+    bool is_save_centroids;
     
 	IDataSource* GetDatasource();
     void OpenDatasourceFile(const wxFileName& ds_fname);
     void ExportOGRLayer(wxString& ds_name, bool is_update);
-    bool CreateOGRLayer(wxString& ds_name, TableInterface* table,
-		OGRSpatialReference* spatial_ref, bool is_update);
+    bool CreateOGRLayer(wxString& ds_name, OGRSpatialReference* spatial_ref, bool is_update);
     
 	DECLARE_EVENT_TABLE()
 };

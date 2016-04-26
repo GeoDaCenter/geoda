@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,9 +21,11 @@
 #define __GEODA_CENTER_GDA_FLEX_VALUE_H__
 
 #include <exception>
+#include <limits>
 #include <ostream>
 #include <valarray>
 #include <boost/shared_ptr.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <wx/string.h>
 
 class GdaFVException: public std::exception
@@ -47,10 +49,18 @@ public:
 	GdaFlexValue(const double& value);
 	GdaFlexValue(const std::valarray<double>& V,
 				 size_t obs, size_t tms);
+	GdaFlexValue(const std::vector<long>& counts);
+	GdaFlexValue(boost::uuids::uuid u);
 	GdaFlexValue(const GdaFlexValue& v);
+	GdaFlexValue(const wxString& str_lit);
 	GdaFlexValue& operator=(const GdaFlexValue& v);
 	
-	wxString ToStr();
+	bool IsStringLit() const;
+	bool IsData() const;
+	bool IsWeights() const;
+	boost::uuids::uuid GetWUuid() const { return weights_uuid; }
+
+	wxString ToStr() const;
 	
 	GdaFlexValue& operator+=(const GdaFlexValue& v);
 	GdaFlexValue& operator-=(const GdaFlexValue& v);
@@ -59,20 +69,58 @@ public:
 	GdaFlexValue& operator^=(const GdaFlexValue& v);
 	
 	GdaFlexValue& NegateSelf();
-	void SetDouble(double d) { V = d; }
-	double GetDouble() const { return V[0]; }
+	GdaFlexValue& ApplyUniSelf(double (*f)(double));
+	GdaFlexValue& ApplyBinarySelf(double (*f)(double, double),
+								  const GdaFlexValue& v);
+	GdaFlexValue& Sum();
+	GdaFlexValue& Mean();
+	GdaFlexValue& StdDev();
+	GdaFlexValue& DevFromMean();
+	GdaFlexValue& Standardize();
+	GdaFlexValue& Shuffle();
+	GdaFlexValue& UniformDist();
+	GdaFlexValue& GaussianDist(double mean, double sd);
+	GdaFlexValue& Enumerate(double from, double step);
+	GdaFlexValue& Round();
+	GdaFlexValue& Max();
+	GdaFlexValue& Min();
+	GdaFlexValue& Rotate(int step);
+
+	double GetDouble() const;
+
 	size_t GetObs() const { return obs; }
 	size_t GetTms() const { return tms; }
 	void SetSize(size_t obs, size_t tms);
 	
 	std::valarray<double>& GetValArrayRef() { return V; }
+	const std::valarray<double>& GetConstValArrayRef() const { return V; }
+	
+	void grow_if_smaller(const GdaFlexValue& v);
 	
 private:
-	void grow_if_smaller(const GdaFlexValue& v);
+	static void exception_if_not_data(const GdaFlexValue& v);
+	static void exception_if_not_weights(const GdaFlexValue& v);
+	
 	std::valarray<double> V;
 	size_t obs; // or number of rows
 	size_t tms; // or number of columns
+
+	bool is_string_lit;
+	wxString string_lit;
+	boost::uuids::uuid weights_uuid;
 };
+
+/*
+  void apply_binary_op(GdaFlexValue& val,
+     const GdaFlexValue& operand1,
+	 const GdaFlexValue& operand2,
+     double (*op)(double, double));
+
+  apply_binary_op_to_self(A, B, +)  -> A = A+B
+  apply_unary_op_to_self(A, abs) -> A = abs(A)
+  
+
+ */
 
 typedef boost::shared_ptr<GdaFlexValue> GdaFVSmtPtr;
 
@@ -100,7 +148,10 @@ typedef boost::shared_ptr<GdaFlexValue> GdaFVSmtPtr;
  rook(order)
  rook(order, inc_lower = false)
  queen() // order = 1
- 
+ knn(4) // use x/y coords
+ knn(4, euclidean, 23);
+ threshold(1.2, arc, km, X, Y);
+
  rook() && queen()  -> logical AND of sets.  in this case -> rook()
  
  min_euc

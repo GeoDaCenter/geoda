@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,6 +20,10 @@
 #ifndef __GEODA_CENTER_CONDITIONAL_SCATTER_PLOT_VIEW_H__
 #define __GEODA_CENTER_CONDITIONAL_SCATTER_PLOT_VIEW_H__
 
+#include "LowessParamDlg.h"
+#include "LowessParamObserver.h"
+#include "../ShapeOperations/Lowess.h"
+#include "../ShapeOperations/SmoothingUtils.h"
 #include "../GenUtils.h"
 #include "ConditionalNewView.h"
 
@@ -29,6 +33,7 @@ class ConditionalScatterPlotCanvas;
 typedef boost::multi_array<SampleStatistics, 2> stats_array_type;
 typedef boost::multi_array<SimpleLinearRegression, 2> slr_array_type;
 typedef boost::multi_array<GdaPolyLine, 2> polyline_array_type;
+typedef boost::multi_array<GdaSpline, 2> spline_array_type;
 
 class ConditionalScatterPlotCanvas : public ConditionalNewCanvas {
 	DECLARE_CLASS(ConditionalScatterPlotCanvas)
@@ -36,7 +41,7 @@ public:
 	
 	ConditionalScatterPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
 						 Project* project,
-						 const std::vector<GeoDaVarInfo>& var_info,
+						 const std::vector<GdaVarTools::VarInfo>& var_info,
 						 const std::vector<int>& col_ids,
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = wxDefaultSize);
@@ -54,27 +59,21 @@ protected:
 	virtual void CalcCellsRegression();
 	
 public:
-	static void CalcRegressionLine(GdaPolyLine& reg_line, double& slope,
-								   bool& infinite_slope,
-								   bool& regression_defined,
-								   wxRealPoint& reg_a, wxRealPoint& reg_b,
-								   double& cc_degs_of_rot,
-								   const AxisScale& axis_scale_x,
-								   const AxisScale& axis_scale_y,
-								   const SimpleLinearRegression& reg,
-								   const wxPen& pen);
-	static double RegLineToDegCCFromHoriz(double a_x, double a_y,
-										  double b_x, double b_y);
-	
 	virtual void TimeSyncVariableToggle(int var_index);
+	bool IsShowLinearSmoother();
+	bool IsShowLowessSmoother();
+	void ShowLinearSmoother(bool display);
+	void ShowLowessSmoother(bool display);
+	void ChangeLoessParams(double f, int iter, double delta_factor);
 	void DisplayAxesScaleValues(bool display);
 	void DisplaySlopeValues(bool display);
 	bool IsDisplayAxesScaleValues();
 	bool IsDisplaySlopeValues();
+	Lowess GetLowess() { return lowess; }
 	/// Override from TemplateCanvas
 	virtual void SetSelectableFillColor(wxColour color);
 	/// Override from TemplateCanvas
-	virtual void SetSelectableOutlineColor(wxColour color);	
+	virtual void SetSelectableOutlineColor(wxColour color);
 	
 protected:
 	bool full_map_redraw_needed;
@@ -91,9 +90,16 @@ protected:
 	stats_array_type stats_y;
 	slr_array_type regression;
 	polyline_array_type reg_line;
+	spline_array_type reg_line_lowess;
 	
+	bool show_linear_smoother;
+	bool show_lowess_smoother;
 	bool display_axes_scale_values;
 	bool display_slope_values;
+	
+	SmoothingUtils::LowessCacheType lowess_cache;
+	void EmptyLowessCache();
+	Lowess lowess;
 	
 	virtual void UpdateStatusBar();
 	
@@ -101,11 +107,13 @@ protected:
 };
 
 
-class ConditionalScatterPlotFrame : public ConditionalNewFrame {
+class ConditionalScatterPlotFrame : public ConditionalNewFrame,
+	public LowessParamObserver
+{
 	DECLARE_CLASS(ConditionalScatterPlotFrame)
 public:
     ConditionalScatterPlotFrame(wxFrame *parent, Project* project,
-						const std::vector<GeoDaVarInfo>& var_info,
+						const std::vector<GdaVarTools::VarInfo>& var_info,
 						const std::vector<int>& col_ids,
 						const wxString& title = "Conditional Map",
 						const wxPoint& pos = wxDefaultPosition,
@@ -121,8 +129,18 @@ public:
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
+	/** Implementation of LowessParamObserver interface */
+	virtual void update(LowessParamObservable* o);
+	virtual void notifyOfClosing(LowessParamObservable* o);
+	
+	void OnViewLinearSmoother(wxCommandEvent& event);
+	void OnViewLowessSmoother(wxCommandEvent& event);
+	void OnEditLowessParams(wxCommandEvent& event);
 	void OnDisplayAxesScaleValues(wxCommandEvent& event);
 	void OnDisplaySlopeValues(wxCommandEvent& event);
+	
+protected:
+		LowessParamFrame* lowess_param_frame;
 	
     DECLARE_EVENT_TABLE()
 };

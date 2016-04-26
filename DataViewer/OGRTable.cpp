@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,7 +29,6 @@
 #include <wx/regex.h>
 
 #include "../Project.h"
-#include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -40,6 +39,16 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
+
+OGRTable::OGRTable(int n_rows)
+: TableInterface(NULL, NULL)
+{
+    // This is in-memory table only.
+    ogr_layer = NULL;
+    rows = n_rows;
+    
+    //table_state->registerObserver(this);
+}
 
 OGRTable::OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
                    TableState* table_state, TimeState* time_state,
@@ -80,7 +89,11 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 	rows = ogr_layer->n_rows;
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	changed_since_last_save = false;
+	project_changed_since_last_save = false;
 	is_valid = true;
+    
+    table_state->registerObserver(this);
+
 }
 
 OGRTable::~OGRTable()
@@ -107,6 +120,22 @@ void OGRTable::ChangeOGRLayer(OGRLayerProxy* new_ogr_layer)
     }
 }
 */
+
+void OGRTable::Update(const VarOrderPtree& var_order_ptree)
+{
+    var_order.Update(var_order_ptree);
+    table_state->SetRefreshEvtTyp();
+    table_state->notifyObservers();
+    
+	SetProjectChangedSinceLastSave(true);
+}
+
+void OGRTable::update(TableState* o)
+{
+    if (o->GetEventType() == TableState::col_order_change) {
+        this->SetChangedSinceLastSave(true);
+    }
+}
 
 GdaConst::DataSourceType OGRTable::GetDataSourceType()
 {
@@ -178,6 +207,24 @@ void OGRTable::AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx)
     columns.push_back(ogr_col);
 }
 
+// Following 2 functions are for in-memory OGRTable
+void OGRTable::AddOGRColumn(OGRColumn* ogr_col)
+{
+    int pos = columns.size();
+	VarGroup g(ogr_col->GetName(), ogr_col->GetDecimals());
+    var_order.InsertVarGroup(g, pos);
+    
+    
+    columns.push_back(ogr_col);
+    var_map[ogr_col->GetName()] = pos;
+}
+
+
+OGRColumn* OGRTable::GetOGRColumn(int idx)
+{
+    return columns[idx];
+}
+
 void OGRTable::GetTimeStrings(std::vector<wxString>& tm_strs)
 {
 	tm_strs = var_order.GetTimeIdsRef();
@@ -220,7 +267,15 @@ int OGRTable::GetTimeInt(const wxString& tm_string)
 
 bool OGRTable::IsTimeVariant()
 {
-	return var_order.GetNumTms() > 1;
+    //return var_order.GetNumTms() > 1;
+    
+    int n_vargrp = var_order.GetNumVarGroups();
+    for (int i=0; i<n_vargrp; i++){
+        if (!var_order.FindVarGroup(i).IsSimple())
+            return true;
+    }
+	
+    return false;
 }
 
 int OGRTable::GetTimeSteps()
@@ -230,7 +285,9 @@ int OGRTable::GetTimeSteps()
 
 wxString OGRTable::GetTableName()
 {
-	return ogr_layer->name;
+    if (ogr_layer)
+        return ogr_layer->name;
+    return "NO_NAME";
 }
 
 bool OGRTable::Save(wxString& err_msg)
@@ -255,8 +312,7 @@ bool OGRTable::Save(wxString& err_msg)
                 operations_queue.push(op);
                 completed_stack.pop();
             }
-            err_msg << "GeoDa can't save changes to datasource. Please try to "
-                    << "export to other type of datasources.";
+            err_msg << "GeoDa can't save changes to this datasource. Please try to use File->Export.";
             return false;
         }
         // clean Operations
@@ -271,17 +327,17 @@ bool OGRTable::Save(wxString& err_msg)
     }
     // if it's readonly, it can be and will be exported.So we set no "Change"
 	SetChangedSinceLastSave(false);
-    wxString msg = "This is read only datasource. Try save as.";
+    wxString msg = "GeoDa can't save changes to this datasource. Please try to use File->Export.";
     throw GdaException(msg.mb_str(), GdaException::NORMAL);
 	return false;
 }
 
 bool OGRTable::IsReadOnly()
 {
-    if (datasource_type == GdaConst::ds_dbf ||
-        datasource_type == GdaConst::ds_shapefile) {
-        return true;
-    }
+    //if (datasource_type == GdaConst::ds_dbf ||
+    //    datasource_type == GdaConst::ds_shapefile) {
+    //    return true;
+    //}
 	return !ogr_layer->is_writable;
 }
 
@@ -300,6 +356,22 @@ int OGRTable::FindColId(const wxString& name)
 	c_name.Trim(false);
 	c_name.Trim(true);
 	return var_order.GetColId(c_name);
+}
+
+int OGRTable::GetColIdx(const wxString& name)
+{
+    wxString c_name = name;
+    c_name.Trim(false);
+    c_name.Trim(true);
+    
+    std::map<wxString, int>::iterator i;
+    if ( (i=var_map.find(name)) != var_map.end() ||
+        (i=var_map.find(name.Upper())) != var_map.end() ||
+        (i=var_map.find(name.Lower())) != var_map.end() ) {
+        return i->second;
+    }
+
+    return -1;
 }
 
 /** If there is an associated wxGrid, then return the column ids in the order
@@ -424,21 +496,35 @@ GdaConst::FieldType OGRTable::GetColType(int col)
 	for (int t=0; t<ts; ++t) {
 		type = GetColType(col, t);
 		if (type != GdaConst::placeholder_type &&
-			type != GdaConst::unknown_type) return type;
+			type != GdaConst::unknown_type)
+            return type;
 	}
 	return type;
 }
 
-
-bool OGRTable::DoesNameExist(const wxString& name, bool case_sensitive) const
+std::vector<GdaConst::FieldType> OGRTable::GetColTypes(int col)
 {
-	return var_order.DoesNameExist(name, case_sensitive);
+	size_t ts = GetColTimeSteps(col);
+	std::vector<GdaConst::FieldType> ret(ts);
+	for (size_t t=0; t<ts; ++t) {
+		ret[t] = GetColType(col, t);
+        if (ret[t] == GdaConst::placeholder_type) {
+            throw GdaException("Placeholder found in grouped column.");
+        }
+	}
+	return ret;
 }
 
 GdaConst::FieldType OGRTable::GetColType(int col, int time)
 {
 	OGRColumn* ogr_col = FindOGRColumn(col, time);
 	return ogr_col ? ogr_col->GetType() : GdaConst::placeholder_type;
+}
+
+
+bool OGRTable::DoesNameExist(const wxString& name, bool case_sensitive) const
+{
+	return var_order.DoesNameExist(name, case_sensitive);
 }
 
 /** Return the Group column name. */
@@ -532,7 +618,7 @@ void OGRTable::GetColData(int col, GdaFlexValue& data)
 /**
  * d_array_type is boost::multi_array<double, 2>
  */
-void OGRTable::GetColData(int col, d_array_type& dbl_data)
+void OGRTable::GetColData(int col, d_array_type& data)
 {
 	if (col < 0 || col >= var_order.GetNumVarGroups()
 		|| !IsColNumeric(col)) return;
@@ -546,24 +632,81 @@ void OGRTable::GetColData(int col, d_array_type& dbl_data)
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
 	
-	dbl_data.resize(boost::extents[tms][rows]);
+	data.resize(boost::extents[tms][rows]);
 	for (size_t t=0; t<tms; ++t) {
 		if (ftr_c[t] != -1) {
             int col_idx = ftr_c[t];
-            std::vector<double> data(rows, 0);
-            columns[col_idx]->FillData(data);
+            std::vector<double> d(rows, 0);
+            columns[col_idx]->FillData(d);
 			for (size_t i=0; i<rows; ++i) {
-				dbl_data[t][i] = data[i];
+				data[t][i] = d[i];
 			}
 		} else {
-			for (size_t i=0; i<rows; ++i) dbl_data[t][i] = 0;
+			for (size_t i=0; i<rows; ++i) data[t][i] = 0;
+		}
+	}
+}
+
+void OGRTable::GetColData(int col, l_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()
+		|| !IsColNumeric(col)) return;
+	VarGroup vg = var_order.FindVarGroup(col);
+	if (vg.IsEmpty()) return;
+	vector<wxString> vars;
+	vg.GetVarNames(vars);
+	size_t tms = vars.size();
+	vector<int> ftr_c(tms); // OGRFeature column id
+	for (size_t t=0; t<vars.size(); ++t) {
+		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
+	}
+	
+	data.resize(boost::extents[tms][rows]);
+	for (size_t t=0; t<tms; ++t) {
+		if (ftr_c[t] != -1) {
+            int col_idx = ftr_c[t];
+            std::vector<wxInt64> d(rows, 0);
+            columns[col_idx]->FillData(d);
+			for (size_t i=0; i<rows; ++i) {
+				data[t][i] = d[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; ++i) data[t][i] = 0;
+		}
+	}
+}
+
+void OGRTable::GetColData(int col, s_array_type& data)
+{
+	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
+	VarGroup vg = var_order.FindVarGroup(col);
+	if (vg.IsEmpty()) return;
+	vector<wxString> vars;
+	vg.GetVarNames(vars);
+	size_t tms = vars.size();
+	vector<int> ftr_c(tms); // OGRFeature column id
+	for (size_t t=0; t<vars.size(); ++t) {
+		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
+	}
+	
+	data.resize(boost::extents[tms][rows]);
+	for (size_t t=0; t<tms; ++t) {
+		if (ftr_c[t] != -1) {
+            int col_idx = ftr_c[t];
+            std::vector<wxString> d(rows);
+            columns[col_idx]->FillData(d);
+			for (size_t i=0; i<rows; ++i) {
+				data[t][i] = d[i];
+			}
+		} else {
+			for (size_t i=0; i<rows; ++i) data[t][i] = "";
 		}
 	}
 }
 
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
-	if (!IsColNumeric(col)) return;	
+	//if (!IsColNumeric(col)) return;
 	wxString nm(var_order.GetSimpleColName(col, time));
 	if (nm.IsEmpty()) return;
 	OGRColumn* ogr_col = FindOGRColumn(nm);
@@ -574,7 +717,7 @@ void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 
 void OGRTable::GetColData(int col, int time, std::vector<wxInt64>& data)
 {
-	if (!IsColNumeric(col)) return;	
+	//if (!IsColNumeric(col)) return;
 	wxString nm(var_order.GetSimpleColName(col, time));
 	if (nm.IsEmpty()) return;
 	OGRColumn* ogr_col = FindOGRColumn(nm);
@@ -604,7 +747,7 @@ void OGRTable::GetColUndefined(int col, b_array_type& undefined)
 	var_order.FindVarGroup(col).GetVarNames(vars);
 	int tms = vars.size();
 	undefined.resize(boost::extents[tms][rows]);
-	for (size_t t=0; t<=tms; t++) {
+	for (size_t t=0; t<tms; t++) {
 		if (vars[t].IsEmpty()) {
 			for (int i=0; i<rows; ++i) undefined[t][i] = true;
 		} else {
@@ -752,6 +895,7 @@ bool OGRTable::ColChangeProperties(int col, int time,
     operations_queue.push(new OGRTableOpUpdateField(ogr_col, new_len, new_dec));
     ogr_col->SetLength(new_len);
     ogr_col->SetDecimals(new_dec);
+    var_order.SetDisplayedDecimals(col, new_dec); // visually change
     
     table_state->SetColPropertiesChangeEvtTyp(GetColName(col), col);
 	table_state->notifyObservers();
@@ -769,12 +913,16 @@ bool OGRTable::ColChangeDisplayedDecimals(int col, int new_disp_dec)
 	table_state->SetColDispDecimalsEvtTyp(GetColName(col), col);
 	table_state->notifyObservers();
 	//SetChangedSinceLastSave(true);
+    
 	return true;
 }
 
 bool OGRTable::RenameGroup(int col, const wxString& new_name)
 {
-	if (!IsColTimeVariant(col)) return RenameSimpleCol(col, 0, new_name);
+    if (!IsColTimeVariant(col)) {
+        return RenameSimpleCol(col, 0, new_name);
+    }
+    
 	if (DoesNameExist(new_name, false) ||
 		!IsValidGroupName(new_name)) return false;
 	wxString old_name = GetColName(col);
@@ -782,7 +930,8 @@ bool OGRTable::RenameGroup(int col, const wxString& new_name)
 	var_order.SetGroupName(col, new_name);
 	table_state->SetColRenameEvtTyp(old_name, new_name, false);
 	table_state->notifyObservers();
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	return true;
 }
 
@@ -818,9 +967,11 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
     var_order.SetGroupName(col, new_name);
     
     // update Table
-	table_state->SetColRenameEvtTyp(old_name, new_name, true);
-	table_state->notifyObservers();
-	SetChangedSinceLastSave(true);
+    if (table_state) {
+        table_state->SetColRenameEvtTyp(old_name, new_name, true);
+        table_state->notifyObservers();
+        SetChangedSinceLastSave(true);
+    }
 	return true;
 }
 
@@ -839,9 +990,7 @@ wxString OGRTable::GetCellString(int row, int col, int time)
 	// mapping col+time to underneath OGR col
     OGRColumn* ogr_col = FindOGRColumn(col, time);
 	if (ogr_col == NULL) {
-		LOG_MSG(wxString::Format("In OGRTable::GetCellFromString, "
-								 "error: wxGrid col %d, time %d "
-								 "not found.", col, time)); 
+		LOG_MSG(wxString::Format("In OGRTable::GetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return "";
 	}
     return ogr_col->GetValueAt(row, disp_dec, m_wx_encoding);
@@ -862,9 +1011,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	
 	int t_col = FindOGRColId(col, time);
 	if (t_col == -1) {
-		LOG_MSG(wxString::Format("In OGRTable::SetCellFromString, "
-								 "error: wxGrid col %d, time %d "
-								 "not found.", col, time)); 
+		LOG_MSG(wxString::Format("In OGRTable::SetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return false;
 	} else {
 		if (table_state->GetNumDisallowGroupModify(GetColName(col)) > 0) {
@@ -882,8 +1029,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	return true;
 }
 
-int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name,
-						int pos, int time_steps, int field_len, int decimals)
+int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos, int time_steps, int field_len, int decimals)
 {
 	using namespace std;
 	if (pos > GetNumberCols()) return -1;
@@ -997,7 +1143,9 @@ bool OGRTable::DeleteCol(int pos)
 	tdl.push_back(tde);
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
+    
 	SetChangedSinceLastSave(true);
+    
 	return true;
 }
 
@@ -1035,7 +1183,8 @@ void OGRTable::UngroupCol(int col)
 	LOG_MSG("Table delta entries:");
 	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
 }
@@ -1091,7 +1240,8 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 	LOG_MSG("Table delta entries:");
 	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
-	//SetChangedSinceLastSave(true);
+	SetProjectChangedSinceLastSave(true);
+    
 	table_state->SetColsDeltaEvtTyp(tdl);
 	table_state->notifyObservers();
 }
@@ -1099,7 +1249,11 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 void OGRTable::InsertTimeStep(int time, const wxString& name)
 {
 	if (time < 0 || time > var_order.GetNumTms()) return;
+    
 	var_order.InsertTime(time, name);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsAddRemoveEvtTyp();
 	table_state->notifyObservers();
@@ -1130,6 +1284,8 @@ void OGRTable::RemoveTimeStep(int time)
 		table_state->notifyObservers();
 	}
 	
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsAddRemoveEvtTyp();
 	table_state->notifyObservers();
@@ -1138,6 +1294,9 @@ void OGRTable::RemoveTimeStep(int time)
 void OGRTable::SwapTimeSteps(int time1, int time2)
 {
 	var_order.SwapTimes(time1, time2);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsSwapEvtTyp();
 	table_state->notifyObservers();
@@ -1146,6 +1305,9 @@ void OGRTable::SwapTimeSteps(int time1, int time2)
 void OGRTable::RenameTimeStep(int time, const wxString& new_name)
 {
 	var_order.RenameTime(time, new_name);
+    
+	SetProjectChangedSinceLastSave(true);
+    
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	table_state->SetTimeIdsRenameEvtTyp();
 	table_state->notifyObservers();

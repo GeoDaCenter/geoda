@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,8 +21,10 @@
 #define __GEODA_CENTER_WEIGHTS_MANAGER_H__
 
 #include <list>
+#include <map>
 #include <vector>
 #include "WeightsManPtree.h"
+#include "../VarCalc/WeightsManInterface.h"
 class GeoDaWeight;
 class GalWeight;
 class GwtWeight;
@@ -30,56 +32,84 @@ class GalElement;
 class GwtElement;
 class ProgressDlg;
 class TableInterface;
+class WeightsManState;
 class Project;
 
-/** WeightsManager is a manager for all of the currently opened weights files
- associated with a Project instance. */
-class WeightsManager
+class WeightsNewManager : public WeightsManInterface
 {
-public:	
-	WeightsManager(Project* project);
-	virtual ~WeightsManager();
-	bool clean();
-	void InitFromMetaInfo(std::list<WeightsMetaInfo> wmi_list,
-						  TableInterface* table_int);
-	int GetNumObservations() { return observations; }
-	GeoDaWeight* GetWeight(int pos);
-	GeoDaWeight* GetCurrWeight();
-	GalWeight* GetGalWeight(int pos);
-	GwtWeight* GetGwtWeight(int pos);
-	bool IsGalWeight(int pos);
-	bool IsGwtWeight(int pos);
-	bool AddWeightFile(GeoDaWeight* weight, bool set_as_default = false);
-	int GetNumWeights() { return num_weights; }
-	wxString GetWFilename(int pos);
-	wxString GetWTitle(int pos);
-	int GetCurrWeightInd() { return current_weight; }
-	bool SetCurrWeightInd(int pos);
-	bool IsDefaultWeight() { return is_default_weight_set; }
-	void SetDefaultWeight(bool s) { is_default_weight_set = s; }
-	wxString GetCurrWFilename();
-	wxString GetCurrWTitle();
-	bool IsWSymmetric(int pos);
-	void SetWSymmetric(int pos, bool symmetric);
-	bool IsWSymmetricValid(int pos);
-	void SetWSymmetricValid(int pos, bool valid);
+public:
+	WeightsNewManager(WeightsManState* w_man_state,
+					  TableInterface* table_int);
+    ~WeightsNewManager();
+    
+	void Init(const std::list<WeightsPtreeEntry>& entries);
+	std::list<WeightsPtreeEntry> GetPtreeEntries() const;
+	bool AssociateGal(boost::uuids::uuid w_uuid, GalWeight* gw);
 	
-	static bool CheckWeightSymmetry(GeoDaWeight* w, ProgressDlg* p_dlg=0);
-	static void DumpWeight(GeoDaWeight* w);
+	// Implementation of WeightsManInterface
+	virtual void GetIds(std::vector<boost::uuids::uuid>& ids) const;
+	virtual boost::uuids::uuid FindIdByMetaInfo(const WeightsMetaInfo& wmi) const;
+	virtual boost::uuids::uuid FindIdByFilename(const wxString& file) const;
+	virtual boost::uuids::uuid FindIdByTitle(const wxString& title) const;
+	virtual boost::uuids::uuid RequestWeights(const WeightsMetaInfo& wmi);
+	virtual bool WeightsExists(boost::uuids::uuid) const;
+	virtual WeightsMetaInfo GetMetaInfo(boost::uuids::uuid w_uuid) const;
+	virtual wxString GetShortDispName(boost::uuids::uuid w_uuid) const;
+	virtual wxString GetLongDispName(boost::uuids::uuid w_uuid) const;
+	virtual std::list<boost::uuids::uuid> GetIds() const;
+	virtual WeightsMetaInfo::SymmetryEnum IsSym(boost::uuids::uuid w_uuid) const;
+	virtual WeightsMetaInfo::SymmetryEnum CheckSym(boost::uuids::uuid w_uuid,
+												   ProgressDlg* p_dlg=0);
+	virtual bool Lag(boost::uuids::uuid w_uuid, const GdaFlexValue& data,
+					 GdaFlexValue& result);
+	virtual bool GetCounts(boost::uuids::uuid w_uuid,
+						   std::vector<long>& counts);
+	virtual void GetNbrsExclCores(boost::uuids::uuid w_uuid,
+								  const std::set<long>& cores,
+								  std::set<long>& nbrs);	
+	virtual void Remove(boost::uuids::uuid w_uuid);
+	virtual wxString RecNumToId(boost::uuids::uuid w_uuid, long rec_num);
+	virtual GalWeight* GetGal(boost::uuids::uuid w_uuid);
+	virtual GeoDaWeight* GetWeights(boost::uuids::uuid w_uuid);
+	virtual boost::uuids::uuid GetDefault() const;
+	virtual void MakeDefault(boost::uuids::uuid w_uuid);
+	virtual boost::uuids::uuid FindByTitle(const wxString& s) const;
+	virtual wxString SuggestTitleFromFileName(const wxString& fname) const;
+	virtual wxString GetTitle(boost::uuids::uuid w_uuid) const;
+	virtual void SetTitle(boost::uuids::uuid w_uuid, const wxString& s);
+	virtual bool IsValid(boost::uuids::uuid w_uuid);
 	
 private:
-	static bool CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg=0);
-	static bool CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg=0);
-	static void DumpGal(GalWeight* w);
-	static void DumpGwt(GwtWeight* w);
+	struct Entry {
+		Entry() : gal_weight(0), geoda_weight(0) {}
+		Entry(const WeightsPtreeEntry& e) : gal_weight(0), geoda_weight(0), wpte(e) {}
+		WeightsPtreeEntry wpte;
+		GalWeight* gal_weight;
+        GeoDaWeight* geoda_weight;
+		std::vector<wxString> rec_num_to_id;
+	};
+	typedef std::map<boost::uuids::uuid, Entry> EmType;
+	typedef EmType::const_iterator EmTypeCItr;
+	// entry_map and uuid_order must be kept perfectly in sync
+	EmType entry_map;
+	std::list<boost::uuids::uuid> uuid_order;
 	
-	Project* project;
-	std::vector<GeoDaWeight*> weights;
-	int num_weights; // number of non-null weights
-	int current_weight; // current weight index, -1 indicates none
-	bool is_default_weight_set; // true if current_weight is to be
-	// used as the default weight.
-	int observations;	
+	boost::uuids::uuid FindUuid(const WeightsMetaInfo& wmi) const;
+	GalElement* GetGalElemArray(boost::uuids::uuid w_uuid);
+	bool InitRecNumToIdMap(boost::uuids::uuid w_uuid);
+	TableInterface* table_int;
+	WeightsManState* w_man_state;
 };
+
+
+namespace GdaWeightsTools {
+	bool CheckWeightSymmetry(GeoDaWeight* w, ProgressDlg* p_dlg=0);
+	void DumpWeight(GeoDaWeight* w);
+	
+	bool CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg=0);
+	bool CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg=0);
+	void DumpGal(GalWeight* w);
+	void DumpGwt(GwtWeight* w);
+}
 
 #endif

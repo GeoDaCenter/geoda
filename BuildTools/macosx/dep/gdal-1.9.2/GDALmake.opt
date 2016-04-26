@@ -1,4 +1,4 @@
-GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal-1.9.2
+GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal
 top_builddir	=	$(GDAL_ROOT)
 
 #
@@ -12,7 +12,7 @@ ifeq ($(HAVE_LIBTOOL),yes)
 LIBTOOL_COMPILE_CC =	$(LIBTOOL) --mode=compile --tag=CC
 LIBTOOL_COMPILE_CXX =	$(LIBTOOL) --mode=compile --tag=CXX
 LIBTOOL_LINK	=	$(LIBTOOL) --mode=link
-LIBTOOL_INSTALL	=	$(LIBTOOL) --mode=install
+LIBTOOL_INSTALL	=	$(LIBTOOL) --mode=install 
 LIBTOOL_FINISH	=	$(LIBTOOL) --mode=finish --silent
 LIBTOOL_CLEAN	=	$(LIBTOOL) --mode=clean
 OBJ_EXT = lo
@@ -21,9 +21,9 @@ LIBTOOL_FINISH	=	/usr/bin/true
 OBJ_EXT = o
 endif
 
-CC	=	$(LIBTOOL_COMPILE_CC) gcc-4.2
-CXX	=	$(LIBTOOL_COMPILE_CXX) g++-4.2
-LD	=	$(LIBTOOL_LINK)	g++-4.2
+CC	=	$(LIBTOOL_COMPILE_CC) gcc
+CXX	=	$(LIBTOOL_COMPILE_CXX) g++
+LD	=	$(LIBTOOL_LINK)	g++
 RM	=	$(LIBTOOL_CLEAN) /bin/rm -f *.lo
 INSTALL = 	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
 INSTALL_LIB 	=	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
@@ -37,13 +37,11 @@ LIBS	=	$(SDE_LIB)  $(GEODA_HOME)/libraries/lib/libproj.a $(GEODA_HOME)/libraries
 		$(PCIDSK_LIB) $(RASDAMAN_LIB) $(CHARLS_LIB) \
 		$(OPENCL_LIB) $(JVM_LIB) $(LIBICONV) $(FGDB_LIB)
 
-PYTHON_INCLUDES = @PYTHON_INCLUDES@
-PYTHON_LIBS = @PYTHON_LIBS@
-PYTHON_CFLAGS = @PYTHON_CFLAGS@ @NUMPY_FLAG@
+SSEFLAGS = 
+HAVE_SSE_AT_COMPILE_TIME = yes
+AVXFLAGS = -mavx
+HAVE_AVX_AT_COMPILE_TIME = yes
 PYTHON = 
-PYTHON_DEV = @PYTHON_DEV@
-PY_LD_SHARED = @PY_LD_SHARED@
-PY_SO_EXT = @PY_SO_EXT@
 PY_HAVE_SETUPTOOLS=
 
 # Next Generation SWIG bindings
@@ -51,9 +49,10 @@ BINDINGS	=
 
 HAVE_OGDI = no
 OGR_ENABLED = yes
+GNM_ENABLED = no
 
 OSX_FRAMEWORK_PREFIX = /Library/Frameworks/GDAL.framework
-OSX_VERSION_FRAMEWORK_PREFIX = ${OSX_FRAMEWORK_PREFIX}/Versions/1.9
+OSX_VERSION_FRAMEWORK_PREFIX = ${OSX_FRAMEWORK_PREFIX}/Versions/2.0
 
 prefix		=	$(GEODA_HOME)/libraries
 exec_prefix	=	${prefix}
@@ -62,15 +61,42 @@ INST_INCLUDE	=	${prefix}/include
 INST_DATA 	=	${prefix}/share/gdal
 INST_LIB	=	${exec_prefix}/lib
 INST_BIN	=	${exec_prefix}/bin
-INST_PYMOD      =       
+INST_PYMOD      =       @pymoddir@
 INST_DOCS	=	${prefix}/doc
-INST_MAN	=	${prefix}/share/gdal/man
+INST_MAN	=	${prefix}/man
 INST_HTML	=	$(HOME)/www/gdal
 
-CPPFLAGS	=  -I$(GDAL_ROOT)/port 
-CFLAGS		=  -Os -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS	=  -Os -arch x86_64  -Wall $(USER_DEFS)
+CPPFLAGS	=  -I$(GDAL_ROOT)/port  -DGDAL_COMPILATION
+CFLAGS		=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS	=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
+CFLAGS_NOFTRAPV          = -Os -arch x86_64  -g -DDEBUG  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS_NOFTRAPV        = -Os -arch x86_64  -g -DDEBUG  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
+
+NO_UNUSED_PARAMETER_FLAG = -Wno-unused-parameter
+NO_SIGN_COMPARE = -Wno-sign-compare
+NO_NON_VIRTUAL_DTOR_FLAG = -Wno-non-virtual-dtor
+SHADOW_WFLAGS = -Wshadow
+
+# Also available -DAFL_FRIENDLY for strcmp(), etc.. variants that will
+# work better with American Fuzzy Lop branch examination logic
+
+# TODO(schwehr): Make these be configure flags.
+# CFLAGS += -Werror
+# CFLAGS += -std=c11
+# CFLAGS += -fsanitize=address
+# CFLAGS += -D_FORTIFY_SOURCE=2
+# CFLAGS += -fPIE -pie
+# CFLAGS += -fstack-protector-all
+
+# CXXFLAGS += -Werror
+# CXXFLAGS += -std=c++11
+# CXXFLAGS += -fsanitize=address
+# CXXFLAGS += -D_FORTIFY_SOURCE=2
+# CXXFLAGS += -fPIE -pie
+# CXXFLAGS += -fstack-protector-all
+
 LDFLAGS     = -arch x86_64
+# LDFLAGS += -fsanitize=address
 
 RANLIB		=	ranlib
 SO_EXT		=	
@@ -85,21 +111,22 @@ endif
 
 GDAL_INCLUDE	=	-I$(GDAL_ROOT)/port -I$(GDAL_ROOT)/gcore \
 			-I$(GDAL_ROOT)/alg \
-			-I$(GDAL_ROOT)/ogr -I$(GDAL_ROOT)/ogr/ogrsf_frmts
+                        -I$(GDAL_ROOT)/ogr -I$(GDAL_ROOT)/ogr/ogrsf_frmts \
+                        -I$(GDAL_ROOT)/gnm -I$(GDAL_ROOT)/apps
 
 # libtool targets and help variables
 LIBGDAL	:=		libgdal.la
-LIBGDAL_CURRENT	:=	17
-LIBGDAL_REVISION	:=	2
-LIBGDAL_AGE	:=	16
+LIBGDAL_CURRENT	:=	20
+LIBGDAL_REVISION	:=	0
+LIBGDAL_AGE	:=	0
 
 # native build targets and variables
-GDAL_VER	=	1.9.2
+GDAL_VER	=	2.1.0
 
 # version info
-GDAL_VERSION_MAJOR =    1
-GDAL_VERSION_MINOR =    9
-GDAL_VERSION_REV   =    2
+GDAL_VERSION_MAJOR =    2
+GDAL_VERSION_MINOR =    1
+GDAL_VERSION_REV   =    0
 
 GDAL_LIB	= 	$(GDAL_ROOT)/libgdal.a
 GDAL_SLIB	=	$(GDAL_ROOT)/libgdal.$(SO_EXT)
@@ -126,7 +153,7 @@ INGRES_INC =
 #
 # MySQL support.
 #
-HAVE_MYSQL =	yes
+HAVE_MYSQL =	no
 MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
 MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
 LIBS	   +=	$(MYSQL_LIB)
@@ -136,12 +163,24 @@ LIBS	   +=	$(MYSQL_LIB)
 #
 HAVE_HDF4     = no
 HDF4_INCLUDE  =  -I$(GDAL_ROOT)/ogr
+HDF4_HAS_MAXOPENFILES = 
+ifeq ($(HDF4_HAS_MAXOPENFILES),yes)
+HDF4_FLAGS=-DHDF4_HAS_MAXOPENFILES
+endif
 
 #
 # HDF5 Support.
 #
 HAVE_HDF5     = no
 HDF5_INCLUDE  =  
+
+#
+# KEA Support.
+#
+HAVE_KEA     = no
+KEA_INC      =  
+KEA_LIB      = 
+LIBS       +=   $(KEA_LIB)
 
 #
 # NetCDF Support.
@@ -168,6 +207,8 @@ HAVE_SQLITE = yes
 HAVE_SPATIALITE = yes
 SPATIALITE_INC = -I$(GEODA_HOME)/libraries/include
 SPATIALITE_AMALGAMATION = no
+SPATIALITE_412_OR_LATER = no
+HAVE_PCRE = no
 
 #
 # JPEG2000 via Kakadu Support.
@@ -191,6 +232,7 @@ JASPER_FLAGS	=
 # JPEG-2000 Support via OpenJPEG library.
 #
 HAVE_OPENJPEG   = no
+OPENJPEG_VERSION = 
 
 #
 # MrSID support via LizardTech's DSDK
@@ -261,17 +303,18 @@ FGDB_LIB =
 FGDB_INC = 
 
 # 
+# MongoDB
+#
+HAVE_MONGODB = no
+MONGODB_LIB = 
+MONGODB_INC = 
+
+# 
 # ArcObjects
 #
 HAVE_ARCOBJECTS = @ARCOBJECTS_ENABLED@
 ARCOBJECTS_LIB	= @ARCOBJECTS_LIB@
 ARCOBJECTS_INC = @ARCOBJECTS_INC@
-
-
-# 
-# VFK
-#
-HAVE_VFK = yes
 
 #
 # Curl
@@ -279,6 +322,12 @@ HAVE_VFK = yes
 CURL_SETTING 	=	yes
 CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz
 CURL_INC	=	-I$(GEODA_HOME)/libraries/include
+
+#
+# libjson-c
+#
+LIBJSONC_SETTING = internal
+JSON_INCLUDE = -I$(GDAL_ROOT)/ogr/ogrsf_frmts/geojson/libjson
 
 # 
 # OpenCL support
@@ -353,6 +402,7 @@ OGDI_INCLUDE	=
 PNG_SETTING     =	internal
 JPEG_SETTING	=	internal
 JPEG12_ENABLED =	yes
+TIFF_JPEG12_ENABLED =    yes
 TIFF_SETTING	=	internal
 TIFF_OPTS	=	-DBIGTIFF_SUPPORT
 RENAME_INTERNAL_LIBTIFF_SYMBOLS = no
@@ -424,8 +474,9 @@ endif
 #
 # Java stuff
 #
-JAVA_INC  =   
-JVM_LIB  =   
+JAVA_HOME = 
+JAVA_INC  = 
+JVM_LIB   = 
 
 MDB_ENABLED =   no
 
@@ -448,17 +499,18 @@ GDAL_FORMATS = 	gxf gtiff hfa aigrid aaigrid ceos ceos2 iso8211 xpm \
 		nitf bmp pcidsk airsar rs2 ilwis rmf leveller sgi srtmhgt \
 		idrisi gsg ingr ers jaxapalsar dimap gff cosar pds adrg \
 		coasp tsx terragen blx msgn til r northwood saga xyz hf2 \
-		kmlsuperoverlay ozi ctg e00grid zmap ngsgeoid \
-		wcs wms grib bsb gif jpeg png pcraster 
+		kmlsuperoverlay ctg e00grid zmap ngsgeoid iris map cals\
+		safe sentinel2 \
+		wcs wms plmosaic wmts grib bsb gif jpeg png pcraster 
 
 
 ifneq ($(LIBZ_SETTING),no)
-GDAL_FORMATS := $(GDAL_FORMATS) rik
+GDAL_FORMATS := $(GDAL_FORMATS) rik ozi
 endif
 
 ifeq ($(OGR_ENABLED),yes)
 ifeq ($(HAVE_SQLITE),yes)
-GDAL_FORMATS := $(GDAL_FORMATS) rasterlite
+GDAL_FORMATS := $(GDAL_FORMATS) rasterlite mbtiles
 endif
 endif
 
@@ -468,6 +520,10 @@ endif
 
 ifeq ($(HAVE_CHARLS),yes)
 GDAL_FORMATS := $(GDAL_FORMATS) jpegls
+endif
+
+ifeq ($(OGR_ENABLED),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) arg
 endif
 
 #
@@ -520,16 +576,16 @@ endif # HAVE_LIBTOOL
 O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
 
 ../o/%.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(GDAL_INCLUDE) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 ../o/%.$(OBJ_EXT):	%.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(GDAL_INCLUDE) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 %.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(GDAL_INCLUDE) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 %.$(OBJ_EXT):	%.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(GDAL_INCLUDE) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 #
 # default rules for handling subdirectories

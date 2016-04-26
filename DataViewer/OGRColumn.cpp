@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,6 +23,7 @@
 #include <vector>
 #include <set>
 #include <boost/foreach.hpp>
+#include <locale>
 #include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -32,6 +33,11 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
+
+OGRColumn::OGRColumn(wxString name, int field_length, int decimals, int n_rows)
+: name(name), length(field_length), decimals(decimals), is_new(true), is_deleted(false), rows(n_rows)
+{
+}
 
 OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer,
                      wxString name, int field_length,int decimals)
@@ -164,6 +170,19 @@ void OGRColumn::GetCellValue(int row, wxString& val)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnInteger::OGRColumnInteger(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory integer column
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = 0;
+        set_markers[i] = false;
+    }
+}
+
 OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, wxString name,
                                    int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)
@@ -208,7 +227,7 @@ void OGRColumnInteger::FillData(vector<wxInt64> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i]=(wxInt64)ogr_layer->data[i]->GetFieldAsInteger(col_idx);
+            data[i]=(wxInt64)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
         }
     }
 }
@@ -223,7 +242,7 @@ void OGRColumnInteger::FillData(vector<double> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = (double)ogr_layer->data[i]->GetFieldAsInteger(col_idx);
+            data[i] = (double)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
         }
     }
 }
@@ -232,13 +251,13 @@ void OGRColumnInteger::FillData(vector<wxString> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format("%i", new_data[i]);
+            data[i] = wxString::Format(wxT("%")  wxT(wxLongLongFmtSpec)  wxT("d"), new_data[i]);
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format("%i",
-                ogr_layer->data[i]->GetFieldAsInteger(col_idx));
+            data[i] = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"),
+                ogr_layer->data[i]->GetFieldAsInteger64(col_idx));
         }
     }
 }
@@ -253,7 +272,7 @@ void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            ogr_layer->data[i]->SetField(col_idx, (int)data[i]);
+            ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
             set_markers[i] = true;
         }
     }
@@ -269,7 +288,7 @@ void OGRColumnInteger::UpdateData(const vector<double>& data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            ogr_layer->data[i]->SetField(col_idx, (int)data[i]);
+            ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
             set_markers[i] = true;
         }
     }
@@ -281,7 +300,7 @@ void OGRColumnInteger::GetCellValue(int row, wxInt64& val)
         val = new_data[row];
     } else {
         int col_idx = GetColIndex();
-        val = (wxInt64)ogr_layer->data[row]->GetFieldAsInteger(col_idx);
+        val = (wxInt64)ogr_layer->data[row]->GetFieldAsInteger64(col_idx);
     }
 }
 
@@ -295,8 +314,10 @@ wxString OGRColumnInteger::GetValueAt(int row_idx, int disp_decimals,
     } else {
         int col_idx = GetColIndex();
         if (col_idx == -1) return wxEmptyString;
-        const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
-        return wxString(val);
+        //const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
+        wxLongLong val(ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx));
+        
+        return val.ToString();
     }
 }
 
@@ -309,7 +330,7 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
             new_data[row_idx] = l_val;
         } else {
             int col_idx = GetColIndex();
-            ogr_layer->data[row_idx]->SetField(col_idx, (int)l_val);
+            ogr_layer->data[row_idx]->SetField(col_idx, (GIntBig)l_val);
         }
         set_markers[row_idx] = true;
     }
@@ -317,6 +338,19 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnDouble::OGRColumnDouble(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory integer column
+    if ( decimals < 0) decimals = GdaConst::default_dbf_double_decimals;
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = 0.0;
+        set_markers[i] = false;
+    }
+}
 OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, wxString name,
                                  int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)
@@ -448,6 +482,8 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
         if (set_markers[row_idx]== false)
             return wxEmptyString;
         val = new_data[row_idx];
+        wxString rst = wxString::Format("%f", val);
+        return rst;
     } else {
         int col_idx = GetColIndex();
         if (col_idx == -1) return wxEmptyString;
@@ -461,9 +497,9 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
             }
         }
         val = ogr_layer->data[row_idx]->GetFieldAsDouble(col_idx);
+        wxString rst = wxString::Format("%.*f", disp_decimals, val);
+        return rst;
     }
-    wxString rst = wxString::Format("%.*f", disp_decimals, val);
-    return rst;
 }
 
 void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
@@ -483,6 +519,18 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+OGRColumnString::OGRColumnString(wxString name, int field_length, int decimals, int n_rows)
+: OGRColumn(name, field_length, decimals, n_rows)
+{
+    // a new in-memory string column
+    is_new = true;
+    new_data.resize(rows);
+    set_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        new_data[i] = wxEmptyString;
+        set_markers[i] = false;
+    }
+}
 OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
                                  int field_length, int decimals)
 : OGRColumn(ogr_layer, name, field_length, decimals)
@@ -522,6 +570,7 @@ void OGRColumnString::FillData(vector<double> &data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             double val;
+            // internal is always local "C"
             if (!new_data[i].ToDouble(&val)) {
                 wxString error_msg;
                 error_msg << "Fill data error: can't convert '" << new_data[i]
@@ -532,16 +581,56 @@ void OGRColumnString::FillData(vector<double> &data)
         }
     } else {
         int col_idx = GetColIndex();
+        bool conv_success = true;
+        wxString tmp;
+        
+        // default C locale
         for (int i=0; i<rows; ++i) {
-            wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             double val;
             if (!tmp.ToDouble(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << tmp
-                << "' to floating-point number.";
-                throw GdaException(error_msg.mb_str());
+                conv_success = false;
+                break;
             }
             data[i] = val;
+        }
+        
+        if (conv_success == false) {
+            conv_success = true;
+            // test if C thousands separator inside
+            wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
+            if (thousands_sep == ",") {
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    tmp.Replace(thousands_sep, "");
+                    double val;
+                    if (!tmp.ToDouble(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+            } else {
+                // try comma as decimal point
+                setlocale(LC_NUMERIC, "de_DE");
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    double val;
+                    if (!tmp.ToDouble(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+                setlocale(LC_NUMERIC, "C");
+            }
+        }
+        
+        if (conv_success == false ) {
+            wxString error_msg;
+            error_msg << "Fill data error: can't convert '" << tmp
+            << "' to floating-point number.";
+            throw GdaException(error_msg.mb_str());
         }
     }
 }
@@ -550,8 +639,8 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            long val;
-            if (!new_data[i].ToLong(&val)) {
+            wxInt64 val;
+            if (!new_data[i].ToLongLong(&val)) {
                 wxString error_msg;
                 error_msg << "Fill data error: can't convert '" << new_data[i]
                 << "' to floating-point number.";
@@ -561,16 +650,56 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         }
     } else {
         int col_idx = GetColIndex();
+        bool conv_success = true;
+        wxString tmp;
+        
+        // default C locale
         for (int i=0; i<rows; ++i) {
             wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-            long val;
-            if (!tmp.ToLong(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << tmp
-                << "' to floating-point number.";
-                throw GdaException(error_msg.mb_str());
+            wxInt64 val;
+            if (!tmp.ToLongLong(&val)) {
+                conv_success = false;
+                break;
             }
             data[i] = val;
+        }
+        
+        if (conv_success == false) {
+            conv_success = true;
+            // test if C thousands separator inside
+            wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
+            if (thousands_sep == ",") {
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    tmp.Replace(thousands_sep, "");
+                    wxInt64 val;
+                    if (!tmp.ToLongLong(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+            } else {
+                // try comma as decimal point
+                setlocale(LC_NUMERIC, "de_DE");
+                for (int i=0; i<rows; ++i) {
+                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    wxInt64 val;
+                    if (!tmp.ToLongLong(&val)) {
+                        conv_success = false;
+                        break;
+                    }
+                    data[i] = val;
+                }
+                setlocale(LC_NUMERIC, "C");
+            }
+        }
+        
+        if (conv_success == false ) {
+            wxString error_msg;
+            error_msg << "Fill data error: can't convert '" << tmp
+            << "' to numeric.";
+            throw GdaException(error_msg.mb_str());
         }
     }
 }

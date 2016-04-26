@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,14 +20,20 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <wx/progdlg.h>
+#include <wx/checkbox.h>
+#include <wx/choicdlg.h>
+#include <wx/dirdlg.h>
 #include <wx/filedlg.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
-#include <wx/checkbox.h>
-#include <wx/xrc/xmlres.h>
+#include <wx/progdlg.h>
 #include <wx/regex.h>
+#include <wx/textdlg.h>
+#include <wx/xrc/xmlres.h>
+#include <json_spirit/json_spirit.h>
+#include <json_spirit/json_spirit_writer.h>
+
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
 #include "../DataViewer/DbfTable.h"
@@ -37,6 +43,8 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../GdaJson.h"
+#include "../GdaCartoDB.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
@@ -47,27 +55,32 @@ void DatasourceDlg::Init()
 	ds_file_path = wxFileName("");
     
     // create file type dataset pop-up menu dynamically
-	ds_names.Add("ESRI Shapefiles (*.shp)|*.shp");
-    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
-    ds_names.Add("dBase database file (*.dbf)|*.dbf");
-    if( GeneralWxUtils::isWindows()){
-        ds_names.Add("ESRI Personal Geodatabase (*.mdb)|*.mdb");
-    }
+	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
                  "GeoJSON (*.geojson)|*.geojson|"
                  "GeoJSON (*.json)|*.json");
-    ds_names.Add("GML (*.gml)|*.gml");
-    ds_names.Add("KML (*.kml)|*.kml");
+    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
+
+    if( GeneralWxUtils::isWindows()){
+        ds_names.Add("ESRI Personal Geodatabase (*.mdb)|*.mdb");
+    }
+    
+    ds_names.Add("Geography Markup Language (*.gml)|*.gml");
+    ds_names.Add("Keyhole Markup Language (*.kml)|*.kml");
     ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
                  "MapInfo Tab (*.tab)|*.tab|"
                  "MapInfo MID (*.mid)|*.mid|"
                  "MapInfo MID (*.mif)|*.mif");
+    ds_names.Add("");
+    ds_names.Add("dBase Database File (*.dbf)|*.dbf");
+    ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("MS Excel (*.xls)|*.xls");
+    ds_names.Add("Open Document Spreadsheet (*.ods)|*.ods");
+
     //ds_names.Add("Idrisi Vector (*.vct)|*.vct");
     //ds_names.Add("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
     //ds_names.Add("OpenStreetMap XML and PBF (*.osm)|*.OSM;*.osm");
-    ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
     //XXX: looks like tiger data are downloaded as Shapefile, geodatabase etc.
     //ds_names.Add("U.S. Census TIGER/Line (*.tiger)|*.tiger");
     
@@ -81,6 +94,8 @@ void DatasourceDlg::Init()
 
 void DatasourceDlg::CreateControls()
 {
+    SetBackgroundColour(*wxWHITE);
+    
     m_ds_filepath_txt = XRCCTRL(*this, "IDC_FIELD_ASC",wxTextCtrl);
 	m_database_type = XRCCTRL(*this, "IDC_CDS_DB_TYPE",wxChoice);
 	m_database_name = XRCCTRL(*this, "IDC_CDS_DB_NAME",AutoTextCtrl);
@@ -90,17 +105,23 @@ void DatasourceDlg::CreateControls()
 	m_database_upwd = XRCCTRL(*this, "IDC_CDS_DB_UPWD",wxTextCtrl);
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
+    m_ds_notebook->SetBackgroundColour(*wxWHITE);
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
+	
+    m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);
+    m_cartodb_key = XRCCTRL(*this, "IDC_CARTODB_KEY",wxTextCtrl);
+    m_cartodb_table = XRCCTRL(*this, "IDC_CARTODB_TABLE_NAME",wxTextCtrl);
+    m_cartodb_tablename = XRCCTRL(*this, "IDC_STATIC_CARTODB_TABLE_NAME",wxStaticText);
     
+	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);
     if(GeneralWxUtils::isWindows()) m_database_type->Append(DBTYPE_ARCSDE);
-    m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_MYSQL);
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
 	std::vector<std::string> host_cands =
-        OGRDataAdapter::GetInstance().GetHistory("db_host");
+		OGRDataAdapter::GetInstance().GetHistory("db_host");
 	std::vector<std::string> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
 	std::vector<std::string> uname_cands =
@@ -112,6 +133,97 @@ void DatasourceDlg::CreateControls()
 	m_database_port->SetAutoList(port_cands);
 	m_database_uname->SetAutoList(uname_cands);
 	m_database_name->SetAutoList(name_cands);
+    
+    // get a latest input DB information
+    std::vector<std::string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    if (db_infos.size() > 0) {
+        std::string db_info = db_infos[0];
+        json_spirit::Value v;
+        // try to parse as JSON
+        try {
+            if (!json_spirit::read( db_info, v)) {
+                throw std::runtime_error("Could not parse title as JSON");
+            }
+            json_spirit::Value json_db_type;
+            if (GdaJson::findValue(v, json_db_type, "db_type")) {
+                wxString db_type(json_db_type.get_str());
+                if(db_type == DBTYPE_POSTGIS)
+                     m_database_type->SetSelection(0);
+                if(db_type == DBTYPE_ORACLE)
+                    m_database_type->SetSelection(1);
+                if(db_type == DBTYPE_MYSQL)
+                    m_database_type->SetSelection(2);
+                if(db_type == DBTYPE_ARCSDE)
+                    m_database_type->SetSelection(3);
+            }
+            json_spirit::Value json_db_host;
+            if (GdaJson::findValue(v, json_db_host, "db_host")) {
+                m_database_host->SetValue(json_db_host.get_str());
+            }
+            json_spirit::Value json_db_port;
+            if (GdaJson::findValue(v, json_db_port, "db_port")) {
+                m_database_port->SetValue(json_db_port.get_str());
+            }
+            json_spirit::Value json_db_name;
+            if (GdaJson::findValue(v, json_db_name, "db_name")) {
+                m_database_name->SetValue(json_db_name.get_str());
+            }
+            json_spirit::Value json_db_user;
+            if (GdaJson::findValue(v, json_db_user, "db_user")) {
+                m_database_uname->SetValue(json_db_user.get_str());
+            }
+            json_spirit::Value json_db_pwd;
+            if (GdaJson::findValue(v, json_db_pwd, "db_pwd")) {
+                m_database_upwd->SetValue(json_db_pwd.get_str());
+            }
+
+        } catch (std::runtime_error e) {
+            wxString msg;
+            msg << "Get Latest DB infor: JSON parsing failed: ";
+            msg << e.what();
+            LOG_MSG(msg);
+        }
+    }
+    
+    // get a latest CartoDB account
+    std::vector<std::string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    if (!cartodb_user.empty()) {
+        std::string user = cartodb_user[0];
+        CartoDBProxy::GetInstance().SetUserName(user);
+        // control
+        m_cartodb_uname->SetValue(user);
+    }
+    
+    std::vector<std::string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    if (!cartodb_key.empty()) {
+        std::string key = cartodb_key[0];
+        CartoDBProxy::GetInstance().SetKey(key);
+        // control
+        m_cartodb_key->SetValue(key);
+    }
+    
+    m_cartodb_table->Hide();
+    m_cartodb_tablename->Hide();
+}
+
+void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
+{
+    if (event.GetNumberOfFiles() > 0) {
+        
+        wxString* dropped = event.GetFiles();         
+        wxString name;
+       
+        for (int i = 0; i < event.GetNumberOfFiles(); i++) {
+            name = dropped[i];
+            if (wxFileExists(name)) {
+                
+			} else if (wxDirExists(name)) {
+				//wxArrayString files;
+				//wxDir::GetAllFiles(name, &files);
+			}
+                
+        }
+    }
 }
 
 /**
@@ -121,32 +233,35 @@ void DatasourceDlg::CreateControls()
 void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 {
 	wxString ds_name = datasource->GetOGRConnectStr();
+    GdaConst::DataSourceType ds_type = datasource->GetType();
 
 	if (ds_name.IsEmpty()) {
-        wxString msg = "Can't get layers from unknown datasource. "
-        "Please complete the datasource fields.";
+        wxString msg = "Can't get layers from unknown datasource. Please complete the datasource fields.";
 		throw GdaException(msg.mb_str());
 	}
-	vector<string> table_names = OGRDataAdapter::GetInstance()
-					.GetLayerNames(ds_name.ToStdString());
+    
+	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString(), ds_type);
+    
     int n_tables = table_names.size();
+    
 	if ( n_tables > 0 ) {
 		wxString *choices = new wxString[n_tables];
-		for	(int i=0; i<n_tables; i++) choices[i] = table_names[i];
-		wxSingleChoiceDialog choiceDlg(NULL,
-                                    "Please select the layer name to connect:",
-                                    "Layer names",
-                                    n_tables, choices);
+        for	(int i=0; i<n_tables; i++)  {
+			choices[i] = table_names[i];
+        }
+		wxSingleChoiceDialog choiceDlg(NULL, "Please select the layer name to connect:", "Layer names", n_tables, choices);
+        
 		if (choiceDlg.ShowModal() == wxID_OK) {
 			if (choiceDlg.GetSelection() >= 0) {
 				layer_name = choiceDlg.GetStringSelection();
 			}
 		}
 		delete[] choices;
+        
 	} else if ( n_tables == 0) {
-		wxMessageDialog dlg(NULL, "There is no layer found in current "
-			"data source.", "Info", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg(NULL, "No layer was found in the selected data source.", "Info", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
+        
 	} else {
         wxString msg = "No layer has been selected. Please select a layer.";
 		throw GdaException(msg.mb_str());
@@ -163,7 +278,11 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
     if ( m_ds_menu == NULL ){
         m_ds_menu = new wxMenu;
         for ( size_t i=0; i < ds_names.GetCount(); i++ ) {
-            m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+            if (ds_names[i].IsEmpty()) {
+                m_ds_menu->AppendSeparator();
+            } else {
+                m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+            }
         }
     }
     this->PopupMenu(m_ds_menu);
@@ -189,9 +308,9 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         ds_file_path = dlg.GetPath();
         m_ds_filepath_txt->SetValue(ds_file_path.GetFullPath());
         FindWindow(XRCID("wxID_OK"))->Enable(true);
-        
+		OnOkClick(event);
     }
-#ifdef _WIN64 || __amd64__
+#if defined(_WIN64) || defined(__amd64__)
     else if (name.Contains("mdb")){
         // 64bit Windows only accept DSN ODBC for ESRI PGeo
         wxTextEntryDialog dlg(this, "Input the DSN name of ESRI Personal "
@@ -201,6 +320,7 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         if (dlg.ShowModal() != wxID_OK) return;
         ds_file_path = dlg.GetValue().Trim();
         m_ds_filepath_txt->SetValue( "PGeo:"+dlg.GetValue() );
+		FindWindow(XRCID("wxID_OK"))->Enable(true);
     }
 #endif
     else {
@@ -212,7 +332,9 @@ void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
         
         ds_file_path = dlg.GetPath();
         m_ds_filepath_txt->SetValue(ds_file_path.GetFullPath());
+		
         FindWindow(XRCID("wxID_OK"))->Enable(true);
+		OnOkClick(event);
     }
 }
 

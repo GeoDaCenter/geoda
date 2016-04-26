@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,6 +30,7 @@
 #include <wx/progdlg.h>
 #include <cpl_error.h>
 
+#include "../ShapeOperations/WeightsManager.h"
 #include "../Project.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -122,8 +123,8 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
         ds_type != GdaConst::ds_mapinfo &&
         ds_type != GdaConst::ds_sqlite &&
         ds_type != GdaConst::ds_csv) {
-        msg << "SaveAs is not supported on current data source type: "
-        << ds_format << ". Please try to \"Export\" to other data source. "
+        msg << "Save is not supported on current data source type: "
+        << ds_format << ". Please try to use \"File->Save As\" other data source. "
         << "However, the project file can still be saved as other project file.";
 		wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
@@ -135,7 +136,7 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     wxString suffix = ds_path.AfterLast('.');
     if ( suffix.empty() ) {
         msg << "The original datasource " << ds_path << " is not a valid file."
-        "GeoDa \"SaveAs\" only works on file datasource.";
+        "GeoDa \"Save\" only works on file datasource.";
         wxMessageDialog dlg(this, msg , "Warning", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
@@ -216,9 +217,10 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
                 cc->SetCatClassifList(project_p->GetCatClassifManager());
                 WeightsManPtree* spatial_weights =
                     layer_conf->GetWeightsManPtree();
+				WeightsNewManager* wnm =
+					(WeightsNewManager*) project_p->GetWManInt();
                 spatial_weights->
-                    SetWeightsMetaInfoList(project_p->GetWManager());
-				
+                    SetWeightsMetaInfoList(wnm->GetPtreeEntries());
                 ProjectConfiguration* project_conf =
                     new ProjectConfiguration(proj_title, layer_conf);
                 project_conf->Save(project_fname);

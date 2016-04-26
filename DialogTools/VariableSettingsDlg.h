@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,17 +21,53 @@
 #define __GEODA_CENTER_VARIABLE_SETTINGS_DLG_H___
 
 #include <vector>
+#include <boost/uuid/uuid.hpp>
 #include <wx/choice.h>
 #include <wx/checkbox.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/spinctrl.h>
-#include "../GenUtils.h"
+#include <wx/combobox.h>
+#include "../VarTools.h"
 #include "../Explore/CatClassification.h"
+#include "../VarCalc/WeightsMetaInfo.h"
 
-class GalElement;
 class Project;
 class TableInterface;
+
+class DiffMoranVarSettingDlg : public wxDialog
+{
+public:
+    DiffMoranVarSettingDlg(Project* project);
+    virtual ~DiffMoranVarSettingDlg();
+    
+    boost::uuids::uuid GetWeightsId();
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+protected:
+    void OnOK( wxCommandEvent& event );
+    void OnClose( wxCommandEvent& event );
+
+    void CreateControls();
+    bool Init();
+    
+    void InitVariableCombobox(wxComboBox* var_box);
+    void InitTimeComboboxes(wxComboBox* time1, wxComboBox* time2);
+    void InitWeightsCombobox(wxComboBox* weights_ch);
+    
+private:
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxComboBox* combo_var;
+    wxComboBox* combo_time1;
+    wxComboBox* combo_time2;
+    wxComboBox* combo_weights;
+};
+
 
 class VariableSettingsDlg: public wxDialog
 {
@@ -40,20 +76,19 @@ public:
 		univariate, bivariate, trivariate, quadvariate, rate_smoothed
 	};
 
-	VariableSettingsDlg(Project* project, short smoother, GalElement* gal,
-						const wxString& title="Rates Variable Settings",
-						const wxString& var1_title="Event Variable",
-						const wxString& var2_title="Base Variable");
 	VariableSettingsDlg( Project* project, VarType v_type,
+						bool show_weights = false,
+						bool show_distance = false,
 						const wxString& title="Variable Settings",
 						const wxString& var1_title="First Variable (X)",
 						const wxString& var2_title="Second Variable (Y)",
 						const wxString& var3_title="Third Variable (Z)",
 						const wxString& var4_title="Fourth Variable",
 						bool set_second_from_first_mode = false,
-						bool set_fourth_from_third_mode = false);
+						bool set_fourth_from_third_mode = false,
+                        bool hide_time = false);
 	virtual ~VariableSettingsDlg();
-    void CreateControls();
+	void CreateControls();
 	void Init(VarType var_type);
 
 	void OnListVariable1DoubleClicked( wxCommandEvent& event );
@@ -69,20 +104,21 @@ public:
 	void OnTime3( wxCommandEvent& event );
 	void OnTime4( wxCommandEvent& event );
 	void OnSpinCtrl( wxSpinEvent& event );
-    void OnOkClick( wxCommandEvent& event );
-    void OnCancelClick( wxCommandEvent& event );
+	void OnOkClick( wxCommandEvent& event );
+	void OnCancelClick( wxCommandEvent& event );
 
-
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<int> col_ids;
-	std::vector<GeoDaVarInfo> var_info;
 	CatClassification::CatClassifType GetCatClassifType(); // for rate smoothed
 	int GetNumCategories(); // for rate smoothed
+	boost::uuids::uuid GetWeightsId();
+	WeightsMetaInfo::DistanceMetricEnum GetDistanceMetric();
+	WeightsMetaInfo::DistanceUnitsEnum GetDistanceUnits();
 	
 private:
-	double* smoothed_results; // for rate_smoothed
-	std::vector<bool> m_undef_r; // for rate_smoothed
 	int m_theme; // for rate_smoothed
-	
+
+    bool hide_time;
 	wxString v1_name;
 	wxString v2_name;
 	wxString v3_name;
@@ -116,21 +152,24 @@ private:
 	wxString var3_title;
 	wxString var4_title;
 	
-	wxChoice* map_theme_lb; // for rate_smoothed
-	short m_smoother; // for rate_smoothed
+	wxChoice* map_theme_ch; // for rate_smoothed
 	wxSpinCtrl* num_cats_spin;
 	int num_categories;
-											  
-	bool all_init;
+	
+	bool show_weights;
+	bool no_weights_found_fail;
+	wxChoice* weights_ch;
+	std::vector<boost::uuids::uuid> weights_ids;
+	
+	bool show_distance;
+	wxChoice* distance_ch;
 	
 	int num_var; // 1, 2, 3, or 4
 	bool is_time;
 	int time_steps;
-
-	double*	E; // for rate_smoothed
-	double* P; // for rate_smoothed
-	GalElement* m_gal; // for rate_smoothed
 	
+	bool all_init;
+
 	Project* project;
 	TableInterface* table_int;
 	// col_id_map[i] is a map from the i'th numeric item in the
@@ -141,7 +180,6 @@ private:
 	void InitTimeChoices();
 	void InitFieldChoices();
 	void FillData();
-	bool FillSmoothedResults();
 	
 	/** Automatically set the second variable to the same value as
 	 the first variable when first variable is changed. */

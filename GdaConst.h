@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef __GEODA_CENTER_GEODACONST_H__
-#define __GEODA_CENTER_GEODACONST_H__
+#ifndef __GEODA_CENTER_GDA_CONST_H__
+#define __GEODA_CENTER_GDA_CONST_H__
 
 #include <map>
 #include <set>
@@ -53,6 +53,7 @@ public:
 		date_type, // D in DBF, YYYYMMDD format
 		placeholder_type
 	};
+	static wxString FieldTypeToStr(GdaConst::FieldType ft);
 	
 	struct FieldInfo {
 		FieldInfo() : type(unknown_type), field_len(0),
@@ -69,7 +70,7 @@ public:
 		ds_esri_personal_gdb, ds_esri_arc_sde,
 		ds_csv, ds_dbf, ds_geo_json, ds_gml, ds_kml,
 		ds_mapinfo, ds_mysql, ds_ms_sql, ds_oci, ds_odbc, ds_postgresql,
-		ds_shapefile, ds_sqlite, ds_wfs, ds_xls, ds_xlsx, ds_osm, ds_unknown };
+		ds_shapefile, ds_sqlite, ds_wfs, ds_xls, ds_xlsx, ds_osm, ds_ods, ds_cartodb, ds_unknown };
 	
 	static std::map<std::string, DataSourceType> datasrc_str_to_type;
 	static std::map<DataSourceType, std::string> datasrc_type_to_str;
@@ -106,6 +107,13 @@ public:
 	static const int min_dbf_date_len = 8;
 	static const int default_dbf_date_len = 8;
 	
+	// Resource Files
+	static const wxString gda_prefs_fname_json;
+	static const wxString gda_prefs_fname_sqlite;
+	static const wxString gda_prefs_html_table;
+	static const wxString gda_prefs_html_table_menu;
+	static const wxString gda_prefs_html_table_url;
+	
 	// Shared menu ids
 	static const int ID_TIME_SYNC_VAR1 = wxID_HIGHEST + 1000;
 	static const int ID_TIME_SYNC_VAR2 = wxID_HIGHEST + 1001;
@@ -130,7 +138,8 @@ public:
 	static const int max_plots_per_view_menu_items = 10;
 	static const int ID_PLOTS_PER_VIEW_OTHER = wxID_HIGHEST + 3100;
 	static const int ID_PLOTS_PER_VIEW_ALL = wxID_HIGHEST + 3200;
-	
+	static const int ID_HISTOGRAM_CLASSIFICATION = wxID_HIGHEST + 3300;
+    
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 = wxID_HIGHEST + 4000;
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A1 = wxID_HIGHEST + 4001;
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A2 = wxID_HIGHEST + 4002;
@@ -224,6 +233,19 @@ public:
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C28 = wxID_HIGHEST + 4228;
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C29 = wxID_HIGHEST + 4229;
 	
+	static const wxString html_submenu_title;
+	static const int ID_HTML_SUBMENU = wxID_HIGHEST + 5000;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_0 = ID_HTML_SUBMENU + 1;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_1 = ID_HTML_SUBMENU + 2;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_2 = ID_HTML_SUBMENU + 3;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_3 = ID_HTML_SUBMENU + 4;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_4 = ID_HTML_SUBMENU + 5;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_5 = ID_HTML_SUBMENU + 6;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_6 = ID_HTML_SUBMENU + 7;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_7 = ID_HTML_SUBMENU + 8;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_8 = ID_HTML_SUBMENU + 9;
+	static const int ID_HTML_MENU_ENTRY_CHOICE_9 = ID_HTML_SUBMENU + 10;
+	
 	// Standard wxFont pointers.
 	static wxFont* extra_small_font;
 	static wxFont* small_font;
@@ -240,7 +262,6 @@ public:
 	// Shared Colours
 	static std::vector<wxColour> qualitative_colors;
 	
-	// The following are defined in shp2cnt and should be moved from there.
 	//background color -- this is light gray
 	static const wxColour backColor;
 	// background color -- this is light gray
@@ -277,6 +298,12 @@ public:
 	static const wxColour map_default_outline_colour;
 	static const int map_default_outline_width = 1;
 	static const wxColour map_default_highlight_colour;
+	
+	// Connectivity Map
+	static const wxSize conn_map_default_size;
+	static const wxColour conn_map_default_fill_colour;
+	static const wxColour conn_map_default_outline_colour;
+	static const wxColour conn_map_default_highlight_colour;
 	
 	// Map Movie
 	static const wxColour map_movie_default_fill_colour;
@@ -329,17 +356,52 @@ public:
 	static const wxColour pcp_line_color;
 	static const wxColour pcp_horiz_line_color;
 	
+	// Averages Chart (Line Chart)
+	// Legend:
+	//   ln_cht: line chart
+	//   clr: color
+	//   sel: selected
+	//   exl: excluded
+	//   tm1: time subset 1
+	//   tm2: time subset 2
+	//   regimes_hl: regimes highlight
+	// Use GenUtils.h: wxString GdaColorUtils::ToHexStr(wxColour)
+	//     to produce HTML color string.
+	// Use GdaColorUtils::ChangeBrightness to make darker
+	static const wxSize line_chart_default_size;
+	static wxColour ln_cht_clr_regimes_hl; // yellow
+	static wxColour ln_cht_clr_sel_dark; // red
+	static wxColour ln_cht_clr_exl_dark; // blue
+	static wxColour ln_cht_clr_tm1_dark; // purple
+	static wxColour ln_cht_clr_tm2_dark; // brown
+	static wxColour ln_cht_clr_sel_light;
+	static wxColour ln_cht_clr_exl_light;
+	static wxColour ln_cht_clr_tm1_light;
+	static wxColour ln_cht_clr_tm2_light;
+	
 	// Conditional View
 	static const wxSize cond_view_default_size;
 
 	// Category Classification
 	static const wxSize cat_classif_default_size;
+
+	// Weights Manager Dialog
+	static const wxSize weights_man_dlg_default_size;
+	
+	// Data Change Type Frame
+	static const wxSize data_change_type_frame_default_size;
 	
 	// General Global Constants
 	static const int FileNameLen = 512; // max length of file names
 	static const int RealWidth = 19;    // default width of output for reals
 	static const int ShpHeaderSize = 50; // size of the header record in Shapefile
 	static const int ShpObjIdLen = 20;    // length of the ID of shape object
+
+    static wxCursor zoomInCursor;
+    static wxCursor zoomOutCursor;
+
+	static char* raw_zoom_out[65];
+	static char* raw_zoom_in[65];
 };
 
 #endif

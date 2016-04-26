@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -78,9 +78,12 @@ loop(true), forward(true)
 {
 	LOG_MSG("Entering TimeChooserDlg::TimeChooserDlg");
 	SetParent(parent);
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "ID_TIME_CHOOSER_DLG");
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_TIME_CHOOSER_DLG");
+    SetBackgroundColour(*wxWHITE);
+    
 	play_button = wxDynamicCast(FindWindow(XRCID("ID_PLAY")), wxButton);
+    forward_button = wxDynamicCast(FindWindow(XRCID("ID_STEP_FORWARD")), wxButton);
+    backward_button = wxDynamicCast(FindWindow(XRCID("ID_STEP_BACK")), wxButton);
 	slider = wxDynamicCast(FindWindow(XRCID("ID_SLIDER")), wxSlider);
 	speed_slider = wxDynamicCast(FindWindow(XRCID("ID_SPEED_SLIDER")),
 								 wxSlider);
@@ -111,6 +114,9 @@ loop(true), forward(true)
 	table_state->registerObserver(this);
 	SetMinSize(wxSize(100,50));
 	all_init = true;
+    
+    ToggleButtons( table_int->IsTimeVariant() && steps > 0 ? true : false);
+    
 	LOG_MSG("Exiting TimeChooserDlg::TimeChooserDlg");
 }
 
@@ -120,6 +126,18 @@ TimeChooserDlg::~TimeChooserDlg()
 	frames_manager->removeObserver(this);
 	time_state->removeObserver(this);
 	table_state->removeObserver(this);
+}
+
+void TimeChooserDlg::ToggleButtons(bool enabled)
+{
+    play_button->Enable(enabled);
+    slider->Enable(enabled);
+    speed_slider->Enable(enabled);
+    loop_cb->Enable(enabled);
+    reverse_cb->Enable(enabled);
+    speed_slider->Enable(enabled);
+    forward_button->Enable(enabled);
+    backward_button->Enable(enabled);
 }
 
 void TimeChooserDlg::OnClose(wxCloseEvent& ev)
@@ -345,6 +363,7 @@ void TimeChooserDlg::update(FramesManager* o)
 void TimeChooserDlg::update(TimeState* o)
 {
 	if (suspend_update) return;
+    
 	LOG_MSG("Entering TimeChooserDlg::update(TimeState* o)");
 	suspend_notify = true;
 	LOG(slider->GetValue());
@@ -362,20 +381,28 @@ void TimeChooserDlg::update(TableState* o)
 	LOG_MSG("Entering TimeChooserDlg::update(TableState* o)");
 	if (o->GetEventType() != TableState::time_ids_add_remove &&
 		o->GetEventType() != TableState::time_ids_rename &&
-		o->GetEventType() != TableState::time_ids_swap) return;
+		o->GetEventType() != TableState::time_ids_swap &&
+        o->GetEventType() != TableState::cols_delta) return;
 	
-	int steps = table_int->GetTimeSteps();	
-	wxString t_cur;
-	t_cur << time_state->GetCurrTimeString();
-	cur_txt->SetLabelText(t_cur);
-	slider_val = time_state->GetCurrTime();
-	
-	suspend_notify = true;
-	slider->SetRange(0, steps-1);
-	slider->SetValue(time_state->GetCurrTime());
-	suspend_notify = false;
-	
-	speed_slider->GetValue();	
+	int steps = table_int->GetTimeSteps();
+    bool is_time = table_int->IsTimeVariant();
+    
+    if (steps > 1 && is_time) ToggleButtons(true);
+    if (steps <=1 || !is_time) ToggleButtons(false);
+    
+    if (steps > 0) {
+        wxString t_cur;
+        t_cur << time_state->GetCurrTimeString();
+        cur_txt->SetLabelText(t_cur);
+        slider_val = time_state->GetCurrTime();
+        
+        suspend_notify = true;
+        slider->SetRange(0, steps-1);
+        slider->SetValue(time_state->GetCurrTime());
+        suspend_notify = false;
+        
+        speed_slider->GetValue();
+    }
 	
 	Refresh();
 	LOG_MSG("Exiting TimeChooserDlg::update(TableState* o)");

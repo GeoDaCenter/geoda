@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,9 +25,6 @@
 
 class GeneralWxUtils	{
 public:
-	static wxString wxFindAppPath(const wxString& argv0,
-								  const wxString& cwd,
-								  const wxString& appVariableName);
 	static wxOperatingSystemId GetOsId();
 	static bool isMac();
 	static bool isWindows();
@@ -52,7 +49,6 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
-	static bool EnableMenuItemHelper(wxMenuItem* mItem, int id);
 };
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,7 +30,7 @@
 #include "DbfColContainer.h"
 #include "TableBase.h"
 #include "TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"
@@ -53,6 +53,7 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_BUTTON( XRCID("wxID_OK"), MergeTableDlg::OnMergeClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), MergeTableDlg::OnCloseClick )
+    EVT_CLOSE( MergeTableDlg::OnClose )
 END_EVENT_TABLE()
 
 using namespace std;
@@ -60,6 +61,7 @@ using namespace std;
 MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 : table_int(_table_int)
 {
+    LOG_MSG("Entering MergeTableDlg::MergeTableDlg(..)");
 	SetParent(NULL);
 	//table_int->FillColIdMap(col_id_map);
 	CreateControls();
@@ -68,6 +70,9 @@ MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 	SetTitle("Merge - " + table_int->GetTableName());
 	SetPosition(pos);
     Centre();
+    
+    
+    LOG_MSG("Exiting MergeTableDlg::MergeTableDlg(..)");
 }
 
 MergeTableDlg::~MergeTableDlg()
@@ -97,6 +102,8 @@ void MergeTableDlg::CreateControls()
 
 void MergeTableDlg::Init()
 {
+    LOG_MSG("Entering MergeTableDlg::Init()");
+    
 	vector<wxString> col_names;
 	table_fnames.clear();
 	// get the field names from table interface
@@ -122,6 +129,9 @@ void MergeTableDlg::Init()
         }
     }
 	UpdateMergeButton();
+    
+    
+    LOG_MSG("Exiting MergeTableDlg::Init()");
 }
 
 void MergeTableDlg::OnKeyValRB( wxCommandEvent& ev )
@@ -136,6 +146,8 @@ void MergeTableDlg::OnRecOrderRB( wxCommandEvent& ev )
 
 void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 {
+    
+    LOG_MSG("Entering MergeTableDlg::OnOpenClick()");
     try {
         ConnectDatasourceDlg dlg(this);
         if (dlg.ShowModal() != wxID_OK) return;
@@ -144,12 +156,11 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString layer_name = dlg.GetLayerName();
         IDataSource* datasource = dlg.GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
-       
+        GdaConst::DataSourceType ds_type = datasource->GetType();
+        
         //XXX: ToStdString() needs to take care of weird file path
-        merge_datasource_proxy =
-            new OGRDatasourceProxy(datasource_name.ToStdString(), true);
-        merge_layer_proxy =
-            merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
+        merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
+        merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
         merge_layer_proxy->ReadData();
         m_input_file_name->SetValue(layer_name);
         
@@ -181,6 +192,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 		dlg.ShowModal();
         return;
     }
+    LOG_MSG("Exiting MergeTableDlg::OnOpenClick()");
 }
 
 void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)
@@ -235,17 +247,36 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
+	map<wxString, int>::iterator it;
+	map<wxString, int> dupKeys;
+	
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
-        key_vec[i].Trim(false);
-        key_vec[i].Trim(true);
-        key_map[key_vec[i]] = i;
+			wxString tmpK = key_vec[i];
+        tmpK.Trim(false);
+        tmpK.Trim(true);
+			if (key_map.find(tmpK) == key_map.end())
+        key_map[tmpK] = i;
+			else {
+				// duplicate key
+				dupKeys[tmpK] = i;
+			}
+
     }
 	
     if (key_vec.size() != key_map.size()) {
         wxString msg;
         msg << "Chosen table merge key field " << key_name;
-        msg << " contains duplicate values. Key fields must contain all ";
-        msg << "unique values.";
+        msg << " contains undefined or duplicate values. Key fields must contain valid unique values.\n\n";
+        msg << "Duplicated values are: ";
+			int count = 0;
+			for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
+				msg << it->first << "\n";
+				count++;
+				if (count > 5)
+					break;
+			}
+			if (count > 5)
+				msg << "...";
         throw GdaException(msg.mb_str());
     }
 }
@@ -259,16 +290,27 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
     for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
         wxString inc_n = m_include_list->GetString(i);
         merged_field_names.push_back(inc_n);
-        if (table_fnames.find(inc_n) != table_fnames.end())
-            dup_merged_field_names.insert(inc_n);
-        else if (!table_int->IsValidDBColName(inc_n))
+        
+        if (!table_int->IsValidDBColName(inc_n)) {
             bad_merged_field_names.insert(inc_n);
+        } else {
+            // Detect duplicate field names
+            std::set<wxString>::iterator it;
+            for (it = table_fnames.begin(); it != table_fnames.end(); it ++) {
+                wxString nm = *it;
+                if (nm.Upper() == inc_n.Upper()) {
+                    dup_merged_field_names.insert(inc_n);
+                    break;
+                }
+            }
+        }
     }
     
     if ( bad_merged_field_names.size() + dup_merged_field_names.size() > 0) {
         // show a field name correction dialog
         GdaConst::DataSourceType ds_type = table_int->GetDataSourceType();
-        FieldNameCorrectionDlg fc_dlg(ds_type, merged_fnames_dict,
+        FieldNameCorrectionDlg fc_dlg(ds_type,
+                                      merged_fnames_dict,
                                       merged_field_names,
                                       dup_merged_field_names,
                                       bad_merged_field_names);
@@ -294,7 +336,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         vector<wxString> merged_field_names =
             GetSelectedFieldNames(merged_fnames_dict);
         
-        if (merged_field_names.empty()) return;
+        if (merged_field_names.empty())
+            return;
         
         int n_rows = table_int->GetNumberRows();
         int n_merge_field = merged_field_names.size();
@@ -380,7 +423,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         if (ex.type() == GdaException::NORMAL) return;
         wxMessageDialog dlg(this, ex.what(), "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        EndDialog(wxID_CANCEL);
+        //EndDialog(wxID_CANCEL);
         return;
     }
     
@@ -414,7 +457,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             int import_rid = i;
             if (!rowid_map.empty()) import_rid = rowid_map[i];
             OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-            data[i] = feat->GetFieldAsInteger(fid);
+            data[i] = feat->GetFieldAsInteger64(fid);
         }
         table_int->SetColData(add_pos, 0, data);
     } else if ( ftype == GdaConst::double_type ) {
@@ -432,8 +475,13 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
-	ev.Skip();
+	//ev.Skip();
 	EndDialog(wxID_CLOSE);
+}
+
+void MergeTableDlg::OnClose( wxCloseEvent& ev) 
+{
+    EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnKeyChoice( wxCommandEvent& ev )

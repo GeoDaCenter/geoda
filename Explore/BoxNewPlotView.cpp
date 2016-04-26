@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -40,20 +40,20 @@
 #include "../ShapeOperations/ShapeUtils.h"
 #include "BoxNewPlotView.h"
 
-IMPLEMENT_CLASS(BoxNewPlotCanvas, TemplateCanvas)
-BEGIN_EVENT_TABLE(BoxNewPlotCanvas, TemplateCanvas)
+IMPLEMENT_CLASS(BoxPlotCanvas, TemplateCanvas)
+BEGIN_EVENT_TABLE(BoxPlotCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-const int BoxNewPlotCanvas::MAX_BOX_PLOTS = 100;
-const double BoxNewPlotCanvas::plot_height_const = 100;
-const double BoxNewPlotCanvas::left_pad_const = 0;
-const double BoxNewPlotCanvas::right_pad_const = 0;
-const double BoxNewPlotCanvas::plot_width_const = 10;
-const double BoxNewPlotCanvas::plot_gap_const = 20;
+const int BoxPlotCanvas::MAX_BOX_PLOTS = 100;
+const double BoxPlotCanvas::plot_height_const = 100;
+const double BoxPlotCanvas::left_pad_const = 0;
+const double BoxPlotCanvas::right_pad_const = 0;
+const double BoxPlotCanvas::plot_width_const = 10;
+const double BoxPlotCanvas::plot_gap_const = 20;
 
 /** Box Plot view is somewhat different than other views because support
  the display of multiple box plots on the screen at the same time.  For
@@ -63,21 +63,20 @@ const double BoxNewPlotCanvas::plot_gap_const = 20;
  as Lisa Box Plot, will have to override this behaviour if they want
  to support multiple variables */
 
-BoxNewPlotCanvas::BoxNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+BoxPlotCanvas::BoxPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								   Project* project_s,
-								   const std::vector<GeoDaVarInfo>& v_info,
+								   const std::vector<GdaVarTools::VarInfo>& v_info,
 								   const std::vector<int>& col_ids,
 								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), data(v_info.size()),
-highlight_state(project_s->GetHighlightState()),
 vert_axis(0), display_stats(false), show_axes(true),
 hinge_15(true)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering BoxNewPlotCanvas::BoxNewPlotCanvas");
-	template_frame = t_frame;	
+	LOG_MSG("Entering BoxPlotCanvas::BoxPlotCanvas");
 	TableInterface* table_int = project->GetTableInt();
 	
 	sel_scratch.resize(num_obs);
@@ -110,7 +109,7 @@ hinge_15(true)
 	cur_last_ind = var_info[0].time_max;
 	
 	// NOTE: define Box Plot defaults
-	selectable_fill_color = GdaConst::map_default_fill_colour;
+	selectable_fill_color = GdaConst::boxplot_point_color;
 	highlight_color = GdaConst::highlight_color;
 	
 	fixed_aspect_ratio_mode = false;
@@ -124,22 +123,22 @@ hinge_15(true)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting BoxNewPlotCanvas::BoxNewPlotCanvas");
+	LOG_MSG("Exiting BoxPlotCanvas::BoxPlotCanvas");
 }
 
-BoxNewPlotCanvas::~BoxNewPlotCanvas()
+BoxPlotCanvas::~BoxPlotCanvas()
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::~BoxNewPlotCanvas");
+	LOG_MSG("Entering BoxPlotCanvas::~BoxPlotCanvas");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting BoxNewPlotCanvas::~BoxNewPlotCanvas");
+	LOG_MSG("Exiting BoxPlotCanvas::~BoxPlotCanvas");
 }
 
-void BoxNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
+void BoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::DisplayRightClickMenu");
+	LOG_MSG("Entering BoxPlotCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((BoxNewPlotFrame*) template_frame)->OnActivate(ae);
+	((BoxPlotFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
@@ -148,12 +147,12 @@ void BoxNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting BoxNewPlotCanvas::DisplayRightClickMenu");
+	LOG_MSG("Exiting BoxPlotCanvas::DisplayRightClickMenu");
 }
 
-void BoxNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
+void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!var_info[0].is_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
@@ -205,11 +204,14 @@ void BoxNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	menu->Prepend(wxID_ANY, "Number of Box Plots", menu3,
 				  "Number of Box Plots");
 	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
-	menu->Prepend(wxID_ANY, "Time Variable Options", menu1,
+    
+    
+    menu->AppendSeparator();
+    menu->Append(wxID_ANY, "Time Variable Options", menu1,
 				  "Time Variable Options");
 }
 
-void BoxNewPlotCanvas::SetCheckMarks(wxMenu* menu)
+void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -246,7 +248,7 @@ void BoxNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	}
 }
 
-void BoxNewPlotCanvas::DetermineMouseHoverObjects()
+void BoxPlotCanvas::DetermineMouseHoverObjects()
 {
 	total_hover_obs = 0;
 	const double r2 = GdaConst::my_point_click_radius;
@@ -268,9 +270,9 @@ void BoxNewPlotCanvas::DetermineMouseHoverObjects()
 // being selected against are all points.  Since all GdaShape objects
 // define a center point, this is also the default function for
 // all GdaShape selectable objects.
-void BoxNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
-	//LOG_MSG("Entering BoxNewPlotCanvas::UpdateSelectionPoints");
+	//LOG_MSG("Entering BoxPlotCanvas::UpdateSelectionPoints");
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
@@ -310,23 +312,24 @@ void BoxNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 	}
+    
 	if (total_newly_selected > 0 || total_newly_unselected > 0) {
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		NotifyObservables();
 	}
-	//LOG_MSG("Exiting BoxNewPlotCanvas::UpdateSelectionPoints");
+	//LOG_MSG("Exiting BoxPlotCanvas::UpdateSelectionPoints");
 }
 
-void BoxNewPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
+void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-	LOG_MSG("In BoxNewPlotCanvas::DrawSelectableShapes");
+	LOG_MSG("In BoxPlotCanvas::DrawSelectableShapes");
 	int radius = GdaConst::my_point_click_radius;
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
 		int ind_base = (t-cur_first_ind)*num_obs;
-		dc.SetPen(GdaConst::boxplot_point_color);
+		dc.SetPen(selectable_fill_color);
 		dc.SetBrush(*wxWHITE_BRUSH);
 		for (int i=0; i<min_IQR; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
@@ -350,7 +353,7 @@ void BoxNewPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 	}	
 }
 
-void BoxNewPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
+void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
 	int radius = 3;
 	std::vector<bool>& hs = highlight_state->GetHighlight();
@@ -386,24 +389,25 @@ void BoxNewPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 }
 
 /** Override of TemplateCanvas method. */
-void BoxNewPlotCanvas::update(HighlightState* o)
+void BoxPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::update");
+	LOG_MSG("Entering BoxPlotCanvas::update");
 	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
-	HighlightState::EventType type = highlight_state->GetEventType();
+	HLStateInt::EventType type = highlight_state->GetEventType();
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
 		
 	Refresh();
-	
-	LOG_MSG("Entering BoxNewPlotCanvas::update");	
+    
+    UpdateStatusBar();
+	LOG_MSG("Entering BoxPlotCanvas::update");	
 }
 
-wxString BoxNewPlotCanvas::GetCanvasTitle()
+wxString BoxPlotCanvas::GetCanvasTitle()
 {
 	wxString s("Box Plot (Hinge=");
 	if (hinge_15) s << "1.5): ";
@@ -418,7 +422,7 @@ wxString BoxNewPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
-wxString BoxNewPlotCanvas::GetNameWithTime(int var)
+wxString BoxPlotCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
 	wxString s(var_info[var].name);
@@ -429,7 +433,7 @@ wxString BoxNewPlotCanvas::GetNameWithTime(int var)
 	return s;
 }
 
-wxString  BoxNewPlotCanvas::GetNameWithTime(int var, int time)
+wxString  BoxPlotCanvas::GetNameWithTime(int var, int time)
 {
 	if (var < 0 || var >= var_info.size() || 
 		time < 0 || time >= project->GetTableInt()->GetTimeSteps()) {
@@ -443,7 +447,7 @@ wxString  BoxNewPlotCanvas::GetNameWithTime(int var, int time)
 	return s;
 }
 
-wxString  BoxNewPlotCanvas::GetTimeString(int var, int time)
+wxString  BoxPlotCanvas::GetTimeString(int var, int time)
 {
 	if (var < 0 || var >= var_info.size() || 
 		time < 0 || time >= project->GetTableInt()->GetTimeSteps() ||
@@ -453,9 +457,9 @@ wxString  BoxNewPlotCanvas::GetTimeString(int var, int time)
 	return project->GetTableInt()->GetTimeString(time);
 }
 
-void BoxNewPlotCanvas::PopulateCanvas()
+void BoxPlotCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::PopulateCanvas");
+	LOG_MSG("Entering BoxPlotCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -604,7 +608,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 		//background_shps.push_back(s);
 		s = new GdaCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
 						 5.0);
-		s->setPen(GdaConst::boxplot_point_color);
+		s->setPen(selectable_fill_color);
 		s->setBrush(GdaConst::boxplot_mean_point_color);
 		foreground_shps.push_back(s);
 		double y0m = (hinge_stats[t].Q2-y_min)*scaleY - 0.2;
@@ -628,7 +632,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			//						 data_sorted[t][i].first));
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
+			selectable_shps[ind]->setPen(selectable_fill_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 		}
 		for (int i=hinge_stats[t].max_IQR_ind+1; i<num_obs; i++) {
@@ -643,7 +647,7 @@ void BoxNewPlotCanvas::PopulateCanvas()
 			//} else {
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
-			selectable_shps[ind]->setPen(GdaConst::boxplot_point_color);
+			selectable_shps[ind]->setPen(selectable_fill_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 			//}
 		}
@@ -717,12 +721,12 @@ void BoxNewPlotCanvas::PopulateCanvas()
 	
 	ResizeSelectableShps();
 
-	LOG_MSG("Exiting BoxNewPlotCanvas::PopulateCanvas");
+	LOG_MSG("Exiting BoxPlotCanvas::PopulateCanvas");
 }
 
-void BoxNewPlotCanvas::TimeChange()
+void BoxPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering BoxNewPlotCanvas::TimeChange");
+	LOG_MSG("Entering BoxPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	var_info[0].time = project->GetTimeState()->GetCurrTime();
@@ -741,14 +745,14 @@ void BoxNewPlotCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting BoxNewPlotCanvas::TimeChange");
+	LOG_MSG("Exiting BoxPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
-void BoxNewPlotCanvas::VarInfoAttributeChange()
+void BoxPlotCanvas::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -765,21 +769,21 @@ void BoxNewPlotCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
-void BoxNewPlotCanvas::TimeSyncVariableToggle(int var_index)
+void BoxPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In BoxNewPlotCanvas::TimeSyncVariableToggle");
+	LOG_MSG("In BoxPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
 	PopulateCanvas();
 }
 
-void BoxNewPlotCanvas::FixedScaleVariableToggle(int var_index)
+void BoxPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In BoxNewPlotCanvas::FixedScaleVariableToggle");
+	LOG_MSG("In BoxPlotCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -787,7 +791,7 @@ void BoxNewPlotCanvas::FixedScaleVariableToggle(int var_index)
 	Refresh();
 }
 
-void BoxNewPlotCanvas::PlotsPerView(int plots_per_view)
+void BoxPlotCanvas::PlotsPerView(int plots_per_view)
 {
 	if (plots_per_view == cur_num_plots) return;
 	cur_num_plots = plots_per_view;
@@ -804,7 +808,7 @@ void BoxNewPlotCanvas::PlotsPerView(int plots_per_view)
 	Refresh();
 }
 
-void BoxNewPlotCanvas::PlotsPerViewOther()
+void BoxPlotCanvas::PlotsPerViewOther()
 {
 	// ask user for custom number of plots.  This dialog only appears
 	// when GetTimeSteps() > 10
@@ -815,12 +819,12 @@ void BoxNewPlotCanvas::PlotsPerViewOther()
 	PlotsPerView(dlg.GetNumCategories());
 }
 
-void BoxNewPlotCanvas::PlotsPerViewAll()
+void BoxPlotCanvas::PlotsPerViewAll()
 {
 	PlotsPerView(max_plots);
 }
 
-void BoxNewPlotCanvas::DisplayStatistics(bool display_stats_s)
+void BoxPlotCanvas::DisplayStatistics(bool display_stats_s)
 {
 	display_stats = display_stats_s;
 	invalidateBms();
@@ -828,7 +832,7 @@ void BoxNewPlotCanvas::DisplayStatistics(bool display_stats_s)
 	Refresh();
 }
 
-void BoxNewPlotCanvas::ShowAxes(bool show_axes_s)
+void BoxPlotCanvas::ShowAxes(bool show_axes_s)
 {
 	if (show_axes == show_axes_s) return;
 	show_axes = show_axes_s;
@@ -837,7 +841,7 @@ void BoxNewPlotCanvas::ShowAxes(bool show_axes_s)
 	Refresh();
 }
 
-void BoxNewPlotCanvas::Hinge15()
+void BoxPlotCanvas::Hinge15()
 {
 	if (hinge_15) return;
 	hinge_15 = true;
@@ -846,7 +850,7 @@ void BoxNewPlotCanvas::Hinge15()
 	Refresh();
 }
 
-void BoxNewPlotCanvas::Hinge30()
+void BoxPlotCanvas::Hinge30()
 {
 	if (!hinge_15) return;
 	hinge_15 = false;
@@ -855,14 +859,17 @@ void BoxNewPlotCanvas::Hinge30()
 	Refresh();
 }
 
-void BoxNewPlotCanvas::UpdateStatusBar()
+void BoxPlotCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+		s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "obs " << hover_obs[0]+1;
+			s << "hover obs " << hover_obs[0]+1;
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
@@ -875,20 +882,17 @@ void BoxNewPlotCanvas::UpdateStatusBar()
 		if (total_hover_obs >= 4) {
 			s << ", ...";
 		}
-	} else if (mousemode == select &&
-			   (selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
 	}
 	sb->SetStatusText(s);
 }
 
-IMPLEMENT_CLASS(BoxNewPlotFrame, TemplateFrame)
-	BEGIN_EVENT_TABLE(BoxNewPlotFrame, TemplateFrame)
-	EVT_ACTIVATE(BoxNewPlotFrame::OnActivate)
+IMPLEMENT_CLASS(BoxPlotFrame, TemplateFrame)
+	BEGIN_EVENT_TABLE(BoxPlotFrame, TemplateFrame)
+	EVT_ACTIVATE(BoxPlotFrame::OnActivate)
 END_EVENT_TABLE()
 
-BoxNewPlotFrame::BoxNewPlotFrame(wxFrame *parent, Project* project,
-								 const std::vector<GeoDaVarInfo>& var_info,
+BoxPlotFrame::BoxPlotFrame(wxFrame *parent, Project* project,
+								 const std::vector<GdaVarTools::VarInfo>& var_info,
 								 const std::vector<int>& col_ids,
 								 const wxString& title,
 								 const wxPoint& pos,
@@ -896,12 +900,12 @@ BoxNewPlotFrame::BoxNewPlotFrame(wxFrame *parent, Project* project,
 								 const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering BoxNewPlotFrame::BoxNewPlotFrame");
+	LOG_MSG("Entering BoxPlotFrame::BoxPlotFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
 	
-	template_canvas = new BoxNewPlotCanvas(this, this, project,
+	template_canvas = new BoxPlotCanvas(this, this, project,
 										   var_info, col_ids,
 										   wxDefaultPosition,
 										   wxSize(width,height));
@@ -910,53 +914,53 @@ BoxNewPlotFrame::BoxNewPlotFrame(wxFrame *parent, Project* project,
 	SetTitle(template_canvas->GetCanvasTitle());
 		
 	Show(true);
-	LOG_MSG("Exiting BoxNewPlotFrame::BoxNewPlotFrame");
+	LOG_MSG("Exiting BoxPlotFrame::BoxPlotFrame");
 }
 
-BoxNewPlotFrame::~BoxNewPlotFrame()
+BoxPlotFrame::~BoxPlotFrame()
 {
-	LOG_MSG("In BoxNewPlotFrame::~BoxNewPlotFrame");
+	LOG_MSG("In BoxPlotFrame::~BoxPlotFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 
-void BoxNewPlotFrame::OnActivate(wxActivateEvent& event)
+void BoxPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In BoxNewPlotFrame::OnActivate");
+	LOG_MSG("In BoxPlotFrame::OnActivate");
 	if (event.GetActive()) {
-		RegisterAsActive("BoxNewPlotFrame", GetTitle());
+		RegisterAsActive("BoxPlotFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
-void BoxNewPlotFrame::MapMenus()
+void BoxPlotFrame::MapMenus()
 {
-	LOG_MSG("In BoxNewPlotFrame::MapMenus");
+	LOG_MSG("In BoxPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_BOX_NEW_PLOT_VIEW_MENU_OPTIONS");
-	((BoxNewPlotCanvas*) template_canvas)->
+	((BoxPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
-	((BoxNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
+	((BoxPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
 }
 
-void BoxNewPlotFrame::UpdateOptionMenuItems()
+void BoxPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("BoxNewPlotFrame::UpdateOptionMenuItems: Options "
+        LOG_MSG("BoxPlotFrame::UpdateOptionMenuItems: Options "
 				"menu not found");
 	} else {
-		((BoxNewPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+		((BoxPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
-void BoxNewPlotFrame::UpdateContextMenuItems(wxMenu* menu)
+void BoxPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -967,40 +971,40 @@ void BoxNewPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 }
 
 /** Implementation of TimeStateObserver interface */
-void BoxNewPlotFrame::update(TimeState* o)
+void BoxPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In BoxNewPlotFrame::update(TimeState* o)");
+	LOG_MSG("In BoxPlotFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
 
-void BoxNewPlotFrame::OnShowAxes(wxCommandEvent& event)
+void BoxPlotFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In BoxNewPlotFrame::OnShowAxes");
-	BoxNewPlotCanvas* t = (BoxNewPlotCanvas*) template_canvas;
+	LOG_MSG("In BoxPlotFrame::OnShowAxes");
+	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
 }
 
-void BoxNewPlotFrame::OnDisplayStatistics(wxCommandEvent& event)
+void BoxPlotFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In BoxNewPlotFrame::OnDisplayStatistics");
-	BoxNewPlotCanvas* t = (BoxNewPlotCanvas*) template_canvas;
+	LOG_MSG("In BoxPlotFrame::OnDisplayStatistics");
+	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
 }
 
-void BoxNewPlotFrame::OnHinge15(wxCommandEvent& event)
+void BoxPlotFrame::OnHinge15(wxCommandEvent& event)
 {
-	BoxNewPlotCanvas* t = (BoxNewPlotCanvas*) template_canvas;
+	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->Hinge15();
 	UpdateOptionMenuItems();
 	UpdateTitle();
 }
 
-void BoxNewPlotFrame::OnHinge30(wxCommandEvent& event)
+void BoxPlotFrame::OnHinge30(wxCommandEvent& event)
 {
-	BoxNewPlotCanvas* t = (BoxNewPlotCanvas*) template_canvas;
+	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->Hinge30();
 	UpdateOptionMenuItems();
 	UpdateTitle();

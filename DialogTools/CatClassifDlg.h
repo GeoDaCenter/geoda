@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -61,7 +61,7 @@ public:
 						 const wxSize& size = wxDefaultSize);
 	virtual ~CatClassifHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void DetermineMouseHoverObjects();
@@ -70,9 +70,12 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-private:
+protected:
 	virtual void PopulateCanvas();
-	
+    void GetBarPositions(std::vector<double>& x_center_pos,
+                         std::vector<double>& x_left_pos,
+                         std::vector<double>& x_right_pos);
+    
 public:
 	void InitIntervals();
 	void UpdateIvalSelCnts();
@@ -88,18 +91,21 @@ public:
 	static void InitUniformData(Gda::dbl_int_pair_vec_type& data,
 								double min, double max);
 	
-private:
+protected:
 	virtual void UpdateStatusBar();
 	
-	Project* project;
-	HighlightState* highlight_state;
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;
 	
 	AxisScale axis_scale_y;
+	AxisScale axis_scale_x;
+    
 	GdaAxis* y_axis;
+	GdaAxis* x_axis;
 	
+    double max_val;
+    double min_val;
 	std::vector<wxColour>* colors; // size = cur_num_intervals
 	std::vector<wxColour> default_colors;
 	std::vector<double>* breaks; // size = cur_num_intervals-1
@@ -129,6 +135,7 @@ public:
 					wxChoice* preview_var_choice,
 					wxChoice* preview_var_tm_choice,
 					wxCheckBox* sync_vars_chk,
+                    bool _useScientificNotation=false,
 					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
@@ -138,7 +145,8 @@ public:
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
-							   int field_tm = 0);
+							   int field_tm = 0,
+                               bool prompt_title_dlg = true);
 
 	// Top level user actions
 	void OnCurCatsChoice(wxCommandEvent& event);
@@ -167,6 +175,11 @@ public:
 	void OnButtonDelete(wxCommandEvent& event);
 	void OnButtonClose(wxCommandEvent& event);
 
+    void OnSaveCategories(wxCommandEvent& event);
+    void SaveCategories(const wxString& title,
+                        const wxString& label,
+                        const wxString& field_default);
+    
 	void ResetValuesToDefault();
 	void EnableControls(bool enable);
 	void InitFromCCData();
@@ -218,6 +231,7 @@ public:
 
 	CatClassifFrame* template_frame;	
 private:
+    bool useScientificNotation;
 	Project* project;
 	TableInterface* table_int;
 	CatClassifHistCanvas* hist_canvas;
@@ -227,6 +241,8 @@ private:
 	CatClassifState* cc_state;
 	wxChoice* cur_cats_choice;
 	wxChoice* breaks_choice;
+    wxButton* save_categories_button;
+
 	wxButton* change_title_button;
 	wxButton* delete_button;
 	wxChoice* num_cats_choice;
@@ -273,6 +289,7 @@ class CatClassifFrame : public TemplateFrame
 {
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
+                    bool useScientificNotation = false,
 					const wxString& title = "Category Editor",
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,
@@ -290,7 +307,8 @@ public:
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
 							   const wxString& suggested_title = wxEmptyString,
 							   const wxString& field_name = wxEmptyString,
-							   int field_tm = 0);
+							   int field_tm = 0,
+                               bool prompt_title_dlg = true);
 	
 private:
 	CatClassifHistCanvas* canvas;

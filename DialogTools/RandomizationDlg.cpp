@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,9 +23,8 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/dcbuffer.h>
 
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
@@ -33,62 +32,88 @@
 #include "../logger.h"
 #include "RandomizationDlg.h"
 
-IMPLEMENT_CLASS( RandomizationDlg, wxDialog )
 
-BEGIN_EVENT_TABLE( RandomizationDlg, wxDialog )
-    EVT_PAINT( RandomizationDlg::OnPaint )
-    EVT_BUTTON( XRCID("ID_CLOSE"), RandomizationDlg::OnCloseClick )
-    EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
-END_EVENT_TABLE()
+RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
+                                       const GalElement* W_s, int NumPermutations,
+                                       bool reuse_user_seed,
+                                       uint64_t user_specified_seed,
+                                       wxFrame* parent)
+: start(-1),
+stop(1),
+raw_data1(raw_data1_s),
+W(W_s),
+num_obs(raw_data1_s.size()),
+Permutations(NumPermutations),
+MoranI(NumPermutations, 0),
+is_bivariate(false),
+wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
+{
+	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    
+    Connect(wxEVT_PAINT, wxPaintEventHandler(RandomizationPanel::OnPaint));
+    Connect(wxEVT_SIZE, wxSizeEventHandler(RandomizationPanel::OnSize));
+    Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(RandomizationPanel::OnMouse));
 
-RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
-								   const std::vector<double>& raw_data2_s,
-								   const GalElement* W_s,
-								   int NumPermutations,
-								   wxWindow* parent, wxWindowID id,
-								   const wxString& caption, 
-								   const wxPoint& pos, const wxSize& size,
-								   long style )
+    if (reuse_user_seed)
+        rng = new Randik(user_specified_seed);
+    else
+        rng = new Randik();
+    
+	CalcMoran();
+    Init();
+}
+
+RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
+                                       const std::vector<double>& raw_data2_s,
+                                       const GalElement* W_s, int NumPermutations,
+                                       bool reuse_user_seed,
+                                       uint64_t user_specified_seed,
+                                       wxFrame* parent)
 : start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s), W(W_s),
 num_obs(raw_data1_s.size()), Permutations(NumPermutations),
-MoranI(NumPermutations, 0), is_bivariate(true)
+MoranI(NumPermutations, 0), is_bivariate(true),
+wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
-	
-	SetParent(parent);
-    CreateControls();
-    Centre();
-	
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-	
+    
+    Connect(wxEVT_PAINT, wxPaintEventHandler(RandomizationPanel::OnPaint));
+    Connect(wxEVT_SIZE, wxSizeEventHandler(RandomizationPanel::OnSize));
+	Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(RandomizationPanel::OnMouse));
+    
+    if (reuse_user_seed)
+        rng = new Randik(user_specified_seed);
+    else
+        rng = new Randik();
+    
 	CalcMoran();
-	Init();
+    Init();
 }
 
-RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
-								   const GalElement* W_s,
-								   int NumPermutations,
-								   wxWindow* parent, wxWindowID id,
-								   const wxString& caption, 
-								   const wxPoint& pos, const wxSize& size,
-								   long style )
-: start(-1), stop(1), raw_data1(raw_data1_s), W(W_s),
-num_obs(raw_data1_s.size()), Permutations(NumPermutations),
-MoranI(NumPermutations, 0), is_bivariate(false)
+RandomizationPanel::~RandomizationPanel()
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
-	
-	SetParent(parent);
-    CreateControls();
-    Centre();
-	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-	
-	CalcMoran();
-	Init();
+	if (perm) delete [] perm;
+	if (theRands) delete [] theRands;
+	if (rng) 
+		delete rng;
 }
 
-void RandomizationDlg::CalcMoran()
+void RandomizationPanel::OnMouse( wxMouseEvent& event )
+{
+	if (event.RightUp()) {
+		wxMenu* popupMenu = new wxMenu(wxEmptyString);
+		popupMenu->Append(XRCID("RUN_RANDOM"), "Run");
+		Connect(XRCID("RUN_RANDOM"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(RandomizationPanel::OnRunClick));
+		PopupMenu(popupMenu, event.GetPosition());
+	}
+}
+
+void RandomizationPanel::OnRunClick( wxCommandEvent& event )
+{
+	RunRandomTrials();
+	Refresh();
+}
+
+void RandomizationPanel::CalcMoran()
 {
 	Moran = 0;
 	if (is_bivariate) {
@@ -103,7 +128,7 @@ void RandomizationDlg::CalcMoran()
 	Moran /= (double) num_obs - 1.0;
 }
 
-void RandomizationDlg::Init()
+void RandomizationPanel::Init()
 {
 	perm = new int[num_obs];
 	theRands = new long[num_obs];
@@ -121,68 +146,28 @@ void RandomizationDlg::Init()
 	// leave a room for those who smaller than I
 	if (thresholdBin <= 0) thresholdBin = 1;
 	// take the last bin
-	else if (thresholdBin >= bins) thresholdBin = bins-1;	
+	else if (thresholdBin >= bins) thresholdBin = bins-1;
 	
 	experiment_run_once = false;
 }
 
-RandomizationDlg::~RandomizationDlg()
-{
-	if (perm) delete [] perm;
-	if (theRands) delete [] theRands;
-}
-
-void RandomizationDlg::CreateControls()
-{    
-    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_RANDOMIZATION");
-}
-
-void RandomizationDlg::OnCloseClick( wxCommandEvent& event )
-{	
-	event.Skip();
-	EndDialog(wxID_CANCEL);
-}
-
-void RandomizationDlg::OnOkClick( wxCommandEvent& event )
-{
-	wxRect rcClient = GetClientRect();
-	CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
-    //RunPermutations();
-	RunRandomTrials();
-	Refresh();
-	FindWindow(XRCID("ID_CLOSE"))->SetLabel("Done");
-}
- 
-void RandomizationDlg::DrawRectangle(wxDC* dc, int left, int top, int right,
-									 int bottom, const wxColour color)
-{
-	wxPen Pen;
-	Pen.SetColour(color);
-	dc->SetPen(Pen);
-	wxBrush Brush; 
-	Brush.SetColour(color);
-	dc->SetBrush(Brush); 
-
-	if (left >= right) right = left+1;
-	if (top >= bottom) bottom = top+1;
-	
-    dc->DrawRectangle(wxRect(left, bottom, right-left, top-bottom)); 
-}
 
 // NOTE: must carefully look at thresholdBin!
-void RandomizationDlg::RunRandomTrials()
+void RandomizationPanel::RunRandomTrials()
 {
 	totFrequency = 0;
-	for (int i=0; i<bins; i++) freq[i]=0;
+	for (int i=0; i<bins; i++) 
+		freq[i]=0;
+	
 	// thresholdBin bin already has one permutation
 	freq[ thresholdBin ] = 1;
 	// leftmost and the righmost are the same so far
 	minBin = thresholdBin; 
 	maxBin = thresholdBin;
-
+	
 	for (int i=0; i<Permutations; i++) {
 		//create a random permutation
-		rng.Perm(num_obs, perm, theRands);
+		rng->Perm(num_obs, perm, theRands);
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
@@ -219,7 +204,7 @@ void RandomizationDlg::RunRandomTrials()
  of not having to actually compute the median in order to find the p-val.  The
  results are identical. */
 
-void RandomizationDlg::UpdateStatistics()
+void RandomizationPanel::UpdateStatistics()
 {
 	double sMoran = 0;
 	for (int i=0; i < totFrequency; i++) {
@@ -246,32 +231,55 @@ void RandomizationDlg::UpdateStatistics()
 	expected_val = (double) -1/(num_obs - 1);
 }
 
-void RandomizationDlg::Draw(wxDC* dc)
-{	
-	int fMax = freq[0];
-	for (int i=1; i<bins; i++) if (fMax < freq[i]) fMax = freq[i];
+void RandomizationPanel::DrawRectangle(wxDC* dc, int left, int top, int right,
+									 int bottom, const wxColour color)
+{
+	wxPen Pen;
+	Pen.SetColour(color);
+	dc->SetPen(Pen);
+	wxBrush Brush; 
+	Brush.SetColour(color);
+	dc->SetBrush(Brush); 
+
+	if (left >= right) right = left+1;
+	if (top >= bottom) bottom = top+1;
+	
+    dc->DrawRectangle(wxRect(left, bottom, right-left, top-bottom)); 
+}
+
+void RandomizationPanel::Draw(wxDC* dc)
+{
+    // make a copy of freq;
+    std::vector<int> freq_back(freq);
+    
+    // draw white background
+    wxSize sz = this->GetClientSize();
+    DrawRectangle(dc, 0, 0, sz.x, sz.y, GdaConst::canvas_background_color);
+    
+	int fMax = freq_back[0];
+	for (int i=1; i<bins; i++) 
+        if (fMax < freq_back[i])
+            fMax = freq_back[i];
 
 	for (int i=0; i < bins; i++) {
-		double df = double (freq[i]* Height) / double (fMax);
-		freq[i] = int(df);
+		double df = double (freq_back[i]* Height) / double (fMax);
+		freq_back[i] = int(df);
 	}
 
-	wxColour color = (count_greater ? GdaConst::outliers_colour :
-					  GdaConst::textColor);
+	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
-		if (freq[i] > 0) {
-			int xx = Top + Height - freq[i];
+		if (freq_back[i] > 0) {
+			int xx = Top + Height - freq_back[i];
 			if (xx < Top) xx=Top;
 			DrawRectangle(dc, Left + i*binX, xx,
 						  Left + i*binX + binX, Top + Height, color);
 		}
 	}
 
-	color = (!count_greater ? GdaConst::outliers_colour :
-			 GdaConst::textColor);
+	color = !count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=thresholdBin+1; i < bins; i++) {
-		if (freq[i] > 0) {
-			int xx = Top + Height - freq[i];
+		if (freq_back[i] > 0) {
+			int xx = Top + Height - freq_back[i];
 			if (xx < Top) xx=Top;
 			DrawRectangle(dc, Left + i*binX, xx,
 						  Left + i*binX + binX, Top + Height, color);
@@ -280,7 +288,8 @@ void RandomizationDlg::Draw(wxDC* dc)
 	
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
-				  GdaConst::highlight_color );
+				  //GdaConst::highlight_color );
+                  wxColour(49, 163, 84));
 
 	wxPen drawPen(*wxBLACK_PEN);
 	drawPen.SetColour(GdaConst::textColor);
@@ -295,10 +304,12 @@ void RandomizationDlg::Draw(wxDC* dc)
 	const int hZero= (int)(Left+(0-start)/(stop-start)*Width);
 	dc->DrawRectangle(hZero, Top-2 , 3, Height+2);
   
-	int fs = 4 + Bottom/4;
-	wxFont nf(*wxSMALL_FONT);
-	nf.SetPointSize(fs);
-	dc->SetFont(nf);
+	//int fs = 4 + Bottom/4;
+	//wxFont nf(*wxSMALL_FONT);
+	//nf.SetPointSize(13);
+	//dc->SetFont(nf);
+
+	dc->SetFont(*GdaConst::small_font);
 	
 	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
@@ -312,26 +323,33 @@ void RandomizationDlg::Draw(wxDC* dc)
 	dc->DrawText(text, Left, Top + Height + Bottom/2);
  
 	text = wxString::Format("permutations: %d  ", Permutations);
-	dc->DrawText(text, Left+5, 20);
+	dc->DrawText(text, Left+5, 35);
 
 	text = wxString::Format("pseudo p-value: %-7.6f", pseudo_p_val);
-	dc->DrawText(text, Left+5, 35);
+	dc->DrawText(text, Left+5, 50);
 }
 
 
-void RandomizationDlg::OnPaint( wxPaintEvent& event )
+void RandomizationPanel::OnSize( wxSizeEvent& event )
+{
+    Refresh();
+}
+
+void RandomizationPanel::OnPaint( wxPaintEvent& event )
 {
 	if (!experiment_run_once) {
 		experiment_run_once = true;
-		wxCommandEvent ev;
-		OnOkClick(ev);
+		//wxCommandEvent ev;
+		//OnOkClick(ev);
+        RunRandomTrials();
+        Refresh();
 	}
     wxAutoBufferedPaintDC dc(this);
 	dc.Clear();
 	Paint(&dc);
 }
 
-void RandomizationDlg::Paint(wxDC *dc)
+void RandomizationPanel::Paint(wxDC *dc)
 {
 	wxRect rcClient = GetClientRect();
 	CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
@@ -339,21 +357,22 @@ void RandomizationDlg::Paint(wxDC *dc)
     Draw(dc);
 }
 
-void RandomizationDlg::CheckSize(const int width, const int height)
+void RandomizationPanel::CheckSize(const int width, const int height)
 {
 	Left = 10;
     Bottom = 20;
 	Right = 10;
-	Top = 10;
-	Height = 40;
-	Width = 40;
+	Top = 60;
+	Height = 0;
+	Width = 0;
 	
 	int res = width - Width - Left - Right;
 	if (res < 0) res = 0;
-	int rata = (int) floor((double) res / (bins + 2));
+	int rata = (int) floor((double) res / (bins + 1));
 	if (rata == 0) rata = 1;
 	Left += rata;
 	binX = rata;  //  vertical scale is under control of Format
+    
 	Right = width - Left - binX*bins;
 	if (Right < 0) Right= 0;
 	Width = width - Left - Right;
@@ -364,3 +383,100 @@ void RandomizationDlg::CheckSize(const int width, const int height)
 	Bottom += rata;
 	Height = height - Top - Bottom;
 }
+
+
+const int ID_BUTTON = wxID_ANY;
+
+BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
+    EVT_CLOSE( RandomizationDlg::OnClose)
+    EVT_BUTTON( XRCID("ID_OK"), RandomizationDlg::OnOkClick )
+	EVT_MOUSE_EVENTS(RandomizationDlg::OnMouse)
+END_EVENT_TABLE()
+
+RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
+								   const std::vector<double>& raw_data2_s,
+								   const GalElement* W_s,
+								   int NumPermutations,
+                                   bool reuse_user_seed,
+                                   uint64_t user_specified_seed,
+								   wxWindow* parent, wxWindowID id,
+								   const wxString& caption, 
+								   const wxPoint& pos, const wxSize& size,
+								   long style )
+: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
+{
+	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+    
+    panel = new RandomizationPanel(raw_data1_s, raw_data2_s, W_s, NumPermutations, reuse_user_seed, user_specified_seed, this);
+    CreateControls();
+	
+}
+
+RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
+								   const GalElement* W_s,
+								   int NumPermutations,
+                                   bool reuse_user_seed,
+                                   uint64_t user_specified_seed,
+								   wxWindow* parent, wxWindowID id,
+								   const wxString& caption, 
+								   const wxPoint& pos, const wxSize& size,
+								   long style )
+: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
+{
+	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+    
+    panel = new RandomizationPanel(raw_data1_s, W_s, NumPermutations, reuse_user_seed, user_specified_seed, this);
+    CreateControls();
+}
+
+
+
+RandomizationDlg::~RandomizationDlg()
+{
+}
+
+void RandomizationDlg::CreateControls()
+{    
+    wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
+    hbox2->AddSpacer(100);
+    hbox2->Add(button);
+    vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxLEFT | wxTOP, 100);
+    
+    panel->SetSizer(vbox);
+    
+    Centre();
+    
+    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+    
+}
+
+void RandomizationDlg::OnClose( wxCloseEvent& event )
+{
+    Destroy();
+    event.Skip();
+}
+
+void RandomizationDlg::OnOkClick( wxCommandEvent& event )
+{
+	//wxRect rcClient = GetClientRect();
+	//CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
+	panel->RunRandomTrials();
+	panel->Refresh();
+}
+ 
+void RandomizationDlg::OnMouse( wxMouseEvent& event )
+{
+	if (event.RightDown()) {
+		wxMenu* popupMenu = new wxMenu(wxEmptyString);
+		popupMenu->Append(XRCID("RUN_RANDOM"), "Run");
+		Connect(XRCID("RUN_RANDOM"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+		PopupMenu(popupMenu, event.GetPosition());
+	}
+}
+

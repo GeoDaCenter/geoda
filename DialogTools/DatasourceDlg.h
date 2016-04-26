@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -30,6 +30,8 @@
 #include <wx/sizer.h>
 #include <wx/notebook.h>
 #include <wx/checkbox.h>
+#include <wx/statbmp.h>
+
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
 
@@ -38,14 +40,16 @@ class DatasourceDlg : public wxDialog
 protected:
     enum DS_IDS
     {
-        ID_DS_START=1001,
-        ID_DS_END = ID_DS_START + 1,
+        ID_DS_START=1001
     };
     
 public:
     DatasourceDlg(){}
     virtual ~DatasourceDlg(){}
-   
+	virtual void OnOkClick( wxCommandEvent& event ) = 0;
+	
+	wxFileName      ds_file_path;
+    
 protected:
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
@@ -60,9 +64,13 @@ protected:
 	//AutoTextCtrl*   m_webservice_url;
 	wxNotebook*     m_ds_notebook;
     wxMenu*         m_ds_menu;
-	wxFileName      ds_file_path;
 	wxString        layer_name;
 
+	wxTextCtrl*     m_cartodb_uname;
+	wxTextCtrl*     m_cartodb_key;
+	wxTextCtrl*     m_cartodb_table;
+	wxStaticText*     m_cartodb_tablename;
+    
     wxArrayString   ds_names;
     
 public:
@@ -71,11 +79,10 @@ public:
 	void PromptDSLayers(IDataSource* datasource);
     void OnBrowseDSfileBtn( wxCommandEvent& event );
     void BrowseDataSource( wxCommandEvent& event );
+    void OnDropFiles(wxDropFilesEvent& event);
+    
 	wxString GetProjectTitle();
     wxString GetLayerName();
-
-    
-    virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
 protected:
     wxString DBTYPE_ORACLE;

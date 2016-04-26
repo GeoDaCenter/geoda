@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,60 +21,9 @@
 #include <wx/tokenzr.h>
 #include <wx/filename.h>
 #include <wx/platinfo.h>
-#include <wx/app.h> // needed for wxTheApp
-#ifdef __WXMSW__
-	#include <Windows.h>  // needed for GetModuleFleName
-#endif
 #include <wx/log.h>
+#include <wx/window.h>
 #include "logger.h"
-
-wxString GeneralWxUtils::wxFindAppPath(const wxString& argv0,
-									  const wxString& cwd,
-									  const wxString& appVariableName)
-{
-    wxString str;
-	/*	
-    // Try appVariableName
-    if (!appVariableName.IsEmpty())
-    {
-        str = wxGetenv(appVariableName);
-        if (!str.IsEmpty())
-            return str;
-    }
-	
-#if defined(__WXMAC__) && !defined(__DARWIN__)
-    // On Mac, the current directory is the relevant one when
-    // the application starts.
-    return cwd;
-#endif
-	
-    if (wxIsAbsolutePath(argv0)) {
-        return wxPathOnly(argv0);
-	}
-    else {
-        // Is it a relative path?
-        wxString currentDir(cwd);
-        if (currentDir.Last() != wxFILE_SEP_PATH)
-            currentDir += wxFILE_SEP_PATH;
-		
-        str = currentDir + argv0;
-        if (wxFileExists(str))
-			return wxPathOnly(str);
-    }
-	
-    // OK, it's neither an absolute path nor a relative path.
-    // Search PATH.
-	
-    wxPathList pathList;
-    pathList.AddEnvList("PATH");
-    str = pathList.FindAbsoluteValidPath(argv0);
-    if (!str.IsEmpty())
-        return wxPathOnly(str);
-	
-    // Failed
-	*/
-	return wxEmptyString;
-}
 
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {
@@ -130,7 +79,7 @@ bool GeneralWxUtils::isVista()
 
 bool GeneralWxUtils::isX86()
 {
-#ifdef _WIN64 || __amd64__
+#if defined(_WIN64) || defined(__amd64__)
 	return false;
 #else
 	return true;
@@ -347,22 +296,5 @@ wxMenu* GeneralWxUtils::FindMenu(wxMenuBar* mb,	const wxString& menuTitle)
 	return mb->GetMenu(menu);
 }
 
-// Useful functions for tree traversal
-// int wxMenuBar::FindMenu(const wxString& title) const:
-//   - returns wxNOT_FOUND or position of top-level menu
-//   - ignores "&" characters in string.
-// wxMenu* GetMenu(int menuIndex) const:
-//   - returns menu at menuIndex.
-// It appears as though there is no way to easily discover
-// which top-level menu a nested menu-item is associated with
-// short of traversing through the entire menu-bar.  For this
-// reason, it will be necessary to pass in the name of top-level
-// menu where the menu-item exists.
 
-// This method might be implemented in the future for the purpose
-// of doing a tree-traversal of the menu-tree.  This will be needed
-// if we support sub-menus within sub-menus.
-bool GeneralWxUtils::EnableMenuItemHelper(wxMenuItem* mItem, int id)
-{
-	return false;
-}
+

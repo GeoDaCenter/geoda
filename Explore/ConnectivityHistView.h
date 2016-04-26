@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,27 +22,28 @@
 
 #include <vector>
 #include <wx/menu.h>
-#include "CatClassification.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
+#include "../VarCalc/WeightsManInterface.h"
 
-class GalWeight;
 class ConnectivityHistCanvas;
 class ConnectivityHistFrame;
+class WeightsManState;
 
 class ConnectivityHistCanvas : public TemplateCanvas {
 	DECLARE_CLASS(ConnectivityHistCanvas)	
 public:
 	ConnectivityHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
-						   Project* project, GalWeight* gal,
+						   Project* project, boost::uuids::uuid w_uuid,
 						   const wxPoint& pos = wxDefaultPosition,
 						   const wxSize& size = wxDefaultSize);
 	virtual ~ConnectivityHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void DetermineMouseHoverObjects();
@@ -55,6 +56,8 @@ protected:
 	virtual void PopulateCanvas();
 	
 public:	
+	void ChangeWeights(boost::uuids::uuid new_id);
+	
 	void DisplayStatistics(bool display_stats);
 	void ShowAxes(bool show_axes);
 	
@@ -65,18 +68,16 @@ public:
 	void SelectIsolates();
 	void SaveConnectivityToTable();
 	void HistogramIntervals();
+	void InitData();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
 protected:
 	virtual void UpdateStatusBar();
 
-	Project* project;
-	HighlightState* highlight_state;
 	int num_obs;
-	wxString weights_name;
 	bool has_isolates;
 	int num_isolates;
-	std::vector<int> connectivity;
+	std::vector<long> connectivity;
 	Gda::dbl_int_pair_vec_type data_sorted;
 	SampleStatistics data_stats;
 	HingeStats hinge_stats;
@@ -107,21 +108,25 @@ protected:
 	static const double interval_width_const;
 	static const double interval_gap_const;
 	
+	WeightsManInterface* w_man_int;
+	boost::uuids::uuid w_uuid;
+	
 	DECLARE_EVENT_TABLE()
 };
 
 
-class ConnectivityHistFrame : public TemplateFrame {
+class ConnectivityHistFrame : public TemplateFrame, public WeightsManStateObserver
+{
     DECLARE_CLASS(ConnectivityHistFrame)
 public:
-    ConnectivityHistFrame(wxFrame *parent, Project* project, GalWeight* gal,
+    ConnectivityHistFrame(wxFrame *parent, Project* project,
+						  boost::uuids::uuid w_uuid,
 						  const wxString& title = "Connectivity Histogram",
 						  const wxPoint& pos = wxDefaultPosition,
 						  const wxSize& size = GdaConst::hist_default_size,
 						  const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~ConnectivityHistFrame();
 	
-public:
     void OnActivate(wxActivateEvent& event);
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
@@ -129,12 +134,23 @@ public:
 	
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return id == w_uuid ? 1 : 0; }
+	virtual void closeObserver(boost::uuids::uuid id);
 	
+	void ChangeWeights(boost::uuids::uuid new_id);
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);
 	void OnSaveConnectivityToTable(wxCommandEvent& event);
 	void OnSelectIsolates(wxCommandEvent& event);
+	
+private:
+	WeightsManState* w_man_state;
+	WeightsManInterface* w_man_int;
+	boost::uuids::uuid w_uuid;
 
     DECLARE_EVENT_TABLE()
 };

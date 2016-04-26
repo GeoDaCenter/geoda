@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -27,13 +27,12 @@
 #include "../logger.h"
 #include "WeightsManPtree.h"
 
-wxString WeightsMetaInfo::ToStr() const
+wxString WeightsPtreeEntry::ToStr() const
 {
 	wxString s;
-	s << "Weights Meta Info:\n";
-	s << "  filename: " << filename << "\n";
-	s << "  title: " << title << "\n";
-	if (is_default) s << "  is_default: true\n";
+	s << "title: " << title << "\n";
+	s << "is_default: " << (is_default ? "true" : "false") << "\n";
+	s << wmi.ToStr();
 	return s;
 }
 
@@ -43,9 +42,9 @@ WeightsManPtree::WeightsManPtree()
 
 WeightsManPtree::WeightsManPtree(const WeightsManPtree& o)
 {
-    std::list<WeightsMetaInfo>::const_iterator it;
+    std::list<WeightsPtreeEntry>::const_iterator it;
     for (it = o.weights_list.begin(); it != o.weights_list.end(); ++it) {
-        weights_list.push_back( *it );
+        weights_list.push_back(*it);
     }
 }
 
@@ -73,38 +72,166 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 	weights_list.clear();
 	try {
 		try {
-			pt.get_child("spatial_weights");
+			pt.get_child("weights_entries");
 		}
 		catch (boost::property_tree::ptree_bad_path& e) {
-			// spatial_weights is optional
+			// weights_entries is optional
 			return;
 		}
 		
-		// iterate over each child of spatial_weights
+		// iterate over each child of weights_entries
 		BOOST_FOREACH(const ptree::value_type &v,
-					  pt.get_child("spatial_weights")) {
+					  pt.get_child("weights_entries")) {
 			wxString key = v.first.data();
 			LOG_MSG(key);
 			if (key == "weights") {
-				WeightsMetaInfo w;
+				WeightsPtreeEntry e;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
 					LOG_MSG(key);
 					if (key == "title") {
 						wxString s = v.second.data();
-						w.title = s;
-					} else if (key == "path") {
-						wxString s = v.second.data();
-						w.filename = GenUtils::RestorePath(proj_path, s);
+						e.title = s;
 					} else if (key == "default") {
-						w.is_default = true;
+						e.is_default = true;
+					} else if (key == "meta_info") {
+						BOOST_FOREACH(const ptree::value_type &v, v.second) {
+							wxString key = v.first.data();
+							LOG_MSG(key);
+							if (key == "weights_type") {
+								wxString s = v.second.data();
+								if (s == "rook") {
+									e.wmi.weights_type = WeightsMetaInfo::WT_rook;
+								} else if (s == "queen") {
+									e.wmi.weights_type = WeightsMetaInfo::WT_queen;
+								} else if (s == "threshold") {
+									e.wmi.weights_type = WeightsMetaInfo::WT_threshold;
+								} else if (s == "knn") {
+									e.wmi.weights_type = WeightsMetaInfo::WT_knn;
+								} else { // s == "custom"
+									e.wmi.weights_type = WeightsMetaInfo::WT_custom;
+								}
+							} else if (key == "path") {
+								wxString s = v.second.data();
+								e.wmi.filename = GenUtils::RestorePath(proj_path, s);
+                                if (!wxFileExists(e.wmi.filename)) {
+                                    wxString msg;
+                                    
+                                    msg << "The GeoDa project file cannot find one or more associated data sources.\n\n";
+                                    msg << "Details: Weights file (" << e.wmi.filename << ") is missing";
+                                    msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the weights file(s) (.gwt or .gal extension) associated with your project.";
+                                    
+                                    throw GdaException(msg.mb_str());
+                                }
+                                
+							} else if (key == "id_variable") {
+								wxString s = v.second.data();
+								e.wmi.id_var = s;
+							} else if (key == "symmetry") {
+								wxString s = v.second.data();
+								if (s == "symmetric") {
+									e.wmi.sym_type = WeightsMetaInfo::SYM_symmetric;
+								} else if (s == "asymmetric") {
+									e.wmi.sym_type = WeightsMetaInfo::SYM_asymmetric;
+								} else if (s == "unknown" || s.IsEmpty()) {
+									e.wmi.sym_type = WeightsMetaInfo::SYM_unknown;
+								} else {
+									wxString msg("unrecognized value: ");
+									msg << s << " for key: " << key;
+									throw GdaException(msg.mb_str());
+								}
+							} else if (key == "order") {
+								long l;
+								wxString(v.second.data()).ToLong(&l);
+								e.wmi.order = l;
+							} else if (key == "inc_lower_orders") {
+								wxString s = v.second.data();
+								if (s.CmpNoCase("false") == 0) {
+									e.wmi.inc_lower_orders = false;
+								} else if (s.CmpNoCase("true") == 0) {
+									e.wmi.inc_lower_orders = true;
+								} else {
+									wxString msg("unrecognized value: ");
+									msg << s << " for key: " << key;
+									throw GdaException(msg.mb_str());
+								}
+							}  else if (key == "dist_metric") {
+								wxString s = v.second.data();
+								if (s == "euclidean") {
+									e.wmi.dist_metric = WeightsMetaInfo::DM_euclidean;
+								} else if (s == "arc") {
+									e.wmi.dist_metric = WeightsMetaInfo::DM_arc;
+								} else if (s == "unspecified" || s.IsEmpty()) {
+									e.wmi.dist_metric = WeightsMetaInfo::DM_unspecified;
+								} else {
+									wxString msg("unrecognized value: ");
+									msg << s << " for key: " << key;
+									throw GdaException(msg.mb_str());
+								}
+							} else if (key == "dist_units") {
+								wxString s = v.second.data();
+								if (s == "km") {
+									e.wmi.dist_units = WeightsMetaInfo::DU_km;
+								} else if (s == "mile") {
+									e.wmi.dist_units = WeightsMetaInfo::DU_mile;
+								} else if (s == "unspecified" || s.IsEmpty()) {
+									e.wmi.dist_units = WeightsMetaInfo::DU_unspecified;
+								} else {
+									wxString msg("unrecognized value: ");
+									msg << s << " for key: " << key;
+									throw GdaException(msg.mb_str());
+								}
+							} else if (key == "dist_values") {
+								wxString s = v.second.data();
+								if (s == "centroids") {
+									e.wmi.dist_values = WeightsMetaInfo::DV_centroids;
+								} else if (s == "mean_centers") {
+									e.wmi.dist_values = WeightsMetaInfo::DV_mean_centers;
+								} else if (s == "vars") {
+									e.wmi.dist_values = WeightsMetaInfo::DV_vars;
+								} else if (s == "unspecified" || s.IsEmpty()) {
+									e.wmi.dist_values = WeightsMetaInfo::DV_unspecified;
+								} else {
+									wxString msg("unrecognized value: ");
+									msg << s << " for key: " << key;
+									throw GdaException(msg.mb_str());
+								}
+							} else if (key == "dist_var1") {
+								wxString s = v.second.data();
+								e.wmi.dist_var1 = s;
+								e.wmi.dist_values = WeightsMetaInfo::DV_vars;
+							} else if (key == "dist_var2") {
+								wxString s = v.second.data();
+								e.wmi.dist_var2 = s;
+								e.wmi.dist_values = WeightsMetaInfo::DV_vars;
+							} else if (key == "dist_tm1") {
+								long l;
+								wxString(v.second.data()).ToLong(&l);
+								e.wmi.dist_tm1 = l;
+							} else if (key == "dist_tm2") {
+								long l;
+								wxString(v.second.data()).ToLong(&l);
+								e.wmi.dist_tm2 = l;
+							} else if (key == "num_neighbors") {
+								long l;
+								wxString(v.second.data()).ToLong(&l);
+								e.wmi.num_neighbors = l;
+							} else if (key == "threshold_val") {
+								double d;
+								wxString(v.second.data()).ToDouble(&d);
+								e.wmi.threshold_val = d;
+							}
+						}
 					} else {
+						// ignore unrecognized key
 						wxString msg("unrecognized key: ");
 						msg << key;
-						throw GdaException(msg.mb_str());
+						LOG_MSG(msg);
 					}
 				}
-				weights_list.push_back(w);
+                
+				LOG_MSG(e.ToStr());
+				weights_list.push_back(e);
 			} else {
 				wxString msg("unrecognized key: ");
 				msg << key;
@@ -124,50 +251,108 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 	using boost::property_tree::ptree;
 	using namespace std;
 	try {
-		ptree& sub = pt.put("spatial_weights", "");
+		ptree& sub = pt.put("weights_entries", "");
 
 		// Write each spatial weights meta info definition
-		BOOST_FOREACH(const WeightsMetaInfo& w, weights_list) {
+		BOOST_FOREACH(const WeightsPtreeEntry& e, weights_list) {
 			ptree& ssub = sub.add("weights", "");
-			if (!w.title.IsEmpty()) ssub.put("title", w.title);
-			ssub.put("path", GenUtils::SimplifyPath(proj_path, w.filename));
-			if (w.is_default) ssub.put("default", "");
+			if (!e.title.IsEmpty()) ssub.put("title", e.title);
+			if (e.is_default) ssub.put("default", "");
+			ptree& sssub = ssub.add("meta_info", "");
+			if (e.wmi.weights_type == WeightsMetaInfo::WT_custom)
+			{
+				sssub.put("weights_type", "custom");
+			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_rook ||
+					   e.wmi.weights_type == WeightsMetaInfo::WT_queen)
+			{
+				sssub.put("weights_type", (e.wmi.weights_type ==
+										  WeightsMetaInfo::WT_rook ? "rook"
+										  : "queen"));
+				sssub.put("order", e.wmi.order);
+				if (e.wmi.inc_lower_orders) {
+					sssub.put("inc_lower_orders", "true");
+				} else {
+					sssub.put("inc_lower_orders", "false");
+				}
+			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold ||
+					   e.wmi.weights_type == WeightsMetaInfo::WT_knn)
+			{
+				sssub.put("weights_type", (e.wmi.weights_type ==
+										  WeightsMetaInfo::WT_knn ? "knn"
+										  : "threshold"));
+				if (e.wmi.dist_metric == WeightsMetaInfo::DM_euclidean) {
+					sssub.put("dist_metric", "euclidean");
+				} else if (e.wmi.dist_metric == WeightsMetaInfo::DM_arc) {
+					sssub.put("dist_metric", "arc");
+				}
+				if (e.wmi.dist_units == WeightsMetaInfo::DU_km) {
+					sssub.put("dist_units", "km");
+				} else if (e.wmi.dist_units == WeightsMetaInfo::DU_mile) {
+					sssub.put("dist_units", "mile");
+				}
+				if (e.wmi.dist_values == WeightsMetaInfo::DV_centroids) {
+					sssub.put("dist_values", "centroids");
+				} else if (e.wmi.dist_values ==
+						   WeightsMetaInfo::DV_mean_centers) {
+					sssub.put("dist_values", "mean_centers");
+				} else if (e.wmi.dist_values == WeightsMetaInfo::DV_vars) {
+					sssub.put("dist_values", "vars");
+					if (!e.wmi.dist_var1.IsEmpty()) {
+						sssub.put("dist_var1", e.wmi.dist_var1);
+						if (e.wmi.dist_tm1 >= 0) {
+							sssub.put("dist_tm1", e.wmi.dist_tm1);
+						}
+					}
+					if (!e.wmi.dist_var2.IsEmpty()) {
+						sssub.put("dist_var2", e.wmi.dist_var2);
+						if (e.wmi.dist_tm2 >= 0) {
+							sssub.put("dist_tm2", e.wmi.dist_tm2);
+						}
+					}
+				}
+				
+				if (e.wmi.weights_type == WeightsMetaInfo::WT_knn) {
+					sssub.put("num_neighbors", e.wmi.num_neighbors);
+				} else {
+					sssub.put("threshold_val", e.wmi.threshold_val);
+				}
+			}
+			if (!e.wmi.filename.IsEmpty()) {
+				sssub.put("path",
+						  GenUtils::SimplifyPath(proj_path, e.wmi.filename));
+			}
+			if (!e.wmi.id_var.IsEmpty()) {
+				sssub.put("id_variable", e.wmi.id_var);
+			}
+			if (e.wmi.sym_type == WeightsMetaInfo::SYM_symmetric) {
+				sssub.put("symmetry", "symmetric");
+			} else if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
+				sssub.put("symmetry", "asymmetric");
+			}
 		}	
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
 }
 
-const std::list<WeightsMetaInfo>&
+const std::list<WeightsPtreeEntry>&
 	WeightsManPtree::GetWeightsMetaInfoList() const
 {
 	return weights_list;
 }
 
-void WeightsManPtree::SetWeightsMetaInfoList(WeightsManager* w_manager)
+void WeightsManPtree::SetWeightsMetaInfoList(
+								const std::list<WeightsPtreeEntry>& w_list)
 {
 	weights_list.clear();
-	if (!w_manager) return;
-	int num_weights = w_manager->GetNumWeights();
-	for (int i=0; i<num_weights; ++i) {
-		GeoDaWeight* gda_wt = w_manager->GetWeight(i);
-		WeightsMetaInfo w;
-		w.filename = gda_wt->wflnm;
-		w.title = gda_wt->title;
-		w.is_default = (gda_wt == w_manager->GetCurrWeight() &&
-						w_manager->IsDefaultWeight());
-		// For now, only save the default weight since there is no way
-		// to clear the weights from within GeoDa.
-		if (w.is_default) weights_list.push_back(w);
-	}
+	weights_list = w_list;
 }
-
+ 
 wxString WeightsManPtree::ToStr() const
 {
-	using namespace std;
 	wxString s;
-	BOOST_FOREACH(const WeightsMetaInfo& w, weights_list) {
-		s << w.ToStr();
+	BOOST_FOREACH(const WeightsPtreeEntry& e, weights_list) {
+		s << e.ToStr() << "\n";
 	}
 	return s;
 }

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
 #include "GalWeight.h"
 #include "RateSmoothing.h"
 #include "../logger.h"
 
 bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
-								  const double* E, double* m_results,
+								  const double* E, double* results,
 								  std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
@@ -47,7 +48,7 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 		delete [] p;
 		for (int i=0; i<obs; i++) {
 			undefined[i] = true;
-			m_results[i] = 0;
+			results[i] = 0;
 		}
 		return false;
 	}
@@ -67,9 +68,9 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 	
 	for (i=0; i<obs; i++) {
 		const double se = P[i] > 0 ? sqrt(a_hat + b_hat/P[i]) : 0.0;
-		m_results[i] = 0.0;
+		results[i] = 0.0;
 		if (!undefined[i]) {
-			m_results[i] = se > 0 ? (p[i] - b_hat) / se : 0.0;
+			results[i] = se > 0 ? (p[i] - b_hat) / se : 0.0;
 		}
 	}
 	delete [] p;
@@ -77,7 +78,7 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 }
 
 void GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
-									 double *m_results,
+									 double *results,
 									 std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
@@ -87,9 +88,9 @@ void GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
 	for (int i=0;i<obs;i++) {
 		SP += P[i];
 		SE += E[i];
-		m_results[i] = 0;
+		results[i] = 0;
 		if (P[i]>0) {
-			m_results[i] = E[i]/P[i];
+			results[i] = E[i]/P[i];
 		} else {
 			undefined[i] = true;
 		}
@@ -97,7 +98,7 @@ void GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
 }
 
 void GdaAlgs::RateSmoother_ExcessRisk(int obs, double *P, double *E,
-										double *m_results,
+										double *results,
 										std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
@@ -113,16 +114,16 @@ void GdaAlgs::RateSmoother_ExcessRisk(int obs, double *P, double *E,
 	for (int i=0; i<obs; i++) {
 		double E_hat = P[i] * lambda;
 		if (E_hat > 0) {
-			m_results[i] = E[i] / E_hat;
+			results[i] = E[i] / E_hat;
 		} else {
-			m_results[i] = 0;
+			results[i] = 0;
 			undefined[i] = true;
 		}
 	}
 }
 
 void GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
-								 double *m_results,
+								 double *results,
 								 std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
@@ -139,7 +140,7 @@ void GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 			pi_raw[i] = E[i]/P[i];
 		} else {
 			undefined[i] = true;
-			m_results[i] = 0;
+			results[i] = 0;
 		}
 	}
 	
@@ -161,20 +162,22 @@ void GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 		if (!undefined[i]) {
 			q1 = (theta2 + (theta1/P[i]));
 			w = (q1 > 0) ? theta2 / q1 : 1;
-			m_results[i] = (w * pi_raw[i]) + ((1-w) * theta1);
+			results[i] = (w * pi_raw[i]) + ((1-w) * theta1);
 		}
 	}
 	delete [] pi_raw;
 }
 
 
-bool GdaAlgs::RateSmoother_SEBS(int obs, GalElement* m_gal, double *P,
-								  double *E, double *m_results,
-								  std::vector<bool>& undefined)
+bool GdaAlgs::RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
+								boost::uuids::uuid weights_id,
+								double *P, double *E,
+								double *results, std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
 	for (int i=0; i<obs; i++) undefined[i] = false;
 	bool has_undefined = false;
+	GalElement* gal = w_man_int->GetGal(weights_id)->gal;
 	
 	double* pi_raw = new double[obs];
 	for (int i=0; i<obs; i++) {
@@ -188,31 +191,31 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, GalElement* m_gal, double *P,
 	
 	for (int i=0; i<obs; i++) {
 		if (undefined[i]) continue;
-		int  nbr = m_gal[i].Size();
-		long* dt = m_gal[i].dt();
+		int  nbrs = gal[i].Size();
+		GalElement& elt_i = gal[i];
 		
 		double SP=P[i], SE=E[i];
 		
-		for (int j=0; j<nbr; j++) {
-			SP += P[dt[j]];
-			SE += E[dt[j]];
+		for (int j=0; j<nbrs; j++) {
+			SP += P[elt_i[j]];
+			SE += E[elt_i[j]];
 		}
 		
 		double theta1=1, theta2;
 		if (SP>0) theta1 = SE/SP;
 		
-		if (nbr > 0) {
-			double pbar = SP / (nbr + 1);
+		if (nbrs > 0) {
+			double pbar = SP / (nbrs + 1);
 			
 			double q1 = P[i] *  (pi_raw[i] - theta1)* (pi_raw[i] - theta1);
 			double w;
-			for (int j=0; j<nbr; j++) {
-				if (undefined[dt[j]]) {
+			for (int j=0; j<nbrs; j++) {
+				if (undefined[elt_i[j]]) {
 					undefined[i] = true;
 				} else {
-					q1 += P[dt[j]] * 
-					(pi_raw[dt[j]] - theta1)*
-					(pi_raw[dt[j]] - theta1);
+					q1 += P[elt_i[j]] * 
+					(pi_raw[elt_i[j]] - theta1)*
+					(pi_raw[elt_i[j]] - theta1);
 				}
 			}
 			if (!undefined[i]) {
@@ -220,11 +223,11 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, GalElement* m_gal, double *P,
 				if (theta2 < 0) theta2 = 0.0;
 				q1 = (theta2 + (theta1/P[i]));
 				w = (q1 > 0) ? theta2 / q1 : 1;
-				m_results[i] = (w * pi_raw[i]) + ((1-w) * theta1);
+				results[i] = (w * pi_raw[i]) + ((1-w) * theta1);
 			}
 		} else {
 			undefined[i] = true;
-			m_results[i] = 0;
+			results[i] = 0;
 		}
 	}
 	delete [] pi_raw;
@@ -232,31 +235,33 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, GalElement* m_gal, double *P,
 	return has_undefined;
 }
 
-bool GdaAlgs::RateSmoother_SRS(int obs, GalElement* m_gal, double *P,
-								 double *E, double *m_results,
-								 std::vector<bool>& undefined)
+bool GdaAlgs::RateSmoother_SRS(int obs, WeightsManInterface* w_man_int,
+							   boost::uuids::uuid weights_id,
+							   double *P, double *E,
+							   double *results, std::vector<bool>& undefined)
 {
 	if (undefined.size() != obs) undefined.resize(obs);
 	for (int i=0; i<obs; i++) undefined[i] = false;
 	bool has_undefined = false;
+	GalElement* gal = w_man_int->GetGal(weights_id)->gal;
 	
 	double SE = 0, SP=0;
 	for (int i=0; i<obs; i++) {
 		SE = 0; SP=0;
-		long* dt = m_gal[i].dt();
-		for (int j=0; j<m_gal[i].size; j++) {
-			SE += E[dt[j]];
-			SP += P[dt[j]];
+		const GalElement& elm_i = gal[i];
+		for (int j=0, sz=elm_i.Size(); j<sz; j++) {
+			SE += E[elm_i[j]];
+			SP += P[elm_i[j]];
 		}
-		m_results[i] = 0;
+		results[i] = 0;
 		if ((P[i] + SP)>0) {
-			m_results[i] = (E[i] + SE) / (P[i] + SP);
+			results[i] = (E[i] + SE) / (P[i] + SP);
 		} else {
 			undefined[i] = true;
 		}
-		if (m_gal[i].size <= 0) {
+		if (gal[i].Size() <= 0) {
 			undefined[i] = true;
-			m_results[i] = 0;
+			results[i] = 0;
 		}
 	}
 	for (int i=0; i<obs; ++i) if (undefined[i]) has_undefined = true;

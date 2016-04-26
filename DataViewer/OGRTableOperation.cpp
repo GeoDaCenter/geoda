@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  *
@@ -44,7 +44,6 @@ void OGRTableOpInsertColumn::Commit()
         int pos = ogr_layer->AddField(ogr_col->GetName().ToStdString(),
                                       ogr_col->GetType(),ogr_col->GetLength(),
                                       ogr_col->GetDecimals());
-        //ogr_col->SetColIndex(pos);
         // column content will be done in OGRTableUpdateColumn
     }
 }
@@ -101,7 +100,7 @@ void OGRTableOpDeleteColumn::Rollback()
             vector<wxInt64> col_data;
             ogr_col->FillData(col_data);
             for (int i=0; i<n_rows; i++) {
-                ogr_layer->SetValueAt(i, pos, (int)col_data[i]);
+                ogr_layer->SetValueAt(i, pos, (GIntBig)col_data[i]);
             }
         } else if ( type == GdaConst::double_type){
             vector<double> col_data;
@@ -227,19 +226,13 @@ void OGRTableOpUpdateColumn::Commit()
     GdaConst::FieldType type = ogr_col->GetType();
    
     if ( type == GdaConst::long64_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, (int)l_new_data[rid]);
-        }
+        ogr_layer->UpdateColumn(col_idx, l_new_data);
         
     } else if (type == GdaConst::double_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, d_new_data[rid]);
-        }
+        ogr_layer->UpdateColumn(col_idx, d_new_data);
         
     } else if (type == GdaConst::string_type) {
-        for (int rid=0; rid < n_rows; rid++) {
-            ogr_layer->SetValueAt(rid, col_idx, s_new_data[rid].mb_str());
-        }
+        ogr_layer->UpdateColumn(col_idx, s_new_data);
     }
 }
 
@@ -249,11 +242,15 @@ void OGRTableOpUpdateColumn::Rollback()
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
     GdaConst::FieldType type = ogr_col->GetType();
-    
+   
+    if (ogr_layer->ds_type == GdaConst::ds_cartodb) {
+        // don't support rollback direct multirow SQL update of CartoDB
+        return;
+    }
     if ( type == GdaConst::long64_type) {
         for (int rid=0; rid < n_rows; rid++) {
             if ( !ogr_col->IsUndefined(rid) )
-                ogr_layer->SetValueAt(rid, col_idx, (int)l_old_data[rid]);
+                ogr_layer->SetValueAt(rid, col_idx, (GIntBig)l_old_data[rid]);
         }
         
     } else if (type == GdaConst::double_type) {
@@ -291,7 +288,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
     this->row_idx = row_idx;
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
-    l_old_value = (wxInt64)ogr_layer->data[row_idx]->GetFieldAsInteger(col_idx);
+    l_old_value = (wxInt64)ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx);
     l_new_value = new_val;
 }
 
@@ -324,7 +321,7 @@ void OGRTableOpUpdateCell::GetOriginalCellValue()
         if (col_idx < 0)
             l_old_value = 0;
         else
-            l_old_value = ogr_layer->data[row_idx]->GetFieldAsInteger(col_idx);
+            l_old_value = ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx);
     } else if (type == GdaConst::double_type) {
         if (col_idx < 0)
             d_old_value = 0.0;
@@ -355,7 +352,7 @@ void OGRTableOpUpdateCell::Commit()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (int)l_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {
@@ -382,7 +379,7 @@ void OGRTableOpUpdateCell::Rollback()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (int)l_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {

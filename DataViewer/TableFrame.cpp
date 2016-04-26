@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -18,6 +18,7 @@
  */
 
 #include <wx/msgdlg.h>
+#include <wx/textdlg.h>
 #include <wx/stopwatch.h>
 #include <wx/xrc/xmlres.h>
 #include "../GeoDa.h"
@@ -41,9 +42,9 @@ BEGIN_EVENT_TABLE(TableFrame, TemplateFrame)
 	EVT_GRID_COL_SIZE( TableFrame::OnColSizeEvent )
 	EVT_GRID_COL_MOVE( TableFrame::OnColMoveEvent )
 	EVT_GRID_CELL_CHANGED( TableFrame::OnCellChanged )
-	
-    EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
-    EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
+
+    //EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
+    //EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
     EVT_MENU(XRCID("ID_TABLE_RENAME_VARIABLE"), TableFrame::OnRenameVariable)
     /*
 	EVT_MENU(XRCID("ID_ENCODING_UTF8"), TableFrame::OnEncodingUTF8)
@@ -89,14 +90,16 @@ popup_col(-1)
 {
 	LOG_MSG("Entering TableFrame::TableFrame");
 	
+	DisplayStatusBar(true);
 	wxString new_title(title);
 	new_title << " - " << project->GetProjectTitle();
 	SetTitle(new_title);
 	supports_timeline_changes = true;
-	table_base = new TableBase(project);
+	table_base = new TableBase(project, this);
 	TableInterface* table_int = project->GetTableInt();
 	grid = new wxGrid(this, wxID_ANY, wxPoint(0,0), wxDefaultSize);
 	grid->SetDefaultColSize((grid->GetDefaultColSize() * 4)/3);
+    
 	// false to not take ownership, but this uncovers a bug in wxWidgets.
 	// therefore, we'll have to let the wxGrid take ownership and make
 	// sure that the TableFrame is only hidden until the
@@ -104,17 +107,20 @@ popup_col(-1)
 	grid->SetTable(table_base, true); 
 	grid->EnableDragColMove(true);
 	grid->EnableDragCell(false);
+    
 	// This line causes the row to disappear on Windows and Linux, but not OSX
 	//grid->SetSelectionBackground(*wxWHITE);
 	for (int i=0, iend=table_base->GetNumberRows(); i<iend; i++) {
 		grid->DisableRowResize(i);
 	}
+    
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
 	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	wxStopWatch resize_time;
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		if (table_int->GetColType(i) == GdaConst::long64_type) {
-			grid->SetColFormatNumber(i);
+			//grid->SetColFormatNumber(i);
+            grid->SetColFormatFloat(i,-1,0);
 		} else if (table_int->GetColType(i) == GdaConst::double_type) {
 			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
 		} else if (table_int->GetColType(i) == GdaConst::date_type) {
@@ -135,8 +141,7 @@ popup_col(-1)
 			avg_cell_len += cv.length();
 		}
 		if (sample >= 1) { // sample last row
-			avg_cell_len += grid->GetCellValue(table_base->GetNumberRows()-1,
-											   i).length();
+			avg_cell_len += grid->GetCellValue(table_base->GetNumberRows()-1, i).length();
 		}
 		avg_cell_len /= (double) sample;
 		if (avg_cell_len > cur_lbl_len &&
@@ -161,8 +166,11 @@ popup_col(-1)
 		}
 	}
 	
-	LOG_MSG(wxString::Format("Column auto-resize time "
-							 "took %ld ms", resize_time.Time()));
+    if (!project->IsFileDataSource()) {
+        grid->DisableDragColMove();
+    }
+    
+	LOG_MSG(wxString::Format("Column auto-resize time took %ld ms", resize_time.Time()));
 	LOG_MSG("Exiting TableFrame::TableFrame");
 }
 
@@ -171,6 +179,8 @@ TableFrame::~TableFrame()
 	LOG_MSG("In TableFrame::~TableFrame");
 	DeregisterAsActive();
 }
+
+
 
 void TableFrame::OnActivate(wxActivateEvent& event)
 {
@@ -224,7 +234,8 @@ void TableFrame::MapMenus()
 {
 	LOG_MSG("In TableFrame::MapMenus");
 	// Map Default Options Menus
-    wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
+    //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
+    wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
 	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(),
 								"Options", optMenu);
 }
@@ -259,13 +270,14 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			}
 		}
 	}
+    /*
 	if (any_sel_time_variant || !all_sel_compatible || sel_cols.size() <= 1 ||
 		(ti->GetTimeSteps() > 1 && ti->GetTimeSteps() != sel_cols.size())) {
 		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(false);
 	} else {
 		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(true);
 	}
-
+     
 	// Set Ungroup item
 	wxString ung_str("Ungroup Variable");
 	bool ung_enable = false;
@@ -277,15 +289,15 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			ung_enable = true;
 		}
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetText(ung_str);
+	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetItemLabel(ung_str);
 	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->Enable(ung_enable);
-	
+	*/
 	// Set Rename item
 	wxString rename_str("Rename Variable");
 	if (popup_col != -1) {
 		rename_str << " \"" << ti->GetColName(popup_col) << "\"";
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetText(rename_str);
+	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetItemLabel(rename_str);
 	bool enable_rename = false;
 	if (popup_col!=-1) {
 		if (ti->IsColTimeVariant(popup_col)) {

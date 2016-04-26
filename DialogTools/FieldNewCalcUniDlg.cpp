@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -135,7 +135,7 @@ void FieldNewCalcUniDlg::Apply()
 	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(result_col);
-	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 
 	
 	// Mersenne Twister random number generator, randomly seeded

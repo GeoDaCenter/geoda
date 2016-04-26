@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,14 +28,20 @@
 
 CustomClassifPtree::CustomClassifPtree()
 {
+    LOG_MSG("Entering CustomClassifPtree::CustomClassifPtree()");
+    LOG_MSG("Exiting CustomClassifPtree::CustomClassifPtree()");
 }
 
 CustomClassifPtree::CustomClassifPtree(const CustomClassifPtree& o)
 {
+    LOG_MSG("Entering CustomClassifPtree::CustomClassifPtree(const CustomClassifPtree& o)");
+    
     std::list<CatClassifDef>::const_iterator it;
     for (it = o.cc.begin(); it != o.cc.end(); ++it) {
         cc.push_back( *it );
     }
+    
+    LOG_MSG("Exiting CustomClassifPtree::CustomClassifPtree(const CustomClassifPtree& o)");
 }
 
 CustomClassifPtree::CustomClassifPtree(const boost::property_tree::ptree& pt,

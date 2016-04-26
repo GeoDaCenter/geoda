@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -34,15 +34,17 @@
 #include "../FramesManager.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../Project.h"
 #include "../SaveButtonManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
 #include "../DataViewer/TimeState.h"
 #include "../Explore/CatClassifState.h"
-#include "../Generic/HighlightState.h"
+#include "../HighlightState.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "../logger.h"
+#include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 
 
@@ -54,7 +56,7 @@ BEGIN_EVENT_TABLE(CatClassifHistCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 const int CatClassifHistCanvas::max_intervals = 10;
-const int CatClassifHistCanvas::default_intervals = 6;
+const int CatClassifHistCanvas::default_intervals = 4;
 const double CatClassifHistCanvas::default_min = 0;
 const double CatClassifHistCanvas::default_max = 1;
 const double CatClassifHistCanvas::left_pad_const = 0;
@@ -65,17 +67,17 @@ const double CatClassifHistCanvas::interval_gap_const = 0;
 CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
 								   TemplateFrame* t_frame,
 								   Project* project_s,
-								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, pos, size, false, true),
-project(project_s), num_obs(project_s->GetNumRecords()),
-highlight_state(project_s->GetHighlightState()),
+								   const wxPoint& pos,
+                                   const wxSize& size)
+: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+								 pos, size, false, true),
+num_obs(project_s->GetNumRecords()),
 y_axis(0), data(0), default_data(project_s->GetNumRecords()),
 breaks(0), default_breaks(default_intervals-1),
 colors(0), default_colors(default_intervals)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering CatClassifHistCanvas::CatClassifHistCanvas");
-	template_frame = t_frame;
 
 	cur_intervals = default_intervals;
 	
@@ -125,15 +127,13 @@ void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((CatClassifFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS");
+	optMenu = wxXmlResource::Get()->LoadMenu("ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS");
 	SetCheckMarks(optMenu);
 	template_frame->UpdateContextMenuItems(optMenu);
 	// The position passed in is the mouse position relative to
 	// the canvas window, not the parent frame.  This is corrected
 	// by adding the position of the canvas relative to its parent
-	template_frame->PopupMenu(optMenu,
-							  wxPoint(GetPosition().x + pos.x, pos.y));
+	template_frame->PopupMenu(optMenu, pos  + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting CatClassifHistCanvas::DisplayRightClickMenu");
 }
@@ -175,7 +175,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
-		GenUtils::StandardizeRect(sel1, sel2, lower_left, upper_right);
+		GenGeomAlgs::StandardizeRect(sel1, sel2, lower_left, upper_right);
 	}
 	if (!shiftdown) {
 		bool any_selected = false;
@@ -183,7 +183,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
-				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
+				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right))) {
 					 //LOG_MSG(wxString::Format("ival %d selected", i));
 					 any_selected = true;
@@ -194,7 +194,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 				 }
 		}
 		if (!any_selected) {
-			highlight_state->SetEventType(HighlightState::unhighlight_all);
+			highlight_state->SetEventType(HLStateInt::unhighlight_all);
 			highlight_state->notifyObservers();
 			return;
 		}
@@ -204,7 +204,7 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
-						  GenUtils::RectsIntersect(rec->lower_left,
+						  GenGeomAlgs::RectsIntersect(rec->lower_left,
 												   rec->upper_right,
 												   lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
@@ -264,14 +264,14 @@ void CatClassifHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 }
 
 /** Override of TemplateCanvas method. */
-void CatClassifHistCanvas::update(HighlightState* o)
+void CatClassifHistCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering CatClassifHistCanvas::update");
 	
 	int total = highlight_state->GetTotalNewlyHighlighted();
 	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
-	HighlightState::EventType type = highlight_state->GetEventType();
+	HLStateInt::EventType type = highlight_state->GetEventType();
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -290,6 +290,35 @@ wxString CatClassifHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
+                                      std::vector<double>& x_left_pos,
+                                      std::vector<double>& x_right_pos)
+{
+    int n = x_center_pos.size();
+    
+    double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
+    
+    double val_max = max_val;
+    double val_min = min_val;
+    double val_range = val_max - val_min;
+    double left = val_min;
+    
+    std::vector<double> ticks;
+    ticks.push_back(val_min);
+    for(int i=0; i<breaks->size();i++)
+        ticks.push_back((*breaks)[i]);
+    ticks.push_back(val_max);
+    
+    int j=0;
+    for (int i=0; i<ticks.size()-1; i++) {
+        x_left_pos[j] = x_max * (ticks[i] - left) / val_range;
+        x_right_pos[j] = x_max * (ticks[i+1] - left) / val_range;
+        
+        x_center_pos[j] = (x_right_pos[j] + x_left_pos[j]) / 2.0;
+        j++;
+    }
+}
+
 void CatClassifHistCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering CatClassifHistCanvas::PopulateCanvas");
@@ -305,12 +334,10 @@ void CatClassifHistCanvas::PopulateCanvas()
 	+ interval_width_const * cur_intervals + 
 	+ interval_gap_const * (cur_intervals-1);
 	
-	// orig_x_pos is the center of each histogram bar
-	std::vector<double> orig_x_pos(cur_intervals);
-	for (int i=0; i<cur_intervals; i++) {
-		orig_x_pos[i] = left_pad_const + interval_width_const/2.0
-		+ i * (interval_width_const + interval_gap_const);
-	}
+    std::vector<double> orig_x_pos(cur_intervals);
+    std::vector<double> orig_x_pos_left(cur_intervals);
+    std::vector<double> orig_x_pos_right(cur_intervals);
+    GetBarPositions(orig_x_pos, orig_x_pos_left, orig_x_pos_right);
 	
 	shps_orig_xmin = x_min;
 	shps_orig_xmax = x_max;
@@ -331,8 +358,8 @@ void CatClassifHistCanvas::PopulateCanvas()
 	
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-		double x0 = orig_x_pos[i] - interval_width_const/2.0;
-		double x1 = orig_x_pos[i] + interval_width_const/2.0;
+        double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
+        double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
 		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
@@ -340,6 +367,15 @@ void CatClassifHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
+        if (i==0) {
+            GdaShapeText* brk =
+            new GdaShapeText(GenUtils::DblToStr(min_val),
+                             *GdaConst::small_font,
+                             wxRealPoint(x0, y0), 90,
+                             GdaShapeText::right,
+                             GdaShapeText::v_center, 0, 10);
+            background_shps.push_back(brk);
+        }
 		if (i<cur_intervals-1) {
 			GdaShapeText* brk = 
 				new GdaShapeText(GenUtils::DblToStr((*breaks)[i]),
@@ -349,9 +385,18 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 GdaShapeText::v_center, 0, 10);
 			background_shps.push_back(brk);
 		}
+        if (i==cur_intervals-1) {
+            GdaShapeText* brk =
+            new GdaShapeText(GenUtils::DblToStr(max_val),
+                             *GdaConst::small_font,
+                             wxRealPoint(x1, y0), 90,
+                             GdaShapeText::right,
+                             GdaShapeText::v_center, 0, 10);
+            background_shps.push_back(brk);
+        }
 	}
 	
-	ResizeSelectableShps();
+    ResizeSelectableShps();
 	
 	LOG_MSG("Exiting CatClassifHistCanvas::PopulateCanvas");
 }
@@ -386,9 +431,18 @@ void CatClassifHistCanvas::InitIntervals()
 		
 		double val;
 		int ind;
+        
+        max_val = (*data)[0].first;
+        min_val = (*data)[0].second;
+        
 		for (int i=0; i<num_obs; i++) {
 			val = (*data)[i].first;
 			ind = (*data)[i].second;
+            if (val > max_val)
+                max_val = val;
+            if (val < min_val)
+                min_val = val;
+            
 			bool found = false;
 			int cat = num_breaks; // last cat by default
 			for (int j=0; j<num_breaks_lower; j++) {
@@ -431,12 +485,12 @@ void CatClassifHistCanvas::InitIntervals()
 
 void CatClassifHistCanvas::UpdateIvalSelCnts()
 {
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::unhighlight_all) {
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::unhighlight_all) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 0;
 		}
-	} else if (type == HighlightState::delta) {
+	} else if (type == HLStateInt::delta) {
 		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
 		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
@@ -448,7 +502,7 @@ void CatClassifHistCanvas::UpdateIvalSelCnts()
 		for (int i=0; i<nuh_cnt; i++) {
 			ival_obs_sel_cnt[obs_id_to_ival[nuh[i]]]--;
 		}
-	} else if (type == HighlightState::invert) {
+	} else if (type == HLStateInt::invert) {
 		for (int i=0; i<cur_intervals; i++) {
 			ival_obs_sel_cnt[i] = 
 			ival_obs_cnt[i] - ival_obs_sel_cnt[i];
@@ -544,7 +598,7 @@ void CatClassifHistCanvas::UpdateStatusBar()
 
 const wxString CatClassifPanel::unif_dist_txt("uniform distribution");
 const int CatClassifPanel::max_intervals = 10;
-const int CatClassifPanel::default_intervals = 6;
+const int CatClassifPanel::default_intervals = 4;
 const double CatClassifPanel::default_min = 0;
 const double CatClassifPanel::default_max = 1;
 
@@ -557,6 +611,8 @@ bool int_win_pair_less(const int_win_pair_type& ind1,
 }
 
 BEGIN_EVENT_TABLE(CatClassifPanel, wxPanel)
+
+    EVT_BUTTON(XRCID("ID_CATEGORY_EDITOR_SAVE_CAT"), CatClassifPanel::OnSaveCategories)
 	EVT_CHOICE(XRCID("ID_CUR_CATS_CHOICE"), CatClassifPanel::OnCurCatsChoice)
 	EVT_CHOICE(XRCID("ID_BREAKS_CHOICE"), CatClassifPanel::OnBreaksChoice)
 	EVT_CHOICE(XRCID("ID_COLOR_SCHEME"), CatClassifPanel::OnColorSchemeChoice)
@@ -588,6 +644,7 @@ CatClassifPanel::CatClassifPanel(Project* project_s,
 								 wxChoice* preview_var_choice_s,
 								 wxChoice* preview_var_tm_choice_s,
 								 wxCheckBox* sync_vars_chk_s,
+                                 bool _useScientificNotation,
 								 wxWindowID id,
 								 const wxPoint& pos, const wxSize& size,
 								 long style)
@@ -603,7 +660,8 @@ preview_var_choice(preview_var_choice_s),
 preview_var_tm_choice(preview_var_tm_choice_s),
 sync_vars_chk(sync_vars_chk_s),
 unif_dist_mode(true),
-all_init(false)
+all_init(false),
+useScientificNotation(_useScientificNotation)
 {
 	using namespace std;
 	SetParent(parent);
@@ -629,6 +687,7 @@ all_init(false)
 	breaks_choice = wxDynamicCast(FindWindow(XRCID("ID_BREAKS_CHOICE")),
 								  wxChoice);
 
+    save_categories_button = wxDynamicCast(FindWindow(XRCID("ID_CATEGORY_EDITOR_SAVE_CAT")), wxButton);
 	change_title_button =
 		wxDynamicCast(FindWindow(XRCID("ID_CHANGE_TITLE")), wxButton);
 	delete_button =	wxDynamicCast(FindWindow(XRCID("wxID_DELETE")), wxButton);
@@ -645,17 +704,18 @@ all_init(false)
 	assoc_var_choice = wxDynamicCast(FindWindow(XRCID("ID_ASSOC_VAR")),
 									   wxChoice);
 	assoc_var_choice->Clear();
-	assoc_var_choice->Append(unif_dist_txt);
-	assoc_var_choice->SetSelection(0);
+	//assoc_var_choice->Append(unif_dist_txt);
+	//assoc_var_choice->SetSelection(0);
 	assoc_var_tm_choice = 
 		wxDynamicCast(FindWindow(XRCID("ID_ASSOC_VAR_TM")), wxChoice);
 	assoc_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
 
 	preview_var_choice->Clear();
-	preview_var_choice->Append(unif_dist_txt);
-	preview_var_choice->SetSelection(0);
-	preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
-
+	//preview_var_choice->Append(unif_dist_txt);
+	//preview_var_choice->SetSelection(0);
+	//preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
+    preview_var_tm_choice->Show(false);
+    
 	unif_dist_min_lbl = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_LBL")),
 									  wxStaticText);
 	unif_dist_min_txt = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_TXT")),
@@ -676,11 +736,18 @@ all_init(false)
 	
 	cc_data.uniform_dist_min = default_min;
 	cc_data.uniform_dist_max = default_max;
-	ShowUnifDistMinMax(true);
+	
 	SetUnifDistMinMaxTxt(cc_data.uniform_dist_min, cc_data.uniform_dist_max);
 	
 	brk_slider = wxDynamicCast(FindWindow(XRCID("ID_BRK_SLIDER")), wxSlider);
-	
+    if (num_cats_choice->GetSelection()==0) {
+        brk_slider->Enable(false);
+    }
+    min_lbl->SetLabelText(" ");
+    max_lbl->Show(false);
+    
+	ShowUnifDistMinMax(true);
+    
 	int_win_pair_vec_type cat_color_button_srt_vec;
 	int_win_pair_vec_type cat_title_txt_srt_vec;
 	int_win_pair_vec_type brk_rad_srt_vec;
@@ -724,7 +791,6 @@ all_init(false)
 	for (int i=0; i<cc_data.num_cats; i++) {
 		cc_data.names[i] = cat_title_txt[i]->GetValue();
 	}
-	
 	std::sort(brk_rad_srt_vec.begin(), brk_rad_srt_vec.end(),
 			  int_win_pair_less);
 	brk_rad.resize(brk_rad_srt_vec.size());
@@ -787,7 +853,8 @@ CatClassifPanel::~CatClassifPanel()
 CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 											const wxString& suggested_title,
 											const wxString& field_name,
-											int field_tm)
+											int field_tm,
+                                            bool prompt_title_dlg)
 {
 	if (!all_init) return 0;
 	wxString msg;
@@ -797,48 +864,60 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 						  suggested_title);
 	bool retry = true;
 	bool success = false;
-	while (retry) {
-		wxTextEntryDialog dlg(this, msg, "New Categories Title");
-		dlg.SetValue(new_title);
-		if (dlg.ShowModal() == wxID_OK) {
-			new_title = dlg.GetValue();
-			new_title.Trim(false);
-			new_title.Trim(true);
-			if (new_title.IsEmpty()) {
-				retry = false;
-			} else if (IsDuplicateTitle(new_title)) {
-				wxString es;
-				es << "Categories title \"" << new_title << "\" already ";
-				es << "exists. Please choose a different title.";
-				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
-				ed.ShowModal();
-			} else {
-				success = true;
-				cc_data = ccd;
-				cc_data.title = new_title;
-				CatClassification::CatClassifTypeToBreakValsType(
-													cc_data.cat_classif_type);
-				cc_data.cat_classif_type = CatClassification::custom;
-				int f_sel = assoc_var_choice->FindString(field_name);
-				if (f_sel != wxNOT_FOUND) {
-					assoc_var_choice->SetSelection(f_sel);
-					if (table_int->IsColTimeVariant(field_name)) {
-						assoc_var_tm_choice->SetSelection(field_tm);
-					}
-				}
-				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
-				SetSyncVars(true);
-				InitFromCCData();
-				cur_cats_choice->Append(new_title);
-				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
-				EnableControls(true);
-				retry = false;
-			}
-		} else {
-			retry = false;
-		}
-	}
-	return success ? cc_state : 0;
+    
+    if (prompt_title_dlg) {
+        while (retry) {
+            wxTextEntryDialog dlg(this, msg, "New Categories Title");
+            dlg.SetValue(new_title);
+            if (dlg.ShowModal() == wxID_OK) {
+                new_title = dlg.GetValue();
+                new_title.Trim(false);
+                new_title.Trim(true);
+                if (new_title.IsEmpty()) {
+                    retry = false;
+                } else if (IsDuplicateTitle(new_title)) {
+                    wxString es;
+                    es << "Categories title \"" << new_title << "\" already ";
+                    es << "exists. Please choose a different title.";
+                    wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+                    ed.ShowModal();
+                } else {
+                    success = true;
+                    retry = false;
+                }
+            } else {
+                retry = false;
+            }
+        }
+    }
+
+    
+    if (success || (prompt_title_dlg == false && !new_title.IsEmpty()) ) {
+        cc_data = ccd;
+        cc_data.title = new_title;
+        CatClassification::CatClassifTypeToBreakValsType(cc_data.cat_classif_type);
+        cc_data.cat_classif_type = CatClassification::custom;
+        int f_sel = assoc_var_choice->FindString(field_name);
+        if (f_sel != wxNOT_FOUND) {
+            assoc_var_choice->SetSelection(f_sel);
+            if (table_int->IsColTimeVariant(field_name)) {
+                assoc_var_tm_choice->SetSelection(field_tm);
+            } else {
+                assoc_var_tm_choice->Enable(false);
+            }
+        }
+        cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
+        SetSyncVars(true);
+        InitFromCCData();
+        cc_state->SetCatClassif(cc_data);
+        cur_cats_choice->Append(new_title);
+        cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
+        EnableControls(true);
+        
+        return cc_state;
+    }
+        
+    return NULL;    
 }
 
 /** A new Custom Category was selected.  Copy cc_data from cc_state and
@@ -876,7 +955,14 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 		for (size_t i=0; i<cc_data.colors.size(); i++) {
 			cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		}
-	}
+    } else {
+		CatClassification::PickColorSet(cc_data.colors,
+										cc_data.color_scheme,
+										cc_data.num_cats, false);
+		for (size_t i=0; i<cc_data.colors.size(); i++) {
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+		}
+    }
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -888,6 +974,13 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	if (new_num_cats == cc_data.num_cats ||
 		new_num_cats < 1 || new_num_cats > max_intervals) return;
 	
+    if (event.GetSelection() == 0 ) {
+        // only 1 category then we don't need slider bar
+        brk_slider->Enable(false);
+    } else {
+        brk_slider->Enable(true);
+    }
+    
 	CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
 	if (new_cat_typ == CatClassification::hinge_15_break_vals ||
 		new_cat_typ == CatClassification::hinge_30_break_vals ||
@@ -898,11 +991,29 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	{
 		cc_data.break_vals_type = CatClassification::custom_break_vals;
 	} else {
+        if (event.GetSelection() > 0 ){
+            CatClassification::PickColorSet(cc_data.colors,
+                                            cc_data.color_scheme,
+                                            new_num_cats, false);
+        }
+        if (cc_data.num_cats > 1) {
+            for (size_t i=0; i<new_num_cats; i++) {
+                cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
+            }
+        } else if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
+            // if create more than one breaks from themeless map,
+            // assign a colorful sequential theme for easy use
+            //cc_data.color_scheme = CatClassification::sequential_color_scheme;
+            color_scheme->SetSelection(0);
+            OnColorSchemeChoice(event);
+        }
 		cc_data.break_vals_type = new_cat_typ;
 	}
 	cc_data.num_cats = new_num_cats;
 	InitFromCCData();
 	UpdateCCState();
+   
+	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
 }
 
 void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
@@ -1235,8 +1346,7 @@ void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 					SetActiveBrkRadio(nbrk);
 					hist_canvas->ChangeAll(&preview_data, &cc_data.breaks,
 										   &cc_data.colors);
-					min_lbl->SetLabelText(
-									GenUtils::DblToStr(GetBrkSliderMin()));
+					//min_lbl->SetLabelText( GenUtils::DblToStr(GetBrkSliderMin()));
 					max_lbl->SetLabelText(
 									GenUtils::DblToStr(GetBrkSliderMin()));
 					SetSliderFromBreak(nbrk);
@@ -1423,6 +1533,56 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 	}
 }
 
+void CatClassifPanel::OnSaveCategories(wxCommandEvent& event)
+{
+    wxString title = _("Save Categories to Table");
+    wxString label = _("Categories of ") + cc_data.assoc_db_fld_name;
+    SaveCategories(title, label, "CATEGORIES");
+}
+
+/** Mark each observation according to its
+ category with 1, 2, ...,#categories. */
+void CatClassifPanel::SaveCategories(const wxString& title,
+                                     const wxString& label,
+                                     const wxString& field_default)
+{
+    int col, tm;
+    table_int->DbColNmToColAndTm(cc_data.assoc_db_fld_name, col, tm);
+    std::vector<double> dd;
+    table_int->GetColData(col, tm, dd);
+    int num_cats = GetNumCats();
+    
+    
+    std::vector<SaveToTableEntry> data(1);
+    std::vector<wxInt64> dt(num_obs);
+    
+    data[0].type = GdaConst::long64_type;
+    data[0].l_val = &dt;
+    data[0].label = label;
+    data[0].field_default = field_default;
+    
+    for (int i=0; i<num_obs; i++ ) {
+        
+        double val = dd[i];
+        bool found = false;
+        int j=0;
+        for (j=0; j<cc_data.breaks.size(); j++) {
+            if (val < cc_data.breaks[j]) {
+                dt[i] = j+1;
+                found = true;
+                break;
+            }
+        }
+        if (found == false)
+            dt[i] = j+1;
+        
+    }
+    
+    SaveToTableDlg dlg(project, this, data,
+                       title, wxDefaultPosition, wxSize(500,400));
+    dlg.ShowModal();
+}
+
 void CatClassifPanel::OnButtonClose(wxCommandEvent& event)
 {
 	template_frame->Close();
@@ -1496,7 +1656,7 @@ void CatClassifPanel::ResetValuesToDefault()
 	cc_data.break_vals_type = CatClassification::quantile_break_vals;
 	CatClassification::SetBreakPoints(cc_data.breaks, cc_data.names, data,
 									  CatClassification::quantile,
-									  default_intervals);
+									  default_intervals, useScientificNotation);
 	
 	for (int i=0; i<max_intervals; ++i) {
 		cat_title_txt[i]->ChangeValue("");
@@ -1532,6 +1692,7 @@ void CatClassifPanel::EnableControls(bool enable)
 	cur_cats_choice->Enable(enable);
 	breaks_choice->Enable(enable);
 	change_title_button->Enable(enable);
+    save_categories_button->Enable(enable);
 	delete_button->Enable(enable);
 	num_cats_choice->Enable(enable);
 	auto_labels_cb->Enable(enable);
@@ -1679,13 +1840,14 @@ void CatClassifPanel::InitAssocVarChoices()
 	}
 	std::vector<wxString> names;
 	table_int->FillNumericNameList(names);
-	assoc_var_choice->Append(unif_dist_txt);
+	//assoc_var_choice->Append(unif_dist_txt);
 	for (size_t i=0; i<names.size(); i++) {
 		assoc_var_choice->Append(names[i]);
 	}
-	assoc_var_choice->SetSelection(assoc_var_choice->
-										FindString(cur_fc_str));
+    
+	assoc_var_choice->SetSelection(assoc_var_choice->FindString(cur_fc_str));
 	assoc_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		assoc_var_tm_choice->SetSelection(0);
@@ -1711,12 +1873,14 @@ void CatClassifPanel::InitPreviewVarChoices()
 {
 	LOG_MSG("Entering CatClassifPanel::InitPreviewVarChoices");
 	if (!all_init) return;
+    
 	wxString cur_fc_str = preview_var_choice->GetStringSelection();
 	int cur_fc_tm_id = preview_var_tm_choice->GetSelection();
 	preview_var_choice->Clear();
 	preview_var_tm_choice->Clear();
 	std::vector<wxString> times;
 	project->GetTableInt()->GetTimeStrings(times);
+    
 	for (size_t i=0; i<times.size(); i++) {
 		preview_var_tm_choice->Append(times[i]);
 	}
@@ -1725,13 +1889,13 @@ void CatClassifPanel::InitPreviewVarChoices()
 	}
 	std::vector<wxString> names;
 	table_int->FillNumericNameList(names);
-	preview_var_choice->Append(unif_dist_txt);
+	//preview_var_choice->Append(unif_dist_txt);
 	for (size_t i=0; i<names.size(); i++) {
 		preview_var_choice->Append(names[i]);
 	}
-	preview_var_choice->SetSelection(preview_var_choice->
-										FindString(cur_fc_str));
+	preview_var_choice->SetSelection(preview_var_choice->FindString(cur_fc_str));
 	preview_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		preview_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		preview_var_tm_choice->SetSelection(0);
@@ -1774,14 +1938,16 @@ void CatClassifPanel::InitCurCatsChoices()
 int CatClassifPanel::GetNumCats()
 {
 	if (!all_init) return default_intervals;
-	if (num_cats_choice->GetSelection() < 0) return default_intervals;
+	if (num_cats_choice->GetSelection() < 0)
+        return default_intervals;
 	return num_cats_choice->GetSelection()+1;
 }
 
 /** Sets num_cats_choice widget */
 void CatClassifPanel::SetNumCats(int num_cats)
 {
-	if (!all_init || num_cats < 1 || num_cats > max_intervals) return;
+	if (!all_init || num_cats < 1 || num_cats > max_intervals)
+        return;
 	num_cats_choice->SetSelection(num_cats-1);
 }
 
@@ -1847,12 +2013,12 @@ void CatClassifPanel::SetColorSchemeChoice(CatClassification::ColorScheme cs)
 CatClassification::BreakValsType CatClassifPanel::GetBreakValsTypeChoice()
 {
 	int brs = breaks_choice->GetSelection();
-	if (brs == 0) return CatClassification::no_theme_break_vals;
-	if (brs == 1) return CatClassification::quantile_break_vals;
-	if (brs == 2) return CatClassification::unique_values_break_vals;
-	if (brs == 3) return CatClassification::natural_breaks_break_vals;
-	if (brs == 4) return CatClassification::equal_intervals_break_vals;
-	if (brs == 5) return CatClassification::custom_break_vals;
+	//if (brs == 0) return CatClassification::no_theme_break_vals;
+	if (brs == 0) return CatClassification::quantile_break_vals;
+	if (brs == 1) return CatClassification::unique_values_break_vals;
+	if (brs == 2) return CatClassification::natural_breaks_break_vals;
+	if (brs == 3) return CatClassification::equal_intervals_break_vals;
+	if (brs == 4) return CatClassification::custom_break_vals;
 	// quantile by default
 	return CatClassification::quantile_break_vals;
 }
@@ -1861,18 +2027,18 @@ CatClassification::BreakValsType CatClassifPanel::GetBreakValsTypeChoice()
 void CatClassifPanel::SetBreakValsTypeChoice(
 									CatClassification::BreakValsType ct)
 {
-	int brs = 1; // quantile by default
-	if (ct == CatClassification::no_theme_break_vals) brs = 0;
-	if (ct == CatClassification::quantile_break_vals) brs = 1;
-	if (ct == CatClassification::unique_values_break_vals) brs = 2;
-	if (ct == CatClassification::natural_breaks_break_vals) brs = 3;
-	if (ct == CatClassification::equal_intervals_break_vals) brs = 4;
-	if (ct == CatClassification::custom_break_vals) brs = 5;
+	int brs = 0; // quantile by default
+	//if (ct == CatClassification::no_theme_break_vals) brs = 0;
+	if (ct == CatClassification::quantile_break_vals) brs = 0;
+	if (ct == CatClassification::unique_values_break_vals) brs = 1;
+	if (ct == CatClassification::natural_breaks_break_vals) brs = 2;
+	if (ct == CatClassification::equal_intervals_break_vals) brs = 3;
+	if (ct == CatClassification::custom_break_vals) brs = 4;
 	
-	if (ct == CatClassification::percentile_break_vals) brs = 5;
-	if (ct == CatClassification::hinge_15_break_vals) brs = 5;
-	if (ct == CatClassification::hinge_30_break_vals) brs = 5;
-	if (ct == CatClassification::stddev_break_vals) brs = 5;
+	if (ct == CatClassification::percentile_break_vals) brs = 4;
+	if (ct == CatClassification::hinge_15_break_vals) brs = 4;
+	if (ct == CatClassification::hinge_30_break_vals) brs = 4;
+	if (ct == CatClassification::stddev_break_vals) brs = 4;
 	breaks_choice->SetSelection(brs);	
 }
 
@@ -1883,9 +2049,8 @@ void CatClassifPanel::SetBreakValsTypeChoice(
 wxString CatClassifPanel::GetAssocDbFldNm()
 {
 	if (!assoc_var_choice || !assoc_var_tm_choice) return "";
-	if (assoc_var_choice->GetSelection() == 0) return "";
-	if (!assoc_var_choice->IsEnabled() ||
-		!assoc_var_choice->IsShown()) return "";
+	//if (assoc_var_choice->GetSelection() == 0) return "";
+	//if (!assoc_var_choice->IsEnabled() ) return "";
 	int tm = assoc_var_tm_choice->GetSelection();
 	if (tm < 0) tm = 0;
 	if (!assoc_var_tm_choice->IsEnabled() ||
@@ -1959,6 +2124,7 @@ void CatClassifPanel::SetSyncVars(bool sync_assoc_and_prev_vars)
 
 void CatClassifPanel::ShowUnifDistMinMax(bool show)
 {
+    show = false; // force to hide TODO
 	unif_dist_min_lbl->Show(show);
 	unif_dist_min_txt->Show(show);
 	unif_dist_max_lbl->Show(show);
@@ -1998,7 +2164,7 @@ void CatClassifPanel::SetBrkTxtFromVec(const std::vector<double>& brks)
 	}
 	if (IsAutomaticLabels()) {
 		std::vector<wxString> new_labels;
-		CatClassification::CatLabelsFromBreaks(brks, new_labels);
+		CatClassification::CatLabelsFromBreaks(brks, new_labels, useScientificNotation);
 		int sz = new_labels.size();
 		cc_data.names.resize(sz);
 		for (int i=0; i<sz; ++i) {
@@ -2073,7 +2239,7 @@ void CatClassifPanel::SetSliderFromBreak(int brk)
 	double min = GetBrkSliderMin();
 	double max = GetBrkSliderMax();
 	// max-min gauranteed to not be zero!
-	min_lbl->SetLabelText(GenUtils::DblToStr(min));
+	//min_lbl->SetLabelText(GenUtils::DblToStr(min));
 	max_lbl->SetLabelText(GenUtils::DblToStr(max));
 	
 	double sl_pos_min = (double) brk_slider->GetMin();
@@ -2150,28 +2316,12 @@ BEGIN_EVENT_TABLE(CatClassifFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
+                                 bool useScientificNotation,
 								 const wxString& title, const wxPoint& pos,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
 	LOG_MSG("Entering CatClassifFrame::CatClassifFrame");
-	
-	/// START: original wxSpliterWindow desgin
-	/*
-	wxSplitterWindow* spliter_vert = 
-		new wxSplitterWindow(this, -1, wxDefaultPosition, wxDefaultSize,
-							 wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
-	canvas = new CatClassifHistCanvas(spliter_vert, this, project);
-	template_canvas = canvas;
-	panel = new CatClassifPanel(project, canvas, spliter_vert, wxID_ANY);
-	canvas->template_frame = this;
-	panel->template_frame = this;
-	spliter_vert->SplitVertically(panel, canvas);
-	spliter_vert->SetMinimumPaneSize(20);
-	SetMinSize(wxSize(600,500));
-	 */
-	/// END: orginal wxSpliterWindow desgin
-
 	
 	/// START: wxBoxSizer desgin
 	wxPanel* histo_panel = new wxPanel(this);
@@ -2191,6 +2341,8 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	Connect(XRCID("ID_PREVIEW_VAR_TM_CHOICE"), wxEVT_CHOICE,
 			wxCommandEventHandler(CatClassifFrame::OnPreviewVarTmChoice));
 	
+    
+    
 	wxBoxSizer* histo_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	histo_h_szr->Add(preview_var_text, 0, wxALIGN_CENTER_VERTICAL);
 	histo_h_szr->AddSpacer(3);
@@ -2202,11 +2354,18 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 											   XRCID("ID_SYNC_VARS_CHK"),
 											   "same as Assoc. Var.");
 	sync_vars_chk->SetValue(true);
+    
+    preview_var_text->Show(false);
+    preview_var_choice->Show(false);
+    preview_var_tm_choice->Show(false);
+    
+    sync_vars_chk->Show(false);
+    
 	Connect(XRCID("ID_SYNC_VARS_CHK"), wxEVT_CHECKBOX,
 			wxCommandEventHandler(CatClassifFrame::OnSyncVarsChk));
 
 	wxBoxSizer* histo_v_szr = new wxBoxSizer(wxVERTICAL);
-	histo_v_szr->Add(histo_h_szr, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL);
+	histo_v_szr->Add(histo_h_szr, 1, wxALIGN_CENTER_HORIZONTAL);
 	histo_v_szr->Add(sync_vars_chk, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
 	
 	histo_panel->SetSizer(histo_v_szr);
@@ -2217,9 +2376,8 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	template_canvas = canvas;
 	panel = new CatClassifPanel(project, canvas, this, 
 								preview_var_choice, preview_var_tm_choice,
-								sync_vars_chk, wxID_ANY,
-								wxDefaultPosition, wxDefaultSize);
-	canvas->template_frame = this;
+								sync_vars_chk, useScientificNotation,
+                                wxID_ANY, wxDefaultPosition, wxDefaultSize);
 	panel->template_frame = this;
 
 	wxBoxSizer* r_sizer = new wxBoxSizer(wxVERTICAL);
@@ -2291,8 +2449,9 @@ void CatClassifFrame::update(TimeState* o)
 CatClassifState* CatClassifFrame::PromptNew(const CatClassifDef& ccd,
 											const wxString& suggested_title,
 											const wxString& field_name,
-											int field_tm)
+											int field_tm,
+                                            bool prompt_title_dlg)
 {
-	return panel->PromptNew(ccd, suggested_title, field_name, field_tm);
+	return panel->PromptNew(ccd, suggested_title, field_name, field_tm, prompt_title_dlg);
 }
 

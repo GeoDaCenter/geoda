@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -21,15 +21,15 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include "../GeoDa.h"
 #include "../ShapeOperations/RateSmoothing.h"
-#include "../ShapeOperations/GalWeight.h"
 #include "../GenUtils.h"
 #include "../Project.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "SelectWeightDlg.h"
+#include "ExportDataDlg.h"
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcUniDlg.h"
 #include "FieldNewCalcBinDlg.h"
@@ -63,7 +63,7 @@ FieldNewCalcRateDlg::FieldNewCalcRateDlg(Project* project_s,
 										 const wxPoint& pos, const wxSize& size,
 										 long style )
 : all_init(false), project(project_s),
-table_int(project_s->GetTableInt()), w_manager(project_s->GetWManager()),
+table_int(project_s->GetTableInt()), w_man_int(project_s->GetWManInt()),
 is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
 	SetParent(parent);
@@ -79,10 +79,8 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
 	m_method->SetSelection(0);
 
 	InitFieldChoices();
-
-	if (w_manager->IsDefaultWeight()) {
-		m_weight->SetSelection(w_manager->GetCurrWeightInd());
-	}
+	InitWeightsList();
+	
 	all_init = true;
 }
 
@@ -99,23 +97,28 @@ void FieldNewCalcRateDlg::CreateControls()
     m_base = XRCCTRL(*this, "IDC_RATE_OPERAND2", wxChoice);
 	m_base_tm = XRCCTRL(*this, "IDC_RATE_OPERAND2_TM", wxChoice);
 	InitTime(m_base_tm);
-    m_weight = XRCCTRL(*this, "IDC_RATE_WEIGHT", wxChoice);
-	m_weight_button = XRCCTRL(*this, "ID_OPEN_WEIGHT", wxBitmapButton);
-	m_weight->Enable(false);
-	m_weight_button->Enable(false);
+    m_weights = XRCCTRL(*this, "IDC_RATE_WEIGHT", wxChoice);
+	//m_weights_button = XRCCTRL(*this, "ID_OPEN_WEIGHT", wxBitmapButton);
+	m_weights->Enable(false);
+	//m_weights_button->Enable(false);
+}
+
+void FieldNewCalcRateDlg::SaveValidSubsetAs()
+{
+    
 }
 
 void FieldNewCalcRateDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a Result field.");
+		wxString msg("Please select a results field.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	const int op = m_method->GetSelection();
-	if ((op == 3 || op == 4) && m_weight->GetSelection() == wxNOT_FOUND) {
+	if ((op == 3 || op == 4) && GetWeightsId().is_nil()) {
 		wxString msg("Weight matrix required for chosen spatial "
 					 "rate method.");
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
@@ -138,13 +141,12 @@ void FieldNewCalcRateDlg::Apply()
 	}
 	
 	const int result_col = col_id_map[m_result->GetSelection()];
-	const int w = m_weight->GetSelection();
 	const int cop1 = col_id_map[m_event->GetSelection()];
 	const int cop2 = col_id_map[m_base->GetSelection()];
 	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(result_col);
-	if (!GenUtils::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
+	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
 	
 	if (is_space_time && !IsAllTime(result_col, m_result_tm->GetSelection()) &&
 		(IsAllTime(cop1, m_event_tm->GetSelection()) ||
@@ -156,22 +158,15 @@ void FieldNewCalcRateDlg::Apply()
 		dlg.ShowModal();
 		return;
 	}
-	
-	GalElement* W;
+
+	boost::uuids::uuid weights_id = GetWeightsId();
 	if (op == 3 || op == 4)	{
-		if (!w_manager) return;
-		if (w_manager->GetNumWeights() < 0) return;
-		if (w_manager->IsGalWeight(w)) {
-			W = (w_manager->GetGalWeight(w))->gal;
-		} else {
-			wxString msg("Only weights files internally converted "
-						 "to GAL format currently supported.  Please "
-						 "report this error.");
+		if (!w_man_int->IsValid(weights_id)) {
+			wxString msg("Was not able to load weights matrix.");
 			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
-		if (W == NULL) return;
 	}
 
 	std::vector<int> time_list;
@@ -212,7 +207,16 @@ void FieldNewCalcRateDlg::Apply()
 		dlg.ShowModal();
 		return;
 	}
-	
+
+	// for 
+	HighlightState* highlight_state = project->GetHighlightState();
+	std::vector<bool>& hs = highlight_state->GetHighlight();
+	std::vector<bool> hs_backup = hs;
+
+	for (int i=0; i<obs; i++) {
+		hs[i] = true;
+	}
+
 	bool Base_undefined = false;
 	if (IsAllTime(cop2, m_base_tm->GetSelection())) {
 		b_array_type undefined;
@@ -220,7 +224,10 @@ void FieldNewCalcRateDlg::Apply()
 		int ts = project->GetTableInt()->GetTimeSteps();
 		for (int t=0; t<ts && !Base_undefined; t++) {
 			for (int i=0; i<obs && !Base_undefined; i++) {
-				if (undefined[t][i]) Base_undefined = true;
+				if (undefined[t][i]) {
+					Base_undefined = true;
+					hs[i] = false;
+				}
 			}
 		}
 	} else {
@@ -228,15 +235,29 @@ void FieldNewCalcRateDlg::Apply()
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
 		table_int->GetColUndefined(cop2, tm, undefined);
 		for (int i=0; i<obs && !Base_undefined; i++) {
-			if (undefined[i]) Base_undefined = true;
+			if (undefined[i]) {
+				Base_undefined = true;
+				hs[i] = false;
+			}
 		}
 	}
 	if (Base_undefined) {
-		wxString msg("Base field has undefined values.  Please define "
+		wxString msg("Base field has undefined values. Do you want to "
+                     "save a subset without undefined values as a new "
+                     "shape file? or please define "
 					 "missing values or choose a different field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
+		wxMessageDialog dlg (this, msg, "Error", 
+                             wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        if (dlg.ShowModal() == wxID_YES) {
+			ExportDataDlg dlg(this, project, true);
+			dlg.ShowModal();
+        }
+		hs = hs_backup;
 		return;
+	}
+
+	for (int i=0; i<obs; i++) {
+		hs[i] = true;
 	}
 
 	bool Base_non_positive = false;
@@ -246,7 +267,10 @@ void FieldNewCalcRateDlg::Apply()
 		int ts = project->GetTableInt()->GetTimeSteps();
 		for (int t=0; t<ts && !Base_non_positive; t++) {
 			for (int i=0; i<obs && !Base_non_positive; i++) {
-				if (data[t][i] <= 0) Base_non_positive = true;
+				if (data[t][i] <= 0) {
+					Base_non_positive = true;
+					hs[i] = false;
+				}
 			}
 		}
 	} else {
@@ -254,18 +278,27 @@ void FieldNewCalcRateDlg::Apply()
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
 		table_int->GetColData(cop2, tm, data);
 		for (int i=0; i<obs && !Base_non_positive; i++) {
-			if (data[i] <= 0) Base_non_positive = true;
+			if (data[i] <= 0) {
+				Base_non_positive = true;
+				hs[i] = false;
+			}
 		}
 	}
 	if (Base_non_positive) {
 		wxString msg("Base field has zero or negative values, but all base "
-					 "values must be strictly greater than zero. "
-					 "Computation aborted.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
+					 "values must be strictly greater than zero. Do you want "
+                     "to save a subset of non-zeros as a new shape file? ");
+		wxMessageDialog dlg (this, msg, "Error", 
+                             wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+		if (dlg.ShowModal() == wxID_YES) {
+			ExportDataDlg exp_dlg(this, project, true);
+			exp_dlg.ShowModal();
+        }
+		hs = hs_backup;
 		return;
 	}
-	
+	hs = hs_backup;
+
 	bool has_undefined = false;
 	double* B = new double[obs]; // Base variable vector == cop2
 	double* E = new double[obs]; // Event variable vector == cop1
@@ -306,12 +339,14 @@ void FieldNewCalcRateDlg::Apply()
 				GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
 				break;
 			case 3:
-				has_undefined = GdaAlgs::RateSmoother_SRS(obs, W, B, E, r,
-															undef_r);
+				has_undefined = GdaAlgs::RateSmoother_SRS(obs, w_man_int,
+														  weights_id, B, E, r,
+														  undef_r);
 				break;
 			case 4:
-				has_undefined = GdaAlgs::RateSmoother_SEBS(obs, W, B, E, r,
-															 undef_r);
+				has_undefined = GdaAlgs::RateSmoother_SEBS(obs, w_man_int,
+														   weights_id, B, E, r,
+														   undef_r);
 				break;
 			case 5:
 				GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
@@ -355,11 +390,9 @@ void FieldNewCalcRateDlg::InitFieldChoices()
 	int event_sel = m_event->GetSelection();
 	wxString base_str_sel = m_base->GetStringSelection();
 	int base_sel = m_base->GetSelection();
-	wxString w_str_sel = m_weight->GetStringSelection();
 	m_result->Clear();
 	m_event->Clear();
 	m_base->Clear();
-	m_weight->Clear();
 	
 	table_int->FillNumericColIdMap(col_id_map);
 	
@@ -382,11 +415,6 @@ void FieldNewCalcRateDlg::InitFieldChoices()
 		}
 	}
 	
-	if (w_manager->GetNumWeights() > 0) {
-		for (int i=0; i<w_manager->GetNumWeights(); i++) {
-			m_weight->Append(w_manager->GetWFilename(i));
-		}
-	}
 	if (m_result->GetCount() == prev_cnt) {
 		m_result->SetSelection(r_sel);
 	} else {
@@ -402,7 +430,6 @@ void FieldNewCalcRateDlg::InitFieldChoices()
 	} else {
 		m_base->SetSelection(m_base->FindString(base_str_sel));
 	}
-	m_weight->SetSelection(m_weight->FindString(w_str_sel));
 }
 
 void FieldNewCalcRateDlg::UpdateOtherPanels()
@@ -424,6 +451,41 @@ bool FieldNewCalcRateDlg::IsAllTime(int col_id, int tm_sel)
 	if (!is_space_time) return false;
 	if (!table_int->IsColTimeVariant(col_id)) return false;
 	return tm_sel == project->GetTableInt()->GetTimeSteps();
+}
+
+/** Refreshes weights list and remembers previous selection if
+ weights choice is still there and a selection was previously made */
+void FieldNewCalcRateDlg::InitWeightsList()
+{
+	boost::uuids::uuid old_id = GetWeightsId();
+	w_ids.clear();
+	w_man_int->GetIds(w_ids);
+	m_weights->Clear();
+	for (size_t i=0; i<w_ids.size(); ++i) {
+		m_weights->Append(w_man_int->GetLongDispName(w_ids[i]));
+	}
+	m_weights->SetSelection(wxNOT_FOUND);
+	if (old_id.is_nil() && !w_man_int->GetDefault().is_nil()) {
+		for (long i=0; i<w_ids.size(); ++i) {
+			if (w_ids[i] == w_man_int->GetDefault()) {
+				m_weights->SetSelection(i);
+			}
+		}
+	} else if (!old_id.is_nil()) {
+		for (long i=0; i<w_ids.size(); ++i) {
+			if (w_ids[i] == old_id) m_weights->SetSelection(i);
+		}
+	}
+}
+
+/** Returns weights selection or nil if none selected */
+boost::uuids::uuid FieldNewCalcRateDlg::GetWeightsId()
+{
+	long sel = m_weights->GetSelection();
+	if (w_ids.size() == 0 || sel == wxNOT_FOUND) {
+		return boost::uuids::nil_uuid();
+	}
+	return w_ids[sel];
 }
 
 void FieldNewCalcRateDlg::OnRateResultUpdated( wxCommandEvent& event )
@@ -464,18 +526,7 @@ void FieldNewCalcRateDlg::OnRateOperand2TmUpdated( wxCommandEvent& event )
 
 void FieldNewCalcRateDlg::OnOpenWeightClick( wxCommandEvent& event )
 {
-	SelectWeightDlg dlg(project, this);
-	dlg.ShowModal();
- 	
-	m_weight->Clear();
-	for (int i=0; i<w_manager->GetNumWeights(); i++) {
-		m_weight->Append(w_manager->GetWFilename(i));
-	}
-	if (w_manager->GetCurrWeightInd() >=0 ) {
-		m_weight->SetSelection(w_manager->GetCurrWeightInd());
-	}
-	InitFieldChoices(); // call in case AddId was called.
-	UpdateOtherPanels();
+	GdaFrame::GetGdaFrame()->OnToolsWeightsManager(event);
 }
 
 void FieldNewCalcRateDlg::OnAddColumnClick( wxCommandEvent& event )
@@ -495,8 +546,8 @@ void FieldNewCalcRateDlg::OnAddColumnClick( wxCommandEvent& event )
 void FieldNewCalcRateDlg::OnMethodChange( wxCommandEvent& event )
 {
 	const int op = m_method->GetSelection();
-	m_weight->Enable(op == 3 || op == 4);
-	m_weight_button->Enable(op == 3 || op == 4);
+	m_weights->Enable(op == 3 || op == 4);
+	//m_weights_button->Enable(op == 3 || op == 4);
 }
 
 void FieldNewCalcRateDlg::InitTime(wxChoice* time_list)

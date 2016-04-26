@@ -51,6 +51,7 @@ echo #
 echo #####################################################
 echo.
 
+set CL=/MP
 
 set BUILD_HOME=%CD%
 echo BUILD_HOME: %BUILD_HOME%
@@ -62,7 +63,7 @@ set BUILD_DEP=%BUILD_HOME%\dep
 echo BUILD_DEP: %BUILD_DEP%
 set UNZIP_EXE=%BUILD_DEP%\7za.exe x
 echo UNZIP_EXE: %UNZIP_EXE%
-set CURL_EXE=%BUILD_DEP%\curl.exe
+set CURL_EXE=%BUILD_DEP%\curl.exe -k
 echo CURL_EXE: %CURL_EXE%
 set MSBUILD_EXE= msbuild
 echo MSBUILD_EXE: %MSBUILD_EXE%
@@ -95,8 +96,8 @@ echo #####################################################
 echo #   build cURL (by default /MD) 
 echo #####################################################
 echo.
-set LIB_NAME=curl-7.30.0
-set LIB_URL="http://curl.haxx.se/download/curl-7.30.0.zip"
+set LIB_NAME=curl-7.46.0
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll set ALL_EXIST=false
@@ -117,11 +118,11 @@ IF NOT EXIST %LIB_NAME% (
 cd %DOWNLOAD_HOME%\%LIB_NAME%\winbuild
 if %GDA_BUILD% == BUILD_32 (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
   
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x86 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
 
   xcopy /E /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\include %LIBRARY_HOME%\include
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -130,11 +131,11 @@ if %GDA_BUILD% == BUILD_32 (
 
 ) else (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
 
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll HTTP_ONLY=yes VC=10 DEBUG=no MACHINE=x64 ENABLE_SSPI=no ENABLE_WINSSL=no CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
   
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\bin\libcurl.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -157,7 +158,7 @@ echo #   build libiconv
 echo #####################################################
 echo.
 set LIB_NAME=libiconv-1.14
-set LIB_URL="http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libiconv-1.14.tar.gz"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\iconv.lib set ALL_EXIST=false
@@ -209,7 +210,7 @@ echo #   build Xerces
 echo #####################################################
 echo.
 set LIB_NAME=xerces-c-3.1.1
-set LIB_URL="http://apache.tradebit.com/pub//xerces/c/3/sources/xerces-c-3.1.1.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.zip"
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\xerces-c_static_3.lib set ALL_EXIST=false
 if %ALL_EXIST% == true (
@@ -263,7 +264,7 @@ echo #   build GEOS
 echo #####################################################
 echo.
 set LIB_NAME=geos-3.3.8
-set LIB_URL="http://download.osgeo.org/geos/geos-3.3.8.tar.bz2"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2"
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\geos.dll set ALL_EXIST=false
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\geos.lib set ALL_EXIST=false
@@ -322,7 +323,7 @@ echo #   build PROJ4 (todo , MD,MT nmake.opt)
 echo #####################################################
 echo.
 set LIB_NAME=proj-4.8.0
-set LIB_URL="http://download.osgeo.org/proj/proj-4.8.0.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll set ALL_EXIST=false
@@ -364,7 +365,7 @@ echo #   build freeXL
 echo #####################################################
 echo.
 set LIB_NAME=freexl-1.0.0e
-set LIB_URL="http://www.gaia-gis.it/gaia-sins/freexl-sources/freexl-1.0.0e.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0e.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll set ALL_EXIST=false
@@ -407,7 +408,7 @@ echo #   build SQLite3
 echo #####################################################
 echo.
 set LIB_NAME=sqlite-amalgamation-3071700
-set LIB_URL="http://www.sqlite.org/2013/sqlite-amalgamation-3071700.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-amalgamation-3071700.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll set ALL_EXIST=false
@@ -476,7 +477,7 @@ echo #   build SpatiaLite
 echo #####################################################
 echo.
 set LIB_NAME=libspatialite-4.0.0
-set LIB_URL="http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.0.0.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll set ALL_EXIST=false
@@ -527,9 +528,9 @@ echo #####################################################
 echo.
 set LIB_NAME=postgresql-9.2.4
 if %GDA_BUILD% == BUILD_32 (
-  set LIB_URL="http://get.enterprisedb.com/postgresql/postgresql-9.2.4-1-windows-binaries.zip"
+  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4-1-windows-binaries.zip"
 ) else (
-  set LIB_URL="http://get.enterprisedb.com/postgresql/postgresql-9.2.4-1-windows-x64-binaries.zip"
+  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4-1-windows-x64-binaries.zip"
 )
 
 set ALL_EXIST=true
@@ -578,10 +579,10 @@ echo #####################################################
 echo.
 if %GDA_BUILD% == BUILD_32 (
   set LIB_NAME=mysql-5.6.16-win32
-  set LIB_URL="http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.16-win32.zip"
+  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14-win32.zip"
 ) else (
   set LIB_NAME=mysql-5.6.16-winx64
-  set LIB_URL="http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.16-winx64.zip"
+  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14-winx64.zip"
 )
 
 REM "The downloaded DLLs are /MT builds, which can't be used. I think build "
@@ -629,7 +630,7 @@ echo #   build CLAPACK
 echo #####################################################
 echo.
 set LIB_NAME=CLAPACK-3.1.1-VisualStudio
-set LIB_URL="http://www.netlib.org/clapack/CLAPACK-3.1.1-VisualStudio.zip"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/CLAPACK-3.1.1-VisualStudio.zip"
 
 REM # We only test for a small subset of all the CLPACK generated libraries
 set ALL_EXIST=true
@@ -690,8 +691,8 @@ echo #####################################################
 echo #   build wxWidgets 
 echo #####################################################
 echo.
-set LIB_NAME=wxWidgets-3.0.0
-set LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.0/wxWidgets-3.0.0.7z"
+set LIB_NAME=wxWidgets-3.0.2
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
@@ -717,15 +718,30 @@ IF NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME% (
     %UNZIP_EXE% %LIB_NAME%.7z -o%DOWNLOAD_HOME%\%LIB_NAME%
 )
 
+REM # This applies a patch to src/msw/main.cpp to remove a function
+REM # that declares wxWidgets is high-DPI display aware.  wxWidgets
+REM # isn't high-DPI display aware and we actually want Windows 8.1
+REM # to apply pixel scaling so that the layout of windows isn't messed
+REM # up.  OSX already handles Retina displays properly.
+xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
+
 cd %DOWNLOAD_HOME%\%LIB_NAME%\build\msw
+set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
+
 if %GDA_BUILD% == BUILD_32 (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
+  
+  
 )  else (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
 )
-set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
+
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u.lib
@@ -741,7 +757,7 @@ echo #   build EXPAT
 echo #####################################################
 echo.
 set LIB_NAME=expat-2.1.0
-set LIB_URL="http://superb-dca2.dl.sourceforge.net/project/expat/expat/2.1.0/expat-2.1.0.tar.gz"
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/expat-2.1.0.tar.gz"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\expat.lib set ALL_EXIST=false
@@ -782,12 +798,12 @@ echo #####################################################
 echo #   build GDAL/OGR
 echo #####################################################
 echo.
-set LIB_NAME=gdal-1.9.2
-set LIB_URL="https://codeload.github.com/lixun910/gdal-1.9.2-work/zip/master"
+set LIB_NAME=GeoDa17Merge
+set LIB_URL="https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\gdal.lib set ALL_EXIST=false
-if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\gdal19.dll set ALL_EXIST=false
+if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll set ALL_EXIST=false
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_i.lib set ALL_EXIST=false
 if %ALL_EXIST% == true (
   echo All %LIB_NAME% library targets exist, skipping build
@@ -796,30 +812,31 @@ if %ALL_EXIST% == true (
 
 cd %DOWNLOAD_HOME%
 
-IF NOT EXIST %DOWNLOAD_HOME%/%LIB_NAME% (
+IF NOT EXIST %DOWNLOAD_HOME%/gdal-%LIB_NAME% (
     %CURL_EXE% -k -# %LIB_URL% > %LIB_NAME%.zip
     %UNZIP_EXE% %LIB_NAME%.zip
-    rename gdal-1.9.2-work-master %LIB_NAME%
+    move /Y gdal-%LIB_NAME%/gdal gdal
 )
 
-cd %LIB_NAME%
+cd gdal
 if %GDA_BUILD% == BUILD_32 (
-  copy /Y %BUILD_HOME%\dep\%LIB_NAME%\nmake.opt nmake.opt
+  copy /Y %BUILD_HOME%\dep\gdal-1.9.2\nmake.opt nmake.opt
 ) else (
-  copy /Y %BUILD_HOME%\dep\%LIB_NAME%\nmake64.opt nmake.opt
+  copy /Y %BUILD_HOME%\dep\gdal-1.9.2\nmake64.opt nmake.opt
 )
-copy /Y %BUILD_HOME%\dep\%LIB_NAME%\port\cpl_config.h port\cpl_config.h
+copy /Y %BUILD_HOME%\dep\gdal-1.9.2\port\cpl_config.h port\cpl_config.h
 
-nmake -f makefile.vc
+nmake -f makefile.vc MSVC_VER=1600
+REM nmake -f makefile.vc MSVC_VER=1600 DEBUG=1
 
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\gcore\*.h %LIBRARY_HOME%\include
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\port\*.h %LIBRARY_HOME%\include
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\ogr\*.h %LIBRARY_HOME%\include
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\ogr\ogrsf_frmts\*.h %LIBRARY_HOME%\include
+copy /Y %DOWNLOAD_HOME%\gdal\gcore\*.h %LIBRARY_HOME%\include
+copy /Y %DOWNLOAD_HOME%\gdal\port\*.h %LIBRARY_HOME%\include
+copy /Y %DOWNLOAD_HOME%\gdal\ogr\*.h %LIBRARY_HOME%\include
+copy /Y %DOWNLOAD_HOME%\gdal\ogr\ogrsf_frmts\*.h %LIBRARY_HOME%\include
 
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\gdal19.dll %LIBRARY_HOME%\%LIB_HM_LIB%\gdal19.dll
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\gdal_i.lib %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_i.lib
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\gdal.lib %LIBRARY_HOME%\%LIB_HM_LIB%\gdal.lib
+copy /Y %DOWNLOAD_HOME%\gdal\gdal_geoda20.dll %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll
+copy /Y %DOWNLOAD_HOME%\gdal\gdal_i.lib %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_i.lib
+copy /Y %DOWNLOAD_HOME%\gdal\gdal.lib %LIBRARY_HOME%\%LIB_HM_LIB%\gdal.lib
 
 echo Note: building of OGR plugins skipped by default.  See readme.txt
 echo       for information on how to build plugins.
@@ -827,28 +844,27 @@ REM call build_ogr_plugins.bat
 
 set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\gdal.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\gdal19.dll
+set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\gdal_i.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 :SKIP_GDAL_OGR_BUILD
 
-
 :TO_BOOST_BUILD
 echo.
 echo #####################################################
-echo #   build Boost
+echo #   build Boost 1.57
 echo #####################################################
 echo.
-set LIB_NAME=boost_1_54_0
-set LIB_URL="http://iweb.dl.sourceforge.net/project/boost/boost/1.54.0/boost_1_54_0.zip"
+set LIB_NAME=boost_1_57_0
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.zip"
 
 set ALL_EXIST=true
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_54.lib set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_54.lib set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_54.dll set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_54.dll set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_54.dll set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_57.lib set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_57.dll set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_57.dll set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_57.dll set ALL_EXIST=false
 if %ALL_EXIST% == true (
   echo All %LIB_NAME% library targets exist, skipping build
   goto SKIP_BOOST_BUILD
@@ -859,7 +875,7 @@ IF NOT EXIST %LIB_NAME% (
     IF NOT EXIST %LIB_NAME%.zip %CURL_EXE% -# %LIB_URL% > %LIB_NAME%.zip
     %UNZIP_EXE% %LIB_NAME%.zip
 )
-
+echo %DOWNLOAD_HOME%\%LIB_NAME%
 set BOOST_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
 echo BOOST_HOME: %BOOST_HOME%
 cd %BOOST_HOME%
@@ -873,17 +889,54 @@ if %GDA_BUILD% == BUILD_32 (
 )
 cd %BUILD_HOME%
 
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_54.lib
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_54.lib
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_57.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_54.dll
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_57.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_54.dll
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_57.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_54.dll
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_57.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 :SKIP_BOOST_BUILD
+
+
+:TO_JSON_SPIRIT_BUILD
+echo.
+echo #####################################################
+echo #   build JSON Spirit
+echo #####################################################
+echo.
+set LIB_NAME=json_spirit_v4.08
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+
+set ALL_EXIST=true
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\Release\json_spirit_lib.lib set ALL_EXIST=false
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\Debug\json_spirit_lib.lib set ALL_EXIST=false
+if %ALL_EXIST% == true (
+  echo All %LIB_NAME% library targets exist, skipping build
+  goto SKIP_JSON_SPIRIT_BUILD
+)
+cd %DOWNLOAD_HOME%
+IF NOT EXIST %LIB_NAME% (
+    IF NOT EXIST %LIB_NAME%.zip %CURL_EXE% -# %LIB_URL% > %LIB_NAME%.zip
+    %UNZIP_EXE% %LIB_NAME%.zip
+)
+xcopy /Y /E %BUILD_DEP%\json_spirit %DOWNLOAD_HOME%\%LIB_NAME%
+cd %LIB_NAME%
+if %GDA_BUILD% == BUILD_32 (
+  %MSBUILD_EXE% json.sln /property:Configuration="Release" /p:Platform="Win32"
+  %MSBUILD_EXE% json.sln /property:Configuration="Debug" /p:Platform="Win32"
+) else (
+  %MSBUILD_EXE% json.sln /property:Configuration="Release" /p:Platform="x64"
+  %MSBUILD_EXE% json.sln /property:Configuration="Debug" /p:Platform="x64"
+)
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Release\json_spirit_lib.lib
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Debug\json_spirit_lib.lib
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+:SKIP_JSON_SPIRIT_BUILD
 
 
 :TO_VISUAL_STUDIO_SETUP_BUILD
@@ -894,48 +947,68 @@ echo #   convenience when using Visual Studio
 echo #   to build/debug interactively.
 echo #####################################################
 echo.
+set LIB_NAME=visual_studio_setup
 cd %BUILD_HOME%
 
 IF NOT EXIST %BUILD_HOME%\Debug md %BUILD_HOME%\Debug
 IF NOT EXIST %BUILD_HOME%\Release md %BUILD_HOME%\Release
 
-copy /Y cache.sqlite Debug\.
-copy /Y temp\expat-2.1.0\build\Release\expat.dll Debug\.
-copy /Y temp\gdal-1.9.2\gdal19.dll Debug\.
-copy /Y temp\pgsql\lib\libpq.dll Debug\.
-copy /Y temp\pgsql\bin\ssleay32.dll Debug\.
-copy /Y temp\pgsql\bin\libeay32.dll Debug\.
+copy /Y ..\CommonDistFiles\cache.sqlite Debug\.
+copy /Y ..\CommonDistFiles\geoda_prefs.sqlite Debug\.
+copy /Y ..\CommonDistFiles\geoda_prefs.json Debug\.
+xcopy /I /S /E /Y ..\CommonDistFiles\web_plugins Debug\web_plugins
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\expat.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libpq.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\ssleay32.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libeay32.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll Debug\.
 if %GDA_BUILD% == BUILD_32 (
-  copy /Y temp\pgsql\bin\libintl.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_dll\wxmsw30ud_vc_custom.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_dll\wxmsw30ud_gl_vc_custom.dll Debug\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl.dll Debug\.
 ) else (
-  copy /Y temp\pgsql\bin\libintl-8.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_x64_dll\wxmsw30ud_vc_custom.dll Debug\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_x64_dll\wxmsw30ud_gl_vc_custom.dll Debug\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Debug\.
 )
-copy /Y temp\boost_1_54_0\stage\lib\boost_chrono-vc100-mt-1_54.dll Debug\.
-copy /Y temp\boost_1_54_0\stage\lib\boost_thread-vc100-mt-1_54.dll Debug\.
-copy /Y temp\boost_1_54_0\stage\lib\boost_system-vc100-mt-1_54.dll Debug\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll Release\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Debug\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Debug\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Debug\.
 
-copy /Y cache.sqlite Release\.
-copy /Y temp\expat-2.1.0\build\Release\expat.dll Release\.
-copy /Y temp\gdal-1.9.2\gdal19.dll Release\.
-copy /Y temp\pgsql\lib\libpq.dll Release\.
-copy /Y temp\pgsql\bin\ssleay32.dll Release\.
-copy /Y temp\pgsql\bin\libeay32.dll Release\.
+copy /Y ..\CommonDistFiles\cache.sqlite Release\.
+copy /Y ..\CommonDistFiles\geoda_prefs.sqlite Release\.
+copy /Y ..\CommonDistFiles\geoda_prefs.json Release\.
+xcopy /I /S /E /Y ..\CommonDistFiles\web_plugins Release\web_plugins
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\expat.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libpq.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\ssleay32.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libeay32.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\geos_c.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll Release\.
 if %GDA_BUILD% == BUILD_32 (
-  copy /Y temp\pgsql\bin\libintl.dll Release\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_dll\wxmsw30u_vc_custom.dll Release\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_dll\wxmsw30u_gl_vc_custom.dll Release\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl.dll Release\.
 ) else (
-  copy /Y temp\pgsql\bin\libintl-8.dll Release\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_x64_dll\wxmsw30u_vc_custom.dll Release\.
-  copy /Y temp\wxWidgets-3.0.0\lib\vc_x64_dll\wxmsw30u_gl_vc_custom.dll Release\.
+  copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Release\.
 )
-copy /Y temp\boost_1_54_0\stage\lib\boost_chrono-vc100-mt-1_54.dll Release\.
-copy /Y temp\boost_1_54_0\stage\lib\boost_thread-vc100-mt-1_54.dll Release\.
-copy /Y temp\boost_1_54_0\stage\lib\boost_system-vc100-mt-1_54.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll Release\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Release\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Release\.
+copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Release\.
+
+md Release\basemap_cache
+md Debug\basemap_cache
 :SKIP_VISUAL_STUDIO_SETUP_BUILD
 
 
@@ -945,22 +1018,35 @@ echo #####################################################
 echo #   build GeoDa %GDA_VERSION%
 echo #####################################################
 echo.
+set LIB_NAME=geoda_build
 cd %BUILD_HOME%
 
 IF EXIST %BUILD_HOME%\Release\GeoDa.lib del %BUILD_HOME%\Release\GeoDa.lib
 IF EXIST %BUILD_HOME%\Release\GeoDa.exp del %BUILD_HOME%\Release\GeoDa.exp
 IF EXIST %BUILD_HOME%\Release\GeoDa.exp del %BUILD_HOME%\Release\GeoDa.exe
+IF EXIST %BUILD_HOME%\Debug\GeoDa.lib del %BUILD_HOME%\Debug\GeoDa.lib
+IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exp
+IF EXIST %BUILD_HOME%\Debug\GeoDa.exp del %BUILD_HOME%\Debug\GeoDa.exe
 if %GDA_BUILD% == BUILD_32 (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
+  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
 ) else (
-  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release"  /p:Platform="x64"
+  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
+  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib
-IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.exp
-IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.exe
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+set CHK_LIB=%BUILD_HOME%\Debug\GeoDa.lib
+REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+set CHK_LIB=%BUILD_HOME%\Debug\GeoDa.exp
+REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+set CHK_LIB=%BUILD_HOME%\Debug\GeoDa.exe
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+
 :SKIP_GEODA_BUILD
 
 
@@ -970,6 +1056,7 @@ echo #####################################################
 echo #   Creating GeoDa %GDA_VERSION% installer... 
 echo #####################################################
 echo.
+set LIB_NAME=geoda_package
 cd %BUILD_HOME%
 
 set INNO_EXE=not_found

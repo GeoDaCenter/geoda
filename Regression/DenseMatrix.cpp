@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,8 +23,6 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "mix.h"
 #include "DenseVector.h"
 #include "DenseMatrix.h"

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,8 +28,8 @@
 
 // This is for Shapfile/DBF direct operation
 #include "../DataViewer/TableInterface.h"
-#include "../ShapeOperations/ShpFile.h"
-#include "../Generic/GdaShape.h"
+#include "../ShpFile.h"
+#include "../GdaShape.h"
 #include "../GdaException.h"
 #include "OGRFieldProxy.h"
 #include "OGRLayerProxy.h"
@@ -46,10 +46,16 @@ using namespace std;
  */
 class OGRLayerProxy {
 public:
-	OGRLayerProxy(std::string layer_name, OGRLayer* _layer,
-                  GdaConst::DataSourceType _ds_type, bool isNew=false);
-    OGRLayerProxy(OGRLayer* _layer, GdaConst::DataSourceType _ds_type,
-                  OGRwkbGeometryType eGType, int _n_rows = 0);
+	OGRLayerProxy(std::string layer_name,
+                  OGRLayer* _layer,
+                  GdaConst::DataSourceType _ds_type,
+                  bool isNew=false);
+    
+    OGRLayerProxy(OGRLayer* _layer,
+                  GdaConst::DataSourceType _ds_type,
+                  OGRwkbGeometryType eGType,
+                  int _n_rows = 0);
+    
 	~OGRLayerProxy();
 	
 private:
@@ -207,6 +213,10 @@ public:
 	 *
 	 */
 	bool UpdateColumn();
+    bool UpdateColumn(int col_idx, vector<double> &vals);
+    bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
+    bool UpdateColumn(int col_idx, vector<wxString> &vals);
+    
 	/**
 	 *
 	 */
@@ -241,7 +251,7 @@ public:
         return rst;
     }
     
-    void SetValueAt(int rid, int cid, int val)
+    void SetValueAt(int rid, int cid, GIntBig val)
     {
         data[rid]->SetField( cid, val);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
@@ -275,6 +285,8 @@ public:
     
 private:
 	bool IsFieldExisted(const wxString& field_name);
+    
+    bool CallCartoDBAPI(wxString url);
 };
 
 #endif

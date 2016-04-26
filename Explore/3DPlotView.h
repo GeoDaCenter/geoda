@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,8 +22,9 @@
 
 #include <wx/glcanvas.h>
 #include "../FramesManagerObserver.h"
-#include "../Generic/HighlightStateObserver.h"
-#include "../GenUtils.h"
+#include "../HLStateInt.h"
+#include "../HighlightStateObserver.h"
+#include "../VarTools.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 
@@ -37,8 +38,8 @@ class C3DPlotCanvas: public wxGLCanvas, public HighlightStateObserver
 {
 public:
 	C3DPlotCanvas(Project* project, C3DPlotFrame* t_frame,
-				  HighlightState* highlight_state,
-				  const std::vector<GeoDaVarInfo>& var_info,
+				  HLStateInt* highlight_state,
+				  const std::vector<GdaVarTools::VarInfo>& var_info,
 				  const std::vector<int>& col_ids,
 				  wxWindow *parent,
 				  const wxWindowID id = wxID_ANY,
@@ -106,15 +107,15 @@ public:
 	
 	/** Implementation of the HighlightStateObserver interface
 	 update function. */
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	TableInterface* table_int;
 	Project* project;
-	HighlightState* highlight_state;
+	HLStateInt* highlight_state;
 	int num_obs;
 	int num_vars;
 	int num_time_vals;
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
 	std::vector<d_array_type> scaled_d;
 	std::vector< std::vector<SampleStatistics> > data_stats;
@@ -137,7 +138,7 @@ class C3DPlotFrame: public TemplateFrame
 {
 public:
 	C3DPlotFrame(wxFrame *parent, Project* project,
-				 const std::vector<GeoDaVarInfo>& var_info,
+				 const std::vector<GdaVarTools::VarInfo>& var_info,
 				 const std::vector<int>& col_ids,
 				 const wxString& title, const wxPoint& pos,
 				 const wxSize& size, const long style);

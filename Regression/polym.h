@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -31,6 +31,8 @@ using namespace std;
 #define SL_SMALL_MATRIX 5
 #define SL_SMALL    1e-14
 #include "PowerSymLag.h"
+
+#define geoda_sqr(x) ( (x) * (x) )
 
 //*** here go global variables for the characteristic polynomial algorithm
 

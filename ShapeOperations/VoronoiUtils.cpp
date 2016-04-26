@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -35,7 +35,7 @@
 #include "GalWeight.h"
 #include "../GenUtils.h"
 #include "../GenGeomAlgs.h"
-#include "../Generic/GdaShape.h"
+#include "../GdaShape.h"
 #include "../logger.h"
 #include "VoronoiUtils.h"
 
@@ -719,10 +719,11 @@ GalElement* Gda::VoronoiUtils::NeighborMapToGal(
 	GalElement* gal = new GalElement[nbr_map.size()];
 	if (!gal) return 0;
 	for (int i=0, iend=nbr_map.size(); i<iend; i++) {
-		gal[i].alloc(nbr_map[i].size());
+		gal[i].SetSizeNbrs(nbr_map[i].size());
+		long cnt = 0;
 		for (std::set<int>::iterator it=nbr_map[i].begin();
 			 it != nbr_map[i].end(); it++) {
-			gal[i].Push(*it);
+			gal[i].SetNbr(cnt++, *it);
 		}
 	}
 	return gal;

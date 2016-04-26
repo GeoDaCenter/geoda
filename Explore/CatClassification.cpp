@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+#include <iomanip>
+#include <float.h>
 #include <set>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
@@ -29,6 +32,8 @@
 #include "../logger.h"
 #include "../GdaConst.h"
 #include "CatClassification.h"
+
+using namespace std;
 
 struct UniqueValElem {
 	UniqueValElem(double v, int f, int l): val(v), first(f), last(l) {}
@@ -113,23 +118,30 @@ double calc_gvf(const std::vector<int>& b, const std::vector<double>& v,
 }
 
 void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
-											std::vector<wxString>& cat_labels)
+											std::vector<wxString>& cat_labels,
+                                            bool useScientificNotation)
 {
+    stringstream s;
+    if (useScientificNotation)
+        s << std::setprecision(2) << std::scientific;
+    else
+        s << std::setprecision(3);
+    
 	int num_breaks = breaks.size();
 	int cur_intervals = num_breaks+1;
 	cat_labels.resize(cur_intervals);
 	for (int ival=0; ival<cur_intervals; ++ival) {
-		wxString s;
+        s.str("");
 		if (cur_intervals <= 1) {
 			s << "";
 		} else if (ival == 0) {
-			s << "< " << GenUtils::DblToStr(breaks[ival]);
+			s << "< " << breaks[ival];
 			//s << "(-inf, " << breaks[ival] << ")";
 		} else if (ival == cur_intervals-1 && cur_intervals != 2) {
-			s << "> " << GenUtils::DblToStr(breaks[ival-1]);
+			s << "> " << breaks[ival-1];
 			//s << "(" << breaks[ival-1] << ", inf)";
 		} else if (ival == cur_intervals-1 && cur_intervals == 2) {
-			s << ">= " << GenUtils::DblToStr(breaks[ival-1]);
+			s << ">= " << breaks[ival-1];
 			//s << "[" << breaks[ival-1] << ", inf)";
 		} else {
 			int num_breaks = cur_intervals-1;
@@ -146,10 +158,10 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 				a = "(";
 				b = "]";
 			}
-			s << a << GenUtils::DblToStr(breaks[ival-1]) << ", ";
-			s << GenUtils::DblToStr(breaks[ival]) << b;
+			s << a << breaks[ival-1] << ", ";
+			s << breaks[ival] << b;
 		}
-		cat_labels[ival] = s;
+		cat_labels[ival] = s.str();
 	}	
 }
 
@@ -157,11 +169,18 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 									   std::vector<wxString>& cat_labels,
 									   const Gda::dbl_int_pair_vec_type& var,
-									   const CatClassifType theme, int num_cats)
+									   const CatClassifType theme, int num_cats,
+                                       bool useScientificNotation)
 {
 	int num_obs = var.size();
-	if (num_cats < 1) num_cats = 1;
-	if (num_cats > 10) num_cats = 10;
+	if (num_cats < 1)
+        num_cats = 1;
+	if (num_cats > 10)
+        num_cats = 10;
+    
+	breaks.resize(num_cats-1);
+	cat_labels.resize(num_cats);
+    
 	if (theme == CatClassification::percentile ||
 		theme == CatClassification::hinge_15 ||
 		theme == CatClassification::hinge_30 ||
@@ -172,8 +191,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		num_cats = 1;
 		cat_labels[0] = "";
 	}
-	breaks.resize(num_cats-1);
-	cat_labels.resize(num_cats);
+    
 	// no_theme handled by default
 	if (theme == hinge_15 || theme == hinge_30) {
 		HingeStats hinge_stats;
@@ -191,6 +209,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		cat_labels[3] = "50% - 75%";
 		cat_labels[4] = "> 75%";
 		cat_labels[5] = "Upper outlier";
+        
 	} else if (theme == quantile) {
 		if (num_cats == 1) {
 			// already handled
@@ -200,7 +219,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 					Gda::percentile(((i+1.0)*100.0)/((double) num_cats), var);
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels);
+		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
 	} else if (theme == percentile) {
 		breaks[0] = Gda::percentile(1, var);
 		breaks[1] = Gda::percentile(10, var);
@@ -213,6 +232,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		cat_labels[3] = "50% - 90%";  // >= 50% && <= 90%
 		cat_labels[4] = "90% - 99%";  // > 90% && <= 99%
 		cat_labels[5] = "> 99%";      // > 99%
+        
 	} else if (theme == stddev) {
 		std::vector<double> v(num_obs);
 		SampleStatistics stats;
@@ -224,7 +244,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		breaks[3] = stats.mean + 1.0 * stats.sd_with_bessel;
 		breaks[4] = stats.mean + 2.0 * stats.sd_with_bessel;
 		
-		CatLabelsFromBreaks(breaks, cat_labels);
+		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
 	} else if (theme == unique_values) {
 		std::vector<double> v(num_obs);
 		for (int i=0; i<num_obs; i++) v[i] = var[i].first;
@@ -245,10 +265,10 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 				cat_labels[i] << uv_mapping[i].val;
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels);
+		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
 	} else if (theme == natural_breaks) {
 		FindNaturalBreaks(num_cats, var, breaks);
-		CatLabelsFromBreaks(breaks, cat_labels);
+		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
 	} else if (theme == equal_intervals) {
 		double min_val = var[0].first;
 		double max_val = var[0].first;
@@ -271,7 +291,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 				breaks[i] = min_val + (((double) i) + 1.0)*delta;
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels);
+		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
 	}
 }
 
@@ -284,7 +304,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				const std::vector<Gda::dbl_int_pair_vec_type>& var,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				std::vector<wxString>& cats_error_message)
+				std::vector<wxString>& cats_error_message,
+                bool useSciNotation)
 {
 	int num_cats = cat_def.num_cats;
 	CatClassifType theme = cat_def.cat_classif_type;
@@ -341,6 +362,12 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		return;
 	}
 	
+    stringstream ss;
+    if (useSciNotation)
+        ss << std::setprecision(2) << std::scientific;
+    else
+        ss << std::setprecision(3);
+    
 	if (num_cats > num_obs) {
 		for (int t=0; t<num_time_vals; t++) {
 			cats_valid[t] = false;
@@ -352,6 +379,7 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		cat_data.SetCategoryBrushesAllCanvasTms(
 				CatClassification::diverging_color_scheme, num_cats, false);
 		cat_data.ResetAllCategoryMinMax();
+        
 		for (int t=0; t<num_time_vals; t++) {
 			if (!cats_valid[t]) continue;
 			
@@ -362,11 +390,19 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				extreme_lower = hinge_stats[t].extreme_lower_val_30;
 				extreme_upper = hinge_stats[t].extreme_upper_val_30;	
 			}
+            
+            double p_min = DBL_MAX;
+            double p_max = -DBL_MAX;
+        
 			double val;
 			int ind;
 			for (int i=0, iend=var[t].size(); i<iend; i++) {
 				val = var[t][i].first;
 				ind = var[t][i].second;
+                if (val < p_min)
+                    p_min = val;
+                if (val > p_max)
+                    p_max = val;
 				int cat_num = 0;
 				if (val < extreme_lower) {
 					cat_num = 0;
@@ -391,8 +427,38 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			labels[3] << "50% - 75%";
 			labels[4] << "> 75%";
 			labels[5] << "Upper outlier";
+            
+			std::vector<wxString> labels_ext(num_cats);
+
+            ss.str("");
+            if (cat_data.GetNumObsInCategory(t, 0) == 0) {
+                ss << " [-inf : " << extreme_lower << "]";
+            } else {
+                ss << " [" << p_min << " : " << extreme_lower << "]";
+            }
+            labels_ext[0] = ss.str();
+            ss.str("");
+            ss << " [" << extreme_lower << " : " << hinge_stats[t].Q1 << "]";
+            labels_ext[1] = ss.str();
+            ss.str("");
+            ss << " [" << hinge_stats[t].Q1 << " : " << hinge_stats[t].Q2 << "]";
+            labels_ext[2] = ss.str();
+            ss.str("");
+            ss << " [" << hinge_stats[t].Q2 << " : " << hinge_stats[t].Q3 << "]";
+            labels_ext[3] = ss.str();
+            ss.str("");
+            ss << " [" << hinge_stats[t].Q3 << " : " << extreme_upper << "]";
+            labels_ext[4] = ss.str();
+            ss.str("");
+           if (cat_data.GetNumObsInCategory(t, num_cats-1) == 0)
+               ss << " [" << extreme_upper << " : " << p_max << "]";
+            else
+               ss << " [" << extreme_upper << " : inf]";
+            labels_ext[5] = ss.str();
+        
 			for (int cat=0; cat<num_cats; cat++) {
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
+				cat_data.SetCategoryLabelExt(t, cat, labels_ext[cat]);
 				cat_data.SetCategoryCount(t, cat,
 										  cat_data.GetNumObsInCategory(t, cat));
 			}
@@ -412,12 +478,16 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				cat_data.SetCategoryMinMax(t, 0, low_v, high_v);
 			}
 		} else {
+            
+            
+            
 			std::vector<double> cat_min(num_cats);
 			std::vector<double> cat_max(num_cats);
 			std::vector<double> breaks(num_cats-1);
 			int num_breaks = breaks.size();
 			int num_breaks_lower = (num_breaks+1)/2;
-			
+		
+            
 			for (int t=0; t<num_time_vals; t++) {
 				if (!cats_valid[t]) continue;
 				// Set default cat_min / cat_max values for when
@@ -466,29 +536,33 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				}
 				
 				for (int ival=0; ival<num_cats; ival++) {
-					wxString s;
+                    ss.str("");
 					if (num_cats <= 1) {
 						//s << "(-inf, inf)";
-						s << cat_def.names[ival];
+						//ss << cat_def.names[ival];
+			ss << "";
 						cat_data.SetCategoryCount(t, ival, num_obs);
 					} else if (ival == 0) {
+			ss << "< " << cat_def.breaks[ival];
 						//s << "(-inf, ";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival]) << ")";
-						s << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats != 2) {
+			ss << "> " << cat_def.breaks[ival-1];
 						//s << "(";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
-						s << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats == 2) {
+			ss << ">= " << cat_def.breaks[ival-1];
 						//s << "[";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
-						s << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 												  cat_data.GetNumObsInCategory(t, ival));
 					} else {
@@ -506,14 +580,16 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 							a = "(";
 							b = "]";
 						}
+			ss << a << cat_def.breaks[ival-1] << ", ";
+			ss << cat_def.breaks[ival] << b;
 						//s << a << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", " << GenUtils::DblToStr(cat_def.breaks[ival]);
 						//s << b;
-						s << cat_def.names[ival];
+						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					}
-					cat_data.SetCategoryLabel(t, ival, s);
+					cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
 					cat_data.SetCategoryMinMax(t, ival,
 											   cat_min[ival], cat_max[ival]);
 				}
@@ -528,10 +604,9 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				}
 				double low_v = var[t][0].first;
 				double high_v = var[t][num_obs - 1].first;
-				wxString s;
-				s << "[" << GenUtils::DblToStr(low_v) << ":";
-				s << GenUtils::DblToStr(high_v) << "]";
-				cat_data.SetCategoryLabel(t, 0, s);
+                ss.str("");
+				ss << "[" << low_v << " : " << high_v << "]";
+				cat_data.SetCategoryLabel(t, 0, wxString(ss.str()));
 				cat_data.SetCategoryCount(t, 0, num_obs);
 				cat_data.SetCategoryMinMax(t, 0, low_v, high_v);
 			}
@@ -593,26 +668,23 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 					}
 					cat_data.AppendIdToCategory(t, cat, ind);
 				}
-				wxString s;
-				s << "[" << GenUtils::DblToStr(cat_min[0]) << ":";
-				s << GenUtils::DblToStr(cat_max[0]) << "]";
-				cat_data.SetCategoryLabel(t, 0, s);
+                ss.str("");
+				ss << "[" << cat_min[0] << " : " << cat_max[0] << "]";
+				cat_data.SetCategoryLabel(t, 0, wxString(ss.str()));
 				cat_data.SetCategoryCount(t, 0,
 										  cat_data.GetNumObsInCategory(t, 0));
 				cat_data.SetCategoryMinMax(t, 0, cat_min[0], cat_max[0]);
 				for (int i=1, iend=breaks.size(); i<iend; i++) {
-					s = "";
-					s << "[" << GenUtils::DblToStr(cat_min[i]) << ":";
-					s << GenUtils::DblToStr(cat_max[i]) << "]";
-					cat_data.SetCategoryLabel(t, i, s);
+                    ss.str("");
+					ss << "[" << cat_min[i] << " : " << cat_max[i] << "]";
+					cat_data.SetCategoryLabel(t, i, wxString(ss.str()));
 					cat_data.SetCategoryCount(t, i,
 										cat_data.GetNumObsInCategory(t, i));
 					cat_data.SetCategoryMinMax(t, i, cat_min[i], cat_max[i]);
 				}
-				s = "";
-				s << "[" << GenUtils::DblToStr(cat_min[num_breaks]) << ":";
-				s << GenUtils::DblToStr(cat_max[num_breaks]) << "]";
-				cat_data.SetCategoryLabel(t, num_breaks, s);
+                ss.str("");
+				ss << "[" << cat_min[num_breaks] << " : " << cat_max[num_breaks] << "]";
+				cat_data.SetCategoryLabel(t, num_breaks, wxString(ss.str()));
 				cat_data.SetCategoryCount(t, num_breaks,
 					cat_data.GetNumObsInCategory(t, num_breaks));
 				cat_data.SetCategoryMinMax(t, num_breaks, cat_min[num_breaks],
@@ -623,7 +695,9 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		cat_data.ResetAllCategoryMinMax();
 		for (int t=0; t<num_time_vals; t++) {
 			if (!cats_valid[t]) continue;
-			
+		
+            double p_min = DBL_MAX;
+            double p_max = -DBL_MAX;
 			double p_1 = Gda::percentile(1, var[t]);
 			double p_10 = Gda::percentile(10, var[t]);
 			double p_50 = Gda::percentile(50, var[t]);
@@ -634,6 +708,10 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			for (int i=0, iend=var[t].size(); i<iend; i++) {
 				val = var[t][i].first;
 				ind = var[t][i].second;
+                if (val < p_min)
+                    p_min = val;
+                if (val > p_max)
+                    p_max = val;
 				int cat_num = 0;
 				if (val < p_1) {
 					cat_num = 0;
@@ -658,8 +736,30 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			labels[3] << "50% - 90%";  // => 50% && <= 90%
 			labels[4] << "90% - 99%";  // > 90% && <= 99%
 			labels[5] << "> 99%";      // > 99%
+			std::vector<wxString> labels_ext(num_cats);
+           
+            ss.str("");
+            ss << " [" << p_min << " : " << p_1 << "]";
+            labels_ext[0] = ss.str();
+            ss.str("");
+            ss << " [" << p_1 << " : " << p_10 << "]";
+            labels_ext[1] = ss.str();
+            ss.str("");
+            ss << " [" << p_10 << " : " << p_50 << "]";
+            labels_ext[2] = ss.str();
+            ss.str("");
+            ss << " [" << p_50 << " : " << p_90 << "]";
+            labels_ext[3] = ss.str();
+            ss.str("");
+            ss << " [" << p_90 << " : " << p_99 << "]";
+            labels_ext[4] = ss.str();
+            ss.str("");
+            ss << " [" << p_99 << " : " << p_max << "]";
+            labels_ext[5] = ss.str();
+            
 			for (int cat=0; cat<num_cats; cat++) {
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
+				cat_data.SetCategoryLabelExt(t, cat, labels_ext[cat]);
 				cat_data.SetCategoryCount(t, cat,
 										  cat_data.GetNumObsInCategory(t, cat));
 			}
@@ -703,21 +803,31 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 			std::vector<wxString> labels(num_cats);
 			// < -2 sd
-			labels[0] << "< " << GenUtils::DblToStr(SDm2);
 			// >= -2 sd && < -1 sd
-			labels[1] << GenUtils::DblToStr(SDm2) << " - ";
-			labels[1] << GenUtils::DblToStr(SDm1);
 			// >= -1 sd && < mean
-			labels[2] << GenUtils::DblToStr(SDm1) << " - ";
-			labels[2] << GenUtils::DblToStr(mean);
 			// => mean && <= 1 sd
-			labels[3] << GenUtils::DblToStr(mean) << " - ";
-			labels[3] << GenUtils::DblToStr(SDp1);
 			// > 1 sd && <= 2 sd
-			labels[4] << GenUtils::DblToStr(SDp1) << " - ";
-			labels[4] << GenUtils::DblToStr(SDp2);
 			// > 2 sd
-			labels[5] << "> " << GenUtils::DblToStr(SDp2);
+            
+            ss.str("");
+            ss << "< " << SDm2;
+            labels[0] = ss.str();
+            ss.str("");
+            ss << SDm2 << " - " << SDm1;
+            labels[1] = ss.str();
+            ss.str("");
+            ss << SDm1 << " - " << mean;
+            labels[2] = ss.str();
+            ss.str("");
+            ss << mean << " - " << SDp1;
+            labels[3] = ss.str();
+            ss.str("");
+            ss << SDp1 << " - " << SDp2;
+            labels[4] = ss.str();
+            ss.str("");
+            ss << "> " << SDp2;
+            labels[5] = ss.str();
+            
 			for (int cat=0; cat<num_cats; cat++) {
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
 				cat_data.SetCategoryCount(t, cat,
@@ -772,7 +882,9 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 			std::vector<wxString> labels(t_num_cats);
 			for (int cat=0; cat<t_num_cats; cat++) {
-				labels[cat] << u_vals_map[t][cat];
+                ss.str("");
+                ss << u_vals_map[t][cat];
+                labels[cat] << ss.str();
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
 				cat_data.SetCategoryCount(t, cat,
 										  cat_data.GetNumObsInCategory(t, cat));
@@ -801,9 +913,9 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				for (int i=0; i<num_obs; i++) {
 					cat_data.AppendIdToCategory(t, 0, i);
 				}
-				wxString l;
-				l << "[" << min_val << ":" << max_val << "]";
-				cat_data.SetCategoryLabel(t, 0, l);
+                ss.str("");
+				ss << "[" << min_val << " : " << max_val << "]";
+				cat_data.SetCategoryLabel(t, 0, wxString(ss.str()));
 				cat_data.SetCategoryCount(t, 0, num_obs);
 				cat_data.SetCategoryMinMax(t, 0, min_val, max_val);
 				continue;
@@ -836,10 +948,9 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 			
 			for (int i=0; i<num_cats; i++) {
-				wxString l;
-				l << "[" << GenUtils::DblToStr(cat_min[i]) << ":";
-				l << GenUtils::DblToStr(cat_max[i]) << "]";
-				cat_data.SetCategoryLabel(t, i, l);
+                ss.str("");
+				ss << "[" << cat_min[i] << " : " << cat_max[i] << "]";
+				cat_data.SetCategoryLabel(t, i, wxString(ss.str()));
 				cat_data.SetCategoryCount(t, i,
 										  cat_data.GetNumObsInCategory(t, i));
 				cat_data.SetCategoryMinMax(t, i, cat_min[i], cat_max[i]);
@@ -995,8 +1106,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 			   cc.break_vals_type == CatClassification::stddev_break_vals) {
 		cc.num_cats = 6;
 	} else if (cc.cat_classif_type == CatClassification::unique_values ||
-			   cc.break_vals_type ==
-			   CatClassification::unique_values_break_vals) {
+			   cc.break_vals_type == CatClassification::unique_values_break_vals) {
 		// need to determine number of unique values
 		std::vector<double> v(num_obs);
 		for (int i=0; i<num_obs; i++) v[i] = data[i].first;
@@ -1190,8 +1300,8 @@ void CatClassification::SetNaturalBreaksCats(int num_cats,
 				cat_data.AppendIdToCategory(t, i, var[t][j].second);
 			}
 			wxString l;
-			l << "[" << var[t][ss].first;
-			l << ":" << var[t][tt-1].first << "]";
+			l << "[" << GenUtils::DblToStr(var[t][ss].first);
+			l << ":" << GenUtils::DblToStr(var[t][tt-1].first) << "]";
 			cat_data.SetCategoryLabel(t, i, l);
 			cat_data.SetCategoryCount(t, i, cat_data.GetNumObsInCategory(t, i));
 			cat_data.SetCategoryMinMax(t, i, var[t][ss].first,
@@ -1205,7 +1315,7 @@ CatClassification::ColorScheme CatClassification::GetColSchmForType(
 {
 	if (theme == CatClassification::no_theme ||
 		theme == CatClassification::custom) {
-		return custom_color_scheme;
+		return sequential_color_scheme;
 	} else if (theme == CatClassification::unique_values) {
 		return qualitative_color_scheme;
 	} else if (theme == CatClassification::quantile ||
@@ -1256,6 +1366,8 @@ wxString CatClassification::CatClassifTypeToString(CatClassifType theme_type)
 	return wxEmptyString;
 }
 
+/** The following color schemes come from Color Brewer 2.0 web application:
+ http://colorbrewer2.org/ */
 void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 								  ColorScheme coltype, int num_color,
 								  bool reversed)
@@ -1421,8 +1533,17 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
                 for (int i = 0; i < num_color; i++) {
                     color_vec[i] = Color3[colpos[num_color] + i];
                 }
+                if (num_color == 2) {
+                    // hard code to unique values: blue and orange
+                    color_vec[0] = Color3[1];
+                    color_vec[1] = Color3[19];
+                }
+                
                 break;
             default:
+                for (int i = 0; i < num_color; i++) {
+                    color_vec[i] = Color1[colpos[num_color] + num_color - i-1];
+                }
                 break;
         }
     } else {
@@ -1443,23 +1564,12 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
                 }
                 break;
             default:
+                for (int i = 0; i < num_color; i++) {
+                    color_vec[i] = Color1[colpos[num_color] + num_color - i-1];
+                }
                 break;
         }
     }
-}
-
-// change brightness of input_color and leave result in output color
-// brightness = 75 by default, will slightly darken the input color.
-// brightness = 0 is black, brightness = 200 is white
-wxColour CatClassification::ChangeBrightness(const wxColour& input_col,
-										  int brightness)
-{
-	unsigned char r = input_col.Red(); 
-	unsigned char g = input_col.Green();
-	unsigned char b = input_col.Blue();
-	unsigned char alpha = input_col.Alpha();
-	wxColour::ChangeLightness(&r, &g, &b, brightness);
-	return wxColour(r,g,b,alpha);
 }
 
 /** When increasing or decreasing number of cats, will preserve existing data.
@@ -1495,11 +1605,16 @@ void CatClassification::ChangeNumCats(int num_cats, CatClassifDef& cc)
 			}
 			cc.breaks[i] = last;
 		}
+	} 
+	
+	{
+		int nn = cc.num_cats < t_cc.num_cats ? cc.num_cats : t_cc.num_cats;
+		for (int i=0; i<nn; i++) {
+			cc.names[i] = t_cc.names[i];
+			cc.colors[i] = t_cc.colors[i];
+		}
 	}
-	for (int i=0; i<t_cc.num_cats; i++) {
-		cc.names[i] = t_cc.names[i];
-		cc.colors[i] = t_cc.colors[i];
-	}
+
 	if (t_cc.num_cats < cc.num_cats) {
 		for (int i=t_cc.num_cats; i<cc.num_cats; i++) {
 			if (cc.names[i] == "") cc.names[i] << "category " << i+1;
@@ -1654,10 +1769,10 @@ CatClassification::BreakValsTypeToCatClassifType(
 
 CatClassifDef::CatClassifDef()
 : cat_classif_type(CatClassification::custom),
-break_vals_type(CatClassification::custom_break_vals),
-num_cats(1), automatic_labels(true),
-color_scheme(CatClassification::diverging_color_scheme),
-names(1), colors(1), uniform_dist_min(0), uniform_dist_max(1)
+break_vals_type(CatClassification::quantile_break_vals),
+num_cats(5), automatic_labels(true),
+color_scheme(CatClassification::sequential_color_scheme),
+names(5), colors(5), uniform_dist_min(0), uniform_dist_max(1)
 {
 	names[0] = "category 1";
 	CatClassification::PickColorSet(colors, color_scheme, num_cats, false);
@@ -1792,7 +1907,7 @@ void CatClassifData::SetCategoryBrushesAllCanvasTms(
 		for (int i=0; i<colors.size(); i++) {
 			categories[t].cat_vec[i].brush.SetColour(colors[i]);
 			categories[t].cat_vec[i].pen.SetColour(
-				CatClassification::ChangeBrightness(colors[i]));
+				GdaColorUtils::ChangeBrightness(colors[i]));
 		}
 	}
 }
@@ -1807,7 +1922,7 @@ void CatClassifData::SetCategoryBrushesAllCanvasTms(
 		for (int i=0; i<colors.size(); i++) {
 			categories[t].cat_vec[i].brush.SetColour(colors[i]);
 			categories[t].cat_vec[i].pen.SetColour(
-							CatClassification::ChangeBrightness(colors[i]));
+							GdaColorUtils::ChangeBrightness(colors[i]));
 		}
 	}
 }
@@ -1822,7 +1937,7 @@ void CatClassifData::SetCategoryBrushesAtCanvasTm(
 	for (int i=0; i<colors.size(); i++) {
 		categories[canvas_tm].cat_vec[i].brush.SetColour(colors[i]);
 		categories[canvas_tm].cat_vec[i].pen.SetColour(
-							   CatClassification::ChangeBrightness(colors[i]));
+							   GdaColorUtils::ChangeBrightness(colors[i]));
 	}
 }
 
@@ -1844,10 +1959,11 @@ std::vector<int>& CatClassifData::GetIdsRef(int canvas_tm, int cat)
 
 void CatClassifData::SetCategoryColor(int canvas_tm, int cat, wxColour color)
 {
-	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
+	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return;
 	categories[canvas_tm].cat_vec[cat].brush.SetColour(color);
 	categories[canvas_tm].cat_vec[cat].pen.SetColour(
-								 CatClassification::ChangeBrightness(color));
+								 GdaColorUtils::ChangeBrightness(color));
 }
 
 wxColour CatClassifData::GetCategoryColor(int canvas_tm, int cat)
@@ -1861,7 +1977,10 @@ wxBrush CatClassifData::GetCategoryBrush(int canvas_tm, int cat)
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return *wxBLACK_BRUSH;
 	}
-	return categories[canvas_tm].cat_vec[cat].brush;
+	wxBrush br = categories[canvas_tm].cat_vec[cat].brush;
+    if (br.IsOk() && br.GetColour().IsOk()) return br;
+    categories[canvas_tm].cat_vec[cat].brush.SetColour(*wxBLACK);
+    return *wxBLACK_BRUSH;
 }
 
 wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
@@ -1869,7 +1988,10 @@ wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return *wxBLACK_PEN;
 	}
-	return categories[canvas_tm].cat_vec[cat].pen;
+	wxPen pen = categories[canvas_tm].cat_vec[cat].pen;
+    if (pen.IsOk() && pen.GetColour().IsOk()) return pen;
+    categories[canvas_tm].cat_vec[cat].pen.SetColour(*wxBLACK);
+    return *wxBLACK_PEN;
 }
 
 void CatClassifData::AppendIdToCategory(int canvas_tm, int cat, int id)
@@ -1896,6 +2018,7 @@ wxString CatClassifData::GetCatLblWithCnt(int canvas_tm, int cat)
 	wxString s;
 	s << categories[canvas_tm].cat_vec[cat].label;
 	s << " (" << categories[canvas_tm].cat_vec[cat].count << ")";
+	s << " " << categories[canvas_tm].cat_vec[cat].label_ext;
 	return s;
 }
 
@@ -1913,6 +2036,13 @@ void CatClassifData::SetCategoryLabel(int canvas_tm, int cat,
 {
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
 	categories[canvas_tm].cat_vec[cat].label = label;
+}
+
+void CatClassifData::SetCategoryLabelExt(int canvas_tm, int cat,
+									const wxString& label)
+{
+	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
+	categories[canvas_tm].cat_vec[cat].label_ext = label;
 }
 
 int CatClassifData::GetCategoryCount(int canvas_tm, int cat)

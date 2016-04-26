@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,23 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <climits>
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <wx/msgdlg.h>
+#include <iomanip>
+#include <wx/filename.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
-#include "../logger.h"
-#include "GalWeight.h"
+#include "../Project.h"
 #include "GwtWeight.h"
 
-double GwtElement::SpatialLag(const std::vector<double>& x,
-							  const bool std) const
+
+GwtElement::~GwtElement()
 {
-	double    lag= 0;
+	if (data) delete [] data;
+	nbrs = 0;
+}
+
+bool GwtElement::alloc(const int sz)
+{
+	if (data) delete [] data;
+	if (sz > 0) {
+		nbrs = 0;
+		data = new GwtNeighbor[sz];
+	}
+	return !empty();
+}
+
+double GwtElement::SpatialLag(const std::vector<double>& x,
+															const bool std) const
+{
+	double lag= 0;
 	int cnt = 0;
 	for (cnt= Size() - 1; cnt >= 0; cnt--) {
 		//lag += data[cnt].weight * x[ data[cnt].nbx ];
@@ -54,454 +67,184 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 	return lag;
 }
 
-double GwtElement::SpatialLag(const DataPoint *x, const bool std) const  {
-	double    lag= 0;
-	int cnt = 0;
-	for (cnt= Size() - 1; cnt >= 0; cnt--) {
-		//lag += data[cnt].weight * x[ data[cnt].nbx ].horizontal; 
-		lag += x[ data[cnt].nbx ].horizontal;
-	}
-	if (std && Size() > 1) lag /= Size();
-	return lag;
-}
 
-double GwtElement::SpatialLag(const DataPoint *x, 
-							  const int * perm, const bool std) const  {
-	double    lag = 0;
-	int cnt = 0;
-	for (cnt = Size() - 1; cnt >= 0; cnt--) {
-		//lag += data[cnt].weight * x[ perm[ data[cnt].nbx ] ].horizontal;
-		lag += x[ perm[ data[cnt].nbx ] ].horizontal;
-	}
-	if (std && Size() > 1) lag /= Size();
-	return lag;
-}
+////////////////////////////////////////////////////////////////////////////////
+//
 
-long* GwtElement::GetData() const
+bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {
-	long* dt = new long[nbrs];
-	for (int i=0;i<nbrs;i++) dt[i] = data[i].nbx;
-	return dt;
+	if (!gwt) return false;
+	for (int i=0; i<num_obs; i++) { if (gwt[i].Size() <= 0) return true; }
+	return false;
 }
 
-GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
-									 TableInterface* table_int)
+bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
 {
-	LOG_MSG("Entering WeightUtils::ReadGwtAsGal");
+    using namespace std;
+    if (!project || ofname.empty()) return false;
+    
+    WeightsManInterface* wmi = project->GetWManInt();
+    if (!wmi) return false;
+    
+    wxString layer_name = GenUtils::GetFileNameNoExt(ofname);
+    
+    if (!gwt) return false;
+    
+    int n = newids.size();
+    
+    ofstream out;
+    out.open(GET_ENCODED_FILENAME(ofname));
+    if (!(out.is_open() && out.good())) return false;
+    
+    wxString id_var_name("STID");
+    out << "0 " << n << " " << layer_name;
+    out << " " << id_var_name << endl;
+    
+    int offset = 0;
+    
+    for (size_t i=0; i<n; ++i) {
+        int orig_id = stack_ids[i];
+        if (i == num_obs) {
+            offset = num_obs;
+            num_obs += num_obs;
+        }
+        
+        for (long nbr=0; nbr<gwt[orig_id].Size(); ++nbr) {
+            const GwtNeighbor& current = gwt[orig_id].elt(nbr);
+            
+            int n_id = current.nbx + offset;
+            
+            out << newids[i] << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+        }
+    }
+    return true;
+}
+
+bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)
+{
+    using namespace std;
+    
+    if (ofname.empty() || !wmi || !table_int)
+        return false;
+    
+    wxString layer_name = GenUtils::GetFileNameNoExt(ofname);
+    if (!gwt) return false;
+    
+    vector<wxString> id_vec;
+    int c_id = table_int->FindColId(this->id_field);
+    if (c_id < 0) return false;
+    
+    table_int->GetColData(c_id, 1, id_vec);
+    
+    std::vector<wxString> time_ids;
+    table_int->GetTimeStrings(time_ids);
+    
+    size_t num_obs = id_vec.size();
+    size_t num_t = time_ids.size();
+    size_t n = num_obs * num_t;
+
+    // (id, time) : stid
+    typedef std::pair<wxString, wxString> STID_KEY;
+    std::map<STID_KEY, int> stid_dict;
+    
+    int id=1;
+    for (size_t i=0; i<num_t; ++i) {
+        for (size_t j=0; j<num_obs; ++j) {
+            STID_KEY k(id_vec[j], time_ids[i]);
+            stid_dict[k] = id++;
+        }
+    }
+    
+    ofstream out;
+    out.open(GET_ENCODED_FILENAME(ofname));
+    if (!(out.is_open() && out.good())) return false;
+    
+    wxString id_var_name("STID");
+    out << "0 " << n << " " << layer_name;
+    out << " " << id_var_name << endl;
+    
+    
+    for (size_t i=0; i<num_t; ++i) {
+        for (size_t j=0; j<num_obs; ++j) {
+            STID_KEY k(id_vec[j], time_ids[i]);
+            int m_id = stid_dict[k];
+            
+            for (long nbr=0; nbr<gwt[j].Size(); ++nbr) {
+                const GwtNeighbor& current = gwt[j].elt(nbr);
+                
+                STID_KEY k1(id_vec[current.nbx], time_ids[i]);
+                int n_id = stid_dict[k1];
+                
+                out << m_id << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+            }
+        }
+    }
+    
+    return true;
+}
+////////////////////////////////////////////////////////////////////////////////
+//
+bool Gda::SaveGwt(const GwtElement* g,
+									const wxString& layer_name, 
+									const wxString& ofname,
+									const wxString& id_var_name,
+									const std::vector<wxInt64>& id_vec)  
+{
 	using namespace std;
-	ifstream file;
-	//file.open(fname.mb_str(wxConvUTF8), ios::in);  // a text file
-	file.open(fname.fn_str(), ios::in);  // a text file
-	if (!(file.is_open() && file.good())) {
-		return 0;
-	}
+	if (g == NULL || layer_name.IsEmpty() || ofname.IsEmpty()
+			|| id_vec.size() == 0) return false;
 	
-	// First determine if header line is correct
-	// Can be either: int int string string  (type n_obs filename field)
-	// or : int (n_obs)
+	wxFileName wx_fn(ofname);
+	wx_fn.SetExt("gwt");
+	wxString final_ofn(wx_fn.GetFullPath());
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(final_ofn));
+	if (!(out.is_open() && out.good())) return false;
 	
-	bool use_rec_order = false;
-	string str;
-	getline(file, str);
-	cout << str << endl;
-	stringstream ss(str, stringstream::in | stringstream::out);
+	size_t num_obs = (int) id_vec.size();
+	out << "0 " << num_obs << " " << layer_name;
+	out << " " << id_var_name << endl;
 	
-	wxInt64 num1 = 0;
-	wxInt64 num2 = 0;
-	wxInt64 num_obs = 0;	
-	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
-	wxString key_field(t_key_field);
-	if (num2 == 0) {
-		use_rec_order = true;
-		num_obs = num1;
-	} else {
-		num_obs = num2;
-		if (key_field.IsEmpty()) {
-			use_rec_order = true;
+	for (int i=0; i<num_obs; ++i) {
+		for (long nbr=0; nbr<g[i].Size(); ++nbr) {
+			const GwtNeighbor& current = g[i].elt(nbr);
+			out << id_vec[i] << ' ' << id_vec[current.nbx];
+			out << ' ' << setprecision(9) << setw(18)
+				<< current.weight << endl;
 		}
 	}
-	
-	if (num_obs != table_int->GetNumberRows()) {
-		wxString msg = "The number of observations specified in chosen ";
-		msg << "weights file is " << num_obs << ", but the number in the ";
-		msg << "current Table is " << table_int->GetNumberRows();
-		msg << ", which is incompatible.";
-		LOG_MSG(msg);
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		return 0;
-	}
-	
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	map<wxInt64, int> id_map;
-	if (use_rec_order) {
-		LOG_MSG("using record order");
-		// we need to traverse through every line of the file and
-		// record the max and min values.  So long as the max and min
-		// values are such that num_obs = (max - min) + 1, we will assume
-		// record order is valid.
-		wxInt64 min_val = LLONG_MAX;
-		wxInt64 max_val = LLONG_MIN;
-		while (!file.eof()) {
-			wxInt64 obs1=0, obs2=0;
-			getline(file, str);
-			if (!str.empty()) {
-				stringstream ss (str, stringstream::in | stringstream::out);
-				ss >> obs1 >> obs2;
-				if (obs1 < min_val) {
-					min_val = obs1;
-				} else if (obs1 > max_val) {
-					max_val = obs1;
-				}
-				if (obs2 < min_val) {
-					min_val = obs2;
-				} else if (obs2 > max_val) {
-					max_val = obs2;
-				}
-			}
-		}
-		if (max_val - min_val != num_obs - 1) {
-			wxString msg = "Record order specified, but found minimum";
-			msg << " and maximum observation values of " << min_val;
-			msg << " and " << max_val << " which is incompatible with";
-			msg << " number of observations specified in first line of";
-			msg << " weights file: " << num_obs << ".";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		for (int i=0; i<num_obs; i++) id_map[i+min_val] = i;
-	} else {
-		int col, tm;
-		table_int->DbColNmToColAndTm(key_field, col, tm);
-		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		if (table_int->GetColType(col) != GdaConst::long64_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is";
-			msg << " not an integer type in the currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		// get mapping from key_field to record ids (which always start
-		// from 0 internally, but are displayed to the user from 1)
-		vector<wxInt64> vec;
-		table_int->GetColData(col, 0, vec);
-		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
-		//for (int i=0; i<num_obs; i++) {
-		//	LOG_MSG(wxString::Format("id_map[vec[%d]]=%d", (int) vec[i],
-		//							 (int) id_map[vec[i]]));
-		//}
-		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-	}
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	// we need to traverse through every line of the file and
-	// record the number of neighbors for each observation.
-	map<wxInt64, int>::iterator it;
-	map<wxInt64, int> nbr_histogram;
-	while (!file.eof()) {
-		wxInt64 obs1=0;
-		getline(file, str);
-		if (!str.empty()) {
-			stringstream ss (str, stringstream::in | stringstream::out);
-			ss >> obs1;
-			it = nbr_histogram.find(obs1);
-			if (it == nbr_histogram.end()) {
-				nbr_histogram[obs1] = 1;
-			} else {
-				nbr_histogram[obs1] = (*it).second + 1;
-			}
-		}
-	}
-	
-	GalElement* gal = new GalElement[num_obs];
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	map<wxInt64, int>::iterator it1;
-	map<wxInt64, int>::iterator it2;
-	int line_num=1;
-	while (!file.eof()) {
-		int gwt_obs1, gwt_obs2;
-		wxInt64 obs1, obs2;
-		getline(file, str);
-		if (!str.empty()) {
-			stringstream ss(str, stringstream::in | stringstream::out);
-			ss >> obs1 >> obs2;
-			it1 = id_map.find(obs1);
-			it2 = id_map.find(obs2);
-			if (it1 == id_map.end() || it2 == id_map.end()) {
-				int obs;
-				if (it1 == id_map.end()) obs = obs1;
-				if (it2 == id_map.end()) obs = obs2;
-				wxString msg = "On line ";
-				msg << line_num+1 << " of weights file, observation id " << obs;
-				if (use_rec_order) {
-					msg << " encountered which is out of allowed observation ";
-					msg << "range of 1 through " << num_obs << ".";
-				} else {
-					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the Table.";
-				}
-				LOG_MSG(msg);
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-				dlg.ShowModal();
-				delete [] gal;
-				return 0;
-			}
-			//LOG_MSG(wxString::Format("nbr_histogram[%d]=%d", (int) obs1,
-			//						 (int) nbr_histogram[obs1]));
-			gwt_obs1 = (*it1).second; // value
-			gwt_obs2 = (*it2).second; // value
-			if (gal[gwt_obs1].empty()) {
-				gal[gwt_obs1].alloc(nbr_histogram[obs1]);
-			}
-			gal[gwt_obs1].Push(gwt_obs2);
-		}
-		line_num++;
-	}	
-	
-	file.clear();
-	if (file.is_open()) file.close();
-	
-	LOG_MSG("Exiting WeightUtils::ReadGwtAsGal");
-	return gal;
+	return true;
 }
 
-/** This function should not be used unless an actual GWT object is needed
- internally.  In most cases, the ReadGwtAsGal function should be used */
-GwtElement* WeightUtils::ReadGwt(const wxString& fname,
-								 TableInterface* table_int)
+
+bool Gda::SaveGwt(const GwtElement* g,
+                  const wxString& layer_name,
+                  const wxString& ofname,
+                  const wxString& id_var_name,
+                  const std::vector<wxString>& id_vec)
 {
-	LOG_MSG("Entering WeightUtils::ReadGwt");
 	using namespace std;
-	ifstream file;
-	//file.open(fname.mb_str(wxConvUTF8), ios::in);  // a text file
-	file.open(fname.fn_str(), ios::in);  // a text file
-	if (!(file.is_open() && file.good())) {
-		return 0;
-	}
+	if (g == NULL || layer_name.IsEmpty() || ofname.IsEmpty()
+			|| id_vec.size() == 0) return false;
 	
-	// First determine if header line is correct
-	// Can be either: int int string string  (type n_obs filename field)
-	// or : int (n_obs)
+	wxFileName wx_fn(ofname);
+	wx_fn.SetExt("gwt");
+	wxString final_ofn(wx_fn.GetFullPath());
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(final_ofn));
+	if (!(out.is_open() && out.good())) return false;
 	
-	bool use_rec_order = false;
-	string str;
-	getline(file, str);
-	cout << str << endl;
-	stringstream ss(str, stringstream::in | stringstream::out);
+	size_t num_obs = (int) id_vec.size();
+	out << "0 " << num_obs << " " << layer_name;
+	out << " " << id_var_name << endl;
 	
-	wxInt64 num1 = 0;
-	wxInt64 num2 = 0;
-	wxInt64 num_obs = 0;	
-	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
-	wxString key_field(t_key_field);
-	if (num2 == 0) {
-		use_rec_order = true;
-		num_obs = num1;
-	} else {
-		num_obs = num2;
-		if (key_field.IsEmpty()) {
-			use_rec_order = true;
+	for (int i=0; i<num_obs; ++i) {
+		for (long nbr=0; nbr<g[i].Size(); ++nbr) {
+			const GwtNeighbor& current = g[i].elt(nbr);
+			out << id_vec[i] << ' ' << id_vec[current.nbx];
+			out << ' ' << setprecision(9) << setw(18)
+				<< current.weight << endl;
 		}
 	}
-	
-	if (num_obs != table_int->GetNumberRows()) {
-		wxString msg = "The number of observations specified in chosen ";
-		msg << "weights file is " << num_obs << ", but the number in the ";
-		msg << "current Table is " << table_int->GetNumberRows();
-		msg << ", which is incompatible.";
-		LOG_MSG(msg);
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		return 0;
-	}
-	
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	map<wxInt64, int> id_map;
-	if (use_rec_order) {
-		LOG_MSG("using record order");
-		// we need to traverse through every line of the file and
-		// record the max and min values.  So long as the max and min
-		// values are such that num_obs = (max - min) + 1, we will assume
-		// record order is valid.
-		wxInt64 min_val = LLONG_MAX;
-		wxInt64 max_val = LLONG_MIN;
-		while (!file.eof()) {
-			wxInt64 obs1=0, obs2=0;
-			getline(file, str);
-			if (!str.empty()) {
-				stringstream ss (str, stringstream::in | stringstream::out);
-				ss >> obs1 >> obs2;
-				if (obs1 < min_val) {
-					min_val = obs1;
-				} else if (obs1 > max_val) {
-					max_val = obs1;
-				}
-				if (obs2 < min_val) {
-					min_val = obs2;
-				} else if (obs2 > max_val) {
-					max_val = obs2;
-				}
-			}
-		}
-		if (max_val - min_val != num_obs - 1) {
-			wxString msg = "Record order specified, but found minimum ";
-			msg << " and maximum observation values of " << min_val;
-			msg << " and " << max_val << " which is incompatible with ";
-			msg << " number of observations specified in first line of ";
-			msg << " weights file: " << num_obs << ".";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		for (int i=0; i<num_obs; i++) id_map[i+min_val] = i;
-	} else {
-		int col, tm;
-		table_int->DbColNmToColAndTm(key_field, col, tm);
-		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		if (table_int->GetColType(col) != GdaConst::long64_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is ";
-			msg << " not an integer type in the currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-		// get mapping from key_field to record ids (which always start
-		// from 0 internally, but are displayed to the user from 1)
-		vector<wxInt64> vec;
-		table_int->GetColData(col, 0, vec);
-		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
-		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			LOG_MSG(msg);
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return 0;
-		}
-	}
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	// we need to traverse through every line of the file and
-	// record the number of neighbors for each observation.
-	map<wxInt64, int>::iterator it;
-	map<wxInt64, int> nbr_histogram;
-	while (!file.eof()) {
-		wxInt64 obs1=0;
-		getline(file, str);
-		if (!str.empty()) {
-			stringstream ss (str, stringstream::in | stringstream::out);
-			ss >> obs1;
-		
-			it = nbr_histogram.find(obs1);
-			if (it == nbr_histogram.end()) {
-				nbr_histogram[obs1] = 1;
-			} else {
-				nbr_histogram[obs1] = (*it).second + 1;
-			}
-		}
-	}
-	
-	GwtElement* gwt = new GwtElement[num_obs];
-	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
-	getline(file, str); // skip header line
-	map<wxInt64, int>::iterator it1;
-	map<wxInt64, int>::iterator it2;
-	int line_num = 1;
-	while (!file.eof()) {
-		int gwt_obs1, gwt_obs2;
-		wxInt64 obs1, obs2;
-		getline(file, str);
-		if (!str.empty()) {
-			stringstream ss(str, stringstream::in | stringstream::out);
-			ss >> obs1 >> obs2;
-			it1 = id_map.find(obs1);
-			it2 = id_map.find(obs1);
-			if (it1 == id_map.end() || it2 == id_map.end()) {
-				int obs;
-				if (it1 == id_map.end()) obs = obs1;
-				if (it2 == id_map.end()) obs = obs2;
-				wxString msg = "On line ";
-				msg << line_num+1 << " of weights file, observation id " << obs;
-				if (use_rec_order) {
-					msg << " encountered which out allowed observation ";
-					msg << "range of 1 through " << num_obs << ".";
-				} else {
-					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the Table.";
-				}
-				LOG_MSG(msg);
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
-				dlg.ShowModal();
-				delete [] gwt;
-				return 0;
-			}
-			gwt_obs1 = (*it1).second; // value
-			gwt_obs2 = (*it2).second; // value
-			if (gwt[gwt_obs1].empty()) gwt[gwt_obs1].alloc(nbr_histogram[obs1]);
-			gwt[gwt_obs1].Push(gwt_obs2);
-		}
-		line_num++;
-	}	
-	
-	if (file.is_open()) file.close();
-	
-	LOG_MSG("Exiting WeightUtils::ReadGwt");
-	return gwt;
-}
-
-GalElement* WeightUtils::Gwt2Gal(GwtElement* Gwt, long obs) 
-{
-	if (Gwt == NULL) return NULL;
-	GalElement* Gal = new GalElement[obs];
-	
-	for (int i=0; i<obs; i++) {
-		Gal[i].alloc(Gwt[i].Size());
-		for (int j=0; j < Gwt[i].Size(); j++) {
-			Gal[i].Push(Gwt[i].data[j].nbx);
-		}
-	}
-	return Gal;
+	return true;
 }

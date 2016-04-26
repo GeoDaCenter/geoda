@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,23 +22,24 @@
 
 #include "MapNewView.h"
 #include "LisaCoordinatorObserver.h"
+#include "../GdaConst.h"
 
-class LisaMapNewFrame;
-class LisaMapNewCanvas;
+class LisaMapFrame;
+class LisaMapCanvas;
 class LisaCoordinator;
 
-class LisaMapNewCanvas : public MapNewCanvas
+class LisaMapCanvas : public MapCanvas
 {
-	DECLARE_CLASS(LisaMapNewCanvas)
+	DECLARE_CLASS(LisaMapCanvas)
 public:	
-	LisaMapNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
+	LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 					 Project* project,
 					 LisaCoordinator* lisa_coordinator,
 					 CatClassification::CatClassifType theme_type,
 					 bool isBivariate, bool isEBRate,
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize);
-	virtual ~LisaMapNewCanvas();
+	virtual ~LisaMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
@@ -54,22 +55,23 @@ protected:
 	bool is_clust; // true = Cluster Map, false = Significance Map
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
+    bool is_diff;
 	
 	DECLARE_EVENT_TABLE()
 };
 
-class LisaMapNewFrame : public MapNewFrame, public LisaCoordinatorObserver
+class LisaMapFrame : public MapFrame, public LisaCoordinatorObserver
 {
-	DECLARE_CLASS(LisaMapNewFrame)
+	DECLARE_CLASS(LisaMapFrame)
 public:
-    LisaMapNewFrame(wxFrame *parent, Project* project,
+    LisaMapFrame(wxFrame *parent, Project* project,
 					LisaCoordinator* lisa_coordinator,
 					bool isClusterMap, bool isBivariate,
 					bool isEBRate,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::map_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~LisaMapNewFrame();
+    virtual ~LisaMapFrame();
 	
     void OnActivate(wxActivateEvent& event);
 	virtual void MapMenus();
@@ -98,8 +100,10 @@ public:
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 	
-	void update(LisaCoordinator* o);
+	virtual void update(LisaCoordinator* o);
+	virtual void closeObserver(LisaCoordinator* o);
 	
+	void GetVizInfo(std::vector<int>& clusters);
 protected:
 	void CoreSelectHelper(const std::vector<bool>& elem);
 	LisaCoordinator* lisa_coord;

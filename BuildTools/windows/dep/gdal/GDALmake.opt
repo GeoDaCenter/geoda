@@ -1,0 +1,598 @@
+GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal
+top_builddir	=	$(GDAL_ROOT)
+
+#
+# the library can be built by the native build or with the help of libtool
+#
+
+SHELL    =   /bin/sh
+HAVE_LIBTOOL	=	yes
+LIBTOOL	=	$(SHELL) $(top_builddir)/libtool
+ifeq ($(HAVE_LIBTOOL),yes)
+LIBTOOL_COMPILE_CC =	$(LIBTOOL) --mode=compile --tag=CC
+LIBTOOL_COMPILE_CXX =	$(LIBTOOL) --mode=compile --tag=CXX
+LIBTOOL_LINK	=	$(LIBTOOL) --mode=link
+LIBTOOL_INSTALL	=	$(LIBTOOL) --mode=install 
+LIBTOOL_FINISH	=	$(LIBTOOL) --mode=finish --silent
+LIBTOOL_CLEAN	=	$(LIBTOOL) --mode=clean
+OBJ_EXT = lo
+else
+LIBTOOL_FINISH	=	/usr/bin/true
+OBJ_EXT = o
+endif
+
+CC	=	$(LIBTOOL_COMPILE_CC) gcc
+CXX	=	$(LIBTOOL_COMPILE_CXX) g++
+LD	=	$(LIBTOOL_LINK)	g++
+RM	=	$(LIBTOOL_CLEAN) /bin/rm -f *.lo
+INSTALL = 	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
+INSTALL_LIB 	=	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
+INSTALL_DATA	= 	$(GDAL_ROOT)/install-sh -c -m 0644
+INSTALL_DIR	= 	$(GDAL_ROOT)/install-sh -d
+
+# SDE_LIB needs to be first because it embeds zlib.  We need to use its symbols instead of -lz's
+
+LIBS	=	$(SDE_LIB)  $(GEODA_HOME)/libraries/lib/libproj.a $(GEODA_HOME)/libraries/lib/libfreexl.a $(GEODA_HOME)/libraries/lib/libgeos.a $(GEODA_HOME)/libraries/lib/libgeos_c.a -L$(GEODA_HOME)/libraries/lib -lexpat $(GEODA_HOME)/libraries/lib/libxerces-c.a -framework CoreServices $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lz -lpthread -ldl $(GEODA_HOME)/libraries/lib/libspatialite.a $(GEODA_HOME)/libraries/lib/libsqlite3.a $(KAK_LIBS) $(DWG_LIBS) $(CURL_LIB) \
+		$(MRSID_LIBS) $(MRSID_LIDAR_LIBS) $(INGRES_LIB) \
+		$(PCIDSK_LIB) $(RASDAMAN_LIB) $(CHARLS_LIB) \
+		$(OPENCL_LIB) $(JVM_LIB) $(LIBICONV) $(FGDB_LIB)
+
+SSEFLAGS = 
+HAVE_SSE_AT_COMPILE_TIME = yes
+AVXFLAGS = -mavx
+HAVE_AVX_AT_COMPILE_TIME = yes
+PYTHON = 
+PY_HAVE_SETUPTOOLS=
+
+# Next Generation SWIG bindings
+BINDINGS	=	
+
+HAVE_OGDI = no
+OGR_ENABLED = yes
+GNM_ENABLED = no
+
+OSX_FRAMEWORK_PREFIX = /Library/Frameworks/GDAL.framework
+OSX_VERSION_FRAMEWORK_PREFIX = ${OSX_FRAMEWORK_PREFIX}/Versions/2.0
+
+prefix		=	$(GEODA_HOME)/libraries
+exec_prefix	=	${prefix}
+INST_PREFIX	=	${prefix}
+INST_INCLUDE	=	${prefix}/include
+INST_DATA 	=	${prefix}/share/gdal
+INST_LIB	=	${exec_prefix}/lib
+INST_BIN	=	${exec_prefix}/bin
+INST_PYMOD      =       @pymoddir@
+INST_DOCS	=	${prefix}/doc
+INST_MAN	=	${prefix}/man
+INST_HTML	=	$(HOME)/www/gdal
+
+CPPFLAGS	=  -I$(GDAL_ROOT)/port  -DGDAL_COMPILATION
+CFLAGS		=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS	=  -Os -arch x86_64  -g -DDEBUG -ftrapv  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
+CFLAGS_NOFTRAPV          = -Os -arch x86_64  -g -DDEBUG  -Wall -Wdeclaration-after-statement -Wextra -Winit-self -Wunused-parameter -Wmissing-prototypes -Wmissing-declarations -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS_NOFTRAPV        = -Os -arch x86_64  -g -DDEBUG  -Wall -Wextra -Winit-self -Wunused-parameter -Wformat -Werror=format-security -Wno-format-nonliteral -Wshorten-64-to-32 -Werror=vla -Wunused-private-field -Wmissing-prototypes -Wmissing-declarations -Wnon-virtual-dtor $(USER_DEFS)
+
+NO_UNUSED_PARAMETER_FLAG = -Wno-unused-parameter
+NO_SIGN_COMPARE = -Wno-sign-compare
+NO_NON_VIRTUAL_DTOR_FLAG = -Wno-non-virtual-dtor
+SHADOW_WFLAGS = -Wshadow
+
+# Also available -DAFL_FRIENDLY for strcmp(), etc.. variants that will
+# work better with American Fuzzy Lop branch examination logic
+
+# TODO(schwehr): Make these be configure flags.
+# CFLAGS += -Werror
+# CFLAGS += -std=c11
+# CFLAGS += -fsanitize=address
+# CFLAGS += -D_FORTIFY_SOURCE=2
+# CFLAGS += -fPIE -pie
+# CFLAGS += -fstack-protector-all
+
+# CXXFLAGS += -Werror
+# CXXFLAGS += -std=c++11
+# CXXFLAGS += -fsanitize=address
+# CXXFLAGS += -D_FORTIFY_SOURCE=2
+# CXXFLAGS += -fPIE -pie
+# CXXFLAGS += -fstack-protector-all
+
+LDFLAGS     = -arch x86_64
+# LDFLAGS += -fsanitize=address
+
+RANLIB		=	ranlib
+SO_EXT		=	
+LD_SHARED	=	
+EXE		=       
+
+ifeq ($(notdir $(LD_SHARED)),true)
+HAVE_LD_SHARED  =	no
+else
+HAVE_LD_SHARED  =	yes
+endif
+
+GDAL_INCLUDE	=	-I$(GDAL_ROOT)/port -I$(GDAL_ROOT)/gcore \
+			-I$(GDAL_ROOT)/alg \
+                        -I$(GDAL_ROOT)/ogr -I$(GDAL_ROOT)/ogr/ogrsf_frmts \
+                        -I$(GDAL_ROOT)/gnm -I$(GDAL_ROOT)/apps
+
+# libtool targets and help variables
+LIBGDAL	:=		libgdal.la
+LIBGDAL_CURRENT	:=	20
+LIBGDAL_REVISION	:=	0
+LIBGDAL_AGE	:=	0
+
+# native build targets and variables
+GDAL_VER	=	2.1.0
+
+# version info
+GDAL_VERSION_MAJOR =    2
+GDAL_VERSION_MINOR =    1
+GDAL_VERSION_REV   =    0
+
+GDAL_LIB	= 	$(GDAL_ROOT)/libgdal.a
+GDAL_SLIB	=	$(GDAL_ROOT)/libgdal.$(SO_EXT)
+GDAL_SLIB_LINK	=	-L$(GDAL_ROOT) -lgdal
+
+# Mac OS X Framework definition
+MACOSX_FRAMEWORK = no
+
+#
+# GDAL/OGR PostgreSQL support.
+#
+HAVE_OGR_PG     = yes
+HAVE_POSTGISRASTER  = yes
+PG_INC	=	-I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/libraries/include/postgresql/server  -DPG_HAS_PQESCAPESTRINGCONN
+
+#
+# INGRES
+#
+II_SYSTEM = 
+HAVE_INGRES = no
+INGRES_LIB = 
+INGRES_INC = 
+
+#
+# MySQL support.
+#
+HAVE_MYSQL =	no
+#MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
+#MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
+#LIBS	   +=	$(MYSQL_LIB)
+
+#
+# HDF4 Support.
+#
+HAVE_HDF4     = no
+HDF4_INCLUDE  =  -I$(GDAL_ROOT)/ogr
+HDF4_HAS_MAXOPENFILES = 
+ifeq ($(HDF4_HAS_MAXOPENFILES),yes)
+HDF4_FLAGS=-DHDF4_HAS_MAXOPENFILES
+endif
+
+#
+# HDF5 Support.
+#
+HAVE_HDF5     = no
+HDF5_INCLUDE  =  
+
+#
+# KEA Support.
+#
+HAVE_KEA     = no
+KEA_INC      =  
+KEA_LIB      = 
+LIBS       +=   $(KEA_LIB)
+
+#
+# NetCDF Support.
+#
+NETCDF_ROOT = 
+NETCDF_HAS_NC4 = 
+NETCDF_HAS_HDF4 = 
+
+#
+# DODS Include file location
+#
+DODS_INC = 
+ifeq ($(DODS_INC),)
+HAVE_DODS = no
+else
+HAVE_DODS = yes
+endif
+
+#
+# SQLite 
+#
+SQLITE_INC = -I$(GEODA_HOME)/libraries/include
+HAVE_SQLITE = yes
+HAVE_SPATIALITE = yes
+SPATIALITE_INC = -I$(GEODA_HOME)/libraries/include
+SPATIALITE_AMALGAMATION = no
+SPATIALITE_412_OR_LATER = no
+HAVE_PCRE = no
+
+#
+# JPEG2000 via Kakadu Support.
+#
+KAKDIR = 
+
+ifneq ($(KAKDIR),)
+ifeq ($(HAVE_LIBTOOL),yes)
+include $(GDAL_ROOT)/frmts/jp2kak/jp2kak.lst
+KAK_LIBS = $(KAK_OBJ)
+endif
+endif
+
+#
+# JPEG-2000 Support via JasPer library.
+#
+HAVE_JASPER     = no
+JASPER_FLAGS	= 
+
+#
+# JPEG-2000 Support via OpenJPEG library.
+#
+HAVE_OPENJPEG   = no
+OPENJPEG_VERSION = 
+
+#
+# MrSID support via LizardTech's DSDK
+#
+MRSID_FLAGS	= 
+MRSID_INCLUDE	= 
+MRSID_LIBS	= 
+
+#
+#
+# MrSID/MG4 support via LizardTech LiDAR SDK
+#
+MRSID_LIDAR_INCLUDE	= 
+MRSID_LIDAR_LIBS	= 
+
+# Xerces C++ XML Parser for GML and ILI
+#
+HAVE_XERCES	= yes
+XERCES_INCLUDE	= -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/libraries/include/xercesc
+
+# 
+# Enable NAS format
+#
+HAVE_NAS	= yes
+
+#
+# Expat XML Parser for KML, GPX, GeoRSS (and GML if no Xerces C++)
+#
+HAVE_EXPAT = yes
+EXPAT_INCLUDE = -I/usr/include
+
+#
+# Google libkml for the new OGR KML driver written by Brian Case
+#
+HAVE_LIBKML = no
+#LIBKML_INCLUDE = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/libraries/include/kml -I$(GEODA_HOME)/libraries/include/kml/third_party/boost_1_34_1
+
+#
+# Oracle Spatial Support
+#
+HAVE_OCI	= no
+OCI_INCLUDE	= 
+
+# GEOS Support
+
+HAVE_GEOS       =       yes
+GEOS_CFLAGS     =       -I$(GEODA_HOME)/libraries/include
+
+# GRASS Support
+
+GRASS_SETTING	=	no
+GRASS_INCLUDE	=	
+GRASS_GISBASE	=	
+HAVE_GRASS	=	no
+
+# 
+# SDE
+#
+HAVE_SDE = no
+SDE_LIB	= 
+SDE_INC = 
+
+# 
+# FileGDB
+#
+HAVE_FGDB = 
+FGDB_LIB = 
+FGDB_INC = 
+
+# 
+# MongoDB
+#
+HAVE_MONGODB = no
+MONGODB_LIB = 
+MONGODB_INC = 
+
+# 
+# ArcObjects
+#
+HAVE_ARCOBJECTS = @ARCOBJECTS_ENABLED@
+ARCOBJECTS_LIB	= @ARCOBJECTS_LIB@
+ARCOBJECTS_INC = @ARCOBJECTS_INC@
+
+#
+# Curl
+#
+CURL_SETTING 	=	yes
+CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz
+CURL_INC	=	-I$(GEODA_HOME)/libraries/include
+
+#
+# libjson-c
+#
+LIBJSONC_SETTING = internal
+JSON_INCLUDE = -I$(GDAL_ROOT)/ogr/ogrsf_frmts/geojson/libjson
+
+# 
+# OpenCL support
+#
+OPENCL_LIB	=	
+OPENCL_FLAGS	=	
+
+#
+# PCIDSK SDK
+# 
+PCIDSK_SETTING  =       internal
+PCIDSK_LIB	=	
+PCIDSK_INCLUDE	=	
+
+#
+# Iconv
+#
+LIBICONV	=	-liconv
+
+# 
+# DWGdirect Library
+#
+DWGDIRECT =	
+DWG_PLT = 
+
+ifneq ($(DWGDIRECT),)
+DWG_LIBDIR =	$(DWGDIRECT)/lib/$(DWG_PLT)
+DWG_LIBS = $(DWG_LIBDIR)/DD_$(DWG_PLT)_ModelerGeometry.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_AcisRenderer.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Br.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_AcisBuilder.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Db.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Gs.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_SpatialIndex.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Gi.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Ge.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Root.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_FT.a \
+	$(DWG_LIBDIR)/DD_$(DWG_PLT)_Alloc.a 
+HAVE_DWGDIRECT = yes
+else
+DWG_LIBS =	
+HAVE_DWGDIRECT = no
+endif
+
+#
+# Informix DataBlade support
+#
+HAVE_IDB	= no
+IDB_INC		= 
+IDB_LIB		= 
+ifeq ($(HAVE_IDB),yes)
+LIBS	   	+= $(IDB_LIB)
+endif
+
+#
+# FMEObjects
+#
+ifeq (,)
+HAVE_FME        =       no
+FME_INCLUDE	=	
+else
+HAVE_FME        =       yes
+FME_INCLUDE	=	-I/fmeobjects/cpp
+endif
+
+# PCRaster support
+PCRASTER_SETTING	=	internal
+
+OGDI_INCLUDE	=	
+
+PNG_SETTING     =	internal
+JPEG_SETTING	=	internal
+JPEG12_ENABLED =	yes
+TIFF_JPEG12_ENABLED =    yes
+TIFF_SETTING	=	internal
+TIFF_OPTS	=	-DBIGTIFF_SUPPORT
+RENAME_INTERNAL_LIBTIFF_SYMBOLS = no
+GEOTIFF_SETTING	=	internal
+GEOTIFF_INCLUDE =	
+RENAME_INTERNAL_LIBGEOTIFF_SYMBOLS = no
+GIF_SETTING	=	internal
+FITS_SETTING    =       no
+OGDI_SETTING	=	no
+ODBC_SETTING    =       no
+# PGeo driver is built-in when ODBC is available
+PGEO_SETTING    =       no
+MSSQLSPATIAL_SETTING    =       no
+GEOMEDIA_SETTING    =       no
+NETCDF_SETTING  =       no
+LIBZ_SETTING	=	external
+LIBLZMA_SETTING	=	no
+
+#
+# Rasdaman stuff
+#
+RASDAMAN_ENABLED  =       no
+RASDAMAN_INC  =   
+RASDAMAN_LIB  =   
+
+#
+# Poppler stuff
+#
+
+HAVE_POPPLER = no
+POPPLER_HAS_OPTCONTENT = no
+POPPLER_BASE_STREAM_HAS_TWO_ARGS = no
+POPPLER_0_20_OR_LATER = no
+POPPLER_INC = 
+
+#
+# Podofo stuff
+#
+
+HAVE_PODOFO = no
+PODOFO_INC = 
+
+#
+# CharLs stuff
+# Uncomment and adapt paths to enable JPEGLS driver
+#
+#HAVE_CHARLS = yes
+#CHARLS_INC = -I/path/to/charls_include
+#CHARLS_LIB = -L/path/to/charls_lib -lCharLS
+
+#
+# PROJ.4 stuff
+#
+PROJ_STATIC	=	yes
+ifeq ($(PROJ_STATIC),yes)
+PROJ_FLAGS = -DPROJ_STATIC
+endif
+PROJ_INCLUDE	=	-I$(GEODA_HOME)/libraries/include
+
+PAM_SETTING     =       -DPAM_ENABLED
+
+ifeq ($(OGR_ENABLED),yes)
+GDAL_LIBS	:= $(GDAL_LIB) $(OCI_LIB) $(GDAL_LIBS)
+CPPFLAGS	:= -DOGR_ENABLED $(CPPFLAGS)
+else
+GDAL_LIBS	=	$(GDAL_LIB)
+endif
+
+#
+# Java stuff
+#
+JAVA_HOME = 
+JAVA_INC  = 
+JVM_LIB   = 
+
+MDB_ENABLED =   no
+
+HAVE_ARMADILLO = no
+
+#
+# freexl stuff
+#
+
+HAVE_FREEXL = yes
+FREEXL_INCLUDE = -I$(GEODA_HOME)/libraries/include
+
+#
+#	Note these codes have to exactly match the format directory names, 
+#	and their uppercase form should be the format portion of the
+#	format registration entry point.  eg. gdb -> GDALRegister_GDB().
+#
+GDAL_FORMATS = 	gxf gtiff hfa aigrid aaigrid ceos ceos2 iso8211 xpm \
+		sdts raw dted mem jdem envisat elas fit vrt usgsdem l1b \
+		nitf bmp pcidsk airsar rs2 ilwis rmf leveller sgi srtmhgt \
+		idrisi gsg ingr ers jaxapalsar dimap gff cosar pds adrg \
+		coasp tsx terragen blx msgn til r northwood saga xyz hf2 \
+		kmlsuperoverlay ctg e00grid zmap ngsgeoid iris map cals\
+		safe sentinel2 \
+		wcs wms plmosaic wmts grib bsb gif jpeg png pcraster 
+
+
+ifneq ($(LIBZ_SETTING),no)
+GDAL_FORMATS := $(GDAL_FORMATS) rik ozi
+endif
+
+ifeq ($(OGR_ENABLED),yes)
+ifeq ($(HAVE_SQLITE),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) rasterlite mbtiles
+endif
+endif
+
+ifeq ($(HAVE_POSTGISRASTER),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) postgisraster
+endif
+
+ifeq ($(HAVE_CHARLS),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) jpegls
+endif
+
+ifeq ($(OGR_ENABLED),yes)
+GDAL_FORMATS := $(GDAL_FORMATS) arg
+endif
+
+#
+# CONFIG_LIBS is what local program should link against, and CONFIG_LIBS_INS
+# is what will be emitted into the gdal-config script that is installed
+# globally.
+#
+
+ifeq ($(HAVE_LIBTOOL), yes)
+
+CONFIG_LIBS	=	$(GDAL_ROOT)/$(LIBGDAL)
+ifeq ($(MACOSX_FRAMEWORK),yes)
+CONFIG_LIBS_INS	=	-L$(INST_LIB)/unix/lib -lgdal
+else
+CONFIG_LIBS_INS	=	-L$(INST_LIB) -lgdal
+endif # MACOSX_FRAMEWORK
+
+EXE_DEP_LIBS	=	$(GDAL_ROOT)/$(LIBGDAL)
+SO_EXT		=	la
+
+else # HAVE_LIBTOOL
+
+ifeq ($(HAVE_LD_SHARED),yes)
+CONFIG_LIBS	=	$(GDAL_SLIB_LINK) $(LIBS)
+ifeq ($(MACOSX_FRAMEWORK),yes)
+CONFIG_LIBS_INS	=	-L$(INST_LIB)/unix/lib -lgdal
+else
+CONFIG_LIBS_INS	=	-L$(INST_LIB) -lgdal
+endif
+EXE_DEP_LIBS	=	$(GDAL_SLIB)
+else
+CONFIG_LIBS	=	$(GDAL_LIBS) $(LIBS)
+CONFIG_LIBS_INS	=	$(foreach LF,$(GDAL_LIBS),$(INST_LIB)/$(notdir $(LF)))\
+			 $(LIBS)
+EXE_DEP_LIBS	=	$(GDAL_LIB)
+endif
+
+endif # HAVE_LIBTOOL
+
+
+#
+# generic library rules
+#
+
+#
+# gdal and ogr low level drivers use the following default rules in order to
+# populate the ../o/ directory with all object and library object files
+#
+
+O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
+
+../o/%.$(OBJ_EXT):	%.c
+	$(CC) $(GDAL_INCLUDE) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+../o/%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(GDAL_INCLUDE) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.c
+	$(CC) $(GDAL_INCLUDE) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(GDAL_INCLUDE) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+#
+# default rules for handling subdirectories
+#
+
+%-target:
+	$(MAKE) -C $*
+
+%-clean:
+	$(MAKE) -C $* clean

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,9 +25,11 @@
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
 #include "../DataViewer/TableInterface.h"
-#include "../GenUtils.h"
 #include "../ShapeOperations/Randik.h"
+#include "../ShapeOperations/WeightsManState.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
+#include "../Project.h"
 #include "GetisOrdMapNewView.h"
 #include "GStatCoordinator.h"
 
@@ -121,21 +123,26 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 }
 
 
-GStatCoordinator::GStatCoordinator(const GalWeight* gal_weights_s,
-								   TableInterface* table_int,
-								   const std::vector<GeoDaVarInfo>& var_info_s,
+GStatCoordinator::GStatCoordinator(boost::uuids::uuid weights_id,
+								   Project* project,
+								   const std::vector<GdaVarTools::VarInfo>& var_info_s,
 								   const std::vector<int>& col_ids,
 								   bool row_standardize_weights)
-: W(gal_weights_s->gal),
-weight_name(wxFileName(gal_weights_s->wflnm).GetName()),
+: w_man_state(project->GetWManState()),
+w_man_int(project->GetWManInt()),
+w_id(weights_id),
+num_obs(project->GetNumRecords()),
 row_standardize(row_standardize_weights),
-num_obs(table_int->GetNumberRows()),
-permutations(99),
+permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false)
 {
+	GalWeight* gw = w_man_int->GetGal(w_id);
+	W = (gw ? gw->gal : 0);
+	weight_name = w_man_int->GetLongDispName(w_id);
 	SetSignificanceFilter(1);
+	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
 	}
@@ -143,13 +150,15 @@ last_seed_used(0), reuse_last_seed(false)
 	
 	maps.resize(8);
 	for (int i=0, iend=maps.size(); i<iend; i++) {
-		maps[i] = (GetisOrdMapNewFrame*) 0;
+		maps[i] = (GetisOrdMapFrame*) 0;
 	}
+	w_man_state->registerObserver(this);
 }
 
 GStatCoordinator::~GStatCoordinator()
 {
 	LOG_MSG("In GStatCoordinator::~GStatCoordinator");
+	w_man_state->removeObserver(this);
 	DeallocateVectors();
 }
 
@@ -299,7 +308,7 @@ void GStatCoordinator::InitFromVarInfo()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void GStatCoordinator::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -318,7 +327,7 @@ void GStatCoordinator::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 /** The category vector c_val will be filled based on the current
@@ -376,20 +385,21 @@ void GStatCoordinator::CalcGs()
 
 		double n_expr = sqrt((n[t]-1)*(n[t]-1)*(n[t]-2));
 		for (long i=0; i<num_obs; i++) {
-			if ( W[i].size > 0 ) {
+			const GalElement& elm_i = W[i];
+			if ( elm_i.Size() > 0 ) {
 				double lag = 0;
 				bool self_neighbor = false;
-				for (int j=0; j<W[i].size; j++) {
-					if (W[i].data[j] != i) {
-						lag += x[W[i].data[j]];
+				for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
+					if (elm_i[j] != i) {
+						lag += x[elm_i[j]];
 					} else {
 						self_neighbor = true;
 					}
 				}
-				double Wi = self_neighbor ? W[i].size-1 : W[i].size;
+				double Wi = self_neighbor ? W[i].Size()-1 : W[i].Size();
 				if (row_standardize) {
-					lag /= W[i].size;
-					Wi /= W[i].size;
+					lag /= elm_i.Size();
+					Wi /= elm_i.Size();
 				}
 				double xd_i = x_star[t] - x[i];
 				if (xd_i != 0) {
@@ -429,28 +439,31 @@ void GStatCoordinator::CalcGs()
 	
 		if (row_standardize) {
 			for (long i=0; i<num_obs; i++) {
+				const GalElement& elm_i = W[i];
 				double lag = 0;
 				bool self_neighbor = false;
-				for (int j=0; j<W[i].size; j++) {
-					if (W[i].data[j] == i) self_neighbor = true;
-					lag += x[W[i].data[j]];
+				int sz_i=W[i].Size();
+				for (int j=0; j<sz_i; j++) {
+					if (elm_i[j] == i) self_neighbor = true;
+					lag += x[elm_i[j]];
 				}
-				G_star[i] = self_neighbor ? lag/(W[i].size * x_star[t]) :
-					(lag+x[i])/((W[i].size+1) * x_star[t]);
+				G_star[i] = self_neighbor ? lag/(sz_i * x_star[t]) :
+					(lag+x[i])/((sz_i+1) * x_star[t]);
 				z_star[i] = (G_star[i] - ExGstar[t])/sdGstar[t];
 			}
 		} else { // binary weights
 			double n_expr_mean_x = n[t] * sqrt(n[t]-1) * mean_x[t];
 			for (long i=0; i<num_obs; i++) {
+				const GalElement& elm_i = W[i];
 				double lag = 0;
 				bool self_neighbor = false;
-				for (int j=0; j<W[i].size; j++) {
-					if (W[i].data[j] == i) self_neighbor = true;
-					lag += x[W[i].data[j]];
+				for (int j=0, sz=elm_i.Size(); j<sz; j++) {
+					if (elm_i[j] == i) self_neighbor = true;
+					lag += x[elm_i[j]];
 				}
 				if (!self_neighbor) lag += x[i];
 				G_star[i] = lag / x_star[t];
-				double Wi = self_neighbor ? W[i].size : W[i].size+1;
+				double Wi = self_neighbor ? W[i].Size() : W[i].Size()+1;
 				// location-specific mean
 				double ExGi_star = Wi/n[t];
 				// location-specific variance
@@ -705,12 +718,41 @@ void GStatCoordinator::SetSignificanceFilter(int filter_id)
 	if (filter_id == 4) significance_cutoff = 0.0001;
 }
 
-void GStatCoordinator::registerObserver(GetisOrdMapNewFrame* o)
+void GStatCoordinator::update(WeightsManState* o)
+{
+	weight_name = w_man_int->GetLongDispName(w_id);
+}
+
+int GStatCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
+{
+	int n=0;
+	if (id == w_id) {
+		for (std::vector<GetisOrdMapFrame*>::const_iterator i=maps.begin();
+			 i != maps.end(); ++i) {
+			if (*i != 0) ++n;
+		}
+	}
+	return n;
+}
+
+void GStatCoordinator::closeObserver(boost::uuids::uuid id)
+{
+	if (numMustCloseToRemove(id) == 0) return;
+	std::vector<GetisOrdMapFrame*> maps_cpy = maps;
+	for (std::vector<GetisOrdMapFrame*>::iterator i=maps_cpy.begin();
+		 i != maps_cpy.end(); ++i) {
+		if (*i != 0) {
+			(*i)->closeObserver(this);
+		}
+	}
+}
+
+void GStatCoordinator::registerObserver(GetisOrdMapFrame* o)
 {
 	maps[o->map_type] = o;
 }
 
-void GStatCoordinator::removeObserver(GetisOrdMapNewFrame* o)
+void GStatCoordinator::removeObserver(GetisOrdMapFrame* o)
 {
 	LOG_MSG("Entering GStatCoordinator::removeObserver");
 	maps[o->map_type] = 0;

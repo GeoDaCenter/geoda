@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
-    <Filter Include="kNN">
-      <UniqueIdentifier>{6b021038-39cc-4a4b-bf84-4b16213eb431}</UniqueIdentifier>
-    </Filter>
     <Filter Include="rc">
       <UniqueIdentifier>{2e1da7d4-588b-43e1-bdf5-3b9f666a49cd}</UniqueIdentifier>
     </Filter>
@@ -23,14 +20,14 @@
     <Filter Include="Explore">
       <UniqueIdentifier>{ee59f97c-f898-49a6-8ade-d246a9b0aa2f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Generic">
-      <UniqueIdentifier>{38efda3f-a143-4635-a0d7-5eccdfa01913}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DataViewer">
       <UniqueIdentifier>{58866c51-a328-4e1d-b2c1-91e8cb13fcd9}</UniqueIdentifier>
     </Filter>
     <Filter Include="VarCalc">
       <UniqueIdentifier>{8ba6e2ee-cf14-4306-829b-ee6c92833904}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libgdiam">
+      <UniqueIdentifier>{efd46cf7-a968-4f71-9280-fd130105566c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,36 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\resource.h" />
-    <ClInclude Include="..\..\knn\ANNperf.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\ANNx.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\kd_pr_search.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\kd_search.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\kd_split.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\kd_tree.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\kd_util.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\pr_queue.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\pr_queue_k.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\values.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\AbstractShape.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
@@ -103,9 +70,6 @@
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\DBF.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\DbfFile.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\DorlingCartogram.h">
@@ -139,18 +103,6 @@
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\ShapeUtils.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\shapeoperations\shp.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\shapeoperations\shp2cnt.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\shapeoperations\shp2gwt.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\shapeoperations\ShpFile.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\VoronoiUtils.h">
@@ -297,13 +249,7 @@
     <ClInclude Include="..\..\DialogTools\SaveToTableDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dialogtools\SelectWeightDlg.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dialogtools\SHP2ASCDlg.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dialogtools\Statistics.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\TimeChooserDlg.h">
@@ -384,27 +330,6 @@
     <ClInclude Include="..\..\Explore\ScatterNewPlotView.h">
       <Filter>Explore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\generic\HighlightState.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Generic\HighlightStateObserver.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generic\macro_cleaner.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generic\GdaShape.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generic\Observable.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generic\Observer.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Generic\TestScrollWinView.h">
-      <Filter>Generic</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\DataViewer\DataViewerAddColDlg.h">
       <Filter>DataViewer</Filter>
     </ClInclude>
@@ -430,7 +355,6 @@
     <ClInclude Include="..\..\FramesManagerObserver.h" />
     <ClInclude Include="..\..\GeneralWxUtils.h" />
     <ClInclude Include="..\..\GenGeomAlgs.h" />
-    <ClInclude Include="..\..\GenUtils.h" />
     <ClInclude Include="..\..\GeoDa.h" />
     <ClInclude Include="..\..\logger.h" />
     <ClInclude Include="..\..\nullstream.h" />
@@ -446,9 +370,6 @@
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\TimeStateObserver.h">
       <Filter>DataViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\knn\ANN.h">
-      <Filter>kNN</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\DbfTable.h">
       <Filter>DataViewer</Filter>
@@ -552,29 +473,153 @@
     <ClInclude Include="..\..\VarCalc\GdaParser.h">
       <Filter>VarCalc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VarCalc\WeightsManInterface.h">
+      <Filter>VarCalc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VarCalc\WeightsMetaInfo.h">
+      <Filter>VarCalc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ShapeOperations\WeightsManState.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ShapeOperations\WeightsManStateObserver.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ShapeOperations\WeightUtils.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\WeightsManDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\ConnectivityMapView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VarCalc\CalcHelp.h" />
+    <ClInclude Include="..\..\Explore\WebViewExampleWin.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DataViewer\DataChangeType.h">
+      <Filter>DataViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\GdaJson.h" />
+    <ClInclude Include="..\..\ShapeOperations\Lowess.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\VarTools.h" />
+    <ClInclude Include="..\..\Explore\LowessParamDlg.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LowessParamObservable.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LowessParamObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\ScatterPlotMatView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\VarsChooserDlg.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\VarsChooserObservable.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\VarsChooserObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ShapeOperations\SmoothingUtils.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LineChartCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LineChartView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\SimpleAxisCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\SimpleHistCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\SimpleScatterPlotCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LineChartStats.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CovSpHLStateProxy.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CovSpView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\DistancesCalc.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libgdiam\gdiam.hpp">
+      <Filter>libgdiam</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DbfFile.h" />
+    <ClInclude Include="..\..\ShpFile.h" />
+    <ClInclude Include="..\..\SpatialIndAlgs.h" />
+    <ClInclude Include="..\..\SpatialIndTypes.h" />
+    <ClInclude Include="..\..\GdaShape.h" />
+    <ClInclude Include="..\..\PointSetAlgs.h" />
+    <ClInclude Include="..\..\VarCalc\NumericTests.h">
+      <Filter>VarCalc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CorrelogramView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CorrelParamsDlg.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CorrelParamsObservable.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CorrelParamsObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\HighlightState.h" />
+    <ClInclude Include="..\..\HighlightStateObserver.h" />
+    <ClInclude Include="..\..\HLStateInt.h" />
+    <ClInclude Include="..\..\Observable.h" />
+    <ClInclude Include="..\..\Observer.h" />
+    <ClInclude Include="..\..\ShapeOperations\PolysToContigWeights.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ShapeOperations\SimplePoint.h">
+      <Filter>ShapeOperations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\SimpleBinsHistCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\CorrelogramAlgs.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\Basemap.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\GdaCartoDB.h" />
+    <ClInclude Include="..\..\GenUtils.h" />
+    <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PublishDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\knn\ANN.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kd_pr_search.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kd_search.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kd_split.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kd_tree.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kd_util.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\knn\kNN.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
       <Filter>rc</Filter>
     </ClCompile>
@@ -591,9 +636,6 @@
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\DBF.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\DbfFile.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\DorlingCartogram.cpp">
@@ -624,18 +666,6 @@
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\ShapeUtils.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\shapeoperations\shp.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\shapeoperations\shp2cnt.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\shapeoperations\shp2gwt.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\shapeoperations\ShpFile.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\VoronoiUtils.cpp">
@@ -764,13 +794,7 @@
     <ClCompile Include="..\..\DialogTools\SaveToTableDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dialogtools\SelectWeightDlg.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dialogtools\SHP2ASCDlg.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dialogtools\Statistics.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\TimeChooserDlg.cpp">
@@ -844,15 +868,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\ScatterNewPlotView.cpp">
       <Filter>Explore</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\generic\HighlightState.cpp">
-      <Filter>Generic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\generic\GdaShape.cpp">
-      <Filter>Generic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Generic\TestScrollWinView.cpp">
-      <Filter>Generic</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DataViewer\DataViewerAddColDlg.cpp">
       <Filter>DataViewer</Filter>
@@ -987,6 +1002,130 @@
     </ClCompile>
     <ClCompile Include="..\..\VarCalc\GdaParser.cpp">
       <Filter>VarCalc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp">
+      <Filter>VarCalc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ShapeOperations\WeightsManState.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ShapeOperations\WeightUtils.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ConnectivityMapView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\VarCalc\CalcHelp.cpp" />
+    <ClCompile Include="..\..\Explore\WebViewExampleWin.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DataViewer\DataChangeType.cpp">
+      <Filter>DataViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GdaJson.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\Lowess.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\VarTools.cpp" />
+    <ClCompile Include="..\..\Explore\LowessParamDlg.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LowessParamObservable.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\VarsChooserDlg.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\VarsChooserObservable.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ShapeOperations\SmoothingUtils.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LineChartCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LineChartView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\SimpleAxisCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\SimpleHistCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\SimpleScatterPlotCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LineChartStats.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CovSpHLStateProxy.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CovSpView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\DistancesCalc.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libgdiam\gdiam.cpp">
+      <Filter>libgdiam</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DbfFile.cpp" />
+    <ClCompile Include="..\..\ShpFile.cpp" />
+    <ClCompile Include="..\..\SpatialIndAlgs.cpp" />
+    <ClCompile Include="..\..\GdaShape.cpp" />
+    <ClCompile Include="..\..\PointSetAlgs.cpp" />
+    <ClCompile Include="..\..\VarCalc\NumericTests.cpp">
+      <Filter>VarCalc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CorrelogramView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CorrelParamsDlg.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CorrelParamsObservable.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\HighlightState.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ShapeOperations\SimplePoint.cpp">
+      <Filter>ShapeOperations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\SimpleBinsHistCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\CorrelogramAlgs.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\Basemap.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GdaCartoDB.cpp" />
+    <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PublishDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -22,7 +22,7 @@
 
 #include <vector>
 #include <wx/grid.h>
-#include "../Generic/HighlightStateObserver.h"
+#include "../HighlightStateObserver.h"
 #include "TableStateObserver.h"
 #include "TimeStateObserver.h"
 
@@ -31,12 +31,13 @@ class TableInterface;
 class TableState;
 class TimeState;
 class HighlightState;
+class TemplateFrame;
 
-class TableBase : public TableStateObserver, TimeStateObserver,
+class TableBase : public TableStateObserver, public TimeStateObserver,
 public HighlightStateObserver,  public wxGridTableBase
 {
 public:
-	TableBase(Project* _project);
+	TableBase(Project* _project, TemplateFrame* t_frame);
 	virtual ~TableBase();
 	
 	virtual bool FromGridIsSelectedRow(int row);
@@ -76,7 +77,7 @@ public:
 	virtual wxString GetRowLabelValue(int row);
 	virtual wxString GetColLabelValue(int col);	
 	
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual void update(TableState* o);
 	virtual void update(TimeState* o);
 	virtual bool AllowTimelineChanges() { return true; }
@@ -86,6 +87,8 @@ public:
 	virtual void notifyColMove();
 	virtual TableInterface* GetTableInt();
 	
+    void UpdateStatusBar();
+    
 private:
 	HighlightState* highlight_state;
 	std::vector<bool>& hs; //shortcut to HighlightState::highlight, read only!
@@ -94,6 +97,7 @@ private:
 	TableInterface* table_int;
 	TimeState* time_state;
     Project* project;
+	TemplateFrame* template_frame;
     
 	int rows;
     int cols;

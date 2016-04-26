@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -40,6 +40,12 @@ VarOrderMapper::~VarOrderMapper()
 {
 }
 
+void VarOrderMapper::Update(const VarOrderPtree& vo)
+{
+    time_ids = vo.GetTimeIdsRef();
+    var_grps = vo.GetVarGroupsRef();
+}
+
 int VarOrderMapper::GetNumVarGroups() const
 {
 	return var_grps.size();
@@ -74,6 +80,20 @@ int VarOrderMapper::GetColId(const wxString& name) const
         ++cnt;
 	}
 	return wxNOT_FOUND;
+}
+
+int VarOrderMapper::GetColIdx(const wxString& name) const
+{
+    int cnt=0;
+    BOOST_FOREACH(const VarGroup& e, var_grps) {
+        if (e.name.CmpNoCase(name) == 0) return cnt;
+        else if (e.vars.size() > 0) {
+            BOOST_FOREACH(const wxString& subname, e.vars)
+                if (subname.CmpNoCase(name) == 0) return cnt;
+        }
+        ++cnt;
+    }
+    return wxNOT_FOUND;
 }
 
 /** Searches for name in VarGroup.  If VarGroup is simple, then returns
@@ -379,7 +399,7 @@ void VarOrderMapper::InsertTime(int time, const wxString& new_time_id)
 
 void VarOrderMapper::RenameTime(int time, const wxString& new_time_id)
 {
-	if (time < 0 || time > time_ids.size()) return;
+	if (time < 0 || time >= time_ids.size()) return;
 	time_ids[time] = new_time_id;
 }
 

@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,22 +20,26 @@
 #include <boost/foreach.hpp>
 #include <wx/xrc/xmlres.h>
 #include "DataViewer/TableState.h"
+#include "ShapeOperations/WeightsManState.h"
 #include "GeneralWxUtils.h"
 #include "GeoDa.h"
 #include "logger.h"
 #include "SaveButtonManager.h"
 
-SaveButtonManager::SaveButtonManager(TableState* _table_state)
-: table_state(_table_state),
+SaveButtonManager::SaveButtonManager(TableState* table_state_,
+									 WeightsManState* w_man_state_)
+: table_state(table_state_), w_man_state(w_man_state_),
 metadata_chgs_since_last_save(false), db_chgs_since_last_save(false),
 allow_enable_save(false)
 {
 	table_state->registerObserver(this);
+	w_man_state->registerObserver(this);
 }
 
 SaveButtonManager::~SaveButtonManager()
 {
 	table_state->removeObserver(this);
+	w_man_state->removeObserver(this);
 }
 
 void SaveButtonManager::SetAllowEnableSave(bool enable)
@@ -78,7 +82,7 @@ void SaveButtonManager::SetDbSaveNeeded(bool save_needed)
 
 void SaveButtonManager::update(TableState* o)
 {
-	LOG("Entering SaveButtonManager::update");
+	LOG_MSG("Entering SaveButtonManager::update(TableState*)");
 	bool md_chgs_prev = metadata_chgs_since_last_save;
 	bool db_chgs_prev = db_chgs_since_last_save;
 	
@@ -124,7 +128,17 @@ void SaveButtonManager::update(TableState* o)
 	LOG(metadata_chgs_since_last_save);
 	LOG(db_chgs_prev);
 	LOG(db_chgs_since_last_save);
-	LOG("Exiting SaveButtonManager::update");
+	LOG_MSG("Exiting SaveButtonManager::update(TableState*)");
+}
+
+void SaveButtonManager::update(WeightsManState* o)
+{
+	LOG_MSG("In SaveButtonManager::update(WeightsManState*)");
+	bool md_chgs_prev = metadata_chgs_since_last_save;
+	metadata_chgs_since_last_save = true;
+	if (!md_chgs_prev && metadata_chgs_since_last_save) {
+		UpdateSaveMenuItems();
+	}
 }
 
 void SaveButtonManager::UpdateSaveMenuItems()

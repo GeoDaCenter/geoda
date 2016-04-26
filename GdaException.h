@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -32,9 +32,12 @@ public:
     typedef enum { 
 		NORMAL = 0, 
 		WARNING = 1, 
-		CRITICLE = 2
+		CRITICLE = 2,
+        FIELD_NAME_EMPTY = 3
 	} Type;
 
+    GdaException() {}
+    
 	GdaException(const char* message, Type _t_=GdaException::CRITICLE)
 	{
 		std::ostringstream s;
@@ -53,9 +56,26 @@ public:
     }
     virtual const Type type() const throw() { return t_; }
 	
-private:
+protected:
 	std::string what_;
     Type t_;
+};
+
+class GdaLocalSeparatorException : public GdaException {
+public:
+    GdaLocalSeparatorException(const char* message, Type _t_=GdaLocalSeparatorException::CRITICLE)
+    {
+        what_ = "Invalid Local Separtor found.";
+        t_ = _t_;
+    }
+    
+    virtual ~GdaLocalSeparatorException() throw () {}
+    virtual const char* what() const throw () {
+        if (what_.empty()) return "None";
+        return what_.c_str();
+    }
+    
+    virtual const Type type() const throw() { return t_; }
 };
 
 #endif

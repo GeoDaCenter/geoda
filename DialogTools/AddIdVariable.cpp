@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -24,7 +24,7 @@
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
-#include "../ShapeOperations/DbfFile.h"
+#include "../DbfFile.h"
 #include "../logger.h"
 #include "AddIdVariable.h"
 
@@ -39,21 +39,27 @@ AddIdVariable::AddIdVariable(TableInterface* table_int_s,
 							 const wxPoint& pos, const wxSize& size,
 							 long style )
 : table_int(table_int_s)
-{	
+{
+    LOG_MSG("Entering AddIdVariable::AddIdVariable(..)");
+    
     SetParent(parent);
     CreateControls();
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
     Centre();
+    
+    
+    LOG_MSG("Exiting AddIdVariable::AddIdVariable(..)");
 }
 
 void AddIdVariable::CreateControls()
 {
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-									 "IDD_ADD_ID_VARIABLE");
-	new_id_var = wxDynamicCast(FindWindow(XRCID("IDC_NEW_ID_VAR")),
-							   wxTextCtrl);
-	existing_vars_list = 
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_ADD_ID_VARIABLE");
+	new_id_var = wxDynamicCast(FindWindow(XRCID("IDC_NEW_ID_VAR")), wxTextCtrl);
+    Connect(XRCID("IDC_NEW_ID_VAR"), wxEVT_COMMAND_TEXT_ENTER,
+           wxCommandEventHandler(AddIdVariable::OnOkClick));
+
+	existing_vars_list =
 		wxDynamicCast(FindWindow(XRCID("IDC_EXISTING_VARS_LIST")), wxListBox);
 	existing_vars_list->Clear();
 
@@ -67,12 +73,13 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	new_id_var_name = new_id_var->GetValue();
 	new_id_var_name.Trim(true);
 	new_id_var_name.Trim(false);
-	
-	if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+
+    bool m_name_valid = table_int->IsValidDBColName(new_id_var_name);
+	//if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+    if (!m_name_valid) {
 		wxString msg;
 		msg << "Error: \"" + new_id_var_name + "\" is an invalid ";
-		msg << "variable name.  A valid variable name is between one and ten ";
-		msg << "characters long.  The first character must be alphabetic,";
+		msg << "variable name. The first character must be alphabetic,";
 		msg << " and the remaining characters can be either alphanumeric ";
 		msg << "or underscores.";
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
@@ -93,8 +100,9 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	
 	
 	LOG_MSG("Adding new id field to Table in memory.");
-        
-	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name,0);
+    
+    int col_insert_pos = 0;
+	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {
 		std::vector<wxInt64> data(table_int->GetNumberRows());
 		for (wxInt64 i=0, iend=data.size(); i<iend; i++) data[i] = i+1;
@@ -106,6 +114,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
+    
 	event.Skip();
 	EndDialog(wxID_OK);
 }

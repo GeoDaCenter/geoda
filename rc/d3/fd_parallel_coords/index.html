@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>Force-Directed Parallel Coordinates</title>
+    <style type="text/css">
+html {
+  margin: 0;
+}
+body { 
+  font-family: sans-serif;
+  font-size: 12px;
+  background: #fcfcfc;
+  color: #666;
+  margin: 12px 0 0 80px;
+  overflow: hidden;
+}
+h1 {
+  font-size: 15px;
+  margin: 16px;
+}
+
+p {
+  margin: 16px;
+}
+
+#chart-left,
+#chart-right {
+  float: left;
+}
+
+.link {
+  stroke: rgba(50,50,50,0.03);
+}
+
+.axis line, .axis path {
+  fill: none;
+  stroke: #666;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  fill: #666;
+  text-shadow: 0 1px 0 #fff;
+}
+
+text.title {
+  font-weight: bold;
+}
+
+path.node {
+  fill: none;
+}
+
+strong {
+  color: #222;
+  font-weight: bold;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="chart-left"></div>
+    <div id="chart-right"></div>
+    <div style="clear:both;"></div>
+    <p>The parallel coordinates track the x and y positions of the circles in the force-directed graph.</p>
+    <p><strong>Click and drag the circles</strong> to see the parallel representation shift.</p>
+    <p>In SVG, the y axis begins at the top, which is why it's been reversed in parallel coordinates.</p>
+  </body>
+  <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+  <script src="http://documentcloud.github.com/underscore/underscore.js"></script>
+  <script src="parallel.js"></script>
+</html>
+

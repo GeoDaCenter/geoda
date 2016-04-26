@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -28,7 +28,6 @@
 #include <wx/image.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 
-#include "../ShapeOperations/shp.h"
 #include "../ShapeOperations/ShapeFileTypes.h"
 #include "../ShapeOperations/ShapeFileHdr.h"
 
@@ -101,7 +100,7 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
 		polyid = new double[n];
 		col_type = 1;
         for (int i=0; i<n; i++) {
-            polyid[i] = ogr_layer->data[i]->GetFieldAsInteger(field);
+            polyid[i] = ogr_layer->data[i]->GetFieldAsInteger64(field);
         }
         
 	} else if (ogr_layer->GetFieldType(field) == GdaConst::string_type) {
@@ -112,7 +111,7 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
         }
         
 	} else {
-		wxMessageBox("the file is Unsupported type!");
+		wxMessageBox("This file type is not supported.");
 		return false;
 	}
 
@@ -309,7 +308,7 @@ void SHP2ASCDlg::CreateControls()
 void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 {
 	if(type == -1) {
-		wxMessageBox("Select options!");
+		wxMessageBox("Please select an option.");
 		return;
 	}
 
@@ -432,8 +431,9 @@ void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
         wxString layer_name = dlg.GetLayerName();
         IDataSource* datasource = dlg.GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
+        GdaConst::DataSourceType ds_type = datasource->GetType();
         
-        ogr_ds = new OGRDatasourceProxy(ds_name.ToStdString(),true);
+        ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
         ogr_layer = ogr_ds->GetLayerProxy(layer_name.ToStdString());
         ogr_layer->ReadData();
 

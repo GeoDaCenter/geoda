@@ -30,22 +30,16 @@ wxString GdaCache::GetFullPath()
 GdaCache::GdaCache()
 {
     wxString exePath = GdaCache::GetFullPath();
-#ifdef __WIN32__
-	std::wstring ws(GET_ENCODED_FILENAME(exePath));
-	std::string s(ws.begin(), ws.end());
-	cache_filename = s;
-#else
-	cache_filename = GET_ENCODED_FILENAME(exePath);
-#endif
     
 	// if cache file not exists, create one
     if (!wxFileExists(exePath)) {
-        OGRDatasourceProxy::CreateDataSource("SQLite", cache_filename);
+        OGRDatasourceProxy::CreateDataSource("SQLite", exePath);
     }
     
 	// connect to cache file
     try {
-        cach_ds_proxy = new OGRDatasourceProxy(cache_filename, true);
+        
+        cach_ds_proxy = new OGRDatasourceProxy(exePath, GdaConst::ds_sqlite, true);
         layer_names = cach_ds_proxy->GetLayerNames();
         std::string sql = "SELECT * FROM history";
         history_table = cach_ds_proxy->GetLayerProxyBySQL(sql);
@@ -92,7 +86,8 @@ void GdaCache::AddHistory(std::string param_key, std::string param_val)
 {
 	for ( size_t i=0; i< history_keys.size(); i++){
 		if ( param_key == history_keys[i] ){
-			if ( param_val == history_vals[i] )return; // already existed
+			if ( param_val == history_vals[i] )
+                return; // already existed
 		}
 	}
 	// add to current memory
@@ -102,6 +97,25 @@ void GdaCache::AddHistory(std::string param_key, std::string param_val)
 	std::string sql = "INSERT INTO history VALUES('"
 						+ param_key +"','"+param_val + "')";
 	cach_ds_proxy->ExecuteSQL(sql);
+}
+
+void GdaCache::AddEntry(std::string param_key, std::string param_val)
+{
+    for ( size_t i=0; i< history_keys.size(); i++){
+        if ( param_key == history_keys[i] ){
+            // update existing Entry
+            history_vals[i] = param_val;
+            std::string sql = "UPDATE history SET param_val='" + param_val +"' WHERE param_key='" + param_key + "'";
+            cach_ds_proxy->ExecuteSQL(sql);
+            return;
+        }
+    }
+    // add new entry to current memory
+    history_keys.push_back( param_key );
+    history_vals.push_back( param_val );
+    // add to spatialite table
+    std::string sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
+    cach_ds_proxy->ExecuteSQL(sql);
 }
 
 void GdaCache::CleanHistory()
@@ -144,6 +158,7 @@ OGRLayerProxy* GdaCache::GetLayerProxy(std::string ext_ds_name,
 	return cach_ds_proxy->GetLayerProxy(query_layer_name);
 }
 
+// This function does NOT work for now
 bool GdaCache::CacheLayer(std::string ext_ds_name, 
 						  OGRLayerProxy* ext_layer_proxy)
 {
@@ -175,8 +190,8 @@ bool GdaCache::CacheLayer(std::string ext_ds_name,
 	// Cache
 	char *papszLCO[] = {"OVERWRITE=yes","FORMAT=Spatialite"};
 	std::string cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
-    OGRDataSource *poDstDS = cach_ds_proxy->ds;
-    OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
+	GDALDataset *poDstDS = cach_ds_proxy->ds;
+	OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
 												poOutputSRS, 
 												(OGRwkbGeometryType)eGType, 
 												papszLCO);
@@ -246,7 +261,8 @@ bool GdaCache::CacheLayer(std::string ext_ds_name,
         OGRFeature::DestroyFeature( poDstFeature );
         OGRFeature::DestroyFeature( poFeature );
     }
-    OGRDataSource::DestroyDataSource(poDstDS);
+    //OGRDataSource::DestroyDataSource(poDstDS);
+	GDALClose(poDstDS);
     // XXX
     // delete poDstLayer;
 	return true;

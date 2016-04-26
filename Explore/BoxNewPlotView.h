@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,26 +25,26 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GdaConst.h"
-#include "../GenUtils.h"
-#include "../Generic/GdaShape.h"
+#include "../VarTools.h"
+#include "../GdaShape.h"
 
-class BoxNewPlotCanvas;
-class BoxNewPlotFrame;
+class BoxPlotCanvas;
+class BoxPlotFrame;
 typedef boost::multi_array<double, 2> d_array_type;
 
-class BoxNewPlotCanvas : public TemplateCanvas {
-	DECLARE_CLASS(BoxNewPlotCanvas)	
+class BoxPlotCanvas : public TemplateCanvas {
+	DECLARE_CLASS(BoxPlotCanvas)	
 public:
-	BoxNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+	BoxPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
 					 Project* project,
-					 const std::vector<GeoDaVarInfo>& var_info,
+					 const std::vector<GdaVarTools::VarInfo>& var_info,
 					 const std::vector<int>& col_ids,
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize);
-	virtual ~BoxNewPlotCanvas();
+	virtual ~BoxPlotCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HighlightState* o);
+	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual wxString GetNameWithTime(int var, int time);
@@ -77,12 +77,10 @@ public:
 protected:
 	virtual void UpdateStatusBar();
 
-	Project* project;
-	HighlightState* highlight_state;
 	int num_obs;
 	int num_time_vals;
 	int ref_var_index;
-	std::vector<GeoDaVarInfo> var_info;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<HingeStats> hinge_stats;
@@ -113,17 +111,17 @@ protected:
 };
 
 
-class BoxNewPlotFrame : public TemplateFrame {
-    DECLARE_CLASS(BoxNewPlotFrame)
+class BoxPlotFrame : public TemplateFrame {
+    DECLARE_CLASS(BoxPlotFrame)
 public:
-    BoxNewPlotFrame(wxFrame *parent, Project* project,
-					const std::vector<GeoDaVarInfo>& var_info,
+    BoxPlotFrame(wxFrame *parent, Project* project,
+					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
 					const wxString& title = "Box Plot",
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::boxplot_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~BoxNewPlotFrame();
+    virtual ~BoxPlotFrame();
 	
 public:
     void OnActivate(wxActivateEvent& event);

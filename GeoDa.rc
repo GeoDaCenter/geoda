@@ -1,7 +1,28 @@
 // Microsoft Visual C++ generated resource script.
 //
+
+// The following include results in GeoDa having
+// the wxWidgets default icon rather than the
+// proper GeoDa icon.  Therefore we are removing it.
+// Instead, we will directly cut and paste some of
+// the relevant resources in wx.rc
+// #include "wx/msw/wx.rc"
+
+//
+// Standard wxWindows Cursors
+//
+WXCURSOR_HAND           CURSOR  DISCARDABLE     "wx/msw/hand.cur"
+WXCURSOR_BULLSEYE       CURSOR  DISCARDABLE     "wx/msw/bullseye.cur"
+WXCURSOR_PENCIL         CURSOR  DISCARDABLE     "wx/msw/pencil.cur"
+WXCURSOR_MAGNIFIER      CURSOR  DISCARDABLE     "wx/msw/magnif1.cur"
+WXCURSOR_ROLLER         CURSOR  DISCARDABLE     "wx/msw/roller.cur"
+WXCURSOR_PBRUSH         CURSOR  DISCARDABLE     "wx/msw/pbrush.cur"
+WXCURSOR_PLEFT          CURSOR  DISCARDABLE     "wx/msw/pntleft.cur"
+WXCURSOR_PRIGHT         CURSOR  DISCARDABLE     "wx/msw/pntright.cur"
+WXCURSOR_BLANK          CURSOR  DISCARDABLE     "wx/msw/blank.cur"
+WXCURSOR_CROSS          CURSOR  DISCARDABLE     "wx/msw/cross.cur"
+
 #include "resource.h"
-#include "wx/msw/wx.rc"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////

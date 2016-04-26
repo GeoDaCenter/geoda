@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -25,8 +25,11 @@
 #include <vector>
 #include <wx/button.h>
 #include <wx/dialog.h>
+//#include <wx/html/htmlwin.h>
+#include <wx/webview.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/treectrl.h>
 #include "../FramesManagerObserver.h"
 #include "../DataViewer/TableStateObserver.h"
 #include "../VarCalc/GdaParser.h"
@@ -48,14 +51,17 @@ public:
 				   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );
 	virtual ~CalculatorDlg();
 
-    void CreateControls();
-	
 	void OnClose(wxCloseEvent& e);
 	void OnExprUpdate(wxCommandEvent& e);
 	void OnTarget(wxCommandEvent& e);
+	wxString h_title(const wxString& title, int level);
+	void OnFuncHelpSel(wxTreeEvent& e);
+	void OnFuncHelpDClick(wxTreeEvent& e);
 	void OnNew(wxCommandEvent& e);
 	void OnAssign(wxCommandEvent& e);
- 
+	void OnSelect(wxCommandEvent& e);
+	void AssignOrSelect(bool assign);
+		
 	void ConnectToProject(Project* project);
 	void DisconnectFromProject();
 
@@ -69,6 +75,7 @@ private:
 	/** If enable false, target choices are cleared and and disabled.
 	 If enable true and if table_int true, target choices are updated. */
 	void InitTargetChoice(bool enable);
+	void InitFuncHelpTree();
 	
 	/** Fill quick_parser_table with preview values for all numeric
 	    fields in current project table */
@@ -97,20 +104,24 @@ private:
 	bool expr_valid;
 	GdaLexer lexer;
 	
-	wxTextCtrl* expr_t_ctrl;
-	wxStaticText* msg_s_txt;
-	wxStaticText* target_lbl_s_txt;
-	wxChoice* target_choice;
-	wxButton* new_btn;
-	wxButton* assign_btn;
+	wxTreeCtrl* func_help_tree; // ID_FUNC_HELP_TREE
+	//wxHtmlWindow* html_win; // ID_HTML_WIN
+	wxWebView* html_win; // ID_HTML_WIN
+
+	wxTextCtrl* expr_t_ctrl; // ID_EXPRESSION
+	wxStaticText* msg_s_txt; // ID_MESSAGE
+	wxStaticText* target_lbl_s_txt; // ID_TARGET_LBL
+	wxStaticText* select_lbl_s_txt; // ID_SELECT_LBL
+	wxChoice* target_choice; // ID_TARGET
+	wxButton* new_btn; // ID_NEW
+	wxButton* assign_btn; // ID_ASSIGN
+	wxButton* select_btn; // ID_SELECT
 	
 	wxTextAttr attr_num;
 	wxTextAttr attr_func;
 	wxTextAttr attr_unknown_func;
 	wxTextAttr attr_ident;
 	wxTextAttr attr_unknown_ident;
-	
-	DECLARE_EVENT_TABLE()
 };
 
 #endif

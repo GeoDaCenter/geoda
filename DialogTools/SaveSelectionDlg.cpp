@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -88,6 +88,16 @@ void SaveSelectionDlg::CreateControls()
 	
 	m_sel_val_text = wxDynamicCast(FindWindow(XRCID("ID_SEL_VAL_TEXT")),
 								   wxTextCtrl);
+
+    Connect(XRCID("ID_SEL_VAL_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
+   
+    m_save_sel_var_name = wxDynamicCast(FindWindow(XRCID("ID_SAVE_SEL_VAR_NAME")),
+                                        wxTextCtrl);
+    
+    Connect(XRCID("ID_SAVE_SEL_VAR_NAME"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
+    
 	m_sel_val_text->Clear();
 	m_sel_val_text->AppendText("1");
 	m_sel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
@@ -96,14 +106,18 @@ void SaveSelectionDlg::CreateControls()
 									  wxCheckBox); 
 	
 	m_unsel_val_text = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_VAL_TEXT")),
-									 wxTextCtrl);	
+									 wxTextCtrl);
+    
+    Connect(XRCID("ID_UNSEL_VAL_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
+    
 	m_unsel_val_text->Clear();
 	m_unsel_val_text->AppendText("0");
 	m_unsel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	
 	m_apply_save_button = wxDynamicCast(
 						FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
-	m_apply_save_button->Disable();
+	//m_apply_save_button->Disable();
 }
 
 void SaveSelectionDlg::InitTime()
@@ -145,7 +159,7 @@ void SaveSelectionDlg::InitField()
 
 void SaveSelectionDlg::OnAddField( wxCommandEvent& event )
 {	
-	DataViewerAddColDlg dlg(project, this, false, true, "SELECT");
+	DataViewerAddColDlg dlg(project, this, false, true, "SELECT", GdaConst::long64_type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
 	if (table_int->GetColType(col) != GdaConst::long64_type &&
@@ -221,8 +235,9 @@ void SaveSelectionDlg::CheckApplySaveSettings()
 {
 	if (!m_all_init) return;
 	
-	bool target_field_empty = m_save_field_choice->GetSelection()==wxNOT_FOUND;
-	
+	//bool target_field_empty = m_save_field_choice->GetSelection()==wxNOT_FOUND;
+    bool target_field_empty =m_save_sel_var_name->GetValue().IsEmpty();
+    
 	// Check that m_sel_val_text and m_unsel_val_text is valid.
 	// If not valid, set text color to red.
 	double val;
@@ -243,12 +258,14 @@ void SaveSelectionDlg::CheckApplySaveSettings()
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
-	
+
+
 	m_apply_save_button->Enable(!target_field_empty &&
 								(sel_checked || unsel_checked) &&
 								((sel_checked && sel_valid) || !sel_checked) &&
 								((unsel_checked && unsel_valid) ||
 								 !unsel_checked));
+
 }
 
 /** The Apply button is only enable when Selected / Unselected values
@@ -257,7 +274,31 @@ void SaveSelectionDlg::CheckApplySaveSettings()
  checked for validity. */
 void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
-	int write_col = col_id_map[m_save_field_choice->GetSelection()];
+    
+    wxString field_name = m_save_sel_var_name->GetValue();
+    if (field_name.empty()) {
+        wxMessageDialog dlg(this, "Variable name can't be empty.",
+                            "Error", wxOK | wxICON_ERROR );
+        dlg.ShowModal();
+        return;
+    }
+    
+    int col = table_int->FindColId(field_name);
+    
+    if ( col == wxNOT_FOUND) {
+        // create a new integer field
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_long_len;
+        int m_decimals_val = 0;
+        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    }
+   
+    if (col <= 0) {
+        return;
+    }
+    
+    int write_col = col;
 	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
@@ -333,8 +374,8 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
-		wxString msg = "Chosen field is not a numeric type.  This is likely ";
-		msg << "a bug. Please report this.";
+		wxString msg = "Chosen field is not a numeric type.  Please select a numeric type field.";
+
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;

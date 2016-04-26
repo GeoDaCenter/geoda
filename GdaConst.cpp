@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -19,16 +19,164 @@
 
 #include "GdaConst.h"
 #include "GeneralWxUtils.h"
+#include "GenUtils.h"
+#include <wx/mstream.h>
+
+char* GdaConst::raw_zoom_in[] = {
+
+	"16 16 48 1",
+	" 	g None",
+	".	g #979797",
+	"+	g #787878",
+	"@	g #686868",
+	"#	g #717171",
+	"$	g #8A8A8A",
+	"%	g #909090",
+	"&	g #D6D6D6",
+	"*	g #EFEFEF",
+	"=	g #DEDEDE",
+	"-	g #A3A3A3",
+	";	g #6D6D6D",
+	">	g #9F9F9F",
+	",	g #AAAAAA",
+	"'	g #F8F8F8",
+	")	g #C4C4C4",
+	"!	g #929292",
+	"~	g #F5F5F5",
+	"{	g #F2F2F2",
+	"]	g #444444",
+	"^	g #EEEEEE",
+	"/	g #F6F6F6",
+	"(	g #8E8E8E",
+	"_	g #8F8F8F",
+	":	g #D5D5D5",
+	"<	g #E8E8E8",
+	"[	g #E1E1E1",
+	"}	g #F3F3F3",
+	"|	g #D0D0D0",
+	"1	g #707070",
+	"2	g #EDEDED",
+	"3	g #DCDCDC",
+	"4	g #676767",
+	"5	g #D8D8D8",
+	"6	g #C0C0C0",
+	"7	g #777777",
+	"8	g #A1A1A1",
+	"9	g #EBEBEB",
+	"0	g #828282",
+	"a	g #6B6B6B",
+	"b	g #B2B2B2",
+	"c	g #696969",
+	"d	g #949494",
+	"e	g #CACACA",
+	"f	g #BEBEBE",
+	"g	g #848484",
+	"h	g #747474",
+	"i	g #666666",
+	"                ",
+	"    .+@#$       ",
+	"   #%&*=-;>     ",
+	"  #,''''')@     ",
+	" .!~'{]^{/(_    ",
+	" +:'{<][<}|1    ",
+	" @2']]]]]^34    ",
+	" 15'^[]:[^67    ",
+	" _8'{<][<90.    ",
+	"  ab'}^^},;     ",
+	"  >cde3fg#hii   ",
+	"    _#@+.  iii  ",
+	"            iii ",
+	"             ii ",
+	"                ",
+	"                "
+};
+
+char* GdaConst::raw_zoom_out[] = {
+	"16 16 48 1",
+	" 	g None",
+	".	g #979797",
+	"+	g #787878",
+	"@	g #686868",
+	"#	g #717171",
+	"$	g #8A8A8A",
+	"%	g #909090",
+	"&	g #D6D6D6",
+	"*	g #EFEFEF",
+	"=	g #DEDEDE",
+	"-	g #A3A3A3",
+	";	g #6D6D6D",
+	">	g #9F9F9F",
+	",	g #AAAAAA",
+	"'	g #F8F8F8",
+	")	g #C4C4C4",
+	"!	g #929292",
+	"~	g #F5F5F5",
+	"{	g #F2F2F2",
+	"]	g #EDEDED",
+	"^	g #EEEEEE",
+	"/	g #F6F6F6",
+	"(	g #8E8E8E",
+	"_	g #8F8F8F",
+	":	g #D5D5D5",
+	"<	g #E8E8E8",
+	"[	g #E1E1E1",
+	"}	g #F3F3F3",
+	"|	g #D0D0D0",
+	"1	g #707070",
+	"2	g #444444",
+	"3	g #DCDCDC",
+	"4	g #676767",
+	"5	g #D8D8D8",
+	"6	g #C0C0C0",
+	"7	g #777777",
+	"8	g #A1A1A1",
+	"9	g #EBEBEB",
+	"0	g #828282",
+	"a	g #6B6B6B",
+	"b	g #B2B2B2",
+	"c	g #696969",
+	"d	g #949494",
+	"e	g #CACACA",
+	"f	g #BEBEBE",
+	"g	g #848484",
+	"h	g #747474",
+	"i	g #666666",
+	"                ",
+	"    .+@#$       ",
+	"   #%&*=-;>     ",
+	"  #,''''')@     ",
+	" .!~'{]^{/(_    ",
+	" +:'{<[[<}|1    ",
+	" @]'22222^34    ",
+	" 15'^[::[^67    ",
+	" _8'{<[[<90.    ",
+	"  ab'}^^},;     ",
+	"  >cde3fg#hii   ",
+	"    _#@+.  iii  ",
+	"            iii ",
+	"             ii ",
+	"                ",
+	"                "};
+
+wxString GdaConst::FieldTypeToStr(GdaConst::FieldType ft)
+{
+	if (ft == GdaConst::double_type) return "real";
+	if (ft == GdaConst::long64_type) return "integer";
+	if (ft == GdaConst::string_type) return "string";
+	if (ft == GdaConst::date_type) return "date";
+	if (ft == GdaConst::placeholder_type) return "placeholder";
+	return "unknown";
+}
 
 std::map<std::string, GdaConst::DataSourceType> GdaConst::datasrc_str_to_type;
 std::map<GdaConst::DataSourceType, std::string> GdaConst::datasrc_type_to_str;
 std::map<GdaConst::DataSourceType,std::string> GdaConst::datasrc_type_to_prefix;
 std::map<GdaConst::DataSourceType,std::string>
-	GdaConst::datasrc_type_to_fullname;
+GdaConst::datasrc_type_to_fullname;
 std::map<GdaConst::DataSourceType, std::set<std::string> >
-	GdaConst::datasrc_req_flds;
+GdaConst::datasrc_req_flds;
 std::map<GdaConst::DataSourceType, std::set<std::string> >
-	GdaConst::datasrc_opt_flds;
+GdaConst::datasrc_opt_flds;
 
 
 wxString GdaConst::db_field_name_regex;
@@ -45,6 +193,16 @@ std::map<GdaConst::DataSourceType, wxString> GdaConst::datasrc_field_regex;
 std::map<GdaConst::DataSourceType, wxString> GdaConst::datasrc_field_illegal_regex;
 std::map<GdaConst::DataSourceType, bool> GdaConst::datasrc_field_casesensitive;
 
+wxCursor GdaConst::zoomInCursor;
+wxCursor GdaConst::zoomOutCursor;
+
+// Resource Files
+const wxString GdaConst::gda_prefs_fname_sqlite("geoda_prefs.sqlite");
+const wxString GdaConst::gda_prefs_fname_json("geoda_prefs.json");
+const wxString GdaConst::gda_prefs_html_table("html_entries");
+const wxString GdaConst::gda_prefs_html_table_menu("menu_title");
+const wxString GdaConst::gda_prefs_html_table_url("url");
+
 wxFont* GdaConst::extra_small_font = 0;
 wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
@@ -53,7 +211,6 @@ wxFont* GdaConst::large_font = 0;
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
 
-// The following are defined in shp2cnt and should be moved from there.
 //background color -- this is light gray
 const wxColour GdaConst::backColor(192, 192, 192);
 // background color -- this is light gray
@@ -72,12 +229,20 @@ const wxColour GdaConst::canvas_background_color(255, 255, 255); // white
 const wxColour GdaConst::legend_background_color(255, 255, 255); // white
 
 // Map
-const wxSize GdaConst::map_default_size(550, 300);
+const wxSize GdaConst::map_default_size(600, 400);
 const int GdaConst::map_default_legend_width = 150;
 // this is a light forest green
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_default_outline_colour(0, 0, 0);
 const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
+
+// Connectivity Map
+const wxSize GdaConst::conn_map_default_size(480, 350);
+// HTML Tan
+const wxColour GdaConst::conn_map_default_fill_colour(210, 180, 140);
+const wxColour GdaConst::conn_map_default_outline_colour(0, 0, 0);
+// HTML DarkBlue
+const wxColour GdaConst::conn_map_default_highlight_colour(0, 0, 139);
 
 // Map Movie
 const wxColour GdaConst::map_movie_default_fill_colour(49, 163, 84);
@@ -137,13 +302,33 @@ const wxSize GdaConst::pcp_default_size(600, 450);
 const wxColour GdaConst::pcp_line_color(128, 0, 64); // dark cherry
 const wxColour GdaConst::pcp_horiz_line_color(0, 98, 0); // dark green
 
+// Averages Chart
+const wxSize GdaConst::line_chart_default_size(720, 580);
+
+// colors defined in init()
+wxColour GdaConst::ln_cht_clr_regimes_hl;
+wxColour GdaConst::ln_cht_clr_sel_dark;
+wxColour GdaConst::ln_cht_clr_exl_dark;
+wxColour GdaConst::ln_cht_clr_tm1_dark;
+wxColour GdaConst::ln_cht_clr_tm2_dark;
+wxColour GdaConst::ln_cht_clr_sel_light;
+wxColour GdaConst::ln_cht_clr_exl_light;
+wxColour GdaConst::ln_cht_clr_tm1_light;
+wxColour GdaConst::ln_cht_clr_tm2_light;
+
 // Conditional View
 const wxSize GdaConst::cond_view_default_size(700, 500);
 
 // Category Classification
 const wxSize GdaConst::cat_classif_default_size(780, 520);
 
+const wxSize GdaConst::weights_man_dlg_default_size(700, 500);
+
+const wxSize GdaConst::data_change_type_frame_default_size(600, 400);
+
 std::vector<wxColour> GdaConst::qualitative_colors(10);
+
+const wxString GdaConst::html_submenu_title("Web Plugins");
 
 /**
  Certain objects such as wxFont objects need to be created after
@@ -173,19 +358,19 @@ void GdaConst::init()
 	}
 	
 	extra_small_font = wxFont::New(ref_extra_small_pt_sz,
-								   wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
-								   wxFONTWEIGHT_NORMAL, false, wxEmptyString,
-								   wxFONTENCODING_DEFAULT);
+                                   wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
+                                   wxFONTWEIGHT_NORMAL, false, wxEmptyString,
+                                   wxFONTENCODING_DEFAULT);
 	small_font = wxFont::New(ref_small_pt_sz, wxFONTFAMILY_SWISS,
-							 wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-							 wxEmptyString, wxFONTENCODING_DEFAULT);
+                             wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                             wxEmptyString, wxFONTENCODING_DEFAULT);
 	medium_font = wxFont::New(ref_medium_pt_sz, wxFONTFAMILY_SWISS,
-							  wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-							  wxEmptyString, wxFONTENCODING_DEFAULT);
+                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                              wxEmptyString, wxFONTENCODING_DEFAULT);
 	large_font = wxFont::New(ref_large_pt_sz, wxFONTFAMILY_SWISS,
-							 wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-							 wxEmptyString, wxFONTENCODING_DEFAULT);
-		
+                             wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                             wxEmptyString, wxFONTENCODING_DEFAULT);
+	
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;
 	default_myshape_brush = wxTRANSPARENT_BRUSH;
@@ -199,6 +384,30 @@ void GdaConst::init()
 	scatterplot_scale_pen =	new wxPen(scatterplot_scale_color);
 	scatterplot_origin_axes_pen =
 	new wxPen(scatterplot_origin_axes_color, 1, wxSHORT_DASH);
+
+	wxBitmap zoomin_bitmap(GdaConst::raw_zoom_in);
+    zoomInCursor = wxCursor(zoomin_bitmap.ConvertToImage());
+
+	wxBitmap zoomout_bitmap(GdaConst::raw_zoom_out);
+    zoomOutCursor = wxCursor(zoomout_bitmap.ConvertToImage());
+	// Averages Chart Colors
+	
+	ln_cht_clr_regimes_hl = wxColour(255,255,102); // yellow #FFFF66
+	ln_cht_clr_sel_dark = wxColour(204, 41, 44); // red
+	ln_cht_clr_sel_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_sel_dark,125);
+	ln_cht_clr_exl_dark = wxColour(0, 79, 241); // blue
+	ln_cht_clr_exl_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_exl_dark, 125);
+	ln_cht_clr_tm1_dark = wxColour(147, 36, 255); // purple
+	ln_cht_clr_tm1_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm1_dark, 125);
+	ln_cht_clr_tm2_dark = wxColour(115, 61, 26); // brown
+	ln_cht_clr_tm2_light = GdaColorUtils::ChangeBrightness(ln_cht_clr_tm2_dark, 125);
+	
+	// Following 4 colors are colour-blind safe colors from Color Brewer 2.0
+	// LineChartStats::
+	// wxColour _sample0_clr_light(178,223,138); // light green
+	// wxColour _sample1_clr_light(166,206,227); // light blue
+	// wxColour _sample0_clr_dark(51,160,44); // dark green
+	// wxColour _sample1_clr_dark(31,120,180); // dark blue
 	
 	// From Colorbrewer 2.0
 	qualitative_colors[0] = wxColour(166, 206, 227);
@@ -212,201 +421,221 @@ void GdaConst::init()
 	qualitative_colors[8] = wxColour(202, 178, 214);
 	qualitative_colors[9] = wxColour(106, 61, 154);
 	
-    // Filenames or field names start with a letter, and they can contain any
-    // combination of the letters A through Z, the digits 0 through 9,
-    // the colon (:) (in dBASE II field names only), and the underscore (_)
+	// Filenames or field names start with a letter, and they can contain any
+	// combination of the letters A through Z, the digits 0 through 9,
+	// the colon (:) (in dBASE II field names only), and the underscore (_)
 	default_field_name_regex = "^[a-zA-Z][a-zA-Z0-9_]*$";
 	default_field_name_illegal_regex = "((^[^a-zA-Z]+)|[^a-zA-Z0-9_]+)";
-    // There might be a problem when field name contains ' or " when using
-    // INSERT sql clause to export/save table.
-    // Details: no problem in Postgresq; error in Oracle; unknown in MySQL
+	// There might be a problem when field name contains ' or " when using
+	// INSERT sql clause to export/save table.
+	// Details: no problem in Postgresq; error in Oracle; unknown in MySQL
 	db_field_name_regex = "[^'\"]+";
 	db_field_name_illegal_regex = "['\"]+";
 	// Warning message for valid field name of different field type
 	no_field_warning = "There is no restriction of variable name.";
 	db_field_warning = "A valid variable name should not contains any\n"
-		"quotes (' or \").";
+	"quotes (' or \").";
 	default_field_warning = 
-		"A valid variable name should have the first character be a\n"
-		"letter, and the remaining characters be either letters,\n"
-		"numbers or underscores.";
+	"A valid variable name should have the first character be a\n"
+	"letter, and the remaining characters be either letters,\n"
+	"numbers or underscores.";
 	
 	datasrc_str_to_type["DBF"] = ds_dbf;
 	datasrc_type_to_prefix[ds_dbf] = "";
 	datasrc_type_to_fullname[ds_dbf] = "dBase";
-    datasrc_table_lens[ds_dbf] = 128;
-    datasrc_field_lens[ds_dbf] = 10;
+	datasrc_table_lens[ds_dbf] = 128;
+	datasrc_field_lens[ds_dbf] = 10;
 	datasrc_field_warning[ds_dbf] = default_field_warning;
-    datasrc_field_regex[ds_dbf] = default_field_name_regex;
-    datasrc_field_illegal_regex[ds_dbf] = default_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_dbf] = false;
+	datasrc_field_regex[ds_dbf] = default_field_name_regex;
+	datasrc_field_illegal_regex[ds_dbf] = default_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_dbf] = false;
 	
 	datasrc_str_to_type["ESRI Shapefile"] = ds_shapefile;
 	datasrc_type_to_prefix[ds_shapefile] = "";
 	datasrc_type_to_fullname[ds_shapefile] = "ESRI Shapefile";
-    // share the same with DBF
-    datasrc_table_lens[ds_shapefile] = 128;
-    datasrc_field_lens[ds_shapefile] = 10;
+	// share the same with DBF
+	datasrc_table_lens[ds_shapefile] = 128;
+	datasrc_field_lens[ds_shapefile] = 10;
 	datasrc_field_warning[ds_shapefile] = default_field_warning;
-    datasrc_field_regex[ds_shapefile] = default_field_name_regex;
-    datasrc_field_illegal_regex[ds_shapefile] = default_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_shapefile] = false;
-    
+	datasrc_field_regex[ds_shapefile] = default_field_name_regex;
+	datasrc_field_illegal_regex[ds_shapefile] = default_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_shapefile] = false;
+	
 	datasrc_str_to_type["FileGDB"] = ds_esri_file_geodb;
 	datasrc_type_to_prefix[ds_esri_file_geodb] = "";
 	datasrc_type_to_fullname[ds_esri_file_geodb] = "ESRI File GeoDatabase";
-    //http://webhelp.esri.com/arcgisserver/9.3/java/index.htm#geodatabases/file_g-1445296021.htm
-    datasrc_table_lens[ds_esri_file_geodb] = 160;
-    datasrc_field_lens[ds_esri_file_geodb] = 64;
+	//http://webhelp.esri.com/arcgisserver/9.3/java/index.htm#geodatabases/file_g-1445296021.htm
+	datasrc_table_lens[ds_esri_file_geodb] = 160;
+	datasrc_field_lens[ds_esri_file_geodb] = 64;
 	datasrc_field_warning[ds_esri_file_geodb] = no_field_warning;
-    datasrc_field_regex[ds_esri_file_geodb] = wxEmptyString;
-    datasrc_field_casesensitive[ds_esri_file_geodb] = true;
-    
+	datasrc_field_regex[ds_esri_file_geodb] = wxEmptyString;
+	datasrc_field_casesensitive[ds_esri_file_geodb] = true;
+	
 	datasrc_str_to_type["PGeo"] = ds_esri_personal_gdb;
 	datasrc_type_to_prefix[ds_esri_personal_gdb] = "PGeo";
 	datasrc_type_to_fullname[ds_esri_personal_gdb] ="ESRI Personal GeoDatabase";
-    //follows Microsoft Access .mdb
-    datasrc_table_lens[ds_esri_personal_gdb] = 64;
-    datasrc_field_lens[ds_esri_personal_gdb] = 64;
+	//follows Microsoft Access .mdb
+	datasrc_table_lens[ds_esri_personal_gdb] = 64;
+	datasrc_field_lens[ds_esri_personal_gdb] = 64;
 	datasrc_field_warning[ds_esri_personal_gdb] = no_field_warning;
-    datasrc_field_regex[ds_esri_personal_gdb] = wxEmptyString;
-    datasrc_field_casesensitive[ds_esri_personal_gdb] = true;
+	datasrc_field_regex[ds_esri_personal_gdb] = wxEmptyString;
+	datasrc_field_casesensitive[ds_esri_personal_gdb] = true;
 	
 	datasrc_str_to_type["SDE"] = ds_esri_arc_sde;
 	datasrc_type_to_prefix[ds_esri_arc_sde] = "SDE:";
 	datasrc_type_to_fullname[ds_esri_arc_sde] = "ESRI ArcSDE";
-    //http://help.arcgis.com/en/geodatabase/10.0/sdk/arcsde/api/constants_define_limits.htm
-    //ArcSDE doesn't support writing, so following will be ignored
-    datasrc_table_lens[ds_esri_arc_sde] = 32;
-    datasrc_field_lens[ds_esri_arc_sde] = 32;
+	//http://help.arcgis.com/en/geodatabase/10.0/sdk/arcsde/api/constants_define_limits.htm
+	//ArcSDE doesn't support writing, so following will be ignored
+	datasrc_table_lens[ds_esri_arc_sde] = 32;
+	datasrc_field_lens[ds_esri_arc_sde] = 32;
 	datasrc_field_warning[ds_esri_arc_sde] = default_field_warning;
-    datasrc_field_regex[ds_esri_arc_sde] = default_field_name_regex;
-    datasrc_field_illegal_regex[ds_esri_arc_sde]=default_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_esri_arc_sde] = true;
+	datasrc_field_regex[ds_esri_arc_sde] = default_field_name_regex;
+	datasrc_field_illegal_regex[ds_esri_arc_sde]=default_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_esri_arc_sde] = true;
 	
 	datasrc_str_to_type["CSV"] = ds_csv;
 	datasrc_type_to_prefix[ds_csv] = "";
 	datasrc_type_to_fullname[ds_csv] = "Comma Separated Value";
-    //CSV should have no restriction except the comma character, but we give
-    //a limitation to a reasonable 128 length
-    datasrc_table_lens[ds_csv] = 128;
-    datasrc_field_lens[ds_csv] = 128;
+	//CSV should have no restriction except the comma character, but we give
+	//a limitation to a reasonable 128 length
+	datasrc_table_lens[ds_csv] = 128;
+	datasrc_field_lens[ds_csv] = 128;
 	datasrc_field_warning[ds_csv] = "Field name should not contains comma(,).";
-    datasrc_field_regex[ds_csv] = "[^,]+";
-    datasrc_field_illegal_regex[ds_csv] = "[,]+";
-    datasrc_field_casesensitive[ds_csv] = true;
-    
+	datasrc_field_regex[ds_csv] = "[^,]+";
+	datasrc_field_illegal_regex[ds_csv] = "[,]+";
+	datasrc_field_casesensitive[ds_csv] = true;
+	
 	datasrc_str_to_type["GeoJSON"] = ds_geo_json;
 	datasrc_type_to_prefix[ds_geo_json] = "";
 	datasrc_type_to_fullname[ds_geo_json] = "GeoJSON";
-    //GeoJSON seams like has no restriction
-    datasrc_table_lens[ds_geo_json] = 128;
-    datasrc_field_lens[ds_geo_json] = 128;
+	//GeoJSON seams like has no restriction
+	datasrc_table_lens[ds_geo_json] = 128;
+	datasrc_field_lens[ds_geo_json] = 128;
 	datasrc_field_warning[ds_geo_json] = db_field_warning;
-    datasrc_field_regex[ds_geo_json] = db_field_name_regex;
-    datasrc_field_illegal_regex[ds_geo_json] = db_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_geo_json] = true;
+	datasrc_field_regex[ds_geo_json] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_geo_json] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_geo_json] = true;
 	
 	datasrc_str_to_type["GML"] = ds_gml;
 	datasrc_type_to_prefix[ds_gml] = "";
 	datasrc_type_to_fullname[ds_gml] = "Geography Markup Language";
-    //http://en.wikipedia.org/wiki/XML
-    datasrc_table_lens[ds_gml] = 128;
-    datasrc_field_lens[ds_gml] = 128;
+	//http://en.wikipedia.org/wiki/XML
+	datasrc_table_lens[ds_gml] = 128;
+	datasrc_field_lens[ds_gml] = 128;
 	datasrc_field_warning[ds_gml] = 
-		"A valid variable name should only contains either letters,\n"
-		"numbers or underscores. Brackets (e.g. < or > ) are not allowed.";
-    datasrc_field_regex[ds_gml] = "[^<> ]+";
-    datasrc_field_illegal_regex[ds_gml] = "[<> ]+";
-    datasrc_field_casesensitive[ds_gml] = true;
+	"A valid variable name should only contains either letters,\n"
+	"numbers or underscores. Brackets (e.g. < or > ) are not allowed.";
+	datasrc_field_regex[ds_gml] = "[^<> ]+";
+	datasrc_field_illegal_regex[ds_gml] = "[<> ]+";
+	datasrc_field_casesensitive[ds_gml] = true;
 	
 	datasrc_str_to_type["KML"] = ds_kml;
 	datasrc_str_to_type["LIBKML"] = ds_kml;
 	datasrc_type_to_prefix[ds_kml] = "";
 	datasrc_type_to_fullname[ds_kml] = "Keyhole Markup Language";
-    datasrc_table_lens[ds_kml] = 128;
-    datasrc_field_lens[ds_kml] = 128;
+	datasrc_table_lens[ds_kml] = 128;
+	datasrc_field_lens[ds_kml] = 128;
 	datasrc_field_warning[ds_kml] = db_field_warning;
-    datasrc_field_regex[ds_kml] = db_field_name_regex;
-    datasrc_field_illegal_regex[ds_kml] = db_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_kml] = true;
-
+	datasrc_field_regex[ds_kml] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_kml] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_kml] = true;
+	
 	datasrc_str_to_type["MapInfo File"] = ds_mapinfo;
 	datasrc_type_to_prefix[ds_mapinfo] = "";
 	datasrc_type_to_fullname[ds_mapinfo] = "MapInfo File (TAB and MIF/MID)";
-    datasrc_table_lens[ds_mapinfo] = 128;
-    datasrc_field_lens[ds_mapinfo] = 32;
+	datasrc_table_lens[ds_mapinfo] = 128;
+	datasrc_field_lens[ds_mapinfo] = 32;
 	datasrc_field_warning[ds_mapinfo] = default_field_warning;
-    datasrc_field_regex[ds_mapinfo] = default_field_name_regex;
-    datasrc_field_illegal_regex[ds_mapinfo] = default_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_mapinfo] = true;
+	datasrc_field_regex[ds_mapinfo] = default_field_name_regex;
+	datasrc_field_illegal_regex[ds_mapinfo] = default_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_mapinfo] = true;
 	
 	datasrc_str_to_type["MySQL"] = ds_mysql;
 	datasrc_type_to_prefix[ds_mysql] = "MYSQL:";
 	datasrc_type_to_fullname[ds_mysql] = "MySQL";
-    datasrc_table_lens[ds_mysql] = 64;
-    datasrc_field_lens[ds_mysql] = 64;
+	datasrc_table_lens[ds_mysql] = 64;
+	datasrc_field_lens[ds_mysql] = 64;
 	datasrc_field_warning[ds_mysql] = db_field_warning;
-    datasrc_field_regex[ds_mysql] = db_field_name_regex;
-    datasrc_field_illegal_regex[ds_mysql] = db_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_mysql] = true;
+	datasrc_field_regex[ds_mysql] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_mysql] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_mysql] = true;
 	
 	datasrc_str_to_type["OCI"] = ds_oci;
 	datasrc_type_to_prefix[ds_oci] = "OCI:";
 	datasrc_type_to_fullname[ds_oci] = "Oracle Spatial";
-    datasrc_table_lens[ds_oci] = 30;
-    datasrc_field_lens[ds_oci] = 30;
+	datasrc_table_lens[ds_oci] = 30;
+	datasrc_field_lens[ds_oci] = 30;
 	datasrc_field_warning[ds_oci] = db_field_warning;
-    datasrc_field_regex[ds_oci] = db_field_name_regex;
-    datasrc_field_illegal_regex[ds_oci] = db_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_oci] = false;
+	datasrc_field_regex[ds_oci] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_oci] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_oci] = false;
 	
 	datasrc_str_to_type["PostgreSQL"] = ds_postgresql;
 	datasrc_type_to_prefix[ds_postgresql] = "PG:";
 	datasrc_type_to_fullname[ds_postgresql] = "PostgreSQL / PostGIS";
-    datasrc_table_lens[ds_postgresql] = 31;
-    datasrc_field_lens[ds_postgresql] = 31;
+	datasrc_table_lens[ds_postgresql] = 31;
+	datasrc_field_lens[ds_postgresql] = 31;
 	datasrc_field_warning[ds_postgresql] = db_field_warning;
-    datasrc_field_regex[ds_postgresql] = db_field_name_regex;
-    datasrc_field_illegal_regex[ds_postgresql] = db_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_postgresql] = true;
+	datasrc_field_regex[ds_postgresql] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_postgresql] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_postgresql] = true;
 	
+	datasrc_str_to_type["CartoDB"] = ds_cartodb;
+	datasrc_type_to_prefix[ds_cartodb] = "CartoDB:";
+	datasrc_type_to_fullname[ds_cartodb] = "CartoDB";
+	datasrc_table_lens[ds_cartodb] = 31;
+	datasrc_field_lens[ds_cartodb] = 31;
+	datasrc_field_warning[ds_cartodb] = db_field_warning;
+	datasrc_field_regex[ds_cartodb] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_cartodb] = db_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_cartodb] = true;
+    
 	datasrc_str_to_type["SQLite"] = ds_sqlite;
 	datasrc_type_to_prefix[ds_sqlite] = "";
 	datasrc_type_to_fullname[ds_sqlite] = "SQLite / Spatialite";
-    datasrc_table_lens[ds_sqlite] = 128;
-    datasrc_field_lens[ds_sqlite] = 128;
+	datasrc_table_lens[ds_sqlite] = 128;
+	datasrc_field_lens[ds_sqlite] = 128;
 	datasrc_field_warning[ds_sqlite] = no_field_warning;
-    datasrc_field_regex[ds_sqlite] = wxEmptyString;
-    datasrc_field_illegal_regex[ds_sqlite] = wxEmptyString;
-    datasrc_field_casesensitive[ds_sqlite] = true;
+	datasrc_field_regex[ds_sqlite] = wxEmptyString;
+	datasrc_field_illegal_regex[ds_sqlite] = wxEmptyString;
+	datasrc_field_casesensitive[ds_sqlite] = true;
 	
 	datasrc_str_to_type["WFS"] = ds_wfs;
 	datasrc_type_to_prefix[ds_wfs] = "WFS:";
 	datasrc_type_to_fullname[ds_wfs] = "OGC Web Feature Service";
-    datasrc_table_lens[ds_wfs] = 128;
-    datasrc_field_lens[ds_wfs] = 128;
+	datasrc_table_lens[ds_wfs] = 128;
+	datasrc_field_lens[ds_wfs] = 128;
 	datasrc_field_warning[ds_wfs] = no_field_warning;
-    datasrc_field_regex[ds_wfs] = wxEmptyString;
-    datasrc_field_illegal_regex[ds_wfs] = wxEmptyString;
-    datasrc_field_casesensitive[ds_wfs] = true;
-
+	datasrc_field_regex[ds_wfs] = wxEmptyString;
+	datasrc_field_illegal_regex[ds_wfs] = wxEmptyString;
+	datasrc_field_casesensitive[ds_wfs] = true;
+	
 	// Since XLS can be dBase, we use dBase as its field name limitation
 	datasrc_str_to_type["XLS"] = ds_xls;
 	datasrc_type_to_prefix[ds_xls] = "";
 	datasrc_type_to_fullname[ds_xls] = "Microsoft Excel";
-    datasrc_table_lens[ds_xls] = 128;
-    datasrc_field_lens[ds_xls] = 10;
+	datasrc_table_lens[ds_xls] = 128;
+	datasrc_field_lens[ds_xls] = 10;
 	datasrc_field_warning[ds_xls] = default_field_warning;
-    datasrc_field_regex[ds_xls] = default_field_name_regex;
-    datasrc_field_illegal_regex[ds_xls] = default_field_name_illegal_regex;
-    datasrc_field_casesensitive[ds_xls] = false;
+	datasrc_field_regex[ds_xls] = default_field_name_regex;
+	datasrc_field_illegal_regex[ds_xls] = default_field_name_illegal_regex;
+	datasrc_field_casesensitive[ds_xls] = false;
     
-    //not supported yet
+    datasrc_str_to_type["ODS"] = ds_ods;
+    datasrc_type_to_prefix[ds_ods] = "";
+    datasrc_type_to_fullname[ds_ods] = "Open Office Spreadsheet";
+    datasrc_table_lens[ds_ods] = 128;
+    datasrc_field_lens[ds_ods] = 128;
+    datasrc_field_warning[ds_ods] = default_field_warning;
+    datasrc_field_regex[ds_ods] = default_field_name_regex;
+    datasrc_field_illegal_regex[ds_ods] = default_field_name_illegal_regex;
+    datasrc_field_casesensitive[ds_ods] = false;
+	
+	//not supported yet
 	//datasrc_str_to_type["OSM"] = ds_osm;
 	//datasrc_type_to_prefix[ds_xls] = "";
 	//datasrc_type_to_fullname[ds_xls] = "OSM";
-   
+	
 	//datasrc_str_to_type["MSSQLSpatial"] = ds_ms_sql;
 	//datasrc_type_to_prefix[ds_ms_sql] = "MSSQL:";
 	//datasrc_type_to_fullname[ds_ms_sql] = "Microsoft SQL Server";
@@ -414,14 +643,14 @@ void GdaConst::init()
 	//datasrc_str_to_type["ArcObjects"] = ds_esri_arc_obj;
 	//datasrc_type_to_prefix[ds_esri_arc_obj] = "AO";
 	//datasrc_type_to_fullname[ds_esri_arc_obj] = "ESRI ArcObjects";
-    
+	
 	//datasrc_str_to_type["ODBC"] = ds_odbc;
 	//datasrc_type_to_prefix[ds_odbc] = "ODBC:";
 	//datasrc_type_to_fullname[ds_odbc] = "ODBC";
 	
 	typedef std::map<std::string, DataSourceType> ds_map;
 	for (ds_map::iterator it=datasrc_str_to_type.begin();
-		 it != datasrc_str_to_type.end(); it++) {
+			 it != datasrc_str_to_type.end(); it++) {
 		datasrc_type_to_str[it->second] = it->first;
 		datasrc_req_flds[it->second] = std::set<std::string>();
 		datasrc_opt_flds[it->second] = std::set<std::string>();
@@ -429,17 +658,17 @@ void GdaConst::init()
 	
 	typedef std::map<DataSourceType, std::set<std::string> > ds_fld_map;
 	for (ds_fld_map::iterator it=datasrc_req_flds.begin();
-		 it != datasrc_req_flds.end(); it++) {
+			 it != datasrc_req_flds.end(); it++) {
 		DataSourceType type = it->first;
 		if (type == ds_esri_file_geodb || type == ds_csv || type == ds_dbf ||
-			type == ds_gml || type == ds_kml || type == ds_mapinfo ||
-			type == ds_shapefile || type == ds_sqlite || type == ds_xls ||
-			type == ds_geo_json || type == ds_osm) {
+				type == ds_gml || type == ds_kml || type == ds_mapinfo ||
+				type == ds_shapefile || type == ds_sqlite || type == ds_xls ||
+				type == ds_geo_json || type == ds_osm) {
 			// These are simple files, and a file name must be supplied
 			it->second.insert("file");
 		} else if (type == ds_esri_arc_obj || type == ds_esri_personal_gdb ||
-				   type == ds_esri_arc_sde || type == ds_mysql ||
-				   type == ds_ms_sql || type == ds_oci || type == ds_odbc) {
+							 type == ds_esri_arc_sde || type == ds_mysql ||
+							 type == ds_ms_sql || type == ds_oci || type == ds_odbc) {
 			it->second.insert("user");
 			it->second.insert("pwd");
 			it->second.insert("host");
@@ -453,7 +682,7 @@ void GdaConst::init()
 	}
 	
 	for (ds_fld_map::iterator it=datasrc_opt_flds.begin();
-		 it != datasrc_opt_flds.end(); it++) {
+			 it != datasrc_opt_flds.end(); it++) {
 		DataSourceType type = it->first;
 		if (type == ds_postgresql) {
 			it->second.insert("user");
@@ -462,4 +691,7 @@ void GdaConst::init()
 			it->second.insert("port");
 		}
 	}
+
 }
+
+

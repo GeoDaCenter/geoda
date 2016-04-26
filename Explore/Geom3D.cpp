@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,14 +23,16 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2cnt.h"
 #include "../GeoDa.h"
 
 #include "Geom3D.h"
 
 #define MAX_RANGE 3
 #define MIN_RANGE -20
+
+#ifndef GDA_SWAP
+#define GDA_SWAP(x, y, t) ((t) = (x), (x) = (y), (y) = (t))
+#endif
 
 Baseball::Baseball()
 {
@@ -227,9 +229,9 @@ double invert(Mat4& B, const Mat4& m)
         if (max<=0.) return 0.;       
         if (j!=i) {                  
             for (k=i; k<4; k++)
-                SWAP(A(i, k), A(j, k), t);
+                GDA_SWAP(A(i, k), A(j, k), t);
             for (k=0; k<4; k++)
-                SWAP(B(i, k), B(j, k), t);
+                GDA_SWAP(B(i, k), B(j, k), t);
             det = -det;
         }
         pivot = A(i, i);

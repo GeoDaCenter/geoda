@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_ML_IM_H__
 #define __GEODA_CENTER_ML_IM_H__
 
+#include <wx/gauge.h>
 #include "DenseVector.h"
 #include "SparseMatrix.h"
 

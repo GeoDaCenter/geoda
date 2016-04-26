@@ -152,7 +152,7 @@ LDEBUG= /debug
 STDCALL=YES
 
 # Version number embedded in DLL name. 
-VERSION =	19
+VERSION =	20
 
 # Comment the following out if you want PAM supported disabled
 # by default.  
@@ -288,10 +288,10 @@ EXPAT_INCLUDE = -I$(EXPAT_DIR)\include
 EXPAT_LIB = $(EXPAT_DIR)\lib\expat.lib
 
 # Uncomment for Xerces based GML and ILI support.
-XERCES_DIR =	$(GDAL_HOME)
-XERCES_INCLUDE = -I$(XERCES_DIR)/include -I$(XERCES_DIR)/include/xercesc
+#XERCES_DIR =	$(GDAL_HOME)
+#XERCES_INCLUDE = -I$(XERCES_DIR)/include -I$(XERCES_DIR)/include/xercesc
 #XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib advapi32.lib
-XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib 
+#XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib 
 
 # Uncomment the following for Interlis support.  Note that a Xercex 2.x
 # is also required (see above).  Also, Interlis support only works with
@@ -352,18 +352,18 @@ PG_LIB = $(GDAL_HOME)\lib\libpq.lib wsock32.lib
 # MySQL Libraries
 # NOTE: Need /MT instead of /MD, also enable /EHsc switch. 
 #MYSQL_LIB = D:\Software\MySQLServer4.1\lib\opt\libmysql.lib advapi32.lib
-MYSQL_INC_DIR = $(DOWNLOAD_HOME)\mysql-5.6.16-win32\include
-MYSQL_LIB = $(GDAL_HOME)\lib\mysqlclient.lib advapi32.lib
+#MYSQL_INC_DIR = $(DOWNLOAD_HOME)\mysql-5.6.16-win32\include
+#MYSQL_LIB = $(GDAL_HOME)\lib\mysqlclient.lib advapi32.lib
 
 # SQLite Libraries
 SQLITE_HOME=$(GDAL_HOME)
-#SQLITE_INC=-I$(SQLITE_HOME)\include
+SQLITE_INC=-I$(SQLITE_HOME)\include
 #SQLITE_LIB=$(SQLITE_HOME)\lib\sqlite3_i.lib
 # For spatialite support, try this instead (assuming you grab the libspatialite-amalgamation-2.3.1 and installed it in osgeo4w):
 # The -DSPATIALITE_AMALGAMATION, which cause "spatialite/sqlite3.h" to be included instead of "sqlite3.h" might not be necessary
 # depending on the layout of the include directories. In case of compilation errors, remove it.
-SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE -DSPATIALITE_AMALGAMATION
-SQLITE_LIB=$(GDAL_HOME)\lib\spatialite.lib $(GDAL_HOME)\lib\sqlite.lib
+#SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE 
+SQLITE_LIB=$(GDAL_HOME)\lib\spatialite_i.lib $(SQLITE_HOME)\lib\sqlite3_i.lib
 
 # Informix Data Blade
 #INFORMIXDIR="C:\Program Files\IBM\Informix\Client-SDK"
@@ -446,10 +446,10 @@ OCI_INCLUDE =	-I$(ORACLE_HOME)\oci\include
 CURL_DIR=$(GDAL_HOME)
 CURL_INC = -I$(CURL_DIR)/include
 # Uncoment following line to use libcurl as dynamic library
-#CURL_LIB = $(CURL_DIR)\lib\libcurl.lib wsock32.lib wldap32.lib winmm.lib
+CURL_LIB = $(CURL_DIR)\lib\libcurl.lib wsock32.lib wldap32.lib winmm.lib
 # Uncoment following two lines to use libcurl as static library
-CURL_LIB = $(CURL_DIR)\lib\libcurl_a.lib wsock32.lib wldap32.lib winmm.lib
-CURL_CFLAGS = -DCURL_STATICLIB
+#CURL_LIB = $(CURL_DIR)\lib\libcurl_a.lib wsock32.lib wldap32.lib winmm.lib
+#CURL_CFLAGS = -DCURL_STATICLIB
 
 # Uncomment for DODS / OPeNDAP support
 #DODS_DIR = C:\libdap3.6.2
@@ -513,7 +513,7 @@ FREEXL_LIBS = $(GDAL_HOME)\lib\freexl.lib
 #GTA_LIBS = C:/gdal_trunk/libgta-1.0.0-w32/lib/libgta.dll.a
 
 # Any extra libraries needed on this platform?
-ADD_LIBS	= 
+ADD_LIBS	= Ws2_32.lib
 
 # Comment out the following if you want to build with Python support, but
 # you don't have Numeric Python installed (with include files).  Numeric
@@ -527,7 +527,7 @@ ADD_LIBS	=
 # Location of MS Data Access SDK (not really needed anymore I think)
 #MSDASDK =	D:\Software\MDAC_2.6
 
-GDAL_DLL =	gdal$(VERSION).dll
+GDAL_DLL =	gdal_geoda$(VERSION).dll
 
 INC	=	-I$(GDAL_ROOT)\port -I$(GDAL_ROOT)\ogr -I$(GDAL_ROOT)\gcore \
 		-I$(GDAL_ROOT)\alg -I$(GDAL_ROOT)\ogr\ogrsf_frmts
@@ -545,10 +545,10 @@ OGR_FLAG = -DOGR_ENABLED
 LINKER_FLAGS = $(MSVC_VLD_LIB) $(LDEBUG) /NODEFAULTLIB:library 
 
 
-CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS)
+CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS) -DGDAL_COMPILATION
 MAKE	=	nmake /nologo
 
-CC	=	cl -DXERCES_STATIC_LIBRARY
+CC	=	cl 
 
 INSTALL	=	xcopy /y /r /d /f
 

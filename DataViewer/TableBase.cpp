@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -17,9 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/statusbr.h>
 #include <boost/foreach.hpp>
 #include <vector>
-#include "../Generic/HighlightState.h"
+#include "../HighlightState.h"
 #include "../GenUtils.h"
 #include "../GeneralWxUtils.h"
 #include "TableState.h"
@@ -29,6 +30,7 @@
 #include "../Project.h"
 #include "../logger.h"
 #include "../SaveButtonManager.h"
+#include "TableFrame.h"
 
 class TableCellAttrProvider : public wxGridCellAttrProvider
 {
@@ -99,7 +101,7 @@ wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 }
 
 
-TableBase::TableBase(Project* _project)
+TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	: project(_project), highlight_state(_project->GetHighlightState()),
 	hs(_project->GetHighlightState()->GetHighlight()),
 	table_state(_project->GetTableState()), table_int(_project->GetTableInt()),
@@ -108,14 +110,18 @@ TableBase::TableBase(Project* _project)
 	sorting_col(-1), sorting_ascending(false)
 {
 	LOG_MSG("Entering TableBase::TableBase");
+    template_frame = t_frame;
 	SortByDefaultDecending();
 	
-    for(int i=0;i<cols;i++) hs_col.push_back(false);
+    for(int i=0;i<cols;i++) 
+        hs_col.push_back(false);
 	SetAttrProvider(new TableCellAttrProvider(row_order, hs, hs_col));
 	
 	highlight_state->registerObserver(this);
 	table_state->registerTableBase(this);
 	time_state->registerObserver(this);
+    
+    UpdateStatusBar();
 	LOG_MSG("Exiting TableBase::TableBase");
 }
 
@@ -125,6 +131,19 @@ TableBase::~TableBase()
 	highlight_state->removeObserver(this);
 	table_state->removeObserver(this);
 	time_state->removeObserver(this);
+}
+
+void TableBase::UpdateStatusBar()
+{
+    wxStatusBar* sb = template_frame->GetStatusBar();
+    if (!sb) return;
+    wxString s;
+    s << "#obs=" << project->GetNumRecords() << " ";
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+    }
+    
+    sb->SetStatusText(s);
 }
 
 /** Only wxGrid should call this, others should use Selected(int row) */
@@ -149,7 +168,7 @@ void TableBase::FromGridSelectOnlyRow(int row)
 			if (!hs[i]) nh[total_newly_selected++] = i;
 		}
 	}
-	highlight_state->SetEventType(HighlightState::delta);
+	highlight_state->SetEventType(HLStateInt::delta);
 	highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 	highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 	highlight_state->notifyObservers();
@@ -171,7 +190,7 @@ void TableBase::FromGridSelectRowRange(int first_row, int last_row)
 			if (!hs[row_order[i]]) nh[total_newly_selected++] = row_order[i];
 		}
 	}
-	highlight_state->SetEventType(HighlightState::delta);
+	highlight_state->SetEventType(HLStateInt::delta);
 	highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 	highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 	highlight_state->notifyObservers();
@@ -181,8 +200,10 @@ void TableBase::FromGridSelectRowRange(int first_row, int last_row)
 void TableBase::FromGridSelectRow(int row)
 {
 	//LOG_MSG(wxString::Format("selecting %d", (int) row_order[row]));
-	highlight_state->SetEventType(HighlightState::delta);
-	highlight_state->SetNewlyHighlighted(0, row_order[row]);
+	highlight_state->SetEventType(HLStateInt::delta);
+	std::vector<int>& nhl = highlight_state->GetNewlyHighlighted();
+	nhl[0] = row_order[row];
+	//highlight_state->SetNewlyHighlighted(0, row_order[row]);
 	highlight_state->SetTotalNewlyHighlighted(1);
 	highlight_state->SetTotalNewlyUnhighlighted(0);
 	highlight_state->notifyObservers();
@@ -192,8 +213,10 @@ void TableBase::FromGridSelectRow(int row)
 void TableBase::FromGridDeselectRow(int row)
 {
 	//LOG_MSG(wxString::Format("deselecting %d", (int) row_order[row]));
-	highlight_state->SetEventType(HighlightState::delta);
-	highlight_state->SetNewlyUnhighlighted(0, row_order[row]);
+	highlight_state->SetEventType(HLStateInt::delta);
+	std::vector<int>& nuhl = highlight_state->GetNewlyUnhighlighted();
+	nuhl[0] = row_order[row];
+	//highlight_state->SetNewlyUnhighlighted(0, row_order[row]);
 	highlight_state->SetTotalNewlyHighlighted(0);
 	highlight_state->SetTotalNewlyUnhighlighted(1);
 	highlight_state->notifyObservers();
@@ -201,7 +224,7 @@ void TableBase::FromGridDeselectRow(int row)
 
 void TableBase::DeselectAllRows()
 {
-	highlight_state->SetEventType(HighlightState::unhighlight_all);
+	highlight_state->SetEventType(HLStateInt::unhighlight_all);
 	highlight_state->notifyObservers();
 }
 
@@ -460,9 +483,10 @@ wxString TableBase::GetColLabelValue(int col)
 	return label;
 }
 
-void TableBase::update(HighlightState* o)
+void TableBase::update(HLStateInt* o)
 {
 	if (GetView()) GetView()->Refresh();
+    UpdateStatusBar();
 }
 
 void TableBase::update(TableState* o)

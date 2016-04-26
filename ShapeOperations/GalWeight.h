@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -20,54 +20,85 @@
 #ifndef __GEODA_CENTER_GAL_WEIGHT_H__
 #define __GEODA_CENTER_GAL_WEIGHT_H__
 
-#include <fstream>
 #include <vector>
-#include "../GdaConst.h"
+#include <map>
 #include "GeodaWeight.h"
 
+class Project;
+class WeightsManInterface;
 class TableInterface;
-struct DataPoint;
 
 class GalElement {
 public:
-    long size; // number of neighbors in data array.
-    long* data;
-
-public:
-    GalElement();
-    virtual ~GalElement();
-    int alloc(int sz);
-    bool empty() const { return data == 0; }
-    void Push(long val) { data[size++] = val; }
-    long Pop() { return (size <= 0) ? GdaConst::EMPTY : data[--size]; }
-    long Size() const { return size; }
-	long elt(long where) const { return data[where]; }
-    long* dt() const { return data; }
-	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
-    double SpatialLag(const double* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const bool std=true) const;
-    double SpatialLag(const DataPoint* x, const int* perm,
-					  const bool std=true) const;
-    double SpatialLag(const double* x, const int* perm,
-					  const bool std=true) const;
-	double SpatialLag(const std::vector<double>& x, const int* perm,
-					  const bool std=true) const;
+	GalElement();
+	void SetSizeNbrs(size_t sz);
+	void SetNbr(size_t pos, long n);
+	void SetNbr(size_t pos, long n, double w);
+	//void SetNbrs(const std::vector<long>& nbrs);
+	void SetNbrs(const GalElement& gal);
+	const std::vector<long>& GetNbrs() const;
+	const std::vector<double>& GetNbrWeights() const;
+	void SortNbrs();
+	long Size() const { return nbr.size(); }
+	long operator[](size_t n) const { return nbr[n]; }
+	double SpatialLag(const std::vector<double>& x) const;
+	double SpatialLag(const double* x) const;
+	double SpatialLag(const std::vector<double>& x, const int* perm) const;
+    double GetRW(int idx);
+    bool Check(long nbrIdx);
+    
+private:
+    std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
+	std::vector<long> nbr;
+	std::vector<double> nbrWeight;
+    std::vector<double> nbrAvgW;
 };
 
 class GalWeight : public GeoDaWeight {
 public:
-	GalWeight() : gal(0) { weight_type = gal_type; }
-	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
 	GalElement* gal;
-	static bool HasIsolates(GalElement *gal, int num_obs) {
-		if (!gal) return false;
-		for (int i=0; i<num_obs; i++) { if (gal[i].Size() <= 0) return true; }
-		return false; }
+    
+	GalWeight() : gal(0) { weight_type = gal_type; }
+	GalWeight(const GalWeight& gw);
+	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
+    
+	static bool HasIsolates(GalElement *gal, int num_obs);
+    
+	virtual GalWeight& operator=(const GalWeight& gw);
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
+    virtual bool SaveDIDWeights(Project* project,
+                        int num_obs,
+                        std::vector<wxInt64>& newids,
+                        std::vector<wxInt64>& stack_ids,
+                        const wxString& ofname);
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int);
 };
 
-namespace WeightUtils {
-	GalElement* ReadGal(const wxString& w_fname, TableInterface* table_int);
+namespace Gda {
+    // Integer IDs
+	bool SaveGal(const GalElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxInt64>& id_vec);
+    // String IDs
+	bool SaveGal(const GalElement* g,
+							 const wxString& layer_name, 
+							 const wxString& ofname,
+							 const wxString& id_var_name,
+							 const std::vector<wxString>& id_vec);
+    // SpaceTime Gal
+	bool SaveSpaceTimeGal(const GalElement* g,
+                          const std::vector<wxString>& time_ids,
+                          const wxString& layer_name,
+                          const wxString& ofname,
+                          const wxString& id_var_name,
+                          const std::vector<wxString>& id_vec);
+	
+    
+	void MakeHigherOrdContiguity(size_t distance, size_t obs, GalElement* W, bool cummulative);
+    
+    
 }
 
 #endif

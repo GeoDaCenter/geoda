@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -29,19 +29,23 @@
 #include <wx/textctrl.h> 
 #include "../FramesManagerObserver.h"
 #include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 
 class FramesManager;
 class TableState;
 class Project;
 class TableInterface;
+class WeightsManState;
+class WeightsManInterface;
 
 class RangeSelectionDlg: public wxDialog, public FramesManagerObserver,
-public TableStateObserver
+public TableStateObserver, public WeightsManStateObserver
 {    
 public:
     RangeSelectionDlg( wxWindow* parent, Project* project,
-					   FramesManager* frames_manager, TableState* table_state,
-					   const wxString& title = "Selection Tool", 
+					   FramesManager* frames_manager,
+                       TableState* table_state,
+					   const wxString& title = "Selection Tool",
 					   const wxPoint& pos = wxDefaultPosition );
 	virtual ~RangeSelectionDlg();
 
@@ -55,6 +59,8 @@ public:
 	void OnSelUndefClick( wxCommandEvent& event );
 	void OnInvertSelClick( wxCommandEvent& event );
 	void OnRandomSelClick( wxCommandEvent& event );
+	void OnClearSelClick( wxCommandEvent& event );
+	void OnAddNeighsToSelClick( wxCommandEvent& event );
 	void OnAddField( wxCommandEvent& event );
 	void OnSaveFieldChoice( wxCommandEvent& event );
 	void OnSaveFieldChoiceTm( wxCommandEvent& event );
@@ -63,20 +69,35 @@ public:
 	void OnSelUnselTextChange( wxCommandEvent& event);
 	void OnApplySaveClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
+    
+    void OnSetNewSelect(wxCommandEvent& event );
+    void OnSetSubSelect(wxCommandEvent& event );
+    void OnSetAppendSelect(wxCommandEvent& event );
 
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
+	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowTimelineChanges() { return true; }
 	virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
 	virtual bool AllowObservationAddDelete() { return true; }
+	
+	/** Implementation of WeightsManStateObserver interface */
+	virtual void update(WeightsManState* o);
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
+		return 0; }
+	virtual void closeObserver(boost::uuids::uuid id) {};
 
-private:
+private:    
 	/** Should only be called by update and constructor. */
 	void RefreshColIdMap();
 	/** Refresh selection vars list and associated time list,
 	 enabling widgets as needed. */
+	
+	/** Refresh m_weights_choice and weights_ids */
+	void RefreshWeightsIds();
+	boost::uuids::uuid GetWeightsId();
 	
 	void InitSelectionVars();
 	/** Refresh save vars list and associated time list,
@@ -114,7 +135,11 @@ private:
 	wxButton* m_sel_range_button;
 	wxButton* m_sel_undef_button;
 	wxButton* m_invert_sel_button;
+	wxTextCtrl* m_num_to_rand_sel_txt;
 	wxButton* m_random_sel_button;
+	wxButton* m_clear_sel_button;
+	wxButton* m_add_neighs_to_sel_button;
+	wxChoice* m_weights_choice;
 	wxChoice* m_save_field_choice;
 	wxChoice* m_save_field_choice_tm;
 	wxCheckBox* m_sel_check_box;	
@@ -122,6 +147,9 @@ private:
 	wxCheckBox* m_unsel_check_box;	
 	wxTextCtrl* m_unsel_val_text;
 	wxButton* m_apply_save_button;
+    wxRadioButton* m_radio_newselect;
+    wxRadioButton* m_radio_subselect;
+    wxRadioButton* m_radio_appendselect;
 	
 	bool m_selection_made; // true once a selection has been made
 	bool all_init;
@@ -134,6 +162,10 @@ private:
 	Project* project;
 	FramesManager* frames_manager;
 	TableState* table_state;
+	WeightsManInterface* w_man_int;
+	WeightsManState* w_man_state;
+	std::vector<boost::uuids::uuid> weights_ids;
+
 	// The last mapped col_id for which selection was applied.
 	// This value is used for the save results apply funciton.
 	int current_sel_mcol;

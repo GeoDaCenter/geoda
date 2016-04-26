@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -31,7 +31,7 @@
 #include "../DialogTools/HistIntervalDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
-#include "../GenUtils.h"
+#include "../GenGeomAlgs.h"
 #include "../FramesManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
@@ -59,7 +59,7 @@ const double ConditionalHistogramCanvas::interval_gap_const = 0;
 ConditionalHistogramCanvas::ConditionalHistogramCanvas(wxWindow *parent,
 									TemplateFrame* t_frame,
 									Project* project_s,
-									const std::vector<GeoDaVarInfo>& v_info,
+									const std::vector<GdaVarTools::VarInfo>& v_info,
 									const std::vector<int>& col_ids,
 									const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
@@ -134,7 +134,7 @@ void ConditionalHistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos);
+	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	LOG_MSG("Exiting ConditionalHistogramCanvas::DisplayRightClickMenu");
 }
@@ -153,7 +153,7 @@ void ConditionalHistogramCanvas::SetCheckMarks(wxMenu* menu)
 }
 
 /** Override of TemplateCanvas method. */
-void ConditionalHistogramCanvas::update(HighlightState* o)
+void ConditionalHistogramCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering ConditionalHistogramCanvas::update");
 	layer0_valid = false;
@@ -477,7 +477,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0),
+		x_axis = new GdaAxis(GetNameWithTime(2), axis_scale_x, wxRealPoint(0,0),
 							wxRealPoint(shps_orig_xmax, 0), 0, 9);
 	}
 	
@@ -556,7 +556,7 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	wxPoint lower_left;
 	wxPoint upper_right;
 	if (rect_sel) {
-		GenUtils::StandardizeRect(sel1, sel2, lower_left, upper_right);
+		GenGeomAlgs::StandardizeRect(sel1, sel2, lower_left, upper_right);
 	}
 	if (!shiftdown) {
 		bool any_selected = false;
@@ -564,7 +564,7 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 				(rect_sel &&
-				 GenUtils::RectsIntersect(rec->lower_left, rec->upper_right,
+				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right)))
 			{
 				any_selected = true;
@@ -572,7 +572,7 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 		if (!any_selected) {
-			highlight_state->SetEventType(HighlightState::unhighlight_all);
+			highlight_state->SetEventType(HLStateInt::unhighlight_all);
 			highlight_state->notifyObservers();
 			return;
 		}
@@ -584,7 +584,7 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
-						  GenUtils::RectsIntersect(rec->lower_left,
+						  GenGeomAlgs::RectsIntersect(rec->lower_left,
 												   rec->upper_right,
 												   lower_left, upper_right)));
 		bool all_sel = (cell_data[t][r][c].ival_obs_cnt[ival] == 
@@ -829,8 +829,8 @@ void ConditionalHistogramCanvas::InitIntervals()
 
 void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 {
-	HighlightState::EventType type = highlight_state->GetEventType();
-	if (type == HighlightState::unhighlight_all) {
+	HLStateInt::EventType type = highlight_state->GetEventType();
+	if (type == HLStateInt::unhighlight_all) {
 		for (int t=0; t<num_time_vals; t++) {
 			int vt = var_info[VERT_VAR].time_min;
 			if (var_info[VERT_VAR].sync_with_global_time) vt += t;
@@ -846,7 +846,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 				}
 			}
 		}
-	} else if (type == HighlightState::delta) {
+	} else if (type == HLStateInt::delta) {
 		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
 		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
@@ -873,7 +873,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 				cell_data[t][r][c].ival_obs_sel_cnt[ival]--;
 			}
 		}
-	} else if (type == HighlightState::invert) {
+	} else if (type == HLStateInt::invert) {
 		for (int t=0; t<num_time_vals; t++) {
 			int vt = var_info[VERT_VAR].time_min;
 			if (var_info[VERT_VAR].sync_with_global_time) vt += t;
@@ -959,7 +959,7 @@ END_EVENT_TABLE()
 
 ConditionalHistogramFrame::ConditionalHistogramFrame(wxFrame *parent,
 								Project* project,
-								const std::vector<GeoDaVarInfo>& var_info,
+								const std::vector<GdaVarTools::VarInfo>& var_info,
 								const std::vector<int>& col_ids,
 								const wxString& title, const wxPoint& pos,
 								const wxSize& size, const long style)

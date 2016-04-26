@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -70,6 +70,8 @@ public:
 	void OnReverseCheckBox(wxCommandEvent& ev);
 	void OnLoopCheckBox(wxCommandEvent& ev);
 	void OnKeyEvent(wxKeyEvent& ev);
+    void ToggleButtons(bool enabled);
+
 	
 	int GetSliderTimeStep();
 	int GetGridBaseTimeStep();
@@ -103,6 +105,8 @@ protected:
 	static const int min_delay_ms = 200;
 	static const int max_delay_ms = 3000;
 	wxButton* play_button;
+    wxButton* forward_button;
+    wxButton* backward_button;
 	wxStaticText* cur_txt;
 	wxCheckBox* loop_cb;
 	wxCheckBox* reverse_cb;

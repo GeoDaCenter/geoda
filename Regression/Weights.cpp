@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,9 +23,7 @@
     #include <wx/wx.h>
 #endif
 
-#include "../ShapeOperations/shp.h"
-#include "../ShapeOperations/shp2gwt.h"
-#include "../ShapeOperations/shp2cnt.h"
+#include "../ShapeOperations/GwtWeight.h"
 #include "mix.h"
 #include "Lite2.h"
 #include "Weights.h"
@@ -183,11 +181,9 @@ void Weights::WeightsGal(const GalElement *my_gal, int num_obs)
     key << local_pair(row, disp);
 		sz = my_gal[k].Size();
     (*tgt).alloc(sz);
-    if (sz)  
-		{
-			const long *nblist = my_gal[k].dt(); 
-      CopyInput(*tgt, nblist , sz);
-      HeapSort((*tgt)());
+    if (sz) {
+		CopyInput(*tgt, my_gal[k].GetNbrs(), sz);
+		HeapSort((*tgt)());
     };
     ++disp;  ++tgt;
 
@@ -212,50 +208,52 @@ void Weights::WeightsGal(const GalElement *my_gal, int num_obs)
 
 void Weights::WeightsGwt(const GwtElement *my_gwt, int num_obs)  
 {
-  typedef pairstruct<CNT, INDEX> local_pair;
-  INDEX         Rows, disp, sz;
-  CNT           row;
+	typedef pairstruct<CNT, INDEX> local_pair;
+	INDEX Rows, disp, sz;
+	CNT row;
 
 	int j = 0;
 	INDEX k = 0;
 	disp = 0;
 	Rows = num_obs;
-  gwt           tgt(Rows);
-  key.alloc(Rows);
+	gwt tgt(Rows);
+	key.alloc(Rows);
 
-  for (k=0;k<Rows;k++)
-	{
+	for (k=0; k<Rows; k++) {
 		row = k;
-    key << local_pair(row, disp);
+		key << local_pair(row, disp);
 		sz = my_gwt[k].Size();
-    (*tgt).alloc(sz);
-    if (sz)  
-		{
-			const long *nblist = my_gwt[k].GetData();
-			double *weightlist = new double [my_gwt[k].Size()];
-			for (j = 0; j < my_gwt[k].Size(); j++) weightlist[j] = my_gwt[k].elt(j).weight;
-      CopyInput(*tgt, nblist, weightlist, sz);
-      HeapSort((*tgt)());
-    };
-    ++disp;  ++tgt;
+		(*tgt).alloc(sz);
+		if (sz) {
+			GwtNeighbor* nbrs = my_gwt[k].dt();
+			std::vector<long> nblist(sz);
+			std::vector<double> weightlist(sz);
+			for (size_t i=0; i<sz; ++i) {
+				nblist[i] = nbrs[i].nbx;
+				weightlist[i] = nbrs[i].weight;
+			}
+			CopyInput(*tgt, nblist, weightlist, sz);
+			HeapSort((*tgt)());
+		}
+		++disp;
+		++tgt;
+	}
 
-  }
-
-  HeapSort(key());
-  gt.alloc(Rows);
-  gwt::input_iterator itemp= tgt();
-  while (itemp)  {
-    (*gt).alloc((*itemp).count());
-    for (WMap::input_iterator iset= (*itemp)(); iset; ++iset)  
-		{
-      local_pair * t= FindW(key(), *iset);
-      if (t) *gt << pairstruct<INDEX, VALUE>(t->second, (*iset).second);
-//        else  Messenger(ERR_LAST, " GAL reference outside the matrix");
-    };
-    ++itemp;  ++gt;
-  };
-  wdim= Rows;
-  return;
+	HeapSort(key());
+	gt.alloc(Rows);
+	gwt::input_iterator itemp= tgt();
+	while (itemp) {
+		(*gt).alloc((*itemp).count());
+		for (WMap::input_iterator iset= (*itemp)(); iset; ++iset) {
+			local_pair * t= FindW(key(), *iset);
+			if (t) *gt << pairstruct<INDEX, VALUE>(t->second, (*iset).second);
+			// else  Messenger(ERR_LAST, " GAL reference outside the matrix");
+		}
+		++itemp;
+		++gt;
+	}
+	wdim=Rows;
+	return;
 }
 
 /*

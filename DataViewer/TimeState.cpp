@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -100,3 +100,17 @@ void TimeState::notifyObservers()
 		(*it)->update(this);
 	}
 }
+
+void TimeState::notifyObservers(TimeStateObserver* exclude)
+{
+	for (std::list<TimeStateObserver*>::iterator it=observers.begin();
+		 it != observers.end(); ++it)
+	{
+		if ((*it) == exclude) {
+			LOG_MSG("TimeState::notifyObservers: skipping exclude");
+		} else {
+			(*it)->update(this);
+		}
+	}
+}
+

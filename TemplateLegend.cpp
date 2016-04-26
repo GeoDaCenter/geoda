@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -70,6 +70,10 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
         wxMenu* optMenu =
 			wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
 		AddCategoryColorToMenu(optMenu, cat_clicked);
+    	wxMenuItem* mi = optMenu->FindItem(XRCID("ID_LEGEND_USE_SCI_NOTATION"));
+    	if (mi && mi->IsCheckable()) {
+            mi->Check(template_canvas->useScientificNotation);
+        }
         PopupMenu(optMenu, event.GetPosition());
         return;
     }
@@ -165,7 +169,10 @@ void TemplateLegend::OnDraw(wxDC& dc)
 	
     dc.SetPen(*wxBLACK_PEN);
 	for (int i=0; i<numRect; i++) {
-		dc.SetBrush(template_canvas->cat_data.GetCategoryColor(time, i));
+        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
+        if (clr.IsOk()) dc.SetBrush(clr);
+        else dc.SetBrush(*wxBLACK_BRUSH);
+        
 		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
 					(px + m_l + 10), cur_y - (m_w / 2));
 		dc.DrawRectangle(px, cur_y - 8, m_l, m_w);

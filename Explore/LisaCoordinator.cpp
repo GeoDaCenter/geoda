@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -23,7 +23,10 @@
 #include "../DataViewer/TableInterface.h"
 #include "../ShapeOperations/RateSmoothing.h"
 #include "../ShapeOperations/Randik.h"
+#include "../ShapeOperations/WeightsManState.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
+#include "../Project.h"
 #include "LisaCoordinatorObserver.h"
 #include "LisaCoordinator.h"
 
@@ -95,34 +98,48 @@ wxThread::ExitCode LisaWorkerThread::Entry()
    
  */
 
-LisaCoordinator::LisaCoordinator(const GalWeight* gal_weights_s,
-								 TableInterface* table_int,
-								 const std::vector<GeoDaVarInfo>& var_info_s,
-								 const std::vector<int>& col_ids,
-								 LisaType lisa_type_s,
-								 bool calc_significances_s)
-: W(gal_weights_s->gal),
-weight_name(wxFileName(gal_weights_s->wflnm).GetName()),
-num_obs(table_int->GetNumberRows()),
-permutations(99),
+LisaCoordinator::LisaCoordinator(boost::uuids::uuid weights_id,
+                         Project* project,
+                         const std::vector<GdaVarTools::VarInfo>& var_info_s,
+                         const std::vector<int>& col_ids,
+                         LisaType lisa_type_s,
+                         bool calc_significances_s,
+                         bool row_standardize_s)
+: w_man_state(project->GetWManState()),
+w_man_int(project->GetWManInt()),
+w_id(weights_id),
+num_obs(project->GetNumRecords()),
+permutations(999),
 lisa_type(lisa_type_s),
 calc_significances(calc_significances_s),
 isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
-last_seed_used(0), reuse_last_seed(false)
+last_seed_used(0), reuse_last_seed(false),
+row_standardize(row_standardize_s)
 {
+    
+    LOG_MSG("Entering LisaCoordinator::LisaCoordinator(..)");
+	GalWeight* gw = w_man_int->GetGal(w_id);
+	W = (gw ? gw->gal : 0);
+	weight_name = w_man_int->GetLongDispName(w_id);
 	SetSignificanceFilter(1);
+    
+	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
 	}
+    
 	InitFromVarInfo();
+	w_man_state->registerObserver(this);
+    LOG_MSG("Exiting LisaCoordinator::LisaCoordinator(..)");
 }
 
 
 LisaCoordinator::~LisaCoordinator()
 {
 	LOG_MSG("In LisaCoordinator::~LisaCoordinator");
+	w_man_state->removeObserver(this);
 	DeallocateVectors();
 }
 
@@ -201,31 +218,43 @@ void LisaCoordinator::InitFromVarInfo()
 	DeallocateVectors();
 	
 	num_time_vals = 1;
-	is_any_time_variant = false;
-	is_any_sync_with_global_time = false;
-	ref_var_index = -1;
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant &&
-			var_info[i].sync_with_global_time) {
-			num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
-			is_any_sync_with_global_time = true;
-			ref_var_index = i;
-			break;
-		}
-	}
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) {
-			is_any_time_variant = true;
-			break;
-		}
-	}
+    is_any_time_variant = false;
+    is_any_sync_with_global_time = false;
+    ref_var_index = -1;
+    
+    if (lisa_type != differential) {
+        for (int i=0; i<var_info.size(); i++) {
+            if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
+                num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
+                is_any_sync_with_global_time = true;
+                ref_var_index = i;
+                break;
+            }
+        }
+        for (int i=0; i<var_info.size(); i++) {
+            if (var_info[i].is_time_variant) {
+                is_any_time_variant = true;
+                break;
+            }
+        }
+    }
 	
 	AllocateVectors();
 	
-	if (lisa_type == univariate || lisa_type == bivariate) {
+    if (lisa_type == differential) {
+        int t=0;
+        for (int i=0; i<num_obs; i++) {
+            int t0 = var_info[0].time;
+            int t1 = var_info[1].time;
+            data1_vecs[0][i] = data[0][t0][i] - data[0][t1][i];
+        }
+        
+    } else if (lisa_type == univariate || lisa_type == bivariate) {
 		for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
 			int d1_t = t - var_info[0].time_min;
-			for (int i=0; i<num_obs; i++) data1_vecs[d1_t][i] = data[0][t][i];
+            for (int i=0; i<num_obs; i++) {
+                data1_vecs[d1_t][i] = data[0][t][i];
+            }
 		}
 		if (lisa_type == bivariate) {
 			for (int t=var_info[1].time_min; t<=var_info[1].time_max; t++) {
@@ -282,7 +311,7 @@ void LisaCoordinator::InitFromVarInfo()
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void LisaCoordinator::VarInfoAttributeChange()
 {
-	Gda::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
@@ -301,7 +330,7 @@ void LisaCoordinator::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//Gda::PrintVarInfoVector(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void LisaCoordinator::StandardizeData()
@@ -323,8 +352,8 @@ void LisaCoordinator::CalcLisa()
 		data1 = data1_vecs[t];
 		if (isBivariate) {
 			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time) data2 = data2_vecs[t];
+			if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
+                data2 = data2_vecs[t];
 		}
 		lags = lags_vecs[t];
 		localMoran = local_moran_vecs[t];
@@ -336,9 +365,9 @@ void LisaCoordinator::CalcLisa()
 		for (int i=0; i<num_obs; i++) {
 			double Wdata = 0;
 			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2, true);
+				Wdata = W[i].SpatialLag(data2);
 			} else {
-				Wdata = W[i].SpatialLag(data1, true);
+				Wdata = W[i].SpatialLag(data1);
 			}
 			lags[i] = Wdata;
 			localMoran[i] = data1[i] * Wdata;
@@ -386,7 +415,8 @@ void LisaCoordinator::CalcPseudoP()
 		if (isBivariate) {
 			data2 = data2_vecs[0];
 			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time) data2 = data2_vecs[t];
+				var_info[1].sync_with_global_time)
+                data2 = data2_vecs[t];
 		}
 		lags = lags_vecs[t];
 		localMoran = local_moran_vecs[t];
@@ -533,7 +563,7 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			
 			//NOTE: we shouldn't have to row-standardize or
 			// multiply by data1[cnt]
-			if (numNeighbors) permutedLag /= numNeighbors;
+			if (numNeighbors && row_standardize) permutedLag /= numNeighbors;
 			const double localMoranPermuted = permutedLag * data1[cnt];
 			if (localMoranPermuted >= localMoran[cnt]) countLarger++;
 		}
@@ -566,6 +596,26 @@ void LisaCoordinator::SetSignificanceFilter(int filter_id)
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+}
+
+void LisaCoordinator::update(WeightsManState* o)
+{
+	weight_name = w_man_int->GetLongDispName(w_id);
+}
+
+int LisaCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
+{
+	return id == w_id ? observers.size() : 0;
+}
+
+void LisaCoordinator::closeObserver(boost::uuids::uuid id)
+{
+	if (numMustCloseToRemove(id) == 0) return;
+	std::list<LisaCoordinatorObserver*> obs_cpy = observers;
+	for (std::list<LisaCoordinatorObserver*>::iterator i=obs_cpy.begin();
+		 i != obs_cpy.end(); ++i) {
+		(*i)->closeObserver(this);
+	}
 }
 
 void LisaCoordinator::registerObserver(LisaCoordinatorObserver* o)

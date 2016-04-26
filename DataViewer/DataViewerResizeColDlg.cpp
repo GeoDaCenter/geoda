@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2014 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  * 
@@ -32,9 +32,12 @@ DataViewerResizeColDlg::DataViewerResizeColDlg(wxGrid* grid_s,
 										 wxWindow* parent)
 : grid(grid_s), table_int(table_int_s)
 {
+    
+    LOG_MSG("Entering DataViewerResizeColDlg::DataViewerResizeColDlg(..)");
 	SetParent(parent);
     CreateControls();
     Centre();
+    LOG_MSG("Exiting DataViewerResizeColDlg::DataViewerResizeColDlg(..)");
 }
 
 
