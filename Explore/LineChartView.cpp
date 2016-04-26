@@ -1056,7 +1056,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             wxString col_name(var_man.GetName(i));
             int n = var_stack_array[i].size();
             if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-            OGRColumn* var_col = new OGRColumnDouble(col_name, 18, -1, n);
+            OGRColumn* var_col = new OGRColumnDouble(col_name, 18, 9, n);
             var_col->UpdateData(var_stack_array[i]);
             mem_table_int->AddOGRColumn(var_col);
         }
