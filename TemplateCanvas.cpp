@@ -495,8 +495,8 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		int offset_vs_x = (int)(whole_vs_w * (map_topleft.x-ext_shps_orig_xmin) / shp_w);
 		int offset_vs_y = (int)(whole_vs_h * (ext_shps_orig_ymax-map_topleft.y) / shp_h);
 
-		SetVirtualSize(whole_vs_w, whole_vs_h);
-		SetScrollRate(1,1);
+		//SetVirtualSize(whole_vs_w, whole_vs_h);
+		//SetScrollRate(1,1);
 		prev_scroll_pos_x =  offset_vs_x > 0 ? offset_vs_x:0;
 		prev_scroll_pos_y =  offset_vs_y > 0 ? offset_vs_y:0;
 		//SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
@@ -522,7 +522,7 @@ void TemplateCanvas::ResetShapes()
 
 	int vs_w=0, vs_h=0;
 	GetClientSize(&vs_w, &vs_h);
-	SetVirtualSize(vs_w, vs_h);
+	//SetVirtualSize(vs_w, vs_h);
 	//SetScrollbars(1, 1, vs_w, vs_h, 0, 0, true);
 	
 	SetMouseMode(select);
@@ -1146,15 +1146,18 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
             }
 			//gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
 			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+				
+            wxGraphicsPath path = gc->CreatePath();
 			
 			for (int i=0, iend=ids.size(); i<iend; i++) {
 				p = (GdaPoint*) selectable_shps[ids[i]];
 				if (p->isNull()) continue;
-				wxGraphicsPath path = gc->CreatePath();
-				path.AddCircle(p->center.x, p->center.y, r);
-				gc->StrokePath(path);
 
-			}			
+				path.AddCircle(p->center.x, p->center.y, r);
+
+
+			}
+            gc->StrokePath(path);
 		}
 	} else if (selectable_shps_type == polygons) {
 		int dirty_cnt = 0;
