@@ -5649,7 +5649,7 @@
                   </object>
                   <object class="sizeritem">
                     <object class="wxStaticText">
-                      <label>Varialbe Name</label>
+                      <label>Variable Name</label>
                       <size>60,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -5847,7 +5847,7 @@
                   </object>
                   <object class="sizeritem">
                     <object class="wxStaticText">
-                      <label>Varialbe Name</label>
+                      <label>Variable Name</label>
                       <size>60,-1d</size>
                     </object>
                     <flag>wxALIGN_CENTRE_VERTICAL</flag>
