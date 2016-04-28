@@ -620,6 +620,7 @@ public:
 	void OnDisplayStatusBar(wxCommandEvent& event);
 	
 	void OnHelpAbout(wxCommandEvent& event);
+	void OnCheckUpdates(wxCommandEvent& event);
     
     void OnTableSetLocale(wxCommandEvent& event);
     void OnEncodingUTF8(wxCommandEvent& event);

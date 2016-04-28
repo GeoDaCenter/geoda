@@ -101,6 +101,7 @@
 #include "DialogTools/WeightsManDlg.h"
 #include "DialogTools/PublishDlg.h"
 #include "DialogTools/BasemapConfDlg.h"
+#include "DialogTools/AutoUpdateDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -1181,6 +1182,7 @@ EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_ALL, GdaFrame::OnPlotsPerViewAll)
 EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
 
 EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
+EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
 
 
 END_EVENT_TABLE()
@@ -5637,6 +5639,12 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnDisplayStatusBar(event);
+}
+
+void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
+{
+    AutoUpdateDlg dlg(this);
+    dlg.ShowModal();
 }
 
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
