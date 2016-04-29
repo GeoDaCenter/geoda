@@ -1453,8 +1453,9 @@ void GdaFrame::CheckUpdate()
         
         if (skip_version == version)
             return;
-        
-        AutoUpdateDlg updateDlg(NULL);
+       
+        bool showSkip = true;
+        AutoUpdateDlg updateDlg(NULL, showSkip);
         if (updateDlg.ShowModal() == wxID_NO) {
             OGRDataAdapter::GetInstance().AddEntry("no_update_version",
                                                    std::string(version.mb_str()));
@@ -5735,7 +5736,10 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	} 
 	vl_s << " " << Gda::version_year;
 	if (vl) vl->SetLabelText(vl_s);
-	
+
+    wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
+    
+    btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();
 }
 

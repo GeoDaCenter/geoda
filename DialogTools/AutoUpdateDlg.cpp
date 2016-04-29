@@ -191,6 +191,7 @@ wxString AutoUpdate::GetCheckList()
 }
 
 AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
+                             bool showSkip,
                        wxWindowID id,
                        const wxString& title,
                        const wxPoint& pos,
@@ -223,13 +224,17 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     lbl_box->Add(whatsnew, 1, wxALIGN_LEFT | wxEXPAND |wxALL, 10);
     lbl_box->Add(prg_bar, 1, wxEXPAND |wxALL, 10);
     
-    
+    wxButton* btn_skip = NULL;
     wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel");
-    wxButton* btn_skip = new wxButton(panel, wxID_ANY, "Skip");
+    if (showSkip)
+        btn_skip = new wxButton(panel, wxID_ANY, "Skip");
     wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
-    btn_box->Add(btn_skip, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+    if (showSkip) {
+        btn_box->Add(btn_skip, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+        btn_skip->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnSkipClick), NULL, this);
+    }
     btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
@@ -250,7 +255,6 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     prg_bar->Hide();
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnOkClick), NULL, this);
-    btn_skip->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnSkipClick), NULL, this);
     btn_cancel->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnCancelClick), NULL, this);
                         
     LOG_MSG("Exiting AutoUpdateDlg::AutoUpdateDlg(..)");

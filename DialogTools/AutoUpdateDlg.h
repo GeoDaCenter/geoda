@@ -40,7 +40,7 @@ namespace AutoUpdate {
 class AutoUpdateDlg: public wxDialog
 {
 public:
-    AutoUpdateDlg(wxWindow* parent,
+    AutoUpdateDlg(wxWindow* parent, bool showSkip = false,
                wxWindowID id = wxID_ANY,
                const wxString& title = "GeoDa Update Dialog",
                const wxPoint& pos = wxDefaultPosition,
