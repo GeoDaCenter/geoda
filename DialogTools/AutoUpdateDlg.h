@@ -30,9 +30,11 @@
 
 
 namespace AutoUpdate {
-    wxString CheckUpdate();
+    bool CheckUpdate();
     
     wxString GetCheckList();
+    wxString GetVersion(wxString checklist);
+    wxString GetUpdateUrl(wxString checklist);
 }
 
 class AutoUpdateDlg: public wxDialog
@@ -45,7 +47,7 @@ public:
                const wxSize& size = wxSize(500,220));
     
 private:
-
+    wxString checklist;
     wxGauge* prg_bar;
     
     void OnOkClick( wxCommandEvent& event );

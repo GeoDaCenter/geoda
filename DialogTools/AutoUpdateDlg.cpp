@@ -20,6 +20,8 @@
 
 
 #include <string>
+#include <vector>
+#include <queue>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -28,6 +30,9 @@
 #include <wx/stattext.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/hyperlink.h>
+#include <wx/tokenzr.h>
+#include <wx/regex.h>
+#include <wx/stdpaths.h>
 
 #include "stdio.h"
 #include <iostream>
@@ -35,8 +40,10 @@
 #include "curl/curl.h"
 
 
+#include "../version.h"
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
+#include "../GdaException.h"
 #include "AutoUpdateDlg.h"
 
 using namespace std;
@@ -79,13 +86,85 @@ string ReadUrlContent(const char* url)
     return response;
 }
 
-wxString AutoUpdate::CheckUpdate()
+bool DownloadUrl(const char* url, const char* filepath)
+{
+    FILE* fp;
+    CURL* curl = curl_easy_init();
+    CURLcode res;
+    if (curl) {
+        fp = fopen(filepath, "wb");
+        if (fp) {
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_file);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+            
+            res = curl_easy_perform(curl);
+            curl_easy_cleanup(curl);
+            fclose(fp);
+            if ( res ) {
+                // download error
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AutoUpdate::CheckUpdate()
 {
     wxString checklist = GetCheckList();
+    wxStringTokenizer tokenizer(checklist, '\n');
+    
+    if (!tokenizer.HasMoreTokens()) return false;
+    wxString version = tokenizer.GetNextToken();
+  
+    wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+$";
+    wxRegEx regex;
+    regex.Compile(version_regex);
+    if (!regex.Matches(version)) {
+        return false;
+    }
     
     // get current version numbers
+    wxStringTokenizer ver_tokenizer(version, ".");
+    int update_major = wxAtoi(ver_tokenizer.GetNextToken());
+    int update_minor = wxAtoi(ver_tokenizer.GetNextToken());
+    int update_build = wxAtoi(ver_tokenizer.GetNextToken());
     
-    return "";
+    if (update_major < Gda::version_major) return false;
+    if (update_major > Gda::version_major) return true;
+    // update_major == version_major
+    if (update_minor < Gda::version_minor) return false;
+    if (update_minor > Gda::version_minor) return true;
+    // update_minor == version_minor
+    if (update_build > Gda::version_build) return true;
+    return false;
+}
+
+wxString AutoUpdate::GetVersion(wxString checklist)
+{
+    wxStringTokenizer tokenizer(checklist, '\n');
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    
+    wxString version = tokenizer.GetNextToken();
+    
+    return version;
+}
+
+wxString AutoUpdate::GetUpdateUrl(wxString checklist)
+{
+    wxStringTokenizer tokenizer(checklist, '\n');
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    wxString version = tokenizer.GetNextToken();
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    wxString updateUrl = tokenizer.GetNextToken();
+    
+    return updateUrl;
 }
 
 wxString AutoUpdate::GetCheckList()
@@ -118,15 +197,18 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     
     LOG_MSG("Entering AutoUpdateDlg::AutoUpdateDlg(..)");
    
-    // check update
-    wxString checklist = AutoUpdate::GetCheckList();
+    // check update, suppose CheckUpdate() return true
+    checklist = AutoUpdate::GetCheckList();
+    wxString version = AutoUpdate::GetVersion(checklist);
+    wxString url_update_description = AutoUpdate::GetUpdateUrl(checklist);
     
-    wxString url_update_description;
-   
+    wxString update_text = "A newer version of GeoDa is found. Do you want to update to version ";
+    update_text += version + "?";
+    
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
     
-    wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, "A newer version of GeoDa is found. Do you want to update to version 1.8.4?");
+    wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, update_text);
     wxHyperlinkCtrl* whatsnew = new wxHyperlinkCtrl(panel, wxID_ANY, "Check what's new in this update.", url_update_description);
     prg_bar = new wxGauge(panel, wxID_ANY, 100);
     
@@ -140,11 +222,11 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     lbl_box->Add(prg_bar, 1, wxEXPAND |wxALL, 10);
     
     
-    wxButton* btn_save_dummy = new wxButton(panel, wxID_ANY, "Cancel");
-    wxButton* btn_apply = new wxButton(panel, wxID_ANY, "Update");
+    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel");
+    wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
-    btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
@@ -160,17 +242,88 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     SetParent(parent);
     SetPosition(pos);
     Centre();
+    
+    btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnOkClick), NULL, this);
+    btn_cancel->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnCancelClick), NULL, this);
+                        
     LOG_MSG("Exiting AutoUpdateDlg::AutoUpdateDlg(..)");
 }
 
 
 void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
 {
-    // read the file line by line
-    // download the file
-    // replace the old file
+    bool success = false;
     
-    EndDialog(wxID_OK);
+    // read the file line by line
+    std::queue<wxString> lines;
+    wxStringTokenizer tokenizer(checklist, '\n');
+    while ( tokenizer.HasMoreTokens() )
+    {
+        wxString token = tokenizer.GetNextToken();
+        lines.push(token);
+    }
+   
+    int n = (int)lines.size();
+    
+    if (n > 1 && (n-1) % 3 == 0) {
+        lines.pop(); // version
+   
+        wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+        wxFileName exeFile(exePath);
+        wxString exeDir = exeFile.GetPathWithSep();
+ 
+        try {
+            while (lines.size() >= 3) {
+                // download the file, check the file
+                wxString file_name = lines.front();
+                lines.pop();
+                wxString file_url = lines.front();
+                lines.pop();
+                wxString file_size = lines.front();
+                lines.pop();
+                
+                file_name = exeDir + file_name;
+                wxString update_file_name = file_name + ".update";
+                wxString backup_file_name = file_name + ".backup";
+                int size = wxAtoi(file_size);
+                
+                
+                if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
+                    // check file size
+                    wxFileName updateFile(update_file_name);
+                    wxULongLong update_size = updateFile.GetSize();
+                    
+                    if (update_size != size )
+                        throw GdaException("");
+                    
+                    // replace the old file
+                    wxRenameFile(file_name, backup_file_name);
+                    wxRename(update_file_name, file_name);
+                    
+                    success = true;
+                }
+            }
+        } catch(...) {
+            // raise warning message
+            success = false;
+        }
+    }
+    
+    if (success) {
+        wxMessageDialog msgDlg(this,
+                               "Please restart GeoDa to finish installing updates.",
+                               "Update GeoDa completed",
+                               wxOK |wxICON_INFORMATION);
+        msgDlg.ShowModal();
+        EndDialog(wxID_OK);
+    } else {
+        // raise warning message
+        wxMessageDialog msgDlg(this,
+                               "Please check your network connection, or contact GeoDa support team.",
+                               "Update GeoDa failed",
+                               wxOK |wxICON_ERROR);
+        msgDlg.ShowModal();
+    }
 }
 
 void AutoUpdateDlg::OnCancelClick( wxCommandEvent& event )
