@@ -30,7 +30,7 @@
 
 
 namespace AutoUpdate {
-    bool CheckUpdate();
+    wxString CheckUpdate();
     
     wxString GetCheckList();
     wxString GetVersion(wxString checklist);
@@ -46,11 +46,15 @@ public:
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxSize(500,220));
     
+    wxString GetVersion();
+    
 private:
     wxString checklist;
     wxGauge* prg_bar;
+    wxString version;
     
     void OnOkClick( wxCommandEvent& event );
+    void OnSkipClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
     
 };

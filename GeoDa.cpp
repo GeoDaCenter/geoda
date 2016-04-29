@@ -27,6 +27,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
 #include <sqlite3.h>
@@ -198,6 +200,7 @@ bool GdaApp::OnInit(void)
 
 	if (!wxApp::OnInit()) return false;
 
+    // initialize OGR connection
 	OGRDataAdapter::GetInstance();
     
 	if (!GeneralWxUtils::isMac()) {
@@ -1409,7 +1412,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		}
 		//exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
-	
     
     wxObject* tb_obj = wxXmlResource::Get()->LoadObject(this, "ToolBar", "wxAuiToolBar");
 	wxAuiToolBar* tb1 = (wxAuiToolBar*)tb_obj;
@@ -1418,19 +1420,18 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
     tb1->Realize();
 
     tb1->Connect(wxEVT_SIZE, wxSizeEventHandler(GdaFrame::OnSize), NULL, this);
-
     
     toolbar_list.push_front(tb1);
     
-    
     gda_frame = this;
 
-	
-	
 	SetMenusToDefault();
  	UpdateToolbarAndMenus();
     SetEncodingCheckmarks(wxFONTENCODING_UTF8);
 		
+    // check update in a new thread
+    CallAfter(&GdaFrame::CheckUpdate);
+    
 	LOG_MSG("Exiting GdaFrame::GdaFrame");
 }
 
@@ -1439,6 +1440,26 @@ GdaFrame::~GdaFrame()
 	LOG_MSG("Entering GdaFrame::~GdaFrame()");
 	GdaFrame::gda_frame = 0;
 	LOG_MSG("Exiting GdaFrame::~GdaFrame()");
+}
+
+void GdaFrame::CheckUpdate()
+{
+    wxString version = AutoUpdate::CheckUpdate();
+    if (!version.IsEmpty()) {
+        wxString skip_version;
+        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("no_update_version");
+        if (items.size()>0)
+            skip_version = items[0];
+        
+        if (skip_version == version)
+            return;
+        
+        AutoUpdateDlg updateDlg(NULL);
+        if (updateDlg.ShowModal() == wxID_NO) {
+            OGRDataAdapter::GetInstance().AddEntry("no_update_version",
+                                                   std::string(version.mb_str()));
+        }
+    }
 }
 
 void GdaFrame::OnSize(wxSizeEvent& event)
@@ -5643,8 +5664,17 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
 {
-    AutoUpdateDlg dlg(this);
-    dlg.ShowModal();
+    wxString version =  AutoUpdate::CheckUpdate();
+    if (!version.IsEmpty()) {
+        AutoUpdateDlg dlg(this);
+        dlg.ShowModal();
+    } else {
+        wxMessageDialog msgDlg(this,
+                               "Your GeoDa is already up-to-date.",
+                               "No update required",
+                               wxOK |wxICON_INFORMATION);
+        msgDlg.ShowModal();
+    }
 }
 
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )

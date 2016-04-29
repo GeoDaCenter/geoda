@@ -63,6 +63,7 @@ public:
 	virtual void MacOpenFiles(const wxArrayString& fileNames);
 
 	static const wxCmdLineEntryDesc globalCmdLineDesc[];
+    
 private:
 	wxString cmd_line_proj_file_name;
 	wxSingleInstanceChecker* checker;
@@ -672,9 +673,12 @@ public:
 	static int sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 										  char **argv, char **azColName);
 	
+    void CheckUpdate();
 
 private:
 	static void SetProjectOpen(bool open);
+    
+    bool hasUpdate;
 
 	static GdaFrame* gda_frame;
 	static Project* project_p;

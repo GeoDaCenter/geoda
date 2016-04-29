@@ -33,6 +33,7 @@
 #include <wx/tokenzr.h>
 #include <wx/regex.h>
 #include <wx/stdpaths.h>
+#include <wx/progdlg.h>
 
 #include "stdio.h"
 #include <iostream>
@@ -78,6 +79,7 @@ string ReadUrlContent(const char* url)
         
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+        //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
         
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
@@ -112,19 +114,20 @@ bool DownloadUrl(const char* url, const char* filepath)
     return false;
 }
 
-bool AutoUpdate::CheckUpdate()
+// return Version or empty string
+wxString AutoUpdate::CheckUpdate()
 {
     wxString checklist = GetCheckList();
     wxStringTokenizer tokenizer(checklist, '\n');
     
-    if (!tokenizer.HasMoreTokens()) return false;
+    if (!tokenizer.HasMoreTokens()) return "";
     wxString version = tokenizer.GetNextToken();
   
     wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+$";
     wxRegEx regex;
     regex.Compile(version_regex);
     if (!regex.Matches(version)) {
-        return false;
+        return "";
     }
     
     // get current version numbers
@@ -133,14 +136,14 @@ bool AutoUpdate::CheckUpdate()
     int update_minor = wxAtoi(ver_tokenizer.GetNextToken());
     int update_build = wxAtoi(ver_tokenizer.GetNextToken());
     
-    if (update_major < Gda::version_major) return false;
-    if (update_major > Gda::version_major) return true;
+    if (update_major < Gda::version_major) return "";
+    if (update_major > Gda::version_major) return version;
     // update_major == version_major
-    if (update_minor < Gda::version_minor) return false;
-    if (update_minor > Gda::version_minor) return true;
+    if (update_minor < Gda::version_minor) return "";
+    if (update_minor > Gda::version_minor) return version;
     // update_minor == version_minor
-    if (update_build > Gda::version_build) return true;
-    return false;
+    if (update_build > Gda::version_build) return version;
+    return "";
 }
 
 wxString AutoUpdate::GetVersion(wxString checklist)
@@ -199,7 +202,7 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
    
     // check update, suppose CheckUpdate() return true
     checklist = AutoUpdate::GetCheckList();
-    wxString version = AutoUpdate::GetVersion(checklist);
+    version = AutoUpdate::GetVersion(checklist);
     wxString url_update_description = AutoUpdate::GetUpdateUrl(checklist);
     
     wxString update_text = "A newer version of GeoDa is found. Do you want to update to version ";
@@ -213,7 +216,6 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     prg_bar = new wxGauge(panel, wxID_ANY, 100);
     
     
-    prg_bar->Hide();
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
     lbl_box->AddSpacer(20);
@@ -223,9 +225,11 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     
     
     wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel");
+    wxButton* btn_skip = new wxButton(panel, wxID_ANY, "Skip");
     wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_skip, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
@@ -243,7 +247,10 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     SetPosition(pos);
     Centre();
     
+    prg_bar->Hide();
+    
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnOkClick), NULL, this);
+    btn_skip->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnSkipClick), NULL, this);
     btn_cancel->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnCancelClick), NULL, this);
                         
     LOG_MSG("Exiting AutoUpdateDlg::AutoUpdateDlg(..)");
@@ -264,14 +271,18 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
     }
    
     int n = (int)lines.size();
-    
+    int jobs = (n-1) / 3 + 1;
+    wxProgressDialog progressDlg("", "Downloading updates...",
+                                 jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
+    progressDlg.Update(1);
     if (n > 1 && (n-1) % 3 == 0) {
         lines.pop(); // version
    
         wxString exePath = wxStandardPaths::Get().GetExecutablePath();
         wxFileName exeFile(exePath);
         wxString exeDir = exeFile.GetPathWithSep();
- 
+        
+        int current_job = 2;
         try {
             while (lines.size() >= 3) {
                 // download the file, check the file
@@ -302,13 +313,14 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
                     success = true;
                 }
+                progressDlg.Update(current_job++);
             }
         } catch(...) {
             // raise warning message
             success = false;
         }
     }
-    
+   
     if (success) {
         wxMessageDialog msgDlg(this,
                                "Please restart GeoDa to finish installing updates.",
@@ -328,7 +340,14 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
 
 void AutoUpdateDlg::OnCancelClick( wxCommandEvent& event )
 {
-
-    
     EndDialog(wxID_CANCEL);
+}
+
+void AutoUpdateDlg::OnSkipClick( wxCommandEvent& event )
+{
+    EndDialog(wxID_NO);
+}
+wxString AutoUpdateDlg::GetVersion()
+{
+    return version;
 }
