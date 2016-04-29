@@ -275,12 +275,13 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
     }
    
     int n = (int)lines.size();
-    int jobs = (n-1) / 3 + 1;
+    int jobs = (n-2) / 3 + 1; // skip first and second lines
     wxProgressDialog progressDlg("", "Downloading updates...",
                                  jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
     progressDlg.Update(1);
-    if (n > 1 && (n-1) % 3 == 0) {
+    if (n > 2 && (n-2) % 3 == 0) {
         lines.pop(); // version
+        lines.pop(); // description page
    
         wxString exePath = wxStandardPaths::Get().GetExecutablePath();
         wxFileName exeFile(exePath);
