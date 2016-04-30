@@ -44,7 +44,7 @@ public:
                wxWindowID id = wxID_ANY,
                const wxString& title = "GeoDa Update Dialog",
                const wxPoint& pos = wxDefaultPosition,
-               const wxSize& size = wxSize(500,220));
+               const wxSize& size = wxSize(510,220));
     
     wxString GetVersion();
     

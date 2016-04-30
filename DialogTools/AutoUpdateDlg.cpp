@@ -118,9 +118,15 @@ bool DownloadUrl(const char* url, const char* filepath)
 wxString AutoUpdate::CheckUpdate()
 {
     wxString checklist = GetCheckList();
-    wxStringTokenizer tokenizer(checklist, '\n');
+    wxStringTokenizer tokenizer;
     
-    if (!tokenizer.HasMoreTokens()) return "";
+    tokenizer.SetString(checklist, "\r\n");
+    if (!tokenizer.HasMoreTokens()) {
+        tokenizer.SetString(checklist, "\n");
+        if (!tokenizer.HasMoreTokens()) {
+            return "";
+        }
+    }
     wxString version = tokenizer.GetNextToken();
   
     wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+$";
@@ -148,10 +154,15 @@ wxString AutoUpdate::CheckUpdate()
 
 wxString AutoUpdate::GetVersion(wxString checklist)
 {
-    wxStringTokenizer tokenizer(checklist, '\n');
+    wxStringTokenizer tokenizer;
     
-    if (!tokenizer.HasMoreTokens()) return "";
-    
+    tokenizer.SetString(checklist, "\r\n");
+    if (!tokenizer.HasMoreTokens()) {
+        tokenizer.SetString(checklist, "\n");
+        if (!tokenizer.HasMoreTokens()) {
+            return "";
+        }
+    }
     wxString version = tokenizer.GetNextToken();
     
     return version;
@@ -159,7 +170,15 @@ wxString AutoUpdate::GetVersion(wxString checklist)
 
 wxString AutoUpdate::GetUpdateUrl(wxString checklist)
 {
-    wxStringTokenizer tokenizer(checklist, '\n');
+    wxStringTokenizer tokenizer;
+    
+    tokenizer.SetString(checklist, "\r\n");
+    if (!tokenizer.HasMoreTokens()) {
+        tokenizer.SetString(checklist, "\n");
+        if (!tokenizer.HasMoreTokens()) {
+            return "";
+        }
+    }
     
     if (!tokenizer.HasMoreTokens()) return "";
     wxString version = tokenizer.GetNextToken();
