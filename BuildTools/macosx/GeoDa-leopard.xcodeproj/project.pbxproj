@@ -16,6 +16,7 @@
 		A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */; };
 		A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB46C1C86705B0082B436 /* PublishDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
+		A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -239,6 +240,8 @@
 		A14CB46D1C86705B0082B436 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
+		A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoUpdateDlg.cpp; sourceTree = "<group>"; };
+		A16D406D1CD4233A0025C64C /* AutoUpdateDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoUpdateDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
@@ -743,6 +746,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */,
+				A16D406D1CD4233A0025C64C /* AutoUpdateDlg.h */,
 				A14CB46C1C86705B0082B436 /* PublishDlg.cpp */,
 				A14CB46D1C86705B0082B436 /* PublishDlg.h */,
 				A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */,
@@ -1405,6 +1410,7 @@
 				A14CB4651C866E110082B436 /* AdjustYAxisDlg.cpp in Sources */,
 				A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */,
 				A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */,
+				A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

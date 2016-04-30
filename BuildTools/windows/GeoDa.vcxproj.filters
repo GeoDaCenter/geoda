@@ -618,6 +618,9 @@
     <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AutoUpdateDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1125,6 +1128,9 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
