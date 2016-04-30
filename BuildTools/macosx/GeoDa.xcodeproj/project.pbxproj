@@ -30,6 +30,7 @@
 		A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78133178A90A100CC1037 /* OGRDatasourceProxy.cpp */; };
 		A1E7813A178A90A100CC1037 /* OGRFieldProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78135178A90A100CC1037 /* OGRFieldProxy.cpp */; };
 		A1E7813B178A90A100CC1037 /* OGRLayerProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78137178A90A100CC1037 /* OGRLayerProxy.cpp */; };
+		A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */; };
 		A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EF332D18E35D8300E19375 /* LocaleSetupDlg.cpp */; };
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
@@ -266,6 +267,8 @@
 		A1E78136178A90A100CC1037 /* OGRFieldProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGRFieldProxy.h; sourceTree = "<group>"; };
 		A1E78137178A90A100CC1037 /* OGRLayerProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRLayerProxy.cpp; sourceTree = "<group>"; };
 		A1E78138178A90A100CC1037 /* OGRLayerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGRLayerProxy.h; sourceTree = "<group>"; };
+		A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoUpdateDlg.cpp; sourceTree = "<group>"; };
+		A1EBC88E1CD2B2FD001DCFE9 /* AutoUpdateDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoUpdateDlg.h; sourceTree = "<group>"; };
 		A1EF332D18E35D8300E19375 /* LocaleSetupDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocaleSetupDlg.cpp; sourceTree = "<group>"; };
 		A1EF332E18E35D8300E19375 /* LocaleSetupDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleSetupDlg.h; sourceTree = "<group>"; };
 		A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCache.cpp; sourceTree = "<group>"; };
@@ -747,6 +750,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */,
+				A1EBC88E1CD2B2FD001DCFE9 /* AutoUpdateDlg.h */,
 				A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */,
 				A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */,
 				A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */,
@@ -1269,6 +1274,7 @@
 				DDD140540F310324009F7F13 /* AbstractShape.cpp in Sources */,
 				DD5FA1DA0F320DD50055A0E5 /* ShapeFileHdr.cpp in Sources */,
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
+				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
 				DDB0E42C10B34DBB00F96D57 /* AddIdVariable.cpp in Sources */,
 				DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */,
 				DDAA6540117F9B5D00D1010C /* Project.cpp in Sources */,

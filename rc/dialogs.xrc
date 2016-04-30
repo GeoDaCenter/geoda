@@ -801,8 +801,8 @@
             <size>10,2d</size>
           </object>
           <object class="sizeritem">
-            <object class="wxButton" name="ID_CLEAN_CACHE">
-              <label>Clean Cache</label>
+            <object class="wxButton" name="ID_CHECKUPDATES">
+              <label>Check Updates</label>
             </object>
           </object>
           <orient>wxHORIZONTAL</orient>
