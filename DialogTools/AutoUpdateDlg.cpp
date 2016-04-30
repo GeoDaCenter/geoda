@@ -225,8 +225,10 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     version = AutoUpdate::GetVersion(checklist);
     wxString url_update_description = AutoUpdate::GetUpdateUrl(checklist);
     
-    wxString update_text = "A newer version of GeoDa is found. Do you want to update to version ";
-    update_text += version + "?";
+    wxString update_text;
+	update_text << "A newer version of GeoDa is found. Do you want to update to version ";
+    update_text << version;
+	update_text << "?";
     
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
