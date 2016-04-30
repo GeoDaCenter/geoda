@@ -131,9 +131,21 @@ echo "%%%%%%%%%%%%%%%%%%%%%%"
     fi
 }
 
+
+#########################################################################
+# install c-ares -- for cURL, prevent crash on Mac oSx with threads
+#########################################################################
+install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
+
+
+
 #########################################################################
 # install cURL
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: cURL%"
+echo "%%%%%%%%%%%%%%%%%%%%%%"
 
 LIB_NAME=curl-7.46.0
 LIB_CHECKER=libcurl.a
@@ -311,7 +323,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
     LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
-    LIB_FILENAME=$(basename "$LIB_URL" ".tar.gz")
+    LIB_FILENAME=$LIB_NAME.tar.gz
     LIB_CHECKER=libspatialite.a
     echo $LIB_FILENAME
 
@@ -437,7 +449,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -o https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
+    curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
     unzip $LIB_FILENAME
 fi
 
@@ -569,7 +581,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         ./configure
         cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
         cp GDALmake.opt GDALmake.opt
-        #make clean
+        make clean
         $MAKER
         make install
         #cd ogr/ogrsf_frmts/oci
