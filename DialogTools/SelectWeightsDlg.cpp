@@ -53,7 +53,7 @@ w_man_int(project->GetWManInt()), w_list(0), ok_btn(0), cancel_btn(0)
 void SelectWeightsDlg::InitNoWeights()
 {
 	panel = new wxPanel(this);
-	ok_btn = new wxButton(panel, XRCID("wxID_OK"), "Ok",
+	ok_btn = new wxButton(panel, XRCID("wxID_OK"), "OK",
 						  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	Connect(XRCID("wxID_OK"), wxEVT_BUTTON,
 			wxCommandEventHandler(SelectWeightsDlg::OnOkClick));
@@ -86,7 +86,7 @@ void SelectWeightsDlg::InitNormal()
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
-	ok_btn = new wxButton(panel, XRCID("wxID_OK"), "Ok",
+	ok_btn = new wxButton(panel, XRCID("wxID_OK"), "OK",
 						  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	cancel_btn = new wxButton(panel, XRCID("wxID_CANCEL"), "Cancel",
 							  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

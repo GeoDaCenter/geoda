@@ -1676,7 +1676,7 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 		msg << "To save your work, go to File > Save";
 	} else {
 		title = "Exit?";
-		msg = "Ok to Exit?";
+		msg = "OK to Exit?";
 	}
 	
 	if (IsProjectOpen()) {
