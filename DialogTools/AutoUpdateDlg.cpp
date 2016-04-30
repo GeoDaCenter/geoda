@@ -284,30 +284,39 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
 {
     bool success = false;
     
-    // read the file line by line
-    std::queue<wxString> lines;
-    wxStringTokenizer tokenizer(checklist, '\n');
-    while ( tokenizer.HasMoreTokens() )
-    {
-        wxString token = tokenizer.GetNextToken();
-        lines.push(token);
-    }
-   
-    int n = (int)lines.size();
-    int jobs = (n-2) / 3 + 1; // skip first and second lines
-    wxProgressDialog progressDlg("", "Downloading updates...",
-                                 jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
-    progressDlg.Update(1);
-    if (n > 2 && (n-2) % 3 == 0) {
-        lines.pop(); // version
-        lines.pop(); // description page
-   
-        wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-        wxFileName exeFile(exePath);
-        wxString exeDir = exeFile.GetPathWithSep();
+    try {
+        // read the file line by line
+        std::queue<wxString> lines;
         
-        int current_job = 2;
-        try {
+        wxStringTokenizer tokenizer;
+        
+        tokenizer.SetString(checklist, "\r\n");
+        if (!tokenizer.HasMoreTokens()) {
+            tokenizer.SetString(checklist, "\n");
+            if (!tokenizer.HasMoreTokens()) {
+                throw GdaException("");
+            }
+        }
+        while ( tokenizer.HasMoreTokens() )
+        {
+            wxString token = tokenizer.GetNextToken();
+            lines.push(token);
+        }
+       
+        int n = (int)lines.size();
+        int jobs = (n-2) / 3 + 1; // skip first and second lines
+        wxProgressDialog progressDlg("", "Downloading updates...",
+                                     jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
+        progressDlg.Update(1);
+        if (n > 2 && (n-2) % 3 == 0) {
+            lines.pop(); // version
+            lines.pop(); // description page
+       
+            wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+            wxFileName exeFile(exePath);
+            wxString exeDir = exeFile.GetPathWithSep();
+            
+            int current_job = 2;
             while (lines.size() >= 3) {
                 // download the file, check the file
                 wxString file_name = lines.front();
@@ -339,10 +348,10 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                 }
                 progressDlg.Update(current_job++);
             }
-        } catch(...) {
-            // raise warning message
-            success = false;
         }
+    } catch(...) {
+        // raise warning message
+        success = false;
     }
    
     if (success) {
