@@ -171,7 +171,7 @@ has_excluded(1)
     btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
    
     wxHtmlWindow* wv = 0;
-    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(220, 100));
+    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(230, 100));
     stats_wins.push_back(wv);
     wxBoxSizer* stats_box = new wxBoxSizer(wxHORIZONTAL);
     stats_box->Add(wv, 1, wxEXPAND | wxALL, 10);
@@ -207,7 +207,7 @@ has_excluded(1)
 	
 	panel->SetSizer(panel_h_szr);
 		
-    splitter_win->SplitVertically(lpanel, panel, 320);
+    splitter_win->SplitVertically(lpanel, panel, 350);
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);
@@ -1988,7 +1988,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	s<< "<table width=100% rules=\"rows\" >";
 	s<< "<tr bgcolor=\"#CCCCCC\" >";
-	s<< "<th width=100 align=\"center\">Group</th>";
+	s<< "<th width=110 align=\"center\">Group</th>";
 	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";
