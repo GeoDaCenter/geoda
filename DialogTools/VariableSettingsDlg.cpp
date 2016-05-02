@@ -118,7 +118,7 @@ void DiffMoranVarSettingDlg::CreateControls()
     
     panel->SetSizer(vbox);
     
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"),  wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"),  wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
     
     hbox2->Add(okButton, 1);

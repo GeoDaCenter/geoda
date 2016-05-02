@@ -167,11 +167,16 @@ has_excluded(1)
     wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, "Save Dummy");
     wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
-   
+    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+
+    chk_save_did = new wxCheckBox(lpanel, wxID_ANY, "Save Test Results");
+    wxBoxSizer* chk_box = new wxBoxSizer(wxHORIZONTAL);
+    chk_box->Add(chk_save_did, 1, wxALIGN_LEFT |wxLEFT, 10);
+    
+    
     wxHtmlWindow* wv = 0;
-    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(220, 100));
+    wv = new wxHtmlWindow(lpanel, wxID_ANY, wxDefaultPosition, wxSize(230, 100));
     stats_wins.push_back(wv);
     wxBoxSizer* stats_box = new wxBoxSizer(wxHORIZONTAL);
     stats_box->Add(wv, 1, wxEXPAND | wxALL, 10);
@@ -182,6 +187,7 @@ has_excluded(1)
     rbox->Add(tests_sizer, 0, wxALIGN_TOP | wxALL, 20);
     //rbox->Add(chk_run_test, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxBOTTOM, 20);
     rbox->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    rbox->Add(chk_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT , 10);
     rbox->Add(stats_box, 1, wxALIGN_TOP | wxEXPAND | wxALL, 10);
     lpanel->SetSizerAndFit(rbox);
     
@@ -190,7 +196,7 @@ has_excluded(1)
 	panel->SetBackgroundColour(*wxWHITE);
 	
 	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,-1));
+	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(380,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
@@ -207,7 +213,7 @@ has_excluded(1)
 	
 	panel->SetSizer(panel_h_szr);
 		
-    splitter_win->SplitVertically(lpanel, panel, 320);
+    splitter_win->SplitVertically(lpanel, panel, 380);
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);
@@ -803,14 +809,19 @@ void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
     Refresh();
 }
 
-void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
+void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
+                                        double* m_yhat1, double* m_resid1)
 {
-    LOG_MSG("Start LineChartFrame::OnSaveDummyTable");
     int nTests = var_man.GetVarsCount();
+    nTests = 1; // only handle one variable at a time
+    
     TableInterface* table_int = project->GetTableInt();
     const std::vector<bool>& hs(highlight_state->GetHighlight());
     int n_obs = project->GetNumRecords();
-  
+    
+    std::vector<wxString> tm_strs;
+    table_int->GetTimeStrings(tm_strs);
+    
     //double** var_stack_array = new double*[nTests];
     //double *dummy_select_stack = NULL;
     //double *dummy_time_stack = NULL;
@@ -823,13 +834,14 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     std::vector<wxInt64> interaction_stack;
     std::vector<wxInt64> id_stack;
     std::vector<wxInt64> newids;
-   
+    std::vector<wxString> period_stack;
+    
     var_stack_array.resize(nTests);
     
     for (int i=0; i<nTests; i++) {
         
-		wxString row_nm(var_man.GetName(i));
-		const vec_vec_dbl_type& Y(data_map[row_nm]);
+        wxString row_nm(var_man.GetName(i));
+        const vec_vec_dbl_type& Y(data_map[row_nm]);
         
         n_ts = Y.size();
         
@@ -839,7 +851,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             
             int variable_selection = choice_variable->GetSelection();
             wxString col_name = variable_names[variable_selection];
-
+            
             TableInterface* table_int = project->GetTableInt();
             int col = table_int->FindColId(col_name);
             
@@ -860,8 +872,8 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
                 
             } else {
-            
-        		for (size_t t=0; t<n_ts; ++t) {
+                
+                for (size_t t=0; t<n_ts; ++t) {
                     if (tms_subset0[t]) {
                         n+= n_obs;
                     }
@@ -870,29 +882,31 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                     wxMessageBox("Please choose Periods first.");
                     return;
                 }
-       
+                
                 var_stack_array[i].resize(n);
                 dummy_select_stack.resize(n);
+                period_stack.resize(n);
                 id_stack.resize(n);
                 
                 int idx = 0;
-        		for (size_t t=0; t<n_ts; ++t) {
+                for (size_t t=0; t<n_ts; ++t) {
                     if (tms_subset0[t]) {
                         for (int j=0; j<n_obs; j++) {
                             var_stack_array[i][idx] = Y[t][j];
                             dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
                             id_stack[idx] = j;
+                            period_stack[idx] = tm_strs[t];
                             newids.push_back(idx+1);
                             idx += 1;
                         }
                     }
                 }
             }
-           
+            
         } else if (compare_time_periods) {
             
             int n1 = 0, n2 = 0;
-    		for (size_t t=0; t<n_ts; ++t) {
+            for (size_t t=0; t<n_ts; ++t) {
                 if (tms_subset0[t]) {
                     n1 += n_obs;
                 }
@@ -901,7 +915,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 wxMessageBox("Please choose Period 1.");
                 return;
             }
-    		for (size_t t=0; t<n_ts; ++t) {
+            for (size_t t=0; t<n_ts; ++t) {
                 if (tms_subset1[t]) {
                     n2 += n_obs;
                 }
@@ -915,6 +929,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             
             var_stack_array[i].resize(n);
             dummy_time_stack.resize(n);
+            period_stack.resize(n);
             id_stack.resize(n);
             
             int idx = 0;
@@ -925,16 +940,17 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                         var_stack_array[i][idx] = Y[t][j];
                         dummy_time_stack[idx] = tms_subset0[t] == true ? 0 : 1;
                         id_stack[idx] = j;
+                        period_stack[idx] = tm_strs[t];
                         newids.push_back(idx+1);
                         idx += 1;
                     }
                 }
             }
-           
+            
         } else if (compare_r_and_t) {
             
             int n1 = 0, n2 = 0;
-    		for (size_t t=0; t<n_ts; ++t) {
+            for (size_t t=0; t<n_ts; ++t) {
                 if (tms_subset0[t]) {
                     n1 += n_obs;
                 }
@@ -943,7 +959,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 wxMessageBox("Please choose Period 1.");
                 return;
             }
-    		for (size_t t=0; t<n_ts; ++t) {
+            for (size_t t=0; t<n_ts; ++t) {
                 if (tms_subset1[t]) {
                     n2 += n_obs;
                 }
@@ -952,32 +968,33 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 wxMessageBox("Please choose Period 2.");
                 return;
             }
-           
-            /*
-            int n = n1 + n2;
             
-            var_stack_array[i].resize(n);
-            dummy_time_stack.resize(n);
-            dummy_select_stack.resize(n);
-            interaction_stack.resize(n);
-            id_stack.resize(n);
-           
-            */
+            /*
+             int n = n1 + n2;
+             
+             var_stack_array[i].resize(n);
+             dummy_time_stack.resize(n);
+             dummy_select_stack.resize(n);
+             interaction_stack.resize(n);
+             id_stack.resize(n);
+             
+             */
             bool filter_flag = choice_group1->GetSelection() == 0 ? true : false;
-                
+            
             int idx = 0;
             for (int t=0; t<n_ts; t++) {
                 if (tms_subset0[t] || tms_subset1[t]) {
                     for (int j=0; j<n_obs; j++) {
-                        if (hs[j] == filter_flag) {
-                            var_stack_array[i].push_back(Y[t][j]);
-                            dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
-                            dummy_time_stack.push_back(tms_subset0[t] == true ? 0 : 1);
-                            interaction_stack.push_back(dummy_select_stack[idx] * dummy_time_stack[idx]);
-                            id_stack.push_back(j);
-                            newids.push_back(idx+1);
-                            idx += 1;
-                        }
+                        //if (hs[j] == filter_flag) {
+                        var_stack_array[i].push_back(Y[t][j]);
+                        dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
+                        dummy_time_stack.push_back(tms_subset0[t] == true ? 0 : 1);
+                        interaction_stack.push_back(dummy_select_stack[idx] * dummy_time_stack[idx]);
+                        period_stack.push_back(tm_strs[t]);
+                        id_stack.push_back(j);
+                        newids.push_back(idx+1);
+                        idx += 1;
+                        //}
                     }
                 }
             }
@@ -986,9 +1003,10 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     
     // create in-memory table
     OGRTable* mem_table_int = NULL;
+    int n = 0;
     
     if (!newids.empty()) {
-        int n = newids.size();
+        n = newids.size();
         if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
         OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
         id_col->UpdateData(newids);
@@ -996,7 +1014,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     }
     
     if (!id_stack.empty()) {
-        int n = id_stack.size();
+        n = id_stack.size();
         if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
         
         bool using_default_id = true;
@@ -1013,7 +1031,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 int c_id = table_int->FindColId(gw->id_field);
                 if (c_id > 0) {
                     table_int->GetColData(c_id, 1, id_vec);
-                   
+                    
                     vector<wxString> new_id_vec;
                     for (int ii=0; ii<n; ii++) {
                         new_id_vec.push_back(id_vec[id_stack[ii]]);
@@ -1027,28 +1045,12 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
         }
     }
     
-    if (!dummy_time_stack.empty()) {
-        int n = dummy_time_stack.size();
+    if (!period_stack.empty()) {
+        n = period_stack.size();
         if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-        OGRColumn* time_col = new OGRColumnInteger("TIME", 18, 0, n);
-        time_col->UpdateData(dummy_time_stack);
-        mem_table_int->AddOGRColumn(time_col);
-    }
-    
-    if (!dummy_select_stack.empty()) {
-        int n = dummy_select_stack.size();
-        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-        OGRColumn* select_col = new OGRColumnInteger("SPACE", 18, 0, n);
-        select_col->UpdateData(dummy_select_stack);
-        mem_table_int->AddOGRColumn(select_col);
-    }
-
-    if (!interaction_stack.empty()) {
-        int n = interaction_stack.size();
-        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-        OGRColumn* interact_col = new OGRColumnInteger("INTERACT", 18, 0, n);
-        interact_col->UpdateData(interaction_stack);
-        mem_table_int->AddOGRColumn(interact_col);
+        OGRColumn* period_col = new OGRColumnString("PERIOD", 18, 0, n);
+        period_col->UpdateData(period_stack);
+        mem_table_int->AddOGRColumn(period_col);
     }
     
     if (!var_stack_array.empty()) {
@@ -1056,40 +1058,99 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             wxString col_name(var_man.GetName(i));
             int n = var_stack_array[i].size();
             if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-            OGRColumn* var_col = new OGRColumnDouble(col_name, 18, 9, n);
+            int col_idx = table_int->FindColId(col_name);
+            GdaConst::FieldType f_type = table_int->GetColType(col_idx, 0);
+            OGRColumn* var_col;
+            if (f_type == GdaConst::long64_type)
+                var_col = new OGRColumnInteger(col_name, 18, 0, n);
+            else
+                var_col = new OGRColumnDouble(col_name, 18, 9, n);
             var_col->UpdateData(var_stack_array[i]);
             mem_table_int->AddOGRColumn(var_col);
+        }
+    }
+    
+    if (!dummy_time_stack.empty()) {
+        n = dummy_time_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* time_col = new OGRColumnInteger("TIME", 18, 0, n);
+        time_col->UpdateData(dummy_time_stack);
+        mem_table_int->AddOGRColumn(time_col);
+    }
+    
+    if (!dummy_select_stack.empty()) {
+        n = dummy_select_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* select_col = new OGRColumnInteger("SPACE", 18, 0, n);
+        select_col->UpdateData(dummy_select_stack);
+        mem_table_int->AddOGRColumn(select_col);
+    }
+    
+    if (!interaction_stack.empty()) {
+        n = interaction_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* interact_col = new OGRColumnInteger("INTERACT", 18, 0, n);
+        interact_col->UpdateData(interaction_stack);
+        mem_table_int->AddOGRColumn(interact_col);
+    }
+
+    
+    if (save_did) {
+        if (m_yhat1 != 0 && m_resid1 != 0) {
+            std::vector<double> yhat;
+            std::vector<double> resid;
+            for (int m=0; m<n; m++) {
+                yhat.push_back(m_yhat1[m]);
+                resid.push_back(m_resid1[m]);
+            }
+            if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+            OGRColumn* pred_col = new OGRColumnDouble("OLS_PREDIC", 18, 9, n);
+            pred_col->UpdateData(yhat);
+            mem_table_int->AddOGRColumn(pred_col);
+            OGRColumn* resi_col = new OGRColumnDouble("OLS_RESIDU", 18, 9, n);
+            resi_col->UpdateData(resid);
+            mem_table_int->AddOGRColumn(resi_col);
+            
         }
     }
     
     // export
     ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
     if (dlg.ShowModal() == wxID_OK) {
-        wxString ds_name = dlg.GetDatasourceName();
-        wxFileName wx_fn(ds_name);
-        
-        // save weights
-        // Get default GalWeight*
-        // change to space-time weights
-        WeightsManInterface* wmi = NULL;
-        if (project && project->GetWManInt()) {
-            wmi = project->GetWManInt();
-            boost::uuids::uuid default_wid = wmi->GetDefault();
-            if (!default_wid.is_nil()) {
-                GeoDaWeight* w = wmi->GetWeights(default_wid);
-                if (w->weight_type == GeoDaWeight::gal_type) {
-                    wx_fn.SetExt("gal");
-                } else if (w->weight_type == GeoDaWeight::gwt_type) {
-                    wx_fn.SetExt("gwt");
+        if (save_weights) {
+            wxString ds_name = dlg.GetDatasourceName();
+            wxFileName wx_fn(ds_name);
+            
+            // save weights
+            // Get default GalWeight*
+            // change to space-time weights
+            WeightsManInterface* wmi = NULL;
+            if (project && project->GetWManInt()) {
+                wmi = project->GetWManInt();
+                boost::uuids::uuid default_wid = wmi->GetDefault();
+                if (!default_wid.is_nil()) {
+                    GeoDaWeight* w = wmi->GetWeights(default_wid);
+                    if (w->weight_type == GeoDaWeight::gal_type) {
+                        wx_fn.SetExt("gal");
+                    } else if (w->weight_type == GeoDaWeight::gwt_type) {
+                        wx_fn.SetExt("gwt");
+                    }
+                    wxString ofn(wx_fn.GetFullPath());
+                    w->SaveDIDWeights(project, n_obs, newids, id_stack, ofn);
                 }
-                wxString ofn(wx_fn.GetFullPath());
-                w->SaveDIDWeights(project, n_obs, newids, id_stack, ofn);
             }
         }
     }
     
     // clean memory
     delete mem_table_int;
+
+}
+void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
+{
+    LOG_MSG("Start LineChartFrame::OnSaveDummyTable");
+    bool save_w = true;
+    SaveDataAndResults(save_w);
     LOG_MSG("End LineChartFrame::OnSaveDummyTable");
 }
 
@@ -1154,64 +1215,70 @@ void LineChartFrame::RunDIDTest()
             }
         }
         
+        // start regression
+        int nX = 0;
+        double* y;
+        double **x;
+        DiagnosticReport* m_DR;
+        
+        
         if (compare_regimes) {
-            m_Xnames.push_back("SPACE_DUMMY");
-            int nX = m_Xnames.size();
+            m_Xnames.push_back("SPACE");
+            nX = m_Xnames.size();
            
-            int n = 0;
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    n += m_obs;
-                }
-            }
-            if (n == 0) {
-                wxMessageBox("Please choose Periods first.");
-                return;
-            }
-            
-            
-            double *y = new double[n];
-            double **x = new double* [2];
+            int n = m_obs;
+            y = new double[n];
+            x = new double* [2];
             for (int t=0; t<nX; t++)  x[t] = new double[n];
             
             int idx = 0;
             
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    for (int j=0; j<m_obs; j++) {
-                        y[idx] = Y[t][j];
-                        x[0][idx] = 1.0; //constant
-                        x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
-                        idx += 1;
+            TableInterface* table_int = project->GetTableInt();
+            int col = table_int->FindColId(m_Yname);
+            
+            if (!table_int->IsColTimeVariant(col)) {
+                for (int j=0; j<m_obs; j++) {
+                    y[idx] = Y[0][j];
+                    x[0][idx] = 1.0; //constant
+                    x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                    idx += 1;
+                }
+                
+            } else {
+        		for (size_t t=0; t<n_ts; ++t) {
+                    if (tms_subset0[t]) {
+                        for (int j=0; j<m_obs; j++) {
+                            y[idx] = Y[t][j];
+                            x[0][idx] = 1.0; //constant
+                            x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                            idx += 1;
+                        }
                     }
                 }
             }
            
-			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+			m_DR = new DiagnosticReport(n, nX, m_constant_term, true, RegressModel);
         	for (int i = 0; i < nX; i++) {
-        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        		m_DR->SetXVarNames(i, m_Xnames[i]);
         	}
-			m_DR.SetMeanY(ComputeMean(y, n));
-			m_DR.SetSDevY(ComputeSdev(y, n));
+			m_DR->SetMeanY(ComputeMean(y, n));
+			m_DR->SetSDevY(ComputeSdev(y, n));
            
             
-            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+            classicalRegression(NULL, n, y, n, x, nX, m_DR,
                                 m_constant_term, true, m_gauge,
                                 do_white_test);
             
-			m_resid1= m_DR.GetResidual();
-			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
-			m_yhat1 = m_DR.GetYHAT();
+			m_resid1= m_DR->GetResidual();
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+			m_yhat1 = m_DR->GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
-			m_DR.release_Var();
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
             
         } else if (compare_time_periods) {
-            m_Xnames.push_back("DUMMY_PERIOD");
-            int nX = m_Xnames.size();
+            m_Xnames.push_back("TIME");
+            nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1235,8 +1302,8 @@ void LineChartFrame::RunDIDTest()
             
             int n = n1 + n2;
             
-            double *y = new double[n];
-            double **x = new double* [2];
+            y = new double[n];
+            x = new double* [2];
             for (int t=0; t<nX; t++) {
                 x[t] = new double[n];
             }
@@ -1254,33 +1321,30 @@ void LineChartFrame::RunDIDTest()
                 }
             }
            
-			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+			m_DR = new DiagnosticReport(n, nX, m_constant_term, true, RegressModel);
         	for (int i = 0; i < nX; i++) {
-        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        		m_DR->SetXVarNames(i, m_Xnames[i]);
         	}
-			m_DR.SetMeanY(ComputeMean(y, n));
-			m_DR.SetSDevY(ComputeSdev(y, n));
+			m_DR->SetMeanY(ComputeMean(y, n));
+			m_DR->SetSDevY(ComputeSdev(y, n));
            
             
-            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+            classicalRegression(NULL, n, y, n, x, nX, m_DR,
                                 m_constant_term, true, m_gauge,
                                 do_white_test);
             
-			m_resid1= m_DR.GetResidual();
-			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
-			m_yhat1 = m_DR.GetYHAT();
+			m_resid1= m_DR->GetResidual();
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+			m_yhat1 = m_DR->GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
-			m_DR.release_Var();
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE TIME PERIOD) \n----------\n" + logReport;
             
         } else if (compare_r_and_t) {
-            m_Xnames.push_back("SPACE_DUMMY");
-            m_Xnames.push_back("TIME_PERIOD");
-            m_Xnames.push_back("INTERACTION");
-            int nX = m_Xnames.size();
+            m_Xnames.push_back("SPACE");
+            m_Xnames.push_back("TIME");
+            m_Xnames.push_back("INTERACT");
+            nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1303,8 +1367,8 @@ void LineChartFrame::RunDIDTest()
             }
             
             int n = n1 + n2;
-            double *y = new double[n];
-            double **x = new double* [nX];
+            y = new double[n];
+            x = new double* [nX];
             for (int t=0; t<nX; t++) {
                 x[t] = new double[n];
             }
@@ -1324,41 +1388,55 @@ void LineChartFrame::RunDIDTest()
                 }
             }
            
-			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+			m_DR = new DiagnosticReport(n, nX, m_constant_term, true, RegressModel);
         	for (int i = 0; i < nX; i++) {
-        		m_DR.SetXVarNames(i, m_Xnames[i]);
+        		m_DR->SetXVarNames(i, m_Xnames[i]);
         	}
-			m_DR.SetMeanY(ComputeMean(y, n));
-			m_DR.SetSDevY(ComputeSdev(y, n));
+			m_DR->SetMeanY(ComputeMean(y, n));
+			m_DR->SetSDevY(ComputeSdev(y, n));
             
-            classicalRegression(NULL, n, y, n, x, nX, &m_DR,
+            classicalRegression(NULL, n, y, n, x, nX, m_DR,
                                 m_constant_term, true, m_gauge,
                                 do_white_test);
             
-            m_resid1= m_DR.GetResidual();
-            printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
-            m_yhat1 = m_DR.GetYHAT();
+            m_resid1= m_DR->GetResidual();
+            printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+            m_yhat1 = m_DR->GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
-            m_DR.release_Var();
  
             
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES AND TIME PERIOD) \n----------\n" + logReport;
         }
         
+       
         
         // display regression in dialog
         if (regReportDlg == 0) {
             regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY, "Diff-in-Diff Regression Report");
             regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LineChartFrame::OnReportClose), NULL, this);
+            
+            
         } else {
             regReportDlg->AddNewReport(logReport);
         }
         regReportDlg->Show(true);
         regReportDlg->m_textbox->SetSelection(0, 0);
         
+        if (chk_save_did && chk_save_did->IsChecked()) {
+            wxMessageDialog saveDlg(this, "Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context.", "Save Diff-in-Diff Test Results", wxYES_NO | wxICON_QUESTION);
+            if (saveDlg.ShowModal() == wxID_YES) {
+                bool save_w = false;
+                bool save_did = true;
+                SaveDataAndResults(save_w, save_did, m_yhat1, m_resid1);
+            }
+        }
+        
+        delete[] y;
+        for (int t=0; t<nX; t++) delete[] x[t];
+        
+        m_DR->release_Var();
+        delete m_DR;
     }
     
     LOG_MSG("End LineChartFrame::RunDIDTest");
@@ -1988,7 +2066,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	s<< "<table width=100% rules=\"rows\" >";
 	s<< "<tr bgcolor=\"#CCCCCC\" >";
-	s<< "<th width=100 align=\"center\">Group</th>";
+	s<< "<th width=110 align=\"center\">Group</th>";
 	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";

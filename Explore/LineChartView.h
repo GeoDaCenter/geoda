@@ -103,7 +103,7 @@ public:
 	LineChartFrame(wxFrame *parent, Project* project,
                  const wxString& title = "Averages Chart",
                  const wxPoint& pos = wxDefaultPosition,
-                 const wxSize& size = wxDefaultSize);
+                 const wxSize& size = wxSize(680,420));
 	virtual ~LineChartFrame();
 	
 	virtual void OnActivate(wxActivateEvent& event);
@@ -145,6 +145,8 @@ public:
 
     
 protected:
+    void SaveDataAndResults(bool save_weights, bool save_did=false,
+                            double* m_yhat1=0, double* m_resid1=0);
 	void SetupPanelForNumVariables(int num_vars);
 	void UpdateMessageWin();
 	void UpdateTitleWin();
@@ -168,6 +170,7 @@ protected:
     wxChoice* choice_time1;
     wxChoice* choice_time2;
     //wxCheckBox* chk_run_test;
+    wxCheckBox* chk_save_did;
    
     int has_selection;
     int has_excluded;

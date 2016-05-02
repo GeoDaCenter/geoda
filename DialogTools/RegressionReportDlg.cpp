@@ -88,6 +88,16 @@ void RegressionReportDlg::CreateControls()
     
     vbox->Add(m_textbox, 1, wxEXPAND|wxALL|wxALIGN_CENTRE);
     panel->SetSizer(vbox);
+   
+    
+    //wxBitmap edit = wxArtProvider::GetBitmap(wxART_PRINT);
+    //wxBitmap save = wxArtProvider::GetBitmap(wxART_FILE_SAVE);
+    //wxToolBar *toolbar = CreateToolBar();
+    //toolbar->AddTool(wxID_EDIT, "Change Font", edit);
+    //toolbar->AddTool(wxID_SAVE, "Save Regression Results", save);
+    //toolbar->Realize();
+    //Connect(wxID_EDIT, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnFontChanged));
+    //Connect(wxID_SAVE, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnFontChanged));
     
     Center();
 }
@@ -105,7 +115,7 @@ void RegressionReportDlg::SetReport(const wxString report)
 
 void RegressionReportDlg::OnMouseEvent(wxMouseEvent& event)
 {
-	if (event.RightUp())
+	if (event.RightDown())
 		PopupMenu(wxXmlResource::Get()->
 			LoadMenu("ID_REPORT_VIEW_MENU_CONTEXT"),
 			event.GetPosition().x, event.GetPosition().y);
@@ -114,7 +124,7 @@ void RegressionReportDlg::OnMouseEvent(wxMouseEvent& event)
 void RegressionReportDlg::OnFontChanged(wxCommandEvent& event)
 {
 	wxFontData data;
-	wxFontDialog dlg(this, data);
+	wxFontDialog dlg(NULL, data);
 	wxTextAttr attr;
 
 	if (dlg.ShowModal() == wxID_OK)
