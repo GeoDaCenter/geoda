@@ -103,7 +103,7 @@ public:
 	LineChartFrame(wxFrame *parent, Project* project,
                  const wxString& title = "Averages Chart",
                  const wxPoint& pos = wxDefaultPosition,
-                 const wxSize& size = wxDefaultSize);
+                 const wxSize& size = wxSize(680,420));
 	virtual ~LineChartFrame();
 	
 	virtual void OnActivate(wxActivateEvent& event);

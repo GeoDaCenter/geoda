@@ -196,7 +196,7 @@ has_excluded(1)
 	panel->SetBackgroundColour(*wxWHITE);
 	
 	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,-1));
+	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(380,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
@@ -213,7 +213,7 @@ has_excluded(1)
 	
 	panel->SetSizer(panel_h_szr);
 		
-    splitter_win->SplitVertically(lpanel, panel, 350);
+    splitter_win->SplitVertically(lpanel, panel, 380);
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(splitter_win, 1, wxEXPAND|wxALL);
     SetSizer(sizerAll);
