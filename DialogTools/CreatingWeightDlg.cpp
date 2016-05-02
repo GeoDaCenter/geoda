@@ -389,15 +389,23 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				}
 				gal = PolysToContigWeights(project->main_data, !is_rook, precision_threshold);
 			}
-			
-			if (!gal) {
+		
+            bool empty_w = true;
+            bool has_island = false;
+            
+        	for (size_t i=0; i<m_num_obs; ++i) {
+                if (gal[i].Size() >0) {
+                    empty_w = false;
+                } else {
+                    has_island = true;
+                }
+            }
+            
+			if (empty_w) {
 				// could be an empty weights file, and should prompt user
 				// to setup Precision Threshold
-				wxString msg("GeoDa can't find weights information from "
-                             "shapes.  You can try to set a precision "
-							 "threshold value to find neighbor shapes "
-                            "using a fuzzy matching approach.");
-				wxMessageDialog dlg(NULL, msg, "Empty Contiguity Weights Created", wxOK | wxICON_WARNING);
+				wxString msg("None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold.");
+				wxMessageDialog dlg(NULL, msg, "Empty Contiguity Weights", wxOK | wxICON_WARNING);
 				dlg.ShowModal();
 				
 				m_cbx_precision_threshold->SetValue(true);
@@ -420,6 +428,13 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				m_txt_precision_threshold->SetValue(tmpTxt);
 				break;
 			}
+            if (has_island) {
+                wxString msg("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
+                wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
+                dlg.ShowModal();
+            }
+            
+            
 			if (m_ooC > 1) {
 				Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, gal, m_check1);
 				WriteWeightFile(gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
