@@ -82,7 +82,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 	// Prompt for overwrite permission
 	if (wxFileExists(new_csv)) {
 		wxString msg;
-		msg << new_csv << " already exists.  Ok to overwrite?";
+		msg << new_csv << " already exists.  OK to overwrite?";
 		wxMessageDialog dlg (this, msg, "Overwrite?",
 							 wxYES_NO | wxCANCEL | wxNO_DEFAULT);
 		if (dlg.ShowModal() != wxID_YES) return;

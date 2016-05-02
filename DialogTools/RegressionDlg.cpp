@@ -700,7 +700,7 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 	// Prompt for overwrite permission
 	if (wxFileExists(new_txt)) {
 		wxString msg;
-		msg << new_txt << " already exists.  Ok to overwrite?";
+		msg << new_txt << " already exists.  OK to overwrite?";
 		wxMessageDialog dlg (this, msg, "Overwrite?",
 							 wxYES_NO | wxCANCEL | wxNO_DEFAULT);
 		if (dlg.ShowModal() != wxID_YES) return;
