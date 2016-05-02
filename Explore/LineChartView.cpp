@@ -977,7 +977,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             for (int t=0; t<n_ts; t++) {
                 if (tms_subset0[t] || tms_subset1[t]) {
                     for (int j=0; j<n_obs; j++) {
-                        if (hs[j] == filter_flag) {
+                        //if (hs[j] == filter_flag) {
                             var_stack_array[i].push_back(Y[t][j]);
                             dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
                             dummy_time_stack.push_back(tms_subset0[t] == true ? 0 : 1);
@@ -986,7 +986,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                             id_stack.push_back(j);
                             newids.push_back(idx+1);
                             idx += 1;
-                        }
+                        //}
                     }
                 }
             }
@@ -1039,7 +1039,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     if (!period_stack.empty()) {
         int n = period_stack.size();
         if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-        OGRColumn* period_col = new OGRColumnString("PERIOD", 50, 0, n);
+        OGRColumn* period_col = new OGRColumnString("PERIOD", 18, 0, n);
         period_col->UpdateData(period_stack);
         mem_table_int->AddOGRColumn(period_col);
     }
@@ -1073,7 +1073,13 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             wxString col_name(var_man.GetName(i));
             int n = var_stack_array[i].size();
             if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
-            OGRColumn* var_col = new OGRColumnDouble(col_name, 18, 9, n);
+            int col_idx = table_int->FindColId(col_name);
+            GdaConst::FieldType f_type = table_int->GetColType(col_idx, 0);
+            OGRColumn* var_col;
+            if (f_type == GdaConst::long64_type)
+                var_col = new OGRColumnInteger(col_name, 18, 0, n);
+            else
+                var_col = new OGRColumnDouble(col_name, 18, 9, n);
             var_col->UpdateData(var_stack_array[i]);
             mem_table_int->AddOGRColumn(var_col);
         }
