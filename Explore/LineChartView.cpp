@@ -1177,35 +1177,43 @@ void LineChartFrame::RunDIDTest()
             }
         }
         
+        // start regression
+        int nX = 0;
+        double* y;
+        double **x;
+        
+        
         if (compare_regimes) {
             m_Xnames.push_back("SPACE_DUMMY");
-            int nX = m_Xnames.size();
+            nX = m_Xnames.size();
            
-            int n = 0;
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    n += m_obs;
-                }
-            }
-            if (n == 0) {
-                wxMessageBox("Please choose Periods first.");
-                return;
-            }
-            
-            
-            double *y = new double[n];
-            double **x = new double* [2];
+            int n = m_obs;
+            y = new double[n];
+            x = new double* [2];
             for (int t=0; t<nX; t++)  x[t] = new double[n];
             
             int idx = 0;
             
-    		for (size_t t=0; t<n_ts; ++t) {
-                if (tms_subset0[t]) {
-                    for (int j=0; j<m_obs; j++) {
-                        y[idx] = Y[t][j];
-                        x[0][idx] = 1.0; //constant
-                        x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
-                        idx += 1;
+            TableInterface* table_int = project->GetTableInt();
+            int col = table_int->FindColId(m_Yname);
+            
+            if (!table_int->IsColTimeVariant(col)) {
+                for (int j=0; j<m_obs; j++) {
+                    y[idx] = Y[0][j];
+                    x[0][idx] = 1.0; //constant
+                    x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                    idx += 1;
+                }
+                
+            } else {
+        		for (size_t t=0; t<n_ts; ++t) {
+                    if (tms_subset0[t]) {
+                        for (int j=0; j<m_obs; j++) {
+                            y[idx] = Y[t][j];
+                            x[0][idx] = 1.0; //constant
+                            x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
+                            idx += 1;
+                        }
                     }
                 }
             }
@@ -1226,15 +1234,14 @@ void LineChartFrame::RunDIDTest()
 			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
 			m_yhat1 = m_DR.GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
-			m_DR.release_Var();
+            m_DR.release_Var();
+            
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
             
         } else if (compare_time_periods) {
-            m_Xnames.push_back("DUMMY_PERIOD");
-            int nX = m_Xnames.size();
+            m_Xnames.push_back("PERIOD_DUMMY");
+            nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1258,8 +1265,8 @@ void LineChartFrame::RunDIDTest()
             
             int n = n1 + n2;
             
-            double *y = new double[n];
-            double **x = new double* [2];
+            y = new double[n];
+            x = new double* [2];
             for (int t=0; t<nX; t++) {
                 x[t] = new double[n];
             }
@@ -1293,17 +1300,15 @@ void LineChartFrame::RunDIDTest()
 			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
 			m_yhat1 = m_DR.GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
 			m_DR.release_Var();
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE TIME PERIOD) \n----------\n" + logReport;
             
         } else if (compare_r_and_t) {
             m_Xnames.push_back("SPACE_DUMMY");
-            m_Xnames.push_back("TIME_PERIOD");
+            m_Xnames.push_back("PERIOD_DUMMY");
             m_Xnames.push_back("INTERACTION");
-            int nX = m_Xnames.size();
+            nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
     		for (size_t t=0; t<n_ts; ++t) {
@@ -1326,8 +1331,8 @@ void LineChartFrame::RunDIDTest()
             }
             
             int n = n1 + n2;
-            double *y = new double[n];
-            double **x = new double* [nX];
+            y = new double[n];
+            x = new double* [nX];
             for (int t=0; t<nX; t++) {
                 x[t] = new double[n];
             }
@@ -1362,14 +1367,15 @@ void LineChartFrame::RunDIDTest()
             printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, &m_DR, m_obs, nX, do_white_test);
             m_yhat1 = m_DR.GetYHAT();
             
-            delete[] y;
-            for (int t=0; t<nX; t++) delete[] x[t];
             m_DR.release_Var();
  
             
             wxDateTime now = wxDateTime::Now();
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES AND TIME PERIOD) \n----------\n" + logReport;
         }
+        
+        delete[] y;
+        for (int t=0; t<nX; t++) delete[] x[t];
         
         
         // display regression in dialog
