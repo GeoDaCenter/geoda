@@ -811,6 +811,9 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     const std::vector<bool>& hs(highlight_state->GetHighlight());
     int n_obs = project->GetNumRecords();
   
+    std::vector<wxString> tm_strs;
+    table_int->GetTimeStrings(tm_strs);
+    
     //double** var_stack_array = new double*[nTests];
     //double *dummy_select_stack = NULL;
     //double *dummy_time_stack = NULL;
@@ -823,6 +826,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
     std::vector<wxInt64> interaction_stack;
     std::vector<wxInt64> id_stack;
     std::vector<wxInt64> newids;
+    std::vector<wxString> period_stack;
    
     var_stack_array.resize(nTests);
     
@@ -873,6 +877,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
        
                 var_stack_array[i].resize(n);
                 dummy_select_stack.resize(n);
+                period_stack.resize(n);
                 id_stack.resize(n);
                 
                 int idx = 0;
@@ -882,6 +887,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                             var_stack_array[i][idx] = Y[t][j];
                             dummy_select_stack[idx] = hs[j] == true ? 1 : 0;
                             id_stack[idx] = j;
+                            period_stack[idx] = tm_strs[t];
                             newids.push_back(idx+1);
                             idx += 1;
                         }
@@ -915,6 +921,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
             
             var_stack_array[i].resize(n);
             dummy_time_stack.resize(n);
+            period_stack.resize(n);
             id_stack.resize(n);
             
             int idx = 0;
@@ -925,6 +932,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                         var_stack_array[i][idx] = Y[t][j];
                         dummy_time_stack[idx] = tms_subset0[t] == true ? 0 : 1;
                         id_stack[idx] = j;
+                        period_stack[idx] = tm_strs[t];
                         newids.push_back(idx+1);
                         idx += 1;
                     }
@@ -974,6 +982,7 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                             dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
                             dummy_time_stack.push_back(tms_subset0[t] == true ? 0 : 1);
                             interaction_stack.push_back(dummy_select_stack[idx] * dummy_time_stack[idx]);
+                            period_stack.push_back(tm_strs[t]);
                             id_stack.push_back(j);
                             newids.push_back(idx+1);
                             idx += 1;
@@ -1025,6 +1034,14 @@ void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
                 }
             }
         }
+    }
+    
+    if (!period_stack.empty()) {
+        int n = period_stack.size();
+        if (mem_table_int == NULL) mem_table_int = new OGRTable(n);
+        OGRColumn* period_col = new OGRColumnString("PERIOD", 50, 0, n);
+        period_col->UpdateData(period_stack);
+        mem_table_int->AddOGRColumn(period_col);
     }
     
     if (!dummy_time_stack.empty()) {
