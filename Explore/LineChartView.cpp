@@ -1229,7 +1229,9 @@ void LineChartFrame::RunDIDTest()
             int n = m_obs;
             y = new double[n];
             x = new double* [2];
-            for (int t=0; t<nX; t++)  x[t] = new double[n];
+            
+            for (int t=0; t<nX; t++)
+                x[t] = new double[n];
             
             int idx = 0;
             
@@ -1309,13 +1311,12 @@ void LineChartFrame::RunDIDTest()
             }
             
             int idx = 0;
-            
             for (int t=0; t<n_ts; t++) {
                 if (tms_subset0[t] || tms_subset1[t]) {
                     for (int j=0; j<m_obs; j++) {
                         y[idx] = Y[t][j];
                         x[0][idx] = 1.0; //constant
-                        x[1][idx] = tms_subset0[t] == true ? 1 : 0; // DUMMY_PERIOD
+                        x[1][idx] = tms_subset0[t] == true ? 0 : 1; // DUMMY_PERIOD
                         idx += 1;
                     }
                 }
@@ -1381,7 +1382,7 @@ void LineChartFrame::RunDIDTest()
                         y[idx] = Y[t][j];
                         x[0][idx] = 1.0; //constant
                         x[1][idx] = hs[j] == true ? 1.0 : 0.0; // DUMMY_SELECT
-                        x[2][idx] = tms_subset0[t] == true ? 1 : 0; // DUMMY_PERIOD
+                        x[2][idx] = tms_subset0[t] == true ? 0 : 1; // DUMMY_PERIOD
                         x[3][idx] = x[1][idx] * x[2][idx];
                         idx += 1;
                     }
