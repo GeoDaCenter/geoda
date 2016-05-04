@@ -595,8 +595,18 @@ void LisaMapFrame::OnSigFilter0001(wxCommandEvent& event)
 
 void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 {
+    
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	std::vector<SaveToTableEntry> data(3);
+    LisaMapCanvas* lc = (LisaMapCanvas*)template_canvas;
+    
+    std::vector<SaveToTableEntry> data;
+    
+    if (lc->is_diff) {
+        data.resize(4);
+    } else {
+        data.resize(3);
+    }
+    
 	std::vector<double> tempLocalMoran(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		tempLocalMoran[i] = lisa_coord->local_moran_vecs[t][i];
@@ -623,8 +633,17 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].type = GdaConst::long64_type;
 	
 	std::vector<double> sig(lisa_coord->num_obs);
+    std::vector<double> diff(lisa_coord->num_obs);
+    
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		sig[i] = p[i];
+        
+        
+        if (lc->is_diff ) {
+            int t0 =  lisa_coord->var_info[0].time;
+            int t1 =  lisa_coord->var_info[1].time;
+            diff[i] = lisa_coord->data[0][t0][i] - lisa_coord->data[0][t1][i];
+        }
 	}
 	
 	data[2].d_val = &sig;
@@ -632,6 +651,13 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[2].field_default = "LISA_P";
 	data[2].type = GdaConst::double_type;	
 	
+    if (lc->is_diff) {
+        data[3].d_val = &diff;
+        data[3].label = "Diff Values";
+        data[3].field_default = "DIFF_VAL";
+        data[3].type = GdaConst::double_type;
+    }
+    
 	SaveToTableDlg dlg(project, this, data,
 					   "Save Results: LISA",
 					   wxDefaultPosition, wxSize(400,400));
