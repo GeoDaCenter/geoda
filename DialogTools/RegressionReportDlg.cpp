@@ -19,6 +19,8 @@
 
 // For compilers that support precompilation, includes <wx/wx.h>.
 #include <wx/wxprec.h>
+#include <wx/wfstream.h>
+#include <wx/txtstrm.h>
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -90,14 +92,13 @@ void RegressionReportDlg::CreateControls()
     panel->SetSizer(vbox);
    
     
-    //wxBitmap edit = wxArtProvider::GetBitmap(wxART_PRINT);
-    //wxBitmap save = wxArtProvider::GetBitmap(wxART_FILE_SAVE);
-    //wxToolBar *toolbar = CreateToolBar();
-    //toolbar->AddTool(wxID_EDIT, "Change Font", edit);
-    //toolbar->AddTool(wxID_SAVE, "Save Regression Results", save);
-    //toolbar->Realize();
-    //Connect(wxID_EDIT, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnFontChanged));
-    //Connect(wxID_SAVE, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnFontChanged));
+
+    wxBitmap save = wxArtProvider::GetBitmap(wxART_FILE_SAVE);
+    wxToolBar *toolbar = CreateToolBar();
+
+    toolbar->AddTool(wxID_SAVE, "Save Regression Results", save);
+    toolbar->Realize();
+    Connect(wxID_SAVE, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnSaveToFile));
     
     Center();
 }
@@ -119,6 +120,55 @@ void RegressionReportDlg::OnMouseEvent(wxMouseEvent& event)
 		PopupMenu(wxXmlResource::Get()->
 			LoadMenu("ID_REPORT_VIEW_MENU_CONTEXT"),
 			event.GetPosition().x, event.GetPosition().y);
+}
+
+void RegressionReportDlg::OnSaveToFile(wxCommandEvent& event)
+{
+    wxFileDialog dlg( this, "Regression Output Text File", wxEmptyString,
+                     wxEmptyString,
+                     "TXT files (*.txt)|*.txt",
+                     wxFD_SAVE );
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxFileName new_txt_fname(dlg.GetPath());
+    wxString new_main_dir = new_txt_fname.GetPathWithSep();
+    wxString new_main_name = new_txt_fname.GetName();
+    wxString new_txt = new_main_dir + new_main_name + ".txt";
+    
+    // Prompt for overwrite permission
+    if (wxFileExists(new_txt)) {
+        wxString msg;
+        msg << new_txt << " already exists.  OK to overwrite?";
+        wxMessageDialog dlg (this, msg, "Overwrite?",
+                             wxYES_NO | wxCANCEL | wxNO_DEFAULT);
+        if (dlg.ShowModal() != wxID_YES) return;
+    }
+    
+    bool failed = false;
+    // Automatically overwrite existing csv since we have
+    // permission to overwrite.
+    
+    if (wxFileExists(new_txt) && !wxRemoveFile(new_txt)) failed = true;
+    
+    if (!failed) {
+        // write logReport to a text file
+        wxFFileOutputStream output(new_txt);
+        if (output.IsOk()) {
+            wxTextOutputStream txt_out( output );
+            txt_out << m_textbox->GetValue();
+            txt_out.Flush();
+            output.Close();
+        } else {
+            failed = true;
+        }
+    }
+    
+    if (failed) {
+        wxString msg;
+        msg << "Unable to overwrite " << new_txt;
+        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
 }
 
 void RegressionReportDlg::OnFontChanged(wxCommandEvent& event)
