@@ -1270,7 +1270,7 @@ void LineChartFrame::RunDIDTest()
                                 do_white_test);
             
 			m_resid1= m_DR->GetResidual();
-			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, n, nX, do_white_test);
 			m_yhat1 = m_DR->GetYHAT();
             
             wxDateTime now = wxDateTime::Now();
@@ -1334,7 +1334,7 @@ void LineChartFrame::RunDIDTest()
                                 do_white_test);
             
 			m_resid1= m_DR->GetResidual();
-			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+			printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, n, nX, do_white_test);
 			m_yhat1 = m_DR->GetYHAT();
             
             wxDateTime now = wxDateTime::Now();
@@ -1400,7 +1400,7 @@ void LineChartFrame::RunDIDTest()
                                 do_white_test);
             
             m_resid1= m_DR->GetResidual();
-            printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, m_obs, nX, do_white_test);
+            printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, n, nX, do_white_test);
             m_yhat1 = m_DR->GetYHAT();
             
  
