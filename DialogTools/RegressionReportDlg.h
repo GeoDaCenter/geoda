@@ -47,6 +47,7 @@ public:
     void OnClose(wxCloseEvent& event);
 	void OnMouseEvent(wxMouseEvent& event);
 	void OnFontChanged(wxCommandEvent& event);
+	void OnSaveToFile(wxCommandEvent& event);
     
     void AddNewReport(const wxString report);
     void SetReport(const wxString report);
