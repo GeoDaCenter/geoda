@@ -479,15 +479,32 @@ void LisaScatterPlotCanvas::SaveMoranI()
 	wxString title = "Save Results: Moran's I";
 	std::vector<double> std_data(num_obs);
 	std::vector<double> lag(num_obs);
-	
+    std::vector<double> diff(num_obs);
+
+    
 	int xt = sp_var_info[0].time-sp_var_info[0].time_min;
 	int yt = sp_var_info[1].time-sp_var_info[1].time_min;
 	
+
 	for (int i=0; i<num_obs; i++) {
 		std_data[i] = x_data[xt][i];
 		lag[i] = y_data[yt][i];
+   
+        if (is_diff ) {
+            int t0 =  lisa_coord->var_info[0].time;
+            int t1 =  lisa_coord->var_info[1].time;
+            diff[i] = lisa_coord->data[0][t0][i] - lisa_coord->data[0][t1][i];
+        }
 	}
-	std::vector<SaveToTableEntry> data(2);
+    
+    std::vector<SaveToTableEntry> data;
+    
+    if (is_diff) {
+        data.resize(3);
+    } else {
+        data.resize(2);
+    }
+    
 	data[0].d_val = &std_data;
 	data[0].label = "Standardized Data";
 	data[0].field_default = "MORAN_STD";
@@ -496,6 +513,13 @@ void LisaScatterPlotCanvas::SaveMoranI()
 	data[1].label = "Spatial Lag";
 	data[1].field_default = "MORAN_LAG";
 	data[1].type = GdaConst::double_type;
+    
+    if (is_diff) {
+        data[2].d_val = &diff;
+        data[2].label = "Diff Values";
+        data[2].field_default = "DIFF_VAL";
+        data[2].type = GdaConst::double_type;
+    }
 	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
