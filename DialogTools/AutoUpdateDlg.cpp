@@ -135,8 +135,6 @@ wxString AutoUpdate::CheckUpdate()
         }
     }
     wxString version = tokenizer.GetNextToken();
- 
-    version = "1.8.7.1";
     
     wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+(\\.[0-9]+)?$";
     wxRegEx regex;
