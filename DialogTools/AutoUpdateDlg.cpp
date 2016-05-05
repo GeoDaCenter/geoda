@@ -135,7 +135,9 @@ wxString AutoUpdate::CheckUpdate()
         }
     }
     wxString version = tokenizer.GetNextToken();
-  
+ 
+    version = "1.8.7.1";
+    
     wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+(\\.[0-9]+)?$";
     wxRegEx regex;
     regex.Compile(version_regex);
@@ -170,7 +172,7 @@ wxString AutoUpdate::CheckUpdate()
     // could be a testing version
     if (isTestMode
         && update_build % 2 == 1  // e.g. 1.8.5
-        && (update_subbuild == 0 || update_subbuild % 2 == 1) ) { // 1.8.5.1
+        && update_subbuild >= 0 ) { // 1.8.5.1
         return version;
     }
     
