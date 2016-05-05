@@ -169,6 +169,7 @@ wxString AutoUpdate::CheckUpdate()
     
     // could be a testing version
     if (isTestMode
+        && update_build >= Gda::version_build // e.g. 1.8.5 vs 1.8.4
         && update_build % 2 == 1  // e.g. 1.8.5
         && update_subbuild >= 0 ) { // 1.8.5.1
         return version;
