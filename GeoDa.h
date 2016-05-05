@@ -622,6 +622,7 @@ public:
 	
 	void OnHelpAbout(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
+	void OnCheckTestMode(wxCommandEvent& event);
     
     void OnTableSetLocale(wxCommandEvent& event);
     void OnEncodingUTF8(wxCommandEvent& event);
