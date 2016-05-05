@@ -45,6 +45,7 @@
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaException.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "AutoUpdateDlg.h"
 
 using namespace std;
@@ -79,7 +80,7 @@ string ReadUrlContent(const char* url)
         
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
         
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
@@ -99,7 +100,7 @@ bool DownloadUrl(const char* url, const char* filepath)
             curl_easy_setopt(curl, CURLOPT_URL, url);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_file);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+            curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
             
             res = curl_easy_perform(curl);
             curl_easy_cleanup(curl);
@@ -117,6 +118,12 @@ bool DownloadUrl(const char* url, const char* filepath)
 // return Version or empty string
 wxString AutoUpdate::CheckUpdate()
 {
+    bool isTestMode = false;
+    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+    if (!test_mode.empty() && test_mode[0] == "yes") {
+        isTestMode = true;
+    }
+    
     wxString checklist = GetCheckList();
     wxStringTokenizer tokenizer;
     
@@ -128,8 +135,8 @@ wxString AutoUpdate::CheckUpdate()
         }
     }
     wxString version = tokenizer.GetNextToken();
-  
-    wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+$";
+    
+    wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+(\\.[0-9]+)?$";
     wxRegEx regex;
     regex.Compile(version_regex);
     if (!regex.Matches(version)) {
@@ -141,6 +148,12 @@ wxString AutoUpdate::CheckUpdate()
     int update_major = wxAtoi(ver_tokenizer.GetNextToken());
     int update_minor = wxAtoi(ver_tokenizer.GetNextToken());
     int update_build = wxAtoi(ver_tokenizer.GetNextToken());
+   
+    int update_subbuild = 0;
+    
+    if (ver_tokenizer.HasMoreTokens()) {
+        update_subbuild = wxAtoi(ver_tokenizer.GetNextToken());
+    }
     
     if (update_major < Gda::version_major) return "";
     if (update_major > Gda::version_major) return version;
@@ -148,7 +161,19 @@ wxString AutoUpdate::CheckUpdate()
     if (update_minor < Gda::version_minor) return "";
     if (update_minor > Gda::version_minor) return version;
     // update_minor == version_minor
-    if (update_build > Gda::version_build) return version;
+    
+    if (update_build > Gda::version_build && update_build % 2 == 0) {
+        // released version
+        return version;
+    }
+    
+    // could be a testing version
+    if (isTestMode
+        && update_build % 2 == 1  // e.g. 1.8.5
+        && update_subbuild >= 0 ) { // 1.8.5.1
+        return version;
+    }
+    
     return "";
 }
 

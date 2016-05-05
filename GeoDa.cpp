@@ -5678,12 +5678,21 @@ void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
     }
 }
 
+void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
+{
+    wxString checked = "no";
+    if (event.IsChecked()) {
+        checked = "yes";
+    }
+    OGRDataAdapter::GetInstance().AddEntry("test_mode", std::string(checked.mb_str()));
+}
+
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 {
 	wxDialog dlg;
 	wxXmlResource::Get()->LoadDialog(&dlg, this, "IDD_ABOUTBOX");
 	
-	wxStaticText* cr = dynamic_cast<wxStaticText*>
+    wxStaticText* cr = dynamic_cast<wxStaticText*>
 		(wxWindow::FindWindowById(XRCID("ID_COPYRIGHT"), &dlg));
 	wxString cr_s;
 	cr_s << "Copyright (C) 2011-" << Gda::version_year << " by Luc Anselin";
@@ -5700,6 +5709,11 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	wxString vl_s;
 	vl_s << "GeoDa " << Gda::version_major << "." << Gda::version_minor << ".";
 	vl_s << Gda::version_build;
+    
+    if (Gda::version_subbuild > 0) {
+        vl_s << "." << Gda::version_subbuild;
+    }
+    
 	if (Gda::version_type == 0) {
 		vl_s << " (alpha),";
 	} else if (Gda::version_type == 1) {
@@ -5738,6 +5752,21 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	if (vl) vl->SetLabelText(vl_s);
 
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
+	
+    wxCheckBox* chk_testmode = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE"), &dlg));
+    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+   
+    bool isTestMode = false;
+    if (!test_mode.empty()) {
+        if (test_mode[0] == "yes") {
+            isTestMode = true;
+            chk_testmode->SetValue(true);
+        } else {
+            chk_testmode->SetValue(false);
+        }
+    }
+    
+    chk_testmode->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();

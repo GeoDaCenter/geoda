@@ -791,6 +791,14 @@
         <border>10</border>
       </object>
       <object class="sizeritem">
+        <object class="wxCheckBox" name="IDC_CHECK_TESTMODE">
+          <label>Enable Testing Mode</label>
+          <style>wxALIGN_CENTRE</style>
+        </object>
+        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+        <border>20</border>
+      </object>
+      <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
