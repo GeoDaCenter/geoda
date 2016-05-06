@@ -260,7 +260,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 					msg << "range of 1 through " << num_obs << ".";
 				} else {
 					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the Table.";
+					msg << key_field << "\" of the Table.";
 				}
 				LOG_MSG(msg);
 				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
@@ -288,7 +288,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 					if (it == id_map.end()) {
 						wxString msg = "On line ";
 						msg << line_cnt << " of weights file, observation id ";
-						msg << obs;
+						msg << neigh;
 						if (use_rec_order) {
 							msg << " encountered which is out of allowed ";
 							msg << "observation ";
@@ -296,7 +296,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 						} else {
 							msg << " encountered which does not exist ";
 							msg << "in field \"" << key_field;
-							msg << " of the Table.";
+							msg << "\" of the Table.";
 						}
 						LOG_MSG(msg);
 						wxMessageDialog dlg(NULL, msg, "Error",
@@ -521,7 +521,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 					msg << "range of 1 through " << num_obs << ".";
 				} else {
 					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the Table.";
+					msg << key_field << "\" of the Table.";
 				}
 				LOG_MSG(msg);
 				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
@@ -728,7 +728,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 					msg << "range of 1 through " << num_obs << ".";
 				} else {
 					msg << " encountered which does not exist in field \"";
-					msg << key_field << " of the Table.";
+					msg << key_field << "\" of the Table.";
 				}
 				LOG_MSG(msg);
 				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
