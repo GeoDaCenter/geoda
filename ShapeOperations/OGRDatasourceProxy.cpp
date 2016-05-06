@@ -59,19 +59,22 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 	if (!ds) {
         // try without UPDATE
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
-        wxString drv_name(ds->GetDriverName());
-        if (!ds || (drv_name == "OpenFileGDB")) {
+        
+        if (ds==0) {
+			//wxString drv_name(ds->GetDriverName());
+			//if (drv_name == "OpenFileGDB") {
             // raise open fialed
             // we don't use OpenFileGDB since it has some bugs
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
-            if ( error_detail.length() == 0 || error_detail == "Unknown") {
-                msg << "Failed to open data source. Please check the data and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html";
-            } else {
-                msg << error_detail;
-            }
+			msg << "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html";
+            //if ( error_detail.length() == 0 || error_detail == "Unknown") {  
+            //} else {
+            //    msg << error_detail;
+            //}
 
             throw GdaException(msg.str().c_str());
+			//}
         }
         is_writable = false;
 	}
@@ -216,7 +219,9 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
 
 OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(string sql)
 {
-	ds->ExecuteSQL(sql.c_str(), 0, 0);
+	OGRLayer* tmp_layer = ds->ExecuteSQL(sql.c_str(),  0, 0);
+	//tmp_layer->SyncToDisk();
+	ds->ReleaseResultSet(tmp_layer);
 	return NULL;
 }
 

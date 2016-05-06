@@ -5680,11 +5680,11 @@ void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
 
 void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
 {
-    wxString checked = "no";
+    std::string checked = "no";
     if (event.IsChecked()) {
         checked = "yes";
     }
-    OGRDataAdapter::GetInstance().AddEntry("test_mode", std::string(checked.mb_str()));
+    OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
 }
 
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )

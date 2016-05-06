@@ -2162,7 +2162,11 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		s<< "<tr>";
 		s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
-        _s << (int)lcs.deg_free;
+        if (choice_groups->GetSelection() == 0)
+            _s << (int)lcs.deg_free;
+        else
+            _s << (int)(lcs.deg_free * 2);
+            
         _s << std::fixed << std::setprecision(2);
 		s<< "<td align=\"center\">" << _s.str() << "</td>";
 		s<< "</tr>";
@@ -2189,9 +2193,9 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
         if (choice_group1->GetSelection() == 0) {
-            _s << (int)lcs.deg_free_c[1];
+            _s << (int)lcs.deg_free_c[1] * 2;
         } else {
-            _s << (int)lcs.deg_free_c[4];
+            _s << (int)lcs.deg_free_c[4] * 2;
         }
         _s << std::fixed << std::setprecision(2);
         s<< "<td align=\"center\">" << _s.str() << "</td>";
