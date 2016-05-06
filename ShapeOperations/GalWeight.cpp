@@ -265,7 +265,7 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
         
         for (int cp=gal[orig_id].Size(); --cp >= 0;) {
 			int n_id = gal[orig_id][cp];
-            out << n_id + offset;
+            out << n_id + offset + 1; // n_id starts from 0, so add 1
             if (cp > 0) out << " ";
         }
         out << endl;

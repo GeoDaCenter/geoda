@@ -169,6 +169,7 @@ wxString AutoUpdate::CheckUpdate()
     
     // could be a testing version
     if (isTestMode
+        && update_build >= Gda::version_build // e.g. 1.8.5 vs 1.8.4
         && update_build % 2 == 1  // e.g. 1.8.5
         && update_subbuild >= 0 ) { // 1.8.5.1
         return version;
@@ -216,7 +217,18 @@ wxString AutoUpdate::GetUpdateUrl(wxString checklist)
 
 wxString AutoUpdate::GetCheckList()
 {
+    bool isTestMode = false;
+    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+    if (!test_mode.empty() && test_mode[0] == "yes") {
+        isTestMode = true;
+    }
+   
     wxString checklistUrl = "http://geodacenter.github.io/updates/checklist";
+    
+    if (isTestMode) {
+        checklistUrl = "http://geodacenter.github.io/updates/test.checklist";
+    }
+    
     // download checklist.txt
     if ( GeneralWxUtils::isWindows()) {
         if (GeneralWxUtils::isX86()) {
