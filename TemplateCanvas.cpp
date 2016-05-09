@@ -2592,43 +2592,26 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 	LOG_MSG("Entering TemplateCanvas::UpdateSelectionPoints");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
+    
 	std::vector<bool>& hs = GetSelBitVec();
-	std::vector<int>& nh = GetNewlySelList();
-	std::vector<int>& nuh = GetNewlyUnselList();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
-	
+    bool selection_changed = false;
+    
 	if (pointsel) { // a point selection
 		for (int i=0; i<hl_size; i++) {
             if (selectable_shps[i] == NULL)
                 continue;
 			if (selectable_shps[i]->pointWithin(sel1)) {
-				// A useful way to get polygon data by clicking
-				// on a polygon
-				//if (GdaPolygon* p =
-				//	dynamic_cast<GdaPolygon*>(selectable_shps[i])) {
-				//	if (p->pc) {
-				//		LOG_MSG(wxString::Format("polygon %d bounding box:",i));
-				//		LOG_MSG(wxString::Format("  %f, %f", p->pc->box[0],
-				//								 p->pc->box[1]));
-				//		LOG_MSG(wxString::Format("  %f, %f", p->pc->box[2],
-				//								 p->pc->box[3]));
-				//		LOG_MSG(wxString::Format("polygon %d:",i));
-				//		for (int j=0; j<p->pc->num_points; j++) {
-				//			LOG_MSG(wxString::Format("  %f, %f",
-				//									 p->pc->points[j].x,
-				//									 p->pc->points[j].y));
-				//		}
-				//	}
-				//}
 				if (hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				} else {
-					nh[total_newly_selected++] = i;
+                    hs[i] = true;
+                    selection_changed = true;
 				}
 			} else {
 				if (!shiftdown && hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				}
 			}			
 		}
@@ -2642,13 +2625,20 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 								 wxOutRegion);
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i]) {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
@@ -2662,18 +2652,24 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 			for (int i=0; i<hl_size; i++) {
                 if (selectable_shps[i] == NULL)
                     continue;
-				bool contains = (GenUtils::distance(sel1,
-													selectable_shps[i]->center)
+				bool contains = (GenUtils::distance(sel1, selectable_shps[i]->center)
 								 <= radius);
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i]) {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
@@ -2708,22 +2704,28 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 				}
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i]) {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		SetNumNewlySel(total_newly_selected);
-		SetNumNewlyUnsel(total_newly_unselected);
-		NotifyObservables();
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionPoints");
 }
@@ -2735,11 +2737,9 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 	LOG_MSG("Entering TemplateCanvas::UpdateSelectionCircles");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
+    
 	std::vector<bool>& hs = GetSelBitVec();
-	std::vector<int>& nh = GetNewlySelList();
-	std::vector<int>& nuh = GetNewlyUnselList();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	if (pointsel) { // a point selection
 		for (int i=0; i<hl_size; i++) {
@@ -2747,13 +2747,16 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 			if (s->isNull()) continue;
 			if (GenUtils::distance(s->center, sel1) <= s->radius) {
 				if (hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				} else {
-					nh[total_newly_selected++] = i; 
+                    hs[i] = true;
+                    selection_changed = true;
 				}
 			} else {
 				if (!shiftdown && hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				}
 			}			
 		}
@@ -2784,13 +2787,20 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 				}
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i])  {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i]) {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
@@ -2804,13 +2814,20 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 								 GenUtils::distance(sel1, s->center));
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i])  {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
@@ -2827,22 +2844,29 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 								  hp_rad + s->radius));
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i])  {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		SetNumNewlySel(total_newly_selected);
-		SetNumNewlyUnsel(total_newly_unselected);
-		NotifyObservables();
+
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionCircles");	
 }
@@ -2854,11 +2878,9 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 	LOG_MSG("Entering TemplateCanvas::UpdateSelectionPolylines");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
+    
 	std::vector<bool>& hs = GetSelBitVec();
-	std::vector<int>& nh = GetNewlySelList();
-	std::vector<int>& nuh = GetNewlyUnselList();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	GdaPolyLine* p;
 	if (pointsel) { // a point selection
@@ -2887,13 +2909,16 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 			}
 			if (contains) {
 				if (hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				} else {
-					nh[total_newly_selected++] = i; 
+                    hs[i] = true;
+                    selection_changed = true;
 				}
 			} else {
 				if (!shiftdown && hs[i]) {
-					nuh[total_newly_unselected++] = i;
+                    hs[i] = false;
+                    selection_changed = true;
 				}
 			}
 		}
@@ -2932,13 +2957,20 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 				}
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i])  {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i]) {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
@@ -2958,13 +2990,20 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 				}
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i]) {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i])  {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}	
@@ -2994,22 +3033,28 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 				}
 				if (!shiftdown) {
 					if (contains) {
-						if (!hs[i]) nh[total_newly_selected++] = i;
+                        if (!hs[i])  {
+                            hs[i] = true;
+                            selection_changed = true;
+                        }
 					} else {
-						if (hs[i]) nuh[total_newly_unselected++] = i;
+                        if (hs[i])  {
+                            hs[i] = false;
+                            selection_changed = true;
+                        }
 					}
 				} else { // do not unhighlight if not in intersection region
 					if (contains && !hs[i]) {
-						nh[total_newly_selected++] = i;
+                        hs[i] = true;
+                        selection_changed = true;
 					}
 				}
 			}
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		SetNumNewlySel(total_newly_selected);
-		SetNumNewlyUnsel(total_newly_unselected);
-		NotifyObservables();
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionPolylines");
 }
@@ -3024,11 +3069,9 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	}	
 	int hl_size = highlight_state->GetHighlightSize();
 	if (hl_size != selectable_shps.size()) return;
+    
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	std::vector<bool> obs_in_cat(hl_size, false);
 	std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, category);
@@ -3037,17 +3080,18 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	
 	for (int i=0; i<hl_size; i++) {
 		if (!add_to_selection && hs[i] && !obs_in_cat[i]) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed = true;
 		}
 		if (!hs[i] && obs_in_cat[i]) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed = true;
 		}
 	}
 	
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		NotifyObservables();
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	LOG_MSG("Exiting TemplateCanvas::SelectAllInCategory");	
 }

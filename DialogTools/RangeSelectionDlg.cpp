@@ -229,8 +229,6 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 	LOG_MSG("Entering RangeSelectionDlg::OnApplySelClick");
 	HighlightState& hs = *project->GetHighlightState();
 	std::vector<bool>& h = hs.GetHighlight();
-	std::vector<int>& nh = hs.GetNewlyHighlighted();
-	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
     
     int n = table_int->GetNumberRows();
 	int nh_cnt = 0;
@@ -299,20 +297,17 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
             if (cur_sel[i] == true) {
                 h[i] = true;
                 update_flag = true;
-                nh[nh_cnt++] = i;
             }
         } else {
             if (sub_select) {
                 if (h[i] == true && cur_sel[i] == false) {
                     h[i] = false;
                     update_flag = true;
-                    nuh[nuh_cnt++] = i;
                 }
             } else if (append_select) {
                 if (h[i] == false && cur_sel[i] == true) {
                     h[i] = true;
                     update_flag = true;
-                    nh[nh_cnt++] = i;
                 }
             }
         }
@@ -320,8 +315,6 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 
 	if (update_flag) {
 		hs.SetEventType(HLStateInt::delta);
-		hs.SetTotalNewlyHighlighted(nh_cnt);
-		hs.SetTotalNewlyUnhighlighted(nuh_cnt);
 		hs.notifyObservers();
 	}
 	current_sel_mcol = mcol;
@@ -333,14 +326,9 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 {
 	HighlightState& hs = *project->GetHighlightState();
-	hs.SetEventType(HLStateInt::unhighlight_all);
-	hs.notifyObservers();
-	
 	std::vector<bool>& h = hs.GetHighlight();
-	std::vector<int>& nh = hs.GetNewlyHighlighted();
-	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
-	int nh_cnt = 0;
-	int nuh_cnt = 0;
+    bool selection_changed = false;
+
 	if (m_field_choice->GetSelection() == wxNOT_FOUND) return;
 	int mcol = GetSelColInt();
 	int f_tm = GetSelColTmInt();
@@ -348,12 +336,20 @@ void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 	std::vector<bool> undefined;
 	table_int->GetColUndefined(mcol, f_tm, undefined);
 	for (int i=0, iend=h.size(); i<iend; i++) {
-		if (undefined[i]) nh[nh_cnt++] = i;
+        if (undefined[i]) {
+            if (!h[i]) {
+                h[i] = true;
+                selection_changed = true;
+            }
+        } else {
+            if (h[i]) {
+                h[i] = false;
+                selection_changed = true;
+            }
+        }
 	}
-	if (nh_cnt > 0) {
+	if (selection_changed) {
 		hs.SetEventType(HLStateInt::delta);
-		hs.SetTotalNewlyHighlighted(nh_cnt);
-		hs.SetTotalNewlyUnhighlighted(nuh_cnt);
 		hs.notifyObservers();
 	}
 	m_selection_made = true;
@@ -362,56 +358,7 @@ void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 {
-    /*
-	size_t num_obs = project->GetNumRecords();
-	long num_to_rand_sel = 0;
-	{
-		wxString v(m_num_to_rand_sel_txt->GetValue());
-		if (v.IsEmpty()) v = "0";
-		if (!v.ToLong(&num_to_rand_sel)) return;
-		if (num_to_rand_sel > num_obs) num_to_rand_sel = num_obs;
-	}
-	
-	// Mersenne Twister random number generator, randomly seeded
-	// with current time in seconds since Jan 1 1970.
-	static boost::mt19937 rng(std::time(0));
-	//static boost::uniform_01<boost::mt19937> X(rng);
-	static boost::random::uniform_int_distribution<> X(0, num_obs-1);
-	// X(rng) -> returns a uniform random number from 0 to num_obs-1;
-	
-	std::vector<size_t> perm(num_obs);
-	for (size_t i=0; i<num_obs; ++i) perm[i] = i;
-	for (size_t i=0; i<num_obs; ++i) {
-		// swap each item in perm with a random position.
-		// This will produce a random permutation
-		size_t r = (size_t) X(rng);
-		double tmp = perm[r];
-		perm[r] = perm[i];
-		perm[i] = tmp;
-	}
-	
-	HighlightState& hs = *project->GetHighlightState();
-	std::vector<bool>& h = hs.GetHighlight();
-	std::vector<int>& nh = hs.GetNewlyHighlighted();
-	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
-	int nh_cnt = 0;
-	int nuh_cnt = 0;
-	for (size_t i=0; i<num_obs; i++) {
-		size_t r = perm[i];
-		bool sel = (i < num_to_rand_sel);
-		if (sel && !h[r]) {
-			nh[nh_cnt++] = r;
-		} else if (!sel && h[r]) {
-			nuh[nuh_cnt++] = r;
-		}
-	}
-	hs.SetEventType(HLStateInt::delta);
-	hs.SetTotalNewlyHighlighted(nh_cnt);
-	hs.SetTotalNewlyUnhighlighted(nuh_cnt);
-	hs.notifyObservers();
-	m_selection_made = true;
-	CheckApplySaveSettings();
-     */
+
 }
 
 void RangeSelectionDlg::OnClearSelClick( wxCommandEvent& event )

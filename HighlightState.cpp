@@ -113,6 +113,7 @@ void HighlightState::ApplyChanges()
 	switch (event_type) {
 		case delta:
 		{
+            /*
 			for (int i=0; i<total_newly_highlighted; i++) {
 				if (!highlight[newly_highlighted[i]]) {
 					highlight[newly_highlighted[i]] = true;
@@ -125,6 +126,15 @@ void HighlightState::ApplyChanges()
 			}
 			total_highlighted += total_newly_highlighted;
 			total_highlighted -= total_newly_unhighlighted;
+             */
+           
+            total_highlighted = 0;
+            for (int i=0; i<highlight.size(); i++) {
+                if (highlight[i] == true) {
+                    total_highlighted += 1;
+                }
+            }
+            
 		}
 			break;
 		case unhighlight_all:
@@ -141,6 +151,15 @@ void HighlightState::ApplyChanges()
 			break;
 		case invert:
 		{
+            
+            total_highlighted = 0;
+            for (int i=0; i<highlight.size(); i++) {
+                if (highlight[i] == false) {
+                    total_highlighted += 1;
+                }
+                highlight[i] = !highlight[i];
+            }
+            /*
 			int t_nh = 0;
 			int t_nuh = 0;
 			for (int i=0, iend=highlight.size(); i<iend; i++) {
@@ -155,6 +174,7 @@ void HighlightState::ApplyChanges()
 			total_highlighted = highlight.size() - total_highlighted;
 			total_newly_highlighted = t_nh;
 			total_newly_unhighlighted = t_nuh;
+             */
 		}
 			break;
 		default:
