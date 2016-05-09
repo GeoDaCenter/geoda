@@ -164,16 +164,13 @@ void CovSpHLStateProxy::notifyHighlightState()
 {
 	using namespace std;
 	vector<bool> hs(highlight_state->GetHighlight()); // make a copy
-	vector<int>& nhl = highlight_state->GetNewlyHighlighted();
-	int tot_nhl = 0;
-	vector<int>& nuhl = highlight_state->GetNewlyUnhighlighted();
-	int tot_nuhl = 0;
+    bool selection_changed = false;
+    
 	highlight_state->SetEventType(HLStateInt::empty);
 	if (event_type == HLStateInt::unhighlight_all) {
 		highlight_state->SetEventType(HLStateInt::unhighlight_all);
-	} else if (event_type == HLStateInt::delta ||
-						 event_type == HLStateInt::invert)
-	{
+        
+	} else if (event_type == HLStateInt::delta || event_type == HLStateInt::invert) {
 		// Notice that we must be careful not to highlight or unhighlight
 		// the same observations multiple times.
 		// We will the following logic: For observation i, if any of i
@@ -194,16 +191,15 @@ void CovSpHLStateProxy::notifyHighlightState()
 			bool sel_i = any_hl[i];
 			if (sel_i && !hs[i]) {
 				hs[i] = true;
-				nhl[tot_nhl++] = i;
+                selection_changed = true;
 			} else if (!sel_i && hs[i]) {
 				hs[i] = false;
-				nuhl[tot_nuhl++] = i;
+                selection_changed = true;
 			}
 		}
-		if (tot_nhl > 0 || tot_nuhl > 0) {
+        
+        if ( selection_changed ) {
 			highlight_state->SetEventType(HLStateInt::delta);
-			highlight_state->SetTotalNewlyHighlighted(tot_nhl);
-			highlight_state->SetTotalNewlyUnhighlighted(tot_nuhl);
 		}
 	}
 	// notify HighlightState, but exclude self

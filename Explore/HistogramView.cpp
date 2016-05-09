@@ -303,10 +303,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	
 	int t = var_info[0].time;
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed =false;
 	
 	int total_sel_shps = selectable_shps.size();
 	
@@ -347,29 +344,32 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			// unselect all in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
 				 it != ival_to_obs_ids[t][i].end(); it++) {
-				nuh[total_newly_unselected++] = (*it);
+                hs[(*it)] = false;
+                selection_changed  = true;
 			}
 		} else if (!all_sel && selected) {
 			// select currently unselected in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
 				 it != ival_to_obs_ids[t][i].end(); it++) {
 				if (hs[*it]) continue;
-				nh[total_newly_selected++] = (*it);
+                hs[(*it)] = true;
+                selection_changed  = true;
 			}
 		} else if (!selected && !shiftdown) {
 			// unselect all selected in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
 				 it != ival_to_obs_ids[t][i].end(); it++) {
 		if (!hs[*it]) continue;
-				nuh[total_newly_unselected++] = (*it);
+                hs[(*it)] = false;
+                selection_changed  = true;
+                
 			}
 		}
 	}
-	
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		NotifyObservables();
+    
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	UpdateStatusBar();
 }
@@ -899,21 +899,21 @@ void HistogramCanvas::UpdateIvalSelCnts()
 			}
 		}
 	} else if (type == HLStateInt::delta) {
-		std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
-		int nuh_cnt = highlight_state->GetTotalNewlyUnhighlighted();
-		
-		for (int i=0; i<nh_cnt; i++) {
-			for (int t=0; t<ts; t++) {
-				ival_obs_sel_cnt[t][obs_id_to_ival[t][nh[i]]]++;
+		std::vector<bool>& hs = highlight_state->GetHighlight();
+       
+		for (int t=0; t<ts; t++) {
+			for (int i=0; i<cur_intervals; i++) {
+				ival_obs_sel_cnt[t][i] = 0;
 			}
 		}
-		for (int i=0; i<nuh_cnt; i++) {
+        
+        for (int i=0; i< (int)hs.size(); i++) {
 			for (int t=0; t<ts; t++) {
-				ival_obs_sel_cnt[t][obs_id_to_ival[t][nuh[i]]]--;
-			}
-		}
+                if (hs[i]) {
+                    ival_obs_sel_cnt[t][obs_id_to_ival[t][i]]++;
+                }
+            }
+        }
 	} else if (type == HLStateInt::invert) {
 		for (int t=0; t<ts; t++) {
 			for (int i=0; i<cur_intervals; i++) {

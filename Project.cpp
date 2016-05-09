@@ -860,11 +860,11 @@ void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 	
 	HighlightState& hs = *highlight_state;
 	std::vector<bool>& h = hs.GetHighlight();
-	std::vector<int>& nh = hs.GetNewlyHighlighted();
-	std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
 	int nh_cnt = 0;
 	std::vector<bool> add_elem(gal_weights->num_obs, false);
-	
+
+    std::vector<int> new_highlight_ids;
+    
 	for (int i=0; i<gal_weights->num_obs; i++) {
 		if (h[i]) {
 			GalElement& e = gal_weights->gal[i];
@@ -872,16 +872,19 @@ void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 				int obs = e[j];
 				if (!h[obs] && !add_elem[obs]) {
 					add_elem[obs] = true;
-					nh[nh_cnt++] = obs;
+                    new_highlight_ids.push_back(obs);
 				}
 			}
 		}
 	}
+    
+    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
+        h[ new_highlight_ids[i] ] = true;
+        nh_cnt ++;
+    }
 	
 	if (nh_cnt > 0) {
 		hs.SetEventType(HLStateInt::delta);
-		hs.SetTotalNewlyHighlighted(nh_cnt);
-		hs.SetTotalNewlyUnhighlighted(0);
 		hs.notifyObservers();
 	} else {
 		LOG_MSG("No elements to add to current selection");

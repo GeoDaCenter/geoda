@@ -668,22 +668,19 @@ void LisaMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (!hs[i] && elem[i]) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed  = true;
 		} else if (hs[i] && !elem[i]) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed  = true;
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
 }

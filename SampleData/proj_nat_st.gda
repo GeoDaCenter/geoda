@@ -130,10 +130,6 @@
                     <var>FH80</var>
                     <var>FH90</var>
                 </group>
-                <var>LISA_I</var>
-                <var>LISA_CL</var>
-                <var>LISA_P</var>
-                <var>DIFF_VAL</var>
             </variable_order>
             <custom_classifications/>
             <weights_entries>

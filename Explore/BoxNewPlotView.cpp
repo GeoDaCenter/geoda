@@ -274,10 +274,7 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
 	//LOG_MSG("Entering BoxPlotCanvas::UpdateSelectionPoints");
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	for (int i=0; i<num_obs; i++) sel_scratch[i] = false;
 	
@@ -302,21 +299,27 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	for (int i=0; i<num_obs; i++) {
 		if (!shiftdown) {
 			if (sel_scratch[i]) {
-				if (!hs[i]) nh[total_newly_selected++] = i;
+                if (!hs[i])  {
+                    hs[i] = true;
+                    selection_changed = true;
+                }
 			} else {
-				if (hs[i]) nuh[total_newly_unselected++] = i;
+                if (hs[i])  {
+                    hs[i] = false;
+                    selection_changed = true;
+                }
 			}
 		} else { // do not unhighlight if not in intersection region
 			if (sel_scratch[i] && !hs[i]) {
-				nh[total_newly_selected++] = i;
+                hs[i] = true;
+                selection_changed = true;
 			}
 		}
 	}
-    
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		NotifyObservables();
+   
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	//LOG_MSG("Exiting BoxPlotCanvas::UpdateSelectionPoints");
 }
@@ -393,10 +396,6 @@ void BoxPlotCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering BoxPlotCanvas::update");
 	
-	int total = highlight_state->GetTotalNewlyHighlighted();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	
-	HLStateInt::EventType type = highlight_state->GetEventType();
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
