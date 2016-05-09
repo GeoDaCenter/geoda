@@ -135,7 +135,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -162,7 +162,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -203,6 +203,7 @@
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="..\..\DefaultVarsPtree.h" />
     <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h" />
     <ClInclude Include="..\..\DialogTools\AutoCompTextCtrl.h" />
+    <ClInclude Include="..\..\DialogTools\AutoUpdateDlg.h" />
     <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />

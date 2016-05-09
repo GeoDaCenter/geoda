@@ -350,18 +350,38 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
          */
     }
     
-    if (!time_stack.empty()) {
-        OGRColumn* time_col = new OGRColumnString("TIME", 50, 0, n);
-        time_col->UpdateData(time_stack);
-        mem_table_int->AddOGRColumn(time_col);
-    }
     
     if (!select_stack.empty() && has_highligh) {
         OGRColumn* select_col = new OGRColumnInteger("SELECT", 18, 0, n);
         select_col->UpdateData(select_stack);
         mem_table_int->AddOGRColumn(select_col);
     }
-   
+    
+    if (!time_stack.empty()) {
+        OGRColumn* time_col = new OGRColumnString("TIME", 50, 0, n);
+        time_col->UpdateData(time_stack);
+        mem_table_int->AddOGRColumn(time_col);
+        
+        // add time dummies
+        for (int t=0; t<n_ts; t++) {
+            wxString time_dummy_name = "T_" + tm_strs[t];
+            OGRColumn* time_dummy_col = new OGRColumnInteger(time_dummy_name, 18, 0, n);
+            std::vector<wxInt64> time_dummy_vals;
+            
+            for (int tt=0; tt<n_ts; tt++) {
+                for (int j=0; j<n_obs; j++) {
+                    if ( tt == t) {
+                        time_dummy_vals.push_back(1);
+                    } else {
+                        time_dummy_vals.push_back(0);
+                    }
+                }
+            }
+            time_dummy_col->UpdateData(time_dummy_vals);
+            mem_table_int->AddOGRColumn(time_dummy_col);
+        }
+    }
+
     int n_col = table_int->GetNumberCols();
     for (int i=0; i<n_col; i++) {
         if (table_int->IsColTimeVariant(i)) {

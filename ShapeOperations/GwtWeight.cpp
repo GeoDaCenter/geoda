@@ -112,7 +112,7 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
         for (long nbr=0; nbr<gwt[orig_id].Size(); ++nbr) {
             const GwtNeighbor& current = gwt[orig_id].elt(nbr);
             
-            int n_id = current.nbx + offset;
+            int n_id = current.nbx + offset + 1; // current.nbx starts from 0, so add 1
             
             out << newids[i] << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
         }

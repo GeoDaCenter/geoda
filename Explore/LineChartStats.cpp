@@ -543,7 +543,7 @@ void LineChartStats::UpdateTtest()
         fisher_f dist(df_treat, df_res);
         double q = cdf(complement(dist, fabs(f_val)));
         
-        deg_free = (obs_sz_i-1);
+        deg_free = obs_sz_i-1;
         test_stat = f_val;
         p_val = q;
         

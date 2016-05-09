@@ -64,6 +64,8 @@ GdaCache::GdaCache()
 
 GdaCache::~GdaCache()
 {
+	history_table->Save();
+
 	delete history_table;
     history_table = NULL;
 	delete cach_ds_proxy;
@@ -115,7 +117,9 @@ void GdaCache::AddEntry(std::string param_key, std::string param_val)
     history_vals.push_back( param_val );
     // add to spatialite table
     std::string sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
-    cach_ds_proxy->ExecuteSQL(sql);
+    //cach_ds_proxy->ExecuteSQL(sql);
+	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(sql.c_str(),  0, "SQLITE");
+	cach_ds_proxy->ds->ReleaseResultSet(tmp_layer);
 }
 
 void GdaCache::CleanHistory()

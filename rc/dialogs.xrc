@@ -791,6 +791,15 @@
         <border>10</border>
       </object>
       <object class="sizeritem">
+        <object class="wxCheckBox" name="IDC_CHECK_TESTMODE_STABLE">
+          <label>Stable Version and Bug Fixes Only</label>
+          <checked>1</checked>
+          <style>wxALIGN_CENTRE</style>
+        </object>
+        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+        <border>20</border>
+      </object>
+      <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
@@ -801,8 +810,8 @@
             <size>10,2d</size>
           </object>
           <object class="sizeritem">
-            <object class="wxButton" name="ID_CLEAN_CACHE">
-              <label>Clean Cache</label>
+            <object class="wxButton" name="ID_CHECKUPDATES">
+              <label>Check Updates</label>
             </object>
           </object>
           <orient>wxHORIZONTAL</orient>

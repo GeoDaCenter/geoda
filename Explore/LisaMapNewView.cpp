@@ -595,8 +595,18 @@ void LisaMapFrame::OnSigFilter0001(wxCommandEvent& event)
 
 void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 {
+    
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	std::vector<SaveToTableEntry> data(3);
+    LisaMapCanvas* lc = (LisaMapCanvas*)template_canvas;
+    
+    std::vector<SaveToTableEntry> data;
+    
+    if (lc->is_diff) {
+        data.resize(4);
+    } else {
+        data.resize(3);
+    }
+    
 	std::vector<double> tempLocalMoran(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		tempLocalMoran[i] = lisa_coord->local_moran_vecs[t][i];
@@ -623,8 +633,17 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].type = GdaConst::long64_type;
 	
 	std::vector<double> sig(lisa_coord->num_obs);
+    std::vector<double> diff(lisa_coord->num_obs);
+    
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		sig[i] = p[i];
+        
+        
+        if (lc->is_diff ) {
+            int t0 =  lisa_coord->var_info[0].time;
+            int t1 =  lisa_coord->var_info[1].time;
+            diff[i] = lisa_coord->data[0][t0][i] - lisa_coord->data[0][t1][i];
+        }
 	}
 	
 	data[2].d_val = &sig;
@@ -632,6 +651,13 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[2].field_default = "LISA_P";
 	data[2].type = GdaConst::double_type;	
 	
+    if (lc->is_diff) {
+        data[3].d_val = &diff;
+        data[3].label = "Diff Values";
+        data[3].field_default = "DIFF_VAL";
+        data[3].type = GdaConst::double_type;
+    }
+    
 	SaveToTableDlg dlg(project, this, data,
 					   "Save Results: LISA",
 					   wxDefaultPosition, wxSize(400,400));
@@ -642,22 +668,19 @@ void LisaMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (!hs[i] && elem[i]) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed  = true;
 		} else if (hs[i] && !elem[i]) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed  = true;
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
 }

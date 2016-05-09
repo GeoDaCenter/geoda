@@ -76,7 +76,7 @@ build-geoda-mac:
 	chmod +x build/plugins/libiconv.so.2
 	cp $(GEODA_HOME)/libraries/lib/libminizip.so.0.0.0 build/plugins/libminizip.so.0
 	cp $(GEODA_HOME)/libraries/lib/liburiparser.so.1.0.5 build/plugins/liburiparser.so.1
-	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/
+	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/libgeos-3.3.8.so
 	cp libraries/share/gdal/* build/gdaldata
 
 clean:

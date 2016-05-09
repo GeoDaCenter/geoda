@@ -195,10 +195,7 @@ void DataMovieDlg::ChangePosNum(int new_pos_num)
 		return;
 	}
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	// the passed-in new_pos_num refers to the observations starting
 	// from 1 to num_obs, rather than 0 to num_obs-1.
@@ -207,25 +204,27 @@ void DataMovieDlg::ChangePosNum(int new_pos_num)
 		for (int i=0; i<num_obs; i++) {
 			int id = data_sorted[i].second;
 			if (i > pos && hs[id]) {
-				nuh[total_newly_unselected++] = id;
+                hs[id] = false;
+                selection_changed = true;
 			} else if (i <= pos && !hs[id]) {
-				nh[total_newly_selected++] = id;
+                hs[id] = true;
+                selection_changed = true;
 			} 
 		}
 	} else {
 		for (int i=0; i<num_obs; i++) {
 			int id = data_sorted[i].second;
 			if (hs[id] && i != pos) {
-				nuh[total_newly_unselected++] = id;
+                hs[id] = false;
+                selection_changed = true;
 			} else if (i == pos && !hs[id]) {
-				nh[total_newly_selected++] = id;
+                hs[id] = true;
+                selection_changed = true;
 			}
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
 	Refresh();
