@@ -5681,7 +5681,7 @@ void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
 void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
 {
     std::string checked = "no";
-    if (event.IsChecked()) {
+    if (!event.IsChecked()) {
         checked = "yes";
     }
     OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
@@ -5753,20 +5753,20 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
 	
-    wxCheckBox* chk_testmode = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE"), &dlg));
+    wxCheckBox* chk_testmode_stable = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE_STABLE"), &dlg));
     std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
    
     bool isTestMode = false;
     if (!test_mode.empty()) {
         if (test_mode[0] == "yes") {
             isTestMode = true;
-            chk_testmode->SetValue(true);
+            chk_testmode_stable->SetValue(false);
         } else {
-            chk_testmode->SetValue(false);
+            chk_testmode_stable->SetValue(true);
         }
     }
     
-    chk_testmode->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
+    chk_testmode_stable->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();
