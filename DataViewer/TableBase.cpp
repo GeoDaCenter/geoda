@@ -155,57 +155,77 @@ bool TableBase::FromGridIsSelectedRow(int row)
 /** Only wxGrid should call this */
 void TableBase::FromGridSelectOnlyRow(int row)
 {
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
 	int hl_size = highlight_state->GetHighlightSize();
+    
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
+    bool selection_changed = false;
+    
 	for (int i=0; i<hl_size; i++) {
 		if (i != row_order[row]) {
-			if (hs[i]) nuh[total_newly_unselected++] = i;
+            if (hs[i])  {
+                hs[i] = false;
+                selection_changed = true;
+            }
 		} else {
-			if (!hs[i]) nh[total_newly_selected++] = i;
+            if (!hs[i]) {
+                hs[i] = true;
+                selection_changed = true;
+            }
 		}
 	}
-	highlight_state->SetEventType(HLStateInt::delta);
-	highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-	highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-	highlight_state->notifyObservers();
+    
+    if (selection_changed) {
+    	highlight_state->SetEventType(HLStateInt::delta);
+    	highlight_state->notifyObservers();
+    }
 }
 
 /** Only wxGrid should call this */
 void TableBase::FromGridSelectRowRange(int first_row, int last_row)
 {
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
+    bool selection_changed = false;
+    
 	for (int i=0; i<hl_size; ++i) {
 		if (i < first_row || i > last_row) {
-			if (hs[row_order[i]]) nuh[total_newly_unselected++] = row_order[i];
+            if (hs[row_order[i]])  {
+                hs[i] = false;
+                selection_changed = true;
+            }
 		} else {
-			if (!hs[row_order[i]]) nh[total_newly_selected++] = row_order[i];
+            if (!hs[row_order[i]])  {
+                hs[i] = true;
+                selection_changed = true;
+            }
 		}
 	}
-	highlight_state->SetEventType(HLStateInt::delta);
-	highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-	highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-	highlight_state->notifyObservers();
+    
+    if (selection_changed) {
+    	highlight_state->SetEventType(HLStateInt::delta);
+    	highlight_state->notifyObservers();
+    }
 }
 
 /** Only wxGrid should call this, others should use Select(int row) */
 void TableBase::FromGridSelectRow(int row)
 {
 	//LOG_MSG(wxString::Format("selecting %d", (int) row_order[row]));
+	int hl_size = highlight_state->GetHighlightSize();
+	std::vector<bool>& hs = highlight_state->GetHighlight();
+    
+    hs[ row_order[row] ]  = true;
+    /*
+	for (int i=0; i<hl_size; ++i) {
+        if (i == row_order[row]) {
+            hs[i] = true;
+        } else {
+            hs[i] = false;
+        }
+    }
+    */
+    
 	highlight_state->SetEventType(HLStateInt::delta);
-	std::vector<int>& nhl = highlight_state->GetNewlyHighlighted();
-	nhl[0] = row_order[row];
-	//highlight_state->SetNewlyHighlighted(0, row_order[row]);
-	highlight_state->SetTotalNewlyHighlighted(1);
-	highlight_state->SetTotalNewlyUnhighlighted(0);
 	highlight_state->notifyObservers();
 }
 
@@ -213,12 +233,13 @@ void TableBase::FromGridSelectRow(int row)
 void TableBase::FromGridDeselectRow(int row)
 {
 	//LOG_MSG(wxString::Format("deselecting %d", (int) row_order[row]));
+    
+	int hl_size = highlight_state->GetHighlightSize();
+	std::vector<bool>& hs = highlight_state->GetHighlight();
+   
+    hs[ row_order[row] ]  = false;
+    
 	highlight_state->SetEventType(HLStateInt::delta);
-	std::vector<int>& nuhl = highlight_state->GetNewlyUnhighlighted();
-	nuhl[0] = row_order[row];
-	//highlight_state->SetNewlyUnhighlighted(0, row_order[row]);
-	highlight_state->SetTotalNewlyHighlighted(0);
-	highlight_state->SetTotalNewlyUnhighlighted(1);
 	highlight_state->notifyObservers();
 }
 

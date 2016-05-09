@@ -274,31 +274,20 @@ void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	}
 	
 	std::vector<bool>& hs = shared_core_hs->GetHighlight();
-	std::vector<int>& nh = shared_core_hs->GetNewlyHighlighted();
-	std::vector<int>& nuh = shared_core_hs->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
+    
 	for (size_t	i=0, sz=project->GetNumRecords(); i<sz; i++) {
 		if (!hs[i] && temp_sel_cores[i]) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed = true;
 		} else if (hs[i] && !temp_sel_cores[i]) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed = true;
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		shared_core_hs->SetTotalNewlyHighlighted(total_newly_selected);
-		shared_core_hs->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		
-		if (total_newly_selected == 0 &&
-			total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-			shared_core_hs->SetEventType(HLStateInt::unhighlight_all);
-			shared_core_hs->notifyObservers();
-		} else {
-			shared_core_hs->SetEventType(HLStateInt::delta);
-			shared_core_hs->SetTotalNewlyHighlighted(total_newly_selected);
-			shared_core_hs->SetTotalNewlyUnhighlighted(total_newly_unselected);
-			shared_core_hs->notifyObservers();
-		}
+    if (selection_changed) {
+		shared_core_hs->SetEventType(HLStateInt::delta);
+		shared_core_hs->notifyObservers();
 	}
 	
 	LOG_MSG("Exiting ConnectivityMapCanvas::UpdateSelection");	
@@ -315,10 +304,7 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 	}
 	
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	// find set of all neighbors of cores
 	core_nbrs.clear();
@@ -327,17 +313,18 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 	for (size_t	i=0, sz=project->GetNumRecords(); i<sz; i++) {
 		bool is_sel = core_nbrs.find(i) != core_nbrs.end();
 		if (!hs[i] && is_sel) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed = true;
 		} else if (hs[i] && !is_sel) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed = true;
 		}
 	}
-	
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		LOG_MSG("notify private highlight_state");
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		NotifyObservables();
+    
+    
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 	
 	UpdateStatusBar();
@@ -420,10 +407,7 @@ void ConnectivityMapCanvas::ChangeWeights(boost::uuids::uuid new_id)
 	int hl_size = highlight_state->GetHighlightSize();
 	if (hl_size != selectable_shps.size()) return;
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	// find set of all neighbors of cores
 	core_nbrs.clear();
@@ -435,18 +419,17 @@ void ConnectivityMapCanvas::ChangeWeights(boost::uuids::uuid new_id)
 	for (int i=0; i<num_obs; i++) {
 		bool is_sel = core_nbrs.find(i) != core_nbrs.end();
 		if (!hs[i] && is_sel) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed = true;
 		} else if (hs[i] && !is_sel) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed = true;
 		}
 	}
 	
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
-		// Note: this will require a full redraw
-		invalidateBms();
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		NotifyObservables();
+	if ( selection_changed ) {
+		highlight_state->SetEventType(HLStateInt::delta);
+		highlight_state->notifyObservers();
 	}
 }
 
@@ -612,23 +595,21 @@ void ConnectivityMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;
+    bool selection_changed = false;
 	
 	int num_obs = project->GetNumRecords();
 	for (int i=0; i<num_obs; i++) {
 		if (!hs[i] && elem[i]) {
-			nh[total_newly_selected++] = i;
+            hs[i] = true;
+            selection_changed = true;
 		} else if (hs[i] && !elem[i]) {
-			nuh[total_newly_unselected++] = i;
+            hs[i] = false;
+            selection_changed = true;
 		}
 	}
-	if (total_newly_selected > 0 || total_newly_unselected > 0) {
+    
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
 }

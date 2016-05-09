@@ -585,22 +585,20 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 		
 		HighlightState& hs = *project->GetHighlightState();
 		std::vector<bool>& h = hs.GetHighlight();
-		std::vector<int>& nh = hs.GetNewlyHighlighted();
-		std::vector<int>& nuh = hs.GetNewlyUnhighlighted();
-		int nh_cnt = 0;
-		int nuh_cnt = 0;
-		int total_obs = h.size();
+        bool selection_changed = false;
+        
 		for (size_t i=0; i<obs; i++) {
 			bool sel = selected[i];
 			if (sel && !h[i]) {
-				nh[nh_cnt++] = i;
+                h[i] = true;
+                selection_changed = true;
 			} else if (!sel && h[i]) {
-				nuh[nuh_cnt++] = i;
+                h[i] = false;
+                selection_changed = true;
+
 			}
 		}
 		hs.SetEventType(HLStateInt::delta);
-		hs.SetTotalNewlyHighlighted(nh_cnt);
-		hs.SetTotalNewlyUnhighlighted(nuh_cnt);
 		hs.notifyObservers();
 		
 		wxString s;

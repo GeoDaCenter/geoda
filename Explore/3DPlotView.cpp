@@ -400,10 +400,7 @@ void C3DPlotCanvas::UpdateSelect()
 	
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;	
+    bool selection_changed = false;
 	
 	double minx = xp - xs;
 	double maxx = xp + xs;
@@ -424,33 +421,29 @@ void C3DPlotCanvas::UpdateSelect()
 						 (scaled_d[2][zt][i] >= minz) &&
 						 (scaled_d[2][zt][i] <= maxz));
 		if (contains) {
-			if (!hs[i]) nh[total_newly_selected++] = i;
+            if (!hs[i]) {
+                hs[i] = true;
+                selection_changed = true;
+            }
 		} else {
-			if (hs[i]) nuh[total_newly_unselected++] = i;
+            if (hs[i]) {
+                hs[i] = false;
+                selection_changed = true;
+            }
 		}
 	}
-	
-	if (total_newly_selected == 0 && total_newly_unselected == 0) return;
-	if (total_newly_selected == 0 &&
-		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-		highlight_state->SetEventType(HLStateInt::unhighlight_all);
-		highlight_state->notifyObservers();
-	} else {
+
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
-	}
+    }
 }
 
 void C3DPlotCanvas::SelectByRect()
 {
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
-	std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-	int total_newly_selected = 0;
-	int total_newly_unselected = 0;		
+    bool selection_changed = false;
 	
 	double world11[3], world12[3], world22[3], world21[3];
 	double world113[3], world123[3], world223[3], world213[3];
@@ -545,23 +538,21 @@ void C3DPlotCanvas::SelectByRect()
 		bool contains = (inside[i] && inside[num_obs+i] && inside[2*num_obs+i]
 						 && inside[3*num_obs+i]);
 		if (contains) {
-			if (!hs[i]) nh[total_newly_selected++] = i;
+            if (!hs[i]) {
+                hs[i] = true;
+                selection_changed = true;
+            }
 		} else {
-			if (hs[i]) nuh[total_newly_unselected++] = i;
+            if (hs[i])  {
+                hs[i] = false;
+                selection_changed = true;
+            }
 		}
 	}
-	
-	if (total_newly_selected == 0 && total_newly_unselected == 0) return;
-	if (total_newly_selected == 0 &&
-		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-		highlight_state->SetEventType(HLStateInt::unhighlight_all);
-		highlight_state->notifyObservers();
-	} else {
+    if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
-	}
+    }
 }
 
 void C3DPlotCanvas::InitGL(void)
@@ -1025,10 +1016,6 @@ void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
 void C3DPlotCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("In C3DPlotCanvas::update");
-	
-	int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
-	int nuh_cnt = highlight_state->GetTotalNewlyUnhighlighted();
-	std::vector<int>& nh = highlight_state->GetNewlyHighlighted();
 	
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::delta) {
