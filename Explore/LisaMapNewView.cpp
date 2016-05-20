@@ -647,14 +647,14 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	}
 	
 	data[2].d_val = &sig;
-	data[2].label = "Significances";
+	data[2].label = "Significance";
 	data[2].field_default = "LISA_P";
 	data[2].type = GdaConst::double_type;	
 	
     if (lc->is_diff) {
         data[3].d_val = &diff;
         data[3].label = "Diff Values";
-        data[3].field_default = "DIFF_VAL";
+        data[3].field_default = "DIFF_VAL2";
         data[3].type = GdaConst::double_type;
     }
     
