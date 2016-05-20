@@ -2163,7 +2163,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
         if (choice_groups->GetSelection() == 0)
-            _s << (int)lcs.deg_free;
+            _s << (int)lcs.deg_free -1;
         else
             _s << (int)(lcs.deg_free * 2);
             
