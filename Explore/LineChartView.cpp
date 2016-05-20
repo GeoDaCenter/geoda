@@ -2067,7 +2067,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	s<< "<table width=100% rules=\"rows\" >";
 	s<< "<tr bgcolor=\"#CCCCCC\" >";
-	s<< "<th width=110 align=\"center\">Group</th>";
+	s<< "<th width=130 align=\"center\">Group</th>";
 	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";
@@ -2163,7 +2163,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
         stringstream _s;
         if (choice_groups->GetSelection() == 0)
-            _s << (int)lcs.deg_free;
+            _s << (int)lcs.deg_free -1;
         else
             _s << (int)(lcs.deg_free * 2);
             
