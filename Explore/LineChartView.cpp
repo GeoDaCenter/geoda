@@ -2067,7 +2067,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	
 	s<< "<table width=100% rules=\"rows\" >";
 	s<< "<tr bgcolor=\"#CCCCCC\" >";
-	s<< "<th width=110 align=\"center\">Group</th>";
+	s<< "<th width=130 align=\"center\">Group</th>";
 	s<< "<th align=\"center\">&nbsp;Obs.&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;Mean&nbsp;</th>";
 	s<< "<th align=\"center\">&nbsp;S.D.&nbsp;</th>";
