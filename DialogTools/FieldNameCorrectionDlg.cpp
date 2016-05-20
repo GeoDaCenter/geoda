@@ -49,15 +49,19 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 		wxString field_name = all_fname[i];
 		field_names_dict[field_name] = field_name;
         
+        bool isValid = true;
 		if (!IsFieldNameValid(field_name) ) {
 			bad_fnames.insert(field_name);
+            isValid = false;
             
         } else if (uniq_upper_fname.find(field_name.Upper()) !=
                    uniq_upper_fname.end()) {
             dup_fname.insert(field_name);
+            isValid = false;
         }
         uniq_upper_fname.insert(field_name.Upper());
-        merged_field_names.push_back(field_name);
+        if (isValid)
+            merged_field_names.push_back(field_name);
 	}
 	if (!bad_fnames.empty() || !dup_fname.empty()) {
 		need_correction = true;
@@ -129,10 +133,53 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "Field restrictions:");
 	sizer->Add(txt_orest, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 15);
 
+    size_t ctrl_cnt = 0;
+
+    for (set<wxString>::iterator it=dup_fname.begin();
+         it != dup_fname.end(); ++it ) {
+        wxString field_name = *it;
+        warn_msg=DUP_WARN;
+        
+        wxString id_name1, id_name2, id_name3;
+        id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
+        id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
+        id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        
+        wxString user_field_name = GetSuggestFieldName(field_name);
+        txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        
+        ++ctrl_cnt;
+    }
     
-	size_t ctrl_cnt = 0;
+    for (set<wxString>::iterator it=bad_fname.begin();
+         it != bad_fname.end(); ++it ) {
+        wxString field_name = *it;
+        warn_msg=INV_WARN;
+        
+        wxString id_name1, id_name2, id_name3;
+        id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
+        id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
+        id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        
+        wxString user_field_name = GetSuggestFieldName(field_name);
+        txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        
+        ++ctrl_cnt;
+    }
+    /*
 	for (size_t i=0; i<num_controls; ++i) {
 		wxString field_name = merged_field_names[i];
+        
 		if (dup_fname.find(field_name)!=dup_fname.end()) 
 			warn_msg=DUP_WARN;
 		else if (bad_fname.find(field_name)!=bad_fname.end()) 
@@ -155,6 +202,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 		
 		++ctrl_cnt;
 	}
+     */
 	
 	// buttons
 	wxStaticText* txt_dummy = new wxStaticText(this, wxID_ANY, "");
