@@ -375,6 +375,8 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                 wxString backup_file_name = file_name + ".backup";
                 int size = wxAtoi(file_size);
                 
+				wxRemoveFile(backup_file_name);
+                wxRemoveFile(update_file_name);
                 
                 if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
                     // check file size
@@ -386,8 +388,11 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
                     // replace the old file
                     wxRenameFile(file_name, backup_file_name);
-                    wxRename(update_file_name, file_name);
+                    wxRenameFile(update_file_name, file_name);
                     
+					wxRemoveFile(backup_file_name);
+					wxRemoveFile(update_file_name);
+
                     success = true;
                 }
                 progressDlg.Update(current_job++);
