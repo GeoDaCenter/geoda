@@ -190,12 +190,12 @@ void TableBase::FromGridSelectRowRange(int first_row, int last_row)
 	for (int i=0; i<hl_size; ++i) {
 		if (i < first_row || i > last_row) {
             if (hs[row_order[i]])  {
-                hs[i] = false;
+                hs[row_order[i]] = false;
                 selection_changed = true;
             }
 		} else {
             if (!hs[row_order[i]])  {
-                hs[i] = true;
+                hs[row_order[i]] = true;
                 selection_changed = true;
             }
 		}
