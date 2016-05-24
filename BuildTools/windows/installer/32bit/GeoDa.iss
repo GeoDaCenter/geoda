@@ -22,6 +22,7 @@ ChangesAssociations=yes
 
 [dirs]
 Name: "{app}\basemap_cache"; Permissions: everyone-full
+Name: "{app}";  Permissions: everyone-full
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"
@@ -85,7 +86,7 @@ Root: "HKCU"; Subkey: "Software\Microsoft\Internet Explorer\Main\FeatureControl\
 Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_BROWSER_EMULATION"; ValueType: dword; ValueName: "GeoDa.exe"; ValueData: "$2AF9"
 
 ;run as admin
-Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{app}\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
+;Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{app}\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 [Code]
 function IsX64: Boolean;
