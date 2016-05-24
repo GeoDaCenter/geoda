@@ -72,7 +72,7 @@ build-geoda-mac:
 	cp $(GEODA_HOME)/libraries/lib/libproj.so.0.7.0 build/plugins/libproj.so.0
 	cp $(GEODA_HOME)/libraries/lib/libgeos_c.so.1.7.8 build/plugins/libgeos_c.so.1
 	cp $(GEODA_HOME)/libraries/lib/libsqlite3.so.0.8.6 build/plugins/libsqlite3.so.0
-	cp $(GEODA_HOME)/libraries/lib/libiconv.so.2.5.1 build/plugins/libiconv.so.2
+	cp $(GEODA_HOME)/libraries/lib/libiconv.so.2.5.0 build/plugins/libiconv.so.2
 	chmod +x build/plugins/libiconv.so.2
 	cp $(GEODA_HOME)/libraries/lib/libminizip.so.0.0.0 build/plugins/libminizip.so.0
 	cp $(GEODA_HOME)/libraries/lib/liburiparser.so.1.0.5 build/plugins/liburiparser.so.1
