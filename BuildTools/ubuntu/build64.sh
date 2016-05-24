@@ -445,7 +445,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -o https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
+    curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
     unzip $LIB_FILENAME
 fi
 
@@ -540,10 +540,10 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 	make install
     fi
 
-    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        echo "Error! Exit"
-        exit
-    fi
+    #if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        #echo "Error! Exit"
+        #exit
+    #fi
 }
 
 #########################################################################
@@ -575,7 +575,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         ./configure
         cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
         cp GDALmake64.opt GDALmake.opt
-        make clean
+        #make clean
         $MAKER
         make install
         #cd ogr/ogrsf_frmts/oci
