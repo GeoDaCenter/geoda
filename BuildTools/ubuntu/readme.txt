@@ -21,9 +21,9 @@ Build machine assumptions:
 
 2. Use SVN to check out GeoDa trunk:
  - From user's home directory: ~/
- - svn co https://geodacenter.repositoryhosting.com/svn/geodacenter_geoda/trunk trunk
+ - git clone https://github.com/GeoDaCenter/geoda.git
  
-3. cd to ~/trunk/BuildTools/ubuntu
+3. cd to ~/geoda/BuildTools/ubuntu
 
 4. run ./build.sh to download and build GeoDa and everything it depends upon
 --you need to manually build ogr plugins (will do later)
@@ -43,11 +43,11 @@ Build machine assumptions:
 
 1. Install C++ developer tools along with command-line subversion
 
-2. Use SVN to check out GeoDa trunk:
+2. Use Git to check out GeoDa trunk:
  - From user's home directory: ~/
- - svn co https://geodacenter.repositoryhosting.com/svn/geodacenter_geoda/trunk trunk
+ - git clone https://github.com/GeoDaCenter/geoda.git
  
-3. cd to ~/trunk/BuildTools/ubuntu
+3. cd to ~/geoda/BuildTools/ubuntu
 
 4. run ./build64.sh to download and build GeoDa and everything it depends upon
 --you need to manually build ogr plugins
