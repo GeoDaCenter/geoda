@@ -93,6 +93,8 @@ void LineChartStats::UpdateNonRegimesNonTmsStats()
 	for (size_t t=0; t<tms; ++t) {
 		Y_avg[t] = 0;
 		Y_ss[t] = 0;
+       
+        if (Y[t].size() > 0)  {
 		for (size_t i=0; i<num_obs; ++i) {
 			Y_avg[t] += Y[t][i];
 			Y_ss[t] += Y[t][i] * Y[t][i];
@@ -111,6 +113,7 @@ void LineChartStats::UpdateNonRegimesNonTmsStats()
 				}
 			}
 		}
+        }
 	}
 }
 
@@ -149,6 +152,9 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 		Y_sel_ss[t] = 0;
 		Y_excl_avg[t] = 0;
 		Y_excl_ss[t] = 0;
+        if (Y[t].size() == 0)
+            continue;
+        
 		for (size_t i=0; i<num_obs; ++i) {
 			if (hs[i]) {
 				Y_sel_avg[t] += Y[t][i];
