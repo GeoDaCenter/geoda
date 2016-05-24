@@ -34,6 +34,7 @@
 #include <wx/regex.h>
 #include <wx/stdpaths.h>
 #include <wx/progdlg.h>
+#include <wx/panel.h>
 
 #include "stdio.h"
 #include <iostream>
@@ -277,7 +278,7 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, update_text);
     wxHyperlinkCtrl* whatsnew = new wxHyperlinkCtrl(panel, wxID_ANY, "Check what's new in this update.", url_update_description);
-    prg_bar = new wxGauge(panel, wxID_ANY, 100);
+    prg_bar = new wxGauge(panel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize);
     
     
     
@@ -288,10 +289,10 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     lbl_box->Add(prg_bar, 1, wxEXPAND |wxALL, 10);
     
     wxButton* btn_skip = NULL;
-    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel");
+    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     if (showSkip)
         btn_skip = new wxButton(panel, wxID_ANY, "Skip");
-    wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update");
+    wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     if (showSkip) {

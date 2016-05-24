@@ -1,0 +1,30 @@
+language: c
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - gcc
+  - clang
+
+before install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo apt-get update fi;
+
+install:
+  - cd BuildTools/ubuntu
+  - ./build64.sh
+
+script:
+  - echo "GeoDa Ubuntu"
+
+notifications:
+    email:
+        recipients:
+            - lixun910@gmail.com
+        on_success: always
+        on_failure: always
+
+after_success:
+  - coveralls
+
