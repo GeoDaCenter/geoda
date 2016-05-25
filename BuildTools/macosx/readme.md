@@ -1,5 +1,5 @@
 *****************************************************************
-*** Build Instructions for GeoDa.  Current as of GeoDa 1.8.0  ***
+Build Instructions for GeoDa.  Current as of GeoDa 1.8.0
 *****************************************************************
 
 Overview: We assume the build machine hosts a recently-installed
@@ -9,7 +9,7 @@ compiling libraries and GeoDa, and finally packaging the program
 for distribution and installation.
 
 ****************************************************
-*** Building GeoDa for 64-bit OSX 10.6.8         ***
+ Building GeoDa for 64-bit OSX 10.6.8 
 ****************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -39,7 +39,7 @@ depends upon.
 5. Package GeoDa for distribution / installation.
 
 ****************************************************
-*** Building GeoDa for 64-bit OSX 10.8           ***
+ Building GeoDa for 64-bit OSX 10.8 
 ****************************************************
 
 1. Install XCode 
@@ -55,7 +55,7 @@ depends upon.
 5. start GeoDa project using the GeoDa.xcodeproj with Xcode
 
 ****************************************************
-*** Building GeoDa plugins for 64-bit OSX        ***
+ Building GeoDa plugins for 64-bit OSX 
 ****************************************************
 
 1. Download Oracle Instant Client Package - Basic & Oracle Instant Client Package - SDK
@@ -63,26 +63,25 @@ depends upon.
 2. Unzip SDK, then unzip "Basic", which will be copied to lib/
 
 3. Create the appropriate libclntsh.dylib link for the version of Instant Client. For example:
-```
-cd ~/instantclient_11_2
-ln -s libclntsh.dylib.11.1 libclntsh.dylib
-```
-
+    ```
+    cd ~/instantclient_11_2
+    ln -s libclntsh.dylib.11.1 libclntsh.dylib
+    ```
 4. Update ORACLE_HOME
-```
-export ORACLE_HOME=~/instantclient_11_2
-```
+    ```
+    export ORACLE_HOME=~/instantclient_11_2
+    ```
 
 5. Build Oracle plugin
-```
-cd GDAL_HOME/ogr/ogrsf_frmts/oci
-make plugin
-install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_OCI.so
-mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
-```
+    ```
+    cd GDAL_HOME/ogr/ogrsf_frmts/oci
+    make plugin
+    install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_OCI.so
+    mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
+    ```
 
 ****************************************************
-*** Building GeoDa plugins for 64-bit OSX        ***
+ Building GeoDa plugins for 64-bit OSX 
 ****************************************************
 
 1. Download File Geodatabase API 1.3 version for Mac 64-bit 
@@ -90,14 +89,14 @@ mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
 2. Unzip
 
 3. Update FGDB_HOME
-```
-export FGDB_HOME=~/FileGDB_API
-```
+    ```
+    export FGDB_HOME=~/FileGDB_API
+    ```
 
 5. Build FileGDB plugin
-```
-cd GDAL_HOME/ogr/ogrsf_frmts/filegdb
-make plugin
-nstall_name_tool -change '/Users/xun/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_FileGDB.so
-mv ogr_FileGDB.so ~/geoda_trunk/BuildTools/macosx/plugins/
-```
+    ```
+    cd GDAL_HOME/ogr/ogrsf_frmts/filegdb
+    make plugin
+    nstall_name_tool -change '/Users/xun/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_FileGDB.so
+    mv ogr_FileGDB.so ~/geoda_trunk/BuildTools/macosx/plugins/
+    ```
