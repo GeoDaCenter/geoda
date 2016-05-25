@@ -99,8 +99,8 @@ Build machine assumptions:
          http://www.oracle.com/technetwork/topics/winsoft-085727.html
          Extract this file to C:\oracle_base\ohome
          
-         cd %LIB_NAME%\ogr\ogrsf_frmts\oci
-         nmake -f makefile.vc ogr_OCI.dll
+                  cd %LIB_NAME%\ogr\ogrsf_frmts\oci
+                  nmake -f makefile.vc ogr_OCI.dll
          
          
          4.3. For Arc SDE plugin, try to install ArcSDE SDK from ESRI on your machine, 
