@@ -1,5 +1,5 @@
 *****************************************************************
-Build Instructions for GeoDa.  Current as of GeoDa 1.8.0
+Build Instructions for GeoDa.  Current as of GeoDa 1.8.x
 *****************************************************************
 
 Overview: We assume the build machine hosts a recently-installed
@@ -39,7 +39,7 @@ depends upon.
 5. Package GeoDa for distribution / installation.
 
 ****************************************************
- Building GeoDa for 64-bit OSX 10.8 
+ Building GeoDa for 64-bit OSX 10.8 or later
 ****************************************************
 
 1. Install XCode 
@@ -53,6 +53,8 @@ depends upon.
 4. run ./build-express.sh to download prebuild libraries for GeoDa
 
 5. start GeoDa project using the GeoDa.xcodeproj with Xcode
+
+
 
 ****************************************************
  Building GeoDa plugins for 64-bit OSX 
