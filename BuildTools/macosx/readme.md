@@ -1,5 +1,5 @@
 *****************************************************************
-*** Build Instructions for GeoDa.  Current as of GeoDa 1.5.23 ***
+Build Instructions for GeoDa.  Current as of GeoDa 1.8.x
 *****************************************************************
 
 Overview: We assume the build machine hosts a recently-installed
@@ -9,7 +9,7 @@ compiling libraries and GeoDa, and finally packaging the program
 for distribution and installation.
 
 ****************************************************
-*** Building GeoDa for 64-bit OSX 1.6.8 or later ***
+ Building GeoDa for 64-bit OSX 10.6.8 
 ****************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -25,9 +25,9 @@ Build machine assumptions:
  - this will result in Xcode and all c++ compilers as well as svn
  being installed.
 
-2. Use SVN to check out GeoDa trunk:
+2. Use Git to check out GeoDa trunk:
  - From user's home directory: ~/
- - svn co https://geodacenter.repositoryhosting.com/svn/geodacenter_geoda/trunk trunk
+ - git clone https://github.com/GeoDaCenter/geoda.git
  
 3. cd to ~/trunk/BuildTools/macosx
 
@@ -39,7 +39,25 @@ depends upon.
 5. Package GeoDa for distribution / installation.
 
 ****************************************************
-*** Building GeoDa plugins for 64-bit OSX        ***
+ Building GeoDa for 64-bit OSX 10.8 or later
+****************************************************
+
+1. Install XCode 
+
+2. Use Git to check out GeoDa trunk:
+ - From user's home directory: ~/
+ - git clone https://github.com/GeoDaCenter/geoda.git
+ 
+3. cd to ~/trunk/BuildTools/macosx
+
+4. run ./build-express.sh to download prebuild libraries for GeoDa
+
+5. start GeoDa project using the GeoDa.xcodeproj with Xcode
+
+
+
+****************************************************
+ Building GeoDa plugins for 64-bit OSX 
 ****************************************************
 
 1. Download Oracle Instant Client Package - Basic & Oracle Instant Client Package - SDK
@@ -47,26 +65,25 @@ depends upon.
 2. Unzip SDK, then unzip "Basic", which will be copied to lib/
 
 3. Create the appropriate libclntsh.dylib link for the version of Instant Client. For example:
-```
-cd ~/instantclient_11_2
-ln -s libclntsh.dylib.11.1 libclntsh.dylib
-```
-
+    ```
+    cd ~/instantclient_11_2
+    ln -s libclntsh.dylib.11.1 libclntsh.dylib
+    ```
 4. Update ORACLE_HOME
-```
-export ORACLE_HOME=~/instantclient_11_2
-```
+    ```
+    export ORACLE_HOME=~/instantclient_11_2
+    ```
 
 5. Build Oracle plugin
-```
-cd GDAL_HOME/ogr/ogrsf_frmts/oci
-make plugin
-install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_OCI.so
-mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
-```
+    ```
+    cd GDAL_HOME/ogr/ogrsf_frmts/oci
+    make plugin
+    install_name_tool -change '~/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_OCI.so
+    mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
+    ```
 
 ****************************************************
-*** Building GeoDa plugins for 64-bit OSX        ***
+ Building GeoDa plugins for 64-bit OSX 
 ****************************************************
 
 1. Download File Geodatabase API 1.3 version for Mac 64-bit 
@@ -74,14 +91,14 @@ mv ogr_OCI.so ~/geoda_trunk/BuildTools/macosx/plugins
 2. Unzip
 
 3. Update FGDB_HOME
-```
-export FGDB_HOME=~/FileGDB_API
-```
+    ```
+    export FGDB_HOME=~/FileGDB_API
+    ```
 
 5. Build FileGDB plugin
-```
-cd GDAL_HOME/ogr/ogrsf_frmts/filegdb
-make plugin
-nstall_name_tool -change '/Users/xun/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_FileGDB.so
-mv ogr_FileGDB.so ~/geoda_trunk/BuildTools/macosx/plugins/
-```
+    ```
+    cd GDAL_HOME/ogr/ogrsf_frmts/filegdb
+    make plugin
+    nstall_name_tool -change '/Users/xun/geoda_trunk/BuildTools/macosx/libraries/lib/libgdal.20.dylib' '@executable_path/../Resources/plugins/libgdal.20.dylib' ogr_FileGDB.so
+    mv ogr_FileGDB.so ~/geoda_trunk/BuildTools/macosx/plugins/
+    ```
