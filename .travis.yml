@@ -9,11 +9,12 @@ compiler:
   - clang
 
 before install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo apt-get update fi;
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update fi;
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install cmake g++ subversion curl libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev libexpat1-dev fi;
 
 install:
   - cd BuildTools/ubuntu
-  - ./build64.sh
+  - ./build_travis.sh
 
 script:
   - echo "GeoDa Ubuntu"

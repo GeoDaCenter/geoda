@@ -1,5 +1,5 @@
 *****************************************************************
-*** Build Instructions for GeoDa.  Current as of GeoDa 1.5.23 ***
+Build Instructions for GeoDa.  Current as of GeoDa 1.8.x 
 *****************************************************************
 
 Overview: We assume the build machine hosts a recently-installed
@@ -9,7 +9,7 @@ compiling libraries and GeoDa, and finally packaging the program
 for distribution and installation.
 
 *******************************************************
-*** Building GeoDa for 32-bit Ubuntu 12.04 or later ***
+Building GeoDa for 32-bit Ubuntu 12.04 or later 
 *******************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -19,7 +19,7 @@ Build machine assumptions:
 
 1. Install C++ developer tools along with command-line subversion
 
-2. Use SVN to check out GeoDa trunk:
+2. Use Git to check out GeoDa trunk:
  - From user's home directory: ~/
  - git clone https://github.com/GeoDaCenter/geoda.git
  
@@ -33,7 +33,7 @@ Build machine assumptions:
 
 
 *******************************************************
-*** Building GeoDa for 64-bit Ubuntu 12.04 or later ***
+Building GeoDa for 64-bit Ubuntu 12.04 or later
 *******************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -49,7 +49,7 @@ Build machine assumptions:
  
 3. cd to ~/geoda/BuildTools/ubuntu
 
-4. run ./build64.sh to download and build GeoDa and everything it depends upon
+4. run ./build**64**.sh to download and build GeoDa and everything it depends upon
 --you need to manually build ogr plugins
 
 5. Package GeoDa for distribution / installation.
