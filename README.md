@@ -1,4 +1,4 @@
---- Acknowledgements ----
+# Acknowledgements #
 
 GeoDa TM is built upon several open source libraries and source-code files.
 
@@ -6,62 +6,71 @@ GeoDa is the flagship program of the GeoDa Center, following a long line of soft
 
 Since its initial release in February 2003, GeoDa's user numbers have increased exponentially, as the chart and map of global users above shows. This includes lab users at universities such as Harvard, MIT, and Cornell. The user community and press embraced the program enthusiastically, calling it a "hugely important analytic tool," a "very fine piece of software," an "exciting development" and more.
 
---- Dependencies ----
+# Dependencies #
 
 Below is a list of some of these that we'd like to acknowledge.
 
-GDAL Libraries, version 1.10
-License: X/MIT style Open Source license 
-Authors: many
-Links: http://www.gdal.org/
+* GDAL Libraries, version 1.10
 
-Boost Libraries, version 1.53
-License: Boost Software License - Version 1.0
-Authors: many
-Links: http://www.boost.org/
-       http://www.boost.org/LICENSE_1_0.txt
+        License: X/MIT style Open Source license
+        Authors: many
+        Links: http://www.gdal.org/
+    
+* Boost Libraries, version 1.53
 
-Boost.Polygon Voronoi Library, Boost version 1.53
-License: Boost Software License - Version 1.0
-Author: Andrii Sydorchuk
-Links: http://www.boost.org/
-       http://www.boost.org/LICENSE_1_0.txt
+        License: Boost Software License - Version 1.0
+        Authors: many
+        Links: http://www.boost.org/
+              http://www.boost.org/LICENSE_1_0.txt
 
-wxWidgets Cross-Platform GUI Library, version 2.9.4
-License: The wxWindows Library Licence
-Authors: Julian Smart, Robert Roebling, and others
-Links: http://www.wxwidgets.org/
-       http://www.opensource.org/licenses/wxwindows.php
+* Boost.Polygon Voronoi Library, Boost version 1.53
 
-CLAPACK Linear Algebra Libraries, version 3.2.1
-Authors: many
-License: Custom by University of Tennessee
-Links: http://www.netlib.org/clapack/
-       http://www.netlib.org/lapack/lapack-3.2/LICENSE
+        License: Boost Software License - Version 1.0
+        Author: Andrii Sydorchuk
+        Links: http://www.boost.org/
+              http://www.boost.org/LICENSE_1_0.txt
 
-Approximate Nearest Neighbor Library, version 0.1
-Note: Full source of 0.1 release included in kNN directory
-Authors: Sunil Arya and David Mount
-License: See kNN/AHH.h in included source files
-Links: http://www.cs.umd.edu/~mount/ANN/
+* wxWidgets Cross-Platform GUI Library, version 2.9.4
 
-FastArea.c++ source code
-Note: We have based the source for functions findArea and
-      ComputeArea2D in our file GenGeomAlgs.h from FastArea.c++
-      in Journal of Graphics Tools, 7(2):9-13, 2002
-Author: Daniel Sunday
-License: unknown
-Links: http://www.tandfonline.com/doi/abs/10.1080/10867651.2002.10487556
+        License: The wxWindows Library Licence
+        Authors: Julian Smart, Robert Roebling, and others
+        Links: http://www.wxwidgets.org/
+                http://www.opensource.org/licenses/wxwindows.php
 
-logger.h source code
-Author: Seweryn Habdank-Wojewodzki
-Note: We have copied the source for logger.h and modified it slightly
-      to work with wxString.
-License: Boost Software License - Version 1.0
-Links: http://accu.org/index.php/journals/1304
+* CLAPACK Linear Algebra Libraries, version 3.2.1
 
-nullstream.h source code
-Author: Maciej Sobczak
-License: See logger.h in included source files
-Links: http://www.msobczak.com/
+        Authors: many
+        License: Custom by University of Tennessee
+        Links: http://www.netlib.org/clapack/
+                http://www.netlib.org/lapack/lapack-3.2/LICENSE
+
+* Approximate Nearest Neighbor Library, version 0.1
+
+        Note: Full source of 0.1 release included in kNN directory
+        Authors: Sunil Arya and David Mount
+        License: See kNN/AHH.h in included source files
+        Links: http://www.cs.umd.edu/~mount/ANN/
+
+* FastArea.c++ source code
+
+        Note: We have based the source for functions findArea and
+        ComputeArea2D in our file GenGeomAlgs.h from FastArea.c++
+        in Journal of Graphics Tools, 7(2):9-13, 2002
+        Author: Daniel Sunday
+        License: unknown
+        Links: http://www.tandfonline.com/doi/abs/10.1080/10867651.2002.10487556
+
+* logger.h source code
+
+        Author: Seweryn Habdank-Wojewodzki
+        Note: We have copied the source for logger.h and modified it slightly
+        to work with wxString.
+        License: Boost Software License - Version 1.0
+        Links: http://accu.org/index.php/journals/1304
+
+* nullstream.h source code
+
+        Author: Maciej Sobczak
+        License: See logger.h in included source files
+        Links: http://www.msobczak.com/
 
