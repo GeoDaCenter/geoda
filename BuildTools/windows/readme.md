@@ -12,13 +12,13 @@ for distribution and installation.
 Building GeoDa for 32-bit and 64-bit Windows 7 or later
 ***************************************************************
 
-Build machine assumptions:
+1. Build machine assumptions:
 
          -- clean Windows 7 32-bit installation for building Windows 32-bit GeoDa
-          -- clean Windows 7 64-bit installation for building Windows 32-bit GeoDa
-          -- all OS updates applied
+         -- clean Windows 7 64-bit installation for building Windows 32-bit GeoDa
+         -- all OS updates applied
 
-1. Install Visual Studio 2010 (VS)
+2. Install Visual Studio 2010 (VS)
 
          We assume Visual Studio C++ Express 2010
          For 64-bit Windows only (and VS Express), you must also
@@ -31,17 +31,19 @@ Build machine assumptions:
          Here is a little VS2010 blog for those of you who do programming work (Celestia!,...) using the free
          MS VC++ 2010 Express compiler IDE. Quite recently, a SP1 release became available for the VS2010 compilers that is worth implementing. But some care is required during the installation:
 
-         Let's proceed step-by-step starting with the canonical installation of VS2010 Express:
 
-         1.1. Install Visual Studio 2010 Express
+    Let's proceed step-by-step starting with the canonical installation of VS2010 Express:
+
+
+         2.1. Install Visual Studio 2010 Express
          http://www.microsoft.com/express/Downlo ... Visual-CPP
 
-         1.2. Install Windows SDK 7.1
+         2.2. Install Windows SDK 7.1
          http://www.microsoft.com/downloads/en/d ... laylang=en
 
          Unlike the earlier VS2008 Express, 1) + 2) provided a pretty workable compiler environment for BOTH X64 and X86 settings during the past year or so. Yet, a number of remaining quirks led to the said SP1 for all Visual Studio 2010 compiler versions.
 
-         1.3 Install Visual Studio 2010 SP1 (with VS2010 being already installed!):
+         2.3 Install Visual Studio 2010 SP1 (with VS2010 being already installed!):
          http://www.microsoft.com/downloads/en/d ... 22627e57a5
 
          The release date of the SP1 pack is March 3rd 2011.
@@ -49,26 +51,26 @@ Build machine assumptions:
 
          An issue has been discovered, where Visual C++ Compilers and libraries that are installed with the Windows SDK 7.1 are removed when Visual Studio 2010 Service Pack 1 is installed. This notably refers to the x64 part. Fortunately, on March 30th 2011 an official update to the SDK 7.1 became available that fixes the problem.
 
-         1.4 Install Visual C++ 2010 SP1 Compiler Update for the Windows SDK 7.1
+         2.4 Install Visual C++ 2010 SP1 Compiler Update for the Windows SDK 7.1
          http://www.microsoft.com/downloads/en/d ... laylang=en
 
          Note: the sequence of installs is unfortunately quite crucial! The recommended one is
          1), 2), 3), 4). PLEASE do read about errors that may occur otherwise in the readme that accompanies the fix 4)!
 
 
-         1.5 Install Inno
-         1.6 Install cmake for windows with command line available.
+         2.5 Install Inno
+         2.6 Install cmake for windows with command line available.
 
-2. Use Git to check out GeoDa repository: https://github.com/GeoDaCenter/geoda.git
+3. Use Git to check out GeoDa repository: https://github.com/GeoDaCenter/geoda.git
 
          You can download and use Github Desktop app for Windows https://desktop.github.com/
  
-3. Choose "Visual Studio Command Prompt (2010)" from the
+4. Choose "Visual Studio Command Prompt (2010)" from the
    Visual Studio 2010 Express program folder.
    
          cd to C:\path-to-geoda-repo\BuildTools\windows
  
-4. Run the correct build script.
+5. Run the correct build script.
 
          For 32-bit Windows, run build.bat
          For 64-bit Windows, run build64.bat
@@ -80,14 +82,14 @@ Build machine assumptions:
 	  GeoDa.vs2010.sln solution file
                   * the final output should be an executable called GeoDa.exe
 
-         NOTE: the boost library may not be compiled automatically. In this case,
+    NOTE: the boost library may not be compiled automatically. In this case,
          try to manually enter the command next to bootstrap.bat in build.bat/build64.bat file.
 
          --(optional) to build OGR plugins, you need to manually copy the file
          dep/gdal-1.9.2/nmake.opt.withplugins to temp/gdal-1.9.2/,
          then manually enter and execute the commands between "go noplugin" and ":noplugin" section.
  
-         4.1. For FileGDB plugin, download ESRI File geodatabase API 1.3 from http://www.esri.com/apps/products/download/
+         5.1. For FileGDB plugin, download ESRI File geodatabase API 1.3 from http://www.esri.com/apps/products/download/
                   Extrac this zip file to C:\FileGDB
                   cd %LIB_NAME%\ogr\ogrsf_frmts\filegdb
                   nmake -f makefile.vc plugin
@@ -95,7 +97,7 @@ Build machine assumptions:
          You can find the DLL in current directory 
          Note: if there is an error about PGtableResultLayer, try to re-download the gdal-1.9.2 from Gitub
          
-         4.2. For OCI plugin, download Oracle instant client 11.2 from 
+         5.2. For OCI plugin, download Oracle instant client 11.2 from 
          http://www.oracle.com/technetwork/topics/winsoft-085727.html
          Extract this file to C:\oracle_base\ohome
          
@@ -103,7 +105,7 @@ Build machine assumptions:
                   nmake -f makefile.vc ogr_OCI.dll
          
          
-         4.3. For Arc SDE plugin, try to install ArcSDE SDK from ESRI on your machine, 
+         5.3. For Arc SDE plugin, try to install ArcSDE SDK from ESRI on your machine, 
          you will find the SDK at C:\Program Files\ArcGIS\ArcSDE
                   
                   cd %LIB_NAME%\ogr\ogrsf_frmts\sde
@@ -117,7 +119,7 @@ Build machine assumptions:
          in visual studio, and select release/Win32 or release/x64, and select build. 
 
 
-5. Package GeoDa for distribution / installation.
+6. Package GeoDa for distribution / installation.
 
          --Make sure you have gdal19.dll and GeoDa.exe successfully compiled.
          --copy the following DLLs into installer/32bit or installer/64bit directory:
