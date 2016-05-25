@@ -1,5 +1,5 @@
 *****************************************************************
-*** Build Instructions for GeoDa.  Current as of GeoDa 1.5.23 ***
+Build Instructions for GeoDa.  Current as of GeoDa 1.8.x 
 *****************************************************************
 
 Overview: We assume the build machine hosts a recently-installed
@@ -9,7 +9,7 @@ compiling libraries and GeoDa, and finally packaging the program
 for distribution and installation.
 
 *******************************************************
-*** Building GeoDa for 32-bit Ubuntu 12.04 or later ***
+Building GeoDa for 32-bit Ubuntu 12.04 or later 
 *******************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -33,7 +33,7 @@ Build machine assumptions:
 
 
 *******************************************************
-*** Building GeoDa for 64-bit Ubuntu 12.04 or later ***
+Building GeoDa for 64-bit Ubuntu 12.04 or later
 *******************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
