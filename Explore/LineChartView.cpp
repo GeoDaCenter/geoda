@@ -481,7 +481,8 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
-    
+   
+    int time_count = choice_time1->GetCount();
     
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
@@ -489,24 +490,26 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
             choice_time2->SetSelection(time1_selection);
         } else {
             // sel vs sel or excl vs excl
-            if (time2_selection == time1_selection) {
-                if (time2_selection -1 >=0)
-                    choice_time2->SetSelection(time2_selection-1);
-                else if (time2_selection + 1 < choice_time2->GetCount()) {
-                    choice_time2->SetSelection(time2_selection+1);
+            if (time2_selection == time1_selection ||
+                time1_selection > time2_selection) {
+                if (time1_selection +1 < time_count) {
+                    choice_time2->SetSelection(time1_selection+1);
                 } else {
-                    choice_time2->SetSelection(-1);
+                    wxMessageBox("Please select Period 1 < Period 2.");
+                    choice_time1->SetSelection(time_count-2);
+                    choice_time2->SetSelection(time_count-1);
                 }
             }
         }
     } else {
-        if (time2_selection == time1_selection) {
-            if (time2_selection -1 >=0)
-                choice_time2->SetSelection(time2_selection-1);
-            else if (time2_selection + 1 < choice_time2->GetCount()) {
-                choice_time2->SetSelection(time2_selection+1);
+        if (time2_selection == time1_selection||
+            time1_selection > time2_selection) {
+            if (time1_selection +1 < time_count) {
+                choice_time2->SetSelection(time1_selection+1);
             } else {
-                choice_time2->SetSelection(-1);
+                wxMessageBox("Please select Period 1 < Period 2.");
+                choice_time1->SetSelection(time_count-2);
+                choice_time2->SetSelection(time_count-1);
             }
         }
     }
@@ -519,31 +522,34 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
+    int time_count = choice_time1->GetCount();
     
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
             // sel vs excl
             choice_time1->SetSelection(time2_selection);
         } else {
-            if (time2_selection == time1_selection) {
-                if (time1_selection -1 >=0)
-                    choice_time1->SetSelection(time1_selection-1);
-                else if (time1_selection + 1 < choice_time1->GetCount()) {
-                    choice_time1->SetSelection(time1_selection+1);
+            if (time2_selection == time1_selection ||
+                time1_selection > time2_selection) {
+                if (time2_selection - 1 >=0 ) {
+                    choice_time1->SetSelection(time2_selection-1);
                 } else {
-                    choice_time1->SetSelection(-1);
+                    wxMessageBox("Please select Period 2 > Period 1.");
+                    choice_time1->SetSelection(0);
+                    choice_time2->SetSelection(1);
                 }
             }
         }
         
     } else {
-        if (time2_selection == time1_selection) {
-            if (time1_selection -1 >=0)
-                choice_time1->SetSelection(time1_selection-1);
-            else if (time1_selection + 1 < choice_time1->GetCount()) {
-                choice_time1->SetSelection(time1_selection+1);
+        if (time2_selection == time1_selection||
+            time1_selection > time2_selection) {
+            if (time2_selection - 1 >=0 ) {
+                choice_time1->SetSelection(time2_selection-1);
             } else {
-                choice_time1->SetSelection(-1);
+                wxMessageBox("Please select Period 2 > Period 1.");
+                choice_time1->SetSelection(0);
+                choice_time2->SetSelection(1);
             }
         }
     }
@@ -1283,7 +1289,8 @@ void LineChartFrame::RunDIDTest()
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
             
         } else if (compare_time_periods) {
-            m_Xnames.push_back("TIME");
+            wxString time_var = "T_" + choice_time2->GetString(choice_time2->GetSelection());
+            m_Xnames.push_back(time_var);
             nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
@@ -1347,7 +1354,8 @@ void LineChartFrame::RunDIDTest()
             
         } else if (compare_r_and_t) {
             m_Xnames.push_back("SPACE");
-            m_Xnames.push_back("TIME");
+            wxString time_var = "T_" + choice_time2->GetString(choice_time2->GetSelection());
+            m_Xnames.push_back(time_var);
             m_Xnames.push_back("INTERACT");
             nX = m_Xnames.size();
             
