@@ -309,15 +309,12 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	}
 	
 	double x_min = 0;
-	double x_max = left_pad_const + right_pad_const
-		+ interval_width_const * cur_intervals + 
-		+ interval_gap_const * (cur_intervals-1);
+	double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
 	
 	// orig_x_pos is the center of each histogram bar
 	std::vector<double> orig_x_pos(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-		orig_x_pos[i] = left_pad_const + interval_width_const/2.0
-		+ i * (interval_width_const + interval_gap_const);
+		orig_x_pos[i] = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
 	}
 	
 	shps_orig_xmin = x_min;
@@ -326,32 +323,27 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	shps_orig_ymax = max_num_obs_in_ival;
 	
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
+		axis_scale_y = AxisScale(0, shps_orig_ymax, 5, 0);
 		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
-							wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
-							-9, 0);
+		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax), -9, 0);
 		background_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val);
-		//shps_orig_xmax = axis_scale_x.scale_max;
+        
 		axis_scale_x.data_min = min_ival_val;
 		axis_scale_x.data_max = max_ival_val;
 		axis_scale_x.scale_min = axis_scale_x.data_min;
 		axis_scale_x.scale_max = axis_scale_x.data_max;
+        
 		double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
-		LOG(axis_scale_x.data_max);
 		axis_scale_x.scale_range = range;
 		axis_scale_x.p = floor(log10(range));
-		axis_scale_x.ticks = cur_intervals+1;
+		axis_scale_x.ticks = cur_intervals + 1;
 		axis_scale_x.tics.resize(axis_scale_x.ticks);
 		axis_scale_x.tics_str.resize(axis_scale_x.ticks);
 		axis_scale_x.tics_str_show.resize(axis_scale_x.tics_str.size());
 		for (int i=0; i<axis_scale_x.ticks; i++) {
-			axis_scale_x.tics[i] =
-				axis_scale_x.data_min +
-					range*((double) i)/((double) axis_scale_x.ticks-1);
-			LOG(axis_scale_x.tics[i]);
+			axis_scale_x.tics[i] = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
 			std::ostringstream ss;
 			ss << std::setprecision(3) << axis_scale_x.tics[i];
 			axis_scale_x.tics_str[i] = ss.str();
@@ -364,9 +356,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis("Number of Neighbors",
-							axis_scale_x, wxRealPoint(0,0),
-							wxRealPoint(shps_orig_xmax, 0), 0, 9);
+		x_axis = new GdaAxis("Number of Neighbors", axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
 		background_shps.push_back(x_axis);
 	}
 	
