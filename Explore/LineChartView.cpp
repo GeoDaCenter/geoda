@@ -323,13 +323,16 @@ void LineChartFrame::InitTimeChoiceCtrl()
 
     choice_time1->Clear();
     choice_time2->Clear();
-    for (size_t i=0; i<tm_strs.size(); i++ ) {
-        wxString t_str = tm_strs[i];
-        choice_time1->Append(t_str);
-        choice_time2->Append(t_str);
-    }
+    
    
-    if (tm_strs.size() > 0) {
+    if (tm_strs.size() > 1) {
+        
+        for (size_t i=0; i<tm_strs.size(); i++ ) {
+            wxString t_str = tm_strs[i];
+            choice_time1->Append(t_str);
+            choice_time2->Append(t_str);
+        }
+        
         int group_selection = choice_groups->GetSelection();
         if (group_selection == 0 &&
             choice_group1->GetSelection() != choice_group2->GetSelection())
@@ -447,7 +450,8 @@ void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
     TableInterface* table_int = project->GetTableInt();
     int col = table_int->FindColId(col_name);
     
-    if (!table_int->IsColTimeVariant(col_name)) {
+    if (!table_int->IsColTimeVariant(col_name) ||
+        table_int->GetTimeSteps() <= 1) {
         choice_groups->SetSelection(0);
     }
     
@@ -477,7 +481,8 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
-    
+   
+    int time_count = choice_time1->GetCount();
     
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
@@ -485,24 +490,26 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
             choice_time2->SetSelection(time1_selection);
         } else {
             // sel vs sel or excl vs excl
-            if (time2_selection == time1_selection) {
-                if (time2_selection -1 >=0)
-                    choice_time2->SetSelection(time2_selection-1);
-                else if (time2_selection + 1 < choice_time2->GetCount()) {
-                    choice_time2->SetSelection(time2_selection+1);
+            if (time2_selection == time1_selection ||
+                time1_selection > time2_selection) {
+                if (time1_selection +1 < time_count) {
+                    choice_time2->SetSelection(time1_selection+1);
                 } else {
-                    choice_time2->SetSelection(-1);
+                    wxMessageBox("Please select Period 1 < Period 2.");
+                    choice_time1->SetSelection(time_count-2);
+                    choice_time2->SetSelection(time_count-1);
                 }
             }
         }
     } else {
-        if (time2_selection == time1_selection) {
-            if (time2_selection -1 >=0)
-                choice_time2->SetSelection(time2_selection-1);
-            else if (time2_selection + 1 < choice_time2->GetCount()) {
-                choice_time2->SetSelection(time2_selection+1);
+        if (time2_selection == time1_selection||
+            time1_selection > time2_selection) {
+            if (time1_selection +1 < time_count) {
+                choice_time2->SetSelection(time1_selection+1);
             } else {
-                choice_time2->SetSelection(-1);
+                wxMessageBox("Please select Period 1 < Period 2.");
+                choice_time1->SetSelection(time_count-2);
+                choice_time2->SetSelection(time_count-1);
             }
         }
     }
@@ -515,31 +522,34 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
+    int time_count = choice_time1->GetCount();
     
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
             // sel vs excl
             choice_time1->SetSelection(time2_selection);
         } else {
-            if (time2_selection == time1_selection) {
-                if (time1_selection -1 >=0)
-                    choice_time1->SetSelection(time1_selection-1);
-                else if (time1_selection + 1 < choice_time1->GetCount()) {
-                    choice_time1->SetSelection(time1_selection+1);
+            if (time2_selection == time1_selection ||
+                time1_selection > time2_selection) {
+                if (time2_selection - 1 >=0 ) {
+                    choice_time1->SetSelection(time2_selection-1);
                 } else {
-                    choice_time1->SetSelection(-1);
+                    wxMessageBox("Please select Period 2 > Period 1.");
+                    choice_time1->SetSelection(0);
+                    choice_time2->SetSelection(1);
                 }
             }
         }
         
     } else {
-        if (time2_selection == time1_selection) {
-            if (time1_selection -1 >=0)
-                choice_time1->SetSelection(time1_selection-1);
-            else if (time1_selection + 1 < choice_time1->GetCount()) {
-                choice_time1->SetSelection(time1_selection+1);
+        if (time2_selection == time1_selection||
+            time1_selection > time2_selection) {
+            if (time2_selection - 1 >=0 ) {
+                choice_time1->SetSelection(time2_selection-1);
             } else {
-                choice_time1->SetSelection(-1);
+                wxMessageBox("Please select Period 2 > Period 1.");
+                choice_time1->SetSelection(0);
+                choice_time2->SetSelection(1);
             }
         }
     }
@@ -553,9 +563,9 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
-    if (!table_int->IsColTimeVariant(col_name)) {
+    if (!table_int->IsColTimeVariant(col_name) ||table_int->GetTimeSteps() <= 1) {
         if (choice_groups->GetSelection() == 1) {
-            wxMessageBox("Please select a time variable first.");
+            wxMessageBox("Please select a time variable first, and make sure more than one time steps have been defined.");
             choice_groups->SetSelection(0);
             return;
         }
@@ -1279,7 +1289,8 @@ void LineChartFrame::RunDIDTest()
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
             
         } else if (compare_time_periods) {
-            m_Xnames.push_back("TIME");
+            wxString time_var = "T" + choice_time1->GetString(choice_time1->GetSelection()) + "_" + choice_time2->GetString(choice_time2->GetSelection());
+            m_Xnames.push_back(time_var);
             nX = m_Xnames.size();
             
             int n1 = 0, n2 = 0;
@@ -1343,7 +1354,8 @@ void LineChartFrame::RunDIDTest()
             
         } else if (compare_r_and_t) {
             m_Xnames.push_back("SPACE");
-            m_Xnames.push_back("TIME");
+            wxString time_var = "T" + choice_time1->GetString(choice_time1->GetSelection()) + "_" + choice_time2->GetString(choice_time2->GetSelection());
+            m_Xnames.push_back(time_var);
             m_Xnames.push_back("INTERACT");
             nX = m_Xnames.size();
             
@@ -1823,16 +1835,18 @@ void LineChartFrame::UpdateTitleText()
         int time1 = choice_time1->GetSelection();
         int time2 = choice_time2->GetSelection();
         
-        if (time1 == time2 ) {
+        if (time1 == time2) {
             
-            if (project->GetTableInt()->IsColTimeVariant(col)) {
+            if (project->GetTableInt()->IsColTimeVariant(col) &&
+                time1 >= 0) {
                 
                 frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2) << " " << choice_time1->GetString(time1);
             } else {
                 frame_title << " - " << choice_group1->GetString(group1) << " vs " << choice_group2->GetString(group2);
             }
+            
         } else {
-            if (project->GetTableInt()->IsColTimeVariant(col)) {
+            if (project->GetTableInt()->IsColTimeVariant(col) && time1 >= 0 && time2 >=0) {
                 frame_title << " - " << choice_group1->GetString(group1) << " " << choice_time1->GetString(time1) << " vs " << choice_time2->GetString(time2);
             } else {
                 frame_title << " - " << choice_group1->GetString(group1);
