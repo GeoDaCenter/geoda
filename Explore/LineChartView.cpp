@@ -1289,7 +1289,7 @@ void LineChartFrame::RunDIDTest()
             logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\n" + logReport;
             
         } else if (compare_time_periods) {
-            wxString time_var = "T_" + choice_time2->GetString(choice_time2->GetSelection());
+            wxString time_var = "T" + choice_time1->GetString(choice_time1->GetSelection()) + "_" + choice_time2->GetString(choice_time2->GetSelection());
             m_Xnames.push_back(time_var);
             nX = m_Xnames.size();
             
@@ -1354,7 +1354,7 @@ void LineChartFrame::RunDIDTest()
             
         } else if (compare_r_and_t) {
             m_Xnames.push_back("SPACE");
-            wxString time_var = "T_" + choice_time2->GetString(choice_time2->GetSelection());
+            wxString time_var = "T" + choice_time1->GetString(choice_time1->GetSelection()) + "_" + choice_time2->GetString(choice_time2->GetSelection());
             m_Xnames.push_back(time_var);
             m_Xnames.push_back("INTERACT");
             nX = m_Xnames.size();
