@@ -6,6 +6,18 @@ GeoDa is the flagship program of the GeoDa Center, following a long line of soft
 
 Since its initial release in February 2003, GeoDa's user numbers have increased exponentially, as the chart and map of global users above shows. This includes lab users at universities such as Harvard, MIT, and Cornell. The user community and press embraced the program enthusiastically, calling it a "hugely important analytic tool," a "very fine piece of software," an "exciting development" and more.
 
+# Build GeoDa #
+
+Please read the detail instructions under directory BuildTools/
+
+[Windows](BuildTools/windows/readme.md)
+
+[Mac OSX](BuildTools/macosx/readme.md)
+
+[Linux/Ubuntu](BuildTools/ubuntu/readme.md)
+
+Note:  contributions of build scripts under other platforms are welcomed, please follow the structure of building script under BuildTools/.
+
 # Dependencies #
 
 Below is a list of some of these that we'd like to acknowledge.
