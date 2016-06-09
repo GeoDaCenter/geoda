@@ -219,6 +219,10 @@ void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 
 void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 {
+    int vc_sel = var_choice->GetSelection();
+    if (vc_sel < 0)
+        return;
+    
 	LOG_MSG("In CorrelParamsFrame::OnApplyBtn");
 	{
 		long new_bins = bins_spn_ctrl->GetValue();
@@ -295,7 +299,6 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
     bool valid_variable = true;
 	{
 		// update var_man with new selection
-		int vc_sel = var_choice->GetSelection();
 		wxString var_nm = var_choice->GetString(vc_sel);
 		TableInterface* table_int = project->GetTableInt();
 		int col_id = table_int->FindColId(var_nm);
