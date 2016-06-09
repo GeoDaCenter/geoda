@@ -360,7 +360,7 @@ void CorrelParamsFrame::OnAllPairsRadioSelected(wxCommandEvent& ev)
 	max_iter_txt->Enable(false);
 	max_iter_tctrl->Enable(false);
     
-    OnApplyBtn(ev);
+    //OnApplyBtn(ev);
     ev.Skip();
 }
 
@@ -375,7 +375,7 @@ void CorrelParamsFrame::OnRandSampRadioSelected(wxCommandEvent& ev)
 	max_iter_txt->Enable(true);
 	max_iter_tctrl->Enable(true);
     
-    OnApplyBtn(ev);
+    //OnApplyBtn(ev);
     ev.Skip();
 }
 
