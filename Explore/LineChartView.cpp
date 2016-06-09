@@ -445,6 +445,9 @@ void LineChartFrame::OnApplyButton(wxCommandEvent &event)
 void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0 )
+        return;
+    
     wxString col_name = variable_names[variable_selection];
 
     TableInterface* table_int = project->GetTableInt();
@@ -560,6 +563,9 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -580,6 +586,9 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -616,6 +625,9 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -822,6 +834,10 @@ void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
                                         double* m_yhat1, double* m_resid1)
 {
+    int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0 )
+        return;
+    
     int nTests = var_man.GetVarsCount();
     nTests = 1; // only handle one variable at a time
     
@@ -859,7 +875,6 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             
             int n= 0;
             
-            int variable_selection = choice_variable->GetSelection();
             wxString col_name = variable_names[variable_selection];
             
             TableInterface* table_int = project->GetTableInt();
