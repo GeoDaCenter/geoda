@@ -124,10 +124,10 @@ has_excluded(1)
     
     wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, "Variable:");
     choice_variable = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(220, -1));
+                                   wxSize(230, -1));
     wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, "Groups:");
     choice_groups = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(220, -1));
+                                 wxSize(230, -1));
     variable_sizer->Add(lbl_variable, 1, wxEXPAND);
     variable_sizer->Add(choice_variable, 1, wxEXPAND);
     variable_sizer->Add(lbl_groups, 1, wxEXPAND);
@@ -142,13 +142,13 @@ has_excluded(1)
     
     wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, "Group 1:");
     choice_group1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(80, -1));
+                                 wxSize(90, -1));
     wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, "Period 1:");
     choice_time1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
     wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, "Group 2:");
     choice_group2 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(80, -1));
+                                 wxSize(90, -1));
     wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, "Period 2:");
     choice_time2 = new wxChoice(lpanel,wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
