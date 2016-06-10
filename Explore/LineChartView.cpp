@@ -124,10 +124,10 @@ has_excluded(1)
     
     wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, "Variable:");
     choice_variable = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(220, -1));
+                                   wxSize(230, -1));
     wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, "Groups:");
     choice_groups = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(220, -1));
+                                 wxSize(230, -1));
     variable_sizer->Add(lbl_variable, 1, wxEXPAND);
     variable_sizer->Add(choice_variable, 1, wxEXPAND);
     variable_sizer->Add(lbl_groups, 1, wxEXPAND);
@@ -142,13 +142,13 @@ has_excluded(1)
     
     wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, "Group 1:");
     choice_group1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(80, -1));
+                                 wxSize(90, -1));
     wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, "Period 1:");
     choice_time1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
     wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, "Group 2:");
     choice_group2 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(80, -1));
+                                 wxSize(90, -1));
     wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, "Period 2:");
     choice_time2 = new wxChoice(lpanel,wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
@@ -445,6 +445,9 @@ void LineChartFrame::OnApplyButton(wxCommandEvent &event)
 void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0 )
+        return;
+    
     wxString col_name = variable_names[variable_selection];
 
     TableInterface* table_int = project->GetTableInt();
@@ -560,6 +563,9 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -580,6 +586,9 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -598,7 +607,7 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
                     if (time1_selection -1 >=0)
                         choice_time1->SetSelection(time1_selection-1);
                     else if (time1_selection + 1 < choice_time1->GetCount()) {
-                        choice_time1->SetSelection(time1_selection+1);
+                        choice_time2->SetSelection(time1_selection+1);
                     } else {
                         choice_time1->SetSelection(-1);
                     }
@@ -616,6 +625,9 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
 {
     int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0)
+        return;
+    
     wxString col_name = variable_names[variable_selection];
     
     TableInterface* table_int = project->GetTableInt();
@@ -632,7 +644,7 @@ void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
             } else {
                 if (time2_selection == time1_selection) {
                     if (time2_selection -1 >=0)
-                        choice_time2->SetSelection(time2_selection-1);
+                        choice_time1->SetSelection(time2_selection-1);
                     else if (time2_selection + 1 < choice_time2->GetCount()) {
                         choice_time2->SetSelection(time2_selection+1);
                     } else {
@@ -822,6 +834,10 @@ void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
                                         double* m_yhat1, double* m_resid1)
 {
+    int variable_selection = choice_variable->GetSelection();
+    if (variable_selection < 0 )
+        return;
+    
     int nTests = var_man.GetVarsCount();
     nTests = 1; // only handle one variable at a time
     
@@ -859,7 +875,6 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             
             int n= 0;
             
-            int variable_selection = choice_variable->GetSelection();
             wxString col_name = variable_names[variable_selection];
             
             TableInterface* table_int = project->GetTableInt();
