@@ -50,8 +50,10 @@ OGRTable::OGRTable(int n_rows)
     //table_state->registerObserver(this);
 }
 
-OGRTable::OGRTable(OGRLayerProxy* _ogr_layer, GdaConst::DataSourceType ds_type,
-                   TableState* table_state, TimeState* time_state,
+OGRTable::OGRTable(OGRLayerProxy* _ogr_layer,
+                   GdaConst::DataSourceType ds_type,
+                   TableState* table_state,
+                   TimeState* time_state,
                    const VarOrderPtree& var_order_ptree)
 : TableInterface(table_state, time_state),
 ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
@@ -63,7 +65,9 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
     // create in memory OGRColumns, read var_map
 	for (size_t i=0; i<ogr_layer->fields.size(); ++i) {
         AddOGRColumn(ogr_layer, i);
-		var_map[columns[i]->GetName()] = i;
+        // deprecated in 1.8
+		//var_map[columns[i]->GetName()] = i;
+        org_var_names.push_back(columns[i]->GetName());
     }
    
     /*
@@ -216,7 +220,10 @@ void OGRTable::AddOGRColumn(OGRColumn* ogr_col)
     
     
     columns.push_back(ogr_col);
-    var_map[ogr_col->GetName()] = pos;
+    
+    // deprecated in 1.8
+    //var_map[ogr_col->GetName()] = pos;
+    org_var_names.push_back(ogr_col->GetName());
 }
 
 
@@ -358,19 +365,29 @@ int OGRTable::FindColId(const wxString& name)
 	return var_order.GetColId(c_name);
 }
 
+
 int OGRTable::GetColIdx(const wxString& name)
 {
     wxString c_name = name;
     c_name.Trim(false);
     c_name.Trim(true);
-    
+   
+    // update it if different in real data. E.g. user may create a column
+    // with name in lowercase, however, it is forced to uppercase in real table
+   
+    /*
+    // deprecated in 1.8.8
     std::map<wxString, int>::iterator i;
     if ( (i=var_map.find(name)) != var_map.end() ||
         (i=var_map.find(name.Upper())) != var_map.end() ||
         (i=var_map.find(name.Lower())) != var_map.end() ) {
         return i->second;
     }
-
+     */
+    for (size_t i=0; i<org_var_names.size(); i++) {
+        if (name == org_var_names[i])
+            return i;
+    }
     return -1;
 }
 
@@ -533,16 +550,23 @@ wxString OGRTable::GetColName(int col)
 	wxString name_in_project = var_order.FindVarGroup(col).name;
     // update it if different in real data. E.g. user may create a column
     // with name in lowercase, however, it is forced to uppercase in real table
+   
+    
+    /*
+    // deprecated in 1.8.8
     std::map<wxString, int>::iterator i;
     if ( (i=var_map.find(name_in_project)) != var_map.end() ||
         (i=var_map.find(name_in_project.Upper())) != var_map.end() ||
         (i=var_map.find(name_in_project.Lower())) != var_map.end() ) {
+    
         OGRColumn* ogr_col = columns[i->second];
         if (name_in_project != ogr_col->GetName() ) {
             name_in_project = ogr_col->GetName();
             var_order.FindVarGroup(col).name = name_in_project;
         }
     }
+     */
+    
     return name_in_project;
 }
 
@@ -942,10 +966,12 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
 {
 	if (!PermitRenameSimpleCol()) return false;
     if (col < 0 || col >= GetNumberCols()) return false;
+   
     int ogr_col_id = FindOGRColId(col, time);
 	if (ogr_col_id == wxNOT_FOUND) return false;
     
 	wxString old_name = GetColName(col, time);
+    
     OGRColumn* cur_col = columns[ogr_col_id];
     operations_queue.push(new OGRTableOpRenameColumn(cur_col,
                                                      cur_col->GetName(),
@@ -953,15 +979,19 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
     cur_col->Rename(new_name);
     
     //update var_map
+    /*
+    //deprecated in 1.8.8
 	map<wxString, int>::iterator it = var_map.find(old_name);
     if ( it == var_map.end()) it = var_map.find(old_name.Upper());
     if ( it == var_map.end()) it = var_map.find(old_name.Lower());
     if ( it == var_map.end())
         return false;
-    
     int ogr_col_idx = it->second;
     var_map[new_name] = ogr_col_idx;
     var_map.erase(it);
+    */
+    org_var_names[ogr_col_id] = new_name;
+    
 
     // update variable parameters
     var_order.SetGroupName(col, new_name);
@@ -1031,18 +1061,29 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 
 int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos, int time_steps, int field_len, int decimals)
 {
-	using namespace std;
-	if (pos > GetNumberCols()) return -1;
-    // this case if for appending new column at the end of table
-    if (pos < 0) pos = GetNumberCols();
-	LOG_MSG(wxString::Format("Inserting column into table at postion %d",pos));
-	if (time_steps < 0) return -1;
-	if (type != GdaConst::double_type) decimals = 0;
-	if (field_len == -1 && (type == GdaConst::placeholder_type ||
-                            type == GdaConst::unknown_type ||
-                            type == GdaConst::date_type)){
+    if (pos > GetNumberCols() || time_steps < 0 ) {
         return -1;
     }
+    
+    // don't support the following column type
+	if (field_len == -1 && (type == GdaConst::placeholder_type ||
+                            type == GdaConst::unknown_type ||
+                            type == GdaConst::date_type))
+    {
+        return -1;
+    }
+    
+    // if for appending new column at the end of table
+    if (pos < 0) {
+        pos = GetNumberCols();
+    }
+    
+	LOG_MSG(wxString::Format("Inserting column into table at postion %d",pos));
+    
+    if (type != GdaConst::double_type) {
+        decimals = 0;
+    }
+    
 	if (field_len == -1) {
 		if (type == GdaConst::double_type) {
 			field_len = GdaConst::default_dbf_double_len;
@@ -1052,6 +1093,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos,
 			field_len = GdaConst::default_dbf_string_len;
 		}
 	}
+    
 	if (decimals < 0) {
 		if (type == GdaConst::double_type) {
 			decimals = GdaConst::default_display_decimals;
@@ -1062,16 +1104,19 @@ int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos,
 	
     // note the differences between "Group/Ungroup" and "Append new column"
     // (new field always added to the end of existing columns)
+    
 	vector<wxString> names(SuggestDBColNames(name, name, time_steps));
 
+    // return could be group of names (e.g. pop2001, pop2002, pop2003)
 	for (size_t t=0; t<names.size(); t++) {
+        
         OGRColumn* ogr_col = NULL;
         if (type == GdaConst::long64_type){
-            ogr_col = new OGRColumnInteger(ogr_layer, name, field_len,decimals);
+            ogr_col = new OGRColumnInteger(ogr_layer, names[t], field_len,decimals);
         } else if (type==GdaConst::double_type){
-            ogr_col = new OGRColumnDouble(ogr_layer, name, field_len, decimals);
+            ogr_col = new OGRColumnDouble(ogr_layer, names[t], field_len, decimals);
         } else if (type==GdaConst::string_type){
-            ogr_col = new OGRColumnString(ogr_layer, name, field_len, decimals);
+            ogr_col = new OGRColumnString(ogr_layer, names[t], field_len, decimals);
         } else {
             wxString msg = "Add OGR column error. Field type is unknown "
             "or not supported.";
@@ -1079,14 +1124,23 @@ int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos,
         }
         columns.insert(columns.begin()+pos, ogr_col);
         operations_queue.push(new OGRTableOpInsertColumn(ogr_col));
+        
+        vector<wxString>::iterator iter = org_var_names.begin() + pos;
+        org_var_names.insert(iter, names[t]);
 	}
-	var_map.clear();
+    
+	/*
+    // deprecated in 1.8.8, see ogr_var_names in the above code
+    var_map.clear();
     for (size_t i=0; i<columns.size(); i++) {
         var_map[columns[i]->GetName()] = i;
     }
+    */
 	
 	VarGroup g(name, decimals);
-	if (time_steps > 1) g.vars = names;
+    if (time_steps > 1) {
+        g.vars = names;
+    }
 	var_order.InsertVarGroup(g, pos);
 	
 	SetChangedSinceLastSave(true);
@@ -1107,11 +1161,14 @@ int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos,
 
 bool OGRTable::DeleteCol(int pos)
 {
-	using namespace std;
 	LOG_MSG("Inside OGRTable::DeleteCol");
 	LOG_MSG(wxString::Format("Deleting column from table at postion %d", pos));
-	if (pos < 0 || pos >= var_order.GetNumVarGroups() ||
-		var_order.GetNumVarGroups() == 0) return false;
+	if (pos < 0 ||
+        pos >= var_order.GetNumVarGroups() ||
+		var_order.GetNumVarGroups() == 0)
+    {
+        return false;
+    }
 	
 	// Must remove all items from var_map first
 	VarGroup vg = var_order.FindVarGroup(pos);
@@ -1121,18 +1178,23 @@ bool OGRTable::DeleteCol(int pos)
 		if (s != "") {
             for( size_t i=0; i<columns.size(); ++i) {
                 if (columns[i]->GetName().CmpNoCase(s) == 0) {
-                    operations_queue.push(
-                        new OGRTableOpDeleteColumn(columns[i]));
+                    operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
                     columns.erase(columns.begin()+i);
                     break;
                 }
             }
 		}
 	}
+    
+    /*
+    // depcrecated in 1.8.8
     var_map.clear();
     for (int i=0; i<columns.size();i++) {
         var_map[columns[i]->GetName()] = i;
     }
+    */
+    vector<wxString>::iterator iter = org_var_names.begin() + pos;
+    org_var_names.erase(iter);
 	
 	wxString name = var_order.GetGroupName(pos);
 	var_order.RemoveVarGroup(pos);
@@ -1151,7 +1213,6 @@ bool OGRTable::DeleteCol(int pos)
 
 void OGRTable::UngroupCol(int col) 
 {
-	using namespace std;
 	LOG_MSG("Inside OGRTable::UngroupCol");
 	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
 	if (GetColTimeSteps(col) <= 1) return;
@@ -1192,7 +1253,6 @@ void OGRTable::UngroupCol(int col)
 void OGRTable::GroupCols(const std::vector<int>& cols,
 						 const wxString& name, int pos) 
 {
-	using namespace std;
 	LOG_MSG("Inside OGRTable::GroupCols");
 	if (pos < 0 || pos > var_order.GetNumVarGroups()) return;
 	if (cols.size() <= 1) return;
@@ -1327,12 +1387,21 @@ int OGRTable::FindOGRColId(int wxgrid_col_pos, int time)
 
 int OGRTable::FindOGRColId(const wxString& name)
 {
+    for (size_t i=0; i < org_var_names.size(); i++ ) {
+        if (name == org_var_names[i]) {
+            return i;
+        }
+    }
+    return -1;
+    /*
+    // deprecated in 1.8.8
     std::map<wxString, int>::iterator i = var_map.find(name);
     if ( i == var_map.end()) i = var_map.find(name.Upper());
     if ( i == var_map.end()) i = var_map.find(name.Lower());
     if ( i == var_map.end()) return -1;
 
 	return i->second;
+     */
 }
 
 OGRColumn* OGRTable::FindOGRColumn(int col, int time)
@@ -1345,12 +1414,22 @@ OGRColumn* OGRTable::FindOGRColumn(int col, int time)
 OGRColumn* OGRTable::FindOGRColumn(const wxString& name)
 {
     if (name.IsEmpty()) return NULL;
+    
+    for (size_t i=0; i<org_var_names.size(); i++ ) {
+        if (name == org_var_names[i]) {
+            return columns[i];
+        }
+    }
+    return NULL;
+    /*
+    // deprecated in 1.8.8
 	std::map<wxString, int>::iterator i =var_map.find(name);
     if ( i == var_map.end()) i = var_map.find(name.Upper());
     if ( i == var_map.end()) i = var_map.find(name.Lower());
     if ( i == var_map.end()) return NULL;
     
     return columns[i->second];
+     */
 }
 
 bool OGRTable::IsValidDBColName(const wxString& col_nm, 

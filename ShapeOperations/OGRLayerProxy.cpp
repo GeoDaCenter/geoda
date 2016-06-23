@@ -41,9 +41,11 @@ using namespace std;
 /**
  * Create a OGRLayerProxy from an existing OGRLayer
  */
-OGRLayerProxy::OGRLayerProxy(string layer_name, OGRLayer* _layer,
-                             GdaConst::DataSourceType _ds_type, bool isNew)
-: n_rows(0), n_cols(0), name(layer_name), ds_type(_ds_type), layer(_layer),
+OGRLayerProxy::OGRLayerProxy(string layer_name,
+                             OGRLayer* _layer,
+                             GdaConst::DataSourceType _ds_type,
+                             bool isNew)
+: n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type), layer(_layer),
 load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount();
@@ -365,49 +367,63 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 void
 OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                            TableInterface* table,
-                           map<wxString, pair<int, int> >& field_dict,
                            vector<int>& selected_rows)
 {
     export_progress = 0;
     stop_exporting = false;
-	map<wxString, pair<int, int> >::iterator field_it;
 
+    // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
-        if (stop_exporting) return;
+        if (stop_exporting) {
+            return;
+        }
         OGRFeature *poFeature = OGRFeature::CreateFeature(featureDefn);
         if ( !geometries.empty()) {
             poFeature->SetGeometryDirectly( geometries[i] );
         }
         data.push_back(poFeature);
     }
+    
     int export_size = data.size()==0 ? table->GetNumberRows() : data.size();
     export_progress = export_size / 4;
     
-    // set other data
+    // Fill the feature with content
     if (table != NULL) {
+        // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
+            
             wxString fname = fields[j]->GetName();
-            pair<int, int> field_idn = field_dict[fname];
-            int col_pos = field_idn.first;
-            int time_step = field_idn.second;
-            GdaConst::FieldType ftype = table->GetColType(col_pos, time_step);
+            GdaConst::FieldType ftype = fields[j]->GetType();
+           
+            // get underneath column position (no group and time =0)
+            int col_pos = table->GetColIdx(fname);
+            int time_step = 0;
+            
             if ( ftype == GdaConst::long64_type) {
+                
                 vector<wxInt64> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     data[k]->SetField(j, (GIntBig)(col_data[selected_rows[k]]));
                     if (stop_exporting) return;
                 }
+                
             } else if (ftype == GdaConst::double_type) {
+                
                 vector<double> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     data[k]->SetField(j, col_data[ selected_rows[k] ]);
                     if (stop_exporting) return;
                 }
+                
             } else if (ftype == GdaConst::date_type) {
+                
                 vector<wxInt64> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     wxInt64 val = col_data[ selected_rows[k] ];
                     int year    = val/10000;
@@ -416,21 +432,25 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     data[k]->SetField(j, year, month, day);
                     if (stop_exporting) return;
                 }
+                
             } else if (ftype == GdaConst::placeholder_type) {
                 // KML case: there are by default two fields:
                 // [Name, Description], so if placeholder that
                 // means table is empty. Then do nothing
+                
             } else {
                 // others are treated as string_type
                 // XXX encodings
                 vector<wxString> col_data;
                 table->GetColData(col_pos, time_step, col_data);
+                
                 if (ds_type == GdaConst::ds_csv) {
                     for (int m=0; m<col_data.size(); m++) {
                         if (col_data[m].IsEmpty())
                             col_data[m] = " ";
                     }
                 }
+                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     data[k]->SetField(j, col_data[ selected_rows[k] ].mb_str());
                     if (stop_exporting) return;
