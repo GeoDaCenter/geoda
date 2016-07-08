@@ -135,7 +135,6 @@ public:
      */
     void AddFeatures(std::vector<OGRGeometry*>& geometries,
                      TableInterface* table,
-                     std::map<wxString, std::pair<int, int> >& field_dict,
                      std::vector<int>& selected_rows);
 	/**
 	 * Read geometries and save to Shapefile::Main data structure.

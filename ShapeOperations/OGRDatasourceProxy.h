@@ -119,7 +119,6 @@ public:
                                OGRwkbGeometryType eGType,
                                vector<OGRGeometry*>& geometries,
                                TableInterface* table,
-                               map<wxString, pair<int, int> >& field_dict,
                                vector<int>& selected_rows,
                                OGRSpatialReference* spatial_ref);
     
