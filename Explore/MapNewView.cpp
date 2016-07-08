@@ -1731,6 +1731,10 @@ void MapFrame::OnCopyImageToClipboard(wxCommandEvent& event)
     
     wxMemoryDC dc;
     dc.SelectObject( bitmap );
+
+	dc.SetBrush(template_canvas->canvas_background_color);
+    dc.DrawRectangle(wxPoint(0,0), sz);
+
     if (((MapCanvas*) template_canvas)->isDrawBasemap) {
         dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
     }
@@ -1754,8 +1758,8 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     LOG_MSG("Entering TemplateFrame::ExportImage");
     
     wxString default_fname(project->GetProjectTitle() + type);
-    wxString filter("PNG|*.png");
-    int filter_index = 0;
+	wxString filter("BMP|*.bmp|PNG|*.png");
+    int filter_index = 1;
     //
     wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
                         default_fname, filter,
@@ -1770,20 +1774,49 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     wxString str_fname = fname.GetPathWithSep() + fname.GetName();
     
     switch (dialog.GetFilterIndex()) {
-            
         case 0:
+		{
+			LOG_MSG("BMP selected");
+			wxBitmap bitmap( sz.x, sz.y );
+			wxMemoryDC dc;
+			dc.SelectObject(bitmap);
+
+			//dc.SetBrush(template_canvas->canvas_background_color);
+			//dc.DrawRectangle(wxPoint(0,0), sz);
+
+			if (((MapCanvas*) template_canvas)->isDrawBasemap) {
+                dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
+            }
+            dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
+            dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
+            dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0, true);
+			dc.SelectObject( wxNullBitmap );
+			
+			wxImage image = bitmap.ConvertToImage();
+			
+			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
+				wxMessageBox("GeoDa was unable to save the file.");
+			}			
+			image.Destroy();
+		}
+			break;
+        case 1:
         {
             LOG_MSG("PNG selected");
             wxBitmap bitmap( sz.x, sz.y );
-            wxMemoryDC dc;
-            dc.SelectObject(bitmap);
+            wxMemoryDC dc(bitmap);
+            //dc.SelectObject(bitmap);
+
+			dc.SetBrush(template_canvas->canvas_background_color);
+			dc.DrawRectangle(wxPoint(0,0), sz);
+
             if (((MapCanvas*) template_canvas)->isDrawBasemap) {
                 dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
             }
             dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
             dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
             dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0, true);
-            dc.SelectObject( wxNullBitmap );
+            //dc.SelectObject( wxNullBitmap );
             
             wxImage image = bitmap.ConvertToImage();
             
