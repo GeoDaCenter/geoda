@@ -326,7 +326,6 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                                 OGRwkbGeometryType eGType,
                                 vector<OGRGeometry*>& geometries,
                                 TableInterface* table,
-                                map<wxString, pair<int, int> >& field_dict,
                                 vector<int>& selected_rows,
                                 OGRSpatialReference* spatial_ref)
 {
@@ -342,7 +341,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     
     // PRECISION is for database e.g. MSSQL
     // LAUNDER is for database: rename desired field name
-    char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=no"};
+    char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
     
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(), poOutputSRS, eGType, papszLCO);
     
@@ -361,49 +360,46 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
         table->FillColIdMap(col_id_map);
         
         int time_steps = table->GetTimeSteps();
+        
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
+            
             for ( int t=0; t < time_steps; t++ ) {
+                
                 wxString fname = table->GetColName(col_id_map[id], t);
                 if (fname.empty()) {
                     error_message << "Can't create layer \"" << layer_name
                     << "\" with empty field name.";
                     throw GdaException(error_message.str().c_str());
                 }
-                field_it = field_dict.find(fname);
-                if (field_it == field_dict.end()) {
-                    // a unique field
-                    OGRFieldType ogr_type;
-                    int ogr_fwidth            = table->GetColLength(col_id_map[id], t);
-                    int ogr_fprecision        = table->GetColDecimals(col_id_map[id], t);
-                    GdaConst::FieldType ftype = table->GetColType(col_id_map[id], t);
-                    if (ftype == GdaConst::string_type){
-                        ogr_type = OFTString;
-                    } else if (ftype == GdaConst::long64_type){
-                        ogr_type = OFTInteger64;
-                    } else if (ftype == GdaConst::double_type){
-                        ogr_type = OFTReal;
-                    } else if (ftype == GdaConst::date_type){
-                        ogr_type = OFTDate;
-                    } else {
-                        ogr_type = OFTString;
-                    }
-                    OGRFieldDefn oField(fname, ogr_type);
-                    oField.SetWidth(ogr_fwidth);
-                    if ( ogr_fprecision>0 ) {
-                        oField.SetPrecision(ogr_fprecision);
-                    }
-                    if( poDstLayer->CreateField( &oField ) != OGRERR_NONE ) {
-                        error_message << "Creating a field failed.\n\nDetails:" << CPLGetLastErrorMsg();
-                        throw GdaException(error_message.str().c_str());
-                    }
-                    // record in field_dict
-                    field_dict[fname] = make_pair(col_id_map[id], t);
+                
+                OGRFieldType ogr_type;
+                int ogr_fwidth = table->GetColLength(col_id_map[id], t);
+                int ogr_fprecision = table->GetColDecimals(col_id_map[id], t);
+                GdaConst::FieldType ftype = table->GetColType(col_id_map[id], t);
+                if (ftype == GdaConst::string_type){
+                    ogr_type = OFTString;
+                } else if (ftype == GdaConst::long64_type){
+                    ogr_type = OFTInteger64;
+                } else if (ftype == GdaConst::double_type){
+                    ogr_type = OFTReal;
+                } else if (ftype == GdaConst::date_type){
+                    ogr_type = OFTDate;
+                } else {
+                    ogr_type = OFTString;
+                }
+                OGRFieldDefn oField(fname, ogr_type);
+                oField.SetWidth(ogr_fwidth);
+                if ( ogr_fprecision>0 ) {
+                    oField.SetPrecision(ogr_fprecision);
+                }
+                if( poDstLayer->CreateField( &oField ) != OGRERR_NONE ) {
+                    error_message << "Creating a field failed.\n\nDetails:" << CPLGetLastErrorMsg();
+                    throw GdaException(error_message.str().c_str());
                 }
             }
         }
     }
     OGRLayerProxy* layer =  new OGRLayerProxy(poDstLayer, ds_type, eGType);
-    //layer->AddFeatures(geometries, table, field_dict, selected_rows);
     
     layer_pool[layer_name] = layer;
     return layer;

@@ -621,6 +621,16 @@ void GdaConst::init()
 	datasrc_field_illegal_regex[ds_xls] = default_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_xls] = false;
     
+    datasrc_str_to_type["XLSX"] = ds_xlsx;
+    datasrc_type_to_prefix[ds_xlsx] = "";
+    datasrc_type_to_fullname[ds_xlsx] = "Microsoft Excel Extensions";
+    datasrc_table_lens[ds_xlsx] = 128;
+    datasrc_field_lens[ds_xlsx] = 10;
+    datasrc_field_warning[ds_xlsx] = default_field_warning;
+    datasrc_field_regex[ds_xlsx] = default_field_name_regex;
+    datasrc_field_illegal_regex[ds_xlsx] = default_field_name_illegal_regex;
+    datasrc_field_casesensitive[ds_xlsx] = false;
+    
     datasrc_str_to_type["ODS"] = ds_ods;
     datasrc_type_to_prefix[ds_ods] = "";
     datasrc_type_to_fullname[ds_ods] = "Open Office Spreadsheet";

@@ -232,6 +232,9 @@ public:
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
 	
+    virtual void OnCopyImageToClipboard(wxCommandEvent& event);
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
+    
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 	virtual void OnThemelessMap();

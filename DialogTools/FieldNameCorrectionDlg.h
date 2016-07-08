@@ -39,6 +39,9 @@ private:
 	map<wxString, wxString> field_names_dict;
 	map<wxString, bool> field_dict;
 	vector<wxString> merged_field_names;
+    
+    vector<wxString> old_field_names;
+    vector<wxString> new_field_names;
 	
 public:
 	// Variable number of controls
@@ -67,15 +70,18 @@ public:
 	virtual ~ScrolledWidgetsPane();
 	
 	wxString GetSuggestFieldName(const wxString& old_name);
+	wxString GetSuggestFieldName(int field_idx);
 	wxString RenameDupFieldName(const wxString& old_name);
 	wxString RemoveIllegalChars(const wxString& old_name);
 	wxString TruncateFieldName(const wxString& old_name, int max_len=0);
 	bool IsFieldNameValid(const wxString& col_name);
 	
 	map<wxString, wxString> GetMergedFieldNameDict();
+    vector<wxString> GetNewFieldNames();
 
 	void Init(vector<wxString>& merged_field_names,
 						set<wxString>& dup_fname, set<wxString>& bad_fname);
+	void Init(vector<int>& dup_fname_idx_s, vector<int>& bad_fname_idx_s);
 	
 	bool CheckUserInput();
 		
@@ -104,6 +110,10 @@ public:
     
 	map<wxString, wxString> GetMergedFieldNameDict(){ 
         return fieldPane->GetMergedFieldNameDict();
+    }
+    
+    vector<wxString> GetNewFieldNames() {
+        return fieldPane->GetNewFieldNames();
     }
 	
 	void OnOkClick(wxCommandEvent& event);

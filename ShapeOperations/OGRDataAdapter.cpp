@@ -297,7 +297,10 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
     // field identifier: a pair value <column pos, time step> to indicate how to
     // retreive real field name and cell value for time-enabled table
     typedef pair<int, int> field_idn;
-    map<wxString, field_idn> field_dict;
+    
+    vector<field_idn> field_idn_s;
+    vector<wxString> field_name_s;
+    
     
     // check field names first
     if ( table != NULL ) {
@@ -316,7 +319,8 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                         throw GdaException(msg.mb_str(), GdaException::FIELD_NAME_EMPTY);
                     }
                     all_fnames.push_back(fname);
-                    field_dict[fname] = make_pair(id, t);
+                    field_idn_s.push_back(make_pair(id, t));
+                    field_name_s.push_back(fname);
                 }
             } else {
                 wxString fname = table->GetColName(id);
@@ -326,7 +330,8 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                     throw GdaException(msg.mb_str(), GdaException::FIELD_NAME_EMPTY);
                 }
                 all_fnames.push_back(fname);
-                field_dict[fname] = make_pair(id, 0);
+                field_idn_s.push_back(make_pair(id, 0));
+                field_name_s.push_back(fname);
             }
         }
         
@@ -337,24 +342,20 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                 // cancel at Field Name Correction
                 return NULL;
             }
-            // record which field name needs to be updated
-            map<wxString, wxString> modified_field_dict;
-            map<wxString,wxString>::iterator iter;
-            modified_field_dict = fname_correct_dlg.GetMergedFieldNameDict();
-            // update changed fields
-            for (iter = modified_field_dict.begin();
-                 iter != modified_field_dict.end(); ++iter )
-            {
-                wxString old_name = iter->first;
-                wxString new_name = iter->second;
-                if ( old_name == new_name )
+            
+            vector<wxString> new_field_name_s = fname_correct_dlg.GetNewFieldNames();
+            
+            for (size_t i=0; i<new_field_name_s.size(); i++) {
+                wxString new_fname = new_field_name_s[i];
+                
+                if (new_fname == field_name_s[i]) {
+                    // don't have to change field name
                     continue;
-                field_idn fld_id = field_dict[old_name];
-                table->RenameSimpleCol(fld_id.first, fld_id.second, new_name);
+                }
+                field_idn fld_idn = field_idn_s[i];
+                table->RenameSimpleCol(fld_idn.first, fld_idn.second, new_fname);
             }
         }
-        // clean field_dict if any field name changed
-        field_dict.clear();
     }
     
 	// create new OGRLayerProxy
@@ -365,16 +366,16 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
         export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
         new_layer_proxy = export_ds->CreateLayer(
             o_layer_name, geom_type, ogr_geometries, table,
-            field_dict, selected_rows, spatial_ref);
+            selected_rows, spatial_ref);
     } else {
         export_ds = new OGRDatasourceProxy(o_ds_format, o_ds_name);
         new_layer_proxy = export_ds->CreateLayer(
             o_layer_name, geom_type, ogr_geometries, table,
-            field_dict, selected_rows, spatial_ref);
+            selected_rows, spatial_ref);
     }
 
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,
-		new_layer_proxy, ogr_geometries, table, field_dict, selected_rows));
+		new_layer_proxy, ogr_geometries, table, selected_rows));
    
     return new_layer_proxy;
 }
