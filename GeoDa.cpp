@@ -457,6 +457,7 @@ EVT_CHAR_HOOK(GdaFrame::OnKeyEvent)
 
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SHP"), GdaFrame::OnNewProjectFromShp)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SQLITE"), GdaFrame::OnNewProjectFromSqlite)
+EVT_MENU(XRCID("ID_NEW_PROJ_FROM_GPKG"), GdaFrame::OnNewProjectFromGpkg)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_CSV"), GdaFrame::OnNewProjectFromCsv)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_DBF"), GdaFrame::OnNewProjectFromDbf)
 EVT_MENU(XRCID("ID_NEW_PROJ_FROM_GDB"), GdaFrame::OnNewProjectFromGdb)
@@ -1223,6 +1224,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SHP"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SQLITE"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GPKG"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_CSV"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_DBF"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GDB"), !proj_open);
@@ -1870,6 +1872,14 @@ void GdaFrame::OnNewProjectFromSqlite(wxCommandEvent& event)
 {
 	wxString wc = "SQLite/SpatiaLite (*.sqlite)|*.sqlite";
 	wxFileDialog dlg(this,"New Project From SQLite/SpatiaLite", "", "", wc);
+	if (dlg.ShowModal() != wxID_OK) return;
+	NewProjectFromFile(dlg.GetPath());
+}
+
+void GdaFrame::OnNewProjectFromGpkg(wxCommandEvent& event)
+{
+	wxString wc = "GeoPacakge (*.gpkg)|*.gpkg";
+	wxFileDialog dlg(this,"New Project From GeoPackage", "", "", wc);
 	if (dlg.ShowModal() != wxID_OK) return;
 	NewProjectFromFile(dlg.GetPath());
 }

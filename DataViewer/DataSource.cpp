@@ -44,6 +44,7 @@ bool IDataSource::IsWritable(GdaConst::DataSourceType ds_type)
         ds_type == GdaConst::ds_gml ||
         ds_type == GdaConst::ds_mapinfo ||
         ds_type == GdaConst::ds_sqlite ||
+        ds_type == GdaConst::ds_gpkg ||
         ds_type == GdaConst::ds_mysql ||
         ds_type == GdaConst::ds_oci ||
         ds_type == GdaConst::ds_postgresql )
@@ -87,6 +88,8 @@ wxString IDataSource::GetDataTypeNameByExt(wxString ext)
         ds_format = "GeoJSON";
     else if(ext.CmpNoCase("sqlite")==0)
         ds_format = "SQLite";
+    else if(ext.CmpNoCase("gpkg")==0)
+        ds_format = "GPKG";
     else if(ext.CmpNoCase("xls")==0)
         ds_format = "XLS";
     else if(ext.CmpNoCase("xlsx")==0)
@@ -182,6 +185,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
         type == GdaConst::ds_esri_personal_gdb ||
         type == GdaConst::ds_odbc ||
         type == GdaConst::ds_sqlite ||
+        type == GdaConst::ds_gpkg ||
         type == GdaConst::ds_xls ||
         type == GdaConst::ds_xlsx ||
         type == GdaConst::ds_geo_json )

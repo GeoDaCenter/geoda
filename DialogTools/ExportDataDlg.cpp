@@ -326,7 +326,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
         // cases: e.g. sqlite, ESRI FileGDB
 		if (datasource_type == 0) {
 			if (wxFileExists(ds_name)) {
-				if (ds_name.EndsWith(".sqlite")) {
+				if (ds_name.EndsWith(".sqlite") || ds_name.EndsWith(".gpkg")) {
 					// add new layer to existing sqlite
 					is_update = true;
 				} else {
@@ -394,9 +394,13 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 	} catch (GdaException& e) {
         if (e.type() == GdaException::NORMAL)
             return;
+        
         // special clean up for file datasource
         if ( !tmp_ds_name.empty() ) {
-            if ( wxFileExists(tmp_ds_name) && !tmp_ds_name.EndsWith(".sqlite")){
+            if ( wxFileExists(tmp_ds_name) &&
+                !tmp_ds_name.EndsWith(".sqlite") &&
+                !tmp_ds_name.EndsWith(".gpkg") )
+            {
                 wxRemoveFile(ds_name);
                 wxCopyFile(tmp_ds_name, ds_name);
                 wxRemoveFile(tmp_ds_name);

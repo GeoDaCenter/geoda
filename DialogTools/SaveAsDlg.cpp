@@ -122,7 +122,9 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
         ds_type != GdaConst::ds_geo_json &&
         ds_type != GdaConst::ds_mapinfo &&
         ds_type != GdaConst::ds_sqlite &&
-        ds_type != GdaConst::ds_csv) {
+        ds_type != GdaConst::ds_gpkg &&
+        ds_type != GdaConst::ds_csv)
+    {
         msg << "Save is not supported on current data source type: "
         << ds_format << ". Please try to use \"File->Save As\" other data source. "
         << "However, the project file can still be saved as other project file.";
