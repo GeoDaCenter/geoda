@@ -60,6 +60,7 @@ void DatasourceDlg::Init()
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
                  "GeoJSON (*.geojson)|*.geojson|"
                  "GeoJSON (*.json)|*.json");
+    ds_names.Add("GeoPackage (*.gpkg)|*.gpkg");
     ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
 
     if( GeneralWxUtils::isWindows()){

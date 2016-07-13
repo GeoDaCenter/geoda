@@ -290,6 +290,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 		// a special case: sqlite is a file based database, so we need to get
 		// avalible layers and prompt for user selecting
         if (datasource->GetType() == GdaConst::ds_sqlite ||
+            datasource->GetType() == GdaConst::ds_gpkg||
             datasource->GetType() == GdaConst::ds_osm ||
             datasource->GetType() == GdaConst::ds_esri_personal_gdb||
             datasource->GetType() == GdaConst::ds_esri_file_geodb)

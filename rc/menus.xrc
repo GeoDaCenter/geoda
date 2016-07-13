@@ -11,6 +11,9 @@
 		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_SQLITE">
           <label>SQLite/SpatialLite (*.sqlite)</label>
 		</object>
+		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_GPKG">
+          <label>GeoPackage (*.gpkg)</label>
+		</object>
 		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_CSV">
           <label>Comma Separated Value (*.csv)</label>
 		</object>

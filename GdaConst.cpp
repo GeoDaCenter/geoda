@@ -600,6 +600,16 @@ void GdaConst::init()
 	datasrc_field_illegal_regex[ds_sqlite] = wxEmptyString;
 	datasrc_field_casesensitive[ds_sqlite] = true;
 	
+	datasrc_str_to_type["GPKG"] = ds_gpkg;
+	datasrc_type_to_prefix[ds_gpkg] = "";
+	datasrc_type_to_fullname[ds_gpkg] = "GeoPackage";
+	datasrc_table_lens[ds_gpkg] = 128;
+	datasrc_field_lens[ds_gpkg] = 128;
+	datasrc_field_warning[ds_gpkg] = no_field_warning;
+	datasrc_field_regex[ds_gpkg] = wxEmptyString;
+	datasrc_field_illegal_regex[ds_gpkg] = wxEmptyString;
+	datasrc_field_casesensitive[ds_gpkg] = true;
+    
 	datasrc_str_to_type["WFS"] = ds_wfs;
 	datasrc_type_to_prefix[ds_wfs] = "WFS:";
 	datasrc_type_to_fullname[ds_wfs] = "OGC Web Feature Service";
@@ -670,23 +680,29 @@ void GdaConst::init()
 	for (ds_fld_map::iterator it=datasrc_req_flds.begin();
 			 it != datasrc_req_flds.end(); it++) {
 		DataSourceType type = it->first;
-		if (type == ds_esri_file_geodb || type == ds_csv || type == ds_dbf ||
-				type == ds_gml || type == ds_kml || type == ds_mapinfo ||
-				type == ds_shapefile || type == ds_sqlite || type == ds_xls ||
-				type == ds_geo_json || type == ds_osm) {
+		if (type == ds_esri_file_geodb || type == ds_csv ||
+            type == ds_dbf || type == ds_gml ||
+            type == ds_kml || type == ds_mapinfo ||
+            type == ds_shapefile || type == ds_sqlite ||
+            type == ds_gpkg || type == ds_xls ||
+            type == ds_geo_json || type == ds_osm)
+        {
 			// These are simple files, and a file name must be supplied
 			it->second.insert("file");
 		} else if (type == ds_esri_arc_obj || type == ds_esri_personal_gdb ||
-							 type == ds_esri_arc_sde || type == ds_mysql ||
-							 type == ds_ms_sql || type == ds_oci || type == ds_odbc) {
+                   type == ds_esri_arc_sde || type == ds_mysql ||
+                   type == ds_ms_sql || type == ds_oci || type == ds_odbc)
+        {
 			it->second.insert("user");
 			it->second.insert("pwd");
 			it->second.insert("host");
 			it->second.insert("port");
 			it->second.insert("db_name");
 		} else if ( type == ds_wfs) {
+            
 			it->second.insert("url");
 		} else if (type == ds_postgresql) {
+            
 			it->second.insert("db_name");
 		}
 	}
