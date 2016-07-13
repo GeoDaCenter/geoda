@@ -148,7 +148,10 @@ public:
     
     virtual IDataSource* Clone();
     
-    virtual bool IsFileDataSource() { return ds_type == GdaConst::ds_sqlite ? false : true;}
+    virtual bool IsFileDataSource() {
+        return ds_type == GdaConst::ds_sqlite || ds_type == GdaConst::ds_gpkg ? false : true;
+    }
+    
     /**
      * Return file path.
      */

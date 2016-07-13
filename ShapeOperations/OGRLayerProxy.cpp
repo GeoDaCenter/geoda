@@ -596,8 +596,11 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
 {
     // NOTE: OGR/GDAL 2.0 is still implementing addGeomField feature.
     // So, we only support limited datasources for adding geometries.
-    if ( !(ds_type == GdaConst::ds_geo_json || ds_type == GdaConst::ds_gml
-           || ds_type == GdaConst::ds_kml || ds_type == GdaConst::ds_sqlite) )
+    if ( !(ds_type == GdaConst::ds_geo_json ||
+           ds_type == GdaConst::ds_gml ||
+           ds_type == GdaConst::ds_kml ||
+           ds_type == GdaConst::ds_sqlite ||
+           ds_type == GdaConst::ds_gpkg) )
     {
         return false;
     }
