@@ -99,6 +99,7 @@ public:
 	void OnNewProject(wxCommandEvent& event);
 	void OnNewProjectFromShp(wxCommandEvent& event);
 	void OnNewProjectFromSqlite(wxCommandEvent& event);
+	void OnNewProjectFromGpkg(wxCommandEvent& event);
 	void OnNewProjectFromCsv(wxCommandEvent& event);
 	void OnNewProjectFromDbf(wxCommandEvent& event);
 	void OnNewProjectFromGdb(wxCommandEvent& event);
