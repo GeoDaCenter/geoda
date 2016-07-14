@@ -316,7 +316,7 @@ void GeoDaWebProxy::doGet(string& parameter)
         // Grab image 
         res = curl_easy_perform(curl);
         if( res ) {
-            printf("Cannot connect cartodb.com!\n");
+            printf("Cannot connect carto.com!\n");
         } 
         
         int res_code = 0;
@@ -359,7 +359,7 @@ string GeoDaWebProxy::doPost(const string& _parameter)
 		 
         res = curl_easy_perform(curl);
         if( res ) {
-            printf("Cannot connect cartodb.com!\n");
+            printf("Cannot connect carto.com!\n");
         } 
         
         int res_code = 0;
