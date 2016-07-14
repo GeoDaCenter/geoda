@@ -2273,19 +2273,19 @@
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_BASEMAP_1">
-              <label>CartoDB Light</label>
+              <label>Carto Light</label>
               <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_BASEMAP_2">
-              <label>CartoDB Dark</label>
+              <label>Carto Dark</label>
               <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_BASEMAP_3">
-              <label>CartoDB Light (No Labels)</label>
+              <label>Carto Light (No Labels)</label>
               <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_BASEMAP_4">
-              <label>CartoDB Dark (No Labels)</label>
+              <label>Carto Dark (No Labels)</label>
               <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_BASEMAP_5">
@@ -2329,19 +2329,19 @@
 	  </object>
 	  <object class="separator"/>
 	  <object class="wxMenuItem" name="ID_BASEMAP_1">
-		  <label>CartoDB Light</label>
+		  <label>Carto Light</label>
 		  <checkable>1</checkable>
 	  </object>
 	  <object class="wxMenuItem" name="ID_BASEMAP_2">
-		  <label>CartoDB Dark</label>
+		  <label>Carto Dark</label>
 		  <checkable>1</checkable>
 	  </object>
 	  <object class="wxMenuItem" name="ID_BASEMAP_3">
-		  <label>CartoDB Light (No Labels)</label>
+		  <label>Carto Light (No Labels)</label>
 		  <checkable>1</checkable>
 	  </object>
 	  <object class="wxMenuItem" name="ID_BASEMAP_4">
-		  <label>CartoDB Dark (No Labels)</label>
+		  <label>Carto Dark (No Labels)</label>
 		  <checkable>1</checkable>
 	  </object>
 	  <object class="wxMenuItem" name="ID_BASEMAP_5">
