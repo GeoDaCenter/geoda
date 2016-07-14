@@ -663,10 +663,10 @@ IDataSource* ExportDataDlg::GetDatasource()
         std::string key(m_cartodb_key->GetValue().Trim().mb_str());
         
         if (user.empty()) {
-            throw GdaException("Please input CartoDB User Name.");
+            throw GdaException("Please input Carto User Name.");
         }
         if (key.empty()) {
-            throw GdaException("Please input CartoDB App Key.");
+            throw GdaException("Please input Carto App Key.");
         }
         
         CPLSetConfigOption("CARTODB_API_KEY", key.c_str());

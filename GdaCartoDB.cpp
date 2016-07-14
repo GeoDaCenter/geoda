@@ -164,7 +164,7 @@ void CartoDBProxy::_doGet(string parameter)
         // Grab image 
         res = curl_easy_perform(curl);
         if( res ) {
-            printf("Cannot connect cartodb.com!\n");
+            printf("Cannot connect carto.com!\n");
         } 
         
         int res_code = 0;

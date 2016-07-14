@@ -7362,13 +7362,13 @@
                     </object>
                     <object class="sizeritem">
                       <object class="wxStaticText">
-                        <label>Get a free CartoDB account: </label>
+                        <label>Get a free Carto account: </label>
                       </object>
                     </object>
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                       <object class="wxHyperlinkCtrl">
-                        <url>https://www.cartodb.com/</url>
+                        <url>https://www.carto.com/</url>
                       </object>
                     </object>
                     <object class="sizeritem">
@@ -7383,7 +7383,7 @@
               </object>
               
             </object>
-            <label>CartoDB</label>
+            <label>Carto</label>
           </object>
           <size>560,340</size>
         </object>
@@ -7787,13 +7787,13 @@
                     </object>
                     <object class="sizeritem">
                       <object class="wxStaticText">
-                        <label>Get a free CartoDB account: </label>
+                        <label>Get a free Carto account: </label>
                       </object>
                     </object>
                     <orient>wxHORIZONTAL</orient>
                     <object class="sizeritem">
                       <object class="wxHyperlinkCtrl">
-                        <url>https://www.cartodb.com/</url>
+                        <url>https://www.carto.com/</url>
                       </object>
                     </object>
                     <object class="sizeritem">
@@ -7808,7 +7808,7 @@
               </object>
               
             </object>
-            <label>CartoDB</label>
+            <label>Carto</label>
           </object>
           
           <size>580,340</size>
