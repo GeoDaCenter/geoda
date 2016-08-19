@@ -1067,7 +1067,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
 }
 
 bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
-							   const wxString& layer_name, 
+							   const wxString& _layer_name,
 							   const wxString& ofname,
 							   const wxString& vname,
 							   const std::vector<wxInt64>& id_vec)  
@@ -1077,7 +1077,7 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
 	if (!W) return false;
 	const GwtElement* g = W->gwt;
 	size_t num_obs = W->num_obs;
-    if (!g || layer_name.IsEmpty() || ofname.IsEmpty()
+    if (!g || _layer_name.IsEmpty() || ofname.IsEmpty()
 		|| id_vec.size() == 0 || num_obs != id_vec.size()) return false;
 
     wxFileName gwtfn(ofname);
@@ -1087,6 +1087,13 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
 	out.open(GET_ENCODED_FILENAME(gwt_ofn));
     if (!(out.is_open() && out.good())) return false;
 
+    wxString layer_name(_layer_name);
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
     out << "0" << " " << num_obs << " " << layer_name;
     out << " " << vname.mb_str() << endl;
     
