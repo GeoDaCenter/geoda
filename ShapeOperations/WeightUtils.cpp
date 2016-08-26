@@ -144,8 +144,22 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
         num2_str.ToLongLong(&num2);
         
     } else {
-    
-    	ss >> num1 >> num2 >> dbf_name >> t_key_field;
+        
+        wxString num1_str = header.BeforeFirst(' ');
+        
+        header = header.AfterFirst(' ');
+        
+        wxString num2_str = header.BeforeFirst(' ');
+        
+        header = header.AfterFirst(' ');
+        
+        dbf_name = header.BeforeFirst(' ');
+        
+        t_key_field = header.AfterFirst(' ');
+        
+        
+        num1_str.ToLongLong(&num1);
+        num2_str.ToLongLong(&num2);
     }
     
     
