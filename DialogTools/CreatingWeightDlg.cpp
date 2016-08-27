@@ -191,8 +191,16 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 	if (dlg.ShowModal() == wxID_OK) {
     	
 		// We know that the new id has been added to the the table in memory
-		m_id_field->Insert(dlg.GetIdVarName(), 0);
+        //wxString new_id = dlg.GetIdVarName();
+		//m_id_field->Insert(new_id, 0);
+		//m_id_field->SetSelection(0);
+        
+    	col_id_map.clear();
+    	table_int->FillColIdMap(col_id_map);
+    	
+    	InitFields();
 		m_id_field->SetSelection(0);
+        
 		EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
 		EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND) && !project->IsTableOnlyProject());
 		UpdateCreateButtonState();
@@ -653,8 +661,8 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	}
 	if (v1 != wxEmptyString || v2 != wxEmptyString) {
 		if (v1 != wxEmptyString) {
-			int x_sel = (project->IsTableOnlyProject() ? 
-									 m_X->GetSelection() : m_X->GetSelection()-2);
+            // minus 2 is for <X-Centroids> and <X-Mean> selection options in Dropdown
+			int x_sel = (project->IsTableOnlyProject() ? m_X->GetSelection() : m_X->GetSelection()-2);
 			int col_id = col_id_map[x_sel];
 			int tm = 0;
 			dist_tm_1 = -1;
@@ -666,8 +674,7 @@ void CreatingWeightDlg::UpdateThresholdValues()
 			table_int->GetColData(col_id, tm, m_XCOO);
 		}
 		if (v2 != wxEmptyString) {
-			int y_sel = (project->IsTableOnlyProject() ? 
-									 m_Y->GetSelection() : m_Y->GetSelection()-2);
+			int y_sel = (project->IsTableOnlyProject() ? m_Y->GetSelection() : m_Y->GetSelection()-2);
 			int col_id = col_id_map[y_sel];
 			int tm = 0;
 			dist_tm_2 = -1;
