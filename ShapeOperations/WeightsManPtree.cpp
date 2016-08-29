@@ -266,7 +266,7 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 										  WeightsMetaInfo::WT_rook ? "rook"
 										  : "queen"));
 				sssub.put("order", e.wmi.order);
-				if (e.wmi.inc_lower_orders) {
+				if (e.wmi.inc_lower_orders == true) {
 					sssub.put("inc_lower_orders", "true");
 				} else {
 					sssub.put("inc_lower_orders", "false");

@@ -30,7 +30,7 @@ void WeightsMetaInfo::SetToDefaults()
 	filename = "";
 	sym_type = SYM_unknown;
 	order = 1;
-	inc_lower_orders = true;
+	inc_lower_orders = false;
 	dist_metric = DM_unspecified;
 	dist_units = DU_unspecified;
 	dist_values = DV_unspecified;
@@ -57,7 +57,8 @@ void WeightsMetaInfo::SetToRook(const wxString& idv,
 	sym_type = SYM_symmetric;
 	order = order_;
 	inc_lower_orders = inc_lower_orders_;
-	if (order < 2) inc_lower_orders = true;
+	//if (order < 2)
+    //    inc_lower_orders = true;
 }
 
 void WeightsMetaInfo::SetToQueen(const wxString& idv,
@@ -69,7 +70,8 @@ void WeightsMetaInfo::SetToQueen(const wxString& idv,
 	sym_type = SYM_symmetric;
 	order = order_;
 	inc_lower_orders = inc_lower_orders_;
-	if (order < 2) inc_lower_orders = true;
+	//if (order < 2)
+    //    inc_lower_orders = true;
 }
 
 void WeightsMetaInfo::SetToThres(const wxString& idv,
