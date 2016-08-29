@@ -181,8 +181,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 	size_t pc = 0;
 	for (size_t i=0; i<nobs; ++i) {
 		for (size_t j=i+1; j<nobs; ++j) {
-			double d = (is_arc ? ComputeArcDistRad(pts[i].x, pts[i].y,
-																						 pts[j].x, pts[j].y) :
+			double d = (is_arc ? ComputeArcDistRad(pts[i].x, pts[i].y,pts[j].x, pts[j].y) :
 						ComputeEucDist(pts[i].x, pts[i].y, pts[j].x, pts[j].y));
 			if (d < min_d) {
 				min_d = d;
@@ -190,7 +189,8 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 				max_d = d;
 			}
 			Zdist[pc] = d;
-			if (calc_prods) Zprod[pc] = (Z[i]-mean)*(Z[j]-mean)/var;
+			if (calc_prods)
+                Zprod[pc] = (Z[i]-mean)*(Z[j]-mean)/var;
 			++pc;
 		}
 	}
@@ -214,6 +214,11 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 
 	size_t ta_cnt = 0;
 	for (size_t i=0, sz=Zdist.size(); i<sz; ++i) {
+        if (wxIsNaN(Zdist[i])) {
+            // todo something wrong here, Zdist value is NaN
+            continue;
+        }
+        
 		int b = (int) (Zdist[i]/binw);
 		if (b >= num_bins) {
 			b=num_bins-1;

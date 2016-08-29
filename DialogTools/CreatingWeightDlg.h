@@ -154,7 +154,9 @@ private:
 	WeightsMetaInfo::DistanceMetricEnum dist_metric;
 	WeightsMetaInfo::DistanceUnitsEnum dist_units;
 	WeightsMetaInfo::DistanceValuesEnum dist_values;
-	
+
+    wxString dist_units_str;
+    
 	wxString dist_var_1;
 	long dist_tm_1;
 	wxString dist_var_2;

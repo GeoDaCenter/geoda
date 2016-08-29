@@ -1320,6 +1320,9 @@ bool Project::CommonProjectInit()
     
     // convert projection to WGS84 by default if there is projection
     sourceSR = GetSpatialReference();
+    if (sourceSR ) {
+        project_unit = sourceSR->GetAttrValue("UNIT");
+    }
 	
 	// Initialize various managers
 	frames_manager = new FramesManager;

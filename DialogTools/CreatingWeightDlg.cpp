@@ -304,17 +304,18 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 		{
 			GwtWeight* Wp = 0;
 			double t_val = m_threshold_val;
-			if (t_val <= 0) t_val = std::numeric_limits<float>::min();
-			wmi.SetToThres(id, dist_metric, dist_units, dist_values,
-										 t_val, dist_var_1, dist_tm_1,
-										 dist_var_2, dist_tm_2);
+            if (t_val <= 0) {
+                t_val = std::numeric_limits<float>::min();
+            }
+			wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+            
 			if (m_is_arc && m_arc_in_km) {
 				t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
 			}
+            
 			if (t_val > 0) {
 				using namespace SpatialIndAlgs;
-				Wp = thresh_build(m_XCOO, m_YCOO, t_val * m_thres_delta_factor,
-													m_is_arc, !m_arc_in_km);
+				Wp = thresh_build(m_XCOO, m_YCOO, t_val * m_thres_delta_factor, m_is_arc, !m_arc_in_km);
 				if (!Wp || !Wp->gwt) {
 					wxString m;
 					m << "No weights file was created due to all observations ";
@@ -335,15 +336,20 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			
 		case KNN: // k nn
 		{
-			wmi.SetToKnn(id, dist_metric, dist_units, dist_values, m_kNN, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+			wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values, m_kNN, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+            
 			if (m_kNN > 0 && m_kNN < m_num_obs) {
 				GwtWeight* Wp = 0;
 				Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, dist_metric == WeightsMetaInfo::DM_arc, dist_units == WeightsMetaInfo::DU_mile);
-				if (!Wp->gwt) return;
+                
+				if (!Wp->gwt)
+                    return;
                 Wp->id_field = id;
+                
 				WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
 				if (Wp) delete Wp;
 				done = true;
+                
 			} else {
 				wxString s;
 				s << "Error: Maximum number of neighbors " << m_num_obs-1;
@@ -921,7 +927,8 @@ void CreatingWeightDlg::InitDlg()
 	m_thres_val_valid = false;
 	m_threshold_val = 0.01;
 	dist_metric = WeightsMetaInfo::DM_euclidean;
-	dist_units = WeightsMetaInfo::DU_mile;
+	dist_units = WeightsMetaInfo::DU_unspecified;
+    dist_units_str = project->project_unit;
 	dist_values = WeightsMetaInfo::DV_centroids;
 	dist_var_1 = "";
 	dist_tm_1 = -1;
@@ -1062,7 +1069,12 @@ void CreatingWeightDlg::SetDistChoiceEuclid(bool update_sel)
 	m_arc_in_km = false;
 	
 	dist_metric = WeightsMetaInfo::DM_euclidean;
-	dist_units = WeightsMetaInfo::DU_mile;
+    
+    // note: the projection information can be used (after version 1.8.10)
+    // to read the UNIT meta data.
+    dist_units_str = project->project_unit;
+    
+    dist_units = WeightsMetaInfo::DU_unspecified;
 }
 
 void CreatingWeightDlg::SetDistChoiceArcMiles(bool update_sel)

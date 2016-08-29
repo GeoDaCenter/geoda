@@ -197,6 +197,7 @@ public:
 	/// main_data is the only public remaining attribute in Project
 	Shapefile::Main main_data;
     OGRSpatialReference* sourceSR;
+    wxString project_unit;
 	
 	// ".gda" project file data
 	wxString layer_title; // optional project::layers::layer::title field

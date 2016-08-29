@@ -174,12 +174,9 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.dist_units = WeightsMetaInfo::DU_km;
 								} else if (s == "mile") {
 									e.wmi.dist_units = WeightsMetaInfo::DU_mile;
-								} else if (s == "unspecified" || s.IsEmpty()) {
+                                } else {
 									e.wmi.dist_units = WeightsMetaInfo::DU_unspecified;
-								} else {
-									wxString msg("unrecognized value: ");
-									msg << s << " for key: " << key;
-									throw GdaException(msg.mb_str());
+                                    e.wmi.dist_units_str = s;
 								}
 							} else if (key == "dist_values") {
 								wxString s = v.second.data();
@@ -289,7 +286,9 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 					sssub.put("dist_units", "km");
 				} else if (e.wmi.dist_units == WeightsMetaInfo::DU_mile) {
 					sssub.put("dist_units", "mile");
-				}
+                } else if (e.wmi.dist_units == WeightsMetaInfo::DU_unspecified) {
+                    sssub.put("dist_units", e.wmi.dist_units_str);
+                }
 				if (e.wmi.dist_values == WeightsMetaInfo::DV_centroids) {
 					sssub.put("dist_values", "centroids");
 				} else if (e.wmi.dist_values ==
