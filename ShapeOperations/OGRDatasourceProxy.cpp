@@ -338,6 +338,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     }
     
     OGRSpatialReference *poOutputSRS = spatial_ref;
+   
     
     // PRECISION is for database e.g. MSSQL
     // LAUNDER is for database: rename desired field name
