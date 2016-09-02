@@ -366,7 +366,7 @@ int OGRTable::FindColId(const wxString& name)
 }
 
 
-int OGRTable::GetColIdx(const wxString& name)
+int OGRTable::GetColIdx(const wxString& name, bool ignore_case)
 {
     wxString c_name = name;
     c_name.Trim(false);
@@ -374,6 +374,7 @@ int OGRTable::GetColIdx(const wxString& name)
    
     // update it if different in real data. E.g. user may create a column
     // with name in lowercase, however, it is forced to uppercase in real table
+    // or in postgresql, all table name will be created in lower case
    
     /*
     // deprecated in 1.8.8
@@ -385,8 +386,14 @@ int OGRTable::GetColIdx(const wxString& name)
     }
      */
     for (size_t i=0; i<org_var_names.size(); i++) {
-        if (name == org_var_names[i])
-            return i;
+        if (ignore_case) {
+            if (name.Upper() == org_var_names[i].Upper())
+                return i;
+            
+        } else {
+            if (name == org_var_names[i])
+                return i;
+        }
     }
     return -1;
 }

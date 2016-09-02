@@ -209,7 +209,7 @@ std::vector<wxString> TableInterface::GetGroupNames()
 }
 
 
-int TableInterface::GetColIdx(const wxString& name)
+int TableInterface::GetColIdx(const wxString& name, bool ignore_case)
 {
     return -1;
 }

@@ -230,7 +230,7 @@ public:
      *
      */
     virtual std::vector<wxString> GetGroupNames();
-    virtual int GetColIdx(const wxString& name);
+    virtual int GetColIdx(const wxString& name, bool ignore_case=false);
     
 	/** Sets encoding of string column data.  Can possibly use for data base
 	 * column name encoding, but for now remain more restrictive */

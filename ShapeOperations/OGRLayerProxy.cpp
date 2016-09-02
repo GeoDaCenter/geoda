@@ -386,6 +386,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
     
     int export_size = data.size()==0 ? table->GetNumberRows() : data.size();
     export_progress = export_size / 4;
+   
+    bool ignore_case = false;
+    
+    if (ds_type == GdaConst::ds_postgresql) {
+        ignore_case = true;
+    }
     
     // Fill the feature with content
     if (table != NULL) {
@@ -396,7 +402,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             GdaConst::FieldType ftype = fields[j]->GetType();
            
             // get underneath column position (no group and time =0)
-            int col_pos = table->GetColIdx(fname);
+            int col_pos = table->GetColIdx(fname, ignore_case);
             int time_step = 0;
             
             if ( ftype == GdaConst::long64_type) {
