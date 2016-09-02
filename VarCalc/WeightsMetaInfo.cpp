@@ -30,7 +30,7 @@ void WeightsMetaInfo::SetToDefaults()
 	filename = "";
 	sym_type = SYM_unknown;
 	order = 1;
-	inc_lower_orders = true;
+	inc_lower_orders = false;
 	dist_metric = DM_unspecified;
 	dist_units = DU_unspecified;
 	dist_values = DV_unspecified;
@@ -57,7 +57,8 @@ void WeightsMetaInfo::SetToRook(const wxString& idv,
 	sym_type = SYM_symmetric;
 	order = order_;
 	inc_lower_orders = inc_lower_orders_;
-	if (order < 2) inc_lower_orders = true;
+	//if (order < 2)
+    //    inc_lower_orders = true;
 }
 
 void WeightsMetaInfo::SetToQueen(const wxString& idv,
@@ -69,12 +70,14 @@ void WeightsMetaInfo::SetToQueen(const wxString& idv,
 	sym_type = SYM_symmetric;
 	order = order_;
 	inc_lower_orders = inc_lower_orders_;
-	if (order < 2) inc_lower_orders = true;
+	//if (order < 2)
+    //    inc_lower_orders = true;
 }
 
 void WeightsMetaInfo::SetToThres(const wxString& idv,
 								 DistanceMetricEnum dist_metric_,
 								 DistanceUnitsEnum dist_units_,
+                                 wxString dist_units_str_,
 								 DistanceValuesEnum dist_values_,
 								 double threshold_val_,
 								 wxString dist_var1_, long dist_tm1_,
@@ -86,6 +89,7 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
 	sym_type = SYM_symmetric;
 	dist_metric = dist_metric_;
 	dist_units = dist_units_;
+    dist_units_str = dist_units_str_;
 	dist_values = dist_values_;
 	threshold_val = threshold_val_;
 	if (!dist_var1_.IsEmpty()) {
@@ -101,6 +105,7 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
 void WeightsMetaInfo::SetToKnn(const wxString& idv,
 							   DistanceMetricEnum dist_metric_,
 							   DistanceUnitsEnum dist_units_,
+                               wxString dist_units_str_,
 							   DistanceValuesEnum dist_values_,
 							   long k,
 							   wxString dist_var1_, long dist_tm1_,
@@ -112,6 +117,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
 	sym_type = SYM_asymmetric;
 	dist_metric = dist_metric_;
 	dist_units = dist_units_;
+    dist_units_str = dist_units_str_;
 	dist_values = dist_values_;
 	num_neighbors = k;
 	if (!dist_var1_.IsEmpty()) {
@@ -224,8 +230,14 @@ wxString WeightsMetaInfo::DistUnitsToStr() const
 		return "km";
 	} else if (dist_units == DU_mile) {
 		return "mile";
-	}
-	return "unspecified";
+    } else  {
+        // dist_units == DU_unspecified
+        if (!dist_units_str.IsEmpty()) {
+            return dist_units_str;
+        } else {
+            return "unspecified";
+        }
+    }
 }
 
 

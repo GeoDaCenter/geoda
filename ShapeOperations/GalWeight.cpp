@@ -246,6 +246,12 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     ofstream out;
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
+  
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
     
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
@@ -313,6 +319,12 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
     
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
     out << " " << id_var_name << endl;
@@ -340,7 +352,7 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: following old style functions should be moved into GalWeight class
 bool Gda::SaveGal(const GalElement* g, 
-									const wxString& layer_name, 
+									const wxString& _layer_name,
 									const wxString& ofname, 
 									const wxString& id_var_name,
 									const std::vector<wxInt64>& id_vec)
@@ -355,7 +367,14 @@ bool Gda::SaveGal(const GalElement* g,
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
 	if (!(out.is_open() && out.good())) return false;
-	
+
+    wxString layer_name(_layer_name);
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
 	out << " " << id_var_name << endl;
@@ -373,7 +392,7 @@ bool Gda::SaveGal(const GalElement* g,
 }
 
 bool Gda::SaveGal(const GalElement* g,
-                  const wxString& layer_name,
+                  const wxString& _layer_name,
                   const wxString& ofname,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
@@ -388,7 +407,14 @@ bool Gda::SaveGal(const GalElement* g,
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
 	if (!(out.is_open() && out.good())) return false;
-	
+
+    wxString layer_name(_layer_name);
+    
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
 	out << " " << id_var_name << endl;
@@ -407,7 +433,7 @@ bool Gda::SaveGal(const GalElement* g,
 
 bool Gda::SaveSpaceTimeGal(const GalElement* g,
                   const std::vector<wxString>& time_ids,
-                  const wxString& layer_name,
+                  const wxString& _layer_name,
                   const wxString& ofname,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
@@ -426,6 +452,13 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	size_t num_obs = id_vec.size();
     size_t num_t = time_ids.size();
     size_t n = num_obs * num_t;
+   
+    wxString layer_name(_layer_name);
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
     
 	out << "0 " << n << " " << layer_name;
 	out << " " << id_var_name << endl;

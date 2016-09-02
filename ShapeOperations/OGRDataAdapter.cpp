@@ -214,66 +214,60 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
             ogr_geometries.push_back(pt);
             
         } else if ( shape_type == Shapefile::POLYGON ) {
+            
             GdaPolygon* poly = (GdaPolygon*) geometries[id];
             if (poly->isNull()) {
-				OGRPolygon* polygon = 
-				(OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
-				//OGRLinearRing* ring =
-				//(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
+				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
+				//OGRLinearRing* ring =(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
                 //ring->closeRings();
                 //polygon->addRingDirectly(ring);
                 ogr_geometries.push_back(polygon);
+                
             } else {
                 int numParts     = poly->n_count;
                 int numPoints    = poly->n;
                 double x, y;
                 if ( numParts == 1 ) {
-                eGType = wkbPolygon;
-				OGRPolygon* polygon = 
-				(OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
-				OGRLinearRing* ring = 
-				(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
-                for ( int j = 0; j < numPoints; j++ ) { 
-                    if ( poly->points_o != NULL ) {
-                        // for created centroids or other geometries, the actual
-                        // points are stored in points_o wxRealPoint[].
-                        // Note: GdaPolygon::count[] constantly has size = 1 in
-                        // current design, see GdaPolygon class
-                        x = poly->points_o[j].x;
-                        y = poly->points_o[j].y;
-                    } else {
-                        x = poly->pc->points[j].x;
-                        y = poly->pc->points[j].y;
-                    }
-                    ring->addPoint(x,y);
-                }
-                ring->closeRings();
-                polygon->addRingDirectly(ring);
-                ogr_geometries.push_back(polygon);
-                
-                } else if ( numParts > 1 ) {
-                eGType = wkbMultiPolygon;
-				OGRMultiPolygon* multi_polygon = 
-				(OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
-                for ( int num_part = 0; num_part < numParts; num_part++ ) {
-					OGRPolygon* polygon = 
-					(OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
-                    OGRLinearRing* ring = 
-					(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
-                    vector<wxInt32> startIndexes = poly->pc->parts;
-                    startIndexes.push_back(numPoints);
-                    for ( size_t j = startIndexes[num_part];
-                          j < startIndexes[num_part+1]; j++ ) {
-                        
-                        x = poly->pc->points[j].x;
-                        y = poly->pc->points[j].y;
+                    eGType = wkbPolygon;
+    				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
+    				OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
+                    for ( int j = 0; j < numPoints; j++ ) { 
+                        if ( poly->points_o != NULL ) {
+                            // for created centroids or other geometries, the actual
+                            // points are stored in points_o wxRealPoint[].
+                            // Note: GdaPolygon::count[] constantly has size = 1 in
+                            // current design, see GdaPolygon class
+                            x = poly->points_o[j].x;
+                            y = poly->points_o[j].y;
+                        } else {
+                            x = poly->pc->points[j].x;
+                            y = poly->pc->points[j].y;
+                        }
                         ring->addPoint(x,y);
                     }
                     ring->closeRings();
                     polygon->addRingDirectly(ring);
-                    multi_polygon->addGeometryDirectly(polygon);
-                }
-                ogr_geometries.push_back(multi_polygon);
+                    ogr_geometries.push_back(polygon);
+                
+                } else if ( numParts > 1 ) {
+                    eGType = wkbMultiPolygon;
+    				OGRMultiPolygon* multi_polygon = (OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+                    for ( int num_part = 0; num_part < numParts; num_part++ ) {
+    					OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
+                        OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
+                        vector<wxInt32> startIndexes = poly->pc->parts;
+                        startIndexes.push_back(numPoints);
+                        for ( size_t j = startIndexes[num_part]; j < startIndexes[num_part+1]; j++ ) {
+                            
+                            x = poly->pc->points[j].x;
+                            y = poly->pc->points[j].y;
+                            ring->addPoint(x,y);
+                        }
+                        ring->closeRings();
+                        polygon->addRingDirectly(ring);
+                        multi_polygon->addGeometryDirectly(polygon);
+                    }
+                    ogr_geometries.push_back(multi_polygon);
                 }
             }
         }

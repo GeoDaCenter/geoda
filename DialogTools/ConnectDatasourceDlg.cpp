@@ -33,6 +33,7 @@
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
 
+#include "../DialogTools/CsvFieldConfDlg.h"
 #include "../DataViewer/DataSource.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GenUtils.h"
@@ -58,8 +59,6 @@ private:
 bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 {
     size_t nFiles = filenames.GetCount();
-    //wxString str;
-    //str.Printf( wxT("%d files dropped"), (int)nFiles);
     
     if (m_pOwner != NULL && nFiles > 0)
     {
@@ -83,8 +82,7 @@ END_EVENT_TABLE()
 
 using namespace std;
 
-ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
-										   const wxSize& size)
+ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 :datasource(0)
 {
     // init controls defined in parent class
@@ -98,8 +96,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
    
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
     
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
-         this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource, this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
 }
 
 ConnectDatasourceDlg::~ConnectDatasourceDlg()
@@ -194,6 +191,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 {
 	LOG_MSG("Entering ConnectDatasourceDlg::OnOkClick");
 	try {
+        // Open GeoDa project file direclty
         if (ds_file_path.GetExt().Lower() == "gda") {
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
@@ -202,8 +200,16 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             }
             return;
         }
+       
+        // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
+        //if (ds_file_path.GetExt().Lower() == "csv") {
+        //    wxString csv_path = ds_file_path.GetFullPath();
+        //    CsvFieldConfDlg csvDlg(this, csv_path);
+        //    csvDlg.ShowModal();
+        //}
         
 		CreateDataSource();
+        
         // Check to make sure to get a layer name
         wxString layername;
 		int datasource_type = m_ds_notebook->GetSelection();
@@ -238,10 +244,12 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 			return;
 		}
         
-        if (layername.IsEmpty()) return;
+        if (layername.IsEmpty())
+            return;
         
 		// At this point, there is a valid datasource and layername.
-        if (layer_name.IsEmpty()) layer_name = layername;
+        if (layer_name.IsEmpty())
+            layer_name = layername;
         
         EndDialog(wxID_OK);
 		
@@ -298,8 +306,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
             PromptDSLayers(datasource);
             if (layer_name.IsEmpty()) {
                 throw GdaException(
-                    wxString("Layer/Table name could not be empty. Please select"
-                             " a layer/table.").mb_str());
+                    wxString("Layer/Table name could not be empty. Please select a layer/table.").mb_str());
             }
         }
 		
@@ -322,10 +329,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         else if (cur_sel == DBTYPE_MYSQL) ds_type = GdaConst::ds_mysql;
         //else if (cur_sel == 4) ds_type = GdaConst::ds_ms_sql;
         else {
-            wxString msg = "The selected database driver is not supported "
-            "on this platform. Please check GeoDa website "
-            "for more information about database support "
-            " and connection.";
+            wxString msg = "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection.";
             throw GdaException(msg.mb_str());
         }
         

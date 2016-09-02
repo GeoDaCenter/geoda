@@ -235,7 +235,7 @@ class PolygonPartition
 	void MakeSmallPartition(const int mX, const double Start,
 													const double Stop);
 	void MakeNeighbors();
-	bool edge(PolygonPartition &p, const int host, const int guest);
+	bool edge(PolygonPartition &p, const int host, const int guest, double precision_threshold);
 	int sweep(PolygonPartition & guest, bool is_queen,
 						double precision_threshold=0.0);
 };
@@ -653,7 +653,7 @@ wxString getPointStr(const BasePoint& point)
 /** Method for detecting if an edge is shared between a host and guest polygon.
  */
 bool PolygonPartition::edge(PolygonPartition &p, const int host,
-							const int guest)  
+							const int guest, double precision_threshold)
 {
 	using namespace Shapefile;
 
@@ -662,17 +662,17 @@ bool PolygonPartition::edge(PolygonPartition &p, const int host,
 	//BasePoint hostPoint = Points[ succ(host) ];
 	Point* hostPoint = this->GetPoint(succ(host));
 	
-	if (hostPoint->equals(guestPrev)) return true;
+	if (hostPoint->equals(guestPrev, precision_threshold)) return true;
 	
 	//BasePoint guestSucc= p.Points[ p.succ(guest) ];
 	Point* guestSucc= p.GetPoint(p.succ(guest));
-	if (hostPoint->equals( guestSucc) ) return true;
+	if (hostPoint->equals( guestSucc, precision_threshold) ) return true;
 	
 	hostPoint= this->GetPoint( prev(host) );
 	
-	if (hostPoint->equals( guestSucc )) return true;
+	if (hostPoint->equals( guestSucc, precision_threshold )) return true;
 	
-	if (hostPoint->equals( guestPrev )) return true;
+	if (hostPoint->equals( guestPrev, precision_threshold )) return true;
 	
 	return false;
 }
@@ -754,8 +754,8 @@ int PolygonPartition::sweep(PolygonPartition & guest, bool is_queen,
                 {
 					if (pt->equals( GetPoint(host), precision_threshold) )
                     {
-						if (is_queen || edge(guest, host, dot)) {
-							pY.cleanup(pX, cell);  
+						if (is_queen || edge(guest, host, dot, precision_threshold)) {
+							pY.cleanup(pX, cell);
 							return 1;  
 						}
 					}

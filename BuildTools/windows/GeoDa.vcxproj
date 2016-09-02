@@ -205,6 +205,7 @@
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="..\..\DialogTools\AutoUpdateDlg.h" />
     <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
+    <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
