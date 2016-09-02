@@ -138,7 +138,7 @@ help_btn(0), apply_btn(0)
 	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), "Random Sample", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 	rand_samp_rad->SetValue(correl_params.method != CorrelParams::ALL_PAIRS);
 	Connect(XRCID("ID_RAND_SAMP_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnRandSampRadioSelected));
-	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), "Iterations:");
+	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), "Sample Size:");
 	{
 		wxString vs;
 		vs << correl_params.max_iterations;
@@ -682,13 +682,13 @@ wxString CorrelParamsFrame::GetHelpPageHtml() const
 	s << "Random Sample for data sets with more than 10,000 observations.";
 	s << "The Estimated Pairs gives the number of pairs of centers that will ";
 	s << "be involved in the computation.  This is comparable to the ";
-	s << "Iterations parameter in the Random Sample method.";
+	s << "sample size parameter in the Random Sample method.";
 	s << "</p>";
 
 	s << "<h2>Random Sample</h2>";
 	s << "<p>";
 	s << "Pairs of observations are chosen at random up to the number ";
-	s << "of iterations specified.  Random Sampling converges very quickly ";
+	s << "of sample size specified.  Random Sampling converges very quickly ";
 	s << "to similar values as in All Pairs, but had the advantage of ";
 	s << "a constant running time.  This is the only way to handle very ";
 	s << "large data sets over the entire distance range.";

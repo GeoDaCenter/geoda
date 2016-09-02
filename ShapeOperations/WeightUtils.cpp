@@ -56,7 +56,34 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;
 	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    
+    
+    string line;
+    std::getline(ss, line);
+    wxString header(line);
+    
+    // detect if header contains string with empty space, which should be quoted
+    if (header.Contains("\"")) {
+        int start_quote = header.find("\"");
+        int end_quote = header.find("\"", start_quote + 1);
+        dbf_name = header.SubString(start_quote + 1, end_quote - 1);
+        t_key_field = header.SubString(end_quote + 1 + 1 /*1 for blank space */,
+                                       header.length()-1);
+        wxString nums = header.SubString(0, start_quote-1);
+        int break_pos = nums.find(" ");
+        wxString num1_str = nums.SubString(0, break_pos-1);
+        wxString num2_str = nums.SubString(break_pos+1, nums.length()-1);
+        num1_str.ToLongLong(&num1);
+        num2_str.ToLongLong(&num2);
+        
+    } else {
+    
+        ss.clear();
+        ss.seekg(0, ios::beg); // reset to beginning
+        ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    }
+    
+    
 	wxString key_field(t_key_field);
 	if (num2 == 0) {
 		key_field = "";
@@ -99,7 +126,33 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;
 	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
+  
+    string line;
+    std::getline(ss, line);
+    wxString header(line);
+    
+    // detect if header contains string with empty space, which should be quoted
+    if (header.Contains("\"")) {
+        int start_quote = header.find("\"");
+        int end_quote = header.find("\"", start_quote + 1);
+        dbf_name = header.SubString(start_quote + 1, end_quote - 1);
+        t_key_field = header.SubString(end_quote + 1 + 1 /*1 for blank space */,
+                                       header.length()-1);
+        wxString nums = header.SubString(0, start_quote-1);
+        int break_pos = nums.find(" ");
+        wxString num1_str = nums.SubString(0, break_pos-1);
+        wxString num2_str = nums.SubString(break_pos+1, nums.length()-1);
+        num1_str.ToLongLong(&num1);
+        num2_str.ToLongLong(&num2);
+        
+    } else {
+        
+        ss.clear();
+        ss.seekg(0, ios::beg); // reset to beginning
+        ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    }
+    
+    
 	wxString key_field(t_key_field);
 	if (num2 == 0) {
 		use_rec_order = true;
@@ -346,7 +399,32 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;	
 	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    
+    string line;
+    std::getline(ss, line);
+    wxString header(line);
+    
+    // detect if header contains string with empty space, which should be quoted
+    if (header.Contains("\"")) {
+        int start_quote = header.find("\"");
+        int end_quote = header.find("\"", start_quote + 1);
+        dbf_name = header.SubString(start_quote + 1, end_quote - 1);
+        t_key_field = header.SubString(end_quote + 1 + 1 /*1 for blank space */,
+                                       header.length()-1);
+        wxString nums = header.SubString(0, start_quote-1);
+        int break_pos = nums.find(" ");
+        wxString num1_str = nums.SubString(0, break_pos-1);
+        wxString num2_str = nums.SubString(break_pos+1, nums.length()-1);
+        num1_str.ToLongLong(&num1);
+        num2_str.ToLongLong(&num2);
+        
+    } else {
+        
+        ss.clear();
+        ss.seekg(0, ios::beg); // reset to beginning
+        ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    }
+    
 	wxString key_field(t_key_field);
 	if (num2 == 0) {
 		use_rec_order = true;
@@ -576,7 +654,32 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;	
 	string dbf_name, t_key_field;
-	ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    
+    string line;
+    std::getline(ss, line);
+    wxString header(line);
+    
+    // detect if header contains string with empty space, which should be quoted
+    if (header.Contains("\"")) {
+        int start_quote = header.find("\"");
+        int end_quote = header.find("\"", start_quote + 1);
+        dbf_name = header.SubString(start_quote + 1, end_quote - 1);
+        t_key_field = header.SubString(end_quote + 1 + 1 /*1 for blank space */,
+                                       header.length()-1);
+        wxString nums = header.SubString(0, start_quote-1);
+        int break_pos = nums.find(" ");
+        wxString num1_str = nums.SubString(0, break_pos-1);
+        wxString num2_str = nums.SubString(break_pos+1, nums.length()-1);
+        num1_str.ToLongLong(&num1);
+        num2_str.ToLongLong(&num2);
+        
+    } else {
+        
+        ss.clear();
+        ss.seekg(0, ios::beg); // reset to beginning
+        ss >> num1 >> num2 >> dbf_name >> t_key_field;
+    }
+    
 	wxString key_field(t_key_field);
 	if (num2 == 0) {
 		use_rec_order = true;

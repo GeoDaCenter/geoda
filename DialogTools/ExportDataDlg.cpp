@@ -32,6 +32,8 @@
 #include <cpl_error.h>
 #include <ogrsf_frmts.h>
 
+#include "ogr_srs_api.h"
+
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/DbfTable.h"
@@ -479,7 +481,9 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     // for shp/dbf reading, we need to convert Main data to GdaShape first
     // this will spend some time, but keep the rest of code clean.
     // Note: potential speed/memory performance issue
+    
     vector<int> selected_rows;
+    
     if ( project_p != NULL && geometries.empty() && !is_save_centroids ) {
         shape_type = Shapefile::NULL_SHAPE;
         int num_obs = project_p->main_data.records.size();
@@ -507,7 +511,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         else if (project_p->main_data.header.shape_type == Shapefile::POLYGON) {
             PolygonContents* pc;
             for (int i=0; i<num_obs; i++) {
-                pc=(PolygonContents*)project_p->main_data.records[i].contents_p;
+                pc = (PolygonContents*)project_p->main_data.records[i].contents_p;
                 geometries.push_back(new GdaPolygon(pc));
             }
 			shape_type = Shapefile::POLYGON;
@@ -524,10 +528,39 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
             selected_rows.push_back(i);
     }
 
+    /*
+    // explictly set SRS with EPSG information
+    wxString cstype = "PROJCS";
+    if (poOutputSRS->IsGeographic() == 1) {
+        cstype = "GEOGCS";
+    }
+    
+    wxString authname= poOutputSRS->GetAuthorityName(cstype.mb_str());
+    wxString authCode = poOutputSRS->GetAuthorityCode(cstype.mb_str());
+    
+    if (authname.IsEmpty()) {
+        int epsg = poOutputSRS->GetEPSGGeogCS();
+        poOutputSRS->SetAuthority(cstype.mb_str(), "EPSG", epsg);
+    }
+     */
+    
 	// convert to OGR geometries
 	vector<OGRGeometry*> ogr_geometries;
 	OGRwkbGeometryType geom_type =  OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
 
+    // NOTE: for GeoJSON, transform to WGS84 automatically
+    if (spatial_ref && (ds_name.EndsWith(".json") || ds_name.EndsWith(".geojson"))) {
+        int epsg = spatial_ref->GetEPSGGeogCS();
+        if (epsg != 4326) {
+            OGRSpatialReference wgs84_ref;
+            wgs84_ref.importFromEPSG(4326);
+            OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
+            for (size_t i=0; i < ogr_geometries.size(); i++) {
+                ogr_geometries[i]->transform(poCT);
+            }
+        }
+    }
+    
 	// take care of empty layer name
     if (layer_name.empty()) {
         layer_name = table_p ? table_p->GetTableName() : "NO_NAME";

@@ -38,7 +38,7 @@ struct WeightsMetaInfo
 		DM_unspecified, DM_euclidean, DM_arc
 	};
 	enum DistanceUnitsEnum {
-		DU_unspecified, DU_km, DU_mile
+		DU_unspecified, DU_km, DU_mile 
 	};
 	
 	WeightsMetaInfo();
@@ -51,6 +51,7 @@ struct WeightsMetaInfo
 	void SetToThres(const wxString& id_var,
 					DistanceMetricEnum dist_metric,
 					DistanceUnitsEnum dist_units,
+                    wxString dist_units_str,
 					DistanceValuesEnum dist_values,
 					double threshold_val,
 					wxString dist_var_1 = "", long dist_tm_1 = -1,
@@ -58,6 +59,7 @@ struct WeightsMetaInfo
 	void SetToKnn(const wxString& id_var,
 				  DistanceMetricEnum dist_metric,
 				  DistanceUnitsEnum dist_units,
+                  wxString dist_units_str,
 				  DistanceValuesEnum dist_values,
 				  long k,
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
@@ -77,6 +79,8 @@ struct WeightsMetaInfo
 	DistanceMetricEnum dist_metric;
 	DistanceUnitsEnum dist_units;
 	DistanceValuesEnum dist_values;
+    
+    wxString dist_units_str;
 	
 	wxString dist_var1; // x-coord
 	wxString dist_var2; // y-coord

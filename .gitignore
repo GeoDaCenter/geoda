@@ -53,3 +53,9 @@ rc/Drop-Files-Here-extra-black.png
 *.opensdf
 *.exe
 BuildTools/windows/logger.txt
+
+BuildTools/.DS_Store
+
+.DS_Store
+
+*.DS_Store

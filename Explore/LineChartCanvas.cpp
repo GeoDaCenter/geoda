@@ -260,7 +260,7 @@ void LineChartCanvas::UpdateStatusBar()
 			if (c.pointWithin(sel1)) {
 				if (!s.IsEmpty()) s << ", ";
 				if (!time_inv) s << table_int->GetTimeString(t) << " ";
-				s << "mean=" << lcs.Y_avg[t];
+				s << "all obs mean=" << lcs.Y_avg[t];
 			}
 		}
 		for (size_t t=0, tms=sel_circs.size(); t<tms; ++t) {
@@ -591,7 +591,7 @@ void LineChartCanvas::PopulateCanvas()
 				y_pts[t].y = y;
 			}
 			GdaPolyLine* p = new GdaPolyLine(num_points, y_pts);
-			p->setPen(*wxBLACK_PEN);
+            p->setPen(wxPen(*wxBLACK, 1, wxSHORT_DASH));
 			background_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
 				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y), circ_rad);

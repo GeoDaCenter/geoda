@@ -96,6 +96,12 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
     
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
     out << " " << id_var_name << endl;
@@ -159,6 +165,12 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
     
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
     out << " " << id_var_name << endl;
@@ -185,13 +197,13 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool Gda::SaveGwt(const GwtElement* g,
-									const wxString& layer_name, 
+									const wxString& _layer_name,
 									const wxString& ofname,
 									const wxString& id_var_name,
 									const std::vector<wxInt64>& id_vec)  
 {
 	using namespace std;
-	if (g == NULL || layer_name.IsEmpty() || ofname.IsEmpty()
+	if (g == NULL || _layer_name.IsEmpty() || ofname.IsEmpty()
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
@@ -200,7 +212,14 @@ bool Gda::SaveGwt(const GwtElement* g,
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
 	if (!(out.is_open() && out.good())) return false;
-	
+
+    wxString layer_name(_layer_name);
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
 	out << " " << id_var_name << endl;
@@ -218,13 +237,13 @@ bool Gda::SaveGwt(const GwtElement* g,
 
 
 bool Gda::SaveGwt(const GwtElement* g,
-                  const wxString& layer_name,
+                  const wxString& _layer_name,
                   const wxString& ofname,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
 {
 	using namespace std;
-	if (g == NULL || layer_name.IsEmpty() || ofname.IsEmpty()
+	if (g == NULL || _layer_name.IsEmpty() || ofname.IsEmpty()
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
@@ -234,6 +253,13 @@ bool Gda::SaveGwt(const GwtElement* g,
 	out.open(GET_ENCODED_FILENAME(final_ofn));
 	if (!(out.is_open() && out.good())) return false;
 	
+    wxString layer_name(_layer_name);
+    // if layer_name contains an empty space, the layer name should be
+    // braced with quotes "layer name"
+    if (layer_name.Contains(" ")) {
+        layer_name = "\"" + layer_name + "\"";
+    }
+    
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
 	out << " " << id_var_name << endl;

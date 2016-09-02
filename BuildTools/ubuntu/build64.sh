@@ -644,7 +644,7 @@ echo "%%%%%%%%%%%%%%%%%%%"
     mkdir ../../o
     $MAKER
     make app
-    cp plugins/x64/*.so build/plugins/
+    #cp plugins/x64/*.so build/plugins/
     cp ../CommonDistFiles/cache.sqlite build/
     cp ../CommonDistFiles/geoda_prefs.sqlite build/
     cp ../CommonDistFiles/geoda_prefs.json build/

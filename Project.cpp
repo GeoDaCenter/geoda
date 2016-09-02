@@ -31,6 +31,8 @@
 #include <wx/msgdlg.h>
 #include <wx/progdlg.h>
 #include <wx/dir.h>
+
+#include "ogr_srs_api.h"
 #include "logger.h"
 #include "FramesManager.h"
 #include "SaveButtonManager.h"
@@ -462,6 +464,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 {
 	LOG_MSG("Entering Project::SaveDataSourceAs");
     LOG_MSG("New Datasource Name:" + new_ds_name);
+    
 	vector<GdaShape*> geometries;
 	try {
 		// SaveAs only to same datasource
@@ -494,12 +497,21 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		for (size_t i=0; i<table_int->GetNumberRows(); i++) {
 			selected_rows.push_back(i);
 		}
-		
+	
+        // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
-		OGRwkbGeometryType geom_type =
-		OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type,
-                                                        ogr_geometries,
-                                                        selected_rows);
+		OGRwkbGeometryType geom_type = OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+        
+        // NOTE: for GeoJSON, automatically transform to WGS84
+        if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
+            OGRSpatialReference wgs84_ref;
+            wgs84_ref.importFromEPSG(4326);
+            OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
+            for (size_t i=0; i < ogr_geometries.size(); i++) {
+                ogr_geometries[i]->transform(poCT);
+            }
+        }
+        
 		
 		// Start saving
 		int prog_n_max = 0;
@@ -1320,6 +1332,9 @@ bool Project::CommonProjectInit()
     
     // convert projection to WGS84 by default if there is projection
     sourceSR = GetSpatialReference();
+    if (sourceSR ) {
+        project_unit = sourceSR->GetAttrValue("UNIT");
+    }
 	
 	// Initialize various managers
 	frames_manager = new FramesManager;
