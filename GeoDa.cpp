@@ -274,6 +274,7 @@ bool GdaApp::OnInit(void)
     
     // Other GDAL configurations
     //CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
+    CPLSetConfigOption("PG_LIST_ALL_TABLES", "YES");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac

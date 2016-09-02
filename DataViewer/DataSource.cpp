@@ -418,6 +418,7 @@ wxString DBDataSource::GetOGRConnectStr()
 		ogr_conn_str << db_user << ",password=" << db_pwd;
         
 	}
+    
     /*
     else if (ds_type == GdaConst::ds_ms_sql) {
 		// MSSQL:server=.\MSSQLSERVER2008;database=dbname;trusted_connection=yes

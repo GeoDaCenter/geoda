@@ -51,6 +51,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         
+    } else if (ds_type == GdaConst::ds_postgresql) {
+        const char *papszOpenOptions[255] = {"PG_LIST_ALL_TABLES=YES"};
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        
     } else {
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     }
