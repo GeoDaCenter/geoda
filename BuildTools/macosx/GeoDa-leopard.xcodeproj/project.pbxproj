@@ -23,6 +23,7 @@
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
+		A1D766D91D7A2196002365D6 /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
@@ -253,6 +254,8 @@
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
 		A1C9F3EB18B55EE000E14394 /* FieldNameCorrectionDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNameCorrectionDlg.h; sourceTree = "<group>"; };
 		A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNameCorrectionDlg.cpp; sourceTree = "<group>"; };
+		A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
+		A1D766D81D7A2196002365D6 /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -747,6 +750,8 @@
 			isa = PBXGroup;
 			children = (
 				A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */,
+				A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */,
+				A1D766D81D7A2196002365D6 /* CsvFieldConfDlg.h */,
 				A16D406D1CD4233A0025C64C /* AutoUpdateDlg.h */,
 				A14CB46C1C86705B0082B436 /* PublishDlg.cpp */,
 				A14CB46D1C86705B0082B436 /* PublishDlg.h */,
@@ -1411,6 +1416,7 @@
 				A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */,
 				A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */,
 				A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */,
+				A1D766D91D7A2196002365D6 /* CsvFieldConfDlg.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
