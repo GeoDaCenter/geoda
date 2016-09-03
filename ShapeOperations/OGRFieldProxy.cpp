@@ -73,7 +73,7 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate) {
+	else if (ogr_type == OFTDate || ogr_type == OFTDateTime) {
 		type = GdaConst::date_type;
 	}
 }
