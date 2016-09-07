@@ -24,6 +24,8 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include <locale>
+#include <wx/regex.h>
+
 #include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
@@ -819,6 +821,7 @@ OGRColumnDate::OGRColumnDate(OGRLayerProxy* ogr_layer, int idx)
 :OGRColumn(ogr_layer, idx)
 {
     is_new = false;
+    
 }
 
 OGRColumnDate::~OGRColumnDate()
@@ -834,19 +837,20 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            int col_idx = GetColIndex();
-            int year=0;
-            int month=0;
-            int day=0;
-            int hour=0;
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            int hour = 0;
             int minute = 0;
-            int seconds = 0;
+            int second = 0;
             int tzflag = 0;
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                     &day,&hour,&minute,
-                                                     &seconds, &tzflag);
-            wxInt64 val = year* 10000 + month*100 + day;
-            data[i] = val;
+            
+            int col_idx = GetColIndex();
+            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month, &day,&hour, &minute, &second, &tzflag);
+            
+            wxInt64 ldatetime = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
+
+            data[i] = ldatetime;
         }
     }
 }
@@ -867,18 +871,17 @@ void OGRColumnDate::FillData(vector<wxString> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            int year=0;
-            int month=0;
-            int day=0;
-            int hour=0;
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            int hour = 0;
             int minute = 0;
-            int seconds = 0;
+            int second = 0;
             int tzflag = 0;
             ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
                                                &day,&hour,&minute,
-                                               &seconds, &tzflag);
-            wxInt64 val = year* 10000 + month*100 + day;
-            data[i] = wxString::Format("%i", val);
+                                               &second, &tzflag);
+            data[i] = ogr_layer->data[i]->GetFieldAsString(col_idx);
         }
     }
 }
@@ -887,17 +890,17 @@ void OGRColumnDate::GetCellValue(int row, wxInt64& val)
 {
     if (new_data.empty()) {
         int col_idx = GetColIndex();
-        int year=0;
-        int month=0;
-        int day=0;
-        int hour=0;
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        int hour = 0;
         int minute = 0;
-        int seconds = 0;
+        int second = 0;
         int tzflag = 0;
         ogr_layer->data[row]->GetFieldAsDateTime(col_idx, &year, &month,
                                                      &day,&hour,&minute,
-                                                     &seconds, &tzflag);
-        val = year* 10000 + month*100 + day;
+                                                     &second, &tzflag);
+        val = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
     } else {
         val = new_data[row];
     }
@@ -906,24 +909,91 @@ void OGRColumnDate::GetCellValue(int row, wxInt64& val)
 wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
                                    wxCSConv* m_wx_encoding)
 {
-    wxInt64 val;
-    GetCellValue(row_idx, val);
-    return wxString::Format("%lld", val);
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    int tzflag = 0;
+    
+    if (new_data.empty()) {
+        int col_idx = GetColIndex();
+        ogr_layer->data[row_idx]->GetFieldAsDateTime(col_idx, &year, &month,
+                                                 &day,&hour,&minute,
+                                                 &second, &tzflag);
+    } else {
+        //val = new_data[row_idx];
+    }
+    
+    wxString sDateTime;
+    
+    if (year >0 && month > 0 && day > 0) {
+        sDateTime << wxString::Format("%i-%i-%i", year, month, day);
+    }
+    
+    if (hour >0 || minute > 0 || second > 0) {
+        if (!sDateTime.IsEmpty()) sDateTime << " ";
+        sDateTime << wxString::Format("%i:%i:%i", hour, minute, second);
+    }
+    
+    return sDateTime;
 }
 
 void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
 {
-    // XXX don't support adding new date column
-    wxInt64 l_val;
-    const char* tmp = (const char*)value.mb_str();
-    bool valid = GenUtils::validInt(const_cast<char*>(tmp));
-    if (value.length() == 6 && valid) {
-        GenUtils::strToInt64(const_cast<char*>(tmp), &l_val);
-        int n_year = l_val/10000;
-        int n_month = (l_val % 10000) /100;
-        int n_day = l_val % 10;
+    wxRegEx regex;
+    
+    wxString time_regex_str = "([0-9]{2}):([0-9]{2}):([0-9]{2})";
+    wxString date_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})";
+    wxString datetime_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})";
+    
+    wxString _year, _month, _day, _hour, _minute, _second;
+    
+    regex.Compile(time_regex_str);
+    if (regex.Matches(value)) {
+        _hour = regex.GetMatch(value,1);
+        _minute = regex.GetMatch(value,2);
+        _second = regex.GetMatch(value,3);
+        
+    } else {
+    
+        regex.Compile(date_regex_str);
+        if (regex.Matches(value)) {
+            //wxString _all = regex.GetMatch(value,0);
+            _year = regex.GetMatch(value,1);
+            _month = regex.GetMatch(value,2);
+            _day = regex.GetMatch(value,3);
+            
+        } else {
+    
+            regex.Compile(datetime_regex_str);
+            if (regex.Matches(value)) {
+                _year = regex.GetMatch(value,1);
+                _month = regex.GetMatch(value,2);
+                _day = regex.GetMatch(value,3);
+                _hour = regex.GetMatch(value,4);
+                _minute = regex.GetMatch(value,5);
+                _second = regex.GetMatch(value,6);
+            }
+        }
+    }
+  
+    long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
+    
+    _year.ToLong(&_l_year);
+    _month.ToLong(&_l_month);
+    _day.ToLong(&_l_day);
+    _hour.ToLong(&_l_hour);
+    _minute.ToLong(&_l_minute);
+    _second.ToLong(&_l_second);
+    
+    wxInt64 val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
+    
+    if (is_new) {
+        new_data[row_idx] = val;
+    } else {
         int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, n_year, n_month, n_day);
-        //modifed_features.push_back(feature);
+        ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
     }
 }

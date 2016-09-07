@@ -37,13 +37,13 @@ OGRFieldProxy::OGRFieldProxy(const wxString& _name,
 	if (ogr_type == OFTString){
 		type = GdaConst::string_type;
 	}
-	else if (ogr_type == OFTInteger64) {
+	else if (ogr_type == OFTInteger64 || ogr_type == OFTInteger) {
 		type = GdaConst::long64_type;
 	}
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate) {
+	else if (ogr_type == OFTDate || ogr_type == OFTDateTime) {
 		type = GdaConst::date_type;
 	}
 	

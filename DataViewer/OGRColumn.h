@@ -181,6 +181,8 @@ private:
     vector<wxInt64> new_data;
     void InitMemoryData();
     
+    
+    
 public:
     // XXX: don't support add new date column yet
     //OGRColumnDate(int rows);
