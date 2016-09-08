@@ -51,6 +51,8 @@ public:
 		long64_type, // N or F with decimals = 0 in DBF
 		string_type, // C in DBF, max 254 characters
 		date_type, // D in DBF, YYYYMMDD format
+        time_type, // HH:MM:SS
+        datetime_type, // YYYY-MM-DD HH:MM:SS geodatabase
 		placeholder_type
 	};
 	static wxString FieldTypeToStr(GdaConst::FieldType ft);

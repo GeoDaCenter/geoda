@@ -304,6 +304,8 @@ void TableBase::SortByCol(int col, bool ascending)
 	int tm=time_state->GetCurrTime();
 	switch (table_int->GetColType(col)) {
 		case GdaConst::date_type:
+		case GdaConst::time_type:
+		case GdaConst::datetime_type:
 		case GdaConst::long64_type:
 		{
 			std::vector<wxInt64> temp;

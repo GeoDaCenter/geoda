@@ -233,6 +233,10 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
 			type_str << "str";
 		} else if (type == GdaConst::date_type) {
 			type_str << "date";
+		} else if (type == GdaConst::time_type) {
+			type_str << "time";
+		} else if (type == GdaConst::datetime_type) {
+			type_str << "datetime";
 		}
 		ungrouped_list->InsertItem(ug_cnt, wxEmptyString);
 		ungrouped_list->SetItem(ug_cnt, 0, table_int->GetColName(col));
@@ -534,6 +538,10 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 		common_type = "num";
 	} else if (type == GdaConst::date_type) {
 		common_type = "date";
+	} else if (type == GdaConst::time_type) {
+		common_type = "time";
+	} else if (type == GdaConst::datetime_type) {
+		common_type = "datetime";
 	} else {
 		common_type = "string";
 	}
@@ -1191,6 +1199,10 @@ void VarGroupingEditorDlg::UpdateCommonType()
 		new_field_type_stat_txt->SetLabelText("string");
 	} else if (common_type == "date") {
 		new_field_type_stat_txt->SetLabelText("date");
+	} else if (common_type == "time") {
+		new_field_type_stat_txt->SetLabelText("time");
+	} else if (common_type == "datetime") {
+		new_field_type_stat_txt->SetLabelText("datetime");
 	} else if (common_type == "num") {
 		new_field_type_stat_txt->SetLabelText("numeric");
 	}

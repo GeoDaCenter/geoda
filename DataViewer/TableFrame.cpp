@@ -118,18 +118,26 @@ popup_col(-1)
 	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	wxStopWatch resize_time;
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
-		if (table_int->GetColType(i) == GdaConst::long64_type) {
+        
+        GdaConst::FieldType col_type = table_int->GetColType(i);
+        
+		if (col_type == GdaConst::long64_type) {
 			//grid->SetColFormatNumber(i);
             grid->SetColFormatFloat(i,-1,0);
-		} else if (table_int->GetColType(i) == GdaConst::double_type) {
+            
+		} else if (col_type == GdaConst::double_type) {
 			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
-		} else if (table_int->GetColType(i) == GdaConst::date_type) {
+            
+		} else if (col_type == GdaConst::date_type ||
+                   col_type == GdaConst::time_type ||
+                   col_type == GdaConst::datetime_type) {
 			// leave as a string
 		}
 		grid->SetColSize(i, -1); // fit column width to lable width
 	}
+    
 	int sample = GenUtils::min<int>(table_base->GetNumberRows(), 10);
-	LOG(sample);
+    
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);
 		double cur_lbl_len = grid->GetColLabelValue(i).length();

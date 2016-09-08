@@ -164,6 +164,8 @@ wxString GdaConst::FieldTypeToStr(GdaConst::FieldType ft)
 	if (ft == GdaConst::long64_type) return "integer";
 	if (ft == GdaConst::string_type) return "string";
 	if (ft == GdaConst::date_type) return "date";
+	if (ft == GdaConst::time_type) return "time";
+	if (ft == GdaConst::datetime_type) return "datetime";
 	if (ft == GdaConst::placeholder_type) return "placeholder";
 	return "unknown";
 }

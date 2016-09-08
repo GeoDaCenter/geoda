@@ -200,4 +200,50 @@ public:
     virtual void SetValueAt(int row_idx, const wxString& value);
 };
 
+class OGRColumnTime: public OGRColumn
+{
+private:
+    vector<wxInt64> new_data;
+    void InitMemoryData();
+    
+public:
+    // XXX: don't support add new date column yet
+    //OGRColumnTime(int rows);
+    OGRColumnTime(OGRLayerProxy* ogr_layer, int idx);
+    ~OGRColumnTime();
+    
+    virtual void FillData(vector<double>& data);
+    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(vector<wxString>& data);
+    
+    virtual GdaConst::FieldType GetType() {return GdaConst::time_type;}
+    
+    virtual void GetCellValue(int row, wxInt64& val);
+    virtual wxString GetValueAt(int row_idx, int disp_decimals=0, wxCSConv* m_wx_encoding=NULL);
+    virtual void SetValueAt(int row_idx, const wxString& value);
+};
+
+class OGRColumnDateTime: public OGRColumn
+{
+private:
+    vector<wxInt64> new_data;
+    void InitMemoryData();
+    
+public:
+    // XXX: don't support add new date column yet
+    //OGRColumnDateTime(int rows);
+    OGRColumnDateTime(OGRLayerProxy* ogr_layer, int idx);
+    ~OGRColumnDateTime();
+    
+    virtual void FillData(vector<double>& data);
+    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(vector<wxString>& data);
+    
+    virtual GdaConst::FieldType GetType() {return GdaConst::datetime_type;}
+    
+    virtual void GetCellValue(int row, wxInt64& val);
+    virtual wxString GetValueAt(int row_idx, int disp_decimals=0, wxCSConv* m_wx_encoding=NULL);
+    virtual void SetValueAt(int row_idx, const wxString& value);
+};
+
 #endif

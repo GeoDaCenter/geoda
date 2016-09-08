@@ -280,10 +280,12 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         return;
     }
     
-    if (to_type == GdaConst::date_type)
+    if (to_type == GdaConst::date_type ||
+        to_type == GdaConst::time_type ||
+        to_type == GdaConst::datetime_type)
     {
         wxString s;
-        s << "GeoDa does not support copying to date variables currently.";
+        s << "GeoDa does not support copying to date/time variables currently.";
         wxMessageDialog dlg(NULL, s, "Information", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
@@ -306,7 +308,9 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
     int num_rows = table_int->GetNumberRows();
     vector<bool> undefined(num_rows, false);
     if (from_type == GdaConst::long64_type ||
-        from_type == GdaConst::date_type)
+        from_type == GdaConst::date_type ||
+        from_type == GdaConst::time_type ||
+        from_type == GdaConst::datetime_type)
     {
         vector<wxInt64> data;
         table_int->GetColData(from_col, from_tm, data);
@@ -441,7 +445,9 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 		return;
 	}
 	
-	if (to_type == GdaConst::date_type)
+    if (to_type == GdaConst::date_type ||
+        to_type == GdaConst::time_type ||
+        to_type == GdaConst::datetime_type)
 	{
 		wxString s;
 		s << "GeoDa does not support copying to date variables currently.";
@@ -467,7 +473,9 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 	int num_rows = table_int->GetNumberRows();
 	vector<bool> undefined(num_rows, false);
 	if (from_type == GdaConst::long64_type ||
-		from_type == GdaConst::date_type)
+        from_type == GdaConst::date_type ||
+        from_type == GdaConst::time_type ||
+        from_type == GdaConst::datetime_type)
 	{
 		vector<wxInt64> data;
 		table_int->GetColData(from_col, from_tm, data);

@@ -130,7 +130,7 @@ void DataViewerAddColDlg::CreateControls()
 	m_type->Append("real (eg 1.03, 45.7)");
 	m_type->Append("integer (eg -1, 0, 23)");
 	m_type->Append("string (eg New York)");
-	m_type->Append("date (eg 20110131)");
+	//m_type->Append("date (eg 20110131)");
 	
 	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
 	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);

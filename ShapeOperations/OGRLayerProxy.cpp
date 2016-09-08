@@ -186,6 +186,12 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 	else if (field_type == GdaConst::date_type) {
 		ogr_type = OFTDate;
 	}
+	else if (field_type == GdaConst::time_type) {
+		ogr_type = OFTTime;
+	}
+	else if (field_type == GdaConst::datetime_type) {
+		ogr_type = OFTDateTime;
+	}
 	return ogr_type;
 }
 
@@ -425,17 +431,26 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     if (stop_exporting) return;
                 }
                 
-            } else if (ftype == GdaConst::date_type) {
+            } else if (ftype == GdaConst::date_type ||
+                       ftype == GdaConst::time_type ||
+                       ftype == GdaConst::datetime_type ) {
                 
                 vector<wxInt64> col_data;
                 table->GetColData(col_pos, time_step, col_data);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
                     wxInt64 val = col_data[ selected_rows[k] ];
-                    int year    = val/10000;
-                    int month   = (val % 10000) /100;
-                    int day     = val % 10;
-                    data[k]->SetField(j, year, month, day);
+                    int year = val / 10000000000;
+                    val = val % 10000000000;
+                    int month = val / 100000000;
+                    val = val % 100000000;
+                    int day = val  / 1000000;
+                    val = val % 1000000;
+                    int hour = val / 10000;
+                    val = val % 10000;
+                    int minute = val / 100;
+                    int second = val % 100;
+                    data[k]->SetField(j, year, month, day, hour, minute, second);
                     if (stop_exporting) return;
                 }
                 

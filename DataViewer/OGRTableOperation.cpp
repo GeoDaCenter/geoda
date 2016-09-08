@@ -108,15 +108,26 @@ void OGRTableOpDeleteColumn::Rollback()
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i]);
             }
-        } else if ( type == GdaConst::date_type){
+        } else if (type == GdaConst::date_type ||
+                   type == GdaConst::time_type ||
+                   type == GdaConst::datetime_type ){
+            
             vector<wxInt64> col_data;
             ogr_col->FillData(col_data);
             for (int i=0; i<n_rows; i++) {
                 wxInt64 val = col_data[i];
-                int year = val / 10000;
-                int month = val % 10000 / 100;
-                int day = val % 1000000;
-                ogr_layer->SetValueAt(i, pos, year, month, day);
+                // 20081203120100 YYYYMMDDHHMMSS
+                int year = val / 10000000000;
+                val = val % 10000000000;
+                int month = val / 100000000;
+                val = val % 100000000;
+                int day = val  / 1000000;
+                val = val % 1000000;
+                int hour = val / 10000;
+                val = val % 10000;
+                int minute = val / 100;
+                int second = val % 100;
+                ogr_layer->SetValueAt(i, pos, year, month, day, hour, minute, second);
             }
         } else {
             vector<wxString> col_data;

@@ -385,6 +385,10 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                     ogr_type = OFTReal;
                 } else if (ftype == GdaConst::date_type){
                     ogr_type = OFTDate;
+                } else if (ftype == GdaConst::time_type){
+                    ogr_type = OFTTime;
+                } else if (ftype == GdaConst::datetime_type) {
+                    ogr_type = OFTDateTime;
                 } else {
                     ogr_type = OFTString;
                 }

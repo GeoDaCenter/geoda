@@ -274,6 +274,14 @@ public:
         }
     }
     
+    void SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second)
+    {
+        data[rid]->SetField( cid, year, month, day, hour, minute, second);
+        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+            throw GdaException(wxString("Set value to cell failed.").mb_str());
+        }
+    }
+    
     void SetValueAt(int rid, int cid, const char* val, bool is_new=true)
     {
         data[rid]->SetField( cid, val);

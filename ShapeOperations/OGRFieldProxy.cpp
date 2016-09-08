@@ -43,8 +43,14 @@ OGRFieldProxy::OGRFieldProxy(const wxString& _name,
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate || ogr_type == OFTDateTime) {
+    else if (ogr_type == OFTDate ) {
 		type = GdaConst::date_type;
+        
+    } else if (ogr_type == OFTTime) {
+		type = GdaConst::time_type;
+        
+    } else if (ogr_type == OFTDateTime) {
+		type = GdaConst::datetime_type;
 	}
 	
 	// create a OGRFieldDefn instance
@@ -73,9 +79,15 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate || ogr_type == OFTDateTime) {
-		type = GdaConst::date_type;
-	}
+    else if (ogr_type == OFTDate ) {
+        type = GdaConst::date_type;
+        
+    } else if (ogr_type == OFTTime) {
+        type = GdaConst::time_type;
+        
+    } else if (ogr_type == OFTDateTime) {
+        type = GdaConst::datetime_type;
+    }
 }
 
 OGRFieldProxy::~OGRFieldProxy()

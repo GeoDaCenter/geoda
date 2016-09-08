@@ -198,12 +198,22 @@ void OGRTable::AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx)
     OGRColumn* ogr_col = NULL;
     if (type == GdaConst::long64_type){
         ogr_col = new OGRColumnInteger(ogr_layer_proxy,idx);
+        
     } else if (type==GdaConst::double_type){
         ogr_col = new OGRColumnDouble(ogr_layer_proxy,idx);
+        
     } else if (type==GdaConst::string_type){
         ogr_col = new OGRColumnString(ogr_layer_proxy,idx);
+        
     } else if (type==GdaConst::date_type){
         ogr_col = new OGRColumnDate(ogr_layer_proxy,idx);
+        
+    } else if (type==GdaConst::time_type){
+        ogr_col = new OGRColumnTime(ogr_layer_proxy,idx);
+        
+    } else if (type==GdaConst::datetime_type){
+        ogr_col = new OGRColumnDateTime(ogr_layer_proxy,idx);
+        
     } else {
         wxString msg = "Add OGR column error. Field type is unknown.";
         throw GdaException(msg.mb_str());
@@ -510,7 +520,11 @@ bool OGRTable::IsColNumeric(int col)
 {
 	return (GetColType(col) == GdaConst::double_type ||
 			GetColType(col) == GdaConst::long64_type ||
-            GetColType(col) == GdaConst::date_type );
+            GetColType(col) == GdaConst::date_type ||
+            GetColType(col) == GdaConst::time_type ||
+            GetColType(col) == GdaConst::datetime_type
+            );
+    // todo date, datetime, time
 }
 
 GdaConst::FieldType OGRTable::GetColType(int col)
@@ -1066,16 +1080,23 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	return true;
 }
 
-int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos, int time_steps, int field_len, int decimals)
+int OGRTable::InsertCol(GdaConst::FieldType type,
+                        const wxString& name,
+                        int pos,
+                        int time_steps,
+                        int field_len,
+                        int decimals)
 {
     if (pos > GetNumberCols() || time_steps < 0 ) {
         return -1;
     }
     
     // don't support the following column type
-	if (field_len == -1 && (type == GdaConst::placeholder_type ||
+	if (field_len == -1 || (type == GdaConst::placeholder_type ||
                             type == GdaConst::unknown_type ||
-                            type == GdaConst::date_type))
+                            type == GdaConst::date_type||
+                            type == GdaConst::time_type||
+                            type == GdaConst::datetime_type))
     {
         return -1;
     }
@@ -1120,10 +1141,13 @@ int OGRTable::InsertCol(GdaConst::FieldType type, const wxString& name, int pos,
         OGRColumn* ogr_col = NULL;
         if (type == GdaConst::long64_type){
             ogr_col = new OGRColumnInteger(ogr_layer, names[t], field_len,decimals);
+            
         } else if (type==GdaConst::double_type){
             ogr_col = new OGRColumnDouble(ogr_layer, names[t], field_len, decimals);
+            
         } else if (type==GdaConst::string_type){
             ogr_col = new OGRColumnString(ogr_layer, names[t], field_len, decimals);
+            
         } else {
             wxString msg = "Add OGR column error. Field type is unknown "
             "or not supported.";
