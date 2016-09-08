@@ -45,6 +45,7 @@ public:
 private:
     wxString filepath;
     wxGrid* fieldGrid;
+    wxGrid* previewGrid;
     
     std::vector<wxString> col_names;
     

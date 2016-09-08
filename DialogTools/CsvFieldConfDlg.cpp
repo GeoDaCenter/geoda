@@ -78,11 +78,27 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     int n_rows = col_names.size();
     int n_cols = 2; // 1 Var name 2 type
     
+    // read the preview content
+    int max_prev_rows = 10, cnt = 0;
+    vector<wxString> prev_lines;
+    while(!tfile.Eof())
+    {
+        wxString str = tfile.GetNextLine();
+        if (!str.IsEmpty()) {
+            prev_lines.push_back(str);
+            cnt++;
+            if (cnt >= max_prev_rows)
+                break;
+        }
+    }
+    int n_prev_rows = prev_lines.size();
+    int n_prev_cols = n_rows;
     
+    // Create controls UI
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
     
-    wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, "Please Specify Data Type for Each Data Column.");
+    wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, "Please Specify Data Type for Each Data Column. (Note: please hit ENTER to confirm your selection.");
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
     lbl_box->AddSpacer(5);
@@ -96,6 +112,37 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* grid_box = new wxBoxSizer(wxVERTICAL);
     grid_box->AddSpacer(5);
     grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+
+    
+    // Preview controls
+    wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, "Data Preview");
+    
+    wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxVERTICAL);
+    prev_lbl_box->AddSpacer(5);
+    prev_lbl_box->Add(prev_lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    
+    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, -1));
+    previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
+    previewGrid->SetEditable(false);
+    for (int i=0; i<n_prev_cols; i++) {
+        previewGrid->SetColLabelValue(i, col_names[i]);
+    }
+    for (int i=0; i<n_prev_rows; i++) {
+        wxString str = prev_lines[i];
+        wxStringTokenizer tokenizer(str, ",");
+        int j=0;
+        while ( tokenizer.HasMoreTokens() )
+        {
+            wxString token = tokenizer.GetNextToken();
+            previewGrid->SetCellValue(i, j, token);
+            j++;
+        }
+    }
+    
+    wxBoxSizer* preview_box = new wxBoxSizer(wxVERTICAL);
+    preview_box->AddSpacer(5);
+    preview_box->Add(previewGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    
     
     wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     wxButton* btn_update= new wxButton(panel, wxID_ANY, "OK", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
@@ -107,6 +154,8 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
+    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 20);
     
     panel->SetSizerAndFit(box);

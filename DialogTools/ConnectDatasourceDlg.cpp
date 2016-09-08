@@ -202,11 +202,11 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         }
        
         // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
-        //if (ds_file_path.GetExt().Lower() == "csv") {
-        //    wxString csv_path = ds_file_path.GetFullPath();
-        //    CsvFieldConfDlg csvDlg(this, csv_path);
-        //    csvDlg.ShowModal();
-        //}
+        if (ds_file_path.GetExt().Lower() == "csv") {
+            wxString csv_path = ds_file_path.GetFullPath();
+            CsvFieldConfDlg csvDlg(this, csv_path);
+            csvDlg.ShowModal();
+        }
         
 		CreateDataSource();
         
