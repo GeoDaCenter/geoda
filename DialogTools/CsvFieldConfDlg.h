@@ -39,7 +39,7 @@ public:
                     wxWindowID id = wxID_ANY,
                     const wxString& title = "GeoDa Csv Filed Configuration Dialog",
                     const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxSize(480,420));
+                    const wxSize& size = wxSize(580,580));
     
     
 private:

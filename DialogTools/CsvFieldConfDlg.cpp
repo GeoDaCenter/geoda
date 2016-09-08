@@ -31,11 +31,11 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/hyperlink.h>
 #include <wx/tokenzr.h>
-#include <wx/regex.h>
 #include <wx/stdpaths.h>
 #include <wx/progdlg.h>
 #include <wx/panel.h>
 #include <wx/textfile.h>
+#include <wx/regex.h>
 
 #include "stdio.h"
 #include <iostream>
@@ -68,17 +68,25 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     // read the first line
     wxString str = tfile.GetFirstLine();
-    wxStringTokenizer tokenizer(str, ",");
-    while ( tokenizer.HasMoreTokens() )
-    {
-        wxString token = tokenizer.GetNextToken();
-        col_names.push_back(token);
+    int start = 0;
+    bool inQuotes = false;
+    for (int current = 0; current < str.length(); current++) {
+        if (str[current] == '\"')
+            inQuotes = !inQuotes; // toggle state
+        bool atLastChar = (current == str.length() - 1);
+        if(atLastChar)
+            col_names.push_back(str.SubString(start, str.length()-1));
+        else if (str[current] == ',' && !inQuotes) {
+            col_names.push_back(str.SubString(start, current-1));
+            start = current + 1;
+        }
     }
-    
+   
     int n_rows = col_names.size();
     int n_cols = 2; // 1 Var name 2 type
     
     // read the preview content
+    wxString second_line;
     int max_prev_rows = 10, cnt = 0;
     vector<wxString> prev_lines;
     while(!tfile.Eof())
@@ -87,6 +95,8 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
         if (!str.IsEmpty()) {
             prev_lines.push_back(str);
             cnt++;
+            if (cnt == 1)
+                second_line = str;
             if (cnt >= max_prev_rows)
                 break;
         }
@@ -104,7 +114,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     lbl_box->AddSpacer(5);
     lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
     
-    fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300,-1));
+    fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(250,200));
     fieldGrid->CreateGrid(n_rows, n_cols, wxGrid::wxGridSelectRows);
     fieldGrid->SetColLabelValue(0, "Column Name");
     fieldGrid->SetColLabelValue(1, "Data Type");
@@ -121,9 +131,10 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     prev_lbl_box->AddSpacer(5);
     prev_lbl_box->Add(prev_lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
     
-    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, -1));
+    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 100));
     previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
     previewGrid->SetEditable(false);
+    //ApreviewGrid->SetBackgroundColour(wxColour(100,100,100));
     for (int i=0; i<n_prev_cols; i++) {
         previewGrid->SetColLabelValue(i, col_names[i]);
     }
@@ -200,15 +211,22 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
         
     } else {
         // read second line, guess the type
-        str = tfile.GetNextLine();
-        wxStringTokenizer tokenizer1(str, ",");
-        while ( tokenizer1.HasMoreTokens() )
-        {
-            wxString token = tokenizer1.GetNextToken();
-            
-            wxString val = token.Trim(true).Trim(false);
+        int start = 0;
+        bool inQuotes = false;
+        wxString str = second_line;
+        for (int current = 0; current < str.length(); current++) {
+            wxString val;
+            if (str[current] == '\"')
+                inQuotes = !inQuotes; // toggle state
+            bool atLastChar = (current == str.length() - 1);
+            if(atLastChar) {
+                val = str.SubString(start, str.length()-1);
+            } else if (str[current] == ',' && !inQuotes) {
+                val = str.SubString(start, current-1);
+                start = current + 1;
+            }
             double d_val = 0;
-           
+            
             if (val.IsNumber()) {
                 types.push_back("Integer");
             } else if (val.ToDouble(&d_val)) {
@@ -225,7 +243,11 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
         fieldGrid->SetCellEditor(i, COL_T, new wxGridCellChoiceEditor(4, strChoices, false));
         
         fieldGrid->SetCellValue(i, 0, col_names[i]);
-        fieldGrid->SetCellValue(i, COL_T, types[i]);
+        if (types.size() == 0) {
+            fieldGrid->SetCellValue(i, COL_T, "String");
+        } else {
+            fieldGrid->SetCellValue(i, COL_T, types[i]);
+        }
     }
     
     
