@@ -84,9 +84,11 @@ SliderDialog::SliderDialog ( wxWindow * parent, TemplateCanvas* _canvas, wxWindo
 	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,wxALIGN_CENTER_VERTICAL|wxALL);
 
 	boxSizer->Add(subSizer);
+    wxString txt_transparency = wxString::Format("Current Transparency: %.1f", trasp);
+    
 	slider_text = new wxStaticText(this,
                                  wxID_ANY,
-                                 "Current Transparency: 0.3",
+                                   txt_transparency,
                                  wxDefaultPosition,
                                  wxSize(100, -1));
     boxSizer->Add(slider_text, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
