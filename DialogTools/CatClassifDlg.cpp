@@ -783,9 +783,11 @@ useScientificNotation(_useScientificNotation)
 	cat_title_txt.resize(cat_title_txt_srt_vec.size());
 	for (int i=0, iend=cat_title_txt_srt_vec.size(); i<iend; i++) {
 		cat_title_txt[i] = (wxTextCtrl*) cat_title_txt_srt_vec[i].second;
+        cat_title_txt[i]->SetEditable(!cc_data.automatic_labels);
 	}
 	for (int i=0; i<cc_data.num_cats; i++) {
-		cc_data.names[i] = cat_title_txt[i]->GetValue();
+        wxString ttl_txt = cat_title_txt[i]->GetValue();
+        cc_data.names[i] = ttl_txt;
 	}
 	std::sort(brk_rad_srt_vec.begin(), brk_rad_srt_vec.end(),
 			  int_win_pair_less);
@@ -822,18 +824,22 @@ useScientificNotation(_useScientificNotation)
 	InitCurCatsChoices();
 	InitAssocVarChoices();
 	InitPreviewVarChoices();
-	ResetValuesToDefault();
-	EnableControls(false);
 	ShowNumCategories(default_intervals);
 	
 	wxString cc_str_sel = cur_cats_choice->GetStringSelection();
 	cc_state = cat_classif_manager->FindClassifState(cc_str_sel);
+    
 	if (cc_state) {
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
 		InitFromCCData();
 		EnableControls(true);
-	}
+        
+    } else {
+        
+    	ResetValuesToDefault();
+    	EnableControls(false);
+    }
 	
 	table_state->registerObserver(this);
     GetSizer()->Fit(this);
@@ -926,6 +932,12 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 	if (!cc_state) return;
 	cc_data = cc_state->GetCatClassif();
 	SetSyncVars(true);
+    
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
 	EnableControls(true);
@@ -936,6 +948,12 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 	if (!all_init) return;
 	CatClassification::BreakValsType bv_type = GetBreakValsTypeChoice();
 	cc_data.break_vals_type = bv_type;
+    
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -959,6 +977,12 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
 		}
     }
+    
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -1006,6 +1030,11 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 		cc_data.break_vals_type = new_cat_typ;
 	}
 	cc_data.num_cats = new_num_cats;
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
    
@@ -1025,6 +1054,11 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
 		cc_state->GetCatClassif().assoc_db_fld_name = GetAssocDbFldNm();
 		cc_data.assoc_db_fld_name = GetAssocDbFldNm();
 	}
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
 	LOG_MSG("Exiting CatClassifPanel::OnAssocVarChoice");
@@ -1037,6 +1071,11 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
 		cc_state->GetCatClassif().assoc_db_fld_name = GetAssocDbFldNm();
 		cc_data.assoc_db_fld_name = GetAssocDbFldNm();
 	}
+    
+	// Verify that cc data is self-consistent and correct if not.  This
+	// will result in all breaks, colors and names being initialized.
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    
 	InitFromCCData();
 	UpdateCCState();
 	LOG_MSG("Exiting CatClassifPanel::OnAssocVarTmChoice");
@@ -1157,6 +1196,11 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
 					cc_data.breaks[i] = cc_data.uniform_dist_max;
 				}
 			}
+            
+        	// Verify that cc data is self-consistent and correct if not.  This
+        	// will result in all breaks, colors and names being initialized.
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1204,6 +1248,11 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
 					cc_data.breaks[i] = cc_data.uniform_dist_max;
 				}
 			}
+            
+        	// Verify that cc data is self-consistent and correct if not.  This
+        	// will result in all breaks, colors and names being initialized.
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1226,9 +1275,14 @@ void CatClassifPanel::OnUnifDistMaxKillFocus(wxFocusEvent& event)
 void CatClassifPanel::OnAutomaticLabelsCb(wxCommandEvent& event)
 {
 	LOG_MSG("In CatClassifPanel::OnAutomaticLabelsCb");
+    for (int i=0; i<cc_data.num_cats; i++) {
+        cat_title_txt[i]->SetEditable( !event.IsChecked() );
+    }
+    
 	if (event.IsChecked()) {
 		cc_data.automatic_labels = true;
 		LOG_MSG("turning automatic labels on");
+        
 		SetBrkTxtFromVec(cc_data.breaks);
 		UpdateCCState();
 		Refresh();
@@ -1308,8 +1362,14 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
 	SetBreakValsTypeChoice(CatClassification::custom_break_vals);
 	SetBrkTxtFromVec(cc_data.breaks);
 	SetActiveBrkRadio(nbrk);
-	UpdateCCState();
 	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
+    
+    for (int i=0; i<cc_data.num_cats; i++) {
+        cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
+        cat_title_txt[i]->ChangeValue(cc_data.names[i]);
+    }
+    
+	UpdateCCState();
 }
 
 void CatClassifPanel::OnScrollThumbRelease(wxScrollEvent& event)
@@ -1415,7 +1475,8 @@ void CatClassifPanel::OnCategoryTitleText(wxCommandEvent& event)
 	}
 	LOG(obj_id);
 	if (obj_id < 0) return;
-	cc_data.names[obj_id] = cat_title_txt[obj_id]->GetValue();
+    wxString ttl_text = cat_title_txt[obj_id]->GetValue();
+    cc_data.names[obj_id] = ttl_text;
 	UpdateCCState();
 }
 
@@ -1736,21 +1797,19 @@ void CatClassifPanel::EnableControls(bool enable)
  */
 void CatClassifPanel::InitFromCCData()
 {
-	// Verify that cc data is self-consistent and correct if not.  This
-	// will result in all breaks, colors and names being initialized.
-	CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
-	
 	SetColorSchemeChoice(cc_data.color_scheme);
+	SetAutomaticLabels(cc_data.automatic_labels);
 	SetUnifDistMode(cc_data.assoc_db_fld_name.IsEmpty());
 	SetNumCats(cc_data.num_cats);
 	for (int i=0; i<cc_data.num_cats; i++) {
 		cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		cat_title_txt[i]->ChangeValue(cc_data.names[i]);
+		cat_title_txt[i]->SetEditable(!cc_data.automatic_labels);
 	}
+    
 	SetBrkTxtFromVec(cc_data.breaks);
 	SetActiveBrkRadio(0);
 	ShowNumCategories(cc_data.num_cats);
-	SetAutomaticLabels(cc_data.automatic_labels);
 	if (IsUnifDistMode()) {
 		assoc_var_choice->SetSelection(0); // uniform distribution
 		assoc_var_tm_choice->Enable(false);
@@ -1967,8 +2026,14 @@ void CatClassifPanel::ShowNumCategories(int num_cats)
 
 bool CatClassifPanel::IsAutomaticLabels()
 {
-	if (!all_init) return true;
-	return auto_labels_cb->GetValue();
+    bool flag = false;
+    
+	if (!all_init)
+        flag = true;
+    else
+        flag = auto_labels_cb->GetValue();
+    
+	return flag;
 }
 
 void CatClassifPanel::SetAutomaticLabels(bool auto_labels)

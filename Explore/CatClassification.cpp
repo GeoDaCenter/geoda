@@ -1157,8 +1157,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		if (cc.break_vals_type != CatClassification::by_cat_classif_type) {
 			cct = BreakValsTypeToCatClassifType(cc.break_vals_type);
 		}
-		CatClassification::SetBreakPoints(cc.breaks, cc.names,
-										  data, cct, cc.num_cats);
+		CatClassification::SetBreakPoints(cc.breaks, cc.names, data, cct, cc.num_cats);
 	}
 	
 	if (cc.color_scheme != CatClassification::custom_color_scheme)
