@@ -205,12 +205,31 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
+        double stop_sig = 0;
 		if (lisa_coord->GetHasIsolates(t)) num_cats++;
 		if (lisa_coord->GetHasUndefined(t)) num_cats++;
 		if (is_clust) {
 			num_cats += 5;
 		} else {
-			num_cats += 6-lisa_coord->GetSignificanceFilter();
+            // significance map
+			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+			int s_f = lisa_coord->GetSignificanceFilter();
+            num_cats += 6 - s_f;
+            
+            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            double sig_cutoff = lisa_coord->significance_cutoff;
+            int set_perm = lisa_coord->permutations;
+            stop_sig = 1.0 / (1.0 + set_perm);
+            
+			if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+                num_cats -= 1;
+            }
 		}
 		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
 		
@@ -251,14 +270,16 @@ void LisaMapCanvas::CreateAndUpdateCategories()
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
-            
-			cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-			cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-			if (s_f <= 3) {
+    
+            if (s_f <=4 && stop_sig <= 0.0001) {
+                cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
+                cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
+            }
+			if (s_f <= 3 && stop_sig <= 0.001) {
 				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
 				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));	
 			}
-			if (s_f <= 2) {
+			if (s_f <= 2 && stop_sig <= 0.01) {
 				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
 				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
 			}
