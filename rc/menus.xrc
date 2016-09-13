@@ -387,7 +387,7 @@
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_MAP_VIEW_MAP_MENU">
-        <label>Conditional Plot Map</label>
+        <label>Conditional Map</label>
       </object>
       <object class="wxMenuItem" name="ID_SHOW_CARTOGRAM_NEW_VIEW">
         <label>Cartogram</label>
