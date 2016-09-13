@@ -540,17 +540,17 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 					if (num_cats <= 1) {
 						//s << "(-inf, inf)";
 						//ss << cat_def.names[ival];
-			ss << "";
+                        ss << "";
 						cat_data.SetCategoryCount(t, ival, num_obs);
 					} else if (ival == 0) {
-			ss << "< " << cat_def.breaks[ival];
+                        ss << "< " << cat_def.breaks[ival];
 						//s << "(-inf, ";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival]) << ")";
 						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats != 2) {
-			ss << "> " << cat_def.breaks[ival-1];
+                        ss << "> " << cat_def.breaks[ival-1];
 						//s << "(";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
@@ -558,7 +558,7 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats == 2) {
-			ss << ">= " << cat_def.breaks[ival-1];
+                        ss << ">= " << cat_def.breaks[ival-1];
 						//s << "[";
 						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", inf)";
@@ -580,8 +580,8 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 							a = "(";
 							b = "]";
 						}
-			ss << a << cat_def.breaks[ival-1] << ", ";
-			ss << cat_def.breaks[ival] << b;
+                        ss << a << cat_def.breaks[ival-1] << ", ";
+                        ss << cat_def.breaks[ival] << b;
 						//s << a << GenUtils::DblToStr(cat_def.breaks[ival-1]);
 						//s << ", " << GenUtils::DblToStr(cat_def.breaks[ival]);
 						//s << b;
@@ -589,7 +589,11 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					}
-					cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
+                    if (cat_def.names[ival].IsEmpty()) {
+                        cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
+                    } else {
+                        cat_data.SetCategoryLabel(t, ival, cat_def.names[ival]);
+                    }
 					cat_data.SetCategoryMinMax(t, ival,
 											   cat_min[ival], cat_max[ival]);
 				}

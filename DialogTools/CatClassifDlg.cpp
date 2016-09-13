@@ -778,8 +778,7 @@ useScientificNotation(_useScientificNotation)
 								&CatClassifPanel::OnCategoryColorButton, this);
 	}
 	
-	std::sort(cat_title_txt_srt_vec.begin(), cat_title_txt_srt_vec.end(),
-			  int_win_pair_less);
+	std::sort(cat_title_txt_srt_vec.begin(), cat_title_txt_srt_vec.end(), int_win_pair_less);
 	cat_title_txt.resize(cat_title_txt_srt_vec.size());
 	for (int i=0, iend=cat_title_txt_srt_vec.size(); i<iend; i++) {
 		cat_title_txt[i] = (wxTextCtrl*) cat_title_txt_srt_vec[i].second;
@@ -812,7 +811,6 @@ useScientificNotation(_useScientificNotation)
 	for (int i=0, iend=brk_txt_srt_vec.size(); i<iend; i++) {
 		brk_txt[i] = (wxTextCtrl*) brk_txt_srt_vec[i].second;
 		brk_txt[i]->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-		//brk_txt[i]->SetValidator(wxFloatingPointValidator<double> validator);
 		brk_txt[i]->Bind(wxEVT_KILL_FOCUS, &CatClassifPanel::OnKillFocusEvent,
 						 this);
 	}
@@ -1532,12 +1530,14 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 			new_title.Trim(true);
 			if (new_title.IsEmpty()) {
 				retry = false;
+                
 			} else if (IsDuplicateTitle(new_title)) {
 				wxString es;
 				es << "Categories title \"" << new_title << "\" already ";
 				es << "exists. Please choose a different title.";
 				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
 				ed.ShowModal();
+                
 			} else {
 				cc_data.title = new_title;
 				cc_data.assoc_db_fld_name = GetAssocDbFldNm();
@@ -1545,8 +1545,14 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 				cur_cats_choice->Append(new_title);
 				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
 				SetSyncVars(true);
+                
+            	// Verify that cc data is self-consistent and correct if not.  This
+            	// will result in all breaks, colors and names being initialized.
+                CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+                
 				InitFromCCData();
 				EnableControls(true);
+                UpdateCCState();
 				retry = false;
 			}
 		} else {
