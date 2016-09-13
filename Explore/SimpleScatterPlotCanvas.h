@@ -72,6 +72,7 @@ public:
 							bool show_linear_smoother = true,
 							bool show_lowess_smoother = false,
 							bool show_slope_values = true,
+							bool view_standardized_data = false,
 							const wxPoint& pos = wxDefaultPosition,
 							const wxSize& size = wxDefaultSize);
 	virtual ~SimpleScatterPlotCanvas();
@@ -86,6 +87,8 @@ public:
 	
 	void ShowAxes(bool display);
 	void ShowRegimes(bool display);
+	void ViewStandardizedData(bool display);
+	void ViewOriginalData(bool display);
 	void ShowLinearSmoother(bool display);
 	void ShowLowessSmoother(bool display);
 	void ChangeLoessParams(double f, int iter, double delta_factor);
@@ -160,6 +163,7 @@ protected:
 	bool show_horiz_axis_through_origin;
 	bool show_vert_axis_through_origin;
 	bool show_slope_values;
+    bool view_standardized_data;
 	
 	SmoothingUtils::LowessCacheType lowess_cache;
 	void EmptyLowessCache();

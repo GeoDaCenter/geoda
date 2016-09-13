@@ -3345,10 +3345,7 @@ void GdaFrame::OnExploreScatterPlotMat(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	ScatterPlotMatFrame* f =
-		new ScatterPlotMatFrame(GdaFrame::gda_frame, project_p,
-														"Scatter Plot Matrix", wxDefaultPosition,
-														GdaConst::scatterplot_default_size);
+	ScatterPlotMatFrame* f = new ScatterPlotMatFrame(GdaFrame::gda_frame, project_p, "Scatter Plot Matrix", wxDefaultPosition, GdaConst::scatterplot_default_size);
 }
 
 void GdaFrame::OnExploreTestMap(wxCommandEvent& WXUNUSED(event))
@@ -5333,6 +5330,8 @@ void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 		f->OnViewStandardizedData(event);
 	} else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
 		f->OnViewStandardizedData(event);
+	} else if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+		f->OnViewStandardizedData(event);
 	}	
 }
 
@@ -5343,6 +5342,8 @@ void GdaFrame::OnViewOriginalData(wxCommandEvent& event)
 	if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
 		f->OnViewOriginalData(event);
 	} else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+		f->OnViewOriginalData(event);
+	} else if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
 		f->OnViewOriginalData(event);
 	}
 }

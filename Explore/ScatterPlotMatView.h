@@ -74,14 +74,13 @@ typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
  need a custom highlight state
  
  */
-class ScatterPlotMatFrame : public TemplateFrame, public LowessParamObserver,
-public VarsChooserObserver
+class ScatterPlotMatFrame : public TemplateFrame, public LowessParamObserver, public VarsChooserObserver
 {
 public:
 	ScatterPlotMatFrame(wxFrame *parent, Project* project,
-											const wxString& title = "Scatter Plot Matrix",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize);
+                        const wxString& title = "Scatter Plot Matrix",
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize);
 	virtual ~ScatterPlotMatFrame();
 	
 	void OnMouseEvent(wxMouseEvent& event);
@@ -89,7 +88,10 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
-		
+	
+    void OnViewStandardizedData(wxCommandEvent& event);
+    void OnViewOriginalData(wxCommandEvent& event);
+    
 	void OnViewLinearSmoother(wxCommandEvent& event);
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);
@@ -137,7 +139,8 @@ protected:
 	wxGridBagSizer* bag_szr;
 	//wxWebView* message_win;
 	wxHtmlWindow* message_win;
-	
+
+    bool view_standardized_data;
 	bool show_outside_titles;
 	bool show_regimes;
 	bool show_linear_smoother;

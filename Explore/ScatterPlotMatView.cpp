@@ -38,12 +38,12 @@ BEGIN_EVENT_TABLE(ScatterPlotMatFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 ScatterPlotMatFrame::ScatterPlotMatFrame(wxFrame *parent, Project* project,
-																				 const wxString& title,
-																				 const wxPoint& pos,
-																				 const wxSize& size)
+                                         const wxString& title,
+                                         const wxPoint& pos,
+                                         const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 lowess_param_frame(0), vars_chooser_frame(0), panel(0),
-panel_v_szr(0), bag_szr(0), top_h_sizer(0),
+panel_v_szr(0), bag_szr(0), top_h_sizer(0), view_standardized_data(false),
 show_regimes(true), show_outside_titles(true), show_linear_smoother(true),
 show_lowess_smoother(false), show_slope_values(true)
 {
@@ -63,11 +63,7 @@ show_lowess_smoother(false), show_slope_values(true)
 	SetBackgroundColour(*wxWHITE);
 	panel->Bind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 	
-	//message_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
-	//														 wxDefaultPosition,
-	//														 wxSize(-1, 200));
-	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-																 wxSize(200,-1));
+	message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
 	
 	message_win->Bind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 	
@@ -86,11 +82,6 @@ show_lowess_smoother(false), show_slope_values(true)
 	
 	panel->SetSizer(panel_h_szr);
 	
-	//wxBoxSizer* right_v_szr = new wxBoxSizer(wxVERTICAL);
-	//conn_hist_canvas = new ConnectivityHistCanvas(this, this, project,
-	//																							boost::uuids::nil_uuid());
-	
-	//right_v_szr->Add(conn_hist_canvas, 1, wxEXPAND);
 	
 	UpdateMessageWin();
 	
@@ -125,8 +116,7 @@ ScatterPlotMatFrame::~ScatterPlotMatFrame()
 
 void ScatterPlotMatFrame::OnMouseEvent(wxMouseEvent& event)
 {
-	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)",
-													 (int) event.GetX(), (int) event.GetY()));
+	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)", (int) event.GetX(), (int) event.GetY()));
 	if (event.RightDown()) {
 		LOG_MSG("Right Down");
 	}
@@ -147,8 +137,7 @@ void ScatterPlotMatFrame::MapMenus()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");	
+	optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
 	ScatterPlotMatFrame::UpdateContextMenuItems(optMenu);
 
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
@@ -174,17 +163,35 @@ void ScatterPlotMatFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
-																show_linear_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
-																show_lowess_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
-																show_regimes);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
-																show_slope_values);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),show_linear_smoother);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),show_lowess_smoother);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),show_regimes);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),show_slope_values);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_STANDARDIZED_DATA"),view_standardized_data);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_ORIGINAL_DATA"),!view_standardized_data);
 	
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
+
+void ScatterPlotMatFrame::OnViewStandardizedData(wxCommandEvent& event)
+{
+    view_standardized_data = !view_standardized_data;
+    for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+        scatt_plots[i]->ViewStandardizedData(view_standardized_data);
+    }
+    UpdateOptionMenuItems();
+}
+
+
+void ScatterPlotMatFrame::OnViewOriginalData(wxCommandEvent& event)
+{
+    view_standardized_data = !view_standardized_data;
+    for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+        scatt_plots[i]->ViewOriginalData(!view_standardized_data);
+    }
+    UpdateOptionMenuItems();
+}
+
 
 void ScatterPlotMatFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
@@ -215,9 +222,7 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l; // = t->GetLowess();  // should be shared by all cells
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
@@ -231,10 +236,7 @@ void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)
 		vars_chooser_frame->SetFocus();
 	} else {
 		wxString title("Scatter Plot Matrix Variables Add/Remove");
-		vars_chooser_frame = new VarsChooserFrame(var_man, project, true, true,
-																							GetHelpHtml(),
-																							"Scatter Plot Matrix Help",
-																							title);
+		vars_chooser_frame = new VarsChooserFrame(var_man, project, true, true,GetHelpHtml(), "Scatter Plot Matrix Help", title);
 		vars_chooser_frame->registerObserver(this);
 		vars_chooser_frame->SetSize(-1, -1, -1, 400);
 	}
@@ -460,7 +462,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                                      show_regimes,
                                                      show_linear_smoother,
                                                      show_lowess_smoother,
-                                                     show_slope_values);
+                                                     show_slope_values,
+                                                     view_standardized_data);
 				bag_szr->Add(sp_can, wxGBPosition(row, col+1), wxGBSpan(1,1), wxEXPAND);
 				scatt_plots.push_back(sp_can);
 			}

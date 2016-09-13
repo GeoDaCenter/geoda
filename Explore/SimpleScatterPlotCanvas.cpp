@@ -60,6 +60,7 @@ SimpleScatterPlotCanvas::SimpleScatterPlotCanvas
  bool show_linear_smoother_,
  bool show_lowess_smoother_,
  bool show_slope_values_,
+ bool view_standardized_data_,
  const wxPoint& pos,
  const wxSize& size)
 : TemplateCanvas(parent, t_frame, project, hl_state_int,
@@ -77,7 +78,8 @@ show_vert_axis_through_origin(show_vert_axis_through_origin_),
 show_regimes(show_regimes_),
 show_linear_smoother(show_linear_smoother_),
 show_lowess_smoother(show_lowess_smoother_),
-show_slope_values(show_slope_values_)
+show_slope_values(show_slope_values_),
+view_standardized_data(view_standardized_data_)
 {
 	LOG_MSG("Entering SimpleScatterPlotCanvas::SimpleScatterPlotCanvas");
 	
@@ -223,6 +225,18 @@ void SimpleScatterPlotCanvas::ShowRegimes(bool display)
 	PopulateCanvas();
 }
 
+void SimpleScatterPlotCanvas::ViewStandardizedData(bool display)
+{
+	view_standardized_data = display;
+	PopulateCanvas();
+}
+
+void SimpleScatterPlotCanvas::ViewOriginalData(bool display)
+{
+	view_standardized_data = !display;
+	PopulateCanvas();
+}
+
 void SimpleScatterPlotCanvas::ShowLinearSmoother(bool display)
 {
 	show_linear_smoother = display;
@@ -241,8 +255,7 @@ void SimpleScatterPlotCanvas::ShowSlopeValues(bool display)
 	PopulateCanvas();
 }
 
-void SimpleScatterPlotCanvas::ChangeLoessParams(double f, int iter, 
-																								double delta_factor)
+void SimpleScatterPlotCanvas::ChangeLoessParams(double f, int iter, double delta_factor)
 {
 	EmptyLowessCache();
 	lowess.SetF(f);
@@ -264,26 +277,26 @@ void SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines()
 		bool reg_line_selected_infinite_slope;
 		bool reg_line_selected_defined;
 		SmoothingUtils::CalcRegressionLine(*reg_line_selected,
-																			 reg_line_selected_slope,
-																			 reg_line_selected_infinite_slope,
-																			 reg_line_selected_defined, a, b,
-																			 cc_degs_of_rot,
-																			 axis_scale_x, axis_scale_y,
-																			 regressionXYselected,
-																			 *pens.GetRegSelPen());
+                                           reg_line_selected_slope,
+                                           reg_line_selected_infinite_slope,
+                                           reg_line_selected_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYselected,
+                                           *pens.GetRegSelPen());
 		ApplyLastResizeToShp(reg_line_selected);
 		
 		double reg_line_excluded_slope;
 		bool reg_line_excluded_infinite_slope;
 		bool reg_line_excluded_defined;	
 		SmoothingUtils::CalcRegressionLine(*reg_line_excluded,
-																			 reg_line_excluded_slope,
-																			 reg_line_excluded_infinite_slope,
-																			 reg_line_excluded_defined, a, b,
-																			 cc_degs_of_rot,
-																			 axis_scale_x, axis_scale_y,
-																			 regressionXYexcluded,
-																			 *pens.GetRegExlPen());
+                                           reg_line_excluded_slope,
+                                           reg_line_excluded_infinite_slope,
+                                           reg_line_excluded_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYexcluded,
+                                           *pens.GetRegExlPen());
 		ApplyLastResizeToShp(reg_line_excluded);
 		
 		layer2_valid = false;
