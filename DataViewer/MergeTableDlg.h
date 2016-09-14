@@ -88,10 +88,14 @@ private:
 private:
     void CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<wxString, int>& key_map);
+    
     vector<wxString>
     GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
+    
     void AppendNewField(wxString field_name, wxString real_field_name,
                         int n_rows, std::map<int,int>& rowid_map);
+    
+    
 	DECLARE_EVENT_TABLE()
 };
 

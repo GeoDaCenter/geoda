@@ -43,14 +43,21 @@ public:
     
     
 private:
+    int n_prev_cols;
+    int n_prev_rows;
+    std::vector<wxString> col_names;
+    std::vector<wxString> prev_lines;
+    std::vector<wxString> types;
+    
     wxString filepath;
     wxGrid* fieldGrid;
     wxGrid* previewGrid;
     
-    std::vector<wxString> col_names;
     
+    void UpdatePreview();
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
+    void OnFieldSelected(wxCommandEvent& event);
     
 };
 
