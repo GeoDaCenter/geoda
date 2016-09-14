@@ -170,8 +170,10 @@ void TemplateLegend::OnDraw(wxDC& dc)
     dc.SetPen(*wxBLACK_PEN);
 	for (int i=0; i<numRect; i++) {
         wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk()) dc.SetBrush(clr);
-        else dc.SetBrush(*wxBLACK_BRUSH);
+        if (clr.IsOk())
+            dc.SetBrush(clr);
+        else
+            dc.SetBrush(*wxBLACK_BRUSH);
         
 		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
 					(px + m_l + 10), cur_y - (m_w / 2));

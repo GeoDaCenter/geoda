@@ -270,31 +270,38 @@ void LisaMapCanvas::CreateAndUpdateCategories()
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
-    
+   
+            int skip_cat = 0;
             if (s_f <=4 && stop_sig <= 0.0001) {
                 cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
                 cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-            }
+            } else skip_cat++;
+            
 			if (s_f <= 3 && stop_sig <= 0.001) {
 				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));	
-			}
+				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
+            } else skip_cat++;
+            
 			if (s_f <= 2 && stop_sig <= 0.01) {
 				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
 				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
-			}
+            } else skip_cat++;
+            
 			if (s_f <= 1) {
 				cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
 				cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
 			}
 			if (lisa_coord->GetHasIsolates(t) &&
 				lisa_coord->GetHasUndefined(t)) {
-				isolates_cat = 6-s_f;
-				undefined_cat = 7-s_f;
+				isolates_cat = 6 - s_f - skip_cat;
+				undefined_cat = 7 - s_f - skip_cat;
+                
 			} else if (lisa_coord->GetHasUndefined(t)) {
-				undefined_cat = 6-s_f;
+				undefined_cat = 6 -s_f - skip_cat;
+                
 			} else if (lisa_coord->GetHasIsolates(t)) {
-				isolates_cat = 6-s_f;
+				isolates_cat = 6 - s_f -skip_cat;
+                
 			}
 		}
 		if (undefined_cat != -1) {

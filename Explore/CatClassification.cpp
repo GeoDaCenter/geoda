@@ -1971,8 +1971,10 @@ void CatClassifData::SetCategoryColor(int canvas_tm, int cat, wxColour color)
 
 wxColour CatClassifData::GetCategoryColor(int canvas_tm, int cat)
 {
-	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return *wxBLACK;
-	return categories[canvas_tm].cat_vec[cat].brush.GetColour();
+	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return *wxBLACK;
+	return
+        categories[canvas_tm].cat_vec[cat].brush.GetColour();
 }
 
 wxBrush CatClassifData::GetCategoryBrush(int canvas_tm, int cat)
