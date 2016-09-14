@@ -110,8 +110,10 @@ protected:
 	
 	ScatterPlotPens pens;
 	
-	const std::vector<double>& X;
-	const std::vector<double>& Y;
+	std::vector<double> X;
+	std::vector<double> Y;
+	const std::vector<double>& orgX;
+	const std::vector<double>& orgY;
 	wxString Xname;
 	wxString Yname;
 	// used for scaling, so can be smaller/larger than min/max in X/Y

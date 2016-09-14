@@ -66,7 +66,8 @@ SimpleScatterPlotCanvas::SimpleScatterPlotCanvas
 : TemplateCanvas(parent, t_frame, project, hl_state_int,
 								 pos, size, false, true),
 ssp_canv_cb(ssp_canv_cb_),
-X(X_), Y(Y_), Xname(Xname_), Yname(Yname_),
+X(X_), Y(Y_),
+orgX(X_), orgY(Y_), Xname(Xname_), Yname(Yname_),
 Xmin(Xmin_), Xmax(Xmax_), Ymin(Ymin_), Ymax(Ymax_),
 add_auto_padding_min(add_auto_padding_min_),
 add_auto_padding_max(add_auto_padding_max_),
@@ -228,12 +229,18 @@ void SimpleScatterPlotCanvas::ShowRegimes(bool display)
 void SimpleScatterPlotCanvas::ViewStandardizedData(bool display)
 {
 	view_standardized_data = display;
+    X = orgX;
+    Y = orgY;
+    EmptyLowessCache();
 	PopulateCanvas();
 }
 
 void SimpleScatterPlotCanvas::ViewOriginalData(bool display)
 {
 	view_standardized_data = !display;
+    X = orgX;
+    Y = orgY;
+    EmptyLowessCache();
 	PopulateCanvas();
 }
 
@@ -405,6 +412,26 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	
 	statsX = SampleStatistics(X);
 	statsY = SampleStatistics(Y);
+    
+    if (view_standardized_data) {
+        for (int i=0, iend=X.size(); i<iend; i++) {
+            X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
+            Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
+        }
+        // we are ignoring the global scaling option here
+        x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
+        x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
+        y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
+        y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
+        statsX = SampleStatistics(X);
+        statsY = SampleStatistics(Y);
+        // mean shold be 0 and biased standard deviation should be 1
+        double eps = 0.000001;
+        if (-eps < statsX.mean && statsX.mean < eps)
+            statsX.mean = 0;
+        if (-eps < statsY.mean && statsY.mean < eps)
+            statsY.mean = 0;
+    }
 	
 	LOG_MSG(wxString(statsX.ToString().c_str(), wxConvUTF8));
 	LOG_MSG(wxString(statsY.ToString().c_str(), wxConvUTF8));
@@ -415,6 +442,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	sse_c = regressionXY.error_sum_squares;
 	//LOG_MSG(wxString(regressionXY.ToString().c_str(), wxConvUTF8));
 	
+    
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
 	axis_scale_x = AxisScale(x_min - (add_auto_padding_min ? x_pad : 0.0),
@@ -440,8 +468,8 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 		selectable_shps_type = circles;
 		for (size_t i=0, sz=X.size(); i<sz; ++i) {
 			GdaCircle* c = 0;
-			c = new GdaCircle(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-										  (Y[i] - axis_scale_y.scale_min) * scaleY),
+			c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
+										  (Y[i]-axis_scale_y.scale_min) * scaleY),
 							  2.5);
 			c->setPen(GdaConst::scatterplot_regression_excluded_color);
 			c->setBrush(GdaConst::scatterplot_regression_excluded_color);

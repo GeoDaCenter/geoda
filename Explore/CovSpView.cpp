@@ -420,12 +420,12 @@ void CovSpFrame::UpdatePanel()
 			SimpleAxisCanvas* sa_can = 0;
 			{
 				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-																			Zprod[z_tm],
-																			z_title,
-																			Zprod_min[z_tm], Zprod_max[z_tm], false,
-																			show_outside_titles, false,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(50, -1));
+											Zprod[z_tm],
+											z_title,
+											Zprod_min[z_tm], Zprod_max[z_tm], false,
+											show_outside_titles, false,
+											true, true, -1, false, false, 0, false,
+											wxDefaultPosition, wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 				vert_label = sa_can;
 			}
@@ -439,11 +439,11 @@ void CovSpFrame::UpdatePanel()
 					}
 				}
 				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-																			D, "Distance",
-																			D_min, D_max, true,
-																			show_outside_titles, true,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(-1, 50));
+											D, "Distance",
+											D_min, D_max, true,
+											show_outside_titles, true,
+											true, true, -1, false, false, 0, false,
+											wxDefaultPosition, wxSize(-1, 50));
 				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
 										 wxEXPAND);
 				horiz_label = sa_can;
@@ -452,19 +452,19 @@ void CovSpFrame::UpdatePanel()
 				int col = 0;
 				SimpleScatterPlotCanvas* sp_can = 0;
 				sp_can = new SimpleScatterPlotCanvas(panel, this, project,
-																						 pairs_hl_state, 0,
-																						 D, Zprod[z_tm],
-																						 "Distance", z_title,
-																						 D_min, D_max,
-																						 Zprod_min[z_tm], Zprod_max[z_tm],
-																						 true, true, false,
-																						 "ID_COV_SCATTER_PLOT_MENU_OPTIONS",
-																						 !show_outside_titles,
-																						 true, false, //show axes thru org
-																						 show_regimes,
-																						 false, //show_linear_smoother,
-																						 show_lowess_smoother,
-																						 false); // show_slope_values
+													 pairs_hl_state, 0,
+													 D, Zprod[z_tm],
+													 "Distance", z_title,
+													 D_min, D_max,
+													 Zprod_min[z_tm], Zprod_max[z_tm],
+													 true, true, false,
+													 "ID_COV_SCATTER_PLOT_MENU_OPTIONS",
+													 !show_outside_titles,
+													 true, false, //show axes thru org
+													 show_regimes,
+													 false, //show_linear_smoother,
+													 show_lowess_smoother,
+													 false); // show_slope_values
 				bag_szr->Add(sp_can, wxGBPosition(row, col+1), wxGBSpan(1,1), wxEXPAND);
 				scatt_plot = sp_can;
 				template_canvas = sp_can;

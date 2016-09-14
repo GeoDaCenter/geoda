@@ -52,6 +52,7 @@ SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 bool force_tick_at_min_,
 								 bool force_tick_at_max_,
 								 AxisScale* custom_axis_scale_,
+                                 bool is_standardized_,
 								 const wxPoint& pos,
 								 const wxSize& size)
 : TemplateCanvas(parent, t_frame, project, hl_state_int,
@@ -64,7 +65,8 @@ number_ticks(number_ticks_),
 force_tick_at_min(force_tick_at_min_),
 force_tick_at_max(force_tick_at_max_),
 custom_axis_scale(custom_axis_scale_),
-X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_)
+X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
+is_standardized(is_standardized_)
 {
 	LOG_MSG("Entering SimpleAxisCanvas::SimpleAxisCanvas");
 	
@@ -98,6 +100,12 @@ void SimpleAxisCanvas::ShowAxes(bool display)
 	show_axes = display;
 	UpdateMargins();
 	PopulateCanvas();
+}
+
+void SimpleAxisCanvas::ViewStandardizedData(bool display)
+{
+    is_standardized = display;
+    PopulateCanvas();
 }
 
 void SimpleAxisCanvas::PopulateCanvas()
@@ -140,7 +148,20 @@ void SimpleAxisCanvas::PopulateCanvas()
 	statsX = SampleStatistics(X);
 	LOG_MSG(wxString(statsX.ToString().c_str(), wxConvUTF8));
 	
+    if (is_standardized) {
+        for (int i=0, iend=X.size(); i<iend; i++) {
+            X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
+        }
+		x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
+		x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
+		statsX = SampleStatistics(X);
+		// mean shold be 0 and biased standard deviation should be 1
+		double eps = 0.000001;
+		if (-eps < statsX.mean && statsX.mean < eps) statsX.mean = 0;
+    }
+    
 	if (custom_axis_scale) {
+        
 		axis_scale_x = *custom_axis_scale;
 	} else {
 		double x_pad = 0.1 * (x_max - x_min);

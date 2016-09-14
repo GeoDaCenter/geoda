@@ -995,26 +995,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");
 		} else {
-			/*
-			double x_first, y_first, x_last, y_last;
-			SmoothingUtils::ExtendEndpointsToBB(lce->X_srt, lce->YS_srt,
-																					axis_scale_x.scale_min,
-																					axis_scale_y.scale_min,
-																					axis_scale_x.scale_max,
-																					axis_scale_y.scale_max,
-																					x_first, y_first, x_last, y_last);
-			
-			lowess_reg_line->addExtensions(x_first, y_first,
-																		 lce->X_srt, lce->YS_srt,
-																		 x_last, y_last,
-																		 axis_scale_x.scale_min,
-																		 axis_scale_y.scale_min,
-																		 scaleX, scaleY);
-			 */
 			lowess_reg_line->reInit(lce->X_srt, lce->YS_srt,
-															axis_scale_x.scale_min,
-															axis_scale_y.scale_min,
-															scaleX, scaleY);
+                                    axis_scale_x.scale_min,
+                                    axis_scale_y.scale_min,
+                                    scaleX, scaleY);
 			lowess_reg_line->setPen(*pens.GetRegPen());
 			
 			LOG_MSG("End populating LOWESS curve (all obs)");

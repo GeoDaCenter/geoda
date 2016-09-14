@@ -436,6 +436,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 											  true, // force tick at min
 											  true, // force tick at max
 											  &v_axs,
+                                              false, // non-standardized
 											  wxDefaultPosition, 
 											  wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
@@ -505,6 +506,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 											  true, // force tick at min
 											  true, // force tick at max
 											  &v_axs,
+                                              false, // non-standardized
 											  wxDefaultPosition, 
 											  wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(num_top_rows, 0),
@@ -583,6 +585,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 									true, // force tick at min
 									true, // force tick at max
 									&h_axs, // custom axis scale pointer
+                                    false, // non-standardized
 									wxDefaultPosition, wxSize(-1, 50));
 
 		bag_szr->Add(sa_can, wxGBPosition(num_top_rows+1, 1),

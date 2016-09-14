@@ -179,6 +179,12 @@ void ScatterPlotMatFrame::OnViewStandardizedData(wxCommandEvent& event)
     for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
         scatt_plots[i]->ViewStandardizedData(view_standardized_data);
     }
+	for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
+		if (vert_labels[i]) vert_labels[i]->ViewStandardizedData(view_standardized_data);
+	}
+	for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
+		if (horiz_labels[i]) horiz_labels[i]->ViewStandardizedData(view_standardized_data);
+	}
     UpdateOptionMenuItems();
 }
 
@@ -189,6 +195,12 @@ void ScatterPlotMatFrame::OnViewOriginalData(wxCommandEvent& event)
     for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
         scatt_plots[i]->ViewOriginalData(!view_standardized_data);
     }
+	for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
+		if (vert_labels[i]) vert_labels[i]->ViewStandardizedData(view_standardized_data);
+	}
+	for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
+		if (horiz_labels[i]) horiz_labels[i]->ViewStandardizedData(view_standardized_data);
+	}
     UpdateOptionMenuItems();
 }
 
@@ -412,6 +424,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                               row_min, row_max, false,
                                               show_outside_titles, false,
                                               true, true, -1, false, false, 0,
+                                              view_standardized_data,
                                               wxDefaultPosition, wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 				vert_labels.push_back(sa_can);
@@ -423,6 +436,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                               row_min, row_max, true,
                                               show_outside_titles, false,
                                               true, true, -1, false, false, 0,
+                                              view_standardized_data,
                                               wxDefaultPosition, wxSize(-1, 50));
 				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
 										 wxEXPAND);
