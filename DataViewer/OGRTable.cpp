@@ -1124,7 +1124,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     
 	if (decimals < 0) {
 		if (type == GdaConst::double_type) {
-			decimals = GdaConst::default_display_decimals;
+			decimals = GdaConst::default_dbf_double_decimals;
 		} else {
 			decimals = 0;
 		}
