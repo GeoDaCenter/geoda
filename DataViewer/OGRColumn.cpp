@@ -659,7 +659,18 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         for (int i=0; i<rows; ++i) {
             wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             wxInt64 val;
-            if (!tmp.ToLongLong(&val)) {
+            double val_d;
+            if (tmp.ToLongLong(&val)) {
+                data[i] = val;
+                
+            } else if (tmp.ToDouble(&val_d)) {
+                val = static_cast<wxInt64>(val_d);
+                data[i] = val;
+                    
+            } else if (tmp.IsEmpty()) {
+                data[i] = 0;
+                
+            } else {
                 conv_success = false;
                 break;
             }
