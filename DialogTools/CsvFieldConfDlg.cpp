@@ -270,8 +270,6 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
 
 void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
 {
-    int idx = event.GetSelection();
-    wxString strChoices[3] = {"Real", "Integer", "String"};
     fieldGrid->SaveEditControlValue();
     fieldGrid->EnableCellEditControl(false);
    

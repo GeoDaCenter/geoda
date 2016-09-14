@@ -508,7 +508,11 @@ wxString TableBase::GetColLabelValue(int col)
 
 void TableBase::update(HLStateInt* o)
 {
-	if (GetView()) GetView()->Refresh();
+    if (GetView()) {
+        GetView()->Refresh();
+        GetView()->AutoSize();
+        GetView()->ForceRefresh();
+    }
     UpdateStatusBar();
 }
 

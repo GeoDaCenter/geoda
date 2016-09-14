@@ -300,7 +300,21 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 		}
 	}
 	field_grid->EndBatch();
+    
+    
+    field_grid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
+                       wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected),
+                       NULL,
+                       this);
 	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::InitTable");
+}
+
+
+void DataViewerEditFieldPropertiesDlg::OnFieldSelected( wxCommandEvent& ev )
+{
+    field_grid->SaveEditControlValue();
+    field_grid->EnableCellEditControl(false);
+    ev.Skip();
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCloseButton( wxCommandEvent& ev )
