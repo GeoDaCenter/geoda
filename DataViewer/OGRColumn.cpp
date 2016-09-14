@@ -590,11 +590,14 @@ void OGRColumnString::FillData(vector<double> &data)
         for (int i=0; i<rows; ++i) {
             tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             double val;
-            if (!tmp.ToDouble(&val)) {
+            if (tmp.ToDouble(&val)) {
+                data[i] = val;
+            } else if (tmp.IsEmpty()) {
+                data[i] = 0;
+            } else {
                 conv_success = false;
                 break;
             }
-            data[i] = val;
         }
         
         if (conv_success == false) {
@@ -606,11 +609,14 @@ void OGRColumnString::FillData(vector<double> &data)
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     tmp.Replace(thousands_sep, "");
                     double val;
-                    if (!tmp.ToDouble(&val)) {
+                    if (tmp.ToDouble(&val)) {
+                        data[i] = val;
+                    } else if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                    } else {
                         conv_success = false;
                         break;
                     }
-                    data[i] = val;
                 }
             } else {
                 // try comma as decimal point
@@ -618,7 +624,11 @@ void OGRColumnString::FillData(vector<double> &data)
                 for (int i=0; i<rows; ++i) {
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     double val;
-                    if (!tmp.ToDouble(&val)) {
+                    if (tmp.ToDouble(&val)) {
+                        data[i] = val;
+                    } else if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                    } else {
                         conv_success = false;
                         break;
                     }
@@ -674,7 +684,6 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 conv_success = false;
                 break;
             }
-            data[i] = val;
         }
         
         if (conv_success == false) {
@@ -686,11 +695,19 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     tmp.Replace(thousands_sep, "");
                     wxInt64 val;
-                    if (!tmp.ToLongLong(&val)) {
+                    double val_d;
+                    if (tmp.ToLongLong(&val)) {
+                        data[i] = val;
+                    } else if (tmp.ToDouble(&val_d)) {
+                        val = static_cast<wxInt64>(val_d);
+                        data[i] = val;
+                    } else if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                    } else {
                         conv_success = false;
                         break;
                     }
-                    data[i] = val;
+                    
                 }
             } else {
                 // try comma as decimal point
@@ -698,11 +715,18 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 for (int i=0; i<rows; ++i) {
                     tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     wxInt64 val;
-                    if (!tmp.ToLongLong(&val)) {
+                    double val_d;
+                    if (tmp.ToLongLong(&val)) {
+                        data[i] = val;
+                    } else if (tmp.ToDouble(&val_d)) {
+                        val = static_cast<wxInt64>(val_d);
+                        data[i] = val;
+                    } else if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                    } else {
                         conv_success = false;
                         break;
                     }
-                    data[i] = val;
                 }
                 setlocale(LC_NUMERIC, "C");
             }
