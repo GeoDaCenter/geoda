@@ -160,6 +160,7 @@ protected:
     bool brush_line;
     
     wxColour selectable_outline_color;
+    wxColour selectable_fill_color;
     wxColour highlight_color;
 	
 	DECLARE_EVENT_TABLE()

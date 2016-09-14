@@ -48,8 +48,8 @@ show_regimes(true), show_outside_titles(true), show_linear_smoother(true),
 show_lowess_smoother(false), show_slope_values(true),
 brush_rectangle(true), brush_circle(false), brush_line(false),
 selectable_outline_color(GdaConst::scatterplot_regression_color),
-//selectable_fill_color(GdaConst::selectable_fill_color),
-highlight_color(GdaConst::highlight_color)
+selectable_fill_color(GdaConst::scatterplot_regression_excluded_color),
+highlight_color(GdaConst::scatterplot_regression_selected_color)
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::ScatterPlotMatFrame");
 	supports_timeline_changes = true;
@@ -94,7 +94,7 @@ highlight_color(GdaConst::highlight_color)
 	top_h_sizer->Add(panel, 1, wxEXPAND|wxALL, 8);
 	
 	SetSizer(top_h_sizer);
-	DisplayStatusBar(false);
+	DisplayStatusBar(true);
 	
 	Show(true);
 	
@@ -239,7 +239,7 @@ void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
     wxColour new_color;
-    if (GetColorFromUser(this,selectable_outline_color,new_color,"Fill Color"))
+    if (GetColorFromUser(this,selectable_fill_color,new_color,"Fill Color"))
     {
         for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
             scatt_plots[i]->SetSelectableFillColor(new_color);

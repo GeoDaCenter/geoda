@@ -171,7 +171,9 @@ void SimpleScatterPlotCanvas::update(HLStateInt* o)
 		// regression lines have changed.
 		Refresh();
 	}
-	
+
+    UpdateStatusBar();
+    
 	LOG_MSG("Exiting ScatterNewPlotCanvas::update");	
 }
 
@@ -194,6 +196,34 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 			if (template_frame->GetStatusBarStringFromFrame()) {
 				sb->SetStatusText(template_frame->GetUpdateStatusBarString(hover_obs, total_hover_obs));
 			}
+            wxString s;
+            if (highlight_state->GetTotalHighlighted()> 0) {
+                s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+            }
+            if (mousemode == select && selectstate == start) {
+                if (total_hover_obs >= 1) {
+                    s << "hover obs " << hover_obs[0]+1 << " = (";
+                    s << X[hover_obs[0]] << ", " << Y[hover_obs[0]];
+                    s << ")";
+                }
+                if (total_hover_obs >= 2) {
+                    s << ", ";
+                    s << "obs " << hover_obs[1]+1 << " = (";
+                    s << X[hover_obs[1]] << ", " << Y[hover_obs[1]];
+                    s << ")";
+                }
+                if (total_hover_obs >= 3) {
+                    s << ", ";
+                    s << "obs " << hover_obs[2]+1 << " = (";
+                    s << X[hover_obs[2]] << ", " << Y[hover_obs[2]];
+                    s << ")";
+                }
+                if (total_hover_obs >= 4) {
+                    s << ", ...";
+                }
+            }
+            sb->SetStatusText(s);
+
 		}
 	}
 	
@@ -215,6 +245,7 @@ void SimpleScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 void SimpleScatterPlotCanvas::SetSelectableOutlineColor(wxColour color)
 {
     selectable_outline_color = color;
+    TemplateCanvas::SetSelectableOutlineColor(color);
     PopulateCanvas();
 }
 
@@ -228,6 +259,7 @@ void SimpleScatterPlotCanvas::SetSelectableFillColor(wxColour color)
 {
     // In Scatter Plot, Fill color is for points
     selectable_fill_color = color;
+	cat_data.SetCategoryColor(0, 0, selectable_fill_color);
     TemplateCanvas::SetSelectableFillColor(color);
     PopulateCanvas();
     
@@ -296,7 +328,7 @@ void SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines()
 	LOG_MSG("In SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines");
 	if (IsShowLinearSmoother()) {
 		pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
-		pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+		pens.SetPenColor(pens.GetRegExlPen(), GdaConst::scatterplot_regression_excluded_color);
 		double cc_degs_of_rot;
 		wxRealPoint a, b;
 		
@@ -428,7 +460,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
 	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
-	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+	pens.SetPenColor(pens.GetRegExlPen(), GdaConst::scatterplot_regression_excluded_color);
 	
 	statsX = SampleStatistics(X);
 	statsY = SampleStatistics(Y);
@@ -585,9 +617,9 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
 	reg_line_excluded->setBrush(*wxTRANSPARENT_BRUSH);
 	
-	foreground_shps.push_back(reg_line);
 	foreground_shps.push_back(reg_line_selected);
-	foreground_shps.push_back(reg_line_excluded);	
+	foreground_shps.push_back(reg_line_excluded);
+	foreground_shps.push_back(reg_line);
 	
 	if (IsShowLinearSmoother()) {
 		double cc_degs_of_rot;

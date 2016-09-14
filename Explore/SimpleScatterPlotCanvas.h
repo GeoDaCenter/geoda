@@ -109,6 +109,7 @@ public:
 	void UpdateLowessOnRegimes();
 	
 protected:
+    
 	virtual void PopulateCanvas();
 	void UpdateMargins();
 	
