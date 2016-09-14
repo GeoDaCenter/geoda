@@ -510,8 +510,6 @@ void TableBase::update(HLStateInt* o)
 {
     if (GetView()) {
         GetView()->Refresh();
-        GetView()->AutoSize();
-        GetView()->ForceRefresh();
     }
     UpdateStatusBar();
 }
