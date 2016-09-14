@@ -89,6 +89,10 @@ public:
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
 	
+    void OnSelectWithRect(wxCommandEvent& event);
+    void OnSelectWithCircle(wxCommandEvent& event);
+    void OnSelectWithLine(wxCommandEvent& event);
+    
     void OnViewStandardizedData(wxCommandEvent& event);
     void OnViewOriginalData(wxCommandEvent& event);
     
@@ -146,6 +150,10 @@ protected:
 	bool show_linear_smoother;
 	bool show_lowess_smoother;
 	bool show_slope_values;
+    
+    bool brush_rectangle;
+    bool brush_circle;
+    bool brush_line;
 	
 	DECLARE_EVENT_TABLE()
 };

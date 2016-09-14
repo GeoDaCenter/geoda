@@ -2207,7 +2207,12 @@ void GdaFrame::OnSelectWithRect(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	t->OnSelectWithRect(event);
+    
+    if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+        f->OnSelectWithRect(event);
+    } else {
+        t->OnSelectWithRect(event);
+    }
 }
 
 void GdaFrame::OnSelectWithCircle(wxCommandEvent& event)

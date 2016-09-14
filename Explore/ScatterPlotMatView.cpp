@@ -45,7 +45,8 @@ ScatterPlotMatFrame::ScatterPlotMatFrame(wxFrame *parent, Project* project,
 lowess_param_frame(0), vars_chooser_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0), view_standardized_data(false),
 show_regimes(true), show_outside_titles(true), show_linear_smoother(true),
-show_lowess_smoother(false), show_slope_values(true)
+show_lowess_smoother(false), show_slope_values(true),
+brush_rectangle(true), brush_circle(false), brush_line(false)
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::ScatterPlotMatFrame");
 	supports_timeline_changes = true;
@@ -163,6 +164,14 @@ void ScatterPlotMatFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
+    
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
+								  brush_rectangle);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_CIRCLE"),
+								  brush_circle);
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_LINE"),
+								  brush_line);
+    
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),show_linear_smoother);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),show_lowess_smoother);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),show_regimes);
@@ -171,6 +180,43 @@ void ScatterPlotMatFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_ORIGINAL_DATA"),!view_standardized_data);
 	
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
+}
+
+
+void ScatterPlotMatFrame::OnSelectWithRect(wxCommandEvent& event)
+{
+    brush_rectangle = true;
+    brush_circle = false;
+    brush_line = false;
+    for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+        scatt_plots[i]->SetBrushType(TemplateCanvas::rectangle);
+        scatt_plots[i]->SetMouseMode(TemplateCanvas::select);
+    }
+    UpdateOptionMenuItems();
+}
+
+void ScatterPlotMatFrame::OnSelectWithCircle(wxCommandEvent& event)
+{
+    brush_rectangle = false;
+    brush_circle = true;
+    brush_line = false;
+    for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+        scatt_plots[i]->SetBrushType(TemplateCanvas::circle);
+        scatt_plots[i]->SetMouseMode(TemplateCanvas::select);
+    }
+    UpdateOptionMenuItems();
+}
+
+void ScatterPlotMatFrame::OnSelectWithLine(wxCommandEvent& event)
+{
+    brush_rectangle = false;
+    brush_circle = false;
+    brush_line = true;
+    for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+        scatt_plots[i]->SetBrushType(TemplateCanvas::line);
+        scatt_plots[i]->SetMouseMode(TemplateCanvas::select);
+    }
+    UpdateOptionMenuItems();
 }
 
 void ScatterPlotMatFrame::OnViewStandardizedData(wxCommandEvent& event)
