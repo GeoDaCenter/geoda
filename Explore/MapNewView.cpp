@@ -1632,6 +1632,9 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
         popupMenu->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
         popupMenu->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
         popupMenu->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
+        
+        popupMenu->FindItem(XRCID("ID_CHANGE_TRANSPARENCY"))->Enable(idx!=0);
+        
         PopupMenu(popupMenu, wxDefaultPosition);
     }
     
