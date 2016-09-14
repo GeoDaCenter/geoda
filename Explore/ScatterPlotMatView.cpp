@@ -46,7 +46,10 @@ lowess_param_frame(0), vars_chooser_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0), view_standardized_data(false),
 show_regimes(true), show_outside_titles(true), show_linear_smoother(true),
 show_lowess_smoother(false), show_slope_values(true),
-brush_rectangle(true), brush_circle(false), brush_line(false)
+brush_rectangle(true), brush_circle(false), brush_line(false),
+selectable_outline_color(GdaConst::scatterplot_regression_color),
+//selectable_fill_color(GdaConst::selectable_fill_color),
+highlight_color(GdaConst::highlight_color)
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::ScatterPlotMatFrame");
 	supports_timeline_changes = true;
@@ -217,6 +220,43 @@ void ScatterPlotMatFrame::OnSelectWithLine(wxCommandEvent& event)
         scatt_plots[i]->SetMouseMode(TemplateCanvas::select);
     }
     UpdateOptionMenuItems();
+}
+
+void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
+{
+    wxColour new_color;
+    if (GetColorFromUser(this,selectable_outline_color,new_color,"Outline Color"))
+    {
+        for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+            scatt_plots[i]->SetSelectableOutlineColor(new_color);
+        }
+    }
+	//highlight_color = GdaConst::scatterplot_regression_selected_color;
+	//selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
+	//selectable_outline_color = GdaConst::scatterplot_regression_color;
+}
+
+void ScatterPlotMatFrame::OnSelectableFillColor(wxCommandEvent& event)
+{
+    wxColour new_color;
+    if (GetColorFromUser(this,selectable_outline_color,new_color,"Fill Color"))
+    {
+        for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+            scatt_plots[i]->SetSelectableFillColor(new_color);
+        }
+    }
+}
+
+void ScatterPlotMatFrame::OnHighlightColor(wxCommandEvent& event)
+{
+    wxColour new_color;
+    if ( GetColorFromUser(this, highlight_color, new_color, "Highlight Color") )
+    {
+        
+        for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
+            scatt_plots[i]->SetHighlightColor(new_color);
+        }
+    }
 }
 
 void ScatterPlotMatFrame::OnViewStandardizedData(wxCommandEvent& event)

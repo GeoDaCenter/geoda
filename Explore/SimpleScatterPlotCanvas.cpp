@@ -85,8 +85,7 @@ view_standardized_data(view_standardized_data_)
 	LOG_MSG("Entering SimpleScatterPlotCanvas::SimpleScatterPlotCanvas");
 	
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
-	selectable_fill_color =
-	GdaConst::scatterplot_regression_excluded_color;
+	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	
 	shps_orig_xmin = 0;
@@ -211,6 +210,27 @@ void SimpleScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 void SimpleScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
 	
+}
+
+void SimpleScatterPlotCanvas::SetSelectableOutlineColor(wxColour color)
+{
+    selectable_outline_color = color;
+    PopulateCanvas();
+}
+
+void SimpleScatterPlotCanvas::SetHighlightColor(wxColour color)
+{
+    highlight_color = color;
+    PopulateCanvas();
+}
+
+void SimpleScatterPlotCanvas::SetSelectableFillColor(wxColour color)
+{
+    // In Scatter Plot, Fill color is for points
+    selectable_fill_color = color;
+    TemplateCanvas::SetSelectableFillColor(color);
+    PopulateCanvas();
+    
 }
 
 void SimpleScatterPlotCanvas::ShowAxes(bool display)

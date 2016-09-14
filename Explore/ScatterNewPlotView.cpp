@@ -1404,13 +1404,13 @@ void ScatterNewPlotCanvas::UpdateRegSelectedLine()
 		double cc_degs_of_rot;
 		wxRealPoint a, b;
 		SmoothingUtils::CalcRegressionLine(*reg_line_selected,
-																			 reg_line_selected_slope,
-																			 reg_line_selected_infinite_slope,
-																			 reg_line_selected_defined, a, b,
-																			 cc_degs_of_rot,
-																			 axis_scale_x, axis_scale_y,
-																			 regressionXYselected,
-																			 *pens.GetRegSelPen());
+										 reg_line_selected_slope,
+										 reg_line_selected_infinite_slope,
+										 reg_line_selected_defined, a, b,
+										 cc_degs_of_rot,
+										 axis_scale_x, axis_scale_y,
+										 regressionXYselected,
+										 *pens.GetRegSelPen());
 		ApplyLastResizeToShp(reg_line_selected);
 		layer2_valid = false;
 	} else {

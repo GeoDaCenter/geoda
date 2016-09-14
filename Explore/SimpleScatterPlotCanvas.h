@@ -84,7 +84,11 @@ public:
 	
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
-	
+
+    void SetSelectableOutlineColor(wxColour color);
+    void SetSelectableFillColor(wxColour color);
+    void SetHighlightColor(wxColour color);
+    
 	void ShowAxes(bool display);
 	void ShowRegimes(bool display);
 	void ViewStandardizedData(bool display);
@@ -166,7 +170,7 @@ protected:
 	bool show_vert_axis_through_origin;
 	bool show_slope_values;
     bool view_standardized_data;
-	
+    
 	SmoothingUtils::LowessCacheType lowess_cache;
 	void EmptyLowessCache();
 	Lowess lowess;

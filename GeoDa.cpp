@@ -2431,14 +2431,23 @@ void GdaFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	t->OnSelectableFillColor(event);	
+    if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+        f->OnSelectableFillColor(event);
+    } else {
+        t->OnSelectableFillColor(event);
+    }
 }
 
 void GdaFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	t->OnSelectableOutlineColor(event);
+    
+    if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+        f->OnSelectableOutlineColor(event);
+    } else {
+        t->OnSelectableOutlineColor(event);
+    }
 }
 
 void GdaFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
@@ -2452,7 +2461,11 @@ void GdaFrame::OnHighlightColor(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	t->OnHighlightColor(event);
+    if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+        f->OnHighlightColor(event);
+    } else {
+        t->OnHighlightColor(event);
+    }
 }
 
 void GdaFrame::OnCopyImageToClipboard(wxCommandEvent& event)

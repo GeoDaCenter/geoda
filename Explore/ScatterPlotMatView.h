@@ -88,7 +88,11 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
-	
+
+    void OnSelectableOutlineColor(wxCommandEvent& event);
+    void OnSelectableFillColor(wxCommandEvent& event);
+    void OnHighlightColor(wxCommandEvent& event);
+    
     void OnSelectWithRect(wxCommandEvent& event);
     void OnSelectWithCircle(wxCommandEvent& event);
     void OnSelectWithLine(wxCommandEvent& event);
@@ -154,6 +158,9 @@ protected:
     bool brush_rectangle;
     bool brush_circle;
     bool brush_line;
+    
+    wxColour selectable_outline_color;
+    wxColour highlight_color;
 	
 	DECLARE_EVENT_TABLE()
 };
