@@ -355,14 +355,17 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
                 << "a non-time variant field as key.";
                 throw GdaException(error_msg.mb_str());
             }
+            
             vector<wxString> key1_vec;
             vector<wxInt64>  key1_l_vec;
             map<wxString,int> key1_map;
+            
             if ( table_int->GetColType(col1_id, 0) == GdaConst::string_type ) {
                 table_int->GetColData(col1_id, 0, key1_vec);
             }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
                 table_int->GetColData(col1_id, 0, key1_l_vec);
             }
+            
             if (key1_vec.empty()) {
                 for( int i=0; i< key1_l_vec.size(); i++){
                     wxString tmp;
@@ -386,12 +389,13 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             
             // make sure key1 <= key2, and store their mappings
             map<wxString,int>::iterator key1_it, key2_it;
-            for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
-                key2_it = key2_map.find(key1_it->first);
-                if ( key2_it == key2_map.end()){
-                    error_msg = "The set of values in the import key fields ";
-                    error_msg << "do not fully match current table. Please "
-                              << "choose keys with matching sets of values.";
+            //for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
+                //key2_it = key2_map.find(key1_it->first);
+                //if ( key2_it == key2_map.end()){
+            for (key2_it=key2_map.begin(); key2_it!=key2_map.end(); key2_it++) {
+                key1_it = key1_map.find(key2_it->first);
+                if ( key1_it == key1_map.end()){
+                    error_msg = "The set of values in the import key fields do not fully match current table. Please choose keys with matching sets of values.";
                     throw GdaException(error_msg.mb_str());
                 }
                 rowid_map[key1_it->second] = key2_it->second;
@@ -399,7 +403,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         }
         // merge by order sequence
         else if (m_rec_order_rb->GetValue() == 1) {
-            if (table_int->GetNumberRows()>merge_layer_proxy->GetNumRecords()) {
+            if (table_int->GetNumberRows() > merge_layer_proxy->GetNumRecords()) {
                 error_msg = "The number of records in current table is larger ";
                 error_msg << "than the number of records in import table. "
                           << "Please choose import table >= "
@@ -407,6 +411,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
                 throw GdaException(error_msg.mb_str());
             }
         }
+        
         // append new fields to original table via TableInterface
         for (int i=0; i<n_merge_field; i++) {
             wxString real_field_name = merged_field_names[i];
@@ -441,33 +446,54 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 {
     int fid = merge_layer_proxy->GetFieldPos(real_field_name);
     GdaConst::FieldType ftype = merge_layer_proxy->GetFieldType(fid);
+    
     if ( ftype == GdaConst::string_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxString> data(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
-            if (!rowid_map.empty()) import_rid = rowid_map[i];
-            data[i]=wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
+            if (!rowid_map.empty()) {
+                //import_rid = rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+            }
+            if (import_rid >=0)
+                data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
+            else
+                data[i] = wxEmptyString;
         }
         table_int->SetColData(add_pos, 0, data);
+        
     } else if ( ftype == GdaConst::long64_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxInt64> data(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
-            if (!rowid_map.empty()) import_rid = rowid_map[i];
-            OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-            data[i] = feat->GetFieldAsInteger64(fid);
+            if (!rowid_map.empty()) {
+                //import_rid = rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+            }
+            if (import_rid >=0 ) {
+                OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+                data[i] = feat->GetFieldAsInteger64(fid);
+            } else
+                data[i] = 0;
         }
         table_int->SetColData(add_pos, 0, data);
+        
     } else if ( ftype == GdaConst::double_type ) {
         int add_pos=table_int->InsertCol(ftype, field_name);
         vector<double> data(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
-            if (!rowid_map.empty()) import_rid = rowid_map[i];
-            OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-            data[i] = feat->GetFieldAsDouble(fid);
+            if (!rowid_map.empty()) {
+                //import_rid = rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+            }
+            if (import_rid >=0 ) {
+                OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+                data[i] = feat->GetFieldAsDouble(fid);
+            } else
+                data[i] = 0.0;
         }
         table_int->SetColData(add_pos, 0, data);
     }

@@ -209,7 +209,9 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
             }
         }
         
-    } else {
+    }
+    
+    if (types.size() != n_rows) {
         // read second line, guess the type
         int start = 0;
         bool inQuotes = false;
@@ -243,7 +245,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
         fieldGrid->SetCellEditor(i, COL_T, new wxGridCellChoiceEditor(4, strChoices, false));
         
         fieldGrid->SetCellValue(i, 0, col_names[i]);
-        if (types.size() == 0) {
+        if (types.size() == 0 || i >= types.size() ) {
             fieldGrid->SetCellValue(i, COL_T, "String");
         } else {
             fieldGrid->SetCellValue(i, COL_T, types[i]);

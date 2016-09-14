@@ -1092,11 +1092,11 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     }
     
     // don't support the following column type
-	if (field_len == -1 || (type == GdaConst::placeholder_type ||
-                            type == GdaConst::unknown_type ||
-                            type == GdaConst::date_type||
-                            type == GdaConst::time_type||
-                            type == GdaConst::datetime_type))
+	if (type == GdaConst::placeholder_type ||
+        type == GdaConst::unknown_type ||
+        type == GdaConst::date_type||
+        type == GdaConst::time_type||
+        type == GdaConst::datetime_type)
     {
         return -1;
     }
