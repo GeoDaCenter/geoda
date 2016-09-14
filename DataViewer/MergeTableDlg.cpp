@@ -350,9 +350,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             wxString key1_name = m_current_key->GetString(key1_id);
             int col1_id = table_int->FindColId(key1_name);
             if (table_int->IsColTimeVariant(col1_id)) {
-                error_msg = "Chosen key field '";
-                error_msg << key1_name << "' is a time variant. Please choose "
-                << "a non-time variant field as key.";
+                error_msg = wxString::Format("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key.", key1_name);
                 throw GdaException(error_msg.mb_str());
             }
             
@@ -388,26 +386,26 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             CheckKeys(key2_name, key2_vec, key2_map);
             
             // make sure key1 <= key2, and store their mappings
+            int n_matches = 0;
             map<wxString,int>::iterator key1_it, key2_it;
-            //for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
-                //key2_it = key2_map.find(key1_it->first);
-                //if ( key2_it == key2_map.end()){
-            for (key2_it=key2_map.begin(); key2_it!=key2_map.end(); key2_it++) {
-                key1_it = key1_map.find(key2_it->first);
-                if ( key1_it == key1_map.end()){
-                    error_msg = "The set of values in the import key fields do not fully match current table. Please choose keys with matching sets of values.";
-                    throw GdaException(error_msg.mb_str());
+            for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
+                key2_it = key2_map.find(key1_it->first);
+                
+                if ( key2_it != key2_map.end()){
+                    rowid_map[key1_it->second] = key2_it->second;
+                    n_matches += 1;
                 }
-                rowid_map[key1_it->second] = key2_it->second;
+            }
+            
+            if ( n_matches == 0 ){
+                error_msg = "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values.";
+                throw GdaException(error_msg.mb_str());
             }
         }
         // merge by order sequence
         else if (m_rec_order_rb->GetValue() == 1) {
             if (table_int->GetNumberRows() > merge_layer_proxy->GetNumRecords()) {
-                error_msg = "The number of records in current table is larger ";
-                error_msg << "than the number of records in import table. "
-                          << "Please choose import table >= "
-                          << table_int->GetNumberRows() << "records";
+                error_msg = wxString::Format("The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records", table_int->GetNumberRows());
                 throw GdaException(error_msg.mb_str());
             }
         }
@@ -451,11 +449,13 @@ void MergeTableDlg::AppendNewField(wxString field_name,
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxString> data(n_rows);
         for (int i=0; i<n_rows; i++) {
-            int import_rid = i;
+            int import_rid = i; // default merge by row
+            
             if (!rowid_map.empty()) {
-                //import_rid = rowid_map[i];
+                // merge by key
                 import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
             }
+            
             if (import_rid >=0)
                 data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
             else
