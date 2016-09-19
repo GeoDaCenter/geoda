@@ -75,8 +75,76 @@ custom_classif_state(0), is_custom_category(false)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering HistogramCanvas::HistogramCanvas");
-	TableInterface* table_int = project->GetTableInt();
-	
+    
+	table_int = project->GetTableInt();
+  
+    // Histogram has only one variable, so size of col_ids = 1
+    col_id = col_ids[0];
+    int num_var = v_info.size();
+    int col_time_steps = table_int->GetColTimeSteps(col_id);
+    //int is_time_var = table_int->IsColTimeVariant(col_id);
+    
+    // default load first time step data if time variable
+    std::vector<double> sel_data;
+    std::vector<bool> sel_undefs;
+    int sel_time = 0;
+	table_int->GetColData(col_id, sel_time, sel_data, sel_undefs);
+    
+    // prepare statistics
+	data_stats.resize(col_time_steps);
+	hinge_stats.resize(col_time_steps);
+	data_sorted.resize(col_time_steps);
+    data_min_over_time = sel_data[0];
+    data_max_over_time = sel_data[0];
+    
+    for (int t=0; t<col_time_steps; t++) {
+        std::vector<double> sel_data;
+        table_int->GetColData(col_id, t, sel_data);
+        
+        data_sorted[t].resize(num_obs);
+        // data_sorted is a pair value {double value: index}
+        for (int i=0; i<num_obs; i++) {
+            data_sorted[t][i].first = sel_data[i];
+            data_sorted[t][i].second = i;
+        }
+        // sort data_sorted by value
+        std::sort(data_sorted[t].begin(),
+                  data_sorted[t].end(),
+                  Gda::dbl_int_pair_cmp_less);
+        
+        data_stats[t].CalculateFromSample(data_sorted[t]);
+        hinge_stats[t].CalculateHingeStats(data_sorted[t]);
+        
+        // get min max values
+        if (data_stats[t].min < data_min_over_time) {
+            data_min_over_time = data_stats[t].min;
+        }
+        if (data_stats[t].max > data_max_over_time) {
+            data_max_over_time = data_stats[t].max;
+        }
+    }
+    
+    // Setup Group Dependency
+    template_frame->ClearAllGroupDependencies();
+    for (int i=0, sz=var_info.size(); i<sz; ++i) {
+        template_frame->AddGroupDependancy(var_info[i].name);
+    }
+    
+    obs_id_to_ival.resize(boost::extents[col_time_steps][num_obs]);
+    max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
+    cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+    if (num_obs > 49) {
+        int c = sqrt((double) num_obs);
+        cur_intervals = GenUtils::min<int>(max_intervals, c);
+        cur_intervals = GenUtils::min<int>(cur_intervals, 25);
+    }
+    min_ival_val.resize(col_time_steps);
+    max_ival_val.resize(col_time_steps);
+    max_num_obs_in_ival.resize(col_time_steps);
+    ival_to_obs_ids.resize(col_time_steps);
+    
+    
+    /*
 	std::vector<d_array_type> data(v_info.size());
 	
 	table_int->GetColData(col_ids[0], data[0]);
@@ -121,7 +189,8 @@ custom_classif_state(0), is_custom_category(false)
 	max_ival_val.resize(data0_times);
 	max_num_obs_in_ival.resize(data0_times);
 	ival_to_obs_ids.resize(data0_times);
-	
+	*/
+    
 	highlight_color = GdaConst::highlight_color;
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = false;
@@ -159,7 +228,7 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()-> LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-    int n_cat = AddClassificationOptionsToMenu(optMenu,project->GetCatClassifManager());
+    int n_cat = AddClassificationOptionsToMenu(optMenu, project->GetCatClassifManager());
     
     template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(HistogramFrame::OnHistClassification));
     
@@ -485,8 +554,9 @@ void HistogramCanvas::PopulateCanvas()
 	int time = var_info[0].time;
 	
 	double x_min = 0;
-	double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + 
-		+ interval_gap_const * (cur_intervals-1);
+	double x_max = left_pad_const + right_pad_const +
+                   interval_width_const * cur_intervals +
+                   interval_gap_const * (cur_intervals-1);
 	
 	// orig_x_pos is the center of each histogram bar
 	std::vector<double> orig_x_pos(cur_intervals);
@@ -497,12 +567,14 @@ void HistogramCanvas::PopulateCanvas()
 	shps_orig_xmin = x_min;
 	shps_orig_xmax = x_max;
 	shps_orig_ymin = 0;
-	shps_orig_ymax = (scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time]);
+	shps_orig_ymax = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
     
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
 		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax), -9, 0);
+		y_axis = new GdaAxis("Frequency", axis_scale_y,
+                             wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
+                             -9, 0);
 		background_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val[time]);
@@ -712,9 +784,14 @@ void HistogramCanvas::NewCustomCatClassif()
     cat_classif_def.assoc_db_fld_name = project->GetTableInt()->GetColName(col, tht);
 
     CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(false);
-    if (!ccf) return;
+    if (!ccf)
+        return;
 
-    CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time, false);
+    CatClassifState* ccs = ccf->PromptNew(cat_classif_def,
+                                          "",
+                                          var_info[0].name,
+                                          var_info[0].time,
+                                          false);
     
     if (!ccs)
         return;
@@ -756,14 +833,21 @@ void HistogramCanvas::VarInfoAttributeChange()
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	if (var_info[0].is_time_variant) is_any_time_variant = true;
+    
+    if (var_info[0].is_time_variant) {
+        is_any_time_variant = true;
+    }
+    
 	if (var_info[0].sync_with_global_time) {
 		is_any_sync_with_global_time = true;
 	}
+    
 	template_frame->SetDependsOnNonSimpleGroups(is_any_time_variant);
 	ref_var_index = -1;
 	num_time_vals = 1;
-	if (var_info[0].is_ref_variable) ref_var_index = 0;
+    if (var_info[0].is_ref_variable) {
+        ref_var_index = 0;
+    }
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
@@ -860,14 +944,29 @@ void HistogramCanvas::InitIntervals()
             }
         }
         
+        std::vector<bool> undefs(num_obs);
+        table_int->GetColUndefined(col_id, t, undefs);
 		for (int i=0, cur_ival=0; i<num_obs; i++) {
+            
+            std::pair<double, int>& data_item = data_sorted[t][i];
+            double val = data_item.first;
+            int idx = data_item.second;
+           
+            if (undefs[idx])
+                continue;
+            
+            // detect if need to jump to next interval
 			while (cur_ival <= cur_intervals-2 &&
-				   data_sorted[t][i].first >= ival_breaks[t][cur_ival]) {
+				   val >= ival_breaks[t][cur_ival])
+            {
 				cur_ival++;
 			}
-			ival_to_obs_ids[t][cur_ival].push_front(data_sorted[t][i].second);
-			obs_id_to_ival[t][data_sorted[t][i].second] = cur_ival;
+            
+            // add current [id] to ival_to_obs_ids
+			ival_to_obs_ids[t][cur_ival].push_front(idx);
+			obs_id_to_ival[t][idx] = cur_ival;
 			ival_obs_cnt[t][cur_ival]++;
+            
 			if (hs[data_sorted[t][i].second]) {
 				ival_obs_sel_cnt[t][cur_ival]++;
 			}

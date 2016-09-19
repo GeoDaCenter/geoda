@@ -68,6 +68,9 @@ public:
 
     
 protected:
+    int col_id;
+    TableInterface* table_int;
+    
     bool is_custom_category;
     CatClassifState* custom_classif_state;
     CatClassifDef cat_classif_def;
