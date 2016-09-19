@@ -325,10 +325,10 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         {
             vector<wxString> str(num_rows);
             for (size_t i=0, sz=num_rows; i<sz; ++i) {
-                if (undefined[i]) continue;
                 str[i] << data[i];
             }
             table_int->SetColData(to_col, to_tm, str);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
         }
     }
     else if (from_type == GdaConst::double_type)
@@ -346,10 +346,10 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         {
             vector<wxString> str(num_rows);
             for (size_t i=0, sz=num_rows; i<sz; ++i) {
-                if (undefined[i]) continue;
                 str[i] << data[i];
             }
             table_int->SetColData(to_col, to_tm, str);
+            table_int->SetColUndefined(to_col, to_tm, undefined);
         }
     }
     else if (from_type == GdaConst::string_type)
@@ -361,10 +361,10 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
             vector<wxInt64> nums(num_rows, 0);
             for (size_t i=0, sz=num_rows; i<sz; ++i) {
                 wxInt64 val;
-                wxString _data = data[i].Trim();
-                if( _data.ToLongLong(&val))
+                wxString _data = data[i].Trim(true).Trim(false);
+                if( _data.ToLongLong(&val)) {
                     nums[i] = val;
-                else {
+                }else {
                     undefined[i] = true;
                 }
             }
@@ -376,8 +376,12 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
             vector<double> nums(num_rows, 0);
             for (size_t i=0, sz=num_rows; i<sz; ++i) {
                 double val;
-                undefined[i] = !data[i].Trim().ToDouble(&val);
-                if (!undefined[i]) nums[i] = val;
+                wxString _data = data[i].Trim(true).Trim(false);
+                if (_data.ToDouble(&val)) {
+                    nums[i] = val;
+                } else {
+                    undefined[i] = true;
+                }
             }
             table_int->SetColData(to_col, to_tm, nums);
             table_int->SetColUndefined(to_col, to_tm, undefined);

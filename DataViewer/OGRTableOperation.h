@@ -117,6 +117,8 @@ class OGRTableOpUpdateColumn : public OGRTableOperation
 {
 private:
     int n_rows;
+    
+    vector<bool> undef_old_data, undef_new_data;
     vector<double> d_old_data, d_new_data;
     vector<wxInt64> l_old_data, l_new_data;
     vector<wxString> s_old_data, s_new_data;

@@ -25,6 +25,7 @@
 #include <boost/foreach.hpp>
 #include <locale>
 #include <wx/regex.h>
+#include <wx/numformatter.h>
 
 #include "../GenUtils.h"
 #include "../GeoDa.h"
@@ -118,15 +119,15 @@ void OGRColumn::UpdateOGRLayer(OGRLayerProxy* new_ogr_layer)
 
 bool OGRColumn::IsCellUpdated(int row)
 {
-    if (!set_markers.empty()) {
-        return set_markers[row];
+    if (!undef_markers.empty()) {
+        return undef_markers[row];
     }
 	return false;
 }
 
 bool OGRColumn::IsUndefined(int row)
 {
-    return !set_markers[row];
+    return undef_markers[row];
 }
 
 void OGRColumn::UpdateData(const vector<double> &data)
@@ -139,35 +140,105 @@ void OGRColumn::UpdateData(const vector<wxInt64> &data)
 {
     wxString msg = "Internal error: UpdateData(wxInt64) not implemented.";
     throw GdaException(msg.mb_str());
-
+    
 }
 
 void OGRColumn::UpdateData(const vector<wxString> &data)
 {
     wxString msg = "Internal error: UpdateData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
-
+    
 }
 
-void OGRColumn::GetCellValue(int row, wxInt64& val)
+void OGRColumn::UpdateData(const vector<double> &data,
+                           const vector<bool>& undef_markers_)
+{
+    UpdateData(data);
+    undef_markers = undef_markers_;
+}
+
+void OGRColumn::UpdateData(const vector<wxInt64> &data,
+                           const vector<bool>& undef_markers_)
+{
+    UpdateData(data);
+    undef_markers = undef_markers_;
+}
+
+void OGRColumn::UpdateData(const vector<wxString> &data,
+                           const vector<bool>& undef_markers_)
+{
+    UpdateData(data);
+    undef_markers = undef_markers_;
+}
+
+void OGRColumn::FillData(vector<double>& data)
+{
+    wxString msg = "Internal error: FillData(double) not implemented.";
+    throw GdaException(msg.mb_str());
+    
+}
+
+void OGRColumn::FillData(vector<wxInt64>& data)
+{
+    wxString msg = "Internal error: FillData(wxInt64) not implemented.";
+    throw GdaException(msg.mb_str());
+    
+}
+
+void OGRColumn::FillData(vector<wxString>& data)
+{
+    wxString msg = "Internal error: FillData(wxString) not implemented.";
+    throw GdaException(msg.mb_str());
+    
+}
+
+
+void OGRColumn::FillData(vector<double> &data,
+                         vector<bool>& undef_markers_)
+{
+    FillData(data);
+    undef_markers_ = undef_markers;
+}
+
+void OGRColumn::FillData(vector<wxInt64> &data,
+                         vector<bool>& undef_markers_)
+{
+    FillData(data);
+    undef_markers_ = undef_markers;
+}
+
+void OGRColumn::FillData(vector<wxString> &data,
+                         vector<bool>& undef_markers_)
+{
+    FillData(data);
+    undef_markers_ = undef_markers;
+}
+
+
+bool OGRColumn::GetCellValue(int row, wxInt64& val)
 {
     wxString msg = "Internal error: GetCellValue(wxInt64) not implemented.";
     throw GdaException(msg.mb_str());
 
 }
 
-void OGRColumn::GetCellValue(int row, double& val)
+bool OGRColumn::GetCellValue(int row, double& val)
 {
     wxString msg = "Internal error: GetCellValue(double) not implemented.";
     throw GdaException(msg.mb_str());
 
 }
 
-void OGRColumn::GetCellValue(int row, wxString& val)
+bool OGRColumn::GetCellValue(int row, wxString& val)
 {
     wxString msg = "Internal error: GetCellValue(wxString) not implemented.";
     throw GdaException(msg.mb_str());
 
+}
+
+void OGRColumn::UpdateNullMarkers(const vector<bool>& undef_markers_)
+{
+    undef_markers = undef_markers_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,10 +249,10 @@ OGRColumnInteger::OGRColumnInteger(wxString name, int field_length, int decimals
     // a new in-memory integer column
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 
@@ -192,10 +263,10 @@ OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, wxString name,
     // a new integer column
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 
@@ -204,22 +275,23 @@ OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, int idx)
 {
     // a integer column from OGRLayer
     is_new = false;
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         // for non-undefined value
         if ( ogr_layer->data[i]->IsFieldSet(idx) )
-            set_markers[i] = true;
+            undef_markers[i] = false;
         else
-            set_markers[i] = false;
+            undef_markers[i] = true;
     }
 }
 
 OGRColumnInteger::~OGRColumnInteger()
 {
     if (new_data.size() > 0 ) new_data.clear();
-    if (set_markers.size() > 0) set_markers.clear();
+    if (undef_markers.size() > 0) undef_markers.clear();
 }
 
+// Return this column to a vector of wxInt64
 void OGRColumnInteger::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
@@ -229,12 +301,12 @@ void OGRColumnInteger::FillData(vector<wxInt64> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i]=(wxInt64)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
+            data[i] = (wxInt64)ogr_layer->data[i]->GetFieldAsInteger64(col_idx);
         }
     }
 }
 
-
+// Return this column to a vector of double
 void OGRColumnInteger::FillData(vector<double> &data)
 {
     if (is_new) {
@@ -249,6 +321,7 @@ void OGRColumnInteger::FillData(vector<double> &data)
     }
 }
 
+// Return this column to a vector of wxString
 void OGRColumnInteger::FillData(vector<wxString> &data)
 {
     if (is_new) {
@@ -264,18 +337,17 @@ void OGRColumnInteger::FillData(vector<wxString> &data)
     }
 }
 
+// Update this column from a vector of wxInt64
 void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
-            set_markers[i] = true;
         }
     }
 }
@@ -285,72 +357,95 @@ void OGRColumnInteger::UpdateData(const vector<double>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = (int)data[i];
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
-            set_markers[i] = true;
         }
     }
 }
 
-void OGRColumnInteger::GetCellValue(int row, wxInt64& val)
+
+// Return an integer value from a cell at position (row)
+bool OGRColumnInteger::GetCellValue(int row, wxInt64& val)
 {
+    if (undef_markers[row] == true) {
+        val = 0;
+        return false;
+    }
+    
     if (is_new) {
         val = new_data[row];
+        
     } else {
         int col_idx = GetColIndex();
         val = (wxInt64)ogr_layer->data[row]->GetFieldAsInteger64(col_idx);
     }
+    
+    return true;
 }
 
+// Return a String value from a cell at position (row)
+// Note: used by wxGrid Table
 wxString OGRColumnInteger::GetValueAt(int row_idx, int disp_decimals,
                                       wxCSConv* m_wx_encoding)
 {
+    // if is undefined, return empty string
+    if ( undef_markers[row_idx] == true)
+        return wxEmptyString;
+    
     if (is_new) {
-        if (set_markers[row_idx] == false )
-            return wxEmptyString;
         return wxString::Format("%lld",new_data[row_idx]);
+        
     } else {
         int col_idx = GetColIndex();
-        if (col_idx == -1) return wxEmptyString;
-        //const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
+        if (col_idx == -1)
+            return wxEmptyString;
         wxLongLong val(ogr_layer->data[row_idx]->GetFieldAsInteger64(col_idx));
         
         return val.ToString();
     }
 }
 
+// Set a cell value from user input wxString (in Table/wxGrid)
 void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
 {
+    // if is already undefined, and user inputs nothing
+    if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
+        return;
+    }
+    
     wxInt64 l_val;
-    if (GenUtils::validInt(value)) {
+    if ( GenUtils::validInt(value) ) {
         GenUtils::strToInt64(value, &l_val);
         if (is_new) {
             new_data[row_idx] = l_val;
         } else {
             int col_idx = GetColIndex();
+            if (col_idx == -1)
+                return;
             ogr_layer->data[row_idx]->SetField(col_idx, (GIntBig)l_val);
         }
-        set_markers[row_idx] = true;
+        undef_markers[row_idx] = false;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-OGRColumnDouble::OGRColumnDouble(wxString name, int field_length, int decimals, int n_rows)
+OGRColumnDouble::OGRColumnDouble(wxString name, int field_length,
+                                 int decimals, int n_rows)
 : OGRColumn(name, field_length, decimals, n_rows)
 {
     // a new in-memory integer column
-    if ( decimals < 0) decimals = GdaConst::default_dbf_double_decimals;
+    if ( decimals < 0)
+        decimals = GdaConst::default_dbf_double_decimals;
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0.0;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, wxString name,
@@ -358,13 +453,15 @@ OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, wxString name,
 : OGRColumn(ogr_layer, name, field_length, decimals)
 {
     // a new double column
-    if ( decimals < 0) decimals = GdaConst::default_dbf_double_decimals;
+    if ( decimals < 0)
+        decimals = GdaConst::default_dbf_double_decimals;
+    
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0.0;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 
@@ -372,39 +469,46 @@ OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, int idx)
 :OGRColumn(ogr_layer, idx)
 {
     // a double column from OGRLayer
-    if ( decimals < 0) decimals = GdaConst::default_dbf_double_decimals;
+    if ( decimals < 0)
+        decimals = GdaConst::default_dbf_double_decimals;
     is_new = false;
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         // for non-undefined value
         if ( ogr_layer->data[i]->IsFieldSet(idx) )
-            set_markers[i] = true;
+            undef_markers[i] = false;
         else
-            set_markers[i] = false;
+            undef_markers[i] = true;
     }
 }
 
 OGRColumnDouble::~OGRColumnDouble()
 {
-    if (new_data.size() > 0 ) new_data.clear();
-    if (set_markers.size() > 0) set_markers.clear();
+    if (new_data.size() > 0 )
+        new_data.clear();
+    if (undef_markers.size() > 0)
+        undef_markers.clear();
 }
 
 
+// Assign this column to a vector of wxInt64
 void OGRColumnDouble::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             data[i] = (wxInt64)new_data[i];
         }
+        
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             data[i] = (wxInt64)ogr_layer->data[i]->GetFieldAsDouble(col_idx);
         }
+        
     }
 }
 
+// Assign this column to a vector of double
 void OGRColumnDouble::FillData(vector<double> &data)
 {
     if (is_new) {
@@ -434,18 +538,17 @@ void OGRColumnDouble::FillData(vector<wxString> &data)
     }
 }
 
+// Update this column from a vector of double
 void OGRColumnDouble::UpdateData(const vector<double>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, data[i]);
-            set_markers[i] = true;
         }
     }
 }
@@ -455,82 +558,108 @@ void OGRColumnDouble::UpdateData(const vector<wxInt64>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = (double)data[i];
-            set_markers[i] = true;
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, (double)data[i]);
-            set_markers[i] = true;
+            undef_markers[i] = false;
         }
     }
 }
-void OGRColumnDouble::GetCellValue(int row, double& val)
+
+
+// Fill a double value from a cell at position (row)
+bool OGRColumnDouble::GetCellValue(int row, double& val)
 {
+    if (undef_markers[row] == true) {
+        val = 0.0;
+        return false;
+    }
+    
     if (is_new) {
         val = new_data[row];
     } else {
         int col_idx = GetColIndex();
         val = ogr_layer->data[row]->GetFieldAsDouble(col_idx);
     }
+    return true;
 }
 
+// Return a String value from a cell at position (row)
+// Note: used by wxGrid Table
 wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
                                      wxCSConv* m_wx_encoding)
 {
-    disp_decimals = 0;
+    if (undef_markers[row_idx] == true)
+        return wxEmptyString;
+    
     double val;
     if (is_new) {
-        if (set_markers[row_idx]== false)
-            return wxEmptyString;
+        
         val = new_data[row_idx];
-        wxString rst = wxString::Format("%f", val);
+        wxString rst = wxNumberFormatter::ToString(val, disp_decimals,
+                                                   wxNumberFormatter::Style_None);
         return rst;
+        
     } else {
         int col_idx = GetColIndex();
-        if (col_idx == -1) return wxEmptyString;
+        if (col_idx == -1)
+            return wxEmptyString;
+        
         const char* tmp = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
         if (*tmp == '\0' ) {
             return wxEmptyString;
-        } else {
-            // return raw values if no display decimals setup
-            if ( disp_decimals <=0 ) {
-                return wxString(tmp);
-            }
         }
+        
         val = ogr_layer->data[row_idx]->GetFieldAsDouble(col_idx);
-        wxString rst = wxString::Format("%.*f", disp_decimals, val);
+        wxString rst = wxNumberFormatter::ToString(val, disp_decimals,
+                                                   wxNumberFormatter::Style_None);
         return rst;
     }
 }
 
+// Set a cell value from user input wxString (in Table/wxGrid)
 void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
 {
+    // if user inputs nothing for a double valued cell, GeoDa treats it as NULL
+    if ( value.IsEmpty() ) {
+        undef_markers[row_idx] = true;
+        if (is_new ) {
+            new_data[row_idx] = 0.0;
+        } else {
+            // set undefined/null
+            ogr_layer->data[row_idx]->UnsetField(row_idx);
+        }
+        return;
+    }
+    
     double d_val;
-    if (value.ToDouble(&d_val)) {
+    if ( value.ToDouble(&d_val) ) {
         if (is_new) {
             new_data[row_idx] = d_val;
         } else {
             int col_idx = GetColIndex();
             ogr_layer->data[row_idx]->SetField(col_idx, d_val);
         }
-        set_markers[row_idx] = true;
+        undef_markers[row_idx] = false;
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
-OGRColumnString::OGRColumnString(wxString name, int field_length, int decimals, int n_rows)
+OGRColumnString::OGRColumnString(wxString name, int field_length,
+                                 int decimals, int n_rows)
 : OGRColumn(name, field_length, decimals, n_rows)
 {
     // a new in-memory string column
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = wxEmptyString;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
@@ -540,10 +669,10 @@ OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
     // a new string column
     is_new = true;
     new_data.resize(rows);
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = wxEmptyString;
-        set_markers[i] = false;
+        undef_markers[i] = false;
     }
 }
 
@@ -552,35 +681,37 @@ OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, int idx)
 {
     // a string column from OGRLayer
     is_new = false;
-    set_markers.resize(rows);
+    undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         if ( ogr_layer->data[i]->IsFieldSet(idx) )
-            set_markers[i] = true;
+            undef_markers[i] = false;
         else
-            set_markers[i] = false;
+            undef_markers[i] = true;
     }
 }
 
 OGRColumnString::~OGRColumnString()
 {
-    if (new_data.size() > 0 ) new_data.clear();
-    if (set_markers.size() > 0) set_markers.clear();
+    if (new_data.size() > 0 )
+        new_data.clear();
+    if (undef_markers.size() > 0)
+        undef_markers.clear();
 }
 
-void OGRColumnString::FillData(vector<double> &data)
+// This column -> vector<double>
+void OGRColumnString::FillData(vector<double>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            double val;
-            // internal is always local "C"
-            if (!new_data[i].ToDouble(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << new_data[i]
-                << "' to floating-point number.";
+            double val = 0.0;
+            if ( !new_data[i].ToDouble(&val) ) {
+                // internal is always local "C"
+                wxString error_msg = wxString::Format( "Fill data error: can't convert '%s' to floating-point number.", new_data[i]);
                 throw GdaException(error_msg.c_str());
             }
             data[i] = val;
         }
+        
     } else {
         int col_idx = GetColIndex();
         bool conv_success = true;
@@ -588,31 +719,42 @@ void OGRColumnString::FillData(vector<double> &data)
         
         // default C locale
         for (int i=0; i<rows; ++i) {
-            tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            if ( undef_markers[i] == true) {
+                data[i] = 0.0;
+                continue;
+            }
+            
+            tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            
             double val;
-            if (tmp.ToDouble(&val)) {
+            if (tmp.IsEmpty()) {
+                data[i] = 0.0;
+            } else if (tmp.ToDouble(&val)) {
                 data[i] = val;
-            } else if (tmp.IsEmpty()) {
-                data[i] = 0;
             } else {
                 conv_success = false;
                 break;
             }
         }
         
+        // try usong different locale
         if (conv_success == false) {
             conv_success = true;
             // test if C thousands separator inside
             wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
             if (thousands_sep == ",") {
                 for (int i=0; i<rows; ++i) {
-                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    if ( undef_markers[i] == true) {
+                        data[i] = 0.0;
+                        continue;
+                    }
+                    tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     tmp.Replace(thousands_sep, "");
                     double val;
-                    if (tmp.ToDouble(&val)) {
-                        data[i] = val;
-                    } else if (tmp.IsEmpty()) {
+                    if (tmp.IsEmpty()) {
                         data[i] = 0;
+                    } else if (tmp.ToDouble(&val)) {
+                        data[i] = val;
                     } else {
                         conv_success = false;
                         break;
@@ -622,40 +764,41 @@ void OGRColumnString::FillData(vector<double> &data)
                 // try comma as decimal point
                 setlocale(LC_NUMERIC, "de_DE");
                 for (int i=0; i<rows; ++i) {
-                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    if ( undef_markers[i] == true) {
+                        data[i] = 0.0;
+                        continue;
+                    }
+                    tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     double val;
-                    if (tmp.ToDouble(&val)) {
+                    if (tmp.IsEmpty()) {
+                        data[i] = 0.0;
+                    } else if (tmp.ToDouble(&val)) {
                         data[i] = val;
-                    } else if (tmp.IsEmpty()) {
-                        data[i] = 0;
                     } else {
                         conv_success = false;
                         break;
                     }
-                    data[i] = val;
                 }
                 setlocale(LC_NUMERIC, "C");
             }
         }
         
-        if (conv_success == false ) {
-            wxString error_msg;
-            error_msg << "Fill data error: can't convert '" << tmp
-            << "' to floating-point number.";
+        if ( conv_success == false ) {
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to floating-point number.", tmp);
             throw GdaException(error_msg.mb_str());
         }
     }
+    
 }
 
+// This column -> vector<wxInt64>
 void OGRColumnString::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            wxInt64 val;
+            wxInt64 val = 0;
             if (!new_data[i].ToLongLong(&val)) {
-                wxString error_msg;
-                error_msg << "Fill data error: can't convert '" << new_data[i]
-                << "' to floating-point number.";
+                wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to integer number.", new_data[i]);
                 throw GdaException(error_msg.mb_str());
             }
             data[i] = val;
@@ -667,19 +810,25 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         
         // default C locale
         for (int i=0; i<rows; ++i) {
-            wxString tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            if ( undef_markers[i] == true) {
+                data[i] = 0;
+                continue;
+            }
+            
+            tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             wxInt64 val;
             double val_d;
-            if (tmp.ToLongLong(&val)) {
+            
+            if (tmp.IsEmpty()) {
+                data[i] = 0;
+                
+            } else if (tmp.ToLongLong(&val)) {
                 data[i] = val;
                 
             } else if (tmp.ToDouble(&val_d)) {
                 val = static_cast<wxInt64>(val_d);
                 data[i] = val;
                     
-            } else if (tmp.IsEmpty()) {
-                data[i] = 0;
-                
             } else {
                 conv_success = false;
                 break;
@@ -692,37 +841,52 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
             wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
             if (thousands_sep == ",") {
                 for (int i=0; i<rows; ++i) {
-                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    if ( undef_markers[i] == true) {
+                        data[i] = 0;
+                        continue;
+                    }
+                    tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     tmp.Replace(thousands_sep, "");
                     wxInt64 val;
                     double val_d;
-                    if (tmp.ToLongLong(&val)) {
+                    
+                    if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                        
+                    } else if (tmp.ToLongLong(&val)) {
                         data[i] = val;
+                        
                     } else if (tmp.ToDouble(&val_d)) {
                         val = static_cast<wxInt64>(val_d);
                         data[i] = val;
-                    } else if (tmp.IsEmpty()) {
-                        data[i] = 0;
+                        
                     } else {
                         conv_success = false;
                         break;
                     }
-                    
                 }
             } else {
                 // try comma as decimal point
                 setlocale(LC_NUMERIC, "de_DE");
                 for (int i=0; i<rows; ++i) {
-                    tmp=wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+                    if ( undef_markers[i] == true) {
+                        data[i] = 0;
+                        continue;
+                    }
+                    
+                    tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
                     wxInt64 val;
                     double val_d;
-                    if (tmp.ToLongLong(&val)) {
+                    if (tmp.IsEmpty()) {
+                        data[i] = 0;
+                        
+                    } else if (tmp.ToLongLong(&val)) {
                         data[i] = val;
+                        
                     } else if (tmp.ToDouble(&val_d)) {
                         val = static_cast<wxInt64>(val_d);
                         data[i] = val;
-                    } else if (tmp.IsEmpty()) {
-                        data[i] = 0;
+                        
                     } else {
                         conv_success = false;
                         break;
@@ -733,14 +897,13 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         }
         
         if (conv_success == false ) {
-            wxString error_msg;
-            error_msg << "Fill data error: can't convert '" << tmp
-            << "' to numeric.";
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to numeric.", tmp);
             throw GdaException(error_msg.mb_str());
         }
     }
 }
 
+// This column -> vector<wxString>
 void OGRColumnString::FillData(vector<wxString> &data)
 {
     if (is_new) {
@@ -755,18 +918,17 @@ void OGRColumnString::FillData(vector<wxString> &data)
     }
 }
 
+// vector<wxString> -> this column
 void OGRColumnString::UpdateData(const vector<wxString>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, data[i].c_str());
-            set_markers[i] = true;
         }
     }
 }
@@ -778,7 +940,6 @@ void OGRColumnString::UpdateData(const vector<wxInt64>& data)
             wxString tmp;
             tmp << data[i];
             new_data[i] = tmp.c_str();
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
@@ -786,7 +947,6 @@ void OGRColumnString::UpdateData(const vector<wxInt64>& data)
             wxString tmp;
             tmp << data[i];
             ogr_layer->data[i]->SetField(col_idx, tmp.c_str());
-            set_markers[i] = true;
         }
     }
 }
@@ -798,7 +958,6 @@ void OGRColumnString::UpdateData(const vector<double>& data)
             wxString tmp;
             tmp << data[i];
             new_data[i] = tmp.c_str();
-            set_markers[i] = true;
         }
     } else {
         int col_idx = GetColIndex();
@@ -806,47 +965,67 @@ void OGRColumnString::UpdateData(const vector<double>& data)
             wxString tmp;
             tmp << data[i];
             ogr_layer->data[i]->SetField(col_idx, tmp.c_str());
-            set_markers[i] = true;
         }
     }
 }
 
-void OGRColumnString::GetCellValue(int row, wxString& val)
+// Fill a wxString value from a cell at position (row)
+bool OGRColumnString::GetCellValue(int row, wxString& val)
 {
+    if (undef_markers[row] == true) {
+        val = wxEmptyString;
+        return false;
+    }
+    
     if (is_new) {
         val = new_data[row];
+        
     } else {
         int col_idx = GetColIndex();
         const char* val = ogr_layer->data[row]->GetFieldAsString(col_idx);
         val = wxString(val);
     }
+    return true;
 }
 
 wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
                                      wxCSConv* m_wx_encoding)
 {
+    if (undef_markers[row_idx] == true)
+        return wxEmptyString;
+    
     if (is_new) {
-        if (set_markers[row_idx] == false )
-            return wxEmptyString;
         return new_data[row_idx];
     } else {
         int col_idx = GetColIndex();
-        if (col_idx == -1) return wxEmptyString;
+        if (col_idx == -1)
+            return wxEmptyString;
         const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
-        if (m_wx_encoding == NULL) return wxString(val);
-        else return wxString(val,*m_wx_encoding);
+        
+        wxString rtn;
+        if (m_wx_encoding == NULL)
+            rtn = wxString(val);
+        else
+            rtn = wxString(val,*m_wx_encoding);
+        
+        return rtn;
     }
 }
 
 void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
 {
+    // if user inputs nothing for a undefined cell
+    if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
+        return;
+    }
+    
     if (is_new) {
         new_data[row_idx] = value;
     } else {
         int col_idx = GetColIndex();
         ogr_layer->data[row_idx]->SetField(col_idx, value.c_str());
     }
-    set_markers[row_idx] = true;
+    undef_markers[row_idx] = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -890,14 +1069,6 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
     }
 }
 
-void OGRColumnDate::FillData(vector<double> &data)
-{
-    wxString error_msg;
-    error_msg << "Internal error: GeoDa doesn't support fill floating-point "
-    << "data array with Date column.";
-    throw GdaException(error_msg.mb_str());
-}
-
 void OGRColumnDate::FillData(vector<wxString> &data)
 {
     if (is_new) {
@@ -921,8 +1092,13 @@ void OGRColumnDate::FillData(vector<wxString> &data)
     }
 }
 
-void OGRColumnDate::GetCellValue(int row, wxInt64& val)
+bool OGRColumnDate::GetCellValue(int row, wxInt64& val)
 {
+    if (undef_markers[row] == true) {
+        val = 0;
+        return false;
+    }
+    
     if (new_data.empty()) {
         int col_idx = GetColIndex();
         int year = 0;
@@ -939,6 +1115,8 @@ void OGRColumnDate::GetCellValue(int row, wxInt64& val)
     } else {
         val = new_data[row];
     }
+    
+    return true;
 }
 
 wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
@@ -1007,8 +1185,6 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
     }
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // OGRColumnTime
 
@@ -1051,14 +1227,6 @@ void OGRColumnTime::FillData(vector<wxInt64> &data)
     }
 }
 
-void OGRColumnTime::FillData(vector<double> &data)
-{
-    wxString error_msg;
-    error_msg << "Internal error: GeoDa doesn't support fill floating-point "
-    << "data array with Time column.";
-    throw GdaException(error_msg.mb_str());
-}
-
 void OGRColumnTime::FillData(vector<wxString> &data)
 {
     if (is_new) {
@@ -1082,8 +1250,12 @@ void OGRColumnTime::FillData(vector<wxString> &data)
     }
 }
 
-void OGRColumnTime::GetCellValue(int row, wxInt64& val)
+bool OGRColumnTime::GetCellValue(int row, wxInt64& val)
 {
+    if (undef_markers[row] == true) {
+        val = 0;
+        return false;
+    }
     /*
     if (new_data.empty()) {
         int col_idx = GetColIndex();
@@ -1102,6 +1274,7 @@ void OGRColumnTime::GetCellValue(int row, wxInt64& val)
         //val = new_data[row];
     }
      */
+    return true;
 }
 
 wxString OGRColumnTime::GetValueAt(int row_idx, int disp_decimals,
@@ -1206,15 +1379,8 @@ void OGRColumnDateTime::FillData(vector<wxInt64> &data)
     }
 }
 
-void OGRColumnDateTime::FillData(vector<double> &data)
-{
-    wxString error_msg;
-    error_msg << "Internal error: GeoDa doesn't support fill floating-point "
-    << "data array with Date column.";
-    throw GdaException(error_msg.mb_str());
-}
 
-void OGRColumnDateTime::FillData(vector<wxString> &data)
+void OGRColumnDateTime::FillData(vector<wxString>& data)
 {
     if (is_new) {
         wxString msg = "Internal error: GeoDa doesn't support new date column.";
@@ -1237,8 +1403,13 @@ void OGRColumnDateTime::FillData(vector<wxString> &data)
     }
 }
 
-void OGRColumnDateTime::GetCellValue(int row, wxInt64& val)
+bool OGRColumnDateTime::GetCellValue(int row, wxInt64& val)
 {
+    if (undef_markers[row] == true) {
+        val = 0;
+        return false;
+    }
+    
     if (new_data.empty()) {
         int col_idx = GetColIndex();
         int year = 0;
@@ -1255,6 +1426,8 @@ void OGRColumnDateTime::GetCellValue(int row, wxInt64& val)
     } else {
         val = new_data[row];
     }
+    
+    return true;
 }
 
 wxString OGRColumnDateTime::GetValueAt(int row_idx, int disp_decimals,

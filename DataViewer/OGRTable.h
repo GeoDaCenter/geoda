@@ -51,6 +51,7 @@ private:
     OGRLayerProxy* ogr_layer;
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
+    
     // var_map will be deprecate in 1.8.8, and replace by _var_names
 	map<wxString, int> var_map;
     vector<wxString> org_var_names;
@@ -145,9 +146,9 @@ public:
 	virtual void GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val);
 	virtual void SetColData(int col, int time,
-							const std::vector<double>& data);
+                            const std::vector<double>& data);
 	virtual void SetColData(int col, int time,
-							const std::vector<wxInt64>& data);
+                            const std::vector<wxInt64>& data);
 	virtual void SetColData(int col, int time,
                             const std::vector<wxString>& data);
 	virtual void SetColUndefined(int col, int time,

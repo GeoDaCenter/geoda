@@ -144,9 +144,18 @@ public:
 	virtual void GetColData(int col, d_array_type& data) = 0;
 	virtual void GetColData(int col, l_array_type& data) = 0;
 	virtual void GetColData(int col, s_array_type& data) = 0;
+    
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
+    
+	virtual void GetColData(int col, int time, std::vector<double>& data,
+                            std::vector<bool>& undefs);
+	virtual void GetColData(int col, int time, std::vector<wxInt64>& data,
+                            std::vector<bool>& undefs);
+	virtual void GetColData(int col, int time, std::vector<wxString>& data,
+                            std::vector<bool>& undefs);
+    
 	virtual void GetColUndefined(int col, b_array_type& undefined) = 0;
 	virtual void GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined) = 0;
@@ -154,13 +163,24 @@ public:
 							   std::vector<double>& max_vals) = 0;
 	virtual void GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val) = 0;
-	
+
 	virtual void SetColData(int col, int time,
 							const std::vector<double>& data) = 0;
 	virtual void SetColData(int col, int time,
 							const std::vector<wxInt64>& data) = 0;
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data) = 0;
+    
+	virtual void SetColData(int col, int time,
+							const std::vector<double>& data,
+                            const std::vector<bool>& undefs);
+	virtual void SetColData(int col, int time,
+							const std::vector<wxInt64>& data,
+                            const std::vector<bool>& undefs);
+	virtual void SetColData(int col, int time,
+							const std::vector<wxString>& data,
+                            const std::vector<bool>& undefs);
+    
 	virtual void SetColUndefined(int col, int time,
 								 const std::vector<bool>& undefined) = 0;
 	

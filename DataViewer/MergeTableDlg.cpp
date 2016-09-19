@@ -448,6 +448,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
     if ( ftype == GdaConst::string_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxString> data(n_rows);
+        vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i; // default merge by row
             
@@ -456,16 +457,20 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                 import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
             }
             
-            if (import_rid >=0)
+            if (import_rid >=0) {
                 data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
-            else
+                undefs[i] = false;
+            } else {
                 data[i] = wxEmptyString;
+                undefs[i] = true;
+            }
         }
-        table_int->SetColData(add_pos, 0, data);
+        table_int->SetColData(add_pos, 0, data, undefs);
         
     } else if ( ftype == GdaConst::long64_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxInt64> data(n_rows);
+        vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
             if (!rowid_map.empty()) {
@@ -475,14 +480,18 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             if (import_rid >=0 ) {
                 OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
                 data[i] = feat->GetFieldAsInteger64(fid);
-            } else
+                undefs[i] = false;
+            } else {
                 data[i] = 0;
+                undefs[i] = true;
+            }
         }
-        table_int->SetColData(add_pos, 0, data);
+        table_int->SetColData(add_pos, 0, data, undefs);
         
     } else if ( ftype == GdaConst::double_type ) {
         int add_pos=table_int->InsertCol(ftype, field_name);
         vector<double> data(n_rows);
+        vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
             if (!rowid_map.empty()) {
@@ -492,10 +501,12 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             if (import_rid >=0 ) {
                 OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
                 data[i] = feat->GetFieldAsDouble(fid);
+                undefs[i] = false;
             } else
                 data[i] = 0.0;
+                undefs[i] = true;
         }
-        table_int->SetColData(add_pos, 0, data);
+        table_int->SetColData(add_pos, 0, data, undefs);
     }
 }
 

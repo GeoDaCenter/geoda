@@ -475,7 +475,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
                     from_col = from_col + 1;
                     int num_rows = table_int->GetNumberRows();
-                    vector<bool> undefined(num_rows, false);
                     
                     if (new_type == GdaConst::long64_type ||
                         new_type == GdaConst::date_type ||
@@ -499,6 +498,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->SetColData(to_col, 0, data);
                     }
                     
+                    vector<bool> undefined(num_rows, false);
                     table_int->GetColUndefined(from_col, 0, undefined);
                     table_int->SetColUndefined(to_col, 0, undefined);
                     

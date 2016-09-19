@@ -808,8 +808,18 @@ void OGRTable::GetColUndefined(int col, b_array_type& undefined)
  */
 void OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
 {
-	undefined.resize(rows);
-	for (int i=0; i<rows; ++i) undefined[i] = false;
+	if (col < 0 || col >= GetNumberCols()) return;
+	int ogr_col_id = FindOGRColId(col, time);
+	if (ogr_col_id == wxNOT_FOUND) return;
+   
+    
+	//undefined.resize(rows);
+    
+    OGRColumn* ogr_col = columns[ogr_col_id];
+    
+    undefined = ogr_col->GetUndefinedMarkers();
+    
+	//for (int i=0; i<rows; ++i) undefined[i] = false;
 }
 
 /**
@@ -869,7 +879,8 @@ void OGRTable::GetMinMaxVals(int col, int time,
 	max_val = t_max[time];
 }
 
-void OGRTable::SetColData(int col, int time, const std::vector<double>& data)
+void OGRTable::SetColData(int col, int time,
+                          const std::vector<double>& data)
 {
 	if (col < 0 || col >= GetNumberCols()) return;
 	if (!IsColNumeric(col)) return;
@@ -884,7 +895,8 @@ void OGRTable::SetColData(int col, int time, const std::vector<double>& data)
 	SetChangedSinceLastSave(true);
 }
 
-void OGRTable::SetColData(int col, int time, const std::vector<wxInt64>& data)
+void OGRTable::SetColData(int col, int time,
+                          const std::vector<wxInt64>& data)
 {
 	if (col < 0 || col >= GetNumberCols()) return;
 	if (!IsColNumeric(col)) return;
@@ -914,12 +926,15 @@ void OGRTable::SetColData(int col, int time,
 	SetChangedSinceLastSave(true);
 }
 
-/**
- * OGR doesn't keep track of defined/undefined
- */
 void OGRTable::SetColUndefined(int col, int time,
-							   const std::vector<bool>& undefined)
+							   const std::vector<bool>& undefs)
 {
+    if (col < 0 || col >= GetNumberCols()) return;
+    int ogr_col_id = FindOGRColId(col, time);
+    if (ogr_col_id == wxNOT_FOUND) return;
+    
+    OGRColumn* ogr_col = columns[ogr_col_id];
+    ogr_col->UpdateNullMarkers(undefs);
 	return;
 }
 

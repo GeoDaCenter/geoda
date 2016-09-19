@@ -362,15 +362,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	std::set<wxString>::iterator it;
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
-        /*
-		TableState* ts = project->GetTableState();
-		if (!Project::CanModifyGrpAndShowMsgIfNot(ts, s))
-            return;
-		if (project->GetTableInt()->IsTimeVariant()
-			&& m_time[i]->IsEnabled()) {
-			s << " (" << m_time[i]->GetStringSelection() << ")";
-		}
-         */
+        
 		it = names.find(s);
 		if (it != names.end()) {
 			wxMessageDialog dlg(this, "Duplicate variable names specified.",
@@ -383,20 +375,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	}
 	
 	for (int i=0, iend=data.size(); i<iend; i++) {
-        /*
-		if (is_check[i]) {
-			int col = col_id_maps[i][m_field[i]->GetSelection()];
-			int time = is_space_time ? m_time[i]->GetSelection() : 0;
-			if (data[i].d_val) {
-				table_int->SetColData(col, time, *data[i].d_val);
-			} else if (data[i].l_val) {
-				table_int->SetColData(col, time, *data[i].l_val);
-			}
-			if (data[i].undefined) {
-				table_int->SetColUndefined(col, time, *data[i].undefined);
-			}
-		}
-        */
+        
         if (is_check[i]) {
             wxString field_name = m_txt_field[i]->GetValue();
             int time=0;

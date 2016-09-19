@@ -1419,6 +1419,7 @@ bool Project::IsDataTypeChanged()
  */
 int Project::InitFromShapefileLayer()
 {
+    /*
 	LOG_MSG("Entering Project::InitFromShapefileLayer");
     
     isTableOnly = datasource->GetType() == GdaConst::ds_dbf;
@@ -1505,6 +1506,7 @@ int Project::InitFromShapefileLayer()
 	}
 	LOG_MSG("Exiting Project::InitFromShapefileLayer");
 	return true;
+     */
 }
 
 /** Initialize the Table and Shape Layer from OGR source */

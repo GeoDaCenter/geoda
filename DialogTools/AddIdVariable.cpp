@@ -105,7 +105,8 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {
 		std::vector<wxInt64> data(table_int->GetNumberRows());
-		for (wxInt64 i=0, iend=data.size(); i<iend; i++) data[i] = i+1;
+		for (wxInt64 i=0, iend=data.size(); i<iend; i++)
+            data[i] = i+1;
 		table_int->SetColData(add_pos, 0/*time*/, data);
 	} else {
 		wxString msg("Could not create a new variable. "

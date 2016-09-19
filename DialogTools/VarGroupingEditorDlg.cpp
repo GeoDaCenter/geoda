@@ -293,6 +293,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     std::vector<wxInt64> select_stack;
     std::vector<wxInt64> id_stack;
     std::vector<wxInt64> new_ids;
+    std::vector<bool> undefs; // should be ignored
    
     bool has_highligh = false;
     const std::vector<bool>& hs(highlight_state->GetHighlight());
@@ -309,6 +310,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
             time_stack.push_back(tm_strs[t]);
             id_stack.push_back(j);
             new_ids.push_back(idx);
+            undefs.push_back(false);
             idx += 1;
         }
     }
@@ -317,7 +319,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     OGRTable* mem_table_int = new OGRTable(n);
     
     OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
-    id_col->UpdateData(new_ids);
+    id_col->UpdateData(new_ids, undefs);
     mem_table_int->AddOGRColumn(id_col);
     
     if (!id_stack.empty()) {
@@ -338,7 +340,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                         new_id_vec.push_back(id_vec[id_stack[ii]]);
                     }
                     OGRColumn* id_col = new OGRColumnString(gw->id_field, 50, 0, n);
-                    id_col->UpdateData(new_id_vec);
+                    id_col->UpdateData(new_id_vec, undefs);
                     mem_table_int->AddOGRColumn(id_col);
                     using_default_id = false;
                 }
@@ -357,13 +359,13 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     
     if (!select_stack.empty() && has_highligh) {
         OGRColumn* select_col = new OGRColumnInteger("SELECT", 18, 0, n);
-        select_col->UpdateData(select_stack);
+        select_col->UpdateData(select_stack, undefs);
         mem_table_int->AddOGRColumn(select_col);
     }
     
     if (!time_stack.empty()) {
         OGRColumn* time_col = new OGRColumnString("TIME", 50, 0, n);
-        time_col->UpdateData(time_stack);
+        time_col->UpdateData(time_stack, undefs);
         mem_table_int->AddOGRColumn(time_col);
         
         // add time dummies
@@ -381,7 +383,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                     }
                 }
             }
-            time_dummy_col->UpdateData(time_dummy_vals);
+            time_dummy_col->UpdateData(time_dummy_vals, undefs);
             mem_table_int->AddOGRColumn(time_dummy_col);
         }
     }
@@ -402,7 +404,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                     stack_dat.insert(stack_dat.end(), dat.begin(), dat.end());
                 }
                 OGRColumn* var_col = new OGRColumnInteger(col_name, 18, 0, n);
-                var_col->UpdateData(stack_dat);
+                var_col->UpdateData(stack_dat, undefs);
                 mem_table_int->AddOGRColumn(var_col);
                 
             } else if (ft == GdaConst::double_type) {
@@ -418,7 +420,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                         n_decimal = deci;
                 }
                 OGRColumn* var_col = new OGRColumnDouble(col_name, 18, n_decimal, n);
-                var_col->UpdateData(stack_dat);
+                var_col->UpdateData(stack_dat, undefs);
                 mem_table_int->AddOGRColumn(var_col);
                 
             }
