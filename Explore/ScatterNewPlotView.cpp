@@ -115,7 +115,7 @@ ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
 										   const wxPoint& pos,
 										   const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, false, true),
+                 pos, size, false, true),
 project(project_s), num_obs(project_s->GetNumRecords()),
 num_categories(1), num_time_vals(1),
 custom_classif_state(0),
@@ -163,20 +163,22 @@ bubble_size_scaler(1.0)
 
 /** This constructor is intended to be used directly for creating new
  scatter plots and bubble charts */
-ScatterNewPlotCanvas::ScatterNewPlotCanvas(wxWindow *parent,
-										    TemplateFrame* t_frame,
-										   Project* project_s,
-										const std::vector<GdaVarTools::VarInfo>& v_info,
-										   const std::vector<int>& col_ids,
-										   bool is_bubble_plot_s,
-										   bool standardized_s,
-										   const wxPoint& pos,
-										   const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, false, true),
+ScatterNewPlotCanvas::
+ScatterNewPlotCanvas(wxWindow *parent,
+                     TemplateFrame* t_frame,
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     bool is_bubble_plot_s,
+                     bool standardized_s,
+                     const wxPoint& pos,
+                     const wxSize& size)
+: TemplateCanvas(parent, t_frame, project_s,
+                 project_s->GetHighlightState(),
+                 pos, size, false, true),
 project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_categories(is_bubble_plot ? 1 : 3), num_time_vals(1),
-data(v_info.size()),
+data(v_info.size()), undef_data(v_info.size()),
 custom_classif_state(0),
 is_bubble_plot(is_bubble_plot_s),
 axis_scale_x(), axis_scale_y(),
@@ -192,7 +194,8 @@ sse_c(0), sse_sel(0), sse_unsel(0),
 show_linear_smoother(!is_bubble_plot_s), show_lowess_smoother(false), enableLowess(true),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
-X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()),
+X(project_s->GetNumRecords()),
+Y(project_s->GetNumRecords()),
 Z(is_bubble_plot_s ? project_s->GetNumRecords() : 0),
 obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
 bubble_size_scaler(1.0)
@@ -204,19 +207,21 @@ bubble_size_scaler(1.0)
 	for (size_t i=0; i<var_info.size(); i++) {
 		template_frame->AddGroupDependancy(var_info[i].name);
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], undef_data[i]);
 	}
 	
 	if (!is_bubble_plot) {
 		highlight_color = GdaConst::scatterplot_regression_selected_color;
-		selectable_fill_color =
-			GdaConst::scatterplot_regression_excluded_color;
+		selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 		selectable_outline_color = GdaConst::scatterplot_regression_color;
 	}
-	
+
+    int timesteps_tbl = table_int->GetTimeSteps();
+    GdaVarTools::VarInfo& sec_var_info = var_info[2];
+    
 	if (is_bubble_plot) {
 		Gda::dbl_int_pair_vec_type v_sorted(num_obs);
-		int times = var_info[2].is_time_variant ? 
-			project->GetTableInt()->GetTimeSteps() : 1;
+		int times = sec_var_info.is_time_variant ? timesteps_tbl : 1;
 		obs_id_to_z_val_order.resize(boost::extents[times][num_obs]);
 		
 		for (int t=0; t<times; t++) {
@@ -243,15 +248,19 @@ bubble_size_scaler(1.0)
 	
 	use_category_brushes = true;
 	draw_sel_shps_by_z_val = is_bubble_plot;
+    
 	UpdateDisplayLinesAndMargins();
 	
 	if (is_bubble_plot) {
 		ChangeThemeType(CatClassification::stddev, 6);
+        
 	} else {
 		ref_var_index = -1;
 		num_time_vals = 1;
 		for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
-			if (var_info[i].is_ref_variable) ref_var_index = i;
+            if (var_info[i].is_ref_variable) {
+                ref_var_index = i;
+            }
 		}
 		if (ref_var_index != -1) {
 			num_time_vals = (var_info[ref_var_index].time_max -
@@ -373,51 +382,18 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
 	
-	// We have replaced the following seperate menu items:
-	//
-	//<object class="wxMenuItem" name="ID_VIEW_REGRESSION_SELECTED">
-	//  <label>Show Regression of Selected</label>
-	//  <checkable>1</checkable>
-	//  <checked>0</checked>
-    //</object>
-    //<object class="wxMenuItem" name="ID_VIEW_REGRESSION_SELECTED_EXCLUDED">
-	//  <label>Show Regression of Selected Excluded</label>
-	//  <checkable>1</checkable>
-	//  <checked>0</checked>
-    //</object>
-	//
-	// with:
-	//
-	//<object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
-	//  <label>Regimes Regression</label>
-	//  <checkable>1</checkable>
-	//  <checked>0</checked>
-    //</object>
-    
-	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_STANDARDIZED_DATA"),
 								  IsStandardized());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_ORIGINAL_DATA"),
 								  !IsStandardized());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
-																IsShowLinearSmoother());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
-																IsShowLowessSmoother());
-	//GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGRESSION_SELECTED"),
-	//							  IsRegressionSelected());
-	//GeneralWxUtils::CheckMenuItem(menu,
-	//							  XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"),
-	//							  IsRegressionExcluded());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
-								  IsRegressionSelected());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"),
-								  IsDisplayStats());
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"),
-								  IsShowOriginAxes());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"), IsShowLinearSmoother());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), IsShowLowessSmoother());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"), IsRegressionSelected());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), IsDisplayStats());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"), IsShowOriginAxes());
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);
-	
 	// since XRCID is a macro, we can't make this into a loop
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
 								  (GetCcType() == CatClassification::quantile)
@@ -561,19 +537,29 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
-		SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
-																		 highlight_state->GetHighlight(),
-																		 statsXselected, statsYselected,
-																		 statsXexcluded, statsYexcluded,
-																		 regressionXYselected, regressionXYexcluded,
-																		 sse_sel, sse_unsel);
-		if (IsRegressionSelected()) UpdateRegSelectedLine();
-		if (IsRegressionExcluded()) UpdateRegExcludedLine();
+        SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+                                         highlight_state->GetHighlight(),
+                                         statsXselected, statsYselected,
+                                         statsXexcluded, statsYexcluded,
+                                         regressionXYselected, regressionXYexcluded,
+                                         sse_sel, sse_unsel);
+		
+        if (IsRegressionSelected()) {
+            UpdateRegSelectedLine();
+        }
+        
+        if (IsRegressionExcluded()) {
+            UpdateRegExcludedLine();
+        }
+        
 		if (IsShowLowessSmoother() && IsShowRegimes()) {
 			UpdateLowessOnRegimes();
 		}
 	}
-	if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
+    
+    if (IsDisplayStats() && IsShowLinearSmoother()) {
+        UpdateDisplayStats();
+    }
 	
 	// Call TemplateCanvas::update to redraw objects as needed.
 	TemplateCanvas::update(o);
@@ -625,7 +611,9 @@ wxString ScatterNewPlotCanvas::GetCategoriesTitle()
 
 wxString ScatterNewPlotCanvas::GetNameWithTime(int var)
 {
-	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
+    if (var < 0 || var >= (int)var_info.size()) {
+        return wxEmptyString;
+    }
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
 		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
@@ -639,12 +627,13 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
+        
 		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+        
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[3].is_time_variant ? t : 0;
-			cat_var_sorted[i].first = 
-				data[3][tm+var_info[3].time_min][i];
+			cat_var_sorted[i].first =  data[3][tm+var_info[3].time_min][i];
 			cat_var_sorted[i].second = i;
 		}
 		if (cats_valid[var_info[0].time]) { // only sort data with valid data
@@ -681,9 +670,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	cat_classif_def = ccs->GetCatClassif();
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
-	//wxString s;
-	//CatClassification::PrintCatClassifDef(cat_classif_def, s);
-	//LOG_MSG(s);
+    
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -697,10 +684,11 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
-void ScatterNewPlotCanvas::ChangeThemeType(
-						CatClassification::CatClassifType new_theme,
-						int num_categories_s,
-						const wxString& custom_classif_title)
+void
+ScatterNewPlotCanvas::
+ChangeThemeType(CatClassification::CatClassifType new_theme,
+                int num_categories_s,
+                const wxString& custom_classif_title)
 {
 	num_categories = num_categories_s;
 	
@@ -813,6 +801,10 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
  and refresh the canvas. */
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
+	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
+	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+	
 	LOG_MSG("Entering ScatterNewPlotCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
@@ -837,77 +829,71 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 								   &current_shps_width, &current_shps_height);
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 	
-	LOG(x_data.shape()[0]);
-	LOG(x_data.shape()[1]);
-	LOG(X.size());
-	LOG(y_data.shape()[0]);
-	LOG(y_data.shape()[1]);
-	LOG(Y.size());
 	int xt = var_info[0].time-var_info[0].time_min;
 	int yt = var_info[1].time-var_info[1].time_min;
-	LOG(xt);
-	LOG(yt);
 
+    X_undef.resize(num_obs);
+    Y_undef.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
 		X[i] = x_data[xt][i];
 		Y[i] = y_data[yt][i];
+		X_undef[i] = x_undef_data[xt][i];
+		Y_undef[i] = y_undef_data[yt][i];
 	}
 	if (is_bubble_plot) {
+        Z_undef.resize(num_obs);
 		int zt = var_info[2].time-var_info[2].time_min;
 		for (int i=0; i<num_obs; i++) {
 			Z[i] = z_data[zt][i];
+            Z_undef[i] = z_undef_data[zt][i];
 		}
 	}
-	
-	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
-	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
-	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
 	
 	// global scaling only supported for non-standardized values at this time
 	double x_max = var_info[0].max_over_time;
 	double x_min = var_info[0].min_over_time;
 	double y_max = var_info[1].max_over_time;
-	double y_min = var_info[1].min_over_time;	
+	double y_min = var_info[1].min_over_time;
+    
+    if (standardized) {
+        for (int i=0, iend=X.size(); i<iend; i++) {
+            X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
+            Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
+            if (is_bubble_plot) {
+                Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
+            }
+        }
+        // we are ignoring the global scaling option here
+        x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
+        x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
+        y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
+        y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
+    }
 	
 	statsX = SampleStatistics(X);
 	statsY = SampleStatistics(Y);
-	if (is_bubble_plot)
+    
+    if (is_bubble_plot) {
         statsZ = SampleStatistics(Z);
-	if (standardized) {
-		for (int i=0, iend=X.size(); i<iend; i++) {
-			X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
-			Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
-			if (is_bubble_plot)
-                Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
-		}
-		// we are ignoring the global scaling option here
-		x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
-		x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
-		y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
-		y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
-		statsX = SampleStatistics(X);
-		statsY = SampleStatistics(Y);
-		if (is_bubble_plot)
-            statsZ = SampleStatistics(Z);
-		// mean shold be 0 and biased standard deviation should be 1
-		double eps = 0.000001;
-		if (-eps < statsX.mean && statsX.mean < eps) statsX.mean = 0;
-		if (-eps < statsY.mean && statsY.mean < eps) statsY.mean = 0;
-		if (is_bubble_plot) {
-			if (-eps < statsZ.mean && statsZ.mean < eps) statsZ.mean = 0;
-		}
-	}
+    }
+    
+    // mean shold be 0 and biased standard deviation should be 1
+    double eps = 0.000001;
+    if (-eps < statsX.mean && statsX.mean < eps)
+        statsX.mean = 0;
+    if (-eps < statsY.mean && statsY.mean < eps)
+        statsY.mean = 0;
+    if (is_bubble_plot) {
+        if (-eps < statsZ.mean && statsZ.mean < eps) {
+            statsZ.mean = 0;
+        }
+    }
 	
-	//LOG_MSG(wxString(statsX.ToString().c_str(), wxConvUTF8));
-	//LOG_MSG(wxString(statsY.ToString().c_str(), wxConvUTF8));
-	if (is_bubble_plot) {
-		//LOG_MSG(wxString(statsZ.ToString().c_str(), wxConvUTF8));
-	}
 	regressionXY = SimpleLinearRegression(X, Y, statsX.mean, statsY.mean,
 										  statsX.var_without_bessel,
 										  statsY.var_without_bessel);
+    
 	sse_c = regressionXY.error_sum_squares;
-	//LOG_MSG(wxString(regressionXY.ToString().c_str(), wxConvUTF8));
 	
 	if (!var_info[0].fixed_scale && !standardized) {
 		x_max = var_info[0].max[var_info[0].time];
@@ -929,13 +915,12 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	data_scale_ymin = axis_scale_y.scale_min;
 	data_scale_ymax = axis_scale_y.scale_max;
 	
-	//LOG_MSG(wxString(axis_scale_x.ToString().c_str(), wxConvUTF8));
-	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
-		
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(num_obs);
+    selectable_shps_undefs.resize(num_obs);
 	scaleX = 100.0 / (axis_scale_x.scale_range);
 	scaleY = 100.0 / (axis_scale_y.scale_range);
+    
 	if (is_bubble_plot) {
 		selectable_shps_type = circles;
 		
@@ -952,15 +937,28 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		if (statsZ.max-statsZ.min <= 0.00000001 ||
 			statsZ.var_without_bessel == 0) {
 			for (int i=0; i<num_obs; i++) {
+                if ( X_undef[i] == true || Y_undef[i] == true ) {
+                    selectable_shps_undefs[i] = true;
+                } else {
+                    selectable_shps_undefs[i] = false;
+                }
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
 				selectable_shps[i] = new GdaCircle(pt, rad_mn * bubble_size_scaler);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
+                if ( X_undef[i] == true || Y_undef[i] == true ||
+                     Z_undef[i] == true ) {
+                    selectable_shps_undefs[i] = true;
+                } else {
+                    selectable_shps_undefs[i] = false;
+                }
 				double z = (Z[i] - statsZ.mean)/statsZ.sd_without_bessel;
 				double area_z = (a*z + b) + min_area + area_sd;
-				if (area_z < min_area) area_z = min_area;
+                if (area_z < min_area) {
+                    area_z = min_area;
+                }
 				double r = sqrt(area_z/pi);
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
@@ -970,7 +968,12 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	} else {
 		selectable_shps_type = points;
 		for (int i=0; i<num_obs; i++) {
-			selectable_shps[i] = 
+            if ( X_undef[i] == true || Y_undef[i] == true ) {
+                selectable_shps_undefs[i] = true;
+            } else {
+                selectable_shps_undefs[i] = false;
+            }
+			selectable_shps[i] =
 			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 									(Y[i] - axis_scale_y.scale_min) * scaleY));
 		}
@@ -985,7 +988,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 
 	
 	if (IsShowLowessSmoother() && X.size() > 1) {
-		LOG_MSG("Begin populating LOWESS curve (all obs)");
+		//Begin populating LOWESS curve (all obs)
 		size_t n = X.size();
 		wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
 		
@@ -1048,24 +1051,29 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		bool reg_line_infinite_slope;
 		bool reg_line_defined;
 		wxRealPoint a, b;
-		SmoothingUtils::CalcRegressionLine(*reg_line,
-																			 reg_line_slope, reg_line_infinite_slope,
-																			 reg_line_defined, a, b, cc_degs_of_rot,
-																			 axis_scale_x, axis_scale_y,
-																			 regressionXY, *pens.GetRegPen());
+        SmoothingUtils::CalcRegressionLine(*reg_line,
+                                           reg_line_slope, reg_line_infinite_slope,
+                                           reg_line_defined, a, b, cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXY, *pens.GetRegPen());
 	}
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
 		// update both selected and excluded stats
-		SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
-																		 highlight_state->GetHighlight(),
-																		 statsXselected, statsYselected,
-																		 statsXexcluded, statsYexcluded,
-																		 regressionXYselected, regressionXYexcluded,
-																		 sse_sel, sse_unsel);
+        SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+                                         highlight_state->GetHighlight(),
+                                         statsXselected, statsYselected,
+                                         statsXexcluded, statsYexcluded,
+                                         regressionXYselected, regressionXYexcluded,
+                                         sse_sel, sse_unsel);
 	}
-	if (IsRegressionSelected()) UpdateRegSelectedLine();
-	if (IsRegressionExcluded()) UpdateRegExcludedLine();
+    if (IsRegressionSelected())  {
+        UpdateRegSelectedLine();
+    }
+    
+    if (IsRegressionExcluded()) {
+        UpdateRegExcludedLine();
+    }
 
 	chow_test_text = new GdaShapeText();
 	chow_test_text->hidden = true;
@@ -1073,6 +1081,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	stats_table = new GdaShapeTable();
 	stats_table->hidden = true;
 	foreground_shps.push_back(stats_table);
+    
 	if (!is_bubble_plot) {
 		UpdateDisplayStats();
 	}
@@ -1152,24 +1161,48 @@ void ScatterNewPlotCanvas::VarInfoAttributeChange()
 						 var_info[ref_var_index].time_min) + 1;
 	}
 	
-	int x_tms = (var_info[0].time_max-var_info[0].time_min) + 1;
-	int y_tms = (var_info[1].time_max-var_info[1].time_min) + 1;
+    int var0_time_max = var_info[0].time_max;
+    int var0_time_min = var_info[0].time_min;
+    int var1_time_max = var_info[1].time_max;
+    int var1_time_min = var_info[1].time_min;
+    
+	int x_tms = var0_time_max - var0_time_min + 1;
+	int y_tms = var1_time_max - var1_time_min + 1;
+    
 	x_data.resize(boost::extents[x_tms][num_obs]);
-	for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
-		int tt = t-var_info[0].time_min;
-		for (int i=0; i<num_obs; i++) x_data[tt][i] = data[0][t][i];
+	x_undef_data.resize(boost::extents[x_tms][num_obs]);
+    
+	for (int t=var0_time_min; t<=var0_time_max; t++) {
+		int tt = t - var0_time_min;
+        for (int i=0; i<num_obs; i++) {
+            x_data[tt][i] = data[0][t][i];
+            x_undef_data[tt][i] = undef_data[0][t][i];
+        }
 	}
+    
 	y_data.resize(boost::extents[y_tms][num_obs]);
-	for (int t=var_info[1].time_min; t<=var_info[1].time_max; t++) {
-		int tt = t-var_info[1].time_min;
-		for (int i=0; i<num_obs; i++) y_data[tt][i] = data[1][t][i];
+	y_undef_data.resize(boost::extents[y_tms][num_obs]);
+    
+	for (int t=var1_time_min; t<=var1_time_max; t++) {
+		int tt = t-var1_time_min;
+        for (int i=0; i<num_obs; i++) {
+            y_data[tt][i] = data[1][t][i];
+            y_undef_data[tt][i] = undef_data[1][t][i];
+        }
 	}
+    
 	if (is_bubble_plot) {
 		int z_tms = (var_info[2].time_max-var_info[2].time_min) + 1;
+        
 		z_data.resize(boost::extents[z_tms][num_obs]);
+		z_undef_data.resize(boost::extents[z_tms][num_obs]);
+        
 		for (int t=var_info[2].time_min; t<=var_info[2].time_max; t++) {
 			int tt = t-var_info[2].time_min;
-			for (int i=0; i<num_obs; i++) z_data[tt][i] = data[2][t][i];
+            for (int i=0; i<num_obs; i++)  {
+                z_data[tt][i] = data[2][t][i];
+                z_undef_data[tt][i] = undef_data[2][t][i];
+            }
 		}
 	}
 	//GdaVarTools::PrintVarInfoVector(var_info);
@@ -1339,8 +1372,9 @@ void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 	PopulateCanvas();
 }
 
-void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter, 
-																						 double delta_factor)
+void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
+                                             double delta_factor)
+
 {
 	EmptyLowessCache();
 	lowess.SetF(f);
@@ -1356,7 +1390,7 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 	if (!display) {
 		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
 		if ((IsRegressionSelected() && !IsRegressionExcluded()) &&
-				IsDisplayStats()) {
+            IsDisplayStats()) {
 			// there is no longer anything showing, but there
 			// was previously something showing
 			show_reg_selected = false;
@@ -1380,12 +1414,12 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			PopulateCanvas();
 		} else {
 			show_reg_selected = true;
-			SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
-																			 highlight_state->GetHighlight(),
-																			 statsXselected, statsYselected,
-																			 statsXexcluded, statsYexcluded,
-																			 regressionXYselected, regressionXYexcluded,
-																			 sse_sel, sse_unsel);
+            SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+                                             highlight_state->GetHighlight(),
+                                             statsXselected, statsYselected,
+                                             statsXexcluded, statsYexcluded,
+                                             regressionXYselected, regressionXYexcluded,
+                                             sse_sel, sse_unsel);
 			UpdateRegSelectedLine();
 			UpdateDisplayStats();
 			changed = UpdateDisplayLinesAndMargins();
@@ -1449,12 +1483,12 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			changed = UpdateDisplayLinesAndMargins();
 			PopulateCanvas();
 		} else {
-			SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
-																			 highlight_state->GetHighlight(),
-																			 statsXselected, statsYselected,
-																			 statsXexcluded, statsYexcluded,
-																			 regressionXYselected, regressionXYexcluded,
-																			 sse_sel, sse_unsel);
+            SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+                                             highlight_state->GetHighlight(),
+                                             statsXselected, statsYselected,
+                                             statsXexcluded, statsYexcluded,
+                                             regressionXYselected, regressionXYexcluded,
+                                             sse_sel, sse_unsel);
 			show_reg_excluded = true;
 			UpdateRegExcludedLine();
 			UpdateDisplayStats();
@@ -1473,14 +1507,14 @@ void ScatterNewPlotCanvas::UpdateRegExcludedLine()
 	if (IsShowLinearSmoother()) {
 		double cc_degs_of_rot;
 		wxRealPoint a, b;
-		SmoothingUtils::CalcRegressionLine(*reg_line_excluded,
-																			 reg_line_excluded_slope,
-																			 reg_line_excluded_infinite_slope,
-																			 reg_line_excluded_defined, a, b,
-																			 cc_degs_of_rot,
-																			 axis_scale_x, axis_scale_y,
-																			 regressionXYexcluded,
-																			 *pens.GetRegExlPen());
+        SmoothingUtils::CalcRegressionLine(*reg_line_excluded,
+                                           reg_line_excluded_slope,
+                                           reg_line_excluded_infinite_slope,
+                                           reg_line_excluded_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYexcluded,
+                                           *pens.GetRegExlPen());
 		ApplyLastResizeToShp(reg_line_excluded);
 		layer2_valid = false;
 	} else {
@@ -1533,35 +1567,17 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 	std::vector<double> unsel_smthd_srt_y;
 	
 	if (IsShowRegimes()) {
-		SmoothingUtils::CalcLowessRegimes(lce, lowess,
-																			highlight_state->GetHighlight(),
-																			sel_smthd_srt_x, sel_smthd_srt_y,
-																			unsel_smthd_srt_x, unsel_smthd_srt_y);
+        SmoothingUtils::CalcLowessRegimes(lce, lowess,
+                                          highlight_state->GetHighlight(),
+                                          sel_smthd_srt_x, sel_smthd_srt_y,
+                                          unsel_smthd_srt_x, unsel_smthd_srt_y);
 	}
 	if (lowess_reg_line_selected) {
 		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
-			/*
-			double x_first, y_first, x_last, y_last;
-			SmoothingUtils::ExtendEndpointsToBB(sel_smthd_srt_x, sel_smthd_srt_y,
-																					axis_scale_x.scale_min,
-																					axis_scale_y.scale_min,
-																					axis_scale_x.scale_max,
-																					axis_scale_y.scale_max,
-																					x_first, y_first, x_last, y_last);
-
-			lowess_reg_line_selected->addExtensions(x_first, y_first,
-																							sel_smthd_srt_x,
-																							sel_smthd_srt_y,
-																							x_last, y_last,
-																							axis_scale_x.scale_min,
-																							axis_scale_y.scale_min,
-																							scaleX, scaleY);
-			*/
-			lowess_reg_line_selected->reInit(sel_smthd_srt_x, sel_smthd_srt_y,
-																			 axis_scale_x.scale_min,
-																			 axis_scale_y.scale_min,
-																			 scaleX, scaleY);
-			
+            lowess_reg_line_selected->reInit(sel_smthd_srt_x, sel_smthd_srt_y,
+                                             axis_scale_x.scale_min,
+                                             axis_scale_y.scale_min,
+                                             scaleX, scaleY);
 			lowess_reg_line_selected->setPen(*pens.GetRegSelPen());
 		} else {
 			lowess_reg_line_selected->operator=(GdaSpline());
@@ -1571,27 +1587,11 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 	
 	if (lowess_reg_line_excluded) {
 		if (unsel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
-			/*
-			double x_first, y_first, x_last, y_last;
-			SmoothingUtils::ExtendEndpointsToBB(unsel_smthd_srt_x, unsel_smthd_srt_y,
-																					axis_scale_x.scale_min,
-																					axis_scale_y.scale_min,
-																					axis_scale_x.scale_max,
-																					axis_scale_y.scale_max,
-																					x_first, y_first, x_last, y_last);
-		
-			lowess_reg_line_excluded->addExtensions(x_first, y_first,
-																							unsel_smthd_srt_x,
-																							unsel_smthd_srt_y,
-																							x_last, y_last,
-																							axis_scale_x.scale_min,
-																							axis_scale_y.scale_min,
-																							scaleX, scaleY);
-			*/
-			lowess_reg_line_excluded->reInit(unsel_smthd_srt_x, unsel_smthd_srt_y,
-																			 axis_scale_x.scale_min,
-																			 axis_scale_y.scale_min,
-																			 scaleX, scaleY);
+			
+            lowess_reg_line_excluded->reInit(unsel_smthd_srt_x, unsel_smthd_srt_y,
+                                             axis_scale_x.scale_min,
+                                             axis_scale_y.scale_min,
+                                             scaleX, scaleY);
 			 
 			lowess_reg_line_excluded->setPen(*pens.GetRegExlPen());
 		} else {

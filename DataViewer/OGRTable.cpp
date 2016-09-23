@@ -723,11 +723,17 @@ void OGRTable::GetColData(int col, l_array_type& data)
 
 void OGRTable::GetColData(int col, s_array_type& data)
 {
-	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
+	if (col < 0 || col >= var_order.GetNumVarGroups())
+        return;
+    
 	VarGroup vg = var_order.FindVarGroup(col);
-	if (vg.IsEmpty()) return;
+    
+	if (vg.IsEmpty())
+        return;
+    
 	vector<wxString> vars;
 	vg.GetVarNames(vars);
+    
 	size_t tms = vars.size();
 	vector<int> ftr_c(tms); // OGRFeature column id
 	for (size_t t=0; t<vars.size(); ++t) {
@@ -781,45 +787,49 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
-/**
- * OGR doesn't preserve undefined data.  For now, everything will be
- * reported as defined.  In the future, we might store undefined in
- * meta-data.
- */
 void OGRTable::GetColUndefined(int col, b_array_type& undefined)
 {
-	vector<wxString> vars;
-	var_order.FindVarGroup(col).GetVarNames(vars);
-	int tms = vars.size();
-	undefined.resize(boost::extents[tms][rows]);
-	for (size_t t=0; t<tms; t++) {
-		if (vars[t].IsEmpty()) {
-			for (int i=0; i<rows; ++i) undefined[t][i] = true;
-		} else {
-			for (int i=0; i<rows; ++i) undefined[t][i] = false;
-		}
-	}
+    if (col < 0 || col >= var_order.GetNumVarGroups())
+        return;
+    
+    VarGroup vg = var_order.FindVarGroup(col);
+    
+    if (vg.IsEmpty())
+        return;
+    
+    vector<wxString> vars;
+    vg.GetVarNames(vars);
+    
+    size_t tms = vars.size();
+    vector<int> ftr_c(tms); // OGRFeature column id
+    for (size_t t=0; t<vars.size(); ++t) {
+        ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
+    }
+    
+    undefined.resize(boost::extents[tms][rows]);
+    for (size_t t=0; t<tms; ++t) {
+        if (ftr_c[t] != -1) {
+            int col_idx = ftr_c[t];
+            std::vector<bool> markers = columns[col_idx]->GetUndefinedMarkers();
+            for (size_t i=0; i<rows; ++i) {
+                undefined[t][i] = markers[i];
+            }
+        } else {
+            for (size_t i=0; i<rows; ++i)
+                undefined[t][i] = false;
+        }
+    }
 }
 
-/**
- * OGR doesn't preserve undefined data.  For now, everything will be
- * reported as defined.  In the future, we might store undefined in
- * meta-data.
- */
 void OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
 {
 	if (col < 0 || col >= GetNumberCols()) return;
 	int ogr_col_id = FindOGRColId(col, time);
 	if (ogr_col_id == wxNOT_FOUND) return;
-   
-    
-	//undefined.resize(rows);
     
     OGRColumn* ogr_col = columns[ogr_col_id];
     
     undefined = ogr_col->GetUndefinedMarkers();
-    
-	//for (int i=0; i<rows; ++i) undefined[i] = false;
 }
 
 /**

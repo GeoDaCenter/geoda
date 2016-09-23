@@ -50,14 +50,15 @@ class TemplateFrame;
 
 class TemplateCanvas : public wxScrolledWindow, public HighlightStateObserver
 {
+    DECLARE_CLASS(TemplateCanvas)
 public:
-	TemplateCanvas(wxWindow *parent,
-								 TemplateFrame* template_frame,
-								 Project* project,
-								 HLStateInt* hl_state_int,
-								 const wxPoint& pos, const wxSize& size,
-								 bool fixed_aspect_ratio_mode = false,
-								 bool fit_to_window_mode = true);
+    TemplateCanvas(wxWindow *parent,
+                   TemplateFrame* template_frame,
+                   Project* project,
+                   HLStateInt* hl_state_int,
+                   const wxPoint& pos, const wxSize& size,
+                   bool fixed_aspect_ratio_mode = false,
+                   bool fit_to_window_mode = true);
 	virtual ~TemplateCanvas();
 
 public:
@@ -89,6 +90,8 @@ public:
 	wxColour selectable_fill_color;
 	wxColour highlight_color;
 	wxColour canvas_background_color;
+    
+	CatClassifData cat_data;
 	
 	virtual void SetSelectableOutlineVisible(bool visible);
 	virtual bool IsSelectableOutlineVisible();
@@ -102,66 +105,16 @@ public:
 	virtual void SetCanvasBackgroundColor(wxColour color);
 	
     
-protected:
-	virtual void UpdateSelectableOutlineColors();
-	
-public:
     bool useScientificNotation;
     void SetScientificNotation(bool flag);
     
-protected:
-	MouseMode mousemode;
-	SelectState selectstate;
-	BrushType brushtype;
-	ScrollBarMode scrollbarmode;
-
-    
-	/** The following parameters are used by the window resizing system.
-	 We need to very carefully determine how these can be used together
-	 in a flexible resizing system.
-	 
-	 Ideally the subclassed window will only need to draw objects to
-	 an initial fixed working area, perhaps specified within initial
-	 bbox dimensions.  These should be double precision floating points
-	 to avoid resize errors.  From then on, all operations will be managed
-	 by the TemplateCanvas class.
-	 
-	 We want to mimic the OS X Preview program zoom/pan behaviour as much
-	 as possible.
-	 */
-	
-	bool fixed_aspect_ratio_mode;
-	bool fit_to_window_mode;
-	int virtual_screen_marg_left;
-	int virtual_screen_marg_right;
-	int virtual_screen_marg_top;
-	int virtual_screen_marg_bottom;
-	double fixed_aspect_ratio_val;
-	double current_shps_width;
-	double current_shps_height;
-	// the following four parameters should usually be obtained from
-	// the shp file bounding box info in the header file.  They are used
-	// to calculate the affine transformation when the window is resized.
-	double shps_orig_xmin;
-	double shps_orig_ymin;
-	double shps_orig_xmax;
-	double shps_orig_ymax;
-	// the following four parameters correspond to the scale for the original
-	// data.
-	double data_scale_xmin;
-	double data_scale_xmax;
-	double data_scale_ymin;
-	double data_scale_ymax;
-	
-public:
-	/** This is the implementation of the Observer interface update function. 
+	/** This is the implementation of the Observer interface update function.
 	 It is called whenever the Observable's state has changed.  In this case,
 	 the Observable is an instance of the HighlightState, which keeps track
 	 of the hightlighted/selected state for every SHP file observation.
 	 */
 	virtual void update(HLStateInt* o);
     
-public:
 	/** Returns a human-readable string of the values of many of the
 	 internal state variables for the TemplateCanvas class instance.  This
 	 is for debugging purposes. */
@@ -174,6 +127,7 @@ public:
 	virtual void OnScrollUp(wxScrollWinEvent& event);
 	virtual void OnScrollDown(wxScrollWinEvent& event);
 #endif
+    
 	void OnSize(wxSizeEvent& event);
     void OnIdle(wxIdleEvent& event);
 	
@@ -288,102 +242,9 @@ public:
 	virtual wxString GetCategoriesTitle();
 	virtual void SaveCategories(const wxString& title, const wxString& label,
 								const wxString& field_default);
-	
-protected:
-	
-	// The following five methods enable the use of a custom
-	// HLStateInt object
-	// Returns bit vector of selection values according
-	// to selectable objects
-	virtual std::vector<bool>& GetSelBitVec();
-
-	// Returns number of newly selected objects
-	virtual int GetNumNewlySel();
-	// Sets number of newly selected objects
-	virtual void SetNumNewlySel(int n);
-	// Returns list of newly selected objects.  Only indexes
-	// 0 through GetNumNewlySel()-1 are valid.
-	virtual std::vector<int>& GetNewlySelList();
-
-	// Returns number of newly unselected objects
-	virtual int GetNumNewlyUnsel();
-	// Sets number of newly unselected objects
-	virtual void SetNumNewlyUnsel(int n);
-	// Returns list of newly unselected objects.  Only indexes
-	// 0 through GetNumNewlyUnsel()-1 are valid.
-	virtual std::vector<int>& GetNewlyUnselList();
-
-	
-	/** highlight_state is a pointer to the Observable HighlightState instance.
-	 A HightlightState instance is a vector of booleans that keep track
-	 of the highlight state for every observation in the currently opened SHP
-	 file. This shared state object is the means by which the different
-	 views in GeoDa are linked. */
-	HLStateInt* highlight_state;
-
-	std::list<GdaShape*> background_shps;
-	/** This is an array of selectable objects.  In a map, these would
-	 be the various observation regions or points, while in a histogram
-	 these would be the bars of the histogram. This array of shapes is drawn
-	 after the background_shps multi-set. */
-	std::vector<GdaShape*> selectable_shps;
-	SelectableShpType selectable_shps_type;
-	std::list<GdaShape*> foreground_shps;
-	// corresponds to the selectable color categories: generally between
-	// 1 and 10 permitted.  Selectable shape drawing routines use brushes
-	// from this list.
-	bool use_category_brushes;
-	// when true, draw all selectable shapes in order, with highlights,
-	// and using category colors.  This is only used in Bubble Chart currently
-	bool draw_sel_shps_by_z_val;
-	// for each time period, the shape id is listed with its category
-	// only used when draw_sel_shps_by_z_val is selected
-	std::vector<i_array_type> z_val_order;
-	
-public:
-	CatClassifData cat_data;
-	
-protected:
-	wxPoint GetActualPos(const wxMouseEvent& event);
-	wxPoint sel_poly_pts[100];  // for UpdateSelectRegion and UpdateSelection
-	int n_sel_poly_pts;         // for UpdateSelectRegion and UpdateSelection
-	GdaSelRegion sel_region;	// for UpdateSelectRegion and UpdateSelection
-	bool remember_shiftdown;    // used by OnMouseEvent
-	wxPoint diff;               // used by OnMouseEvent
-	wxPoint prev;	            // used by OnMouseEvent
-	wxPoint sel1;
-	wxPoint sel2;
-	GdaScaleTrans last_scale_trans;
-	std::vector<int> hover_obs; // list of obs mouse is hovering over
-	int total_hover_obs; // total obs in list
-	int max_hover_obs;
-	// preserve current map bounding box for zoom/pan
-	bool is_pan_zoom;
-	bool is_scrolled;
-	int  prev_scroll_pos_x;
-	int  prev_scroll_pos_y;
-	double current_map_x_min;
-	double current_map_y_min;
-	double current_map_x_max;
-	double current_map_y_max;
-	double ext_shps_orig_xmin;
-	double ext_shps_orig_ymin;
-	double ext_shps_orig_xmax;
-	double ext_shps_orig_ymax;
-	
-protected:
-	wxBitmap* basemap_bm; // basemap 
-	wxBitmap* layer0_bm; // background items + unhighlighted obs
-	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
-	wxBitmap* layer2_bm; // layer1_bm + foreground obs
-	wxBitmap* final_bm; // final bitmap = basemap + background + layer0 + layer1
     
-	bool layerbase_valid; // if false, then needs to be redrawn
-	bool layer0_valid; // if false, then needs to be redrawn
-	bool layer1_valid; // if false, then needs to be redrawn
-	bool layer2_valid; // if flase, then needs to be redrawn
-	
-public:
+    
+    
 	void RenderToDC(wxDC &dc, bool disable_crosshatch_brush = true);
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
     const wxBitmap* GetLayer0() { return layer0_bm; }
@@ -417,9 +278,6 @@ public:
 	virtual void DrawNewSelShapes(wxMemoryDC &dc);
 	void DrawNewSelShapes_gc(wxMemoryDC &dc);
 	void DrawNewSelShapes_dc(wxMemoryDC &dc);
-	virtual void EraseNewUnSelShapes(wxMemoryDC &dc);
-	void EraseNewUnSelShapes_gc(wxMemoryDC &dc);
-	void EraseNewUnSelShapes_dc(wxMemoryDC &dc);
 
     void SetTransparency(double _transparency) {
         transparency = _transparency;
@@ -434,7 +292,126 @@ public:
     void GetVizInfo(wxString& shape_type,
                     std::vector<wxString>& clrs,
                     std::vector<double>& bins);
+	
 protected:
+	
+	MouseMode mousemode;
+	SelectState selectstate;
+	BrushType brushtype;
+	ScrollBarMode scrollbarmode;
+
+    
+	/** The following parameters are used by the window resizing system.
+	 We need to very carefully determine how these can be used together
+	 in a flexible resizing system.
+	 
+	 Ideally the subclassed window will only need to draw objects to
+	 an initial fixed working area, perhaps specified within initial
+	 bbox dimensions.  These should be double precision floating points
+	 to avoid resize errors.  From then on, all operations will be managed
+	 by the TemplateCanvas class.
+	 
+	 We want to mimic the OS X Preview program zoom/pan behaviour as much
+	 as possible.
+	 */
+	
+	bool fixed_aspect_ratio_mode;
+	bool fit_to_window_mode;
+	int virtual_screen_marg_left;
+	int virtual_screen_marg_right;
+	int virtual_screen_marg_top;
+	int virtual_screen_marg_bottom;
+	double fixed_aspect_ratio_val;
+	double current_shps_width;
+	double current_shps_height;
+	// the following four parameters should usually be obtained from
+	// the shp file bounding box info in the header file.  They are used
+	// to calculate the affine transformation when the window is resized.
+	double shps_orig_xmin;
+	double shps_orig_ymin;
+	double shps_orig_xmax;
+	double shps_orig_ymax;
+	// the following four parameters correspond to the scale for the original
+	// data.
+	double data_scale_xmin;
+	double data_scale_xmax;
+	double data_scale_ymin;
+	double data_scale_ymax;
+
+	/** highlight_state is a pointer to the Observable HighlightState instance.
+	 A HightlightState instance is a vector of booleans that keep track
+	 of the highlight state for every observation in the currently opened SHP
+	 file. This shared state object is the means by which the different
+	 views in GeoDa are linked. */
+	HLStateInt* highlight_state;
+
+	std::list<GdaShape*> background_shps;
+    
+	/** This is an array of selectable objects.  In a map, these would
+	 be the various observation regions or points, while in a histogram
+	 these would be the bars of the histogram. This array of shapes is drawn
+	 after the background_shps multi-set. */
+	std::vector<GdaShape*> selectable_shps;
+    
+    std::vector<bool> selectable_shps_undefs;
+    
+	SelectableShpType selectable_shps_type;
+    
+	std::list<GdaShape*> foreground_shps;
+    
+	// corresponds to the selectable color categories: generally between
+	// 1 and 10 permitted.  Selectable shape drawing routines use brushes
+	// from this list.
+	bool use_category_brushes;
+    
+	// when true, draw all selectable shapes in order, with highlights,
+	// and using category colors.  This is only used in Bubble Chart currently
+	bool draw_sel_shps_by_z_val;
+    
+	// for each time period, the shape id is listed with its category
+	// only used when draw_sel_shps_by_z_val is selected
+	std::vector<i_array_type> z_val_order;
+	
+	GdaScaleTrans last_scale_trans;
+    
+	wxPoint GetActualPos(const wxMouseEvent& event);
+	wxPoint sel_poly_pts[100];  // for UpdateSelectRegion and UpdateSelection
+	int n_sel_poly_pts;         // for UpdateSelectRegion and UpdateSelection
+	GdaSelRegion sel_region;	// for UpdateSelectRegion and UpdateSelection
+	bool remember_shiftdown;    // used by OnMouseEvent
+	wxPoint diff;               // used by OnMouseEvent
+	wxPoint prev;	            // used by OnMouseEvent
+	wxPoint sel1;
+	wxPoint sel2;
+    
+	std::vector<int> hover_obs; // list of obs mouse is hovering over
+	int total_hover_obs; // total obs in list
+	int max_hover_obs;
+	// preserve current map bounding box for zoom/pan
+	bool is_pan_zoom;
+	bool is_scrolled;
+	int  prev_scroll_pos_x;
+	int  prev_scroll_pos_y;
+	double current_map_x_min;
+	double current_map_y_min;
+	double current_map_x_max;
+	double current_map_y_max;
+	double ext_shps_orig_xmin;
+	double ext_shps_orig_ymin;
+	double ext_shps_orig_xmax;
+	double ext_shps_orig_ymax;
+	
+	wxBitmap* basemap_bm; // basemap
+	wxBitmap* layer0_bm; // background items + unhighlighted obs
+	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
+	wxBitmap* layer2_bm; // layer1_bm + foreground obs
+	wxBitmap* final_bm; // final bitmap = basemap + background + layer0 + layer1
+    
+	bool layerbase_valid; // if false, then needs to be redrawn
+	bool layer0_valid; // if false, then needs to be redrawn
+	bool layer1_valid; // if false, then needs to be redrawn
+	bool layer2_valid; // if flase, then needs to be redrawn
+	
 	Project* project;
 	TemplateFrame* template_frame;
 
@@ -443,7 +420,34 @@ protected:
     bool isRepaint;
     double transparency;
     
-	DECLARE_CLASS(TemplateCanvas)
+	virtual void UpdateSelectableOutlineColors();
+	// The following five methods enable the use of a custom
+	// HLStateInt object
+	// Returns bit vector of selection values according
+	// to selectable objects
+	virtual std::vector<bool>& GetSelBitVec();
+
+	// Returns number of newly selected objects
+	virtual int GetNumNewlySel();
+	// Sets number of newly selected objects
+	virtual void SetNumNewlySel(int n);
+	// Returns list of newly selected objects.  Only indexes
+	// 0 through GetNumNewlySel()-1 are valid.
+	virtual std::vector<int>& GetNewlySelList();
+
+	// Returns number of newly unselected objects
+	virtual int GetNumNewlyUnsel();
+	// Sets number of newly unselected objects
+	virtual void SetNumNewlyUnsel(int n);
+	// Returns list of newly unselected objects.  Only indexes
+	// 0 through GetNumNewlyUnsel()-1 are valid.
+	virtual std::vector<int>& GetNewlyUnselList();
+
+
+    // helper functions
+    bool _IsShpValid(int idx);
+    
+    
 	DECLARE_EVENT_TABLE()
 };
 

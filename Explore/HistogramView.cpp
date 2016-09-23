@@ -662,7 +662,7 @@ void HistogramCanvas::PopulateCanvas()
                          *GdaConst::small_font,
                          wxRealPoint((x_max -x_min)/2.0, 0), 0,
                          GdaShapeText::h_center,
-                         GdaShapeText::v_center, 0, 35);
+                         GdaShapeText::v_center, 0, 38);
         background_shps.push_back(brk);
 
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
