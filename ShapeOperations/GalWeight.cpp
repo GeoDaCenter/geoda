@@ -33,7 +33,11 @@
 #include "GalWeight.h"
 
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// GalElement
+//
+////////////////////////////////////////////////////////////////////////////////
 GalElement::GalElement()
 {
 }
@@ -75,6 +79,7 @@ void GalElement::SetSizeNbrs(size_t	sz)
     }
 }
 
+// (which neighbor, what ID)
 void GalElement::SetNbr(size_t pos, long n)
 {
     if (pos < nbr.size()) {
@@ -87,6 +92,7 @@ void GalElement::SetNbr(size_t pos, long n)
     }
 }
 
+// (which neighbor, what ID, what value)
 void GalElement::SetNbr(size_t pos, long n, double w)
 {
     if (pos < nbr.size()) {
@@ -96,6 +102,38 @@ void GalElement::SetNbr(size_t pos, long n, double w)
     // this should be called by GWT-GAL 
     if (pos < nbrWeight.size()) {
         nbrWeight[pos] = w;
+    }
+}
+
+// Update neighbor information on the fly using undefs information
+// NOTE: this has to be used with a copy of weights (keep the original weights!)
+void GalElement::Update(const std::vector<bool>& undefs)
+{
+    std::vector<int> undef_obj_positions;
+   
+    for (int i=0; i<nbr.size(); i++) {
+        int obj_id = nbr[i];
+        if (undefs[obj_id]) {
+            int pos = nbrLookup[obj_id];
+            undef_obj_positions.push_back(pos);
+        }
+    }
+   
+    if (undef_obj_positions.empty())
+        return;
+    
+    // sort the positions in descending order, for removing from std::vector
+	std::sort(undef_obj_positions.begin(),
+              undef_obj_positions.end(), std::greater<int>());
+   
+    for (int i=0; i<undef_obj_positions.size(); i++) {
+        int pos = undef_obj_positions[i];
+        if (pos < nbr.size()) {
+            nbr.erase( nbr.begin() + pos);
+        }
+        if (pos < nbrWeight.size()) {
+            nbrWeight.erase( nbrWeight.begin() + pos);
+        }
     }
 }
 
@@ -121,6 +159,7 @@ void GalElement::SetNbrs(const GalElement& gal)
     nbrWeight.resize(sz);
     
     nbr = gal.GetNbrs();
+    nbrLookup = gal.nbrLookup;
     nbrWeight = gal.GetNbrWeights();
 }
 
@@ -199,6 +238,11 @@ double GalElement::SpatialLag(const std::vector<double>& x,
 	return lag;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// GalWeight
+//
+////////////////////////////////////////////////////////////////////////////////
 GalWeight::GalWeight(const GalWeight& gw)
 : GeoDaWeight(gw)
 {
@@ -221,14 +265,31 @@ GalWeight& GalWeight::operator=(const GalWeight& gw)
 	return *this;
 }
 
+void GalWeight::Update(const std::vector<bool>& undefs)
+{
+    for (int i=0; i<num_obs; ++i) {
+        gal[i].Update(undefs);
+    }
+
+}
+
 bool GalWeight::HasIsolates(GalElement *gal, int num_obs)
 {
-	if (!gal) return false;
-	for (int i=0; i<num_obs; i++) { if (gal[i].Size() <= 0) return true; }
+    if (!gal) {
+        return false;
+    }
+	for (int i=0; i<num_obs; i++) {
+        if (gal[i].Size() <= 0) {
+            return true;
+        }
+    }
 	return false;
 }
 
-bool GalWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
+bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
+                               std::vector<wxInt64>& newids,
+                               std::vector<wxInt64>& stack_ids,
+                               const wxString& ofname)
 {
     using namespace std;
     if (!project || ofname.empty()) return false;

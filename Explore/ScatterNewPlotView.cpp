@@ -541,7 +541,8 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
                                          highlight_state->GetHighlight(),
                                          statsXselected, statsYselected,
                                          statsXexcluded, statsYexcluded,
-                                         regressionXYselected, regressionXYexcluded,
+                                         regressionXYselected,
+                                         regressionXYexcluded,
                                          sse_sel, sse_unsel);
 		
         if (IsRegressionSelected()) {
@@ -661,7 +662,8 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	}
 	
 	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(useScientificNotation);
-	if (!ccf) return;
+	if (!ccf)
+        return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
 										  var_info[3].name,
 										  var_info[3].time);
@@ -694,16 +696,25 @@ ChangeThemeType(CatClassification::CatClassifType new_theme,
 	
 	if (new_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
-		if (!ccm) return;
+		if (!ccm)
+            return;
+        
 		CatClassifState* new_ccs = ccm->FindClassifState(custom_classif_title);
-		if (!new_ccs) return;
-		if (custom_classif_state == new_ccs) return;
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		
+        if (!new_ccs)
+            return;
+		if (custom_classif_state == new_ccs)
+            return;
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
+        
 		custom_classif_state = new_ccs;
 		custom_classif_state->registerObserver(this);
 		cat_classif_def = custom_classif_state->GetCatClassif();
+        
 	} else {
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
 		custom_classif_state = 0;
 	}
 	cat_classif_def.cat_classif_type = new_theme;
@@ -855,6 +866,9 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	double y_max = var_info[1].max_over_time;
 	double y_min = var_info[1].min_over_time;
     
+	statsX = SampleStatistics(X, X_undef);
+	statsY = SampleStatistics(Y, Y_undef);
+    
     if (standardized) {
         for (int i=0, iend=X.size(); i<iend; i++) {
             X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
@@ -870,11 +884,9 @@ void ScatterNewPlotCanvas::PopulateCanvas()
         y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
     }
 	
-	statsX = SampleStatistics(X);
-	statsY = SampleStatistics(Y);
     
     if (is_bubble_plot) {
-        statsZ = SampleStatistics(Z);
+        statsZ = SampleStatistics(Z, Z_undef);
     }
     
     // mean shold be 0 and biased standard deviation should be 1

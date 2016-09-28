@@ -35,6 +35,8 @@ class SimpleAxisCanvas : public TemplateCanvas
 	SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
 					 HLStateInt* hl_state_int,
 					 const std::vector<double>& X,
+					 //const std::vector<double>& X_undefs,
+                     
 					 const wxString& Xname,
 					 double Xmin, double Xmax,
 					 bool horizontal_orientation, // if false then vert
@@ -64,6 +66,7 @@ protected:
     bool is_standardized;
 	bool horiz_orient;
 	std::vector<double> X;
+	std::vector<bool> X_undefs;
 	wxString Xname;
 	double Xmin, Xmax;
 	bool show_axes;

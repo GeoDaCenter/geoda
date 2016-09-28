@@ -206,7 +206,7 @@ double Manager::GetMinWithinPossibleTms(int var)
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
 	vector<double>::iterator i = min_element(vars[var].min_vals.begin()+min_tm,
-																					 vars[var].min_vals.begin()+max_tm+1);
+                                             vars[var].min_vals.begin()+max_tm+1);
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
 }
@@ -218,8 +218,9 @@ double Manager::GetMaxWithinPossibleTms(int var)
 	if (!IsSyncWithGlobalTm(var)) return vars[var].max_vals[vars[var].time];
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
+    
 	vector<double>::iterator i = max_element(vars[var].max_vals.begin()+min_tm,
-																					 vars[var].max_vals.begin()+max_tm+1);
+                                             vars[var].max_vals.begin()+max_tm+1);
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
 }
@@ -296,10 +297,11 @@ int Manager::MaxTmForAllSynced()
 }
 
 Manager::Entry::Entry(const wxString& name_, int time_,
-											bool is_time_variant_, bool sync_with_global_time_,
-											bool fixed_scale_,
-											const std::vector<double>& min_vals_,
-											const std::vector<double>& max_vals_)
+                      bool is_time_variant_,
+                      bool sync_with_global_time_,
+                      bool fixed_scale_,
+                      const std::vector<double>& min_vals_,
+                      const std::vector<double>& max_vals_)
 : name(name_), time(time_), is_time_variant(is_time_variant_),
 sync_with_global_time(sync_with_global_time_),
 fixed_scale(fixed_scale_), min_vals(min_vals_), max_vals(max_vals_)

@@ -189,13 +189,26 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 	return v[N-1].first; // execution should never get here
 }
 
-
 SampleStatistics::SampleStatistics(const std::vector<double>& data)
 	: sample_size(0), min(0), max(0), mean(0),
 	var_with_bessel(0), var_without_bessel(0),
 	sd_with_bessel(0), sd_without_bessel(0)
 {
 	CalculateFromSample(data);
+}
+
+SampleStatistics::SampleStatistics(const std::vector<double>& data,
+                                   const std::vector<bool>& undefs)
+	: sample_size(0), min(0), max(0), mean(0),
+	var_with_bessel(0), var_without_bessel(0),
+	sd_with_bessel(0), sd_without_bessel(0)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs[i] == false)
+            valid_data.push_back(data[i]);
+    }
+	CalculateFromSample(valid_data);
 }
 
 void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
@@ -225,8 +238,9 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 }
 
 /** We assume that the data has been sorted in ascending order */
-void SampleStatistics::CalculateFromSample(
-							const std::vector<Gda::dbl_int_pair_type>& data)
+void
+SampleStatistics::
+CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	sample_size = data.size();
 	if (sample_size == 0) return;

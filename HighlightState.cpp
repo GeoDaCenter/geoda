@@ -86,8 +86,6 @@ void HighlightState::notifyObservers()
 {
 	ApplyChanges();
 	if (event_type == empty) return;
-	//LOG_MSG("In HighlightState::notifyObservers");
-	//LOG(observers.size());
 	// See section 18.4.4.2 of Stroustrup
 	std::for_each(observers.begin(), observers.end(),
 			 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));
@@ -113,21 +111,6 @@ void HighlightState::ApplyChanges()
 	switch (event_type) {
 		case delta:
 		{
-            /*
-			for (int i=0; i<total_newly_highlighted; i++) {
-				if (!highlight[newly_highlighted[i]]) {
-					highlight[newly_highlighted[i]] = true;
-				}
-			}
-			for (int i=0; i<total_newly_unhighlighted; i++) {
-				if (highlight[newly_unhighlighted[i]]) {
-					highlight[newly_unhighlighted[i]] = false;
-				}
-			}
-			total_highlighted += total_newly_highlighted;
-			total_highlighted -= total_newly_unhighlighted;
-             */
-           
             total_highlighted = 0;
             for (int i=0; i<highlight.size(); i++) {
                 if (highlight[i] == true) {
@@ -159,22 +142,7 @@ void HighlightState::ApplyChanges()
                 }
                 highlight[i] = !highlight[i];
             }
-            /*
-			int t_nh = 0;
-			int t_nuh = 0;
-			for (int i=0, iend=highlight.size(); i<iend; i++) {
-				if (highlight[i]) {
-					newly_unhighlighted[t_nuh++] = i;
-					highlight[i] = false;
-				} else {
-					newly_highlighted[t_nh++] = i;
-					highlight[i] = true;
-				}
-			}
-			total_highlighted = highlight.size() - total_highlighted;
-			total_newly_highlighted = t_nh;
-			total_newly_unhighlighted = t_nuh;
-             */
+            
 		}
 			break;
 		default:

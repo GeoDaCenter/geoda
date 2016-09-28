@@ -1165,8 +1165,8 @@ GalElement* MakeContiguity(Shapefile::Main& main, bool is_queen,
 			// test each potential neighbor
 			for (int nbr = Neighbors.Pop(); nbr != GdaConst::EMPTY;
 					 nbr = Neighbors.Pop()) {
-				PolygonContents* nbr_ply = dynamic_cast<PolygonContents*> (
-																																	 main.records[nbr].contents_p);
+                PolygonContents* nbr_ply = dynamic_cast<PolygonContents*> (main.records[nbr].contents_p);
+                
 				if (ply->intersect(nbr_ply)) {
 					
 					PolygonPartition nbrPoly(nbr_ply);

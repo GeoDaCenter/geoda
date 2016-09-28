@@ -175,9 +175,12 @@ struct SampleStatistics {
 	SampleStatistics() : sample_size(0), min(0), max(0), mean(0),
     var_with_bessel(0), var_without_bessel(0),
     sd_with_bessel(0), sd_without_bessel(0) {}
-	SampleStatistics(const std::vector<double>& data);
-	void CalculateFromSample(const std::vector<double>& data);
-	void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data);
+    SampleStatistics(const std::vector<double>& data);
+    SampleStatistics(const std::vector<double>& data,
+                     const std::vector<bool>& undefs);
+    void CalculateFromSample(const std::vector<double>& data);
+    void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data);
+    
 	std::string ToString();
 	
 	int sample_size;

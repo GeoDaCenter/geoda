@@ -30,7 +30,8 @@
 #include "LisaCoordinatorObserver.h"
 #include "LisaCoordinator.h"
 
-LisaWorkerThread::LisaWorkerThread(int obs_start_s, int obs_end_s,
+LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
+                                   int obs_start_s, int obs_end_s,
 								   uint64_t	seed_start_s,
 								   LisaCoordinator* lisa_coord_s,
 								   wxMutex* worker_list_mutex_s,
@@ -38,6 +39,7 @@ LisaWorkerThread::LisaWorkerThread(int obs_start_s, int obs_end_s,
 								   std::list<wxThread*> *worker_list_s,
 								   int thread_id_s)
 : wxThread(),
+W(W_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 lisa_coord(lisa_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -56,12 +58,14 @@ wxThread::ExitCode LisaWorkerThread::Entry()
 	LOG_MSG(wxString::Format("LisaWorkerThread %d started", thread_id));
 
 	// call work for assigned range of observations
-	lisa_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
+	lisa_coord->CalcPseudoP_range(W, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
+    
 	// remove ourself from the list
 	worker_list->remove(this);
-	// if empty, signal on empty condition since only main thread
+	
+    // if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
 	LOG_MSG(wxString::Format("LisaWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
@@ -115,20 +119,22 @@ calc_significances(calc_significances_s),
 isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
+undef_data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
     
     LOG_MSG("Entering LisaCoordinator::LisaCoordinator(..)");
-	GalWeight* gw = w_man_int->GetGal(w_id);
-	W = (gw ? gw->gal : 0);
-	weight_name = w_man_int->GetLongDispName(w_id);
-	SetSignificanceFilter(1);
     
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], undef_data[i]);
 	}
+    
+	
+	weight_name = w_man_int->GetLongDispName(w_id);
+	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
@@ -149,6 +155,7 @@ void LisaCoordinator::DeallocateVectors()
 		if (lags_vecs[i]) delete [] lags_vecs[i];
 	}
 	lags_vecs.clear();
+    
 	for (int i=0; i<local_moran_vecs.size(); i++) {
 		if (local_moran_vecs[i]) delete [] local_moran_vecs[i];
 	}
@@ -179,6 +186,7 @@ void LisaCoordinator::DeallocateVectors()
 void LisaCoordinator::AllocateVectors()
 {
 	int tms = num_time_vals;
+    
 	lags_vecs.resize(tms);
 	local_moran_vecs.resize(tms);
 	sig_local_moran_vecs.resize(tms);
@@ -189,6 +197,7 @@ void LisaCoordinator::AllocateVectors()
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
+    
 	for (int i=0; i<tms; i++) {
 		lags_vecs[i] = new double[num_obs];
 		local_moran_vecs[i] = new double[num_obs];
@@ -303,8 +312,14 @@ void LisaCoordinator::InitFromVarInfo()
 	}
 	
 	StandardizeData();
-	CalcLisa();
-	if (calc_significances) CalcPseudoP();
+	
+    CalcLisa();
+    
+    if (calc_significances) {
+        CalcPseudoP();
+    }
+    
+    
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -359,10 +374,43 @@ void LisaCoordinator::CalcLisa()
 		localMoran = local_moran_vecs[t];
 		cluster = cluster_vecs[t];
 	
-		has_undefined[t] = false;
 		has_isolates[t] = false;
+    
+        // get undefs of objects/values at this time step
+        std::vector<bool> undefs;
+        bool has_undef = false;
+        for (int i=0; i<undef_data[0][t].size(); i++){
+            bool is_undef = undef_data[0][t][i];
+            if (isBivariate) {
+                is_undef = is_undef && undef_data[1][t][i];
+            }
+            if (is_undef && !has_undef) {
+                has_undef = true;
+            }
+            undefs.push_back(is_undef);
+        }
+        has_undefined[t] = has_undef;
+       
+        // local weights copy
+        GalWeight* gw = NULL;
+        if ( has_undef ) {
+            gw = new GalWeight(*w_man_int->GetGal(w_id));
+            gw->Update(undefs);
+        } else {
+            gw = w_man_int->GetGal(w_id);
+        }
+        GalElement* W = gw->gal;
+        W_vecs.push_back(W);
 	
 		for (int i=0; i<num_obs; i++) {
+            
+            if (undefs[i] == true) {
+                lags[i] = 0;
+                localMoran[i] = 0;
+                cluster[i] = 6; // undefined value
+                continue;
+            }
+            
 			double Wdata = 0;
 			if (isBivariate) {
 				Wdata = W[i].SpatialLag(data2);
@@ -424,13 +472,17 @@ void LisaCoordinator::CalcPseudoP()
 		sigCat = sig_cat_vecs[t];
 		cluster = cluster_vecs[t];
 		
-		if (nCPUs <= 1) {
-			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(0, num_obs-1, last_seed_used);
+		if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
+            if (!reuse_last_seed) {
+                last_seed_used = time(0);
+            }
+			CalcPseudoP_range(W_vecs[t], 0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded();
+			CalcPseudoP_threaded(W_vecs[t]);
 		}
 	}
+    
+    
 	{
 		wxString m;
 		m << "LISA on " << num_obs << " obs with " << permutations;
@@ -441,7 +493,7 @@ void LisaCoordinator::CalcPseudoP()
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP");
 }
 
-void LisaCoordinator::CalcPseudoP_threaded()
+void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 {
 	LOG_MSG("Entering LisaCoordinator::CalcPseudoP_threaded");
 	int nCPUs = wxThread::GetCPUCount();
@@ -459,6 +511,11 @@ void LisaCoordinator::CalcPseudoP_threaded()
 	// divide up work according to number of observations
 	// and number of CPUs
 	int work_chunk = num_obs / nCPUs;
+    
+    if (work_chunk == 0) {
+        work_chunk = 1;
+    }
+    
 	int obs_start = 0;
 	int obs_end = obs_start + work_chunk;
 	
@@ -487,7 +544,7 @@ void LisaCoordinator::CalcPseudoP_threaded()
 		LOG_MSG(msg);
 		
 		LisaWorkerThread* thread =
-			new LisaWorkerThread(a, b, seed_start, this,
+			new LisaWorkerThread(W, a, b, seed_start, this,
 								 &worker_list_mutex,
 								 &worker_list_empty_cond,
 								 &worker_list, thread_id);
@@ -503,7 +560,7 @@ void LisaCoordinator::CalcPseudoP_threaded()
 		LOG_MSG("Error: Could not spawn a worker thread, falling back "
 				"to single-threaded pseudo-p calculation.");
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(W, 0, num_obs-1, last_seed_used);
 	} else {
 		LOG_MSG("Starting all worker threads");
 		std::list<wxThread*>::iterator it;
@@ -524,7 +581,8 @@ void LisaCoordinator::CalcPseudoP_threaded()
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP_threaded");
 }
 
-void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
+void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
+                                        int obs_start, int obs_end,
 										uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
@@ -538,10 +596,10 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			int rand=0;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
-				//int newRandom = (int) (rng.fValue() * max_rand);
-				int newRandom = (int) (Gda::ThomasWangHashDouble(seed_start++)
-									   * max_rand);
-				//int newRandom = X(rng);
+                double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                // round is needed to fix issue
+                //https://github.com/GeoDaCenter/geoda/issues/488
+				int newRandom = (int) (round(rng_val));
 				if (newRandom != cnt && !workPermutation.Belongs(newRandom))
 				{
 					workPermutation.Push(newRandom);
@@ -563,9 +621,13 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			
 			//NOTE: we shouldn't have to row-standardize or
 			// multiply by data1[cnt]
-			if (numNeighbors && row_standardize) permutedLag /= numNeighbors;
+            if (numNeighbors && row_standardize) {
+                permutedLag /= numNeighbors;
+            }
 			const double localMoranPermuted = permutedLag * data1[cnt];
-			if (localMoranPermuted >= localMoran[cnt]) countLarger++;
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger++;
+            }
 		}
 		// pick the smallest
 		if (permutations-countLarger <= countLarger) { 
@@ -581,6 +643,7 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 		else sigCat[cnt]= 0;
 		
 		// observations with no neighbors get marked as isolates
+        // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
 		if (numNeighbors == 0) {
 			sigCat[cnt] = 5;
 		}

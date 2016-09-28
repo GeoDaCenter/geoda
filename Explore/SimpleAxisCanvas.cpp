@@ -41,6 +41,7 @@ SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 Project* project,
 								 HLStateInt* hl_state_int,
 								 const std::vector<double>& X_,
+								 //const std::vector<double>& X_undefs_,
 								 const wxString& Xname_,
 								 double Xmin_, double Xmax_,
 								 bool horiz_orient_,
@@ -146,7 +147,6 @@ void SimpleAxisCanvas::PopulateCanvas()
 	double x_max = Xmax;
 	
 	statsX = SampleStatistics(X);
-	LOG_MSG(wxString(statsX.ToString().c_str(), wxConvUTF8));
 	
     if (is_standardized) {
         for (int i=0, iend=X.size(); i<iend; i++) {
@@ -157,7 +157,8 @@ void SimpleAxisCanvas::PopulateCanvas()
 		statsX = SampleStatistics(X);
 		// mean shold be 0 and biased standard deviation should be 1
 		double eps = 0.000001;
-		if (-eps < statsX.mean && statsX.mean < eps) statsX.mean = 0;
+		if (-eps < statsX.mean && statsX.mean < eps)
+            statsX.mean = 0;
     }
     
 	if (custom_axis_scale) {

@@ -26,6 +26,7 @@
 #include <wx/string.h>
 #include <wx/thread.h>
 #include "../VarTools.h"
+#include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
 
@@ -34,11 +35,13 @@ class LisaCoordinator;
 class Project;
 class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class LisaWorkerThread : public wxThread
 {
 public:
-	LisaWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
+	LisaWorkerThread(const GalElement* W,
+                     int obs_start, int obs_end, uint64_t seed_start,
 					 LisaCoordinator* lisa_coord,
 					 wxMutex* worker_list_mutex,
 					 wxCondition* worker_list_empty_cond,
@@ -47,6 +50,7 @@ public:
 	virtual ~LisaWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
+    const GalElement* W;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -61,7 +65,8 @@ public:
 class LisaCoordinator : public WeightsManStateObserver
 {
 public:
-	enum LisaType { univariate, bivariate, eb_rate_standardized, differential }; // #9
+    // #9
+	enum LisaType { univariate, bivariate, eb_rate_standardized, differential };
 	
 	LisaCoordinator(boost::uuids::uuid weights_id,
                     Project* project,
@@ -129,7 +134,9 @@ public:
 	std::vector<double*> data2_vecs;
 	
 	boost::uuids::uuid w_id;
-	const GalElement* W;
+    std::vector<GalElement*> W_vecs;
+	//const GalElement* W;
+    
 	wxString weight_name;
 	bool isBivariate;
 	LisaType lisa_type;
@@ -139,6 +146,7 @@ public:
 	
 	// These two variables should be empty for LisaMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
+	std::vector<b_array_type> undef_data; // undef_data[variable][time][obs]
 	
 	// All LisaMapCanvas objects synchronize themselves
 	// from the following 6 variables.
@@ -159,7 +167,7 @@ public:
 	std::list<LisaCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(const GalElement* W, int obs_start, int obs_end, uint64_t seed_start);
 
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -168,7 +176,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded();
+	void CalcPseudoP_threaded(const GalElement* W);
 	void CalcLisa();
 	void StandardizeData();
 	std::vector<bool> has_undefined;

@@ -1055,12 +1055,10 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
 
 bool TemplateCanvas::_IsShpValid(int idx)
 {
-    if (selectable_shps[idx] == NULL )  {
+    if (selectable_shps[idx] == NULL || selectable_shps[idx]->isNull())  {
         return false;
     }
-    if (selectable_shps[idx]->isNull() )  {
-        return false;
-    }
+    
     if (!selectable_shps_undefs.empty() && selectable_shps_undefs[idx] == true) {
         return false;
     }
@@ -1531,7 +1529,7 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 		if (!selectable_outline_visible) gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if ( !hs[i] || _IsShpValid(i)) {
+            if ( !hs[i] || !_IsShpValid(i)) {
                 continue;
             }
 			p = (GdaPolygon*) selectable_shps[i];

@@ -74,11 +74,13 @@ rand_dlg(0)
 	var_info = lisa_coord->var_info;
 	var_info_orig = var_info;
 	SyncVarInfoFromCoordinator();
-	
+
+    wxColour default_cat_color = GdaConst::scatterplot_regression_excluded_color;
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, num_obs);
-	cat_data.SetCategoryColor(0, 0, GdaConst::scatterplot_regression_excluded_color);
-	for (int i=0; i<num_obs; i++)
+	cat_data.SetCategoryColor(0, 0, default_cat_color);
+    for (int i=0; i<num_obs; i++) {
         cat_data.AppendIdToCategory(0, 0, i);
+    }
     
 	// For LisaScatterPlot, all time steps have the exact same
 	// trivial categorization.
@@ -101,6 +103,8 @@ rand_dlg(0)
 	//}
 	
 	//CreateAndUpdateCategories();
+    
+    
 	PopulateCanvas();
 	
 	UpdateDisplayLinesAndMargins();
@@ -155,25 +159,6 @@ void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 	}
 
-	/*
-	wxMenu* menu2 = new wxMenu(wxEmptyString);
-	if (var_info[0].is_time_variant) {
-		wxString s;
-		s << "Fixed x-axis scale over time";
-		wxMenuItem* mi =
-		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
-	}
-	if (var_info[1].is_time_variant) {
-		wxString s;
-		s << "Fixed y-axis scale over time";
-		wxMenuItem* mi =
-		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
-		mi->Check(var_info[1].fixed_scale);
-	}
-	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
-    */
-	 
     menu->AppendSeparator();
     menu->Append(wxID_ANY, "Time Variable Options", menu1,
 				  "Time Variable Options");
@@ -313,14 +298,21 @@ void LisaScatterPlotCanvas::TimeChange()
 void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 {
 	using namespace boost;
+    
 	std::vector<int>my_times(var_info.size());
-	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
+    
+    for (int t=0; t<var_info.size(); t++) {
+        my_times[t] = var_info[t].time;
+    }
+    
 	var_info = lisa_coord->var_info;
 	template_frame->ClearAllGroupDependencies();
+    
 	for (int t=0; t<var_info.size(); t++) {
 		var_info[t].time = my_times[t];
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
+    
 	is_any_time_variant = lisa_coord->is_any_time_variant;
 	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
 	ref_var_index = lisa_coord->ref_var_index;
@@ -336,6 +328,9 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 	
 	x_data.resize(extents[lisa_coord->num_time_vals][lisa_coord->num_obs]);
 	y_data.resize(extents[lisa_coord->num_time_vals][lisa_coord->num_obs]);
+	x_undef_data.resize(extents[lisa_coord->num_time_vals][lisa_coord->num_obs]);
+	y_undef_data.resize(extents[lisa_coord->num_time_vals][lisa_coord->num_obs]);
+    
 	for (int t=0; t<lisa_coord->num_time_vals; t++) {
 		double x_min = lisa_coord->data1_vecs[t][0];
 		double x_max = x_min;
@@ -346,6 +341,9 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 			//						 lisa_coord->data1_vecs[t][i]));
 			x_data[t][i] = lisa_coord->data1_vecs[t][i];
 			y_data[t][i] = lisa_coord->lags_vecs[t][i];
+            x_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
+            y_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
+            
 			if (x_data[t][i] < x_min) {
 				x_min = x_data[t][i];
 			} else if (x_data[t][i] > x_max) {
@@ -436,13 +434,25 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 
 void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 {
-	if (permutation < 9) permutation = 9;
-	if (permutation > 99999) permutation = 99999;
+    if (permutation < 9) {
+        permutation = 9;
+    } else if (permutation > 99999) {
+        permutation = 99999;
+    }
+   
+	int cts = project->GetTimeState()->GetCurrTime();
+    
 	std::vector<double> raw_data1(num_obs);
+    
 	int xt = var_info_orig[0].time-var_info_orig[0].time_min;
 	for (int i=0; i<num_obs; i++) {
 		raw_data1[i] = lisa_coord->data1_vecs[xt][i];
 	}
+   
+    const GalElement* W = lisa_coord->W_vecs[cts];
+    bool reuse_last_seed = lisa_coord->IsReuseLastSeed();
+    uint64_t last_used_seed = lisa_coord->GetLastUsedSeed();
+    
 	if (is_bi) {
 		std::vector<double> raw_data2(num_obs);
 		int yt = var_info_orig[1].time-var_info_orig[1].time_min;
@@ -454,10 +464,11 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
             rand_dlg->Destroy();
             rand_dlg = 0;
         }
-		rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
-                             lisa_coord->W, permutation,
-                             lisa_coord->IsReuseLastSeed(),
-                             lisa_coord->GetLastUsedSeed(), this);
+        rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
+                                        W, permutation,
+                                        reuse_last_seed,
+                                        last_used_seed, this);
+		
         rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
         rand_dlg->Show(true);
         
@@ -466,9 +477,9 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
             rand_dlg->Destroy();
             rand_dlg = 0;
         }
-    	rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->W, permutation,
-                                 lisa_coord->IsReuseLastSeed(),
-                                 lisa_coord->GetLastUsedSeed(), this);
+        rand_dlg = new RandomizationDlg(raw_data1, W, permutation,
+                                        reuse_last_seed,
+                                        last_used_seed, this);
         rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
 		rand_dlg->Show(true);
 	}

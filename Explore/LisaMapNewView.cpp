@@ -43,16 +43,18 @@ BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
+using namespace std;
+
 LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project,
-								   LisaCoordinator* lisa_coordinator,
-								   CatClassification::CatClassifType theme_type_s,
-								   bool isBivariate, bool isEBRate,
-								   const wxPoint& pos, const wxSize& size)
-: MapCanvas(parent, t_frame, project,
-			   std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
-			   CatClassification::no_theme,
-			   no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+                             Project* project,
+                             LisaCoordinator* lisa_coordinator,
+                             CatClassification::CatClassifType theme_type_s,
+                             bool isBivariate, bool isEBRate,
+                             const wxPoint& pos, const wxSize& size)
+:MapCanvas(parent, t_frame, project,
+           vector<GdaVarTools::VarInfo>(0), vector<int>(0),
+           CatClassification::no_theme,
+           no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 lisa_coord(lisa_coordinator),
 is_clust(theme_type_s==CatClassification::lisa_categories),
 is_bi(isBivariate),
@@ -129,9 +131,9 @@ wxString LisaMapCanvas::GetCanvasTitle()
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by LISA maps */
-bool LisaMapCanvas::ChangeMapType(
-					CatClassification::CatClassifType new_map_theme,
-					SmoothingType new_map_smoothing)
+bool
+LisaMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
+                             SmoothingType new_map_smoothing)
 {
 	LOG_MSG("In LisaMapCanvas::ChangeMapType");
 	return false;
@@ -398,11 +400,11 @@ IMPLEMENT_CLASS(LisaMapFrame, MapFrame)
 END_EVENT_TABLE()
 
 LisaMapFrame::LisaMapFrame(wxFrame *parent, Project* project,
-								 LisaCoordinator* lisa_coordinator,
-								 bool isClusterMap, bool isBivariate,
-								 bool isEBRate,
-								 const wxPoint& pos, const wxSize& size,
-								 const long style)
+                           LisaCoordinator* lisa_coordinator,
+                           bool isClusterMap, bool isBivariate,
+                           bool isEBRate,
+                           const wxPoint& pos, const wxSize& size,
+                           const long style)
 : MapFrame(parent, project, pos, size, style),
 lisa_coord(lisa_coordinator)
 {
@@ -416,23 +418,24 @@ lisa_coord(lisa_coordinator)
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
+    CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::lisa_categories : CatClassification::lisa_significance;
+    
     wxPanel* rpanel = new wxPanel(splitter_win);
-	template_canvas = new LisaMapCanvas(rpanel, this, project,
-                                       lisa_coordinator,
-                                       (isClusterMap ?
-                                        CatClassification::lisa_categories :
-                                        CatClassification::lisa_significance),
-                                       isBivariate, isEBRate,
-                                       wxDefaultPosition,
+    template_canvas = new LisaMapCanvas(rpanel, this, project,
+                                        lisa_coordinator,
+                                        theme_type_s,
+                                        isBivariate,
+                                        isEBRate,
+                                        wxDefaultPosition,
                                         wxDefaultSize);
-                                       //wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
 	
 	wxPanel* lpanel = new wxPanel(splitter_win);
-    template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+    template_legend = new MapNewLegend(lpanel, template_canvas,
+                                       wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
     template_legend->GetContainingSizer()->Detach(template_legend);
     lbox->Add(template_legend, 1, wxEXPAND);
@@ -743,12 +746,13 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
+    const GalElement* W = lisa_coord->W_vecs[ts];
 	
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
 			elem[i] = true;
-			const GalElement& e = lisa_coord->W[i];
+			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -774,12 +778,13 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-	
+    const GalElement* W = lisa_coord->W_vecs[ts];
+    
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
 			elem[i] = true;
-			const GalElement& e = lisa_coord->W[i];
+			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}

@@ -297,6 +297,58 @@ void CsvFieldConfDlg::UpdatePreview( )
     
     for (int i=0; i<n_prev_rows; i++) {
         wxString str = prev_lines[i];
+        
+        int j= 0;
+        int start = 0;
+        bool inQuotes = false;
+        for (int current = 0; current < str.length(); current++) {
+            if (str[current] == '\"') {
+                inQuotes = !inQuotes; // toggle state
+            }
+            bool atLastChar = (current == str.length() - 1);
+            bool found = false;
+            wxString token;
+            
+            if (atLastChar) {
+                token = str.SubString(start, str.length()-1);
+                found = true;
+            } else if (str[current] == ',' && !inQuotes) {
+                token = str.SubString(start, current-1);
+                start = current + 1;
+                found = true;
+            }
+          
+            if ( found) {
+                bool flag = false;
+                if (types[j] == "Integer") {
+                    long long val =0;
+                    double val1 = 0;
+                    if (token.ToLongLong(&val)) {
+                        wxString str = wxString::Format("%lld", val);
+                        previewGrid->SetCellValue(i, j, str);
+                        flag = true;
+                    } else if (token.ToDouble(&val1)) {
+                        val = (long long)val1;
+                        wxString str = wxString::Format("%lld", val);
+                        previewGrid->SetCellValue(i, j, str);
+                        flag = true;
+                    }
+                } else if (types[j] == "Real") {
+                    double val =0;
+                    if (token.ToDouble(&val)) {
+                        wxString str = wxString::Format("%f", val);
+                        previewGrid->SetCellValue(i, j, str);
+                        flag = true;
+                    }
+                }
+                
+                if (!flag)
+                    previewGrid->SetCellValue(i, j, token);
+                j++;
+            }
+        }
+        
+        /*
         wxStringTokenizer tokenizer(str, ",");
         int j=0;
         while ( tokenizer.HasMoreTokens() )
@@ -330,6 +382,7 @@ void CsvFieldConfDlg::UpdatePreview( )
                 previewGrid->SetCellValue(i, j, token);
             j++;
         }
+         */
     }
     previewGrid->ForceRefresh();
     previewGrid->EndBatch();

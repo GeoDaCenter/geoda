@@ -646,9 +646,11 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 				while (rand < numNeighsI) {
 					// computing 'perfect' permutation of given size
 					//int newRandom = (int) (rng.fValue() * max_rand);
-					int newRandom = (int) (Gda::ThomasWangHashDouble(seed_start++)
-										   * max_rand);
-					//int newRandom = X(rng);
+                    double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                    // round is needed to fix issue
+                    //https://github.com/GeoDaCenter/geoda/issues/488
+                    int newRandom = (int) (round(rng_val));
+                    
 					if (newRandom != i && !workPermutation.Belongs(newRandom))
 					{
 						//if (i == DBGI) freq[newRandom]++;

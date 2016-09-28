@@ -71,6 +71,11 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 ////////////////////////////////////////////////////////////////////////////////
 //
 
+void GwtWeight::Update(const std::vector<bool>& undefs)
+{
+    
+}
+
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {
 	if (!gwt) return false;
