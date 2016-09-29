@@ -349,6 +349,31 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
 	CalculateRegression(X, Y, meanX, meanY, varX, varY);
 }
 
+SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
+											   const std::vector<double>& Y,
+                                               const std::vector<bool>& X_undef,
+                                               const std::vector<bool>& Y_undef,
+											   double meanX, double meanY,
+											   double varX, double varY)
+	: covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
+	std_err_of_estimate(0), std_err_of_beta(0), std_err_of_alpha(0),
+	t_score_alpha(0), t_score_beta(0), p_value_alpha(0), p_value_beta(0),
+	valid(false), valid_correlation(false), valid_std_err(false),
+	error_sum_squares(0)
+{
+    
+    std::vector<double> X_valid;
+    std::vector<double> Y_valid;
+    
+    for (int i=0; i<X.size(); i++) {
+        if (X_undef[i] == false) {
+            X_valid.push_back(X[i]);
+            Y_valid.push_back(Y[i]);
+        }
+    }
+	CalculateRegression(X_valid, Y_valid, meanX, meanY, varX, varY);
+}
+
 void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 												 const std::vector<double>& Y,
 												 double meanX, double meanY,

@@ -868,6 +868,9 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     
 	statsX = SampleStatistics(X, X_undef);
 	statsY = SampleStatistics(Y, Y_undef);
+    if (is_bubble_plot) {
+        statsZ = SampleStatistics(Z, Z_undef);
+    }
     
     if (standardized) {
         for (int i=0, iend=X.size(); i<iend; i++) {
@@ -882,28 +885,37 @@ void ScatterNewPlotCanvas::PopulateCanvas()
         x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
         y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
         y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
-    }
-	
-    
-    if (is_bubble_plot) {
-        statsZ = SampleStatistics(Z, Z_undef);
-    }
-    
-    // mean shold be 0 and biased standard deviation should be 1
-    double eps = 0.000001;
-    if (-eps < statsX.mean && statsX.mean < eps)
-        statsX.mean = 0;
-    if (-eps < statsY.mean && statsY.mean < eps)
-        statsY.mean = 0;
-    if (is_bubble_plot) {
-        if (-eps < statsZ.mean && statsZ.mean < eps) {
-            statsZ.mean = 0;
+        
+        statsX = SampleStatistics(X, X_undef);
+        statsY = SampleStatistics(Y, Y_undef);
+        if (is_bubble_plot) {
+            statsZ = SampleStatistics(Z, Z_undef);
+        }
+        
+        // mean shold be 0 and biased standard deviation should be 1
+        double eps = 0.000001;
+        if (-eps < statsX.mean && statsX.mean < eps)
+            statsX.mean = 0;
+        if (-eps < statsY.mean && statsY.mean < eps)
+            statsY.mean = 0;
+        if (is_bubble_plot) {
+            if (-eps < statsZ.mean && statsZ.mean < eps) {
+                statsZ.mean = 0;
+            }
         }
     }
+
+    if ( !X_undef.empty() && !Y_undef.empty()) {
+        regressionXY = SimpleLinearRegression(X, Y, X_undef, Y_undef,
+                                              statsX.mean, statsY.mean,
+                                              statsX.var_without_bessel,
+                                              statsY.var_without_bessel);
+    } else {
+        regressionXY = SimpleLinearRegression(X, Y, statsX.mean, statsY.mean,
+                                              statsX.var_without_bessel,
+                                              statsY.var_without_bessel);
+    }
 	
-	regressionXY = SimpleLinearRegression(X, Y, statsX.mean, statsY.mean,
-										  statsX.var_without_bessel,
-										  statsY.var_without_bessel);
     
 	sse_c = regressionXY.error_sum_squares;
 	

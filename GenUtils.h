@@ -207,15 +207,26 @@ struct SimpleLinearRegression {
 		p_value_alpha(0), p_value_beta(0),
 		valid(false), valid_correlation(false),
 		valid_std_err(false) {}
+    
 	SimpleLinearRegression(const std::vector<double>& X,
 						   const std::vector<double>& Y,
 						   double meanX, double meanY,
 						   double varX, double varY);
+    
+	SimpleLinearRegression(const std::vector<double>& X,
+						   const std::vector<double>& Y,
+                           const std::vector<bool>& X_undef,
+						   const std::vector<bool>& Y_undef,
+						   double meanX, double meanY,
+						   double varX, double varY);
+    
 	void CalculateRegression(const std::vector<double>& X,
 							 const std::vector<double>& Y,
 							 double meanX, double meanY,
 							 double varX, double varY);
+    
 	static double TScoreTo2SidedPValue(double tscore, int df);
+    
 	std::string ToString();
 	
 	double covariance;
