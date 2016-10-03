@@ -38,45 +38,50 @@
  */
 
 namespace SmoothingUtils {
-	void CalcRegressionLine(GdaPolyLine& reg_line, // return value
-													double& slope, // return value
-													bool& infinite_slope, // return value
-													bool& regression_defined, // return value
-													wxRealPoint& a, // return value
-													wxRealPoint& b, // return value
-													double& cc_degs_of_rot, // return value
-													const AxisScale& axis_scale_x,
-													const AxisScale& axis_scale_y,
-													const SimpleLinearRegression& reg,
-													const wxPen& pen);
-	
-	double RegLineToDegCCFromHoriz(double a_x, double a_y,
-																 double b_x, double b_y);
-	
-	void CalcStatsRegimes(const std::vector<double>& X,
-												const std::vector<double>& Y,
-												const SampleStatistics& statsX,
-												const SampleStatistics& statsY,
-												const SimpleLinearRegression& regressionXY,
-												const std::vector<bool>& hl,
-												SampleStatistics& statsXselected,
-												SampleStatistics& statsYselected,
-												SampleStatistics& statsXexcluded,
-												SampleStatistics& statsYexcluded,
-												SimpleLinearRegression& regressionXYselected,
-												SimpleLinearRegression& regressionXYexcluded,
-												double& sse_sel,
-												double& sse_unsel);
-	
-	void CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
-															 const SampleStatistics& ss_Y,
-															 const std::vector<double>& X,
-															 const std::vector<double>& Y,
-															 const std::vector<bool>& hl,
-															 bool selected,
-															 SimpleLinearRegression& r,
-															 double& ss_error);
-	
+    void CalcRegressionLine(GdaPolyLine& reg_line, // return value
+                            double& slope, // return value
+                            bool& infinite_slope, // return value
+                            bool& regression_defined, // return value
+                            wxRealPoint& a, // return value
+                            wxRealPoint& b, // return value
+                            double& cc_degs_of_rot, // return value
+                            const AxisScale& axis_scale_x,
+                            const AxisScale& axis_scale_y,
+                            const SimpleLinearRegression& reg,
+                            const wxPen& pen);
+    
+    double RegLineToDegCCFromHoriz(double a_x, double a_y,
+                                   double b_x, double b_y);
+    
+
+    void CalcStatsRegimes(const std::vector<double>& X,
+                          const std::vector<double>& Y,
+                          const std::vector<bool>& X_undef,
+                          const std::vector<bool>& Y_undef,
+                          const SampleStatistics& statsX,
+                          const SampleStatistics& statsY,
+                          const SimpleLinearRegression& regressionXY,
+                          const std::vector<bool>& hl,
+                          SampleStatistics& statsXselected,
+                          SampleStatistics& statsYselected,
+                          SampleStatistics& statsXexcluded,
+                          SampleStatistics& statsYexcluded,
+                          SimpleLinearRegression& regressionXYselected,
+                          SimpleLinearRegression& regressionXYexcluded,
+                          double& sse_sel,
+                          double& sse_unsel);
+    
+    void CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
+                                 const SampleStatistics& ss_Y,
+                                 const std::vector<double>& X,
+                                 const std::vector<double>& Y,
+                                 const std::vector<bool>& X_undef,
+                                 const std::vector<bool>& Y_undef,
+                                 const std::vector<bool>& hl,
+                                 bool selected,
+                                 SimpleLinearRegression& r,
+                                 double& ss_error);
+    
 	void CalcVarSdFromSumSquares(SampleStatistics& ss, double sum_squares);
 	
 	/** Attempt to extend the endpoints of a regression line/curve
@@ -85,13 +90,13 @@ namespace SmoothingUtils {
 	 The algorithm will return true if there are at least two distict
 	 input points.  If it fails, it will return the first and last
 	 input points */
-	bool ExtendEndpointsToBB(const std::vector<double>& X,
-													 const std::vector<double>& Y,
-													 double bb_min_x, double bb_min_y,
-													 double bb_max_x, double bb_max_y,
-													 double& x_first, double& y_first,
-													 double& x_last, double& y_last);
-	
+    bool ExtendEndpointsToBB(const std::vector<double>& X,
+                             const std::vector<double>& Y,
+                             double bb_min_x, double bb_min_y,
+                             double bb_max_x, double bb_max_y,
+                             double& x_first, double& y_first,
+                             double& x_last, double& y_last);
+    
 	struct LowessCacheEntry {
 		LowessCacheEntry(size_t n) : sort_map(n), X_srt(n), Y_srt(n), YS_srt(n) {}
 		// permutation vector of original data to get
@@ -117,24 +122,27 @@ namespace SmoothingUtils {
 	 or else generate new a new cache entry.  On success, a pointer the
 	 the correct cache entry is returned.  Null is returned on failure.
 	 */
-	LowessCacheEntry* UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
-																						 const wxString& key,
-																						 Lowess& lowess,
-																						 const std::vector<double>& X,
-																						 const std::vector<double>& Y);
-	
+    LowessCacheEntry* UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
+                                               const wxString& key,
+                                               Lowess& lowess,
+                                               const std::vector<double>& X,
+                                               const std::vector<double>& Y);
+    
+    
 	/** Given LowessCacheEntry, run LOWESS on subests specified by
 	 bool vector. Note: it is assumed that the data in lce is sorted
 	 by x-coordinates and that the sort_map in lce is needed to map
 	 observations to highlight ids. */
-	void CalcLowessRegimes(LowessCacheEntry* lce,
-												 Lowess& lowess,
-												 const std::vector<bool>& hl,
-												 std::vector<double>& sel_smthd_srt_x,
-												 std::vector<double>& sel_smthd_srt_y,
-												 std::vector<double>& unsel_smthd_srt_x,
-												 std::vector<double>& unsel_smthd_srt_y);
-	
+
+    void CalcLowessRegimes(LowessCacheEntry* lce,
+                           Lowess& lowess,
+                           const std::vector<bool>& hl,
+                           std::vector<double>& sel_smthd_srt_x,
+                           std::vector<double>& sel_smthd_srt_y,
+                           std::vector<double>& unsel_smthd_srt_x,
+                           std::vector<double>& unsel_smthd_srt_y);
+    
+    
 	/** Deletes (frees memory) all allocated cache values and empties cache. */
 	void EmptyLowessCache(LowessCacheType& lowess_cache);
 }

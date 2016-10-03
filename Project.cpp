@@ -1248,7 +1248,11 @@ void Project::FillDistances(std::vector<double>& D,
 	const std::vector<GdaPoint*>& c = GetCentroids();
 	const pairs_bimap_type& pbm = GetSharedPairsBimap();
 	typedef pairs_bimap_type::const_iterator pbt_ci;
-	if (D.size() != pbm.size()) D.resize(pbm.size());
+    
+    if (D.size() != pbm.size()) {
+        D.resize(pbm.size());
+    }
+    
 	if (dm == WeightsMetaInfo::DM_arc) {
 		if (pbm.size() > cached_arc_dist.size()) {
 			for (pbt_ci it = pbm.begin(), iend = pbm.end(); it != iend; ++it) {
@@ -1265,7 +1269,7 @@ void Project::FillDistances(std::vector<double>& D,
 				}
 			}
 			if (du == WeightsMetaInfo::DU_km) {
-				for (pbt_ci it=pbm.begin(), iend=pbm.end(); it != iend; ++it)	{
+				for (pbt_ci it=pbm.begin(), iend=pbm.end(); it != iend; ++it) {
 					D[it->left] = GenGeomAlgs::EarthRadToKm(cached_arc_dist[it->right]);
 				}
 			} else {

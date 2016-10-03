@@ -124,7 +124,7 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
  to the parent-class method since smoothing and theme changes are not
  supported by GetisOrd maps */
 bool GetisOrdMapCanvas::ChangeMapType(CatClassification::CatClassifType new_theme,
-										 SmoothingType new_smoothing)
+                                      SmoothingType new_smoothing)
 {
 	LOG_MSG("In GetisOrdMapCanvas::ChangeMapType");
 	return false;
@@ -167,11 +167,16 @@ void GetisOrdMapCanvas::TimeChange()
 	
 	if ((cts == ref_time) ||
 		(cts > ref_time_max && ref_time == ref_time_max) ||
-		(cts < ref_time_min && ref_time == ref_time_min)) return;
+        (cts < ref_time_min && ref_time == ref_time_min))
+    {
+        return;
+    }
 	if (cts > ref_time_max) {
 		ref_time = ref_time_max;
+        
 	} else if (cts < ref_time_min) {
 		ref_time = ref_time_min;
+        
 	} else {
 		ref_time = cts;
 	}
@@ -195,17 +200,39 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 	
 	std::vector<wxInt64> cluster;
 	for (int t=0; t<num_time_vals; t++) {
-		if (!map_valid[t]) break;
+		if (!map_valid[t])
+            break;
 		
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-		if (gs_coord->GetHasIsolates(t)) num_cats++;
-		if (gs_coord->GetHasUndefined(t)) num_cats++;
+        double stop_sig = 0;
+        
+        if (gs_coord->GetHasIsolates(t)) {
+            num_cats++;
+        }
+        if (gs_coord->GetHasUndefined(t)) {
+            num_cats++;
+        }
+        
 		if (is_clust) {
 			num_cats += 3;
 		} else {
 			num_cats += 6-gs_coord->GetSignificanceFilter();
+            
+            double sig_cutoff = gs_coord->significance_cutoff;
+            int set_perm = gs_coord->permutations;
+            stop_sig = 1.0 / (1.0 + set_perm);
+            
+            if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+                num_cats -= 1;
+            }
 		}
 		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
 		
@@ -216,8 +243,10 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
 			cat_data.SetCategoryLabel(t, 2, "Low");
 			cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
+            
 			if (gs_coord->GetHasIsolates(t) &&
-				gs_coord->GetHasUndefined(t)) {
+				gs_coord->GetHasUndefined(t))
+            {
 				isolates_cat = 3;
 				undefined_cat = 4;
 			} else if (gs_coord->GetHasUndefined(t)) {
@@ -225,34 +254,41 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			} else if (gs_coord->GetHasIsolates(t)) {
 				isolates_cat = 3;
 			}
+            
 		} else {
 			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 			int s_f = gs_coord->GetSignificanceFilter();
 			cat_data.SetCategoryLabel(t, 0, "Not Significant");
 			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-			
-			cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-			cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-			if (s_f <= 3) {
+	
+            int skip_cat = 0;
+            if (s_f <=4 && stop_sig <= 0.0001) {
+        		cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
+        		cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
+            } else skip_cat++;
+			if (s_f <= 3 && stop_sig <= 0.001) {
 				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
 				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));	
-			}
-			if (s_f <= 2) {
+			} else skip_cat++;
+			if (s_f <= 2 && stop_sig <= 0.01) {
 				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
 				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
-			}
+			} else skip_cat++;
+            
 			if (s_f <= 1) {
 				cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
 				cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
 			}
+            
 			if (gs_coord->GetHasIsolates(t) &&
-				gs_coord->GetHasUndefined(t)) {
-				isolates_cat = 6-s_f;
-				undefined_cat = 7-s_f;
+				gs_coord->GetHasUndefined(t))
+            {
+				isolates_cat = 6-s_f - skip_cat;
+				undefined_cat = 7-s_f - skip_cat;
 			} else if (gs_coord->GetHasUndefined(t)) {
-				undefined_cat = 6-s_f;
+				undefined_cat = 6-s_f - skip_cat;
 			} else if (gs_coord->GetHasIsolates(t)) {
-				isolates_cat = 6-s_f;
+				isolates_cat = 6-s_f - skip_cat;
 			}
 		}
 		if (undefined_cat != -1) {
@@ -280,10 +316,14 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			}
 		} else {
 			double* p_val = 0;
-			if (is_gi && is_perm) p_val = gs_coord->pseudo_p_vecs[t];
-			if (is_gi && !is_perm) p_val = gs_coord->p_vecs[t];
-			if (!is_gi && is_perm) p_val = gs_coord->pseudo_p_star_vecs[t];
-			if (!is_gi && !is_perm) p_val = gs_coord->p_star_vecs[t];
+			if (is_gi && is_perm)
+                p_val = gs_coord->pseudo_p_vecs[t];
+			if (is_gi && !is_perm)
+                p_val = gs_coord->p_vecs[t];
+			if (!is_gi && is_perm)
+                p_val = gs_coord->pseudo_p_star_vecs[t];
+			if (!is_gi && !is_perm)
+                p_val = gs_coord->p_star_vecs[t];
 			int s_f = gs_coord->GetSignificanceFilter();
 			for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
 				if (cluster[i] == 0) {
@@ -356,11 +396,11 @@ IMPLEMENT_CLASS(GetisOrdMapFrame, MapFrame)
 END_EVENT_TABLE()
 
 GetisOrdMapFrame::GetisOrdMapFrame(wxFrame *parent, Project* project,
-										 GStatCoordinator* gs_coordinator,
-										 GMapType map_type_s,
-										 bool row_standardize_s,
-										 const wxPoint& pos, const wxSize& size,
-										 const long style)
+                                   GStatCoordinator* gs_coordinator,
+                                   GMapType map_type_s,
+                                   bool row_standardize_s,
+                                   const wxPoint& pos, const wxSize& size,
+                                   const long style)
 : MapFrame(parent, project, pos, size, style),
 gs_coord(gs_coordinator), map_type(map_type_s),
 row_standardize(row_standardize_s)
@@ -385,13 +425,12 @@ row_standardize(row_standardize_s)
 			   map_type == GiStar_clus_perm || map_type == GiStar_sig_perm);
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
-	template_canvas = new GetisOrdMapCanvas(rpanel, this, project,
-											   gs_coordinator,
-											   is_gi, is_clust, is_perm,
-											   row_standardize,
-											   wxDefaultPosition,
+    template_canvas = new GetisOrdMapCanvas(rpanel, this, project,
+                                            gs_coordinator,
+                                            is_gi, is_clust, is_perm,
+                                            row_standardize,
+                                            wxDefaultPosition,
                                             wxDefaultSize);
-											   //wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
@@ -709,7 +748,7 @@ void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	for (int i=0; i<gs_coord->num_obs; i++) {
 		if (c_val[i] == 1 || c_val[i] == 2) {
 			elem[i] = true;
-			const GalElement& e = gs_coord->W[i];
+			const GalElement& e = gs_coord->Gal_vecs[ts]->gal[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -739,7 +778,7 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	for (int i=0; i<gs_coord->num_obs; i++) {
 		if (c_val[i] == 1 || c_val[i] == 2) {
 			elem[i] = true;
-			const GalElement& e = gs_coord->W[i];
+			const GalElement& e = gs_coord->Gal_vecs[ts]->gal[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}

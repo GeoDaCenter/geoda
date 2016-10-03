@@ -57,6 +57,8 @@ public:
 							SimpleScatterPlotCanvasCbInt* ssp_canv_cb, //optional
 							const std::vector<double>& X,
 							const std::vector<double>& Y,
+                            const std::vector<bool>& X_undf,
+                            const std::vector<bool>& Y_undef,
 							const wxString& Xname,
 							const wxString& Yname,
 							double Xmin, double Xmax,
@@ -117,6 +119,8 @@ protected:
 	
 	std::vector<double> X;
 	std::vector<double> Y;
+	std::vector<bool> X_undef;
+	std::vector<bool> Y_undef;
 	const std::vector<double>& orgX;
 	const std::vector<double>& orgY;
 	wxString Xname;

@@ -31,6 +31,7 @@
 #include "SimpleHistCanvas.h"
 #include "ScatterPlotMatView.h"
 
+using namespace std;
 
 BEGIN_EVENT_TABLE(ScatterPlotMatFrame, TemplateFrame)
 	EVT_MOUSE_EVENTS(ScatterPlotMatFrame::OnMouseEvent)
@@ -52,9 +53,10 @@ selectable_fill_color(GdaConst::scatterplot_regression_excluded_color),
 highlight_color(GdaConst::scatterplot_regression_selected_color)
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::ScatterPlotMatFrame");
+    
 	supports_timeline_changes = true;
 	{
-		std::vector<wxString> tm_strs;
+		vector<wxString> tm_strs;
 		project->GetTableInt()->GetTimeStrings(tm_strs);
 		var_man.ClearAndInit(tm_strs);
 	}
@@ -85,7 +87,6 @@ highlight_color(GdaConst::scatterplot_regression_selected_color)
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
 	panel->SetSizer(panel_h_szr);
-	
 	
 	UpdateMessageWin();
 	
@@ -120,7 +121,8 @@ ScatterPlotMatFrame::~ScatterPlotMatFrame()
 
 void ScatterPlotMatFrame::OnMouseEvent(wxMouseEvent& event)
 {
-	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)", (int) event.GetX(), (int) event.GetY()));
+	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)",
+                             (int) event.GetX(), (int) event.GetY()));
 	if (event.RightDown()) {
 		LOG_MSG("Right Down");
 	}
@@ -154,8 +156,7 @@ void ScatterPlotMatFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("ScatterPlotMatFrame::UpdateOptionMenuItems: Options "
-						"menu not found");
+		LOG_MSG("ScatterPlotMatFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		ScatterPlotMatFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -320,7 +321,9 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l; // = t->GetLowess();  // should be shared by all cells
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
+                                                  l.GetDeltaFactor(),
+                                                  project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
@@ -334,7 +337,10 @@ void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)
 		vars_chooser_frame->SetFocus();
 	} else {
 		wxString title("Scatter Plot Matrix Variables Add/Remove");
-		vars_chooser_frame = new VarsChooserFrame(var_man, project, true, true,GetHelpHtml(), "Scatter Plot Matrix Help", title);
+		vars_chooser_frame = new VarsChooserFrame(var_man, project, true, true,
+                                                  GetHelpHtml(),
+                                                  "Scatter Plot Matrix Help",
+                                                  title);
 		vars_chooser_frame->registerObserver(this);
 		vars_chooser_frame->SetSize(-1, -1, -1, 400);
 	}
@@ -404,7 +410,9 @@ void ScatterPlotMatFrame::update(TimeState* o)
 void ScatterPlotMatFrame::update(LowessParamObservable* o)
 {
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
-		scatt_plots[i]->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
+		scatt_plots[i]->ChangeLoessParams(o->GetF(),
+                                          o->GetIter(),
+                                          o->GetDeltaFactor());
 	}
 	// Is Refresh() needed?
 }
@@ -452,16 +460,18 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		if (scatt_plots[i]) {
-			scatt_plots[i]->Unbind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent,
-														 this);
+			scatt_plots[i]->Unbind(wxEVT_MOTION,
+                                   &ScatterPlotMatFrame::OnMouseEvent,
+                                   this);
 			scatt_plots[i]->Destroy();
 		}
 	}
 	scatt_plots.clear();
 	for (size_t i=0, sz=hist_plots.size(); i<sz; ++i) {
 		if (hist_plots[i]) {
-			hist_plots[i]->Unbind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent,
-														 this);
+			hist_plots[i]->Unbind(wxEVT_MOTION,
+                                  &ScatterPlotMatFrame::OnMouseEvent,
+                                  this);
 			hist_plots[i]->Destroy();
 		}
 	}
@@ -496,10 +506,9 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
             if (data_map[row_nm].size() == 1)
                 row_tm = 0;
             
-            // We don't support time variable here
-            //int row_tm = 0;
             wxString row_title(var_man.GetNameWithTime(row));
-			const std::vector<double>& Y(data_map[row_nm][row_tm]);
+			const vector<double>& Y(data_map[row_nm][row_tm]);
+            const vector<bool>& Y_undef(data_undef_map[row_nm][row_tm]);
 			double row_min = var_man.GetMinOverAllTms(row);
 			double row_max = var_man.GetMaxOverAllTms(row);
 			SimpleAxisCanvas* sa_can = 0;
@@ -535,8 +544,11 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                           !show_outside_titles);
 			bag_szr->Add(sh_can, wxGBPosition(row, row+1), wxGBSpan(1,1), wxEXPAND);
 			hist_plots.push_back(sh_can);
+            
 			for (int col=0; col<num_vars; ++col) {
-				if (col == row) continue;
+                if (col == row) {
+                    continue;
+                }
 				wxString col_nm(var_man.GetName(col));
 				int col_tm(var_man.GetTime(col));
                 
@@ -544,14 +556,15 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     col_tm = 0;
                 
 				wxString col_title(var_man.GetNameWithTime(col));
-				LOG_MSG("Creating Canvas Cell: ");
-				const std::vector<double>& X(data_map[col_nm][col_tm]);
+                
+				const vector<double>& X(data_map[col_nm][col_tm]);
+                const vector<bool>& X_undef(data_undef_map[row_nm][row_tm]);
 				double col_min = var_man.GetMinOverAllTms(col);
 				double col_max = var_man.GetMaxOverAllTms(col);
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
                                                      project->GetHighlightState(), 0,
-                                                     X, Y,
+                                                     X, Y, X_undef, Y_undef,
                                                      col_title, row_title,
                                                      col_min, col_max,
                                                      row_min, row_max,
@@ -646,7 +659,6 @@ void ScatterPlotMatFrame::UpdateMessageWin()
 void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::UpdateDataMapFromVarMan");
-	using namespace std;
 	// get set of var_man names
 	set<wxString> vm_nms;
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
@@ -655,7 +667,6 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 	
 	// remove items from data_map not in vm_nms
 	set<wxString> to_remove;
-	LOG_MSG("to_remove from data_map:");
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end()) continue;
@@ -680,13 +691,13 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 	TableInterface* table_int = project->GetTableInt();
 	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
-		LOG_MSG(nm);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
 			LOG_MSG("Error, variable not found in table: " + nm);
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
+        /*
 		LOG(tms);
 		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_dbl_type(tms));
 		data_map.insert(p);
@@ -698,6 +709,17 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 		for (int t=0; t<tms; ++t) {
 			table_int->GetColData(c_id, t, e->second[t]);
 		}
+         */
+        vec_vec_dbl_type dat(tms);
+        vec_vec_bool_type dat_undef(tms);
+        
+		for (int t=0; t<tms; ++t) {
+			table_int->GetColData(c_id, t, dat[t]);
+            table_int->GetColUndefined(c_id, t, dat_undef[t]);
+		}
+        
+        data_map[nm] = dat;
+        data_undef_map[nm] = dat_undef;
 	}
 	
 	LOG_MSG("Exiting ScatterPlotMatFrame::UpdateDataMapFromVarMan");

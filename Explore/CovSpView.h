@@ -45,6 +45,9 @@ class Project;
 typedef std::vector<double> vec_dbl_type;
 typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
 
+typedef std::vector<bool> vec_bool_type;
+typedef std::vector<vec_bool_type> vec_vec_bool_type;
+
 /**
  Non-parametric spatial autocorrelation:
  This requires computing all the
@@ -133,8 +136,11 @@ protected:
 	LowessParamFrame* lowess_param_frame;
 	GdaVarTools::Manager var_man;
 	vec_vec_dbl_type Z; // size tms*n
-	std::vector<wxString> Z_error_msg; // size tms
+	vec_vec_bool_type Z_undef;
 	vec_vec_dbl_type Zprod; // size tms*n*(n-1)/2
+    vec_vec_bool_type Zprod_undef; // size tms * n * (n-1)/2
+    
+	std::vector<wxString> Z_error_msg; // size tms
 	std::vector<double> Zprod_min;
 	std::vector<double> Zprod_max;
 	std::vector<double> D; // size n*(n-1)/2

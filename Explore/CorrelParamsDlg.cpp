@@ -326,8 +326,10 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
             double mean = 0;
             double var = 0;
             vector<double> vals;
+            vector<bool> vals_undef;
             table_int->GetColData(col_id, 0, vals);
-            CorrelogramAlgs::GetSampMeanAndVar(vals, mean, var);
+            table_int->GetColUndefined(col_id, 0, vals_undef);
+            CorrelogramAlgs::GetSampMeanAndVar(vals, vals_undef, mean, var);
             if (var <= 0) {
                 wxString msg = "Please check your variable, e.g. make sure it is not a constant.";
                 wxString title = "Variable Value Error";

@@ -102,13 +102,14 @@ wxThread::ExitCode LisaWorkerThread::Entry()
    
  */
 
-LisaCoordinator::LisaCoordinator(boost::uuids::uuid weights_id,
-                         Project* project,
-                         const std::vector<GdaVarTools::VarInfo>& var_info_s,
-                         const std::vector<int>& col_ids,
-                         LisaType lisa_type_s,
-                         bool calc_significances_s,
-                         bool row_standardize_s)
+LisaCoordinator::
+LisaCoordinator(boost::uuids::uuid weights_id,
+                Project* project,
+                const std::vector<GdaVarTools::VarInfo>& var_info_s,
+                const std::vector<int>& col_ids,
+                LisaType lisa_type_s,
+                bool calc_significances_s,
+                bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -180,6 +181,14 @@ void LisaCoordinator::DeallocateVectors()
 		if (data2_vecs[i]) delete [] data2_vecs[i];
 	}
 	data2_vecs.clear();
+    
+    // clear W_vecs
+    for (size_t i=0; i<has_undefined.size(); i++) {
+        if (has_undefined[i]) {
+            delete Gal_vecs[i];
+        }
+    }
+    Gal_vecs.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
@@ -400,7 +409,7 @@ void LisaCoordinator::CalcLisa()
             gw = w_man_int->GetGal(w_id);
         }
         GalElement* W = gw->gal;
-        W_vecs.push_back(W);
+        Gal_vecs.push_back(gw);
 	
 		for (int i=0; i<num_obs; i++) {
             
@@ -476,9 +485,9 @@ void LisaCoordinator::CalcPseudoP()
             if (!reuse_last_seed) {
                 last_seed_used = time(0);
             }
-			CalcPseudoP_range(W_vecs[t], 0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, 0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded(W_vecs[t]);
+			CalcPseudoP_threaded(Gal_vecs[t]->gal);
 		}
 	}
     

@@ -457,7 +457,7 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 		raw_data1[i] = lisa_coord->data1_vecs[xt][i];
 	}
    
-    const GalElement* W = lisa_coord->W_vecs[cts];
+    const GalElement* W = lisa_coord->Gal_vecs[cts]->gal;
     bool reuse_last_seed = lisa_coord->IsReuseLastSeed();
     uint64_t last_used_seed = lisa_coord->GetLastUsedSeed();
     

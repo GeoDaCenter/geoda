@@ -44,7 +44,10 @@ class ScatterPlotMatFrame;
 class Project;
 typedef std::vector<double> vec_dbl_type;
 typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
-typedef std::map<wxString, vec_vec_dbl_type> data_map_type; 
+typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
+
+typedef std::vector<std::vector<bool> > vec_vec_bool_type;
+typedef std::map<wxString ,vec_vec_bool_type> data_undef_map_type;
 
 /**
  ScatterPlotMatFrame manages all of the cells.  Its state depends
@@ -134,7 +137,8 @@ protected:
 	LowessParamFrame* lowess_param_frame;
 	VarsChooserFrame* vars_chooser_frame;
 	GdaVarTools::Manager var_man;
-	data_map_type data_map; 
+	data_map_type data_map;
+	data_undef_map_type data_undef_map;
 	std::vector<SimpleScatterPlotCanvas*> scatt_plots;
 	std::vector<SimpleAxisCanvas*> vert_labels;
 	std::vector<SimpleAxisCanvas*> horiz_labels;

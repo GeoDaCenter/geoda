@@ -302,10 +302,6 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	int num_rows_total = num_top_rows + 2;
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent, this);
-		//if (bag_szr->GetItemCount() > 0) {
-		//	bool detatch_success = bag_szr->Detach(0);
-		//	LOG(detatch_success);
-		//}
 		message_win->Destroy();
 		message_win = 0;
 	}
@@ -314,8 +310,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		if (scatt_plots[i]) {
-			scatt_plots[i]->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent,
-														 this);
+			scatt_plots[i]->Unbind(wxEVT_MOTION,
+                                   &CorrelogramFrame::OnMouseEvent,
+                                   this);
 			scatt_plots[i]->Destroy();
 		}
 	}
@@ -378,6 +375,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
         UpdateMessageWin();
 		bag_szr->Add(message_win, wxGBPosition(0,1), wxGBSpan(1,1), wxEXPAND);
 		SetTitle("Correlogram" + type_str);
+        
 	} else {
 		for (int row=0; row<num_vars; ++row) {
 			wxString nm=var_man.GetName(row);
@@ -388,18 +386,18 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 				SetTitle("Correlogram - " + var_man.GetNameWithTime(row) + type_str);
 			}
             
-            
-            
 			wxString title("Autocorr. of " + var_man.GetNameWithTime(row));
+            
 			std::vector<double> Y(cbins.size());
+			std::vector<bool> Y_undef(cbins.size());
+            
 			for (size_t i=0; i<cbins.size(); ++i) {
 				Y[i] = cbins[i].corr_avg;
+                Y_undef[i] = false;
                 if (isnan(Y[i])) {
                     valid_sampling = false;
                 }
 			}
-			
-            
             
 			AxisScale v_axs;
 			v_axs.ticks = 5;
@@ -444,14 +442,17 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			}
 			
 			std::vector<double> X(cbins.size());
+			std::vector<bool> X_undef(cbins.size());
 			for (size_t i=0; i<cbins.size(); ++i) {
 				X[i] = cbins[i].dist_min + (cbins[i].dist_max - cbins[i].dist_min)/2.0;
+                X_undef[i] = false;
 			}
             
 			SimpleScatterPlotCanvas* sp_can = 0;
 			sp_can = new SimpleScatterPlotCanvas(panel, this, project,
 												 local_hl_state, this,
-												 X, Y, title, title,
+												 X, Y, X_undef, Y_undef,
+                                                 title, title,
 												 dist_min, dist_max, 
 												 y_min, y_max,
 												 false, false, true,
@@ -692,49 +693,48 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 	
 	// remove items from data_map not in vm_nms
 	set<wxString> to_remove;
-	LOG_MSG("to_remove from data_map:");
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
-		if (vm_nms.find(nm) != vm_nms.end()) continue;
+		if (vm_nms.find(nm) != vm_nms.end())
+            continue;
 		to_remove.insert(nm);
 		LOG_MSG("  " + nm);
 	}
 	
 	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
-		LOG_MSG("Being removed from data_map: " + (*i));
 		data_map.erase(*i);
+        data_undef_map.erase(*i);
 	}
 	
 	// add items to data_map that are in vm_nms, but not currently in data_map
 	set<wxString> to_add;
 	for (set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
 		wxString nm(*i);
-		if (data_map.find(nm) != data_map.end()) continue;
+		if (data_map.find(nm) != data_map.end())
+            continue;
 		to_add.insert(nm);
-		LOG_MSG("Must add to data_map: " + nm);
 	}
 	
 	TableInterface* table_int = project->GetTableInt();
 	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
-		LOG_MSG(nm);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
 			LOG_MSG("Error, variable not found in table: " + nm);
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
-		LOG(tms);
-		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_dbl_type(tms));
-		data_map.insert(p);
-		data_map_type::iterator e = data_map.find(nm);
-		if (e == data_map.end()) {
-			LOG_MSG("Could not find element just inserted! " + nm);
-			continue;
-		}
+        vec_vec_dbl_type vec_vec_data(tms);
+        vec_vec_bool_type vec_vec_undef(tms);
 		for (int t=0; t<tms; ++t) {
-			table_int->GetColData(c_id, t, e->second[t]);
+			table_int->GetColData(c_id, t, vec_vec_data[t]);
+			table_int->GetColUndefined(c_id, t, vec_vec_undef[t]);
 		}
+		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_data);
+		data_map.insert(p);
+        
+		pair<wxString, vec_vec_bool_type> p_undef(nm, vec_vec_undef);
+		data_undef_map.insert(p_undef);
 	}
 	
 	LOG_MSG("Exiting CorrelogramFrame::UpdateDataMapFromVarMan");
@@ -748,13 +748,19 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	using namespace CorrelogramAlgs;
 	bool success = false;
 	std::vector<double> Z;
+	std::vector<bool> Z_undef;
 	if (var_man.GetVarsCount() > 0) {
 		wxString nm = var_man.GetName(0);
 		int tm = var_man.GetTime(0);
 		wxString title(var_man.GetNameWithTime(0));
 		const std::vector<double>& data(data_map[nm][tm]);
+		const std::vector<bool>& data_undef(data_undef_map[nm][tm]);
 		Z.resize(data.size());
-		for (size_t i=0, sz=data.size(); i<sz; ++i) Z[i] = data[i];
+		Z_undef.resize(data.size());
+        for (size_t i=0, sz=data.size(); i<sz; ++i) {
+            Z[i] = data[i];
+            Z_undef[i] = data_undef[i];
+        }
 	}
 	bool is_arc = par.dist_metric == WeightsMetaInfo::DM_arc;
 	bool is_mi = par.dist_units == WeightsMetaInfo::DU_mile;
@@ -767,18 +773,23 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	project->GetCentroids(pts);
 
 	if (par.method == CorrelParams::ALL_PAIRS) {	
-		success = MakeCorrAllPairs(pts, Z, is_arc, par.bins, cbins);
+		success = MakeCorrAllPairs(pts, Z, Z_undef, is_arc, par.bins, cbins);
 	
 	} else if (par.method == CorrelParams::ALL_PAIRS_THRESH) {
 		if (is_arc) {
-			success = MakeCorrThresh(project->GetUnitSphereRtree(), Z, th_rad, par.bins, cbins);
+			success = MakeCorrThresh(project->GetUnitSphereRtree(), Z, Z_undef,
+                                     th_rad, par.bins, cbins);
 		} else {
-			success = MakeCorrThresh(project->GetEucPlaneRtree(), Z,  par.threshold, par.bins, cbins);
+			success = MakeCorrThresh(project->GetEucPlaneRtree(), Z, Z_undef,
+                                     par.threshold, par.bins, cbins);
 		}
 	} else if (par.method == CorrelParams::RAND_SAMP) {
-		success = MakeCorrRandSamp(pts, Z, is_arc, -1, par.bins,  par.max_iterations, cbins);
+		success = MakeCorrRandSamp(pts, Z, Z_undef, is_arc, -1,
+                                   par.bins,  par.max_iterations, cbins);
 	}	else if (par.method == CorrelParams::RAND_SAMP_THRESH) {
-		success = MakeCorrRandSamp(pts, Z, is_arc, (is_arc ? th_rad : par.threshold), par.bins,  par.max_iterations, cbins);
+		success = MakeCorrRandSamp(pts, Z, Z_undef, is_arc,
+                                   (is_arc ? th_rad : par.threshold),
+                                   par.bins,  par.max_iterations, cbins);
 	}
     
     if (success == false) {

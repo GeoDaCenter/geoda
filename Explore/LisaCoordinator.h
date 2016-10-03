@@ -134,7 +134,7 @@ public:
 	std::vector<double*> data2_vecs;
 	
 	boost::uuids::uuid w_id;
-    std::vector<GalElement*> W_vecs;
+    std::vector<GalWeight*> Gal_vecs;
 	//const GalElement* W;
     
 	wxString weight_name;

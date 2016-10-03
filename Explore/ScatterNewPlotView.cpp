@@ -537,7 +537,8 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
-        SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+        SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+                                         statsX, statsY, regressionXY,
                                          highlight_state->GetHighlight(),
                                          statsXselected, statsYselected,
                                          statsXexcluded, statsYexcluded,
@@ -1084,11 +1085,13 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
 		// update both selected and excluded stats
-        SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+        SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+                                         statsX, statsY, regressionXY,
                                          highlight_state->GetHighlight(),
                                          statsXselected, statsYselected,
                                          statsXexcluded, statsYexcluded,
-                                         regressionXYselected, regressionXYexcluded,
+                                         regressionXYselected,
+                                         regressionXYexcluded,
                                          sse_sel, sse_unsel);
 	}
     if (IsRegressionSelected())  {
@@ -1438,7 +1441,8 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			PopulateCanvas();
 		} else {
 			show_reg_selected = true;
-            SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+            SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+                                             statsX, statsY, regressionXY,
                                              highlight_state->GetHighlight(),
                                              statsXselected, statsYselected,
                                              statsXexcluded, statsYexcluded,
@@ -1461,14 +1465,14 @@ void ScatterNewPlotCanvas::UpdateRegSelectedLine()
 	if (IsShowLinearSmoother()) {
 		double cc_degs_of_rot;
 		wxRealPoint a, b;
-		SmoothingUtils::CalcRegressionLine(*reg_line_selected,
-										 reg_line_selected_slope,
-										 reg_line_selected_infinite_slope,
-										 reg_line_selected_defined, a, b,
-										 cc_degs_of_rot,
-										 axis_scale_x, axis_scale_y,
-										 regressionXYselected,
-										 *pens.GetRegSelPen());
+        SmoothingUtils::CalcRegressionLine(*reg_line_selected,
+                                           reg_line_selected_slope,
+                                           reg_line_selected_infinite_slope,
+                                           reg_line_selected_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYselected,
+                                           *pens.GetRegSelPen());
 		ApplyLastResizeToShp(reg_line_selected);
 		layer2_valid = false;
 	} else {
@@ -1507,11 +1511,13 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			changed = UpdateDisplayLinesAndMargins();
 			PopulateCanvas();
 		} else {
-            SmoothingUtils::CalcStatsRegimes(X, Y, statsX, statsY, regressionXY,
+            SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+                                             statsX, statsY, regressionXY,
                                              highlight_state->GetHighlight(),
                                              statsXselected, statsYselected,
                                              statsXexcluded, statsYexcluded,
-                                             regressionXYselected, regressionXYexcluded,
+                                             regressionXYselected,
+                                             regressionXYexcluded,
                                              sse_sel, sse_unsel);
 			show_reg_excluded = true;
 			UpdateRegExcludedLine();

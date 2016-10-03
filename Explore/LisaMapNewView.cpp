@@ -208,8 +208,11 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		int isolates_cat = -1;
 		int num_cats = 0;
         double stop_sig = 0;
-		if (lisa_coord->GetHasIsolates(t)) num_cats++;
-		if (lisa_coord->GetHasUndefined(t)) num_cats++;
+        
+		if (lisa_coord->GetHasIsolates(t))
+            num_cats++;
+		if (lisa_coord->GetHasUndefined(t))
+            num_cats++;
 		if (is_clust) {
 			num_cats += 5;
 		} else {
@@ -746,7 +749,7 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->W_vecs[ts];
+    const GalElement* W = lisa_coord->Gal_vecs[ts]->gal;
 	
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
@@ -778,7 +781,7 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->W_vecs[ts];
+    const GalElement* W = lisa_coord->Gal_vecs[ts]->gal;
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {

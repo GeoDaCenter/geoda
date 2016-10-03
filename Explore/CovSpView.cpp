@@ -37,6 +37,8 @@ EVT_MOUSE_EVENTS(CovSpFrame::OnMouseEvent)
 EVT_ACTIVATE(CovSpFrame::OnActivate)
 END_EVENT_TABLE()
 
+using namespace std;
+
 CovSpFrame::CovSpFrame(wxFrame *parent, Project* project,
 											 const GdaVarTools::Manager& var_man_,
 											 WeightsMetaInfo::DistanceMetricEnum dist_metric_,
@@ -193,7 +195,7 @@ void CovSpFrame::UpdateTitle()
 	SetTitle(s);
 }
 
-wxString CovSpFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs,
+wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
 																							int total_hover_obs)
 {
 	wxString s;
@@ -264,7 +266,7 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 												 false, true, "Variable Choice", "Variable");
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
-	std::vector<wxString> tm_strs;
+	vector<wxString> tm_strs;
 	project->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager t_var_man(tm_strs);
 	t_var_man.AppendVar(v.name, v.min, v.max, v.time,
@@ -337,15 +339,15 @@ void CovSpFrame::update(TimeState* o)
 {
 	LOG_MSG("In CovSpFrame::update(TimeState* o)");
 	var_man.UpdateGlobalTime(o->GetCurrTime());
-	if (var_man.GetVarsCount() >= 1) UpdatePanel();
+	if (var_man.GetVarsCount() >= 1)
+        UpdatePanel();
 	UpdateTitle();
 	Refresh();
 }
 
 void CovSpFrame::update(LowessParamObservable* o)
 {
-	scatt_plot->ChangeLoessParams(o->GetF(), o->GetIter(),
-																o->GetDeltaFactor());
+	scatt_plot->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
 }
 
 void CovSpFrame::notifyOfClosing(LowessParamObservable* o)
@@ -453,10 +455,15 @@ void CovSpFrame::UpdatePanel()
 				SimpleScatterPlotCanvas* sp_can = 0;
 				sp_can = new SimpleScatterPlotCanvas(panel, this, project,
 													 pairs_hl_state, 0,
-													 D, Zprod[z_tm],
-													 "Distance", z_title,
+													 D,
+                                                     Zprod[z_tm],
+                                                     Zprod_undef[z_tm],
+                                                     Zprod_undef[z_tm],
+													 "Distance",
+                                                     z_title,
 													 D_min, D_max,
-													 Zprod_min[z_tm], Zprod_max[z_tm],
+													 Zprod_min[z_tm],
+                                                     Zprod_max[z_tm],
 													 true, true, false,
 													 "ID_COV_SCATTER_PLOT_MENU_OPTIONS",
 													 !show_outside_titles,
@@ -552,18 +559,26 @@ void CovSpFrame::UpdateMessageWin()
 void CovSpFrame::UpdateDataFromVarMan()
 {
 	LOG_MSG("Entering CovSpFrame::UpdateDataMapFromVarMan");
-	using namespace std;
 	TableInterface* table_int = project->GetTableInt();
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
 	
-	if (var_man.GetVarsCount() == 0) return;
+    if (var_man.GetVarsCount() == 0) {
+        return;
+    }
+    
 	wxString z_name = var_man.GetName(0);
 	int c_id = table_int->FindColId(z_name);
-	if (c_id < 0) return;
+    
+    if (c_id < 0) {
+        return;
+    }
+    
 	bool tm_variant = var_man.IsTimeVariant(0);
 	int tms = table_int->GetColTimeSteps(c_id);
+    
 	if (Z.size() != tms) {
 		Z.resize(tms);
+		Z_undef.resize(tms);
 		Zprod.resize(tms);
 		Zprod_min.resize(tms);
 		Zprod_max.resize(tms);
@@ -571,60 +586,106 @@ void CovSpFrame::UpdateDataFromVarMan()
 		VarZ.resize(tms);
 		Z_error_msg.resize(tms);
 	}
+    
 	size_t num_obs = table_int->GetNumberRows();
+    
 	for (size_t t=0; t<tms; ++t) {
 		if (Z[t].size() != num_obs) {
 			Z[t].resize(num_obs);
+			Z_undef[t].resize(num_obs);
 			Zprod[t].resize(bimap.size());
+			Zprod_undef[t].resize(bimap.size());
 		}
+        
+        // get data from table
+		table_int->GetColData(c_id, t, Z[t]);
+        table_int->GetColUndefined(c_id, t, Z_undef[t]);
+        
+        // init Zprod[t]
 		if (GdaConst::placeholder_type == table_int->GetColType(c_id, t)) {
 			for (pairs_bimap_type::const_iterator e=bimap.begin();
-					 e!=bimap.end(); ++e) {
-				Zprod[t][e->left] = 0;
+                 e!=bimap.end(); ++e)
+            {
+                int pair_idx = e->left;
+				Zprod[t][pair_idx] = 0;
+                
+                int obs_i = e->right.i;
+                int obs_j = e->right.j;
+                Zprod[t][pair_idx]  = Z_undef[t][obs_i] || Z_undef[t][obs_j];
 			}
-			wxString s;
-			s << "Variable " << z_name;
-			if (tm_variant) s << " at time " << table_int->GetTimeString(t);
-			s << " is a placeholder.";
+            wxString str_template;
+            
+            str_template = _T("Variable %s is a placeholer");
+            if (tm_variant) {
+                str_template = _T("Variable %s at time %d is a placeholer");
+            }
+            
+            wxString s = wxString::Format(str_template, z_name,
+                                          table_int->GetTimeString(t));
 			Z_error_msg[t] = s;
-			LOG_MSG(s);
 			continue;
 		}
-		table_int->GetColData(c_id, t, Z[t]);
+        
+        // do calculation
 		size_t Z_sz = Z[t].size();
 		double N = (double) Z_sz;
 		double sum = 0.0;
-		for (size_t i=0; i<Z_sz; ++i) sum += Z[t][i];
+        
+        for (size_t i=0; i<Z_sz; ++i){
+            if (Z_undef[t][i])
+                continue;
+            sum += Z[t][i];
+        }
+        
 		double smpl_mn = sum/N;
+        
 		MeanZ[t] = smpl_mn;
+        
 		double ssd = 0.0;
 		double diff = 0;
 		for (size_t i=0; i<Z_sz; ++i) {
+            if (Z_undef[t][i])
+                continue;
 			diff = Z[t][i] - smpl_mn;
 			ssd += diff*diff;
 		}
+        
 		double smpl_var = ssd/N;
-		LOG(smpl_mn);
-		LOG(smpl_var);
 		VarZ[t] = smpl_var;
+        
 		bool success = smpl_var > 0; //GenUtils::StandardizeData(Z[t]);
 		if (!success) {
-			wxString s;
-			s << "Variable " << z_name;
-			if (tm_variant) s << " at time " << table_int->GetTimeString(t);
-			s << " could not be standardized.";
+            wxString str_template;
+            
+            str_template = _T("Variable %s is a placeholer");
+            if (tm_variant) {
+                str_template = _T("Variable %s at time %d could not be standardized.");
+            }
+            
+            wxString s = wxString::Format(str_template, z_name,
+                                          table_int->GetTimeString(t));
 			Z_error_msg[t] = s;
-			LOG_MSG(s);
 		} else {
+            
 			Z_error_msg[t] = "";
-			Zprod_min[t] = std::numeric_limits<double>::max();
-			Zprod_max[t] = std::numeric_limits<double>::min();
+			Zprod_min[t] = numeric_limits<double>::max();
+			Zprod_max[t] = numeric_limits<double>::min();
+            
 			for (pairs_bimap_type::const_iterator e=bimap.begin();
-					 e!=bimap.end(); ++e) {
+                 e!=bimap.end(); ++e)
+            {
+                int idx_i = e->right.i;
+                int idx_j = e->right.j;
+                
+                if (Z_undef[t][idx_i] || Z_undef[t][idx_j])
+                    continue;
+                
 				//double p = Z[t][e->right.i]*Z[t][e->right.j];
-				double p = (Z[t][e->right.i]-smpl_mn)*(Z[t][e->right.j]-smpl_mn);
-				p = p/smpl_var;
+				double p = (Z[t][idx_i] - smpl_mn) * (Z[t][idx_j] - smpl_mn);
+				p = p / smpl_var;
+                
 				Zprod[t][e->left] = p;
+                
 				if (p < Zprod_min[t]) Zprod_min[t] = p;
 				if (p > Zprod_max[t]) Zprod_max[t] = p;
 			}

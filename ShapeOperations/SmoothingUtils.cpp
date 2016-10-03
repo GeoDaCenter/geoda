@@ -56,7 +56,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 	reg_a = wxRealPoint(0, 0);
 	reg_b = wxRealPoint(0, 0);
 	
-	//LOG(reg.beta);
 	
 	// bounding box is [axis_scale_x.scale_min, axis_scale_y.scale_max] x
 	// [axis_scale_y.scale_min, axis_scale_y.scale_max]
@@ -68,25 +67,32 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 		// It should be the case that the slope beta is at most 1/2.
 		// So, we should calculate the points of intersection with the
 		// two vertical bounding box lines.
-		reg_a = wxRealPoint(axis_scale_x.scale_min,
-												reg.alpha + reg.beta*axis_scale_x.scale_min);
-		reg_b = wxRealPoint(axis_scale_x.scale_max,
-												reg.alpha + reg.beta*axis_scale_x.scale_max);
+        reg_a = wxRealPoint(axis_scale_x.scale_min,
+                            reg.alpha + reg.beta*axis_scale_x.scale_min);
+        reg_b = wxRealPoint(axis_scale_x.scale_max,
+                            reg.alpha + reg.beta*axis_scale_x.scale_max);
+        
 		if (reg_a.y < axis_scale_y.scale_min) {
 			reg_a.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
 			reg_a.y = axis_scale_y.scale_min;
+            
 		} else if (reg_a.y > axis_scale_y.scale_max) {
 			reg_a.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
 			reg_a.y = axis_scale_y.scale_max;
+            
 		}
+        
 		if (reg_b.y < axis_scale_y.scale_min) {
 			reg_b.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
 			reg_b.y = axis_scale_y.scale_min;
+            
 		} else if (reg_b.y > axis_scale_y.scale_max) {
 			reg_b.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
 			reg_b.y = axis_scale_y.scale_max;
 		}
+        
 		slope = reg.beta;
+        
 	} else {
 		regression_defined = false;
 		reg_line.setPen(*wxTRANSPARENT_PEN);
@@ -102,18 +108,8 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 	reg_b.y = (reg_b.y - axis_scale_y.scale_min) * scaleY;
 	
 	reg_line = GdaPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
-	cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
-																					 reg_b.x, reg_b.y);
-	
-	//LOG(slope);
-	//LOG(infinite_slope);
-	//LOG(regression_defined);
-	//LOG(cc_degs_of_rot);
-	//LOG(reg_a.x);
-	//LOG(reg_a.y);
-	//LOG(reg_b.x);
-	//LOG(reg_b.y);
-	
+    cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
+                                             reg_b.x, reg_b.y);
 	reg_line.setPen(pen);
 	//LOG_MSG("Exiting SmoothingUtils::CalcRegressionLine");
 }
@@ -143,20 +139,23 @@ double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 	return theta;
 }
 
-void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
-									const std::vector<double>& Y,
-									const SampleStatistics& statsX,
-									const SampleStatistics& statsY,
-									const SimpleLinearRegression& regressionXY,
-									const std::vector<bool>& hl,
-									SampleStatistics& statsXselected,
-									SampleStatistics& statsYselected,
-									SampleStatistics& statsXexcluded,
-									SampleStatistics& statsYexcluded,
-									SimpleLinearRegression& regressionXYselected,
-									SimpleLinearRegression& regressionXYexcluded,
-									double& sse_sel,
-									double& sse_unsel)
+void
+SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
+                                 const std::vector<double>& Y,
+                                 const std::vector<bool>& X_undef,
+                                 const std::vector<bool>& Y_undef,
+                                 const SampleStatistics& statsX,
+                                 const SampleStatistics& statsY,
+                                 const SimpleLinearRegression& regressionXY,
+                                 const std::vector<bool>& hl,
+                                 SampleStatistics& statsXselected,
+                                 SampleStatistics& statsYselected,
+                                 SampleStatistics& statsXexcluded,
+                                 SampleStatistics& statsYexcluded,
+                                 SimpleLinearRegression& regressionXYselected,
+                                 SimpleLinearRegression& regressionXYexcluded,
+                                 double& sse_sel,
+                                 double& sse_unsel)
 {
 	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 	// find mean for X and Y according to highlight_state for both
@@ -167,11 +166,12 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 	statsYexcluded = SampleStatistics();
 	regressionXYselected = SimpleLinearRegression();
 	regressionXYexcluded = SimpleLinearRegression();
+    
 	int selected_cnt = 0;
 	int excluded_cnt = 0;
 	
 	// calculate mean, min and max
-	statsXselected.min = std::numeric_limits<double>::max();
+    statsXselected.min = std::numeric_limits<double>::max();
 	statsYselected.min = std::numeric_limits<double>::max();
 	statsXexcluded.min = std::numeric_limits<double>::max();
 	statsYexcluded.min = std::numeric_limits<double>::max();
@@ -179,7 +179,10 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 	statsYselected.max = -std::numeric_limits<double>::max();
 	statsXexcluded.max = -std::numeric_limits<double>::max();
 	statsYexcluded.max = -std::numeric_limits<double>::max();
+    
 	for (int i=0, iend=X.size(); i<iend; i++) {
+        if (X_undef[i] || Y_undef[i])
+            continue;
 		if (hl[i]) {
 			selected_cnt++;
 			statsXselected.mean += X[i];
@@ -198,14 +201,17 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 			if (Y[i] > statsYexcluded.max) statsYexcluded.max = Y[i];
 		}
 	}
+    
 	if (selected_cnt == 0) {
 		statsXexcluded = statsX;
 		statsYexcluded = statsY;
 		regressionXYexcluded = regressionXY;
+        
 	} else if (excluded_cnt == 0) {
 		statsXselected = statsX;
 		statsYselected = statsY;
 		regressionXYselected = regressionXY;
+        
 	} else {
 		statsXselected.mean /= selected_cnt;
 		statsYselected.mean /= selected_cnt;
@@ -220,8 +226,11 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 		double sum_squaresYselected = 0;
 		double sum_squaresXexcluded = 0;
 		double sum_squaresYexcluded = 0;
+        
 		// calculate standard deviations and variances
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				sum_squaresXselected += X[i] * X[i];
 				sum_squaresYselected += Y[i] * Y[i];
@@ -231,19 +240,23 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 			}
 		}
 		
-		SmoothingUtils::CalcVarSdFromSumSquares(statsXselected, sum_squaresXselected);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsYselected, sum_squaresYselected);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsXexcluded, sum_squaresXexcluded);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsYexcluded, sum_squaresYexcluded);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsXselected,
+                                                sum_squaresXselected);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsYselected,
+                                                sum_squaresYselected);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsXexcluded,
+                                                sum_squaresXexcluded);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsYexcluded,
+                                                sum_squaresYexcluded);
 		
 		SmoothingUtils::CalcRegressionSelOrExcl(statsXselected, statsYselected,
-																						X, Y, hl,
-																						true, regressionXYselected,
-																						sse_sel);
-		SmoothingUtils::CalcRegressionSelOrExcl(statsXexcluded, statsYexcluded,
-																						X, Y, hl,
-																						false, regressionXYexcluded,
-																						sse_unsel);
+                                                X, Y, X_undef, Y_undef, hl,
+                                                true, regressionXYselected,
+                                                sse_sel);
+        SmoothingUtils::CalcRegressionSelOrExcl(statsXexcluded, statsYexcluded,
+                                                X, Y, X_undef, Y_undef, hl,
+                                                false, regressionXYexcluded,
+                                                sse_unsel);
 	}
 	LOG(wxString(regressionXYselected.ToString().c_str(), wxConvUTF8));
 	LOG(wxString(regressionXYexcluded.ToString().c_str(), wxConvUTF8));
@@ -254,19 +267,28 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 											 const SampleStatistics& ss_Y,
 											 const std::vector<double>& X,
 											 const std::vector<double>& Y,
+                                             const std::vector<bool>& X_undef,
+                                             const std::vector<bool>& Y_undef,
 											 const std::vector<bool>& hl,
 											 bool selected,
 											 SimpleLinearRegression& r,
 											 double& ss_error)
 {
-	if (ss_X.sample_size != ss_Y.sample_size || ss_X.sample_size < 2 ||
-			ss_X.var_without_bessel <= 4*DBL_MIN ) return;
+	if (ss_X.sample_size != ss_Y.sample_size ||
+        ss_X.sample_size < 2 ||
+        ss_X.var_without_bessel <= 4*DBL_MIN )
+    {
+        return;
+    }
 	
 	int n=0;
 	double expectXY = 0;
 	double sum_x_squared = 0;
+    
 	if (selected) {
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				expectXY += X[i]*Y[i];
 				sum_x_squared += X[i] * X[i];
@@ -275,6 +297,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 		}
 	} else {
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (!hl[i]) {
 				expectXY += X[i]*Y[i];
 				sum_x_squared += X[i] * X[i];
@@ -286,7 +310,9 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 	
 	r.covariance = expectXY - ss_X.mean * ss_Y.mean;
 	r.beta = r.covariance / ss_X.var_without_bessel;
+    
 	double d = ss_X.sd_without_bessel * ss_Y.sd_without_bessel;
+    
 	if (d > 4*DBL_MIN) {
 		r.correlation = r.covariance / d;
 		r.valid_correlation = true;
@@ -302,6 +328,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 	double err=0;
 	if (selected) {
 		for (int i=0, iend=Y.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				err = Y[i] - (r.alpha + r.beta * X[i]);
 				SS_err += err * err;
@@ -310,6 +338,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 		ss_error = SS_err;
 	} else {
 		for (int i=0, iend=Y.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (!hl[i]) {
 				err = Y[i] - (r.alpha + r.beta * X[i]);
 				SS_err += err * err;
