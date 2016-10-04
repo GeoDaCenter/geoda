@@ -138,6 +138,8 @@ struct HingeStats {
 		Q2(0), Q2_ind(0), Q1(0), Q1_ind(0),
 		Q3(0), Q3_ind(0), min_IQR_ind(0), max_IQR_ind(0) {}
 	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data);
+	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& data_undef);
 	int num_obs;
 	double min_val;
 	double max_val;

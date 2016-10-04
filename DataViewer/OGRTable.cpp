@@ -787,15 +787,15 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
-void OGRTable::GetColUndefined(int col, b_array_type& undefined)
+bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
 {
     if (col < 0 || col >= var_order.GetNumVarGroups())
-        return;
+        return false;
     
     VarGroup vg = var_order.FindVarGroup(col);
     
     if (vg.IsEmpty())
-        return;
+        return false;
     
     vector<wxString> vars;
     vg.GetVarNames(vars);
@@ -806,6 +806,8 @@ void OGRTable::GetColUndefined(int col, b_array_type& undefined)
         ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
     }
     
+    bool has_undefined = false;
+    
     undefined.resize(boost::extents[tms][rows]);
     for (size_t t=0; t<tms; ++t) {
         if (ftr_c[t] != -1) {
@@ -813,23 +815,36 @@ void OGRTable::GetColUndefined(int col, b_array_type& undefined)
             std::vector<bool> markers = columns[col_idx]->GetUndefinedMarkers();
             for (size_t i=0; i<rows; ++i) {
                 undefined[t][i] = markers[i];
+                if (undefined[t][i])
+                    has_undefined = true;
             }
         } else {
             for (size_t i=0; i<rows; ++i)
                 undefined[t][i] = false;
         }
     }
+    return has_undefined;
 }
 
-void OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
+bool OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
 {
-	if (col < 0 || col >= GetNumberCols()) return;
-	int ogr_col_id = FindOGRColId(col, time);
-	if (ogr_col_id == wxNOT_FOUND) return;
+	if (col < 0 || col >= GetNumberCols())
+        return false;
+
+    int ogr_col_id = FindOGRColId(col, time);
+    
+	if (ogr_col_id == wxNOT_FOUND)
+        return false;
     
     OGRColumn* ogr_col = columns[ogr_col_id];
     
     undefined = ogr_col->GetUndefinedMarkers();
+    
+    for (size_t i=0; i<undefined.size(); i++) {
+        if (undefined[i] == true)
+            return true;
+    }
+    return false;
 }
 
 /**

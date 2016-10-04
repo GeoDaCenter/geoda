@@ -100,8 +100,9 @@ bool Gda::dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 }
 
 
-void HingeStats::CalculateHingeStats(
-							const std::vector<Gda::dbl_int_pair_type>& data)
+void
+HingeStats::
+CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	num_obs = data.size();
 	double N = num_obs;
@@ -139,6 +140,79 @@ void HingeStats::CalculateHingeStats(
 		else break;
 	}
 	if (max_IQR_ind > 0) max_IQR_ind--;
+}
+
+void
+HingeStats::
+CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
+                    const std::vector<bool>& data_undef)
+{
+    num_obs = data.size();
+    double N = 0.0;
+    std::vector<double> data_valid;
+    
+    bool has_init = false;
+    for (size_t i =0; i<num_obs; i++) {
+        int obs_idx = data[i].second;
+        if (!data_undef[obs_idx]) {
+            double val = data[i].first;
+            data_valid.push_back(val); // sorted
+            if (!has_init) {
+                min_val = val;
+                max_val = val;
+                has_init = true;
+            }
+            if (val < min_val)
+                min_val = val;
+            if (val > max_val)
+                max_val = val;
+        }
+    }
+    
+    N = data_valid.size();
+    is_even_num_obs = (data_valid.size() % 2) == 0;
+    
+    Q2_ind = (N+1)/2.0 - 1;
+    if (is_even_num_obs) {
+        Q1_ind = (N+2)/4.0 - 1;
+        Q3_ind = (3*N+2)/4.0 - 1;
+    } else {
+        Q1_ind = (N+3)/4.0 - 1;
+        Q3_ind = (3*N+1)/4.0 - 1;
+    }
+    Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
+    Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
+    Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
+    
+    IQR = Q3 - Q1;
+    
+    extreme_lower_val_15 = Q1 - 1.5*IQR;
+    extreme_lower_val_30 = Q1 - 3.0*IQR;
+    extreme_upper_val_15 = Q3 + 1.5*IQR;
+    extreme_upper_val_30 = Q3 + 3.0*IQR;
+    
+    min_IQR_ind = -1;
+    for (int i=0; i<num_obs; i++) {
+        if (data[i].first < Q1) {
+            min_IQR_ind = i;
+        }
+        else
+            break;
+    }
+    if (min_IQR_ind < num_obs-1) {
+        min_IQR_ind++;
+    }
+    max_IQR_ind = num_obs;
+    
+    for (int i=num_obs-1; i>=0; i--) {
+        if (data[i].first > Q3) {
+            max_IQR_ind = i;
+        }
+        else
+            break;
+    }
+    if (max_IQR_ind > 0)
+        max_IQR_ind--;
 }
 
 // Assume input v is sorted.  If not, can sort

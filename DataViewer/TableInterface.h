@@ -156,8 +156,8 @@ public:
 	virtual void GetColData(int col, int time, std::vector<wxString>& data,
                             std::vector<bool>& undefs);
     
-	virtual void GetColUndefined(int col, b_array_type& undefined) = 0;
-	virtual void GetColUndefined(int col, int time,
+	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;
+	virtual bool GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined) = 0;
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals) = 0;

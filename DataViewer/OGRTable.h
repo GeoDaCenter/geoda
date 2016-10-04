@@ -138,8 +138,8 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
-	virtual void GetColUndefined(int col, b_array_type& undefined);
-	virtual void GetColUndefined(int col, int time,
+	virtual bool GetColUndefined(int col, b_array_type& undefined);
+	virtual bool GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined);
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals);
