@@ -179,9 +179,12 @@ ScatterNewPlotCanvas(wxWindow *parent,
 : TemplateCanvas(parent, t_frame, project_s,
                  project_s->GetHighlightState(),
                  pos, size, false, true),
-project(project_s), var_info(v_info), num_obs(project_s->GetNumRecords()),
-num_categories(is_bubble_plot ? 1 : 3), num_time_vals(1),
-data(v_info.size()), undef_data(v_info.size()),
+project(project_s), var_info(v_info),
+num_obs(project_s->GetNumRecords()),
+num_categories(is_bubble_plot ? 1 : 3),
+num_time_vals(1),
+data(v_info.size()),
+undef_data(v_info.size()),
 custom_classif_state(0),
 is_bubble_plot(is_bubble_plot_s),
 axis_scale_x(), axis_scale_y(),
@@ -194,7 +197,8 @@ x_axis_through_origin(0), y_axis_through_origin(0),
 show_origin_axes(true), display_stats(!is_bubble_plot_s),
 show_reg_selected(!is_bubble_plot_s), show_reg_excluded(!is_bubble_plot_s),
 sse_c(0), sse_sel(0), sse_unsel(0),
-show_linear_smoother(!is_bubble_plot_s), show_lowess_smoother(false), enableLowess(true),
+show_linear_smoother(!is_bubble_plot_s),
+show_lowess_smoother(false), enableLowess(true),
 chow_ratio(0), chow_pval(1), chow_valid(false), chow_test_text(0),
 table_display_lines(0),
 X(project_s->GetNumRecords()),
@@ -994,14 +998,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	} else {
 		selectable_shps_type = points;
 		for (int i=0; i<num_obs; i++) {
-            if ( XYZ_undef[i] ) {
-                selectable_shps_undefs[i] = true;
-            } else {
-                selectable_shps_undefs[i] = false;
-            }
+            selectable_shps_undefs[i] = XYZ_undef[i];
 			selectable_shps[i] =
 			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-									(Y[i] - axis_scale_y.scale_min) * scaleY));
+			 						 (Y[i] - axis_scale_y.scale_min) * scaleY));
 		}
 	}
 	

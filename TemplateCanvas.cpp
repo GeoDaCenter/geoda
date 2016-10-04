@@ -842,8 +842,6 @@ void TemplateCanvas::update(HLStateInt* o)
 
 	} else {
 		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
-		// type == HLStateInt::unhighlight_all
-		// type == HLStateInt::invert
 	}
   
     // re-paint highlight layer (layer1_bm)
@@ -973,21 +971,16 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
         wxMemoryDC dc(*layer2_bm);
         
         wxPaintDC paint_dc(this);
+        
         // this line cause flicking on windows machine
         //paint_dc.Clear();
+        
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
         
         // Draw the the selection region if needed
         PaintSelectionOutline(paint_dc);
         
-        // Draw optional control objects if needed, should be in memeory
-        // PaintControls(paint_dc);
-        
-        // The resize event will ruin the position of scroll bars, so we reset the
-        // position of scroll bars again.
-        //if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-        //if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
-        
+
         isRepaint = false;
     }
     event.Skip();
@@ -1085,12 +1078,15 @@ void TemplateCanvas::DrawSelectableShapesByZVal(wxDC &dc,
 	
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-        if (_IsShpValid(i) == false)  {
-            continue;
-        }
+        
 		int obs = z_val_order[cc_ts][i][0];
 		int cat = z_val_order[cc_ts][i][1];
-		dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
+        
+        if (_IsShpValid(obs) == false)  {
+            continue;
+        }
+
+        dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
 		if (selectable_outline_visible) {
 			dc.SetPen(cat_data.GetCategoryPen(cc_ts, cat));
 		}

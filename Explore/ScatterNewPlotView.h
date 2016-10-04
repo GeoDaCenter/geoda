@@ -267,18 +267,20 @@ class ScatterNewPlotFrame : public TemplateFrame, public LowessParamObserver
 {
 	DECLARE_CLASS(ScatterNewPlotFrame)
 public:
-	ScatterNewPlotFrame(wxFrame *parent, Project* project,
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize,
-											const long style = wxDEFAULT_FRAME_STYLE);
-	ScatterNewPlotFrame(wxFrame *parent, Project* project,
-											const std::vector<GdaVarTools::VarInfo>& var_info,
-											const std::vector<int>& col_ids,
-											bool is_bubble_plot,
-											const wxString& title = "Scatter Plot",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize,
-											const long style = wxDEFAULT_FRAME_STYLE);
+    ScatterNewPlotFrame(wxFrame *parent, Project* project,
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize,
+                        const long style = wxDEFAULT_FRAME_STYLE);
+    
+    ScatterNewPlotFrame(wxFrame *parent, Project* project,
+                        const std::vector<GdaVarTools::VarInfo>& var_info,
+                        const std::vector<int>& col_ids,
+                        bool is_bubble_plot,
+                        const wxString& title = "Scatter Plot",
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize,
+                        const long style = wxDEFAULT_FRAME_STYLE);
+    
 	virtual ~ScatterNewPlotFrame();
 	
 public:
