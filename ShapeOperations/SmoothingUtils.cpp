@@ -403,11 +403,6 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 {
 	LOG_MSG("Entering SmoothingUtils::ExtendEndpointsToBB");
 	size_t n = X.size();
-	LOG(bb_min_x);
-	LOG(bb_min_y);
-	LOG(bb_max_x);
-	LOG(bb_max_y);
-	LOG(n);
 	bool success = true;
 	// Extend end points to bounding box with linear interpolation.
 	{
@@ -502,10 +497,33 @@ wxString SmoothingUtils::LowessCacheKey(int x_time, int y_time)
 SmoothingUtils::LowessCacheEntry* 
 SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 										 const wxString& key, Lowess& lowess,
+										 const std::vector<double>& X_,
+										 const std::vector<double>& Y_,
+										 const std::vector<bool>& X_undef,
+										 const std::vector<bool>& Y_undef)
+{
+	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
+    
+    std::vector<double> X;
+    std::vector<double> Y;
+    
+    for (size_t i=0; i<X_undef.size(); i++) {
+        if (X_undef[i] || Y_undef[i]) {
+            X.push_back(X_[i]);
+            Y.push_back(Y_[i]);
+        }
+    }
+    UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+}
+
+SmoothingUtils::LowessCacheEntry* 
+SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
+										 const wxString& key, Lowess& lowess,
 										 const std::vector<double>& X,
 										 const std::vector<double>& Y)
 {
 	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
+    
 	size_t n = X.size();
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	LowessCacheEntry* lce = 0;
@@ -529,10 +547,6 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 		lce->sort_map[i] = Xpairs[i].second;
 		lce->X_srt[i] = Xpairs[i].first;
 		lce->Y_srt[i] = Y[Xpairs[i].second];
-		//assert(lce->X_srt[i] == X[Xpairs[i].second]);
-		//assert(lce->Y_srt[i] == Y[Xpairs[i].second]);
-		//LOG_MSG(wxString::Format("sorted %d: (%f, %f)", (int) i,
-		//												 lce->X_srt[i], lce->Y_srt[i]));
 	}
 	
 	wxStopWatch sw_lowess;
@@ -541,13 +555,6 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 		wxString m;
 		m << "LOWESS compute time on " << n << " points took ";
 		m << sw_lowess.Time() << " ms.";
-		LOG_MSG(m);
-		
-		//for (size_t i=0; i<n; ++i) {
-		//	LOG_MSG(wxString::Format("X_srt[%d]: %f, Y_srt[%d]: %f, YS_srt[%d]: %f",
-		//													 (int)i, lce->X_srt[i], (int)i, lce->Y_srt[i],
-		//													 (int)i, lce->YS_srt[i]));
-		//}
 	}
 	lowess_cache[key] = lce;
 	
@@ -564,7 +571,7 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 									 std::vector<double>& unsel_smthd_srt_y)
 {
 	LOG_MSG("Entering SmoothingUtils::CalcLowessRegimes");
-	if (!lce || !hl.size() > 1) return;
+	if (!lce || !(hl.size() > 1)) return;
 	size_t n = hl.size();
 	size_t tot_hl = 0;
 	for (size_t i=0; i<n; ++i) if (hl[i]) ++tot_hl;

@@ -211,6 +211,22 @@ SampleStatistics::SampleStatistics(const std::vector<double>& data,
 	CalculateFromSample(valid_data);
 }
 
+SampleStatistics::SampleStatistics(const std::vector<double>& data,
+                                   const std::vector<bool>& undefs1,
+                                   const std::vector<bool>& undefs2)
+	: sample_size(0), min(0), max(0), mean(0),
+	var_with_bessel(0), var_without_bessel(0),
+	sd_with_bessel(0), sd_without_bessel(0)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs1[i] || undefs2[i])
+            continue;
+        valid_data.push_back(data[i]);
+    }
+	CalculateFromSample(valid_data);
+}
+
 void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 {
 	sample_size = data.size();
@@ -366,10 +382,11 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
     std::vector<double> Y_valid;
     
     for (int i=0; i<X.size(); i++) {
-        if (X_undef[i] == false) {
-            X_valid.push_back(X[i]);
-            Y_valid.push_back(Y[i]);
-        }
+        if (X_undef[i] || Y_undef[i])
+            continue;
+        
+        X_valid.push_back(X[i]);
+        Y_valid.push_back(Y[i]);
     }
 	CalculateRegression(X_valid, Y_valid, meanX, meanY, varX, varY);
 }

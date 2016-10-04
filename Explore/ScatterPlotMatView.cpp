@@ -439,10 +439,6 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 {
 	LOG_MSG("Entering ScatterPlotMatFrame::SetupPanelForNumVariables");
 	if (!panel || !bag_szr) return;
-	LOG(num_vars);
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
@@ -451,11 +447,6 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 		message_win = 0;
 	}
 	bag_szr->Clear();
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
-	LOG(bag_szr->GetEffectiveRowsCount());
-	LOG(bag_szr->GetEffectiveColsCount());
 	panel_v_szr->Remove(bag_szr); // bag_szr is deleted automatically
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
@@ -509,8 +500,24 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
             wxString row_title(var_man.GetNameWithTime(row));
 			const vector<double>& Y(data_map[row_nm][row_tm]);
             const vector<bool>& Y_undef(data_undef_map[row_nm][row_tm]);
-			double row_min = var_man.GetMinOverAllTms(row);
-			double row_max = var_man.GetMaxOverAllTms(row);
+            double row_min;
+            double row_max;
+            
+            bool has_init = false;
+            for (size_t i=0; i<Y.size(); i++ ) {
+                if (Y_undef[i])
+                    continue;
+                if (!has_init) {
+                    row_min = Y[i];
+                    row_max = Y[i];
+                    has_init = true;
+                    continue;
+                }
+                if (Y[i] < row_min)
+                    row_min = Y[i];
+                if (Y[i] > row_max)
+                    row_max = Y[i];
+            }
 			SimpleAxisCanvas* sa_can = 0;
 			{
                 sa_can = new SimpleAxisCanvas(panel, this, project,
@@ -539,7 +546,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 			}
 			SimpleHistCanvas* sh_can = 0;
             sh_can = new SimpleHistCanvas(panel, this, project,
-                                          project->GetHighlightState(), Y, row_title,
+                                          project->GetHighlightState(), Y,
+                                          row_title,
                                           row_min, row_max,
                                           !show_outside_titles);
 			bag_szr->Add(sh_can, wxGBPosition(row, row+1), wxGBSpan(1,1), wxEXPAND);
@@ -558,9 +566,25 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 				wxString col_title(var_man.GetNameWithTime(col));
                 
 				const vector<double>& X(data_map[col_nm][col_tm]);
-                const vector<bool>& X_undef(data_undef_map[row_nm][row_tm]);
-				double col_min = var_man.GetMinOverAllTms(col);
-				double col_max = var_man.GetMaxOverAllTms(col);
+                const vector<bool>& X_undef(data_undef_map[col_nm][col_tm]);
+                double col_min;
+                double col_max;
+                bool has_init = false;
+                
+                for (size_t i=0; i<X.size(); i++ ) {
+                    if (X_undef[i])
+                        continue;
+                    if (!has_init) {
+                        col_min = X[i];
+                        col_max = X[i];
+                        has_init = true;
+                        continue;
+                    }
+                    if (X[i] < col_min)
+                        col_min = X[i];
+                    if (X[i] > col_max)
+                        col_max = X[i];
+                }
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
                                                      project->GetHighlightState(), 0,
@@ -577,7 +601,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                                      show_lowess_smoother,
                                                      show_slope_values,
                                                      view_standardized_data);
-				bag_szr->Add(sp_can, wxGBPosition(row, col+1), wxGBSpan(1,1), wxEXPAND);
+				bag_szr->Add(sp_can, wxGBPosition(row, col+1),
+                             wxGBSpan(1,1), wxEXPAND);
 				scatt_plots.push_back(sp_can);
 			}
 		}
@@ -697,19 +722,6 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
-        /*
-		LOG(tms);
-		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_dbl_type(tms));
-		data_map.insert(p);
-		data_map_type::iterator e = data_map.find(nm);
-		if (e == data_map.end()) {
-			LOG_MSG("Could not find element just inserted! " + nm);
-			continue;
-		}
-		for (int t=0; t<tms; ++t) {
-			table_int->GetColData(c_id, t, e->second[t]);
-		}
-         */
         vec_vec_dbl_type dat(tms);
         vec_vec_bool_type dat_undef(tms);
         

@@ -962,23 +962,14 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		if (statsZ.max-statsZ.min <= 0.00000001 ||
 			statsZ.var_without_bessel == 0) {
 			for (int i=0; i<num_obs; i++) {
-                if ( X_undef[i] == true || Y_undef[i] == true ) {
-                    selectable_shps_undefs[i] = true;
-                } else {
-                    selectable_shps_undefs[i] = false;
-                }
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
 				selectable_shps[i] = new GdaCircle(pt, rad_mn * bubble_size_scaler);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
-                if ( X_undef[i] == true || Y_undef[i] == true ||
-                     Z_undef[i] == true ) {
-                    selectable_shps_undefs[i] = true;
-                } else {
-                    selectable_shps_undefs[i] = false;
-                }
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i] || Z_undef[i];
 				double z = (Z[i] - statsZ.mean)/statsZ.sd_without_bessel;
 				double area_z = (a*z + b) + min_area + area_sd;
                 if (area_z < min_area) {

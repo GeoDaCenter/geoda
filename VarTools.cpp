@@ -183,7 +183,7 @@ double Manager::GetMinOverAllTms(int var)
 	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	vector<double>::iterator i = min_element(vars[var].min_vals.begin(),
-																					 vars[var].min_vals.end());
+                                             vars[var].min_vals.end());
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
 }
@@ -193,7 +193,7 @@ double Manager::GetMaxOverAllTms(int var)
 	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	vector<double>::iterator i = max_element(vars[var].max_vals.begin(),
-																					 vars[var].max_vals.end());
+                                             vars[var].max_vals.end());
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
 }

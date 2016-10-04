@@ -196,7 +196,8 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 		wxStatusBar* sb = template_frame->GetStatusBar();
 		if (mousemode == select && selectstate == start) {
 			if (template_frame->GetStatusBarStringFromFrame()) {
-				sb->SetStatusText(template_frame->GetUpdateStatusBarString(hover_obs, total_hover_obs));
+                wxString str = template_frame->GetUpdateStatusBarString(hover_obs, total_hover_obs);
+				sb->SetStatusText(str);
 			}
             wxString s;
             if (highlight_state->GetTotalHighlighted()> 0) {
@@ -462,10 +463,11 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
 	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
-	pens.SetPenColor(pens.GetRegExlPen(), GdaConst::scatterplot_regression_excluded_color);
+	pens.SetPenColor(pens.GetRegExlPen(),
+                     GdaConst::scatterplot_regression_excluded_color);
 	
-	statsX = SampleStatistics(X);
-	statsY = SampleStatistics(Y);
+	statsX = SampleStatistics(X, X_undef, Y_undef);
+	statsY = SampleStatistics(Y, Y_undef, Y_undef);
     
     if (view_standardized_data) {
         for (int i=0, iend=X.size(); i<iend; i++) {
@@ -477,8 +479,8 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
         x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
         y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
         y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
-        statsX = SampleStatistics(X);
-        statsY = SampleStatistics(Y);
+        statsX = SampleStatistics(X, X_undef, Y_undef);
+        statsY = SampleStatistics(Y, Y_undef, Y_undef);
         // mean shold be 0 and biased standard deviation should be 1
         double eps = 0.000001;
         if (-eps < statsX.mean && statsX.mean < eps)
@@ -487,15 +489,11 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
             statsY.mean = 0;
     }
 	
-	LOG_MSG(wxString(statsX.ToString().c_str(), wxConvUTF8));
-	LOG_MSG(wxString(statsY.ToString().c_str(), wxConvUTF8));
-	
-	regressionXY = SimpleLinearRegression(X, Y, statsX.mean, statsY.mean,
+	regressionXY = SimpleLinearRegression(X, Y, X_undef, Y_undef,
+                                          statsX.mean, statsY.mean,
 										  statsX.var_without_bessel,
 										  statsY.var_without_bessel);
 	sse_c = regressionXY.error_sum_squares;
-	//LOG_MSG(wxString(regressionXY.ToString().c_str(), wxConvUTF8));
-	
     
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
@@ -510,17 +508,17 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	data_scale_ymin = axis_scale_y.scale_min;
 	data_scale_ymax = axis_scale_y.scale_max;
 	
-	//LOG_MSG(wxString(axis_scale_x.ToString().c_str(), wxConvUTF8));
-	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
-	
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(X.size());
+    selectable_shps_undefs.resize(X.size());
 	scaleX = 100.0 / (axis_scale_x.scale_range);
 	scaleY = 100.0 / (axis_scale_y.scale_range);
 	
 	if (use_larger_filled_circles) {
 		selectable_shps_type = circles;
 		for (size_t i=0, sz=X.size(); i<sz; ++i) {
+            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+            
 			GdaCircle* c = 0;
 			c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
 										  (Y[i]-axis_scale_y.scale_min) * scaleY),
@@ -532,6 +530,8 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	} else {
 		selectable_shps_type = points;
 		for (size_t i=0, sz=X.size(); i<sz; ++i) {
+            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+            
 			selectable_shps[i] = 
 			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 									 (Y[i] - axis_scale_y.scale_min) * scaleY));
@@ -591,7 +591,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 		size_t n = X.size();
 		wxString key = SmoothingUtils::LowessCacheKey(0, 0);
 		
-		SmoothingUtils::LowessCacheEntry* lce = SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+		SmoothingUtils::LowessCacheEntry* lce = SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y, X_undef, Y_undef);
 		
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");

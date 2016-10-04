@@ -49,18 +49,22 @@ END_EVENT_TABLE()
 const int ConditionalScatterPlotCanvas::IND_VAR = 2; // x-axis independent var
 const int ConditionalScatterPlotCanvas::DEP_VAR = 3; // y-axis dependent var
 
-ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas(wxWindow *parent,
-									TemplateFrame* t_frame,
-									Project* project_s,
-									const std::vector<GdaVarTools::VarInfo>& v_info,
-									const std::vector<int>& col_ids,
-									const wxPoint& pos, const wxSize& size)
+ConditionalScatterPlotCanvas::
+ConditionalScatterPlotCanvas(wxWindow *parent,
+                             TemplateFrame* t_frame,
+                             Project* project_s,
+                             const std::vector<GdaVarTools::VarInfo>& v_info,
+                             const std::vector<int>& col_ids,
+                             const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   false, true, pos, size),
 full_map_redraw_needed(true),
-X(project_s->GetNumRecords()), Y(project_s->GetNumRecords()),
-display_axes_scale_values(true), display_slope_values(true),
-show_linear_smoother(true), show_lowess_smoother(false)
+X(project_s->GetNumRecords()),
+Y(project_s->GetNumRecords()),
+display_axes_scale_values(true),
+display_slope_values(true),
+show_linear_smoother(true),
+show_lowess_smoother(false)
 {
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas");
 	
@@ -76,8 +80,7 @@ show_linear_smoother(true), show_lowess_smoother(false)
 	axis_scale_y.SkipEvenTics();
 	
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
-	selectable_fill_color =
-		GdaConst::scatterplot_regression_excluded_color;
+	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	
 	shps_orig_xmin = 0;
@@ -114,6 +117,7 @@ show_linear_smoother(true), show_lowess_smoother(false)
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
 										- var_info[ref_var_index].time_min);
 	}
+    
 	VarInfoAttributeChange();
 	PopulateCanvas();
 	
@@ -158,13 +162,13 @@ void ConditionalScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
 	ConditionalNewCanvas::SetCheckMarks(menu);
 
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
-																IsShowLinearSmoother());
+                                  IsShowLinearSmoother());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
-																IsShowLowessSmoother());	
+                                  IsShowLowessSmoother());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_AXES_SCALE_VALUES"),
-																IsDisplayAxesScaleValues());
+                                  IsDisplayAxesScaleValues());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
-																IsDisplaySlopeValues());
+                                  IsDisplaySlopeValues());
 }
 
 wxString ConditionalScatterPlotCanvas::GetCanvasTitle()
@@ -294,14 +298,16 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			
 			GdaAxis* x_ax = new GdaAxis("", axis_scale_x,
 									  wxRealPoint(0,0), wxRealPoint(100, 0));
-			if (!display_axes_scale_values) x_ax->hideScaleValues(true);
+			if (!display_axes_scale_values)
+                x_ax->hideScaleValues(true);
 			x_ax->setPen(*GdaConst::scatterplot_scale_pen);
 			x_ax->applyScaleTrans(st[row][col]);
 			foreground_shps.push_back(x_ax);
 			
 			GdaAxis* y_ax = new GdaAxis("", axis_scale_y,
 									  wxRealPoint(0,0), wxRealPoint(0, 100));
-			if (!display_axes_scale_values) y_ax->hideScaleValues(true);
+			if (!display_axes_scale_values)
+                y_ax->hideScaleValues(true);
 			y_ax->setPen(*GdaConst::scatterplot_scale_pen);
 			y_ax->applyScaleTrans(st[row][col]);
 			foreground_shps.push_back(y_ax);
@@ -533,9 +539,10 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 	}
 	
 	wxPen linear_smth_pen = (IsShowLinearSmoother() ?
-												wxPen(selectable_outline_color) : *wxTRANSPARENT_PEN);
+                             wxPen(selectable_outline_color) : *wxTRANSPARENT_PEN);
 	wxPen lowess_smth_pen = (IsShowLowessSmoother() ?
-												wxPen(selectable_outline_color) : *wxTRANSPARENT_PEN);
+                             wxPen(selectable_outline_color) : *wxTRANSPARENT_PEN);
+    
 	for (int i=0; i<vert_num_cats; i++) {
 		for (int j=0; j<horiz_num_cats; j++) {
 			const std::vector<double>& xref = *dvec_xp[i][j];
@@ -546,33 +553,19 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 										stats_x[i][j].mean, stats_y[i][j].mean,
 										stats_x[i][j].var_without_bessel,
 										stats_y[i][j].var_without_bessel);
-			//wxString s;
-			//s << "cell[" << i << "][" << j << "]: \n";
-			//s << "   sample_size = " << stats_x[i][j].sample_size;
-			//s << ", reg valid = " << regression[i][j].valid;
-			//if (regression[i][j].valid) {
-			//	s << ", alpha = " << regression[i][j].alpha;
-			//}
-			//LOG_MSG(s);
 			
 			double cc_degs_of_rot;
 			double reg_line_slope;
 			bool reg_line_infinite_slope;
 			bool reg_line_defined;
 			wxRealPoint a, b;
-			SmoothingUtils::CalcRegressionLine(reg_line[i][j], reg_line_slope,
-																				 reg_line_infinite_slope,
-																				 reg_line_defined, a, b, cc_degs_of_rot,
-																				 axis_scale_x, axis_scale_y,
-																				 regression[i][j], linear_smth_pen);
-			//if (reg_line_defined) {
-			//	LOG(reg_line[i][j].points_o[0].x);
-			//	LOG(reg_line[i][j].points_o[0].y);
-			//	LOG(reg_line[i][j].points_o[1].x);
-			//	LOG(reg_line[i][j].points_o[1].y);
-			//} else {
-			//	LOG_MSG(wxString::Format("reg_line[%d][%d] not defined",i,j));
-			//}
+            SmoothingUtils::CalcRegressionLine(reg_line[i][j], reg_line_slope,
+                                               reg_line_infinite_slope,
+                                               reg_line_defined, a, b,
+                                               cc_degs_of_rot,
+                                               axis_scale_x, axis_scale_y,
+                                               regression[i][j],
+                                               linear_smth_pen);
 			
 			if (IsShowLowessSmoother() && xref.size() > 1) {
 				size_t n = xref.size();
@@ -582,32 +575,19 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 				
 				SmoothingUtils::LowessCacheEntry* lce =
 				SmoothingUtils::UpdateLowessCacheForTime(lowess_cache,
-																								 key, lowess, xref, yref);
+                                                         key, lowess,
+                                                         xref, yref);
 				
 				if (!lce) {
 					LOG_MSG("Error: could not create or find LOWESS cache entry");
 				} else {
-					//double x_first, y_first, x_last, y_last;
-					//SmoothingUtils::ExtendEndpointsToBB(lce->X_srt, lce->YS_srt,
-					//																		axis_scale_x.scale_min,
-					//																		axis_scale_y.scale_min,
-					//																		axis_scale_x.scale_max,
-					//																		axis_scale_y.scale_max,
-					//																		x_first, y_first, x_last, y_last);
-					
 					// scaling factors to transform to screen coordinates.
 					double scaleX = 100.0 / (axis_scale_x.scale_range);
 					double scaleY = 100.0 / (axis_scale_y.scale_range);
-					//reg_line_lowess[i][j].addExtensions(x_first, y_first,
-					//																		lce->X_srt, lce->YS_srt,
-					//																		x_last, y_last,
-					//																		axis_scale_x.scale_min,
-					//																		axis_scale_y.scale_min,
-					//																		scaleX, scaleY);
-					reg_line_lowess[i][j].reInit(lce->X_srt, lce->YS_srt,
-																			 axis_scale_x.scale_min,
-																			 axis_scale_y.scale_min,
-																			 scaleX, scaleY);
+                    reg_line_lowess[i][j].reInit(lce->X_srt, lce->YS_srt,
+                                                 axis_scale_x.scale_min,
+                                                 axis_scale_y.scale_min,
+                                                 scaleX, scaleY);
 					reg_line_lowess[i][j].setPen(lowess_smth_pen);					
 					LOG_MSG("End populating LOWESS curve");
 				}
@@ -663,7 +643,7 @@ void ConditionalScatterPlotCanvas::ShowLowessSmoother(bool display)
 }
 
 void ConditionalScatterPlotCanvas::ChangeLoessParams(double f, int iter, 
-																										 double delta_factor)
+                                                     double delta_factor)
 {
 	EmptyLowessCache();
 	lowess.SetF(f);

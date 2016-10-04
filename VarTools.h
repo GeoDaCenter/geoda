@@ -172,11 +172,11 @@ private:
 	int OffsetFromMinSyncedTm(int var);
 	
 	struct Entry {
-		Entry(const wxString& name, int time,
-					bool is_time_variant, bool sync_with_global_time,
-					bool fixed_scale,
-					const std::vector<double>& min_vals,
-					const std::vector<double>& max_vals);
+        Entry(const wxString& name, int time,
+              bool is_time_variant, bool sync_with_global_time,
+              bool fixed_scale,
+              const std::vector<double>& min_vals,
+              const std::vector<double>& max_vals);
 		Entry(const Entry& e);
 		virtual Entry& operator=(const Entry& s);
 		
