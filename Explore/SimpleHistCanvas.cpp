@@ -55,34 +55,35 @@ const double SimpleHistCanvas::interval_width_const = 10;
 const double SimpleHistCanvas::interval_gap_const = 0;
 
 SimpleHistCanvas::SimpleHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
-																	 Project* project,
-																	 HLStateInt* hl_state_int,
-																	 const std::vector<double>& X_,
-																	 const wxString& Xname_,
-																	 double Xmin_, double Xmax_,
-																	 bool show_axes_,
-																	 const wxPoint& pos,
-																	 const wxSize& size)
+                                   Project* project,
+                                   HLStateInt* hl_state_int,
+                                   const std::vector<double>& X_,
+                                   const std::vector<bool>& X_undef_,
+                                   const wxString& Xname_,
+                                   double Xmin_, double Xmax_,
+                                   bool show_axes_,
+                                   const wxPoint& pos,
+                                   const wxSize& size)
 : TemplateCanvas(parent, t_frame, project, hl_state_int,
 								 pos, size, false, true),
-X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
+X(X_), X_undef(X_undef_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
 x_axis(0), y_axis(0), display_stats(false), show_axes(show_axes_),
-data_sorted(X.size()), obs_id_to_ival(X.size())
+obs_id_to_ival(X.size())
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering SimpleHistCanvas::SimpleHistCanvas");
 	
 	for (size_t i=0, sz=X.size(); i<sz; i++) {
-			data_sorted[i].first = X[i];
-			data_sorted[i].second = i;
+        if (X_undef[i])
+            continue;
+        data_sorted.push_back(std::make_pair(X[i], i));
 	}
-	std::sort(data_sorted.begin(), data_sorted.end(),
-						Gda::dbl_int_pair_cmp_less);
+	std::sort(data_sorted.begin(), data_sorted.end(),Gda::dbl_int_pair_cmp_less);
 	
 	data_stats.CalculateFromSample(data_sorted);
 	hinge_stats.CalculateHingeStats(data_sorted);
 	
-	int num_obs = X.size();
+	int num_obs = data_sorted.size();
 	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
 	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
 	if (num_obs > 49) {
@@ -185,8 +186,9 @@ void SimpleHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 			if ((pointsel && rec->pointWithin(sel1)) ||
 					(rect_sel &&
-					 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
-																			 lower_left, upper_right)))
+					 GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                 rec->upper_right,
+                                                 lower_left, upper_right)))
 			{
 				any_selected = true;
 				break;
@@ -202,10 +204,9 @@ void SimpleHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	for (int i=0; i<total_sel_shps; i++) {
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-										 (rect_sel &&
-											GenGeomAlgs::RectsIntersect(rec->lower_left,
-																									rec->upper_right,
-																									lower_left, upper_right)));
+                         (rect_sel && GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                                  rec->upper_right,
+                                                                  lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
 		if (pointsel && all_sel && selected) {
 			// unselect all in ival
@@ -256,9 +257,9 @@ void SimpleHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		double s = (((double) ival_obs_sel_cnt[i]) /
 								((double) ival_obs_cnt[i]));
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
-										 rec->upper_right.x - rec->lower_left.x,
-										 (rec->upper_right.y - rec->lower_left.y)*s);
+        dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
+                         rec->upper_right.x - rec->lower_left.x,
+                         (rec->upper_right.y - rec->lower_left.y)*s);
 	}	
 }
 
@@ -302,6 +303,7 @@ void SimpleHistCanvas::InitIntervals()
 	ival_obs_sel_cnt.resize(cur_intervals);
 	ival_to_obs_ids.clear();
 	ival_to_obs_ids.resize(cur_intervals);
+    
 	for (int i=0; i<cur_intervals; i++) {
 		ival_obs_cnt[i] = 0;
 		ival_obs_sel_cnt[i] = 0;
@@ -317,21 +319,27 @@ void SimpleHistCanvas::InitIntervals()
 			max_ival_val += fabs(max_ival_val)/2.0;
 		}
 	}
+    
 	double range = max_ival_val - min_ival_val;
 	double ival_size = range/((double) cur_intervals);
 		
 	for (int i=0; i<cur_intervals-1; i++) {
 		ival_breaks[i] = min_ival_val+ival_size*((double) (i+1));
 	}
-	int num_obs = X.size();
+    
+	int num_obs = data_sorted.size();
 	for (int i=0, cur_ival=0; i<num_obs; i++) {
-		while (cur_ival <= cur_intervals-2 &&
-					 data_sorted[i].first >= ival_breaks[cur_ival])
-		{ cur_ival++; }
-		ival_to_obs_ids[cur_ival].push_front(data_sorted[i].second);
-		obs_id_to_ival[data_sorted[i].second] = cur_ival;
+        double val = data_sorted[i].first;
+        int idx = data_sorted[i].second;
+        
+		while (cur_ival <= cur_intervals-2 && val >= ival_breaks[cur_ival])
+		{
+            cur_ival++;
+        }
+		ival_to_obs_ids[cur_ival].push_front(idx);
+		obs_id_to_ival[idx] = cur_ival;
 		ival_obs_cnt[cur_ival]++;
-		if (hs[data_sorted[i].second]) {
+		if (hs[idx]) {
 			ival_obs_sel_cnt[cur_ival]++;
 		}
 	}
@@ -347,9 +355,6 @@ void SimpleHistCanvas::InitIntervals()
 		overall_max_num_obs_in_ival = max_num_obs_in_ival;
 	}
 
-	LOG_MSG("InitIntervals: ");
-	LOG_MSG(wxString::Format("min_ival_val: %f", min_ival_val));
-	LOG_MSG(wxString::Format("max_ival_val: %f", max_ival_val));
 	for (int i=0; i<cur_intervals; i++) {
 		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d", i, ival_obs_cnt[i]));
 	}
@@ -393,15 +398,12 @@ void SimpleHistCanvas::PopulateCanvas()
 	foreground_shps.clear();
 	
 	double x_min = 0;
-	double x_max = left_pad_const + right_pad_const
-	+ interval_width_const * cur_intervals + 
-	+ interval_gap_const * (cur_intervals-1);
+    double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
 	
 	// orig_x_pos is the center of each histogram bar
 	std::vector<double> orig_x_pos(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-		orig_x_pos[i] = left_pad_const + interval_width_const/2.0
-		+ i * (interval_width_const + interval_gap_const);
+		orig_x_pos[i] = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
 	}
 	
 	shps_orig_xmin = x_min;
@@ -411,9 +413,9 @@ void SimpleHistCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
 		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
-												 wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
-												 -9, 0);
+        y_axis = new GdaAxis("Frequency", axis_scale_y,
+                             wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
+                             -9, 0);
 		background_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val);
@@ -423,7 +425,7 @@ void SimpleHistCanvas::PopulateCanvas()
 		axis_scale_x.scale_min = axis_scale_x.data_min;
 		axis_scale_x.scale_max = axis_scale_x.data_max;
 		double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
-		LOG(axis_scale_x.data_max);
+        
 		axis_scale_x.scale_range = range;
 		axis_scale_x.p = floor(log10(range));
 		axis_scale_x.ticks = cur_intervals+1;
@@ -434,7 +436,7 @@ void SimpleHistCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-			LOG(axis_scale_x.tics[i]);
+            
 			std::ostringstream ss;
 			ss << std::setprecision(3) << axis_scale_x.tics[i];
 			axis_scale_x.tics_str[i] = ss.str();
@@ -465,11 +467,11 @@ void SimpleHistCanvas::PopulateCanvas()
 		vals[3] << "% of total";
 		vals[4] << "sd from mean";
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
-		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-													wxRealPoint(0, 0), GdaShapeText::h_center,
-													GdaShapeText::top,
-													GdaShapeText::right, GdaShapeText::v_center,
-													3, 10, -62, 53+y_d);
+        s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+                              wxRealPoint(0, 0), GdaShapeText::h_center,
+                              GdaShapeText::top,
+                              GdaShapeText::right, GdaShapeText::v_center,
+                              3, 10, -62, 53+y_d);
 		background_shps.push_back(s);
 		{
 			wxClientDC dc(this);
@@ -497,12 +499,12 @@ void SimpleHistCanvas::PopulateCanvas()
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
 			
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
-			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-														wxRealPoint(orig_x_pos[i], 0),
-														GdaShapeText::h_center, GdaShapeText::top,
-														GdaShapeText::h_center, GdaShapeText::v_center,
-														3, 10, 0,
-														53+y_d);
+            s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
+                                  wxRealPoint(orig_x_pos[i], 0),
+                                  GdaShapeText::h_center, GdaShapeText::top,
+                                  GdaShapeText::h_center, GdaShapeText::v_center,
+                                  3, 10, 0,
+                                  53+y_d);
 			background_shps.push_back(s);
 		}
 		
@@ -514,10 +516,10 @@ void SimpleHistCanvas::PopulateCanvas()
 		sts << ", s.d.: " << data_stats.sd_with_bessel;
 		sts << ", #obs: " << X.size();
 		
-		s = new GdaShapeText(sts, *GdaConst::small_font,
-												 wxRealPoint(shps_orig_xmax/2.0, 0), 0,
-												 GdaShapeText::h_center, GdaShapeText::v_center, 0,
-												 table_h + 70 + y_d); //145+y_d);
+        s = new GdaShapeText(sts, *GdaConst::small_font,
+                             wxRealPoint(shps_orig_xmax/2.0, 0), 0,
+                             GdaShapeText::h_center, GdaShapeText::v_center, 0,
+                             table_h + 70 + y_d); //145+y_d);
 		background_shps.push_back(s);
 	}
 	
@@ -543,8 +545,8 @@ void SimpleHistCanvas::PopulateCanvas()
 		double x1 = orig_x_pos[i] + interval_width_const/2.0;
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
-																					wxRealPoint(x1, y1));
+        selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
+                                              wxRealPoint(x1, y1));
 		int sz = GdaConst::qualitative_colors.size();
 		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
 		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);

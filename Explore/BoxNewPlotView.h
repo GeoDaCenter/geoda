@@ -31,6 +31,7 @@
 class BoxPlotCanvas;
 class BoxPlotFrame;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class BoxPlotCanvas : public TemplateCanvas {
 	DECLARE_CLASS(BoxPlotCanvas)	
@@ -82,6 +83,7 @@ protected:
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<HingeStats> hinge_stats;
 	std::vector<SampleStatistics> data_stats;

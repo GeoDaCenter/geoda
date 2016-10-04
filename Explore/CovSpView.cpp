@@ -361,10 +361,6 @@ void CovSpFrame::UpdatePanel()
 	if (!panel || !bag_szr) return;
 	template_canvas = 0;
 	int num_vars = var_man.GetVarsCount();
-	LOG(num_vars);
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CovSpFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
@@ -373,11 +369,6 @@ void CovSpFrame::UpdatePanel()
 		message_win = 0;
 	}
 	bag_szr->Clear();
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
-	LOG(bag_szr->GetEffectiveRowsCount());
-	LOG(bag_szr->GetEffectiveColsCount());
 	panel_v_szr->Remove(bag_szr); // bag_szr is deleted automatically
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	if (scatt_plot) {
@@ -386,20 +377,25 @@ void CovSpFrame::UpdatePanel()
 	}
 	scatt_plot = 0;
 	if (vert_label) vert_label->Destroy();
+    
 	vert_label = 0;
 	if (horiz_label) horiz_label->Destroy();
+    
 	horiz_label = 0;
 	wxString z_err_msg;
+    
 	if (!too_many_obs) {
 		if (var_man.GetVarsCount() > 0) z_err_msg = Z_error_msg[var_man.GetTime(0)];
 	}
+    
 	bool z_var_good = false;
 	if (!too_many_obs) {
 		z_var_good = (var_man.GetVarsCount() > 0 && z_err_msg.IsEmpty());
 	}
+    
 	if (too_many_obs || var_man.GetVarsCount() <= 0 || !z_var_good) {
-		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-																	 wxSize(200,-1));
+		message_win = new wxHtmlWindow(panel, wxID_ANY,
+                                       wxDefaultPosition,wxSize(200,-1));
 		message_win->Bind(wxEVT_MOTION, &CovSpFrame::OnMouseEvent, this);
 		UpdateMessageWin();
 		bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
@@ -421,13 +417,14 @@ void CovSpFrame::UpdatePanel()
 			wxString z_tm_str = table_int->GetTimeString(z_tm);
 			SimpleAxisCanvas* sa_can = 0;
 			{
-				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-											Zprod[z_tm],
-											z_title,
-											Zprod_min[z_tm], Zprod_max[z_tm], false,
-											show_outside_titles, false,
-											true, true, -1, false, false, 0, false,
-											wxDefaultPosition, wxSize(50, -1));
+                sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
+                                              Zprod[z_tm],
+                                              Zprod_undef[z_tm],
+                                              z_title,
+                                              Zprod_min[z_tm], Zprod_max[z_tm], false,
+                                              show_outside_titles, false,
+                                              true, true, -1, false, false, 0, false,
+                                              wxDefaultPosition, wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 				vert_label = sa_can;
 			}
@@ -440,12 +437,12 @@ void CovSpFrame::UpdatePanel()
 						y_title << " (Arc in kms)";
 					}
 				}
-				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-											D, "Distance",
-											D_min, D_max, true,
-											show_outside_titles, true,
-											true, true, -1, false, false, 0, false,
-											wxDefaultPosition, wxSize(-1, 50));
+                sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
+                                              D, Zprod_undef[z_tm], "Distance",
+                                              D_min, D_max, true,
+                                              show_outside_titles, true,
+                                              true, true, -1, false, false, 0, false,
+                                              wxDefaultPosition, wxSize(-1, 50));
 				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
 										 wxEXPAND);
 				horiz_label = sa_can;

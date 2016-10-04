@@ -32,11 +32,27 @@ class Project;
 class SimpleAxisCanvas : public TemplateCanvas
 {
 	DECLARE_CLASS(SimpleAxisCanvas)
+    SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
+                     HLStateInt* hl_state_int,
+                     const std::vector<double>& X,
+                     const wxString& Xname,
+                     double Xmin, double Xmax,
+                     bool horizontal_orientation, // if false then vert
+                     bool show_axes = true,
+                     bool hide_negative_labels = false,
+                     bool add_auto_padding_min = true,
+                     bool add_auto_padding_max = true,
+                     int number_ticks = -1, // -1 for default
+                     bool force_tick_at_min = false,
+                     bool force_tick_at_max = false,
+                     AxisScale* custom_axis_scale = 0, // overrides many params
+                     bool is_standardized = false,
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
 	SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
 					 HLStateInt* hl_state_int,
 					 const std::vector<double>& X,
-					 //const std::vector<double>& X_undefs,
-                     
+					 const std::vector<bool>& X_undefs,
 					 const wxString& Xname,
 					 double Xmin, double Xmax,
 					 bool horizontal_orientation, // if false then vert

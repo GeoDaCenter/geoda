@@ -64,32 +64,38 @@ const double BoxPlotCanvas::plot_gap_const = 20;
  to support multiple variables */
 
 BoxPlotCanvas::BoxPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project_s,
-								   const std::vector<GdaVarTools::VarInfo>& v_info,
-								   const std::vector<int>& col_ids,
-								   const wxPoint& pos, const wxSize& size)
+                             Project* project_s,
+                             const std::vector<GdaVarTools::VarInfo>& v_info,
+                             const std::vector<int>& col_ids,
+                             const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, false, true),
 var_info(v_info), num_obs(project_s->GetNumRecords()),
-num_time_vals(1), data(v_info.size()),
+num_time_vals(1), data(v_info.size()), data_undef(v_info.size()),
 vert_axis(0), display_stats(false), show_axes(true),
 hinge_15(true)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering BoxPlotCanvas::BoxPlotCanvas");
 	TableInterface* table_int = project->GetTableInt();
-	
-	sel_scratch.resize(num_obs);
+    
 	table_int->GetColData(col_ids[0], data[0]);
+	table_int->GetColUndefined(col_ids[0], data_undef[0]);
 	int data0_times = data[0].shape()[0];
+    
+    
+	sel_scratch.resize(num_obs);
 	hinge_stats.resize(data0_times);
 	data_stats.resize(data0_times);
 	data_sorted.resize(data0_times);
+    
 	for (int t=0; t<data0_times; t++) {
-		data_sorted[t].resize(num_obs);
+        
 		for (int i=0; i<num_obs; i++) {
-			data_sorted[t][i].first = data[0][t][i];
-			data_sorted[t][i].second = i;
+            if (data_undef[0][t][i])
+                continue;
+            double val = data[0][t][i];
+            data_sorted[t].push_back(std::make_pair(val,i));
 		}
 		std::sort(data_sorted[t].begin(), data_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
@@ -102,6 +108,7 @@ hinge_15(true)
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}	
 
+    // no more than 100 plots
 	max_plots = GenUtils::min<int>(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
 								   project->GetTableInt()->GetTimeSteps() : 1);
 	cur_num_plots = max_plots;
@@ -253,7 +260,9 @@ void BoxPlotCanvas::DetermineMouseHoverObjects()
 	total_hover_obs = 0;
 	const double r2 = GdaConst::my_point_click_radius;
 	
-	for (int i=0; i<num_obs; i++) sel_scratch[i] = false;
+	for (int i=0; i<num_obs; i++)
+        sel_scratch[i] = false;
+    
 	for (int t=0; t<cur_num_plots; t++) {
 		for (int i=0; i<num_obs; i++) {
 			sel_scratch[i] = sel_scratch[i] ||
@@ -262,7 +271,8 @@ void BoxPlotCanvas::DetermineMouseHoverObjects()
 		}
 	}
 	for (int i=0; i<num_obs && total_hover_obs<max_hover_obs; i++) {
-		if (sel_scratch[i]) hover_obs[total_hover_obs++] = i;
+		if (sel_scratch[i])
+            hover_obs[total_hover_obs++] = i;
 	}
 }
 
@@ -276,7 +286,8 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
 	
-	for (int i=0; i<num_obs; i++) sel_scratch[i] = false;
+	for (int i=0; i<num_obs; i++)
+        sel_scratch[i] = false;
 	
 	if (pointsel) { // a point selection
 		for (int t=0; t<cur_num_plots; t++) {
@@ -328,22 +339,29 @@ void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	LOG_MSG("In BoxPlotCanvas::DrawSelectableShapes");
 	int radius = GdaConst::my_point_click_radius;
+   
+    int ind_base = 0;
+    
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
+        
+        int data_size = data_sorted[t].size();
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
-		int ind_base = (t-cur_first_ind)*num_obs;
+       
+        
+        
 		dc.SetPen(selectable_fill_color);
 		dc.SetBrush(*wxWHITE_BRUSH);
 		for (int i=0; i<min_IQR; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		for (int i=max_IQR+1; i<num_obs; i++) {
+		for (int i=max_IQR+1; i<data_size; i++) {
 			int ind = ind_base + data_sorted[t][i].second;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
 		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_t = GenUtils::min<double>(max_IQR, data_size-1);
 		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
 		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
@@ -353,6 +371,8 @@ void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 							 rec->upper_right.x - rec->lower_left.x,
 							 rec->upper_right.y - rec->lower_left.y);
 		}
+        
+        ind_base += data_size;
 	}	
 }
 
@@ -362,32 +382,41 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	
 	dc.SetBrush(highlight_color);
+   
+    int ind_base = 0;
+    
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
+        
+        int data_size = data_sorted[t].size();
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
-		int ind_base = (t-cur_first_ind)*num_obs;
+        
 		dc.SetPen(*wxRED_PEN);
 		for (int i=0; i<min_IQR; i++) {
-			if (!hs[data_sorted[t][i].second]) continue;
+			if (!hs[data_sorted[t][i].second])
+                continue;
 			int ind = ind_base + data_sorted[t][i].second;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		for (int i=max_IQR+1; i<num_obs; i++) {
-			if (!hs[data_sorted[t][i].second]) continue;
+		for (int i=max_IQR+1; i<data_size; i++) {
+			if (!hs[data_sorted[t][i].second])
+                continue;
 			int ind = ind_base + data_sorted[t][i].second;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
 		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_t = GenUtils::min<double>(max_IQR, data_size-1);
 		dc.SetPen(highlight_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
-			if (!hs[data_sorted[t][i].second]) continue;
+			if (!hs[data_sorted[t][i].second])
+                continue;
 			int ind = ind_base + data_sorted[t][i].second;
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[ind];
 			dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 							 rec->upper_right.x - rec->lower_left.x,
 							 rec->upper_right.y - rec->lower_left.y);
 		}
+        ind_base += data_size;
 	}
 }
 
@@ -555,8 +584,15 @@ void BoxPlotCanvas::PopulateCanvas()
 		orig_x_pos[t-cur_first_ind] = left_pad_const + plot_width_const/2.0
 		+ (t-cur_first_ind) * (plot_width_const + plot_gap_const);
 	}
-	
-	selectable_shps.resize(num_obs * cur_num_plots);
+
+    int shp_size = 0;
+	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
+        shp_size += data_sorted[t].size();
+    }
+	selectable_shps.resize(shp_size);
+   
+    int ind_base = 0;
+    
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
 		double xM = orig_x_pos[t-cur_first_ind];
 		double x0r = xM - plot_width_const/2.2;
@@ -624,26 +660,20 @@ void BoxPlotCanvas::PopulateCanvas()
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 18);
 		background_shps.push_back(s);
 		
+        int data_size = data_sorted[t].size();
+        
 		for (int i=0; i<hinge_stats[t].min_IQR_ind; i++) {
 			double val = data_sorted[t][i].first;
-			int ind = (t-cur_first_ind)*num_obs + data_sorted[t][i].second;
-			//LOG_MSG(wxString::Format("data_sorted[%d][%d].first = %f", t, i,
-			//						 data_sorted[t][i].first));
+			int ind = ind_base + data_sorted[t][i].second;
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
 			selectable_shps[ind]->setPen(selectable_fill_color);
 			selectable_shps[ind]->setBrush(*wxWHITE_BRUSH);
 		}
-		for (int i=hinge_stats[t].max_IQR_ind+1; i<num_obs; i++) {
+       
+		for (int i=hinge_stats[t].max_IQR_ind+1; i<data_size; i++) {
 			double val = data_sorted[t][i].first;
-			int ind = (t-cur_first_ind)*num_obs + data_sorted[t][i].second;
-			//if (i<hinge_stats[t].max_IQR_ind+10) {
-			//	LOG_MSG(wxString::Format("data_sorted[%d][%d].first = %f", t, i,
-			//						 data_sorted[t][i].first));
-			//	selectable_shps[ind] =
-			//		new GdaPoint(orig_x_pos[t-cur_first_ind] + 5,
-			//					(val-y_min)*scaleY);
-			//} else {
+			int ind = ind_base + data_sorted[t][i].second;
 			selectable_shps[ind] =
 				new GdaPoint(orig_x_pos[t-cur_first_ind], (val-y_min) * scaleY);
 			selectable_shps[ind]->setPen(selectable_fill_color);
@@ -651,8 +681,7 @@ void BoxPlotCanvas::PopulateCanvas()
 			//}
 		}
 		if (hinge_stats[t].min_IQR_ind == hinge_stats[t].max_IQR_ind) {
-			int ind = ((t-cur_first_ind)*num_obs +
-					   data_sorted[t][hinge_stats[t].min_IQR_ind].second);
+			int ind = ind_base + data_sorted[t][hinge_stats[t].min_IQR_ind].second;
 			double y0 = (hinge_stats[t].Q1 - y_min) * scaleY;
 			double y1 = (hinge_stats[t].Q3 - y_min) * scaleY;
 			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
@@ -663,7 +692,7 @@ void BoxPlotCanvas::PopulateCanvas()
 			int minIQR = hinge_stats[t].min_IQR_ind;
 			int maxIQR = hinge_stats[t].max_IQR_ind;
 
-			int ind = (t-cur_first_ind)*num_obs + data_sorted[t][minIQR].second;
+			int ind = ind_base + data_sorted[t][minIQR].second;
 			double y0 = (hinge_stats[t].Q1 - y_min) * scaleY;
 			double y1;
 			if (minIQR > -1) {
@@ -674,12 +703,11 @@ void BoxPlotCanvas::PopulateCanvas()
 			}
 			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 												   wxRealPoint(x1r, y1));
-			//selectable_shps[ind]->pen = *wxGREEN_PEN;
-			//selectable_shps[ind]->brush = *wxGREEN_BRUSH;
 			selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
 			selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
-			ind = (t-cur_first_ind)*num_obs + data_sorted[t][maxIQR].second;
-			if (maxIQR < num_obs) {
+			ind = ind_base + data_sorted[t][maxIQR].second;
+            
+			if (maxIQR < data_size) {
 				y0 = (((data_sorted[t][maxIQR].first +
 						data_sorted[t][maxIQR-1].first)/2.0) - y_min)*scaleY;
 			} else {
@@ -688,17 +716,12 @@ void BoxPlotCanvas::PopulateCanvas()
 			y1 = (hinge_stats[t].Q3 - y_min) * scaleY;
 			selectable_shps[ind] = new GdaRectangle(wxRealPoint(x0r, y0),
 												   wxRealPoint(x1r, y1));
-			//selectable_shps[ind]->pen = *wxCYAN_PEN;
-			//selectable_shps[ind]->brush = *wxCYAN_BRUSH;
 			selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
 			selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
-			//LOG(data_sorted[t][maxIQR].first);
-			//LOG(data_sorted[t][maxIQR-1].first);
-			//LOG(hinge_stats[t].Q3);
-			//LOG(maxIQR);
 			
 			for (int i=minIQR+1; i<maxIQR; i++) {
-				ind = (t-cur_first_ind)*num_obs + data_sorted[t][i].second;
+				ind = ind_base + data_sorted[t][i].second;
+                
 				y0 = (((data_sorted[t][i].first +
 						data_sorted[t][i-1].first)/2.0) - y_min)*scaleY;
 				y1 = (((data_sorted[t][i].first +
@@ -707,15 +730,9 @@ void BoxPlotCanvas::PopulateCanvas()
 													   wxRealPoint(x1r, y1));
 				selectable_shps[ind]->setPen(GdaConst::boxplot_q1q2q3_color);
 				selectable_shps[ind]->setBrush(GdaConst::boxplot_q1q2q3_color);
-				//if (ind % 2 == 0) {
-				//	selectable_shps[ind]->pen = *wxBLUE_PEN;
-				//	selectable_shps[ind]->brush = *wxBLUE_BRUSH;
-				//} else {
-				//	selectable_shps[ind]->pen = *wxRED_PEN;
-				//	selectable_shps[ind]->brush = *wxRED_BRUSH;
-				//}
 			}
 		}
+        ind_base += data_size;
 	}
 	
 	ResizeSelectableShps();

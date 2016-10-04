@@ -424,7 +424,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			{
 				sa_can = new SimpleAxisCanvas(panel, this, project, 
 											  local_hl_state,
-											  Y, title, y_min, y_max,
+											  Y, Y_undef, title, y_min, y_max,
 											  false, // is horizontal ?
 											  true, // show axes
 											  false, // hide negative labels

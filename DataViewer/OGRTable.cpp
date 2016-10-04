@@ -856,16 +856,26 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
 		int col_idx = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 		if (col_idx != -1) {
             vector<double> data(rows, 0);
-            columns[col_idx]->FillData(data);
-            tmp_min_val = data[0];
-            tmp_max_val = data[0];
+            vector<bool> undef(rows, false);
+            columns[col_idx]->FillData(data, undef);
+            
+            bool has_init = false;
             
 			for (size_t i=0; i<rows; ++i) {
+                if (undef[i])
+                    continue;
+                
 				tmp = data[i];
-                if (i > 0) {
-                    if ( tmp_min_val > tmp ) tmp_min_val = tmp;
-                    if ( tmp_max_val < tmp ) tmp_max_val = tmp;
+                
+                if (!has_init) {
+                    has_init = true;
+                    tmp_min_val = tmp;
+                    tmp_max_val = tmp;
+                    continue;
                 }
+                
+                if ( tmp_min_val > tmp ) tmp_min_val = tmp;
+                if ( tmp_max_val < tmp ) tmp_max_val = tmp;
 			}
             min_vals.push_back(tmp_min_val);
             max_vals.push_back(tmp_max_val);

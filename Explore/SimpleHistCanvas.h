@@ -37,13 +37,14 @@ class SimpleHistCanvas : public TemplateCanvas
 {
 public:
 	DECLARE_CLASS(SimpleHistCanvas)
-	SimpleHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
-									 Project* project, HLStateInt* hl_state_int,
-									 const std::vector<double>& X,
-									 const wxString& Xname, double Xmin, double Xmax,
-									 bool show_axes = false,
-									 const wxPoint& pos = wxDefaultPosition,
-									 const wxSize& size = wxDefaultSize);
+    SimpleHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                     Project* project, HLStateInt* hl_state_int,
+                     const std::vector<double>& X,
+                     const std::vector<bool>& X_undef,
+                     const wxString& Xname, double Xmin, double Xmax,
+                     bool show_axes = false,
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
 	virtual ~SimpleHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
@@ -53,7 +54,7 @@ public:
 	virtual void FixedScaleVariableToggle(int var_index);
 	
 	virtual void UpdateSelection(bool shiftdown = false,
-															 bool pointsel = false);
+                                 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
@@ -70,6 +71,7 @@ protected:
 	virtual void UpdateStatusBar();
 	
 	const std::vector<double>& X;
+	const std::vector<bool>& X_undef;
 	wxString Xname;
 	// used for scaling, so can be smaller/larger than min/max in X
 	double Xmin, Xmax; 

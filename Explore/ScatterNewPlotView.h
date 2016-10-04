@@ -177,9 +177,7 @@ protected:
 	std::vector<double> X;
 	std::vector<double> Y;
 	std::vector<double> Z;
-	std::vector<bool> X_undef;
-	std::vector<bool> Y_undef;
-	std::vector<bool> Z_undef;
+	std::vector<bool> XYZ_undef;
     
     
     std::vector<bool> undef;

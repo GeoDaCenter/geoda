@@ -38,10 +38,55 @@ BEGIN_EVENT_TABLE(SimpleAxisCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                   Project* project,
+                                   HLStateInt* hl_state_int,
+                                   const std::vector<double>& X_,
+                                   const wxString& Xname_,
+                                   double Xmin_, double Xmax_,
+                                   bool horiz_orient_,
+                                   bool show_axes_,
+                                   bool hide_negative_labels_,
+                                   bool add_auto_padding_min_,
+                                   bool add_auto_padding_max_,
+                                   int number_ticks_,
+                                   bool force_tick_at_min_,
+                                   bool force_tick_at_max_,
+                                   AxisScale* custom_axis_scale_,
+                                   bool is_standardized_,
+                                   const wxPoint& pos,
+                                   const wxSize& size)
+: TemplateCanvas(parent, t_frame, project, hl_state_int,
+                 pos, size, false, true),
+horiz_orient(horiz_orient_), show_axes(show_axes_),
+hide_negative_labels(hide_negative_labels_),
+add_auto_padding_min(add_auto_padding_min_),
+add_auto_padding_max(add_auto_padding_max_),
+number_ticks(number_ticks_),
+force_tick_at_min(force_tick_at_min_),
+force_tick_at_max(force_tick_at_max_),
+custom_axis_scale(custom_axis_scale_),
+X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
+is_standardized(is_standardized_)
+{
+    
+	shps_orig_xmin = 0;
+	shps_orig_ymin = 0;
+	shps_orig_xmax = 100;
+	shps_orig_ymax = 100;
+	UpdateMargins();
+	
+	use_category_brushes = false;
+	
+	PopulateCanvas();
+	ResizeSelectableShps();
+	
+	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+}
+SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 Project* project,
 								 HLStateInt* hl_state_int,
 								 const std::vector<double>& X_,
-								 //const std::vector<double>& X_undefs_,
+								 const std::vector<bool>& X_undefs_,
 								 const wxString& Xname_,
 								 double Xmin_, double Xmax_,
 								 bool horiz_orient_,
@@ -66,7 +111,7 @@ number_ticks(number_ticks_),
 force_tick_at_min(force_tick_at_min_),
 force_tick_at_max(force_tick_at_max_),
 custom_axis_scale(custom_axis_scale_),
-X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
+X(X_), X_undefs(X_undefs_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
 is_standardized(is_standardized_)
 {
 	LOG_MSG("Entering SimpleAxisCanvas::SimpleAxisCanvas");
@@ -137,16 +182,17 @@ void SimpleAxisCanvas::PopulateCanvas()
 									0, 0,
 									&current_shps_width, &current_shps_height);
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
-	LOG(current_shps_width);
-	LOG(current_shps_height);
 	
 	// Recall: Xmin/max can be smaller/larger than min/max in X
 	//    if X are particular time-slices of time-variant variables and
 	//    if global scaling is being used.
 	double x_min = Xmin;
 	double x_max = Xmax;
-	
-	statsX = SampleStatistics(X);
+
+    if (X_undefs.empty())
+        statsX = SampleStatistics(X);
+    else
+        statsX = SampleStatistics(X, X_undefs);
 	
     if (is_standardized) {
         for (int i=0, iend=X.size(); i<iend; i++) {
@@ -154,7 +200,10 @@ void SimpleAxisCanvas::PopulateCanvas()
         }
 		x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
 		x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
-		statsX = SampleStatistics(X);
+        if (X_undefs.empty())
+            statsX = SampleStatistics(X);
+        else
+            statsX = SampleStatistics(X, X_undefs);
 		// mean shold be 0 and biased standard deviation should be 1
 		double eps = 0.000001;
 		if (-eps < statsX.mean && statsX.mean < eps)
@@ -162,16 +211,14 @@ void SimpleAxisCanvas::PopulateCanvas()
     }
     
 	if (custom_axis_scale) {
-        
 		axis_scale_x = *custom_axis_scale;
+        
 	} else {
 		double x_pad = 0.1 * (x_max - x_min);
 		axis_scale_x = AxisScale(x_min - (add_auto_padding_min ? x_pad : 0.0),
 								 x_max + (add_auto_padding_max ? x_pad : 0.0),
 								 (number_ticks < 0 ? 4 : number_ticks) );
 	}
-	
-	LOG_MSG(wxString(axis_scale_x.ToString().c_str(), wxConvUTF8));
 	
 	// create axes
 	if (horiz_orient) {

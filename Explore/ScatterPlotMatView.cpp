@@ -267,10 +267,12 @@ void ScatterPlotMatFrame::OnViewStandardizedData(wxCommandEvent& event)
         scatt_plots[i]->ViewStandardizedData(view_standardized_data);
     }
 	for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
-		if (vert_labels[i]) vert_labels[i]->ViewStandardizedData(view_standardized_data);
+		if (vert_labels[i])
+            vert_labels[i]->ViewStandardizedData(view_standardized_data);
 	}
 	for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
-		if (horiz_labels[i]) horiz_labels[i]->ViewStandardizedData(view_standardized_data);
+		if (horiz_labels[i])
+            horiz_labels[i]->ViewStandardizedData(view_standardized_data);
 	}
     UpdateOptionMenuItems();
 }
@@ -499,13 +501,31 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
             
             wxString row_title(var_man.GetNameWithTime(row));
 			const vector<double>& Y(data_map[row_nm][row_tm]);
-            const vector<bool>& Y_undef(data_undef_map[row_nm][row_tm]);
+            vector<bool> XY_undef(data_undef_map[row_nm][row_tm]);
+            
+            // get XY_undef
+            for (int col=0; col<num_vars; ++col) {
+                if (col == row) {
+                    continue;
+                }
+                wxString col_nm(var_man.GetName(col));
+                int col_tm(var_man.GetTime(col));
+                
+                if (data_map[row_nm].size() == 1)
+                    col_tm = 0;
+                
+                const vector<bool>& X_undef(data_undef_map[col_nm][col_tm]);
+                for (size_t ii=0; ii<X_undef.size(); ii++) {
+                    XY_undef[ii] = XY_undef[ii] || X_undef[ii];
+                }
+            }
+            
             double row_min;
             double row_max;
             
             bool has_init = false;
             for (size_t i=0; i<Y.size(); i++ ) {
-                if (Y_undef[i])
+                if (XY_undef[i])
                     continue;
                 if (!has_init) {
                     row_min = Y[i];
@@ -522,7 +542,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 			{
                 sa_can = new SimpleAxisCanvas(panel, this, project,
                                               project->GetHighlightState(),
-                                              Y, row_title,
+                                              Y, XY_undef, row_title,
                                               row_min, row_max, false,
                                               show_outside_titles, false,
                                               true, true, -1, false, false, 0,
@@ -534,7 +554,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 			{
                 sa_can = new SimpleAxisCanvas(panel, this, project,
                                               project->GetHighlightState(),
-                                              Y, row_title,
+                                              Y, XY_undef, row_title,
                                               row_min, row_max, true,
                                               show_outside_titles, false,
                                               true, true, -1, false, false, 0,
@@ -546,7 +566,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 			}
 			SimpleHistCanvas* sh_can = 0;
             sh_can = new SimpleHistCanvas(panel, this, project,
-                                          project->GetHighlightState(), Y,
+                                          project->GetHighlightState(),
+                                          Y, XY_undef,
                                           row_title,
                                           row_min, row_max,
                                           !show_outside_titles);
@@ -566,13 +587,12 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 				wxString col_title(var_man.GetNameWithTime(col));
                 
 				const vector<double>& X(data_map[col_nm][col_tm]);
-                const vector<bool>& X_undef(data_undef_map[col_nm][col_tm]);
                 double col_min;
                 double col_max;
                 bool has_init = false;
                 
                 for (size_t i=0; i<X.size(); i++ ) {
-                    if (X_undef[i])
+                    if (XY_undef[i])
                         continue;
                     if (!has_init) {
                         col_min = X[i];
@@ -588,7 +608,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
                                                      project->GetHighlightState(), 0,
-                                                     X, Y, X_undef, Y_undef,
+                                                     X, Y, XY_undef, XY_undef,
                                                      col_title, row_title,
                                                      col_min, col_max,
                                                      row_min, row_max,

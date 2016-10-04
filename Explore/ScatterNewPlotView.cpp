@@ -44,7 +44,8 @@
 #include "ScatterNewPlotView.h"
 
 
-BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption )
+BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
+                                          const wxString & caption )
 : wxDialog( NULL, -1, caption, wxDefaultPosition, wxDefaultSize)
 {
     canvas = _canvas;
@@ -61,9 +62,11 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const w
     slider = new wxSlider(this, XRCID("ID_BUBBLE_SLIDER"), int(pos), -95, 80,
                           wxDefaultPosition, wxSize(200, -1),
                           wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"small"), 0, wxALIGN_CENTER_VERTICAL|wxALL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"small"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
     subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"large"), 0,wxALIGN_CENTER_VERTICAL|wxALL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"large"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);
     resetBtn = new wxButton(this, XRCID("ID_RESET"), wxT("Reset"), wxDefaultPosition, wxSize(100, -1));
@@ -537,7 +540,7 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
-        SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+        SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
                                          statsX, statsY, regressionXY,
                                          highlight_state->GetHighlight(),
                                          statsXselected, statsYselected,
@@ -844,33 +847,46 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	int xt = var_info[0].time-var_info[0].time_min;
 	int yt = var_info[1].time-var_info[1].time_min;
 
-    X_undef.resize(num_obs);
-    Y_undef.resize(num_obs);
+    // for undefined values, we have to search [min max] for both axies
+    double x_max, x_min, y_max, y_min;
+    bool has_init = false;
+    
+    XYZ_undef.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
 		X[i] = x_data[xt][i];
 		Y[i] = y_data[yt][i];
-		X_undef[i] = x_undef_data[xt][i];
-		Y_undef[i] = y_undef_data[yt][i];
+		XYZ_undef[i] = x_undef_data[xt][i] ||y_undef_data[yt][i];
+        if (!XYZ_undef[i]) {
+            if (!has_init) {
+                x_max = X[i];
+                x_min = X[i];
+                y_max = Y[i];
+                y_min = Y[i];
+                has_init = true;
+            } else {
+                if (X[i] > x_max)
+                    x_max = X[i];
+                if (X[i] < x_min)
+                    x_min = X[i];
+                if (Y[i] > y_max)
+                    y_max = Y[i];
+                if (Y[i] < y_min)
+                    y_min = Y[i];
+            }
+        }
 	}
 	if (is_bubble_plot) {
-        Z_undef.resize(num_obs);
 		int zt = var_info[2].time-var_info[2].time_min;
 		for (int i=0; i<num_obs; i++) {
 			Z[i] = z_data[zt][i];
-            Z_undef[i] = z_undef_data[zt][i];
+            XYZ_undef[i] = XYZ_undef[i] || z_undef_data[zt][i];
 		}
 	}
 	
-	// global scaling only supported for non-standardized values at this time
-	double x_max = var_info[0].max_over_time;
-	double x_min = var_info[0].min_over_time;
-	double y_max = var_info[1].max_over_time;
-	double y_min = var_info[1].min_over_time;
-    
-	statsX = SampleStatistics(X, X_undef);
-	statsY = SampleStatistics(Y, Y_undef);
+	statsX = SampleStatistics(X, XYZ_undef);
+	statsY = SampleStatistics(Y, XYZ_undef);
     if (is_bubble_plot) {
-        statsZ = SampleStatistics(Z, Z_undef);
+        statsZ = SampleStatistics(Z, XYZ_undef);
     }
     
     if (standardized) {
@@ -887,10 +903,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
         y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
         y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
         
-        statsX = SampleStatistics(X, X_undef);
-        statsY = SampleStatistics(Y, Y_undef);
+        statsX = SampleStatistics(X, XYZ_undef);
+        statsY = SampleStatistics(Y, XYZ_undef);
         if (is_bubble_plot) {
-            statsZ = SampleStatistics(Z, Z_undef);
+            statsZ = SampleStatistics(Z, XYZ_undef);
         }
         
         // mean shold be 0 and biased standard deviation should be 1
@@ -906,16 +922,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
         }
     }
 
-    if ( !X_undef.empty() && !Y_undef.empty()) {
-        regressionXY = SimpleLinearRegression(X, Y, X_undef, Y_undef,
-                                              statsX.mean, statsY.mean,
-                                              statsX.var_without_bessel,
-                                              statsY.var_without_bessel);
-    } else {
-        regressionXY = SimpleLinearRegression(X, Y, statsX.mean, statsY.mean,
-                                              statsX.var_without_bessel,
-                                              statsY.var_without_bessel);
-    }
+    regressionXY = SimpleLinearRegression(X, Y, XYZ_undef, XYZ_undef,
+                                          statsX.mean, statsY.mean,
+                                          statsX.var_without_bessel,
+                                          statsY.var_without_bessel);
 	
     
 	sse_c = regressionXY.error_sum_squares;
@@ -962,14 +972,14 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		if (statsZ.max-statsZ.min <= 0.00000001 ||
 			statsZ.var_without_bessel == 0) {
 			for (int i=0; i<num_obs; i++) {
-                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+                selectable_shps_undefs[i] = XYZ_undef[i];
 				pt.x = (X[i] - axis_scale_x.scale_min) * scaleX;
 				pt.y = (Y[i] - axis_scale_y.scale_min) * scaleY;
 				selectable_shps[i] = new GdaCircle(pt, rad_mn * bubble_size_scaler);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
-                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i] || Z_undef[i];
+                selectable_shps_undefs[i] = XYZ_undef[i];
 				double z = (Z[i] - statsZ.mean)/statsZ.sd_without_bessel;
 				double area_z = (a*z + b) + min_area + area_sd;
                 if (area_z < min_area) {
@@ -984,7 +994,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	} else {
 		selectable_shps_type = points;
 		for (int i=0; i<num_obs; i++) {
-            if ( X_undef[i] == true || Y_undef[i] == true ) {
+            if ( XYZ_undef[i] ) {
                 selectable_shps_undefs[i] = true;
             } else {
                 selectable_shps_undefs[i] = false;
@@ -1076,7 +1086,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
 		// update both selected and excluded stats
-        SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+        SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
                                          statsX, statsY, regressionXY,
                                          highlight_state->GetHighlight(),
                                          statsXselected, statsYselected,
@@ -1432,7 +1442,7 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			PopulateCanvas();
 		} else {
 			show_reg_selected = true;
-            SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+            SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
                                              statsX, statsY, regressionXY,
                                              highlight_state->GetHighlight(),
                                              statsXselected, statsYselected,
@@ -1502,7 +1512,7 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			changed = UpdateDisplayLinesAndMargins();
 			PopulateCanvas();
 		} else {
-            SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+            SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
                                              statsX, statsY, regressionXY,
                                              highlight_state->GetHighlight(),
                                              statsXselected, statsYselected,

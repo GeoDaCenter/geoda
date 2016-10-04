@@ -467,7 +467,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
                      GdaConst::scatterplot_regression_excluded_color);
 	
 	statsX = SampleStatistics(X, X_undef, Y_undef);
-	statsY = SampleStatistics(Y, Y_undef, Y_undef);
+	statsY = SampleStatistics(Y, Y_undef, X_undef);
     
     if (view_standardized_data) {
         for (int i=0, iend=X.size(); i<iend; i++) {

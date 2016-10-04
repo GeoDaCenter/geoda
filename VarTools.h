@@ -204,6 +204,7 @@ struct VarInfo {
 	int time; // current time, always between time_min and time_max
 	std::vector<double> min; // min values for each time
 	std::vector<double> max; // max values for each time
+	std::vector<bool> has_undef; // max values for each time
 	/* Keep synchronized with reference time.
 	 * This only applies to time-variant variables.
 	 * If false for a time-variant variable, then that variable
