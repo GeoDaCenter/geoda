@@ -466,7 +466,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			
+			image.ClearAlpha();
 			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}			
@@ -484,7 +484,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			
+			image.ClearAlpha();
 			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}

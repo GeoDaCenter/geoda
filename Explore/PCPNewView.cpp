@@ -52,15 +52,16 @@ BEGIN_EVENT_TABLE(PCPCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 PCPCanvas::PCPCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project_s,
-								   const std::vector<GdaVarTools::VarInfo>& v_info,
-								   const std::vector<int>& col_ids,
-								   const wxPoint& pos, const wxSize& size)
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, false, true),
 var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), num_vars(v_info.size()),
-data(v_info.size()), custom_classif_state(0),
+data(v_info.size()), data_undef(v_info.size()),
+custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
@@ -68,34 +69,48 @@ num_categories(6), all_init(false)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering PCPCanvas::PCPCanvas");
+    
 	TableInterface* table_int = project->GetTableInt();
-
-	LOG(var_info.size());
-	
-	//std::vector< std::vector<Gda::dbl_int_pair_vec_type> > data_sorted;
-	//std::vector< std::vector<HingeStats> > hinge_stats;
-	//data_sorted.resize(v_info.size());
-	//hinge_stats.resize(v_info.size());
-	data_stats.resize(v_info.size());
-	
-	std::vector<double> temp_vec(num_obs);
+	data_stats.resize(num_vars);
+  
+    // get undefined and filter data by undefined if needed
+    int max_ts = 1;
+	for (int v=0; v<num_vars; v++) {
+        table_int->GetColUndefined(col_ids[v], data_undef[v]);
+        int ts = data_undef[v].shape()[0];
+        if (ts > max_ts)
+            max_ts = ts;
+    }
+    undef_markers.resize(max_ts);
+    
+    for (int t=0; t<max_ts; t++) {
+        undef_markers[t].resize(num_obs, false);
+        
+        for (int i=0; i<num_obs; i++) {
+            for (int v=0; v<num_vars; v++) {
+                int ts = data_undef[v].shape()[0];
+                if ( t < ts) 
+                    undef_markers[t][i] = undef_markers[t][i] ||
+                                          data_undef[v][t][i];
+            }
+        }
+    }
+   
+    // get statistics for each variable (times)
 	for (int v=0; v<num_vars; v++) {
 		table_int->GetColData(col_ids[v], data[v]);
+        table_int->GetColUndefined(col_ids[v], data_undef[v]);
 		int data_times = data[v].shape()[0];
 		data_stats[v].resize(data_times);
-		//hinge_stats[v].resize(data_times);
-		//data_sorted[v].resize(data_times);
+        
+        std::vector<double> temp_vec;
+        
 		for (int t=0; t<data_times; t++) {
-			//data_sorted[v][t].resize(num_obs);
 			for (int i=0; i<num_obs; i++) {
-				temp_vec[i] = data[v][t][i];
-				//data_sorted[v][t][i].first = data[v][t][i];
-				//data_sorted[v][t][i].second = i;
+                // only use valid data for stats
+                if (undef_markers[t][i] == false)
+                    temp_vec.push_back(data[v][t][i]);
 			}
-			//std::sort(data_sorted[v][t].begin(),
-			//		  data_sorted[v][t].end(),
-			//		  Gda::dbl_int_pair_cmp_less);
-			//hinge_stats[v][t].CalculateHingeStats(data_sorted[v][t]);
 			data_stats[v][t].CalculateFromSample(temp_vec);
 			double min = data_stats[v][t].min;
 			double max = data_stats[v][t].max;
@@ -126,22 +141,13 @@ num_categories(6), all_init(false)
 	control_circs.resize(num_vars);
 	control_lines.resize(num_vars);
 	var_order.resize(num_vars);
-	for (int v=0; v<num_vars; v++) var_order[v] = v;
-	
-	/*
-	for (int v=0; v<num_vars; v++) {
-		int data_times = data[v].shape()[0];
-		for (int t=0; t<data_times; t++) {
-			for (int i=0; i<num_obs; i++) {
-				LOG(data[v][t][i]);
-			}
-		}
-	}
-	 */
-	
+    
+    for (int v=0; v<num_vars; v++) {
+        var_order[v] = v;
+    }
+    
 	selectable_fill_color = GdaConst::pcp_line_color;
 	highlight_color = GdaConst::highlight_color;
-	//highlight_color = wxColour(68, 244, 136); // light mint green
 	
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = true;
@@ -149,22 +155,7 @@ num_categories(6), all_init(false)
 	
     ChangeThemeType(CatClassification::no_theme, 6);
 	
-	/*
-	VarInfoAttributeChange();
-	CreateCategoriesAllCanvasTms(1, num_time_vals); // 1 = #cats
-	for (int t=0; t<num_time_vals; t++) {
-		SetCategoryColor(t, 0, selectable_fill_color);
-		for (int i=0; i<num_obs; i++) AppendIdToCategory(t, 0, i);
-	}
-	if (ref_var_index != -1) {
-		SetCurrentCanvasTmStep(var_info[ref_var_index].time
-							   - var_info[ref_var_index].time_min);
-	}
-	PopulateCanvas();
-	*/
-	
 	all_init = true;
-	
 	DisplayStatistics(true);
 	
 	highlight_state->registerObserver(this);
@@ -215,17 +206,6 @@ void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 	}
 
-	/*
-	wxMenu* menu2 = new wxMenu(wxEmptyString);
-	if (var_info[0].is_time_variant) {
-		wxString s;
-		s << "Fixed scale over time";
-		wxMenuItem* mi =
-		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
-	}
-	 */
-		
 	//menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
     menu->AppendSeparator();
     menu->Append(wxID_ANY, "Time Variable Options", menu1,
@@ -610,16 +590,23 @@ void PCPCanvas::PopulateCanvas()
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 	
 	selectable_shps.resize(num_obs);
+    selectable_shps_undefs.resize(num_obs);
 	
 	GdaShape* s = 0;
 	wxRealPoint* pts = new wxRealPoint[num_vars];
 	double std_fact = 1;
 	if (overall_abs_max_std_exists) std_fact = 100.0/(2.0*overall_abs_max_std);
 	double nvf = 100.0/((double) (num_vars-1));
+    
 	for (int i=0; i<num_obs; i++) {
+        bool valid_line = true;
 		for (int v=0; v<num_vars; v++) {
 			int vv = var_order[v];
 			int t = var_info[vv].time;
+            
+            if (undef_markers[t][i])
+                valid_line = false;
+            
 			double min = data_stats[vv][t].min;
 			double max = data_stats[vv][t].max;
 			if (min == max) {
@@ -637,7 +624,8 @@ void PCPCanvas::PopulateCanvas()
 			}
 			pts[v].y = 100.0-(nvf*((double) v));
 		}
-		selectable_shps[i] = new GdaPolyLine(num_vars, pts);
+        selectable_shps_undefs[i] = valid_line;
+        selectable_shps[i] = new GdaPolyLine(num_vars, pts);
 	}
 	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
 	control_line_pen.SetWidth(2);
