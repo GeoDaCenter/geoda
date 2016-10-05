@@ -56,8 +56,8 @@ PCPCanvas::PCPCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      const std::vector<GdaVarTools::VarInfo>& v_info,
                      const std::vector<int>& col_ids,
                      const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, false, true),
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, false, true),
 var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), num_vars(v_info.size()),
 data(v_info.size()), data_undef(v_info.size()),
@@ -209,7 +209,7 @@ void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	//menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
     menu->AppendSeparator();
     menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+                 "Time Variable Options");
 }
 
 void PCPCanvas::SetCheckMarks(wxMenu* menu)
@@ -477,10 +477,10 @@ void PCPCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
-void PCPCanvas::ChangeThemeType(
-						CatClassification::CatClassifType new_cat_theme,
-						int num_categories_s,
-						const wxString& custom_classif_title)
+void
+PCPCanvas::ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
+                           int num_categories_s,
+                           const wxString& custom_classif_title)
 {
 	num_categories = num_categories_s;
 	
@@ -624,7 +624,7 @@ void PCPCanvas::PopulateCanvas()
 			}
 			pts[v].y = 100.0-(nvf*((double) v));
 		}
-        selectable_shps_undefs[i] = valid_line;
+        selectable_shps_undefs[i] = !valid_line;
         selectable_shps[i] = new GdaPolyLine(num_vars, pts);
 	}
 	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
@@ -647,9 +647,9 @@ void PCPCanvas::PopulateCanvas()
 		s->setBrush(*wxWHITE_BRUSH);
 		background_shps.push_back(s);
 		control_circs[v] = (GdaCircle*) s;
-		s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
-					   wxRealPoint(0, y_pos), 0, GdaShapeText::right,
-					   GdaShapeText::v_center, -25, 0+y_del);
+        s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
+                             wxRealPoint(0, y_pos), 0, GdaShapeText::right,
+                             GdaShapeText::v_center, -25, 0+y_del);
 		background_shps.push_back(s);
 		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
