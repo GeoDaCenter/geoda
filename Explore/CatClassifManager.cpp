@@ -131,9 +131,13 @@ void CatClassifManager::update(TableState* o)
 														  col, tm);
 				if (!found) continue;
 				std::vector<double> v;
+                std::vector<bool> v_undef;
 				table_int->GetColData(col, tm, v);
+                table_int->GetColUndefined(col, tm, v_undef);
+                
 				int num_obs = table_int->GetNumberRows();
 				Gda::dbl_int_pair_vec_type data(num_obs);
+                
 				for (int ii=0; ii<num_obs; ++ii) {
 					data[ii].first = v[ii];
 					data[ii].second = ii;
@@ -141,7 +145,7 @@ void CatClassifManager::update(TableState* o)
 				std::sort(data.begin(), data.end(), Gda::dbl_int_pair_cmp_less);
 				CatClassifDef _cc = cc;
 				CatClassification::SetBreakPoints(_cc.breaks, _cc.names, data,
-												  _cc.cat_classif_type,
+												  v_undef, _cc.cat_classif_type,
 												  _cc.num_cats);
 				if (_cc != cc) {
 					cc = cc;

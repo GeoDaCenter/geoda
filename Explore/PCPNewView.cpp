@@ -420,12 +420,17 @@ void PCPCanvas::NewCustomCatClassif()
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+        std::vector<bool> var_undefs(num_obs, false);
+        
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[theme_var].is_time_variant ? t : 0;
-			cat_var_sorted[i].first = 
-				data[theme_var][tm+var_info[theme_var].time_min][i];
+            int ts = tm+var_info[theme_var].time_min;
+            
+			cat_var_sorted[i].first = data[theme_var][ts][i];
 			cat_var_sorted[i].second = i;
+            
+            var_undefs[i] = var_undefs[i] || data_undef[theme_var][ts][i];
 		}
 		 // only sort data with valid data
 		if (cats_valid[var_info[theme_var].time]) {
@@ -439,6 +444,7 @@ void PCPCanvas::NewCustomCatClassif()
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted,
+                                          var_undefs,
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();

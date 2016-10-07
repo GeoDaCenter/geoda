@@ -79,6 +79,8 @@ protected:
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    std::vector<std::vector<bool> > cat_var_undef;
+    
 	std::vector<bool> map_valid;
 	std::vector<wxString> map_error_message;
 	

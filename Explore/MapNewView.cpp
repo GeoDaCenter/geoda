@@ -780,6 +780,8 @@ void MapCanvas::OnSaveCategories()
 void MapCanvas::NewCustomCatClassif()
 {
 	// Begin by asking for a variable if none yet chosen
+    std::vector<std::vector<bool> > var_undefs(num_time_vals);
+    
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
 		if (dlg.ShowModal() != wxID_OK)
@@ -798,9 +800,13 @@ void MapCanvas::NewCustomCatClassif()
         
 		for (int t=0; t<num_time_vals; t++) {
 			cat_var_sorted[t].resize(num_obs);
+            var_undefs[t].resize(num_obs);
+            
 			for (int i=0; i<num_obs; i++) {
-				cat_var_sorted[t][i].first = data[0][t+var_info[0].time_min][i];
+                int ts = t+var_info[0].time_min;
+				cat_var_sorted[t][i].first = data[0][ts][i];
 				cat_var_sorted[t][i].second = i;
+                var_undefs[t][i] = var_undefs[t][i] || data_undef[0][ts][i];
 			}
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
 					  Gda::dbl_int_pair_cmp_less);
@@ -809,12 +815,14 @@ void MapCanvas::NewCustomCatClassif()
 	
 	// Fully update cat_classif_def fields according to current
 	// categorization state
-	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
+	if (cat_classif_def.cat_classif_type != CatClassification::custom)
+    {
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats, cat_classif_def);
 		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[var_info[0].time],
+                                          var_undefs[var_info[0].time],
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
@@ -832,7 +840,8 @@ void MapCanvas::NewCustomCatClassif()
 	if (!ccf)
         return;
     
-	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name,
+	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
+                                          var_info[0].name,
                                           var_info[0].time);
     
 	if (!ccs)

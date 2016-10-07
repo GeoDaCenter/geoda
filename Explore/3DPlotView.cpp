@@ -56,7 +56,7 @@ C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
 project(project_s), table_int(project_s->GetTableInt()),
 num_obs(project_s->GetTableInt()->GetNumberRows()), num_vars(v_info.size()),
 num_time_vals(1), highlight_state(highlight_state_s), var_info(v_info),
-data(v_info.size()), scaled_d(v_info.size()),
+data(v_info.size()), data_undef(v_info.size()), scaled_d(v_info.size()),
 c3d_plot_frame(t_frame)
 {
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
@@ -67,17 +67,35 @@ c3d_plot_frame(t_frame)
 	var_min.resize(var_info.size());
 	var_max.resize(var_info.size());
 	
-	std::vector<double> temp_vec(num_obs);
+	std::vector<double> temp_vec;
+    
 	for (int v=0; v<num_vars; v++) {
 		table_int->GetColData(col_ids[v], data[v]);
 		table_int->GetColData(col_ids[v], scaled_d[v]);
+		table_int->GetColUndefined(col_ids[v], data_undef[v]);
+    }
+   
+    all_undefs.resize(num_obs, false);
+	for (int v=0; v<num_vars; v++) {
 		int data_times = data[v].shape()[0];
-		data_stats[v].resize(data_times);
 		for (int t=0; t<data_times; t++) {
 			for (int i=0; i<num_obs; i++) {
-				temp_vec[i] = data[v][t][i];
+                all_undefs[i] = all_undefs[i] || data_undef[v][t][i];
+            }
+        }
+        
+    }
+    
+	for (int v=0; v<num_vars; v++) {
+		int data_times = data[v].shape()[0];
+        
+		data_stats[v].resize(data_times);
+        
+		for (int t=0; t<data_times; t++) {
+			for (int i=0; i<num_obs; i++) {
+				temp_vec.push_back(data[v][t][i]);
 			}
-			data_stats[v][t].CalculateFromSample(temp_vec);
+			data_stats[v][t].CalculateFromSample(temp_vec, all_undefs);
 		}
 	}
 	
@@ -172,9 +190,11 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
     /* must always be here */
     wxPaintDC dc(this);
 
-    if (!GetContext()) return;
+    if (!GetContext())
+        return;
 
     SetCurrent();
+    
 
     /* initialize OpenGL */
     if (isInit == false) {
@@ -631,6 +651,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
@@ -643,6 +664,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
@@ -660,6 +682,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for(int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(-1, scaled_d[1][yt][i], scaled_d[2][zt][i]);
@@ -672,6 +695,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(-1, scaled_d[1][yt][i], scaled_d[2][zt][i]);
@@ -687,6 +711,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], -1, scaled_d[2][zt][i]);
@@ -699,6 +724,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], -1, scaled_d[2][zt][i]);
@@ -714,6 +740,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i], -1);
@@ -725,6 +752,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for(int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i], -1);
@@ -981,14 +1009,20 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 void C3DPlotCanvas::UpdateScaledData()
 {
 	for (int v=0; v<num_vars; v++) {
+        
 		int t_min = var_info[v].time_min;
 		int t_max = var_info[v].time_max;
+        
 		double min = data_stats[v][t_min].min;
 		double max = min;
+        
 		for (int t=t_min; t<=t_max; t++) {
-			if (data_stats[v][t].min < min) min = data_stats[v][t].min;
-			if (data_stats[v][t].max > max) max = data_stats[v][t].max;
+			if (data_stats[v][t].min < min)
+                min = data_stats[v][t].min;
+			if (data_stats[v][t].max > max)
+                max = data_stats[v][t].max;
 		}
+        
 		double ctr = (min+max)/2.0;
 		double scale = (max==min) ? 1.0 : 2.0/(max-min);
 		

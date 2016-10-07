@@ -393,6 +393,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 		CatClassification::SetBreakPoints(cat_classif_def_map.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[var_info[CAT_VAR].time],
+                                          cat_var_undef[var_info[CAT_VAR].time],
 										  cat_classif_def_map.cat_classif_type,
 										  cat_classif_def_map.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
@@ -403,12 +404,19 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 	}
 	
 	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
-	if (!ccf) return;
+    
+	if (!ccf)
+        return;
+    
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_map, "",
 										  var_info[CAT_VAR].name,
 										  var_info[CAT_VAR].time);
-	if (!ccs) return;
-	if (cc_state_map) cc_state_map->removeObserver(this);
+	if (!ccs)
+        return;
+    
+	if (cc_state_map)
+        cc_state_map->removeObserver(this);
+    
 	cat_classif_def_map = ccs->GetCatClassif();
 	cc_state_map = ccs;
 	cc_state_map->registerObserver(this);
@@ -1245,16 +1253,20 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_valid[t] = true;
+	for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
 	map_error_message.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_error_message[t] = wxEmptyString;
+    
+	for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
 	
 	//NOTE: cat_var_sorted is sized to current num_time_vals, but
 	// cat_var_sorted_vert and horiz is sized to all available number time
 	// vals.  Perhaps this should be moved into the constructor since
 	// we do not allow smoothing with multiple time variables.
 	cat_var_sorted.resize(num_time_vals);
-    std::vector<std::vector<bool> > cat_var_undef(num_time_vals);
+    cat_var_undef.resize(num_time_vals);
     
 	for (int t=0; t<num_time_vals; t++) {
 		cat_var_sorted[t].resize(num_obs);
@@ -1262,6 +1274,7 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
         
 		int thm_t = (var_info[CAT_VAR].sync_with_global_time ? 
 					 t + var_info[CAT_VAR].time_min : var_info[CAT_VAR].time);
+        
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[CAT_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
@@ -1273,6 +1286,7 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	// Sort each vector in ascending order
 	std::sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
 			  Gda::dbl_int_pair_cmp_less);
+    
 	if (var_info[CAT_VAR].sync_with_global_time) {
 		for (int t=1; t<num_time_vals; t++) {
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),

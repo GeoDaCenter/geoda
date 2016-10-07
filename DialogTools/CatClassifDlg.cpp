@@ -65,12 +65,12 @@ const double CatClassifHistCanvas::interval_width_const = 10;
 const double CatClassifHistCanvas::interval_gap_const = 0;
 
 CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
-								   TemplateFrame* t_frame,
-								   Project* project_s,
-								   const wxPoint& pos,
-                                   const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, false, true),
+                                           TemplateFrame* t_frame,
+                                           Project* project_s,
+                                           const wxPoint& pos,
+                                           const wxSize& size)
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, false, true),
 num_obs(project_s->GetNumRecords()),
 y_axis(0), data(0), default_data(project_s->GetNumRecords()),
 breaks(0), default_breaks(default_intervals-1),
@@ -82,6 +82,7 @@ colors(0), default_colors(default_intervals)
 	cur_intervals = default_intervals;
 	
 	InitUniformData(default_data, default_min, default_max);
+    
 	// equal spacing between default_min and default_max
 	for (int i=0; i<default_intervals-1; i++) {
 		default_breaks[i] = ((double) i+1)/((double) default_intervals);
@@ -202,8 +203,8 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
 						 (rect_sel &&
 						  GenGeomAlgs::RectsIntersect(rec->lower_left,
-												   rec->upper_right,
-												   lower_left, upper_right)));
+                                                      rec->upper_right,
+                                                      lower_left, upper_right)));
 		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
 		if (pointsel && all_sel && selected) {
 			// unselect all in ival
@@ -474,8 +475,7 @@ void CatClassifHistCanvas::InitIntervals()
 	LOG_MSG("InitIntervals: ");
 	LOG_MSG(wxString::Format("max_num_obs_in_ival: %f", max_num_obs_in_ival));
 	for (int i=0; i<cur_intervals; i++) {
-		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d",
-								 i, ival_obs_cnt[i]));
+		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d", i, ival_obs_cnt[i]));
 	}
 }
 
@@ -539,6 +539,7 @@ void CatClassifHistCanvas::InitUniformData(Gda::dbl_int_pair_vec_type& data,
 										   double min, double max)
 {
 	int n_obs=data.size();
+    
 	double dn_obs = (double) n_obs;
 	for (int i=0; i<n_obs; ++i) {
 		double di = (double) i;
@@ -1717,7 +1718,8 @@ void CatClassifPanel::ResetValuesToDefault()
 	
 	cc_data.names.clear();
 	cc_data.break_vals_type = CatClassification::quantile_break_vals;
-	CatClassification::SetBreakPoints(cc_data.breaks, cc_data.names, data,
+	CatClassification::SetBreakPoints(cc_data.breaks, cc_data.names,
+                                      data, data_undef,
 									  CatClassification::quantile,
 									  default_intervals, useScientificNotation);
 	
@@ -1848,6 +1850,8 @@ void CatClassifPanel::InitFromCCData()
 		}
 		std::vector<double> dd;
 		table_int->GetColData(col, tm, dd);
+        table_int->GetColUndefined(col, tm, data_undef);
+        
 		for (int i=0; i<num_obs; i++) {
 			data[i].first = dd[i];
 			data[i].second = i;

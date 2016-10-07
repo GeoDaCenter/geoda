@@ -44,17 +44,27 @@ struct UniqueValElem {
 
 /** clears uv_mapping and resizes as needed */
 void create_unique_val_mapping(std::vector<UniqueValElem>& uv_mapping,
-							   const std::vector<double>&v)
+							   const std::vector<double>& v,
+                               const std::vector<bool>& v_undef)
 {
 	uv_mapping.clear();
-	uv_mapping.push_back(UniqueValElem(v[0], 0, 0));
+	//uv_mapping.push_back(UniqueValElem(v[0], 0, 0));
 	int cur_ind = 0;
+   
 	for (int i=0, iend=v.size(); i<iend; i++) {
-		if (uv_mapping[cur_ind].val != v[i]) {
-			uv_mapping[cur_ind].last = i-1;
+        if (v_undef[i])
+            continue;
+        if (uv_mapping.empty()) {
 			cur_ind++;
 			uv_mapping.push_back(UniqueValElem(v[i], i, i));
-		}
+            continue;
+        } else {
+    		if (uv_mapping[cur_ind].val != v[i]) {
+    			uv_mapping[cur_ind].last = i-1;
+    			cur_ind++;
+    			uv_mapping.push_back(UniqueValElem(v[i], i, i));
+    		}
+        }
 	}
 }
 
@@ -169,12 +179,16 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 									   std::vector<wxString>& cat_labels,
 									   const Gda::dbl_int_pair_vec_type& var,
-									   const CatClassifType theme, int num_cats,
+                                       const std::vector<bool>& var_undef,
+									   const CatClassifType theme,
+                                       int num_cats,
                                        bool useScientificNotation)
 {
 	int num_obs = var.size();
+    
 	if (num_cats < 1)
         num_cats = 1;
+    
 	if (num_cats > 10)
         num_cats = 10;
     
@@ -220,6 +234,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 			}
 		}
 		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+        
 	} else if (theme == percentile) {
 		breaks[0] = Gda::percentile(1, var);
 		breaks[1] = Gda::percentile(10, var);
@@ -245,15 +260,22 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		breaks[4] = stats.mean + 2.0 * stats.sd_with_bessel;
 		
 		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+        
 	} else if (theme == unique_values) {
 		std::vector<double> v(num_obs);
-		for (int i=0; i<num_obs; i++) v[i] = var[i].first;
+		std::vector<bool> v_undef(num_obs);
+        for (int i=0; i<num_obs; i++) {
+            v[i] = var[i].first;
+            int ind = var[i].second;
+            v_undef[i] = var_undef[ind];
+        }
 		std::vector<UniqueValElem> uv_mapping;
-		create_unique_val_mapping(uv_mapping, v);
+		create_unique_val_mapping(uv_mapping, v, v_undef);
+        
 		int num_unique_vals = uv_mapping.size();
 		if (num_unique_vals > 10) {
 			num_cats = 10;
-			FindNaturalBreaks(num_cats, var, breaks);
+			FindNaturalBreaks(num_cats, var, var_undef, breaks);
 		} else {
 			num_cats = num_unique_vals;
 			breaks.resize(num_cats-1);
@@ -266,9 +288,11 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 			}
 		}
 		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+        
 	} else if (theme == natural_breaks) {
-		FindNaturalBreaks(num_cats, var, breaks);
+		FindNaturalBreaks(num_cats, var, var_undef, breaks);
 		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+        
 	} else if (theme == equal_intervals) {
 		double min_val = var[0].first;
 		double max_val = var[0].first;
@@ -419,7 +443,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             if (undef_cnts_tms[t]>0)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
 			
-			hinge_stats[t].CalculateHingeStats(var[t]);
+			hinge_stats[t].CalculateHingeStats(var[t], var_undef[t]);
 			double extreme_lower = hinge_stats[t].extreme_lower_val_15;
 			double extreme_upper = hinge_stats[t].extreme_upper_val_15;
 			if (theme == hinge_30) {
@@ -499,7 +523,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             labels_ext[5] = ss.str();
        
             
-			for (int cat=0; cat<cat_data.categories.size(); cat++) {
+			for (int cat=0; cat<num_cats; cat++) {
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
 				cat_data.SetCategoryLabelExt(t, cat, labels_ext[cat]);
 				cat_data.SetCategoryCount(t, cat,
@@ -674,9 +698,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
                 
 				for (int i=0; i<num_breaks; i++) {
-					breaks[i] = Gda::percentile(((i+1.0)*100.0)/
-												  ((double) num_cats),
-												  var[t]);
+					breaks[i] = Gda::percentile( ((i+1.0)*100.0)/((double) num_cats),
+												  var[t], var_undef[t]);
 				}
 				// Set default cat_min / cat_max values for when
 				// category size is 0
@@ -760,11 +783,11 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 		
             double p_min = DBL_MAX;
             double p_max = -DBL_MAX;
-			double p_1 = Gda::percentile(1, var[t]);
-			double p_10 = Gda::percentile(10, var[t]);
-			double p_50 = Gda::percentile(50, var[t]);
-			double p_90 = Gda::percentile(90, var[t]);
-			double p_99 = Gda::percentile(99, var[t]);
+			double p_1 = Gda::percentile(1, var[t], var_undef[t]);
+			double p_10 = Gda::percentile(10, var[t], var_undef[t]);
+			double p_50 = Gda::percentile(50, var[t], var_undef[t]);
+			double p_90 = Gda::percentile(90, var[t], var_undef[t]);
+			double p_99 = Gda::percentile(99, var[t], var_undef[t]);
 			double val;
 			int ind;
 			for (int i=0, iend=var[t].size(); i<iend; i++) {
@@ -831,7 +854,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 		}
 	} else if (theme == stddev) {
-		std::vector<double> v(num_obs);
+		std::vector<double> v;
 		SampleStatistics stats;
 		cat_data.ResetAllCategoryMinMax();
 		for (int t=0; t<num_time_vals; t++) {
@@ -841,10 +864,13 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             if (undef_cnts_tms[t]>0)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
-            for (int i=0; i<num_obs; i++)
-                v[i] = var[t][i].first;
+            for (int i=0; i<num_obs; i++) {
+                if ( var_undef[t][ var[t][i].second ] )
+                    continue;
+                v.push_back( var[t][i].first );
+            }
             
-			stats.CalculateFromSample(v, var_undef[t]);
+            stats.CalculateFromSample(v);
 			
 			double SDm2 = stats.mean - 2.0 * stats.sd_with_bessel;
 			double SDm1 = stats.mean - 1.0 * stats.sd_with_bessel;
@@ -1171,7 +1197,9 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 												   TableInterface* table_int)
 {
 	LOG_MSG("Entering CatClassification::CorrectCatClassifFromTable");
-	if (!table_int) return false;
+	if (!table_int)
+        return false;
+    
 	int num_obs = table_int->GetNumberRows();
 	CatClassifDef cc;
 	cc = _cc;
@@ -1211,6 +1239,8 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	
 	bool uni_dist_mode = cc.assoc_db_fld_name.IsEmpty();
 	Gda::dbl_int_pair_vec_type data(num_obs);
+    std::vector<bool> data_undef(num_obs, false);
+    
 	if (uni_dist_mode) {
 		// fill data with uniform distribution
 		double delta = ((cc.uniform_dist_max-cc.uniform_dist_min) /
@@ -1220,9 +1250,11 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 			data[i].first = cc.uniform_dist_min + di*delta;
 			data[i].second = i;
 		}
+        
 	} else {
 		std::vector<double> v;
 		table_int->GetColData(col, tm, v);
+        table_int->GetColUndefined(col, tm, data_undef);
 		for (int i=0; i<num_obs; ++i) {
 			data[i].first = v[i];
 			data[i].second = i;
@@ -1241,12 +1273,17 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	}
 	
 	// ensure that num_cats is correct
-	if (cc.num_cats < 1) cc
-		.num_cats = 1;
-	if (cc.num_cats > 10) cc.num_cats = 10;
+	if (cc.num_cats < 1)
+        cc.num_cats = 1;
+    
+	if (cc.num_cats > 10)
+        cc.num_cats = 10;
+    
 	if (cc.cat_classif_type == CatClassification::no_theme ||
-		cc.break_vals_type == CatClassification::no_theme_break_vals) {
+		cc.break_vals_type == CatClassification::no_theme_break_vals)
+    {
 		cc.num_cats = 1;
+        
 	} else if (cc.cat_classif_type == CatClassification::hinge_15 ||
 			   cc.break_vals_type == CatClassification::hinge_15_break_vals ||
 			   cc.cat_classif_type == CatClassification::hinge_30 ||
@@ -1254,17 +1291,28 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 			   cc.cat_classif_type == CatClassification::percentile ||
 			   cc.break_vals_type == CatClassification::percentile_break_vals ||
 			   cc.cat_classif_type == CatClassification::stddev ||
-			   cc.break_vals_type == CatClassification::stddev_break_vals) {
+			   cc.break_vals_type == CatClassification::stddev_break_vals)
+    {
 		cc.num_cats = 6;
+        
 	} else if (cc.cat_classif_type == CatClassification::unique_values ||
-			   cc.break_vals_type == CatClassification::unique_values_break_vals) {
+			   cc.break_vals_type == CatClassification::unique_values_break_vals)
+    {
 		// need to determine number of unique values
 		std::vector<double> v(num_obs);
-		for (int i=0; i<num_obs; i++) v[i] = data[i].first;
+		std::vector<bool> v_undef(num_obs);
+        for (int i=0; i<num_obs; i++) {
+            int ind = data[i].second;
+            v[i] = data[i].first;
+            v_undef[i] = data_undef[ind];
+        }
 		std::vector<UniqueValElem> uv_mapping;
-		create_unique_val_mapping(uv_mapping, v);
+		create_unique_val_mapping(uv_mapping, v, v_undef);
+        
 		int num_unique_vals = uv_mapping.size();
-		if (num_unique_vals > 10) num_unique_vals = 10;
+        if (num_unique_vals > 10) {
+            num_unique_vals = 10;
+        }
 		cc.num_cats = num_unique_vals;
 	}
 	// otherwise the user can choose the number of categories
@@ -1281,8 +1329,10 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		cc.uniform_dist_min = col_min;
 		cc.uniform_dist_max = col_max;
 		for (int i=0, sz=cc.breaks.size(); i<sz; ++i) {
-			if (cc.breaks[i] < col_min) cc.breaks[i] = col_min;
-			if (cc.breaks[i] > col_max) cc.breaks[i] = col_max;
+			if (cc.breaks[i] < col_min)
+                cc.breaks[i] = col_min;
+			if (cc.breaks[i] > col_max)
+                cc.breaks[i] = col_max;
 		}
 	}
 	
@@ -1308,7 +1358,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		if (cc.break_vals_type != CatClassification::by_cat_classif_type) {
 			cct = BreakValsTypeToCatClassifType(cc.break_vals_type);
 		}
-		CatClassification::SetBreakPoints(cc.breaks, cc.names, data, cct, cc.num_cats);
+		CatClassification::SetBreakPoints(cc.breaks, cc.names, data, data_undef, cct, cc.num_cats);
 	}
 	
 	if (cc.color_scheme != CatClassification::custom_color_scheme)
@@ -1320,11 +1370,11 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	
 	bool changed = false;
 	if (cc != _cc) {
-		LOG_MSG("Categories definition modified");
-		LOG_MSG("\nOriginal:");
-		LOG_MSG(_cc.ToStr());
-		LOG_MSG("\nModified:");
-		LOG_MSG(cc.ToStr());
+		//LOG_MSG("Categories definition modified");
+		//LOG_MSG("\nOriginal:");
+		//LOG_MSG(_cc.ToStr());
+		//LOG_MSG("\nModified:");
+		//LOG_MSG(cc.ToStr());
 		_cc = cc;
 		changed = true;
 	}
@@ -1333,32 +1383,53 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 }
 
 void CatClassification::FindNaturalBreaks(int num_cats,
-						const Gda::dbl_int_pair_vec_type& var,
-						std::vector<double>& nat_breaks)
+                                          const Gda::dbl_int_pair_vec_type& var,
+                                          const std::vector<bool>& var_undef,
+                                          std::vector<double>& nat_breaks)
 {
 	int num_obs = var.size();
 	std::vector<double> v(num_obs);
-	for (int i=0; i<num_obs; i++) v[i] = var[i].first;
+	std::vector<bool> v_undef(num_obs);
+    
+    for (int i=0; i<num_obs; i++) {
+        v[i] = var[i].first;
+        int ind = var[i].second;
+        v_undef[i] = var_undef[ind];
+    }
 	// if there are fewer unique values than number of categories,
 	// we will automatically reduce the number of categories to the
 	// number of unique values.
 	
 	std::vector<UniqueValElem> uv_mapping;
-	create_unique_val_mapping(uv_mapping, v);
+	create_unique_val_mapping(uv_mapping, v, v_undef);
 	int num_unique_vals = uv_mapping.size();
 	int t_cats = GenUtils::min<int>(num_unique_vals, num_cats);
 	
 	double mean = 0;
-	for (int i=0; i<num_obs; i++) mean += v[i];
-	mean /= (double) num_obs;
+    int valid_obs = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (v_undef[i]) {
+            continue;
+        }
+        valid_obs += 1;
+        mean += v[i];
+    }
+	mean /= (double) valid_obs;
+    
 	double gssd = 0;
-	for (int i=0; i<num_obs; i++) gssd += (v[i]-mean)*(v[i]-mean);			
+    for (int i=0; i<num_obs; i++) {
+        if (v_undef[i]) {
+            continue;
+        }
+        gssd += (v[i]-mean)*(v[i]-mean);
+    }
 	
 	std::vector<int> rand_b(t_cats-1);
 	std::vector<int> best_breaks(t_cats-1);
 	std::vector<int> uv_rand_b(t_cats-1);
 	double max_gvf_found = 0;
 	int max_gvf_ind = 0;
+    
 	// for 5000 permutations, 2200 obs, and 4 time periods, slow enough
 	// make sure permutations is such that this total is not exceeded.
 	double c = 5000*2200*4;
@@ -1377,26 +1448,27 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 			best_breaks = rand_b;
 		}
 	}
-	LOG(perms);
-	LOG(max_gvf_ind);
-	LOG(max_gvf_found);
+    
 	nat_breaks.resize(best_breaks.size());
 	for (int i=0, iend=best_breaks.size(); i<iend; i++) {
 		nat_breaks[i] = var[best_breaks[i]].first;
 	}
 }
 	
-void CatClassification::SetNaturalBreaksCats(int num_cats,
-					const std::vector<Gda::dbl_int_pair_vec_type>& var,
-                                            const std::vector<std::vector<bool> >& var_undef,
-                                             
-					CatClassifData& cat_data, std::vector<bool>& cats_valid,
-					CatClassification::ColorScheme coltype)
+void
+CatClassification::
+SetNaturalBreaksCats(int num_cats,
+                     const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                     const std::vector<std::vector<bool> >& var_undef,
+                     CatClassifData& cat_data, std::vector<bool>& cats_valid,
+                     CatClassification::ColorScheme coltype)
 {
 	int num_time_vals = var.size();
 	int num_obs = var[0].size();
+    
 	// user supplied number of categories
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    
 	// if there are fewer unique values than number of categories,
 	// we will automatically reduce the number of categories to the
 	// number of unique values.
@@ -1410,16 +1482,20 @@ void CatClassification::SetNaturalBreaksCats(int num_cats,
         }
     }
     
-	std::vector<double> v(num_obs);
 	for (int t=0; t<num_time_vals; t++) {
-		for (int i=0; i<num_obs; i++)
-            v[i] = var[t][i].first;
+        std::vector<double> v(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            double val = var[t][i].first;
+            int ind = var[t][i].second;
+            v[ind] = val;
+        }
         
 		if (!cats_valid[t])
             continue;
         
 		std::vector<UniqueValElem> uv_mapping;
-		create_unique_val_mapping(uv_mapping, v);
+		create_unique_val_mapping(uv_mapping, v, var_undef[t]);
         
 		int num_unique_vals = uv_mapping.size();
 		int t_cats = GenUtils::min<int>(num_unique_vals, num_cats);

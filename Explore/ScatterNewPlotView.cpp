@@ -638,13 +638,18 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
         
 		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+        std::vector<bool> var_undefs(num_obs, false);
         
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[3].is_time_variant ? t : 0;
-			cat_var_sorted[i].first =  data[3][tm+var_info[3].time_min][i];
+            int ts = tm+var_info[3].time_min;
+			cat_var_sorted[i].first =  data[3][ts][i];
 			cat_var_sorted[i].second = i;
+            
+            var_undefs[i] = var_undefs[i] || undef_data[3][ts][i];
 		}
+        
 		if (cats_valid[var_info[0].time]) { // only sort data with valid data
 			std::sort(cat_var_sorted.begin(), cat_var_sorted.end(),
 					  Gda::dbl_int_pair_cmp_less);
@@ -656,6 +661,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted,
+                                          var_undefs,
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();

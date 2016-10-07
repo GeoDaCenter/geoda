@@ -108,6 +108,9 @@ protected:
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
+    std::vector<std::vector<bool> > var_undefs;
+    
 	//std::vector<b_array_type> data_undef;
     
 	bool is_any_time_variant;

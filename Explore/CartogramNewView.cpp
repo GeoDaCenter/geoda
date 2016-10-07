@@ -101,7 +101,10 @@ CartogramNewCanvas::CartogramNewCanvas(wxWindow *parent,
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, true, true),
 num_obs(project_s->GetNumRecords()), num_time_vals(1), num_categories(6),
-custom_classif_state(0), data(v_info.size()), var_info(v_info),
+custom_classif_state(0),
+data(v_info.size()),
+data_undef(v_info.size()),
+var_info(v_info),
 table_int(project_s->GetTableInt()), gal_weight(0),
 full_map_redraw_needed(true),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
@@ -119,6 +122,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	for (size_t i=0; i<var_info.size(); i++) {
 		template_frame->AddGroupDependancy(var_info[i].name);
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], data_undef[i]);
 	}
 	
 	for (size_t i=0; i<var_info.size(); i++) {
@@ -142,6 +146,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 						  project->GetTableInt()->GetTimeSteps() : 1);
 	carts.resize(num_cart_times);
 	num_improvement_iters.resize(num_cart_times);
+    
 	for (int t=0; t<num_cart_times; t++) {
 		table_int->GetColData(col_ids[RAD_VAR], t, orig_data);
 		carts[t] = new DorlingCartogram(cart_nbr_info, orig_x,
@@ -150,6 +155,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 										var_info[RAD_VAR].max_over_time);
 		num_improvement_iters[t] = 0;
 	}
+    
 	// get timing for single iteration
 	int cur_cart_ts = var_info[RAD_VAR].time;
 	int iter_ms = carts[cur_cart_ts]->improve(1);
@@ -161,12 +167,13 @@ improve_table(6), realtime_updates(false), all_init(false)
 	secs_per_iter = carts[cur_cart_ts]->secs_per_iter;
 	LOG(secs_per_iter);
 	num_cpus = wxThread::GetCPUCount();
-	if (num_cpus < 1) num_cpus = 1;
-	LOG(num_cpus);
+	if (num_cpus < 1)
+        num_cpus = 1;
 	
 	// only improve across all time periods if a single iteration of
 	// the Cartogram takes less than 1 second.
-	if (iter_ms < 1000) ImproveAll(2, 200);
+	if (iter_ms < 1000)
+        ImproveAll(2, 200);
 	UpdateImproveLevelTable();
 	
 	// experiment with outlines that are just slightly brighter than
@@ -513,6 +520,7 @@ void CartogramNewCanvas::NewCustomCatClassif()
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[tht],
+                                          var_undefs[tht],
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
@@ -728,6 +736,8 @@ void CartogramNewCanvas::VarInfoAttributeChange()
 void CartogramNewCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
+    var_undefs.clear();
+    
 	map_valid.resize(num_time_vals);
 	for (int t=0; t<num_time_vals; t++)
         map_valid[t] = true;
@@ -759,12 +769,11 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	// Everything below assumes that GetCcType() != no_theme
 	// We assume data has been initialized to correct data
 	// for all time periods.
-    std::vector<std::vector<bool> > cat_var_undef;
-	
+    var_undefs.resize(num_time_vals);
 	cat_var_sorted.resize(num_time_vals);
+    
 	for (int t=0; t<num_time_vals; t++) {
-        std::vector<bool> undefs(num_obs, false);
-        
+        var_undefs[t].resize(num_obs);
 		cat_var_sorted[t].resize(num_obs);
 		int thm_t = (var_info[THM_VAR].sync_with_global_time ? 
 					 t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
@@ -772,14 +781,14 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 			cat_var_sorted[t][i].first = data[THM_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
             
-            //undefs[i] = undefs[i] ||
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[THM_VAR][thm_t][i];
 		}
-        cat_var_undef.push_back(undefs);
 	}
 	
 	// Sort each vector in ascending order
 	std::sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
 			  Gda::dbl_int_pair_cmp_less);
+    
 	if (var_info[THM_VAR].sync_with_global_time) {
 		for (int t=1; t<num_time_vals; t++) {
 			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
@@ -799,7 +808,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
-                                              cat_var_undef,
+                                              var_undefs,
 											  cat_data, map_valid,
 											  map_error_message,
                                               this->useScientificNotation);

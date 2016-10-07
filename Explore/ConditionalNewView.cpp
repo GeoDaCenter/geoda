@@ -503,6 +503,7 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 		CatClassification::SetBreakPoints(cat_classif_def_vert.breaks,
 										  temp_cat_labels,
 										  vert_var_sorted[var_info[var_id].time],
+                                          var_undef[ var_info[var_id].time ],
 										  cat_classif_def_vert.cat_classif_type,
 										  cat_classif_def_vert.num_cats);
 		int time = vert_cat_data.GetCurrentCanvasTmStep();
@@ -550,6 +551,7 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 		CatClassification::SetBreakPoints(cat_classif_def_horiz.breaks,
 										  temp_cat_labels,
 										  horiz_var_sorted[var_info[var_id].time],
+                                          var_undef[ var_info[var_id].time ],
 										  cat_classif_def_horiz.cat_classif_type,
 										  cat_classif_def_horiz.num_cats);
 		int time = horiz_cat_data.GetCurrentCanvasTmStep();

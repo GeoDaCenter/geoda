@@ -269,6 +269,7 @@ private:
 	
 	int num_obs;
 	Gda::dbl_int_pair_vec_type data;
+    std::vector<bool> data_undef;
 	CatClassifDef cc_data;
 	Gda::dbl_int_pair_vec_type preview_data;
 	

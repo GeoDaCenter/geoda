@@ -170,7 +170,9 @@ namespace Gda {
 	// Assumes that input vector v is sorted in ascending order.
 	// Duplicate values are allowed.
 	double percentile(double x, const std::vector<double>& v);
-	double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
+    double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
+	double percentile(double x, const Gda::dbl_int_pair_vec_type& v,
+                      const std::vector<bool>& undefs);
 }
 
 struct SampleStatistics {

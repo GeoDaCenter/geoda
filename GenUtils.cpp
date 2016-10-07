@@ -242,18 +242,40 @@ double Gda::percentile(double x, const std::vector<double>& v)
 }
 
 // Same assumptions as above
+double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v,
+                       const std::vector<bool>& undefs)
+{
+    std::vector<double> valid_data;
+    for (size_t i = 0; i<v.size(); i++ ) {
+        double val = v[i].first;
+        int ind = v[i].second;
+        
+        if (undefs[ind])
+            continue;
+        
+        valid_data.push_back(val);
+    }
+    return percentile(x, valid_data);
+}
+
+// Same assumptions as above
 double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 {
 	int N = v.size();
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
-	if (x <= p_0) return v[0].first;
-	if (x >= p_Nm1) return v[N-1].first;
+    
+	if (x <= p_0)
+        return v[0].first;
+    
+	if (x >= p_Nm1)
+        return v[N-1].first;
 	
 	for (int i=1; i<N; i++) {
 		double p_i = (100.0/Nd) * ((((double) i)+1.0)-0.5);
-		if (x == p_i) return v[i].first;
+		if (x == p_i)
+            return v[i].first;
 		if (x < p_i) {
 			double p_im1 = (100.0/Nd) * ((((double) i))-0.5);
 			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first
