@@ -301,6 +301,16 @@ SampleStatistics::SampleStatistics(const std::vector<double>& data,
 	CalculateFromSample(valid_data);
 }
 
+void SampleStatistics::CalculateFromSample(const std::vector<double>& data,
+                                           const std::vector<bool>& undefs)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs[i] == false)
+            valid_data.push_back(data[i]);
+    }
+    CalculateFromSample(valid_data);
+}
 void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 {
 	sample_size = data.size();

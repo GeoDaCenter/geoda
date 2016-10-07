@@ -79,6 +79,7 @@ namespace CatClassification {
 						   std::vector<double>& nat_breaks);
 	void SetNaturalBreaksCats(int num_cats,
 				const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                              const std::vector<std::vector<bool> >& var_undef,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
 				ColorScheme coltype=CatClassification::sequential_color_scheme);
 	
@@ -167,7 +168,7 @@ struct CatClassifData {
 	// For views that display data from two or more variables such as
 	// Scatter Plot, there may be fewer canvas time steps than global time
 	// steps.
-    void AppendUndefCategory(int time, const std::vector<int> undef_ids);
+    void AppendUndefCategory(int time, int count);
 	void CreateEmptyCategories(int num_canvas_tms, int num_obs);
 	void CreateCategoriesAllCanvasTms(int num_cats, int num_canvas_tms,
 									  int num_obs);
