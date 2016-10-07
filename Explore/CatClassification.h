@@ -66,6 +66,7 @@ namespace CatClassification {
 	
 	void PopulateCatClassifData(const CatClassifDef& cat_def,
 				const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                                const std::vector<std::vector<bool> >& var_undef,
 				CatClassifData& cat_data, std::vector<bool>& cats_valid,
 				std::vector<wxString>& cats_error_message,
                 bool useSciNotation=false);
@@ -165,7 +166,8 @@ struct CatClassifData {
 	// Note: Canvas Time Steps might not correspond to global time steps.
 	// For views that display data from two or more variables such as
 	// Scatter Plot, there may be fewer canvas time steps than global time
-	// steps.	
+	// steps.
+    void AppendUndefCategory(int time, const std::vector<int> undef_ids);
 	void CreateEmptyCategories(int num_canvas_tms, int num_obs);
 	void CreateCategoriesAllCanvasTms(int num_cats, int num_canvas_tms,
 									  int num_obs);

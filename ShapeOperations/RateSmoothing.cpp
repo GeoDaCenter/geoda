@@ -26,14 +26,20 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 								  const double* E, double* results,
 								  std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
+	//if (undefined.size() != obs) undefined.resize(obs);
+	//for (int i=0; i<obs; i++) undefined[i] = false;
 	
 	double	sP=0.0, sE=0.0;
 	double* p = new double[obs];
 	int i = 0;
+    
 	// compute pi, the rate i, and the pop. rate b_hat
 	for (i=0; i<obs; i++) {
+        if (undefined[i]) {
+            p[i] = 0;
+            continue;
+        }
+        
 		if (P[i] == 0.0) {
 			undefined[i] = true;
 			p[i] = 0;
@@ -81,11 +87,13 @@ void GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
 									 double *results,
 									 std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
-	
 	double SP=0, SE=0;
 	for (int i=0;i<obs;i++) {
+        if (undefined[i]) {
+            results[i] = 0;
+            continue;
+        }
+        
 		SP += P[i];
 		SE += E[i];
 		results[i] = 0;
@@ -97,22 +105,31 @@ void GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
 	}
 }
 
+
 void GdaAlgs::RateSmoother_ExcessRisk(int obs, double *P, double *E,
 										double *results,
 										std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
+	//if (undefined.size() != obs) undefined.resize(obs);
+	//for (int i=0; i<obs; i++) undefined[i] = false;
 
 	double SP=0, SE=0;
 	for (int i=0; i<obs; i++) {
+        if (undefined[i])
+            continue;
 		SP += P[i];
 		SE += E[i];
 	}
 	double lambda=1;
-	if (SP>0) lambda = SE/SP;
+	if (SP>0)
+        lambda = SE/SP;
+    
 	for (int i=0; i<obs; i++) {
-		double E_hat = P[i] * lambda;
+        if (undefined[i]) {
+            results[i] = 0;
+            continue;
+        }
+        double E_hat = P[i] * lambda;
 		if (E_hat > 0) {
 			results[i] = E[i] / E_hat;
 		} else {
@@ -126,13 +143,20 @@ void GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 								 double *results,
 								 std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
+	//if (undefined.size() != obs) undefined.resize(obs);
+	//for (int i=0; i<obs; i++) undefined[i] = false;
 	
 	double* pi_raw = new double[obs];
 	double SP=0, SE=0;
 	int i = 0;
+    int valid_obs = 0;
 	for (i=0; i<obs; i++) {
+        if (undefined[i]) {
+            results[i] = 0;
+            pi_raw[i] = 0;
+            continue;
+        }
+        valid_obs += 1;
 		SP += P[i];
 		SE += E[i];
 		pi_raw[i] = 0;
@@ -145,8 +169,10 @@ void GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 	}
 	
 	double theta1=1, theta2;
-	if (SP>0) theta1 = SE/SP;
-	double pbar = SP / obs;
+	if (SP>0)
+        theta1 = SE/SP;
+    
+	double pbar = SP / valid_obs;
 	double q1=0, w;
 	for (i=0; i<obs; i++) {
 		if (!undefined[i]) {
@@ -174,14 +200,35 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
 								double *P, double *E,
 								double *results, std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
+	//if (undefined.size() != obs) undefined.resize(obs);
+	//for (int i=0; i<obs; i++) undefined[i] = false;
+    
 	bool has_undefined = false;
-	GalElement* gal = w_man_int->GetGal(weights_id)->gal;
+    for (int i=0; i<obs; i++) {
+        if (undefined[i]) {
+            has_undefined = true;
+            break;
+        }
+    }
+    GalElement* gal = NULL;
+    GalWeight* gw  = NULL;
+    
+    if (has_undefined) {
+        gw = new GalWeight(*w_man_int->GetGal(weights_id));
+        gw->Update(undefined);
+        gal = gw->gal;
+    } else {
+        gal = w_man_int->GetGal(weights_id)->gal;
+    }
+
 	
 	double* pi_raw = new double[obs];
 	for (int i=0; i<obs; i++) {
 		pi_raw[i]=1;
+        if (undefined[i]) {
+            results[i] = 0;
+            continue;
+        }
 		if (P[i]>0) {
 			pi_raw[i] = E[i]/P[i];
 		} else {
@@ -190,7 +237,9 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
 	}
 	
 	for (int i=0; i<obs; i++) {
-		if (undefined[i]) continue;
+		if (undefined[i])
+            continue;
+        
 		int  nbrs = gal[i].Size();
 		GalElement& elt_i = gal[i];
 		
@@ -231,7 +280,19 @@ bool GdaAlgs::RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
 		}
 	}
 	delete [] pi_raw;
-	for (int i=0; i<obs; ++i) if (undefined[i]) has_undefined = true;
+   
+    if (has_undefined) {
+        if (gw) {
+            delete gw;
+        }
+    }
+    
+    for (int i=0; i<obs; ++i) {
+        if (undefined[i]) {
+            has_undefined = true;
+        }
+    }
+    
 	return has_undefined;
 }
 
@@ -240,20 +301,40 @@ bool GdaAlgs::RateSmoother_SRS(int obs, WeightsManInterface* w_man_int,
 							   double *P, double *E,
 							   double *results, std::vector<bool>& undefined)
 {
-	if (undefined.size() != obs) undefined.resize(obs);
-	for (int i=0; i<obs; i++) undefined[i] = false;
+	//if (undefined.size() != obs) undefined.resize(obs);
+	//for (int i=0; i<obs; i++) undefined[i] = false;
+    
 	bool has_undefined = false;
-	GalElement* gal = w_man_int->GetGal(weights_id)->gal;
+    for (int i=0; i<obs; i++) {
+        if (undefined[i]) {
+            has_undefined = true;
+            break;
+        } 
+    }
+    GalElement* gal = NULL;
+    GalWeight* gw  = NULL;
+    
+    if (has_undefined) {
+        gw = new GalWeight(*w_man_int->GetGal(weights_id));
+        gw->Update(undefined);
+        gal = gw->gal;
+    } else {
+        gal = w_man_int->GetGal(weights_id)->gal;
+    }
 	
 	double SE = 0, SP=0;
 	for (int i=0; i<obs; i++) {
 		SE = 0; SP=0;
+		results[i] = 0;
+       
+        if (undefined[i])
+            continue;
+        
 		const GalElement& elm_i = gal[i];
 		for (int j=0, sz=elm_i.Size(); j<sz; j++) {
 			SE += E[elm_i[j]];
 			SP += P[elm_i[j]];
 		}
-		results[i] = 0;
 		if ((P[i] + SP)>0) {
 			results[i] = (E[i] + SE) / (P[i] + SP);
 		} else {
@@ -264,6 +345,17 @@ bool GdaAlgs::RateSmoother_SRS(int obs, WeightsManInterface* w_man_int,
 			results[i] = 0;
 		}
 	}
-	for (int i=0; i<obs; ++i) if (undefined[i]) has_undefined = true;
+  
+    if (has_undefined) {
+        if (gw) {
+            delete gw;
+        }
+    }
+    for (int i=0; i<obs; ++i) {
+        if (undefined[i]) {
+            has_undefined = true;
+            break;
+        }
+    }
 	return has_undefined;
 }

@@ -824,8 +824,12 @@ void PCPCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Everything below assumes that GetCcType() != no_theme
-	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);
+    std::vector<std::vector<bool> > cat_var_undef;
+    
+
 	for (int t=0; t<num_time_vals; t++) {
+        std::vector<bool> undefs(num_obs, false);
 		// Note: need to be careful here: what about when a time variant
 		// variable is not synced with time?  time_min should reflect this,
 		// so possibly ok.
@@ -835,7 +839,10 @@ void PCPCanvas::CreateAndUpdateCategories()
 			cat_var_sorted[t][i].first = 
 				data[theme_var][tm+var_info[theme_var].time_min][i];
 			cat_var_sorted[t][i].second = i;
+            
+            undefs[i] = undefs[i] || data_undef[theme_var][tm+var_info[theme_var].time_min][i];
 		}
+        cat_var_undef.push_back(undefs);
 	}	
 	
 	// Sort each vector in ascending order
@@ -853,6 +860,7 @@ void PCPCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
                                               this->useScientificNotation);

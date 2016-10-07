@@ -44,6 +44,7 @@ class MapNewLegend;
 class TableInterface;
 class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 
 // Transparency SliderBar dialog for Basemap
@@ -169,6 +170,7 @@ protected:
 	int num_obs;
 	int num_time_vals;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	

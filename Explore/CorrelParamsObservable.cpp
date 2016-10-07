@@ -67,8 +67,8 @@ void CorrelParamsObservable::removeObserver(CorrelParamsObserver* o)
 {
 	LOG_MSG("Entering CorrelParamsObservable::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
-	if (observers.size() == 0 && delete_self_when_empty) delete this;
+	if (observers.size() == 0 && delete_self_when_empty)
+        delete this;
 	LOG_MSG("Exiting CorrelParamsObservable::removeObserver");
 }
 

@@ -1289,8 +1289,11 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Everything below assumes that GetCcType() != no_theme
-	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);
+    std::vector<std::vector<bool> > cat_var_undef;
+    
 	for (int t=0; t<num_time_vals; t++) {
+        std::vector<bool> undefs(num_obs, false);
 		// Note: need to be careful here: what about when a time variant
 		// variable is not synced with time?  time_min should reflect this,
 		// so possibly ok.
@@ -1299,7 +1302,9 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 			int tm = var_info[3].is_time_variant ? t : 0;
 			cat_var_sorted[t][i].first = data[3][tm+var_info[3].time_min][i];
 			cat_var_sorted[t][i].second = i;
+            undefs[i] = undefs[i] || undef_data[3][tm+var_info[3].time_min][i];
 		}
+        cat_var_undef.push_back(undefs);
 	}	
 	
 	// Sort each vector in ascending order
@@ -1317,6 +1322,7 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
                                               this->useScientificNotation);

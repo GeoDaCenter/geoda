@@ -303,31 +303,43 @@ void FieldNewCalcRateDlg::Apply()
 	double* B = new double[obs]; // Base variable vector == cop2
 	double* E = new double[obs]; // Event variable vector == cop1
 	double* r = new double[obs]; // result vector
+    
 	std::vector<double> data(obs);
+	std::vector<bool> undef_r(obs);
 
 	if (!IsAllTime(cop2, m_base_tm->GetSelection())) {
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
 		table_int->GetColData(cop2, tm, data);
-		for (int i=0; i<obs; i++) B[i] = data[i];
+        table_int->GetColUndefined(cop2, tm, undef_r);
+        for (int i=0; i<obs; i++)
+            B[i] = data[i];
 	}
 	if (!IsAllTime(cop1, m_event_tm->GetSelection())) {
 		int tm = IsTimeVariant(cop1) ? m_event_tm->GetSelection() : 0;
 		table_int->GetColData(cop1, tm, data);
-		for (int i=0; i<obs; i++) E[i] = data[i];
+        table_int->GetColUndefined(cop1, tm, undef_r);
+		for (int i=0; i<obs; i++)
+            E[i] = data[i];
 	}
 	
 	for (int t=0; t<time_list.size(); t++) {
 		if (IsAllTime(cop2, m_base_tm->GetSelection())) {
 			table_int->GetColData(cop2, time_list[t], data);
-			for (int i=0; i<obs; i++) B[i] = data[i];
+            table_int->GetColUndefined(cop2, time_list[t], undef_r);
+			for (int i=0; i<obs; i++)
+                B[i] = data[i];
 		}
 		if (IsAllTime(cop1, m_event_tm->GetSelection())) {
 			table_int->GetColData(cop1, time_list[t], data);
-			for (int i=0; i<obs; i++) E[i] = data[i];
+            table_int->GetColUndefined(cop1, time_list[t], undef_r);
+			for (int i=0; i<obs; i++)
+                E[i] = data[i];
 		}
-		for (int i=0; i<obs; i++) r[i] = -9999;
+        
+		for (int i=0; i<obs; i++)
+            r[i] = -9999;
 	
-		std::vector<bool> undef_r;
+
 		switch (op) {
 			case 0:
 				GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);

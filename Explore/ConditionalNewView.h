@@ -110,6 +110,9 @@ protected:
 	int vert_num_cats; // number of vertical categories
 	std::vector<Gda::dbl_int_pair_vec_type> horiz_var_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> vert_var_sorted;
+    
+    std::vector<std::vector<bool> > var_undef;
+    
 	CatClassifData horiz_cat_data;
 	CatClassifData vert_cat_data;
 	std::vector<bool> horiz_cats_valid;

@@ -3770,7 +3770,8 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     int col_idx = VS.col_ids[0];
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
-        wxMessageDialog dlg (this, "The selected variable is not numeric. Please select another variable.", "Variable Type Error", wxOK | wxICON_WARNING);
+        wxString msg = _T("The selected variable is not numeric. Please select another variable.");
+        wxMessageDialog dlg (this, msg, "Variable Type Error", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3785,7 +3786,8 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3822,7 +3824,8 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -3837,7 +3840,8 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	
     GalWeight* gw = w_man_int->GetGal(w_id);
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3876,7 +3880,8 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -3889,7 +3894,8 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3929,7 +3935,8 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -3942,7 +3949,8 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3951,14 +3959,9 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
     
-	//GetisOrdChoiceDlg dlg(this);
-	//if (dlg.ShowModal() != wxID_OK) return;
-	//if (!dlg.Gi_ClustMap_norm && !dlg.Gi_SigMap_norm &&
-	//	!dlg.GiStar_ClustMap_norm && !dlg.GiStar_SigMap_norm &&
-	//	!dlg.Gi_ClustMap_perm && !dlg.Gi_SigMap_perm &&
-	//	!dlg.GiStar_ClustMap_perm && !dlg.GiStar_SigMap_perm) return;
-
-	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand);
+	GStatCoordinator* gc = new GStatCoordinator(w_id, project_p,
+                                                VS.var_info, VS.col_ids,
+                                                LWO.m_RowStand);
     
 	if (!gc || !gc->IsOk()) {
 		// print error message
@@ -3967,16 +3970,24 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 	}
     
     if (LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
+                                                   GetisOrdMapFrame::Gi_clus_norm,
+                                                   LWO.m_RowStand);
     }
     if (LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_sig_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
+                                                   GetisOrdMapFrame::Gi_sig_norm,
+                                                   LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
+                                                   GetisOrdMapFrame::Gi_clus_perm,
+                                                   LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,
+                                                   GetisOrdMapFrame::Gi_sig_perm,
+                                                   LWO.m_RowStand);
     }
 }
 
@@ -4260,13 +4271,13 @@ void GdaFrame::OnOpenPercentile(wxCommandEvent& event)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::percentile,
-									  MapCanvas::no_smoothing, 6,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::percentile,
+                                MapCanvas::no_smoothing, 6,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -4293,13 +4304,13 @@ void GdaFrame::OnOpenHinge15(wxCommandEvent& event)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::hinge_15,
-									  MapCanvas::no_smoothing, 6,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::hinge_15,
+                                MapCanvas::no_smoothing, 6,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -4328,13 +4339,13 @@ void GdaFrame::OnOpenHinge30(wxCommandEvent& event)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::hinge_30,
-									  MapCanvas::no_smoothing, 6,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::hinge_30,
+                                MapCanvas::no_smoothing, 6,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -4363,13 +4374,13 @@ void GdaFrame::OnOpenStddev(wxCommandEvent& event)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::stddev,
-									  MapCanvas::no_smoothing, 6,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::stddev,
+                                MapCanvas::no_smoothing, 6,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -4407,13 +4418,13 @@ void GdaFrame::OpenNaturalBreaks(int num_cats)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::natural_breaks,
-									  MapCanvas::no_smoothing, num_cats,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::natural_breaks,
+                                MapCanvas::no_smoothing, num_cats,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -4473,13 +4484,13 @@ void GdaFrame::OpenEqualIntervals(int num_cats)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  CatClassification::equal_intervals,
-									  MapCanvas::no_smoothing, num_cats,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::equal_intervals,
+                                MapCanvas::no_smoothing, num_cats,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();	
 }
 
@@ -4528,13 +4539,13 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-                                  dlg.var_info, dlg.col_ids,
-                                  CatClassification::unique_values,
-                                  MapCanvas::no_smoothing, 4,
-                                  boost::uuids::nil_uuid(),
-                                  wxDefaultPosition,
-                                  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::unique_values,
+                                MapCanvas::no_smoothing, 4,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
     nf->UpdateTitle();
 }
 

@@ -759,16 +759,22 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	// Everything below assumes that GetCcType() != no_theme
 	// We assume data has been initialized to correct data
 	// for all time periods.
+    std::vector<std::vector<bool> > cat_var_undef;
 	
 	cat_var_sorted.resize(num_time_vals);
 	for (int t=0; t<num_time_vals; t++) {
+        std::vector<bool> undefs(num_obs, false);
+        
 		cat_var_sorted[t].resize(num_obs);
 		int thm_t = (var_info[THM_VAR].sync_with_global_time ? 
 					 t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[THM_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
+            
+            //undefs[i] = undefs[i] ||
 		}
+        cat_var_undef.push_back(undefs);
 	}
 	
 	// Sort each vector in ascending order
@@ -793,6 +799,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data, map_valid,
 											  map_error_message,
                                               this->useScientificNotation);

@@ -126,14 +126,14 @@ END_EVENT_TABLE()
 
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-						   Project* project_s,
-						   const std::vector<GdaVarTools::VarInfo>& var_info_s,
-						   const std::vector<int>& col_ids_s,
-						   CatClassification::CatClassifType theme_type,
-						   SmoothingType smoothing_type_s,
-						   int num_categories_s,
-						   boost::uuids::uuid weights_id_s,
-						   const wxPoint& pos, const wxSize& size)
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& var_info_s,
+                     const std::vector<int>& col_ids_s,
+                     CatClassification::CatClassifType theme_type,
+                     SmoothingType smoothing_type_s,
+                     int num_categories_s,
+                     boost::uuids::uuid weights_id_s,
+                     const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, 
                  project_s->GetHighlightState(),
                  pos, size, true, true),
@@ -179,14 +179,20 @@ weights_id(weights_id_s)
 	SetScrollbars(1, 1, vs_w, vs_h, 0, 0);
 
 	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-		shps_orig_xmax, shps_orig_ymax,
-		virtual_screen_marg_top, virtual_screen_marg_bottom,
-		virtual_screen_marg_left, virtual_screen_marg_right,
-		vs_w, vs_h,
-		fixed_aspect_ratio_mode, fit_to_window_mode,
-		&scale_x, &scale_y, &trans_x, &trans_y, 0, 0,
-		&current_shps_width, &current_shps_height);
+    GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+                                    shps_orig_xmax, shps_orig_ymax,
+                                    virtual_screen_marg_top,
+                                    virtual_screen_marg_bottom,
+                                    virtual_screen_marg_left,
+                                    virtual_screen_marg_right,
+                                    vs_w, vs_h,
+                                    fixed_aspect_ratio_mode,
+                                    fit_to_window_mode,
+                                    &scale_x, &scale_y,
+                                    &trans_x, &trans_y,
+                                    0, 0,
+                                    &current_shps_width,
+                                    &current_shps_height);
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 
 	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -776,13 +782,20 @@ void MapCanvas::NewCustomCatClassif()
 	// Begin by asking for a variable if none yet chosen
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
-		if (dlg.ShowModal() != wxID_OK) return;
+		if (dlg.ShowModal() != wxID_OK)
+            return;
+        
 		var_info.resize(1);
 		data.resize(1);
+		data_undef.resize(1);
 		var_info[0] = dlg.var_info[0];
+        
 		table_int->GetColData(dlg.col_ids[0], data[0]);
+		table_int->GetColUndefined(dlg.col_ids[0], data_undef[0]);
+        
 		VarInfoAttributeChange();
 		cat_var_sorted.resize(num_time_vals);
+        
 		for (int t=0; t<num_time_vals; t++) {
 			cat_var_sorted[t].resize(num_obs);
 			for (int i=0; i<num_obs; i++) {
@@ -819,7 +832,8 @@ void MapCanvas::NewCustomCatClassif()
 	if (!ccf)
         return;
     
-	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name, var_info[0].time);
+	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "", var_info[0].name,
+                                          var_info[0].time);
     
 	if (!ccs)
         return;
@@ -847,15 +861,15 @@ void MapCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification including any needed data smoothing. */
-bool MapCanvas::ChangeMapType(
-							CatClassification::CatClassifType new_map_theme,
-							SmoothingType new_map_smoothing,
-							int num_categories_s,
-							boost::uuids::uuid weights_id_s,
-							bool use_new_var_info_and_col_ids,
-							const std::vector<GdaVarTools::VarInfo>& new_var_info,
-							const std::vector<int>& new_col_ids,
-							const wxString& custom_classif_title)
+bool
+MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
+                         SmoothingType new_map_smoothing,
+                         int num_categories_s,
+                         boost::uuids::uuid weights_id_s,
+                         bool use_new_var_info_and_col_ids,
+                         const std::vector<GdaVarTools::VarInfo>& new_var_info,
+                         const std::vector<int>& new_col_ids,
+                         const wxString& custom_classif_title)
 {
 	// We only ask for variables when changing from no_theme or
 	// smoothed (with theme).
@@ -867,27 +881,28 @@ bool MapCanvas::ChangeMapType(
 	}
 	
 	if (smoothing_type != no_smoothing && new_map_smoothing == no_smoothing) {
-		wxString msg;
-		msg << "The new theme chosen will no longer include rates smoothing.";
-		msg << " Please use the Rates submenu to choose a theme with rates";
-		msg << " again.";
-		wxMessageDialog dlg (this, msg, "Information",
-							 wxOK | wxICON_INFORMATION);
+		wxString msg = _T("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
+		wxMessageDialog dlg (this, msg, "Information", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 	}
 	
 	if (new_map_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
-		if (!ccm) return false;
+		if (!ccm)
+            return false;
 		CatClassifState* new_ccs = ccm->FindClassifState(custom_classif_title);
-		if (!new_ccs) return false;
-		if (custom_classif_state == new_ccs) return false;
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		if (!new_ccs)
+            return false;
+		if (custom_classif_state == new_ccs)
+            return false;
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
 		custom_classif_state = new_ccs;
 		custom_classif_state->registerObserver(this);
 		cat_classif_def = custom_classif_state->GetCatClassif();
 	} else {
-		if (custom_classif_state) custom_classif_state->removeObserver(this);
+		if (custom_classif_state)
+            custom_classif_state->removeObserver(this);
 		custom_classif_state = 0;
 	}
 	
@@ -906,17 +921,24 @@ bool MapCanvas::ChangeMapType(
 	
 	if (new_num_vars == 0) {
 		var_info.clear();
-		if (template_frame) template_frame->ClearAllGroupDependencies();
+		if (template_frame)
+            template_frame->ClearAllGroupDependencies();
+        
 	} else if (new_num_vars == 1) {
 		if (num_vars == 0) {
-			if (!use_new_var_info_and_col_ids) return false;
+			if (!use_new_var_info_and_col_ids)
+                return false;
 			var_info.resize(1);
 			data.resize(1);
+			data_undef.resize(1);
 			var_info[0] = new_var_info[0];
+            
 			if (template_frame) {
 				template_frame->AddGroupDependancy(var_info[0].name);
 			}
 			table_int->GetColData(new_col_ids[0], data[0]);
+            table_int->GetColUndefined(new_col_ids[0], data_undef[0]);
+            
 		} else if (num_vars == 1) {
 			if (use_new_var_info_and_col_ids) {
 				var_info[0] = new_var_info[0];
@@ -924,30 +946,38 @@ bool MapCanvas::ChangeMapType(
 					template_frame->AddGroupDependancy(var_info[0].name);
 				}
 				table_int->GetColData(new_col_ids[0], data[0]);
+                table_int->GetColUndefined(new_col_ids[0], data_undef[0]);
 			} // else reuse current variable settings and values
+            
 		} else { // num_vars == 2
-			if (!use_new_var_info_and_col_ids) return false;
+			if (!use_new_var_info_and_col_ids)
+                return false;
 			var_info.resize(1);
 			if (template_frame) {
 				template_frame->ClearAllGroupDependencies();
 			}
 			data.resize(1);
+            data_undef.resize(1);
 			var_info[0] = new_var_info[0];
 			if (template_frame) {
 				template_frame->AddGroupDependancy(var_info[0].name);
 			}
-			table_int->GetColData(new_col_ids[0], data[0]);	
+			table_int->GetColData(new_col_ids[0], data[0]);
+            table_int->GetColUndefined(new_col_ids[0], data_undef[0]);
 		}
 	} else if (new_num_vars == 2) {
 		// For Rates, new var_info and col_id vectors should
 		// always be passed in and num_cateogries, new_map_theme and
 		// new_map_smoothing are assumed to be valid.
-		if (!use_new_var_info_and_col_ids) return false;
+		if (!use_new_var_info_and_col_ids)
+            return false;
 		
 		var_info.clear();
 		data.clear();
 		var_info.resize(2);
 		data.resize(2);
+		data_undef.resize(2);
+        
 		if (template_frame) {
 			template_frame->ClearAllGroupDependencies();
 		}
@@ -957,6 +987,7 @@ bool MapCanvas::ChangeMapType(
 				template_frame->AddGroupDependancy(var_info[i].name);
 			}
 			table_int->GetColData(new_col_ids[i], data[i]);
+            table_int->GetColUndefined(new_col_ids[i], data_undef[i]);
 		}
 		if (new_map_smoothing == excess_risk) {
 			new_map_theme = CatClassification::excess_risk_theme;
@@ -1134,9 +1165,14 @@ void MapCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_valid[t] = true;
+
+    for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
 	map_error_message.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++) map_error_message[t] = wxEmptyString;
+    
+	for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
 	
 	if (GetCcType() == CatClassification::no_theme) {
 		 // 1 = #cats
@@ -1153,8 +1189,8 @@ void MapCanvas::CreateAndUpdateCategories()
 		}
 		
 		if (ref_var_index != -1) {
-			cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
-											- var_info[ref_var_index].time_min);
+            int step = var_info[ref_var_index].time - var_info[ref_var_index].time_min;
+			cat_data.SetCurrentCanvasTmStep(step);
 		}
 		return;
 	}
@@ -1166,7 +1202,8 @@ void MapCanvas::CreateAndUpdateCategories()
 	double* P = 0;
 	double* E = 0;
 	double* smoothed_results = 0;
-	std::vector<bool> undef_res(smoothing_type == no_smoothing ? 0 : num_obs);
+	//std::vector<bool> undef_res(smoothing_type == no_smoothing ? 0 : num_obs);
+    
 	if (smoothing_type != no_smoothing) {
 		P = new double[num_obs];
 		E = new double[num_obs];
@@ -1174,10 +1211,25 @@ void MapCanvas::CreateAndUpdateCategories()
 	}
 	
 	cat_var_sorted.resize(num_time_vals);
+    std::vector<std::vector<bool> > cat_var_undef;
+    
 	for (int t=0; t<num_time_vals; t++) {
-		cat_var_sorted[t].resize(num_obs);
+        
+		//cat_var_sorted[t].resize(num_obs);
+        
+        std::vector<bool> undef_res(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            for (int j=0; j< data_undef.size(); j++) {
+                undef_res[i] =  undef_res[i] || data_undef[j][t][i];
+            }
+        }
 		
 		if (smoothing_type != no_smoothing) {
+            
+            for (int i=0; i<num_obs; i++) {
+                E[i] = data[0][var_info[0].time][i];
+            }
+            
 			if (var_info[0].sync_with_global_time) {
 				for (int i=0; i<num_obs; i++) {
 					E[i] = data[0][t+var_info[0].time_min][i];
@@ -1210,16 +1262,13 @@ void MapCanvas::CreateAndUpdateCategories()
                 }
 				if (P[i] <= 0) {
 					map_valid[t] = false;
-					map_error_message[t] = "Error: Base values contain"
-						" non-positive numbers which will result in"
-						" undefined values.";
+					map_error_message[t] = _T("Error: Base values contain non-positive numbers which will result in undefined values.");
 					continue;
 				}
 			}
 		
             if (hasZeroBaseVal) {
-                wxString msg("Base field has zero values. Do you want "
-                             "to save a subset of non-zeros as a new shape file? ");
+                wxString msg(_T("Base field has zero values. Do you want to save a subset of non-zeros as a new shape file? "));
                 wxMessageDialog dlg (this, msg, "Warning", 
                                      wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
                 if (dlg.ShowModal() == wxID_YES) {
@@ -1231,46 +1280,50 @@ void MapCanvas::CreateAndUpdateCategories()
             }
             hs = hs_backup;
             
-			if (!map_valid[t]) continue;
+			if (!map_valid[t])
+                continue;
 			
 			if (smoothing_type == raw_rate) {
-				GdaAlgs::RateSmoother_RawRate(num_obs, P, E,
-												smoothed_results,
-												undef_res);
+                GdaAlgs::RateSmoother_RawRate(num_obs, P, E,
+                                              smoothed_results,
+                                              undef_res);
 			} else if (smoothing_type == excess_risk) {
 				// Note: Excess Risk is a transformation, not a smoothing
-				GdaAlgs::RateSmoother_ExcessRisk(num_obs, P, E,
-												   smoothed_results,
-												   undef_res);
+                GdaAlgs::RateSmoother_ExcessRisk(num_obs, P, E,
+                                                 smoothed_results,
+                                                 undef_res);
 			} else if (smoothing_type == empirical_bayes) {
-				GdaAlgs::RateSmoother_EBS(num_obs, P, E,
-											smoothed_results, undef_res);
+                GdaAlgs::RateSmoother_EBS(num_obs, P, E,
+                                          smoothed_results, undef_res);
 			} else if (smoothing_type == spatial_rate) {
-				GdaAlgs::RateSmoother_SRS(num_obs, project->GetWManInt(), 
-										  weights_id, P, E,
-										  smoothed_results, undef_res);
+                GdaAlgs::RateSmoother_SRS(num_obs, project->GetWManInt(),
+                                          weights_id, P, E,
+                                          smoothed_results, undef_res);
 			} else if (smoothing_type == spatial_empirical_bayes) {
-				GdaAlgs::RateSmoother_SEBS(num_obs, project->GetWManInt(),
-										   weights_id, P, E,
-										   smoothed_results, undef_res);
+                GdaAlgs::RateSmoother_SEBS(num_obs, project->GetWManInt(),
+                                           weights_id, P, E,
+                                           smoothed_results, undef_res);
 			}
 		
 			for (int i=0; i<num_obs; i++) {
-				cat_var_sorted[t][i].first = smoothed_results[i];
-				cat_var_sorted[t][i].second = i;
+                cat_var_sorted[t].push_back(std::make_pair(smoothed_results[i],i));
 			}
+            
 		} else {
 			for (int i=0; i<num_obs; i++) {
-				cat_var_sorted[t][i].first =data[0][t+var_info[0].time_min][i];
-				cat_var_sorted[t][i].second = i;
+                double val = data[0][t+var_info[0].time_min][i];
+                cat_var_sorted[t].push_back(std::make_pair(val, i));
 			}
 		}
+        
+        cat_var_undef.push_back(undef_res);
 	}
 	
 	if (smoothing_type != no_smoothing) {
 		if (P) delete [] P;
 		if (E) delete [] E;
-		if (smoothed_results) delete [] smoothed_results;
+		if (smoothed_results)
+            delete [] smoothed_results;
 	}
 
 	// Sort each vector in ascending order
@@ -1284,10 +1337,12 @@ void MapCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
+    
 	cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
     
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data,
                                               map_valid,
 											  map_error_message,
@@ -1453,14 +1508,14 @@ BEGIN_EVENT_TABLE(MapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 MapFrame::MapFrame(wxFrame *parent, Project* project,
-                     const std::vector<GdaVarTools::VarInfo>& var_info,
-                     const std::vector<int>& col_ids,
-                     CatClassification::CatClassifType theme_type,
-                     MapCanvas::SmoothingType smoothing_type,
-                     int num_categories,
-                     boost::uuids::uuid weights_id,
-                     const wxPoint& pos, const wxSize& size,
-                     const long style)
+                   const std::vector<GdaVarTools::VarInfo>& var_info,
+                   const std::vector<int>& col_ids,
+                   CatClassification::CatClassifType theme_type,
+                   MapCanvas::SmoothingType smoothing_type,
+                   int num_categories,
+                   boost::uuids::uuid weights_id,
+                   const wxPoint& pos, const wxSize& size,
+                   const long style)
 : TemplateFrame(parent, project, "Map", pos, size, style),
 w_man_state(project->GetWManState())
 {
@@ -1477,12 +1532,12 @@ w_man_state(project->GetWManState())
 	
 	wxPanel* rpanel = new wxPanel(splitter_win);
     template_canvas = new MapCanvas(rpanel, this, project,
-                                       var_info, col_ids,
-                                       theme_type, smoothing_type,
-                                       num_categories,
-                                       weights_id,
-                                       wxDefaultPosition,
-                                       wxDefaultSize);
+                                    var_info, col_ids,
+                                    theme_type, smoothing_type,
+                                    num_categories,
+                                    weights_id,
+                                    wxDefaultPosition,
+                                    wxDefaultSize);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);

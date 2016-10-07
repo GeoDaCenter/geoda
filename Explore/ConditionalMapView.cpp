@@ -1254,13 +1254,19 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	// vals.  Perhaps this should be moved into the constructor since
 	// we do not allow smoothing with multiple time variables.
 	cat_var_sorted.resize(num_time_vals);
+    std::vector<std::vector<bool> > cat_var_undef(num_time_vals);
+    
 	for (int t=0; t<num_time_vals; t++) {
 		cat_var_sorted[t].resize(num_obs);
+        cat_var_undef[t].resize(num_obs);
+        
 		int thm_t = (var_info[CAT_VAR].sync_with_global_time ? 
 					 t + var_info[CAT_VAR].time_min : var_info[CAT_VAR].time);
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[CAT_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
+            
+            cat_var_undef[t][i] = false;
 		}
 	}
 	
@@ -1288,6 +1294,7 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 							 cat_classif_def_map.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data, map_valid,
 											  map_error_message,
                                               this->useScientificNotation);

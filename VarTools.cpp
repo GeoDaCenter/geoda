@@ -348,30 +348,33 @@ VarInfo::VarInfo() : min(1, 0), max(1, 0)
  GdaVarTools::VarInfo vector changes. */
 int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 {
-	PrintVarInfoVector(var_info);
+	//PrintVarInfoVector(var_info);
 	int num_vars = var_info.size();
 	int ref_var = -1;
 	for (int i=0; i<num_vars; i++) {
-		if (ref_var == -1 && var_info[i].sync_with_global_time) ref_var = i;
+		if (ref_var == -1 && var_info[i].sync_with_global_time)
+            ref_var = i;
 		var_info[i].is_ref_variable = (i == ref_var);
 		// The following parameters are set to default values here
 		var_info[i].ref_time_offset = 0;
 		var_info[i].time_min = var_info[i].time;
 		var_info[i].time_max = var_info[i].time;
-		LOG(var_info[i].min.size());
 		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
 		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
 	}
 	
-	if (ref_var == -1) return ref_var;
+	if (ref_var == -1)
+        return ref_var;
 	int ref_time = var_info[ref_var].time;
 	int min_time = ref_time;
 	int max_time = ref_time;
 	for (int i=0; i<num_vars; i++) {
 		if (var_info[i].sync_with_global_time) {
 			var_info[i].ref_time_offset = var_info[i].time - ref_time;
-			if (var_info[i].time < min_time) min_time = var_info[i].time;
-			if (var_info[i].time > max_time) max_time = var_info[i].time;
+			if (var_info[i].time < min_time)
+                min_time = var_info[i].time;
+			if (var_info[i].time > max_time)
+                max_time = var_info[i].time;
 		}
 	}
 	int global_max_time = var_info[ref_var].max.size()-1;

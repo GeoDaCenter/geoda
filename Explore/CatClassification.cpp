@@ -296,21 +296,28 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 }
 
 /** Update Categories based on num_cats and number time periods
+
  var is assumed to be sorted.
- num_cats is only used by themes where the user enters the number of
- categories.
+
+ num_cats is only used by themes where the user enters the number of categories.
+ 
  Note: LISA and Getis-Ord map themes are not supported by this function.
  */
-void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
-				const std::vector<Gda::dbl_int_pair_vec_type>& var,
-				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				std::vector<wxString>& cats_error_message,
-                bool useSciNotation)
+void
+CatClassification::
+PopulateCatClassifData(const CatClassifDef& cat_def,
+                       const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                       const std::vector<std::vector<bool> >& var_undef,
+                       CatClassifData& cat_data,
+                       std::vector<bool>& cats_valid,
+                       std::vector<wxString>& cats_error_message,
+                       bool useSciNotation)
 {
 	int num_cats = cat_def.num_cats;
 	CatClassifType theme = cat_def.cat_classif_type;
 	int num_time_vals = var.size();
 	int num_obs = var[0].size();
+   
 	if (theme == CatClassification::no_theme) {
 		// 1 = #cats
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
@@ -323,20 +330,24 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		cat_data.CreateCategoriesAllCanvasTms(num_cats, num_time_vals, num_obs);
 		cat_data.SetCategoryBrushesAllCanvasTms(
 				CatClassification::sequential_color_scheme, num_cats, false);
+        
 	} else if (theme == CatClassification::unique_values) {
 		// number of categories based on number of unique values in data
 		cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+        
 	} else if (theme == CatClassification::natural_breaks) {
 		// user supplied number of categories
 		cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 		// if there are fewer unique values than number of categories,
 		// we will automatically reduce the number of categories to the
 		// number of unique values.
+        
 	} else if (theme == CatClassification::equal_intervals) {
 		// user supplied number of categories
 		cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 		// if there is only one value, then we automatically reduce
 		// the number of categories down to one.
+        
 	} else if (theme == CatClassification::percentile ||
 			   theme == CatClassification::hinge_15 ||
 			   theme == CatClassification::hinge_30 ||
@@ -346,16 +357,32 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		cat_data.CreateCategoriesAllCanvasTms(num_cats, num_time_vals, num_obs);
 		cat_data.SetCategoryBrushesAllCanvasTms(
 				CatClassification::diverging_color_scheme, num_cats, false);
+        
 	} else if (theme == CatClassification::custom) {
 		cat_data.CreateCategoriesAllCanvasTms(num_cats, num_time_vals, num_obs);
 		cat_data.SetCategoryBrushesAllCanvasTms(cat_def.colors);
+        
 	}
-	
+
+    // detect if undefined category
+    for (int t=0; t<num_time_vals; t++) {
+        std::vector<int> undef_ids;
+        for (int i=0; i<var_undef[t].size(); i++) {
+            if (var_undef[t][i])
+                undef_ids.push_back(i);
+        }
+        cat_data.AppendUndefCategory(t, undef_ids);
+    }
+    
 	if (theme == CatClassification::no_theme) {
 		for (int t=0; t<num_time_vals; t++) {
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
-			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
+            for (int i=0; i<num_obs; i++) {
+                int c = var_undef[t][i] ? 1 : 0;
+                
+                cat_data.AppendIdToCategory(t, 0, i);
+            }
 			cat_data.SetCategoryMinMax(t, 0, var[t][0].first,
 									   var[t][var[t].size()-1].first);
 		}
@@ -381,7 +408,8 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 		cat_data.ResetAllCategoryMinMax();
         
 		for (int t=0; t<num_time_vals; t++) {
-			if (!cats_valid[t]) continue;
+			if (!cats_valid[t])
+                continue;
 			
 			hinge_stats[t].CalculateHingeStats(var[t]);
 			double extreme_lower = hinge_stats[t].extreme_lower_val_15;
@@ -466,7 +494,8 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 	} else if (theme == custom) {
 		if (num_cats == 1) {
 			for (int t=0; t<num_time_vals; t++) {
-				if (!cats_valid[t]) continue;
+				if (!cats_valid[t])
+                    continue;
 				for (int i=0, iend=var[t].size(); i<iend; i++) {
 					cat_data.AppendIdToCategory(t, 0, var[t][i].second);
 				}
@@ -479,15 +508,12 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 		} else {
             
-            
-            
 			std::vector<double> cat_min(num_cats);
 			std::vector<double> cat_max(num_cats);
 			std::vector<double> breaks(num_cats-1);
 			int num_breaks = breaks.size();
 			int num_breaks_lower = (num_breaks+1)/2;
 		
-            
 			for (int t=0; t<num_time_vals; t++) {
 				if (!cats_valid[t]) continue;
 				// Set default cat_min / cat_max values for when
@@ -538,31 +564,18 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				for (int ival=0; ival<num_cats; ival++) {
                     ss.str("");
 					if (num_cats <= 1) {
-						//s << "(-inf, inf)";
-						//ss << cat_def.names[ival];
                         ss << "";
 						cat_data.SetCategoryCount(t, ival, num_obs);
 					} else if (ival == 0) {
                         ss << "< " << cat_def.breaks[ival];
-						//s << "(-inf, ";
-						//s << GenUtils::DblToStr(cat_def.breaks[ival]) << ")";
-						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats != 2) {
                         ss << "> " << cat_def.breaks[ival-1];
-						//s << "(";
-						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
-						//s << ", inf)";
-						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					} else if (ival == num_cats-1 && num_cats == 2) {
                         ss << ">= " << cat_def.breaks[ival-1];
-						//s << "[";
-						//s << GenUtils::DblToStr(cat_def.breaks[ival-1]);
-						//s << ", inf)";
-						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 												  cat_data.GetNumObsInCategory(t, ival));
 					} else {
@@ -582,10 +595,6 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 						}
                         ss << a << cat_def.breaks[ival-1] << ", ";
                         ss << cat_def.breaks[ival] << b;
-						//s << a << GenUtils::DblToStr(cat_def.breaks[ival-1]);
-						//s << ", " << GenUtils::DblToStr(cat_def.breaks[ival]);
-						//s << b;
-						//ss << cat_def.names[ival];
 						cat_data.SetCategoryCount(t, ival,
 									cat_data.GetNumObsInCategory(t, ival));
 					}
@@ -604,6 +613,7 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 			for (int t=0; t<num_time_vals; t++) {
 				if (!cats_valid[t]) continue;
 				for (int i=0, iend=var[t].size(); i<iend; i++) {
+                    int c = var_undef[t][i] ? 1 : 0;
 					cat_data.AppendIdToCategory(t, 0, var[t][i].second);
 				}
 				double low_v = var[t][0].first;
@@ -643,6 +653,10 @@ void CatClassification::PopulateCatClassifData(const CatClassifDef& cat_def,
 				for (int i=0, iend=var[t].size(); i<iend; i++) {
 					val = var[t][i].first;
 					ind = var[t][i].second;
+                    if (var_undef[t][ind]) {
+                        cat_data.AppendIdToCategory(t, num_breaks+1, ind);
+                        continue;
+                    }
 					bool found = false;
 					int cat = num_breaks; // last cat by default
 					for (int j=0; j<num_breaks_lower; j++) {
@@ -1882,18 +1896,36 @@ void CatClassifData::CreateEmptyCategories(int num_canvas_tms, int num_obs)
 	curr_canvas_tm_step = 0;
 }
 
+void CatClassifData::AppendUndefCategory(int t, const std::vector<int> undef_ids)
+{
+    Category c_undef;
+    c_undef.brush.SetColour(wxColour(0,0,0));
+    c_undef.pen.SetColour(wxColour(0,0,0));
+    c_undef.label = "undefined";
+    c_undef.ids = undef_ids;
+    c_undef.count = undef_ids.size();
+    c_undef.min_val = 0;
+    c_undef.max_val = 0;
+    c_undef.min_max_defined = false;
+    
+    categories[t].cat_vec.push_back(c_undef);
+    int undef_cat_idx = categories[t].cat_vec.size();
+    
+    //for (size_t i=0; i<undef_ids.size();i++) {
+    //    categories[t].id_to_cat[undef_cat_idx] = undef_ids[i];
+   // }
+}
+
 void CatClassifData::CreateCategoriesAllCanvasTms(int num_cats,
-												int num_canvas_tms,
-												int num_obs)
+                                                  int num_canvas_tms,
+                                                  int num_obs)
 {
 	canvas_tm_steps = num_canvas_tms;
 	categories.clear();
 	categories.resize(num_canvas_tms);
 	for (int t=0; t<num_canvas_tms; t++) {
 		categories[t].id_to_cat.resize(num_obs);
-	}
-	for (int t=0; t<num_canvas_tms; t++) {
-		CreateCategoriesAtCanvasTm(num_cats, t);
+        categories[t].cat_vec.resize(num_cats);
 	}
 	curr_canvas_tm_step = 0;
 }
@@ -2001,7 +2033,8 @@ wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
 
 void CatClassifData::AppendIdToCategory(int canvas_tm, int cat, int id)
 {
-	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
+	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return;
 	categories[canvas_tm].cat_vec[cat].ids.push_back(id);
 	categories[canvas_tm].id_to_cat[id] = cat;
 }

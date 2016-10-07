@@ -190,7 +190,10 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
 {
     wxString col_name = combo_var->GetStringSelection();
     if (col_name.IsEmpty()) {
-        wxMessageDialog dlg (this, "Please select a variable first.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this,
+                             "Please select a variable first.",
+                             "Warning",
+                             wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -198,7 +201,9 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     int time1 = combo_time1->GetSelection();
     int time2 = combo_time2->GetSelection();
     if (time1 < 0 || time2 < 0 || time1 == time2) {
-        wxMessageDialog dlg (this, "Please choose two different time periods.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this,
+                             "Please choose two different time periods.",
+                             "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -213,7 +218,7 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     col_ids[0] = col_idx;
     col_ids[1] = col_idx;
     
-    for (int i=0; i<2; i++) {
+    for (int i=0; i<num_var; i++) {
         var_info[i].name = col_name;
         var_info[i].is_time_variant = true;
         
@@ -227,8 +232,6 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    //event.Skip();
-    
     bool check_group_var = true;
     try {
         for (int i=0; i<col_ids.size(); i++) {
@@ -236,7 +239,8 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
         }
     } catch(GdaException& ex) {
         // place holder found
-        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
+        wxString str_tmplt = _T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
+        wxString msg = wxString::Format(str_tmplt, project->GetTableInt()->GetTimeSteps());
         wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         check_group_var = false;
@@ -319,8 +323,7 @@ all_init(false)
 {
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
-		LOG_MSG("No Weights Found:\n"
-                "GeoDa could not find the required weights file.\nPlease specify weights in Tools > Weights Manager.");
+		LOG_MSG("No Weights Found:\nGeoDa could not find the required weights file.\nPlease specify weights in Tools > Weights Manager.");
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
 		SetTitle("No Weights Found");
@@ -383,18 +386,24 @@ void VariableSettingsDlg::Init(VarType var_type)
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 2 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1)) {
+		if (num_var >= 2 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
+        {
 			if (!set_second_from_first_mode) {
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 3 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2)) {
+		if (num_var >= 3 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
+        {
 			lb3_cur_sel = i;
 			if (set_fourth_from_third_mode && num_var >= 4) {
 				lb4_cur_sel = i;
 			}
 		}
-		if (num_var >= 4 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3)) {
+		if (num_var >= 4 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
+        {
 			if (!set_fourth_from_third_mode) {
 				lb4_cur_sel = i;
 			}
@@ -555,7 +564,8 @@ void VariableSettingsDlg::CreateControls()
 
 void VariableSettingsDlg::OnListVariable1DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
 		lb2_cur_sel = lb1_cur_sel;
@@ -569,13 +579,15 @@ void VariableSettingsDlg::OnListVariable1DoubleClicked(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnListVariable2DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	OnOkClick(event);
 }
 
 void VariableSettingsDlg::OnListVariable3DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
 		lb4_cur_sel = lb3_cur_sel;
@@ -589,13 +601,15 @@ void VariableSettingsDlg::OnListVariable3DoubleClicked(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnListVariable4DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	OnOkClick(event);
 }
 
 void VariableSettingsDlg::OnTime1(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v1_time = time_lb1->GetSelection();
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
@@ -608,14 +622,16 @@ void VariableSettingsDlg::OnTime1(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnTime2(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v2_time = time_lb2->GetSelection();
 	InitFieldChoices();
 }
 
 void VariableSettingsDlg::OnTime3(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v3_time = time_lb3->GetSelection();
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
@@ -628,14 +644,16 @@ void VariableSettingsDlg::OnTime3(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnTime4(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v4_time = time_lb4->GetSelection();
 	InitFieldChoices();
 }
 
 void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb1_cur_sel = lb1->GetSelection();
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
@@ -649,13 +667,15 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb2_cur_sel = lb2->GetSelection();
 }
 
 void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb3_cur_sel = lb3->GetSelection();
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
@@ -669,13 +689,15 @@ void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnVar4Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb4_cur_sel = lb4->GetSelection();
 }
 
 void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
 {
-	if (!num_cats_spin) return;
+	if (!num_cats_spin)
+        return;
 	num_categories = num_cats_spin->GetValue();
 	if (num_categories < num_cats_spin->GetMin()) {
 		num_categories = num_cats_spin->GetMin();
@@ -699,11 +721,12 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
 	
-	if (map_theme_ch) m_theme = map_theme_ch->GetSelection();
+	if (map_theme_ch)
+        m_theme = map_theme_ch->GetSelection();
 	
 	if (lb1->GetSelection() == wxNOT_FOUND) {
-		wxString msg("No field chosen for first variable.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg(_T("No field chosen for first variable."));
+		wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -713,12 +736,13 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	if (is_time) {
 		v1_time = time_lb1->GetSelection();
 		project->SetDefaultVarTime(0, v1_time);
-		if (!table_int->IsColTimeVariant(v1_col_id)) v1_time = 0;
+		if (!table_int->IsColTimeVariant(v1_col_id))
+            v1_time = 0;
 	}
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for second variable.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg(_T("No field chosen for second variable."));
+			wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -728,12 +752,13 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v2_time = time_lb2->GetSelection();
 			project->SetDefaultVarTime(1, v2_time);
-			if (!table_int->IsColTimeVariant(v2_col_id)) v2_time = 0;
+			if (!table_int->IsColTimeVariant(v2_col_id))
+                v2_time = 0;
 		}
 	}
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for third variable.");
+			wxString msg(_T("No field chosen for third variable."));
 			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
@@ -744,12 +769,13 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v3_time = time_lb3->GetSelection();
 			project->SetDefaultVarTime(2, v3_time);
-			if (!table_int->IsColTimeVariant(v3_col_id)) v3_time = 0;
+			if (!table_int->IsColTimeVariant(v3_col_id))
+                v3_time = 0;
 		}
 	}
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for fourth variable.");
+			wxString msg(_T("No field chosen for fourth variable."));
 			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
@@ -760,13 +786,15 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v4_time = time_lb4->GetSelection();
 			project->SetDefaultVarTime(3, v4_time);
-			if (!table_int->IsColTimeVariant(v4_col_id)) v4_time = 0;
+			if (!table_int->IsColTimeVariant(v4_col_id))
+                v4_time = 0;
 		}
 	}
 	
 	FillData();
 	
-	if (show_weights) project->GetWManInt()->MakeDefault(GetWeightsId());
+	if (show_weights)
+        project->GetWManInt()->MakeDefault(GetWeightsId());
 	
 	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
 		project->SetDefaultDistMetric(GetDistanceMetric());
@@ -783,8 +811,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         }
     } catch(GdaException& ex) {
         // place holder found
-        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
-        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
+        wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+        wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         check_group_var = false;
     }
