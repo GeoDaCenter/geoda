@@ -98,10 +98,16 @@ void GalElement::SetNbr(size_t pos, long n, double w)
     if (pos < nbr.size()) {
         nbr[pos] = n;
         nbrLookup[n] = pos;
+    } else {
+        nbr.push_back(n);
+        nbrLookup[n] = pos;
     }
+    
     // this should be called by GWT-GAL 
     if (pos < nbrWeight.size()) {
         nbrWeight[pos] = w;
+    } else {
+        nbrWeight.push_back(w);
     }
 }
 

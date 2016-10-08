@@ -136,6 +136,7 @@ public:
 	bool		b_done1,b_done2, b_done3;
 	int			m_nCount;
 	int			m_nTimer;
+    std::vector<bool> undefs;
 		
 	// name_to_nm is a mapping from variable name
 	// in the the column which could include time such as
