@@ -419,7 +419,9 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 table->GetColData(col_pos, time_step, col_data, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    if (undefs[k]) {
+                    int orig_id = selected_rows[k];
+                    
+                    if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
                         data[k]->SetField(j, (GIntBig)(col_data[selected_rows[k]]));
@@ -433,7 +435,9 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 table->GetColData(col_pos, time_step, col_data, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    if (undefs[k]) {
+                    int orig_id = selected_rows[k];
+                    
+                    if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
                         data[k]->SetField(j, col_data[ selected_rows[k] ]);
@@ -449,7 +453,9 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 table->GetColData(col_pos, time_step, col_data, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    wxInt64 val = col_data[ selected_rows[k] ];
+                    int orig_id = selected_rows[k];
+                    
+                    wxInt64 val = col_data[ orig_id ];
                     int year = val / 10000000000;
                     val = val % 10000000000;
                     int month = val / 100000000;
@@ -460,7 +466,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     val = val % 10000;
                     int minute = val / 100;
                     int second = val % 100;
-                    if (undefs[k]) {
+                    
+                    if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
                         data[k]->SetField(j, year, month, day, hour, minute, second);
@@ -487,7 +494,9 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 }
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
-                    if (undefs[k]) {
+                    int orig_id = selected_rows[k];
+                    
+                    if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
                         data[k]->SetField(j, col_data[ selected_rows[k] ].mb_str());
