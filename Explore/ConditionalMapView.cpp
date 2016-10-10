@@ -51,16 +51,18 @@ END_EVENT_TABLE()
 
 const int ConditionalMapCanvas::CAT_VAR = 2; // main theme variable
 
-ConditionalMapCanvas::ConditionalMapCanvas(wxWindow *parent,
-									   TemplateFrame* t_frame,
-									   Project* project_s,
-									   const std::vector<GdaVarTools::VarInfo>& v_info,
-									   const std::vector<int>& col_ids,
-									   const wxPoint& pos, const wxSize& size)
+ConditionalMapCanvas::
+ConditionalMapCanvas(wxWindow *parent,
+                     TemplateFrame* t_frame,
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   true, true, pos, size),
 num_categories(1),bin_bm(0),
-bin_bg_map_pen(wxColor(200,200,200)), bin_bg_map_brush(wxColor(200,200,200)),
+bin_bg_map_pen(wxColor(200,200,200)),
+bin_bg_map_brush(wxColor(200,200,200)),
 cc_state_map(0),
 full_map_redraw_needed(true)
 {
@@ -80,17 +82,21 @@ full_map_redraw_needed(true)
 	shps_orig_ymax = project->main_data.header.bbox_y_max;
 	
 	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-								   shps_orig_xmax, shps_orig_ymax,
-								   virtual_screen_marg_top,
-								   virtual_screen_marg_bottom,
-								   virtual_screen_marg_left,
-								   virtual_screen_marg_right,
-								   GetVirtualSize().GetWidth(),
-								   GetVirtualSize().GetHeight(),
-								   fixed_aspect_ratio_mode, fit_to_window_mode,
-								   &scale_x, &scale_y, &trans_x, &trans_y, 0, 0,
-								   &current_shps_width, &current_shps_height);
+    GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
+                                    shps_orig_xmax, shps_orig_ymax,
+                                    virtual_screen_marg_top,
+                                    virtual_screen_marg_bottom,
+                                    virtual_screen_marg_left,
+                                    virtual_screen_marg_right,
+                                    GetVirtualSize().GetWidth(),
+                                    GetVirtualSize().GetHeight(),
+                                    fixed_aspect_ratio_mode,
+                                    fit_to_window_mode,
+                                    &scale_x, &scale_y,
+                                    &trans_x, &trans_y, 0, 0,
+                                    &current_shps_width,
+                                    &current_shps_height);
+    
 	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
 
 	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -1279,7 +1285,7 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 			cat_var_sorted[t][i].first = data[CAT_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = false;
+            cat_var_undef[t][i] = data_undef[CAT_VAR][thm_t][i];
 		}
 	}
 	

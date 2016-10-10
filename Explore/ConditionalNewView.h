@@ -36,6 +36,8 @@ class ConditionalNewLegend;
 class TableInterface;
 
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
+
 typedef boost::multi_array<GdaRectangle, 2> rec_array_type;
 
 class ConditionalNewCanvas
@@ -102,6 +104,7 @@ protected:
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;

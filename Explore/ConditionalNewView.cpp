@@ -66,7 +66,9 @@ num_obs(project_s->GetNumRecords()), num_time_vals(1),
 vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
 bin_extents(boost::extents[3][3]), bin_w(0), bin_h(0),
-data(v_info.size()), var_info(v_info),
+data(v_info.size()),
+data_undef(v_info.size()),
+var_info(v_info),
 table_int(project_s->GetTableInt()),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 cc_state_vert(0), cc_state_horiz(0), all_init(false)
@@ -78,6 +80,7 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 	template_frame->ClearAllGroupDependencies();
 	for (size_t i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}
 	horiz_num_time_vals = data[HOR_VAR].size();
@@ -93,7 +96,7 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 		for (int i=0; i<num_obs; i++) {
 			horiz_var_sorted[t][i].first = data[HOR_VAR][t][i];
 			horiz_var_sorted[t][i].second = i;
-            var_undef[t][i] = false;
+            var_undef[t][i] = var_undef[t][i]|| data_undef[HOR_VAR][t][i];
 		}
 		std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
@@ -109,6 +112,7 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 		for (int i=0; i<num_obs; i++) {
 			vert_var_sorted[t][i].first = data[VERT_VAR][t][i];
 			vert_var_sorted[t][i].second = i;
+            var_undef[t][i] = var_undef[t][i]|| data_undef[VERT_VAR][t][i];
 		}
 		std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
