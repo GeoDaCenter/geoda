@@ -238,7 +238,8 @@ bool OGRColumn::GetCellValue(int row, wxString& val)
 
 void OGRColumn::UpdateNullMarkers(const vector<bool>& undef_markers_)
 {
-    undef_markers = undef_markers_;
+    if (!undef_markers_.empty())
+        undef_markers = undef_markers_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

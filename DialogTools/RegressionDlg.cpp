@@ -966,7 +966,8 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	LOG_MSG("Entering RegressionDlg::OnCSaveRegressionClick");
 	if (!table_int) return;
 	int n_obs = table_int->GetNumberRows();
-	
+
+    std::vector<bool> save_undefs(n_obs);
 	std::vector<double> yhat(table_int->GetNumberRows());
 	std::vector<double> resid(table_int->GetNumberRows());
 	std::vector<double> prederr(RegressModel > 1 ? n_obs : 0);
@@ -978,6 +979,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 		for (int i=0; i<n_obs; i++) {
 			yhat[i] = m_yhat1[i];
 			resid[i] = m_resid1[i];
+            save_undefs[i] = undefs[i];
 		}
 	} else if (RegressModel==2) {
 		pre = "LAG_";
@@ -985,6 +987,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 			yhat[i] = m_yhat2[i];
 			resid[i] = m_resid2[i];
 			prederr[i] = m_prederr2[i];
+            save_undefs[i] = undefs[i];
 		}
 	} else { // RegressModel==3
 		pre = "ERR_";
@@ -992,21 +995,25 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 			yhat[i] = m_yhat3[i];
 			resid[i] = m_resid3[i];
 			prederr[i] = m_prederr3[i];
+            save_undefs[i] = undefs[i];
 		}
 	}	
 	
 	data[0].d_val = &yhat;
+    data[0].undefined = &save_undefs;
 	data[0].label = "Predicted Value";
 	data[0].field_default = pre + "PREDIC";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &resid;
+    data[1].undefined = &save_undefs;
 	data[1].label = "Residual";
 	data[1].field_default = pre + "RESIDU";
 	data[1].type = GdaConst::double_type;
 		
 	if (RegressModel > 1) {
 		data[2].d_val = &prederr;
+        data[2].undefined = &save_undefs;
 		data[2].label = "Prediction Error";
 		data[2].field_default = pre + "PRDERR";
 		data[2].type = GdaConst::double_type;
