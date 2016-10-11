@@ -597,7 +597,12 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 		size_t n = X.size();
 		wxString key = SmoothingUtils::LowessCacheKey(0, 0);
 		
-		SmoothingUtils::LowessCacheEntry* lce = SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y, X_undef, Y_undef);
+        std::vector<bool> XY_undefs;
+        for (size_t ii=0; ii<X.size(); ii++){
+            XY_undefs.push_back(X[ii] || Y[ii]);
+        }
+        
+		SmoothingUtils::LowessCacheEntry* lce = SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y, XY_undefs);
 		
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");

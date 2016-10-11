@@ -126,14 +126,9 @@ namespace SmoothingUtils {
                                                const wxString& key,
                                                Lowess& lowess,
                                                const std::vector<double>& X,
-                                               const std::vector<double>& Y);
-    LowessCacheEntry* UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
-                                               const wxString& key,
-                                               Lowess& lowess,
-                                               const std::vector<double>& X,
                                                const std::vector<double>& Y,
-                                               const std::vector<bool>& X_undef,
-                                               const std::vector<bool>& Y_undef);
+                                               const std::vector<bool>& XY_undef);
+    
     
     
 	/** Given LowessCacheEntry, run LOWESS on subests specified by

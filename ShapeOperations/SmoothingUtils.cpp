@@ -494,68 +494,52 @@ wxString SmoothingUtils::LowessCacheKey(int x_time, int y_time)
 	return key;
 }
 
-SmoothingUtils::LowessCacheEntry* 
-SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
-										 const wxString& key, Lowess& lowess,
-										 const std::vector<double>& X_,
-										 const std::vector<double>& Y_,
-										 const std::vector<bool>& X_undef,
-										 const std::vector<bool>& Y_undef)
-{
-	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
-    
-    std::vector<double> X;
-    std::vector<double> Y;
-    
-    for (size_t i=0; i<X_undef.size(); i++) {
-        if (! X_undef[i] && !Y_undef[i]) {
-            X.push_back(X_[i]);
-            Y.push_back(Y_[i]);
-        }
-    }
-    return UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
-}
 
 SmoothingUtils::LowessCacheEntry* 
 SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 										 const wxString& key, Lowess& lowess,
 										 const std::vector<double>& X,
-										 const std::vector<double>& Y)
+										 const std::vector<double>& Y,
+                                         const std::vector<bool>& XY_undefs)
 {
 	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
     
 	size_t n = X.size();
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	LowessCacheEntry* lce = 0;
-	if (it != lowess_cache.end()) lce = it->second;
+    
+	if (it != lowess_cache.end())
+        lce = it->second;
 	if (lce) {
-		LOG_MSG("LOWESS cache entry found for key: " + key);
+		//LOG_MSG("LOWESS cache entry found for key: " + key);
 		return lce;
 	}
-	LOG_MSG("No LOWESS cache entry found for key: " + key);
-	lce = new LowessCacheEntry(n);
-	// sort points by X value
-	Gda::dbl_int_pair_vec_type Xpairs(n);
+	//LOG_MSG("No LOWESS cache entry found for key: " + key);
+   
+    Gda::dbl_int_pair_vec_type Xpairs;
+    
+    int valid_n = 0;
 	for (size_t i=0; i<n; ++i) {
-		Xpairs[i].first = X[i];
-		Xpairs[i].second = i;
-	}
+        if (!XY_undefs[i]) {
+            valid_n += 1;
+            Xpairs.push_back(std::make_pair(X[i], i));
+        }
+    }
+    
 	// Sort in ascending order by value
 	std::sort(Xpairs.begin(), Xpairs.end(), Gda::dbl_int_pair_cmp_less);
-	
-	for (size_t i=0; i<n; ++i) {
-		lce->sort_map[i] = Xpairs[i].second;
-		lce->X_srt[i] = Xpairs[i].first;
-		lce->Y_srt[i] = Y[Xpairs[i].second];
+    
+	lce = new LowessCacheEntry(valid_n);
+    
+	for (size_t i=0; i<Xpairs.size(); ++i) {
+        int obj_id = Xpairs[i].second;
+        int obj_val = Xpairs[i].first;
+		lce->sort_map[i] = obj_id;
+		lce->X_srt[i] = obj_val;
+		lce->Y_srt[i] = Y[obj_id];
 	}
 	
-	wxStopWatch sw_lowess;
 	lowess.calc(lce->X_srt, lce->Y_srt, lce->YS_srt);
-	{
-		wxString m;
-		m << "LOWESS compute time on " << n << " points took ";
-		m << sw_lowess.Time() << " ms.";
-	}
 	lowess_cache[key] = lce;
 	
 	LOG_MSG("Exiting SmoothingUtils::UpdateLowessCacheForTime");
@@ -576,13 +560,15 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
         return;
     
     
-	size_t n = hl.size();
+    size_t n = 0;
 	size_t tot_hl = 0;
     size_t tot_uhl = 0;
     
-    for (size_t i=0; i<n; ++i) {
+    for (size_t i=0; i<hl.size(); ++i) {
         if (undefs[i])
             continue;
+       
+        n++;
         
         if (hl[i]) {
             ++tot_hl;
@@ -594,18 +580,20 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 	sel_smthd_srt_y.resize(tot_hl);
 	unsel_smthd_srt_x.resize(tot_uhl);
 	unsel_smthd_srt_y.resize(tot_uhl);
-	
+
+    
 	if (tot_hl > 0) {
 		LOG_MSG("Calculating selected LOWESS regime");
 		size_t ss_size = tot_hl;
-		std::vector<double>& X_sorted = sel_smthd_srt_x;
 		std::vector<double> Y_sorted(ss_size);
-		std::vector<double>& YS_sorted = sel_smthd_srt_y;
 		size_t ss_cnt = 0;
+        
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
-			if (ii < n && hl[ii] && !undefs[ii]) {
-				X_sorted[ss_cnt] = lce->X_srt[i];
+            if (undefs[ii])
+                continue;
+			if (hl[ii]) {
+				sel_smthd_srt_x[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
@@ -613,28 +601,25 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
-			YS_sorted[0] = Y_sorted[0];
+			sel_smthd_srt_y[0] = Y_sorted[0];
 		} else {
-			wxStopWatch sw_lowess;
-			lowess.calc(X_sorted, Y_sorted, YS_sorted);
-			wxString m = "";
-			m << "LOWESS compute time on " << ss_size << " points took ";
-			m << sw_lowess.Time() << " ms.";
-			LOG_MSG(m);
+			lowess.calc(sel_smthd_srt_x, Y_sorted, sel_smthd_srt_y);
 		}
 	}
 	
 	if (tot_uhl > 0) {
 		LOG_MSG("Calculating unselected LOWESS regime");
 		size_t ss_size = tot_uhl;
-		std::vector<double>& X_sorted = unsel_smthd_srt_x;
 		std::vector<double> Y_sorted(ss_size);
-		std::vector<double>& YS_sorted = unsel_smthd_srt_y;
 		size_t ss_cnt = 0;
+        
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
-			if (ii < n && !hl[ii] && !undefs[ii]) {
-				X_sorted[ss_cnt] = lce->X_srt[i];
+            if (undefs[ii])
+                continue;
+			if (!hl[ii]) {
+				//X_sorted[ss_cnt] = lce->X_srt[i];
+				unsel_smthd_srt_x[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
@@ -642,14 +627,11 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
-			YS_sorted[0] = Y_sorted[0];
+			//YS_sorted[0] = Y_sorted[0];
+			unsel_smthd_srt_y[0] = Y_sorted[0];
 		} else {
-			wxStopWatch sw_lowess;
-			lowess.calc(X_sorted, Y_sorted, YS_sorted);
-			wxString m = "";
-			m << "LOWESS compute time on " << ss_size << " points took ";
-			m << sw_lowess.Time() << " ms.";
-			LOG_MSG(m);
+			//lowess.calc(X_sorted, Y_sorted, YS_sorted);
+			lowess.calc(unsel_smthd_srt_x, Y_sorted, unsel_smthd_srt_y);
 		}
 	}
 

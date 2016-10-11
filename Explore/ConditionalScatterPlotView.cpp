@@ -574,13 +574,17 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 				wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
 				key << "_row" << i << "_col" << j;
 				LOG_MSG("Begin populating LOWESS curve for key " + key);
-				
+			
+                std::vector<bool> XY_undefs;
+                for (size_t ii=0; ii<xref.size(); ii++){
+                    XY_undefs.push_back(var_undef[IND_VAR][ii] ||
+                                        var_undef[DEP_VAR][ii]);
+                }
 				SmoothingUtils::LowessCacheEntry* lce =
 				SmoothingUtils::UpdateLowessCacheForTime(lowess_cache,
                                                          key, lowess,
                                                          xref, yref,
-                                                         var_undef[IND_VAR],
-                                                         var_undef[DEP_VAR]);
+                                                         XY_undefs);
 				
 				if (!lce) {
 					LOG_MSG("Error: could not create or find LOWESS cache entry");

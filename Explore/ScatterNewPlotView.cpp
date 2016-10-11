@@ -1025,7 +1025,8 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
 		
 		SmoothingUtils::LowessCacheEntry* lce =
-			SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y, XYZ_undef, XYZ_undef);
+			SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess,
+                                                     X, Y, XYZ_undef);
 		
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");
@@ -1587,12 +1588,14 @@ void ScatterNewPlotCanvas::ShowAxesThroughOrigin(bool show_origin_axes_s)
 /** Called when selection changes */
 void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 {
-	if (!lowess_reg_line_selected && !lowess_reg_line_excluded) return;
+	if (!lowess_reg_line_selected && !lowess_reg_line_excluded)
+        return;
+    
 	size_t n = num_obs;
 	int xt = var_info[0].time-var_info[0].time_min;
 	int yt = var_info[1].time-var_info[1].time_min;
 	wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
-	LOG(key);
+    
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	SmoothingUtils::LowessCacheEntry* lce = 0;
 	if (it != lowess_cache.end()) {
@@ -1613,13 +1616,16 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 	if (IsShowRegimes()) {
         SmoothingUtils::CalcLowessRegimes(lce, lowess,
                                           highlight_state->GetHighlight(),
-                                          sel_smthd_srt_x, sel_smthd_srt_y,
-                                          unsel_smthd_srt_x, unsel_smthd_srt_y,
+                                          sel_smthd_srt_x,
+                                          sel_smthd_srt_y,
+                                          unsel_smthd_srt_x,
+                                          unsel_smthd_srt_y,
                                           XYZ_undef);
 	}
 	if (lowess_reg_line_selected) {
 		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
-            lowess_reg_line_selected->reInit(sel_smthd_srt_x, sel_smthd_srt_y,
+            lowess_reg_line_selected->reInit(sel_smthd_srt_x,
+                                             sel_smthd_srt_y,
                                              axis_scale_x.scale_min,
                                              axis_scale_y.scale_min,
                                              scaleX, scaleY);
