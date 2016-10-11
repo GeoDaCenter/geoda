@@ -1025,7 +1025,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
 		
 		SmoothingUtils::LowessCacheEntry* lce =
-			SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+			SmoothingUtils::UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y, XYZ_undef, XYZ_undef);
 		
 		if (!lce) {
 			LOG_MSG("Error: could not create or find LOWESS cache entry");
@@ -1614,7 +1614,8 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
         SmoothingUtils::CalcLowessRegimes(lce, lowess,
                                           highlight_state->GetHighlight(),
                                           sel_smthd_srt_x, sel_smthd_srt_y,
-                                          unsel_smthd_srt_x, unsel_smthd_srt_y);
+                                          unsel_smthd_srt_x, unsel_smthd_srt_y,
+                                          XYZ_undef);
 	}
 	if (lowess_reg_line_selected) {
 		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {

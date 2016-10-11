@@ -1504,11 +1504,10 @@ void GdaSpline::addExtensions(double x_orig_first, double y_orig_first,
 	center.y = (int) center_o.y;	
 }
 
-void GdaSpline::reInit(
-											 const std::vector<double>& x_orig,
-											 const std::vector<double>& y_orig,
-											 double x_trans, double y_trans,
-											 double x_scale, double y_scale)
+void GdaSpline::reInit(const std::vector<double>& x_orig,
+                       const std::vector<double>& y_orig,
+                       double x_trans, double y_trans,
+                       double x_scale, double y_scale)
 {
 	n = (int) x_orig.size();
 	if (points) delete points; points = 0;	

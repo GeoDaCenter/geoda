@@ -508,12 +508,12 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
     std::vector<double> Y;
     
     for (size_t i=0; i<X_undef.size(); i++) {
-        if (X_undef[i] || Y_undef[i]) {
+        if (! X_undef[i] && !Y_undef[i]) {
             X.push_back(X_[i]);
             Y.push_back(Y_[i]);
         }
     }
-    UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
+    return UpdateLowessCacheForTime(lowess_cache, key, lowess, X, Y);
 }
 
 SmoothingUtils::LowessCacheEntry* 
@@ -563,19 +563,33 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 }
 
 void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
-									 Lowess& lowess,
-									 const std::vector<bool>& hl,
-									 std::vector<double>& sel_smthd_srt_x,
-									 std::vector<double>& sel_smthd_srt_y,
-									 std::vector<double>& unsel_smthd_srt_x,
-									 std::vector<double>& unsel_smthd_srt_y)
+                                       Lowess& lowess,
+                                       const std::vector<bool>& hl,
+                                       std::vector<double>& sel_smthd_srt_x,
+                                       std::vector<double>& sel_smthd_srt_y,
+                                       std::vector<double>& unsel_smthd_srt_x,
+                                       std::vector<double>& unsel_smthd_srt_y,
+                                       std::vector<bool>& undefs)
 {
 	LOG_MSG("Entering SmoothingUtils::CalcLowessRegimes");
-	if (!lce || !(hl.size() > 1)) return;
+	if (!lce || !(hl.size() > 1))
+        return;
+    
+    
 	size_t n = hl.size();
 	size_t tot_hl = 0;
-	for (size_t i=0; i<n; ++i) if (hl[i]) ++tot_hl;
-	size_t tot_uhl = n - tot_hl;
+    size_t tot_uhl = 0;
+    
+    for (size_t i=0; i<n; ++i) {
+        if (undefs[i])
+            continue;
+        
+        if (hl[i]) {
+            ++tot_hl;
+        } else
+            ++tot_uhl;
+    }
+    
 	sel_smthd_srt_x.resize(tot_hl);
 	sel_smthd_srt_y.resize(tot_hl);
 	unsel_smthd_srt_x.resize(tot_uhl);
@@ -590,20 +604,13 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 		size_t ss_cnt = 0;
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
-			if (hl[ii]) {
+			if (ii < n && hl[ii] && !undefs[ii]) {
 				X_sorted[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
 		}
-		assert(ss_cnt == ss_size);
-		
-		// verify sort
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	if (i<ss_size-1) assert(X_sorted[i] <= X_sorted[i+1]);
-		//	LOG_MSG(wxString::Format("sorted input %d: %f, %f", (int) i,
-		//													 X_sorted[i], Y_sorted[i]));
-		//}
+		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
 			YS_sorted[0] = Y_sorted[0];
@@ -615,12 +622,6 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 			m << sw_lowess.Time() << " ms.";
 			LOG_MSG(m);
 		}
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	LOG_MSG(wxString::Format("X_sorted[%d]: %f, Y_sorted[%d]: %f, "
-		//													 "YS_sorted[%d]: %f",
-		//													 (int)i, X_sorted[i], (int)i, Y_sorted[i],
-		//													 (int)i, YS_sorted[i]));
-		//}
 	}
 	
 	if (tot_uhl > 0) {
@@ -632,20 +633,13 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 		size_t ss_cnt = 0;
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
-			if (!hl[ii]) {
+			if (ii < n && !hl[ii] && !undefs[ii]) {
 				X_sorted[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
 		}
-		assert(ss_cnt == ss_size);
-		
-		// verify sort
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	if (i<ss_size-1) assert(X_sorted[i] <= X_sorted[i+1]);
-		//	LOG_MSG(wxString::Format("sorted input %d: %f, %f", (int) i,
-		//													 X_sorted[i], Y_sorted[i]));
-		//}
+		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
 			YS_sorted[0] = Y_sorted[0];
@@ -657,12 +651,6 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 			m << sw_lowess.Time() << " ms.";
 			LOG_MSG(m);
 		}
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	LOG_MSG(wxString::Format("X_sorted[%d]: %f, Y_sorted[%d]: %f, "
-		//													 "YS_sorted[%d]: %f",
-		//													 (int)i, X_sorted[i], (int)i, Y_sorted[i],
-		//													 (int)i, YS_sorted[i]));
-		//}
 	}
 
 	LOG_MSG("Exiting SmoothingUtils::CalcLowessRegimes");

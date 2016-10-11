@@ -86,6 +86,7 @@ void HighlightState::notifyObservers()
 {
 	ApplyChanges();
 	if (event_type == empty) return;
+    if (observers.empty()) return;
 	// See section 18.4.4.2 of Stroustrup
 	std::for_each(observers.begin(), observers.end(),
 			 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));

@@ -98,7 +98,8 @@ show_lowess_smoother(false)
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
+		if (var_info[i].is_ref_variable)
+            ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -
@@ -190,7 +191,8 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	//    and fit_to_window_mode being false currently.
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::ResizeSelectableShps");
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
-	if (vs_w <= 0 && vs_h <= 0) GetVirtualSize(&vs_w, &vs_h);
+	if (vs_w <= 0 && vs_h <= 0)
+        GetVirtualSize(&vs_w, &vs_h);
 	
 	double image_width, image_height;
 	bool ftwm = GetFitToWindowMode();
@@ -576,7 +578,9 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 				SmoothingUtils::LowessCacheEntry* lce =
 				SmoothingUtils::UpdateLowessCacheForTime(lowess_cache,
                                                          key, lowess,
-                                                         xref, yref);
+                                                         xref, yref,
+                                                         var_undef[IND_VAR],
+                                                         var_undef[DEP_VAR]);
 				
 				if (!lce) {
 					LOG_MSG("Error: could not create or find LOWESS cache entry");

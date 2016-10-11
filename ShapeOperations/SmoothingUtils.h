@@ -147,7 +147,8 @@ namespace SmoothingUtils {
                            std::vector<double>& sel_smthd_srt_x,
                            std::vector<double>& sel_smthd_srt_y,
                            std::vector<double>& unsel_smthd_srt_x,
-                           std::vector<double>& unsel_smthd_srt_y);
+                           std::vector<double>& unsel_smthd_srt_y,
+                           std::vector<bool>& undefs);
     
     
 	/** Deletes (frees memory) all allocated cache values and empties cache. */

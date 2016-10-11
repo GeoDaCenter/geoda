@@ -390,12 +390,18 @@ void SimpleScatterPlotCanvas::UpdateLowessOnRegimes()
 	std::vector<double> sel_smthd_srt_y;
 	std::vector<double> unsel_smthd_srt_x;
 	std::vector<double> unsel_smthd_srt_y;
-	
+    
+    std::vector<bool> XY_undef;
+    for (size_t i=0; i<X_undef.size(); i++) {
+        XY_undef.push_back(X_undef[i] || Y_undef[i]);
+    }
+    
 	if (IsShowRegimes()) {
 		SmoothingUtils::CalcLowessRegimes(lce, lowess,
 										  highlight_state->GetHighlight(),
 										  sel_smthd_srt_x, sel_smthd_srt_y,
-										  unsel_smthd_srt_x, unsel_smthd_srt_y);
+										  unsel_smthd_srt_x, unsel_smthd_srt_y,
+                                          XY_undef);
 	}
 	if (lowess_reg_line_selected) {
 		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {

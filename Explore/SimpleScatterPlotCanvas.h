@@ -121,6 +121,7 @@ protected:
 	std::vector<double> Y;
 	std::vector<bool> X_undef;
 	std::vector<bool> Y_undef;
+        
 	const std::vector<double>& orgX;
 	const std::vector<double>& orgY;
 	wxString Xname;
