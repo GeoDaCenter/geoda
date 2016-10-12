@@ -770,7 +770,8 @@ void ScatterNewPlotCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");
+    
+	SaveCategories(title, label, "CATEGORIES", XYZ_undef);
 }
 
 void ScatterNewPlotCanvas::SetHighlightColor(wxColour color)

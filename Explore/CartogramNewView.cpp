@@ -505,7 +505,16 @@ void CartogramNewCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");
+    
+    std::vector<bool> undefs(num_obs, false);
+    
+    for (size_t i=0; i<var_undefs.size(); i++) {
+        for (size_t j=0; j<var_undefs[i].size(); j++) {
+            undefs[j] = undefs[j] || var_undefs[i][j];
+        }
+    }
+    
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void CartogramNewCanvas::NewCustomCatClassif()

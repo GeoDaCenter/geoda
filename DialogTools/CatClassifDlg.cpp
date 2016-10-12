@@ -1623,6 +1623,7 @@ void CatClassifPanel::SaveCategories(const wxString& title,
     data[0].type = GdaConst::long64_type;
     data[0].l_val = &dt;
     data[0].label = label;
+    data[0].undefined = &data_undef;
     data[0].field_default = field_default;
     
     for (int i=0; i<num_obs; i++ ) {

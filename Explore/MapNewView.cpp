@@ -59,7 +59,13 @@ BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
 #endif
 END_EVENT_TABLE()
 
-SliderDialog::SliderDialog ( wxWindow * parent, TemplateCanvas* _canvas, wxWindowID id, const wxString & caption, const wxPoint & position, const wxSize & size, long style )
+SliderDialog::SliderDialog(wxWindow * parent,
+                           TemplateCanvas* _canvas,
+                           wxWindowID id,
+                           const wxString & caption,
+                           const wxPoint & position,
+                           const wxSize & size,
+                           long style )
 : wxDialog( parent, id, caption, position, size, style)
 {
     canvas = _canvas;
@@ -77,20 +83,22 @@ SliderDialog::SliderDialog ( wxWindow * parent, TemplateCanvas* _canvas, wxWindo
 
 	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
     slider = new wxSlider(this, ID_SLIDER, trasp_scale, 0, 100,
-                                    wxDefaultPosition, wxSize(200, -1),
-                                    wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"0"), 0, wxALIGN_CENTER_VERTICAL|wxALL);
+                          wxDefaultPosition, wxSize(200, -1),
+                          wxSL_HORIZONTAL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"0"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
     subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,wxALIGN_CENTER_VERTICAL|wxALL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
 
 	boxSizer->Add(subSizer);
     wxString txt_transparency = wxString::Format("Current Transparency: %.1f", trasp);
     
-	slider_text = new wxStaticText(this,
-                                 wxID_ANY,
+    slider_text = new wxStaticText(this,
+                                   wxID_ANY,
                                    txt_transparency,
-                                 wxDefaultPosition,
-                                 wxSize(100, -1));
+                                   wxDefaultPosition,
+                                   wxSize(100, -1));
     boxSizer->Add(slider_text, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
@@ -390,8 +398,7 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	layer2_valid = false;
 }
 
-// Draw all solid background, background decorations and unhighlighted
-// shapes.
+// Draw all solid background, background decorations and unhighlighted shapes.
 void MapCanvas::DrawLayer0()
 {
 	//LOG_MSG("In TemplateCanvas::DrawLayer0");
@@ -425,7 +432,6 @@ void MapCanvas::DrawLayer0()
 // draw highlighted shapes.
 void MapCanvas::DrawLayer1()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer1");
     // recreate highlight layer
 	wxSize sz = GetVirtualSize();
     if (layer1_bm) {
@@ -447,7 +453,6 @@ void MapCanvas::DrawLayer1()
 
 void MapCanvas::DrawLayer2()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer2");
 	wxSize sz = GetVirtualSize();
 
     if (layer2_bm) {
@@ -774,7 +779,14 @@ void MapCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");	
+    
+    std::vector<bool> undefs(num_obs);
+    for (int t=0; t<num_time_vals; t++) {
+        for (int i=0; i<num_obs; i++) {
+            undefs[i] = undefs[i] || data_undef[0][t][i];
+        }
+    }
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void MapCanvas::NewCustomCatClassif()
@@ -1430,14 +1442,19 @@ void MapCanvas::SaveRates()
 	
 	std::vector<SaveToTableEntry> data(1);
 	
+    std::vector<bool> undefs(num_obs);
 	std::vector<double> dt(num_obs);
+    
 	int t = cat_data.GetCurrentCanvasTmStep();
     for (int i=0; i<num_obs; i++) {
 		dt[cat_var_sorted[t][i].second] = cat_var_sorted[t][i].first;
+        undefs[i] = data_undef[0][t][i];
 	}
+    
 	data[0].type = GdaConst::double_type;
 	data[0].d_val = &dt;
 	data[0].label = "Rate";
+    data[0].undefined = &undefs;
 	
 	if (smoothing_type == raw_rate) {
 		data[0].field_default = "R_RAW_RT";

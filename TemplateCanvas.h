@@ -240,8 +240,10 @@ public:
 		
 	void CreateZValArrays(int num_canvas_tms, int num_obs);
 	virtual wxString GetCategoriesTitle();
-	virtual void SaveCategories(const wxString& title, const wxString& label,
-								const wxString& field_default);
+	virtual void SaveCategories(const wxString& title,
+                                const wxString& label,
+								const wxString& field_default,
+                                std::vector<bool>& undefs);
     
     
     

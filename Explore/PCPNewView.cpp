@@ -542,7 +542,16 @@ void PCPCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");
+    
+    std::vector<bool> undefs(num_obs, false);
+    
+    for (size_t i=0; i<undef_markers.size(); i++) {
+        for (size_t j=0; j<undef_markers[i].size(); j++) {
+            undefs[j] = undefs[j] || undef_markers[i][j];
+        }
+    }
+    
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void PCPCanvas::PopulateCanvas()

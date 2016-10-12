@@ -382,7 +382,16 @@ void ConditionalMapCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");	
+    
+    std::vector<bool> undefs(num_obs, false);
+    
+    for (size_t i=0; i<cat_var_undef.size(); i++) {
+        for (size_t j=0; j<cat_var_undef[i].size(); j++) {
+            undefs[j] = undefs[j] || cat_var_undef[i][j];
+        }
+    }
+    
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void ConditionalMapCanvas::NewCustomCatClassifMap()

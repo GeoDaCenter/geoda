@@ -507,7 +507,7 @@ void LisaScatterPlotCanvas::SaveMoranI()
     
 	int xt = sp_var_info[0].time-sp_var_info[0].time_min;
 	int yt = sp_var_info[1].time-sp_var_info[1].time_min;
-	
+
 
 	for (int i=0; i<num_obs; i++) {
 		std_data[i] = x_data[xt][i];
@@ -532,16 +532,20 @@ void LisaScatterPlotCanvas::SaveMoranI()
 	data[0].label = "Standardized Data";
 	data[0].field_default = "MORAN_STD";
 	data[0].type = GdaConst::double_type;
+    data[0].undefined = &XYZ_undef;
+    
 	data[1].d_val = &lag;
 	data[1].label = "Spatial Lag";
 	data[1].field_default = "MORAN_LAG";
 	data[1].type = GdaConst::double_type;
+    data[1].undefined = &XYZ_undef;
     
     if (is_diff) {
         data[2].d_val = &diff;
         data[2].label = "Diff Values";
         data[2].field_default = "DIFF_VAL";
         data[2].type = GdaConst::double_type;
+        data[2].undefined = &XYZ_undef;
     }
 	
 	SaveToTableDlg dlg(project, this, data, title,

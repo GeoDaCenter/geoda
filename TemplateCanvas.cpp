@@ -2959,7 +2959,8 @@ wxString TemplateCanvas::GetCategoriesTitle()
  category with 1, 2, ...,#categories. */
 void TemplateCanvas::SaveCategories(const wxString& title,
 									const wxString& label,
-									const wxString& field_default)
+									const wxString& field_default,
+                                    std::vector<bool>& undefs)
 {
 	if (project->GetNumRecords() != selectable_shps.size()) return;
 	std::vector<SaveToTableEntry> data(1);
@@ -2972,14 +2973,17 @@ void TemplateCanvas::SaveCategories(const wxString& title,
 	data[0].l_val = &dt;
 	data[0].label = label;
 	data[0].field_default = field_default;
+    data[0].undefined = &undefs;
 	
 	for (int cat=0; cat<num_cats; cat++) {
 		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-		for (int i=0, iend=ids.size(); i<iend; i++) dt[ids[i]] = cat+1;
+        for (int i=0, iend=ids.size(); i<iend; i++) {
+            dt[ids[i]] = cat+1;
+        }
 	}
 	
 	SaveToTableDlg dlg(project, this, data,
-										 title, wxDefaultPosition, wxSize(500,400));
+                       title, wxDefaultPosition, wxSize(500,400));
 	dlg.ShowModal();
 }
 

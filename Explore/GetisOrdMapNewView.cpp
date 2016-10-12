@@ -631,14 +631,22 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	wxString title = "Save Results: ";
 	title += is_gi ? "Gi" : "Gi*";
 	title += "-stats, ";
-	if (is_perm) title += wxString::Format("pseudo p (%d perm), ",
-										   gs_coord->permutations);
-	if (!is_perm) title += "normal p, ";
+    
+	if (is_perm)
+        title += wxString::Format("pseudo p (%d perm), ",
+                                  gs_coord->permutations);
+	if (!is_perm)
+        title += "normal p, ";
+    
 	title += row_standardize ? "row-standarized W" : "binary W";
 	
 	double* g_val_t = is_gi ? gs_coord->G_vecs[t] : gs_coord->G_star_vecs[t];
 	std::vector<double> g_val(gs_coord->num_obs);
-	for (int i=0; i<gs_coord->num_obs; i++) g_val[i] = g_val_t[i];
+    
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        g_val[i] = g_val_t[i];
+    }
+    
 	wxString g_label = is_gi ? "G" : "G*";
 	wxString g_field_default = is_gi ? "G" : "G_STR";
 	
@@ -651,7 +659,9 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	std::vector<double> p_val(gs_coord->num_obs);
 	double* z_val_t = is_gi ? gs_coord->z_vecs[t] : gs_coord->z_star_vecs[t];
 	std::vector<double> z_val(gs_coord->num_obs);
-	for (int i=0; i<gs_coord->num_obs; i++) z_val[i] = z_val_t[i];
+	for (int i=0; i<gs_coord->num_obs; i++)
+        z_val[i] = z_val_t[i];
+    
 	wxString p_label = is_perm ? "pseudo p-value" : "p-value";
 	wxString p_field_default = is_perm ? "PP_VAL" : "P_VAL";
 	
@@ -667,28 +677,40 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	for (int i=0; i<gs_coord->num_obs; i++) p_val[i] = p_val_t[i];
 	
 	std::vector<SaveToTableEntry> data(is_perm ? 3 : 4);
+    std::vector<bool> undefs(gs_coord->num_obs, false);
+    
+    for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
+        for (size_t j=0; j<gs_coord->x_undefs[i].size(); j++) {
+            undefs[j] = undefs[j] || gs_coord->x_undefs[i][j];
+        }
+    }
+    
 	int data_i = 0;
 	data[data_i].d_val = &g_val;
 	data[data_i].label = g_label;
 	data[data_i].field_default = g_field_default;
 	data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &undefs;
 	data_i++;
 	data[data_i].l_val = &c_val;
 	data[data_i].label = c_label;
 	data[data_i].field_default = c_field_default;
 	data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
 	data_i++;
 	if (!is_perm) {
 		data[data_i].d_val = &z_val;
 		data[data_i].label = "z-score";
 		data[data_i].field_default = "Z_SCR";
 		data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &undefs;
 		data_i++;
 	}
 	data[data_i].d_val = &p_val;
 	data[data_i].label = p_label;
 	data[data_i].field_default = p_field_default;
 	data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &undefs;
 	data_i++;
 	
 	SaveToTableDlg dlg(project, this, data, title,

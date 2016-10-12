@@ -640,6 +640,11 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
     } else {
         data.resize(3);
     }
+   
+    std::vector<bool> undefs(lisa_coord->num_obs, false);
+    for (int i=0; i<lisa_coord->undef_data[0][t].size(); i++){
+        undefs[i] = undefs[i] || lisa_coord->undef_data[0][t][i];
+    }
     
 	std::vector<double> tempLocalMoran(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
@@ -649,6 +654,7 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[0].label = "Lisa Indices";
 	data[0].field_default = "LISA_I";
 	data[0].type = GdaConst::double_type;
+    data[0].undefined = &undefs;
 	
 	double cuttoff = lisa_coord->significance_cutoff;
 	double* p = lisa_coord->sig_local_moran_vecs[t];
@@ -665,6 +671,7 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].label = "Clusters";
 	data[1].field_default = "LISA_CL";
 	data[1].type = GdaConst::long64_type;
+    data[1].undefined = &undefs;
 	
 	std::vector<double> sig(lisa_coord->num_obs);
     std::vector<double> diff(lisa_coord->num_obs);
@@ -683,13 +690,15 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[2].d_val = &sig;
 	data[2].label = "Significance";
 	data[2].field_default = "LISA_P";
-	data[2].type = GdaConst::double_type;	
+	data[2].type = GdaConst::double_type;
+    data[2].undefined = &undefs;
 	
     if (lc->is_diff) {
         data[3].d_val = &diff;
         data[3].label = "Diff Values";
         data[3].field_default = "DIFF_VAL2";
         data[3].type = GdaConst::double_type;
+        data[3].undefined = &undefs;
     }
     
 	SaveToTableDlg dlg(project, this, data,
