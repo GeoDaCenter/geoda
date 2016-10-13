@@ -310,7 +310,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
             
 			if (m_is_arc && m_arc_in_km) {
-				t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
+				//t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
 			}
             
 			if (t_val > 0) {
@@ -443,7 +443,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				break;
 			}
             if (has_island) {
-                wxString msg("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
+                wxString msg = _("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
                 wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
                 dlg.ShowModal();
             }
@@ -469,10 +469,9 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 {
 	if (m_cbx_precision_threshold_first_click) {
 		// Show a warning message regarding the use of this function
-		wxString msg;
-        msg << "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations.";
-		wxMessageDialog dlg(NULL, msg, "About Precision Threshold",
-												wxOK | wxICON_INFORMATION);
+		wxString msg = _("Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations.");
+		wxMessageDialog dlg(NULL, msg, _("About Precision Threshold"),
+                            wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		m_cbx_precision_threshold_first_click = false;
 	}
@@ -634,7 +633,10 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	m_sliderdistance->SetSize(sl_x, sl_y, 500, sl_size.GetHeight());
 	
 	if (m_X->GetSelection() == wxNOT_FOUND ||
-			m_Y->GetSelection() == wxNOT_FOUND) return;
+        m_Y->GetSelection() == wxNOT_FOUND) {
+        return;
+    }
+    
 	wxString mm_x = m_X->GetString(m_X->GetSelection());
 	wxString mm_y = m_Y->GetString(m_Y->GetSelection());
 	wxString v1 = mm_x;
@@ -693,8 +695,9 @@ void CreatingWeightDlg::UpdateThresholdValues()
 		}
 	}
 	
-	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO, m_is_arc,
-																									!m_arc_in_km);
+	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO,
+                                                    m_is_arc,
+                                                    !m_arc_in_km);
 	{
 		using namespace PointSetAlgs;
 		using namespace GenGeomAlgs;

@@ -37,6 +37,8 @@
 #include <wx/textfile.h>
 #include <wx/regex.h>
 
+#include <ogrsf_frmts.h>
+
 #include "stdio.h"
 #include <iostream>
 #include <sstream>
@@ -267,6 +269,61 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     LOG_MSG("Exiting CsvFieldConfDlg::CsvFieldConfDlg(..)");
 }
+
+void CsvFieldConfDlg::PreviewCSV(wxString ds_name)
+{
+    const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
+    const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
+    GDALDataset* poDS = (GDALDataset*) GDALOpenEx(pszDsPath,
+                                                  GDAL_OF_VECTOR|GDAL_OF_UPDATE,
+                                                  NULL,
+                                                  papszOpenOptions,
+                                                  NULL);
+    if( poDS == NULL )
+    {
+        printf( "Open failed.\n" );
+        exit( 1 );
+    }
+    OGRLayer  *poLayer;
+    poLayer = poDS->GetLayerByName( "point" );
+    OGRFeature *poFeature;
+    poLayer->ResetReading();
+    while( (poFeature = poLayer->GetNextFeature()) != NULL )
+    {
+        OGRFeatureDefn *poFDefn = poLayer->GetLayerDefn();
+        int iField;
+        for( iField = 0; iField < poFDefn->GetFieldCount(); iField++ )
+        {
+            OGRFieldDefn *poFieldDefn = poFDefn->GetFieldDefn( iField );
+            if( poFieldDefn->GetType() == OFTInteger )
+                printf( "%d,", poFeature->GetFieldAsInteger( iField ) );
+            else if( poFieldDefn->GetType() == OFTInteger64 )
+                printf( CPL_FRMT_GIB ",", poFeature->GetFieldAsInteger64( iField ) );
+            else if( poFieldDefn->GetType() == OFTReal )
+                printf( "%.3f,", poFeature->GetFieldAsDouble(iField) );
+            else if( poFieldDefn->GetType() == OFTString )
+                printf( "%s,", poFeature->GetFieldAsString(iField) );
+            else
+                printf( "%s,", poFeature->GetFieldAsString(iField) );
+        }
+        OGRGeometry *poGeometry;
+        poGeometry = poFeature->GetGeometryRef();
+        if( poGeometry != NULL
+           && wkbFlatten(poGeometry->getGeometryType()) == wkbPoint )
+        {
+            OGRPoint *poPoint = (OGRPoint *) poGeometry;
+            printf( "%.3f,%3.f\n", poPoint->getX(), poPoint->getY() );
+        }
+        else
+        {
+            printf( "no point geometry\n" );
+        }
+        OGRFeature::DestroyFeature( poFeature );
+    }
+    GDALClose(poDS);
+}
+
+
 
 void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
 {

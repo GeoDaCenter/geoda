@@ -54,6 +54,8 @@ private:
     wxGrid* previewGrid;
     
     
+    void PreviewCSV(wxString ds_name);
+    
     void UpdatePreview();
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
