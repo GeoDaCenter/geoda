@@ -26,13 +26,15 @@
 #include "LineChartStats.h"
 
 LineChartStats::LineChartStats(const vec_vec_dbl_type& Y_,
-							 const wxString& Yname_,
-							 const std::vector<bool>& tms_subset0_,
-							 const std::vector<bool>& tms_subset1_,
-							 const bool& compare_regimes_,
-							 const bool& compare_time_periods_,
-							 const bool& compare_r_and_t_)
-: Y(Y_), 
+                               const std::vector<bool>& Y_undef_,
+                               const wxString& Yname_,
+                               const std::vector<bool>& tms_subset0_,
+                               const std::vector<bool>& tms_subset1_,
+                               const bool& compare_regimes_,
+                               const bool& compare_time_periods_,
+                               const bool& compare_r_and_t_)
+: Y(Y_),
+Y_undef(Y_undef_),
 Yname(Yname_), 
 Y_avg_min(0), 
 Y_avg_max(0),
@@ -81,11 +83,17 @@ void LineChartStats::UpdateNonRegimesNonTmsStats()
 {
 	Y_avg_valid = false;
 	size_t tms=Y.size();
-	size_t num_obs = 0;
-	if (tms > 0) 
-		num_obs = Y[0].size();
-	double num_obs_d = (double) num_obs;
-	obs_sz_i = num_obs;
+    
+	size_t valid_num_obs = 0;
+    
+    for (size_t i=0; i<Y_undef.size(); i++) {
+        if ( !Y_undef[i]) {
+            valid_num_obs += 1;
+        }
+    }
+    
+	double num_obs_d = (double) valid_num_obs;
+	obs_sz_i = valid_num_obs;
 	obs_sz_d = obs_sz_i;
 	Y_avg.resize(tms);
 	Y_ss.resize(tms);
@@ -95,24 +103,26 @@ void LineChartStats::UpdateNonRegimesNonTmsStats()
 		Y_ss[t] = 0;
        
         if (Y[t].size() > 0)  {
-		for (size_t i=0; i<num_obs; ++i) {
-			Y_avg[t] += Y[t][i];
-			Y_ss[t] += Y[t][i] * Y[t][i];
-		}
-		if (num_obs > 0) {
-			Y_avg[t] /= num_obs_d;
-			Y_avg_valid = true;
-			if (t==0) {
-				Y_avg_min = Y_avg[0];
-				Y_avg_max = Y_avg[0];
-			} else {
-				if (Y_avg[t] < Y_avg_min) {
-					Y_avg_min = Y_avg[t];
-				} else if (Y_avg[t] > Y_avg_max) {
-					Y_avg_max = Y_avg[t];
-				}
-			}
-		}
+    		for (size_t i=0; i<Y_undef.size(); ++i) {
+                if (Y_undef[i])
+                    continue;
+    			Y_avg[t] += Y[t][i];
+    			Y_ss[t] += Y[t][i] * Y[t][i];
+    		}
+    		if (valid_num_obs > 0) {
+    			Y_avg[t] /= num_obs_d;
+    			Y_avg_valid = true;
+    			if (t==0) {
+    				Y_avg_min = Y_avg[0];
+    				Y_avg_max = Y_avg[0];
+    			} else {
+    				if (Y_avg[t] < Y_avg_min) {
+    					Y_avg_min = Y_avg[t];
+    				} else if (Y_avg[t] > Y_avg_max) {
+    					Y_avg_max = Y_avg[t];
+    				}
+    			}
+    		}
         }
 	}
 }
@@ -129,18 +139,27 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 	Y_sel_avg_valid = false;
 	Y_excl_avg_valid = false;
 	size_t tms=Y.size();
-	size_t num_obs = 0;
-	if (tms > 0) num_obs = Y[0].size();
-	double num_obs_d = (double) num_obs;
+    size_t valid_num_obs = 0;
+    
+    for (size_t i=0; i<Y_undef.size(); i++) {
+        if ( !Y_undef[i]) {
+            valid_num_obs += 1;
+        }
+    }
+    
+    
+	double num_obs_d = (double) valid_num_obs;
 	Y_sel_avg.resize(tms);
 	Y_sel_ss.resize(tms);
 	Y_excl_avg.resize(tms);
 	Y_excl_ss.resize(tms);
 
 	double num_sel = 0;
-	for (size_t i=0; i<num_obs; ++i) 
-		if (hs[i]) 
+    for (size_t i=0; i<Y_undef.size(); ++i) {
+        if (!Y_undef[i] && hs[i] ) {
 			num_sel += 1.0;
+        }
+    }
 	double num_excl = num_obs_d - num_sel;
 	sel_sz_i = (int) num_sel;
 	sel_sz_d = num_sel;
@@ -155,7 +174,9 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
         if (Y[t].size() == 0)
             continue;
         
-		for (size_t i=0; i<num_obs; ++i) {
+		for (size_t i=0; i<Y_undef.size(); ++i) {
+            if (Y_undef[i])
+                continue;
 			if (hs[i]) {
 				Y_sel_avg[t] += Y[t][i];
 				Y_sel_ss[t] += Y[t][i] * Y[t][i];
@@ -258,16 +279,23 @@ void LineChartStats::UpdateCompareTmsStats()
 		Y_avg_tm1_valid = true;
 	}
 	
-	size_t obs = 0;
-	if (Y.size() > 0) obs = (int) Y[0].size();
-	double obs_d = (double) obs;
+    size_t valid_num_obs = 0;
+    
+    for (size_t i=0; i<Y_undef.size(); i++) {
+        if ( !Y_undef[i]) {
+            valid_num_obs += 1;
+        }
+    }
+    
+    double obs_d = (double) valid_num_obs;
+    
 	SampStats blank;
 	s0 = blank;
 	s1 = blank;
 	s2 = blank;
 	s3 = blank;
-	s0.sz_i = tsub0_sz * obs;
-	s1.sz_i = tsub1_sz * obs;
+	s0.sz_i = tsub0_sz * valid_num_obs;
+	s1.sz_i = tsub1_sz * valid_num_obs;
 	s0.sz_d = (double) s0.sz_i;
 	s1.sz_d = (double) s1.sz_i;
 	s0.mean = Y_avg_tm0;
@@ -334,9 +362,16 @@ void LineChartStats::UpdateCompareRegimesStats()
 		Y_excl_tm0_avg /= (double) tsub0_sz;
 		Y_excl_tm0_avg_valid = true;
 	}
-	
-	size_t obs = (int) Y.size();
-	double obs_d = (double) obs;
+
+    size_t valid_num_obs = 0;
+    
+    for (size_t i=0; i<Y_undef.size(); i++) {
+        if ( !Y_undef[i]) {
+            valid_num_obs += 1;
+        }
+    }
+    
+	double obs_d = (double) valid_num_obs;
 	SampStats blank;
 	s0 = blank;
 	s1 = blank;
@@ -441,8 +476,14 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 		Y_excl_tm1_avg_valid = true;
 	}
 	
-	size_t obs = (int) Y.size();
-	double obs_d = (double) obs;
+    size_t valid_num_obs = 0;
+    
+    for (size_t i=0; i<Y_undef.size(); i++) {
+        if ( !Y_undef[i]) {
+            valid_num_obs += 1;
+        }
+    }
+	double obs_d = (double) valid_num_obs;
 	SampStats blank;
 	s0 = blank;
 	s1 = blank;

@@ -318,10 +318,7 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 	for (int t=0; t<lisa_coord->num_time_vals; t++) {
         double x_min, x_max, y_min, y_max;
         
-        bool first_x_min = true;
-        bool first_x_max = true;
-        bool first_y_min = true;
-        bool first_y_max = true;
+        bool has_init = false;
         
 		for (int i=0; i<lisa_coord->num_obs; i++) {
             
@@ -330,30 +327,29 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
             x_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
             y_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
             
-			if (x_undef_data[t][i] == false)
-            {
-                if ( first_x_min || x_data[t][i] < x_min) {
-                    first_x_min = false;
-    				x_min = x_data[t][i];
+			if (x_undef_data[t][i] || y_undef_data[t][i])
+                continue;
+            
+            if (!has_init) {
+                x_min = x_data[t][i];
+                x_max = x_data[t][i];
+                y_min = y_data[t][i];
+                y_max = y_data[t][i];
+                has_init = true;
+            } else {
+                if (x_data[t][i] < x_min) {
+                    x_min = x_data[t][i];
                 }
-                if ( first_x_max || x_data[t][i] > x_max) {
-                    first_x_max = false;
+                if (x_data[t][i] > x_max) {
                     x_max = x_data[t][i];
                 }
-                
-			}
-			if (y_undef_data[t][i] == false)
-            {
-                if ( first_y_min || y_data[t][i] < y_min) {
-                    first_y_min = false;
-    				y_min = y_data[t][i];
+                if (y_data[t][i] < y_min) {
+                    y_min = y_data[t][i];
                 }
-                if ( first_y_max || y_data[t][i] > y_max) {
-                    first_y_max = false;
+                if (y_data[t][i] > y_max) {
                     y_max = y_data[t][i];
                 }
-                
-			}
+            }
 		}
         
         // if no valid data, should raise an exception
@@ -472,6 +468,7 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
             rand_dlg->Destroy();
             rand_dlg = 0;
         }
+        // here W handles undefined
         rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
                                         W, permutation,
                                         reuse_last_seed,

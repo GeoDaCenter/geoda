@@ -188,7 +188,8 @@ struct SampleStatistics {
     void CalculateFromSample(const std::vector<double>& data);
     void CalculateFromSample(const std::vector<double>& data,
                              const std::vector<bool>& undefs);
-    void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data);
+    void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& undefs);
     
 	std::string ToString();
 	

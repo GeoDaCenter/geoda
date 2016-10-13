@@ -362,19 +362,28 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 /** We assume that the data has been sorted in ascending order */
 void
 SampleStatistics::
-CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data)
+CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
+                    const std::vector<bool>& undefs)
 {
+    std::vector<double> data;
+    for (int i=0, iend = data_.size(); i<iend; i++) {
+        int id = data_[i].second;
+        if (!undefs[id]) {
+            data.push_back(data_[i].first);
+        }
+    }
+    
 	sample_size = data.size();
 	if (sample_size == 0) return;
 	
-	min = data[0].first;
-	max = data[sample_size-1].first;
+	min = data[0];
+	max = data[sample_size-1];
 	mean = CalcMean(data);
 	
 	double n = sample_size;
 	double sum_squares = 0;
 	for (int i=0, iend = data.size(); i<iend; i++) {
-		sum_squares += data[i].first * data[i].first;
+		sum_squares += data[i] * data[i];
 	}
 	
 	var_without_bessel = (sum_squares/n) - (mean*mean);

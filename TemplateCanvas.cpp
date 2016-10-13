@@ -1163,6 +1163,9 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
                 char blue = penClr.Blue();
                 char green = penClr.Green();
                 wxColour newClr(red, green, blue, (int)(transparency * 255));
+
+                //wxBrush newBrush(newClr);
+                //gc->SetBrush(newBrush);
                 gc->SetPen(newClr);
             } else {
                 gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
@@ -1181,6 +1184,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 				path.AddCircle(p->center.x, p->center.y, r);
 			}
             gc->StrokePath(path);
+            //gc->FillPath(path);
 		}
         
 	} else if (selectable_shps_type == polygons) {
@@ -1518,6 +1522,7 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 			}
 		}
 		gc->StrokePath(path);
+        
         
 	} else if (selectable_shps_type == polygons) {
 		int dirty_cnt = 0;

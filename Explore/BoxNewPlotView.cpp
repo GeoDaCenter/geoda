@@ -100,7 +100,7 @@ hinge_15(true)
             if (has_undef && data_undef[0][t][i] == false) {
                 data_valid.push_back(std::make_pair(val, i));
             }
-            undefs[i] = data_undef[0][t][i];
+            undefs[i] = undefs[i] || data_undef[0][t][i];
 		}
 		std::sort(data_sorted[t].begin(),
                   data_sorted[t].end(),
@@ -111,11 +111,11 @@ hinge_15(true)
                       data_valid.end(),
                       Gda::dbl_int_pair_cmp_less);
             hinge_stats[t].CalculateHingeStats(data_sorted[t], undefs);
-            data_stats[t].CalculateFromSample(data_valid);
+            data_stats[t].CalculateFromSample(data_valid, undefs);
             
         } else {
     		hinge_stats[t].CalculateHingeStats(data_sorted[t]);
-    		data_stats[t].CalculateFromSample(data_sorted[t]);
+    		data_stats[t].CalculateFromSample(data_sorted[t], undefs);
         }
 	}
 

@@ -42,7 +42,8 @@ class HighlightState;
 class LineChartCanvas;
 class Project;
 
-typedef std::map<wxString, vec_vec_dbl_type> data_map_type; 
+typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
+typedef std::map<wxString, std::vector<bool> > data_map_undef_type;
 
 /**
  LineChartFrame manages one or more LineChartCanvas instances: one canvas
@@ -155,7 +156,6 @@ protected:
 	wxString GetHelpHtml();
 	void UpdateStatsWinContent(int var);
     void printAndShowClassicalResults(const wxString& yName, double* y,
-                                      
                                       const wxString& datasetname,
                                       const wxString& wname,
                                       DiagnosticReport *r,
@@ -196,7 +196,9 @@ protected:
 	
 	HighlightState* highlight_state;
 	GdaVarTools::Manager var_man;
-	data_map_type data_map; 
+	data_map_type data_map;
+    data_map_undef_type data_map_undef;
+    
 	std::vector<LineChartCanvas*> line_charts;
 	std::vector<LineChartStats*> lc_stats;
 	std::vector<bool> tms_subset0;

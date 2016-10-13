@@ -1730,7 +1730,12 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 			attributes[k].color = *wxBLACK;
 		}
-		int tot_obs = highlight_state->GetHighlightSize();
+        int tot_obs = 0;
+        for (size_t i=0; i<XYZ_undef.size(); i++) {
+            if (!XYZ_undef[i]) {
+                tot_obs += 1;
+            }
+        }
 		int tot_sel_obs = highlight_state->GetTotalHighlighted();
 		int tot_unsel_obs = tot_obs - tot_sel_obs;
 		vals[i*cols+j++] = "#obs";

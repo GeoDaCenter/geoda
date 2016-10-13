@@ -791,6 +791,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 			cat_var_sorted[t][i].second = i;
             
             var_undefs[t][i] = var_undefs[t][i] || data_undef[THM_VAR][thm_t][i];
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][thm_t][i];
 		}
 	}
 	

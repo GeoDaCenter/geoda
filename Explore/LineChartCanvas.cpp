@@ -362,12 +362,20 @@ void LineChartCanvas::PopulateCanvas()
 		y_max = lcs.Y_avg_max;
 	}
 	if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_sel_avg_valid) {
-		if (lcs.Y_sel_avg_min < y_min) y_min = lcs.Y_sel_avg_min;
-		if (lcs.Y_sel_avg_max > y_max) y_max = lcs.Y_sel_avg_max;
+        if (lcs.Y_sel_avg_min < y_min) {
+            y_min = lcs.Y_sel_avg_min;
+        }
+        if (lcs.Y_sel_avg_max > y_max) {
+            y_max = lcs.Y_sel_avg_max;
+        }
 	}
 	if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_excl_avg_valid) {
-		if (lcs.Y_excl_avg_min < y_min) y_min = lcs.Y_excl_avg_min;
-		if (lcs.Y_excl_avg_max > y_max) y_max = lcs.Y_excl_avg_max;
+        if (lcs.Y_excl_avg_min < y_min) {
+            y_min = lcs.Y_excl_avg_min;
+        }
+        if (lcs.Y_excl_avg_max > y_max) {
+            y_max = lcs.Y_excl_avg_max;
+        }
 	}
 	double y_pad = 0.1 * (y_max - y_min);
 	double axis_min = y_min - y_pad;
@@ -403,41 +411,32 @@ void LineChartCanvas::PopulateCanvas()
 		// be detectable objects so that we can report summaries.
 		// NULL indicates avg is not currently defined.
 		
-		
 		if (lcs.compare_regimes) {
 			if (lcs.Y_sel_tm0_avg_valid) {
-				summ_avg_circs[0] = 
-					MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark);
+				summ_avg_circs[0] =  MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark);
 			}
 			if (lcs.Y_excl_tm0_avg_valid) {
-				summ_avg_circs[1] =
-					MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark);
+				summ_avg_circs[1] = MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark);
 			}
 		} else if (lcs.compare_time_periods) {
 			if (lcs.Y_avg_tm0_valid) {
-				summ_avg_circs[0] =
-					MakeSummAvgHelper(lcs.Y_avg_tm0,GdaConst::ln_cht_clr_tm1_dark);
+				summ_avg_circs[0] = MakeSummAvgHelper(lcs.Y_avg_tm0,GdaConst::ln_cht_clr_tm1_dark);
 			}
 			if (lcs.Y_avg_tm1_valid) {
-				summ_avg_circs[1] =
-					MakeSummAvgHelper(lcs.Y_avg_tm1,GdaConst::ln_cht_clr_tm2_dark);
+				summ_avg_circs[1] = MakeSummAvgHelper(lcs.Y_avg_tm1,GdaConst::ln_cht_clr_tm2_dark);
 			}
 		} else if (lcs.compare_r_and_t) {
 			if (lcs.Y_sel_tm0_avg_valid) {
-				summ_avg_circs[0] = 
-				MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm1_light);
+				summ_avg_circs[0] =  MakeSummAvgHelper(lcs.Y_sel_tm0_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm1_light);
 			}
 			if (lcs.Y_excl_tm0_avg_valid) {
-				summ_avg_circs[1] =
-				MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm1_light);
+				summ_avg_circs[1] = MakeSummAvgHelper(lcs.Y_excl_tm0_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm1_light);
 			}
 			if (lcs.Y_sel_tm1_avg_valid) {
-				summ_avg_circs[2] = 
-				MakeSummAvgHelper(lcs.Y_sel_tm1_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm2_light);
+				summ_avg_circs[2] =  MakeSummAvgHelper(lcs.Y_sel_tm1_avg,GdaConst::ln_cht_clr_sel_dark,GdaConst::ln_cht_clr_tm2_light);
 			}
 			if (lcs.Y_excl_tm1_avg_valid) {
-				summ_avg_circs[3] =
-				MakeSummAvgHelper(lcs.Y_excl_tm1_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm2_light);
+				summ_avg_circs[3] = MakeSummAvgHelper(lcs.Y_excl_tm1_avg,GdaConst::ln_cht_clr_exl_dark,GdaConst::ln_cht_clr_tm2_light);
 			}
 		}
 	}

@@ -94,8 +94,11 @@ custom_classif_state(0), is_custom_category(false)
 	data_stats.resize(col_time_steps);
 	hinge_stats.resize(col_time_steps);
 	data_sorted.resize(col_time_steps);
-    data_min_over_time = sel_data[0];
-    data_max_over_time = sel_data[0];
+    
+    //data_min_over_time = sel_data[0];
+    //data_max_over_time = sel_data[0];
+    
+    bool has_init = false;
     
     for (int t=0; t<col_time_steps; t++) {
         std::vector<double> sel_data;
@@ -112,15 +115,21 @@ custom_classif_state(0), is_custom_category(false)
                   data_sorted[t].end(),
                   Gda::dbl_int_pair_cmp_less);
         
-        data_stats[t].CalculateFromSample(data_sorted[t]);
-        hinge_stats[t].CalculateHingeStats(data_sorted[t]);
-        
-        // get min max values
-        if (data_stats[t].min < data_min_over_time) {
+        data_stats[t].CalculateFromSample(data_sorted[t], sel_undefs);
+        hinge_stats[t].CalculateHingeStats(data_sorted[t], sel_undefs);
+       
+        if (!has_init) {
             data_min_over_time = data_stats[t].min;
-        }
-        if (data_stats[t].max > data_max_over_time) {
             data_max_over_time = data_stats[t].max;
+            has_init = true;
+        } else {
+            // get min max values
+            if (data_stats[t].min < data_min_over_time) {
+                data_min_over_time = data_stats[t].min;
+            }
+            if (data_stats[t].max > data_max_over_time) {
+                data_max_over_time = data_stats[t].max;
+            }
         }
     }
     
@@ -921,8 +930,28 @@ void HistogramCanvas::InitIntervals()
 			min_ival_val[t] = data_min_over_time;
 			max_ival_val[t] = data_max_over_time;
 		} else {
-			min_ival_val[t] = data_sorted[t][0].first;
-			max_ival_val[t] = data_sorted[t][num_obs-1].first;
+            
+            std::vector<bool> undefs;
+            table_int->GetColUndefined(col_id, t, undefs);
+            bool has_init = false;
+            for (size_t ii=0; ii<undefs.size(); ii++){
+                double val = data_sorted[t][ii].first;
+                int iid = data_sorted[t][ii].second;
+                if (undefs[iid])
+                    continue;
+                if (!has_init) {
+                    min_ival_val[t] = val;
+                    max_ival_val[t] = val;
+                    has_init = true;
+                } else {
+                    if ( val < min_ival_val[t] ) {
+                        min_ival_val[t] = val;
+                    }
+                    if ( val > min_ival_val[t] ) {
+                        max_ival_val[t] = val;
+                    }
+                }
+            }
 		}
 		if (min_ival_val[t] == max_ival_val[t]) {
 			if (min_ival_val[t] == 0) {

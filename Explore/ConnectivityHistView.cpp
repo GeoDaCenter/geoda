@@ -554,7 +554,8 @@ void ConnectivityHistCanvas::InitData()
 			  Gda::dbl_int_pair_cmp_less);
 	has_isolates = data_sorted[0].first == 0;
 	
-	data_stats.CalculateFromSample(data_sorted);
+    std::vector<bool> undefs(num_obs, false);
+	data_stats.CalculateFromSample(data_sorted, undefs);
 	hinge_stats.CalculateHingeStats(data_sorted);
 	int min_connectivity = data_sorted[0].first;
 	int max_connectivity = data_sorted[num_obs-1].first;

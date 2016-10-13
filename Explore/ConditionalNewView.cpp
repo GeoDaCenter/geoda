@@ -52,14 +52,15 @@ END_EVENT_TABLE()
 const int ConditionalNewCanvas::HOR_VAR = 0; // horizonatal variable
 const int ConditionalNewCanvas::VERT_VAR = 1; // vertical variable
 
-ConditionalNewCanvas::ConditionalNewCanvas(wxWindow *parent,
-										TemplateFrame* t_frame,
-										Project* project_s,
-										const std::vector<GdaVarTools::VarInfo>& v_info,
-										const std::vector<int>& col_ids,
-										bool fixed_aspect_ratio_mode,
-										bool fit_to_window_mode,
-										const wxPoint& pos, const wxSize& size)
+ConditionalNewCanvas::
+ConditionalNewCanvas(wxWindow *parent,
+                     TemplateFrame* t_frame,
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     bool fixed_aspect_ratio_mode,
+                     bool fit_to_window_mode,
+                     const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
 num_obs(project_s->GetNumRecords()), num_time_vals(1),

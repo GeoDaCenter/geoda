@@ -56,12 +56,13 @@ const double ConditionalHistogramCanvas::right_pad_const = 0;
 const double ConditionalHistogramCanvas::interval_width_const = 10;
 const double ConditionalHistogramCanvas::interval_gap_const = 0;
 
-ConditionalHistogramCanvas::ConditionalHistogramCanvas(wxWindow *parent,
-									TemplateFrame* t_frame,
-									Project* project_s,
-									const std::vector<GdaVarTools::VarInfo>& v_info,
-									const std::vector<int>& col_ids,
-									const wxPoint& pos, const wxSize& size)
+ConditionalHistogramCanvas::
+ConditionalHistogramCanvas(wxWindow *parent,
+                           TemplateFrame* t_frame,
+                           Project* project_s,
+                           const std::vector<GdaVarTools::VarInfo>& v_info,
+                           const std::vector<int>& col_ids,
+                           const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   false, true, pos, size),
 full_map_redraw_needed(true),
@@ -83,7 +84,7 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 		}
 		std::sort(data_sorted[t].begin(), data_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
-		data_stats[t].CalculateFromSample(data_sorted[t]);
+		data_stats[t].CalculateFromSample(data_sorted[t], var_undef[t]);
 		if (data_stats[t].min < data_min_over_time) {
 			data_min_over_time = data_stats[t].min;
 		}

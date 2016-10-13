@@ -80,8 +80,9 @@ obs_id_to_ival(X.size())
 	}
 	std::sort(data_sorted.begin(), data_sorted.end(),Gda::dbl_int_pair_cmp_less);
 	
-	data_stats.CalculateFromSample(data_sorted);
-	hinge_stats.CalculateHingeStats(data_sorted);
+    std::vector<bool> noundef(data_sorted.size(), false);
+	data_stats.CalculateFromSample(data_sorted, noundef);
+	hinge_stats.CalculateHingeStats(data_sorted, noundef);
 	
 	int num_obs = data_sorted.size();
 	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
