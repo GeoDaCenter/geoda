@@ -411,7 +411,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             int col_pos = table->GetColIdx(fname, ignore_case);
             int time_step = 0;
            
-            vector<bool> undefs; // for definition of undefined values
+            vector<bool> undefs;
             
             if ( ftype == GdaConst::long64_type) {
                 
@@ -424,9 +424,10 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
-                        data[k]->SetField(j, (GIntBig)(col_data[selected_rows[k]]));
+                        data[k]->SetField(j, (GIntBig)(col_data[orig_id]));
                     }
-                    if (stop_exporting) return;
+                    if (stop_exporting)
+                        return;
                 }
                 
             } else if (ftype == GdaConst::double_type) {
@@ -440,9 +441,10 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
-                        data[k]->SetField(j, col_data[ selected_rows[k] ]);
+                        data[k]->SetField(j, col_data[orig_id]);
                     }
-                    if (stop_exporting) return;
+                    if (stop_exporting)
+                        return;
                 }
                 
             } else if (ftype == GdaConst::date_type ||
@@ -499,7 +501,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
-                        data[k]->SetField(j, col_data[ selected_rows[k] ].mb_str());
+                        data[k]->SetField(j, col_data[orig_id].mb_str());
                     }
                     if (stop_exporting) return;
                 }
@@ -511,9 +513,11 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
     
     for (size_t i=0; i<data.size(); i++) {
         if (stop_exporting) return;
-        if ((i+1)%2==0) export_progress++;
+        if ((i+1)%2==0)
+            export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-			error_message << "Failed to create feature.\n" << CPLGetLastErrorMsg();
+            wxString msg = wxString::Format(" Failed to create feature (%d/%d).", i + 1, data.size());
+            error_message << msg;
             export_progress = -1;
 			return;
         }

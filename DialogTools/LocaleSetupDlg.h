@@ -35,12 +35,14 @@ class LocaleSetupDlg: public wxDialog
 {
 public:
 	LocaleSetupDlg(wxWindow* parent,
+                   bool need_reopen = true,
               wxWindowID id = wxID_ANY,
               const wxString& title = "Setup Locale of GeoDa Table",
 			  const wxPoint& pos = wxDefaultPosition,
 			  const wxSize& size = wxDefaultSize );
 	
 private:
+    bool need_reopen;
     wxTextCtrl* m_txt_thousands;
     wxTextCtrl* m_txt_decimal;
     wxButton* m_btn_rest;

@@ -28,6 +28,7 @@
 #include <wx/sizer.h>
 #include <wx/checkbox.h>
 #include <wx/grid.h>
+#include <ogrsf_frmts.h>
 
 
 
@@ -40,6 +41,7 @@ public:
                     const wxString& title = "GeoDa Csv Filed Configuration Dialog",
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxSize(580,580));
+    ~CsvFieldConfDlg();
     
     
 private:
@@ -48,15 +50,21 @@ private:
     std::vector<wxString> col_names;
     std::vector<wxString> prev_lines;
     std::vector<wxString> types;
+    std::vector<OGRFeature*> prev_data;
     
     wxString filepath;
     wxGrid* fieldGrid;
     wxGrid* previewGrid;
     
+   
+    void ReadCSVT();
+    void WriteCSVT();
     
-    void PreviewCSV(wxString ds_name);
+    void PrereadCSV();
     
-    void UpdatePreview();
+    void UpdateFieldGrid();
+    void UpdatePreviewGrid();
+    void OnSetupLocale( wxCommandEvent& event );
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
     void OnFieldSelected(wxCommandEvent& event);

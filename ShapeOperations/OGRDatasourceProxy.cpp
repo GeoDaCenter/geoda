@@ -48,7 +48,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     
     
     if (ds_type == GdaConst::ds_csv) {
-        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
+        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         
     } else {

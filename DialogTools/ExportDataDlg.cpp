@@ -59,7 +59,13 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              wxString projectFileName,
                              const wxPoint& pos,
                              const wxSize& size )
-: is_selected_only(isSelectedOnly), project_p(_project), project_file_name(projectFileName), is_saveas_op(true), is_geometry_only(false), is_table_only(false), is_save_centroids(false)
+: is_selected_only(isSelectedOnly),
+project_p(_project),
+project_file_name(projectFileName),
+is_saveas_op(true),
+is_geometry_only(false),
+is_table_only(false),
+is_save_centroids(false)
 {
     
     LOG_MSG("Exiting ExportDataDlg::ExportDataDlg(..)");
