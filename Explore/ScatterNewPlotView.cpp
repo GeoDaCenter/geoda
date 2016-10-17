@@ -283,8 +283,8 @@ bubble_size_scaler(1.0)
 			}
 		}
 		if (ref_var_index != -1) {
-			cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
-											- var_info[ref_var_index].time_min);
+            int cur_tm = var_info[ref_var_index].time - var_info[ref_var_index].time_min;
+			cat_data.SetCurrentCanvasTmStep(cur_tm);
 		}
 		VarInfoAttributeChange();
 		PopulateCanvas();
@@ -578,7 +578,8 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 		// regression lines have changed.
 		Refresh();
 	}
-    
+   
+    /*
     if (o->GetTotalHighlighted() > 0) {
         // disable LOWESS regress
         enableLowess = false;
@@ -586,6 +587,7 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
         // enable LOWESS regress
         enableLowess = true;
     }
+     */
 	
 	LOG_MSG("Entering ScatterNewPlotCanvas::update");	
 }
@@ -1623,6 +1625,8 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
                                           unsel_smthd_srt_y,
                                           XYZ_undef);
 	}
+    /*
+     // Don't show lowess of regimes
 	if (lowess_reg_line_selected) {
 		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
             lowess_reg_line_selected->reInit(sel_smthd_srt_x,
@@ -1651,6 +1655,7 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 		}
 		ApplyLastResizeToShp(lowess_reg_line_excluded);
 	}
+     */
 	layer2_valid = false;
 }
 
