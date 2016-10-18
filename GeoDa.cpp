@@ -1517,7 +1517,7 @@ void GdaFrame::OnOpenNewTable()
 	LOG_MSG("Entering GdaFrame::OnOpenNewTable");
 	TableFrame* tf = 0;
 	wxGrid* g = project_p->FindTableGrid();
-	if (g) tf = (TableFrame*) g->GetParent();
+	if (g) tf = (TableFrame*) g->GetParent()->GetParent(); // wxPanel<wxFrame
 	if (!tf) {
 		wxString msg("The Table should always be open, although somtimes it "
 					 "is hidden while the project is open.  This condition "

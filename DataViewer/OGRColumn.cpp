@@ -596,6 +596,9 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
     if (undef_markers[row_idx] == true)
         return wxEmptyString;
     
+    if ( disp_decimals < 0)
+        disp_decimals = GdaConst::default_dbf_double_decimals;
+    
     double val;
     if (is_new) {
         

@@ -47,6 +47,8 @@ public:
 	void OnLabelLeftClickEvent( wxGridEvent& ev );
 	void OnLabelLeftDClickEvent( wxGridEvent& ev );
 	void OnCellChanged( wxGridEvent& ev );
+    
+    void OnMouseEvent(wxMouseEvent& event);
 	
 	TableBase* GetTableBase() { return table_base; }
 	

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/textdlg.h>
 #include <wx/stopwatch.h>
@@ -46,39 +47,7 @@ BEGIN_EVENT_TABLE(TableFrame, TemplateFrame)
     //EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
     //EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
     EVT_MENU(XRCID("ID_TABLE_RENAME_VARIABLE"), TableFrame::OnRenameVariable)
-    /*
-	EVT_MENU(XRCID("ID_ENCODING_UTF8"), TableFrame::OnEncodingUTF8)
-	EVT_MENU(XRCID("ID_ENCODING_UTF16"), TableFrame::OnEncodingUTF16)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1250"),
-			 TableFrame::OnEncodingWindows1250)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1251"),
-			 TableFrame::OnEncodingWindows1251)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1254"),
-			 TableFrame::OnEncodingWindows1254)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1255"),
-			 TableFrame::OnEncodingWindows1255)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1256"),
-			 TableFrame::OnEncodingWindows1256)
-	EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1258"),
-			 TableFrame::OnEncodingWindows1258)
-	EVT_MENU(XRCID("ID_ENCODING_CP852"), TableFrame::OnEncodingCP852)
-	EVT_MENU(XRCID("ID_ENCODING_CP866"), TableFrame::OnEncodingCP866)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_1"), TableFrame::OnEncodingISO8859_1)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_2"), TableFrame::OnEncodingISO8859_2)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_3"), TableFrame::OnEncodingISO8859_3)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_5"), TableFrame::OnEncodingISO8859_5)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_7"), TableFrame::OnEncodingISO8859_7)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_8_1"), TableFrame::OnEncodingISO8859_8)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_9"), TableFrame::OnEncodingISO8859_9)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_10"), TableFrame::OnEncodingISO8859_10)
-	EVT_MENU(XRCID("ID_ENCODING_ISO8859_15"), TableFrame::OnEncodingISO8859_15)
-	EVT_MENU(XRCID("ID_ENCODING_GB2312"), TableFrame::OnEncodingGB2312)
-	EVT_MENU(XRCID("ID_ENCODING_BIG5"), TableFrame::OnEncodingBIG5)
-	EVT_MENU(XRCID("ID_ENCODING_KOI8_R"), TableFrame::OnEncodingKOI8_R)
-	EVT_MENU(XRCID("ID_ENCODING_SHIFT_JIS"), TableFrame::OnEncodingSHIFT_JIS)
-	EVT_MENU(XRCID("ID_ENCODING_EUC_JP"), TableFrame::OnEncodingEUC_JP)
-	EVT_MENU(XRCID("ID_ENCODING_EUC_KR"), TableFrame::OnEncodingEUC_KR)
-    */
+
 END_EVENT_TABLE()
 
 TableFrame::TableFrame(wxFrame *parent, Project* project,
@@ -89,7 +58,9 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 popup_col(-1)
 {
 	LOG_MSG("Entering TableFrame::TableFrame");
-	
+
+    wxPanel *panel = new wxPanel(this, wxID_ANY);
+    
 	DisplayStatusBar(true);
 	wxString new_title(title);
 	new_title << " - " << project->GetProjectTitle();
@@ -97,7 +68,7 @@ popup_col(-1)
 	supports_timeline_changes = true;
 	table_base = new TableBase(project, this);
 	TableInterface* table_int = project->GetTableInt();
-	grid = new wxGrid(this, wxID_ANY, wxPoint(0,0), wxDefaultSize);
+	grid = new wxGrid(panel, wxID_ANY, wxPoint(0,0), wxSize(100, -1));
 	grid->SetDefaultColSize((grid->GetDefaultColSize() * 4)/3);
     
 	// false to not take ownership, but this uncovers a bug in wxWidgets.
@@ -116,7 +87,6 @@ popup_col(-1)
     
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
 	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
-	wxStopWatch resize_time;
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
         
         GdaConst::FieldType col_type = table_int->GetColType(i);
@@ -134,6 +104,7 @@ popup_col(-1)
 			// leave as a string
 		}
 		grid->SetColSize(i, -1); // fit column width to lable width
+        
 	}
     
 	int sample = GenUtils::min<int>(table_base->GetNumberRows(), 10);
@@ -154,22 +125,17 @@ popup_col(-1)
 		avg_cell_len /= (double) sample;
 		if (avg_cell_len > cur_lbl_len &&
 			avg_cell_len >= 1 && cur_lbl_len >= 1) {
-			LOG_MSG(wxString::Format("Resizing col %d", i));
 			// attempt to scale up col width based on cur_col_size
 			double fac = avg_cell_len / cur_lbl_len;
 			fac *= 1.2;
 			if (fac < 1) fac = 1;
 			if (fac < 1.5 && fac > 1) fac = 1.5;
 			if (fac > 5) fac = 5;
+            grid->SetColMinimalWidth(i, cur_col_size*fac);
 			grid->SetColSize(i, cur_col_size*fac);
-			LOG(grid->GetColLabelValue(i));
-			LOG(cur_col_size);
-			LOG(cur_col_size*fac);
-			LOG(cur_lbl_len);
-			LOG(avg_cell_len);
-			LOG(fac);
 		} else {
 			// add a few pixels of buffer to current label
+			grid->SetColMinimalWidth(i, cur_col_size+6);
 			grid->SetColSize(i, cur_col_size+6);
 		}
 	}
@@ -178,7 +144,21 @@ popup_col(-1)
         grid->DisableDragColMove();
     }
     
-	LOG_MSG(wxString::Format("Column auto-resize time took %ld ms", resize_time.Time()));
+    grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
+    grid->ForceRefresh();
+   
+    wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
+    box->Add(grid, 1, wxEXPAND | wxALL, 0);
+    panel->SetSizerAndFit(box);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+   
+    // mouse event should be binded to grid window, not grid itself
+    grid->GetGridWindow()->Bind(wxEVT_RIGHT_UP, &TableFrame::OnMouseEvent, this);
+   
 	LOG_MSG("Exiting TableFrame::TableFrame");
 }
 
@@ -188,7 +168,17 @@ TableFrame::~TableFrame()
 	DeregisterAsActive();
 }
 
-
+void TableFrame::OnMouseEvent(wxMouseEvent& event)
+{
+    if (event.RightUp()) {
+        const wxPoint& pos = event.GetPosition();
+        wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
+        
+        TableInterface* ti = table_base->GetTableInt();
+        SetEncodingCheckmarks(optMenu, ti->GetFontEncoding());
+        PopupMenu(optMenu, event.GetPosition());
+    }
+}
 
 void TableFrame::OnActivate(wxActivateEvent& event)
 {
@@ -250,11 +240,11 @@ void TableFrame::MapMenus()
 
 void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 {
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
 	
 	TableInterface* ti = table_base->GetTableInt();
 	SetEncodingCheckmarks(optMenu, ti->GetFontEncoding());
+    
 	popup_col = ev.GetCol();
 	
 	// Set Group item
@@ -278,28 +268,6 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			}
 		}
 	}
-    /*
-	if (any_sel_time_variant || !all_sel_compatible || sel_cols.size() <= 1 ||
-		(ti->GetTimeSteps() > 1 && ti->GetTimeSteps() != sel_cols.size())) {
-		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(false);
-	} else {
-		optMenu->FindItem(XRCID("ID_TABLE_GROUP"))->Enable(true);
-	}
-     
-	// Set Ungroup item
-	wxString ung_str("Ungroup Variable");
-	bool ung_enable = false;
-	if (popup_col >= 0 && ti->IsColTimeVariant(popup_col)) {
-		wxString col_nm = ti->GetColName(popup_col);
-		if (!col_nm.IsEmpty()) {
-			ung_str = "Ungroup";
-			ung_str << " \"" << col_nm << "\"";
-			ung_enable = true;
-		}
-	}
-	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->SetItemLabel(ung_str);
-	optMenu->FindItem(XRCID("ID_TABLE_UNGROUP"))->Enable(ung_enable);
-	*/
 	// Set Rename item
 	wxString rename_str("Rename Variable");
 	if (popup_col != -1) {
@@ -314,6 +282,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 			enable_rename = ti->PermitRenameSimpleCol();
 		}
 	}
+    
 	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->Enable(enable_rename);
 		
 	PopupMenu(optMenu, ev.GetPosition());
@@ -558,9 +527,6 @@ void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 void TableFrame::OnLabelLeftDClickEvent( wxGridEvent& ev)
 {
 	LOG_MSG("Entering TableFrame::OnLabelLeftDClickEvent");	
-	LOG(ev.GetCol());
-	LOG(ev.GetRow());
-	LOG(ev.ShiftDown());
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	if (col >= 0 && row < 0) {
