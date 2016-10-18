@@ -31,6 +31,7 @@
 #include <wx/msgdlg.h>
 #include <wx/progdlg.h>
 #include <wx/dir.h>
+#include <wx/textfile.h>
 
 #include "ogr_srs_api.h"
 #include "logger.h"
@@ -1518,7 +1519,7 @@ bool Project::InitFromOgrLayer()
 {
 	LOG_MSG("Entering Project::InitFromOgrLayer");
 	wxString datasource_name = datasource->GetOGRConnectStr();
-    LOG_MSG("Datasource name:" + datasource_name);
+    //LOG_MSG("Datasource name:" + datasource_name);
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
 	// OK. ReadLayer() is running in a seperate thread.
@@ -1528,7 +1529,7 @@ bool Project::InitFromOgrLayer()
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
-		open_err_msg << "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+		open_err_msg << _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
 		throw GdaException(open_err_msg.c_str());
 		return false;
 	}
@@ -1536,22 +1537,26 @@ bool Project::InitFromOgrLayer()
 	int prog_n_max = layer_proxy->n_rows;
 	
     // in case read a empty datasource or n_rows is not read
-    if (prog_n_max <= 0)  prog_n_max = 2;
+    if (prog_n_max <= 0)
+        prog_n_max = 2;
     
 	wxProgressDialog prog_dlg("Open data source progress dialog",
                               "Loading data...", prog_n_max,  NULL,
                               wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 	bool cont = true;
-	while ((layer_proxy->load_progress < layer_proxy->n_rows ||  layer_proxy->n_rows <= 0) &&
+	while ((layer_proxy->load_progress < layer_proxy->n_rows ||
+            layer_proxy->n_rows <= 0) &&
            !layer_proxy->HasError())
 	{
 		if (layer_proxy->n_rows == -1) {
 			// if cannot get n_rows, make the progress stay at the half position
 			cont = prog_dlg.Update(1);
+            
 		} else{
 			if (layer_proxy->load_progress >= 0 &&
-                layer_proxy->load_progress < prog_n_max )
+                layer_proxy->load_progress < prog_n_max ) {
 				cont = prog_dlg.Update(layer_proxy->load_progress);
+            }
 		}
 		if (!cont)  {
 			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
@@ -1585,7 +1590,8 @@ bool Project::InitFromOgrLayer()
 	
 	table_state = new TableState;
 	time_state = new TimeState;
-	table_int = new OGRTable(layer_proxy, ds_type, table_state, time_state, *variable_order);
+	table_int = new OGRTable(layer_proxy, ds_type, table_state,
+                             time_state, *variable_order);
     
 	if (!table_int) {
 		open_err_msg << "There was a problem reading the table";
@@ -1599,6 +1605,23 @@ bool Project::InitFromOgrLayer()
 		return false;
 	}
 
+    // read cpg file for ESRI shapefile to setup encoding
+    if (ds_type == GdaConst::ds_shapefile) {
+        wxFileName fn(datasource_name);
+        wxString cpg_fn = fn.GetPathWithSep() + fn.GetName() +  ".cpg";
+        if (!wxFileExists(cpg_fn)) {
+            cpg_fn = fn.GetPathWithSep() + fn.GetName() + ".CPG";
+        }
+        if (wxFileExists(cpg_fn)) {
+            wxTextFile cpg_file;
+            cpg_file.Open(cpg_fn);
+            
+            // read the first line
+            wxString encode_str = cpg_file.GetFirstLine();
+            SetupEncoding(encode_str);
+        }
+    }
+    
 	isTableOnly = layer_proxy->IsTableOnly();
 	if (!isTableOnly) {
 		layer_proxy->ReadGeometries(main_data);
@@ -1612,6 +1635,121 @@ bool Project::InitFromOgrLayer()
     
 	LOG_MSG("Exiting Project::InitFromOgrLayer");
 	return true;
+}
+
+void Project::SetupEncoding(wxString encode_str)
+{
+    if (table_int == NULL || encode_str.IsEmpty() )
+        return;
+    
+    if (encode_str.Upper().Contains("UTF8") ||
+        encode_str.Upper().Contains("UTF 8") ||
+        encode_str.Upper().Contains("UTF-8")) {
+        table_int->SetEncoding(wxFONTENCODING_UTF8);
+        
+    } else if (encode_str.Upper().Contains("UTF16") ||
+        encode_str.Upper().Contains("UTF 16") ||
+        encode_str.Upper().Contains("UTF-16")) {
+        table_int->SetEncoding(wxFONTENCODING_UTF16LE);
+        
+    } else if (encode_str.Upper().Contains("1250")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1250);
+    } else if (encode_str.Upper().Contains("1251")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1251);
+    } else if (encode_str.Upper().Contains("1252")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1252);
+    } else if (encode_str.Upper().Contains("1253")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1253);
+    } else if (encode_str.Upper().Contains("1254")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1254);
+    } else if (encode_str.Upper().Contains("1255")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1255);
+    } else if (encode_str.Upper().Contains("1256")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1256);
+    } else if (encode_str.Upper().Contains("1257")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1257);
+    } else if (encode_str.Upper().Contains("1258")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1258);
+    } else if (encode_str.Upper().Contains("437")) {
+        table_int->SetEncoding(wxFONTENCODING_CP437);
+    } else if (encode_str.Upper().Contains("850")) {
+        table_int->SetEncoding(wxFONTENCODING_CP850);
+    } else if (encode_str.Upper().Contains("855")) {
+        table_int->SetEncoding(wxFONTENCODING_CP855);
+    } else if (encode_str.Upper().Contains("866")) {
+        table_int->SetEncoding(wxFONTENCODING_CP866);
+    } else if (encode_str.Upper().Contains("874")) {
+        table_int->SetEncoding(wxFONTENCODING_CP874);
+    } else if (encode_str.Upper().Contains("932")) {
+        table_int->SetEncoding(wxFONTENCODING_CP932);
+    } else if (encode_str.Upper().Contains("936")) {
+        table_int->SetEncoding(wxFONTENCODING_CP936);
+    } else if (encode_str.Upper().Contains("949")) {
+        table_int->SetEncoding(wxFONTENCODING_CP949);
+    } else if (encode_str.Upper().Contains("950")) {
+        table_int->SetEncoding(wxFONTENCODING_CP950);
+        
+    } else if (encode_str.Upper().Contains("885910") ||
+               encode_str.Upper().Contains("8859_10") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_10);
+    } else if (encode_str.Upper().Contains("885911") ||
+               encode_str.Upper().Contains("8859_11") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_11);
+    } else if (encode_str.Upper().Contains("885912") ||
+               encode_str.Upper().Contains("8859_12") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_12);
+    } else if (encode_str.Upper().Contains("885913") ||
+               encode_str.Upper().Contains("8859_13") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_13);
+    } else if (encode_str.Upper().Contains("885914") ||
+               encode_str.Upper().Contains("8859_14") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_14);
+    } else if (encode_str.Upper().Contains("885915") ||
+               encode_str.Upper().Contains("8859_15") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_15);
+    } else if (encode_str.Upper().Contains("88591") ||
+               encode_str.Upper().Contains("8859_1") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_1);
+    } else if (encode_str.Upper().Contains("88592") ||
+               encode_str.Upper().Contains("8859_2") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_2);
+    } else if (encode_str.Upper().Contains("88593") ||
+               encode_str.Upper().Contains("8859_3") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_3);
+    } else if (encode_str.Upper().Contains("88594") ||
+               encode_str.Upper().Contains("8859_4") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_4);
+    } else if (encode_str.Upper().Contains("88595") ||
+               encode_str.Upper().Contains("8859_5") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_5);
+    } else if (encode_str.Upper().Contains("88596") ||
+               encode_str.Upper().Contains("8859_6") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_6);
+    } else if (encode_str.Upper().Contains("88597") ||
+               encode_str.Upper().Contains("8859_7") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_7);
+    } else if (encode_str.Upper().Contains("88598") ||
+               encode_str.Upper().Contains("8859_8") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_8);
+    } else if (encode_str.Upper().Contains("88599") ||
+               encode_str.Upper().Contains("8859_9") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_9);
+        
+    } else if (encode_str.Upper().Contains("GB2312") ||
+               encode_str.Upper().Contains("2312") ) {
+        table_int->SetEncoding(wxFONTENCODING_GB2312);
+    } else if (encode_str.Upper().Contains("BIG5")) {
+        table_int->SetEncoding(wxFONTENCODING_BIG5);
+    } else if (encode_str.Upper().Contains("KOI8")) {
+        table_int->SetEncoding(wxFONTENCODING_KOI8);
+    } else if (encode_str.Upper().Contains("SHIFT_JIS") ||
+               encode_str.Upper().Contains("SHIFT JIS") ) {
+        table_int->SetEncoding(wxFONTENCODING_SHIFT_JIS);
+    } else if (encode_str.Upper().Contains("JP")) {
+        table_int->SetEncoding(wxFONTENCODING_EUC_JP);
+    } else if (encode_str.Upper().Contains("KR")) {
+        table_int->SetEncoding(wxFONTENCODING_EUC_KR);
+    }
 }
 
 bool Project::IsTableOnlyProject()

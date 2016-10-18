@@ -215,6 +215,9 @@ private:
 	int InitFromShapefileLayer();
 	bool InitFromOgrLayer();
 	int OpenShpFile(wxFileName shp_fname);
+   
+    // only for ESRI Shapefile .cpg file
+    void SetupEncoding(wxString encode_str);
     
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
