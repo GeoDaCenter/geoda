@@ -361,11 +361,19 @@ void LisaCoordinator::VarInfoAttributeChange()
 void LisaCoordinator::StandardizeData()
 {
 	for (int t=0; t<data1_vecs.size(); t++) {
-		GenUtils::StandardizeData(num_obs, data1_vecs[t]);
+        std::vector<bool> undefs;
+        for (int i=0; i<undef_data[0][t].size(); i++) {
+            undefs.push_back(undef_data[0][t][i]);
+        }
+		GenUtils::StandardizeData(num_obs, data1_vecs[t], undefs);
 	}
 	if (isBivariate) {
 		for (int t=0; t<data2_vecs.size(); t++) {
-			GenUtils::StandardizeData(num_obs, data2_vecs[t]);
+            std::vector<bool> undefs;
+            for (int i=0; i<undef_data[1][t].size(); i++) {
+                undefs.push_back(undef_data[0][t][i]);
+            }
+			GenUtils::StandardizeData(num_obs, data2_vecs[t], undefs);
 		}
 	}
 }
@@ -392,7 +400,7 @@ void LisaCoordinator::CalcLisa()
         for (int i=0; i<undef_data[0][t].size(); i++){
             bool is_undef = undef_data[0][t][i];
             if (isBivariate) {
-                is_undef = is_undef && undef_data[1][t][i];
+                is_undef = is_undef || undef_data[1][t][i];
             }
             if (is_undef && !has_undef) {
                 has_undef = true;

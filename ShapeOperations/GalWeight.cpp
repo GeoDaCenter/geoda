@@ -135,6 +135,7 @@ void GalElement::Update(const std::vector<bool>& undefs)
     for (int i=0; i<undef_obj_positions.size(); i++) {
         int pos = undef_obj_positions[i];
         if (pos < nbr.size()) {
+            nbrLookup.erase( nbr[pos] );
             nbr.erase( nbr.begin() + pos);
         }
         if (pos < nbrWeight.size()) {

@@ -296,8 +296,10 @@ namespace GenUtils {
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
 	void DeviationFromMean(int nObs, double* data);
+    void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);
+    bool StandardizeData(int nObs, double* data, std::vector<bool>& undef);
 	bool StandardizeData(std::vector<double>& data);
 	template<class T> T abs(const T& x);
 	template<class T> const T& max(const T& x, const T& y);

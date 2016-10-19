@@ -164,7 +164,6 @@ popup_col(-1)
 
 TableFrame::~TableFrame()
 {
-	LOG_MSG("In TableFrame::~TableFrame");
 	DeregisterAsActive();
 }
 

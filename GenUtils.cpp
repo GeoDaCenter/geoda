@@ -809,6 +809,24 @@ void GenUtils::DeviationFromMean(int nObs, double* data)
 	for (int i=0, iend=nObs; i<iend; i++) data[i] -= mean;
 }
 
+void GenUtils::DeviationFromMean(int nObs, double* data, std::vector<bool>& undef)
+{
+	if (nObs == 0) return;
+    
+    int nValid = 0;
+	double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i])
+            continue;
+        sum += data[i];
+        nValid += 1;
+    }
+	const double mean = sum / (double) nValid;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] -= mean;
+    }
+}
+
 void GenUtils::DeviationFromMean(std::vector<double>& data)
 {
 	LOG_MSG("Entering GenUtils::DeviationFromMean");
@@ -831,6 +849,32 @@ bool GenUtils::StandardizeData(int nObs, double* data)
 	LOG(sd);
 	if (sd == 0) return false;
 	for (int i=0, iend=nObs; i<iend; i++) data[i] /= sd;
+	return true;
+}
+
+bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
+{
+	if (nObs <= 1) return false;
+    
+    int nValid = 0;
+    for (int i=0; i<undef.size(); i++) {
+        if (!undef[i])
+            nValid += 1;
+    }
+    
+	GenUtils::DeviationFromMean(nObs, data, undef);
+	double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i])
+            continue;
+        ssum += data[i] * data[i];
+    }
+	const double sd = sqrt(ssum / (double) (nValid-1.0));
+	if (sd == 0)
+        return false;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] /= sd;
+    }
 	return true;
 }
 
