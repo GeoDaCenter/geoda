@@ -1274,7 +1274,11 @@ void MapCanvas::CreateAndUpdateCategories()
             bool hasZeroBaseVal = false;
             std::vector<bool>& hs = highlight_state->GetHighlight();
             std::vector<bool> hs_backup = hs;
+            
 			for (int i=0; i<num_obs; i++) {
+                if (undef_res[i])
+                    continue;
+                
                 if (P[i] == 0) {
                     hasZeroBaseVal = true;
                     hs[i] = false;
