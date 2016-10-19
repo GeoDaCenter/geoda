@@ -1057,16 +1057,30 @@ int PartitionM::Sum() const {
 };
 
 void PartitionM::initIx(const int incl, const double lwr, const double upr)  {
-	int lower= (int)floor(lwr/step), upper= (int)floor(upr/step);
-	if (lwr < 0 || upper > cells || incl < 0 || incl >= elements)  
-	{
-		//     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr; 
-		exit(1);  
-	};
-	if (lower < 0) lower= 0;
-	else if (lower >= cells) lower= cells-1;
-	if (upper >= cells) upper= cells-1;
-	else if (upper < 0) upper= 0;
+    int lower= (int)floor(lwr/step);
+    int upper= (int)floor(upr/step);
+    
+    
+    if (lower < 0) {
+        lower= 0;
+    } else if (lower >= cells) {
+        lower= cells-1;
+    }
+    
+    if (upper >= cells) {
+        upper= cells-1;
+    }
+    else if (upper < 0) {
+        upper= 0;
+    }
+    
+    if (lower < 0 || upper > cells || incl < 0 || incl >= elements)
+    {
+        //     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr;
+        exit(1);
+    }
+
+    
 	cellIndex [ incl ] = lower;
 	lastIndex [ incl ] = upper;
 	return;
@@ -1252,9 +1266,11 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
 	do {
 		gY= new PartitionM(gRecords, gy, shp_y_len );
 		for (cnt= 0; cnt < gRecords; ++cnt) {
-			PolygonContents* ply = dynamic_cast<PolygonContents*> (
-																				main.records[cnt].contents_p);
-			gY->initIx( cnt, ply->box[1] - shp_min_y, ply->box[3] - shp_min_y );
+            RecordContents* rec = main.records[cnt].contents_p;
+			PolygonContents* ply = dynamic_cast<PolygonContents*>(rec);
+            double lwr = ply->box[1] - shp_min_y;
+            double upr = ply->box[3] - shp_min_y;
+			gY->initIx(cnt, lwr, upr);
 		}
 		total= gY->Sum();
 		if (total > gRecords * 8) {
