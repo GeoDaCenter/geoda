@@ -114,7 +114,8 @@ protected:
 	std::vector<Gda::dbl_int_pair_vec_type> horiz_var_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> vert_var_sorted;
     
-    std::vector<std::vector<bool> > var_undef;
+    std::vector<std::vector<bool> > horiz_undef_tms; // undef tms
+    std::vector<std::vector<bool> > vert_undef_tms; // undef tms
     
 	CatClassifData horiz_cat_data;
 	CatClassifData vert_cat_data;

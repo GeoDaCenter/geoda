@@ -61,13 +61,14 @@ ConditionalScatterPlotCanvas(wxWindow *parent,
 full_map_redraw_needed(true),
 X(project_s->GetNumRecords()),
 Y(project_s->GetNumRecords()),
+XY_undef(project_s->GetNumRecords()),
 display_axes_scale_values(true),
 display_slope_values(true),
 show_linear_smoother(true),
 show_lowess_smoother(false)
 {
 	LOG_MSG("Entering ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas");
-	
+    
 	double x_max = var_info[IND_VAR].max_over_time;
 	double x_min = var_info[IND_VAR].min_over_time;
 	double y_max = var_info[DEP_VAR].max_over_time;
@@ -471,9 +472,14 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
 	selectable_shps.resize(num_obs);
+	selectable_shps_undefs.clear();
+	selectable_shps_undefs.resize(num_obs);
+    
 	for (int i=0; i<num_obs; i++) {
 		X[i] = data[IND_VAR][var_info[IND_VAR].time][i];
 		Y[i] = data[DEP_VAR][var_info[DEP_VAR].time][i];
+        XY_undef[i] = data_undef[IND_VAR][var_info[IND_VAR].time][i] ||
+                      data_undef[DEP_VAR][var_info[DEP_VAR].time][i];
 	}
 	double scaleX = 100.0 / (axis_scale_x.scale_range);
 	double scaleY = 100.0 / (axis_scale_y.scale_range);	
@@ -481,6 +487,7 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 		selectable_shps[i] = 
 		new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
 								(Y[i] - axis_scale_y.scale_min) * scaleY));
+        selectable_shps_undefs[i] = XY_undef[i];
 	}
 	CalcCellsRegression();
 	ResizeSelectableShps();
@@ -512,11 +519,15 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 	reg_line.resize(boost::extents[vert_num_cats][horiz_num_cats]);
 	reg_line_lowess.resize(boost::extents[0][0]);
 	reg_line_lowess.resize(boost::extents[vert_num_cats][horiz_num_cats]);
+    
 	int vt=var_info[VERT_VAR].time;
 	int ht=var_info[HOR_VAR].time;
 	int xt = var_info[IND_VAR].time;
 	int yt = var_info[DEP_VAR].time;
+    
 	for (int i=0; i<num_obs; i++) {
+        if (XY_undef[i])
+            continue;
 		int row = vert_cat_data.categories[vt].id_to_cat[i];
 		int col = horiz_cat_data.categories[ht].id_to_cat[i];		
 		sizes[row][col]++;
@@ -528,6 +539,8 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 		}
 	}
 	for (int i=0; i<num_obs; i++) {
+        if (XY_undef[i])
+            continue;
 		double x = data[IND_VAR][xt][i];
 		double y = data[DEP_VAR][yt][i];
 		int row = vert_cat_data.categories[vt].id_to_cat[i];
@@ -558,8 +571,8 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 			
 			double cc_degs_of_rot;
 			double reg_line_slope;
-			bool reg_line_infinite_slope;
-			bool reg_line_defined;
+			bool   reg_line_infinite_slope;
+			bool   reg_line_defined;
 			wxRealPoint a, b;
             SmoothingUtils::CalcRegressionLine(reg_line[i][j], reg_line_slope,
                                                reg_line_infinite_slope,
@@ -575,16 +588,14 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 				key << "_row" << i << "_col" << j;
 				LOG_MSG("Begin populating LOWESS curve for key " + key);
 			
-                std::vector<bool> XY_undefs;
-                for (size_t ii=0; ii<xref.size(); ii++){
-                    XY_undefs.push_back(var_undef[IND_VAR][ii] ||
-                                        var_undef[DEP_VAR][ii]);
-                }
+                int t = var_info[IND_VAR].time;
+               
+                std::vector<bool> ref_undefs(xref.size(), false);
 				SmoothingUtils::LowessCacheEntry* lce =
 				SmoothingUtils::UpdateLowessCacheForTime(lowess_cache,
                                                          key, lowess,
                                                          xref, yref,
-                                                         XY_undefs);
+                                                         ref_undefs);
 				
 				if (!lce) {
 					LOG_MSG("Error: could not create or find LOWESS cache entry");
@@ -730,9 +741,24 @@ void ConditionalScatterPlotCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
-	}
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (XY_undef[i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
+    
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
 			s << "hover obs " << hover_obs[0]+1 << " = (";

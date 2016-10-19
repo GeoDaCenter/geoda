@@ -86,14 +86,13 @@ protected:
 							int cols, int ivals);
 	
 	bool full_map_redraw_needed;
-	std::vector<double> X;
-	std::vector<double> Y;
 	
 	static const int HIST_VAR; // histogram variable
 	
 	// size = time_steps if HIST_VAR is time variant
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
+    std::vector<std::vector<bool> > undef_tms;
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;

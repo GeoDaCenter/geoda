@@ -1182,10 +1182,26 @@ void PCPCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+    
 	wxString s;
-    if (highlight_state->GetTotalHighlighted() > 0){
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
-	}
+    int t = cat_data.GetCurrentCanvasTmStep();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if ( undef_markers[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
+    
 
 	if (mousemode == select && selectstate == start) {
 		// obs: 1,3,5,... obs 1 = (1.23, 432.3, -23)

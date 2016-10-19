@@ -1361,24 +1361,39 @@ void ConditionalMapCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
-	wxString s;
+    
+    int t = var_info[CAT_VAR].time;
+    
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
-	}
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (cat_var_undef[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
 			s << "hover obs " << hover_obs[0]+1 << " = ";
-			s << data[CAT_VAR][var_info[CAT_VAR].time][hover_obs[0]];
+			s << data[CAT_VAR][t][hover_obs[0]];
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
 			s << "obs " << hover_obs[1]+1 << " = ";
-			s << data[CAT_VAR][var_info[CAT_VAR].time][hover_obs[1]];
+			s << data[CAT_VAR][t][hover_obs[1]];
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
 			s << "obs " << hover_obs[2]+1 << " = ";
-			s << data[CAT_VAR][var_info[CAT_VAR].time][hover_obs[2]];
+			s << data[CAT_VAR][t][hover_obs[2]];
 		}
 		if (total_hover_obs >= 4) {
 			s << ", ...";

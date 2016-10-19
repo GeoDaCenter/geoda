@@ -79,6 +79,7 @@ protected:
 	bool full_map_redraw_needed;
 	std::vector<double> X;
 	std::vector<double> Y;
+    std::vector<bool> XY_undef;
 	
 	static const int IND_VAR; // scatter plot x-axis
 	static const int DEP_VAR; // scatter plot y-axis

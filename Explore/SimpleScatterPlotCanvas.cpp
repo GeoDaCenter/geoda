@@ -200,9 +200,25 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 				sb->SetStatusText(str);
 			}
             wxString s;
+            
+            const std::vector<bool>& hl = highlight_state->GetHighlight();
+            
             if (highlight_state->GetTotalHighlighted()> 0) {
-                s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+                int n_total_hl = highlight_state->GetTotalHighlighted();
+                s << "#selected=" << n_total_hl << "  ";
+                
+                int n_undefs = 0;
+                for (int i=0; i<X.size(); i++) {
+                    if ( (X_undef[i] || Y_undef[i]) && hl[i]) {
+                        n_undefs += 1;
+                    }
+                }
+                if (n_undefs> 0) {
+                    s << "(undefined:" << n_undefs << ") ";
+                }
             }
+
+            
             if (mousemode == select && selectstate == start) {
                 if (total_hover_obs >= 1) {
                     s << "hover obs " << hover_obs[0]+1 << " = (";
