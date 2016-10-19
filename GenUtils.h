@@ -238,7 +238,8 @@ struct SimpleLinearRegression {
 	static double TScoreTo2SidedPValue(double tscore, int df);
     
 	std::string ToString();
-	
+
+    int n;
 	double covariance;
 	double correlation;
 	double alpha;

@@ -281,9 +281,10 @@ void BoxPlotCanvas::DetermineMouseHoverObjects()
     
 	for (int t=0; t<cur_num_plots; t++) {
 		for (int i=0; i<num_obs; i++) {
+            wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
+            wxPoint& pt1 = sel1;
 			sel_scratch[i] = sel_scratch[i] ||
-				GenUtils::distance_sqrd(selectable_shps[t*num_obs + i]->center,
-										sel1) <= 16.5;
+				GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
 		}
 	}
 	for (int i=0; i<num_obs && total_hover_obs<max_hover_obs; i++) {
@@ -910,10 +911,46 @@ void BoxPlotCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+   
+    TableInterface* table_int = project->GetTableInt();
+   
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
 	wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+		s << "#selected=" << n_total_hl << "  ";
+        
+        if (num_time_vals == 1) {
+            int t = 0;
+            int n_undefs = 0;
+            for (int i=0; i<num_obs; i++) {
+                if (data_undef[0][t][i] && hl[i]) {
+                    n_undefs += 1;
+                }
+            }
+            if (n_undefs> 0) {
+                s << "(undefined:" << n_undefs << ") ";
+            }
+        } else {
+            wxString str;
+            for (int t=0; t<num_time_vals; t++) {
+                int n_undefs = 0;
+                for (int i=0; i<num_obs; i++) {
+                    if (data_undef[0][t][i] && hl[i])
+                        n_undefs += 1;
+                }
+                if (n_undefs > 0) {
+                    wxString t_str = table_int->GetTimeString(t);
+                    str << n_undefs << "@" << t_str <<" ";
+                }
+            }
+            if (!str.IsEmpty()) {
+                s << "(undefined:" << str << ")";
+            }
+        }
 	}
+    
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
 			s << "hover obs " << hover_obs[0]+1;

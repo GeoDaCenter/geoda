@@ -471,7 +471,7 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
 											   const std::vector<double>& Y,
 											   double meanX, double meanY,
 											   double varX, double varY)
-	: covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
+	: n(0), covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
 	std_err_of_estimate(0), std_err_of_beta(0), std_err_of_alpha(0),
 	t_score_alpha(0), t_score_beta(0), p_value_alpha(0), p_value_beta(0),
 	valid(false), valid_correlation(false), valid_std_err(false),
@@ -486,7 +486,7 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
                                                const std::vector<bool>& Y_undef,
 											   double meanX, double meanY,
 											   double varX, double varY)
-	: covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
+	: n(0), covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
 	std_err_of_estimate(0), std_err_of_beta(0), std_err_of_alpha(0),
 	t_score_alpha(0), t_score_beta(0), p_value_alpha(0), p_value_beta(0),
 	valid(false), valid_correlation(false), valid_std_err(false),
@@ -512,25 +512,19 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 												 double varX, double varY)
 {
 	LOG_MSG("Entering SimpleLinearRegression::CalculateRegression");
-	LOG(meanX);
-	LOG(meanY);
-	LOG(varX);
-	LOG(varY);
-	if (X.size() != Y.size() || X.size() < 2 ) return;
+    n = X.size();
+	if (X.size() != Y.size() || X.size() < 2 )
+        return;
 	double expectXY = 0;
 	for (int i=0, iend=X.size(); i<iend; i++) {
 		expectXY += X[i]*Y[i];
 	}
 	expectXY /= (double) X.size();
 	covariance = expectXY - meanX * meanY;
-	LOG(expectXY);
-	LOG(covariance);
 	if (varX > 4*DBL_MIN) {
 		beta = covariance / varX;
 		alpha = meanY - beta * meanX;
 		valid = true;
-		LOG(alpha);
-		LOG(beta);
 	}
 	double SS_tot = varY*Y.size();
 	error_sum_squares = 0; // error_sum_squares = SS_err
@@ -539,13 +533,11 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		err = Y[i] - (alpha + beta * X[i]);
 		error_sum_squares += err * err;
 	}
-	LOG(error_sum_squares);
 	if (error_sum_squares < 16*DBL_MIN) {
 		r_squared = 1;
 	} else {
 		r_squared = 1 - error_sum_squares / SS_tot;
 	}
-	LOG(r_squared);
 	
 	if (Y.size()>2 && varX > 4*DBL_MIN) {
 		// error_sum_squares/(n-k-1), k=1

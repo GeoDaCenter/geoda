@@ -1049,11 +1049,11 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	// create axes
 	x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
-							wxRealPoint(0,0), wxRealPoint(100, 0));
+                             wxRealPoint(0,0), wxRealPoint(100, 0));
 	x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 	background_shps.push_back(x_baseline);
 	y_baseline = new GdaAxis(GetNameWithTime(1), axis_scale_y,
-							wxRealPoint(0,0), wxRealPoint(0, 100));
+                             wxRealPoint(0,0), wxRealPoint(0, 100));
 	y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 	background_shps.push_back(y_baseline);
 	
@@ -1080,7 +1080,6 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	foreground_shps.push_back(reg_line_excluded);
     foreground_shps.push_back(reg_line);
 
-	
 	if (IsShowLinearSmoother() && !is_bubble_plot) {
 		double cc_degs_of_rot;
 		double reg_line_slope;
@@ -1088,7 +1087,8 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 		bool reg_line_defined;
 		wxRealPoint a, b;
         SmoothingUtils::CalcRegressionLine(*reg_line,
-                                           reg_line_slope, reg_line_infinite_slope,
+                                           reg_line_slope,
+                                           reg_line_infinite_slope,
                                            reg_line_defined, a, b, cc_degs_of_rot,
                                            axis_scale_x, axis_scale_y,
                                            regressionXY, *pens.GetRegPen());
@@ -1170,6 +1170,8 @@ void ScatterNewPlotCanvas::TimeChange()
 	cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
 	PopulateCanvas();
+    UpdateStatusBar();
+    
 	Refresh();
 	LOG_MSG("Exiting ScatterNewPlotCanvas::TimeChange");
 }
@@ -1735,14 +1737,22 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 			attributes[k].color = *wxBLACK;
 		}
+        
+        const std::vector<bool>& hl = highlight_state->GetHighlight();
         int tot_obs = 0;
+        int tot_sel_obs = 0;
+        int tot_unsel_obs = 0;
+        
         for (size_t i=0; i<XYZ_undef.size(); i++) {
             if (!XYZ_undef[i]) {
                 tot_obs += 1;
+                if (hl[i])
+                    tot_sel_obs += 1;
+                else
+                    tot_unsel_obs += 1;
             }
         }
-		int tot_sel_obs = highlight_state->GetTotalHighlighted();
-		int tot_unsel_obs = tot_obs - tot_sel_obs;
+		
 		vals[i*cols+j++] = "#obs";
 		vals[i*cols+j++] = "R^2";
 		vals[i*cols+j++] = "const a";
@@ -1910,8 +1920,23 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
 	wxString s;
+    TableInterface* table_int = project->GetTableInt();
+    
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (XYZ_undef[i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
         
 		if (brushtype == rectangle) {
 			wxRealPoint pt1 = MousePntToObsPnt(sel1);
