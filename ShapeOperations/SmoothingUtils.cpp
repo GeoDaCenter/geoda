@@ -533,7 +533,7 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
     
 	for (size_t i=0; i<Xpairs.size(); ++i) {
         int obj_id = Xpairs[i].second;
-        int obj_val = Xpairs[i].first;
+        double obj_val = Xpairs[i].first;
 		lce->sort_map[i] = obj_id;
 		lce->X_srt[i] = obj_val;
 		lce->Y_srt[i] = Y[obj_id];
