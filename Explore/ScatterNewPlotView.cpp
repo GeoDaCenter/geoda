@@ -943,14 +943,14 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     
 	sse_c = regressionXY.error_sum_squares;
 	
-	if (!var_info[0].fixed_scale && !standardized) {
-		x_max = var_info[0].max[var_info[0].time];
-		x_min = var_info[0].min[var_info[0].time];
-	}
-	if (!var_info[1].fixed_scale && !standardized) {
-		y_max = var_info[1].max[var_info[1].time];
-		y_min = var_info[1].min[var_info[1].time];
-	}
+    if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
+        x_max = var_info[0].max[var_info[0].time];
+        x_min = var_info[0].min[var_info[0].time];
+    }
+    if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
+        y_max = var_info[1].max[var_info[1].time];
+        y_min = var_info[1].min[var_info[1].time];
+    }
 	
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);

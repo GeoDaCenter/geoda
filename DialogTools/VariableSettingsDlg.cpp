@@ -86,17 +86,24 @@ void DiffMoranVarSettingDlg::CreateControls()
     wxSize var_size(100, -1);
     wxSize  time_size(100,-1);
     
-    wxStaticText  *st = new wxStaticText (panel, wxID_ANY, wxT("Select variable "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st = new wxStaticText (panel, wxID_ANY, _("Select variable "),
+                                          wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, var_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                     var_size, 0, NULL, wxCB_READONLY);
     
-    wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY, wxT(" and two time periods: "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY,
+                                           _(" and two time periods: "),
+                                           wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      time_size, 0, NULL, wxCB_READONLY);
     
-    wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, wxT(" and "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, _(" and "),
+                                           wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      time_size, 0, NULL, wxCB_READONLY);
     
     hbox->Add(st, 1, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
     hbox->Add(box, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
@@ -106,9 +113,11 @@ void DiffMoranVarSettingDlg::CreateControls()
     hbox->Add(box2, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM |wxRIGHT, 10);
     
     
-    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),  wxDefaultPosition, wxSize(70,-1));
+    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),
+                                           wxDefaultPosition, wxSize(70,-1));
     
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
     
     hbox1->Add(st3, 0, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
     hbox1->Add(box3, 0, wxALIGN_LEFT | wxTOP | wxBOTTOM, 10);
@@ -118,8 +127,10 @@ void DiffMoranVarSettingDlg::CreateControls()
     
     panel->SetSizer(vbox);
     
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"),  wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
     
     hbox2->Add(okButton, 1);
     hbox2->Add(closeButton, 1, wxLEFT, 5);
@@ -434,52 +445,74 @@ void VariableSettingsDlg::Init(VarType var_type)
 
 void VariableSettingsDlg::CreateControls()
 {
+    wxString ctrl_xrcid;
+    
 	// show_distance is only supported for univariate
-	if (num_var == 1 && is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1_DIST");
-	} else if (num_var == 1 && !is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_DIST");
-	} else if (num_var == 1 && is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1");
-	} else if (num_var == 1 && is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),  "ID_VAR_SETTINGS_TIME_DLG_1_W");
-	} else if (num_var == 1 && !is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1");
-	} else if (num_var == 1 && !is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_W");
-	} else if (num_var == 2 && is_time && !show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2");
-		}
-	} else if (num_var == 2 && is_time && show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE_W");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2_W");
-		}
-	} else if (num_var == 2 && !is_time && !show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2");
-		}
-	} else if (num_var == 2 && !is_time && show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE_W");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2_W");
-		}
-	} else if (num_var == 3 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_3");
-	} else if (num_var == 3 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_3");
-	} else if (num_var == 4 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_4");
-	} else if (num_var == 4 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_4");
-	}
+    if (num_var == 1 && is_time && show_distance) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1_DIST";
+        
+    } else if (num_var == 1 && !is_time && show_distance) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1_DIST";
+        
+    } else if (num_var == 1 && is_time && !show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1";
+        
+    } else if (num_var == 1 && is_time && show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1_W";
+        
+    } else if (num_var == 1 && !is_time && !show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1";
+        
+    } else if (num_var == 1 && !is_time && show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1_W";
+        
+    } else if (num_var == 2 && is_time && !show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_RATE";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_2";
+            
+        }
+    } else if (num_var == 2 && is_time && show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_RATE_W";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_2_W";
+            
+        }
+    } else if (num_var == 2 && !is_time && !show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_RATE";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_2";
+            
+        }
+    } else if (num_var == 2 && !is_time && show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_RATE_W";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_2_W";
+            
+        }
+    } else if (num_var == 3 && is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_3";
+        
+    } else if (num_var == 3 && !is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_3";
+        
+    } else if (num_var == 4 && is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_4";
+        
+    } else if (num_var == 4 && !is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_4";
+        
+    }
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), ctrl_xrcid);
+    
 	
 	if (is_time) {
         if (hide_time) {
@@ -1021,6 +1054,7 @@ void VariableSettingsDlg::FillData()
 		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
 		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
+        
 		// var_info[i].time already set above
 		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
 		var_info[i].sync_with_global_time = var_info[i].is_time_variant;

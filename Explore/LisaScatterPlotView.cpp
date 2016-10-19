@@ -558,7 +558,8 @@ END_EVENT_TABLE()
 LisaScatterPlotFrame::LisaScatterPlotFrame(wxFrame *parent, Project* project,
 										   LisaCoordinator* lisa_coordinator,
 										   const wxPoint& pos,
-										   const wxSize& size, const long style)
+										   const wxSize& size,
+                                           const long style)
 : ScatterNewPlotFrame(parent, project, pos, size, style),
 lisa_coord(lisa_coordinator)
 {

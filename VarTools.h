@@ -214,6 +214,8 @@ struct VarInfo {
 	// scale is set according to min/max values over all possible times
 	// for this particular variable combination.
 	bool fixed_scale;
+    
+    bool is_moran; // moran requires |min| == |max|
 	
 	// Secondary Attributes
 	

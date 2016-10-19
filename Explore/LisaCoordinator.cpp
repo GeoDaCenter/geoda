@@ -131,6 +131,7 @@ row_standardize(row_standardize_s)
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
         table_int->GetColUndefined(col_ids[i], undef_data[i]);
+        var_info[i].is_moran = true;
 	}
     
 	

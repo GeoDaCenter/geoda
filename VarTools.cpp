@@ -334,7 +334,9 @@ VarInfo::VarInfo() : min(1, 0), max(1, 0)
 	time = 0;
 	sync_with_global_time = true;
 	fixed_scale = true;
+    is_moran = false;
 	is_ref_variable = false;
+    
 	time_min = 0;
 	time_max = 0;
 	min_over_time = 0;

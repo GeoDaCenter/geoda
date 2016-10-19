@@ -3322,9 +3322,12 @@ void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
-													false, "Scatter Plot Variables",
-							"Independent Var X", "Dependent Var Y");
+	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate,
+                            false,
+                            false,
+                            "Scatter Plot Variables",
+							"Independent Var X",
+                            "Dependent Var Y");
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	wxString title("Scatter Plot");
