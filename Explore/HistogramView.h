@@ -130,11 +130,12 @@ protected:
 	std::vector<double> max_ival_val; // size = time_steps
 	std::vector<double> max_num_obs_in_ival; // size = time_steps
 	double overall_max_num_obs_in_ival;
-	
+
 	i_array_type ival_obs_cnt; // size = time_steps * cur_num_intervals
 	i_array_type ival_obs_sel_cnt;  // size = time_steps * cur_num_intervals
 	i_array_type obs_id_to_ival; // size = time_steps * num_obs
 	std::vector< std::vector<std::list<int> > > ival_to_obs_ids;
+	std::vector< std::vector<bool> > undef_tms;
 	
 	int max_intervals; // min of num_obs and MAX_INTERVALS
 	static const int MAX_INTERVALS;

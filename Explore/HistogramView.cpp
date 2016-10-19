@@ -85,10 +85,10 @@ custom_classif_state(0), is_custom_category(false)
     //int is_time_var = table_int->IsColTimeVariant(col_id);
     
     // default load first time step data if time variable
-    std::vector<double> sel_data;
-    std::vector<bool> sel_undefs;
-    int sel_time = 0;
-	table_int->GetColData(col_id, sel_time, sel_data, sel_undefs);
+    //std::vector<double> sel_data;
+    //std::vector<bool> sel_undefs;
+    //int sel_time = 0;
+	//table_int->GetColData(col_id, sel_time, sel_data, sel_undefs);
     
     // prepare statistics
 	data_stats.resize(col_time_steps);
@@ -102,7 +102,10 @@ custom_classif_state(0), is_custom_category(false)
     
     for (int t=0; t<col_time_steps; t++) {
         std::vector<double> sel_data;
+        std::vector<bool> sel_undefs;
         table_int->GetColData(col_id, t, sel_data);
+        table_int->GetColUndefined(col_id, t, sel_undefs);
+        undef_tms.push_back(sel_undefs);
         
         data_sorted[t].resize(num_obs);
         // data_sorted is a pair value {double value: index}
@@ -152,54 +155,6 @@ custom_classif_state(0), is_custom_category(false)
     max_num_obs_in_ival.resize(col_time_steps);
     ival_to_obs_ids.resize(col_time_steps);
     
-    
-    /*
-	std::vector<d_array_type> data(v_info.size());
-	
-	table_int->GetColData(col_ids[0], data[0]);
-	int data0_times = data[0].shape()[0];
-	data_stats.resize(data0_times);
-	hinge_stats.resize(data0_times);
-	data_sorted.resize(data0_times);
-	data_min_over_time = data[0][0][0];
-	data_max_over_time = data[0][0][0];
-    
-	for (int t=0; t<data0_times; t++) {
-		data_sorted[t].resize(num_obs);
-		for (int i=0; i<num_obs; i++) {
-			data_sorted[t][i].first = data[0][t][i];
-			data_sorted[t][i].second = i;
-		}
-		std::sort(data_sorted[t].begin(), data_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
-		data_stats[t].CalculateFromSample(data_sorted[t]);
-		hinge_stats[t].CalculateHingeStats(data_sorted[t]);
-		if (data_stats[t].min < data_min_over_time) {
-			data_min_over_time = data_stats[t].min;
-		}
-		if (data_stats[t].max > data_max_over_time) {
-			data_max_over_time = data_stats[t].max;
-		}
-	}
-	
-	template_frame->ClearAllGroupDependencies();
-	for (int i=0, sz=var_info.size(); i<sz; ++i) {
-		template_frame->AddGroupDependancy(var_info[i].name);
-	}
-	
-	obs_id_to_ival.resize(boost::extents[data0_times][num_obs]);
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
-	if (num_obs > 49) {
-		int c = sqrt((double) num_obs);
-		cur_intervals = GenUtils::min<int>(max_intervals, c);
-		cur_intervals = GenUtils::min<int>(cur_intervals, 25);
-	}
-	min_ival_val.resize(data0_times);
-	max_ival_val.resize(data0_times);
-	max_num_obs_in_ival.resize(data0_times);
-	ival_to_obs_ids.resize(data0_times);
-	*/
-    
 	highlight_color = GdaConst::highlight_color;
 	fixed_aspect_ratio_mode = false;
 	use_category_brushes = false;
@@ -235,14 +190,21 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((HistogramFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()-> LoadMenu("ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS");
+    wxString menu_xrcid = "ID_HISTOGRAM_NEW_VIEW_MENU_OPTIONS";
+	optMenu = wxXmlResource::Get()-> LoadMenu(menu_xrcid);
 	AddTimeVariantOptionsToMenu(optMenu);
-    int n_cat = AddClassificationOptionsToMenu(optMenu, project->GetCatClassifManager());
     
-    template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(HistogramFrame::OnHistClassification));
+    CatClassifManager* cat_classif = project->GetCatClassifManager();
+    int n_cat = AddClassificationOptionsToMenu(optMenu, cat_classif);
+    
+    template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION,
+                            wxEVT_COMMAND_MENU_SELECTED,
+                            wxCommandEventHandler(HistogramFrame::OnHistClassification));
     
     for (int i=1; i<=n_cat; i++) {
-        template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION+i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(HistogramFrame::OnHistClassification));
+        template_frame->Connect(GdaConst::ID_HISTOGRAM_CLASSIFICATION+i,
+                                wxEVT_COMMAND_MENU_SELECTED,
+                                wxCommandEventHandler(HistogramFrame::OnHistClassification));
     }
     
 	SetCheckMarks(optMenu);
@@ -268,7 +230,8 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		mi->Check(var_info[0].sync_with_global_time);
 	}
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1, "Time Variable Options");
+    menu->Append(wxID_ANY, "Time Variable Options",
+                 menu1, "Time Variable Options");
 	
 }
 
@@ -467,7 +430,11 @@ void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
 	int t = var_info[0].time;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (ival_obs_sel_cnt[t][i] == 0) continue;
+        if (ival_obs_sel_cnt[t][i] == 0 ||
+            undef_tms[t][i])
+        {
+            continue;
+        }
 		double s = (((double) ival_obs_sel_cnt[t][i]) /
 					((double) ival_obs_cnt[t][i]));
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
@@ -931,8 +898,7 @@ void HistogramCanvas::InitIntervals()
 			max_ival_val[t] = data_max_over_time;
 		} else {
             
-            std::vector<bool> undefs;
-            table_int->GetColUndefined(col_id, t, undefs);
+            const std::vector<bool>& undefs = undef_tms[t];
             bool has_init = false;
             for (size_t ii=0; ii<undefs.size(); ii++){
                 double val = data_sorted[t][ii].first;
@@ -973,8 +939,8 @@ void HistogramCanvas::InitIntervals()
             }
         }
         
-        std::vector<bool> undefs(num_obs);
-        table_int->GetColUndefined(col_id, t, undefs);
+        const std::vector<bool>& undefs = undef_tms[t];
+        
 		for (int i=0, cur_ival=0; i<num_obs; i++) {
             
             std::pair<double, int>& data_item = data_sorted[t][i];
@@ -1037,7 +1003,7 @@ void HistogramCanvas::UpdateIvalSelCnts()
         
         for (int i=0; i< (int)hs.size(); i++) {
 			for (int t=0; t<ts; t++) {
-                if (hs[i]) {
+                if (hs[i] && !undef_tms[t][i]) {
                     ival_obs_sel_cnt[t][obs_id_to_ival[t][i]]++;
                 }
             }
@@ -1072,18 +1038,31 @@ void HistogramCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
-	if (total_hover_obs == 0) {
-        if (highlight_state->GetTotalHighlighted()> 0) {
-            wxString s;
-            s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
-            sb->SetStatusText(s);
-        } else {
-            sb->SetStatusText("");
-        }
-		return;
-	}
+    
 	int t = var_info[0].time;
 	int ival = hover_obs[0];
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
+	if (total_hover_obs == 0) {
+        wxString s;
+        if (highlight_state->GetTotalHighlighted()> 0) {
+            int n_total_hl = highlight_state->GetTotalHighlighted();
+            s << "#selected=" << n_total_hl << "  ";
+            
+            int n_undefs = 0;
+            for (int i=0; i<num_obs; i++) {
+                if (undef_tms[t][i] && hl[i]) {
+                    n_undefs += 1;
+                }
+            }
+            if (n_undefs> 0) {
+                s << "(undefined:" << n_undefs << ") ";
+            }
+        }
+        sb->SetStatusText(s);
+		return;
+	}
+    
 	wxString s;
 	double ival_min = (ival == 0) ? min_ival_val[t] : ival_breaks[t][ival-1];
 	double ival_max = ((ival == cur_intervals-1) ?
