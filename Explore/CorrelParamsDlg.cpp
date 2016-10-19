@@ -369,14 +369,15 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
                 wxString title = "Variable Value Error";
                 wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
                 dlg.ShowModal();
+                
+                var_choice->SetSelection(-1);
                 valid_variable = false;
             }
 		}
 	}
-	int var_man_cnt = var_man.GetVarsCount();
-	LOG(var_man_cnt);
-	if (var_man_cnt) LOG(var_man.GetName(0));
-	notifyObservers();
+    if (valid_variable) {
+        notifyObservers();
+    }
 }
 
 void CorrelParamsFrame::OnVarChoiceSelected(wxCommandEvent& ev)
