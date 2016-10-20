@@ -358,18 +358,26 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
     if (is_update) {
         // update layer in datasources, e.g. Sqlite
         export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
-        new_layer_proxy = export_ds->CreateLayer(
-            o_layer_name, geom_type, ogr_geometries, table,
-            selected_rows, spatial_ref);
+        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
+                                                 geom_type,
+                                                 ogr_geometries,
+                                                 table,
+                                                 selected_rows,
+                                                 spatial_ref);
     } else {
         export_ds = new OGRDatasourceProxy(o_ds_format, o_ds_name);
-        new_layer_proxy = export_ds->CreateLayer(
-            o_layer_name, geom_type, ogr_geometries, table,
-            selected_rows, spatial_ref);
+        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
+                                                 geom_type,
+                                                 ogr_geometries,
+                                                 table,
+                                                 selected_rows,
+                                                 spatial_ref);
     }
 
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,
-		new_layer_proxy, ogr_geometries, table, selected_rows));
+                                                  new_layer_proxy,
+                                                  ogr_geometries,
+                                                  table, selected_rows));
    
     return new_layer_proxy;
 }

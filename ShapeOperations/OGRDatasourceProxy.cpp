@@ -344,7 +344,8 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     // LAUNDER is for database: rename desired field name
     char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
     
-    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(), poOutputSRS, eGType, papszLCO);
+    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(),
+                                           poOutputSRS, eGType, papszLCO);
     
     if( poDstLayer == NULL ) {
         error_message << "Can't write/create layer \"" << layer_name << "\". \n\nDetails: Attemp to write a readonly database, or "
@@ -360,9 +361,10 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
         std::vector<int> col_id_map;
         table->FillColIdMap(col_id_map);
         
-        int time_steps = table->GetTimeSteps();
-        
-        for ( int id=0; id < table->GetNumberCols(); id++ ) {
+        for (int id=0; id < table->GetNumberCols(); id++) {
+            
+            bool is_time_var = table->IsColTimeVariant(id);
+            int time_steps = is_time_var ? table->GetTimeSteps() : 1;
             
             for ( int t=0; t < time_steps; t++ ) {
                 

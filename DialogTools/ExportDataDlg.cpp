@@ -576,8 +576,17 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     
     if (prog_n_max == 0 && table_p)
         prog_n_max = table_p->GetNumberRows();
-    
-    OGRLayerProxy* new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), ds_name.ToStdString(), layer_name.ToStdString(), geom_type, ogr_geometries, table_p, selected_rows, spatial_ref, is_update);
+   
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
+    OGRLayerProxy* new_layer = ogr_adapter.ExportDataSource(ds_format.ToStdString(),
+                                                            ds_name.ToStdString(),
+                                                            layer_name.ToStdString(),
+                                                            geom_type,
+                                                            ogr_geometries,
+                                                            table_p,
+                                                            selected_rows,
+                                                            spatial_ref,
+                                                            is_update);
     
     if (new_layer == NULL)
         return false;
