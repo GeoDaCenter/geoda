@@ -416,24 +416,124 @@ void LisaScatterPlotCanvas::PopulateCanvas()
 	// need to modify var_info temporarily for PopulateCanvas since
 	var_info_orig = var_info;
 	var_info = sp_var_info;
+   
 	ScatterNewPlotCanvas::PopulateCanvas();
+    
+    // sel vs unsel moran calculation
+    // for regressionXYselected and regressionXYexcluded
+    // UpdateRegSelectedLine
+    // UpdateRegExcludedLine
+    int n_hl = highlight_state->GetTotalHighlighted();
+    if (n_hl > 0) {
+        const std::vector<bool>& hl = highlight_state->GetHighlight();
+        int t = project->GetTimeState()->GetCurrTime();
+        int num_obs = lisa_coord->num_obs;
+        
+        std::vector<bool> undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            undefs[i] = lisa_coord->undef_tms[t][i] || !hl[i];
+        }
+        RegimeMoran(undefs, regressionXYselected);
+        UpdateRegSelectedLine();
+        
+        undefs.clear();
+        undefs.resize(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            undefs[i] = lisa_coord->undef_tms[t][i] || hl[i];
+        }
+        RegimeMoran(undefs, regressionXYexcluded);
+        UpdateRegExcludedLine();
+        
+        wxString s("Moran's I: ");
+        s << regressionXY.beta;
+        if (highlight_state->GetTotalHighlighted()>0) {
+            wxString str = wxString::Format(" (selected: %.3f, unselected: %.3f)",
+                                            regressionXYselected.beta,
+                                            regressionXYexcluded.beta);
+            s << str;
+        }
+        morans_i_text->setText(s);
+    }
+    
 	var_info = var_info_orig;
 	
 	LOG_MSG("Exiting LisaScatterPlotCanvas::PopulateCanvas");
 }
 
+void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
+                                        SimpleLinearRegression& regime_lreg)
+{
+    int t = project->GetTimeState()->GetCurrTime();
+    GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
+    copy_w->Update(undefs);
+    GalElement* W = copy_w->gal;
+    
+    double* data1 = lisa_coord->data1_vecs[t];
+    double* data2 = NULL;
+    
+    if (lisa_coord->isBivariate) {
+        data2 = lisa_coord->data2_vecs[0];
+        if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
+            data2 = lisa_coord->data2_vecs[t];
+    }
+    
+    std::vector<double> X;
+    std::vector<double> Y;
+    std::vector<bool> XY_undefs;
+    
+    for (int i=0; i<num_obs; i++) {
+        if (undefs[i])
+            continue;
+        
+        double Wdata = 0;
+        if (lisa_coord->isBivariate) {
+            Wdata = W[i].SpatialLag(data2);
+        } else {
+            Wdata = W[i].SpatialLag(data1);
+        }
+        X.push_back(data1[i]);
+        Y.push_back(Wdata);
+        XY_undefs.push_back(false);
+    }
+    SampleStatistics statsX(X, XY_undefs);
+    SampleStatistics statsY(Y, XY_undefs);
+    regime_lreg = SimpleLinearRegression(X, Y, XY_undefs, XY_undefs,
+                                         statsX.mean, statsY.mean,
+                                         statsX.var_without_bessel,
+                                         statsY.var_without_bessel);
+    
+    delete copy_w;
+}
+
+void LisaScatterPlotCanvas::update(HLStateInt* o)
+{
+    invalidateBms();
+    PopulateCanvas();
+    
+    // Call TemplateCanvas::update to redraw objects as needed.
+    TemplateCanvas::update(o);
+    
+    Refresh();
+}
 void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 {
+    // if has highlighted, then the text will be added after RegimeMoran()
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
-    GdaShapeText* morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
-                                                   wxRealPoint(50, 100), 0,
-                                                   GdaShapeText::h_center,
-                                                   GdaShapeText::v_center,
-                                                   0, -15);
+    if (highlight_state->GetTotalHighlighted()>0) {
+        wxString str = wxString::Format(" (selected: %.2f, unselected: %.2f)",
+                                        regressionXYselected.beta,
+                                        regressionXYexcluded.beta);
+        s << str;
+    }
+    morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
+                                     wxRealPoint(50, 100), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center,
+                                     0, -15);
 
     morans_i_text->setPen(*GdaConst::scatterplot_reg_pen);
-	foreground_shps.push_back(morans_i_text);
+    foreground_shps.push_back(morans_i_text);
 }
 
 void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)

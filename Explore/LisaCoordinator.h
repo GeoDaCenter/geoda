@@ -147,6 +147,7 @@ public:
 	// These two variables should be empty for LisaMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	std::vector<b_array_type> undef_data; // undef_data[variable][time][obs]
+    std::vector<std::vector<bool> > undef_tms;
 	
 	// All LisaMapCanvas objects synchronize themselves
 	// from the following 6 variables.

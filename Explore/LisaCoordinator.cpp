@@ -121,6 +121,7 @@ isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
+undef_tms(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
@@ -186,6 +187,7 @@ void LisaCoordinator::DeallocateVectors()
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
         if (has_undefined[i]) {
+            // clean the copied weights
             delete Gal_vecs[i];
         }
     }
@@ -361,20 +363,23 @@ void LisaCoordinator::VarInfoAttributeChange()
 void LisaCoordinator::StandardizeData()
 {
 	for (int t=0; t<data1_vecs.size(); t++) {
-        std::vector<bool> undefs;
-        for (int i=0; i<undef_data[0][t].size(); i++) {
-            undefs.push_back(undef_data[0][t][i]);
+        undef_tms[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
         }
-		GenUtils::StandardizeData(num_obs, data1_vecs[t], undefs);
-	}
-	if (isBivariate) {
-		for (int t=0; t<data2_vecs.size(); t++) {
-            std::vector<bool> undefs;
-            for (int i=0; i<undef_data[1][t].size(); i++) {
-                undefs.push_back(undef_data[0][t][i]);
+        if (isBivariate) {
+            for (int i=0; i<num_obs; i++) {
+                undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
             }
-			GenUtils::StandardizeData(num_obs, data2_vecs[t], undefs);
-		}
+        }
+    }
+    
+	for (int t=0; t<data1_vecs.size(); t++) {
+		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
+        if (isBivariate) {
+            GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
+        }
 	}
 }
 

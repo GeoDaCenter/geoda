@@ -410,7 +410,14 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             // get underneath column position (no group and time =0)
             int col_pos = table->GetColIdx(fname, ignore_case);
             int time_step = 0;
-           
+          
+            if (col_pos < 0) {
+                wxString msg = wxString::Format(_(" Save column %s failed. Please check your data, or contact GeoDa team."), fname);
+                error_message << msg;
+                export_progress = -1;
+                return;
+            }
+            
             vector<bool> undefs;
             
             if ( ftype == GdaConst::long64_type) {

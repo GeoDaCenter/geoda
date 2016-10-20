@@ -579,17 +579,7 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 		Refresh();
 	}
    
-    /*
-    if (o->GetTotalHighlighted() > 0) {
-        // disable LOWESS regress
-        enableLowess = false;
-    } else {
-        // enable LOWESS regress
-        enableLowess = true;
-    }
-     */
-	
-	LOG_MSG("Entering ScatterNewPlotCanvas::update");	
+	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 }
 
 wxString ScatterNewPlotCanvas::GetCanvasTitle()
@@ -1627,37 +1617,7 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
                                           unsel_smthd_srt_y,
                                           XYZ_undef);
 	}
-    /*
-     // Don't show lowess of regimes
-	if (lowess_reg_line_selected) {
-		if (sel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
-            lowess_reg_line_selected->reInit(sel_smthd_srt_x,
-                                             sel_smthd_srt_y,
-                                             axis_scale_x.scale_min,
-                                             axis_scale_y.scale_min,
-                                             scaleX, scaleY);
-			lowess_reg_line_selected->setPen(*pens.GetRegSelPen());
-		} else {
-			lowess_reg_line_selected->operator=(GdaSpline());
-		}
-		ApplyLastResizeToShp(lowess_reg_line_selected);
-	}
-	
-	if (lowess_reg_line_excluded) {
-		if (unsel_smthd_srt_x.size() > 0 && IsShowRegimes()) {
-			
-            lowess_reg_line_excluded->reInit(unsel_smthd_srt_x, unsel_smthd_srt_y,
-                                             axis_scale_x.scale_min,
-                                             axis_scale_y.scale_min,
-                                             scaleX, scaleY);
-			 
-			lowess_reg_line_excluded->setPen(*pens.GetRegExlPen());
-		} else {
-			lowess_reg_line_excluded->operator=(GdaSpline());
-		}
-		ApplyLastResizeToShp(lowess_reg_line_excluded);
-	}
-     */
+
 	layer2_valid = false;
 }
 
@@ -1685,20 +1645,14 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 		// note number of restrictions is K+1 since intercepts are constrained
 		// to be equal.
 		chow_ratio = ((sse_c - sse_u) * (N-2*(K+1))) / (sse_u*(K+1));
-		LOG(chow_ratio);
 		if (chow_ratio < 0) {
 			chow_valid = false;
 		} else {
 			// constructs and f-distribution with numerator degrees of
 			// freedom K+1 and denominator degrees of freedom N-2*(K+1);
 			fisher_f_distribution<> f_dist(K+1, N-2*(K+1));
-			LOG_MSG("numerator df:");
-			LOG(f_dist.degrees_of_freedom1());
-			LOG_MSG("denominator df:");
-			LOG(f_dist.degrees_of_freedom2());
 			chow_pval = 1-cdf(f_dist, chow_ratio);
 			chow_valid = true;
-			LOG(chow_pval);
 		}
 	} else {
 		chow_valid = false;
@@ -1811,12 +1765,14 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 		}
 		int x_nudge = (virtual_screen_marg_left-virtual_screen_marg_right)/2;
 		
-		stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
-									   *GdaConst::small_font,
-									   wxRealPoint(50, 0),
-									   GdaShapeText::h_center, GdaShapeText::top,
-									   GdaShapeText::h_center, GdaShapeText::v_center,
-									   3, 8, -x_nudge, 45)); //62));
+        stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
+                                             *GdaConst::small_font,
+                                             wxRealPoint(50, 0),
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::top,
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::v_center,
+                                             3, 8, -x_nudge, 45)); //62));
 		stats_table->setPen(*wxBLACK_PEN);
 		stats_table->hidden = false;
 		
@@ -1826,11 +1782,12 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 			stats_table->GetSize(dc, table_w, table_h);
 			ComputeChowTest();
 			wxString s = chow_test_text->getText();
-			chow_test_text->operator=(GdaShapeText(s, *GdaConst::small_font,
-											 wxRealPoint(50,0), 0,
-											 GdaShapeText::h_center, GdaShapeText::v_center,
-											 -x_nudge,
-											 table_h+62)); //117));
+            chow_test_text->operator=(GdaShapeText(s, *GdaConst::small_font,
+                                                   wxRealPoint(50,0), 0,
+                                                   GdaShapeText::h_center,
+                                                   GdaShapeText::v_center,
+                                                   -x_nudge,
+                                                   table_h+62)); //117));
 			chow_test_text->setPen(*wxBLACK_PEN);
 			chow_test_text->hidden = false;
 		} else {

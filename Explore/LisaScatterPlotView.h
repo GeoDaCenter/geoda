@@ -46,10 +46,14 @@ public:
 	void SyncVarInfoFromCoordinator();
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
+    virtual void update(HLStateInt* o);
+    
 	void ShowRandomizationDialog(int permutation);
 	void SaveMoranI();
 	
 protected:
+    void RegimeMoran(const std::vector<bool>& undefs,
+                     SimpleLinearRegression& regime_lreg);
     void OnRandDlgClose( wxWindowDestroyEvent& event);
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
@@ -60,6 +64,7 @@ protected:
 	std::vector<GdaVarTools::VarInfo> sp_var_info;
 	std::vector<GdaVarTools::VarInfo> var_info_orig;
     RandomizationDlg* rand_dlg;
+    GdaShapeText* morans_i_text;
 	
 	DECLARE_EVENT_TABLE()
 };

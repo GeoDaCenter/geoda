@@ -1207,12 +1207,13 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 				WeightsMetaInfo e(wmi);
 				e.filename = ofn;
 				boost::uuids::uuid uid = w_man_int->RequestWeights(e);
-				if (uid.is_nil()) success = false;
+				if (uid.is_nil())
+                    success = false;
 				if (success) {
 					// deep copy of w
 					GalWeight* dcw = new GalWeight(*w);
-					success =
-					((WeightsNewManager*) w_man_int)->AssociateGal(uid, dcw);
+					success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, dcw);
+                    
 					if (success) {
 						w_man_int->MakeDefault(uid);
 						//wxCommandEvent event;
@@ -1222,6 +1223,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 					}
 					//GdaFrame::GetGdaFrame()->ShowConnectivityMapView(uid);
 				}
+                delete w;
 			} else {
 				success = false;
 			}
