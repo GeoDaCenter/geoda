@@ -1649,7 +1649,7 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
     bool drawSuccess = ((MapCanvas*)template_canvas)->DrawBasemap(flag, map_type);
     
     if (drawSuccess==false) {
-        wxMessageBox("To add the base map, you need a .prj file (WGS84 format) in the same directory as your spatial files.");
+        wxMessageBox("GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file).");
     }
 }
 
