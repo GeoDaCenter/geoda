@@ -209,7 +209,9 @@ bubble_size_scaler(1.0)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
-	
+
+    fixed_aspect_ratio_mode = true;
+    
 	TableInterface* table_int = project->GetTableInt();
 	for (size_t i=0; i<var_info.size(); i++) {
 		template_frame->AddGroupDependancy(var_info[i].name);

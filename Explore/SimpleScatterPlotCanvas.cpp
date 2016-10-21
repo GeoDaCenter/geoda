@@ -85,6 +85,7 @@ view_standardized_data(view_standardized_data_)
 {
 	LOG_MSG("Entering SimpleScatterPlotCanvas::SimpleScatterPlotCanvas");
 	
+    
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;

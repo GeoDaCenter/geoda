@@ -3514,6 +3514,10 @@
     
     <object class="wxMenu" name="ID_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
+            <label>Fixed Aspect Ratio Mode</label>
+            <checkable>1</checkable>
+        </object>
         <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
             <label>Regimes Regression</label>
             <checkable>1</checkable>
