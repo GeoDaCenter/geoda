@@ -587,6 +587,7 @@ bool OGRLayerProxy::ReadData()
     if (row_idx == 0) {
 		error_message << "GeoDa can't read data from datasource."
 		    << "\n\nDetails: Datasource is empty. "<< CPLGetLastErrorMsg();
+        
         return false;
     }
 	n_rows = row_idx;

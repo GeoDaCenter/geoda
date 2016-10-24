@@ -1795,8 +1795,9 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 {
 	LOG_MSG("Entering GdaFrame::OnNewProject");
 	ConnectDatasourceDlg dlg(this);
-	if (dlg.ShowModal() != wxID_OK) return;
-    
+	if (dlg.ShowModal() != wxID_OK)
+        return;
+   
 	wxString proj_title = dlg.GetProjectTitle();
     wxString layer_name = dlg.GetLayerName();
     IDataSource* datasource = dlg.GetDataSource();
@@ -1804,6 +1805,11 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
         // this datasource will be freed when dlg exit, so make a copy
         // in project_p
         project_p = new Project(proj_title, layer_name, datasource);
+       
+        // update recent opened datasource menu
+        RecentDatasource recent_ds;
+        std::vector<wxString> recent_ds_list = recent_ds.GetList();
+        
     } catch (GdaException& e) {
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
@@ -1847,13 +1853,14 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 	if (!project_p->IsTableOnlyProject()) {
 		std::vector<int> col_ids;
 		std::vector<GdaVarTools::VarInfo> var_info;
-		MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-										  var_info, col_ids,
-										  CatClassification::no_theme,
-										  MapCanvas::no_smoothing, 1,
-										  boost::uuids::nil_uuid(),
-										  wxPoint(80,160),
-										  GdaConst::map_default_size);
+        MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                    var_info, col_ids,
+                                    CatClassification::no_theme,
+                                    MapCanvas::no_smoothing, 1,
+                                    boost::uuids::nil_uuid(),
+                                    wxPoint(80,160),
+                                    GdaConst::map_default_size);
+        
 		nf->UpdateTitle();
 	}
 	

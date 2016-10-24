@@ -30,6 +30,32 @@
 #include "AutoCompTextCtrl.h"
 #include "DatasourceDlg.h"
 
+using namespace std;
+
+class RecentDatasource
+{
+public:
+    RecentDatasource();
+    virtual ~RecentDatasource();
+   
+    void Add(wxString ds_name, wxString ds_val);
+    void Clear();
+    void Save();
+    
+    vector<wxString> GetList();
+    
+protected:
+    static const int N_MAX_ITEMS;
+    static const string KEY_NAME_IN_GDA_HISTORY;
+    
+    int n_ds;
+    wxString ds_json_str;
+   
+    vector<wxString> ds_names;
+    vector<wxString> ds_values;
+    
+    void Init(wxString json_str);
+};
 
 class ConnectDatasourceDlg: public DatasourceDlg
 {
@@ -46,7 +72,7 @@ public:
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
         
-private:
+protected:
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
@@ -54,8 +80,8 @@ private:
 	AutoTextCtrl*  m_webservice_url;
 	IDataSource*   datasource;
     
-private:
     IDataSource* CreateDataSource();
+    void SaveRecentDataSource(IDataSource* ds);
     
 	DECLARE_EVENT_TABLE()
 };

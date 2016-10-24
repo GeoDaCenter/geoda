@@ -502,9 +502,10 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                 OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
                 data[i] = feat->GetFieldAsDouble(fid);
                 undefs[i] = false;
-            } else
+            } else {
                 data[i] = 0.0;
                 undefs[i] = true;
+            }
         }
         table_int->SetColData(add_pos, 0, data, undefs);
     }

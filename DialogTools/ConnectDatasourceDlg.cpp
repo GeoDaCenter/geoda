@@ -18,6 +18,7 @@
  */
 
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <fstream>
 #include <wx/progdlg.h>
@@ -32,6 +33,7 @@
 #include <wx/statbmp.h>
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
+#include <json_spirit/json_spirit_reader.h>
 
 #include "../DialogTools/CsvFieldConfDlg.h"
 #include "../DataViewer/DataSource.h"
@@ -250,6 +252,8 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		// At this point, there is a valid datasource and layername.
         if (layer_name.IsEmpty())
             layer_name = layername;
+       
+        SaveRecentDataSource(datasource);
         
         EndDialog(wxID_OK);
 		
@@ -334,18 +338,18 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         }
         
         // save user inputs to history table
+        OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
         if (!dbhost.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_host", dbhost.ToStdString());
+            ogr_adapter.AddHistory("db_host", dbhost.ToStdString());
+        
         if (!dbname.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_name", dbname.ToStdString());
+            ogr_adapter.AddHistory("db_name", dbname.ToStdString());
+        
         if (!dbport.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_port", dbport.ToStdString());
+            ogr_adapter.AddHistory("db_port", dbport.ToStdString());
+        
         if (!dbuser.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_user", dbuser.ToStdString());
+            ogr_adapter.AddHistory("db_user", dbuser.ToStdString());
         
         // check if empty, prompt user to input
         wxRegEx regex;
@@ -400,6 +404,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         datasource = new WebServiceDataSource(ws_url, GdaConst::ds_wfs);
         // prompt user to select a layer from WFS
         //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
+        
 	} else if ( datasource_type == 3 ) {
         
         std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
@@ -422,6 +427,137 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         
         datasource = new WebServiceDataSource(url, GdaConst::ds_cartodb);
     }
-	
+    
+    
 	return datasource;
+}
+
+void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds)
+{
+    wxString ds_conn_str = ds->GetOGRConnectStr();
+    GdaConst::DataSourceType ds_type = ds->GetType();
+    
+    RecentDatasource recent_ds;
+    recent_ds.Add(ds_conn_str, ds_conn_str);
+    recent_ds.Save();
+    
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
+const int RecentDatasource::N_MAX_ITEMS = 10;
+const std::string RecentDatasource::KEY_NAME_IN_GDA_HISTORY = "recent_ds";
+
+RecentDatasource::RecentDatasource()
+{
+    // get a latest input DB information
+    std::vector<std::string> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
+    
+    if (ds_infos.size() > 0) {
+        ds_json_str = ds_infos[0];
+        Init(ds_json_str);
+    }
+}
+
+RecentDatasource::~RecentDatasource()
+{
+    
+}
+
+void RecentDatasource::Init(wxString json_str_)
+{
+    std::string json_str(json_str_.mb_str());
+    json_spirit::Value v;
+    
+    try {
+        if (!json_spirit::read(json_str, v)) {
+            throw std::runtime_error("Could not parse recent ds string");
+        }
+        
+        const json_spirit::Object& ds_list = v.get_obj();
+       
+        n_ds = ds_list.size();
+        
+        for (size_t i=0; i<n_ds; i++) {
+            // key: name, value: ds
+            const json_spirit::Pair & ds_item = ds_list[i];
+            wxString ds_name = ds_item.name_;
+            json_spirit::Value ds_value = ds_item.value_;
+            wxString ds_value_str = ds_value.get_str();
+            
+            ds_names.push_back(ds_name);
+            ds_values.push_back(ds_value_str);
+        }
+        
+        
+    } catch (std::runtime_error e) {
+        wxString msg;
+        msg << "Get Latest DB infor: JSON parsing failed: ";
+        msg << e.what();
+        throw GdaException(msg.mb_str());
+        LOG_MSG(msg);
+    }
+}
+
+void RecentDatasource::Save()
+{
+    // update ds_json_str from ds_names & ds_values
+    json_spirit::Object ds_list_obj;
+   
+    for (int i=0; i<n_ds; i++) {
+        std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
+        std::string ds_value( GET_ENCODED_FILENAME(ds_values[i]));
+        ds_list_obj.push_back( json_spirit::Pair(ds_name, ds_value) );
+    }
+
+    std::string json_str = json_spirit::write(ds_list_obj);
+    ds_json_str = json_str;
+    
+    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
+}
+
+void RecentDatasource::Add(wxString ds_name, wxString ds_val)
+{
+    // remove existed one
+    std::vector<wxString>::iterator it;
+    it = std::find(ds_names.begin(), ds_names.end(), ds_name);
+    if (it != ds_names.end()) {
+        ds_names.erase(it);
+    }
+    it = std::find(ds_values.begin(), ds_values.end(), ds_val);
+    if (it != ds_values.end()) {
+        ds_values.erase(it);
+    }
+    
+    n_ds = ds_names.size();
+    
+    if (n_ds < N_MAX_ITEMS) {
+        ds_names.push_back(ds_name);
+        ds_values.push_back(ds_val);
+       
+        n_ds = ds_names.size();
+        
+        
+    } else {
+        ds_names.erase(ds_names.begin());
+        ds_values.erase(ds_values.begin());
+        
+        ds_names.push_back(ds_name);
+        ds_values.push_back(ds_val);
+    }
+    
+    Save();
+}
+
+void RecentDatasource::Clear()
+{
+    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, "");
+}
+
+std::vector<wxString> RecentDatasource::GetList()
+{
+    return ds_names;
 }
