@@ -28,7 +28,7 @@
 #include "../GdaException.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "GdaJson.h"
+#include "../GdaJson.h"
 #include "DataSource.h"
 
 using boost::property_tree::ptree;

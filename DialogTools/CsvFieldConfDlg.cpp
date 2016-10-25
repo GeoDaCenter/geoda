@@ -351,7 +351,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
             
             if (types[j] == "Integer") {
                 wxInt64 val = poFeature->GetFieldAsInteger64(j);
-                wxString str = wxString::Format("%lld", val);
+                wxString str = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"), val);
                 previewGrid->SetCellValue(i, j, str);
                 
             } else if (types[j] == "Real") {
