@@ -28,7 +28,6 @@
 #include <wx/checkbox.h>
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
-#include "Datasource.h"
 #include "DatasourceDlg.h"
 
 using namespace std;

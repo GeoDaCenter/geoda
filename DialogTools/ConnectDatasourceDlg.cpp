@@ -44,7 +44,6 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
 #include "../GeoDa.h"
-#include "Datasource.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
 
