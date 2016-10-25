@@ -209,9 +209,9 @@ bool TemplateCanvas::GetFixedAspectRatioMode()
 
 void TemplateCanvas::SetFixedAspectRatioMode(bool mode)
 {
-	wxString msg("TemplateCanvas::SetFixedAspectRatioMode(");
-	msg << mode << ")";
-	LOG_MSG(msg);
+	LOG_MSG("Entering TemplateCanvas::SetFixedAspectRatioMode()");
+
+
 	fixed_aspect_ratio_mode = mode;
 	if (fixed_aspect_ratio_mode) {
 		if (current_shps_width < current_shps_height) {
@@ -738,9 +738,9 @@ wxRealPoint TemplateCanvas::MousePntToObsPnt(const wxPoint &pt)
 
 void TemplateCanvas::SetSelectableOutlineVisible(bool visible)
 {
-	wxString msg("Called TemplateCanvas::SetSelectableOutlineVisible(");
-	if (visible) { msg << "true)"; } else { msg << "false)"; }
-	LOG_MSG(msg);
+	LOG_MSG("Called TemplateCanvas::SetSelectableOutlineVisible()");
+
+
 	selectable_outline_visible = visible;
     
 	layer0_valid = false;
@@ -832,18 +832,6 @@ void TemplateCanvas::update(HLStateInt* o)
 		LOG_MSG("Exiting TemplateCanvas::update");
 		return;
 	}
-	
-	int nh_cnt = o->GetTotalNewlyHighlighted();
-	int nuh_cnt = o->GetTotalNewlyUnhighlighted();
-    
-	HLStateInt::EventType type = highlight_state->GetEventType();
-	if (type == HLStateInt::delta) {
-		LOG_MSG("processing HLStateInt::delta");
-
-	} else {
-		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
-	}
-  
     // re-paint highlight layer (layer1_bm)
 	layer1_valid = false;
     DrawLayers();
@@ -1112,7 +1100,6 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 	if (selectable_shps.size() == 0)
         return;
     
-	wxStopWatch sw;
 	if (use_category_brushes) {
 #ifdef __WXMAC__
 		DrawSelectableShapes_gc(dc);
@@ -1126,8 +1113,6 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             }
 		}
 	}
-	LOG_MSG(wxString::Format("DrawSelectableShapes render time: "
-							 "%ld ms", sw.Time()));
 }
 
 // draw unhighlighted selectable shapes with wxGraphicsContext
@@ -2062,8 +2047,6 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelection();
 				Refresh(false);
 			}
-		} else { // unknown state
-			LOG_MSG("TemplateCanvas::OnMouseEvent: ERROR, unknown SelectState");
 		}
 		
 	} else if (mousemode == zoom || mousemode == zoomout) {

@@ -703,7 +703,7 @@ IDataSource* ExportDataDlg::GetDatasource()
         if (!error_msg.IsEmpty()) throw GdaException(error_msg.mb_str());
         
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
-        return new DBDataSource(dbname,dbhost,dbport,dbuser,dbpwd,ds_type);
+        return new DBDataSource(ds_type, dbname,dbhost,dbport,dbuser,dbpwd);
         //ds_name = ds.GetOGRConnectStr();
         
     } else {
@@ -727,7 +727,7 @@ IDataSource* ExportDataDlg::GetDatasource()
         
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
         
-        return new WebServiceDataSource(url, GdaConst::ds_cartodb);
+        return new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }
     return NULL;
 }

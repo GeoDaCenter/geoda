@@ -97,19 +97,9 @@ public:
 	
 	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
-	void OnNewProjectFromShp(wxCommandEvent& event);
-	void OnNewProjectFromSqlite(wxCommandEvent& event);
-	void OnNewProjectFromGpkg(wxCommandEvent& event);
-	void OnNewProjectFromCsv(wxCommandEvent& event);
-	void OnNewProjectFromDbf(wxCommandEvent& event);
-	void OnNewProjectFromGdb(wxCommandEvent& event);
-	void OnNewProjectFromJson(wxCommandEvent& event);
-	void OnNewProjectFromGml(wxCommandEvent& event);
-	void OnNewProjectFromKml(wxCommandEvent& event);
-	void OnNewProjectFromMapinfo(wxCommandEvent& event);
-	void OnNewProjectFromXls(wxCommandEvent& event);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
+    
 	void OnSaveProject(wxCommandEvent& event);
 	void OnSaveAsProject(wxCommandEvent& event);
 	
@@ -651,6 +641,8 @@ public:
 	void OnEncodingSHIFT_JIS(wxCommandEvent& event);
 	void OnEncodingEUC_JP(wxCommandEvent& event);
 	void OnEncodingEUC_KR(wxCommandEvent& event);
+	void OnRecentDSClick(wxCommandEvent& event);
+    
     void SetEncodingCheckmarks(wxFontEncoding e);
     void SetBasemapCheckmarks(int idx);
     
@@ -658,6 +650,8 @@ public:
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
+    
+    void UpdateRecentDatasourceMenu();
 
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
 	static GdaFrame* GetGdaFrame() { return gda_frame; }
@@ -677,7 +671,9 @@ public:
 	
     void CheckUpdate();
 
-private:
+protected:
+    void InitWithProject();
+    
 	static void SetProjectOpen(bool open);
     
     bool hasUpdate;

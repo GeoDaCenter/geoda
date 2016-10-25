@@ -70,9 +70,9 @@ class CovSpHLStateProxy;
 class Project {
 public:
 	Project(const wxString& proj_fname);
-	Project(const wxString& project_title,
-					const wxString& layername,
-					IDataSource* p_datasource);
+    Project(const wxString& project_title,
+            const wxString& layername,
+            IDataSource* p_datasource);
 	virtual ~Project();
 
 	bool IsValid() { return is_project_valid; }

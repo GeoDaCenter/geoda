@@ -28,10 +28,15 @@
 #include <wx/checkbox.h>
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
+#include "Datasource.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
 
+//
+// Class RecentDatasource
+//
+//
 class RecentDatasource
 {
 public:
@@ -39,10 +44,14 @@ public:
     virtual ~RecentDatasource();
    
     void Add(wxString ds_name, wxString ds_val);
+    void Add(IDataSource* ds, const wxString& layer_name);
     void Clear();
     void Save();
     
     vector<wxString> GetList();
+   
+    IDataSource* GetDatasource(wxString ds_name);
+    wxString GetLayerName(wxString ds_name);
     
 protected:
     static const int N_MAX_ITEMS;
@@ -52,11 +61,18 @@ protected:
     wxString ds_json_str;
    
     vector<wxString> ds_names;
-    vector<wxString> ds_values;
+    vector<wxString> ds_layernames;
+    vector<wxString> ds_confs;
     
     void Init(wxString json_str);
 };
 
+
+
+//
+// Class ConnectDatasourceDlg
+// 
+//
 class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
@@ -81,7 +97,7 @@ protected:
 	IDataSource*   datasource;
     
     IDataSource* CreateDataSource();
-    void SaveRecentDataSource(IDataSource* ds);
+    void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
     
 	DECLARE_EVENT_TABLE()
 };

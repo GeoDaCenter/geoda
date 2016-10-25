@@ -3,39 +3,9 @@
   <object class="wxMenuBar" name="ID_SHARED_MAIN_MENU">
     <object class="wxMenu" name="ID_MENU">
       <label>&amp;File</label>
-	  <object class="wxMenu" name="ID_NEW_PROJ_FROM_MENU">
-		<label>New Project From</label>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_SHP">
-		  <label>ESRI Shapefile (*.shp)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_SQLITE">
-          <label>SQLite/SpatialLite (*.sqlite)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_GPKG">
-          <label>GeoPackage (*.gpkg)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_CSV">
-          <label>Comma Separated Value (*.csv)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_DBF">
-          <label>dBase Database File (*.dbf)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_JSON">
-          <label>GeoJSON (*.json)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_GML">
-          <label>Geography Markup Language (*.gml)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_KML">
-          <label>Keyhole Markup Language (*.kml)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_MAPINFO">
-          <label>MapInfo (*.tab, *.mif, *.mid)</label>
-		</object>
-		<object class="wxMenuItem" name="ID_NEW_PROJ_FROM_XLS">
-          <label>MS Excel (*.xls)</label>
-		</object>
-	  </object>
+	  <object class="wxMenu" name="ID_NEW_PROJ_FROM_RECENT_MENU">
+		<label>New Project From Recent</label>
+      </object>
       <object class="wxMenuItem" name="ID_NEW_PROJECT">
         <label>&amp;New Project</label>
         <accel>Ctrl+N</accel>

@@ -94,11 +94,11 @@ sourceSR(NULL)
 	SetProjectFullPath(proj_fname);
 	bool wd_success = SetWorkingDir(proj_fname);
 	if (!wd_success) {
-		LOG_MSG("Warning: could not set Working Dir from " + proj_fname);
+		//LOG_MSG("Warning: could not set Working Dir from " + proj_fname);
 		// attempt to set working dir according to standard location
 		wd_success = SetWorkingDir(wxGetHomeDir());
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
+			//LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
 		}
 	}
 	project_conf = new ProjectConfiguration(proj_fname);
@@ -106,18 +106,6 @@ sourceSR(NULL)
 	layername = layer_conf->GetName();
 	datasource = layer_conf->GetDataSource();
     
-	LOG_MSG("Custom Categories:");
-	if (layer_conf->GetCustClassifPtree()) {
-		LOG_MSG(layer_conf->GetCustClassifPtree()->ToStr());
-	}
-	LOG_MSG("Weights Manager Meta Info List:");
-	if (layer_conf->GetWeightsManPtree()) {
-		LOG_MSG(layer_conf->GetWeightsManPtree()->ToStr());
-	}
-	LOG_MSG("Default Vars List:");
-	if (layer_conf->GetDefaultVarsPtree()) {
-		LOG_MSG(layer_conf->GetDefaultVarsPtree()->ToStr());
-	}
 	is_project_valid = CommonProjectInit();
 	if (is_project_valid) save_manager->SetAllowEnableSave(true);
 	if (is_project_valid) {
@@ -157,17 +145,16 @@ sourceSR(NULL)
 	bool wd_success = false;
 	if (FileDataSource* fds = dynamic_cast<FileDataSource*>(datasource)) {
 		wxString fp = fds->GetFilePath();
-		LOG(fp);
 		wd_success = SetWorkingDir(fp);
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir from " + fp);
+			//LOG_MSG("Warning: could not set Working Dir from " + fp);
 		}
 	}
 	if (!wd_success) {
 		// attempt to set working dir according to standard location
 		wd_success = SetWorkingDir(wxGetHomeDir());
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
+			//LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
 		}
 	}
 	
@@ -294,15 +281,15 @@ bool Project::SetWorkingDir(const wxString& path)
 		dir.AssignDir(t);
 	}
 	if (!dir.IsOk()) {
-		LOG_MSG("dir is invalid directory name");
+		//LOG_MSG("dir is invalid directory name");
 		return false;
 	}
 	if (!dir.IsDir()) {
-		LOG_MSG("dir is not a directory");
+		//LOG_MSG("dir is not a directory");
 		return false;
 	}
 	if (!dir.DirExists()) {
-		LOG_MSG("directory " + dir.GetPath() + " does not exist");
+		//LOG_MSG("directory " + dir.GetPath() + " does not exist");
 		return false;
 	}
 	working_dir.Clear();
@@ -899,8 +886,6 @@ void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 	if (nh_cnt > 0) {
 		hs.SetEventType(HLStateInt::delta);
 		hs.notifyObservers();
-	} else {
-		LOG_MSG("No elements to add to current selection");
 	}
 	LOG_MSG("Exiting Project::AddNeighborsToSelection");
 }
@@ -1424,94 +1409,6 @@ bool Project::IsDataTypeChanged()
  */
 int Project::InitFromShapefileLayer()
 {
-    /*
-	LOG_MSG("Entering Project::InitFromShapefileLayer");
-    
-    isTableOnly = datasource->GetType() == GdaConst::ds_dbf;
-	
-	LOG(isTableOnly);
-	
-	wxString ds_fname = datasource->GetOGRConnectStr();
-	datasource->UpdateWritable(true);
-	wxString shp_fname;
-	wxString shx_fname;
-	wxString dbf_fname;
-	if (isTableOnly) {
-		dbf_fname = ds_fname;
-	} else {
-		shp_fname = ds_fname;
-		LOG(shp_fname);
-		wxFileName fname(shp_fname);
-		dbf_fname = fname.GetPathWithSep() + fname.GetName() + ".dbf";
-		shx_fname = fname.GetPathWithSep() + fname.GetName() + ".shx";
-	}
-	LOG(dbf_fname);
-	
-	if (datasource->GetType() == GdaConst::ds_shapefile) {
-		// check shp file first
-		if (Shapefile::readShapeType(shp_fname) == Shapefile::POLY_LINE) {
-			open_err_msg << "GeoDa does not support Shapefiles ";
-			open_err_msg << "with line data at this time.  Please choose a ";
-			open_err_msg << "Shapefile with either point or polygon data.";
-			return false;
-		}
-		// check shx/dbf files
-		bool shx_found;
-		bool dbf_found;
-		
-		if (!GenUtils::ExistsShpShxDbf(shp_fname,0, &shx_found, &dbf_found)) {
-			open_err_msg << "Error: " << shp_fname << ", ";
-			open_err_msg << shx_fname << ", and ";
-			open_err_msg << dbf_fname;
-			open_err_msg << " were not found together in the same file ";
-			open_err_msg << "directory. Could not find ";
-			if (!shx_found && dbf_found) {
-				open_err_msg << shx_fname << ".";
-			} else if (shx_found && !dbf_found) {
-				open_err_msg << dbf_fname << ".";
-			} else {
-				open_err_msg << shx_fname << " and ";
-				open_err_msg << dbf_fname << ".";
-			}
-			return false;
-		}
-	}
-	DbfFileReader dbf(dbf_fname);
-	if (!dbf.isDbfReadSuccess()) {
-		open_err_msg << "Failed to read DBF file.";
-		return false;
-	}
-	std::map<wxString, GdaConst::FieldType> var_type_map;
-	dbf.getFieldTypes(var_type_map);
-	std::vector<wxString> var_list;
-	dbf.getFieldList(var_list);
-	
-	// Correct variable order information
-	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
-	VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-	variable_order->CorrectVarGroups(var_type_map, var_list);
-	
-	table_state = new TableState;
-	time_state = new TimeState;
-	table_int = new DbfTable(table_state, time_state, dbf, *variable_order);
-	if (!table_int) {
-		open_err_msg << "There was a problem reading the table";
-		delete table_state;
-		return false;
-	}
-	if (!table_int->IsValid()) {
-		open_err_msg = table_int->GetOpenErrorMessage();
-		delete table_state;
-		delete table_int;
-		return false;
-	}
-	if (!isTableOnly) {
-		// Read shape layer
-		return OpenShpFile(shp_fname);
-	}
-	LOG_MSG("Exiting Project::InitFromShapefileLayer");
-	return true;
-     */
 }
 
 /** Initialize the Table and Shape Layer from OGR source */

@@ -68,6 +68,8 @@ public:
     
     virtual bool IsFileDataSource() = 0;
     
+    virtual wxString GetJsonStr() = 0;
+    
     /**
      * Read subtree starting from passed in node pt. 
      * @param const ptree& pt: a subtree of "datasource" node
@@ -93,6 +95,8 @@ public:
     static IDataSource* CreateDataSource(wxString data_type_name,
                                          const ptree& subtree,
 										 const wxString& proj_path = "");
+    
+    static IDataSource* CreateDataSource(wxString ds_json_str);
 };
 
 
@@ -122,10 +126,9 @@ public:
      * Constructor, which is used when create a FileDataSource instance from a 
      * data source (e.g. opening a shapefile)
      */
-    FileDataSource(wxString file_rep_path);
+    FileDataSource(wxString ds_path);
 	
 private:
-    wxString project_file_path;
 	wxString file_repository_path;
 	GdaConst::DataSourceType ds_type;
 	bool is_writable;
@@ -152,6 +155,8 @@ public:
         return ds_type == GdaConst::ds_sqlite || ds_type == GdaConst::ds_gpkg ? false : true;
     }
     
+    virtual wxString GetJsonStr();
+    
     /**
      * Return file path.
      */
@@ -171,7 +176,7 @@ public:
                          GdaConst::DataSourceType _ds_type,
 						 const wxString& proj_path);
 	WebServiceDataSource(wxString ws_url){ webservice_url = ws_url; }
-    WebServiceDataSource(wxString ws_url, GdaConst::DataSourceType _ds_type);
+    WebServiceDataSource(GdaConst::DataSourceType _ds_type, wxString ws_url);
    
 	
 private:
@@ -191,7 +196,8 @@ public:
     virtual IDataSource* Clone();
     
     virtual bool IsFileDataSource() {return false;}
-                                  
+    
+    virtual wxString GetJsonStr();
     wxString GetURL() { return webservice_url; }
 };
 
@@ -207,9 +213,9 @@ public:
 	DBDataSource(){}
 	DBDataSource(const ptree& xml_tree, GdaConst::DataSourceType _ds_type,
 				 const wxString& proj_path);
-	DBDataSource(wxString _db_name, wxString _db_host, wxString _db_port,
-				 wxString _db_user, wxString _db_pwd, 
-				 GdaConst::DataSourceType _db_type);
+	DBDataSource(GdaConst::DataSourceType _db_type,
+                 wxString _db_name, wxString _db_host, wxString _db_port,
+				 wxString _db_user, wxString _db_pwd);
 private:
 	wxString db_name;
 	wxString db_host;
@@ -232,6 +238,8 @@ public:
     virtual IDataSource* Clone();
     
     virtual bool IsFileDataSource() {return false;}
+    
+    virtual wxString GetJsonStr();
     
     wxString GetDBName() { return db_name; }
     wxString GetDBHost() { return db_host; }

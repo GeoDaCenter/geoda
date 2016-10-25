@@ -164,6 +164,8 @@
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
 
+
+
 // The following is defined in rc/GdaAppResouces.cpp.  This file was
 // compiled with:
 /*
@@ -215,11 +217,10 @@ bool GdaApp::OnInit(void)
 		if (!checker->IsAnotherRunning()) {
 			// This is the first instance of GeoDa running for this
 			// user, so this instance becomes the "server."
-			LOG_MSG("First instance of GeoDa: creating server for future "
-					"program instances.");
+			///LOG_MSG("First instance of GeoDa: creating server for future program instances.");
 			server = new GdaServer;
 			if (!server->Create("GdaApp")) {
-				LOG_MSG("Error: Failed to create in IPC service.");
+				//LOG_MSG("Error: Failed to create in IPC service.");
 			}
 		} else {
 			// Another instance of GeoDa is already running.  This other
@@ -227,8 +228,7 @@ bool GdaApp::OnInit(void)
 			// becomes the "client" and requests that the server open
 			// the requested project before this instance exits.
 		
-			LOG_MSG("Another instance of GeoDa is already running.  Attempting "
-					"to communicate with IPC.");
+			//LOG_MSG("Another instance of GeoDa is already running.  Attempting to communicate with IPC.");
 		
 			GdaClient* client = new GdaClient;
 		
@@ -248,7 +248,6 @@ bool GdaApp::OnInit(void)
 				wxString msg;
 				msg << "The existing GeoDa instance may be too busy to ";
 				msg << "respond.\nPlease close any open dialogs and try again.";
-				LOG_MSG(msg);
 			}
 			delete client;
 			delete checker; // OnExit() won't be called if we return false
@@ -258,9 +257,9 @@ bool GdaApp::OnInit(void)
 	}
  
     // By defaut, GDAL will use user's system locale to read any input datasource
-    int lan = wxLocale::GetSystemLanguage();
-    wxString locale_name = wxLocale::GetLanguageCanonicalName(lan);
-    setlocale(LC_ALL, locale_name.mb_str());
+    //int lan = wxLocale::GetSystemLanguage();
+    //wxString locale_name = wxLocale::GetLanguageCanonicalName(lan);
+    //setlocale(LC_ALL, locale_name.mb_str());
     //CPLsetlocale(LC_ALL, locale_name.mb_str());
     
     // However, user can change the Separators in GeoDa, after re-open the
@@ -282,7 +281,6 @@ bool GdaApp::OnInit(void)
 	wxLog::SetLogLevel(0);
     
     //wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
-
     
 	GdaConst::init();
 	CalcHelp::init();
@@ -290,10 +288,8 @@ bool GdaApp::OnInit(void)
 	wxImage::AddHandler(new wxPNGHandler);
 	wxImage::AddHandler(new wxXPMHandler);
     
-    
     wxXmlResource::Get()->AddHandler(new wxAuiToolBarXmlHandler);
     wxXmlResource::Get()->InitAllHandlers();
-	
 	
 	//Required for virtual file system archive and memory support
     wxFileSystem::AddHandler(new wxArchiveFSHandler);
@@ -319,24 +315,19 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
 	
-	int frameWidth = 980; // 836 // 858
+	int frameWidth = 980;
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1012; // 643 // 665
+		frameWidth = 1012;
 		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
-		// The default is assumed to be Vista / Win 7 family, but can check
-		//   with GeneralWxUtils::isVista()
 		frameWidth = 1030;
 		frameHeight = 120;
-		// Override default in case XP family of OSes is detected
-		//if (GeneralWxUtils::isXP()) {
-		//}
 	}
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
-		frameWidth = 1020; // 826 // 848
+		frameWidth = 1020;
  		frameHeight = 80;
 	}
 
@@ -378,7 +369,6 @@ bool GdaApp::OnInit(void)
 
 	if (!cmd_line_proj_file_name.IsEmpty()) {
 		wxString proj_fname(cmd_line_proj_file_name);
-		LOG_MSG("Potential project file: " + proj_fname);
 		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
 	
@@ -423,7 +413,6 @@ bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 	LOG_MSG("In GdaApp::OnCmdLineParsed");
 	
 	for (int i=0; i<parser.GetParamCount(); ++i) {
-		LOG_MSG(parser.GetParam(i));
 	}
 	
 	// parser.GetParamCount();
@@ -443,754 +432,8 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 	msg << "Request to open " << sz << " file(s):";
 	for (int i=0; i<sz; ++i)
         msg << "\n" << fileNames[i];
-	LOG_MSG(msg);
 	if (sz > 0) GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
 }
-
-/*
- * This is the top-level window of the application.
- */
-
-BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
-
-EVT_CHAR_HOOK(GdaFrame::OnKeyEvent)
-
-
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SHP"), GdaFrame::OnNewProjectFromShp)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_SQLITE"), GdaFrame::OnNewProjectFromSqlite)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_GPKG"), GdaFrame::OnNewProjectFromGpkg)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_CSV"), GdaFrame::OnNewProjectFromCsv)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_DBF"), GdaFrame::OnNewProjectFromDbf)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_GDB"), GdaFrame::OnNewProjectFromGdb)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_JSON"), GdaFrame::OnNewProjectFromJson)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_GML"), GdaFrame::OnNewProjectFromGml)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_KML"), GdaFrame::OnNewProjectFromKml)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_MAPINFO"), GdaFrame::OnNewProjectFromMapinfo)
-EVT_MENU(XRCID("ID_NEW_PROJ_FROM_XLS"), GdaFrame::OnNewProjectFromXls)
-
-EVT_MENU(XRCID("ID_NEW_PROJECT"), GdaFrame::OnNewProject)
-EVT_TOOL(XRCID("ID_NEW_PROJECT"), GdaFrame::OnNewProject)
-EVT_MENU(XRCID("ID_OPEN_PROJECT"), GdaFrame::OnOpenProject)
-EVT_TOOL(XRCID("ID_OPEN_PROJECT"), GdaFrame::OnOpenProject)
-EVT_MENU(XRCID("ID_SAVE_PROJECT"), GdaFrame::OnSaveProject)
-EVT_TOOL(XRCID("ID_SAVE_PROJECT"), GdaFrame::OnSaveProject)
-EVT_MENU(XRCID("ID_SAVE_AS_PROJECT"), GdaFrame::OnSaveAsProject)
-EVT_TOOL(XRCID("ID_SAVE_AS_PROJECT"), GdaFrame::OnSaveAsProject)
-EVT_MENU(XRCID("ID_EXPORT_LAYER"), GdaFrame::OnExportToOGR)
-//EVT_TOOL(XRCID("ID_EXPORT_LAYER"), GdaFrame::OnExportToOGR)
-EVT_MENU(XRCID("ID_EXPORT_SELECTED"), GdaFrame::OnExportSelectedToOGR)
-
-EVT_MENU(XRCID("ID_SHOW_PROJECT_INFO"), GdaFrame::OnShowProjectInfo)
-
-EVT_MENU(XRCID("wxID_CLOSE"), GdaFrame::OnMenuClose)
-EVT_MENU(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
-EVT_TOOL(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
-EVT_BUTTON(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
-EVT_CLOSE(GdaFrame::OnClose)
-EVT_MENU(XRCID("wxID_EXIT"), GdaFrame::OnQuit)
-
-EVT_MENU(XRCID("ID_SELECT_WITH_RECT"), GdaFrame::OnSelectWithRect)
-EVT_MENU(XRCID("ID_SELECT_WITH_CIRCLE"), GdaFrame::OnSelectWithCircle)
-EVT_MENU(XRCID("ID_SELECT_WITH_LINE"), GdaFrame::OnSelectWithLine)
-EVT_MENU(XRCID("ID_SELECTION_MODE"), GdaFrame::OnSelectionMode)
-EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
-// Fit-To-Window Mode
-EVT_MENU(XRCID("ID_FIXED_ASPECT_RATIO_MODE"),
-		 GdaFrame::OnFixedAspectRatioMode)
-EVT_MENU(XRCID("ID_ZOOM_MODE"), GdaFrame::OnZoomMode)
-EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
-// Print Canvas State to Log File.  Used for debugging.
-EVT_MENU(XRCID("ID_PRINT_CANVAS_STATE"), GdaFrame::OnPrintCanvasState)
-
-EVT_MENU(XRCID("ID_CLEAN_BASEMAP"), GdaFrame::OnCleanBasemap)
-EVT_MENU(XRCID("ID_NO_BASEMAP"), GdaFrame::OnSetNoBasemap)
-EVT_MENU(XRCID("ID_CHANGE_TRANSPARENCY"), GdaFrame::OnChangeMapTransparency)
-EVT_MENU(XRCID("ID_BASEMAP_1"), GdaFrame::OnSetBasemap1)
-EVT_MENU(XRCID("ID_BASEMAP_2"), GdaFrame::OnSetBasemap2)
-EVT_MENU(XRCID("ID_BASEMAP_3"), GdaFrame::OnSetBasemap3)
-EVT_MENU(XRCID("ID_BASEMAP_4"), GdaFrame::OnSetBasemap4)
-EVT_MENU(XRCID("ID_BASEMAP_5"), GdaFrame::OnSetBasemap5)
-EVT_MENU(XRCID("ID_BASEMAP_6"), GdaFrame::OnSetBasemap6)
-EVT_MENU(XRCID("ID_BASEMAP_7"), GdaFrame::OnSetBasemap7)
-EVT_MENU(XRCID("ID_BASEMAP_8"), GdaFrame::OnSetBasemap8)
-EVT_MENU(XRCID("ID_BASEMAP_CONF"), GdaFrame::OnBasemapConfig)
-
-
-
-EVT_MENU(XRCID("ID_SAVE_CANVAS_IMAGE_AS"), GdaFrame::OnSaveCanvasImageAs)
-EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"),
-		 GdaFrame::OnSaveSelectedToColumn)
-EVT_MENU(XRCID("ID_CANVAS_BACKGROUND_COLOR"),
-		 GdaFrame::OnCanvasBackgroundColor)
-EVT_MENU(XRCID("ID_LEGEND_USE_SCI_NOTATION"),
-		 GdaFrame::OnLegendUseScientificNotation)
-EVT_MENU(XRCID("ID_LEGEND_BACKGROUND_COLOR"),
-		 GdaFrame::OnLegendBackgroundColor)
-EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"),
-		 GdaFrame::OnSelectableFillColor)
-EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_COLOR"),
-		 GdaFrame::OnSelectableOutlineColor)
-EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"),
-		 GdaFrame::OnSelectableOutlineVisible)
-EVT_MENU(XRCID("ID_HIGHLIGHT_COLOR"), GdaFrame::OnHighlightColor)
-
-EVT_MENU(XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"),
-		 GdaFrame::OnCopyImageToClipboard)
-EVT_MENU(XRCID("ID_COPY_LEGEND_TO_CLIPBOARD"),
-		 GdaFrame::OnCopyLegendToClipboard)
-
-EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
-EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
-EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
-EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
-EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
-EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
-
-EVT_MENU(XRCID("ID_CONNECTIVITY_HIST_VIEW"),
-		 GdaFrame::OnConnectivityHistView)
-EVT_TOOL(XRCID("ID_CONNECTIVITY_HIST_VIEW"),
-		 GdaFrame::OnConnectivityHistView)
-EVT_BUTTON(XRCID("ID_CONNECTIVITY_HIST_VIEW"),
-		   GdaFrame::OnConnectivityHistView)
-
-EVT_MENU(XRCID("ID_CONNECTIVITY_MAP_VIEW"),
-		 GdaFrame::OnConnectivityMapView)
-EVT_TOOL(XRCID("ID_CONNECTIVITY_MAP_VIEW"),
-		 GdaFrame::OnConnectivityMapView)
-EVT_BUTTON(XRCID("ID_CONNECTIVITY_MAP_VIEW"),
-		   GdaFrame::OnConnectivityMapView)
-
-EVT_MENU(XRCID("ID_SHOW_AXES"), GdaFrame::OnShowAxes)
-
-EVT_TOOL(XRCID("ID_MAP_CHOICES"), GdaFrame::OnMapChoices)
-
-EVT_MENU(XRCID("ID_SHAPE_POINTS_FROM_ASCII"),
-		 GdaFrame::OnShapePointsFromASCII)
-EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_GRID"),
-		 GdaFrame::OnShapePolygonsFromGrid)
-EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_BOUNDARY"),
-		 GdaFrame::OnShapePolygonsFromBoundary)
-EVT_MENU(XRCID("ID_SHAPE_TO_BOUNDARY"), GdaFrame::OnShapeToBoundary)
-EVT_MENU(XRCID("ID_POINTS_FROM_TABLE"), GdaFrame::OnGeneratePointShpFile)
-
-// Table menu items
-EVT_MENU(XRCID("ID_SHOW_TIME_CHOOSER"), GdaFrame::OnShowTimeChooser)
-
-EVT_MENU(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
-EVT_TOOL(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
-EVT_BUTTON(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
-
-EVT_MENU(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
-EVT_TOOL(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
-EVT_BUTTON(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
-
-EVT_MENU(XRCID("ID_VAR_GROUPING_EDITOR"), GdaFrame::OnVarGroupingEditor)
-EVT_MENU(XRCID("ID_TIME_EDITOR"), GdaFrame::OnVarGroupingEditor)
-EVT_MENU(XRCID("ID_TABLE_MOVE_SELECTED_TO_TOP"), GdaFrame::OnMoveSelectedToTop)
-EVT_MENU(XRCID("ID_TABLE_INVERT_SELECTION"), GdaFrame::OnInvertSelection)
-EVT_MENU(XRCID("ID_TABLE_CLEAR_SELECTION"), GdaFrame::OnClearSelection)
-EVT_MENU(XRCID("ID_TABLE_RANGE_SELECTION"), GdaFrame::OnRangeSelection)
-EVT_MENU(XRCID("ID_TABLE_FIELD_CALCULATION"), GdaFrame::OnFieldCalculation)
-EVT_MENU(XRCID("ID_CALCULATOR"), GdaFrame::OnCalculator)
-EVT_MENU(XRCID("ID_TABLE_ADD_COLUMN"), GdaFrame::OnAddCol)
-EVT_MENU(XRCID("ID_TABLE_DELETE_COLUMN"), GdaFrame::OnDeleteCol)
-EVT_MENU(XRCID("ID_TABLE_EDIT_FIELD_PROP"),
-		 GdaFrame::OnEditFieldProperties)
-EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
-EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"),
-		 GdaFrame::OnMergeTableData)
-EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),  // not used currently
-		 GdaFrame::OnExportToCsvFile)     // not used currently
-
-EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
-EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
-EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)
-
-EVT_TOOL(XRCID("ID_COND_PLOT_CHOICES"), GdaFrame::OnCondPlotChoices)
-// The following duplicate entries are needed as a workaround to
-// make menu enable/disable work for the menu bar when the same menu
-// item appears twice.
-EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW_MAP_MENU"),
-		 GdaFrame::OnShowConditionalMapView)	
-EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
-		 GdaFrame::OnShowConditionalMapView)
-EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
-		   GdaFrame::OnShowConditionalMapView)
-EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
-		 GdaFrame::OnShowConditionalScatterView)
-EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
-		   GdaFrame::OnShowConditionalScatterView)
-EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
-		 GdaFrame::OnShowConditionalHistView)
-EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
-		   GdaFrame::OnShowConditionalHistView)
-
-EVT_MENU(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"),
-		 GdaFrame::OnShowCartogramNewView)
-EVT_TOOL(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"),
-		 GdaFrame::OnShowCartogramNewView)
-EVT_BUTTON(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"),
-		   GdaFrame::OnShowCartogramNewView)
-
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_1"), GdaFrame::OnCartogramImprove1)
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_2"), GdaFrame::OnCartogramImprove2)
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_3"), GdaFrame::OnCartogramImprove3)
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_4"), GdaFrame::OnCartogramImprove4)
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_5"), GdaFrame::OnCartogramImprove5)
-EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_6"), GdaFrame::OnCartogramImprove6)
-
-EVT_MENU(XRCID("ID_OPTIONS_HINGE_15"), GdaFrame::OnHinge15)
-EVT_MENU(XRCID("ID_OPTIONS_HINGE_30"), GdaFrame::OnHinge30)
-
-EVT_MENU(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
-EVT_TOOL(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
-EVT_BUTTON(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
-EVT_MENU(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
-EVT_MENU(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
-EVT_MENU(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
-EVT_MENU(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
-EVT_TOOL(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
-EVT_TOOL(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
-EVT_TOOL(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-EVT_TOOL(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
-EVT_TOOL(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
-EVT_BUTTON(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
-EVT_BUTTON(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
-EVT_BUTTON(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
-EVT_BUTTON(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-EVT_BUTTON(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
-EVT_MENU(ID_TEST_MAP_FRAME, GdaFrame::OnExploreTestMap)
-EVT_MENU(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
-EVT_TOOL(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
-EVT_BUTTON(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
-EVT_MENU(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
-EVT_TOOL(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
-EVT_BUTTON(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
-EVT_MENU(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
-EVT_TOOL(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
-EVT_BUTTON(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
-EVT_MENU(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
-EVT_TOOL(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
-EVT_BUTTON(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
-
-EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
-EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
-
-EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
-EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
-EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
-EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
-EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
-EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-EVT_TOOL(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-EVT_BUTTON(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-
-EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
-EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
-
-EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
-EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
-
-EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
-EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"),
-		 GdaFrame::OnSaveConnectivityToTable)
-EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)
-
-EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_99PERMUTATION"),
-		 GdaFrame::OnRan99Per)
-EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_199PERMUTATION"),
-		 GdaFrame::OnRan199Per)
-EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_499PERMUTATION"),
-		 GdaFrame::OnRan499Per)
-EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_999PERMUTATION"),
-		 GdaFrame::OnRan999Per)
-EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_OTHER"),
-		 GdaFrame::OnRanOtherPer)
-
-EVT_MENU(XRCID("ID_USE_SPECIFIED_SEED"), GdaFrame::OnUseSpecifiedSeed)
-EVT_MENU(XRCID("ID_SPECIFY_SEED_DLG"), GdaFrame::OnSpecifySeedDlg)
-
-EVT_MENU(XRCID("ID_SAVE_MORANI"), GdaFrame::OnSaveMoranI)
-
-EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_05"), GdaFrame::OnSigFilter05)
-EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_01"), GdaFrame::OnSigFilter01)
-EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_001"), GdaFrame::OnSigFilter001)
-EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_0001"), GdaFrame::OnSigFilter0001)
-
-EVT_MENU(XRCID("ID_SAVE_GETIS_ORD"), GdaFrame::OnSaveGetisOrd)
-EVT_MENU(XRCID("ID_SAVE_LISA"), GdaFrame::OnSaveLisa)
-EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)
-EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"),
-		 GdaFrame::OnSelectNeighborsOfCores)
-EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"),
-		 GdaFrame::OnSelectCoresAndNeighbors)
-
-EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)
-EVT_MENU(XRCID("ID_MAP_ADDCENTROIDS"), GdaFrame::OnAddCentroids)
-EVT_MENU(XRCID("ID_DISPLAY_MEAN_CENTERS"), GdaFrame::OnDisplayMeanCenters)
-EVT_MENU(XRCID("ID_DISPLAY_CENTROIDS"), GdaFrame::OnDisplayCentroids)
-EVT_MENU(XRCID("ID_DISPLAY_VORONOI_DIAGRAM"),
-		 GdaFrame::OnDisplayVoronoiDiagram)
-EVT_MENU(XRCID("ID_EXPORT_VORONOI"),
-		 GdaFrame::OnExportVoronoi)
-EVT_MENU(XRCID("ID_EXPORT_MEAN_CNTRS"),
-		 GdaFrame::OnExportMeanCntrs)
-EVT_MENU(XRCID("ID_EXPORT_CENTROIDS"),
-		 GdaFrame::OnExportCentroids)
-EVT_MENU(XRCID("ID_SAVE_VORONOI_DUPS_TO_TABLE"),
-		 GdaFrame::OnSaveVoronoiDupsToTable)
-
-EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),
-		 GdaFrame::OnNewCustomCatClassifA)
-EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"),
-		 GdaFrame::OnNewCustomCatClassifB)
-EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"),
-		 GdaFrame::OnNewCustomCatClassifC)
-
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_0, GdaFrame::OnHtmlEntry0)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_1, GdaFrame::OnHtmlEntry1)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_2, GdaFrame::OnHtmlEntry2)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_3, GdaFrame::OnHtmlEntry3)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_4, GdaFrame::OnHtmlEntry4)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_5, GdaFrame::OnHtmlEntry5)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_6, GdaFrame::OnHtmlEntry6)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_7, GdaFrame::OnHtmlEntry7)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_8, GdaFrame::OnHtmlEntry8)
-EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_9, GdaFrame::OnHtmlEntry9)
-
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaFrame::OnCCClassifA0)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A1, GdaFrame::OnCCClassifA1)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A2, GdaFrame::OnCCClassifA2)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A3, GdaFrame::OnCCClassifA3)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A4, GdaFrame::OnCCClassifA4)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A5, GdaFrame::OnCCClassifA5)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A6, GdaFrame::OnCCClassifA6)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A7, GdaFrame::OnCCClassifA7)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A8, GdaFrame::OnCCClassifA8)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A9, GdaFrame::OnCCClassifA9)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A10, GdaFrame::OnCCClassifA10)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A11, GdaFrame::OnCCClassifA11)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A12, GdaFrame::OnCCClassifA12)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A13, GdaFrame::OnCCClassifA13)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A14, GdaFrame::OnCCClassifA14)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A15, GdaFrame::OnCCClassifA15)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A16, GdaFrame::OnCCClassifA16)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A17, GdaFrame::OnCCClassifA17)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A18, GdaFrame::OnCCClassifA18)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A19, GdaFrame::OnCCClassifA19)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A20, GdaFrame::OnCCClassifA20)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A21, GdaFrame::OnCCClassifA21)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A22, GdaFrame::OnCCClassifA22)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A23, GdaFrame::OnCCClassifA23)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A24, GdaFrame::OnCCClassifA24)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A25, GdaFrame::OnCCClassifA25)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A26, GdaFrame::OnCCClassifA26)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A27, GdaFrame::OnCCClassifA27)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A28, GdaFrame::OnCCClassifA28)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A29, GdaFrame::OnCCClassifA29)
-
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaFrame::OnCCClassifB0)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B1, GdaFrame::OnCCClassifB1)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B2, GdaFrame::OnCCClassifB2)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B3, GdaFrame::OnCCClassifB3)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B4, GdaFrame::OnCCClassifB4)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B5, GdaFrame::OnCCClassifB5)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B6, GdaFrame::OnCCClassifB6)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B7, GdaFrame::OnCCClassifB7)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B8, GdaFrame::OnCCClassifB8)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B9, GdaFrame::OnCCClassifB9)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B10, GdaFrame::OnCCClassifB10)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B11, GdaFrame::OnCCClassifB11)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B12, GdaFrame::OnCCClassifB12)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B13, GdaFrame::OnCCClassifB13)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B14, GdaFrame::OnCCClassifB14)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B15, GdaFrame::OnCCClassifB15)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B16, GdaFrame::OnCCClassifB16)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B17, GdaFrame::OnCCClassifB17)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B18, GdaFrame::OnCCClassifB18)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B19, GdaFrame::OnCCClassifB19)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B20, GdaFrame::OnCCClassifB20)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B21, GdaFrame::OnCCClassifB21)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B22, GdaFrame::OnCCClassifB22)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B23, GdaFrame::OnCCClassifB23)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B24, GdaFrame::OnCCClassifB24)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B25, GdaFrame::OnCCClassifB25)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B26, GdaFrame::OnCCClassifB26)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B27, GdaFrame::OnCCClassifB27)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B28, GdaFrame::OnCCClassifB28)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B29, GdaFrame::OnCCClassifB29)
-
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaFrame::OnCCClassifC0)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C1, GdaFrame::OnCCClassifC1)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C2, GdaFrame::OnCCClassifC2)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C3, GdaFrame::OnCCClassifC3)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C4, GdaFrame::OnCCClassifC4)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C5, GdaFrame::OnCCClassifC5)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C6, GdaFrame::OnCCClassifC6)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C7, GdaFrame::OnCCClassifC7)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C8, GdaFrame::OnCCClassifC8)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C9, GdaFrame::OnCCClassifC9)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C10, GdaFrame::OnCCClassifC10)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C11, GdaFrame::OnCCClassifC11)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C12, GdaFrame::OnCCClassifC12)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C13, GdaFrame::OnCCClassifC13)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C14, GdaFrame::OnCCClassifC14)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C15, GdaFrame::OnCCClassifC15)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C16, GdaFrame::OnCCClassifC16)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C17, GdaFrame::OnCCClassifC17)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C18, GdaFrame::OnCCClassifC18)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C19, GdaFrame::OnCCClassifC19)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C20, GdaFrame::OnCCClassifC20)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C21, GdaFrame::OnCCClassifC21)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C22, GdaFrame::OnCCClassifC22)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C23, GdaFrame::OnCCClassifC23)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C24, GdaFrame::OnCCClassifC24)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C25, GdaFrame::OnCCClassifC25)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C26, GdaFrame::OnCCClassifC26)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C27, GdaFrame::OnCCClassifC27)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C28, GdaFrame::OnCCClassifC28)
-EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C29, GdaFrame::OnCCClassifC29)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"),
-		 GdaFrame::OnOpenThemelessMap)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"),
-		 GdaFrame::OnOpenThemelessMap)
-EVT_MENU(XRCID("ID_MAPANALYSIS_THEMELESS"),
-		 GdaFrame::OnThemelessMap)
-EVT_MENU(XRCID("ID_COND_VERT_THEMELESS"),
-		 GdaFrame::OnCondVertThemelessMap)
-EVT_MENU(XRCID("ID_COND_HORIZ_THEMELESS"),
-		 GdaFrame::OnCondHorizThemelessMap)
-
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_1"), GdaFrame::OnOpenQuantile1)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_1"), GdaFrame::OnOpenQuantile1)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_2"), GdaFrame::OnOpenQuantile2)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_2"), GdaFrame::OnOpenQuantile2)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_3"), GdaFrame::OnOpenQuantile3)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_3"), GdaFrame::OnOpenQuantile3)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_4"), GdaFrame::OnOpenQuantile4)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_4"), GdaFrame::OnOpenQuantile4)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_5"), GdaFrame::OnOpenQuantile5)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_5"), GdaFrame::OnOpenQuantile5)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_6"), GdaFrame::OnOpenQuantile6)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_6"), GdaFrame::OnOpenQuantile6)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_7"), GdaFrame::OnOpenQuantile7)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_7"), GdaFrame::OnOpenQuantile7)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_8"), GdaFrame::OnOpenQuantile8)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_8"), GdaFrame::OnOpenQuantile8)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_9"), GdaFrame::OnOpenQuantile9)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_9"), GdaFrame::OnOpenQuantile9)
-EVT_TOOL(XRCID("ID_OPEN_QUANTILE_10"), GdaFrame::OnOpenQuantile10)
-EVT_MENU(XRCID("ID_OPEN_QUANTILE_10"), GdaFrame::OnOpenQuantile10)
-
-EVT_MENU(XRCID("ID_QUANTILE_1"), GdaFrame::OnQuantile1)
-EVT_MENU(XRCID("ID_QUANTILE_2"), GdaFrame::OnQuantile2)
-EVT_MENU(XRCID("ID_QUANTILE_3"), GdaFrame::OnQuantile3)
-EVT_MENU(XRCID("ID_QUANTILE_4"), GdaFrame::OnQuantile4)
-EVT_MENU(XRCID("ID_QUANTILE_5"), GdaFrame::OnQuantile5)
-EVT_MENU(XRCID("ID_QUANTILE_6"), GdaFrame::OnQuantile6)
-EVT_MENU(XRCID("ID_QUANTILE_7"), GdaFrame::OnQuantile7)
-EVT_MENU(XRCID("ID_QUANTILE_8"), GdaFrame::OnQuantile8)
-EVT_MENU(XRCID("ID_QUANTILE_9"), GdaFrame::OnQuantile9)
-EVT_MENU(XRCID("ID_QUANTILE_10"), GdaFrame::OnQuantile10)
-
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_1"), GdaFrame::OnCondVertQuant1)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_2"), GdaFrame::OnCondVertQuant2)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_3"), GdaFrame::OnCondVertQuant3)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_4"), GdaFrame::OnCondVertQuant4)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_5"), GdaFrame::OnCondVertQuant5)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_6"), GdaFrame::OnCondVertQuant6)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_7"), GdaFrame::OnCondVertQuant7)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_8"), GdaFrame::OnCondVertQuant8)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_9"), GdaFrame::OnCondVertQuant9)
-EVT_MENU(XRCID("ID_COND_VERT_QUANT_10"), GdaFrame::OnCondVertQuant10)
-
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_1"), GdaFrame::OnCondHorizQuant1)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_2"), GdaFrame::OnCondHorizQuant2)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_3"), GdaFrame::OnCondHorizQuant3)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_4"), GdaFrame::OnCondHorizQuant4)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_5"), GdaFrame::OnCondHorizQuant5)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_6"), GdaFrame::OnCondHorizQuant6)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_7"), GdaFrame::OnCondHorizQuant7)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_8"), GdaFrame::OnCondHorizQuant8)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_9"), GdaFrame::OnCondHorizQuant9)
-EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_10"), GdaFrame::OnCondHorizQuant10)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
-		 GdaFrame::OnOpenPercentile)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
-		 GdaFrame::OnOpenPercentile)
-EVT_MENU(XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
-		 GdaFrame::OnPercentile)
-EVT_MENU(XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"),
-		 GdaFrame::OnCondVertPercentile)
-EVT_MENU(XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"),
-		 GdaFrame::OnCondHorizPercentile)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_HINGE_15"), GdaFrame::OnOpenHinge15)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_HINGE_15"), GdaFrame::OnOpenHinge15)
-EVT_MENU(XRCID("ID_MAPANALYSIS_HINGE_15"), GdaFrame::OnHinge15)
-EVT_MENU(XRCID("ID_COND_VERT_HINGE_15"), GdaFrame::OnCondVertHinge15)
-EVT_MENU(XRCID("ID_COND_HORIZ_HINGE_15"), GdaFrame::OnCondHorizHinge15)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_HINGE_30"), GdaFrame::OnOpenHinge30)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_HINGE_30"), GdaFrame::OnOpenHinge30)
-EVT_MENU(XRCID("ID_MAPANALYSIS_HINGE_30"), GdaFrame::OnHinge30)
-EVT_MENU(XRCID("ID_COND_VERT_HINGE_30"), GdaFrame::OnCondVertHinge30)
-EVT_MENU(XRCID("ID_COND_HORIZ_HINGE_30"), GdaFrame::OnCondHorizHinge30)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV"),
-		 GdaFrame::OnOpenStddev)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV"),
-		 GdaFrame::OnOpenStddev)
-EVT_MENU(XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"),
-		 GdaFrame::OnStddev)
-EVT_MENU(XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"),
-		 GdaFrame::OnCondVertStddev)
-EVT_MENU(XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"),
-		 GdaFrame::OnCondHorizStddev)
-
-EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"),
-		 GdaFrame::OnOpenUniqueValues)
-EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"),
-		 GdaFrame::OnOpenUniqueValues)
-EVT_MENU(XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
-		 GdaFrame::OnUniqueValues)
-EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"),
-		 GdaFrame::OnCondVertUniqueValues)
-EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"),
-		 GdaFrame::OnCondHorizUniqueValues)
-
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_1"), GdaFrame::OnOpenNaturalBreaks1)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_1"), GdaFrame::OnOpenNaturalBreaks1)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_2"), GdaFrame::OnOpenNaturalBreaks2)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_2"), GdaFrame::OnOpenNaturalBreaks2)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_3"), GdaFrame::OnOpenNaturalBreaks3)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_3"), GdaFrame::OnOpenNaturalBreaks3)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_4"), GdaFrame::OnOpenNaturalBreaks4)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_4"), GdaFrame::OnOpenNaturalBreaks4)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_5"), GdaFrame::OnOpenNaturalBreaks5)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_5"), GdaFrame::OnOpenNaturalBreaks5)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_6"), GdaFrame::OnOpenNaturalBreaks6)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_6"), GdaFrame::OnOpenNaturalBreaks6)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_7"), GdaFrame::OnOpenNaturalBreaks7)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_7"), GdaFrame::OnOpenNaturalBreaks7)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_8"), GdaFrame::OnOpenNaturalBreaks8)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_8"), GdaFrame::OnOpenNaturalBreaks8)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_9"), GdaFrame::OnOpenNaturalBreaks9)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_9"), GdaFrame::OnOpenNaturalBreaks9)
-EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_10"), GdaFrame::OnOpenNaturalBreaks10)
-EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_10"), GdaFrame::OnOpenNaturalBreaks10)
-
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_1"), GdaFrame::OnNaturalBreaks1)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_2"), GdaFrame::OnNaturalBreaks2)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_3"), GdaFrame::OnNaturalBreaks3)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_4"), GdaFrame::OnNaturalBreaks4)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_5"), GdaFrame::OnNaturalBreaks5)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_6"), GdaFrame::OnNaturalBreaks6)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_7"), GdaFrame::OnNaturalBreaks7)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_8"), GdaFrame::OnNaturalBreaks8)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_9"), GdaFrame::OnNaturalBreaks9)
-EVT_MENU(XRCID("ID_NATURAL_BREAKS_10"), GdaFrame::OnNaturalBreaks10)
-
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_1"), GdaFrame::OnCondVertNatBrks1)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_2"), GdaFrame::OnCondVertNatBrks2)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_3"), GdaFrame::OnCondVertNatBrks3)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_4"), GdaFrame::OnCondVertNatBrks4)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_5"), GdaFrame::OnCondVertNatBrks5)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_6"), GdaFrame::OnCondVertNatBrks6)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_7"), GdaFrame::OnCondVertNatBrks7)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_8"), GdaFrame::OnCondVertNatBrks8)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_9"), GdaFrame::OnCondVertNatBrks9)
-EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_10"), GdaFrame::OnCondVertNatBrks10)
-
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_1"), GdaFrame::OnCondHorizNatBrks1)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_2"), GdaFrame::OnCondHorizNatBrks2)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_3"), GdaFrame::OnCondHorizNatBrks3)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_4"), GdaFrame::OnCondHorizNatBrks4)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_5"), GdaFrame::OnCondHorizNatBrks5)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_6"), GdaFrame::OnCondHorizNatBrks6)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_7"), GdaFrame::OnCondHorizNatBrks7)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_8"), GdaFrame::OnCondHorizNatBrks8)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_9"), GdaFrame::OnCondHorizNatBrks9)
-EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_10"), GdaFrame::OnCondHorizNatBrks10)
-
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_1"), GdaFrame::OnOpenEqualIntervals1)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_1"), GdaFrame::OnOpenEqualIntervals1)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_2"), GdaFrame::OnOpenEqualIntervals2)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_2"), GdaFrame::OnOpenEqualIntervals2)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_3"), GdaFrame::OnOpenEqualIntervals3)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_3"), GdaFrame::OnOpenEqualIntervals3)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_4"), GdaFrame::OnOpenEqualIntervals4)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_4"), GdaFrame::OnOpenEqualIntervals4)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_5"), GdaFrame::OnOpenEqualIntervals5)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_5"), GdaFrame::OnOpenEqualIntervals5)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_6"), GdaFrame::OnOpenEqualIntervals6)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_6"), GdaFrame::OnOpenEqualIntervals6)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_7"), GdaFrame::OnOpenEqualIntervals7)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_7"), GdaFrame::OnOpenEqualIntervals7)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_8"), GdaFrame::OnOpenEqualIntervals8)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_8"), GdaFrame::OnOpenEqualIntervals8)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_9"), GdaFrame::OnOpenEqualIntervals9)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_9"), GdaFrame::OnOpenEqualIntervals9)
-EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_10"), GdaFrame::OnOpenEqualIntervals10)
-EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_10"), GdaFrame::OnOpenEqualIntervals10)
-
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_1"), GdaFrame::OnEqualIntervals1)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_2"), GdaFrame::OnEqualIntervals2)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_3"), GdaFrame::OnEqualIntervals3)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_4"), GdaFrame::OnEqualIntervals4)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_5"), GdaFrame::OnEqualIntervals5)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_6"), GdaFrame::OnEqualIntervals6)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_7"), GdaFrame::OnEqualIntervals7)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_8"), GdaFrame::OnEqualIntervals8)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_9"), GdaFrame::OnEqualIntervals9)
-EVT_MENU(XRCID("ID_EQUAL_INTERVALS_10"), GdaFrame::OnEqualIntervals10)
-
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_1"), GdaFrame::OnCondVertEquInts1)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_2"), GdaFrame::OnCondVertEquInts2)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_3"), GdaFrame::OnCondVertEquInts3)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_4"), GdaFrame::OnCondVertEquInts4)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_5"), GdaFrame::OnCondVertEquInts5)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_6"), GdaFrame::OnCondVertEquInts6)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_7"), GdaFrame::OnCondVertEquInts7)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_8"), GdaFrame::OnCondVertEquInts8)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_9"), GdaFrame::OnCondVertEquInts9)
-EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_10"), GdaFrame::OnCondVertEquInts10)
-
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_1"), GdaFrame::OnCondHorizEquInts1)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_2"), GdaFrame::OnCondHorizEquInts2)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_3"), GdaFrame::OnCondHorizEquInts3)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_4"), GdaFrame::OnCondHorizEquInts4)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_5"), GdaFrame::OnCondHorizEquInts5)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_6"), GdaFrame::OnCondHorizEquInts6)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_7"), GdaFrame::OnCondHorizEquInts7)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_8"), GdaFrame::OnCondHorizEquInts8)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_9"), GdaFrame::OnCondHorizEquInts9)
-EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_10"), GdaFrame::OnCondHorizEquInts10)
-
-EVT_MENU(XRCID("ID_SAVE_CATEGORIES"), GdaFrame::OnSaveCategories)
-EVT_TOOL(XRCID("ID_OPEN_RATES_SMOOTH_RAWRATE"), GdaFrame::OnOpenRawrate)
-EVT_MENU(XRCID("ID_OPEN_RATES_SMOOTH_RAWRATE"), GdaFrame::OnOpenRawrate)
-EVT_MENU(XRCID("ID_RATES_SMOOTH_RAWRATE"), GdaFrame::OnRawrate)
-EVT_TOOL(XRCID("ID_OPEN_RATES_SMOOTH_EXCESSRISK"),
-		 GdaFrame::OnOpenExcessrisk)
-EVT_MENU(XRCID("ID_OPEN_RATES_SMOOTH_EXCESSRISK"),
-		 GdaFrame::OnOpenExcessrisk)
-EVT_MENU(XRCID("ID_RATES_SMOOTH_EXCESSRISK"),
-		 GdaFrame::OnExcessrisk)
-EVT_TOOL(XRCID("ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER"),
-		 GdaFrame::OnOpenEmpiricalBayes)
-EVT_MENU(XRCID("ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER"),
-		 GdaFrame::OnOpenEmpiricalBayes)
-EVT_MENU(XRCID("ID_RATES_EMPIRICAL_BAYES_SMOOTHER"),
-		 GdaFrame::OnEmpiricalBayes)
-EVT_TOOL(XRCID("ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER"),
-		 GdaFrame::OnOpenSpatialRate)
-EVT_MENU(XRCID("ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER"),
-		 GdaFrame::OnOpenSpatialRate)
-EVT_MENU(XRCID("ID_RATES_SPATIAL_RATE_SMOOTHER"),
-		 GdaFrame::OnSpatialRate)
-EVT_TOOL(XRCID("ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES"),
-		 GdaFrame::OnOpenSpatialEmpiricalBayes)
-EVT_MENU(XRCID("ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES"),
-		 GdaFrame::OnOpenSpatialEmpiricalBayes)
-EVT_MENU(XRCID("ID_RATES_SPATIAL_EMPIRICAL_BAYES"),
-		 GdaFrame::OnSpatialEmpiricalBayes)
-EVT_MENU(XRCID("ID_MAPANALYSIS_SAVERESULTS"), GdaFrame::OnSaveResults)
-EVT_MENU(XRCID("ID_VIEW_STANDARDIZED_DATA"),
-		 GdaFrame::OnViewStandardizedData)
-EVT_MENU(XRCID("ID_VIEW_ORIGINAL_DATA"), GdaFrame::OnViewOriginalData)
-EVT_MENU(XRCID("ID_VIEW_LINEAR_SMOOTHER"), GdaFrame::OnViewLinearSmoother)
-EVT_MENU(XRCID("ID_VIEW_LOWESS_SMOOTHER"), GdaFrame::OnViewLowessSmoother)
-EVT_MENU(XRCID("ID_EDIT_LOWESS_PARAMS"), GdaFrame::OnEditLowessParams)
-EVT_MENU(XRCID("ID_EDIT_VARIABLES"), GdaFrame::OnEditVariables)
-EVT_MENU(XRCID("ID_VIEW_REGIMES_REGRESSION"),
-		 GdaFrame::OnViewRegimesRegression)
-EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED"),
-		 GdaFrame::OnViewRegressionSelected)
-EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"),
-		 GdaFrame::OnViewRegressionSelectedExcluded)
-EVT_MENU(XRCID("ID_COMPARE_REGIMES"), GdaFrame::OnCompareRegimes)
-EVT_MENU(XRCID("ID_COMPARE_TIME_PERIODS"), GdaFrame::OnCompareTimePeriods)
-EVT_MENU(XRCID("ID_COMPARE_REG_AND_TM_PER"), GdaFrame::OnCompareRegAndTmPer)
-EVT_MENU(XRCID("ID_DISPLAY_STATISTICS"), GdaFrame::OnDisplayStatistics)
-EVT_MENU(XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"),
-		 GdaFrame::OnShowAxesThroughOrigin)
-EVT_MENU(XRCID("ID_DISPLAY_AXES_SCALE_VALUES"),
-		 GdaFrame::OnDisplayAxesScaleValues)
-EVT_MENU(XRCID("ID_DISPLAY_SLOPE_VALUES"),GdaFrame::OnDisplaySlopeValues)
-
-EVT_MENU(XRCID("ID_TABLE_SET_LOCALE"), GdaFrame::OnTableSetLocale)
-EVT_MENU(XRCID("ID_ENCODING_UTF8"), GdaFrame::OnEncodingUTF8)
-EVT_MENU(XRCID("ID_ENCODING_UTF16"), GdaFrame::OnEncodingUTF16)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1250"), GdaFrame::OnEncodingWindows1250)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1251"), GdaFrame::OnEncodingWindows1251)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1254"),GdaFrame::OnEncodingWindows1254)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1255"),GdaFrame::OnEncodingWindows1255)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1256"),GdaFrame::OnEncodingWindows1256)
-EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1258"),GdaFrame::OnEncodingWindows1258)
-EVT_MENU(XRCID("ID_ENCODING_CP852"), GdaFrame::OnEncodingCP852)
-EVT_MENU(XRCID("ID_ENCODING_CP866"), GdaFrame::OnEncodingCP866)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_1"), GdaFrame::OnEncodingISO8859_1)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_2"), GdaFrame::OnEncodingISO8859_2)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_3"), GdaFrame::OnEncodingISO8859_3)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_5"), GdaFrame::OnEncodingISO8859_5)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_7"), GdaFrame::OnEncodingISO8859_7)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_8"), GdaFrame::OnEncodingISO8859_8)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_9"), GdaFrame::OnEncodingISO8859_9)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_10"), GdaFrame::OnEncodingISO8859_10)
-EVT_MENU(XRCID("ID_ENCODING_ISO_8859_15"), GdaFrame::OnEncodingISO8859_15)
-EVT_MENU(XRCID("ID_ENCODING_GB2312"), GdaFrame::OnEncodingGB2312)
-EVT_MENU(XRCID("ID_ENCODING_BIG5"), GdaFrame::OnEncodingBIG5)
-EVT_MENU(XRCID("ID_ENCODING_KOI8_R"), GdaFrame::OnEncodingKOI8_R)
-EVT_MENU(XRCID("ID_ENCODING_SHIFT_JIS"), GdaFrame::OnEncodingSHIFT_JIS)
-EVT_MENU(XRCID("ID_ENCODING_EUC_JP"), GdaFrame::OnEncodingEUC_JP)
-EVT_MENU(XRCID("ID_ENCODING_EUC_KR"), GdaFrame::OnEncodingEUC_KR)
-
-EVT_MENU(GdaConst::ID_TIME_SYNC_VAR1, GdaFrame::OnTimeSyncVariable1)
-EVT_MENU(GdaConst::ID_TIME_SYNC_VAR2, GdaFrame::OnTimeSyncVariable2)
-EVT_MENU(GdaConst::ID_TIME_SYNC_VAR3, GdaFrame::OnTimeSyncVariable3)
-EVT_MENU(GdaConst::ID_TIME_SYNC_VAR4, GdaFrame::OnTimeSyncVariable4)
-
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, GdaFrame::OnFixedScaleVariable1)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, GdaFrame::OnFixedScaleVariable2)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR3, GdaFrame::OnFixedScaleVariable3)
-EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR4, GdaFrame::OnFixedScaleVariable4)
-
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_1, GdaFrame::OnPlotsPerView1)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_2, GdaFrame::OnPlotsPerView2)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_3, GdaFrame::OnPlotsPerView3)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_4, GdaFrame::OnPlotsPerView4)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_5, GdaFrame::OnPlotsPerView5)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_6, GdaFrame::OnPlotsPerView6)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_7, GdaFrame::OnPlotsPerView7)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_8, GdaFrame::OnPlotsPerView8)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_9, GdaFrame::OnPlotsPerView9)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_10, GdaFrame::OnPlotsPerView10)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_OTHER, GdaFrame::OnPlotsPerViewOther)
-EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_ALL, GdaFrame::OnPlotsPerViewAll)
-
-EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
-
-EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
-EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
-
-
-END_EVENT_TABLE()
 
 std::vector<GdaFrame::MenuItem> GdaFrame::htmlMenuItems;
 
@@ -1222,25 +465,16 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"), proj_open);
-	
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SHP"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_SQLITE"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GPKG"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_CSV"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_DBF"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GDB"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_JSON"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_GML"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_KML"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_MAPINFO"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJ_FROM_XLS"), !proj_open);
-	
+		
 	if (!proj_open) {
 		// Disable only if project not open.  Otherwise, leave changing
 		// Save state to SaveButtonManager
 		EnableTool(XRCID("ID_SAVE_PROJECT"), proj_open);
 		GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SAVE_PROJECT"), false);
+        //
+        UpdateRecentDatasourceMenu();
 	}
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_NEW_PROJ_FROM_RECENT_MENU"), !proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SAVE_AS_PROJECT"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_LAYER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_SELECTED"), proj_open);
@@ -1255,6 +489,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
+    
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -1361,6 +596,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	//Empty out the Options menu:
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);
+    
+    
 }
 
 void GdaFrame::SetMenusToDefault()
@@ -1403,7 +640,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
 
 	if (!GetHtmlMenuItems() || htmlMenuItems.size() == 0) {
-		LOG_MSG("Failed to get Html Menu Items from Preferences sqlite DB");
 	} else {
 		wxMenuBar* mb = GetMenuBar();
 		int exp_menu_ind = mb->FindMenu("Explore");
@@ -1610,7 +846,6 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
                 if (w) {
                     wxString msg="Calling Close(true) for wxTopLevelWindow: ";
 					msg << w->GetTitle();
-                    LOG_MSG(msg);
                     w->Close(true);
                 }
             }
@@ -1631,7 +866,6 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
     while (node) {
         wxWindow* win = node->GetData();
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-			LOG_MSG("CalculatorDlg already opened.");
 			w->DisconnectFromProject();
 		}
         node = node->GetNext();
@@ -1697,7 +931,6 @@ void GdaFrame::OnClose(wxCloseEvent& event)
     while (node) {
         wxWindow* win = node->GetData();
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-			LOG_MSG("Closing Calculator");
 			w->Close(true);
 		}
         node = node->GetNext();
@@ -1718,6 +951,94 @@ void GdaFrame::OnCloseProjectEvt(wxCommandEvent& event)
 {
 	LOG_MSG("In GdaFrame::OnCloseProjectEvt");
 	OnCloseProject();
+}
+
+void GdaFrame::UpdateRecentDatasourceMenu()
+{
+    LOG_MSG("Entering GdaFrame::UpdateRecentDatasourceMenu()");
+    try {
+        // update recent opened datasource menu
+        RecentDatasource recent_ds;
+        std::vector<wxString> recent_ds_list = recent_ds.GetList();
+        
+        
+        int recent_menu_xrcid = XRCID("ID_NEW_PROJ_FROM_RECENT_MENU");
+        wxMenuBar* mb = GetMenuBar();
+        if (mb == NULL)
+            return;
+        
+        wxMenuItem* mi = mb->FindItem(recent_menu_xrcid);
+        if (mi == NULL)
+            return;
+        
+        wxMenu* recent_menu = mi->GetSubMenu();
+        if (recent_menu == NULL)
+            return;
+        
+        int n_recent_menuitems = recent_menu->GetMenuItemCount();
+        
+        for (int i=n_recent_menuitems-1; i >=0;  i--) {
+            wxMenuItem* recent_item = recent_menu->FindItemByPosition(i);
+            recent_menu->Destroy(recent_item);
+        }
+        
+        for (size_t i=0; i<recent_ds_list.size(); i++ ) {
+            wxMenuItem* recent_item = recent_menu->Append(wxID_ANY,
+                                                          recent_ds_list[i]);
+            int xrc_id = recent_item->GetId();
+            Connect(xrc_id, wxEVT_COMMAND_TOOL_CLICKED,
+                    wxCommandEventHandler(GdaFrame::OnRecentDSClick));
+        }
+    } catch(GdaException ex) {
+        // do nothing but write to LOG
+        LOG_MSG(ex.what());
+    }
+    LOG_MSG("Exiting GdaFrame::UpdateRecentDatasourceMenu()");
+}
+
+void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
+{
+    if (project_p)
+        return;
+    
+    int xrc_id = event.GetId();
+    wxMenuBar* mb = GetMenuBar();
+    if (mb == NULL)
+        return;
+    
+    wxMenuItem* mi = mb->FindItem(xrc_id);
+    if (mi == NULL)
+        return;
+ 
+    wxString ds_name = mi->GetLabel();
+    if (ds_name.IsEmpty())
+        return;
+    
+    RecentDatasource recent_ds;
+    IDataSource* ds = recent_ds.GetDatasource(ds_name);
+    if (ds == NULL) {
+        // raise message dialog show can't connect to datasource
+        wxString msg = _T("Can't connect to datasource: ") + ds_name;
+        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    wxString layername = recent_ds.GetLayerName(ds_name);
+    if (layername.IsEmpty())
+        return;
+    
+    try {
+        wxString proj_title = layername;
+        project_p = new Project(proj_title, layername, ds);
+        
+    } catch (GdaException& e) {
+        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    InitWithProject();
 }
 
 /** New Project opened by the user from outside the program, for example
@@ -1757,36 +1078,8 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
         return;
     }
     
-	// By this point, we know that project has created as
-	// TopFrameManager object with delete_if_empty = false
-	
-	// This call is very improtant because we need the wxGrid to
-	// take ownership of the TableBase instance (bug in wxWidgets)
-	
-	TableFrame* tf;
-	tf = new TableFrame(this, project_p,
-						GdaConst::table_frame_title,
-						wxDefaultPosition,
-						GdaConst::table_default_size,
-						wxDEFAULT_FRAME_STYLE);
-	if (project_p->IsTableOnlyProject()) tf->Show(true);
-	
-	SetProjectOpen(true);
-	UpdateToolbarAndMenus();
-	
-	if (!project_p->IsTableOnlyProject()) {
-		std::vector<int> col_ids;
-		std::vector<GdaVarTools::VarInfo> var_info;
-		MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-										  var_info, col_ids,
-										  CatClassification::no_theme,
-										  MapCanvas::no_smoothing, 1,
-										  boost::uuids::nil_uuid(),
-										  wxDefaultPosition,
-										  GdaConst::map_default_size);
-		nf->UpdateTitle();
-	}
-	
+    InitWithProject();
+    
 	LOG_MSG("Exiting GdaFrame::NewProjectFromFile");
 }
 
@@ -1801,15 +1094,12 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 	wxString proj_title = dlg.GetProjectTitle();
     wxString layer_name = dlg.GetLayerName();
     IDataSource* datasource = dlg.GetDataSource();
+    
     try {
         // this datasource will be freed when dlg exit, so make a copy
         // in project_p
         project_p = new Project(proj_title, layer_name, datasource);
        
-        // update recent opened datasource menu
-        RecentDatasource recent_ds;
-        std::vector<wxString> recent_ds_list = recent_ds.GetList();
-        
     } catch (GdaException& e) {
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
@@ -1833,134 +1123,10 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
         return;
     }
     
-	// By this point, we know that project has created as
-	// TopFrameManager object with delete_if_empty = false
-	
-	// This call is very improtant because we need the wxGrid to
-	// take ownership of the TableBase instance (bug in wxWidgets)
-	
-	TableFrame* tf;
-	tf = new TableFrame(this, project_p,
-						GdaConst::table_frame_title,
-						wxDefaultPosition,
-						GdaConst::table_default_size,
-						wxDEFAULT_FRAME_STYLE);
-	if (project_p->IsTableOnlyProject()) tf->Show(true);
-	
-	SetProjectOpen(true);
-	UpdateToolbarAndMenus();
-	
-	if (!project_p->IsTableOnlyProject()) {
-		std::vector<int> col_ids;
-		std::vector<GdaVarTools::VarInfo> var_info;
-        MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-                                    var_info, col_ids,
-                                    CatClassification::no_theme,
-                                    MapCanvas::no_smoothing, 1,
-                                    boost::uuids::nil_uuid(),
-                                    wxPoint(80,160),
-                                    GdaConst::map_default_size);
-        
-		nf->UpdateTitle();
-	}
-	
+    InitWithProject();
+    
 	LOG_MSG("Exiting GdaFrame::OnNewProject");	
 }
-
-
-void GdaFrame::OnNewProjectFromShp(wxCommandEvent& event)
-{
-	wxString wc = "ESRI Shapefile (*.shp)|*.shp";
-	wxFileDialog dlg(this,"New Project From Shapefile", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromSqlite(wxCommandEvent& event)
-{
-	wxString wc = "SQLite/SpatiaLite (*.sqlite)|*.sqlite";
-	wxFileDialog dlg(this,"New Project From SQLite/SpatiaLite", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromGpkg(wxCommandEvent& event)
-{
-	wxString wc = "GeoPacakge (*.gpkg)|*.gpkg";
-	wxFileDialog dlg(this,"New Project From GeoPackage", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromCsv(wxCommandEvent& event)
-{
-	wxString wc = "Comma Separated Value (*.csv)|*.csv";
-	wxFileDialog dlg(this,"New Project From CSV", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromDbf(wxCommandEvent& event)
-{
-	wxString wc = "dBase Database File (*.dbf)|*.dbf";
-	wxFileDialog dlg(this,"New Project From dBase", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromGdb(wxCommandEvent& event)
-{
-	wxString wc = "ESRI File Geodatabase (*.gdb)|*.gdb";
-	wxFileDialog dlg(this,"New Project From ESRI File Gdb", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromJson(wxCommandEvent& event)
-{
-	wxString wc = "GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
-	"GeoJSON (*.geojson)|*.geojson|"
-	"GeoJSON (*.json)|*.json";
-	wxFileDialog dlg(this,"New Project From JSON", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromGml(wxCommandEvent& event)
-{
-	wxString wc = "Geography Markup Language (*.gml)|*.gml";
-	wxFileDialog dlg(this,"New Project From GML", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromKml(wxCommandEvent& event)
-{
-	wxString wc = "Keyhole Markup Language (*.kml)|*.kml";
-	wxFileDialog dlg(this,"New Project From KML", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromMapinfo(wxCommandEvent& event)
-{
-	wxString wc = "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
-	"MapInfo Tab (*.tab)|*.tab|"
-	"MapInfo MID (*.mid)|*.mid|"
-	"MapInfo MID (*.mif)|*.mif";
-	wxFileDialog dlg(this,"New Project From Mapinfo", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
-void GdaFrame::OnNewProjectFromXls(wxCommandEvent& event)
-{
-	wxString wc = "MS Excel (*.xls)|*.xls";
-	wxFileDialog dlg(this,"New Project From MS Excel", "", "", wc);
-	if (dlg.ShowModal() != wxID_OK) return;
-	NewProjectFromFile(dlg.GetPath());
-}
-
 
 /**
  OpenProject can be called while another project file is currently open.  This
@@ -1986,7 +1152,6 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 				msg << " while another project is open.  Please close project ";
 				msg << project_p->GetProjectTitle();
 				msg << " and try again.";
-				LOG_MSG(msg);
 				LOG_MSG("Exiting GdaFrame::OpenProject");
 				return;
 			}
@@ -2009,7 +1174,6 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 	// current window
 	if (IsProjectOpen()) {
 		if (project_p->GetProjectFullPath().CmpNoCase(full_proj_path) == 0) {
-			LOG_MSG("Requested project is already open.");
 			Raise();
 			return;
 		}
@@ -2020,7 +1184,6 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		msg << " while another project is open.  Please close project ";
 		msg << project_p->GetProjectTitle();
 		msg << " and try again.";
-		LOG_MSG(msg);
 		// For now, don't display a warning message to the user,
 		// just raise the toplevel window in either case.
 		//wxMessageDialog dlg (this, msg, "Information",
@@ -2030,8 +1193,6 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 	}
 	
 	if (project_p && project_p->GetFramesManager()->getNumberObservers() > 0) {
-		LOG_MSG("Open wxTopLevelWindows found for current project, "
-				"calling OnCloseProject()");
 		if (!OnCloseProject()) return;
 	}
 
@@ -2051,46 +1212,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		return;
     }
 	
-	// By this point, we know that project has created as
-	// TopFrameManager object with delete_if_empty = false
-	
-	// This call is very improtant because we need the wxGrid to
-	// take ownership of the TableBase instance (due to bug in wxWidgets)
-	TableFrame* tf;
-	tf = new TableFrame(this, project_p,
-						GdaConst::table_frame_title,
-						wxDefaultPosition,
-						GdaConst::table_default_size,
-						wxDEFAULT_FRAME_STYLE);
-	if (project_p->IsTableOnlyProject())
-        tf->Show(true);
-	
-	SetProjectOpen(true);
-	UpdateToolbarAndMenus();
-	
-	// Associate Project with Calculator if open
-	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-			LOG_MSG("Notifying Calculator of new Project.");
-			w->ConnectToProject(GetProject());
-		}
-        node = node->GetNext();
-    }
-
-	if (!project_p->IsTableOnlyProject()) {
-		std::vector<int> col_ids;
-		std::vector<GdaVarTools::VarInfo> var_info;
-		MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-										  var_info, col_ids,
-										  CatClassification::no_theme,
-										  MapCanvas::no_smoothing, 1,
-										  boost::uuids::nil_uuid(),
-										  wxPoint(80,160),
-										  GdaConst::map_default_size);
-		nf->UpdateTitle();
-	}
+    InitWithProject();
 }
 
 
@@ -2106,6 +1228,49 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
 	if (dlg.ShowModal() != wxID_OK) return;
 
 	OpenProject(dlg.GetPath());
+}
+
+void GdaFrame::InitWithProject()
+{
+    // By this point, we know that project has created as
+    // TopFrameManager object with delete_if_empty = false
+    
+    // This call is very improtant because we need the wxGrid to
+    // take ownership of the TableBase instance (due to bug in wxWidgets)
+    TableFrame* tf;
+    tf = new TableFrame(this, project_p,
+                        GdaConst::table_frame_title,
+                        wxDefaultPosition,
+                        GdaConst::table_default_size,
+                        wxDEFAULT_FRAME_STYLE);
+    if (project_p->IsTableOnlyProject())
+        tf->Show(true);
+    
+    SetProjectOpen(true);
+    UpdateToolbarAndMenus();
+    
+    // Associate Project with Calculator if open
+    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
+            w->ConnectToProject(GetProject());
+        }
+        node = node->GetNext();
+    }
+    
+    if (!project_p->IsTableOnlyProject()) {
+        std::vector<int> col_ids;
+        std::vector<GdaVarTools::VarInfo> var_info;
+        MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                    var_info, col_ids,
+                                    CatClassification::no_theme,
+                                    MapCanvas::no_smoothing, 1,
+                                    boost::uuids::nil_uuid(),
+                                    wxPoint(80,160),
+                                    GdaConst::map_default_size);
+        nf->UpdateTitle();
+    }
 }
 
 void GdaFrame::OnSaveProject(wxCommandEvent& event)
@@ -2521,6 +1686,7 @@ void GdaFrame::OnKeyEvent(wxKeyEvent& event)
 
 void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 {
+	LOG_MSG("Entering GdaFrame::OnToolsWeightsManager");
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
 	FramesManager* fm = p->GetFramesManager();
@@ -2528,7 +1694,6 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (WeightsManFrame* w = dynamic_cast<WeightsManFrame*>(*it)) {
-			LOG_MSG("Weights Manager already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2536,12 +1701,13 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 		}
 	}
 	
-	LOG_MSG("Opening a new Weights Manager");
 	WeightsManFrame* f = new WeightsManFrame(this, p);
+	LOG_MSG("Existing GdaFrame::OnToolsWeightsManager");
 }
 
 void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )
 {
+	LOG_MSG("Entering GdaFrame::OnToolsWeightsCreate");
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
 	FramesManager* fm = p->GetFramesManager();
@@ -2549,7 +1715,6 @@ void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (CreatingWeightDlg* w = dynamic_cast<CreatingWeightDlg*>(*it)) {
-			LOG_MSG("CreatingWeightDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2557,9 +1722,10 @@ void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )
 		}
 	}
 	
-	LOG_MSG("Opening a new CreatingWeightDlg");
 	CreatingWeightDlg* dlg = new CreatingWeightDlg(0, p);
 	dlg->Show(true);
+    
+	LOG_MSG("Exiting GdaFrame::OnToolsWeightsCreate");
 }
 
 void GdaFrame::OnConnectivityHistView(wxCommandEvent& event )
@@ -2652,7 +1818,6 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
     std::list<FramesManagerObserver*>::iterator it;
     for (it=observers.begin(); it != observers.end(); ++it) {
         if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
-            LOG_MSG("TimeChooserDlg already opened.");
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2661,7 +1826,6 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
         }
     }
     if (!opened) {
-        LOG_MSG("Opening a new TimeChooserDlg");
         TimeChooserDlg* dlg = new TimeChooserDlg(0, p->GetFramesManager(),
 											 p->GetTimeState(),
 											 p->GetTableState(),
@@ -2674,7 +1838,6 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
     for (it=observers.begin(); it != observers.end(); ++it) {
         if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
         {
-            LOG_MSG("VarGroupingEditorDlg already opened.");
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2684,7 +1847,6 @@ void GdaFrame::OnShowTimeChooser(wxCommandEvent& event)
         }
     }
     if (!opened) {
-        LOG_MSG("Opening a new VarGroupingEditorDlg");
         VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(p, this);
         dlg->Show(true);
         int start_x = pt.x - 200;
@@ -2702,7 +1864,6 @@ void GdaFrame::OnShowDataMovie(wxCommandEvent& event)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (DataMovieDlg* w = dynamic_cast<DataMovieDlg*>(*it)) {
-			LOG_MSG("DataMovieDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2710,7 +1871,6 @@ void GdaFrame::OnShowDataMovie(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new DataMovieDlg");
 	DataMovieDlg* dlg = new DataMovieDlg(0, p->GetFramesManager(),
 										 p->GetTableState(),
 										 p->GetTimeState(),
@@ -2728,7 +1888,6 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (CatClassifFrame* w = dynamic_cast<CatClassifFrame*>(*it)) {
-			LOG_MSG("Cateogry Editor already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2736,7 +1895,6 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new Cateogry Editor");
 	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
 }
 
@@ -2749,7 +1907,6 @@ CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (CatClassifFrame* w = dynamic_cast<CatClassifFrame*>(*it)) {
-			LOG_MSG("Cateogry Editor already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2757,7 +1914,6 @@ CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)
 		}
 	}
 	
-	LOG_MSG("Opening a new Cateogry Editor");
 	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, useScientificNotation);
 	return dlg;
 }
@@ -2772,7 +1928,6 @@ void GdaFrame::OnVarGroupingEditor(wxCommandEvent& event)
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
 		{
-			LOG_MSG("VarGroupingEditorDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2780,7 +1935,6 @@ void GdaFrame::OnVarGroupingEditor(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new VarGroupingEditorDlg");
 	VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(GetProject(), this);
 	dlg->Show(true);
 }
@@ -2793,7 +1947,6 @@ void GdaFrame::OnTimeEditor(wxCommandEvent& event)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (TimeEditorDlg* w = dynamic_cast<TimeEditorDlg*>(*it)) {
-			LOG_MSG("TimeEditorDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2801,7 +1954,6 @@ void GdaFrame::OnTimeEditor(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new TimeEditorDlg");
 	TimeEditorDlg* dlg = new TimeEditorDlg(0, GetProject()->GetFramesManager(),
 										   GetProject()->GetTableState(),
 										   GetProject()->GetTableInt());
@@ -2837,7 +1989,6 @@ void GdaFrame::OnRangeSelection(wxCommandEvent& event)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (RangeSelectionDlg* w = dynamic_cast<RangeSelectionDlg*>(*it)) {
-			LOG_MSG("RangeSelectionDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2845,7 +1996,6 @@ void GdaFrame::OnRangeSelection(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new RangeSelectionDlg");
 	RangeSelectionDlg* dlg = new RangeSelectionDlg(0, GetProject(),
 											GetProject()->GetFramesManager(),
 											GetProject()->GetTableState());
@@ -2860,7 +2010,6 @@ void GdaFrame::OnFieldCalculation(wxCommandEvent& event)
 	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (FieldNewCalcSheetDlg* w = dynamic_cast<FieldNewCalcSheetDlg*>(*it)) {
-			LOG_MSG("FieldNewCalcSheetDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2868,7 +2017,6 @@ void GdaFrame::OnFieldCalculation(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new FieldNewCalcSheetDlg");
 	FieldNewCalcSheetDlg* dlg =
 		new FieldNewCalcSheetDlg(GetProject(), this,
 								 wxID_ANY, "Variable Calculation",
@@ -2883,7 +2031,6 @@ void GdaFrame::OnCalculator(wxCommandEvent& event)
     while (node) {
         wxWindow* win = node->GetData();
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-			LOG_MSG("CalculatorDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2892,7 +2039,6 @@ void GdaFrame::OnCalculator(wxCommandEvent& event)
         node = node->GetNext();
     }
 
-	LOG_MSG("Opening a new CalculatorDlg");
 	// GetProject() could be NULL, but CalculatorDlg supports this.
 	CalculatorDlg* dlg = new CalculatorDlg(GetProject(), this);
 	dlg->Show(true);
@@ -2925,7 +2071,6 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 		if (DataViewerEditFieldPropertiesDlg* w
 			= dynamic_cast<DataViewerEditFieldPropertiesDlg*>(*it))
 		{
-			LOG_MSG("DataViewerEditFieldPropertiesDlg already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2933,7 +2078,6 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new DataViewerEditFieldPropertiesDlg");
 	DataViewerEditFieldPropertiesDlg* dlg;
 	dlg = new DataViewerEditFieldPropertiesDlg(p, wxDefaultPosition,
 											   wxSize(600, 400));
@@ -2950,7 +2094,6 @@ void GdaFrame::OnChangeFieldType(wxCommandEvent& event)
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (DataChangeTypeFrame* w	= dynamic_cast<DataChangeTypeFrame*>(*it))
 		{
-			LOG_MSG("DataChangeTypeFrame already opened.");
 			w->Show(true);
 			w->Maximize(false);
 			w->Raise();
@@ -2958,7 +2101,6 @@ void GdaFrame::OnChangeFieldType(wxCommandEvent& event)
 		}
 	}
 	
-	LOG_MSG("Opening a new DataChangeTypeFrame");
 	DataChangeTypeFrame* dlg = new DataChangeTypeFrame(this, p);
 }
 
@@ -3134,10 +2276,11 @@ void GdaFrame::DisplayRegression(const wxString dump)
 
 void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 {
+	LOG_MSG("Entering GdaFrame::OnCondPlotChoices");
+    
     Project* p = GetProject();
     if (!p) return;
     
-	LOG_MSG("Entering GdaFrame::OnCondPlotChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_COND_MENU");
 	
 	if (popupMenu) {
@@ -4046,7 +3189,6 @@ void GdaFrame::OnCCClassifA(int cc_menu_num)
 	std::vector<wxString> titles;
 	ccm->GetTitles(titles);
 	if (cc_menu_num < 0 || cc_menu_num >= (int)titles.size()) return;
-	LOG_MSG(titles[cc_menu_num]);
 
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
@@ -4070,7 +3212,6 @@ void GdaFrame::OnCCClassifB(int cc_menu_num)
 	std::vector<wxString> titles;
 	ccm->GetTitles(titles);
 	if (cc_menu_num < 0 || cc_menu_num >= (int)titles.size()) return;
-	LOG_MSG(titles[cc_menu_num]);
 	
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
@@ -4086,7 +3227,6 @@ void GdaFrame::OnCCClassifC(int cc_menu_num)
 	std::vector<wxString> titles;
 	ccm->GetTitles(titles);
 	if (cc_menu_num < 0 || cc_menu_num >= (int)titles.size()) return;
-	LOG_MSG(titles[cc_menu_num]);
 	
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
@@ -4723,7 +3863,6 @@ void GdaFrame::OnCondVertUniqueValues(wxCommandEvent& event)
 	}
 }
 
-
 void GdaFrame::OnCondHorizThemelessMap(wxCommandEvent& event)
 {
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
@@ -4917,10 +4056,11 @@ void GdaFrame::OnRawrate(wxCommandEvent& event)
 
 void GdaFrame::OnOpenExcessrisk(wxCommandEvent& event)
 {
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
-													false,
-													"Excess Risk Map Variable Settings",
-													"Event Variable", "Base Variable");
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
+                            false,
+                            "Excess Risk Map Variable Settings",
+                            "Event Variable", "Base Variable");
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
 									  dlg.var_info, dlg.col_ids,
@@ -4945,10 +4085,11 @@ void GdaFrame::OnExcessrisk(wxCommandEvent& event)
 
 void GdaFrame::OnOpenEmpiricalBayes(wxCommandEvent& event)
 {
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
-													false, false,
-													"Empirical Bayes Smoothed Variable Settings",
-													"Event Variable", "Base Variable");
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
+                            false, false,
+                            "Empirical Bayes Smoothed Variable Settings",
+                            "Event Variable", "Base Variable");
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
 									  dlg.var_info, dlg.col_ids,
@@ -5803,7 +4944,6 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	if (vl) vl->SetLabelText(vl_s);
 
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
-	
     wxCheckBox* chk_testmode_stable = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE_STABLE"), &dlg));
     std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
    
@@ -5817,7 +4957,9 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
         }
     }
     
-    chk_testmode_stable->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
+    chk_testmode_stable->Connect(wxEVT_CHECKBOX,
+                                 wxCommandEventHandler(GdaFrame::OnCheckTestMode),
+                                 NULL, this);
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();
@@ -5829,9 +4971,7 @@ void GdaFrame::OnTableSetLocale(wxCommandEvent& event)
     LocaleSetupDlg localeDlg(this);
     localeDlg.ShowModal();
 }
-//------------------------------------------------------------------------------
-// Following are functions for all encoding events
-//------------------------------------------------------------------------------
+
 void GdaFrame::OnEncodingUTF8(wxCommandEvent& event)
 {
 	if (!project_p) return;
@@ -6027,10 +5167,6 @@ void GdaFrame::SetBasemapCheckmarks(int idx)
     m->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
      */
 }
-//------------------------------------------------------------------------------
-// End of functions for all encoding events
-//------------------------------------------------------------------------------
-
 
 bool GdaFrame::GetHtmlMenuItems()
 {
@@ -6048,7 +5184,6 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 	wxString prefs_fn = exeFnPath.GetPathWithSep() 
 		+ GdaConst::gda_prefs_fname_json;
 	if (!wxFileExists(prefs_fn)) {
-		LOG_MSG("Could not find " + prefs_fn);
 		return false;
 	}
 	
@@ -6062,7 +5197,6 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 			throw std::runtime_error(prefs_fn.ToStdString());
 		}
 		//ifs.close();
-		LOG_MSG("Opened " + prefs_fn);
 		const wxString ent_key(GdaConst::gda_prefs_html_table);
 		const wxString menu_col(GdaConst::gda_prefs_html_table_menu);
 		const wxString url_col(GdaConst::gda_prefs_html_table_url);
@@ -6092,11 +5226,9 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 			// path relative to the geoda_prefs.json resource file location.
 			// In this case, we must convert to an absolute path.
 			if (url.Left(wp.length()) == wp) {
-				LOG_MSG("Converting url relative path to absolute path");
 				wxString cpy_url = url;
 				url = "file://";
 				url << exeFnPath.GetPathWithSep() << cpy_url;
-				LOG_MSG("New url: " + url);
 			}
 			if (!title.IsEmpty()) htmlMenuItems.push_back(MenuItem(title, url));
 		}
@@ -6104,16 +5236,13 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 	catch (std::runtime_error e) {
 		wxString msg("Error reading JSON prefs file: ");
 		msg << e.what();
-		LOG_MSG(msg);
 		return false;
 	}
 	
-	LOG_MSG("html_entries:");
 	for (size_t i=0; i<htmlMenuItems.size(); ++i) {
 		wxString msg;
 		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
 		msg << "url: " << htmlMenuItems[i].url;
-		LOG_MSG(msg);
 	}
 	
 	LOG_MSG("Exiting GdaFrame::GetHtmlMenuItemsJson");
@@ -6255,3 +5384,580 @@ void LineChartEventDelay::Notify() {
 	}
 	delete this;
 }
+
+/*
+ * This is the top-level window of the application.
+ */
+
+BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
+    EVT_CHAR_HOOK(GdaFrame::OnKeyEvent)
+    EVT_MENU(XRCID("ID_NEW_PROJECT"), GdaFrame::OnNewProject)
+    EVT_TOOL(XRCID("ID_NEW_PROJECT"), GdaFrame::OnNewProject)
+    EVT_MENU(XRCID("ID_OPEN_PROJECT"), GdaFrame::OnOpenProject)
+    EVT_TOOL(XRCID("ID_OPEN_PROJECT"), GdaFrame::OnOpenProject)
+    EVT_MENU(XRCID("ID_SAVE_PROJECT"), GdaFrame::OnSaveProject)
+    EVT_TOOL(XRCID("ID_SAVE_PROJECT"), GdaFrame::OnSaveProject)
+    EVT_MENU(XRCID("ID_SAVE_AS_PROJECT"), GdaFrame::OnSaveAsProject)
+    EVT_TOOL(XRCID("ID_SAVE_AS_PROJECT"), GdaFrame::OnSaveAsProject)
+    EVT_MENU(XRCID("ID_EXPORT_LAYER"), GdaFrame::OnExportToOGR)
+    //EVT_TOOL(XRCID("ID_EXPORT_LAYER"), GdaFrame::OnExportToOGR)
+    EVT_MENU(XRCID("ID_EXPORT_SELECTED"), GdaFrame::OnExportSelectedToOGR)
+    EVT_MENU(XRCID("ID_SHOW_PROJECT_INFO"), GdaFrame::OnShowProjectInfo)
+    EVT_MENU(XRCID("wxID_CLOSE"), GdaFrame::OnMenuClose)
+    EVT_MENU(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
+    EVT_TOOL(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
+    EVT_BUTTON(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
+    EVT_CLOSE(GdaFrame::OnClose)
+    EVT_MENU(XRCID("wxID_EXIT"), GdaFrame::OnQuit)
+    EVT_MENU(XRCID("ID_SELECT_WITH_RECT"), GdaFrame::OnSelectWithRect)
+    EVT_MENU(XRCID("ID_SELECT_WITH_CIRCLE"), GdaFrame::OnSelectWithCircle)
+    EVT_MENU(XRCID("ID_SELECT_WITH_LINE"), GdaFrame::OnSelectWithLine)
+    EVT_MENU(XRCID("ID_SELECTION_MODE"), GdaFrame::OnSelectionMode)
+    EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
+    // Fit-To-Window Mode
+    EVT_MENU(XRCID("ID_FIXED_ASPECT_RATIO_MODE"), GdaFrame::OnFixedAspectRatioMode)
+    EVT_MENU(XRCID("ID_ZOOM_MODE"), GdaFrame::OnZoomMode)
+    EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
+    // Print Canvas State to Log File.  Used for debugging.
+    EVT_MENU(XRCID("ID_PRINT_CANVAS_STATE"), GdaFrame::OnPrintCanvasState)
+    EVT_MENU(XRCID("ID_CLEAN_BASEMAP"), GdaFrame::OnCleanBasemap)
+    EVT_MENU(XRCID("ID_NO_BASEMAP"), GdaFrame::OnSetNoBasemap)
+    EVT_MENU(XRCID("ID_CHANGE_TRANSPARENCY"), GdaFrame::OnChangeMapTransparency)
+    EVT_MENU(XRCID("ID_BASEMAP_1"), GdaFrame::OnSetBasemap1)
+    EVT_MENU(XRCID("ID_BASEMAP_2"), GdaFrame::OnSetBasemap2)
+    EVT_MENU(XRCID("ID_BASEMAP_3"), GdaFrame::OnSetBasemap3)
+    EVT_MENU(XRCID("ID_BASEMAP_4"), GdaFrame::OnSetBasemap4)
+    EVT_MENU(XRCID("ID_BASEMAP_5"), GdaFrame::OnSetBasemap5)
+    EVT_MENU(XRCID("ID_BASEMAP_6"), GdaFrame::OnSetBasemap6)
+    EVT_MENU(XRCID("ID_BASEMAP_7"), GdaFrame::OnSetBasemap7)
+    EVT_MENU(XRCID("ID_BASEMAP_8"), GdaFrame::OnSetBasemap8)
+    EVT_MENU(XRCID("ID_BASEMAP_CONF"), GdaFrame::OnBasemapConfig)
+    EVT_MENU(XRCID("ID_SAVE_CANVAS_IMAGE_AS"), GdaFrame::OnSaveCanvasImageAs)
+    EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"), GdaFrame::OnSaveSelectedToColumn)
+    EVT_MENU(XRCID("ID_CANVAS_BACKGROUND_COLOR"), GdaFrame::OnCanvasBackgroundColor)
+    EVT_MENU(XRCID("ID_LEGEND_USE_SCI_NOTATION"), GdaFrame::OnLegendUseScientificNotation)
+    EVT_MENU(XRCID("ID_LEGEND_BACKGROUND_COLOR"), GdaFrame::OnLegendBackgroundColor)
+    EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"), GdaFrame::OnSelectableFillColor)
+    EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_COLOR"), GdaFrame::OnSelectableOutlineColor)
+    EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"), GdaFrame::OnSelectableOutlineVisible)
+    EVT_MENU(XRCID("ID_HIGHLIGHT_COLOR"), GdaFrame::OnHighlightColor)
+    EVT_MENU(XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), GdaFrame::OnCopyImageToClipboard)
+    EVT_MENU(XRCID("ID_COPY_LEGEND_TO_CLIPBOARD"), GdaFrame::OnCopyLegendToClipboard)
+    EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
+    EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
+    EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
+    EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
+    EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
+    EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
+    EVT_MENU(XRCID("ID_CONNECTIVITY_HIST_VIEW"), GdaFrame::OnConnectivityHistView)
+    EVT_TOOL(XRCID("ID_CONNECTIVITY_HIST_VIEW"), GdaFrame::OnConnectivityHistView)
+    EVT_BUTTON(XRCID("ID_CONNECTIVITY_HIST_VIEW"), GdaFrame::OnConnectivityHistView)
+    EVT_MENU(XRCID("ID_CONNECTIVITY_MAP_VIEW"), GdaFrame::OnConnectivityMapView)
+    EVT_TOOL(XRCID("ID_CONNECTIVITY_MAP_VIEW"), GdaFrame::OnConnectivityMapView)
+    EVT_BUTTON(XRCID("ID_CONNECTIVITY_MAP_VIEW"), GdaFrame::OnConnectivityMapView)
+    EVT_MENU(XRCID("ID_SHOW_AXES"), GdaFrame::OnShowAxes)
+    EVT_TOOL(XRCID("ID_MAP_CHOICES"), GdaFrame::OnMapChoices)
+    EVT_MENU(XRCID("ID_SHAPE_POINTS_FROM_ASCII"), GdaFrame::OnShapePointsFromASCII)
+    EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_GRID"), GdaFrame::OnShapePolygonsFromGrid)
+    EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_BOUNDARY"), GdaFrame::OnShapePolygonsFromBoundary)
+    EVT_MENU(XRCID("ID_SHAPE_TO_BOUNDARY"), GdaFrame::OnShapeToBoundary)
+    EVT_MENU(XRCID("ID_POINTS_FROM_TABLE"), GdaFrame::OnGeneratePointShpFile)
+    // Table menu items
+    EVT_MENU(XRCID("ID_SHOW_TIME_CHOOSER"), GdaFrame::OnShowTimeChooser)
+    EVT_MENU(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
+    EVT_TOOL(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
+    EVT_BUTTON(XRCID("ID_SHOW_DATA_MOVIE"), GdaFrame::OnShowDataMovie)
+    EVT_MENU(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
+    EVT_TOOL(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
+    EVT_BUTTON(XRCID("ID_SHOW_CAT_CLASSIF"), GdaFrame::OnShowCatClassif)
+    EVT_MENU(XRCID("ID_VAR_GROUPING_EDITOR"), GdaFrame::OnVarGroupingEditor)
+    EVT_MENU(XRCID("ID_TIME_EDITOR"), GdaFrame::OnVarGroupingEditor)
+    EVT_MENU(XRCID("ID_TABLE_MOVE_SELECTED_TO_TOP"), GdaFrame::OnMoveSelectedToTop)
+    EVT_MENU(XRCID("ID_TABLE_INVERT_SELECTION"), GdaFrame::OnInvertSelection)
+    EVT_MENU(XRCID("ID_TABLE_CLEAR_SELECTION"), GdaFrame::OnClearSelection)
+    EVT_MENU(XRCID("ID_TABLE_RANGE_SELECTION"), GdaFrame::OnRangeSelection)
+    EVT_MENU(XRCID("ID_TABLE_FIELD_CALCULATION"), GdaFrame::OnFieldCalculation)
+    EVT_MENU(XRCID("ID_CALCULATOR"), GdaFrame::OnCalculator)
+    EVT_MENU(XRCID("ID_TABLE_ADD_COLUMN"), GdaFrame::OnAddCol)
+    EVT_MENU(XRCID("ID_TABLE_DELETE_COLUMN"), GdaFrame::OnDeleteCol)
+    EVT_MENU(XRCID("ID_TABLE_EDIT_FIELD_PROP"), GdaFrame::OnEditFieldProperties)
+    EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
+    EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
+    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile)     // not used currently
+    EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
+    EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
+    EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)
+    EVT_TOOL(XRCID("ID_COND_PLOT_CHOICES"), GdaFrame::OnCondPlotChoices)
+    // The following duplicate entries are needed as a workaround to
+    // make menu enable/disable work for the menu bar when the same menu
+    // item appears twice.
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW_MAP_MENU"), GdaFrame::OnShowConditionalMapView)
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
+    EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
+    EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)
+    EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)
+    EVT_MENU(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"), GdaFrame::OnShowCartogramNewView)
+    EVT_TOOL(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"), GdaFrame::OnShowCartogramNewView)
+    EVT_BUTTON(XRCID("ID_SHOW_CARTOGRAM_NEW_VIEW"), GdaFrame::OnShowCartogramNewView)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_1"), GdaFrame::OnCartogramImprove1)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_2"), GdaFrame::OnCartogramImprove2)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_3"), GdaFrame::OnCartogramImprove3)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_4"), GdaFrame::OnCartogramImprove4)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_5"), GdaFrame::OnCartogramImprove5)
+    EVT_MENU(XRCID("ID_CARTOGRAM_IMPROVE_6"), GdaFrame::OnCartogramImprove6)
+    EVT_MENU(XRCID("ID_OPTIONS_HINGE_15"), GdaFrame::OnHinge15)
+    EVT_MENU(XRCID("ID_OPTIONS_HINGE_30"), GdaFrame::OnHinge30)
+    EVT_MENU(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
+    EVT_TOOL(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
+    EVT_BUTTON(XRCID("IDM_HIST"), GdaFrame::OnExploreHist)
+    EVT_MENU(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
+    EVT_MENU(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
+    EVT_MENU(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
+    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_MENU(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
+    EVT_TOOL(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
+    EVT_TOOL(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
+    EVT_TOOL(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
+    EVT_TOOL(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_TOOL(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
+    EVT_BUTTON(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
+    EVT_BUTTON(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_BUTTON(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
+    EVT_BUTTON(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
+    EVT_BUTTON(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
+    EVT_MENU(ID_TEST_MAP_FRAME, GdaFrame::OnExploreTestMap)
+    EVT_MENU(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
+    EVT_TOOL(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
+    EVT_BUTTON(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
+    EVT_MENU(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
+    EVT_TOOL(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
+    EVT_BUTTON(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
+    EVT_MENU(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
+    EVT_TOOL(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
+    EVT_BUTTON(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
+    EVT_MENU(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
+    EVT_TOOL(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
+    EVT_BUTTON(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
+    EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
+    EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
+    EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
+    EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
+    EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
+    EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
+    EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
+    EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
+    EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
+    EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
+    EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
+    EVT_TOOL(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
+    EVT_BUTTON(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
+    EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+    EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+    EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+    EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+    EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+    EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+    EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
+    EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
+    EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
+    EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
+    EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
+    EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"), GdaFrame::OnSaveConnectivityToTable)
+    EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)
+    EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_99PERMUTATION"), GdaFrame::OnRan99Per)
+    EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_199PERMUTATION"), GdaFrame::OnRan199Per)
+    EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_499PERMUTATION"), GdaFrame::OnRan499Per)
+    EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_999PERMUTATION"), GdaFrame::OnRan999Per)
+    EVT_MENU(XRCID("ID_OPTIONS_RANDOMIZATION_OTHER"), GdaFrame::OnRanOtherPer)
+    EVT_MENU(XRCID("ID_USE_SPECIFIED_SEED"), GdaFrame::OnUseSpecifiedSeed)
+    EVT_MENU(XRCID("ID_SPECIFY_SEED_DLG"), GdaFrame::OnSpecifySeedDlg)
+    EVT_MENU(XRCID("ID_SAVE_MORANI"), GdaFrame::OnSaveMoranI)
+    EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_05"), GdaFrame::OnSigFilter05)
+    EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_01"), GdaFrame::OnSigFilter01)
+    EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_001"), GdaFrame::OnSigFilter001)
+    EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_0001"), GdaFrame::OnSigFilter0001)
+    EVT_MENU(XRCID("ID_SAVE_GETIS_ORD"), GdaFrame::OnSaveGetisOrd)
+    EVT_MENU(XRCID("ID_SAVE_LISA"), GdaFrame::OnSaveLisa)
+    EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)
+    EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
+    EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
+    EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)
+    EVT_MENU(XRCID("ID_MAP_ADDCENTROIDS"), GdaFrame::OnAddCentroids)
+    EVT_MENU(XRCID("ID_DISPLAY_MEAN_CENTERS"), GdaFrame::OnDisplayMeanCenters)
+    EVT_MENU(XRCID("ID_DISPLAY_CENTROIDS"), GdaFrame::OnDisplayCentroids)
+    EVT_MENU(XRCID("ID_DISPLAY_VORONOI_DIAGRAM"), GdaFrame::OnDisplayVoronoiDiagram)
+    EVT_MENU(XRCID("ID_EXPORT_VORONOI"), GdaFrame::OnExportVoronoi)
+    EVT_MENU(XRCID("ID_EXPORT_MEAN_CNTRS"), GdaFrame::OnExportMeanCntrs)
+    EVT_MENU(XRCID("ID_EXPORT_CENTROIDS"), GdaFrame::OnExportCentroids)
+    EVT_MENU(XRCID("ID_SAVE_VORONOI_DUPS_TO_TABLE"), GdaFrame::OnSaveVoronoiDupsToTable)
+    EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), GdaFrame::OnNewCustomCatClassifA)
+    EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"), GdaFrame::OnNewCustomCatClassifB)
+    EVT_MENU(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"), GdaFrame::OnNewCustomCatClassifC)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_0, GdaFrame::OnHtmlEntry0)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_1, GdaFrame::OnHtmlEntry1)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_2, GdaFrame::OnHtmlEntry2)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_3, GdaFrame::OnHtmlEntry3)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_4, GdaFrame::OnHtmlEntry4)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_5, GdaFrame::OnHtmlEntry5)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_6, GdaFrame::OnHtmlEntry6)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_7, GdaFrame::OnHtmlEntry7)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_8, GdaFrame::OnHtmlEntry8)
+    EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_9, GdaFrame::OnHtmlEntry9)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaFrame::OnCCClassifA0)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A1, GdaFrame::OnCCClassifA1)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A2, GdaFrame::OnCCClassifA2)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A3, GdaFrame::OnCCClassifA3)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A4, GdaFrame::OnCCClassifA4)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A5, GdaFrame::OnCCClassifA5)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A6, GdaFrame::OnCCClassifA6)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A7, GdaFrame::OnCCClassifA7)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A8, GdaFrame::OnCCClassifA8)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A9, GdaFrame::OnCCClassifA9)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A10, GdaFrame::OnCCClassifA10)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A11, GdaFrame::OnCCClassifA11)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A12, GdaFrame::OnCCClassifA12)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A13, GdaFrame::OnCCClassifA13)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A14, GdaFrame::OnCCClassifA14)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A15, GdaFrame::OnCCClassifA15)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A16, GdaFrame::OnCCClassifA16)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A17, GdaFrame::OnCCClassifA17)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A18, GdaFrame::OnCCClassifA18)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A19, GdaFrame::OnCCClassifA19)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A20, GdaFrame::OnCCClassifA20)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A21, GdaFrame::OnCCClassifA21)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A22, GdaFrame::OnCCClassifA22)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A23, GdaFrame::OnCCClassifA23)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A24, GdaFrame::OnCCClassifA24)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A25, GdaFrame::OnCCClassifA25)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A26, GdaFrame::OnCCClassifA26)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A27, GdaFrame::OnCCClassifA27)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A28, GdaFrame::OnCCClassifA28)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A29, GdaFrame::OnCCClassifA29)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaFrame::OnCCClassifB0)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B1, GdaFrame::OnCCClassifB1)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B2, GdaFrame::OnCCClassifB2)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B3, GdaFrame::OnCCClassifB3)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B4, GdaFrame::OnCCClassifB4)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B5, GdaFrame::OnCCClassifB5)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B6, GdaFrame::OnCCClassifB6)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B7, GdaFrame::OnCCClassifB7)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B8, GdaFrame::OnCCClassifB8)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B9, GdaFrame::OnCCClassifB9)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B10, GdaFrame::OnCCClassifB10)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B11, GdaFrame::OnCCClassifB11)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B12, GdaFrame::OnCCClassifB12)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B13, GdaFrame::OnCCClassifB13)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B14, GdaFrame::OnCCClassifB14)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B15, GdaFrame::OnCCClassifB15)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B16, GdaFrame::OnCCClassifB16)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B17, GdaFrame::OnCCClassifB17)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B18, GdaFrame::OnCCClassifB18)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B19, GdaFrame::OnCCClassifB19)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B20, GdaFrame::OnCCClassifB20)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B21, GdaFrame::OnCCClassifB21)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B22, GdaFrame::OnCCClassifB22)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B23, GdaFrame::OnCCClassifB23)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B24, GdaFrame::OnCCClassifB24)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B25, GdaFrame::OnCCClassifB25)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B26, GdaFrame::OnCCClassifB26)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B27, GdaFrame::OnCCClassifB27)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B28, GdaFrame::OnCCClassifB28)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B29, GdaFrame::OnCCClassifB29)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaFrame::OnCCClassifC0)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C1, GdaFrame::OnCCClassifC1)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C2, GdaFrame::OnCCClassifC2)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C3, GdaFrame::OnCCClassifC3)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C4, GdaFrame::OnCCClassifC4)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C5, GdaFrame::OnCCClassifC5)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C6, GdaFrame::OnCCClassifC6)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C7, GdaFrame::OnCCClassifC7)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C8, GdaFrame::OnCCClassifC8)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C9, GdaFrame::OnCCClassifC9)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C10, GdaFrame::OnCCClassifC10)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C11, GdaFrame::OnCCClassifC11)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C12, GdaFrame::OnCCClassifC12)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C13, GdaFrame::OnCCClassifC13)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C14, GdaFrame::OnCCClassifC14)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C15, GdaFrame::OnCCClassifC15)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C16, GdaFrame::OnCCClassifC16)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C17, GdaFrame::OnCCClassifC17)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C18, GdaFrame::OnCCClassifC18)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C19, GdaFrame::OnCCClassifC19)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C20, GdaFrame::OnCCClassifC20)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C21, GdaFrame::OnCCClassifC21)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C22, GdaFrame::OnCCClassifC22)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C23, GdaFrame::OnCCClassifC23)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C24, GdaFrame::OnCCClassifC24)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C25, GdaFrame::OnCCClassifC25)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C26, GdaFrame::OnCCClassifC26)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C27, GdaFrame::OnCCClassifC27)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C28, GdaFrame::OnCCClassifC28)
+    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C29, GdaFrame::OnCCClassifC29)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_THEMELESS"), GdaFrame::OnThemelessMap)
+    EVT_MENU(XRCID("ID_COND_VERT_THEMELESS"), GdaFrame::OnCondVertThemelessMap)
+    EVT_MENU(XRCID("ID_COND_HORIZ_THEMELESS"), GdaFrame::OnCondHorizThemelessMap)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_1"), GdaFrame::OnOpenQuantile1)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_1"), GdaFrame::OnOpenQuantile1)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_2"), GdaFrame::OnOpenQuantile2)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_2"), GdaFrame::OnOpenQuantile2)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_3"), GdaFrame::OnOpenQuantile3)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_3"), GdaFrame::OnOpenQuantile3)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_4"), GdaFrame::OnOpenQuantile4)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_4"), GdaFrame::OnOpenQuantile4)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_5"), GdaFrame::OnOpenQuantile5)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_5"), GdaFrame::OnOpenQuantile5)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_6"), GdaFrame::OnOpenQuantile6)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_6"), GdaFrame::OnOpenQuantile6)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_7"), GdaFrame::OnOpenQuantile7)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_7"), GdaFrame::OnOpenQuantile7)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_8"), GdaFrame::OnOpenQuantile8)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_8"), GdaFrame::OnOpenQuantile8)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_9"), GdaFrame::OnOpenQuantile9)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_9"), GdaFrame::OnOpenQuantile9)
+    EVT_TOOL(XRCID("ID_OPEN_QUANTILE_10"), GdaFrame::OnOpenQuantile10)
+    EVT_MENU(XRCID("ID_OPEN_QUANTILE_10"), GdaFrame::OnOpenQuantile10)
+    EVT_MENU(XRCID("ID_QUANTILE_1"), GdaFrame::OnQuantile1)
+    EVT_MENU(XRCID("ID_QUANTILE_2"), GdaFrame::OnQuantile2)
+    EVT_MENU(XRCID("ID_QUANTILE_3"), GdaFrame::OnQuantile3)
+    EVT_MENU(XRCID("ID_QUANTILE_4"), GdaFrame::OnQuantile4)
+    EVT_MENU(XRCID("ID_QUANTILE_5"), GdaFrame::OnQuantile5)
+    EVT_MENU(XRCID("ID_QUANTILE_6"), GdaFrame::OnQuantile6)
+    EVT_MENU(XRCID("ID_QUANTILE_7"), GdaFrame::OnQuantile7)
+    EVT_MENU(XRCID("ID_QUANTILE_8"), GdaFrame::OnQuantile8)
+    EVT_MENU(XRCID("ID_QUANTILE_9"), GdaFrame::OnQuantile9)
+    EVT_MENU(XRCID("ID_QUANTILE_10"), GdaFrame::OnQuantile10)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_1"), GdaFrame::OnCondVertQuant1)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_2"), GdaFrame::OnCondVertQuant2)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_3"), GdaFrame::OnCondVertQuant3)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_4"), GdaFrame::OnCondVertQuant4)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_5"), GdaFrame::OnCondVertQuant5)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_6"), GdaFrame::OnCondVertQuant6)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_7"), GdaFrame::OnCondVertQuant7)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_8"), GdaFrame::OnCondVertQuant8)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_9"), GdaFrame::OnCondVertQuant9)
+    EVT_MENU(XRCID("ID_COND_VERT_QUANT_10"), GdaFrame::OnCondVertQuant10)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_1"), GdaFrame::OnCondHorizQuant1)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_2"), GdaFrame::OnCondHorizQuant2)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_3"), GdaFrame::OnCondHorizQuant3)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_4"), GdaFrame::OnCondHorizQuant4)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_5"), GdaFrame::OnCondHorizQuant5)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_6"), GdaFrame::OnCondHorizQuant6)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_7"), GdaFrame::OnCondHorizQuant7)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_8"), GdaFrame::OnCondHorizQuant8)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_9"), GdaFrame::OnCondHorizQuant9)
+    EVT_MENU(XRCID("ID_COND_HORIZ_QUANT_10"), GdaFrame::OnCondHorizQuant10)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE"), GdaFrame::OnOpenPercentile)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE"), GdaFrame::OnOpenPercentile)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"), GdaFrame::OnPercentile)
+    EVT_MENU(XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"), GdaFrame::OnCondVertPercentile)
+    EVT_MENU(XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"), GdaFrame::OnCondHorizPercentile)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_HINGE_15"), GdaFrame::OnOpenHinge15)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_HINGE_15"), GdaFrame::OnOpenHinge15)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_HINGE_15"), GdaFrame::OnHinge15)
+    EVT_MENU(XRCID("ID_COND_VERT_HINGE_15"), GdaFrame::OnCondVertHinge15)
+    EVT_MENU(XRCID("ID_COND_HORIZ_HINGE_15"), GdaFrame::OnCondHorizHinge15)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_HINGE_30"), GdaFrame::OnOpenHinge30)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_HINGE_30"), GdaFrame::OnOpenHinge30)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_HINGE_30"), GdaFrame::OnHinge30)
+    EVT_MENU(XRCID("ID_COND_VERT_HINGE_30"), GdaFrame::OnCondVertHinge30)
+    EVT_MENU(XRCID("ID_COND_HORIZ_HINGE_30"), GdaFrame::OnCondHorizHinge30)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV"), GdaFrame::OnOpenStddev)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV"), GdaFrame::OnOpenStddev)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"), GdaFrame::OnStddev)
+    EVT_MENU(XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), GdaFrame::OnCondVertStddev)
+    EVT_MENU(XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), GdaFrame::OnCondHorizStddev)
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
+    EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnUniqueValues)
+    EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
+    EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_1"), GdaFrame::OnOpenNaturalBreaks1)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_1"), GdaFrame::OnOpenNaturalBreaks1)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_2"), GdaFrame::OnOpenNaturalBreaks2)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_2"), GdaFrame::OnOpenNaturalBreaks2)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_3"), GdaFrame::OnOpenNaturalBreaks3)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_3"), GdaFrame::OnOpenNaturalBreaks3)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_4"), GdaFrame::OnOpenNaturalBreaks4)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_4"), GdaFrame::OnOpenNaturalBreaks4)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_5"), GdaFrame::OnOpenNaturalBreaks5)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_5"), GdaFrame::OnOpenNaturalBreaks5)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_6"), GdaFrame::OnOpenNaturalBreaks6)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_6"), GdaFrame::OnOpenNaturalBreaks6)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_7"), GdaFrame::OnOpenNaturalBreaks7)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_7"), GdaFrame::OnOpenNaturalBreaks7)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_8"), GdaFrame::OnOpenNaturalBreaks8)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_8"), GdaFrame::OnOpenNaturalBreaks8)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_9"), GdaFrame::OnOpenNaturalBreaks9)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_9"), GdaFrame::OnOpenNaturalBreaks9)
+    EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_10"), GdaFrame::OnOpenNaturalBreaks10)
+    EVT_MENU(XRCID("ID_OPEN_NATURAL_BREAKS_10"), GdaFrame::OnOpenNaturalBreaks10)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_1"), GdaFrame::OnNaturalBreaks1)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_2"), GdaFrame::OnNaturalBreaks2)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_3"), GdaFrame::OnNaturalBreaks3)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_4"), GdaFrame::OnNaturalBreaks4)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_5"), GdaFrame::OnNaturalBreaks5)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_6"), GdaFrame::OnNaturalBreaks6)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_7"), GdaFrame::OnNaturalBreaks7)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_8"), GdaFrame::OnNaturalBreaks8)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_9"), GdaFrame::OnNaturalBreaks9)
+    EVT_MENU(XRCID("ID_NATURAL_BREAKS_10"), GdaFrame::OnNaturalBreaks10)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_1"), GdaFrame::OnCondVertNatBrks1)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_2"), GdaFrame::OnCondVertNatBrks2)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_3"), GdaFrame::OnCondVertNatBrks3)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_4"), GdaFrame::OnCondVertNatBrks4)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_5"), GdaFrame::OnCondVertNatBrks5)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_6"), GdaFrame::OnCondVertNatBrks6)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_7"), GdaFrame::OnCondVertNatBrks7)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_8"), GdaFrame::OnCondVertNatBrks8)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_9"), GdaFrame::OnCondVertNatBrks9)
+    EVT_MENU(XRCID("ID_COND_VERT_NAT_BRKS_10"), GdaFrame::OnCondVertNatBrks10)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_1"), GdaFrame::OnCondHorizNatBrks1)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_2"), GdaFrame::OnCondHorizNatBrks2)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_3"), GdaFrame::OnCondHorizNatBrks3)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_4"), GdaFrame::OnCondHorizNatBrks4)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_5"), GdaFrame::OnCondHorizNatBrks5)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_6"), GdaFrame::OnCondHorizNatBrks6)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_7"), GdaFrame::OnCondHorizNatBrks7)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_8"), GdaFrame::OnCondHorizNatBrks8)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_9"), GdaFrame::OnCondHorizNatBrks9)
+    EVT_MENU(XRCID("ID_COND_HORIZ_NAT_BRKS_10"), GdaFrame::OnCondHorizNatBrks10)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_1"), GdaFrame::OnOpenEqualIntervals1)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_1"), GdaFrame::OnOpenEqualIntervals1)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_2"), GdaFrame::OnOpenEqualIntervals2)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_2"), GdaFrame::OnOpenEqualIntervals2)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_3"), GdaFrame::OnOpenEqualIntervals3)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_3"), GdaFrame::OnOpenEqualIntervals3)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_4"), GdaFrame::OnOpenEqualIntervals4)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_4"), GdaFrame::OnOpenEqualIntervals4)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_5"), GdaFrame::OnOpenEqualIntervals5)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_5"), GdaFrame::OnOpenEqualIntervals5)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_6"), GdaFrame::OnOpenEqualIntervals6)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_6"), GdaFrame::OnOpenEqualIntervals6)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_7"), GdaFrame::OnOpenEqualIntervals7)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_7"), GdaFrame::OnOpenEqualIntervals7)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_8"), GdaFrame::OnOpenEqualIntervals8)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_8"), GdaFrame::OnOpenEqualIntervals8)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_9"), GdaFrame::OnOpenEqualIntervals9)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_9"), GdaFrame::OnOpenEqualIntervals9)
+    EVT_TOOL(XRCID("ID_OPEN_EQUAL_INTERVALS_10"), GdaFrame::OnOpenEqualIntervals10)
+    EVT_MENU(XRCID("ID_OPEN_EQUAL_INTERVALS_10"), GdaFrame::OnOpenEqualIntervals10)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_1"), GdaFrame::OnEqualIntervals1)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_2"), GdaFrame::OnEqualIntervals2)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_3"), GdaFrame::OnEqualIntervals3)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_4"), GdaFrame::OnEqualIntervals4)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_5"), GdaFrame::OnEqualIntervals5)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_6"), GdaFrame::OnEqualIntervals6)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_7"), GdaFrame::OnEqualIntervals7)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_8"), GdaFrame::OnEqualIntervals8)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_9"), GdaFrame::OnEqualIntervals9)
+    EVT_MENU(XRCID("ID_EQUAL_INTERVALS_10"), GdaFrame::OnEqualIntervals10)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_1"), GdaFrame::OnCondVertEquInts1)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_2"), GdaFrame::OnCondVertEquInts2)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_3"), GdaFrame::OnCondVertEquInts3)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_4"), GdaFrame::OnCondVertEquInts4)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_5"), GdaFrame::OnCondVertEquInts5)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_6"), GdaFrame::OnCondVertEquInts6)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_7"), GdaFrame::OnCondVertEquInts7)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_8"), GdaFrame::OnCondVertEquInts8)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_9"), GdaFrame::OnCondVertEquInts9)
+    EVT_MENU(XRCID("ID_COND_VERT_EQU_INTS_10"), GdaFrame::OnCondVertEquInts10)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_1"), GdaFrame::OnCondHorizEquInts1)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_2"), GdaFrame::OnCondHorizEquInts2)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_3"), GdaFrame::OnCondHorizEquInts3)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_4"), GdaFrame::OnCondHorizEquInts4)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_5"), GdaFrame::OnCondHorizEquInts5)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_6"), GdaFrame::OnCondHorizEquInts6)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_7"), GdaFrame::OnCondHorizEquInts7)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_8"), GdaFrame::OnCondHorizEquInts8)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_9"), GdaFrame::OnCondHorizEquInts9)
+    EVT_MENU(XRCID("ID_COND_HORIZ_EQU_INTS_10"), GdaFrame::OnCondHorizEquInts10)
+    EVT_MENU(XRCID("ID_SAVE_CATEGORIES"), GdaFrame::OnSaveCategories)
+    EVT_TOOL(XRCID("ID_OPEN_RATES_SMOOTH_RAWRATE"), GdaFrame::OnOpenRawrate)
+    EVT_MENU(XRCID("ID_OPEN_RATES_SMOOTH_RAWRATE"), GdaFrame::OnOpenRawrate)
+    EVT_MENU(XRCID("ID_RATES_SMOOTH_RAWRATE"), GdaFrame::OnRawrate)
+    EVT_TOOL(XRCID("ID_OPEN_RATES_SMOOTH_EXCESSRISK"), GdaFrame::OnOpenExcessrisk)
+    EVT_MENU(XRCID("ID_OPEN_RATES_SMOOTH_EXCESSRISK"), GdaFrame::OnOpenExcessrisk)
+    EVT_MENU(XRCID("ID_RATES_SMOOTH_EXCESSRISK"), GdaFrame::OnExcessrisk)
+    EVT_TOOL(XRCID("ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER"), GdaFrame::OnOpenEmpiricalBayes)
+    EVT_MENU(XRCID("ID_OPEN_RATES_EMPIRICAL_BAYES_SMOOTHER"), GdaFrame::OnOpenEmpiricalBayes)
+    EVT_MENU(XRCID("ID_RATES_EMPIRICAL_BAYES_SMOOTHER"), GdaFrame::OnEmpiricalBayes)
+    EVT_TOOL(XRCID("ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER"), GdaFrame::OnOpenSpatialRate)
+    EVT_MENU(XRCID("ID_OPEN_RATES_SPATIAL_RATE_SMOOTHER"), GdaFrame::OnOpenSpatialRate)
+    EVT_MENU(XRCID("ID_RATES_SPATIAL_RATE_SMOOTHER"), GdaFrame::OnSpatialRate)
+    EVT_TOOL(XRCID("ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES"), GdaFrame::OnOpenSpatialEmpiricalBayes)
+    EVT_MENU(XRCID("ID_OPEN_RATES_SPATIAL_EMPIRICAL_BAYES"), GdaFrame::OnOpenSpatialEmpiricalBayes)
+    EVT_MENU(XRCID("ID_RATES_SPATIAL_EMPIRICAL_BAYES"), GdaFrame::OnSpatialEmpiricalBayes)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_SAVERESULTS"), GdaFrame::OnSaveResults)
+    EVT_MENU(XRCID("ID_VIEW_STANDARDIZED_DATA"), GdaFrame::OnViewStandardizedData)
+    EVT_MENU(XRCID("ID_VIEW_ORIGINAL_DATA"), GdaFrame::OnViewOriginalData)
+    EVT_MENU(XRCID("ID_VIEW_LINEAR_SMOOTHER"), GdaFrame::OnViewLinearSmoother)
+    EVT_MENU(XRCID("ID_VIEW_LOWESS_SMOOTHER"), GdaFrame::OnViewLowessSmoother)
+    EVT_MENU(XRCID("ID_EDIT_LOWESS_PARAMS"), GdaFrame::OnEditLowessParams)
+    EVT_MENU(XRCID("ID_EDIT_VARIABLES"), GdaFrame::OnEditVariables)
+    EVT_MENU(XRCID("ID_VIEW_REGIMES_REGRESSION"), GdaFrame::OnViewRegimesRegression)
+    EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED"), GdaFrame::OnViewRegressionSelected)
+    EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"), GdaFrame::OnViewRegressionSelectedExcluded)
+    EVT_MENU(XRCID("ID_COMPARE_REGIMES"), GdaFrame::OnCompareRegimes)
+    EVT_MENU(XRCID("ID_COMPARE_TIME_PERIODS"), GdaFrame::OnCompareTimePeriods)
+    EVT_MENU(XRCID("ID_COMPARE_REG_AND_TM_PER"), GdaFrame::OnCompareRegAndTmPer)
+    EVT_MENU(XRCID("ID_DISPLAY_STATISTICS"), GdaFrame::OnDisplayStatistics)
+    EVT_MENU(XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"), GdaFrame::OnShowAxesThroughOrigin)
+    EVT_MENU(XRCID("ID_DISPLAY_AXES_SCALE_VALUES"), GdaFrame::OnDisplayAxesScaleValues)
+    EVT_MENU(XRCID("ID_DISPLAY_SLOPE_VALUES"),GdaFrame::OnDisplaySlopeValues)
+    EVT_MENU(XRCID("ID_TABLE_SET_LOCALE"), GdaFrame::OnTableSetLocale)
+    EVT_MENU(XRCID("ID_ENCODING_UTF8"), GdaFrame::OnEncodingUTF8)
+    EVT_MENU(XRCID("ID_ENCODING_UTF16"), GdaFrame::OnEncodingUTF16)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1250"), GdaFrame::OnEncodingWindows1250)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1251"), GdaFrame::OnEncodingWindows1251)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1254"),GdaFrame::OnEncodingWindows1254)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1255"),GdaFrame::OnEncodingWindows1255)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1256"),GdaFrame::OnEncodingWindows1256)
+    EVT_MENU(XRCID("ID_ENCODING_WINDOWS_1258"),GdaFrame::OnEncodingWindows1258)
+    EVT_MENU(XRCID("ID_ENCODING_CP852"), GdaFrame::OnEncodingCP852)
+    EVT_MENU(XRCID("ID_ENCODING_CP866"), GdaFrame::OnEncodingCP866)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_1"), GdaFrame::OnEncodingISO8859_1)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_2"), GdaFrame::OnEncodingISO8859_2)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_3"), GdaFrame::OnEncodingISO8859_3)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_5"), GdaFrame::OnEncodingISO8859_5)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_7"), GdaFrame::OnEncodingISO8859_7)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_8"), GdaFrame::OnEncodingISO8859_8)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_9"), GdaFrame::OnEncodingISO8859_9)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_10"), GdaFrame::OnEncodingISO8859_10)
+    EVT_MENU(XRCID("ID_ENCODING_ISO_8859_15"), GdaFrame::OnEncodingISO8859_15)
+    EVT_MENU(XRCID("ID_ENCODING_GB2312"), GdaFrame::OnEncodingGB2312)
+    EVT_MENU(XRCID("ID_ENCODING_BIG5"), GdaFrame::OnEncodingBIG5)
+    EVT_MENU(XRCID("ID_ENCODING_KOI8_R"), GdaFrame::OnEncodingKOI8_R)
+    EVT_MENU(XRCID("ID_ENCODING_SHIFT_JIS"), GdaFrame::OnEncodingSHIFT_JIS)
+    EVT_MENU(XRCID("ID_ENCODING_EUC_JP"), GdaFrame::OnEncodingEUC_JP)
+    EVT_MENU(XRCID("ID_ENCODING_EUC_KR"), GdaFrame::OnEncodingEUC_KR)
+    EVT_MENU(GdaConst::ID_TIME_SYNC_VAR1, GdaFrame::OnTimeSyncVariable1)
+    EVT_MENU(GdaConst::ID_TIME_SYNC_VAR2, GdaFrame::OnTimeSyncVariable2)
+    EVT_MENU(GdaConst::ID_TIME_SYNC_VAR3, GdaFrame::OnTimeSyncVariable3)
+    EVT_MENU(GdaConst::ID_TIME_SYNC_VAR4, GdaFrame::OnTimeSyncVariable4)
+    EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, GdaFrame::OnFixedScaleVariable1)
+    EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, GdaFrame::OnFixedScaleVariable2)
+    EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR3, GdaFrame::OnFixedScaleVariable3)
+    EVT_MENU(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR4, GdaFrame::OnFixedScaleVariable4)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_1, GdaFrame::OnPlotsPerView1)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_2, GdaFrame::OnPlotsPerView2)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_3, GdaFrame::OnPlotsPerView3)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_4, GdaFrame::OnPlotsPerView4)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_5, GdaFrame::OnPlotsPerView5)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_6, GdaFrame::OnPlotsPerView6)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_7, GdaFrame::OnPlotsPerView7)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_8, GdaFrame::OnPlotsPerView8)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_9, GdaFrame::OnPlotsPerView9)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_10, GdaFrame::OnPlotsPerView10)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_OTHER, GdaFrame::OnPlotsPerViewOther)
+    EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_ALL, GdaFrame::OnPlotsPerViewAll)
+    EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
+    EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
+    EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
+END_EVENT_TABLE()

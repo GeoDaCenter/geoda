@@ -44,6 +44,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
 #include "../GeoDa.h"
+#include "Datasource.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
 
@@ -253,7 +254,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (layer_name.IsEmpty())
             layer_name = layername;
        
-        SaveRecentDataSource(datasource);
+        SaveRecentDataSource(datasource, layer_name);
         
         EndDialog(wxID_OK);
 		
@@ -379,7 +380,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         std::string json_str = json_spirit::write(ret_obj);
         OGRDataAdapter::GetInstance().AddEntry("db_info", json_str);
         
-        datasource = new DBDataSource(dbname, dbhost, dbport, dbuser, dbpwd, ds_type);
+        datasource = new DBDataSource(ds_type, dbname, dbhost, dbport, dbuser, dbpwd);
         
 	} else if ( datasource_type == 2 ) {
         // Web Service tab selected
@@ -401,7 +402,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
             && !ws_url.EndsWith("SERVICE=WFS")) {
             ws_url = "WFS:" + ws_url;
         }
-        datasource = new WebServiceDataSource(ws_url, GdaConst::ds_wfs);
+        datasource = new WebServiceDataSource(GdaConst::ds_wfs, ws_url);
         // prompt user to select a layer from WFS
         //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
         
@@ -425,22 +426,25 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         
         wxString url = "CartoDB:" + user;
         
-        datasource = new WebServiceDataSource(url, GdaConst::ds_cartodb);
+        datasource = new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }
     
     
 	return datasource;
 }
 
-void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds)
+void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds,
+                                                const wxString& layer_name)
 {
-    wxString ds_conn_str = ds->GetOGRConnectStr();
-    GdaConst::DataSourceType ds_type = ds->GetType();
-    
-    RecentDatasource recent_ds;
-    recent_ds.Add(ds_conn_str, ds_conn_str);
-    recent_ds.Save();
-    
+    LOG_MSG("Entering ConnectDatasourceDlg::SaveRecentDataSource");
+    try {
+        RecentDatasource recent_ds;
+        recent_ds.Add(ds, layer_name);
+        recent_ds.Save();
+    } catch( GdaException ex) {
+        LOG_MSG(ex.what());
+    }
+    LOG_MSG("Exiting ConnectDatasourceDlg::SaveRecentDataSource");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -469,6 +473,10 @@ RecentDatasource::~RecentDatasource()
 
 void RecentDatasource::Init(wxString json_str_)
 {
+    if (json_str_.IsEmpty())
+        return;
+    
+    // "recent_ds" : [{"ds_name":"/data/test.shp", "layer_name":"test", "ds_config":"..."}, ]
     std::string json_str(json_str_.mb_str());
     json_spirit::Value v;
     
@@ -477,19 +485,33 @@ void RecentDatasource::Init(wxString json_str_)
             throw std::runtime_error("Could not parse recent ds string");
         }
         
-        const json_spirit::Object& ds_list = v.get_obj();
+        const json_spirit::Array& ds_list = v.get_array();
        
         n_ds = ds_list.size();
         
         for (size_t i=0; i<n_ds; i++) {
-            // key: name, value: ds
-            const json_spirit::Pair & ds_item = ds_list[i];
-            wxString ds_name = ds_item.name_;
-            json_spirit::Value ds_value = ds_item.value_;
-            wxString ds_value_str = ds_value.get_str();
+            const json_spirit::Object& o = ds_list[i].get_obj();
+            wxString ds_name, ds_conf, layer_name;
             
+            for (json_spirit::Object::const_iterator i=o.begin(); i!=o.end(); ++i)
+            {
+                json_spirit::Value val;
+                if (i->name_ == "ds_name") {
+                    val = i->value_;
+                    ds_name = val.get_str();
+                }
+                else if (i->name_ == "layer_name") {
+                    val = i->value_;
+                    layer_name = val.get_str();
+                }
+                else if (i->name_ == "ds_config") {
+                    val = i->value_;
+                    ds_conf = val.get_str();
+                }
+            }
             ds_names.push_back(ds_name);
-            ds_values.push_back(ds_value_str);
+            ds_layernames.push_back(layer_name);
+            ds_confs.push_back(ds_conf);
         }
         
         
@@ -498,19 +520,23 @@ void RecentDatasource::Init(wxString json_str_)
         msg << "Get Latest DB infor: JSON parsing failed: ";
         msg << e.what();
         throw GdaException(msg.mb_str());
-        LOG_MSG(msg);
     }
 }
 
 void RecentDatasource::Save()
 {
     // update ds_json_str from ds_names & ds_values
-    json_spirit::Object ds_list_obj;
+    json_spirit::Array ds_list_obj;
    
     for (int i=0; i<n_ds; i++) {
+        json_spirit::Object ds_obj;
         std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
-        std::string ds_value( GET_ENCODED_FILENAME(ds_values[i]));
-        ds_list_obj.push_back( json_spirit::Pair(ds_name, ds_value) );
+        std::string layer_name( GET_ENCODED_FILENAME(ds_layernames[i]));
+        std::string ds_conf( ds_confs[i].mb_str() );
+        ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
+        ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
+        ds_obj.push_back( json_spirit::Pair("ds_config", ds_conf) );
+        ds_list_obj.push_back( ds_obj);
     }
 
     std::string json_str = json_spirit::write(ds_list_obj);
@@ -519,34 +545,44 @@ void RecentDatasource::Save()
     OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
 }
 
-void RecentDatasource::Add(wxString ds_name, wxString ds_val)
+void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name)
 {
+    wxString ds_name = ds->GetOGRConnectStr();
+    wxString ds_conf = ds->GetJsonStr();
+    
     // remove existed one
     std::vector<wxString>::iterator it;
     it = std::find(ds_names.begin(), ds_names.end(), ds_name);
     if (it != ds_names.end()) {
         ds_names.erase(it);
     }
-    it = std::find(ds_values.begin(), ds_values.end(), ds_val);
-    if (it != ds_values.end()) {
-        ds_values.erase(it);
+    it = std::find(ds_confs.begin(), ds_confs.end(), ds_conf);
+    if (it != ds_confs.end()) {
+        ds_confs.erase(it);
+    }
+    it = std::find(ds_layernames.begin(), ds_layernames.end(), layer_name);
+    if (it != ds_layernames.end()) {
+        ds_layernames.erase(it);
     }
     
     n_ds = ds_names.size();
     
     if (n_ds < N_MAX_ITEMS) {
         ds_names.push_back(ds_name);
-        ds_values.push_back(ds_val);
-       
+        ds_confs.push_back(ds_conf);
+        ds_layernames.push_back(layer_name);
+        
         n_ds = ds_names.size();
         
         
     } else {
         ds_names.erase(ds_names.begin());
-        ds_values.erase(ds_values.begin());
+        ds_confs.erase(ds_confs.begin());
+        ds_layernames.erase(ds_layernames.begin());
         
         ds_names.push_back(ds_name);
-        ds_values.push_back(ds_val);
+        ds_confs.push_back(ds_conf);
+        ds_layernames.push_back(layer_name);
     }
     
     Save();
@@ -560,4 +596,26 @@ void RecentDatasource::Clear()
 std::vector<wxString> RecentDatasource::GetList()
 {
     return ds_names;
+}
+
+IDataSource* RecentDatasource::GetDatasource(wxString ds_name)
+{
+    for (int i=0; i<n_ds; i++) {
+        if (ds_names[i] == ds_name) {
+            wxString ds_conf = ds_confs[i];
+            return IDataSource::CreateDataSource(ds_conf);
+        }
+    }
+    return NULL;
+}
+
+wxString RecentDatasource::GetLayerName(wxString ds_name)
+{
+    for (int i=0; i<n_ds; i++) {
+        if (ds_names[i] == ds_name) {
+            wxString ds_layername = ds_layernames[i];
+            return ds_layername;
+        }
+    }
+    return wxEmptyString;
 }

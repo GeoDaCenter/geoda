@@ -20,10 +20,15 @@
 #include <set>
 #include <boost/property_tree/ptree.hpp>
 #include <wx/filename.h>
+#include <json_spirit/json_spirit.h>
+#include <json_spirit/json_spirit_writer.h>
+#include <json_spirit/json_spirit_reader.h>
+
 #include "../logger.h"
 #include "../GdaException.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
+#include "GdaJson.h"
 #include "DataSource.h"
 
 using boost::property_tree::ptree;
@@ -161,6 +166,7 @@ wxString IDataSource::GetDataTypeNameByGdaDSType
     return GdaConst::datasrc_type_to_str[ds_type];
 }
 
+// static functions
 IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
                                            const ptree& subtree,
 										   const wxString& proj_path)
@@ -208,6 +214,94 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
 	return NULL;
 }
 
+IDataSource* IDataSource::CreateDataSource(wxString ds_json)
+{
+    // '{"ds_type":"ds_shapefile", "ds_path": "/test.shp", "db_name":"test"..}'
+    std::string ds_json_str(ds_json.mb_str());
+    
+    json_spirit::Value v;
+    
+    try {
+        if (!json_spirit::read(ds_json_str, v)) {
+            throw std::runtime_error("Could not parse recent ds string");
+        }
+        
+        json_spirit::Value json_ds_type;
+        if (GdaJson::findValue(v, json_ds_type, "ds_type")) {
+            
+            std::string ds_type_str = json_ds_type.get_str();
+            if (GdaConst::datasrc_str_to_type.find(ds_type_str) ==
+                GdaConst::datasrc_str_to_type.end()) {
+                stringstream ss;
+                ss << _("datasource.type ") << ds_type_str << _(" unknown.");
+                throw GdaException(ss.str().c_str());
+            }
+            
+            GdaConst::DataSourceType type = GdaConst::datasrc_str_to_type[ds_type_str];
+            
+            if (type == GdaConst::ds_esri_file_geodb ||
+                type == GdaConst::ds_csv ||
+                type == GdaConst::ds_dbf ||
+                type == GdaConst::ds_gml ||
+                type == GdaConst::ds_kml ||
+                type == GdaConst::ds_mapinfo ||
+                type == GdaConst::ds_shapefile ||
+                type == GdaConst::ds_esri_personal_gdb ||
+                type == GdaConst::ds_odbc ||
+                type == GdaConst::ds_sqlite ||
+                type == GdaConst::ds_gpkg ||
+                type == GdaConst::ds_xls ||
+                type == GdaConst::ds_xlsx ||
+                type == GdaConst::ds_geo_json )
+            {
+                json_spirit::Value json_ds_path;
+                if (GdaJson::findValue(v, json_ds_path, "ds_path")) {
+                    std::string ds_path_str = json_ds_path.get_str();
+                    return new FileDataSource(ds_path_str);
+                }
+                
+            } else if (type == GdaConst::ds_oci ||
+                       type == GdaConst::ds_mysql ||
+                       type == GdaConst::ds_postgresql ||
+                       type == GdaConst::ds_esri_arc_sde )
+            {
+                json_spirit::Value json_db_name, json_db_host, json_db_port;
+                json_spirit::Value json_db_user, json_db_pwd;
+                
+                if (GdaJson::findValue(v, json_db_name, "db_name") &&
+                    GdaJson::findValue(v, json_db_host, "host") &&
+                    GdaJson::findValue(v, json_db_port, "port") &&
+                    GdaJson::findValue(v, json_db_user, "user") &&
+                    GdaJson::findValue(v, json_db_pwd, "pwd"))
+                {
+                    return new DBDataSource(type, json_db_name.get_str(),
+                                            json_db_host.get_str(),
+                                            json_db_port.get_str(),
+                                            json_db_user.get_str(),
+                                            json_db_pwd.get_str());
+                }
+                
+            } else if (type == GdaConst::ds_wfs || type == GdaConst::ds_cartodb) {
+                
+                json_spirit::Value json_ds_path;
+                if (GdaJson::findValue(v, json_ds_path, "ds_path")) {
+                    std::string ds_path_str = json_ds_path.get_str();
+                    return new WebServiceDataSource(type, ds_path_str);
+                }
+                
+            }
+            return NULL;
+        }
+        
+    } catch (std::runtime_error e) {
+        wxString msg;
+        msg << "JSON parsing failed: ";
+        msg << e.what();
+        throw GdaException(msg.mb_str());
+    }
+    return NULL;
+}
+
 //------------------------------------------------------------------------------
 // FileDataSource member functions
 //------------------------------------------------------------------------------
@@ -219,15 +313,15 @@ FileDataSource::FileDataSource(const ptree& xml_tree,
     ReadPtree(xml_tree, proj_path);
 }
 
-FileDataSource::FileDataSource(wxString file_rep_path)
+FileDataSource::FileDataSource(wxString ds_path)
 {
-    file_repository_path = file_rep_path;
+    file_repository_path = ds_path;
 	wxString ds_type_name;
 
-	if ( file_rep_path.StartsWith("PGeo:") ) {
+	if ( ds_path.StartsWith("PGeo:") ) {
 		ds_type_name = "PGeo";
 	} else {
-		wxString file_ext = wxFileName(file_rep_path).GetExt();
+		wxString file_ext = wxFileName(ds_path).GetExt();
 	    ds_type_name = IDataSource::GetDataTypeNameByExt(file_ext);
 	}
 
@@ -270,6 +364,19 @@ void FileDataSource::ReadPtree(const ptree& pt,
 	}
 }
 
+wxString FileDataSource::GetJsonStr()
+{
+    std::string ds_type_str(GetDataTypeNameByGdaDSType(ds_type).mb_str());
+    std::string ds_path_str(GET_ENCODED_FILENAME(file_repository_path));
+    
+    json_spirit::Object ret_obj;
+    ret_obj.push_back(json_spirit::Pair("ds_type", ds_type_str));
+    ret_obj.push_back(json_spirit::Pair("ds_path", ds_path_str));
+    
+    std::string json_str = json_spirit::write(ret_obj);
+    return wxString(json_str);
+}
+
 void FileDataSource::WritePtree(ptree& pt,
 								const wxString& proj_path)
 {
@@ -280,6 +387,7 @@ void FileDataSource::WritePtree(ptree& pt,
         throw GdaException(e.what());
     }
 }
+
 
 wxString FileDataSource::GetOGRConnectStr()
 {
@@ -308,8 +416,8 @@ WebServiceDataSource::WebServiceDataSource(const ptree& xml_tree,
     ReadPtree(xml_tree, proj_path);
 }
 
-WebServiceDataSource::WebServiceDataSource(wxString ws_url,
-                                           GdaConst::DataSourceType _ds_type)
+WebServiceDataSource::WebServiceDataSource(GdaConst::DataSourceType _ds_type,
+                                           wxString ws_url)
 {
     webservice_url = ws_url;
     ds_type = _ds_type;
@@ -317,7 +425,7 @@ WebServiceDataSource::WebServiceDataSource(wxString ws_url,
 
 IDataSource* WebServiceDataSource::Clone()
 {
-    return new WebServiceDataSource(webservice_url, ds_type);
+    return new WebServiceDataSource(ds_type, webservice_url);
 }
 
 void WebServiceDataSource::ReadPtree(const ptree& pt,
@@ -351,6 +459,19 @@ void WebServiceDataSource::WritePtree(ptree& pt,
     }
 }
 
+wxString WebServiceDataSource::GetJsonStr()
+{
+    std::string ds_type_str(GetDataTypeNameByGdaDSType(ds_type).mb_str());
+    std::string ds_path_str(GET_ENCODED_FILENAME(webservice_url));
+    
+    json_spirit::Object ret_obj;
+    ret_obj.push_back(json_spirit::Pair("ds_type", ds_type_str));
+    ret_obj.push_back(json_spirit::Pair("ds_path", ds_path_str));
+    
+    std::string json_str = json_spirit::write(ret_obj);
+    return wxString(json_str);
+}
+
 //------------------------------------------------------------------------------
 // DBDataSource member functions
 //------------------------------------------------------------------------------
@@ -362,9 +483,10 @@ DBDataSource::DBDataSource(const ptree& xml_tree,
     ReadPtree(xml_tree, proj_path);
 }
 
-DBDataSource::DBDataSource(wxString _db_name, wxString _db_host, 
+DBDataSource::DBDataSource(GdaConst::DataSourceType _ds_type,
+                           wxString _db_name, wxString _db_host,
 						   wxString _db_port, wxString _db_user, 
-						   wxString _db_pwd, GdaConst::DataSourceType _ds_type)
+						   wxString _db_pwd )
 {
 	db_name = _db_name;
 	db_host = _db_host;
@@ -376,7 +498,7 @@ DBDataSource::DBDataSource(wxString _db_name, wxString _db_host,
 
 IDataSource* DBDataSource::Clone()
 {
-    return new DBDataSource(db_name, db_host, db_port, db_user, db_pwd, ds_type);
+    return new DBDataSource(ds_type, db_name, db_host, db_port, db_user, db_pwd);
 }
 
 wxString DBDataSource::GetOGRConnectStr()
@@ -468,4 +590,25 @@ void DBDataSource::WritePtree(ptree& pt,
     } catch (std::exception &e) {
         throw GdaException(e.what());
     }
+}
+
+wxString DBDataSource::GetJsonStr()
+{
+    std::string ds_type_str(GetDataTypeNameByGdaDSType(ds_type).mb_str());
+    std::string db_name_str(db_name.mb_str());
+    std::string host_str(db_host.mb_str());
+    std::string port_str(db_port.mb_str());
+    std::string user_str(db_user.mb_str());
+    std::string pwd_str(db_pwd.mb_str());
+    
+    json_spirit::Object ret_obj;
+    ret_obj.push_back(json_spirit::Pair("ds_type", ds_type_str));
+    ret_obj.push_back(json_spirit::Pair("db_name", db_name_str));
+    ret_obj.push_back(json_spirit::Pair("host", host_str));
+    ret_obj.push_back(json_spirit::Pair("port", port_str));
+    ret_obj.push_back(json_spirit::Pair("user", user_str));
+    ret_obj.push_back(json_spirit::Pair("pwd", pwd_str));
+    
+    std::string json_str = json_spirit::write(ret_obj);
+    return wxString(json_str);
 }
