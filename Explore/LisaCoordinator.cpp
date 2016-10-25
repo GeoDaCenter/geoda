@@ -67,9 +67,7 @@ wxThread::ExitCode LisaWorkerThread::Entry()
 	
     // if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
-	LOG_MSG(wxString::Format("LisaWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
-		LOG_MSG("worker_list is empty, so signaling main thread");
 		worker_list_empty_cond->Signal();
 	}
 	
@@ -470,17 +468,8 @@ void LisaCoordinator::CalcPseudoP()
 	// 2. Perform multi-threaded computation
 	// 3. copy results into results array
 	
-	if (nCPUs <= 1) {
-		LOG_MSG(wxString::Format("%d threading cores detected "
-								 "so running single threaded", nCPUs));
-	} else {
-		LOG_MSG(wxString::Format("%d threading cores detected, "
-								 "running multi-threaded.", nCPUs));
-	}
 	
 	for (int t=0; t<num_time_vals; t++) {
-		LOG_MSG(wxString::Format("Calculating LISA significances for time "
-								 "period %d", t));
 		
 		data1 = data1_vecs[t];
 		if (isBivariate) {
@@ -511,7 +500,6 @@ void LisaCoordinator::CalcPseudoP()
 		m << "LISA on " << num_obs << " obs with " << permutations;
 		m << " perms over " << num_time_vals << " time periods took ";
 		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
-		LOG_MSG(m);
 	}
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP");
 }
@@ -564,7 +552,6 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 		wxString msg;
 		msg << "thread " << thread_id << ": " << a << "->" << b;
 		msg << ", seed: " << seed_start << "->" << seed_end;
-		LOG_MSG(msg);
 		
 		LisaWorkerThread* thread =
 			new LisaWorkerThread(W, a, b, seed_start, this,
@@ -572,7 +559,6 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 								 &worker_list_empty_cond,
 								 &worker_list, thread_id);
 		if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-			LOG_MSG("Error: Can't create thread!");
 			delete thread;
 			is_thread_error = true;
 		} else {
@@ -580,12 +566,9 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 		}
 	}
 	if (is_thread_error) {
-		LOG_MSG("Error: Could not spawn a worker thread, falling back "
-				"to single-threaded pseudo-p calculation.");
 		// fall back to single thread calculation mode
 		CalcPseudoP_range(W, 0, num_obs-1, last_seed_used);
 	} else {
-		LOG_MSG("Starting all worker threads");
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
 			(*it)->Run();
@@ -596,9 +579,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 			worker_list_empty_cond.Wait();
 			// We have been woken up. If this was not a false
 			// alarm (sprious signal), the loop will exit.
-			LOG_MSG("work_list_empty_cond signaled");
 		}
-		LOG_MSG("All worker threads exited");
 	}
 
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP_threaded");
@@ -715,7 +696,6 @@ void LisaCoordinator::removeObserver(LisaCoordinatorObserver* o)
 	observers.remove(o);
 	LOG(observers.size());
 	if (observers.size() == 0) {
-		LOG_MSG("No more observers left so deleting self.");
 		delete this;
 	}
 	LOG_MSG("Exiting LisaCoordinator::removeObserver");

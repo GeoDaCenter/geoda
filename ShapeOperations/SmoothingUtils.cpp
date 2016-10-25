@@ -41,7 +41,7 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 										const SimpleLinearRegression& reg,
 										const wxPen& pen)
 {
-	//LOG_MSG("Entering SmoothingUtils::CalcRegressionLine");
+	LOG_MSG("Entering SmoothingUtils::CalcRegressionLine");
 	reg_line.setBrush(*wxTRANSPARENT_BRUSH); // ensure brush is transparent
 	slope = 0; //default
 	infinite_slope = false; // default
@@ -111,7 +111,7 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
     cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
                                              reg_b.x, reg_b.y);
 	reg_line.setPen(pen);
-	//LOG_MSG("Exiting SmoothingUtils::CalcRegressionLine");
+	LOG_MSG("Exiting SmoothingUtils::CalcRegressionLine");
 }
 
 /** This method will be used for adding text annotations to the displayed
@@ -121,7 +121,7 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 											   double b_x, double b_y)
 {	
-	//LOG_MSG("Entering SmoothingUtils::RegLineToDegCCFromHoriz");
+	LOG_MSG("Entering SmoothingUtils::RegLineToDegCCFromHoriz");
 	double dist = GenUtils::distance(wxRealPoint(a_x,a_y),wxRealPoint(b_x,b_y));
 	if (dist <= 4*DBL_MIN) return 0;
 	// normalize slope vector c = (c_x, c_y)
@@ -135,7 +135,7 @@ double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 	double theta = acos(x) * 57.2957796; // 180/pi = 57.2957796
 	if (y < 0) theta = 360.0 - theta;
 	
-	//LOG_MSG("Exiting SmoothingUtils::RegLineToDegCCFromHoriz");
+	LOG_MSG("Exiting SmoothingUtils::RegLineToDegCCFromHoriz");
 	return theta;
 }
 
@@ -258,8 +258,6 @@ SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
                                                 false, regressionXYexcluded,
                                                 sse_unsel);
 	}
-	LOG(wxString(regressionXYselected.ToString().c_str(), wxConvUTF8));
-	LOG(wxString(regressionXYexcluded.ToString().c_str(), wxConvUTF8));
 	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 }
 
@@ -436,9 +434,7 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 				m << "Could not extend ray " << p1 << ", " << p0;
 				success = false;
 			}
-			LOG_MSG(m);
 		} else {
-			LOG_MSG("All points nearly identical.");
 			success = false;
 		}
 		x_first = x2;
@@ -475,15 +471,12 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 				m << "Could not extend ray " << p0 << ", " << p1;
 				success = false;
 			}
-			LOG_MSG(m);
 		} else {
-			LOG_MSG("All points nearly identical.");
 			success = false;
 		}
 		x_last = x2;
 		y_last = y2;
 	}
-	LOG_MSG(wxString(success ? "success: true" : "success: false"));
 	return success;
 }
 
@@ -583,7 +576,6 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 
     
 	if (tot_hl > 0) {
-		LOG_MSG("Calculating selected LOWESS regime");
 		size_t ss_size = tot_hl;
 		std::vector<double> Y_sorted(ss_size);
 		size_t ss_cnt = 0;
@@ -608,7 +600,6 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 	}
 	
 	if (tot_uhl > 0) {
-		LOG_MSG("Calculating unselected LOWESS regime");
 		size_t ss_size = tot_uhl;
 		std::vector<double> Y_sorted(ss_size);
 		size_t ss_cnt = 0;

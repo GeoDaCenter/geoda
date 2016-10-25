@@ -66,14 +66,7 @@ TableCellAttrProvider::~TableCellAttrProvider()
 wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 									wxGridCellAttr::wxAttrKind kind ) const
 {
-	//LOG_MSG(wxString::Format("Calling TableCellAttrProvider::GetAttr"
-	//						 "(%d, %d, %d)", row, col, kind));
     wxGridCellAttr *attr = wxGridCellAttrProvider::GetAttr(row, col, kind);
-	
-	//if (row >= 0) LOG_MSG(wxString::Format("GetAttr: row=%d, "
-	//									   "col=%d selected=%d",
-	//									   row, col,
-	//									   selected[row_order[row]] ? 1 : 0));
 	
 	bool row_sel = (row >= 0 && selected[row_order[row]]);
 	bool col_sel = (selected_cols.size()>0 && col >=0 && selected_cols[col]);
@@ -452,10 +445,6 @@ wxString TableBase::GetValue(int row, int col)
 //       compute the correct row.
 void TableBase::SetValue(int row, int col, const wxString &value)
 {
-	LOG_MSG(wxString::Format("TableBase::SetValue(%d, %d, %s)",
-							 row, col,
-							 (const_cast<char*>((const char*)value.mb_str()))));
-	
 	int curr_ts = (table_int->IsColTimeVariant(col) ?
 				   time_state->GetCurrTime() : 0);
 	table_int->SetCellFromString(row_order[row], col, curr_ts, value);
@@ -521,10 +510,7 @@ void TableBase::update(TableState* o)
 	if (!GetView()) return;
 	
 	if (o->GetEventType() == TableState::cols_delta) {
-		LOG_MSG("event_type == TableState::cols_delta");
-		LOG_MSG("  processing wxGrid notify messages...");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
-			LOG_MSG(e.ToString());
 			if (e.insert) {
 				if (e.pos_at_op <= sorting_col) sorting_col++;
 				wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED,
@@ -540,10 +526,8 @@ void TableBase::update(TableState* o)
 				GetView()->ProcessTableMessage( msg );
 			}
 		}
-		LOG_MSG("  formatting wxGrid columns... ");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 			if (e.insert) {
-				LOG_MSG(e.ToString());
 				if (e.type == GdaConst::long64_type) {
 					GetView()->SetColFormatNumber(e.pos_final);
 				} else if (e.type == GdaConst::double_type) {
@@ -562,7 +546,6 @@ void TableBase::update(TableState* o)
 			} // no formatting needed for removing columns
 		}
 	} else if (o->GetEventType() == TableState::col_disp_decimals_change) {
-		LOG_MSG("event_type == TableState::col_disp_decimals_change");
 		int pos = o->GetModifiedColPos();
 		if (table_int->GetColType(pos) == GdaConst::double_type) {
 			int dd = table_int->GetColDispDecimals(pos);

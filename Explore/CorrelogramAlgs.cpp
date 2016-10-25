@@ -95,7 +95,6 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -161,13 +160,6 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 		}
 	}
 
-	/*
-		stringstream ss;
-		ss << "MakeCorrRandSamp with " << iters << " random samples" << endl;
-		ss << "  finished in " << sw.Time() << " ms.";
-		LOG_MSG(ss.str());
-	*/
-    
 	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrRandSamp");
 	return true;
 }
@@ -193,7 +185,6 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -319,7 +310,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
+			//LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -408,7 +399,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
+			//LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}

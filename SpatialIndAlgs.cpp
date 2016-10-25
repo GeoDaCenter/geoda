@@ -62,10 +62,6 @@ void SpatialIndAlgs::get_centroids(std::vector<pt_2d>& centroids,
 			}
 		}
 	}
-	stringstream ss;
-	ss << "Time to convert " << centroids.size()
-	   << " obs to centroids: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::get_centroids(std::vector<pt_lonlat>& centroids,
@@ -102,10 +98,6 @@ void SpatialIndAlgs::get_centroids(std::vector<pt_lonlat>& centroids,
 			}
 		}
 	}
-	stringstream ss;
-	ss << "Time to convert " << centroids.size()
-	   << " obs to centroids: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::to_3d_centroids(const std::vector<pt_2d>& pt2d, std::vector<pt_3d>& pt3d)
@@ -169,7 +161,6 @@ bool comp_polys(Shapefile::PolygonContents* p1, Shapefile::PolygonContents* p2,
 void SpatialIndAlgs::default_test()
 {
 	using namespace std;
-	LOG_MSG("default_test() BEGIN");
     // create the rtree using default constructor
     rtree_box_2d_t rtree;
 
@@ -215,7 +206,6 @@ void SpatialIndAlgs::default_test()
 	ss << "Spherical pt: " << bg::wkt<pt_lonlat>(sp) << std::endl;
 	
 	ss << "default_test() END";
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::print_rtree_stats(rtree_box_2d_t& rtree)
@@ -227,7 +217,6 @@ void SpatialIndAlgs::print_rtree_stats(rtree_box_2d_t& rtree)
 	ss << "  empty?: " << rtree.empty() << endl;
 	box_2d bnds = rtree.bounds();
 	ss << "  bounds: " << bg::wkt<box_2d>(bnds);
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::query_all_boxes(rtree_box_2d_t& rtree)
@@ -288,7 +277,6 @@ void SpatialIndAlgs::query_all_boxes(rtree_box_2d_t& rtree)
 	ss << "Time to iterate over every box in Rtree: "
 		 << sw.Time() << endl;
 	ss << "Total number of box intersections: " << cnt << endl;
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::knn_query(const rtree_pt_2d_t& rtree, int nn)
@@ -334,7 +322,6 @@ void SpatialIndAlgs::knn_query(const rtree_pt_2d_t& rtree, int nn)
 	ss << "Time to iterate over all " << nn << "-NN in R-tree: "
 		 << sw.Time() << endl;
 	ss << "Total number of NN found: " << cnt;
-	LOG_MSG(ss.str());
 }
 
 GwtWeight* SpatialIndAlgs::knn_build(const std::vector<double>& x, const std::vector<double>& y, int nn, bool is_arc, bool is_mi)
@@ -403,7 +390,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn)
 	ss << "Time to create " << nn << "-NN GwtWeight "
 	   << "with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
-	LOG_MSG(ss.str());
 	return Wp;
 }
 
@@ -468,7 +454,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 	ss << "Time to create 3D " << (is_arc ? " arc " : "")
 	   << nn << "-NN GwtWeight "
 	   << "with " << cnt << " total neighbors in ms : " << sw.Time();
-	LOG_MSG(ss.str());
 	return Wp;
 }
 
@@ -487,8 +472,6 @@ double SpatialIndAlgs::est_thresh_for_num_pairs(const rtree_pt_2d_t& rtree,
 	// distances will be calculated twice, the cost should be offset
 	// by the faster performance of no hash table inserts / lookups.
 	double thresh = est_thresh_for_avg_num_neigh(rtree, avg_n);
-	LOG(avg_n);
-	LOG(thresh);
 	return thresh;
 }
 
@@ -499,7 +482,6 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 	wxStopWatch sw;
 	using namespace std;
 	using namespace GenGeomAlgs;
-	LOG_MSG("Entering est_thresh_for_avg_num_neigh");
 	int max_iters = 20;
 	int iters = 0;
 	double lower = 0;
@@ -521,7 +503,6 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 			ss << "  lower: " << lower << ", lower_avg: " << lower_avg << endl;
 			ss << "  guess: " << guess << ", guess_avg: " << guess_avg << endl;
 			ss << "  upper: " << upper << ", upper_avg: " << upper_avg;
-			//LOG_MSG(ss.str());
 		}
 		if (guess_avg == avg_n) {
 			//LOG_MSG("new guess was exact!");
@@ -553,7 +534,6 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 	   << "number neighbors " << avg_n << "." << endl;
 	ss << "Calculation time to peform " << iters << " iterations: "
 	   << sw.Time() << " ms.";
-	LOG_MSG(ss.str());
 	LOG_MSG("Exiting est_thresh_for_avg_num_neigh");
 	return th;
 }
@@ -634,7 +614,6 @@ double SpatialIndAlgs::est_mean_distance(const std::vector<double>& x,
 	}
 	stringstream ss;
 	ss << "est_mean_distance finished in " << sw.Time() << " ms.";
-	LOG_MSG(ss.str());
 	return sum/smp_cnt;
 }
 
@@ -676,17 +655,13 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 			if (!Gda::is_finite(v[t]) || Gda::is_nan(v[t])) {
 				stringstream ss;
 				ss << "d(i="<<i<<",j="<<j<<"): "<<v[t];
-				LOG_MSG(ss.str());
 			}
 			
 		}
 	}
 	sort(v.begin(), v.end());
-	LOG(v.size()/2);
-    LOG(v[v.size()/2]);
 	stringstream ss;
 	ss << "est_median_distance finished in " << sw.Time() << " ms.";
-	LOG_MSG(ss.str());
 	return v[v.size()/2];
 }
 
@@ -772,7 +747,6 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
 	ss << "Time to create " << th << " threshold GwtWeight,"
 	   << endl << "  with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
-	LOG_MSG(ss.str());
 	return Wp;
 }
 
@@ -811,7 +785,6 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 	   << "threshold " << th << "." << endl;
 	ss << "Time to perform " << trials << " random trials: "
 	   << sw.Time() << " ms.";
-	LOG_MSG(ss.str());
 	return avg;
 }
 
@@ -838,7 +811,6 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, b
 		ss << "Input th (unit sphere rad): " << r << endl;
 		ss << "Input th (earth km): " << EarthRadToKm(r) << endl;
 		ss << "Input th (earth mi): " << EarthRadToMi(r);	
-		LOG_MSG(ss.str());
 	}
 	int cnt=0;
 	for (rtree_pt_3d_t::const_query_iterator it =
@@ -891,7 +863,6 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, b
 	ss << "Time to create arc " << th << " threshold GwtWeight,"
 	   << endl << "  with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
-	LOG_MSG(ss.str());
 	return Wp;
 }
 
@@ -965,7 +936,6 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_2d_t& rtree,
 	ss << "  median_d_1nn: " << median_d_1nn << endl;
 	ss << "  mean_d_1nn: " << mean_d_1nn << endl;
 	ss << "  running time in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 /** results returned in radians */
@@ -1022,7 +992,6 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_3d_t& rtree,
 	   << EarthRadToKm(mean_d_1nn) << " km, "
 	   << EarthRadToMi(mean_d_1nn) << " mi" << endl;
 	ss << "  running time in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
@@ -1062,7 +1031,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
 	ss << "Time to create " << nn << "-NN arc-distance GwtWeight "
 	   << "with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
-	LOG_MSG(ss.str());
 	return Wp;
 }
 
@@ -1107,7 +1075,6 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     }
 	stringstream ss;
 	ss << "Wrote to " << gwt_ofn << " in " << sw.Time() << " ms.";
-	LOG_MSG(ss.str());
     return true;
 }
 
@@ -1118,7 +1085,6 @@ void SpatialIndAlgs::fill_test_bb_rtree(rtree_box_2d_t& rtree,
 	stringstream ss;
 	ss << "Creating rtree of boxes in "
 	   << rows << "x" << cols << " grid" << endl;
-	LOG_MSG(ss.str());
 	
     // create some values
 	unsigned obs=0;
@@ -1163,7 +1129,6 @@ void SpatialIndAlgs::fill_box_rtree(rtree_box_2d_t& rtree,
 	stringstream ss;
 	ss << "Time to insert " << rtree.size()
 	   << " boxes into R-tree in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::fill_pt_rtree(rtree_pt_2d_t& rtree,
@@ -1179,7 +1144,6 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_2d_t& rtree,
 	stringstream ss;
 	ss << "Time to insert " << rtree.size()
 	   << " points into R-tree in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::fill_pt_rtree(rtree_pt_lonlat_t& rtree,
@@ -1195,7 +1159,6 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_lonlat_t& rtree,
 	stringstream ss;
 	ss << "Time to insert " << rtree.size()
 	   << " spherical points into R-tree in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::fill_pt_rtree(rtree_pt_3d_t& rtree,
@@ -1211,7 +1174,6 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_3d_t& rtree,
 	stringstream ss;
 	ss << "Time to insert " << rtree.size()
 	   << " points into 3d R-tree in ms: " << sw.Time();
-	LOG_MSG(ss.str());
 }
 
 std::ostream& SpatialIndAlgs::operator<< (std::ostream &out,
@@ -1270,7 +1232,6 @@ void SpatialIndAlgs::test_polar_to_3d_conversion()
 	}
 	
 	ss << "End lat/long and x/y/x unit-sphere testing.";
-	LOG_MSG(ss.str());
 }
 
 void SpatialIndAlgs::test_arc_distance()
@@ -1330,7 +1291,6 @@ void SpatialIndAlgs::test_arc_distance()
 	}
 
 	ss << "END testing arc distance calculations";
-	LOG_MSG(ss.str());
 }
 
 

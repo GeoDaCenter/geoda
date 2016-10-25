@@ -40,7 +40,6 @@ bool GdaJson::getBoolValFromObj(const json_spirit::Object& obj,
 wxString GdaJson::getStrValFromObj(const json_spirit::Object& obj,
 								   const wxString& name)
 {
-	LOG_MSG("In GdaJson::getStrValFromObj(Object, " + name + ")");
 	std::string std_name(name.ToStdString());
 	for (json_spirit::Object::const_iterator i=obj.begin(); i!=obj.end(); ++i)
 	{
@@ -57,7 +56,6 @@ wxString GdaJson::getStrValFromObj(const json_spirit::Object& obj,
 wxString GdaJson::getStrValFromObj(const json_spirit::Value& val,
 								   const wxString& name)
 {
-	LOG_MSG("In GdaJson::getStrValFromObj(Value, " + name + ")");
 	if (val.type() != json_spirit::obj_type) return "";
 	return getStrValFromObj(val.get_obj(), name);
 }

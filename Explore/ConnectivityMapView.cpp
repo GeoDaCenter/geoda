@@ -55,7 +55,6 @@ ConnectivityMapCanvas::ConnectivityMapCanvas(wxWindow *parent,
 	SetWeightsId(weights_id);
 	
 	wxString w_title = project->GetWManInt()->GetShortDispName(GetWeightsId());
-	LOG_MSG(w_title);
 	
 	cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
 	CatClassification::ChangeNumCats(1, cat_classif_def);
@@ -437,12 +436,9 @@ void ConnectivityMapCanvas::update(HLStateInt* o)
 {
 	LOG_MSG("Entering ConnectivityMapCanvas::update");
 	if (o == proj_hs) {
-		LOG_MSG("proj_hs (shared by Project)");
 	} else if (o == highlight_state) {
-		LOG_MSG("highlight_state (private)");
 		TemplateCanvas::update(o);
 	} else { // o == shared_core_hs
-		LOG_MSG("shared_core_hs");
 		UpdateFromSharedCore();
 	}
 	
@@ -572,8 +568,6 @@ void ConnectivityMapFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConnectivityMapFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((ConnectivityMapCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));

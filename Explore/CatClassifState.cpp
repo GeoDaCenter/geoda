@@ -37,7 +37,6 @@ void CatClassifState::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering CatClassifState::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting CatClassifState::closeAndDeleteWhenEmpty");

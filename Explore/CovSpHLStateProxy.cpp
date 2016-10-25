@@ -48,7 +48,6 @@ void CovSpHLStateProxy::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering CovSpHLStateProxy::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting CovSpHLStateProxy::closeAndDeleteWhenEmpty");
@@ -80,7 +79,6 @@ void CovSpHLStateProxy::removeObserver(HighlightStateObserver* o)
 	observers.remove(o);
 	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) {
-		LOG_MSG("No more observers left, so deleting self");
 		delete this;
 	}
 	LOG_MSG("Exiting CovSpHLStateProxy::removeObserver");
@@ -107,7 +105,7 @@ void CovSpHLStateProxy::notifyObservers(HighlightStateObserver* exclude)
 			 i != observers.end(); ++i)
 	{
 		if ((*i) == exclude) {
-			LOG_MSG("CovSpHLStateProxy::notifyObservers: skipping exclude");
+			//LOG_MSG("CovSpHLStateProxy::notifyObservers: skipping exclude");
 		} else {
 			(*i)->update(this);
 		}

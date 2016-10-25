@@ -61,6 +61,7 @@
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
 #include <wx/settings.h>
+#include <wx/uri.h>
 
 #include "DataViewer/DataChangeType.h"
 #include "DataViewer/DbfTable.h"
@@ -182,11 +183,9 @@ IMPLEMENT_APP(GdaApp)
 
 GdaApp::GdaApp() : checker(0), server(0)
 {
-	LOG_MSG("Entering GdaApp::GdaApp");
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
 	//wxHandleFatalExceptions();
-	LOG_MSG("Exiting GdaApp::GdaApp");
 }
 
 GdaApp::~GdaApp()
@@ -198,12 +197,12 @@ GdaApp::~GdaApp()
 
 bool GdaApp::OnInit(void)
 {
-	LOG_MSG("Entering GdaApp::OnInit");
-
 	if (!wxApp::OnInit()) return false;
 
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
+   
+    
     
 	if (!GeneralWxUtils::isMac()) {
 		// GeoDa operates in single-instance mode.  This means that for
@@ -371,8 +370,24 @@ bool GdaApp::OnInit(void)
 		wxString proj_fname(cmd_line_proj_file_name);
 		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
-	
-	LOG_MSG("Exiting GdaApp::OnInit");
+
+    // check crash
+    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
+    if (items.size() > 0) {
+        std::string no_crash = items[0];
+        if (no_crash == "false") {
+            // ask user to send crash data
+            wxString msg = _("It looks like GeoDa has been terminated abnormally. Do you want to send a crash report to GeoDa team?");
+            wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, "Send Crash Report",
+                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+            if (msgDlg.ShowModal() == wxID_YES) {
+                wxCommandEvent ev;
+                GdaFrame::GetGdaFrame()->OnReportBug(ev);
+            }
+        }
+    }
+    OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
+    
 	return true;
 }
 
@@ -402,7 +417,6 @@ const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
 
 void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
-	LOG_MSG("In GdaApp::OnInitCmdLine");
 	parser.SetDesc (GdaApp::globalCmdLineDesc);
     // must refuse '/' as parameter starter or cannot use "/path" style paths
     parser.SetSwitchChars (wxT("-"));
@@ -410,8 +424,6 @@ void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-	LOG_MSG("In GdaApp::OnCmdLineParsed");
-	
 	for (int i=0; i<parser.GetParamCount(); ++i) {
 	}
 	
@@ -419,14 +431,11 @@ bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 	if ( parser.GetParamCount() > 0) {
 		cmd_line_proj_file_name = parser.GetParam(0);
 	}
-	LOG_MSG(cmd_line_proj_file_name);
-	
 	return true;
 }
 
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
-	LOG_MSG("In GdaApp::MacOpenFiles");
 	wxString msg;
 	int sz=fileNames.GetCount();
 	msg << "Request to open " << sz << " file(s):";
@@ -442,7 +451,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 	// This method is called when no particular window is currently active.
 	// In this case, the close menu item should be disabled.
 
-	LOG_MSG("In GdaFrame::UpdateToolbarAndMenus");
 	GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE,
 								   false);
 
@@ -597,12 +605,10 @@ void GdaFrame::UpdateToolbarAndMenus()
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);
     
-    
 }
 
 void GdaFrame::SetMenusToDefault()
 {
-	LOG_MSG("Entering GdaFrame::SetMenusToDefault");
 	// This method disables all menu items that are not
 	// in one of File, Tools, Methods, or Help menus.
 	wxMenuBar* mb = GetMenuBar();
@@ -620,8 +626,6 @@ void GdaFrame::SetMenusToDefault()
 			GeneralWxUtils::EnableMenuAll(mb, menuText, false);
 		}
 	}
-
-	LOG_MSG("Entering GdaFrame::SetMenusToDefault");
 }
 
 GdaFrame* GdaFrame::gda_frame = 0;
@@ -633,8 +637,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
 : wxFrame(NULL, -1, title, pos, size, style)
 {
-	LOG_MSG("Entering GdaFrame::GdaFrame");
-		
 	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
@@ -670,8 +672,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		
     // check update in a new thread
     CallAfter(&GdaFrame::CheckUpdate);
-    
-	LOG_MSG("Exiting GdaFrame::GdaFrame");
 }
 
 GdaFrame::~GdaFrame()
@@ -936,7 +936,7 @@ void GdaFrame::OnClose(wxCloseEvent& event)
         node = node->GetNext();
     }
 	Destroy();
-
+    OGRDataAdapter::GetInstance().AddEntry("NoCrash", "true");
 	LOG_MSG("Exiting GdaFrame::OnClose");
 }
 
@@ -955,7 +955,6 @@ void GdaFrame::OnCloseProjectEvt(wxCommandEvent& event)
 
 void GdaFrame::UpdateRecentDatasourceMenu()
 {
-    LOG_MSG("Entering GdaFrame::UpdateRecentDatasourceMenu()");
     try {
         // update recent opened datasource menu
         RecentDatasource recent_ds;
@@ -993,7 +992,6 @@ void GdaFrame::UpdateRecentDatasourceMenu()
         // do nothing but write to LOG
         LOG_MSG(ex.what());
     }
-    LOG_MSG("Exiting GdaFrame::UpdateRecentDatasourceMenu()");
 }
 
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
@@ -1232,6 +1230,7 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
 
 void GdaFrame::InitWithProject()
 {
+    
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
     
@@ -4855,6 +4854,32 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 	t->OnDisplayStatusBar(event);
 }
 
+void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
+{
+    wxString toEmail = "spatial@uchicago.edu";
+    wxString subject = "Report GeoDa Bug";
+    wxString content;
+    
+    wxString logger_path;
+    if (GeneralWxUtils::isMac()) {
+        logger_path <<  GenUtils::GetBasemapCacheDir() <<  "../../../logger.txt";
+    } else {
+        logger_path <<  GenUtils::GetBasemapCacheDir() << "\\logger.txt";
+    }
+    wxTextFile tfile;
+    tfile.Open(logger_path);
+    while(!tfile.Eof())
+    {
+        content << tfile.GetNextLine() << "\n";
+    }
+   
+    wxString mail = wxString::Format("mailto:%s?subject=%s&body=[Bug Description]: please simply describe the bug\n\n[Data]: Point/Polygon? can you share your data for troubleshooting?\n\n[Details]:\n%s", toEmail, subject, content);
+    wxURI url(mail);
+    wxString encoded_url = "open " + url.BuildURI();
+    
+    wxExecute(encoded_url);
+}
+
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
 {
     wxString version =  AutoUpdate::CheckUpdate();
@@ -5175,7 +5200,6 @@ bool GdaFrame::GetHtmlMenuItems()
 
 bool GdaFrame::GetHtmlMenuItemsJson()
 {
-	LOG_MSG("Entering GdaFrame::GetHtmlMenuItemsJson");
 	using namespace json_spirit;
 	using namespace GdaJson;
 	
@@ -5245,7 +5269,6 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 		msg << "url: " << htmlMenuItems[i].url;
 	}
 	
-	LOG_MSG("Exiting GdaFrame::GetHtmlMenuItemsJson");
 	return true;
 }
 
@@ -5960,4 +5983,6 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
     EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
     EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
+    EVT_MENU(XRCID("wxID_REPORTBUG"), GdaFrame::OnReportBug)
+
 END_EVENT_TABLE()

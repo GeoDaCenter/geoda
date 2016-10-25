@@ -121,8 +121,6 @@ bool GeneralWxUtils::isLittleEndian()
 bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 								 wxMenu* newMenu)
 {
-	LOG_MSG("Entering GeneralWxUtils::ReplaceMenu");
-	LOG(title);	
 	//int menu_count = mb->GetMenuCount();
 	//LOG(menu_count);
 	//for (int i=0; i<menu_count; i++) {
@@ -132,7 +130,6 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	int m_ind = mb->FindMenu(title);
 	if (m_ind == wxNOT_FOUND) {
 		delete newMenu;
-		LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu in unexpected way!");
 		return false;
 	}
 	//wxMenu* prev_opt_menu = mb->GetMenu(m_ind);
@@ -143,7 +140,6 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	// menu label is set to empty after Replace is called.
 	//mb->SetMenuLabel(m_ind, title);
 	if (prev_opt_menu) delete prev_opt_menu;
-	LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu");
 	return true;
 }
 

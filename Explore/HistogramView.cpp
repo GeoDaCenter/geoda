@@ -892,7 +892,6 @@ void HistogramCanvas::InitIntervals()
 	}
     
 	for (int t=0; t<ts; t++) {
-		LOG_MSG(wxString::Format("t = %d", t));
 		if (scale_x_over_time) {
 			min_ival_val[t] = data_min_over_time;
 			max_ival_val[t] = data_max_over_time;

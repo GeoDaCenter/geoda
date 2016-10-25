@@ -559,8 +559,6 @@ void ConnectivityHistCanvas::InitData()
 	hinge_stats.CalculateHingeStats(data_sorted);
 	int min_connectivity = data_sorted[0].first;
 	int max_connectivity = data_sorted[num_obs-1].first;
-	LOG(min_connectivity);
-	LOG(max_connectivity);
 	int range = max_connectivity - min_connectivity;
 	if (range == 0) {
 		range = 1;
@@ -618,13 +616,6 @@ void ConnectivityHistCanvas::InitIntervals()
 		}
 	}
 	
-	LOG_MSG("InitIntervals: ");
-	LOG_MSG(wxString::Format("min_ival_val: %f", min_ival_val));
-	LOG_MSG(wxString::Format("max_ival_val: %f", max_ival_val));
-	for (int i=0; i<cur_intervals; i++) {
-		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d",
-								 i, ival_obs_cnt[i]));
-	}
 }
 
 void ConnectivityHistCanvas::UpdateIvalSelCnts()

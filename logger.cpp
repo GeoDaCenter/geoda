@@ -34,7 +34,7 @@ inline char separator()
 
 GdaLogger::GdaLogger()
 {
-#ifdef DEBUG
+//#ifdef DEBUG
     is_activated = true;
 	std::ostringstream filepathBuf;
 	if (GeneralWxUtils::isMac()) {
@@ -45,8 +45,8 @@ GdaLogger::GdaLogger()
 	
     outstream_helper_ptr = std::auto_ptr<std::ostream>( new std::ofstream (filepathBuf.str().c_str()));
     outstream = outstream_helper_ptr.get();
-#else
-    is_activated = false;
-#endif
+//#else
+//    is_activated = false;
+//#endif
     
 }

@@ -586,7 +586,6 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 				size_t n = xref.size();
 				wxString key = SmoothingUtils::LowessCacheKey(xt, yt);
 				key << "_row" << i << "_col" << j;
-				LOG_MSG("Begin populating LOWESS curve for key " + key);
 			
                 int t = var_info[IND_VAR].time;
                
@@ -598,7 +597,6 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
                                                          ref_undefs);
 				
 				if (!lce) {
-					LOG_MSG("Error: could not create or find LOWESS cache entry");
 				} else {
 					// scaling factors to transform to screen coordinates.
 					double scaleX = 100.0 / (axis_scale_x.scale_range);
@@ -608,7 +606,6 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
                                                  axis_scale_y.scale_min,
                                                  scaleX, scaleY);
 					reg_line_lowess[i][j].setPen(lowess_smth_pen);					
-					LOG_MSG("End populating LOWESS curve");
 				}
 			}
 			
@@ -803,8 +800,6 @@ ConditionalScatterPlotFrame::ConditionalScatterPlotFrame(wxFrame *parent,
 	
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
 	
 	template_canvas = new ConditionalScatterPlotCanvas(this, this, project,
 													   var_info, col_ids,
@@ -860,8 +855,6 @@ void ConditionalScatterPlotFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConditionalScatterPlotFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((ConditionalScatterPlotCanvas*)
 		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));

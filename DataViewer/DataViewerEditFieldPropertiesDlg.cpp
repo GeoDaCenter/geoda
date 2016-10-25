@@ -406,13 +406,13 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		(type != GdaConst::double_type && (col == COL_D || col == COL_DD)))
     {
 		ev.Veto();
-		LOG_MSG("illegal cell to edit.");
+		//LOG_MSG("illegal cell to edit.");
 		return;
 	}
 	
 	if (cur_str == new_str || new_str.IsEmpty()) {
 		ev.Veto();
-		LOG_MSG("empty new string or cell unchanged.");
+		//LOG_MSG("empty new string or cell unchanged.");
 		return;
 	}
 
@@ -548,7 +548,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         
 	} else if (col == COL_PG) {
 		if (new_str.IsEmpty()) {
-			LOG_MSG("empty parent group.  vetoing name change.");
+			//LOG_MSG("empty parent group.  vetoing name change.");
 			ev.Veto();
 			return;
 		}

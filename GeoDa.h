@@ -612,6 +612,7 @@ public:
 	void OnDisplayStatusBar(wxCommandEvent& event);
 	
 	void OnHelpAbout(wxCommandEvent& event);
+	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
 	void OnCheckTestMode(wxCommandEvent& event);
     

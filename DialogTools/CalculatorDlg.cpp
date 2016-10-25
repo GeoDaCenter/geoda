@@ -796,9 +796,9 @@ void CalculatorDlg::ValidateExpression()
 		msg_s_txt->SetLabelText(lexer.GetErrorMsg());
 	}
 	
-	LOG_MSG("Tokens from lexer");
+
 	for (size_t i=0, sz=tokens.size(); i<sz; ++i) {
-		LOG_MSG("token: " + tokens[i].ToStr());
+
 		if (tokens[i].token == Gda::NUMBER) {
 			expr_t_ctrl->SetStyle(tokens[i].start_ind,
 								  tokens[i].end_ind,
@@ -815,13 +815,13 @@ void CalculatorDlg::ValidateExpression()
 		msg_s_txt->SetLabelText(s);
 	}
 	
-	LOG_MSG("Tokens from parser");
+
 	eval_toks = parser.GetEvalTokens();
 	for (size_t i=0; i<eval_toks.size(); ++i) {
-		LOG_MSG("eval token: " + tokens[i].ToStr());
+
 		if (tokens[i].token == Gda::NAME && eval_toks[i].is_ident) {
 			active_ident_set.insert(eval_toks[i].string_value);
-			LOG_MSG(eval_toks[i].string_value);
+
 			expr_t_ctrl->SetStyle(eval_toks[i].start_ind,
 								  eval_toks[i].end_ind,
 								  eval_toks[i].problem_token ?

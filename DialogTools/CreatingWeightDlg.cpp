@@ -1178,7 +1178,6 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 		wxString file_name(t_ofn.GetFullName());
 		wxString msg = wxEmptyString;
 		msg = "Weights file \"" + file_name + "\" created successfully.";
-		LOG_MSG(msg);
 		wxMessageDialog dlg(NULL, msg, "Success", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		success = true;
@@ -1189,7 +1188,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 		wxString ext = t_ofn.GetExt().Lower();
 		GalWeight* w = 0;
 		if (ext != "gal" && ext != "gwt") {
-			LOG_MSG("File extention not gal or gwt");
+			//LOG_MSG("File extention not gal or gwt");
 		} else {
 			GalElement* tempGal = 0;
 			if (ext == "gal") {

@@ -256,7 +256,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
     }
     std::vector<bool> cur_sel(n);
     
-	LOG(table_int->GetColName(mcol));
+
 	double min_dval = 0;
 	m_min_text->GetValue().ToDouble(&min_dval);
 	double max_dval = 1;
@@ -595,7 +595,7 @@ boost::uuids::uuid RangeSelectionDlg::GetWeightsId()
 	wxString s;
 	s << "RangeSelectionDlg::GetWeightsId() weight: ";
 	s << w_man_int->GetShortDispName(weights_ids[sel]);
-	LOG_MSG(s);
+
 	return weights_ids[sel];
 }
 

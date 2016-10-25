@@ -1388,7 +1388,6 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	slog << "\n\n"; cnt++; cnt++;
 	logReport << slog;
 	
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
 	LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }
 
@@ -1517,7 +1516,6 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
 	LOG_MSG("Exiting RegressionDlg::printAndShowLagResults");
 }
 
@@ -1642,7 +1640,6 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
 	LOG_MSG("Exiting RegressionDlg::printAndShowErrorResults");
 }
 
@@ -1729,11 +1726,8 @@ void RegressionDlg::update(TableState* o)
 			// is safe to query the table for details about new columns
 			BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 				wxString name = e.group_name;
-				LOG(name);
 				int id = table_int->FindColId(name);
-				LOG(id);
 				bool tm_vari = table_int->IsColTimeVariant(id);
-				LOG(tm_vari);
 				if (tm_vari) {
 					for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
 						wxString nm = name;
@@ -1741,13 +1735,11 @@ void RegressionDlg::update(TableState* o)
 						name_to_nm[nm] = name;
 						name_to_tm_id[nm] = t;
 						m_varlist->Append(nm);
-						LOG_MSG("Appending: " + nm);
 					}
 				} else {
 					name_to_nm[name] = name;
 					name_to_tm_id[name] = 0;
 					m_varlist->Append(name);
-					LOG_MSG("Appending: " + name);
 				}
 			}
 		}
@@ -1757,8 +1749,6 @@ void RegressionDlg::update(TableState* o)
 		add_vars_only_event = true;
 	}
 	if (!add_vars_only_event) {
-		LOG_MSG("TableState event not just simple variable addition.  "
-				"Reset dialog");
 		// default is to reset dialog
 		//wxCommandEvent event;
 		//m_OpenDump = false;

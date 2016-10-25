@@ -563,13 +563,6 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		p_value_alpha = TScoreTo2SidedPValue(t_score_alpha, X.size()-2);
 		p_value_beta = TScoreTo2SidedPValue(t_score_beta, X.size()-2);
 		
-		LOG(std_err_of_estimate);
-		LOG(std_err_of_beta);
-		LOG(std_err_of_alpha);
-		LOG(t_score_alpha);
-		LOG(p_value_alpha);
-		LOG(t_score_beta);
-		LOG(p_value_beta);
 		valid_std_err = true;
 	}
 	
@@ -577,7 +570,6 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 	if (d > 4*DBL_MIN) {
 		correlation = covariance / d;
 		valid_correlation = true;
-		LOG(correlation);
 	}
 	LOG_MSG("Exiting SimpleLinearRegression::CalculateRegression");
 }
@@ -826,7 +818,6 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	double sum = 0.0;
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
 	const double mean = sum / (double) data.size();
-	LOG(mean);
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
 	LOG_MSG("Exiting GenUtils::DeviationFromMean");
 }
@@ -838,7 +829,6 @@ bool GenUtils::StandardizeData(int nObs, double* data)
 	double ssum = 0.0;
 	for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
 	const double sd = sqrt(ssum / (double) (nObs-1.0));
-	LOG(sd);
 	if (sd == 0) return false;
 	for (int i=0, iend=nObs; i<iend; i++) data[i] /= sd;
 	return true;
@@ -878,7 +868,6 @@ bool GenUtils::StandardizeData(std::vector<double>& data)
 	double ssum = 0.0;
 	for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
 	const double sd = sqrt(ssum / (double) (data.size()-1.0));
-	LOG(sd);
 	if (sd == 0) return false;
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] /= sd;
 	LOG_MSG("Exiting GenUtils::StandardizeData");
@@ -948,10 +937,8 @@ wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute()) return path;
 	if (path_fn.MakeAbsolute(wd.GetPath())) {
 		if (path_fn.GetExt().IsEmpty()) {
-			LOG_MSG(path_fn.GetPath());
 			return path_fn.GetPath();
 		}
-		LOG_MSG(path_fn.GetFullPath());
 		return path_fn.GetFullPath();
 	}
 	return path;
@@ -976,11 +963,7 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 {
 	LOG_MSG("Entering GenUtils::SimplifyPath(const wxFileName&, "
 			"const wxString&)");
-	LOG(wd.GetPath());
-	LOG(wd.GetFullPath());
-	LOG(wd.IsDir());
-	LOG(path);
-        wxFileName path_fn(path);
+    wxFileName path_fn(path);
 	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute() ||
 		path_fn.IsRelative()) return path;
 	wxFileName p;
@@ -998,10 +981,8 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 	}
 	if (p.MakeRelativeTo(wd.GetPath())) {
 		if (p.IsDir()) {
-			LOG_MSG(p.GetPath());
 			return p.GetPath();
 		}
-		LOG_MSG(p.GetFullPath());
 		return p.GetFullPath();
 	}
 	LOG_MSG("Exiting GenUtils::SimplifyPath");

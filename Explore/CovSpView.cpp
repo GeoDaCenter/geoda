@@ -127,10 +127,7 @@ CovSpFrame::~CovSpFrame()
 
 void CovSpFrame::OnMouseEvent(wxMouseEvent& event)
 {
-	LOG_MSG(wxString::Format("In CovSpFrame::OnMouseEvent: (%d,%d)",
-													 (int) event.GetX(), (int) event.GetY()));
 	if (event.RightDown()) {
-		LOG_MSG("Right Down");
 	}
 }
 
@@ -163,8 +160,6 @@ void CovSpFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("CovSpFrame::UpdateOptionMenuItems: Options "
-						"menu not found");
 	} else {
 		CovSpFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}

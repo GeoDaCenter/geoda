@@ -401,17 +401,10 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 
 void GdaVarTools::PrintVarInfoVector(std::vector<VarInfo>& var_info)
 {
+    /*
 	LOG_MSG("Entering GdaVarTools::PrintVarInfoVector");
 	LOG(var_info.size());
 	for (int i=0; i<var_info.size(); i++) {
-		LOG_MSG("Primary Attributes:");
-		LOG(var_info[i].name);
-		LOG(var_info[i].is_time_variant);
-		LOG(var_info[i].time);
-		for (int t=0; t<var_info[i].min.size(); t++) {
-			LOG(var_info[i].min[t]);
-			LOG(var_info[i].max[t]);
-		}
 		LOG(var_info[i].sync_with_global_time);
 		LOG(var_info[i].fixed_scale);
 		
@@ -425,4 +418,5 @@ void GdaVarTools::PrintVarInfoVector(std::vector<VarInfo>& var_info)
 		LOG_MSG("\n");
 	}
 	LOG_MSG("Exiting GdaVarTools::PrintVarInfoVector");
+     */
 }

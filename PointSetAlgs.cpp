@@ -61,7 +61,6 @@ double PointSetAlgs::EstDiameter(const std::vector<double>& x,
 	
 	wxString msg;
 	msg << "Computing the diameter for " << num << " points ";
-	LOG_MSG(msg);
 	
 	if (is_arc) {
 		// convert all long/lat points to points on unit sphere
@@ -114,7 +113,6 @@ double PointSetAlgs::EstDiameter(const std::vector<double>& x,
 		msg << "(" << pair.q[0] << ", " << pair.q[1] << ", " << pair.q[2] << ")\n";
 	}
 	msg << "Compute time in ms: " << sw.Time();
-	LOG_MSG(msg);
 	
 	free(points);
 	

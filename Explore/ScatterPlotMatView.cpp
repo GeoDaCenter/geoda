@@ -124,7 +124,6 @@ void ScatterPlotMatFrame::OnMouseEvent(wxMouseEvent& event)
 	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)",
                              (int) event.GetX(), (int) event.GetY()));
 	if (event.RightDown()) {
-		LOG_MSG("Right Down");
 	}
 }
 
@@ -156,7 +155,6 @@ void ScatterPlotMatFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("ScatterPlotMatFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		ScatterPlotMatFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -444,7 +442,6 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
-		LOG(detatch_success);
 		message_win->Destroy();
 		message_win = 0;
 	}
@@ -643,7 +640,6 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 		}
 	}
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
-	LOG(bag_szr->GetItemCount());
 	top_h_sizer->RecalcSizes();
 	//Refresh();
 	LOG_MSG("Exiting ScatterPlotMatFrame::SetupPanelForNumVariables");
@@ -716,11 +712,9 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end()) continue;
 		to_remove.insert(nm);
-		LOG_MSG("  " + nm);
 	}
 	
 	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
-		LOG_MSG("Being removed from data_map: " + (*i));
 		data_map.erase(*i);
 	}
 	
@@ -730,7 +724,6 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 		wxString nm(*i);
 		if (data_map.find(nm) != data_map.end()) continue;
 		to_add.insert(nm);
-		LOG_MSG("Must add to data_map: " + nm);
 	}
 	
 	TableInterface* table_int = project->GetTableInt();
@@ -738,7 +731,6 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 		wxString nm = (*i);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
-			LOG_MSG("Error, variable not found in table: " + nm);
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);

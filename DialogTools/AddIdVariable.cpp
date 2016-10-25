@@ -99,8 +99,6 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	}
 	
 	
-	LOG_MSG("Adding new id field to Table in memory.");
-    
     int col_insert_pos = 0;
 	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {

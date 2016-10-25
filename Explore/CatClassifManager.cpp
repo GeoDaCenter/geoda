@@ -89,9 +89,6 @@ bool CatClassifManager::VerifyAgainstTable()
 			any_changed = true;
 		}
 	}
-	if (any_changed) {
-		LOG_MSG("some custom categories from project file were corrected.");
-	}
 	return any_changed;
 }
 

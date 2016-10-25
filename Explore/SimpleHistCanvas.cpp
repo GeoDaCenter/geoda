@@ -356,9 +356,6 @@ void SimpleHistCanvas::InitIntervals()
 		overall_max_num_obs_in_ival = max_num_obs_in_ival;
 	}
 
-	for (int i=0; i<cur_intervals; i++) {
-		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d", i, ival_obs_cnt[i]));
-	}
 }
 
 void SimpleHistCanvas::UpdateIvalSelCnts()

@@ -1370,11 +1370,6 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	
 	bool changed = false;
 	if (cc != _cc) {
-		//LOG_MSG("Categories definition modified");
-		//LOG_MSG("\nOriginal:");
-		//LOG_MSG(_cc.ToStr());
-		//LOG_MSG("\nModified:");
-		//LOG_MSG(cc.ToStr());
 		_cc = cc;
 		changed = true;
 	}

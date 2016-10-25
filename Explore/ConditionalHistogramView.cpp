@@ -458,7 +458,6 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 		axis_scale_x.scale_min = axis_scale_x.data_min;
 		axis_scale_x.scale_max = axis_scale_x.data_max;
 		double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
-		LOG(axis_scale_x.data_max);
 		axis_scale_x.scale_range = range;
 		axis_scale_x.p = floor(log10(range));
 		axis_scale_x.ticks = cur_intervals+1;
@@ -979,8 +978,6 @@ ConditionalHistogramFrame::ConditionalHistogramFrame(wxFrame *parent,
 	
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
 	
 	template_canvas = new ConditionalHistogramCanvas(this, this, project,
 													   var_info, col_ids,
@@ -1032,8 +1029,6 @@ void ConditionalHistogramFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConditionalHistogramFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((ConditionalHistogramCanvas*)
 		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));

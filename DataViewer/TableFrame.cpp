@@ -349,9 +349,6 @@ void TableFrame::OnRightClickEvent( wxGridEvent& ev )
 void TableFrame::OnColSizeEvent( wxGridSizeEvent& ev )
 {
 	LOG_MSG("Entering TableFrame::OnColSizeEvent");
-	LOG(ev.GetRowOrCol());
-	LOG(ev.GetPosition().x);
-	LOG(ev.GetPosition().y);
 	ev.Veto();
 	LOG_MSG("Exiting TableFrame::OnColSizeEvent");
 }
@@ -359,9 +356,6 @@ void TableFrame::OnColSizeEvent( wxGridSizeEvent& ev )
 void TableFrame::OnColMoveEvent( wxGridEvent& ev )
 {
 	LOG_MSG("Entering TableFrame::OnColMoveEvent");
-	LOG(ev.GetCol());
-	LOG(ev.GetPosition().x);
-	LOG(ev.GetPosition().y);	
 	table_base->notifyColMove();
 	LOG_MSG("Exiting TableFrame::OnColMoveEvent");
 }
@@ -391,10 +385,6 @@ void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 {
 	using namespace std;
 	LOG_MSG("Entering TableFrame::OnLabelLeftClickEvent");
-	LOG(ev.GetCol());
-	LOG(ev.GetRow());
-	LOG(ev.ShiftDown());
-	LOG(ev.CmdDown());
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	TableInterface* table_int = project->GetTableInt();

@@ -517,7 +517,6 @@ void ConditionalMapCanvas::OnSize(wxSizeEvent& event)
 		double new_h = (cs_h-(virtual_screen_marg_top +
 							  virtual_screen_marg_bottom));
 		double new_ar = (double) new_w / (double) new_h;
-		//LOG(new_w);
 		//LOG(new_h);
 		//LOG(new_ar);
 		//LOG(fixed_aspect_ratio_mode);
@@ -564,7 +563,6 @@ void ConditionalMapCanvas::OnSize(wxSizeEvent& event)
 			scrollbarmode = vert_only;
 		}
 		if (shps_n_margs_w > cs_w && shps_n_margs_h <= cs_h) {
-			LOG_MSG("Horizontal Scroll Bars Only");
 			resizeLayerBms(shps_n_margs_w, cs_h);
 			ResizeSelectableShps(shps_n_margs_w, cs_h);
 			SetVirtualSize(shps_n_margs_w, cs_h);
@@ -575,11 +573,9 @@ void ConditionalMapCanvas::OnSize(wxSizeEvent& event)
 #endif
 		}
 		if (shps_n_margs_w > cs_w && shps_n_margs_h > cs_h) {
-			LOG_MSG("Vertical and Horizontal Scroll Bars");
 			resizeLayerBms(shps_n_margs_w, shps_n_margs_h);
 			SetVirtualSize(shps_n_margs_w, shps_n_margs_h);
 			if (scrollbarmode != horiz_and_vert) {
-				LOG_MSG("One-time shps resize");
 				ResizeSelectableShps(shps_n_margs_w, shps_n_margs_h);
 			}
 			scrollbarmode = horiz_and_vert;
@@ -599,9 +595,6 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 	int wheel_delta = GenUtils::max<int>(event.GetLinesPerAction(), 1);
 	int wheel_lines_per_action =GenUtils::max<int>(event.GetLinesPerAction(),1);
 	if (abs(wheel_rotation) >= wheel_delta) {
-		LOG(wheel_rotation);
-		LOG(wheel_delta);
-		LOG(wheel_lines_per_action);
 	}
 	
 	if (mousemode == select) {
@@ -686,7 +679,6 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 				Refresh();
 			}
 		} else { // unknown state
-			LOG_MSG("TemplateCanvas::OnMouseEvent: ERROR, unknown SelectState");
 		}
 		
 	} else if (mousemode == zoom) {
@@ -700,7 +692,6 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 			wxSize v_size(GetVirtualSize()); 
 			bool zoom_changed = false;
 			if (!event.CmdDown()) {  // zoom in
-				LOG_MSG("Entering TemplateCanvas::OnMouseEvent zoom in");				
 				if ( (int) (current_shps_width * current_shps_height * 4) <=
 					GdaConst::shps_max_area &&
 					(int) (current_shps_width*2)<=GdaConst::shps_max_width &&
@@ -719,7 +710,6 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 					zoom_changed = true;
 				}
 			} else {                 // zoom out
-				LOG_MSG("Entering TemplateCanvas::OnMouseEvent zoom out");				
 				if ( (int)(current_shps_width/2)>=GdaConst::shps_min_width 
 					&&(int)(current_shps_height/2)>=GdaConst::shps_min_height) {
 					current_shps_width /= 2;
@@ -730,14 +720,11 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 						virtual_screen_marg_top + virtual_screen_marg_bottom;
 					int new_vs_w = GenUtils::max<int>(new_w, client_screen_w);
 					int new_vs_h = GenUtils::max<int>(new_h, client_screen_h);
-					LOG(new_vs_w);
-					LOG(new_vs_h);
 					SetVirtualSize(new_vs_w, new_vs_h);
 					zoom_changed = true;
 				}
 			}
 			if (zoom_changed) {
-				//LOG_MSG(GetCanvasStateString());
 				int margs_vert = virtual_screen_marg_top + virtual_screen_marg_bottom;
 				int margs_horiz = virtual_screen_marg_left + virtual_screen_marg_right;
 				int shps_n_margs_w = current_shps_width + margs_horiz;
@@ -746,7 +733,6 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 				ResizeSelectableShps();
 				Refresh();
 			}
-			LOG_MSG("Exiting TemplateCanvas::OnMouseEvent zoom");
 		} else if (event.RightDown()) {
 			DisplayRightClickMenu(event.GetPosition());
 		}
@@ -878,7 +864,6 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 {
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
-	LOG_MSG("Entering ConditionalMapCanvas::ResizeSelectableShps");
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 	if (vs_w <= 0 && vs_h <= 0) GetVirtualSize(&vs_w, &vs_h);
 	
@@ -1020,7 +1005,6 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		wxString s;
 		s << "ResizeSelectableShps: " << proj_to_pnt_cnt << "/" << num_obs;
 		s << ", " << perc << "% project to single point";
-		LOG_MSG(s);
 	}
 	
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
@@ -1123,14 +1107,12 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	for (int i=0; i<vert_num_cats; i++) delete [] st[i];
 	delete [] st;
 	
-	LOG_MSG("Exiting ConditionalMapCanvas::ResizeSelectableShps");
 }
 
 // Draw all solid background, background decorations and unhighlighted
 // shapes.
 void ConditionalMapCanvas::DrawLayer0()
 {
-	LOG_MSG("In ConditionalMapCanvas::DrawLayer0");
 	wxSize sz = GetVirtualSize();
 	if (!layer0_bm) resizeLayerBms(sz.GetWidth(), sz.GetHeight());
 	wxMemoryDC dc(*layer0_bm);
@@ -1182,7 +1164,6 @@ void ConditionalMapCanvas::DrawLayer0()
  already. */
 void ConditionalMapCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering ConditionalMapCanvas::PopulateCanvas");
 	
 	int canvas_ts = cat_data.GetCurrentCanvasTmStep();
 	if (!map_valid[canvas_ts]) full_map_redraw_needed = true;
@@ -1218,12 +1199,10 @@ void ConditionalMapCanvas::PopulateCanvas()
 	
 	ResizeSelectableShps();
 	
-	LOG_MSG("Exiting ConditionalMapCanvas::PopulateCanvas");
 }
 
 void ConditionalMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering ConditionalMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -1259,7 +1238,6 @@ void ConditionalMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting ConditionalMapCanvas::TimeChange");
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index.
@@ -1338,7 +1316,6 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 
 void ConditionalMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In ConditionalMapCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	

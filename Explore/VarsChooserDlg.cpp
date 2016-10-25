@@ -209,7 +209,6 @@ void VarsChooserFrame::OnUpBtn(wxCommandEvent& ev)
 	include_list->SetString(sel-1, b);
 	include_list->SetString(sel, a);
 	include_list->SetSelection(sel-1);
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }
@@ -227,7 +226,6 @@ void VarsChooserFrame::OnDownBtn(wxCommandEvent& ev)
 	include_list->SetString(sel, b);
 	include_list->SetString(sel+1, a);
 	include_list->SetSelection(sel+1);
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }
@@ -281,7 +279,6 @@ void VarsChooserFrame::UpdateLists()
 	}
 	if (vars_list->GetCount() > 0) vars_list->SetFirstItem(0);
 	
-	LOG_MSG(PrintState());
 }
 
 void VarsChooserFrame::IncludeFromVarsListSel(int sel)
@@ -289,9 +286,7 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	if (!vars_list || !include_list || vars_list->GetCount() == 0) return;
 	if (sel == wxNOT_FOUND) return;
 	wxString name = vars_list->GetString(sel);
-	LOG(name);
 	int time = project->GetTimeState()->GetCurrTime();
-	LOG(time);
 	TableInterface* table_int = project->GetTableInt();
 	int col_id = table_int->FindColId(name);
 	if (col_id < 0 ) return;
@@ -301,7 +296,6 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	var_man.AppendVar(name, min_vals, max_vals, time);
 	include_list->Append(name);
 	vars_list->Delete(sel);
-	LOG_MSG(PrintState());
 	if (vars_list->GetCount() > 0) {
 		if (sel < vars_list->GetCount()) {
 			vars_list->SetSelection(sel);
@@ -317,8 +311,6 @@ void VarsChooserFrame::RemoveFromIncludeListSel(int sel)
 {
 	if (!vars_list || !include_list || include_list->GetCount() == 0) return;
 	if (sel == wxNOT_FOUND) return;
-	LOG(sel);
-	LOG(var_man.GetName(sel));
 	var_man.RemoveVar(sel);
 	include_list->Delete(sel);
 	
@@ -339,7 +331,6 @@ void VarsChooserFrame::RemoveFromIncludeListSel(int sel)
 		}
 	}
 	
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }

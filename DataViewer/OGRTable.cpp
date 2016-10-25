@@ -1091,7 +1091,6 @@ wxString OGRTable::GetCellString(int row, int col, int time)
 	// mapping col+time to underneath OGR col
     OGRColumn* ogr_col = FindOGRColumn(col, time);
 	if (ogr_col == NULL) {
-		LOG_MSG(wxString::Format("In OGRTable::GetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return "";
 	}
     return ogr_col->GetValueAt(row, disp_dec, m_wx_encoding);
@@ -1112,7 +1111,6 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	
 	int t_col = FindOGRColId(col, time);
 	if (t_col == -1) {
-		LOG_MSG(wxString::Format("In OGRTable::SetCellFromString, error: wxGrid col %d, time %d not found.", col, time));
 		return false;
 	} else {
 		if (table_state->GetNumDisallowGroupModify(GetColName(col)) > 0) {
@@ -1155,8 +1153,6 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     if (pos < 0) {
         pos = GetNumberCols();
     }
-    
-	LOG_MSG(wxString::Format("Inserting column into table at postion %d",pos));
     
     if (type != GdaConst::double_type) {
         decimals = 0;
@@ -1322,8 +1318,6 @@ void OGRTable::UngroupCol(int col)
 		i->displayed_decimals = displayed_decimals;
 		i->length = fi.field_len;
 	}
-	LOG_MSG("Table delta entries:");
-	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
 	SetProjectChangedSinceLastSave(true);
     
@@ -1378,8 +1372,6 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 	i->displayed_decimals = displayed_decimals;
 	i->length = length;
 	i->type = type;
-	LOG_MSG("Table delta entries:");
-	BOOST_FOREACH(const TableDeltaEntry& tde, tdl) LOG_MSG(tde.ToString());
 	
 	SetProjectChangedSinceLastSave(true);
     

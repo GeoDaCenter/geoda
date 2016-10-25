@@ -71,9 +71,7 @@ wxThread::ExitCode DorlingCartWorkerThread::Entry()
 	worker_list->remove(this);
 	// if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
-	LOG_MSG(wxString::Format("DorlingCartWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
-		LOG_MSG("worker_list is empty, so signaling main thread");
 		worker_list_empty_cond->Signal();
 	}
 	

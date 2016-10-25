@@ -39,7 +39,6 @@ void HighlightState::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering HighlightState::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting HighlightState::closeAndDeleteWhenEmpty");
@@ -74,9 +73,7 @@ void HighlightState::removeObserver(HighlightStateObserver* o)
 {
 	LOG_MSG("Entering HighlightState::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) {
-		LOG_MSG("No more observers left, so deleting self");
 		delete this;
 	}
 	LOG_MSG("Exiting HighlightState::removeObserver");
@@ -100,7 +97,6 @@ void HighlightState::notifyObservers(HighlightStateObserver* exclude)
 		 i != observers.end(); ++i)
 	{
 		if ((*i) == exclude) {
-			LOG_MSG("HighlightState::notifyObservers: skipping exclude");
 		} else {
 			(*i)->update(this);
 		}

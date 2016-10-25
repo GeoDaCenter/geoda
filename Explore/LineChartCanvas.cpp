@@ -101,7 +101,6 @@ void LineChartCanvas::OnDblClick(wxMouseEvent& event)
             std::list<FramesManagerObserver*>::iterator it;
             for (it=observers.begin(); it != observers.end(); ++it) {
                 if (TimeChooserDlg* w = dynamic_cast<TimeChooserDlg*>(*it)) {
-                    LOG_MSG("TimeChooserDlg already opened.");
                     w->Show(true);
                     w->Maximize(false);
                     w->Raise();
@@ -110,7 +109,6 @@ void LineChartCanvas::OnDblClick(wxMouseEvent& event)
                 }
             }
             if (!opened) {
-                LOG_MSG("Opening a new TimeChooserDlg");
                 TimeChooserDlg* dlg = new TimeChooserDlg(0, project->GetFramesManager(),
                                                          project->GetTimeState(),
                                                          project->GetTableState(),
@@ -123,7 +121,6 @@ void LineChartCanvas::OnDblClick(wxMouseEvent& event)
             for (it=observers.begin(); it != observers.end(); ++it) {
                 if (VarGroupingEditorDlg* w = dynamic_cast<VarGroupingEditorDlg*>(*it))
                 {
-                    LOG_MSG("VarGroupingEditorDlg already opened.");
                     w->Show(true);
                     w->Maximize(false);
                     w->Raise();
@@ -133,7 +130,6 @@ void LineChartCanvas::OnDblClick(wxMouseEvent& event)
                 }
             }
             if (!opened) {
-                LOG_MSG("Opening a new VarGroupingEditorDlg");
                 VarGroupingEditorDlg* dlg = new VarGroupingEditorDlg(project, this);
                 dlg->Show(true);
                 int start_x = pt.x - 200;

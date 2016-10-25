@@ -89,7 +89,6 @@ void WeightsNewManager::Init(const std::list<WeightsPtreeEntry>& entries)
 		boost::uuids::uuid u = boost::uuids::random_generator()();
 		entry_map[u] = e;
 		uuid_order.push_back(u);
-		LOG_MSG(entry_map[u].wpte.wmi.ToStr());
 	}
 }
 
@@ -356,7 +355,6 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	wxFileName t_fn(e.wpte.wmi.filename);
 	wxString ext = t_fn.GetExt().Lower();
 	if (ext != "gal" && ext != "gwt") {
-		LOG_MSG("File extention not gal or gwt");
 		return 0;
 	}
 	GalElement* gal=0;
@@ -387,7 +385,6 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
     wxFileName t_fn(tmpName);
     wxString ext = t_fn.GetExt().Lower();
     if (ext != "gal" && ext != "gwt") {
-        LOG_MSG("File extention not gal or gwt");
         return 0;
     }
     
@@ -635,10 +632,6 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 			}
 			if (!found) {
 				p_dlg->ValueUpdate(1);
-				LOG_MSG(wxString::Format("Non-symmetric GWT file.  Observation "
-										 "%d is a neighbor of %d, but %d is not"
-										 " a neighbor of %d", data_i[j].nbx, i,
-										 i, data_i[j].nbx));
 				return false;
 			}
 		}
@@ -669,7 +662,6 @@ void GdaWeightsTools::DumpGal(GalWeight* w)
 		for (int j=0, jend=elm_i.Size(); j<jend; j++) {
 			msg << " " << elm_i[j];
 		}
-		LOG_MSG(msg);
 	}
 	LOG_MSG("Exiting GdaWeightsTools::DumpGal");
 }
@@ -686,7 +678,6 @@ void GdaWeightsTools::DumpGwt(GwtWeight* w)
 		for (int j=0, jend=gwt[i].Size(); j<jend; j++) {
 			msg << " (" << data_i[j].nbx << ", " << data_i[j].weight << ")";
 		}
-		LOG_MSG(msg);
 	}
 	LOG_MSG("Exiting GdaWeightsTools::DumpGwt");	
 }

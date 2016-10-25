@@ -184,7 +184,6 @@ void TemplateFrame::OnPrintCanvasState(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnPrintCanvasState");
 	if (template_canvas) {
-		LOG_MSG(template_canvas->GetCanvasStateString());
 	}
 }
 
@@ -331,7 +330,6 @@ void TemplateFrame::DisplayStatusBar(bool show)
 		}
 		SendSizeEvent();
 	}
-	LOG(is_status_bar_visible);
 	LOG_MSG("Exiting TemplateFrame::DisplayStatusBar");
 }
 
@@ -382,7 +380,6 @@ void TemplateFrame::DeregisterAsActive()
 	if (activeFrame == this) {
 		activeFrame = NULL;
 		activeFrName = wxEmptyString;
-		LOG_MSG("reset toolbar to default.");
 		// restore to a default state.
 		GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
 	}
@@ -412,7 +409,6 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
 		TimeState* time_state = project->GetTimeState();
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
-		LOG(del);
 		time_state->SetCurrTime(time_state->GetCurrTime() + del);
 		if (time_state->GetCurrTime() < 0) {
 			time_state->SetCurrTime(time_state->GetTimeSteps()-1);

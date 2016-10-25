@@ -217,7 +217,6 @@ void LowessParamFrame::UpdateParamsFromFields()
 			temp_l.SetF(v);
 		f = temp_l.GetF();
 		wxString sf = wxString::Format("%.2f", GetF());
-		LOG_MSG("Formated f: " + sf);
 		f_text->ChangeValue(sf);
 	}
 	{
@@ -227,7 +226,6 @@ void LowessParamFrame::UpdateParamsFromFields()
 			temp_l.SetIter((long) v);
 		iter = temp_l.GetIter();
 		wxString sf = wxString::Format("%d", GetIter());
-		LOG_MSG("Formated iter: " + sf);
 		iter_text->ChangeValue(sf);
 	}
 	{
@@ -237,7 +235,6 @@ void LowessParamFrame::UpdateParamsFromFields()
 			temp_l.SetDeltaFactor(v);
 		delta_factor = temp_l.GetDeltaFactor();
 		wxString sf = wxString::Format("%.4f", GetDeltaFactor());
-		LOG_MSG("Formated delta_factor: " + sf);
 		delta_factor_text->ChangeValue(sf);
 	}
 	LOG_MSG("Exiting LowessParamFrame::UpdateParamsFromFields");

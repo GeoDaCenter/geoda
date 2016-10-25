@@ -885,8 +885,6 @@ void ConditionalNewFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConditionalNewFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((ConditionalNewCanvas*)
 		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));

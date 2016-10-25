@@ -67,9 +67,7 @@ void TableState::removeObserver(TableStateObserver* o)
 {
 	LOG_MSG("Entering TableState::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) {
-		LOG_MSG("No more observers left, so deleting self");
 		delete this;
 	}
 	LOG_MSG("Exiting TableState::removeObserver");
@@ -156,8 +154,6 @@ int TableState::GetNumDisallowTimelineChanges()
 		 it != observers.end(); ++it) {
 		if ( !(*it)->AllowTimelineChanges() ) ++n;
 	}
-	LOG_MSG(wxString::Format("%d of %d TableStateObservers disallow "
-							 "timeline changes.", n, (int) observers.size()));
 	return n;
 }
 
@@ -189,7 +185,6 @@ int TableState::GetNumDisallowGroupModify(const wxString& grp_nm)
 	wxString msg;
 	msg << n << " of " << observers.size() << " TableStateObservers ";
 	msg << "disallow changes to group: " << grp_nm;
-	LOG_MSG(msg);
 	return n;
 }
 
@@ -221,7 +216,6 @@ int TableState::GetNumDisallowObservationAddDelete()
 	wxString msg;
 	msg << n << " of " << observers.size() << " TableStateObservers ";
 	msg << "disallow observation add/delete";
-	LOG_MSG(msg);
 	return n;
 }
 

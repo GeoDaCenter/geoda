@@ -744,7 +744,6 @@ void LineChartFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("LineChartFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		LineChartFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -1747,11 +1746,9 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 {
 	LOG_MSG("Entering LineChartFrame::SetupPanelForNumVariables");
 	if (!panel || !bag_szr) return;
-	LOG(num_vars);
 	if (message_win) {
 		message_win->Unbind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
-		LOG(detatch_success);
 		message_win->Destroy();
 		message_win = 0;
 	}
@@ -1937,7 +1934,6 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 	
 	// remove items from data_map not in vm_nms
 	set<wxString> to_remove;
-	LOG_MSG("to_remove from data_map:");
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end())
@@ -1958,7 +1954,6 @@ void LineChartFrame::UpdateDataMapFromVarMan()
             continue;
         }
 		to_add.insert(nm);
-		//LOG_MSG("Must add to data_map: " + nm);
 	}
 	
 	TableInterface* table_int = project->GetTableInt();
@@ -1968,7 +1963,6 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 		wxString nm = (*i);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
-			//LOG_MSG("Error, variable not found in table: " + nm);
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
@@ -1976,7 +1970,6 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 		data_map.insert(p);
 		data_map_type::iterator e = data_map.find(nm);
 		if (e == data_map.end()) {
-			//LOG_MSG("Could not find element just inserted! " + nm);
 			continue;
 		}
         std::vector<bool> undef_all(num_obs, false);
@@ -2065,7 +2058,6 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	} else {
 		td_s0_mean << "<td></td>";
 	}
-	LOG(td_s0_mean);
 	
 	wxString td_s1_mean;
 	if (!single_sample) {
@@ -2084,7 +2076,6 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 			td_s1_mean << "</td>";
 		}
 	}
-	LOG(td_s1_mean);
 	
 	wxString td_s2_mean;
 	if (!single_sample && cmp_r_t) {
@@ -2403,6 +2394,5 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& _yName, double
     slog << "\n\n"; cnt++; cnt++;
     logReport << slog;
     
-    LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
     LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }

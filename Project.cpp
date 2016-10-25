@@ -247,30 +247,23 @@ GdaConst::DataSourceType Project::GetDatasourceType()
 
 wxString Project::GetProjectFullPath()
 {
-	LOG_MSG("In Project::GetProjectFullPath");
 	wxString fp;
 	if (!GetWorkingDir().GetPath().IsEmpty() && !proj_file_no_ext.IsEmpty()) {
 		fp << GetWorkingDir().GetPathWithSep();
 		fp << proj_file_no_ext << ".gda";
 	}
-	LOG(fp);
 	return fp;
 }
 
 void Project::SetProjectFullPath(const wxString& proj_full_path)
 {
-	LOG_MSG("Entering Project::SetProjectFullPath");
-	LOG(proj_full_path);
 	wxFileName temp(proj_full_path);
 	SetWorkingDir(proj_full_path);
 	proj_file_no_ext = temp.GetName();
-	LOG_MSG("Exiting Project::SetProjectFullPath");
 }
 
 bool Project::SetWorkingDir(const wxString& path)
 {
-	LOG_MSG("Entering Project::SetWorkingDir");
-	LOG(path);
 	wxFileName dir;
 	if (wxDirExists(path)) {
 		dir.AssignDir(path);
@@ -281,20 +274,16 @@ bool Project::SetWorkingDir(const wxString& path)
 		dir.AssignDir(t);
 	}
 	if (!dir.IsOk()) {
-		//LOG_MSG("dir is invalid directory name");
 		return false;
 	}
 	if (!dir.IsDir()) {
-		//LOG_MSG("dir is not a directory");
 		return false;
 	}
 	if (!dir.DirExists()) {
-		//LOG_MSG("directory " + dir.GetPath() + " does not exist");
 		return false;
 	}
 	working_dir.Clear();
 	working_dir = dir;
-	LOG_MSG("Exiting Project::SetWorkingDir");
 	return true;
 }
 
@@ -1416,7 +1405,8 @@ bool Project::InitFromOgrLayer()
 {
 	LOG_MSG("Entering Project::InitFromOgrLayer");
 	wxString datasource_name = datasource->GetOGRConnectStr();
-    //LOG_MSG("Datasource name:" + datasource_name);
+    LOG_MSG("Datasource name:" + datasource_name);
+    
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
 	// OK. ReadLayer() is running in a seperate thread.

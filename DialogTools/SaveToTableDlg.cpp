@@ -172,7 +172,6 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-	LOG_MSG(wxString::Format("Add Variable button# pressed: %d", obj_id));
 	
 	// remember existing col choices before adding a new column.
 	std::vector<wxString> prev_col_nm(data.size());
@@ -180,8 +179,7 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		prev_col_nm[i] = m_field[i]->GetStringSelection();
 	}
 	
-	LOG(data[obj_id].field_default);
-	LOG(data[obj_id].type);
+
     // Multiple time periods seems complex to user, we don't set "multiple time periods" by default, even there is time defined.
 	DataViewerAddColDlg dlg(project, this, true, true,
 							data[obj_id].field_default,

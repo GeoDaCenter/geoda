@@ -161,8 +161,6 @@ void CorrelogramFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("CorrelogramFrame::UpdateOptionMenuItems: Options "
-						"menu not found");
 	} else {
 		CorrelogramFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -698,7 +696,6 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 		if (vm_nms.find(nm) != vm_nms.end())
             continue;
 		to_remove.insert(nm);
-		LOG_MSG("  " + nm);
 	}
 	
 	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
@@ -720,7 +717,7 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 		wxString nm = (*i);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
-			LOG_MSG("Error, variable not found in table: " + nm);
+			//LOG_MSG("Error, variable not found in table: " + nm);
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);

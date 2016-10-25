@@ -236,7 +236,6 @@ void VarOrderMapper::InsertVarGroup(const VarGroup& e, int pos)
 	LOG_MSG("Inside VarOrderMapper::InsertVarGroup");
 	wxString msg;
 	msg << "  inserting " << e.name << " at position " << pos;
-	LOG_MSG(msg);
 	if (pos < 0) pos = 0;
 	if (pos > var_grps.size()) pos = var_grps.size();
 	VarGroup_container::iterator i = FindVarGroupIt(pos);
@@ -251,7 +250,6 @@ void VarOrderMapper::RemoveVarGroup(int pos)
 	VarGroup_container::iterator i = FindVarGroupIt(pos);
 	wxString msg;
 	msg << "  removing " << i->name << " at position " << pos;
-	LOG_MSG(msg);
 	var_grps.erase(i);
 }
 
@@ -371,7 +369,6 @@ void VarOrderMapper::RemoveTime(int time, TableDeltaList_type& tdl)
 			wxString msg;
 			msg << "  All placeholders group found: removing " << i->name;
 			msg << " at position " << pos;
-			LOG_MSG(msg);
 			var_grps.erase(i);
 		}
 	}

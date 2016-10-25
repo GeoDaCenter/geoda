@@ -291,7 +291,6 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         return;
     }
     
-    LOG_MSG("Ready to copy field data");
     LOG(from_name);
     LOG(from_time);
     LOG(from_col);
@@ -460,7 +459,6 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 		return;
 	}
 	
-	LOG_MSG("Ready to copy field data");
 	LOG(from_name);
 	LOG(from_time);
 	LOG(from_col);
@@ -568,7 +566,7 @@ void DataChangeTypeFrame::OnFromVarsSel(wxListEvent& ev)
 	wxString time;
 	int sel = GetFromVarSel(name, time);
 	if (sel == -1) {
-		LOG_MSG("GetFromVarSel returned -1");
+		//LOG_MSG("GetFromVarSel returned -1");
 	}	
 	RefreshData(from_data, name, time);
 	UpdateButtons();
@@ -590,7 +588,7 @@ void DataChangeTypeFrame::OnToVarsSel(wxListEvent& ev)
 	wxString time;
 	int sel = GetToVarSel(name, time);
 	if (sel == -1) {
-		LOG_MSG("GetToVarSel returned -1");
+		//LOG_MSG("GetToVarSel returned -1");
 	}
 	RefreshData(to_data, name, time);
 	UpdateButtons();
@@ -669,7 +667,6 @@ int DataChangeTypeFrame::GetVarSel(wxListCtrl* vars_list,
 	}
 	wxString s("GetVarSel: ");
 	s << "name = " << name << ", time = " << time << ", sel = " << sel;
-	LOG_MSG(s);
 	return sel;
 }
 
@@ -706,7 +703,6 @@ void DataChangeTypeFrame::RefreshVars(wxListCtrl* vars_list,
 										wxLIST_STATE_SELECTED);
 				wxString s("RefreshVars reselecting item ");
 				s << x;
-				LOG_MSG(s);
 				found_prev_sel = true;
 			}
 			++item_cnt;

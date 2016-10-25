@@ -1053,11 +1053,9 @@ void C3DPlotCanvas::update(HLStateInt* o)
 	
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::delta) {
-		LOG_MSG("processing HLStateInt::delta");
 			
 		Refresh();
 	} else {
-		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
 		// type == HLStateInt::unhighlight_all
 		// type == HLStateInt::invert
 			
@@ -1141,8 +1139,6 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("C3DPlotFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		canvas->SetCheckMarks(mb->GetMenu(menu));
 	}

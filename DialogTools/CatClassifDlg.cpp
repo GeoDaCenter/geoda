@@ -183,12 +183,9 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 				(rect_sel &&
 				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
 										  lower_left, upper_right))) {
-					 //LOG_MSG(wxString::Format("ival %d selected", i));
 					 any_selected = true;
 					 break;
 				 } else {
-					 //LOG_MSG(wxString::Format("ival %d not selected", i));
-					 //LOG_MSG(wxString::Format(""));
 				 }
 		}
 		if (!any_selected) {
@@ -470,12 +467,6 @@ void CatClassifHistCanvas::InitIntervals()
 		if (ival_obs_cnt[i] > max_num_obs_in_ival) {
 			max_num_obs_in_ival = ival_obs_cnt[i];
 		}
-	}
-	
-	LOG_MSG("InitIntervals: ");
-	LOG_MSG(wxString::Format("max_num_obs_in_ival: %f", max_num_obs_in_ival));
-	for (int i=0; i<cur_intervals; i++) {
-		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d", i, ival_obs_cnt[i]));
 	}
 }
 
@@ -818,7 +809,6 @@ useScientificNotation(_useScientificNotation)
 	brk_slider->SetRange(0, 1000);
 	
 	//End Creating Controls
-	//LOG_MSG(cc_data.ToStr());
 	all_init = true;
 	InitCurCatsChoices();
 	InitAssocVarChoices();
@@ -1280,16 +1270,13 @@ void CatClassifPanel::OnAutomaticLabelsCb(wxCommandEvent& event)
     
 	if (event.IsChecked()) {
 		cc_data.automatic_labels = true;
-		LOG_MSG("turning automatic labels on");
         
 		SetBrkTxtFromVec(cc_data.breaks);
 		UpdateCCState();
 		Refresh();
 	} else {
 		cc_data.automatic_labels = false;
-		LOG_MSG("turning automatic labels off");
 	}
-	LOG_MSG("automatic_labels: " + GenUtils::BoolToStr(event.IsChecked()));
 }
 
 void CatClassifPanel::OnBrkRad(wxCommandEvent& event)
@@ -1314,7 +1301,6 @@ void CatClassifPanel::OnBrkTxtEnter(wxCommandEvent& event)
 		if (obj == brk_txt[i]) obj_id = i;
 	}
 	LOG_MSG("In CatClassifPanel::OnBrkTxtEnter");
-	LOG(obj_id);
 	if (obj_id < 0) return;
 	wxString s(brk_txt[obj_id]->GetValue());
 	double val;
@@ -1353,7 +1339,6 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
 	double sd = ((double) (brk_slider->GetValue()-brk_slider->GetMin()));
 	double r = GetBrkSliderMax()-GetBrkSliderMin();
 	double v = GetBrkSliderMin() + (sd/sr)*r;
-	LOG(v);
 	cc_data.breaks[brk] = v;
 	brk_txt[brk]->ChangeValue(GenUtils::DblToStr(v));
 	int nbrk = CatClassification::ChangeBreakValue(brk, v, cc_data);
@@ -1382,13 +1367,11 @@ void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 	LOG_MSG("In CatClassifPanel::OnKillFocusEvent");
 	wxWindow* w = (wxWindow*) (event.GetEventObject());
 	if (wxTextCtrl* tc = dynamic_cast<wxTextCtrl*>(w)) {
-		LOG(tc->GetValue());
 		int obj_id = -1;
 		for (size_t i=0; i<cc_data.breaks.size() && obj_id<0; i++) {
 			if (tc == brk_txt[i]) obj_id = i;
 		}
 		if (obj_id != -1) {
-			LOG_MSG(wxString::Format("Focus left brk_text[%d]", obj_id));
 			wxString s(brk_txt[obj_id]->GetValue());
 			double val;
 			if (s.ToDouble(&val)) {
@@ -1437,7 +1420,6 @@ void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 	//	if ((pos_x >= x && pos_x <= x+w) &&
 	//		(pos_y >= y && pos_y <= y+h)) obj_id = i;
 	//}
-	LOG(obj_id);
 	if (obj_id < 0) return;
 	
 	wxColour col = cc_data.colors[obj_id];
@@ -1472,7 +1454,6 @@ void CatClassifPanel::OnCategoryTitleText(wxCommandEvent& event)
 	for (int i=0, iend=cat_title_txt.size(); i<iend && obj_id==-1; i++) {
 		if (obj == cat_title_txt[i]) obj_id = i;
 	}
-	LOG(obj_id);
 	if (obj_id < 0) return;
     wxString ttl_text = cat_title_txt[obj_id]->GetValue();
     cc_data.names[obj_id] = ttl_text;
@@ -1923,7 +1904,6 @@ void CatClassifPanel::InitAssocVarChoices()
 		// default to uniform distribution
 		assoc_var_choice->SetSelection(0);
 	}
-	LOG(table_int->IsColTimeVariant(cur_fc_str));
 	LOG_MSG("Exiting CatClassifPanel::InitAssocVarChoices");
 }
 
@@ -1971,7 +1951,6 @@ void CatClassifPanel::InitPreviewVarChoices()
 		// default to first item
 		preview_var_choice->SetSelection(0);
 	}
-	LOG(table_int->IsColTimeVariant(cur_fc_str));
 	LOG_MSG("Exiting CatClassifPanel::InitPreivewVarChoices");
 }
 
