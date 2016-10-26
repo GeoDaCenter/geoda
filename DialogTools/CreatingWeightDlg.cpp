@@ -310,7 +310,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
             
 			if (m_is_arc && m_arc_in_km) {
-				t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
+				//t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
 			}
             
 			if (t_val > 0) {
