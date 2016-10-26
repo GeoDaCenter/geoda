@@ -1121,19 +1121,23 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 		return;
 	gc->SetPen(wxPen(selectable_outline_color));
 	gc->SetBrush(wxBrush(selectable_fill_color));
+    
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
 	int w = layer0_bm->GetWidth();
 	int h = layer0_bm->GetHeight();
+    
 	if (selectable_shps_type == points) {
 		int dirty_cnt = 0;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		wxDouble r = GdaConst::my_point_click_radius;
-		if (w < 150 || h < 150) r *= 0.66;
-		if (selectable_shps.size() > 100 && (w < 80 || h < 80)) r = 0.2;
+		if (w < 150 || h < 150)
+            r *= 0.66;
+		if (selectable_shps.size() > 100 && (w < 80 || h < 80))
+            r = 0.2;
+        
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
-            
             if (isDrawBasemap) {
                 wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
                 char red = penClr.Red();
@@ -1168,7 +1172,8 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 		for (int cat=0; cat<num_cats; cat++) {
 			gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
             wxBrush br = cat_data.GetCategoryBrush(cc_ts, cat);
-            if (br.IsOk() ) gc->SetBrush(br);
+            if (br.IsOk() )
+                gc->SetBrush(br);
 
             if (isDrawBasemap) {
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();

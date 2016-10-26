@@ -306,6 +306,7 @@ void MapCanvas::DrawLayerBase()
 {
     if (isDrawBasemap) {
         if (basemap != 0) {
+            basemap_bm->UseAlpha();
             layerbase_valid = basemap->Draw(basemap_bm);
 #ifdef __linux__
             // trigger to draw again, since it's drawing on ONE bitmap, 
@@ -368,11 +369,12 @@ void MapCanvas::DrawLayer0()
 void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
-	basemap_bm = new wxBitmap(width, height);
+	basemap_bm = new wxBitmap(width, height, 32);
 	layer0_bm = new wxBitmap(width, height, 32);
 	layer1_bm = new wxBitmap(width, height, 32);
 	layer2_bm = new wxBitmap(width, height, 32);
 	final_bm = new wxBitmap(width, height);
+    basemap_bm->UseAlpha();
 	layer0_bm->UseAlpha();
 	layer1_bm->UseAlpha();
 	layer2_bm->UseAlpha();
@@ -399,9 +401,15 @@ void MapCanvas::DrawLayer0()
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
 
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return;
+    
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
+		shp->paintSelf(gc);
 	}
+    
+    delete gc;
     
 	if (draw_sel_shps_by_z_val) {
 		DrawSelectableShapesByZVal(dc);
@@ -452,10 +460,16 @@ void MapCanvas::DrawLayer2()
 	wxMemoryDC dc(*layer2_bm);
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
+   
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return;
     
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
+		shp->paintSelf(gc);
 	}
+    
+    delete gc;
 	layer2_valid = true;
 }
 
@@ -485,14 +499,6 @@ void MapCanvas::OnPaint(wxPaintEvent& event)
     	
     	// Draw the the selection region "the black selection box" if needed
     	PaintSelectionOutline(paint_dc);
-    	
-    	// Draw optional control objects if needed, should be in memeory
-    	// PaintControls(paint_dc);
-    	
-    	// The resize event will ruin the position of scroll bars, so we reset the
-    	// position of scroll bars again.
-    	//if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-    	//if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
         
         isRepaint = false;
     }
