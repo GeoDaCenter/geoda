@@ -306,7 +306,7 @@ void MapCanvas::DrawLayerBase()
 {
     if (isDrawBasemap) {
         if (basemap != 0) {
-            //basemap_bm->UseAlpha();
+            basemap_bm->UseAlpha();
             layerbase_valid = basemap->Draw(basemap_bm);
 #ifdef __linux__
             // trigger to draw again, since it's drawing on ONE bitmap, 
@@ -369,12 +369,12 @@ void MapCanvas::DrawLayer0()
 void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
-	basemap_bm = new wxBitmap(width, height);
+	basemap_bm = new wxBitmap(width, height, 32);
 	layer0_bm = new wxBitmap(width, height, 32);
 	layer1_bm = new wxBitmap(width, height, 32);
 	layer2_bm = new wxBitmap(width, height, 32);
 	final_bm = new wxBitmap(width, height);
-    //basemap_bm->UseAlpha();
+    basemap_bm->UseAlpha();
 	layer0_bm->UseAlpha();
 	layer1_bm->UseAlpha();
 	layer2_bm->UseAlpha();
