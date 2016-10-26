@@ -87,27 +87,6 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     lbl_box->AddSpacer(5);
     lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
     
-    /*
-    // separator selection ctonrol
-    wxString separator_txt = _T("Select separator used in the csv file:");
-    wxStaticText* sep_lbl = new wxStaticText(panel, wxID_ANY, separator_txt);
-    
-    wxComboBox* separator_cmbox = new wxComboBox(panel, wxID_ANY,
-                                                 separator_txt,
-                                                 wxDefaultPosition,
-                                                 wxSize(30,-1), 0, NULL,
-                                                 wxCB_READONLY);
-    separator_cmbox->Append("COMMA");
-    separator_cmbox->Append("SEMICOLON");
-    separator_cmbox->Append("TAB");
-    separator_cmbox->Append("SPACE");
-    separator_cmbox->SetSelection(0);
-   
-    wxBoxSizer* separator_box = new wxBoxSizer(wxHORIZONTAL);
-    separator_box->AddSpacer(10);
-    separator_box->Add(sep_lbl, 1, wxALIGN_CENTER | wxALIGN_LEFT, 1);
-    separator_box->Add(separator_cmbox, 1, wxALIGN_CENTER, 1);
-     */
     
     // field grid selection control
     fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(250,200));

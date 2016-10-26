@@ -105,6 +105,7 @@
 #include "DialogTools/PublishDlg.h"
 #include "DialogTools/BasemapConfDlg.h"
 #include "DialogTools/AutoUpdateDlg.h"
+#include "DialogTools/ReportBugDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -4856,6 +4857,10 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 
 void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
 {
+    ReportBugDlg bugDlg(this);
+    bugDlg.ShowModal();
+   
+    /*
     wxString toEmail = "spatial@uchicago.edu";
     wxString subject = "Report GeoDa Bug";
     wxString content;
@@ -4878,6 +4883,7 @@ void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
     wxString encoded_url = "open " + url.BuildURI();
     
     wxExecute(encoded_url);
+     */
 }
 
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )

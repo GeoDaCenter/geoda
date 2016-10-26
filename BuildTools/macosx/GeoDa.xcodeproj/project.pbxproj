@@ -26,6 +26,7 @@
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
+		A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
 		A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77FDA17889BE200CC1037 /* OGRTable.cpp */; };
 		A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78133178A90A100CC1037 /* OGRDatasourceProxy.cpp */; };
@@ -260,6 +261,8 @@
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
 		A1DA623917BCBC070070CAAB /* AutoCompTextCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoCompTextCtrl.h; sourceTree = "<group>"; };
+		A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
+		A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
 		A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportDataDlg.cpp; sourceTree = "<group>"; };
 		A1E77E19177D6A2E00CC1037 /* ExportDataDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportDataDlg.h; sourceTree = "<group>"; };
 		A1E77FDA17889BE200CC1037 /* OGRTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRTable.cpp; path = DataViewer/OGRTable.cpp; sourceTree = "<group>"; };
@@ -753,6 +756,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */,
+				A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */,
 				A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */,
 				A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */,
 				A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */,
@@ -1292,6 +1297,7 @@
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
 				DDF14CDA139432B000363FA1 /* DataViewerDeleteColDlg.cpp in Sources */,
+				A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */,
 				DDF14CDC139432C100363FA1 /* DataViewerResizeColDlg.cpp in Sources */,
 				DDF14CDD139432CB00363FA1 /* DataViewerAddColDlg.cpp in Sources */,
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
