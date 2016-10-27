@@ -1104,7 +1104,7 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawSelectableShapes_gc(dc);
 #else
-        DrawSelectableShapes_gc(dc);
+        DrawSelectableShapes_dc(dc);
 #endif
 	} else {
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
@@ -1124,6 +1124,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
     
 	gc->SetPen(wxPen(selectable_outline_color));
 	gc->SetBrush(wxBrush(selectable_fill_color));
+    
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
 	int w = layer0_bm->GetWidth();
@@ -1133,15 +1134,16 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 		int dirty_cnt = 0;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		wxDouble r = GdaConst::my_point_click_radius;
-        if (w < 150 || h < 150) {
+		if (w < 150 || h < 150)
             r *= 0.66;
-        }
-        if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
+		if (selectable_shps.size() > 100 && (w < 80 || h < 80))
             r = 0.2;
-        }
+        
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
+		
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
-            
             if (isDrawBasemap) {
                 wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
                 char red = penClr.Red();
@@ -1165,8 +1167,15 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
                     continue;
                 }
 				p = (GdaPoint*) selectable_shps[ids[i]];
-				//if (p->isNull()) continue;
-				path.AddCircle(p->center.x, p->center.y, r);
+				if (p->isNull()) continue;
+
+				//path.AddCircle(p->center.x, p->center.y, r);
+				int bnd_idx = p->center.x + p->center.y*w;
+				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+					path.AddCircle(p->center.x, p->center.y, r);
+					dirty[bnd_idx] = true;
+				}
+
 			}
             gc->StrokePath(path);
             //gc->FillPath(path);
@@ -1181,7 +1190,8 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 		for (int cat=0; cat<num_cats; cat++) {
 			gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
             wxBrush br = cat_data.GetCategoryBrush(cc_ts, cat);
-            if (br.IsOk() ) gc->SetBrush(br);
+            if (br.IsOk() )
+                gc->SetBrush(br);
 
             if (isDrawBasemap) {
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
@@ -1353,7 +1363,9 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 	int w = layer0_bm->GetWidth();
 	int h = layer0_bm->GetHeight();
 	if (selectable_shps_type == points) {
-
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
+		int dirty_cnt = 0;
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		wxDouble r = GdaConst::my_point_click_radius;
         if (w < 150 || h < 150) {
@@ -1372,8 +1384,13 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
                     continue;
                 }
 				p = (GdaPoint*) selectable_shps[ids[i]];
-				dc.DrawCircle(p->center.x, p->center.y, r);
-
+				if (p->isNull()) continue;
+				//dc.DrawCircle(p->center.x, p->center.y, r);
+				int bnd_idx = p->center.x + p->center.y*w;
+				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+					dirty[bnd_idx] = true;
+				}
 			}
 		}
 	} else if (selectable_shps_type == polygons) {
@@ -1458,7 +1475,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawHighlightedShapes_gc(dc);
 #else
-		DrawHighlightedShapes_gc(dc);
+		DrawHighlightedShapes_dc(dc);
 #endif
 		return;
 	}
@@ -1487,7 +1504,8 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 	int h = layer0_bm->GetHeight();
 	
 	if (selectable_shps_type == points) {
-		//std::vector<bool> dirty(w*h, false);
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
 		GdaPoint* p;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		gc->SetPen(wxPen(highlight_color));
@@ -1502,8 +1520,13 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 			if (hs[i] && _IsShpValid(i)) {
 				p = (GdaPoint*) selectable_shps[i];
-				//if (p->isNull()) continue;
-				path.AddCircle(p->center.x, p->center.y, r);
+				if (p->isNull()) continue;
+				//path.AddCircle(p->center.x, p->center.y, r);
+				int bnd_idx = p->center.x + p->center.y*w;
+				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+					path.AddCircle(p->center.x, p->center.y, r);
+					dirty[bnd_idx] = true;
+				}
 			}
 		}
 		gc->StrokePath(path);
@@ -1629,6 +1652,8 @@ void TemplateCanvas::DrawHighlightedShapes_gen_dc(wxDC &dc,
 	int h = layer0_bm->GetHeight();
 	
 	if (selectable_shps_type == points) {
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
 		GdaPoint* p;
 		dc.SetPen(hc_pen);
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -1639,8 +1664,12 @@ void TemplateCanvas::DrawHighlightedShapes_gen_dc(wxDC &dc,
 			if (hs[i] && _IsShpValid(i)) {
 				p = (GdaPoint*) selectable_shps[i];
 				if (p->isNull()) continue;
-				dc.DrawCircle(p->center.x, p->center.y, r);
-
+				//c.DrawCircle(p->center.x, p->center.y, r);
+				int bnd_idx = p->center.x + p->center.y*w;
+				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+					dirty[bnd_idx] = true;
+				}
 			}
 		}
         
@@ -1701,7 +1730,7 @@ void TemplateCanvas::DrawNewSelShapes(wxMemoryDC &dc)
 #ifdef __WXMAC__
 		DrawNewSelShapes_gc(dc);
 #else
-		DrawNewSelShapes_gc(dc);
+		DrawNewSelShapes_dc(dc);
 #endif
 		return;
 	}
@@ -1736,6 +1765,8 @@ void TemplateCanvas::DrawNewSelShapes_gc(wxMemoryDC &dc)
 	std::vector<int>& nh = GetNewlySelList();
 	
 	if (selectable_shps_type == points) {
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
 		GdaPoint* p;
 		gc->SetAntialiasMode(wxANTIALIAS_NONE);
 		gc->SetPen(hc_pen);
@@ -1745,11 +1776,16 @@ void TemplateCanvas::DrawNewSelShapes_gc(wxMemoryDC &dc)
 		if (selectable_shps.size() > 100 && (w < 80 || h < 80)) r = 0.2;
         
 		for (int i=0; i<total; i++) {
-            if (_IsShpValid(nh[i])) {
-    			p = (GdaPoint*) selectable_shps[nh[i]];
-    			if (p->isNull()) continue;
-    			path.AddCircle(p->center.x, p->center.y, r);
-            }
+                    if (_IsShpValid(nh[i])) {
+			p = (GdaPoint*) selectable_shps[nh[i]];
+			if (p->isNull()) continue;
+			//path.AddCircle(p->center.x, p->center.y, r);
+			int bnd_idx = p->center.x + p->center.y*w;
+			if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+				path.AddCircle(p->center.x, p->center.y, r);
+				dirty[bnd_idx] = true;
+			}
+                    }
 		}
 		gc->StrokePath(path);
         
@@ -1859,6 +1895,8 @@ void TemplateCanvas::DrawNewSelShapes_dc(wxMemoryDC &dc)
 	std::vector<int>& nh = GetNewlySelList();
 	
 	if (selectable_shps_type == points) {
+		int bnd = w*h;
+		std::vector<bool> dirty(bnd, false);
 		dc.SetPen(hc_pen);
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		GdaPoint* p;
@@ -1866,10 +1904,16 @@ void TemplateCanvas::DrawNewSelShapes_dc(wxMemoryDC &dc)
 		if (w < 150 || h < 150) r *= 0.66;
 		if (selectable_shps.size() > 100 && (w < 80 || h < 80)) r = 0.2;
 		for (int i=0; i<total; i++) {
-            if (_IsShpValid(nh[i])) {
-    			p = (GdaPoint*) selectable_shps[nh[i]];
-    			dc.DrawCircle(p->center.x, p->center.y, r);
-            }
+                    if (_IsShpValid(nh[i])) {
+			p = (GdaPoint*) selectable_shps[nh[i]];
+			if (p->isNull()) continue;
+			//dc.DrawCircle(p->center.x, p->center.y, r);
+			int bnd_idx = p->center.x + p->center.y*w;
+			if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+				dc.DrawCircle(p->center.x, p->center.y, r);
+				dirty[bnd_idx] = true;
+			}
+                    }
 		}
 	} else if (selectable_shps_type == polygons) {
 		GdaPolygon* p;
@@ -1909,7 +1953,6 @@ void TemplateCanvas::DrawNewSelShapes_dc(wxMemoryDC &dc)
 		}
 	}
 }
-
 
 
 // We will handle drawing our background in a paint event

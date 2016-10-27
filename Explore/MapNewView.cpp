@@ -120,8 +120,8 @@ void SliderDialog::OnSliderChange( wxScrollEvent & event )
 
 IMPLEMENT_CLASS(MapCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
-#ifdef __linux__
-	// in Linux, using old paint function without transparency support
+#ifndef __WXMAC__
+	// in Linux, windows using old paint function without transparency support
 	EVT_PAINT(TemplateCanvas::OnPaint)
 #else
 	EVT_PAINT(MapCanvas::OnPaint)
@@ -309,7 +309,7 @@ void MapCanvas::DrawLayers()
         DrawLayer1();
     
     if (!layer2_valid) {
-        DrawLayer1();
+        //DrawLayer1();
         DrawLayer2();
     }
     
@@ -322,8 +322,9 @@ void MapCanvas::DrawLayerBase()
 {
     if (isDrawBasemap) {
         if (basemap != 0) {
+            basemap_bm->UseAlpha();
             layerbase_valid = basemap->Draw(basemap_bm);
-#ifdef __linux__
+#ifndef __WXMAC__
             // trigger to draw again, since it's drawing on ONE bitmap, 
             // not multilayer with transparency support
             layer0_valid = false;	 
@@ -333,62 +334,17 @@ void MapCanvas::DrawLayerBase()
 }
 
 
-#ifdef __linux__
+
+#ifdef __WXMAC__
 void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
-	basemap_bm = new wxBitmap(width, height);
-	layer0_bm = new wxBitmap(width, height);
-	layer1_bm = new wxBitmap(width, height);
-	layer2_bm = new wxBitmap(width, height);
-	final_bm = new wxBitmap(width, height);
-
-	layerbase_valid = false;	
-	layer0_valid = false;
-	layer1_valid = false;
-	layer2_valid = false;
-}
-
-void MapCanvas::DrawLayer0()
-{
-    //LOG_MSG("In TemplateCanvas::DrawLayer0");
-    wxSize sz = GetVirtualSize();
-    wxMemoryDC dc(*layer0_bm);
-
-    dc.SetPen(canvas_background_color);
-    dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(0,0), sz);
-
-    if (isDrawBasemap)
-		dc.DrawBitmap(*basemap_bm, 0, 0);
-
-    BOOST_FOREACH( GdaShape* shp, background_shps ) {
-        shp->paintSelf(dc);
-    }
-    if (draw_sel_shps_by_z_val) {
-        DrawSelectableShapesByZVal(dc);
-    } else {
-        DrawSelectableShapes(dc);
-    }
-    
-    layer0_valid = true;
-    layer1_valid = false;
-}
-
-// in Linux, following 3 functions will be inherited from TemplateCanvas
-//void MapCanvas::DrawLayer1()
-//void MapCanvas::DrawLayer2()
-//void MapCanvas::OnPaint(wxPaintEvent& event)
-
-#else
-void MapCanvas::resizeLayerBms(int width, int height)
-{
-	deleteLayerBms();
-	basemap_bm = new wxBitmap(width, height);
+	basemap_bm = new wxBitmap(width, height, 32);
 	layer0_bm = new wxBitmap(width, height, 32);
 	layer1_bm = new wxBitmap(width, height, 32);
 	layer2_bm = new wxBitmap(width, height, 32);
 	final_bm = new wxBitmap(width, height);
+    basemap_bm->UseAlpha();
 	layer0_bm->UseAlpha();
 	layer1_bm->UseAlpha();
 	layer2_bm->UseAlpha();
@@ -414,9 +370,15 @@ void MapCanvas::DrawLayer0()
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
 
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return;
+    
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
+		shp->paintSelf(gc);
 	}
+    
+    delete gc;
     
 	if (draw_sel_shps_by_z_val) {
 		DrawSelectableShapesByZVal(dc);
@@ -465,10 +427,16 @@ void MapCanvas::DrawLayer2()
 	wxMemoryDC dc(*layer2_bm);
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
+   
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return;
     
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
+		shp->paintSelf(gc);
 	}
+    
+    delete gc;
 	layer2_valid = true;
 }
 
@@ -498,19 +466,57 @@ void MapCanvas::OnPaint(wxPaintEvent& event)
     	
     	// Draw the the selection region "the black selection box" if needed
     	PaintSelectionOutline(paint_dc);
-    	
-    	// Draw optional control objects if needed, should be in memeory
-    	// PaintControls(paint_dc);
-    	
-    	// The resize event will ruin the position of scroll bars, so we reset the
-    	// position of scroll bars again.
-    	//if (prev_scroll_pos_x > 0) SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-    	//if (prev_scroll_pos_y > 0) SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
         
         isRepaint = false;
     }
     event.Skip();
 }
+#else
+void MapCanvas::resizeLayerBms(int width, int height)
+{
+	deleteLayerBms();
+	basemap_bm = new wxBitmap(width, height);
+	layer0_bm = new wxBitmap(width, height);
+	layer1_bm = new wxBitmap(width, height);
+	layer2_bm = new wxBitmap(width, height);
+	final_bm = new wxBitmap(width, height);
+
+	layerbase_valid = false;	
+	layer0_valid = false;
+	layer1_valid = false;
+	layer2_valid = false;
+}
+
+void MapCanvas::DrawLayer0()
+{
+    //LOG_MSG("In TemplateCanvas::DrawLayer0");
+    wxSize sz = GetVirtualSize();
+    wxMemoryDC dc(*layer0_bm);
+
+    dc.SetPen(canvas_background_color);
+    dc.SetBrush(canvas_background_color);
+    dc.DrawRectangle(wxPoint(0,0), sz);
+
+    if (isDrawBasemap)
+		dc.DrawBitmap(*basemap_bm, 0, 0);
+
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    if (draw_sel_shps_by_z_val) {
+        DrawSelectableShapesByZVal(dc);
+    } else {
+        DrawSelectableShapes(dc);
+    }
+    
+    layer0_valid = true;
+    layer1_valid = false;
+}
+
+// in Linux, following 3 functions will be inherited from TemplateCanvas
+//void MapCanvas::DrawLayer1()
+//void MapCanvas::DrawLayer2()
+//void MapCanvas::OnPaint(wxPaintEvent& event)
 #endif
 
 

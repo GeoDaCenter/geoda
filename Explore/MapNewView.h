@@ -123,8 +123,8 @@ public:
 	bool DrawBasemap(bool flag, int map_type);
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
-#ifdef __linux__
-	// in linux, use old style drawing without transparency support
+#ifndef __WXMAC__
+	// in linux, windows use old style drawing without transparency support
 	// the commented out functions are inherited from TemplateCanvas class
 	// TODO will be replace by wxImage drawing code
     virtual void resizeLayerBms(int width, int height);

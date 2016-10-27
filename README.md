@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/GeoDaCenter/geoda.svg?branch=master)](https://travis-ci.org/GeoDaCenter/geoda)
+
 # Acknowledgements #
 
 GeoDa TM is built upon several open source libraries and source-code files.
