@@ -31,7 +31,6 @@
 #include <wx/scrolwin.h>
 #include <wx/string.h>
 #include "Explore/CatClassification.h"
-#include "Explore/Basemap.h"
 #include "HLStateInt.h"
 #include "HighlightStateObserver.h"
 #include "GdaShape.h"
@@ -248,7 +247,6 @@ public:
     
     
 	void RenderToDC(wxDC &dc, bool disable_crosshatch_brush = true);
-    const wxBitmap* GetBaseLayer() { return basemap_bm; }
     const wxBitmap* GetLayer0() { return layer0_bm; }
 	const wxBitmap* GetLayer1() { return layer1_bm; }
 	const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -285,7 +283,6 @@ public:
         return transparency;
     }
     
-	bool isDrawBasemap;
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
 	
@@ -401,11 +398,10 @@ protected:
 	double ext_shps_orig_xmax;
 	double ext_shps_orig_ymax;
 	
-	wxBitmap* basemap_bm; // basemap
 	wxBitmap* layer0_bm; // background items + unhighlighted obs
 	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
 	wxBitmap* layer2_bm; // layer1_bm + foreground obs
-	wxBitmap* final_bm; // final bitmap = basemap + background + layer0 + layer1
+	wxBitmap* final_bm; // final bitmap = background + layer0 + layer1
     
 	bool layerbase_valid; // if false, then needs to be redrawn
 	bool layer0_valid; // if false, then needs to be redrawn
@@ -415,7 +411,6 @@ protected:
 	Project* project;
 	TemplateFrame* template_frame;
 
-	GDA::Basemap* basemap;
     bool isResize;
     bool isRepaint;
     double transparency;

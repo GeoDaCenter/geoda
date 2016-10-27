@@ -41,7 +41,7 @@
 
 #include "DialogTools/SaveToTableDlg.h"
 #include "Explore/CatClassifManager.h"
-#include "Explore/Basemap.h"
+
 
 #include "GdaShape.h"
 #include "ShpFile.h"
@@ -110,12 +110,10 @@ canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed),
 use_category_brushes(false),
 draw_sel_shps_by_z_val(false),
-isDrawBasemap(false),
-transparency(0.4),
+transparency(1.0),
 isResize(false),
 isRepaint(false),
-basemap(0),
-basemap_bm(0), layer0_bm(0), layer1_bm(0), layer2_bm(0), final_bm(0),
+layer0_bm(0), layer1_bm(0), layer2_bm(0), final_bm(0),
 layerbase_valid(true), layer0_valid(false),
 layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
@@ -150,11 +148,6 @@ TemplateCanvas::~TemplateCanvas()
     }
 	
     deleteLayerBms();
-    
-    if (basemap != 0) {
-        delete basemap;
-        basemap = 0;
-    }
 }
 
 // We will handle drawing our background in a paint event
@@ -171,7 +164,6 @@ void TemplateCanvas::SetScientificNotation(bool flag)
 
 void TemplateCanvas::deleteLayerBms()
 {
-	if (basemap_bm) delete basemap_bm; basemap_bm = 0;
 	if (layer0_bm) delete layer0_bm; layer0_bm = 0;
 	if (layer1_bm) delete layer1_bm; layer1_bm = 0;
 	if (layer2_bm) delete layer2_bm; layer2_bm = 0;
@@ -185,7 +177,7 @@ void TemplateCanvas::deleteLayerBms()
 void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
-	basemap_bm = new wxBitmap(width, height);
+
 	layer0_bm = new wxBitmap(width, height);
 	layer1_bm = new wxBitmap(width, height);
 	layer2_bm = new wxBitmap(width, height);
@@ -383,26 +375,7 @@ wxString TemplateCanvas::GetCanvasStateString()
 void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 										  int virtual_scrn_h)
 {
-	if (isDrawBasemap) {
-		BOOST_FOREACH( GdaShape* ms, background_shps ) {
-            if (ms)
-			ms->projectToBasemap(basemap);
-		}
-		BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-            if (ms)
-			ms->projectToBasemap(basemap);
-		}
-        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-            if (ms)
-            ms->projectToBasemap(basemap);
-        }
-        
-        layerbase_valid = false;
-        layer0_valid = false;
-        layer1_valid = false;
-        layer2_valid = false;
-        return;
-	}
+	
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
@@ -521,9 +494,7 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
 void TemplateCanvas::ResetShapes()
 {
-    if (isDrawBasemap) {
-        basemap->Reset();
-    }
+
 	current_map_x_min = shps_orig_xmin;
 	current_map_y_min = shps_orig_ymin;
 	current_map_x_max = shps_orig_xmax;
@@ -532,8 +503,6 @@ void TemplateCanvas::ResetShapes()
 
 	int vs_w=0, vs_h=0;
 	GetClientSize(&vs_w, &vs_h);
-	//SetVirtualSize(vs_w, vs_h);
-	//SetScrollbars(1, 1, vs_w, vs_h, 0, 0, true);
 	
 	SetMouseMode(select);
 	ResizeSelectableShps();
@@ -541,17 +510,14 @@ void TemplateCanvas::ResetShapes()
 
 void TemplateCanvas::ZoomShapes(bool is_zoomin)
 {
-	if (sel2.x == 0 && sel2.y==0) return;
-    
-    if (isDrawBasemap) {
-        basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
-        ResizeSelectableShps();
-
+	if (sel2.x == 0 && sel2.y==0)
         return;
-    }
     
-	if (sel1.x == sel2.x) sel2.x = sel1.x + 2;
-	if (sel1.y == sel2.y) sel2.y = sel1.y + 2;
+	if (sel1.x == sel2.x)
+        sel2.x = sel1.x + 2;
+    
+	if (sel1.y == sel2.y)
+        sel2.y = sel1.y + 2;
 	
 	// get current selected extent/view in map coordinates
 	wxRealPoint map_sel1, map_sel2;
@@ -599,18 +565,9 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
 
 void TemplateCanvas::PanShapes()
 {
-    if (isDrawBasemap) {
-        int delta_x = sel2.x - sel1.x;
-        int delta_y = sel2.y - sel1.y;
-        if (delta_x !=0 && delta_y != 0) {
-            basemap->Pan(sel1.x, sel1.y, sel2.x, sel2.y);
-            ResizeSelectableShps();
-        }
-        return;
-    }
-    
 	if (sel2.x == 0 && sel2.y==0) 
         return;
+    
     SetFitToWindowMode(false);
 	// update map boundary of current view, here we can only update
 	// trans_x and trans_y; (scale_x and scale_y wont change since it's only pan
@@ -987,10 +944,6 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         int vs_w, vs_h;
         GetVirtualSize(&vs_w, &vs_h);
         
-        if (isDrawBasemap) {
-            basemap->ResizeScreen(cs_w, cs_h);
-        }
-        
         double new_w = (cs_w-(virtual_screen_marg_left +
                               virtual_screen_marg_right));
         double new_h = (cs_h-(virtual_screen_marg_top +
@@ -1141,7 +1094,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 		
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
-            if (isDrawBasemap) {
+
                 wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
                 char red = penClr.Red();
                 char blue = penClr.Blue();
@@ -1149,9 +1102,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
                 wxColour newClr(red, green, blue, (int)(transparency * 255));
 
                 gc->SetPen(newClr);
-            } else {
-                gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
-            }
+
 			gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
 			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 				
@@ -1188,7 +1139,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
             if (br.IsOk() )
                 gc->SetBrush(br);
 
-            if (isDrawBasemap) {
+            //if (isDrawBasemap) {
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
                 char red = brushClr.Red();
                 char blue = brushClr.Blue();
@@ -1196,7 +1147,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
                 wxColour newClr(red, green, blue, (int)(transparency * 255));
                 wxBrush newBrush(newClr);
                 gc->SetBrush(newBrush);
-            }
+            //}
 			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 			
 			
@@ -1291,62 +1242,7 @@ void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
 
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc)
 {	
-	if (isDrawBasemap) {
-		wxSize sz = dc.GetSize();
-		wxBitmap bmp( sz.GetWidth(), sz.GetHeight(), 32);
-		wxMemoryDC _dc;
-		// use a special color for mask transparency: 244, 243, 242c
-        // wxImage::FindFirstUnusedColour(unsigned char *r, unsigned char *g, unsigned char *b)
-		wxColour maskColor(244, 243, 242);
-		wxBrush maskBrush(maskColor);
-		_dc.SetBackground(maskBrush);
-		_dc.SelectObject(bmp);
-		_dc.Clear();
-
-		DrawSelectableShapes_gen_dc(_dc);
-
-		wxImage image = bmp.ConvertToImage();
-		image.InitAlpha();
-		unsigned char *alpha=image.GetAlpha();
-		memset(alpha, (int)(transparency * 255), image.GetWidth()*image.GetHeight());
-
-		unsigned char r, _r;
-		unsigned char g, _g;
-		unsigned char b, _b;
-
-		int cc_ts = cat_data.curr_canvas_tm_step;
-		int num_cats=cat_data.GetNumCategories(cc_ts);
-
-		for (int cat=0; cat<num_cats; cat++) {
-			wxColour penColor = cat_data.GetCategoryPen(cc_ts, cat).GetColour();
-			_r = penColor.Red();
-			_g = penColor.Green();
-			_b = penColor.Blue();
-
-			for (int i=0; i< image.GetWidth(); i++) {
-				for (int j=0; j<image.GetHeight(); j++) {
-					r = image.GetRed(i,j);
-					g = image.GetGreen(i,j);
-					b = image.GetBlue(i,j);
-					if (r == 244 && g == 243 && b == 242) {
-						image.SetAlpha(i, j, 0);
-						continue;
-					} 
-					
-					if (r == _r && b == _b && g == _g) {
-						image.SetAlpha(i,j, 255);
-						continue;
-					}
-				}
-
-			}
-		}
-	
-		wxBitmap _bmp(image);
-		dc.DrawBitmap(_bmp,0,0);
-	} else {
-		DrawSelectableShapes_gen_dc(dc);
-	}
+    DrawSelectableShapes_gen_dc(dc);
 }
 
 // draw unhighlighted selectable shapes with wxDC
@@ -1520,7 +1416,7 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
         }
         
         for (int cat=0; cat<num_cats; cat++) {
-            if (isDrawBasemap) {
+            //if (isDrawBasemap) {
                 wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
                 char red = penClr.Red();
                 char blue = penClr.Blue();
@@ -1528,9 +1424,9 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
                 wxColour newClr(red, green, blue, (int)(transparency * 255));
                 
                 gc->SetPen(newClr);
-            } else {
-                gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
-            }
+            //} else {
+            //    gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
+            //}
             gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             
@@ -1568,7 +1464,7 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
             if (br.IsOk() )
                 gc->SetBrush(br);
             
-            if (isDrawBasemap) {
+            //if (isDrawBasemap) {
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
                 char red = brushClr.Red();
                 char blue = brushClr.Blue();
@@ -1576,7 +1472,7 @@ void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
                 wxColour newClr(red, green, blue, (int)(transparency * 255));
                 wxBrush newBrush(newClr);
                 gc->SetBrush(newBrush);
-            }
+            //}
             std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             
             

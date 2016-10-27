@@ -126,6 +126,7 @@ BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
 #else
 	EVT_PAINT(MapCanvas::OnPaint)
 #endif
+    EVT_IDLE(MapCanvas::OnIdle)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
@@ -159,7 +160,10 @@ display_centroids(false),
 display_voronoi_diagram(false), 
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
-weights_id(weights_id_s)
+weights_id(weights_id_s),
+basemap(0),
+isDrawBasemap(false),
+basemap_bm(0)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering MapCanvas::MapCanvas");
@@ -226,15 +230,102 @@ weights_id(weights_id_s)
 
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting MapCanvas::MapCanvas");
 }
 
 MapCanvas::~MapCanvas()
 {
-	LOG_MSG("Entering MapCanvas::~MapCanvas");
-	if (highlight_state) highlight_state->removeObserver(this);
-	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting MapCanvas::~MapCanvas");
+	if (highlight_state)
+        highlight_state->removeObserver(this);
+    
+	if (custom_classif_state)
+        custom_classif_state->removeObserver(this);
+    
+    if (basemap != NULL) {
+        delete basemap;
+        basemap = NULL;
+    }
+}
+
+void MapCanvas::deleteLayerBms()
+{
+    if (basemap_bm) delete basemap_bm; basemap_bm = 0;
+    if (layer0_bm) delete layer0_bm; layer0_bm = 0;
+    if (layer1_bm) delete layer1_bm; layer1_bm = 0;
+    if (layer2_bm) delete layer2_bm; layer2_bm = 0;
+    if (final_bm) delete final_bm; final_bm = 0;
+    
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+}
+
+void MapCanvas::ResetShapes()
+{
+    if (isDrawBasemap) {
+        basemap->Reset();
+    }
+    
+    TemplateCanvas::ResetShapes();
+}
+
+void MapCanvas::ZoomShapes(bool is_zoomin)
+{
+    if (sel2.x == 0 && sel2.y==0)
+        return;
+    
+    if (isDrawBasemap) {
+        basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
+        ResizeSelectableShps();
+        
+        return;
+    }
+    
+    TemplateCanvas::ZoomShapes(is_zoomin);
+}
+
+void MapCanvas::PanShapes()
+{
+    if (sel2.x == 0 && sel2.y==0)
+        return;
+
+    if (isDrawBasemap) {
+        int delta_x = sel2.x - sel1.x;
+        int delta_y = sel2.y - sel1.y;
+        if (delta_x !=0 && delta_y != 0) {
+            basemap->Pan(sel1.x, sel1.y, sel2.x, sel2.y);
+            ResizeSelectableShps();
+        }
+        return;
+    }
+    
+    TemplateCanvas::PanShapes();
+}
+
+void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
+                                     int virtual_scrn_h)
+{
+    if (isDrawBasemap) {
+        BOOST_FOREACH( GdaShape* ms, background_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        
+        layerbase_valid = false;
+        layer0_valid = false;
+        layer1_valid = false;
+        layer2_valid = false;
+        return;
+    }
+    
+    TemplateCanvas::ResizeSelectableShps(virtual_scrn_w, virtual_scrn_h);
 }
 
 bool MapCanvas::DrawBasemap(bool flag, int map_type)
@@ -337,6 +428,8 @@ void MapCanvas::DrawLayerBase()
 
 
 #ifdef __WXMAC__
+// On MacOSX, we use wxGraphicalContext
+// On Win/Linux, we use wxDC
 void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
@@ -345,6 +438,7 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	layer1_bm = new wxBitmap(width, height, 32);
 	layer2_bm = new wxBitmap(width, height, 32);
 	final_bm = new wxBitmap(width, height);
+    
     basemap_bm->UseAlpha();
 	layer0_bm->UseAlpha();
 	layer1_bm->UseAlpha();
@@ -355,10 +449,8 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	layer2_valid = false;
 }
 
-// Draw all solid background, background decorations and unhighlighted shapes.
 void MapCanvas::DrawLayer0()
 {
-	//LOG_MSG("In TemplateCanvas::DrawLayer0");
 	wxSize sz = GetVirtualSize();
     if (layer0_bm) {
         delete layer0_bm;
@@ -391,11 +483,8 @@ void MapCanvas::DrawLayer0()
 }
 
 
-// Copy in layer0_bm
-// draw highlighted shapes.
 void MapCanvas::DrawLayer1()
 {
-    // recreate highlight layer
 	wxSize sz = GetVirtualSize();
     if (layer1_bm) {
         delete layer1_bm;
@@ -440,6 +529,51 @@ void MapCanvas::DrawLayer2()
     
     delete gc;
 	layer2_valid = true;
+}
+
+void MapCanvas::OnIdle(wxIdleEvent& event)
+{
+    if (isResize) {
+        isResize = false;
+        
+        int cs_w=0, cs_h=0;
+        GetClientSize(&cs_w, &cs_h);
+        int vs_w, vs_h;
+        GetVirtualSize(&vs_w, &vs_h);
+        
+        if (isDrawBasemap) {
+            basemap->ResizeScreen(cs_w, cs_h);
+        }
+        
+        double new_w = (cs_w-(virtual_screen_marg_left +
+                              virtual_screen_marg_right));
+        double new_h = (cs_h-(virtual_screen_marg_top +
+                              virtual_screen_marg_bottom));
+        double new_ar = (double) new_w / (double) new_h;
+        
+        if (fixed_aspect_ratio_mode) {
+            if (fixed_aspect_ratio_val >= new_ar) {
+                current_shps_width = new_w;
+                current_shps_height = new_w / fixed_aspect_ratio_val;
+            } else {
+                current_shps_height = new_h;
+                current_shps_width = new_h * fixed_aspect_ratio_val;
+            }
+        } else {
+            current_shps_width = new_w;
+            current_shps_height = new_h;
+        }
+        
+        resizeLayerBms(cs_w, cs_h);
+        
+        ResizeSelectableShps();
+        event.RequestMore(); // render continuously, not only once on idle
+    }
+    
+    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
+        DrawLayers();
+        event.RequestMore(); // render continuously, not only once on idle
+    }
 }
 
 void MapCanvas::OnPaint(wxPaintEvent& event)
@@ -537,11 +671,71 @@ void MapCanvas::DrawLayer0()
     layer1_valid = false;
 }
 
-// in Linux, following 3 functions will be inherited from TemplateCanvas
+// in Linux/Win, following 3 functions will be inherited from TemplateCanvas
 //void MapCanvas::DrawLayer1()
 //void MapCanvas::DrawLayer2()
 //void MapCanvas::OnPaint(wxPaintEvent& event)
 #endif
+
+void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc)
+{
+    if (isDrawBasemap) {
+        wxSize sz = dc.GetSize();
+        wxBitmap bmp( sz.GetWidth(), sz.GetHeight(), 32);
+        wxMemoryDC _dc;
+        // use a special color for mask transparency: 244, 243, 242c
+        // wxImage::FindFirstUnusedColour(unsigned char *r, unsigned char *g, unsigned char *b)
+        wxColour maskColor(244, 243, 242);
+        wxBrush maskBrush(maskColor);
+        _dc.SetBackground(maskBrush);
+        _dc.SelectObject(bmp);
+        _dc.Clear();
+        
+        DrawSelectableShapes_gen_dc(_dc);
+        
+        wxImage image = bmp.ConvertToImage();
+        image.InitAlpha();
+        unsigned char *alpha=image.GetAlpha();
+        memset(alpha, (int)(transparency * 255), image.GetWidth()*image.GetHeight());
+        
+        unsigned char r, _r;
+        unsigned char g, _g;
+        unsigned char b, _b;
+        
+        int cc_ts = cat_data.curr_canvas_tm_step;
+        int num_cats=cat_data.GetNumCategories(cc_ts);
+        
+        for (int cat=0; cat<num_cats; cat++) {
+            wxColour penColor = cat_data.GetCategoryPen(cc_ts, cat).GetColour();
+            _r = penColor.Red();
+            _g = penColor.Green();
+            _b = penColor.Blue();
+            
+            for (int i=0; i< image.GetWidth(); i++) {
+                for (int j=0; j<image.GetHeight(); j++) {
+                    r = image.GetRed(i,j);
+                    g = image.GetGreen(i,j);
+                    b = image.GetBlue(i,j);
+                    if (r == 244 && g == 243 && b == 242) {
+                        image.SetAlpha(i, j, 0);
+                        continue;
+                    } 
+                    
+                    if (r == _r && b == _b && g == _g) {
+                        image.SetAlpha(i,j, 255);
+                        continue;
+                    }
+                }
+                
+            }
+        }
+        
+        wxBitmap _bmp(image);
+        dc.DrawBitmap(_bmp,0,0);
+    } else {
+        DrawSelectableShapes_gen_dc(dc);
+    }
+}
 
 
 int MapCanvas::GetBasemapType()
@@ -1661,15 +1855,22 @@ void MapFrame::CleanBasemap()
 
 void MapFrame::SetupToolbar()
 {
-	Connect(XRCID("ID_SELECT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapSelect));
-	Connect(XRCID("ID_SELECT_INVERT"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapInvertSelect));
-	Connect(XRCID("ID_PAN_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapPan));
-	Connect(XRCID("ID_ZOOM_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapZoom));
-	Connect(XRCID("ID_ZOOM_OUT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapZoomOut));
-	Connect(XRCID("ID_EXTENT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapExtent));
-	Connect(XRCID("ID_REFRESH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapRefresh));
-	//Connect(XRCID("ID_BRUSH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapBrush));
-	Connect(XRCID("ID_TOOLBAR_BASEMAP"), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(MapFrame::OnMapBasemap));
+	Connect(XRCID("ID_SELECT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapSelect));
+	Connect(XRCID("ID_SELECT_INVERT"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapInvertSelect));
+	Connect(XRCID("ID_PAN_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapPan));
+	Connect(XRCID("ID_ZOOM_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapZoom));
+	Connect(XRCID("ID_ZOOM_OUT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapZoomOut));
+	Connect(XRCID("ID_EXTENT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapExtent));
+	Connect(XRCID("ID_REFRESH_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapRefresh));
+	Connect(XRCID("ID_TOOLBAR_BASEMAP"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapBasemap));
 }
 
 void MapFrame::OnDrawBasemap(bool flag, int map_type)
@@ -1685,16 +1886,6 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
 
 void MapFrame::OnMapSelect(wxCommandEvent& e)
 {
-    /*
-    // code reserved for enable/disable toolbar buttons
-    TemplateCanvas::MouseMode mousemode = template_canvas->GetMouseMode();
-	if (mousemode == select) {
-	} else if (mousemode == pan) {
-	} else if (mousemode == zoom) {
-	} else { // default
-	}
-    //EnableTool(XRCID("ID_NEW_PROJECT"), !proj_open);
-    */
     OnSelectionMode(e);
 }
 
@@ -1855,8 +2046,9 @@ void MapFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 	dc.SetBrush(template_canvas->canvas_background_color);
     dc.DrawRectangle(wxPoint(0,0), sz);
 
-    if (((MapCanvas*) template_canvas)->isDrawBasemap) {
-        dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
+    MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
+    if (map_canvs_ref->isDrawBasemap) {
+        dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
     }
     dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
     dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
@@ -1904,8 +2096,9 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			//dc.SetBrush(template_canvas->canvas_background_color);
 			//dc.DrawRectangle(wxPoint(0,0), sz);
 
-			if (((MapCanvas*) template_canvas)->isDrawBasemap) {
-                dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
+            MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
+			if (map_canvs_ref->isDrawBasemap) {
+                dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
             }
             dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
             dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
@@ -1930,8 +2123,9 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SetBrush(template_canvas->canvas_background_color);
 			dc.DrawRectangle(wxPoint(0,0), sz);
 
-            if (((MapCanvas*) template_canvas)->isDrawBasemap) {
-                dc.DrawBitmap(*template_canvas->GetBaseLayer(), 0, 0, true);
+            MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
+            if (map_canvs_ref->isDrawBasemap) {
+                dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
             }
             dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
             dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
@@ -2270,7 +2464,8 @@ void MapFrame::OnChangeMapTransparency()
 	if (!template_canvas) return;
     
     //show slider dialog
-    if (template_canvas->isDrawBasemap) {
+    MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
+    if (map_canvs_ref->isDrawBasemap) {
         SliderDialog sliderDlg(this, template_canvas);
         sliderDlg.ShowModal();
     }

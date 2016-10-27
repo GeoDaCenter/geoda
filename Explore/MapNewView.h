@@ -30,6 +30,8 @@
 #include <wx/window.h>
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
+
+#include "Basemap.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
@@ -118,9 +120,16 @@ public:
     int GetBasemapType();
     void CleanBasemapCache();
     
-    
 public:
 	bool DrawBasemap(bool flag, int map_type);
+    
+    const wxBitmap* GetBaseLayer() { return basemap_bm; }
+   
+    void OnIdle(wxIdleEvent& event);
+    
+    virtual void deleteLayerBms();
+    
+	void DrawSelectableShapes_dc(wxMemoryDC &dc);
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
 #ifndef __WXMAC__
@@ -140,6 +149,12 @@ public:
 	virtual void OnPaint(wxPaintEvent& event);
 #endif
 
+    virtual void ResetShapes();
+	virtual void ZoomShapes(bool is_zoomin = true);
+	virtual void PanShapes();
+
+    virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
+                                      int virtual_scrn_h = 0);
     
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
@@ -165,6 +180,8 @@ public:
 	
 	std::vector<GdaVarTools::VarInfo> var_info;
     
+	bool isDrawBasemap;
+    
 protected:
     
 	TableInterface* table_int;
@@ -184,7 +201,12 @@ protected:
 	std::vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
-	
+
+    // basemap
+	wxBitmap* basemap_bm;
+	GDA::Basemap* basemap;
+    
+    
 	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
