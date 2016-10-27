@@ -135,11 +135,11 @@ public:
 	 to the update() method. */
 	virtual void OnPaint(wxPaintEvent& event);
 	
-	/** This function is needed to handle the Erase Background WX event.  It
-	 does nothing, since we handle the Paint event ourselves and draw the
-	 background and foreground ourselves. */
-	void OnEraseBackground(wxEraseEvent& event);
-	
+    /** This function is needed to handle the Erase Background WX event.  It
+     does nothing, since we handle the Paint event ourselves and draw the
+     background and foreground ourselves. */
+    void OnEraseBackground(wxEraseEvent& event);
+    
 	/** The function handles all mouse events. */
 	virtual void OnMouseEvent(wxMouseEvent& event);
 	
@@ -277,9 +277,6 @@ public:
 	void DrawHighlightedShapes_dc(wxMemoryDC &dc);
 	void DrawHighlightedShapes_gen_dc(wxDC &dc,
 									  bool disable_crosshatch_brush = false);
-	virtual void DrawNewSelShapes(wxMemoryDC &dc);
-	void DrawNewSelShapes_gc(wxMemoryDC &dc);
-	void DrawNewSelShapes_dc(wxMemoryDC &dc);
 
     void SetTransparency(double _transparency) {
         transparency = _transparency;
@@ -287,6 +284,7 @@ public:
     double GetTransparency() {
         return transparency;
     }
+    
 	bool isDrawBasemap;
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);

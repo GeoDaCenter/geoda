@@ -305,8 +305,9 @@ void MapCanvas::DrawLayers()
     if (!layer0_valid)
         DrawLayer0();
     
-    if (!layer1_valid)
+    if (!layer1_valid) {
         DrawLayer1();
+    }
     
     if (!layer2_valid) {
         //DrawLayer1();
@@ -407,8 +408,9 @@ void MapCanvas::DrawLayer1()
     dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
     
-	if (!draw_sel_shps_by_z_val)
+    if (!draw_sel_shps_by_z_val) {
         DrawHighlightedShapes(dc);
+    }
     
 	layer1_valid = true;
 }
@@ -453,7 +455,29 @@ void MapCanvas::OnPaint(wxPaintEvent& event)
             dc.DrawBitmap(*basemap_bm, 0, 0, true);
         }
         
-        dc.DrawBitmap(*layer0_bm, 0, 0, true);
+        // faded the background half transparency
+        if (highlight_state->GetTotalHighlighted()>0) {
+            double trans = transparency * 0.5;
+    		wxImage image = layer0_bm->ConvertToImage();
+
+            for (int i=0; i< image.GetWidth(); i++) {
+                for (int j=0; j<image.GetHeight(); j++) {
+                    unsigned char al = image.GetAlpha(i,j);
+                    if ( al != 0 ) {
+                        image.SetAlpha(i, j, 50);
+                    }
+                }
+            }
+            //unsigned char *alpha=image.GetAlpha();
+    		//memset(alpha, (int)(trans * 255), image.GetWidth()*image.GetHeight());
+    		wxBitmap _bmp(image);
+
+    		dc.DrawBitmap(_bmp,0,0, true);
+            
+        } else  {
+        
+            dc.DrawBitmap(*layer0_bm, 0, 0, true);
+        }
         dc.DrawBitmap(*layer1_bm, 0, 0, true);
         dc.DrawBitmap(*layer2_bm, 0, 0, true);
 

@@ -4858,7 +4858,7 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
 {
     ReportBugDlg bugDlg(this);
-    bugDlg.Show();
+    bugDlg.ShowModal();
   
     
     /*
