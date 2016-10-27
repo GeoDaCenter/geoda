@@ -4858,8 +4858,9 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
 {
     ReportBugDlg bugDlg(this);
-    bugDlg.ShowModal();
-   
+    bugDlg.Show();
+  
+    
     /*
     wxString toEmail = "spatial@uchicago.edu";
     wxString subject = "Report GeoDa Bug";

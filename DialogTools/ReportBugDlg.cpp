@@ -39,10 +39,11 @@
 
 using namespace std;
 
-MyDialog1::MyDialog1( wxWindow* parent, wxWindowID id,
-                     const wxString& title,
-                     const wxPoint& pos,
-                     const wxSize& size)
+ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
+                                 wxWindowID id,
+                                 const wxString& title,
+                                 const wxPoint& pos,
+                                 const wxSize& size)
 : wxDialog(parent, id, title, pos, size)
 {
     wxPanel* panel = new wxPanel(this);
@@ -50,8 +51,13 @@ MyDialog1::MyDialog1( wxWindow* parent, wxWindowID id,
 
     wxBoxSizer* bSizer = new wxBoxSizer( wxVERTICAL );
     
-    m_hyperlink1 = new wxHyperlinkCtrl(panel, wxID_ANY, wxT("wxFB Website"), wxT("http://www.wxformbuilder.org"),wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE);
-    bSizer->Add(m_hyperlink1,  0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    wxString result_tip = _("Thanks for reporting bug! You can click the following link to check and trace the reported bug. \n\nGeoDa team thanks you to upload your data or screenshots for troubleshooting using this link or send to spatial@uchicago.edu privately.");
+    
+    wxStaticText* lbl_tip = new wxStaticText(panel, wxID_ANY, result_tip);
+    m_hyperlink1 = new wxHyperlinkCtrl(panel, wxID_ANY, issue_url,
+                                       issue_url);
+    bSizer->Add(lbl_tip,  1, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    bSizer->Add(m_hyperlink1,  1, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 0);
     
     panel->SetSizerAndFit(bSizer);
     
@@ -62,9 +68,10 @@ MyDialog1::MyDialog1( wxWindow* parent, wxWindowID id,
     Centre( wxBOTH );
 }
 
-MyDialog1::~MyDialog1()
+ReportResultDlg::~ReportResultDlg()
 {
 }
+
 
 size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
     ((string*)stream)->append((char*)ptr, 0, size*count);
@@ -118,16 +125,17 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
 {
     //
     // Description: please briefly describe what went wrong
-    // Data you used (Optional): __________________________
     // Steps you took before something went wrong (Optional):
+    // Data you used (Optional): __________________________
     //
     // Create controls UI
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
    
-    wxString desc_tip = _("Please briefly describe what went wrong:");
-    wxString steps_txt = _("e.g. Steps you took before something went wrong");
-    wxStaticText* lbl_steps = new wxStaticText(panel, wxID_ANY, desc_tip);
+    wxString desc_tip = _("[Please briefly describe what went wrong]");
+    wxString steps_txt = _("[Steps you took before something went wrong]");
+    
+    wxTextCtrl* title_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, desc_tip);
     wxTextCtrl* steps_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, steps_txt,
                                                 wxDefaultPosition,
                                                 wxSize(500,200),
@@ -138,10 +146,20 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
   
     wxString user_tip = _("Your Github account (Optional):");
     wxStaticText* lbl_user = new wxStaticText(panel, wxID_ANY, user_tip);
-    wxTextCtrl* user_txt_ctrl = new wxTextCtrl(panel, wxID_ANY);
+    wxTextCtrl* user_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
+                                               wxDefaultPosition, wxSize(150,-1));
     wxBoxSizer* user_box = new wxBoxSizer(wxHORIZONTAL);
     user_box->Add(lbl_user);
     user_box->Add(user_txt_ctrl);
+    
+    wxString email_tip = _("Your Email address (Optional):");
+    wxStaticText* lbl_email = new wxStaticText(panel, wxID_ANY, email_tip);
+    wxTextCtrl* email_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
+                                                wxDefaultPosition, wxSize(150,-1));
+    wxBoxSizer* email_box = new wxBoxSizer(wxHORIZONTAL);
+    email_box->Add(lbl_email);
+    email_box->AddSpacer(10);
+    email_box->Add(email_txt_ctrl);
     
     // buttons
     wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel",
@@ -156,11 +174,12 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
     btn_box->Add(btn_submit, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
-    box->Add(lbl_steps, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(title_txt_ctrl, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(steps_txt_ctrl, 0, wxALIGN_TOP|wxEXPAND|wxLEFT|wxRIGHT | wxTOP, 10);
     box->Add(data_chk, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
-    box->Add(user_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
-    box->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(user_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(email_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
     
     panel->SetSizerAndFit(box);
     
@@ -174,9 +193,6 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
     Centre();
    
     
-    //wxString rst = CreateIssueOnGithub("{\"title\": \"Test reporting bug from GeoDa software\", \"body\": \"We should have one\"}");
-    MyDialog1 dlg(NULL);
-    dlg.ShowModal();
 }
 
 ReportBugDlg::~ReportBugDlg()
@@ -184,3 +200,16 @@ ReportBugDlg::~ReportBugDlg()
     
 }
 
+void ReportBugDlg::OnOkClick(wxCommandEvent& event)
+{
+    //wxString rst = CreateIssueOnGithub("{\"title\": \"Test reporting bug from GeoDa software\", \"body\": \"We should have one\"}");
+
+    // parse results
+    
+    ReportResultDlg dlg(this, "https://github.com/GeoDaCenter/geoda/issues/511");
+    dlg.ShowModal();
+}
+
+void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
+{
+}

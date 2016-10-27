@@ -28,35 +28,37 @@
 #include <wx/checkbox.h>
 #include <wx/hyperlink.h>
 
-class MyDialog1 : public wxDialog
+class ReportResultDlg: public wxDialog
 {
 protected:
     wxHyperlinkCtrl* m_hyperlink1;
     
 public:
-    
-    MyDialog1(wxWindow* parent,
-              wxWindowID id = wxID_ANY,
-              const wxString& title = "Issue Created on Github",
-              const wxPoint& pos = wxDefaultPosition,
-              const wxSize& size = wxDefaultSize);
-    ~MyDialog1();
+    ReportResultDlg(wxWindow* parent,
+                    wxString issue_url,
+                    wxWindowID id = wxID_ANY,
+                    const wxString& title = "Check Bug Report on Github",
+                    const wxPoint& pos = wxDefaultPosition,
+                    const wxSize& size = wxDefaultSize);
+    ~ReportResultDlg();
 };
+
+
 
 class ReportBugDlg : public wxDialog
 {
 public:
     ReportBugDlg(wxWindow* parent,
                  wxWindowID id = wxID_ANY,
-                 const wxString& title = "GeoDa Report Bug Dialog",
+                 const wxString& title = "GeoDa Bug Report Dialog",
                  const wxPoint& pos = wxDefaultPosition,
-                 const wxSize& size = wxSize(580,400));
+                 const wxSize& size = wxSize(580,450));
     
     ~ReportBugDlg();
     
 protected:
-    //void OnOkClick( wxCommandEvent& event );
-    //void OnCancelClick( wxCommandEvent& event );
+    void OnOkClick( wxCommandEvent& event );
+    void OnCancelClick( wxCommandEvent& event );
    
     
 };
