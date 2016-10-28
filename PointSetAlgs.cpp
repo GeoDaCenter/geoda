@@ -47,8 +47,8 @@ void PointSetAlgs::GetMinMax(const std::vector<wxRealPoint>& pts,
 }
 
 double PointSetAlgs::EstDiameter(const std::vector<double>& x,
-																 const std::vector<double>& y,
-																 bool is_arc,
+                                 const std::vector<double>& y,
+                                 bool is_arc,
 																 wxRealPoint& pt1, wxRealPoint& pt2)
 {
 	LOG_MSG("Entering PointSetAlgs::EstDiameter");

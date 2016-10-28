@@ -178,9 +178,10 @@ private:
 	bool CheckID(const wxString& id);
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
-											 const wxString& ifn, const wxString& ofn,
-											 const wxString& idd,
-											 const WeightsMetaInfo& wmi);
+                         const wxString& ifn, const wxString& ofn,
+                         const wxString& idd,
+                         const WeightsMetaInfo& wmi);
+    void CreateWeights();
 	
 	wxString s_int;
 	bool suspend_table_state_updates;

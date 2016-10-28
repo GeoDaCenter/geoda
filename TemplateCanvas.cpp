@@ -55,6 +55,20 @@
 #include "TemplateFrame.h"
 #include "GdaConst.h"
 
+DataViewTransform::DataViewTransform()
+{
+    
+}
+
+DataViewTransform::~DataViewTransform()
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(boost::geometry::cs::cartesian)
 
 IMPLEMENT_CLASS(TemplateCanvas, wxScrolledWindow)
@@ -188,6 +202,7 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 	layer2_valid = false;
 }
 
+// redraw everything
 void TemplateCanvas::invalidateBms()
 {
 	layer0_valid = false;

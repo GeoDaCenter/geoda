@@ -214,6 +214,18 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 {
+    try {
+        CreateWeights();
+    } catch(GdaException e) {
+        wxString msg;
+        msg << e.what();
+        wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+}
+
+void CreatingWeightDlg::CreateWeights()
+{
 	WeightsMetaInfo wmi;
 	
 	if (m_radio == NO_RADIO) {

@@ -42,6 +42,37 @@ class CatClassifManager;
 class Project;
 class TemplateFrame;
 
+
+class DataViewTransform
+{
+public:
+    DataViewTransform();
+    ~DataViewTransform();
+    
+    wxPoint Data2View(wxPoint& pt);
+    wxPoint View2Data(wxPoint& pt);
+   
+    void Reset();
+    void Offset();
+    void Zoom(wxRect& zoomed_view);
+    
+protected:
+    double aspect_ratio;
+    
+    double data_width;
+    double data_height;
+    
+    double view_width;
+    double view_height;
+    double view_margin_left;
+    double view_margin_right;
+    double view_margin_top;
+    double view_margin_bottom;
+    
+    wxRect viewRect;
+    wxRect dataRect;
+};
+
 /** TemplateCanvas is a base class that implements most of the
  functionality associated with selecting polygons.  It is the base
  class of all "views" in GeoDa such as Scatter Plots, Box Plots, etc.

@@ -44,7 +44,7 @@ bool GwtElement::alloc(const int sz)
 }
 
 double GwtElement::SpatialLag(const std::vector<double>& x,
-															const bool std) const
+                              const bool std) const
 {
 	double lag= 0;
 	int cnt = 0;

@@ -107,7 +107,6 @@ GwtWeight* knn_build(const rtree_pt_lonlat_t& rtree, int nn=6);
 bool write_gwt(const GwtWeight* W, const wxString& layer_name, 
 			   const wxString& ofname, const wxString& vname,
 			   const std::vector<wxInt64>& id_vec);
-void fill_test_bb_rtree(rtree_box_2d_t& rtree, size_t rows, size_t cols);
 void fill_box_rtree(rtree_box_2d_t& rtree,
 					const Shapefile::Main& main_data);
 void fill_pt_rtree(rtree_pt_2d_t& rtree,
@@ -133,9 +132,6 @@ struct XyzPt {
 	double z;
 };
 std::ostream& operator<< (std::ostream &out, const XyzPt& pt);
-
-void test_polar_to_3d_conversion();
-void test_arc_distance();
 
 }
 	

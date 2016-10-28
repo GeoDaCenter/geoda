@@ -419,11 +419,11 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: following old style functions should be moved into GalWeight class
-bool Gda::SaveGal(const GalElement* g, 
-									const wxString& _layer_name,
-									const wxString& ofname, 
-									const wxString& id_var_name,
-									const std::vector<wxInt64>& id_vec)
+bool Gda::SaveGal(const GalElement* g,
+                  const wxString& _layer_name,
+                  const wxString& ofname,
+                  const wxString& id_var_name,
+                  const std::vector<wxInt64>& id_vec)
 {
 	using namespace std;
 	if (g == NULL || ofname.empty() ||
@@ -452,7 +452,8 @@ bool Gda::SaveGal(const GalElement* g,
 		out << " " << g[i].Size() << endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
-			if (cp > 0) out << " ";
+			if (cp > 0)
+                out << " ";
 		}
 		out << endl;
 	}
@@ -474,7 +475,8 @@ bool Gda::SaveGal(const GalElement* g,
 	wxString final_fon(wx_fn.GetFullPath());
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
-	if (!(out.is_open() && out.good())) return false;
+	if (!(out.is_open() && out.good()))
+        return false;
 
     wxString layer_name(_layer_name);
     
@@ -492,7 +494,8 @@ bool Gda::SaveGal(const GalElement* g,
 		out << " " << g[i].Size() << endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
-			if (cp > 0) out << " ";
+			if (cp > 0)
+                out << " ";
 		}
 		out << endl;
 	}
@@ -546,13 +549,12 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	return true;
 }
 
-
-
-/** Add higher order neighbors up to (and including) distance. 
+/** Add higher order neighbors up to (and including) distance.
  If cummulative true, then include lower orders as well.  Otherwise,
  only include elements on frontier. */
-void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs, GalElement* W,
-																	bool cummulative)
+void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
+                                  GalElement* W,
+                                  bool cummulative)
 {	
 	using namespace std;
 	if (obs < 1 || distance <=1) return;
