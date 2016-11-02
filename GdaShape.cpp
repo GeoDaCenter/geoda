@@ -26,7 +26,6 @@
 #include "GdaConst.h"
 #include "GenUtils.h"
 #include "GdaShape.h"
-#include "DataViewTransform.h"
 
 
 GdaScaleTrans::GdaScaleTrans()
