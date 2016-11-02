@@ -18,6 +18,7 @@
  */
 
 #include <time.h>
+#include <math.h>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
 #include "../DataViewer/TableInterface.h"
@@ -603,7 +604,7 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
                 double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
-				int newRandom = (int) (round(rng_val));
+				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
 				if (newRandom != cnt && !workPermutation.Belongs(newRandom))
 				{
 					workPermutation.Push(newRandom);

@@ -624,6 +624,9 @@
     <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\ReportBugDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1137,6 +1140,9 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>

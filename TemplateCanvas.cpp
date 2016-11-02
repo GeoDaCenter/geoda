@@ -232,6 +232,7 @@ void TemplateCanvas::OnKeyEvent(wxKeyEvent& event)
 #ifdef __WIN32__
 void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
 {
+	/*
 	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
 	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
 	int vs_w = 0, vs_h = 0;
@@ -252,9 +253,11 @@ void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
 
 	ResizeSelectableShps();
 	event.Skip();
+	*/
 }
 void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
 {
+	/*
 	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
 	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
 	int vs_w = 0, vs_h = 0;
@@ -275,6 +278,7 @@ void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
 
 	ResizeSelectableShps();
 	event.Skip();
+	*/
 }
 #endif
 
@@ -642,7 +646,12 @@ void TemplateCanvas::DrawLayer1()
     if (highlight_state->GetTotalHighlighted()>0) {
         double trans = transparency * 0.5;
         wxImage image = layer0_bm->ConvertToImage();
-        
+        if (!image.HasAlpha()) {
+            image.InitAlpha();
+            unsigned char *alpha=image.GetAlpha();
+            memset(alpha, 50, image.GetWidth()*image.GetHeight());
+        }
+		/*
         for (int i=0; i< image.GetWidth(); i++) {
             for (int j=0; j<image.GetHeight(); j++) {
                 unsigned char al = image.GetAlpha(i,j);
@@ -651,8 +660,7 @@ void TemplateCanvas::DrawLayer1()
                 }
             }
         }
-        //unsigned char *alpha=image.GetAlpha();
-        //memset(alpha, (int)(trans * 255), image.GetWidth()*image.GetHeight());
+		*/
         wxBitmap _bmp(image);
         
         dc.DrawBitmap(_bmp,0,0, true);
@@ -830,10 +838,11 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 } 
 
 
-void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only)
+void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only)
 {
-    wxGCDC dc(_dc);
-    
+#ifdef __WXMAC__
+    wxGCDC dc(dc);
+#endif
     vector<bool>& hs = GetSelBitVec();
     
 	int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1147,9 +1156,11 @@ void TemplateCanvas::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event)
         ReleaseMouse();
 }
 
-void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
+void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& dc)
 {
-    wxGCDC dc(_dc);
+#ifdef __WXMAC__
+    wxGCDC dc(dc);
+#endif
 	if ((mousemode == select || mousemode == zoom || mousemode == zoomout)&&
 		(selectstate == dragging || selectstate == brushing) ) {
 		int xx=0, yy=0;

@@ -207,6 +207,7 @@
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />

@@ -715,7 +715,7 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
                     double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                     // round is needed to fix issue
                     //https://github.com/GeoDaCenter/geoda/issues/488
-                    int newRandom = (int) (round(rng_val));
+                    int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
                     
 					if (newRandom != i && !workPermutation.Belongs(newRandom))
 					{

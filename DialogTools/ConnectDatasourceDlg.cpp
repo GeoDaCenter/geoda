@@ -456,6 +456,7 @@ const std::string RecentDatasource::KEY_NAME_IN_GDA_HISTORY = "recent_ds";
 
 RecentDatasource::RecentDatasource()
 {
+	n_ds =0;
     // get a latest input DB information
     std::vector<std::string> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
     

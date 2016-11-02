@@ -1398,6 +1398,7 @@ bool Project::IsDataTypeChanged()
  */
 int Project::InitFromShapefileLayer()
 {
+	return 0;
 }
 
 /** Initialize the Table and Shape Layer from OGR source */

@@ -657,6 +657,9 @@ bool Basemap::Draw(wxBitmap* buffer)
 	wxMemoryDC dc(*buffer);
 	dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
+	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return false;
    
     int x0 = startX;
     int x1 = endX;
@@ -685,11 +688,11 @@ bool Basemap::Draw(wxBitmap* buffer)
             }
             bool bmpOK = bmp.IsOk();
             if (bmpOK)
-                dc.DrawBitmap(bmp, pos_x, pos_y);
+                gc->DrawBitmap(bmp, pos_x, pos_y, 256,256);
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}
-    dc.SelectObject(wxNullBitmap);
+    delete gc;
     isTileDrawn = true;
     return isTileReady;
 }
