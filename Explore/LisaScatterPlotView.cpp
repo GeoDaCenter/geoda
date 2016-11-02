@@ -64,7 +64,6 @@ rand_dlg(0)
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::LisaMapCanvas");
 	
-	fixed_aspect_ratio_mode = true;
 	show_reg_selected = false;
 	show_reg_excluded = false;
 	

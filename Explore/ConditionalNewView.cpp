@@ -61,8 +61,8 @@ ConditionalNewCanvas(wxWindow *parent,
                      bool fixed_aspect_ratio_mode,
                      bool fit_to_window_mode,
                      const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
 num_obs(project_s->GetNumRecords()), num_time_vals(1),
 vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
@@ -130,8 +130,10 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 	if (num_obs < 3) {
 		horiz_num_cats = num_obs;
 		vert_num_cats = num_obs;
-		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
-		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
+		SetCatType(VERT_VAR, CatClassification::unique_values,
+                   vert_num_cats);
+		SetCatType(HOR_VAR, CatClassification::unique_values,
+                   horiz_num_cats);
 	}
 	CreateAndUpdateCategories(VERT_VAR);
 	CreateAndUpdateCategories(HOR_VAR);
@@ -139,7 +141,6 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 	highlight_state->registerObserver(this);
 	// child classes will set all_init = true;
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConditionalNewCanvas::ConditionalNewCanvas");
 }
 
 ConditionalNewCanvas::~ConditionalNewCanvas()
@@ -148,12 +149,10 @@ ConditionalNewCanvas::~ConditionalNewCanvas()
 	highlight_state->removeObserver(this);
 	if (cc_state_vert) cc_state_vert->removeObserver(this);
 	if (cc_state_horiz) cc_state_horiz->removeObserver(this);
-	LOG_MSG("Exiting ConditionalNewCanvas::~ConditionalNewCanvas");
 }
 
 void ConditionalNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("In ConditionalNewCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalNewFrame*) template_frame)->OnActivate(ae);

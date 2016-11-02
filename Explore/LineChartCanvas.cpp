@@ -60,10 +60,7 @@ lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0),
 y_axis_precision(1)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
-	shps_orig_xmin = 0;
-	shps_orig_ymin = 0;
-	shps_orig_xmax = 100;
-	shps_orig_ymax = 100;
+    last_scale_trans.SetData(0, 0, 100, 100);
 	UpdateMargins();
 	
 	use_category_brushes = false;
@@ -334,21 +331,7 @@ void LineChartCanvas::PopulateCanvas()
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-                                    shps_orig_xmax, shps_orig_ymax,
-                                    virtual_screen_marg_top,
-                                    virtual_screen_marg_bottom,
-                                    virtual_screen_marg_left,
-                                    virtual_screen_marg_right,
-                                    win_width, win_height,
-                                    fixed_aspect_ratio_mode,
-                                    fit_to_window_mode,
-                                    &scale_x, &scale_y, &trans_x, &trans_y,
-                                    0, 0,
-                                    &current_shps_width, &current_shps_height);
-																	
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
+    last_scale_trans.SetView(win_width, win_height);
 	
 	
 	double y_min = 0;
@@ -472,14 +455,14 @@ void LineChartCanvas::PopulateCanvas()
 						p->setPen(wxPen(GdaConst::ln_cht_clr_regimes_hl, 9));
 					}
 					p->setNudge(0, 5);
-					background_shps.push_back(p);
+					foreground_shps.push_back(p);
 				}
 				if ((lcs.compare_time_periods || lcs.compare_r_and_t)
 						&& lcs.tms_subset1[t]) {
 					GdaPolyLine* p = new GdaPolyLine(x0, 0, x1, 0);
 					p->setPen(wxPen(GdaConst::ln_cht_clr_tm2_light, 9));
 					p->setNudge(0, 5);
-					background_shps.push_back(p);
+					foreground_shps.push_back(p);
 				}
       
 				// Create invisible selection rectangles
@@ -495,7 +478,7 @@ void LineChartCanvas::PopulateCanvas()
 					tm_rects.push_back(r);
 					r->setPen(*wxTRANSPARENT_PEN);
 					r->setBrush(*wxTRANSPARENT_BRUSH);
-					background_shps.push_back(r);
+					foreground_shps.push_back(r);
 				}
 			}
 		}
@@ -516,13 +499,13 @@ void LineChartCanvas::PopulateCanvas()
 						c->setPen(GdaConst::ln_cht_clr_regimes_hl);
 						c->setBrush(GdaConst::ln_cht_clr_regimes_hl);
 					}
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 				if (lcs.compare_r_and_t && lcs.tms_subset1[t]) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					c->setPen(GdaConst::ln_cht_clr_tm2_light);
 					c->setBrush(GdaConst::ln_cht_clr_tm2_light);
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 			}
 		}
@@ -540,13 +523,13 @@ void LineChartCanvas::PopulateCanvas()
 						c->setPen(GdaConst::ln_cht_clr_regimes_hl);
 						c->setBrush(GdaConst::ln_cht_clr_regimes_hl);
 					}
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 				if (lcs.compare_r_and_t && lcs.tms_subset1[t]) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					c->setPen(GdaConst::ln_cht_clr_tm2_light);
 					c->setBrush(GdaConst::ln_cht_clr_tm2_light);
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 			}
 		}
@@ -564,14 +547,14 @@ void LineChartCanvas::PopulateCanvas()
 						c->setPen(GdaConst::ln_cht_clr_regimes_hl);
 						c->setBrush(GdaConst::ln_cht_clr_regimes_hl);
 					}
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 				if ((lcs.compare_time_periods || lcs.compare_r_and_t)
 						&& lcs.tms_subset1[t]) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					c->setPen(GdaConst::ln_cht_clr_tm2_light);
 					c->setBrush(GdaConst::ln_cht_clr_tm2_light);
-					background_shps.push_back(c);
+					foreground_shps.push_back(c);
 				}
 			}
 		}
@@ -587,14 +570,14 @@ void LineChartCanvas::PopulateCanvas()
 			}
 			GdaPolyLine* p = new GdaPolyLine(num_points, y_pts);
             p->setPen(wxPen(*wxBLACK, 1, wxSHORT_DASH));
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
 				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y), circ_rad);
 				wxColour lc = *wxBLACK;
 				wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 				c->setPen(lc);
 				c->setBrush(dc);
-				background_shps.push_back(c);
+				foreground_shps.push_back(c);
 				comb_circs.push_back(c);
 			}
 		}
@@ -608,7 +591,7 @@ void LineChartCanvas::PopulateCanvas()
 			}
 			GdaPolyLine* p = new GdaPolyLine(num_points, y_pts);
 			p->setPen(GdaConst::ln_cht_clr_exl_dark);
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
 				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y),
 																		 circ_rad);
@@ -616,7 +599,7 @@ void LineChartCanvas::PopulateCanvas()
 				wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 				c->setPen(lc);
 				c->setBrush(dc);
-				background_shps.push_back(c);
+				foreground_shps.push_back(c);
 				excl_circs.push_back(c);
 			}
 		}
@@ -631,14 +614,14 @@ void LineChartCanvas::PopulateCanvas()
 			}
 			GdaPolyLine* p = new GdaPolyLine(num_points, y_pts);
 			p->setPen(GdaConst::ln_cht_clr_sel_dark);
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			for (size_t t=0; t<tms; ++t) {
 				GdaCircle* c = new GdaCircle(wxRealPoint(y_pts[t].x, y_pts[t].y), circ_rad);
 				wxColour lc = GdaConst::ln_cht_clr_sel_dark;
 				wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 				c->setPen(lc);
 				c->setBrush(dc);
-				background_shps.push_back(c);
+				foreground_shps.push_back(c);
 				sel_circs.push_back(c);
 			}
 		}
@@ -653,39 +636,39 @@ void LineChartCanvas::PopulateCanvas()
 			double y = (lcs.Y_avg[t] - axis_scale_y.scale_min) * scaleY;
 			GdaPolyLine* p = new GdaPolyLine(x-d, y, x+d, y);
 			p->setPen(*wxBLACK_PEN);
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			GdaCircle* c = new GdaCircle(wxRealPoint(x,y), circ_rad);
 			wxColour lc = *wxBLACK;
 			wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 			c->setPen(lc);
 			c->setBrush(dc);
-			background_shps.push_back(c);
+			foreground_shps.push_back(c);
 			comb_circs.push_back(c);
 		}
 		if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_excl_avg_valid) {
 			double y = (lcs.Y_excl_avg[t] - axis_scale_y.scale_min) * scaleY;
 			GdaPolyLine* p = new GdaPolyLine(x-d, y, x+d, y);
 			p->setPen(GdaConst::ln_cht_clr_exl_dark);
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			GdaCircle* c = new GdaCircle(wxRealPoint(x,y), circ_rad);
 			wxColour lc = GdaConst::ln_cht_clr_exl_dark;
 			wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 			c->setPen(lc);
 			c->setBrush(dc);
-			background_shps.push_back(c);
+			foreground_shps.push_back(c);
 			excl_circs.push_back(c);
 		}
 		if ((lcs.compare_regimes || lcs.compare_r_and_t) && lcs.Y_sel_avg_valid) {
 			double y = (lcs.Y_sel_avg[t] - axis_scale_y.scale_min) * scaleY;
 			GdaPolyLine* p = new GdaPolyLine(x-d, y, x+d, y);
 			p->setPen(GdaConst::ln_cht_clr_sel_dark);
-			background_shps.push_back(p);
+			foreground_shps.push_back(p);
 			GdaCircle* c = new GdaCircle(wxRealPoint(x,y), circ_rad);
 			wxColour lc = GdaConst::ln_cht_clr_sel_dark;
 			wxColour dc = GdaColorUtils::ChangeBrightness(lc);
 			c->setPen(lc);
 			c->setBrush(dc);
-			background_shps.push_back(c);
+			foreground_shps.push_back(c);
 			sel_circs.push_back(c);
 		}
 	}
@@ -697,13 +680,13 @@ void LineChartCanvas::PopulateCanvas()
 		x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
 		x_baseline->autoDropScaleValues(true);
 		x_baseline->moveOuterValTextInwards(false);
-		background_shps.push_back(x_baseline);
+		foreground_shps.push_back(x_baseline);
 	}
 	GdaAxis* y_baseline = new GdaAxis(lcs.Yname, axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, 100), -5, 0);
 	y_baseline->autoDropScaleValues(true);
 	y_baseline->moveOuterValTextInwards(true);
 	y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
-	background_shps.push_back(y_baseline);	
+	foreground_shps.push_back(y_baseline);	
 	
 	if (y_pts) delete [] y_pts;
 	
@@ -714,10 +697,7 @@ void LineChartCanvas::PopulateCanvas()
 
 void LineChartCanvas::UpdateMargins()
 {
-	virtual_screen_marg_top = 10;//20;
-	virtual_screen_marg_right = 50;//20;//20;
-	virtual_screen_marg_bottom = 40;//45;
-	virtual_screen_marg_left = 50;//45;
+    last_scale_trans.SetMargin(10, 40, 50, 50);
 }
 
 /** bg_clr is optional and is transparent by default */
@@ -732,19 +712,19 @@ GdaCircle* LineChartCanvas::MakeSummAvgHelper(double y_avg, const wxColour& fg_c
 	r1->setPen(fg_clr);
 	r0->setNudge(x_nudge, 0);
 	r1->setNudge(x_nudge, 0);
-	background_shps.push_back(r0);
-	background_shps.push_back(r1);
+	foreground_shps.push_back(r0);
+	foreground_shps.push_back(r1);
 	if (bg_clr != wxTransparentColor) {
 		GdaCircle* bc = new GdaCircle(wxRealPoint(x,y), ss_circ_rad);
 		bc->setNudge(x_nudge, 0);
 		bc->setPen(bg_clr);
 		bc->setBrush(bg_clr);
-		background_shps.push_back(bc);
+		foreground_shps.push_back(bc);
 	}
 	GdaCircle* c = new GdaCircle(wxRealPoint(x,y), circ_rad);
 	c->setNudge(x_nudge, 0);
 	c->setPen(fg_clr);
 	c->setBrush(GdaColorUtils::ChangeBrightness(fg_clr));
-	background_shps.push_back(c);
+	foreground_shps.push_back(c);
 	return c;
 }

@@ -32,6 +32,8 @@
 #include <wx/menu.h>
 #include <wx/dcbuffer.h>
 #include <wx/graphics.h>
+#include <wx/dcgraph.h>
+
 #include <boost/foreach.hpp>
 #include <boost/array.hpp>
 #include <boost/geometry/geometry.hpp>
@@ -54,17 +56,9 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "GdaConst.h"
+#include "DataViewTransform.h"
 
-DataViewTransform::DataViewTransform()
-{
-    
-}
-
-DataViewTransform::~DataViewTransform()
-{
-
-}
-
+using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -82,7 +76,6 @@ BEGIN_EVENT_TABLE(TemplateCanvas, wxScrolledWindow)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 	EVT_KEY_DOWN(TemplateCanvas::OnKeyEvent)
 	EVT_KEY_UP(TemplateCanvas::OnKeyEvent)
-	//EVT_SCROLL_CHANGED(TemplateCanvas::OnScrollChanged)
 	EVT_SCROLLWIN(TemplateCanvas::OnScrollChanged)
 #ifdef __WIN32__
 	EVT_SCROLLWIN_LINEUP(TemplateCanvas::OnScrollUp)
@@ -98,41 +91,23 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
                              const wxSize& size,
                              bool fixed_aspect_ratio_mode_s,
                              bool fit_to_window_mode_s)
-: wxScrolledWindow(parent, -1, pos, size, wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
+: wxScrolledWindow(parent, -1, pos, size,
+                   wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
 mousemode(select), selectstate(start), brushtype(rectangle),
-scrollbarmode(none),
-fixed_aspect_ratio_mode(fixed_aspect_ratio_mode_s),
-fit_to_window_mode(fit_to_window_mode_s),
-remember_shiftdown(false),
-project(project_s),
-highlight_state(hl_state_int_),
-template_frame(template_frame_),
-fixed_aspect_ratio_val(1.0),
-current_shps_width(0.0), current_shps_height(0.0),
-virtual_screen_marg_left(GdaConst::default_virtual_screen_marg_left),
-virtual_screen_marg_right(GdaConst::default_virtual_screen_marg_right),
-virtual_screen_marg_top(GdaConst::default_virtual_screen_marg_top),
-virtual_screen_marg_bottom(GdaConst::default_virtual_screen_marg_bottom),
-shps_orig_xmin(0), shps_orig_ymin(0),
-shps_orig_xmax(0), shps_orig_ymax(0),
-selectable_outline_visible(true),
-user_canvas_background_color(false),
+scrollbarmode(none), remember_shiftdown(false), project(project_s),
+highlight_state(hl_state_int_), template_frame(template_frame_),
+selectable_outline_visible(true), user_canvas_background_color(false),
 selectable_outline_color(GdaConst::selectable_outline_color),
 selectable_fill_color(GdaConst::selectable_fill_color),
 highlight_color(GdaConst::highlight_color),
 canvas_background_color(GdaConst::canvas_background_color),
-selectable_shps_type(mixed),
-use_category_brushes(false),
-draw_sel_shps_by_z_val(false),
-transparency(1.0),
-isResize(false),
-isRepaint(false),
+selectable_shps_type(mixed), use_category_brushes(false),
+draw_sel_shps_by_z_val(false), transparency(0.5),
+isResize(false), isRepaint(false),
 layer0_bm(0), layer1_bm(0), layer2_bm(0), final_bm(0),
-layerbase_valid(true), layer0_valid(false),
-layer1_valid(false), layer2_valid(false),
+layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
-is_pan_zoom(false), is_scrolled(false), prev_scroll_pos_x(0),
-prev_scroll_pos_y(0),
+is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
 useScientificNotation(false)
 {
     // default is one time slice
@@ -141,7 +116,7 @@ useScientificNotation(false)
     // will set the correct cursor for current mode
 	SetMouseMode(mousemode);
 	
-    SetBackgroundStyle(wxBG_STYLE_ERASE);
+	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 }
 
 /**
@@ -156,11 +131,10 @@ TemplateCanvas::~TemplateCanvas()
 	BOOST_FOREACH( GdaShape* shp, background_shps ) delete shp;
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) delete shp;
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) delete shp;
-    
+
     if (HasCapture()) {
         ReleaseMouse();
     }
-	
     deleteLayerBms();
 }
 
@@ -168,7 +142,6 @@ TemplateCanvas::~TemplateCanvas()
 // handler.  So, do nothing in this handler.
 void TemplateCanvas::OnEraseBackground(wxEraseEvent& event)
 {
-    // LOG_MSG("TemplateCanvas::OnEraseBackground called, do nothing.");
 }
 
 void TemplateCanvas::SetScientificNotation(bool flag)
@@ -212,19 +185,13 @@ void TemplateCanvas::invalidateBms()
 
 bool TemplateCanvas::GetFixedAspectRatioMode()
 {
-	return fixed_aspect_ratio_mode;
+	return last_scale_trans.fixed_aspect_ratio;
 }
 
 void TemplateCanvas::SetFixedAspectRatioMode(bool mode)
 {
-	fixed_aspect_ratio_mode = mode;
-	if (fixed_aspect_ratio_mode) {
-		if (current_shps_width < current_shps_height) {
-			current_shps_height = current_shps_width / fixed_aspect_ratio_val;
-		} else {
-			current_shps_width = current_shps_height * fixed_aspect_ratio_val;
-		}
-	}
+    last_scale_trans.SetFixedAspectRatio(mode);
+
 	ResizeSelectableShps();
 }
 
@@ -238,9 +205,10 @@ void TemplateCanvas::SetFitToWindowMode(bool mode)
 {
 	fit_to_window_mode = mode;
 	scrollbarmode = none;
+    
 	if (fit_to_window_mode) {
 		is_pan_zoom = false;
-		is_scrolled = false;
+
 		prev_scroll_pos_x = 0;
 		prev_scroll_pos_y = 0;
 		
@@ -267,7 +235,7 @@ void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
 	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
 	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
 	int vs_w = 0, vs_h = 0;
-	GetVirtualSize(&vs_w, &vs_h);
+	GetClientSize(&vs_w, &vs_h);
 	int offset = -1;
 	int orient = event.GetOrientation();
 	if (orient == wxVERTICAL) {
@@ -281,7 +249,7 @@ void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
 		current_map_x_max += delta;
 		prev_scroll_pos_x -= 1;
 	}
-	is_scrolled = true;
+
 	ResizeSelectableShps();
 	event.Skip();
 }
@@ -290,7 +258,7 @@ void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
 	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
 	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
 	int vs_w = 0, vs_h = 0;
-	GetVirtualSize(&vs_w, &vs_h);
+	GetClientSize(&vs_w, &vs_h);
 	int offset = 1;
 	int orient = event.GetOrientation();
 	if (orient == wxVERTICAL) {
@@ -304,7 +272,7 @@ void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
 		current_map_x_max += delta;
 		prev_scroll_pos_x += 1;
 	}
-	is_scrolled = true;
+
 	ResizeSelectableShps();
 	event.Skip();
 }
@@ -317,6 +285,7 @@ void TemplateCanvas::OnScrollChanged(wxScrollWinEvent& event)
 	int orient = event.GetOrientation();
 	int pos_e = event.GetPosition(); // this was often returning 0 on Windows
 	int pos_w = GetScrollPos(orient);
+    
 	// There must be a bug in wxWidgets 3.0 for Windows because often
 	// pos_e == 0 when it shouldn't be.  When pos_e == 0, we use the
 	// value from pos_w instead.  However, pos_w is often the same as
@@ -324,139 +293,49 @@ void TemplateCanvas::OnScrollChanged(wxScrollWinEvent& event)
 	// the window from jumping around.  Actually dragging the scroll
 	// bars by the thumb slider works.
 	int pos = (pos_e == 0) ? pos_w : pos_e; 
-	event.Skip();
+
 	if (pos!=0 && is_pan_zoom) {
-		int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
-		int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
-		int vs_w = 0, vs_h = 0;
-		GetVirtualSize(&vs_w, &vs_h);
+        int v_offset = 0;
+        int h_offset = 0;
+        
 		if (orient == wxHORIZONTAL) {
-			int v_offset = pos - prev_scroll_pos_x ;
-			double offset = v_offset / (double)vs_w * shp_w;
-			current_map_x_min += offset;
-			current_map_x_max += offset;
+			h_offset = pos - prev_scroll_pos_x ;
 			prev_scroll_pos_x = pos;
 		} else if (orient == wxVERTICAL) {
-			int v_offset = -pos + prev_scroll_pos_y ;
-			double offset = v_offset / (double)vs_h * shp_h;
-			current_map_y_min += offset;
-			current_map_y_max += offset;
+			v_offset = -pos + prev_scroll_pos_y ;
 			prev_scroll_pos_y = pos;
 		}
-		is_scrolled = true;
+
+        last_scale_trans.ScrollView(h_offset, v_offset);
 		ResizeSelectableShps();
 	}
+	event.Skip();
 }
 
 wxString TemplateCanvas::GetCanvasStateString()
 {
-	wxString str("TemplateCanvas state data:\n");
-	str << "  fit_to_window_mode = " << fit_to_window_mode;
-	str << "\n  fixed_aspect_ratio_mode = " << fixed_aspect_ratio_mode;
-	str << "\n  fixed_aspect_ratio_val = " << fixed_aspect_ratio_val;
-	str << "\n  current_shps_width = " << current_shps_width;
-	str << "\n  current_shps_height = " << current_shps_height;
-	str << "\n  GetClientSize().GetWidth() = " << GetClientSize().GetWidth();
-	str << "\n  GetClientSize().GetHeight() = " << GetClientSize().GetHeight();
-	str << "\n  GetVirtualSize().GetWidth() = " << GetVirtualSize().GetWidth();
-	str << "\n  GetVirtualSize().GetHeight() = " << GetVirtualSize().GetHeight();
-	str << "\n";
-
-	return str;
+	return "";
 }
 
-//bool fixed_aspect_ratio_mode;
-//bool fit_to_window_mode;
-//int virtual_screen_marg_left;  // virtual screen fixed margins
-//int virtual_screen_marg_right;
-//int virtual_screen_marg_top;
-//int virtual_screen_marg_bottom;
-//double current_shps_width;  // these will be set by the zoom in/out code
-//double current_shps_height;
-// the following four parameters should usually be obtained from
-// the shp file bounding box info in the header file.  They are used
-// to calculate the affine transformation when the window is resized.
-//double shps_orig_xmin;
-//double shps_orig_ymin;
-//double shps_orig_xmax;
-//double shps_orig_ymax;
-//
-// We assume that the above parameters are all set correctly.
-//
-// virtual_scrn_w and virtual_scrn_h are optional parameters.  When
-// they are > 0, they are used, otherwise we call GetVirtualSize
-// to get the current virtual screen size.
-//
+
 void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 										  int virtual_scrn_h)
 {
 	
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
-	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
-
-	double image_width, image_height;
     
-	bool ftwm = true;//GetFitToWindowMode(); always true; will be deprecated
+    int vs_w = virtual_scrn_w;
+    int vs_h = virtual_scrn_h;
     
-	if (ftwm == false) {
-		if (vs_w <= 0 && vs_h <= 0) {
-			GetVirtualSize(&vs_w, &vs_h);
-		}
-	} else {
-		if (vs_w <= 0 && vs_h <= 0) {
-			GetClientSize(&vs_w, &vs_h);
-		}
-	}
+    if (vs_w <= 0 && vs_h <=0 ) {
+        GetClientSize(&vs_w, &vs_h);
+    }
     
-	double resize_xmin, resize_ymin, resize_xmax, resize_ymax;
-	if (is_pan_zoom ) {
-		resize_xmin = current_map_x_min;
-		resize_ymin = current_map_y_min;
-		resize_xmax = current_map_x_max;
-		resize_ymax = current_map_y_max;
-	} else {
-		resize_xmin = shps_orig_xmin;
-		resize_ymin = shps_orig_ymin;
-		resize_xmax = shps_orig_xmax;
-		resize_ymax = shps_orig_ymax;
-	}
-   
-    // data_extent
     // view: extent, margins, width, height
-    GdaScaleTrans::calcAffineParams(resize_xmin, resize_ymin,
-                                    resize_xmax, resize_ymax,
-                                    virtual_screen_marg_top,
-                                    virtual_screen_marg_bottom,
-                                    virtual_screen_marg_left,
-                                    virtual_screen_marg_right,
-                                    vs_w, vs_h,
-                                    fixed_aspect_ratio_mode,
-                                    ftwm,
-                                    &last_scale_trans.scale_x,
-                                    &last_scale_trans.scale_y,
-                                    &last_scale_trans.trans_x,
-                                    &last_scale_trans.trans_y,
-                                    ftwm ? 0 : current_shps_width,
-                                    ftwm ? 0 : current_shps_height,
-                                    &image_width,
-                                    &image_height);
-    
-    last_scale_trans.max_scale =
-		GenUtils::max<double>(last_scale_trans.scale_x,
-							  last_scale_trans.scale_y);
-    
-	// Note: previously resize would only happen if both
-	// current_shps_width and current_shps_height was non-zero.  This
-	// has been motified for Scatter Plot Matrix Simple Axis.
-	// Will need to test carefully to see if this causes any problems.
-    if (current_shps_width < 0) {
-        current_shps_width = 0;
-    }
-    if (current_shps_height < 0) {
-        current_shps_height = 0;
-    }
-	if (current_shps_width >= 0 && current_shps_height >= 0) {
+    last_scale_trans.SetView(vs_w, vs_h);
+
+    if (last_scale_trans.IsValid()) {
 		BOOST_FOREACH( GdaShape* ms, background_shps ) {
 			ms->applyScaleTrans(last_scale_trans);
 		}
@@ -469,39 +348,7 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		ms->applyScaleTrans(last_scale_trans);
 	}
 
-	if ( resize_xmax == shps_orig_xmax && resize_ymin == shps_orig_ymin){
-		wxRealPoint map_topleft, map_bottomright;
-		last_scale_trans.transform_back(wxPoint(0,0), map_topleft);
-		last_scale_trans.transform_back(wxPoint(vs_w-1,vs_h-1), map_bottomright);
-		ext_shps_orig_xmin = map_topleft.x;
-		ext_shps_orig_xmax = map_bottomright.x;
-		ext_shps_orig_ymin = map_bottomright.y;
-		ext_shps_orig_ymax = map_topleft.y;
-	}
-    
-	//Scrollbars setting
-	if (is_pan_zoom && !is_scrolled) {
-		wxRealPoint map_topleft, map_bottomright;
-		last_scale_trans.transform_back(wxPoint(0,0), map_topleft);
-		last_scale_trans.transform_back(wxPoint(vs_w-1,vs_h-1), map_bottomright);
-		double current_w = map_bottomright.x - map_topleft.x;
-		double current_h = -map_bottomright.y + map_topleft.y;
-		double shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
-		double shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
-		int whole_vs_h =(int)(vs_h * shp_h / current_h); 
-		int whole_vs_w =(int)(vs_w * shp_w / current_w); 
-		int offset_vs_x = (int)(whole_vs_w * (map_topleft.x-ext_shps_orig_xmin) / shp_w);
-		int offset_vs_y = (int)(whole_vs_h * (ext_shps_orig_ymax-map_topleft.y) / shp_h);
 
-		//SetVirtualSize(whole_vs_w, whole_vs_h);
-		//SetScrollRate(1,1);
-		prev_scroll_pos_x =  offset_vs_x > 0 ? offset_vs_x:0;
-		prev_scroll_pos_y =  offset_vs_y > 0 ? offset_vs_y:0;
-		//SetScrollPos(wxHORIZONTAL, prev_scroll_pos_x);
-		//SetScrollPos(wxVERTICAL, prev_scroll_pos_y);
-	}
-    
-	is_scrolled = false;
     layer0_valid = false;
     layer1_valid = false;
     layer2_valid = false;
@@ -510,15 +357,10 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 void TemplateCanvas::ResetShapes()
 {
 
-	current_map_x_min = shps_orig_xmin;
-	current_map_y_min = shps_orig_ymin;
-	current_map_x_max = shps_orig_xmax;
-	current_map_y_max = shps_orig_ymax;
+    last_scale_trans.Reset();
+
 	is_pan_zoom = false;
 
-	int vs_w=0, vs_h=0;
-	GetClientSize(&vs_w, &vs_h);
-	
 	SetMouseMode(select);
 	ResizeSelectableShps();
 }
@@ -533,48 +375,11 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
     
 	if (sel1.y == sel2.y)
         sel2.y = sel1.y + 2;
+    
+    last_scale_trans.Zoom(is_zoomin, sel1, sel2);
 	
-	// get current selected extent/view in map coordinates
-	wxRealPoint map_sel1, map_sel2;
-	last_scale_trans.transform_back(sel1, map_sel1);
-	last_scale_trans.transform_back(sel2, map_sel2);
-	
-	// topLeft, bottomRight
-	double resize_xmin, resize_ymin, resize_xmax, resize_ymax;
-	if (!is_pan_zoom ) {
-		current_map_x_min = shps_orig_xmin;
-		current_map_y_min = shps_orig_ymin;
-		current_map_x_max = shps_orig_xmax;
-		current_map_y_max = shps_orig_ymax;
-	}
-
-	if (!is_zoomin) {
-		double current_map_w = current_map_x_max - current_map_x_min;
-		double current_map_h = current_map_y_max - current_map_y_min;
-		double w_ratio = current_map_w / fabs( map_sel1.x - map_sel2.x);
-		double h_ratio = current_map_h / fabs( map_sel1.y - map_sel2.y);
-		double ratio = w_ratio > h_ratio ? h_ratio : w_ratio;
-		
-		double x_expand = current_map_w * (ratio - 1) / 2.0;
-		double y_expand = current_map_h * (ratio - 1) / 2.0;
-		resize_xmin = current_map_x_min - x_expand;
-		resize_xmax = current_map_x_max + x_expand;
-		resize_ymin = current_map_y_min - y_expand;
-		resize_ymax = current_map_y_max + y_expand;
-	} else {
-		resize_xmin = std::min( map_sel1.x, map_sel2.x);
-		resize_xmax = std::max( map_sel1.x, map_sel2.x);
-		resize_ymin = std::min( map_sel1.y, map_sel2.y);
-		resize_ymax = std::max( map_sel1.y, map_sel2.y);
-	}
-
 	is_pan_zoom = true;
-	current_map_x_min = resize_xmin;
-	current_map_y_min = resize_ymin;
-	current_map_x_max = resize_xmax;
-	current_map_y_max = resize_ymax;
 
-    SetFitToWindowMode(false);
 	ResizeSelectableShps();
 }
 
@@ -582,35 +387,11 @@ void TemplateCanvas::PanShapes()
 {
 	if (sel2.x == 0 && sel2.y==0) 
         return;
+   
+    last_scale_trans.PanView(sel1, sel2);
     
-    SetFitToWindowMode(false);
-	// update map boundary of current view, here we can only update
-	// trans_x and trans_y; (scale_x and scale_y wont change since it's only pan
-	wxRealPoint map_sel1, map_sel2;
-	last_scale_trans.transform_back(sel1, map_sel1);
-	last_scale_trans.transform_back(sel2, map_sel2);
-	double delta_x_o = map_sel2.x - map_sel1.x;
-	double delta_y_o = map_sel2.y - map_sel1.y;
-	
-	double resize_xmin, resize_ymin, resize_xmax, resize_ymax;
-	if (is_pan_zoom ) {
-		resize_xmin = current_map_x_min - delta_x_o;
-		resize_ymin = current_map_y_min - delta_y_o;
-		resize_xmax = current_map_x_max - delta_x_o;
-		resize_ymax = current_map_y_max - delta_y_o;
-	} else {
-		resize_xmin = shps_orig_xmin - delta_x_o;
-		resize_ymin = shps_orig_ymin - delta_y_o;
-		resize_xmax = shps_orig_xmax - delta_x_o;
-		resize_ymax = shps_orig_ymax - delta_y_o;
-	}
-
 	is_pan_zoom = true;
-	current_map_x_min = resize_xmin;
-	current_map_y_min = resize_ymin;
-	current_map_x_max = resize_xmax;
-	current_map_y_max = resize_ymax;
-	
+
 	ResizeSelectableShps();
 }
 
@@ -620,21 +401,26 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 	if (mousemode == select) {
 		//SetCursor(*wxCROSS_CURSOR);
 		SetCursor(*wxSTANDARD_CURSOR);
+        
 	} else if (mousemode == pan) {
 		SetCursor(wxCursor(wxCURSOR_HAND));
+        
 	} else if (mousemode == zoom) {
 		if (remember_shiftdown) 
 			SetCursor(GdaConst::zoomOutCursor);
 		else
 			SetCursor(GdaConst::zoomInCursor);
+        
 	} else if (mousemode == zoomout) {
         SetCursor(GdaConst::zoomOutCursor);
+        
 	} else { // default
 		SetCursor(*wxSTANDARD_CURSOR);
 	}
 }
 
-void TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps, Project* project)
+void TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
+                                           Project* project)
 {
 	using namespace Shapefile;
 	
@@ -644,7 +430,7 @@ void TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_sh
 	int num_recs = project->GetNumRecords();
 	selectable_shps.resize(num_recs);
     
-	std::vector<MainRecord>& records = project->main_data.records;
+	vector<MainRecord>& records = project->main_data.records;
 	Header& hdr = project->main_data.header;
 	
 	if (hdr.shape_type == Shapefile::POINT_TYP) {
@@ -678,38 +464,13 @@ void TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_sh
 
 wxRealPoint TemplateCanvas::MousePntToObsPnt(const wxPoint &pt)
 {
-	//LOG_MSG("Entering TemplateCanvas::MousePntToObsPnt");
-	wxSize size(GetVirtualSize());
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-									shps_orig_xmax, shps_orig_ymax,
-									virtual_screen_marg_top,
-									virtual_screen_marg_bottom,
-									virtual_screen_marg_left,
-									virtual_screen_marg_right,
-									size.GetWidth(), size.GetHeight(),
-									fixed_aspect_ratio_mode,
-									fit_to_window_mode,
-									&scale_x, &scale_y, &trans_x, &trans_y,
-									0, 0,
-									&current_shps_width, &current_shps_height);
-	double x = pt.x;
-	double y = pt.y;
-	x = (x-trans_x)/scale_x;
-	y = (y-trans_y)/scale_y;
-	double my_x_factor = (data_scale_xmax-data_scale_xmin)/(shps_orig_xmax-shps_orig_xmin);
-	double my_y_factor = (data_scale_ymax-data_scale_ymin)/(shps_orig_ymax-shps_orig_ymin);
-	x = x*my_x_factor + data_scale_xmin;
-	y = y*my_y_factor + data_scale_ymin;	
-	//LOG_MSG("Exiting TemplateCanvas::MousePntToObsPnt");
-	return wxRealPoint(x,y);
+    wxPoint new_pt = pt;
+    wxRealPoint data_pt = last_scale_trans.View2Data(new_pt);
+    return data_pt;
 }
 
 void TemplateCanvas::SetSelectableOutlineVisible(bool visible)
 {
-	LOG_MSG("Called TemplateCanvas::SetSelectableOutlineVisible()");
-
-
 	selectable_outline_visible = visible;
     
 	layer0_valid = false;
@@ -736,7 +497,6 @@ bool TemplateCanvas::IsUserBackgroundColorVisible()
 
 void TemplateCanvas::SetSelectableOutlineColor(wxColour color)
 {
-	LOG_MSG("Called TemplateCanvas::SetSelectableOutlineColor");
 	selectable_outline_color = color;
     
 	layer0_valid = false;
@@ -770,21 +530,6 @@ void TemplateCanvas::SetCanvasBackgroundColor(wxColour color)
 
 void TemplateCanvas::UpdateSelectableOutlineColors()
 {
-	LOG_MSG("Called TemplateCanvas::UpdateSelectableOutlineColors");
-    /*
-	wxPen pen(selectable_outline_visible ? selectable_outline_color :
-			  selectable_fill_color, 1, wxSOLID);
-	wxBrush brush(GdaConst::selectable_fill_color, wxSOLID);
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (GdaPolyLine* p = dynamic_cast<GdaPolyLine*>(selectable_shps[i])) {
-			wxPen pen(GdaConst::selectable_fill_color, 1, wxSOLID);
-			selectable_shps[i]->pen = pen;
-		} else {  // same for all other GdaShapes
-			selectable_shps[i]->pen = pen;
-		}
-		selectable_shps[i]->brush = brush;
-	}
-     */
 }
 
 /**
@@ -793,12 +538,9 @@ void TemplateCanvas::UpdateSelectableOutlineColors()
  that its state has changed. */
 void TemplateCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering TemplateCanvas::update");
-    
 	if (draw_sel_shps_by_z_val) {
 		// force a full redraw
 		layer0_valid = false;
-		LOG_MSG("Exiting TemplateCanvas::update");
 		return;
 	}
     // re-paint highlight layer (layer1_bm)
@@ -807,32 +549,32 @@ void TemplateCanvas::update(HLStateInt* o)
     Refresh();
     
     UpdateStatusBar();
-	LOG_MSG("Exiting TemplateCanvas::update");
 }
 
-void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
+void TemplateCanvas::RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush)
 {
-	wxSize sz = GetVirtualSize();
+	wxSize sz = GetClientSize();
 	dc.SetPen(canvas_background_color);
 	dc.SetBrush(canvas_background_color);
 	dc.DrawRectangle(wxPoint(0,0), sz);
+    
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
 		shp->paintSelf(dc);
 	}
 	if (draw_sel_shps_by_z_val) {
 		DrawSelectableShapesByZVal(dc, disable_crosshatch_brush);
+        
 	} else {
-		DrawSelectableShapes_gen_dc(dc);
+		DrawSelectableShapes_dc(dc);
 	}
 	
 	if (!draw_sel_shps_by_z_val) {
-		DrawHighlightedShapes_gen_dc(dc, disable_crosshatch_brush);
+		DrawSelectableShapes_dc(dc, true);
 	}
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
 		shp->paintSelf(dc);
 	}
-	
 }
 
 void TemplateCanvas::DrawLayers()
@@ -840,23 +582,26 @@ void TemplateCanvas::DrawLayers()
 	if (layer2_valid && layer1_valid && layer0_valid)
 		return;
   
-	wxSize sz = GetVirtualSize();
-	if (!layer0_bm) 
-        resizeLayerBms(sz.GetWidth(), sz.GetHeight());
+	wxSize sz = GetClientSize();
+    int width = sz.GetWidth();
+    int height = sz.GetHeight();
     
-    if (!layer0_valid)
+	//if (!layer0_bm)
+    //    resizeLayerBms(sz.GetWidth(), sz.GetHeight());
+   
+    if (!layer0_valid) {
         DrawLayer0();
-    
+    }
+
     if (!layer1_valid)
         DrawLayer1();
     
     if (!layer2_valid) {
-        DrawLayer1();
         DrawLayer2();
     }
    
     isRepaint = true;
-    Refresh(false);
+    Refresh();
 }
 
 
@@ -865,7 +610,7 @@ void TemplateCanvas::DrawLayers()
 void TemplateCanvas::DrawLayer0()
 {
     //LOG_MSG("In TemplateCanvas::DrawLayer0");
-    wxSize sz = GetVirtualSize();
+    wxSize sz = GetClientSize();
     wxMemoryDC dc(*layer0_bm);
 
     dc.SetPen(canvas_background_color);
@@ -880,7 +625,7 @@ void TemplateCanvas::DrawLayer0()
     } else {
         DrawSelectableShapes(dc);
     }
-    
+    dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
     layer1_valid = false;
 }
@@ -890,12 +635,36 @@ void TemplateCanvas::DrawLayer0()
 // draw highlighted shapes.
 void TemplateCanvas::DrawLayer1()
 {
-    //LOG_MSG("In TemplateCanvas::DrawLayer1");
     wxMemoryDC dc(*layer1_bm);
     dc.Clear();
-    dc.DrawBitmap(*layer0_bm, 0, 0);
+    
+    // faded the background half transparency
+    if (highlight_state->GetTotalHighlighted()>0) {
+        double trans = transparency * 0.5;
+        wxImage image = layer0_bm->ConvertToImage();
+        
+        for (int i=0; i< image.GetWidth(); i++) {
+            for (int j=0; j<image.GetHeight(); j++) {
+                unsigned char al = image.GetAlpha(i,j);
+                if ( al != 0 ) {
+                    image.SetAlpha(i, j, 50);
+                }
+            }
+        }
+        //unsigned char *alpha=image.GetAlpha();
+        //memset(alpha, (int)(trans * 255), image.GetWidth()*image.GetHeight());
+        wxBitmap _bmp(image);
+        
+        dc.DrawBitmap(_bmp,0,0, true);
+        
+    } else {
+        dc.DrawBitmap(*layer0_bm, 0, 0);
+    }
+    
     if (!draw_sel_shps_by_z_val)
         DrawHighlightedShapes(dc);
+    
+    dc.SelectObject(wxNullBitmap);
     layer1_valid = true;
     layer2_valid = false;
 }
@@ -909,34 +678,16 @@ void TemplateCanvas::DrawLayer2()
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
+    PaintSelectionOutline(dc);
+    dc.SelectObject(wxNullBitmap);
     layer2_valid = true;
 }
 
-// Paint events are generated when user interaction
-// causes regions to need repainting, or when wxWindow::Refresh
-// wxWindow::RefreshRect is called.  wxWindow::Update can be
-// called immediately after Refresh or RefreshRect to force the
-// paint event to be called immediately.  Use the
-// wxFULL_REPAINT_ON_RESIZE window style to have the entire
-// window included in the update region.  This is important in the
-// case where resizing the window changes the position of all of
-// the window graphics.
+
 void TemplateCanvas::OnPaint(wxPaintEvent& event)
 {
     if (layer2_bm) {
-        wxSize sz = GetClientSize();
-        wxMemoryDC dc(*layer2_bm);
-        
-        wxPaintDC paint_dc(this);
-        
-        // this line cause flicking on windows machine
-        //paint_dc.Clear();
-        
-        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
-        
-        // Draw the the selection region if needed
-        PaintSelectionOutline(paint_dc);
-        
+        wxBufferedPaintDC paint_dc(this, *layer2_bm);
 
         isRepaint = false;
     }
@@ -953,38 +704,20 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
     if (isResize) {
         isResize = false;
         
-        // we know there has been a change in the client size
-        int cs_w=0, cs_h=0;
-        GetClientSize(&cs_w, &cs_h);
         int vs_w, vs_h;
-        GetVirtualSize(&vs_w, &vs_h);
         
-        double new_w = (cs_w-(virtual_screen_marg_left +
-                              virtual_screen_marg_right));
-        double new_h = (cs_h-(virtual_screen_marg_top +
-                              virtual_screen_marg_bottom));
-        double new_ar = (double) new_w / (double) new_h;
-
-        if (fixed_aspect_ratio_mode) {
-            if (fixed_aspect_ratio_val >= new_ar) {
-                current_shps_width = new_w;
-                current_shps_height = new_w / fixed_aspect_ratio_val;
-            } else {
-                current_shps_height = new_h;
-                current_shps_width = new_h * fixed_aspect_ratio_val;
-            }
-        } else {
-            current_shps_width = new_w;
-            current_shps_height = new_h;
-        }
- 
-        resizeLayerBms(cs_w, cs_h);
+        GetClientSize(&vs_w, &vs_h);
+        
+        last_scale_trans.SetView(vs_w, vs_h);
+        
+        resizeLayerBms(vs_w, vs_h);
 
         ResizeSelectableShps();
+        
         event.RequestMore(); // render continuously, not only once on idle
     }
     
-    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
+    if (!layer2_valid || !layer1_valid || !layer0_valid) {
         DrawLayers();
         event.RequestMore(); // render continuously, not only once on idle
     }
@@ -992,10 +725,8 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
 
 void TemplateCanvas::OnSize(wxSizeEvent& event)
 {
-	//LOG_MSG("Entering TemplateCanvas::OnSize");
     isResize = true;
     event.Skip();
-    //LOG_MSG("Exiting TemplateCanvas::OnSize");
 }
 
 
@@ -1021,11 +752,12 @@ bool TemplateCanvas::_IsShpValid(int idx)
 void TemplateCanvas::DrawSelectableShapesByZVal(wxDC &dc,
 												bool disable_crosshatch_brush)
 {
-	if (selectable_shps_type != circles) return;
+	if (selectable_shps_type != circles)
+        return;
 	
 	wxBrush hc_brush(disable_crosshatch_brush ? wxBrush(highlight_color) :
 					 wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	std::vector<bool>& hs = GetSelBitVec();
+	vector<bool>& hs = GetSelBitVec();
 	
 	dc.SetPen(*wxTRANSPARENT_PEN);
 	
@@ -1060,17 +792,15 @@ void TemplateCanvas::DrawSelectableShapesByZVal(wxDC &dc,
 }
 
 // draw unhighlighted selectable shapes
+// using wxDC only since windows platform has poor wxGC support
 void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	if (selectable_shps.size() == 0)
         return;
 
 	if (use_category_brushes) {
-#ifdef __WXMAC__
-		DrawSelectableShapes_gc(dc);
-#else
         DrawSelectableShapes_dc(dc);
-#endif
+        
 	} else {
 		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (_IsShpValid(i)) {
@@ -1079,200 +809,42 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 		}
 	}
 }
-
-// draw unhighlighted selectable shapes with wxGraphicsContext
-void TemplateCanvas::DrawSelectableShapes_gc(wxMemoryDC &dc)
+// draw highlighted selectable shapes
+void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
-	if (!gc) 
+	if (selectable_shps.size() == 0)
+        return;
+    
+	if (use_category_brushes) {
+        bool highlight_only = true;
+		DrawSelectableShapes_dc(dc, highlight_only);
 		return;
-   
-	gc->SetPen(wxPen(selectable_outline_color));
-	gc->SetBrush(wxBrush(selectable_fill_color));
+	}
     
-	int cc_ts = cat_data.curr_canvas_tm_step;
-	int num_cats=cat_data.GetNumCategories(cc_ts);
-	int w = layer0_bm->GetWidth();
-	int h = layer0_bm->GetHeight();
-    
-	if (selectable_shps_type == points) {
-		int dirty_cnt = 0;
-		gc->SetAntialiasMode(wxANTIALIAS_NONE);
-		wxDouble r = GdaConst::my_point_click_radius;
-		if (w < 150 || h < 150)
-            r *= 0.66;
-		if (selectable_shps.size() > 100 && (w < 80 || h < 80))
-            r = 0.2;
-        
-		int bnd = w*h;
-		std::vector<bool> dirty(bnd, false);
-		
-		GdaPoint* p;
-		for (int cat=0; cat<num_cats; cat++) {
-
-                wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
-                char red = penClr.Red();
-                char blue = penClr.Blue();
-                char green = penClr.Green();
-                wxColour newClr(red, green, blue, (int)(transparency * 255));
-
-                gc->SetPen(newClr);
-
-			gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-				
-            wxGraphicsPath path = gc->CreatePath();
-			
-			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
-                    continue;
-                }
-				p = (GdaPoint*) selectable_shps[ids[i]];
-				if (p->isNull()) continue;
-
-				//path.AddCircle(p->center.x, p->center.y, r);
-				int bnd_idx = p->center.x + p->center.y*w;
-				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
-					path.AddCircle(p->center.x, p->center.y, r);
-					dirty[bnd_idx] = true;
-				}
-
-			}
-            gc->StrokePath(path);
-            //gc->FillPath(path);
-		}
-        
-	} else if (selectable_shps_type == polygons) {
-		int dirty_cnt = 0;
-		int poly_pts_cnt = 0;
-		GdaPolygon* p;
-		if (!selectable_outline_visible) 
-			gc->SetAntialiasMode(wxANTIALIAS_NONE);
-		for (int cat=0; cat<num_cats; cat++) {
-			gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
-            wxBrush br = cat_data.GetCategoryBrush(cc_ts, cat);
-            if (br.IsOk() )
-                gc->SetBrush(br);
-
-            //if (isDrawBasemap) {
-                wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
-                char red = brushClr.Red();
-                char blue = brushClr.Blue();
-                char green = brushClr.Green();
-                wxColour newClr(red, green, blue, (int)(transparency * 255));
-                wxBrush newBrush(newClr);
-                gc->SetBrush(newBrush);
-            //}
-			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-			
-			
-			for (int i=0, iend=ids.size(); i<iend; i++) {
-				wxGraphicsPath path = gc->CreatePath();
-                if (!_IsShpValid(ids[i])) {
-                    continue;
-                }
-				p = (GdaPolygon*) selectable_shps[ids[i]];
-				if (p->all_points_same) {
-                    path.AddCircle(p->center.x, p->center.y, 0.2);
-				} else {
-					for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-						path.MoveToPoint(p->points[s]);
-						for (int pt=s+1; pt<t && pt<p->n; pt++) {
-							path.AddLineToPoint(p->points[pt]);
-							poly_pts_cnt++;
-						}
-						path.CloseSubpath();
-						s = t;
-						if (c+1 < p->n_count) t += p->count[c+1];
-					}
-				}
-				gc->FillPath(path, wxWINDING_RULE);
-				if (selectable_outline_visible)	gc->StrokePath(path);
-			}
-		}
-	} else if (selectable_shps_type == circles) {
-		// Only Cartogram map uses this currently
-		GdaCircle* c;
-        for (int cat=0; cat<num_cats; cat++) {
-            gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
-            gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-            std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-            if (selectable_outline_visible) {
-                for (int i=0, iend=ids.size(); i<iend; i++) {
-                    if (!_IsShpValid(ids[i])) {
-                        continue;
-                    }
-                    c = (GdaCircle*) selectable_shps[ids[i]];
-                    wxGraphicsPath path = gc->CreatePath();
-                    path.AddCircle(c->center.x, c->center.y, c->radius);
-                    gc->FillPath(path, wxWINDING_RULE);
-                    gc->StrokePath(path);
-                }
-            } else {
-                // Note: in the case of circles, it is much slower
-                // to batch render all of the circles together rather
-                // than filling them one at a time.  This does not appear
-                // to be true for polygons.
-                gc->SetAntialiasMode(wxANTIALIAS_NONE);
-                for (int i=0, iend=ids.size(); i<iend; i++) {
-                    if (!_IsShpValid(ids[i])) {
-                        continue;
-                    }
-                    c = (GdaCircle*) selectable_shps[ids[i]];
-                    wxGraphicsPath path = gc->CreatePath();
-                    path.AddCircle(c->center.x, c->center.y, c->radius);
-                    gc->FillPath(path, wxWINDING_RULE);
-                }
-            }
-        }
-        
-    } else if (selectable_shps_type == polylines) {
-		// only PCP uses PolyLines currently. So, we assume that there
-		// is only one group of line segments connected together.
-		// If we support Shapefile polyline map objects, then this will
-		// have to change.
-		//gc->SetAntialiasMode(wxANTIALIAS_NONE);
-		GdaPolyLine* s = 0;
-		for (int cat=0; cat<num_cats; cat++) {
-			gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
-			std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
-			wxGraphicsPath path = gc->CreatePath();
-			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
-                    continue;
-                }
-				s = (GdaPolyLine*) selectable_shps[ids[i]];
-
-				path.MoveToPoint(s->points[0]);
-				for (int v=0; v < s->n-1; v++) {
-					path.AddLineToPoint(s->points[v+1]);
-				}
-			}
-			gc->StrokePath(path);
+	vector<bool>& hs = GetSelBitVec();
+	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+		if (hs[i] && _IsShpValid(i)) {
+			selectable_shps[i]->paintSelf(dc);
 		}
 	}
-	
-	delete gc;
-}
+} 
 
-void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc)
-{	
-    DrawSelectableShapes_gen_dc(dc);
-}
 
-// draw unhighlighted selectable shapes with wxDC
-void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
+void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only)
 {
-	dc.SetPen(*wxTRANSPARENT_PEN);
-	dc.SetBrush(wxBrush(selectable_fill_color));
+    wxGCDC dc(_dc);
+    
+    vector<bool>& hs = GetSelBitVec();
+    
 	int cc_ts = cat_data.curr_canvas_tm_step;
-	int num_cats=cat_data.GetNumCategories(cc_ts);
+	int num_cats = cat_data.GetNumCategories(cc_ts);
 	int w = layer0_bm->GetWidth();
 	int h = layer0_bm->GetHeight();
+    
 	if (selectable_shps_type == points) {
 		int bnd = w*h;
-		std::vector<bool> dirty(bnd, false);
-		int dirty_cnt = 0;
+		vector<bool> dirty(bnd, false);
+
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		wxDouble r = GdaConst::my_point_click_radius;
         if (w < 150 || h < 150) {
@@ -1285,14 +857,15 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 		for (int cat=0; cat<num_cats; cat++) {
 			dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
 
-			std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
+			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
+                if (!_IsShpValid(ids[i]) || (hl_only && !hs[ids[i]])) {
                     continue;
                 }
 				p = (GdaPoint*) selectable_shps[ids[i]];
-				if (p->isNull()) continue;
-				//dc.DrawCircle(p->center.x, p->center.y, r);
+                if (p->isNull()) {
+                    continue;
+                }
 				int bnd_idx = p->center.x + p->center.y*w;
 				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
 					dc.DrawCircle(p->center.x, p->center.y, r);
@@ -1300,22 +873,24 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 				}
 			}
 		}
+        
 	} else if (selectable_shps_type == polygons) {
 
 		GdaPolygon* p;
 		for (int cat=0; cat<num_cats; cat++) {
 			if (selectable_outline_visible) {
-				dc.SetPen(cat_data.GetCategoryPen(cc_ts, cat));
+                wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
+				dc.SetPen(pen);
 			}
 			dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-			std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
+			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
             
 			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
+                if (!_IsShpValid(ids[i]) || (hl_only && !hs[ids[i]])) {
                     continue;
                 }
 				p = (GdaPolygon*) selectable_shps[ids[i]];
-
+                if (p->isNull()) continue;
 				if (p->all_points_same) {
 					dc.DrawPoint(p->center.x, p->center.y);
 
@@ -1329,6 +904,7 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 				}
 			}
 		}
+        
 	} else if (selectable_shps_type == circles) {
 		// Only Bubble Chart uses circles currently, but Bubble Chart uses
 		// DrawSelectableShapesByZVal.  This will be useful for Cartogram map
@@ -1338,16 +914,17 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 				dc.SetPen(cat_data.GetCategoryPen(cc_ts, cat));
 			}
 			dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
+                if (!_IsShpValid(ids[i]) || (hl_only && !hs[ids[i]])) {
                     continue;
                 }
 				c = (GdaCircle*) selectable_shps[ids[i]];
-				//if (c->isNull()) continue;
+				if (c->isNull()) continue;
 				dc.DrawCircle(c->center.x, c->center.y, c->radius);
 			}
 		}
+        
 	} else if (selectable_shps_type == polylines) {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		// only PCP uses PolyLines currently. So, we assume that there
@@ -1357,13 +934,13 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 		GdaPolyLine* s = 0;
 		for (int cat=0; cat<num_cats; cat++) {
 			dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
-			std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i])) {
+                if (!_IsShpValid(ids[i]) || (hl_only && !hs[ids[i]])) {
                     continue;
                 }
 				s = (GdaPolyLine*) selectable_shps[ids[i]];
-				//if (s->isNull()) continue;
+				if (s->isNull()) continue;
 				for (int v=0; v<s->n-1; v++) {
 					dc.DrawLine(s->points[v].x, s->points[v].y,
 								s->points[v+1].x, s->points[v+1].y);
@@ -1373,348 +950,11 @@ void TemplateCanvas::DrawSelectableShapes_gen_dc(wxDC &dc)
 	}
 }
 
-// draw highlighted selectable shapes
-void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
-{
-	//LOG_MSG("In TemplateCanvas::DrawHighlightedShapes");
-	if (selectable_shps.size() == 0) return;
-	if (use_category_brushes) {
-#ifdef __WXMAC__
-		DrawHighlightedShapes_gc(dc);
-#else
-		DrawHighlightedShapes_dc(dc);
-#endif
-		return;
-	}
-	std::vector<bool>& hs = GetSelBitVec();
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (hs[i] && _IsShpValid(i)) {
-			selectable_shps[i]->paintSelf(dc);
-		}
-	}
-} 
-
-// draw highlighted selectable shapes with wxGraphicsContext
-void TemplateCanvas::DrawHighlightedShapes_gc(wxMemoryDC &dc)
-{
-	std::vector<bool>& hs = GetSelBitVec();
-	
-	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
-	if (!gc)
-        return;
-    
-	
-	gc->SetPen(wxPen(selectable_outline_color));
-	gc->SetBrush(wxBrush(highlight_color));
-	wxBrush hc_brush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	wxPen hc_pen(highlight_color);
-    
-    int cc_ts = cat_data.curr_canvas_tm_step;
-    int num_cats=cat_data.GetNumCategories(cc_ts);
-
-	int w = layer0_bm->GetWidth();
-	int h = layer0_bm->GetHeight();
-	
-	if (selectable_shps_type == points) {
-		int bnd = w*h;
-		std::vector<bool> dirty(bnd, false);
-		GdaPoint* p;
-		gc->SetAntialiasMode(wxANTIALIAS_NONE);
-
-		wxGraphicsPath path = gc->CreatePath();
-		wxDouble r = GdaConst::my_point_click_radius;
-        if (w < 150 || h < 150) {
-            r *= 0.66;
-        }
-        if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
-            r = 0.2;
-        }
-        
-        for (int cat=0; cat<num_cats; cat++) {
-            //if (isDrawBasemap) {
-                wxColour penClr = cat_data.GetCategoryColor(cc_ts, cat);
-                char red = penClr.Red();
-                char blue = penClr.Blue();
-                char green = penClr.Green();
-                wxColour newClr(red, green, blue, (int)(transparency * 255));
-                
-                gc->SetPen(newClr);
-            //} else {
-            //    gc->SetPen(cat_data.GetCategoryColor(cc_ts, cat));
-            //}
-            gc->SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-            std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-            
-            wxGraphicsPath path = gc->CreatePath();
-            
-            for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!hs[ids[i]] || !_IsShpValid(ids[i])) {
-                    continue;
-                }
-                p = (GdaPoint*) selectable_shps[ids[i]];
-                if (p->isNull()) continue;
-                
-                //path.AddCircle(p->center.x, p->center.y, r);
-                int bnd_idx = p->center.x + p->center.y*w;
-                if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
-                    path.AddCircle(p->center.x, p->center.y, r);
-                    dirty[bnd_idx] = true;
-                }
-                
-            }
-            gc->StrokePath(path);
-        }
-        
-        
-    } else if (selectable_shps_type == polygons) {
-		int dirty_cnt = 0;
-        
-		if (!selectable_outline_visible)
-            gc->SetAntialiasMode(wxANTIALIAS_NONE);
-        
-		GdaPolygon* p;
-        for (int cat=0; cat<num_cats; cat++) {
-            gc->SetPen(cat_data.GetCategoryPen(cc_ts, cat));
-            wxBrush br = cat_data.GetCategoryBrush(cc_ts, cat);
-            if (br.IsOk() )
-                gc->SetBrush(br);
-            
-            //if (isDrawBasemap) {
-                wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
-                char red = brushClr.Red();
-                char blue = brushClr.Blue();
-                char green = brushClr.Green();
-                wxColour newClr(red, green, blue, (int)(transparency * 255));
-                wxBrush newBrush(newClr);
-                gc->SetBrush(newBrush);
-            //}
-            std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-            
-            
-            for (int i=0, iend=ids.size(); i<iend; i++) {
-                wxGraphicsPath path = gc->CreatePath();
-                if (!hs[ids[i]] || !_IsShpValid(ids[i])) {
-                    continue;
-                }
-                p = (GdaPolygon*) selectable_shps[ids[i]];
-                if (p->all_points_same) {
-                    path.AddCircle(p->center.x, p->center.y, 0.2);
-                } else {
-                    for (int c=0, s=0, t=p->count[0]; c<p->n_count; c++) {
-                        path.MoveToPoint(p->points[s]);
-                        for (int pt=s+1; pt<t && pt<p->n; pt++) {
-                            path.AddLineToPoint(p->points[pt]);
-                        }
-                        path.CloseSubpath();
-                        s = t;
-                        if (c+1 < p->n_count) t += p->count[c+1];
-                    }
-                }
-                gc->FillPath(path, wxWINDING_RULE);
-                if (selectable_outline_visible)	gc->StrokePath(path);
-            }
-        }
-        
-    } else if (selectable_shps_type == circles) {
-		wxBrush hc_brush(wxBrush(highlight_color,
-								 wxBRUSHSTYLE_CROSSDIAG_HATCH));		
-		if (selectable_outline_visible) {
-			gc->SetPen(hc_pen);
-			for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-				if (hs[i] && _IsShpValid(i)) {
-					wxGraphicsPath path = gc->CreatePath();
-					path.AddCircle(((GdaCircle*) selectable_shps[i])->center.x,
-								   ((GdaCircle*) selectable_shps[i])->center.y,
-								   ((GdaCircle*) selectable_shps[i])->radius);
-					gc->SetBrush(selectable_shps[i]->getBrush());
-					gc->FillPath(path, wxWINDING_RULE);
-					gc->SetBrush(hc_brush);
-					gc->FillPath(path, wxWINDING_RULE);
-					gc->StrokePath(path);
-				}
-			}
-		} else {
-			gc->SetAntialiasMode(wxANTIALIAS_NONE);
-			wxGraphicsPath path = gc->CreatePath();
-			for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-				if (hs[i] && _IsShpValid(i)) {
-					path.AddCircle(((GdaCircle*) selectable_shps[i])->center.x,
-								   ((GdaCircle*) selectable_shps[i])->center.y,
-								   ((GdaCircle*) selectable_shps[i])->radius);
-					gc->SetBrush(selectable_shps[i]->getBrush());
-					gc->FillPath(path, wxWINDING_RULE);
-					gc->SetBrush(hc_brush);
-					gc->FillPath(path, wxWINDING_RULE);
-				}
-			}
-		}
-	} else if (selectable_shps_type == polylines) {
-		// only PCP uses PolyLines currently. So, we assume that there
-		// is only one group of line segments connected together.
-		// If we support Shapefile polyline map objects, then this will
-		// have to change.
-		gc->SetPen(highlight_color);
-		//gc->SetAntialiasMode(wxANTIALIAS_NONE);
-		GdaPolyLine* s = 0;
-		wxGraphicsPath path = gc->CreatePath();
-		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if (hs[i] && _IsShpValid(i)) {
-                s = (GdaPolyLine*) selectable_shps[i];
-                path.MoveToPoint(s->points[0]);
-                for (int v=0; v < s->n-1; v++) {
-                    path.AddLineToPoint(s->points[v+1]);
-                }
-            }
-        }
-		gc->StrokePath(path);
-	}
-	
-	delete gc;
-}
-
-void TemplateCanvas::DrawHighlightedShapes_dc(wxMemoryDC &dc)
-{
-	DrawHighlightedShapes_gen_dc(dc, false);
-}
-
-// draw highlighted selectable shapes with wxDC
-void TemplateCanvas::DrawHighlightedShapes_gen_dc(wxDC &dc,
-												  bool disable_crosshatch_brush)
-{
-	std::vector<bool>& hs = GetSelBitVec();
-	
-	wxBrush hc_brush(disable_crosshatch_brush ? wxBrush(highlight_color) :
-					 wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	wxPen hc_pen(highlight_color);
-	
-	if (selectable_outline_visible) {
-		dc.SetPen(hc_pen);
-	} else {
-		dc.SetPen(*wxTRANSPARENT_PEN);
-	}
-	dc.SetBrush(hc_brush);
-
-	int w = layer0_bm->GetWidth();
-	int h = layer0_bm->GetHeight();
-	
-	if (selectable_shps_type == points) {
-		int bnd = w*h;
-		std::vector<bool> dirty(bnd, false);
-		GdaPoint* p;
-		dc.SetPen(hc_pen);
-		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		wxDouble r = GdaConst::my_point_click_radius;
-		if (w < 150 || h < 150) r *= 0.66;
-		if (selectable_shps.size() > 100 && (w < 80 || h < 80)) r = 0.2;
-		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-			if (hs[i] && _IsShpValid(i)) {
-				p = (GdaPoint*) selectable_shps[i];
-				if (p->isNull()) continue;
-				//c.DrawCircle(p->center.x, p->center.y, r);
-				int bnd_idx = p->center.x + p->center.y*w;
-				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
-					dc.DrawCircle(p->center.x, p->center.y, r);
-					dirty[bnd_idx] = true;
-				}
-			}
-		}
-        
-	} else if (selectable_shps_type == polygons) {
-		GdaPolygon* p;
-		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if (hs[i] && _IsShpValid(i)) {
-                p = (GdaPolygon*) selectable_shps[i];
-                if (p->isNull()) continue;
-                if (p->all_points_same) {
-                    dc.DrawPoint(p->center.x, p->center.y);
-                    
-                } else {
-                    
-                    if (p->n_count > 1) {
-                        dc.DrawPolyPolygon(p->n_count, p->count, p->points);
-                    } else {
-                        dc.DrawPolygon(p->n, p->points);
-                    }
-                }
-            }
-        }
-        
-    } else if (selectable_shps_type == circles) {
-		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if (hs[i] && _IsShpValid(i)) {
-                dc.DrawCircle(((GdaCircle*) selectable_shps[i])->center.x,
-                              ((GdaCircle*) selectable_shps[i])->center.y,
-                              ((GdaCircle*) selectable_shps[i])->radius);
-            }
-        }
-        
-	}  else if (selectable_shps_type == polylines) {
-		// only PCP uses PolyLines currently. So, we assume that there
-		// is only one group of line segments connected together.
-		// If we support Shapefile polyline map objects, then this will
-		// have to change.
-		dc.SetPen(hc_pen);
-		GdaPolyLine* s = 0;
-		for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if (hs[i] && _IsShpValid(i)) {
-                s = (GdaPolyLine*) selectable_shps[i];
-                if (s->isNull()) continue;
-                for (int v=0; v<s->n-1; v++) {
-                    dc.DrawLine(s->points[v].x, s->points[v].y,
-                                s->points[v+1].x, s->points[v+1].y);
-                }
-            }
-        }
-	}
-}
-
-
-// wxMouseEvent notes:
-// LeftDown(): true when the left button is first pressed down
-// LeftIsDown(): true while the left button is down. During a mouse dragging
-//  operation, this will continue to return true, while LeftDown() is false.
-// RightDown/RightIsDown: similar to Left.
-// Moving(): returns true when mouse is moved, but no buttons are pressed.
-// Dragging(): returns true when mouse is moved and at least one mouse button is
-//   pressed.
-// CmdDown(): Checks if MetaDown under Mac and ControlDown on other platforms.
-// ButtonDClick(int but = wxMOUSE_BTN_ANY): checks for double click of any
-//   button. Can also specify wxMOUSE_BTN_LEFT / RIGHT / MIDDLE.  Or
-//   LeftDCLick(), etc.
-// LeftUp(): returns true at the moment the button changed to up.
-
 void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	// Capture the mouse when left mouse button is down.
 	if (event.LeftIsDown() && !HasCapture()) CaptureMouse();
 	if (event.LeftUp() && HasCapture()) ReleaseMouse();
-	
-	// Scrollwheel data is highly platform specific at this point,
-	// so it is unavoidable to have custom code for each different
-	// platform.  As of wxWidgets 2.8.x there is no official support
-	// for horizontal scrollwheel data, but it appears as though
-	// Windows fakes this out by setting the wheel rotation value
-	// +/-120 for vertical movement and +/-240 for horizontal movement.
-	// We will have to check that this behaviour is consistent
-	// across all versions of Windows.  Linux and Windows return +/-120
-	// (and +/-240 in the case of Windows) while Mac returns any multiple
-	// of 1.  This could possibly be to indicate amount of movement or
-	// speed.  In wxWidgets 2.9.x, there is official support for horizontal
-	// scrollwheel data on all platforms.
-	
-	// For non scroll events such as mouse movement, GetWheelDelta
-	// sometimes returns 0 (Mac only).  To test if this is actually
-	// a scroll event, we make sure event.GetLinesPerAction() returns at
-	// least 1.  We might want to ignore scrolling when a mouse button is
-	// being held down, or when in brushing mode.
-	//int wheel_rotation = event.GetWheelRotation();
-	//int wheel_delta = GenUtils::max<int>(event.GetLinesPerAction(), 1);
-	//int wheel_lines_per_action =GenUtils::max<int>(event.GetLinesPerAction(),1);
-	//if (abs(wheel_rotation) >= wheel_delta) {
-	//	LOG(wheel_rotation);
-	//	LOG(wheel_delta);
-	//	LOG(wheel_lines_per_action);
-	//}
 	
 	if (mousemode == select) {
 		if (selectstate == start) {
@@ -1907,8 +1147,9 @@ void TemplateCanvas::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event)
         ReleaseMouse();
 }
 
-void TemplateCanvas::PaintSelectionOutline(wxDC& dc)
+void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 {
+    wxGCDC dc(_dc);
 	if ((mousemode == select || mousemode == zoom || mousemode == zoomout)&&
 		(selectstate == dragging || selectstate == brushing) ) {
 		int xx=0, yy=0;
@@ -1924,7 +1165,6 @@ void TemplateCanvas::PaintSelectionOutline(wxDC& dc)
 			dc.DrawLine(ssel1, ssel2);
 		} else if (brushtype == circle) {
 			dc.DrawCircle(ssel1, GenUtils::distance(ssel1, ssel2));
-			//dc.DrawPolygon(n_sel_poly_pts, sel_poly_pts);
 		}
 	}
 }
@@ -1937,7 +1177,7 @@ void TemplateCanvas::PaintControls(wxDC& dc)
 // HLStateInt object
 // Returns bit vector of selection values according
 // to selectable objects
-std::vector<bool>& TemplateCanvas::GetSelBitVec()
+vector<bool>& TemplateCanvas::GetSelBitVec()
 {
 	return highlight_state->GetHighlight();
 }
@@ -1956,7 +1196,7 @@ void TemplateCanvas::SetNumNewlySel(int n)
 
 // Returns list of newly selected objects.  Only indexes
 // 0 through GetNumNewlySel()-1 are valid.
-std::vector<int>& TemplateCanvas::GetNewlySelList()
+vector<int>& TemplateCanvas::GetNewlySelList()
 {
 	return highlight_state->GetNewlyHighlighted();
 }
@@ -1974,7 +1214,7 @@ void TemplateCanvas::SetNumNewlyUnsel(int n)
 
 // Returns list of newly unselected objects.  Only indexes
 // 0 through GetNumNewlyUnsel()-1 are valid.
-std::vector<int>& TemplateCanvas::GetNewlyUnselList()
+vector<int>& TemplateCanvas::GetNewlyUnselList()
 {
 	return highlight_state->GetNewlyUnhighlighted();
 }
@@ -1997,9 +1237,9 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 {
 	// search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
 	const int num_sub_menus=3;
-	std::vector<int> menu_id(num_sub_menus);
-	std::vector<int> sub_menu_id(num_sub_menus);
-	std::vector<int> base_id(num_sub_menus);
+	vector<int> menu_id(num_sub_menus);
+	vector<int> sub_menu_id(num_sub_menus);
+	vector<int> base_id(num_sub_menus);
 	menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
 	menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B");
 	menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C");
@@ -2018,7 +1258,7 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 		sm->AppendSeparator();
 		sm->Append(menu_id[i], "Create New Custom",
 				   "Create new custom categories classification.");
-		std::vector<wxString> titles;
+		vector<wxString> titles;
 		ccm->GetTitles(titles);
 		for (size_t j=0; j<titles.size(); j++) {
 			wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
@@ -2061,7 +1301,7 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	std::vector<bool>& hs = GetSelBitVec();
+	vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
     
 	if (pointsel) { // a point selection
@@ -2195,18 +1435,16 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
-	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionPoints");
 }
 
 // The following function assumes that the set of selectable objects
 // being selected against are all GdaCircle objects.
 void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 {
-	LOG_MSG("Entering TemplateCanvas::UpdateSelectionCircles");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	std::vector<bool>& hs = GetSelBitVec();
+	vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
 	
 	if (pointsel) { // a point selection
@@ -2345,18 +1583,16 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
-	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionCircles");	
 }
 
 // The following function assumes that the set of selectable objects
 // being selected against are all GdaPolyLine objects.
 void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 {
-	LOG_MSG("Entering TemplateCanvas::UpdateSelectionPolylines");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	std::vector<bool>& hs = GetSelBitVec();
+	vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
 	
 	GdaPolyLine* p;
@@ -2549,11 +1785,11 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	int hl_size = highlight_state->GetHighlightSize();
 	if (hl_size != selectable_shps.size()) return;
     
-	std::vector<bool>& hs = highlight_state->GetHighlight();
+	vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
 	
-	std::vector<bool> obs_in_cat(hl_size, false);
-	std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, category);
+	vector<bool> obs_in_cat(hl_size, false);
+	vector<int>& ids = cat_data.GetIdsRef(cc_ts, category);
 
 	for (int i=0, iend=ids.size(); i<iend; i++) obs_in_cat[ids[i]] = true;
 	
@@ -2698,14 +1934,14 @@ wxString TemplateCanvas::GetCategoriesTitle()
 void TemplateCanvas::SaveCategories(const wxString& title,
 									const wxString& label,
 									const wxString& field_default,
-                                    std::vector<bool>& undefs)
+                                    vector<bool>& undefs)
 {
 	if (project->GetNumRecords() != selectable_shps.size()) return;
-	std::vector<SaveToTableEntry> data(1);
+	vector<SaveToTableEntry> data(1);
 	
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats = cat_data.GetNumCategories(cc_ts);
-	std::vector<wxInt64> dt(selectable_shps.size());
+	vector<wxInt64> dt(selectable_shps.size());
 	
 	data[0].type = GdaConst::long64_type;
 	data[0].l_val = &dt;
@@ -2714,7 +1950,7 @@ void TemplateCanvas::SaveCategories(const wxString& title,
     data[0].undefined = &undefs;
 	
 	for (int cat=0; cat<num_cats; cat++) {
-		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         for (int i=0, iend=ids.size(); i<iend; i++) {
             dt[ids[i]] = cat+1;
         }
@@ -2726,7 +1962,7 @@ void TemplateCanvas::SaveCategories(const wxString& title,
 }
 
 
-void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
+void TemplateCanvas::GetVizInfo(map<wxString, vector<int> >& colors)
 {
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
@@ -2735,10 +1971,10 @@ void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
 		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
 			
-		std::vector<int> ids_copy;
+		vector<int> ids_copy;
 		colors[clr] = ids_copy;
 		
-		std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 		
 		for (int i=0, iend=ids.size(); i<iend; i++) {
 			colors[clr].push_back(ids[i]);
@@ -2746,7 +1982,9 @@ void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 	}	
 }
 
-void TemplateCanvas::GetVizInfo(wxString& shape_type,  std::vector<wxString>& clrs, std::vector<double>& bins)
+void TemplateCanvas::GetVizInfo(wxString& shape_type,
+                                vector<wxString>& clrs,
+                                vector<double>& bins)
 {
     
 	if (selectable_shps_type == points) {

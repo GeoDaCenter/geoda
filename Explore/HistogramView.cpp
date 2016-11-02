@@ -67,7 +67,8 @@ HistogramCanvas::HistogramCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
 								 pos, size, false, true),
-var_info(v_info), num_obs(project_s->GetNumRecords()),
+var_info(v_info),
+num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 scale_x_over_time(false), scale_y_over_time(true),
@@ -82,24 +83,13 @@ custom_classif_state(0), is_custom_category(false)
     col_id = col_ids[0];
     int num_var = v_info.size();
     int col_time_steps = table_int->GetColTimeSteps(col_id);
-    //int is_time_var = table_int->IsColTimeVariant(col_id);
-    
-    // default load first time step data if time variable
-    //std::vector<double> sel_data;
-    //std::vector<bool> sel_undefs;
-    //int sel_time = 0;
-	//table_int->GetColData(col_id, sel_time, sel_data, sel_undefs);
     
     // prepare statistics
 	data_stats.resize(col_time_steps);
 	hinge_stats.resize(col_time_steps);
 	data_sorted.resize(col_time_steps);
     
-    //data_min_over_time = sel_data[0];
-    //data_max_over_time = sel_data[0];
-    
     bool has_init = false;
-    
     for (int t=0; t<col_time_steps; t++) {
         std::vector<double> sel_data;
         std::vector<bool> sel_undefs;
@@ -156,7 +146,8 @@ custom_classif_state(0), is_custom_category(false)
     ival_to_obs_ids.resize(col_time_steps);
     
 	highlight_color = GdaConst::highlight_color;
-	fixed_aspect_ratio_mode = false;
+    
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
 	
@@ -168,23 +159,18 @@ custom_classif_state(0), is_custom_category(false)
 	DisplayStatistics(false);
 	
 	highlight_state->registerObserver(this);
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting HistogramCanvas::HistogramCanvas");
 }
 
 HistogramCanvas::~HistogramCanvas()
 {
-	LOG_MSG("Entering HistogramCanvas::~HistogramCanvas");
 	highlight_state->removeObserver(this);
     if (custom_classif_state) {
         custom_classif_state->removeObserver(this);
     }
-	LOG_MSG("Exiting HistogramCanvas::~HistogramCanvas");
 }
 
 void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering HistogramCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((HistogramFrame*) template_frame)->OnActivate(ae);
@@ -212,10 +198,6 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-    
-    
-    
-	LOG_MSG("Exiting HistogramCanvas::DisplayRightClickMenu");
 }
 
 void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -241,19 +223,16 @@ int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifMana
     ccm->GetTitles(titles);
     
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
-	{
-		wxString s;
-		s << "Create New Custom";
-		wxMenuItem* mi = menu2->Append(GdaConst::ID_HISTOGRAM_CLASSIFICATION, s, s);
-        menu2->AppendSeparator();
-        
-        
-        for (size_t j=0; j<titles.size(); j++) {
-            wxMenuItem* mi = menu2->Append(GdaConst::ID_HISTOGRAM_CLASSIFICATION+j+1, titles[j]);
-        }
-
-	}
-	menu->Prepend(wxID_ANY, "Histogram Classification", menu2, "Histogram Classification");
+    wxString s = _("Create New Custom");
+    int xrcid_hist_classification = GdaConst::ID_HISTOGRAM_CLASSIFICATION;
+    wxMenuItem* mi = menu2->Append(xrcid_hist_classification, s, s);
+    menu2->AppendSeparator();
+    
+    for (size_t j=0; j<titles.size(); j++) {
+        wxMenuItem* mi = menu2->Append(xrcid_hist_classification+j+1, titles[j]);
+    }
+    s = _("Histogram Classification");
+	menu->Prepend(wxID_ANY, s, menu2, s);
     return titles.size();
 }
 
@@ -262,7 +241,8 @@ void HistogramCanvas::OnCustomCategorySelect(wxCommandEvent& e)
     int custom_cat_idx = e.GetId() - GdaConst::ID_HISTOGRAM_CLASSIFICATION - 1;
     
     CatClassifManager* ccm = project->GetCatClassifManager();
-    if (!ccm) return;
+    if (!ccm)
+        return;
     
     std::vector<wxString> titles;
     ccm->GetTitles(titles);
@@ -272,14 +252,13 @@ void HistogramCanvas::OnCustomCategorySelect(wxCommandEvent& e)
     
     wxString custom_classif_title = titles[custom_cat_idx];
     CatClassifState* new_ccs = ccm->FindClassifState(custom_classif_title);
+    
     if (!new_ccs)
         return;
     
-    //if (custom_classif_state == new_ccs)
-    //    return;
-    
     if (custom_classif_state)
         custom_classif_state->removeObserver(this);
+    
     custom_classif_state = new_ccs;
     custom_classif_state->registerObserver(this);
     
@@ -357,10 +336,13 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		bool any_selected = false;
 		for (int i=0; i<total_sel_shps; i++) {
 			GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+            bool is_intersect = GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                            rec->upper_right,
+                                                            lower_left,
+                                                            upper_right);
+            
 			if ((pointsel && rec->pointWithin(sel1)) ||
-				(rect_sel &&
-				 GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right,
-										  lower_left, upper_right)))
+				(rect_sel && is_intersect))
 			{
 				any_selected = true;
 				break;
@@ -375,32 +357,42 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	
 	for (int i=0; i<total_sel_shps; i++) {
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-						 (rect_sel &&
-						  GenGeomAlgs::RectsIntersect(rec->lower_left,
-												   rec->upper_right,
-												   lower_left, upper_right)));
+        bool is_intersect = GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                        rec->upper_right,
+                                                        lower_left, upper_right);
+		bool selected = (pointsel && rec->pointWithin(sel1)) ||
+                        (rect_sel && is_intersect);
 		bool all_sel = (ival_obs_cnt[t][i] == ival_obs_sel_cnt[t][i]);
+        
 		if (pointsel && all_sel && selected) {
 			// unselect all in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
-				 it != ival_to_obs_ids[t][i].end(); it++) {
+				 it != ival_to_obs_ids[t][i].end(); it++)
+            {
                 hs[(*it)] = false;
                 selection_changed  = true;
 			}
+            
 		} else if (!all_sel && selected) {
 			// select currently unselected in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
-				 it != ival_to_obs_ids[t][i].end(); it++) {
-				if (hs[*it]) continue;
+				 it != ival_to_obs_ids[t][i].end(); it++)
+            {
+                if (hs[*it]) {
+                    continue;
+                }
                 hs[(*it)] = true;
                 selection_changed  = true;
 			}
+            
 		} else if (!selected && !shiftdown) {
 			// unselect all selected in ival
 			for (std::list<int>::iterator it=ival_to_obs_ids[t][i].begin();
-				 it != ival_to_obs_ids[t][i].end(); it++) {
-		if (!hs[*it]) continue;
+				 it != ival_to_obs_ids[t][i].end(); it++)
+            {
+                if (!hs[*it]) {
+                    continue;
+                }
                 hs[(*it)] = false;
                 selection_changed  = true;
                 
@@ -419,47 +411,49 @@ void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	int t = var_info[0].time;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (ival_obs_cnt[t][i] == 0) continue;
+        if (ival_obs_cnt[t][i] == 0) {
+            continue;
+        }
 		selectable_shps[i]->paintSelf(dc);
 	}
 }
 
 void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	dc.SetPen(wxPen(highlight_color));
-	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
 	int t = var_info[0].time;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-        if (ival_obs_sel_cnt[t][i] == 0 ||
-            undef_tms[t][i])
-        {
+        if (ival_obs_sel_cnt[t][i] == 0 || undef_tms[t][i]) {
             continue;
         }
 		double s = (((double) ival_obs_sel_cnt[t][i]) /
 					((double) ival_obs_cnt[t][i]));
-		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
+       
+        GdaShape* shp = selectable_shps[i];
+        dc.SetPen(shp->getPen());
+        dc.SetBrush(shp->getBrush());
+		GdaRectangle* rec = (GdaRectangle*) shp;
+		dc.DrawRectangle(rec->lower_left.x,
+                         rec->lower_left.y,
 						 rec->upper_right.x - rec->lower_left.x,
 						 (rec->upper_right.y - rec->lower_left.y)*s);
-	}	
+	}
 }
 
 /** Override of TemplateCanvas method. */
 void HistogramCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering HistogramCanvas::update");
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
 	UpdateIvalSelCnts();
+    
 	Refresh();
     UpdateStatusBar();
-	LOG_MSG("Exiting HistogramCanvas::update");	
 }
 
 wxString HistogramCanvas::GetCanvasTitle()
 {
-	wxString s("Histogram: ");	
+	wxString s = _("Histogram: ");
 	s << GetNameWithTime(0);
 	return s;
 }
@@ -519,7 +513,6 @@ void HistogramCanvas::GetBarPositions(std::vector<double>& x_center_pos,
 
 void HistogramCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering HistogramCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -529,29 +522,28 @@ void HistogramCanvas::PopulateCanvas()
 	
 	int time = var_info[0].time;
 	
-	double x_min = 0;
-	double x_max = left_pad_const + right_pad_const +
-                   interval_width_const * cur_intervals +
-                   interval_gap_const * (cur_intervals-1);
-	
 	// orig_x_pos is the center of each histogram bar
 	std::vector<double> orig_x_pos(cur_intervals);
     std::vector<double> orig_x_pos_left(cur_intervals);
     std::vector<double> orig_x_pos_right(cur_intervals);
     GetBarPositions(orig_x_pos, orig_x_pos_left, orig_x_pos_right);
 	
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
+	double x_min = 0;
+	double x_max = left_pad_const + right_pad_const +
+                   interval_width_const * cur_intervals +
+                   interval_gap_const * (cur_intervals-1);
+    double y_min = 0;
+	double y_max = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
+    
+    last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
-		shps_orig_ymax = axis_scale_y.scale_max;
+		axis_scale_y = AxisScale(0, y_max, 5);
+		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis("Frequency", axis_scale_y,
-                             wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
+                             wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
-		background_shps.push_back(y_axis);
+		foreground_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val[time]);
 		//shps_orig_xmax = axis_scale_x.scale_max;
@@ -565,11 +557,11 @@ void HistogramCanvas::PopulateCanvas()
         axis_scale_x.tics_str_show.resize(cur_intervals);
        
         for (int i=0; i<cur_intervals; i++) {
-            double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
-            double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
+            double x0 = orig_x_pos_left[i];
+            double x1 = orig_x_pos_right[i];
             double y0 = 0;
-           
-            double y00 = -shps_orig_ymax / 100.0;
+            double y00 = -y_max / 100.0;
+            
             wxRealPoint p0;
             wxRealPoint p1;
             last_scale_trans.transform_back(wxPoint(0,0), p0);
@@ -578,11 +570,11 @@ void HistogramCanvas::PopulateCanvas()
             
             GdaPolyLine* xline = new GdaPolyLine(x0, y0, x1, y0);
             xline->setNudge(0, 10);
-            background_shps.push_back(xline);
+            foreground_shps.push_back(xline);
             
             GdaPolyLine* xdline = new GdaPolyLine(x0, y0, x0, y00);
             xdline->setNudge(0, 10);
-            background_shps.push_back(xdline);
+            foreground_shps.push_back(xdline);
             
             if (i==0) {
                 axis_scale_x.tics[i] = axis_scale_x.data_min;
@@ -596,7 +588,7 @@ void HistogramCanvas::PopulateCanvas()
                                  wxRealPoint(x0, y0), 0,
                                  GdaShapeText::h_center,
                                  GdaShapeText::v_center, 0, 25);
-                background_shps.push_back(brk);
+                foreground_shps.push_back(brk);
             }
             if (i<cur_intervals-1) {
                 axis_scale_x.tics[i] = ival_breaks[time][i];
@@ -610,7 +602,7 @@ void HistogramCanvas::PopulateCanvas()
                                  wxRealPoint(x1, y0), 0,
                                  GdaShapeText::h_center,
                                  GdaShapeText::v_center, 0, 25);
-                background_shps.push_back(brk);
+                foreground_shps.push_back(brk);
             }
             if (i==cur_intervals-1) {
                 axis_scale_x.tics[i] = axis_scale_x.data_max;
@@ -623,12 +615,12 @@ void HistogramCanvas::PopulateCanvas()
                                  wxRealPoint(x1, y0), 0,
                                  GdaShapeText::h_center,
                                  GdaShapeText::v_center, 0, 25);
-                background_shps.push_back(brk);
+                foreground_shps.push_back(brk);
                 
                 
                 GdaPolyLine* xdline = new GdaPolyLine(x1, y0, x1, y00);
                 xdline->setNudge(0, 10);
-                background_shps.push_back(xdline);
+                foreground_shps.push_back(xdline);
             }
             axis_scale_x.tics_str_show[i] = true;
         }
@@ -639,11 +631,9 @@ void HistogramCanvas::PopulateCanvas()
                          wxRealPoint((x_max -x_min)/2.0, 0), 0,
                          GdaShapeText::h_center,
                          GdaShapeText::v_center, 0, 38);
-        background_shps.push_back(brk);
+        foreground_shps.push_back(brk);
 
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		//x_axis = new GdaAxis(GetNameWithTime(0), axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
-		//background_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
@@ -661,14 +651,13 @@ void HistogramCanvas::PopulateCanvas()
         
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
-						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -62, 53+y_d);
-		background_shps.push_back(s);
+                              wxRealPoint(0, 0), GdaShapeText::h_center,
+                              GdaShapeText::top, GdaShapeText::right,
+                              GdaShapeText::v_center, 3, 10, -62, 53+y_d);
+		foreground_shps.push_back(s);
         
-		{
-			wxClientDC dc(this);
-			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-		}
+        wxClientDC dc(this);
+        ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
         
 		for (int i=0; i<cur_intervals; i++) {
 			int t = time;
@@ -692,12 +681,13 @@ void HistogramCanvas::PopulateCanvas()
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
 			
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
-			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-							wxRealPoint(orig_x_pos[i], 0),
-							GdaShapeText::h_center, GdaShapeText::top,
-							GdaShapeText::h_center, GdaShapeText::v_center, 3, 10, 0,
-							53+y_d);
-			background_shps.push_back(s);
+            s = new GdaShapeTable(vals, attribs, rows, cols,
+                                  *GdaConst::small_font,
+                                  wxRealPoint(orig_x_pos[i], 0),
+                                  GdaShapeText::h_center, GdaShapeText::top,
+                                  GdaShapeText::h_center, GdaShapeText::v_center,
+                                  3, 10, 0, 53+y_d);
+			foreground_shps.push_back(s);
 		}
 		
 		wxString sts;
@@ -708,36 +698,34 @@ void HistogramCanvas::PopulateCanvas()
 		sts << ", s.d.: " << data_stats[time].sd_with_bessel;
 		sts << ", #obs: " << num_obs;
 	
-		s = new GdaShapeText(sts, *GdaConst::small_font,
-					   wxRealPoint(shps_orig_xmax/2.0, 0), 0,
-					   GdaShapeText::h_center, GdaShapeText::v_center, 0,
-					   table_h + 70 + y_d); //145+y_d);
-		background_shps.push_back(s);
+        s = new GdaShapeText(sts, *GdaConst::small_font,
+                             wxRealPoint(x_max/2.0, 0), 0,
+                             GdaShapeText::h_center, GdaShapeText::v_center,
+                             0, table_h + 70 + y_d);
+		foreground_shps.push_back(s);
 	}
 	
-	virtual_screen_marg_top = 25;
-	virtual_screen_marg_bottom = 25;
-	virtual_screen_marg_left = 25;
-	virtual_screen_marg_right = 25;
+    last_scale_trans.SetMargin(25, 25, 25, 25);
 	
 	if (show_axes || display_stats) {
 		if (!display_stats) {
-			virtual_screen_marg_bottom += 32;
-			virtual_screen_marg_left += 35;
+            last_scale_trans.bottom_margin += 32;
+            last_scale_trans.left_margin += 35;
 		} else {
 			int y_d = show_axes ? 0 : -35;
-			virtual_screen_marg_bottom += table_h + 65 + y_d; //135 + y_d;
-			virtual_screen_marg_left += 82;
+            last_scale_trans.bottom_margin += table_h + 65 + y_d;
+            last_scale_trans.left_margin += 82;
 		}
 	}
 	 
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-        double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
-        double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
+        double x0 = orig_x_pos_left[i];
+        double x1 = orig_x_pos_right[i];
 		double y0 = 0;
 		double y1 = ival_obs_cnt[time][i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0), wxRealPoint(x1, y1));
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
+                                              wxRealPoint(x1, y1));
 		
         if (!is_custom_category) {
             int sz = GdaConst::qualitative_colors.size();
@@ -750,7 +738,6 @@ void HistogramCanvas::PopulateCanvas()
 	}
 	
 	ResizeSelectableShps();
-	LOG_MSG("Exiting HistogramCanvas::PopulateCanvas");
 }
 
 void HistogramCanvas::NewCustomCatClassif()
@@ -790,7 +777,6 @@ void HistogramCanvas::NewCustomCatClassif()
 
 void HistogramCanvas::TimeChange()
 {
-	LOG_MSG("Entering HistogramCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	var_info[0].time = project->GetTimeState()->GetCurrTime();
@@ -798,7 +784,6 @@ void HistogramCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting HistogramCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -834,7 +819,6 @@ void HistogramCanvas::VarInfoAttributeChange()
 
 void HistogramCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In HistogramCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -845,7 +829,6 @@ void HistogramCanvas::TimeSyncVariableToggle(int var_index)
 
 void HistogramCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In HistogramCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -856,8 +839,8 @@ void HistogramCanvas::FixedScaleVariableToggle(int var_index)
 void HistogramCanvas::HistogramIntervals()
 {
 	HistIntervalDlg dlg(1, cur_intervals, max_intervals, this);
-	if (dlg.ShowModal () != wxID_OK) return;
-	//if (cur_intervals == dlg.num_intervals) return;
+	if (dlg.ShowModal () != wxID_OK)
+        return;
 	cur_intervals = dlg.num_intervals;
     
     is_custom_category = false;
@@ -1136,7 +1119,6 @@ void HistogramFrame::OnHistClassification(wxCommandEvent& event)
 }
 void HistogramFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In HistogramFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("HistogramFrame", GetTitle());
 	}
@@ -1145,7 +1127,6 @@ void HistogramFrame::OnActivate(wxActivateEvent& event)
 
 void HistogramFrame::MapMenus()
 {
-	LOG_MSG("In HistogramFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1164,8 +1145,6 @@ void HistogramFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("HistogramFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((HistogramCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1184,7 +1163,6 @@ void HistogramFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void HistogramFrame::update(TimeState* o)
 {
-	LOG_MSG("In HistogramFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
@@ -1193,7 +1171,6 @@ void HistogramFrame::update(TimeState* o)
 
 void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In HistogramFrame::OnShowAxes");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -1201,7 +1178,6 @@ void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 
 void HistogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In HistogramFrame::OnDisplayStatistics");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -1209,7 +1185,6 @@ void HistogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void HistogramFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
-	LOG_MSG("In HistogramFrame::OnDisplayStatistics");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->HistogramIntervals();
 }

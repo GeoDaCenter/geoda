@@ -69,10 +69,7 @@ X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
 is_standardized(is_standardized_)
 {
     
-	shps_orig_xmin = 0;
-	shps_orig_ymin = 0;
-	shps_orig_xmax = 100;
-	shps_orig_ymax = 100;
+    last_scale_trans.SetData(0, 0, 100, 100);
 	UpdateMargins();
 	
 	use_category_brushes = false;
@@ -116,10 +113,7 @@ is_standardized(is_standardized_)
 {
 	LOG_MSG("Entering SimpleAxisCanvas::SimpleAxisCanvas");
 	
-	shps_orig_xmin = 0;
-	shps_orig_ymin = 0;
-	shps_orig_xmax = 100;
-	shps_orig_ymax = 100;
+    last_scale_trans.SetData(0, 0, 100, 100);
 	UpdateMargins();
 	
 	use_category_brushes = false;
@@ -164,25 +158,11 @@ void SimpleAxisCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
-	LOG(horiz_orient);
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-									shps_orig_xmax, shps_orig_ymax,
-									virtual_screen_marg_top,
-									virtual_screen_marg_bottom,
-									virtual_screen_marg_left,
-									virtual_screen_marg_right,
-									win_width, win_height,
-									fixed_aspect_ratio_mode,
-									fit_to_window_mode,
-									&scale_x, &scale_y, &trans_x, &trans_y,
-									0, 0,
-									&current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
-	
+    last_scale_trans.SetView(win_width, win_height);
+    
 	// Recall: Xmin/max can be smaller/larger than min/max in X
 	//    if X are particular time-slices of time-variant variables and
 	//    if global scaling is being used.
@@ -236,7 +216,7 @@ void SimpleAxisCanvas::PopulateCanvas()
 	} else {
 		x_baseline->setPen(*wxTRANSPARENT_PEN);
 	}
-	background_shps.push_back(x_baseline);
+	foreground_shps.push_back(x_baseline);
 	
 	ResizeSelectableShps();
 	LOG_MSG("Exiting SimpleAxisCanvas::PopulateCanvas");
@@ -244,10 +224,10 @@ void SimpleAxisCanvas::PopulateCanvas()
 
 void SimpleAxisCanvas::UpdateMargins()
 {
-	virtual_screen_marg_top = 5;//20;
-	virtual_screen_marg_right = 5;//20;
-	virtual_screen_marg_bottom = 5;//45;
-	virtual_screen_marg_left = 5;//45;
+	int virtual_screen_marg_top = 5;//20;
+	int virtual_screen_marg_right = 5;//20;
+	int virtual_screen_marg_bottom = 5;//45;
+	int virtual_screen_marg_left = 5;//45;
 	if (show_axes) {
 		if (horiz_orient) {
 			virtual_screen_marg_bottom = 45;//45;
@@ -255,5 +235,9 @@ void SimpleAxisCanvas::UpdateMargins()
 			virtual_screen_marg_left = 45;//45;
 		}
 	}
+    last_scale_trans.SetMargin(virtual_screen_marg_top,
+                               virtual_screen_marg_bottom,
+                               virtual_screen_marg_left,
+                               virtual_screen_marg_right);
 }
 

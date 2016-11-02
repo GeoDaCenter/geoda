@@ -28,6 +28,8 @@
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
 #include <wx/window.h>
+#include <wx/dcgraph.h>
+
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
 
@@ -117,10 +119,9 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
-    int GetBasemapType();
+    int  GetBasemapType();
     void CleanBasemapCache();
     
-public:
 	bool DrawBasemap(bool flag, int map_type);
     
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
@@ -129,10 +130,11 @@ public:
     
     virtual void deleteLayerBms();
     
-	void DrawSelectableShapes_dc(wxMemoryDC &dc);
+	void DrawSelectableShapes(wxMemoryDC &dc);
+    
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
-#ifndef __WXMAC__
+    
 	// in linux, windows use old style drawing without transparency support
 	// the commented out functions are inherited from TemplateCanvas class
 	// TODO will be replace by wxImage drawing code
@@ -141,13 +143,6 @@ public:
 	//virtual void DrawLayer1();
 	//virtual void DrawLayer2();
 	//virtual void OnPaint(wxPaintEvent& event);
-#else
-    virtual void resizeLayerBms(int width, int height);
-	virtual void DrawLayer0();
-	virtual void DrawLayer1();
-	virtual void DrawLayer2();
-	virtual void OnPaint(wxPaintEvent& event);
-#endif
 
     virtual void ResetShapes();
 	virtual void ZoomShapes(bool is_zoomin = true);
@@ -183,6 +178,8 @@ public:
 	bool isDrawBasemap;
     
 protected:
+    
+	bool layerbase_valid; // if false, then needs to be redrawn
     
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;

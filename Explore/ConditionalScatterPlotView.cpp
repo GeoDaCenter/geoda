@@ -84,14 +84,8 @@ show_lowess_smoother(false)
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	
-	shps_orig_xmin = 0;
-	shps_orig_ymin = 0;
-	shps_orig_xmax = 100;
-	shps_orig_ymax = 100;
-	virtual_screen_marg_top = 25;
-	virtual_screen_marg_bottom = 75;
-	virtual_screen_marg_left = 75;
-	virtual_screen_marg_right = 25;
+    last_scale_trans.SetData(0, 0, 100, 100);
+    last_scale_trans.SetMargin(25, 75, 75, 25);
 	
 	selectable_shps_type = points;
 	use_category_brushes = true;
@@ -136,7 +130,6 @@ ConditionalScatterPlotCanvas::~ConditionalScatterPlotCanvas()
 
 void ConditionalScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering ConditionalScatterPlotCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalScatterPlotFrame*) template_frame)->OnActivate(ae);
@@ -151,7 +144,6 @@ void ConditionalScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting ConditionalScatterPlotCanvas::DisplayRightClickMenu");
 }
 
 void ConditionalScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
@@ -190,13 +182,14 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 {
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
-	LOG_MSG("Entering ConditionalScatterPlotCanvas::ResizeSelectableShps");
-	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
-	if (vs_w <= 0 && vs_h <= 0)
+    int vs_w = virtual_scrn_w;
+    int vs_h = virtual_scrn_h;
+    
+    if (vs_w <= 0 && vs_h <= 0) {
         GetVirtualSize(&vs_w, &vs_h);
+    }
 	
 	double image_width, image_height;
-	bool ftwm = GetFitToWindowMode();
 	
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
 	// which are made in ScaterNewPlotView
@@ -205,14 +198,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	for (int i=0; i<vert_num_cats; i++) {
 		st[i] = new GdaScaleTrans[horiz_num_cats];
 	}
-	
-	// Total width height:  vs_w   vs_h
-	// Working area margins: virtual_screen_marg_top,
-	//  virtual_screen_marg_bottom,
-	//  virtual_screen_marg_left,
-	//  virtual_screen_marg_right
-	// We need to increase these as needed for each tile area
-	
+		
 	double scn_w = vs_w;
 	double scn_h = vs_h;
 	
@@ -234,10 +220,15 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double pad_bump = GenUtils::min<double>(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
 	
-	double marg_top = virtual_screen_marg_top;
-	double marg_bottom = virtual_screen_marg_bottom;
-	double marg_left = virtual_screen_marg_left;
-	double marg_right = virtual_screen_marg_right;
+	double marg_top = last_scale_trans.top_margin;
+	double marg_bottom = last_scale_trans.bottom_margin;
+	double marg_left = last_scale_trans.left_margin;
+	double marg_right = last_scale_trans.right_margin;
+    
+    double shps_orig_xmin = last_scale_trans.data_x_min;
+    double shps_orig_ymin = last_scale_trans.data_y_min;
+    double shps_orig_xmax = last_scale_trans.data_x_max;
+    double shps_orig_ymax = last_scale_trans.data_y_max;
 	
 	double d_rows = vert_num_cats;
 	double d_cols = horiz_num_cats;
@@ -256,29 +247,18 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			double mr = marg_right + ((d_cols-1)-col)*(pad+del_width);
 			double mt = marg_top + row*(pad+del_height);
 			double mb = marg_bottom + ((d_rows-1)-row)*(pad+del_height);
-			
-			double s_x, s_y, t_x, t_y;
-			GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-										   shps_orig_xmax, shps_orig_ymax,
-										   mt, mb, ml, mr,
-										   vs_w, vs_h, fixed_aspect_ratio_mode,
-										   ftwm,
-										   &s_x, &s_y, &t_x, &t_y,
-										   ftwm ? 0 : current_shps_width,
-										   ftwm ? 0 : current_shps_height,
-										   &image_width, &image_height);
-			st[(vert_num_cats-1)-row][col].scale_x = s_x;
-			st[(vert_num_cats-1)-row][col].scale_y = s_y;
-			st[(vert_num_cats-1)-row][col].trans_x = t_x;
-			st[(vert_num_cats-1)-row][col].trans_y = t_y;
-			st[(vert_num_cats-1)-row][col].max_scale =
-			GenUtils::max<double>(s_x, s_y);
-			
+		
+            GdaScaleTrans& sub_st = st[(vert_num_cats-1)-row][col];
+            sub_st.SetFixedAspectRatio(false);
+            sub_st.SetData(shps_orig_xmin, shps_orig_ymin,
+                           shps_orig_xmax, shps_orig_ymax);
+            sub_st.SetMargin(mt, mb, ml, mr);
+            sub_st.SetView(vs_w, vs_h);
+            
 			wxRealPoint ll(shps_orig_xmin, shps_orig_ymin);
 			wxRealPoint ur(shps_orig_xmax, shps_orig_ymax);
 			bin_extents[(vert_num_cats-1)-row][col] = GdaRectangle(ll, ur);
-			bin_extents[(vert_num_cats-1)-row][col].applyScaleTrans(
-											st[(vert_num_cats-1)-row][col]);
+			bin_extents[(vert_num_cats-1)-row][col].applyScaleTrans(sub_st);
 		}
 	}
 	
@@ -325,9 +305,10 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 						   stats_x[row][col].sample_size >= 3) {
 					s << "*";
 				}
-				GdaShapeText* t = new GdaShapeText(s, *GdaConst::small_font,
-									   wxRealPoint(50, 100), 0,
-									   GdaShapeText::h_center, GdaShapeText::v_center);
+                GdaShapeText* t =new GdaShapeText(s, *GdaConst::small_font,
+                                                  wxRealPoint(50, 100), 0,
+                                                  GdaShapeText::h_center,
+                                                  GdaShapeText::v_center);
 				t->setPen(*GdaConst::scatterplot_scale_pen);
 				t->applyScaleTrans(st[row][col]);
 				foreground_shps.push_back(t);
@@ -338,13 +319,15 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	int row_c;
 	int col_c;
 	for (int i=0; i<num_obs; i++) {
-		row_c = vert_cat_data.categories[var_info[VERT_VAR].time].id_to_cat[i];
-		col_c = horiz_cat_data.categories[var_info[HOR_VAR].time].id_to_cat[i];
+        int v_time = var_info[VERT_VAR].time;
+        int h_time = var_info[HOR_VAR].time;
+		row_c = vert_cat_data.categories[v_time].id_to_cat[i];
+		col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
 		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
 	}
 	
-	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
-	background_shps.clear();
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
+	foreground_shps.clear();
 	
 	double bg_xmin = marg_left;
 	double bg_xmax = scn_w-marg_right;
@@ -369,21 +352,27 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	}
 	
 	int label_offset = 12;
-	if (display_axes_scale_values) label_offset = 2+25;
-	GdaShape* s;
+	if (display_axes_scale_values)
+        label_offset = 2+25;
+	
+    GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 	for (int row=0; row<vert_num_cats-1; row++) {
 		double b;
-		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
-			if (!vert_cat_data.HasBreakVal(vt, row)) continue;
+		if (cat_classif_def_vert.cat_classif_type !=
+            CatClassification::custom)
+        {
+			if (!vert_cat_data.HasBreakVal(vt, row))
+                continue;
 			b = vert_cat_data.GetBreakVal(vt, row);
 		} else {
 			b = cat_classif_def_vert.breaks[row];
 		}
 		wxString t(GenUtils::DblToStr(b));
 		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
-					   GdaShapeText::h_center, GdaShapeText::bottom, -label_offset, 0);
-		background_shps.push_back(s);
+                             GdaShapeText::h_center, GdaShapeText::bottom,
+                             -label_offset, 0);
+		foreground_shps.push_back(s);
 	}
 	
 	wxString vert_label;
@@ -402,13 +391,14 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	s = new GdaShapeText(vert_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0), 90,
 				   GdaShapeText::h_center, GdaShapeText::bottom, -(label_offset+18), 0);
-	background_shps.push_back(s);
+	foreground_shps.push_back(s);
 	
 	int ht = var_info[HOR_VAR].time;
 	for (int col=0; col<horiz_num_cats-1; col++) {
 		double b;
 		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
+			if (!horiz_cat_data.HasBreakVal(ht, col))
+                continue;
 			b = horiz_cat_data.GetBreakVal(ht, col);
 		} else {
 			b = cat_classif_def_horiz.breaks[col];
@@ -416,7 +406,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		wxString t(GenUtils::DblToStr(b));
 		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, label_offset);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 	}
 	
 	wxString horiz_label;
@@ -435,26 +425,16 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	s = new GdaShapeText(horiz_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin+(bg_xmax-bg_xmin)/2.0, bg_ymin), 0,
 				   GdaShapeText::h_center, GdaShapeText::top, 0, (label_offset+18));
-	background_shps.push_back(s);
-	
-	GdaScaleTrans::calcAffineParams(marg_left, marg_bottom,
-								   scn_w-marg_right,
-								   scn_h-marg_top,
-								   marg_top, marg_bottom,
-								   marg_left, marg_right,
-								   vs_w, vs_h,
-								   fixed_aspect_ratio_mode,
-								   fit_to_window_mode,
-								   &last_scale_trans.scale_x,
-								   &last_scale_trans.scale_y,
-								   &last_scale_trans.trans_x,
-								   &last_scale_trans.trans_y,
-								   0, 0, &image_width, &image_height);
-	last_scale_trans.max_scale =
-	GenUtils::max<double>(last_scale_trans.scale_x,
-						  last_scale_trans.scale_y);
-	BOOST_FOREACH( GdaShape* ms, background_shps ) {
-		ms->applyScaleTrans(last_scale_trans);
+	foreground_shps.push_back(s);
+
+    GdaScaleTrans background_st;
+    background_st.SetData(marg_left, marg_bottom, scn_w-marg_right,
+                             scn_h-marg_top);
+    background_st.SetMargin(marg_top, marg_bottom, marg_left, marg_right);
+    background_st.SetView(vs_w, vs_h);
+    
+	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+		ms->applyScaleTrans(background_st);
 	}
 	
 	layer0_valid = false;
@@ -462,13 +442,10 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	for (int i=0; i<vert_num_cats; i++) delete [] st[i];
 	delete [] st;
-	
-	LOG_MSG("Exiting ConditionalScatterPlotCanvas::ResizeSelectableShps");
 }
 
 void ConditionalScatterPlotCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering ConditionalScatterPlotCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
 	selectable_shps.resize(num_obs);
@@ -491,7 +468,6 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 	}
 	CalcCellsRegression();
 	ResizeSelectableShps();
-	LOG_MSG("Exiting ConditionalScatterPlotCanvas::PopulateCanvas");
 }
 
 void ConditionalScatterPlotCanvas::CalcCellsRegression()
@@ -624,7 +600,6 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 
 void ConditionalScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In ConditionalScatterPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	
@@ -674,16 +649,25 @@ void ConditionalScatterPlotCanvas::ChangeLoessParams(double f, int iter,
 
 void ConditionalScatterPlotCanvas::DisplayAxesScaleValues(bool display)
 {
-	if (display == display_axes_scale_values) return;
+	if (display == display_axes_scale_values)
+        return;
+    
 	display_axes_scale_values = display;
+   
+    int virtual_screen_marg_top = last_scale_trans.top_margin;
+    int virtual_screen_marg_left = 60;
+    int virtual_screen_marg_bottom = 60;
+    int virtual_screen_marg_right = last_scale_trans.right_margin;
+    
 	if (display_axes_scale_values) {
-		virtual_screen_marg_bottom = 75;
-		virtual_screen_marg_left = 75;
-	} else {
-		virtual_screen_marg_bottom = 60;
-		virtual_screen_marg_left = 60;
+        virtual_screen_marg_bottom = 75;
+        virtual_screen_marg_left = 75;
 	}
 	
+    last_scale_trans.SetMargin(virtual_screen_marg_top,
+                               virtual_screen_marg_bottom,
+                               virtual_screen_marg_left,
+                               virtual_screen_marg_right);
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
@@ -796,8 +780,6 @@ ConditionalScatterPlotFrame::ConditionalScatterPlotFrame(wxFrame *parent,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style), lowess_param_frame(0)
 {
-	LOG_MSG("Entering ConditionalScatterPlotFrame::ConditionalScatterPlotFrame");
-	
 	int width, height;
 	GetClientSize(&width, &height);
 	
@@ -810,7 +792,6 @@ ConditionalScatterPlotFrame::ConditionalScatterPlotFrame(wxFrame *parent,
 	DisplayStatusBar(true);
 		
 	Show(true);
-	LOG_MSG("Exiting ConditionalScatterPlotFrame::ConditionalScatterPlotFrame");
 }
 
 ConditionalScatterPlotFrame::~ConditionalScatterPlotFrame()
@@ -819,13 +800,11 @@ ConditionalScatterPlotFrame::~ConditionalScatterPlotFrame()
 		lowess_param_frame->removeObserver(this);
 		lowess_param_frame->closeAndDeleteWhenEmpty();
 	}
-	LOG_MSG("In ConditionalScatterPlotFrame::~ConditionalScatterPlotFrame");
 	DeregisterAsActive();
 }
 
 void ConditionalScatterPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In ConditionalScatterPlotFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("ConditionalScatterPlotFrame", GetTitle());
 	}
@@ -835,7 +814,6 @@ void ConditionalScatterPlotFrame::OnActivate(wxActivateEvent& event)
 
 void ConditionalScatterPlotFrame::MapMenus()
 {
-	LOG_MSG("In ConditionalScatterPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -874,7 +852,6 @@ void ConditionalScatterPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void  ConditionalScatterPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConditionalScatterPlotFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
@@ -917,9 +894,9 @@ void ConditionalScatterPlotFrame::OnEditLowessParams(wxCommandEvent& event)
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l = c->GetLowess();
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
+                                                  l.GetDeltaFactor(),
+                                                  project);
 		lowess_param_frame->registerObserver(this);
 	}
 }

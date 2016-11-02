@@ -84,9 +84,9 @@ public:
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
-	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-											 int num_categories,
-											 const wxString& custom_classif_title = wxEmptyString);
+    void ChangeThemeType(CatClassification::CatClassifType new_theme,
+                         int num_categories,
+                         const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void SetCheckMarks(wxMenu* menu);
 	void OnSaveCategories();

@@ -134,8 +134,8 @@ hinge_15(true)
 	// NOTE: define Box Plot defaults
 	selectable_fill_color = GdaConst::boxplot_point_color;
 	highlight_color = GdaConst::highlight_color;
-	
-	fixed_aspect_ratio_mode = false;
+
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = mixed;
 	
@@ -354,7 +354,6 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 
 void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-	LOG_MSG("In BoxPlotCanvas::DrawSelectableShapes");
 	int radius = GdaConst::my_point_click_radius;
 	for (int t=cur_first_ind; t<=cur_last_ind; t++) {
 		int min_IQR = hinge_stats[t].min_IQR_ind;
@@ -509,7 +508,6 @@ wxString  BoxPlotCanvas::GetTimeString(int var, int time)
 
 void BoxPlotCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering BoxPlotCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -522,10 +520,7 @@ void BoxPlotCanvas::PopulateCanvas()
 		+ plot_width_const * cur_num_plots + 
 		+ plot_gap_const * (cur_num_plots-1);
 
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = 100;
+    last_scale_trans.SetData(x_min, 0, x_max, 100);
 	
 	GdaShape* s = 0;
 	int table_w=0, table_h=0;
@@ -543,33 +538,22 @@ void BoxPlotCanvas::PopulateCanvas()
 		vals[7] << "s.d.";
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
-						wxRealPoint(0, 0), GdaShapeText::h_center, GdaShapeText::top,
-						GdaShapeText::right, GdaShapeText::v_center, 3, 10, -45, 30);
-		background_shps.push_back(s);
+                              wxRealPoint(0, 0), GdaShapeText::h_center,
+                              GdaShapeText::top, GdaShapeText::right,
+                              GdaShapeText::v_center, 3, 10, -45, 30);
+		foreground_shps.push_back(s);
 		wxClientDC dc(this);
 		((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
 	}
 	
-	virtual_screen_marg_top = 25;
-	virtual_screen_marg_bottom = display_stats ? 42+table_h : 35; // 35+130
-	virtual_screen_marg_left = (display_stats || show_axes) ? 25+50 : 25;
-	virtual_screen_marg_right = 25;
-	
+
+    last_scale_trans.SetMargin(25,
+                               display_stats ? 42+table_h : 35,
+                               (display_stats || show_axes) ? 25+50 : 25,
+                               25);
 	wxSize size(GetVirtualSize());
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-								   shps_orig_xmax, shps_orig_ymax,
-								   virtual_screen_marg_top,
-								   virtual_screen_marg_bottom,
-								   virtual_screen_marg_left,
-								   virtual_screen_marg_right,
-								   size.GetWidth(), size.GetHeight(),
-								   fixed_aspect_ratio_mode,
-								   fit_to_window_mode,
-								   &scale_x, &scale_y, &trans_x, &trans_y,
-								   0, 0,
-								   &current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
+    last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    
 	
 	double y_min = hinge_stats[cur_first_ind].extreme_lower_val_15;
 	double y_max = hinge_stats[cur_first_ind].extreme_upper_val_15;
@@ -596,7 +580,7 @@ void BoxPlotCanvas::PopulateCanvas()
 		y_max = axis_scale.scale_max;
 		vert_axis = new GdaAxis(var_info[0].name, axis_scale,
 							   wxRealPoint(0,0), wxRealPoint(0, 100), -20, 0);
-		background_shps.push_back(vert_axis);
+		foreground_shps.push_back(vert_axis);
 	}
 	// need to scale height data so that y_min and y_max are between 0 and 100
 	double scaleY = 100.0 / (y_max-y_min);
@@ -645,18 +629,18 @@ void BoxPlotCanvas::PopulateCanvas()
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
                                   3, 10, 0, 30);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 		}
 		
 		s = new GdaPolyLine(xM-plot_width_const/3.0, (y0-y_min)*scaleY,
 						   xM+plot_width_const/3.0, (y0-y_min)*scaleY);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaPolyLine(xM-plot_width_const/3.0, (y1-y_min)*scaleY,
 						   xM+plot_width_const/3.0, (y1-y_min)*scaleY);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaPolyLine(orig_x_pos[t-cur_first_ind], (y0-y_min)*scaleY,
 						   orig_x_pos[t-cur_first_ind], (y1-y_min)*scaleY);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
         
 		s = new GdaCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
 						 5.0);
@@ -675,7 +659,7 @@ void BoxPlotCanvas::PopulateCanvas()
 		s = new GdaShapeText(plot_label, *GdaConst::small_font,
 					   wxRealPoint(orig_x_pos[t-cur_first_ind], 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 18);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		
 		for (int i=0; i<hinge_stats[t].min_IQR_ind; i++) {
 			double val = data_sorted[t][i].first;

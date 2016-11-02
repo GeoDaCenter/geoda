@@ -30,10 +30,13 @@
 #include <wx/overlay.h>
 #include <wx/scrolwin.h>
 #include <wx/string.h>
+#include <wx/dcgraph.h>
+
 #include "Explore/CatClassification.h"
 #include "HLStateInt.h"
 #include "HighlightStateObserver.h"
 #include "GdaShape.h"
+#include "GdaConst.h"
 
 typedef boost::multi_array<GdaShape*, 2> shp_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
@@ -41,37 +44,6 @@ typedef boost::multi_array<int, 2> i_array_type;
 class CatClassifManager;
 class Project;
 class TemplateFrame;
-
-
-class DataViewTransform
-{
-public:
-    DataViewTransform();
-    ~DataViewTransform();
-    
-    wxPoint Data2View(wxPoint& pt);
-    wxPoint View2Data(wxPoint& pt);
-   
-    void Reset();
-    void Offset();
-    void Zoom(wxRect& zoomed_view);
-    
-protected:
-    double aspect_ratio;
-    
-    double data_width;
-    double data_height;
-    
-    double view_width;
-    double view_height;
-    double view_margin_left;
-    double view_margin_right;
-    double view_margin_top;
-    double view_margin_bottom;
-    
-    wxRect viewRect;
-    wxRect dataRect;
-};
 
 /** TemplateCanvas is a base class that implements most of the
  functionality associated with selecting polygons.  It is the base
@@ -177,7 +149,7 @@ public:
 	void OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
 		
 	/** Draw the outline of the current selection tool. */
-	virtual void PaintSelectionOutline(wxDC& dc);
+	virtual void PaintSelectionOutline(wxMemoryDC& dc);
 	
 	/** This might go away since we have foreground_shps. */
 	virtual void PaintControls(wxDC& dc);
@@ -253,10 +225,6 @@ public:
 	virtual bool GetFixedAspectRatioMode();
 	virtual void SetFixedAspectRatioMode(bool mode);
 		
-	virtual void SetSelShpsMargs( int left, int right, int top, int bottom ) {
-		virtual_screen_marg_left = left; virtual_screen_marg_right = right;
-		virtual_screen_marg_top = top; virtual_screen_marg_bottom = bottom;
-	}
 	/** generic function to create and initialized the selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
 	    screen size. */
@@ -277,7 +245,7 @@ public:
     
     
     
-	void RenderToDC(wxDC &dc, bool disable_crosshatch_brush = true);
+	void RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush = true);
     const wxBitmap* GetLayer0() { return layer0_bm; }
 	const wxBitmap* GetLayer1() { return layer1_bm; }
 	const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -295,21 +263,18 @@ public:
 	// draw everything
 	void DrawSelectableShapesByZVal(wxDC &dc,
 									bool disable_crosshatch_brush = false);
-	// draw unhighlighted sel shapes
-	virtual void DrawSelectableShapes(wxMemoryDC &dc);
-	void DrawSelectableShapes_gc(wxMemoryDC &dc);
-	void DrawSelectableShapes_dc(wxMemoryDC &dc);
-	void DrawSelectableShapes_gen_dc(wxDC &dc);
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
-	void DrawHighlightedShapes_gc(wxMemoryDC &dc);
-	void DrawHighlightedShapes_dc(wxMemoryDC &dc);
-	void DrawHighlightedShapes_gen_dc(wxDC &dc,
-									  bool disable_crosshatch_brush = false);
+	// draw unhighlighted sel shapes
+	virtual void DrawSelectableShapes(wxMemoryDC &dc);
+    
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false);
+    
 
     void SetTransparency(double _transparency) {
         transparency = _transparency;
     };
+    
     double GetTransparency() {
         return transparency;
     }
@@ -322,12 +287,14 @@ public:
                     std::vector<double>& bins);
 	
 protected:
-	
 	MouseMode mousemode;
 	SelectState selectstate;
 	BrushType brushtype;
 	ScrollBarMode scrollbarmode;
 
+	GdaScaleTrans last_scale_trans;
+    
+	bool fit_to_window_mode;
     
 	/** The following parameters are used by the window resizing system.
 	 We need to very carefully determine how these can be used together
@@ -343,8 +310,8 @@ protected:
 	 as possible.
 	 */
 	
+    /*
 	bool fixed_aspect_ratio_mode;
-	bool fit_to_window_mode;
 	int virtual_screen_marg_left;
 	int virtual_screen_marg_right;
 	int virtual_screen_marg_top;
@@ -352,6 +319,15 @@ protected:
 	double fixed_aspect_ratio_val;
 	double current_shps_width;
 	double current_shps_height;
+	double current_map_x_min;
+	double current_map_y_min;
+	double current_map_x_max;
+	double current_map_y_max;
+	double ext_shps_orig_xmin;
+	double ext_shps_orig_ymin;
+	double ext_shps_orig_xmax;
+	double ext_shps_orig_ymax;
+    
 	// the following four parameters should usually be obtained from
 	// the shp file bounding box info in the header file.  They are used
 	// to calculate the affine transformation when the window is resized.
@@ -365,6 +341,7 @@ protected:
 	double data_scale_xmax;
 	double data_scale_ymin;
 	double data_scale_ymax;
+     */
 
 	/** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
@@ -400,7 +377,6 @@ protected:
 	// only used when draw_sel_shps_by_z_val is selected
 	std::vector<i_array_type> z_val_order;
 	
-	GdaScaleTrans last_scale_trans;
     
 	wxPoint GetActualPos(const wxMouseEvent& event);
 	wxPoint sel_poly_pts[100];  // for UpdateSelectRegion and UpdateSelection
@@ -417,24 +393,15 @@ protected:
 	int max_hover_obs;
 	// preserve current map bounding box for zoom/pan
 	bool is_pan_zoom;
-	bool is_scrolled;
 	int  prev_scroll_pos_x;
 	int  prev_scroll_pos_y;
-	double current_map_x_min;
-	double current_map_y_min;
-	double current_map_x_max;
-	double current_map_y_max;
-	double ext_shps_orig_xmin;
-	double ext_shps_orig_ymin;
-	double ext_shps_orig_xmax;
-	double ext_shps_orig_ymax;
+    
 	
 	wxBitmap* layer0_bm; // background items + unhighlighted obs
 	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
 	wxBitmap* layer2_bm; // layer1_bm + foreground obs
 	wxBitmap* final_bm; // final bitmap = background + layer0 + layer1
     
-	bool layerbase_valid; // if false, then needs to be redrawn
 	bool layer0_valid; // if false, then needs to be redrawn
 	bool layer1_valid; // if false, then needs to be redrawn
 	bool layer2_valid; // if flase, then needs to be redrawn

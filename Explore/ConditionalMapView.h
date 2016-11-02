@@ -49,6 +49,7 @@ public:
 						int num_categories,
 						const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
+    virtual void update(HLStateInt* o);
 	
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -60,8 +61,6 @@ public:
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void OnMouseEvent(wxMouseEvent& event);
 	virtual void OnScrollChanged(wxScrollWinEvent& event);
-	virtual void OnPaint(wxPaintEvent& event);
-	virtual void OnSize(wxSizeEvent& event);
     
 protected:
 	virtual void PopulateCanvas();

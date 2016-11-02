@@ -149,7 +149,7 @@ num_categories(6), all_init(false)
 	selectable_fill_color = GdaConst::pcp_line_color;
 	highlight_color = GdaConst::highlight_color;
 	
-	fixed_aspect_ratio_mode = false;
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = true;
 	selectable_shps_type = polylines;
 	
@@ -564,16 +564,13 @@ void PCPCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
+	wxSize size(GetVirtualSize());
 	double x_min = 0;
 	double x_max = 100;
 	double y_min = 0;
 	double y_max = 100;
-	
-	shps_orig_xmin = x_min;
-	shps_orig_ymin = y_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymax = y_max;
-	virtual_screen_marg_top = 25;
+
+    int virtual_screen_marg_bottom = 0;
 	if (!display_stats && !standardized) {
 		virtual_screen_marg_bottom = 25;
 	} else if (!display_stats && standardized) {
@@ -581,29 +578,11 @@ void PCPCanvas::PopulateCanvas()
 	} else {
 		virtual_screen_marg_bottom =  25+25;
 	}
-	virtual_screen_marg_left = 135;
-	virtual_screen_marg_right = 25;
 	
-	// For each variable, we know it's current time and it's
-	// min/max values over it's available times.  This is all that
-	// we need to know in order to create the PCP.
-	
-	wxSize size(GetVirtualSize());
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-								   shps_orig_xmax, shps_orig_ymax,
-								   virtual_screen_marg_top,
-								   virtual_screen_marg_bottom,
-								   virtual_screen_marg_left,
-								   virtual_screen_marg_right,
-								   size.GetWidth(), size.GetHeight(),
-								   fixed_aspect_ratio_mode,
-								   fit_to_window_mode,
-								   &scale_x, &scale_y, &trans_x, &trans_y,
-								   0, 0,
-								   &current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
-	
+    last_scale_trans.SetData(0, 0, 100, 100);
+    last_scale_trans.SetMargin(25,virtual_screen_marg_bottom, 135, 25);
+    last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    
 	selectable_shps.resize(num_obs);
     selectable_shps_undefs.resize(num_obs);
 	
@@ -651,21 +630,21 @@ void PCPCanvas::PopulateCanvas()
 		double y_pos = 100.0-(nvf*((double) v));
 		s = new GdaPolyLine(0, y_pos, 100, y_pos);
 		s->setPen(control_line_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		control_lines[v] = (GdaPolyLine*) s;
 		s = new GdaRay(wxRealPoint(0, y_pos), 180, 10);
 		s->setPen(control_line_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaCircle(wxRealPoint(0, y_pos), 3.0);
 		s->setNudge(-10, 0);
 		s->setPen(control_line_pen);
 		s->setBrush(*wxWHITE_BRUSH);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		control_circs[v] = (GdaCircle*) s;
         s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
                              wxRealPoint(0, y_pos), 0, GdaShapeText::right,
                              GdaShapeText::v_center, -25, 0+y_del);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
 		double t_min = data_stats[vv][t].min;
@@ -692,7 +671,7 @@ void PCPCanvas::PopulateCanvas()
 			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			int cols = 2;
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
@@ -705,7 +684,7 @@ void PCPCanvas::PopulateCanvas()
 							wxRealPoint(0, y_pos), GdaShapeText::right,
 							GdaShapeText::top, GdaShapeText::right, GdaShapeText::v_center,
 							3, 7, -25, 25+y_del);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 		}
 	}
 	if (standardized) {
@@ -713,11 +692,11 @@ void PCPCanvas::PopulateCanvas()
 		// add dotted line for mean in center
 		s = new GdaPolyLine(50, 0, 50, 100);
 		s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaShapeText(wxString::Format("%d", 0),
 					   *GdaConst::small_font, wxRealPoint(50, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		int sd_abs = overall_abs_max_std;
 		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
 			double sd_p = (double) i;
@@ -728,18 +707,18 @@ void PCPCanvas::PopulateCanvas()
 			sd_m *= std_fact;
 			s = new GdaPolyLine(sd_p, 0, sd_p, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			s = new GdaShapeText(wxString::Format("%d", i),
 						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			s = new GdaShapeText(wxString::Format("%d", -i),
 						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 		}
 	}
 	

@@ -18,23 +18,142 @@
  */
 
 #include <assert.h>
-
 #include <cmath> // for math abs and floor function
 #include <cfloat>
 #include <wx/graphics.h>
+
 #include "logger.h"
 #include "GdaConst.h"
 #include "GenUtils.h"
 #include "GdaShape.h"
+#include "DataViewTransform.h"
+
+
+GdaScaleTrans::GdaScaleTrans()
+{
+    // Set default margin
+    SetMargin();
+    
+    fixed_aspect_ratio = true;
+    
+    drawing_area_width = 0;
+    drawing_area_height = 0;
+    drawing_area_ar = 0;
+    
+    orig_data_x_min = 0;
+    orig_data_y_min = 0;
+    orig_data_x_max = 0;
+    orig_data_y_max = 0;
+    
+    data_x_min = 0;
+    data_y_min = 0;
+    data_x_max = 0;
+    data_y_max = 0;
+    
+    screen_width = 0;
+    screen_height = 0;
+    
+    scale_x = 0;
+    scale_y = 0;
+    max_scale = 0; // max of scale_x, scale_y
+    trans_x = 0;
+    trans_y = 0;
+    
+    slack_x = 0;
+    slack_y = 0;
+}
 
 GdaScaleTrans& GdaScaleTrans::operator=(const GdaScaleTrans& s)
 {
-	scale_x = s.scale_x;
-	scale_y = s.scale_y;
-	max_scale = GenUtils::max<double>(s.scale_x, s.scale_y);
-	trans_x = s.trans_x;
-	trans_y = s.trans_y;
+    fixed_aspect_ratio = s.fixed_aspect_ratio;
+    
+    drawing_area_width = s.drawing_area_width;
+    drawing_area_height = s.drawing_area_height;
+    drawing_area_ar = s.drawing_area_ar;
+    
+    orig_data_x_min = s.orig_data_x_min;
+    orig_data_y_min = s.orig_data_y_min;
+    orig_data_x_max = s.orig_data_x_max;
+    orig_data_y_max = s.orig_data_y_max;
+    
+    data_x_min = s.data_x_min;
+    data_y_min = s.data_y_min;
+    data_x_max = s.data_x_max;
+    data_y_max = s.data_y_max;
+    
+    screen_width = s.screen_width;
+    screen_height = s.screen_height;
+    
+    scale_x = s.scale_x;
+    scale_y = s.scale_y;
+    max_scale = s.max_scale; // max of scale_x, scale_y
+    trans_x = s.trans_x;
+    trans_y = s.trans_y;
+    
+    slack_x = s.slack_x;
+    slack_y = s.slack_y;
 	return *this;
+}
+
+bool GdaScaleTrans::IsValid()
+{
+    return data_width > 0 && data_height > 0;
+}
+
+wxRealPoint GdaScaleTrans::GetDataCenter()
+{
+    wxRealPoint pt;
+    pt.x = (orig_data_x_min + orig_data_x_max) / 2.0;
+    pt.y = (orig_data_y_min + orig_data_y_max) / 2.0;
+    return pt;
+}
+
+int GdaScaleTrans::GetXNudge()
+{
+    return (left_margin - right_margin) / 2;
+}
+void GdaScaleTrans::SetData(double x_min, double y_min,
+                            double x_max, double y_max)
+{
+    orig_data_x_min = x_min;
+    orig_data_y_min = y_min;
+    orig_data_x_max = x_max;
+    orig_data_y_max = y_max;
+    
+    data_x_min = x_min;
+    data_y_min = y_min;
+    data_x_max = x_max;
+    data_y_max = y_max;
+    
+    calcAffineParams();
+}
+
+
+void GdaScaleTrans::SetView(int screen_w, int screen_h)
+{
+    screen_width  = screen_w;
+    screen_height = screen_h;
+
+    calcAffineParams();
+}
+
+void GdaScaleTrans::SetMargin(int _top_marg, int _bottom_marg,
+                              int _left_marg, int _right_marg)
+{
+    top_margin = _top_marg;
+    bottom_margin = _bottom_marg;
+    left_margin  = _left_marg;
+    right_margin = _right_marg;
+    
+    calcAffineParams();
+ 
+}
+
+void GdaScaleTrans::SetFixedAspectRatio(bool fixed)
+{
+    fixed_aspect_ratio = fixed;
+    
+    calcAffineParams();
 }
 
 /** x_min, y_min, x_max, y_max are the bounding box limits for the entire map.
@@ -43,102 +162,138 @@ GdaScaleTrans& GdaScaleTrans::operator=(const GdaScaleTrans& s)
  desired, for example when the user continually zooms out.  The optional
  image_width_p and image_height_p parameters are for returning the
  resulting image width after the transformation is applied. */
-void GdaScaleTrans::calcAffineParams(double x_min, double y_min,
-									double x_max, double y_max,
-									double top_marg, double bottom_marg,
-									double left_marg, double right_marg,
-									double screen_width, double screen_height,
-									bool fixed_aspect_ratio,
-									bool fit_to_window,
-									double* scale_x_p, double* scale_y_p,
-									double* trans_x_p, double* trans_y_p,
-									double target_width, double target_height,
-									double* image_width_p,
-									double* image_height_p)
+void GdaScaleTrans::calcAffineParams()
 {
-	//LOG_MSG("Entering GdaScaleTrans::calcAffineParams");
-	double drawing_area_width = screen_width-(left_marg+right_marg);
-	double drawing_area_height = screen_height-(top_marg+bottom_marg);
-	
-	//LOG(drawing_area_width);
-	//LOG(target_width);
-	//LOG(drawing_area_height);
-	//LOG(target_height);
-	
-	if ( target_width > 0 && target_height > 0 &&
-		target_width-1 <= drawing_area_width &&
-		target_height-1 <= drawing_area_height ) {
-		
-		if (!fit_to_window && !fixed_aspect_ratio) {
-			//LOG_MSG("margins and drawing area adjusted");
-		}
-		
-		// increase the margins so that the working area is	equal
-		// to the target_width and target_height
-		double vert_delta = (drawing_area_height - target_height) / 2;
-		double horiz_delta = (drawing_area_width - target_width) / 2;
-		top_marg += vert_delta;
-		bottom_marg += vert_delta;
-		left_marg += horiz_delta;
-		right_marg += horiz_delta;
-		drawing_area_width -= (2 * horiz_delta);
-		drawing_area_height -= (2 * vert_delta);
-	} else {
-		if (!fit_to_window && !fixed_aspect_ratio) {
-			//LOG_MSG("margins not adjusted");
-		}		
-	}
-	
+	drawing_area_width = screen_width - (left_margin + right_margin);
+	drawing_area_height = screen_height - (top_margin + bottom_margin);
 	
 	// drawing_area_ar represents the drawing area aspect ratio.
-	double drawing_area_ar = drawing_area_width / drawing_area_height;
+	drawing_area_ar = drawing_area_width / drawing_area_height;
 	
 	// if fixed_aspect_ratio == true, we will maintain the original
 	// aspect-ratio (width : height) of the input data.
-	double data_width = x_max - x_min;
-	double data_height = y_max - y_min;
+	data_width = data_x_max - data_x_min;
+	data_height = data_y_max - data_y_min;
+    
 	// data aspect ratio
-	double data_ar = data_width / data_height;
+	data_ar = data_width / data_height;
 	
 	if ( fixed_aspect_ratio ) {
 		if (drawing_area_ar >= data_ar ) {
 			// scale (translated) data to fit within height of drawing area
-			*scale_x_p = drawing_area_height / data_height;
-			*scale_y_p = -(*scale_x_p);
-			
-			double slack =
-				(drawing_area_width - ((*scale_x_p) * data_width))/2.0;
-			*trans_x_p = slack + left_marg - (*scale_x_p)*x_min;
-			*trans_y_p = screen_height - bottom_marg - (*scale_y_p)*y_min;
+			scale_x = drawing_area_height / data_height;
+			scale_y = -scale_x;
+		
+            slack_y = 0;
+			slack_x = (drawing_area_width - (scale_x * data_width))/2.0;
+			trans_x = slack_x + left_margin - scale_x * data_x_min;
+			trans_y = screen_height - bottom_margin - scale_y * data_y_min;
+            
 		} else { // drawing_area_ar < data_ar 
 			// scale (translated) data to fit within width of drawing area
-			*scale_x_p = drawing_area_width / data_width;
-			*scale_y_p = -(*scale_x_p);
+			scale_x = drawing_area_width / data_width;
+			scale_y = -scale_x;
 			
-			*trans_x_p = left_marg - (*scale_x_p)*x_min;
-			double slack =
-				(drawing_area_height - ((*scale_x_p) * data_height))/2.0;
-			*trans_y_p =
-				screen_height - slack - bottom_marg - (*scale_y_p)*y_min;
+            slack_x = 0;
+			slack_y = (drawing_area_height - (scale_x * data_height))/2.0;
+            
+			trans_x = left_margin - scale_x * data_x_min;
+			trans_y = screen_height - slack_y - bottom_margin - scale_y * data_y_min;
 		}
 	} else { // fixed_aspect_ratio == false, fit_to_window == true/false
-		*scale_x_p = drawing_area_width / data_width;
-		*scale_y_p = -(drawing_area_height / data_height);
+		scale_x = drawing_area_width / data_width;
+		scale_y = -(drawing_area_height / data_height);
 		
-		*trans_x_p = left_marg - (*scale_x_p)*x_min;
-		*trans_y_p = screen_height - bottom_marg - (*scale_y_p)*y_min;
+		trans_x = left_margin - scale_x * data_x_min;
+		trans_y = screen_height - bottom_margin - scale_y * data_y_min;
 	}
-	
-	if (image_width_p && image_height_p) {
-		double new_x_min, new_y_min, new_x_max, new_y_max;
-		new_x_min = x_min * (*scale_x_p) + (*trans_x_p);
-		new_y_min = y_min * (*scale_y_p) + (*trans_y_p);
-		new_x_max = x_max * (*scale_x_p) + (*trans_x_p);
-		new_y_max = y_max * (*scale_y_p) + (*trans_y_p);
-		*image_width_p = abs(new_x_min - new_x_max);
-		*image_height_p = abs(new_y_min - new_y_max);
-	}
-	//LOG_MSG("Exiting GdaScaleTrans::calcAffineParams");
+
+    max_scale = scale_x;
+    if (scale_y > scale_x)
+        max_scale = scale_y;
+}
+
+
+void GdaScaleTrans::Reset()
+{
+    data_x_min = orig_data_x_min;
+    data_x_max = orig_data_x_max;
+    data_y_min = orig_data_y_min;
+    data_y_max = orig_data_y_max;
+    
+    calcAffineParams();
+}
+
+void GdaScaleTrans::Zoom(bool is_zoomin, wxPoint& from, wxPoint &to)
+{
+    if (is_zoomin == false ) {
+        // always zoom out
+        double expand_in_x = data_width * 0.5;
+        double expand_in_y = data_height * 0.5;
+        
+        data_x_min = data_x_min - expand_in_x;
+        data_y_min = data_y_min - expand_in_y;
+        
+        data_x_max =  data_x_max + expand_in_x;
+        data_y_max =  data_y_max + expand_in_y;
+        
+    } else {
+        // zoom in
+        wxPoint left_top, right_bottom;
+        
+        if (from.x < to.x) {
+            left_top.x = from.x;
+            right_bottom.x = to.x;
+        } else {
+            left_top.x = to.x;
+            right_bottom.x = from.x;
+        }
+        
+        if (from.y < to.y) {
+            left_top.y = from.y;
+            right_bottom.y = to.y;
+        } else {
+            left_top.y = to.y;
+            right_bottom.y = from.y;
+        }
+       
+        wxRealPoint lt_data = View2Data(left_top);
+        wxRealPoint rb_data = View2Data(right_bottom);
+        
+        data_x_min = lt_data.x;
+        data_x_max = rb_data.x;
+        data_y_min = lt_data.y;
+        data_y_max = rb_data.y;
+    }
+    
+    calcAffineParams();
+}
+
+
+void GdaScaleTrans::PanView(const wxPoint& pt_from, const wxPoint& pt_to)
+{
+   
+    wxRealPoint data_pt_from = View2Data(pt_from);
+    wxRealPoint data_pt_to = View2Data(pt_to);
+   
+    double offset_data_x = data_pt_from.x - data_pt_to.x;
+    double offset_data_y = data_pt_from.y - data_pt_to.y;
+    
+    data_x_min = data_x_min + offset_data_x;
+    data_y_min = data_y_min + offset_data_y;
+    
+    data_x_max = data_x_max + offset_data_x;
+    data_y_max = data_y_max + offset_data_y;
+    
+    calcAffineParams();
+}
+
+void GdaScaleTrans::ScrollView(int scroll_x, int scroll_y)
+{
+    wxPoint pt_from(0,0);
+    wxPoint pt_to(scroll_x, scroll_y);
+    
+    PanView(pt_from, pt_to);
 }
 
 wxString GdaScaleTrans::GetString()
@@ -148,6 +303,13 @@ wxString GdaScaleTrans::GetString()
 	str << "\n              trans_x=" << trans_x << ", trans_y=";
 	str << trans_y;
 	return str;
+}
+
+wxRealPoint GdaScaleTrans::View2Data(const wxPoint& src)
+{
+    wxRealPoint result;
+    transform_back(src, result);
+    return result;
 }
 
 void GdaScaleTrans::transform_back(const wxPoint& src, wxRealPoint& result) const
@@ -185,6 +347,10 @@ void GdaScaleTrans::transform(const double& src, double* result) const
 	*result = src * max_scale;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaShapeAttribs::GdaShapeAttribs(const GdaShapeAttribs& s)
 : brush(s.brush), pen(s.pen), x_nudge(s.x_nudge), y_nudge(s.y_nudge)
 {
@@ -208,6 +374,11 @@ GdaShapeAttribs& GdaShapeAttribs::operator=(const GdaShapeAttribs& s) {
 	y_nudge = s.y_nudge;
 	return *this;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 
 GdaShape::GdaShape() :
 	center(0,0), center_o(0.0,0.0), category(0), attribs(0), null_shape(false)
@@ -297,26 +468,19 @@ int GdaShape::getYNudge()
 	return attribs->y_nudge;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 void GdaShapeAlgs::partsToCount(const std::vector<wxInt32>& parts,
 							   int total_points, int* count)
 {
 	if (total_points == 0 || parts.size() == 0) return;
-	//LOG_MSG("Entering GdaShape::partsToCount");
 	int last_ind = parts.size()-1;
 	for (int i=0; i<last_ind; i++) {
 		count[i] = parts[i+1]-parts[i];
-		//LOG(count[i]);
-		//LOG(parts[i]);
-		//LOG(parts[i+1]);
 	}
-	//int prev = last_ind > 0 ? parts[last_ind-1] : 0;
 	count[last_ind] = total_points - parts[last_ind];
-	//LOG(total_points);
-	//LOG(parts.size());
-	//LOG(parts[last_ind]);
-	//LOG(last_ind);
-	//LOG(count[last_ind]);
-	//LOG_MSG("Exiting GdaShape::partsToCount");
 }
 
 wxRealPoint GdaShapeAlgs::calculateMeanCenter(GdaPolygon* poly)
@@ -625,11 +789,11 @@ bool GdaPoint::regionIntersect(const wxRegion& r)
 	return r.Contains(center.x-1, center.y-1, 3, 3) != wxOutRegion;
 }
 
-//void GdaPoint::applyScaleTrans(const GdaScaleTrans& A)
-//{
-//	GdaShape::applyScaleTrans(A); // apply affine transform to base class
-//	A.transform(center_o, &center);
-//}
+void GdaPoint::applyScaleTrans(const GdaScaleTrans& A)
+{
+	GdaShape::applyScaleTrans(A); // apply affine transform to base class
+	//A.transform(center_o, &center);
+}
 
 void GdaPoint::paintSelf(wxDC& dc)
 {
@@ -653,6 +817,10 @@ void GdaPoint::paintSelf(wxGraphicsContext* gc)
 	gc->StrokePath(path);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaCircle::GdaCircle()
 {
 	null_shape = true;
@@ -680,15 +848,6 @@ bool GdaCircle::pointWithin(const wxPoint& pt)
 
 bool GdaCircle::regionIntersect(const wxRegion& r)
 {
-	//long diam = (long) (2*radius);
-	//if (r.Contains(center.x - radius, center.y - radius,
-	//			   diam, diam) == wxOutRegion) {
-	//	return false;
-	//} else {
-	//	wxRegion circ_reg = GdaShapeAlgs::createCircleRegion(center, radius);
-	//	circ_reg.Intersect(r);
-	//	return !circ_reg.IsEmpty();
-	//}
 	return false;
 }
 
@@ -699,6 +858,7 @@ void GdaCircle::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(center_o, &center);
 	if (scale_radius) A.transform(radius_o, &radius);
 }
+
 
 void GdaCircle::paintSelf(wxDC& dc)
 {
@@ -722,6 +882,10 @@ void GdaCircle::paintSelf(wxGraphicsContext* gc)
     gc->StrokePath(path);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaRectangle::GdaRectangle()
 {
 	null_shape = true;
@@ -763,6 +927,7 @@ void GdaRectangle::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(upper_right_o, &upper_right);
 }
 
+
 void GdaRectangle::projectToBasemap(GDA::Basemap* basemap)
 {
 	if (null_shape) 
@@ -795,6 +960,10 @@ void GdaRectangle::paintSelf(wxGraphicsContext* gc)
 					 upper_right.y - lower_left.y);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaPolygon::GdaPolygon() : points(0), points_o(0), count(0)
 {
 	null_shape = true;
@@ -961,6 +1130,7 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 	}
 }
 
+
 void GdaPolygon::projectToBasemap(GDA::Basemap* basemap)
 {
     if (null_shape) 
@@ -1063,36 +1233,15 @@ void GdaPolygon::paintSelf(wxGraphicsContext* gc)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaPolyLine::GdaPolyLine()
 	: n(2), pc(0), n_count(1), count(0), points(0), points_o(0)
 {
 	null_shape = true;
 	return;
-	
-	/*
-	double x1=0, y1=0, x2=100, y2=100; 
-	count = new int[1];
-	count[0] = n;
-	points = new wxPoint[n];
-	points_o = new wxRealPoint[n];
-	points_o[0].x = x1;
-	points_o[0].y = y1;
-	points_o[1].x = x2;
-	points_o[1].y = y2;
-	points[0].x = (int) x1;
-	points[0].y = (int) y1;
-	points[1].x = (int) x2;
-	points[1].y = (int) y2;
-	
-	center_o = GdaShapeAlgs::calculateMeanCenter(n, points_o);
-	center.x = (int) center_o.x;
-	center.y = (int) center_o.y;
-	
-	//region = GdaShapeAlgs::createLineRegion(points[0], points[1]);
-	//for (int i=1; i<n-1; i++) {
-	//	region.Union(GdaShapeAlgs::createLineRegion(points[i], points[i+1]));
-	//}
-	 */
 }
 
 GdaPolyLine::GdaPolyLine(const GdaPolyLine& s)
@@ -1230,7 +1379,6 @@ GdaPolyLine::~GdaPolyLine()
 
 GdaPolyLine& GdaPolyLine::operator=(const GdaPolyLine& s)
 {
-	//LOG_MSG("Entering GdaPolyLine::operator=");
 	GdaShape::operator=(s);
 	if (points) delete [] points; points = 0;
 	if (points_o) delete [] points_o; points_o = 0;
@@ -1257,9 +1405,7 @@ GdaPolyLine& GdaPolyLine::operator=(const GdaPolyLine& s)
 	n = s.n;
 	n_count = s.n_count;
 	pc = s.pc;
-	//region = s.region;
 	return *this;
-	//LOG_MSG("Exiting GdaPolyLine::operator=");
 }
 
 bool GdaPolyLine::pointWithin(const wxPoint& pt)
@@ -1281,9 +1427,6 @@ bool GdaPolyLine::pointWithin(const wxPoint& pt)
 
 bool GdaPolyLine::regionIntersect(const wxRegion& r)
 {
-	//wxRegion reg(region);
-	//reg.Intersect(r);
-	//return !reg.IsEmpty();
 	return false;
 }
 
@@ -1295,32 +1438,11 @@ void GdaPolyLine::applyScaleTrans(const GdaScaleTrans& A)
 		for (int i=0; i<n; i++) {
 			A.transform(points_o[i], &(points[i]));
 		}
-		//if (n>1) {
-		//	region = GdaShapeAlgs::createLineRegion(points[0], points[1]);
-		//	for (int i=1; i<n-1; i++) {
-		//		region.Union(GdaShapeAlgs::createLineRegion(points[i], points[i+1]));
-		//	}
-		//}
 	} else {
 		for (int i=0; i<n; i++) {
 			A.transform(pc->points[i], &(points[i]));
 		}
-		//region = wxRegion(); // create an empty initial region
-		//int chunk_index = 0;  // will have the initial index of each part
-		//for (int h=0; h<n_count; h++) {
-		//	if (count[h] > 1) {  // ensure this is a valid part
-		//		region.Union(GdaShapeAlgs::createLineRegion(points[chunk_index],
-		//												   points[chunk_index+1]));
-		//		for (int i=1; i<n-1; i++) {
-		//			region.Union(GdaShapeAlgs::createLineRegion(points[chunk_index+i],
-		//													   points[chunk_index+i+1]));
-		//		}
-		//	}
-		//	chunk_index += count[h]; // increment to next part
-		//}
 	}
-	
-	//region = wxRegion(n, points);
 }
 
 void GdaPolyLine::paintSelf(wxDC& dc)
@@ -1358,8 +1480,10 @@ wxString GdaPolyLine::printDetails()
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 
 GdaSpline::GdaSpline()
 : n(0), points(0), points_o(0)
@@ -1627,8 +1751,10 @@ wxString GdaSpline::printDetails()
 }
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaRay::GdaRay()
 {
 	null_shape = true;
@@ -1694,6 +1820,11 @@ void GdaRay::paintSelf(wxGraphicsContext* gc)
     
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaShapeText::GdaShapeText()
 : text(""), font(*GdaConst::medium_font),
 	ref_pt(0,0), ref_pt_o(0,0),
@@ -1893,6 +2024,10 @@ wxPoint GdaShapeText::calcRefPoint(wxDC& dc, const wxString& text,
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaShapeTable::GdaShapeTable()
 : vals(0), attributes(0), rows(0), cols(0), font(*GdaConst::small_font),
 	ref_pt(0,0), ref_pt_o(0,0),
@@ -2118,6 +2253,11 @@ void GdaShapeTable::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(ref_pt_o, &ref_pt);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaAxis::GdaAxis()
 	: caption(wxEmptyString), is_horizontal(true),
 	caption_font(*GdaConst::medium_font), font(*GdaConst::small_font),

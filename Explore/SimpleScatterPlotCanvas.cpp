@@ -90,10 +90,7 @@ view_standardized_data(view_standardized_data_)
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	
-	shps_orig_xmin = 0;
-	shps_orig_ymin = 0;
-	shps_orig_xmax = 100;
-	shps_orig_ymax = 100;
+    last_scale_trans.SetData(0, 0, 100, 100);
 	UpdateMargins();
 	
 	use_category_brushes = true;
@@ -461,21 +458,8 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	foreground_shps.clear();
 	
 	wxSize size(GetVirtualSize());
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-									shps_orig_xmax, shps_orig_ymax,
-									virtual_screen_marg_top,
-									virtual_screen_marg_bottom,
-									virtual_screen_marg_left,
-									virtual_screen_marg_right,
-									size.GetWidth(), size.GetHeight(),
-									fixed_aspect_ratio_mode,
-									fit_to_window_mode,
-									&scale_x, &scale_y, &trans_x, &trans_y,
-									0, 0,
-									&current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
-	
+    last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    
 	// Recall: Xmin/max Ymin/max can be smaller/larger than min/max in X/Y
 	//    if X/Y are particular time-slices of time-variant variables and
 	//    if global scaling is being used.
@@ -524,12 +508,14 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 							 x_max + (add_auto_padding_max ? x_pad : 0.0));
 	axis_scale_y = AxisScale(y_min - (add_auto_padding_min ? y_pad : 0.0),
 							 y_max + (add_auto_padding_max ? y_pad : 0.0));
-	
+
+    /*
 	// used by status bar for showing selection rectangle range
 	data_scale_xmin = axis_scale_x.scale_min;
 	data_scale_xmax = axis_scale_x.scale_max;
 	data_scale_ymin = axis_scale_y.scale_min;
 	data_scale_ymax = axis_scale_y.scale_max;
+     */
 	
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(X.size());
@@ -569,7 +555,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	} else {
 		x_baseline->setPen(*wxTRANSPARENT_PEN);
 	}
-	background_shps.push_back(x_baseline);
+	foreground_shps.push_back(x_baseline);
 	y_baseline = new GdaAxis(Yname, axis_scale_y,
 							 wxRealPoint(0,0), wxRealPoint(0, 100));
 	if (show_axes) {
@@ -577,7 +563,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	} else {
 		y_baseline->setPen(*wxTRANSPARENT_PEN);
 	}
-	background_shps.push_back(y_baseline);
+	foreground_shps.push_back(y_baseline);
 	
 	// create optional axes through origin
 	if (show_horiz_axis_through_origin &&
@@ -588,7 +574,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 								  (axis_scale_y.scale_max-axis_scale_y.scale_min));
 		x_axis_through_origin->operator=(GdaPolyLine(0,y_inter,100,y_inter));
 		x_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
-		background_shps.push_back(x_axis_through_origin);
+		foreground_shps.push_back(x_axis_through_origin);
 	}
 	if (show_vert_axis_through_origin &&
 			axis_scale_x.scale_min < 0 && 0 < axis_scale_x.scale_max)
@@ -598,7 +584,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 								  (axis_scale_x.scale_max-axis_scale_x.scale_min));
 		y_axis_through_origin->operator=(GdaPolyLine(x_inter,0,x_inter,100));
 		y_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
-		background_shps.push_back(y_axis_through_origin);
+		foreground_shps.push_back(y_axis_through_origin);
 	}
 	
 	// create lowess regression lines
@@ -708,14 +694,19 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 
 void SimpleScatterPlotCanvas::UpdateMargins()
 {
-	virtual_screen_marg_top = 5;//20;
-	virtual_screen_marg_right = 5;//20;
-	virtual_screen_marg_bottom = 5;//45;
-	virtual_screen_marg_left = 5;//45;
+	int virtual_screen_marg_top = 5;//20;
+	int virtual_screen_marg_right = 5;//20;
+	int virtual_screen_marg_bottom = 5;//45;
+	int virtual_screen_marg_left = 5;//45;
+    
 	if (show_axes) {
 		virtual_screen_marg_bottom = 45;//45;
 		virtual_screen_marg_left = 45;//45;
 	}
+    last_scale_trans.SetMargin(virtual_screen_marg_top,
+                               virtual_screen_marg_bottom,
+                               virtual_screen_marg_left,
+                               virtual_screen_marg_right);
 }
 
 /** Free allocated points arrays in lowess_cache and clear cache */

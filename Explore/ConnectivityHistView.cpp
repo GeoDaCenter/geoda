@@ -77,8 +77,8 @@ w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 	InitIntervals();
 	
 	highlight_color = GdaConst::highlight_color;
-	
-	fixed_aspect_ratio_mode = false;
+
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
 	
@@ -295,14 +295,8 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	foreground_shps.clear();
 	
 	if (w_uuid.is_nil()) {
-		virtual_screen_marg_top = 0;
-		virtual_screen_marg_bottom = 0;
-		virtual_screen_marg_left = 0;
-		virtual_screen_marg_right = 0;
-		shps_orig_xmin = 0;
-		shps_orig_xmax = 100;
-		shps_orig_ymin = 0;
-		shps_orig_ymax = 100;
+        last_scale_trans.SetData(0,0, 100, 100);
+        last_scale_trans.SetMargin(0, 0, 0, 0);
 		
 		ResizeSelectableShps();
 		return;
@@ -317,16 +311,15 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		orig_x_pos[i] = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
 	}
 	
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = max_num_obs_in_ival;
+    double y_max = max_num_obs_in_ival;
+    
+    last_scale_trans.SetData(x_min, 0, x_max, y_max);
 	
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, shps_orig_ymax, 5, 0);
-		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax), -9, 0);
-		background_shps.push_back(y_axis);
+		axis_scale_y = AxisScale(0, y_max, 5, 0);
+		y_max = axis_scale_y.scale_max;
+		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, y_max), -9, 0);
+		foreground_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val);
         
@@ -356,8 +349,8 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis("Number of Neighbors", axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
-		background_shps.push_back(x_axis);
+		x_axis = new GdaAxis("Number of Neighbors", axis_scale_x, wxRealPoint(0,0), wxRealPoint(x_max, 0), 0, 9);
+		foreground_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
@@ -371,10 +364,10 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		}
 		msg << "neighborless.";
 		s = new GdaShapeText(msg, *GdaConst::small_font,
-					   wxRealPoint(((double) shps_orig_xmax)/2.0,
-								   shps_orig_ymax), 0, GdaShapeText::h_center,
+					   wxRealPoint(((double) x_max)/2.0,
+								   y_max), 0, GdaShapeText::h_center,
 					   GdaShapeText::bottom, 0, -15);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 	}
 		
 	int table_w=0, table_h=0;
@@ -394,7 +387,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 							  GdaShapeText::top,
 						GdaShapeText::right, GdaShapeText::v_center,
 							  3, 10, -62, 53+y_d);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		{
 			wxClientDC dc(this);
 			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
@@ -427,7 +420,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 								  GdaShapeText::h_center, GdaShapeText::v_center,
 								  3, 10, 0,
 							53+y_d);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 		}
 		
 		wxString sts;
@@ -439,17 +432,17 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		sts << ", #obs: " << num_obs;
 	
 		s = new GdaShapeText(sts, *GdaConst::small_font,
-					   wxRealPoint(shps_orig_xmax/2.0, 0), 0,
+					   wxRealPoint(x_max/2.0, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0,
 					   table_h + 70 + y_d); //145+y_d);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 	}
 	
-	virtual_screen_marg_top = 25;
+	int virtual_screen_marg_top = 25;
 	if (HasIsolates()) virtual_screen_marg_top += 20;
-	virtual_screen_marg_bottom = 25;
-	virtual_screen_marg_left = 25;
-	virtual_screen_marg_right = 25;
+	int virtual_screen_marg_bottom = 25;
+	int virtual_screen_marg_left = 25;
+	int virtual_screen_marg_right = 25;
 	
 	if (show_axes || display_stats) {
 		if (!display_stats) {
@@ -461,6 +454,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			virtual_screen_marg_left += 82;
 		}
 	}
+    
+    last_scale_trans.top_margin = virtual_screen_marg_top;
+    last_scale_trans.bottom_margin = virtual_screen_marg_bottom;
+    last_scale_trans.left_margin = virtual_screen_marg_left;
+    last_scale_trans.right_margin = virtual_screen_marg_right;
 
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {

@@ -101,8 +101,8 @@ colors(0), default_colors(default_intervals)
 	InitIntervals();
 	
 	highlight_color = GdaConst::highlight_color;
-	
-	fixed_aspect_ratio_mode = false;
+
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
 	
@@ -122,7 +122,6 @@ CatClassifHistCanvas::~CatClassifHistCanvas()
 
 void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering CatClassifHistCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((CatClassifFrame*) template_frame)->OnActivate(ae);
@@ -136,7 +135,6 @@ void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	// by adding the position of the canvas relative to its parent
 	template_frame->PopupMenu(optMenu, pos  + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting CatClassifHistCanvas::DisplayRightClickMenu");
 }
 
 
@@ -264,8 +262,6 @@ void CatClassifHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void CatClassifHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering CatClassifHistCanvas::update");
-	
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -273,8 +269,6 @@ void CatClassifHistCanvas::update(HLStateInt* o)
 	UpdateIvalSelCnts();
 	
 	Refresh();
-	
-	LOG_MSG("Entering CatClassifHistCanvas::update");	
 }
 
 wxString CatClassifHistCanvas::GetCanvasTitle()
@@ -315,7 +309,6 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
 
 void CatClassifHistCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering CatClassifHistCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -332,23 +325,19 @@ void CatClassifHistCanvas::PopulateCanvas()
     std::vector<double> orig_x_pos_left(cur_intervals);
     std::vector<double> orig_x_pos_right(cur_intervals);
     GetBarPositions(orig_x_pos, orig_x_pos_left, orig_x_pos_right);
-	
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = max_num_obs_in_ival;
-	
-	axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
-	shps_orig_ymax = axis_scale_y.scale_max;
-	y_axis = new GdaAxis("Frequency", axis_scale_y,
-						wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
-						-9, 0);
-	background_shps.push_back(y_axis);
 
-	virtual_screen_marg_top = 25;
-	virtual_screen_marg_bottom = 25+32;
-	virtual_screen_marg_left = 25+35;
-	virtual_screen_marg_right = 25;
+    double y_max = max_num_obs_in_ival;
+    last_scale_trans.SetData(x_min, 0, x_max, max_num_obs_in_ival);
+    
+	
+	axis_scale_y = AxisScale(0, y_max, 5);
+	y_max = axis_scale_y.scale_max;
+	y_axis = new GdaAxis("Frequency", axis_scale_y,
+						wxRealPoint(0,0), wxRealPoint(0, y_max),
+						-9, 0);
+	foreground_shps.push_back(y_axis);
+
+    last_scale_trans.SetMargin(25, 25+32, 25+35, 25);
 	
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
@@ -368,7 +357,7 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x0, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
-            background_shps.push_back(brk);
+            foreground_shps.push_back(brk);
         }
 		if (i<cur_intervals-1) {
 			GdaShapeText* brk = 
@@ -377,7 +366,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 wxRealPoint(x1, y0), 90,
 								 GdaShapeText::right,
 								 GdaShapeText::v_center, 0, 10);
-			background_shps.push_back(brk);
+			foreground_shps.push_back(brk);
 		}
         if (i==cur_intervals-1) {
             GdaShapeText* brk =
@@ -386,13 +375,11 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x1, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
-            background_shps.push_back(brk);
+            foreground_shps.push_back(brk);
         }
 	}
 	
     ResizeSelectableShps();
-	
-	LOG_MSG("Exiting CatClassifHistCanvas::PopulateCanvas");
 }
 
 /** based on data and breaks and cur_intervals,
@@ -606,21 +593,16 @@ BEGIN_EVENT_TABLE(CatClassifPanel, wxPanel)
 	EVT_CHOICE(XRCID("ID_COLOR_SCHEME"), CatClassifPanel::OnColorSchemeChoice)
 	EVT_CHOICE(XRCID("ID_NUM_CATS_CHOICE"), CatClassifPanel::OnNumCatsChoice)
 	EVT_CHOICE( XRCID("ID_ASSOC_VAR"), CatClassifPanel::OnAssocVarChoice)
-	EVT_CHOICE( XRCID("ID_ASSOC_VAR_TM"),
-			   CatClassifPanel::OnAssocVarTmChoice)
-	EVT_TEXT_ENTER(XRCID("ID_UNIF_DIST_MIN_TXT"),
-				   CatClassifPanel::OnUnifDistMinEnter)
-	EVT_TEXT_ENTER(XRCID("ID_UNIF_DIST_MAX_TXT"),
-				   CatClassifPanel::OnUnifDistMaxEnter)
-	EVT_CHECKBOX(XRCID("ID_AUTO_LABELS_CB"),
-				 CatClassifPanel::OnAutomaticLabelsCb)
+	EVT_CHOICE( XRCID("ID_ASSOC_VAR_TM"), CatClassifPanel::OnAssocVarTmChoice)
+	EVT_TEXT_ENTER(XRCID("ID_UNIF_DIST_MIN_TXT"), CatClassifPanel::OnUnifDistMinEnter)
+	EVT_TEXT_ENTER(XRCID("ID_UNIF_DIST_MAX_TXT"), CatClassifPanel::OnUnifDistMaxEnter)
+	EVT_CHECKBOX(XRCID("ID_AUTO_LABELS_CB"), CatClassifPanel::OnAutomaticLabelsCb)
 	EVT_SLIDER(XRCID("ID_BRK_SLIDER"), CatClassifPanel::OnBrkSlider)
 	EVT_SCROLL_THUMBRELEASE(CatClassifPanel::OnScrollThumbRelease)
 	EVT_TEXT(XRCID("ID_CAT_TXT"), CatClassifPanel::OnCategoryTitleText)
 	EVT_RADIOBUTTON(XRCID("ID_BRK_RAD"), CatClassifPanel::OnBrkRad)	
 	EVT_TEXT_ENTER(XRCID("ID_BRK_TXT"), CatClassifPanel::OnBrkTxtEnter)
-	EVT_BUTTON(XRCID("ID_CHANGE_TITLE"),
-			   CatClassifPanel::OnButtonChangeTitle)
+	EVT_BUTTON(XRCID("ID_CHANGE_TITLE"), CatClassifPanel::OnButtonChangeTitle)
 	EVT_BUTTON(XRCID("wxID_NEW"), CatClassifPanel::OnButtonNew)
 	EVT_BUTTON(XRCID("wxID_DELETE"), CatClassifPanel::OnButtonDelete)
 	EVT_BUTTON(XRCID("wxID_CLOSE"), CatClassifPanel::OnButtonClose)

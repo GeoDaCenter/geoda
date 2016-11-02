@@ -2262,6 +2262,7 @@ wxPen CatClassifData::GetCategoryPen(int canvas_tm, int cat)
 	wxPen pen = categories[canvas_tm].cat_vec[cat].pen;
     if (pen.IsOk() && pen.GetColour().IsOk()) return pen;
     categories[canvas_tm].cat_vec[cat].pen.SetColour(*wxBLACK);
+    categories[canvas_tm].cat_vec[cat].pen.SetWidth(1);
     return *wxBLACK_PEN;
 }
 
