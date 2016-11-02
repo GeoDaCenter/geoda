@@ -498,9 +498,9 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
         wxImage image = bmp.ConvertToImage();
         if (!image.HasAlpha()) {
             image.InitAlpha();
-            unsigned char *alpha=image.GetAlpha();
-            memset(alpha, (int)(transparency * 255), image.GetWidth()*image.GetHeight());
         }
+        unsigned char *alpha=image.GetAlpha();
+        memset(alpha, (int)(transparency * 255), image.GetWidth()*image.GetHeight());
         
         unsigned char r, _r;
         unsigned char g, _g;
@@ -527,10 +527,7 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
                         continue;
                     } 
                     
-                    //if (r == _r && b == _b && g == _g) {
-                        image.SetAlpha(i,j, alpha_value);
-                    //    continue;
-                    //}
+                    image.SetAlpha(i,j, alpha_value);
                 }
                 
             }

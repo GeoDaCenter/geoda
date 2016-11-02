@@ -648,9 +648,9 @@ void TemplateCanvas::DrawLayer1()
         wxImage image = layer0_bm->ConvertToImage();
         if (!image.HasAlpha()) {
             image.InitAlpha();
-            unsigned char *alpha=image.GetAlpha();
-            memset(alpha, 50, image.GetWidth()*image.GetHeight());
         }
+        unsigned char *alpha=image.GetAlpha();
+        memset(alpha, 50, image.GetWidth()*image.GetHeight());
 		/*
         for (int i=0; i< image.GetWidth(); i++) {
             for (int j=0; j<image.GetHeight(); j++) {
@@ -835,14 +835,22 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 			selectable_shps[i]->paintSelf(dc);
 		}
 	}
-} 
+}
 
-
-void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only)
+void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only)
 {
-#ifdef __WXMAC__
-    wxGCDC dc(dc);
+#ifdef __WXOSX__
+    wxGCDC dc(_dc);
+    helper_DrawSelectableShapes_dc(dc, hl_only);
+#else
+    helper_DrawSelectableShapes_dc(_dc, hl_only);
+    
 #endif
+}
+
+void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only)
+{
+
     vector<bool>& hs = GetSelBitVec();
     
 	int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1156,11 +1164,19 @@ void TemplateCanvas::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event)
         ReleaseMouse();
 }
 
-void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& dc)
+void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 {
 #ifdef __WXMAC__
-    wxGCDC dc(dc);
+    wxGCDC dc(_dc);
+    helper_PaintSelectionOutline(dc);
+#else
+    helper_PaintSelectionOutline(_dc);
 #endif
+}
+
+void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
+{
+
 	if ((mousemode == select || mousemode == zoom || mousemode == zoomout)&&
 		(selectstate == dragging || selectstate == brushing) ) {
 		int xx=0, yy=0;

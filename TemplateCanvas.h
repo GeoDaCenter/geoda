@@ -150,6 +150,7 @@ public:
 		
 	/** Draw the outline of the current selection tool. */
 	virtual void PaintSelectionOutline(wxMemoryDC& dc);
+	void helper_PaintSelectionOutline(wxDC& dc);
 	
 	/** This might go away since we have foreground_shps. */
 	virtual void PaintControls(wxDC& dc);
@@ -190,18 +191,7 @@ public:
 	virtual void PlotsPerView(int plots_per_view) {}
 	virtual void PlotsPerViewOther() {}
 	virtual void PlotsPerViewAll() {}
-	/** Resize the selectable_shps GdaShape objects based on the
-	 current screen size, the virtual screen size, fixed_aspect_ratio_mode,
-	 fit_to_window_mode and virtual_screen_marg_left,
-	 virtual_screen_marg_right, virtual_screen_marg_top,
-	 and virtual_screen_marg_bottom.  When not in fit_to_window_mode, the
-	 values of current_shps_width and current_shps_height are used to
-	 resize the shps.  It is expected that these have been set to the
-	 desired size before calling this method.  This will only be done by
-	 the zoom method generally.
-	 virtual_scrn_w and virtual_scrn_h are optional parameters.  When
-	 they are > 0, they are used, otherwise we call GetVirtualSize
-	 to get the current virtual screen size. */
+    
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
 	
@@ -270,6 +260,8 @@ public:
     
     virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false);
     
+    void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false);
+    
 
     void SetTransparency(double _transparency) {
         transparency = _transparency;
@@ -295,53 +287,6 @@ protected:
 	GdaScaleTrans last_scale_trans;
     
 	bool fit_to_window_mode;
-    
-	/** The following parameters are used by the window resizing system.
-	 We need to very carefully determine how these can be used together
-	 in a flexible resizing system.
-	 
-	 Ideally the subclassed window will only need to draw objects to
-	 an initial fixed working area, perhaps specified within initial
-	 bbox dimensions.  These should be double precision floating points
-	 to avoid resize errors.  From then on, all operations will be managed
-	 by the TemplateCanvas class.
-	 
-	 We want to mimic the OS X Preview program zoom/pan behaviour as much
-	 as possible.
-	 */
-	
-    /*
-	bool fixed_aspect_ratio_mode;
-	int virtual_screen_marg_left;
-	int virtual_screen_marg_right;
-	int virtual_screen_marg_top;
-	int virtual_screen_marg_bottom;
-	double fixed_aspect_ratio_val;
-	double current_shps_width;
-	double current_shps_height;
-	double current_map_x_min;
-	double current_map_y_min;
-	double current_map_x_max;
-	double current_map_y_max;
-	double ext_shps_orig_xmin;
-	double ext_shps_orig_ymin;
-	double ext_shps_orig_xmax;
-	double ext_shps_orig_ymax;
-    
-	// the following four parameters should usually be obtained from
-	// the shp file bounding box info in the header file.  They are used
-	// to calculate the affine transformation when the window is resized.
-	double shps_orig_xmin;
-	double shps_orig_ymin;
-	double shps_orig_xmax;
-	double shps_orig_ymax;
-	// the following four parameters correspond to the scale for the original
-	// data.
-	double data_scale_xmin;
-	double data_scale_xmax;
-	double data_scale_ymin;
-	double data_scale_ymax;
-     */
 
 	/** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
