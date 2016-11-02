@@ -56,7 +56,7 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "GdaConst.h"
-#include "DataViewTransform.h"
+
 
 using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
