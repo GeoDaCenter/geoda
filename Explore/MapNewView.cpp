@@ -28,6 +28,7 @@
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcgraph.h>
+#include <wx/dcsvg.h>
 
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
@@ -294,7 +295,7 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         event.RequestMore(); // render continuously, not only once on idle
     }
     
-    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
+    if (!layer2_valid || !layer1_valid || !layer0_valid) {
         if ( (isDrawBasemap == true && !layerbase_valid) || !isDrawBasemap ) {
             DrawLayers();
             event.RequestMore(); // render continuously, not only once on idle
@@ -413,7 +414,6 @@ void MapCanvas::DrawLayers()
         DrawLayer2();
     }
     
-    isRepaint = true;
     Refresh();
 }
 
@@ -1851,94 +1851,6 @@ void MapFrame::OnCopyImageToClipboard(wxCommandEvent& event)
         wxTheClipboard->Close();
     }
     LOG_MSG("Exiting TemplateFrame::OnCopyImageToClipboard");
-}
-
-void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
-{
-    LOG_MSG("Entering TemplateFrame::ExportImage");
-    
-    wxString default_fname(project->GetProjectTitle() + type);
-	wxString filter("BMP|*.bmp|PNG|*.png");
-    int filter_index = 1;
-    //
-    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
-                        default_fname, filter,
-                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-    dialog.SetFilterIndex(filter_index);
-    
-    if (dialog.ShowModal() != wxID_OK) return;
-    
-    wxSize sz =  canvas->GetVirtualSize();
-    
-    wxFileName fname = wxFileName(dialog.GetPath());
-    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
-    
-    switch (dialog.GetFilterIndex()) {
-        case 0:
-		{
-			LOG_MSG("BMP selected");
-			wxBitmap bitmap( sz.x, sz.y );
-			wxMemoryDC dc;
-			dc.SelectObject(bitmap);
-
-			//dc.SetBrush(template_canvas->canvas_background_color);
-			//dc.DrawRectangle(wxPoint(0,0), sz);
-
-            MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
-			if (map_canvs_ref->isDrawBasemap) {
-                dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
-            }
-            dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
-            dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
-            dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0, true);
-			dc.SelectObject( wxNullBitmap );
-			
-			wxImage image = bitmap.ConvertToImage();
-			
-			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
-				wxMessageBox("GeoDa was unable to save the file.");
-			}			
-			image.Destroy();
-		}
-			break;
-        case 1:
-        {
-            LOG_MSG("PNG selected");
-            wxBitmap bitmap( sz.x, sz.y );
-            wxMemoryDC dc(bitmap);
-            //dc.SelectObject(bitmap);
-
-			dc.SetBrush(template_canvas->canvas_background_color);
-			dc.DrawRectangle(wxPoint(0,0), sz);
-
-            MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
-            if (map_canvs_ref->isDrawBasemap) {
-                dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
-            }
-            dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
-            dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
-            dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0, true);
-            //dc.SelectObject( wxNullBitmap );
-            
-            wxImage image = bitmap.ConvertToImage();
-            
-            if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
-                wxMessageBox("GeoDa was unable to save the file.");
-            }
-            
-            image.Destroy();
-        }
-            break;
-            
-        default:
-        {
-            LOG_MSG("Error: A non-recognized type selected.");
-        }
-            break;
-    }
-    return;
-    
-    LOG_MSG("Exiting MapFrame::ExportImage");
 }
 
 

@@ -103,7 +103,7 @@ highlight_color(GdaConst::highlight_color),
 canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed), use_category_brushes(false),
 draw_sel_shps_by_z_val(false), transparency(0.5),
-isResize(false), isRepaint(false),
+isResize(false), 
 layer0_bm(0), layer1_bm(0), layer2_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
@@ -543,7 +543,7 @@ void TemplateCanvas::update(HLStateInt* o)
     UpdateStatusBar();
 }
 
-void TemplateCanvas::RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush)
+void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
 {
 	wxSize sz = GetClientSize();
 	dc.SetPen(canvas_background_color);
@@ -554,9 +554,7 @@ void TemplateCanvas::RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush)
 		shp->paintSelf(dc);
 	}
 
-    DrawSelectableShapes_dc(dc);
-	
-    DrawSelectableShapes_dc(dc, true);
+    helper_DrawSelectableShapes_dc(dc);
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
 		shp->paintSelf(dc);
@@ -567,13 +565,6 @@ void TemplateCanvas::DrawLayers()
 {
 	if (layer2_valid && layer1_valid && layer0_valid)
 		return;
-  
-	wxSize sz = GetClientSize();
-    int width = sz.GetWidth();
-    int height = sz.GetHeight();
-    
-	//if (!layer0_bm)
-    //    resizeLayerBms(sz.GetWidth(), sz.GetHeight());
    
     if (!layer0_valid) {
         DrawLayer0();
@@ -586,7 +577,6 @@ void TemplateCanvas::DrawLayers()
         DrawLayer2();
     }
    
-    isRepaint = true;
     Refresh();
 }
 
@@ -670,7 +660,6 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
         
         //wxBufferedPaintDC paint_dc(this, *layer2_bm);
         //PaintSelectionOutline(paint_dc);
-        isRepaint = false;
     }
     event.Skip();
 }

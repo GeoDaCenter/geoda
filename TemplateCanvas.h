@@ -234,7 +234,7 @@ public:
     
     
     
-	void RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush = true);
+	void RenderToDC(wxDC &dc, bool disable_crosshatch_brush = true);
     const wxBitmap* GetLayer0() { return layer0_bm; }
 	const wxBitmap* GetLayer1() { return layer1_bm; }
 	const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -352,7 +352,6 @@ protected:
 	TemplateFrame* template_frame;
 
     bool isResize;
-    bool isRepaint;
     double transparency;
     
 	virtual void UpdateSelectableOutlineColors();
