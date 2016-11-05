@@ -51,7 +51,7 @@ public:
 	virtual wxString GetNameWithTime(int var, int time);
 	virtual wxString GetTimeString(int var, int time);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);

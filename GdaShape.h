@@ -163,8 +163,14 @@ public:
 	virtual wxPoint getMeanCenter() { return center; }
 	virtual wxRealPoint getCentroidOrig() { return center_o; }
 	virtual wxRealPoint getMeanCenterOrig() { return center_o; }
-	
+
+    /* used by selection on screen */
+    virtual void Offset(double dx, double dy) = 0;
+    virtual void Offset(int dx, int dy) = 0;
+    virtual void Update(wxPoint pt1, wxPoint pt2) {}
+    
 	virtual bool pointWithin(const wxPoint& pt) { return false; };
+	virtual bool Contains(const wxPoint& pt) { return pointWithin(pt); };
 	virtual bool regionIntersect(const wxRegion& region) { return false; };
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
     virtual void projectToBasemap(GDA::Basemap* basemap);
@@ -201,6 +207,9 @@ public:
 	GdaPoint(double x_orig, double y_orig);
 	virtual ~GdaPoint() {}
     
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+
     
 	virtual GdaPoint* clone() { return new GdaPoint(*this); }
 	virtual bool pointWithin(const wxPoint& pt);
@@ -220,7 +229,13 @@ public:
 	GdaCircle(const GdaCircle& s);
 	GdaCircle(wxRealPoint center_o_s, double radius_o_s,
 			 bool scale_radius = false);
+    GdaCircle(wxPoint pt1, wxPoint pt2);
 	virtual ~GdaCircle() {}
+    
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    virtual void Update(wxPoint pt1, wxPoint pt2);
+    
 	virtual GdaCircle* clone() { return new GdaCircle(*this); }
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
@@ -242,9 +257,15 @@ public:
 	GdaRectangle(); // creates a null shape
 	GdaRectangle(const GdaRectangle& s);
 	GdaRectangle(wxRealPoint lower_left_o_s, wxRealPoint upper_right_o_s);
+	GdaRectangle(wxPoint lower_left_o_s, wxPoint upper_right_o_s);
+    
 	virtual ~GdaRectangle() {}
 	virtual GdaRectangle* clone() { return new GdaRectangle(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    virtual void Update(wxPoint pt1, wxPoint pt2);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
@@ -270,6 +291,9 @@ public:
 	virtual ~GdaPolygon();
 	virtual GdaPolygon* clone() { return new GdaPolygon(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
@@ -292,6 +316,7 @@ public:
     
 	// (pc == 0 && points_o !=0 ) || (pc != 0 && points_o ==0 )
 	Shapefile::PolygonContents* pc;
+    
 	wxRealPoint* points_o;
 	wxRealPoint bb_ll_o; // bounding box lower left
 	wxRealPoint bb_ur_o; // bounding box upper right
@@ -305,11 +330,16 @@ public:
 	GdaPolyLine(const GdaPolyLine& s);
 	GdaPolyLine(int n_s, wxRealPoint* points_o_s);
 	GdaPolyLine(double x1, double y1, double x2, double y2);
+    GdaPolyLine(wxPoint pt1, wxPoint pt2);
 	GdaPolyLine(Shapefile::PolyLineContents* pc_s);
 	virtual GdaPolyLine& operator=(const GdaPolyLine& s);
 	virtual ~GdaPolyLine();
 	virtual GdaPolyLine* clone() { return new GdaPolyLine(*this); }
-	
+
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    virtual void Update(wxPoint pt1, wxPoint pt2);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
@@ -330,6 +360,7 @@ public:
 	int* count; // index into various parts of points array
 	// (pc == 0 && points_o !=0 ) || (pc != 0 && points_o ==0 )
 	Shapefile::PolyLineContents* pc;
+    
 	wxRealPoint* points_o;
 	//wxRegion region;
 };
@@ -362,6 +393,9 @@ public:
 	virtual ~GdaSpline();
 	virtual GdaSpline* clone() { return new GdaSpline(*this); }
 
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
@@ -385,6 +419,9 @@ public:
 	virtual ~GdaRay() {}
 	virtual GdaRay* clone() { return new GdaRay(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
@@ -415,6 +452,9 @@ public:
 	virtual ~GdaShapeText() {}
 	virtual GdaShapeText* clone() { return new GdaShapeText(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
@@ -464,6 +504,9 @@ public:
 	virtual ~GdaShapeTable() {}
 	virtual GdaShapeTable* clone() { return new GdaShapeTable(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);
@@ -502,6 +545,9 @@ public:
 	virtual ~GdaAxis() {}
 	virtual GdaAxis* clone() { return new GdaAxis(*this); }
 	
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);

@@ -406,6 +406,7 @@ void SimpleHistCanvas::PopulateCanvas()
 	}
 	
 	double y_max = overall_max_num_obs_in_ival;
+    last_scale_trans.SetData(x_min, 0, x_max, y_max);
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5);
 		y_max = axis_scale_y.scale_max;

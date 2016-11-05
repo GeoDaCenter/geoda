@@ -536,31 +536,29 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     row_max = Y[i];
             }
 			SimpleAxisCanvas* sa_can = 0;
-			{
-                sa_can = new SimpleAxisCanvas(panel, this, project,
-                                              project->GetHighlightState(),
-                                              Y, XY_undef, row_title,
-                                              row_min, row_max, false,
-                                              show_outside_titles, false,
-                                              true, true, -1, false, false, 0,
-                                              view_standardized_data,
-                                              wxDefaultPosition, wxSize(50, -1));
-				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
-				vert_labels.push_back(sa_can);
-			}
-			{
-                sa_can = new SimpleAxisCanvas(panel, this, project,
-                                              project->GetHighlightState(),
-                                              Y, XY_undef, row_title,
-                                              row_min, row_max, true,
-                                              show_outside_titles, false,
-                                              true, true, -1, false, false, 0,
-                                              view_standardized_data,
-                                              wxDefaultPosition, wxSize(-1, 50));
-				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
-										 wxEXPAND);
-				horiz_labels.push_back(sa_can);
-			}
+            sa_can = new SimpleAxisCanvas(panel, this, project,
+                                          project->GetHighlightState(),
+                                          Y, XY_undef, row_title,
+                                          row_min, row_max, false,
+                                          show_outside_titles, false,
+                                          true, true, -1, false, false, 0,
+                                          view_standardized_data,
+                                          wxDefaultPosition, wxSize(50, -1));
+            bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
+            vert_labels.push_back(sa_can);
+            
+            sa_can = new SimpleAxisCanvas(panel, this, project,
+                                          project->GetHighlightState(),
+                                          Y, XY_undef, row_title,
+                                          row_min, row_max, true,
+                                          show_outside_titles, false,
+                                          true, true, -1, false, false, 0,
+                                          view_standardized_data,
+                                          wxDefaultPosition, wxSize(-1, 50));
+            bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
+                         wxEXPAND);
+            horiz_labels.push_back(sa_can);
+            
 			SimpleHistCanvas* sh_can = 0;
             sh_can = new SimpleHistCanvas(panel, this, project,
                                           project->GetHighlightState(),
@@ -602,17 +600,18 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     if (X[i] > col_max)
                         col_max = X[i];
                 }
+                wxString xrcid_scatter_menu = "ID_SCATTER_PLOT_MAT_MENU_OPTIONS";
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
-                                                     project->GetHighlightState(), 0,
-                                                     X, Y, XY_undef, XY_undef,
+                                                     project->GetHighlightState(),
+                                                     0, X, Y, XY_undef, XY_undef,
                                                      col_title, row_title,
                                                      col_min, col_max,
                                                      row_min, row_max,
                                                      true, true, false,
-                                                     "ID_SCATTER_PLOT_MAT_MENU_OPTIONS",
+                                                     xrcid_scatter_menu,
                                                      !show_outside_titles,
-                                                     false, false, //show axes thru org
+                                                     false, false,
                                                      show_regimes,
                                                      show_linear_smoother,
                                                      show_lowess_smoother,

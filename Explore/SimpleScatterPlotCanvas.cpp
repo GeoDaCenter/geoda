@@ -83,9 +83,6 @@ show_lowess_smoother(show_lowess_smoother_),
 show_slope_values(show_slope_values_),
 view_standardized_data(view_standardized_data_)
 {
-	LOG_MSG("Entering SimpleScatterPlotCanvas::SimpleScatterPlotCanvas");
-	
-    
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
@@ -109,7 +106,6 @@ view_standardized_data(view_standardized_data_)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting SimpleScatterPlotCanvas::SimpleScatterPlotCanvas");
 }
 
 SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
@@ -548,22 +544,19 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	}
 	
 	// create axes
-	x_baseline = new GdaAxis(Xname, axis_scale_x,
-							 wxRealPoint(0,0), wxRealPoint(100, 0));
 	if (show_axes) {
+    	x_baseline = new GdaAxis(Xname, axis_scale_x,
+    							 wxRealPoint(0,0), wxRealPoint(100, 0));
 		x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
-	} else {
-		x_baseline->setPen(*wxTRANSPARENT_PEN);
+        foreground_shps.push_back(x_baseline);
 	}
-	foreground_shps.push_back(x_baseline);
-	y_baseline = new GdaAxis(Yname, axis_scale_y,
-							 wxRealPoint(0,0), wxRealPoint(0, 100));
+    
 	if (show_axes) {
 		y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
-	} else {
-		y_baseline->setPen(*wxTRANSPARENT_PEN);
+    	y_baseline = new GdaAxis(Yname, axis_scale_y,
+    							 wxRealPoint(0,0), wxRealPoint(0, 100));
+        foreground_shps.push_back(y_baseline);
 	}
-	foreground_shps.push_back(y_baseline);
 	
 	// create optional axes through origin
 	if (show_horiz_axis_through_origin &&

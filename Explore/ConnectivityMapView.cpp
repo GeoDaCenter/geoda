@@ -122,7 +122,7 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 					UpdateSelection(event.ShiftDown(), true);
 					
 					selectstate = start;
-					DetermineMouseHoverObjects();
+					DetermineMouseHoverObjects(prev);
 					UpdateStatusBar();
 				}
 			}

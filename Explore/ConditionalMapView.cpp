@@ -497,7 +497,7 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 				if (template_frame->IsStatusBarVisible()) {
 					prev = GetActualPos(event);
 					sel1 = prev; // sel1 now has current mouse position
-					DetermineMouseHoverObjects();
+					DetermineMouseHoverObjects(prev);
 					UpdateStatusBar();
 				}
 			}
@@ -857,11 +857,8 @@ void ConditionalMapCanvas::DrawLayer0()
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
 		shp->paintSelf(dc);
 	}
-	if (draw_sel_shps_by_z_val) {
-		DrawSelectableShapesByZVal(dc);
-	} else {
-		DrawSelectableShapes(dc);
-	}
+    
+    DrawSelectableShapes(dc);
 	
 	layer0_valid = true;
 	layer1_valid = false;

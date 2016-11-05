@@ -271,7 +271,7 @@ void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
 	}
 }
 
-void BoxPlotCanvas::DetermineMouseHoverObjects()
+void BoxPlotCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
 	const double r2 = GdaConst::my_point_click_radius;
@@ -282,7 +282,7 @@ void BoxPlotCanvas::DetermineMouseHoverObjects()
 	for (int t=0; t<cur_num_plots; t++) {
 		for (int i=0; i<num_obs; i++) {
             wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
-            wxPoint& pt1 = sel1;
+            wxPoint& pt1 = pt;
 			sel_scratch[i] = sel_scratch[i] ||
 				GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
 		}

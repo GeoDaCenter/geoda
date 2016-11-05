@@ -72,7 +72,7 @@ BEGIN_EVENT_TABLE(TemplateCanvas, wxScrolledWindow)
     EVT_IDLE(TemplateCanvas::OnIdle)
 	EVT_PAINT(TemplateCanvas::OnPaint)
     EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
-	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
+    EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 	EVT_KEY_DOWN(TemplateCanvas::OnKeyEvent)
 	EVT_KEY_UP(TemplateCanvas::OnKeyEvent)
@@ -93,7 +93,7 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
                              bool fit_to_window_mode_s)
 : wxScrolledWindow(parent, -1, pos, size,
                    wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
-mousemode(select), selectstate(start), brushtype(rectangle),
+mousemode(select), selectstate(start), brushtype(rectangle), is_brushing(false),
 scrollbarmode(none), remember_shiftdown(false), project(project_s),
 highlight_state(hl_state_int_), template_frame(template_frame_),
 selectable_outline_visible(true), user_canvas_background_color(false),
@@ -104,7 +104,7 @@ canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed), use_category_brushes(false),
 draw_sel_shps_by_z_val(false), transparency(0.5),
 isResize(false), isRepaint(false),
-layer0_bm(0), layer1_bm(0), layer2_bm(0), final_bm(0),
+layer0_bm(0), layer1_bm(0), layer2_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
@@ -154,7 +154,6 @@ void TemplateCanvas::deleteLayerBms()
 	if (layer0_bm) delete layer0_bm; layer0_bm = 0;
 	if (layer1_bm) delete layer1_bm; layer1_bm = 0;
 	if (layer2_bm) delete layer2_bm; layer2_bm = 0;
-	if (final_bm) delete final_bm; final_bm = 0;
     
 	layer0_valid = false;
 	layer1_valid = false;
@@ -168,7 +167,6 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 	layer0_bm = new wxBitmap(width, height);
 	layer1_bm = new wxBitmap(width, height);
 	layer2_bm = new wxBitmap(width, height);
-	final_bm = new wxBitmap(width, height);
 	
 	layer0_valid = false;
 	layer1_valid = false;
@@ -325,10 +323,6 @@ wxString TemplateCanvas::GetCanvasStateString()
 void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 										  int virtual_scrn_h)
 {
-	
-	// NOTE: we do not support both fixed_aspect_ratio_mode
-	//    and fit_to_window_mode being false currently.
-    
     int vs_w = virtual_scrn_w;
     int vs_h = virtual_scrn_h;
     
@@ -346,13 +340,10 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
 			ms->applyScaleTrans(last_scale_trans);
 		}
+    	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+    		ms->applyScaleTrans(last_scale_trans);
+    	}
 	}
-
-	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-		ms->applyScaleTrans(last_scale_trans);
-	}
-
-
     layer0_valid = false;
     layer1_valid = false;
     layer2_valid = false;
@@ -360,9 +351,7 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
 void TemplateCanvas::ResetShapes()
 {
-
     last_scale_trans.Reset();
-
 	is_pan_zoom = false;
 
 	SetMouseMode(select);
@@ -403,7 +392,6 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 {
 	mousemode = mode;
 	if (mousemode == select) {
-		//SetCursor(*wxCROSS_CURSOR);
 		SetCursor(*wxSTANDARD_CURSOR);
         
 	} else if (mousemode == pan) {
@@ -565,16 +553,10 @@ void TemplateCanvas::RenderToDC(wxMemoryDC &dc, bool disable_crosshatch_brush)
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
 		shp->paintSelf(dc);
 	}
-	if (draw_sel_shps_by_z_val) {
-		DrawSelectableShapesByZVal(dc, disable_crosshatch_brush);
-        
-	} else {
-		DrawSelectableShapes_dc(dc);
-	}
+
+    DrawSelectableShapes_dc(dc);
 	
-	if (!draw_sel_shps_by_z_val) {
-		DrawSelectableShapes_dc(dc, true);
-	}
+    DrawSelectableShapes_dc(dc, true);
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
 		shp->paintSelf(dc);
@@ -624,18 +606,15 @@ void TemplateCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    if (draw_sel_shps_by_z_val) {
-        DrawSelectableShapesByZVal(dc);
-    } else {
-        DrawSelectableShapes(dc);
-    }
+    
+    DrawSelectableShapes(dc);
+
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
     layer1_valid = false;
 }
 
 
-// Copy in layer0_bm
 // draw highlighted shapes.
 void TemplateCanvas::DrawLayer1()
 {
@@ -651,26 +630,15 @@ void TemplateCanvas::DrawLayer1()
         }
         unsigned char *alpha=image.GetAlpha();
         memset(alpha, 50, image.GetWidth()*image.GetHeight());
-		/*
-        for (int i=0; i< image.GetWidth(); i++) {
-            for (int j=0; j<image.GetHeight(); j++) {
-                unsigned char al = image.GetAlpha(i,j);
-                if ( al != 0 ) {
-                    image.SetAlpha(i, j, 50);
-                }
-            }
-        }
-		*/
+
         wxBitmap _bmp(image);
-        
         dc.DrawBitmap(_bmp,0,0, true);
         
     } else {
         dc.DrawBitmap(*layer0_bm, 0, 0);
     }
     
-    if (!draw_sel_shps_by_z_val)
-        DrawHighlightedShapes(dc);
+    DrawHighlightedShapes(dc);
     
     dc.SelectObject(wxNullBitmap);
     layer1_valid = true;
@@ -679,24 +647,29 @@ void TemplateCanvas::DrawLayer1()
 
 void TemplateCanvas::DrawLayer2()
 {
-    //LOG_MSG("In TemplateCanvas::DrawLayer2");
     wxMemoryDC dc(*layer2_bm);
     dc.Clear();
     dc.DrawBitmap(*layer1_bm, 0, 0);
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
-    PaintSelectionOutline(dc);
+
     dc.SelectObject(wxNullBitmap);
     layer2_valid = true;
 }
 
-
 void TemplateCanvas::OnPaint(wxPaintEvent& event)
 {
     if (layer2_bm) {
-        wxBufferedPaintDC paint_dc(this, *layer2_bm);
-
+        wxSize sz = GetClientSize();
+        wxMemoryDC dc(*layer2_bm);
+        
+        wxPaintDC paint_dc(this);
+        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        helper_PaintSelectionOutline(paint_dc);
+        
+        //wxBufferedPaintDC paint_dc(this, *layer2_bm);
+        //PaintSelectionOutline(paint_dc);
         isRepaint = false;
     }
     event.Skip();
@@ -750,54 +723,6 @@ bool TemplateCanvas::_IsShpValid(int idx)
     return true;
 }
 
-/** Called only when draw_sel_shps_by_z_val is true.  This method renders
- all selectable shapes according to the order in the height permutation
- vector called z_val_order.  It draws highlights as needed and sets colors
- according to color specified in actual shape object.
- Since it is only used by Bubble Chart, we only define the drawing behavior
- for cicles at present.  Also, since Bubble Chart should not be used for
- large numbers of observations, we only provide a wxDC version. */
-void TemplateCanvas::DrawSelectableShapesByZVal(wxDC &dc,
-												bool disable_crosshatch_brush)
-{
-	if (selectable_shps_type != circles)
-        return;
-	
-	wxBrush hc_brush(disable_crosshatch_brush ? wxBrush(highlight_color) :
-					 wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	vector<bool>& hs = GetSelBitVec();
-	
-	dc.SetPen(*wxTRANSPARENT_PEN);
-	
-	int cc_ts = cat_data.curr_canvas_tm_step;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-        
-		int obs = z_val_order[cc_ts][i][0];
-		int cat = z_val_order[cc_ts][i][1];
-        
-        if (_IsShpValid(obs) == false)  {
-            continue;
-        }
-
-        dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
-		if (selectable_outline_visible) {
-			dc.SetPen(cat_data.GetCategoryPen(cc_ts, cat));
-		}
-		dc.DrawCircle(((GdaCircle*) selectable_shps[obs])->center.x,
-					  ((GdaCircle*) selectable_shps[obs])->center.y,
-					  ((GdaCircle*) selectable_shps[obs])->radius);
-		if (hs[obs]) {
-			dc.SetBrush(hc_brush);
-			if (selectable_outline_visible) {
-				dc.SetPen(highlight_color);
-			}
-			dc.SetBrush(hc_brush);
-			dc.DrawCircle(((GdaCircle*) selectable_shps[obs])->center.x,
-						  ((GdaCircle*) selectable_shps[obs])->center.y,
-						  ((GdaCircle*) selectable_shps[obs])->radius);
-		}
-	}
-}
 
 // draw unhighlighted selectable shapes
 // using wxDC only since windows platform has poor wxGC support
@@ -970,89 +895,118 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only)
 void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	// Capture the mouse when left mouse button is down.
-	if (event.LeftIsDown() && !HasCapture()) CaptureMouse();
-	if (event.LeftUp() && HasCapture()) ReleaseMouse();
+	if (event.LeftIsDown() && !HasCapture())
+        CaptureMouse();
+    
+	if (event.LeftUp() && HasCapture())
+        ReleaseMouse();
 	
 	if (mousemode == select) {
 		if (selectstate == start) {
 			if (event.LeftDown()) {
-				prev = GetActualPos(event);
-				sel1 = prev;
-				selectstate = leftdown;
+                prev = GetActualPos(event);
+                // if click in side brush_shape
+                GdaShape* brush_shape = NULL;
+                if (brushtype == rectangle) {
+                    brush_shape = new GdaRectangle(sel1, sel2);
+                } else if (brushtype == circle) {
+                    brush_shape = new GdaCircle(sel1, sel2);
+                } else if (brushtype == line) {
+                    brush_shape = new GdaPolyLine(sel1, sel2);
+                }
+                if (brush_shape->Contains(prev)) {
+                    is_brushing = true;
+                    selectstate = brushing;
+                } else {
+                    sel1 = prev;
+                    selectstate = leftdown;
+                }
+                delete brush_shape;
+
 			} else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
+                
 			} else {
 				if (template_frame && template_frame->IsStatusBarVisible()) {
-					prev = GetActualPos(event);
-					sel1 = prev; // sel1 now has current mouse position
-					DetermineMouseHoverObjects();
+					wxPoint pt  = GetActualPos(event);
+					DetermineMouseHoverObjects(pt);
 					UpdateStatusBar();
 				}
 			}
+            
 		} else if (selectstate == leftdown) {
 			if (event.Moving() || event.Dragging()) {
 				wxPoint act_pos = GetActualPos(event);
-				if (fabs((double) (prev.x - act_pos.x)) +
-					fabs((double) (prev.y - act_pos.y)) > 2) {
-					sel1 = prev;
+				if (fabs((double) (sel1.x - act_pos.x)) +
+					fabs((double) (sel1.y - act_pos.y)) > 2) {
 					sel2 = GetActualPos(event);
 					selectstate = dragging;
 					remember_shiftdown = event.ShiftDown();
-					UpdateSelectRegion();
 					UpdateSelection(remember_shiftdown);
 					UpdateStatusBar();
 					Refresh(false);
 				}
 			} else if (event.LeftUp()) {
-				UpdateSelectRegion();
+				wxPoint act_pos = GetActualPos(event);
+                if (act_pos == sel1 ) {
+                    
+                }
 				UpdateSelection(event.ShiftDown(), true);
 				selectstate = start;
-				Refresh(false);
+                
 			} else if (event.RightDown()) {
 				selectstate = start;
 			}
+            
 		} else if (selectstate == dragging) {
 			if (event.Dragging()) { // mouse moved while buttons still down
 				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
+
 				UpdateSelection(remember_shiftdown);
 				UpdateStatusBar();
 				Refresh(false);
+                
 			} else if (event.LeftUp() && !event.CmdDown()) {
 				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
+
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
 				Refresh(false);
+                
 			} else if (event.LeftUp() && event.CmdDown()) {
 				selectstate = brushing;
 				sel2 = GetActualPos(event);
 				wxPoint diff = wxPoint(0,0);
-				UpdateSelectRegion(false, diff);
+
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				Refresh(false);
+                
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
-			}			
-		} else if (selectstate == brushing) {
-			if (event.LeftIsDown()) {
-			} else if (event.LeftUp()) {
-				selectstate = start;
-				Refresh(false);
 			}
-			else if (event.RightDown()) {
+            
+		} else if (selectstate == brushing) {
+			if (event.LeftUp()) {
+                is_brushing = false;
+				selectstate = start;
+                
+			} else if (event.RightDown()) {
+                is_brushing = false;
 				selectstate = start;
 				Refresh();
-			} else if (event.Moving()) {
-				wxPoint diff = GetActualPos(event) - sel2;
+                
+			} else if (is_brushing && (event.Moving() || event.Dragging())) {
+                wxPoint cur = GetActualPos(event);
+				wxPoint diff = cur - prev;
 				sel1 += diff;
-				sel2 = GetActualPos(event);
+				sel2 += diff;
 				UpdateStatusBar();
-				UpdateSelectRegion(true, diff);
+
 				UpdateSelection();
 				Refresh(false);
+                prev = cur;
 			}
 		}
 		
@@ -1246,17 +1200,14 @@ vector<int>& TemplateCanvas::GetNewlyUnselList()
 	return highlight_state->GetNewlyUnhighlighted();
 }
 
-wxPoint TemplateCanvas::GetActualPos(const wxMouseEvent& event) {
-	//int xx;
-	//int yy;
+wxPoint TemplateCanvas::GetActualPos(const wxMouseEvent& event)
+{
 	return wxPoint(event.GetX(), event.GetY());
-	//CalcUnscrolledPosition(event.GetX(), event.GetY(), &xx, &yy);
-	//return wxPoint(xx/1.0,yy/1.0); // zoom_factor = 1.0
 }
 
 void TemplateCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("TemplateCanvas::DisplayRightClickMenu() called");
+
 }
 
 void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
@@ -1307,7 +1258,6 @@ void TemplateCanvas::UpdateSelectRegion(bool translate, wxPoint diff)
 // NotifyObservables.
 void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
-	LOG_MSG("Entering TemplateCanvas::UpdateSelection");
 	if (selectable_shps_type == circles) {
 		UpdateSelectionCircles(shiftdown, pointsel);
 	} else if (selectable_shps_type == polylines) {
@@ -1315,7 +1265,6 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	} else {
 		UpdateSelectionPoints(shiftdown, pointsel);
 	}
-	LOG_MSG("Exiting TemplateCanvas::UpdateSelection");
 }
 
 // The following function assumes that the set of selectable objects
@@ -1324,7 +1273,6 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 // all GdaShape selectable objects.
 void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 {
-	LOG_MSG("Entering TemplateCanvas::UpdateSelectionPoints");
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
@@ -1798,13 +1746,11 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
-	LOG_MSG("Exiting TemplateCanvas::UpdateSelectionPolylines");
 }
 
 void TemplateCanvas::SelectAllInCategory(int category,
 										 bool add_to_selection)
 {
-	LOG_MSG("Entering TemplateCanvas::SelectAllInCategory");
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	if (category < 0 && category >= cat_data.GetNumCategories(cc_ts)) {
 		return;
@@ -1835,7 +1781,6 @@ void TemplateCanvas::SelectAllInCategory(int category,
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
-	LOG_MSG("Exiting TemplateCanvas::SelectAllInCategory");	
 }
 
 
@@ -1850,8 +1795,6 @@ void TemplateCanvas::SelectAllInCategory(int category,
  */
 void TemplateCanvas::NotifyObservables()
 {
-	LOG_MSG("Entering TemplateCanvas::NotifyObservables");
-	
 	// Goal: assuming that all views have the ability to draw
 	// deltas, try to determine set of operations that will minimize
 	// number of shapes to draw/erease.  Remember that all classes
@@ -1872,10 +1815,9 @@ void TemplateCanvas::NotifyObservables()
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
 		highlight_state->notifyObservers();
 	}
-	LOG_MSG("Exiting TemplateCanvas::NotifyObservables");
 }
 
-void TemplateCanvas::DetermineMouseHoverObjects()
+void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
 	int total_obs = selectable_shps.size();
@@ -1886,7 +1828,7 @@ void TemplateCanvas::DetermineMouseHoverObjects()
                 continue;
 			GdaCircle* s = (GdaCircle*) selectable_shps[i];
 			if (s==NULL || s->isNull()) continue;
-			if (GenUtils::distance_sqrd(s->center, sel1) <=
+			if (GenUtils::distance_sqrd(s->center, pt) <=
 				s->radius*s->radius) {
 				hover_obs[total_hover_obs++] = i;
 			}			
@@ -1898,7 +1840,7 @@ void TemplateCanvas::DetermineMouseHoverObjects()
 		for (int i=0; i<total_obs && total_hover_obs<max_hover_obs; i++) {
             if ( !_IsShpValid(i))
                 continue;
-			if (selectable_shps[i]->pointWithin(sel1)) {
+			if (selectable_shps[i]->pointWithin(pt)) {
 				hover_obs[total_hover_obs++] = i;
 			}
 		}
@@ -1907,7 +1849,7 @@ void TemplateCanvas::DetermineMouseHoverObjects()
 		for (int i=0; i<total_obs && total_hover_obs<max_hover_obs; i++) {
             if ( !_IsShpValid(i))
                 continue;
-			if (GenUtils::distance_sqrd(selectable_shps[i]->center, sel1)
+			if (GenUtils::distance_sqrd(selectable_shps[i]->center, pt)
 				<= 16.5) {
 				hover_obs[total_hover_obs++] = i;
 			}

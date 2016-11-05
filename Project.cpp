@@ -107,7 +107,9 @@ sourceSR(NULL)
 	datasource = layer_conf->GetDataSource();
     
 	is_project_valid = CommonProjectInit();
-	if (is_project_valid) save_manager->SetAllowEnableSave(true);
+	if (is_project_valid)
+        save_manager->SetAllowEnableSave(true);
+    
 	if (is_project_valid) {
 		// correct cat classifications in weights manager from Table
 		GetCatClassifManager()->VerifyAgainstTable();
@@ -441,6 +443,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 {
 	LOG_MSG("Entering Project::SaveDataSourceAs");
     LOG_MSG("New Datasource Name:" + new_ds_name);
+   
     
 	vector<GdaShape*> geometries;
 	try {
@@ -461,7 +464,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 			throw GdaException(error_message.str().c_str());
 		}
 		// call to initial OGR instance
-		OGRDataAdapter::GetInstance();
+		OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 		
 		// Get spatial reference from this project
 		OGRSpatialReference* spatial_ref = GetSpatialReference();
@@ -477,7 +480,10 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	
         // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
-		OGRwkbGeometryType geom_type = OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+		OGRwkbGeometryType geom_type = ogr_adapter.MakeOGRGeometries(geometries,
+                                                                     shape_type,
+                                                                     ogr_geometries,
+                                                                     selected_rows);
         
         // NOTE: for GeoJSON, automatically transform to WGS84
         if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
@@ -1314,30 +1320,35 @@ bool Project::CommonProjectInit()
     if (sourceSR ) {
         project_unit = sourceSR->GetAttrValue("UNIT");
     }
-	
+
+    LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
+    CustomClassifPtree* cust_classif_ptree = layer_conf->GetCustClassifPtree();
+    WeightsManPtree* spatial_weights = layer_conf->GetWeightsManPtree();
+	DefaultVarsPtree* default_vars = layer_conf->GetDefaultVarsPtree();
+    
 	// Initialize various managers
 	frames_manager = new FramesManager;
 	highlight_state = new HighlightState;
 	con_map_hl_state = new HighlightState;
 	cat_classif_manager = new CatClassifManager(table_int, GetTableState(),
-                project_conf->GetLayerConfiguration()->GetCustClassifPtree());
+                                                cust_classif_ptree);
 	highlight_state->SetSize(num_records);
 	con_map_hl_state->SetSize(num_records);
+    
 	w_man_state = new WeightsManState;
 	w_man_int = new WeightsNewManager(w_man_state, table_int);
 	save_manager = new SaveButtonManager(GetTableState(), GetWManState());
-	WeightsManPtree* spatial_weights =
-	project_conf->GetLayerConfiguration()->GetWeightsManPtree();
+    
 	if (spatial_weights) {
 		((WeightsNewManager*) w_man_int)->
 		Init(spatial_weights->GetWeightsMetaInfoList());
 	}
+    
 	for (int i=0; i<4; i++) {
 		default_var_name[i] = "";
 		default_var_time[i] = 0;
 	}
-	DefaultVarsPtree* default_vars =
-	project_conf->GetLayerConfiguration()->GetDefaultVarsPtree();
+    
 	if (default_vars) {
 		int i=0;
 		std::vector<wxString> tm_strs;
@@ -1358,9 +1369,12 @@ bool Project::CommonProjectInit()
 					}
 				}
 			}
-			if (i < default_var_name.size()) ++i;
+            if (i < default_var_name.size()) {
+                ++i;
+            }
 		}
 	}
+    
 	std::vector<wxString> ts;
 	table_int->GetTimeStrings(ts);
 	time_state->SetTimeIds(ts);
@@ -1370,15 +1384,6 @@ bool Project::CommonProjectInit()
 	save_manager->SetMetaDataSaveNeeded(false);
 	save_manager->SetDbSaveNeeded(false);
 	
-	// MMM: SaveButtonManager revisit
-	// MMM: Move this to SaveButtonManager
-	// Enable "Save" only for DBF data sources.  "Save As" is always enabled.
-	//allow_enable_save = false;
-	//if (DbfTable* o = dynamic_cast<DbfTable*>(table_int)) {
-	//	allow_enable_save = wxFileExists(o->GetDbfFileName().GetFullPath());
-	//} else if (OGRTable* o = dynamic_cast<OGRTable*>(table_int)) {
-	//	allow_enable_save = !o->IsReadOnly();
-	//}
 	return true;
 }
 
@@ -1391,14 +1396,6 @@ bool Project::IsDataTypeChanged()
         realTableFlag = true;
     
     return isTableOnly != realTableFlag;
-}
-
-/** 
- * Initialize the Table and Shape Layer from Shapefile / DBF 
- */
-int Project::InitFromShapefileLayer()
-{
-	return 0;
 }
 
 /** Initialize the Table and Shape Layer from OGR source */
@@ -1428,8 +1425,8 @@ bool Project::InitFromOgrLayer()
     if (prog_n_max <= 0)
         prog_n_max = 2;
     
-	wxProgressDialog prog_dlg("Open data source progress dialog",
-                              "Loading data...", prog_n_max,  NULL,
+	wxProgressDialog prog_dlg(_("Open data source progress dialog"),
+                              _("Loading data..."), prog_n_max,  NULL,
                               wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 	bool cont = true;
 	while ((layer_proxy->load_progress < layer_proxy->n_rows ||
@@ -1454,7 +1451,7 @@ bool Project::InitFromOgrLayer()
 	}
     
 	if (!layer_proxy) {
-		open_err_msg << "There was a problem reading the layer";
+		open_err_msg << _("There was a problem reading the layer");
 		throw GdaException(open_err_msg.c_str());
         
 	} else if ( layer_proxy->HasError() ) {
@@ -1486,6 +1483,7 @@ bool Project::InitFromOgrLayer()
 		delete table_state;
 		throw GdaException(open_err_msg.c_str());
 	}
+    
 	if (!table_int->IsValid()) {
 		open_err_msg = table_int->GetOpenErrorMessage();
 		delete table_state;
@@ -1520,8 +1518,6 @@ bool Project::InitFromOgrLayer()
 	// run caching in background
 	// OGRDataAdapter::GetInstance().CacheLayer
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
-    
-	LOG_MSG("Exiting Project::InitFromOgrLayer");
 	return true;
 }
 
@@ -1622,7 +1618,6 @@ void Project::SetupEncoding(wxString encode_str)
     } else if (encode_str.Upper().Contains("88599") ||
                encode_str.Upper().Contains("8859_9") ) {
         table_int->SetEncoding(wxFONTENCODING_ISO8859_9);
-        
     } else if (encode_str.Upper().Contains("GB2312") ||
                encode_str.Upper().Contains("2312") ) {
         table_int->SetEncoding(wxFONTENCODING_GB2312);
@@ -1643,55 +1638,4 @@ void Project::SetupEncoding(wxString encode_str)
 bool Project::IsTableOnlyProject()
 {
     return isTableOnly;
-}
-
-int Project::OpenShpFile(wxFileName shp_fname)
-{
-	LOG_MSG("Entering Project::OpenShpFile");
-	using namespace std;
-	using namespace Shapefile;
-	
-	wxFileName m_shx_fname(shp_fname);
-	m_shx_fname.SetExt("shx");
-	wxString m_shx_str = m_shx_fname.GetFullPath();
-	
-	wxFileName m_shp_fname(shp_fname);
-	m_shp_fname.SetExt("shp");
-	wxString m_shp_str = m_shp_fname.GetFullPath();
-	
-	Shapefile::Index index_data;
-	bool success = Shapefile::populateIndex(m_shx_str, index_data);
-	
-	if (success) {	
-		success = Shapefile::populateMain(index_data, m_shp_str, main_data);
-		
-		if (index_data.header.shape_type == POLYGON_Z) {
-			index_data.header.shape_type = POLYGON;
-		} else if (index_data.header.shape_type == POLYGON_M) {  
-			index_data.header.shape_type = POLYGON;
-		} else if (index_data.header.shape_type == POINT_Z) {
-			index_data.header.shape_type = Shapefile::POINT_TYP;
-		} else if (index_data.header.shape_type == POINT_M) {
-			index_data.header.shape_type = Shapefile::POINT_TYP;
-		} else if (index_data.header.shape_type == MULTI_POINT) {
-			// not supported here
-			return MULTI_POINT;
-		} else if (index_data.header.shape_type == POLY_LINE_Z) {
-			index_data.header.shape_type = POLY_LINE;
-		} else if (index_data.header.shape_type == POLY_LINE_M) {
-			index_data.header.shape_type = POLY_LINE;
-		}
-	}
-	
-	if (!success) {
-		// display a failure window if unsupported shapefile type encountered
-		open_err_msg << "Shapefile content is not recognizable.";
-		return false;
-	}
-	
-	int shp_num_recs = Shapefile::calcNumIndexHeaderRecords(index_data.header);
-	LOG(shp_num_recs);
-	LOG(main_data.records.size());
-	LOG_MSG("Exiting Project::OpenShpFile");
-	return true;
 }

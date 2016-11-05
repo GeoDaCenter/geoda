@@ -53,7 +53,6 @@ correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
 hist_plot(0), local_hl_state(0), message_win(0), project(project)
 {
-	LOG_MSG("Entering CorrelogramFrame::CorrelogramFrame");
 	local_hl_state = new HighlightState();
 	supports_timeline_changes = true;
 	{
@@ -99,13 +98,10 @@ hist_plot(0), local_hl_state(0), message_win(0), project(project)
 	
 	wxCommandEvent ev;
 	OnShowCorrelParams(ev);
-	
-	LOG_MSG("Exiting CorrelogramFrame::CorrelogramFrame");
 }
 
 CorrelogramFrame::~CorrelogramFrame()
 {
-	LOG_MSG("In CorrelogramFrame::~CorrelogramFrame");
 	if (correl_params_frame) {
 		correl_params_frame->removeObserver(this);
 		correl_params_frame->closeAndDeleteWhenEmpty();
@@ -135,16 +131,13 @@ void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
 
 void CorrelogramFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In CorrelogramFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("CorrelogramFrame", GetTitle());
 	}
-	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
 void CorrelogramFrame::MapMenus()
 {
-	LOG_MSG("In CorrelogramFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
@@ -177,7 +170,6 @@ void CorrelogramFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 {
-	LOG_MSG("In CorrelogramFrame::OnShowCorrelParams");
 	if (correl_params_frame) {
 		correl_params_frame->Iconize(false);
 		correl_params_frame->Raise();
@@ -193,24 +185,18 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In CorrelogramFrame::OnDisplayStatistics");
 	UpdateOptionMenuItems();
 }
 
 /** Implementation of TableStateObserver interface */
 void CorrelogramFrame::update(TableState* o)
 {
-	LOG_MSG("In CorrelogramFrame::update(TableState*)");
 	if (correl_params_frame) correl_params_frame->UpdateFromTable();
 }
 
 /** Implementation of TimeStateObserver interface */
 void CorrelogramFrame::update(TimeState* o)
 {
-	LOG_MSG("In CorrelogramFrame::update(TimeState* o)");
-	
-    
-    
     bool has_time_var = false;
     for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
         if (i->second.size() > 1) {
@@ -230,7 +216,6 @@ void CorrelogramFrame::update(TimeState* o)
 
 void CorrelogramFrame::ReDraw()
 {
-	LOG_MSG("In CorrelogramFrame::update(CorrelParamsObservable*)");
 	UpdateDataMapFromVarMan();
 	UpdateCorrelogramData();
 	SetupPanelForNumVariables(var_man.GetVarsCount());
@@ -241,7 +226,6 @@ void CorrelogramFrame::ReDraw()
 /** Implementation of CorrelParams interface */
 void CorrelogramFrame::update(CorrelParamsObservable* o)
 {
-    LOG_MSG("In CorrelogramFrame::update(CorrelParamsObservable*)");
     par = o->GetCorrelParams();
     UpdateDataMapFromVarMan();
     UpdateCorrelogramData();
@@ -292,7 +276,6 @@ void CorrelogramFrame::notifyNewHistHover(const std::vector<int>& hover_obs,
  be changed in the future, so will leave the num_vars parameter. */
 void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 {
-	LOG_MSG("Entering CorrelogramFrame::SetupPanelForNumVariables");
 	if (!panel || !bag_szr) return;
 	LOG(num_vars);
 	int num_top_rows = GenUtils::max<int>(1, num_vars);
@@ -461,6 +444,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 												 false, false, 
 												 valid_sampling, // show LOWESS fit
 												 false);
+            sp_can->SetFixedAspectRatioMode(false);
 			sp_can->ChangeLoessParams(0.2,5,0.02);
 			bag_szr->Add(sp_can, wxGBPosition(row, 1), wxGBSpan(1,1), wxEXPAND);
 			scatt_plots.push_back(sp_can);
@@ -628,7 +612,6 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
-	LOG_MSG("Exiting CorrelogramFrame::SetupPanelForNumVariables");
 }
 
 void CorrelogramFrame::UpdateMessageWin()
@@ -681,7 +664,6 @@ void CorrelogramFrame::UpdateMessageWin()
  in var_man. */
 void CorrelogramFrame::UpdateDataMapFromVarMan()
 {
-	LOG_MSG("Entering CorrelogramFrame::UpdateDataMapFromVarMan");
 	using namespace std;
 	// get set of var_man names
 	set<wxString> vm_nms;
@@ -733,8 +715,6 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 		pair<wxString, vec_vec_bool_type> p_undef(nm, vec_vec_undef);
 		data_undef_map.insert(p_undef);
 	}
-	
-	LOG_MSG("Exiting CorrelogramFrame::UpdateDataMapFromVarMan");
 }
 
 /** Update histogram and update correlogram if data_map has at least

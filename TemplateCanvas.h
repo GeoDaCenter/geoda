@@ -84,7 +84,6 @@ public:
 	enum SelectableShpType { mixed, circles, points, rectangles, polygons,
 		polylines };
 
-public:
 	/** Colors */
 	bool selectable_outline_visible;
 	bool user_canvas_background_color;
@@ -178,7 +177,7 @@ public:
 	/** Assumes selectable_shps.size() == num obs **/
 	virtual void NotifyObservables();
 	
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	
 	virtual void UpdateStatusBar();
 	
@@ -250,11 +249,9 @@ public:
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
     
-	// draw everything
-	void DrawSelectableShapesByZVal(wxDC &dc,
-									bool disable_crosshatch_brush = false);
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
+    
 	// draw unhighlighted sel shapes
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
     
@@ -279,11 +276,12 @@ public:
                     std::vector<double>& bins);
 	
 protected:
-	MouseMode mousemode;
-	SelectState selectstate;
-	BrushType brushtype;
+	SelectState   selectstate;
+	MouseMode     mousemode;
+	BrushType     brushtype;
+    bool          is_brushing;
+    
 	ScrollBarMode scrollbarmode;
-
 	GdaScaleTrans last_scale_trans;
     
 	bool fit_to_window_mode;
@@ -345,7 +343,6 @@ protected:
 	wxBitmap* layer0_bm; // background items + unhighlighted obs
 	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
 	wxBitmap* layer2_bm; // layer1_bm + foreground obs
-	wxBitmap* final_bm; // final bitmap = background + layer0 + layer1
     
 	bool layer0_valid; // if false, then needs to be redrawn
 	bool layer1_valid; // if false, then needs to be redrawn

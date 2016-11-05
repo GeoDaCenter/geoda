@@ -292,11 +292,10 @@ bubble_size_scaler(1.0)
 
 ScatterNewPlotCanvas::~ScatterNewPlotCanvas()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::~ScatterNewPlotCanvas");
 	EmptyLowessCache();
 	highlight_state->removeObserver(this);
-	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting ScatterNewPlotCanvas::~ScatterNewPlotCanvas");
+	if (custom_classif_state)
+        custom_classif_state->removeObserver(this);
 }
 void ScatterNewPlotCanvas::UpdateBubbleSize(double size_scaler)
 {
@@ -307,7 +306,6 @@ void ScatterNewPlotCanvas::UpdateBubbleSize(double size_scaler)
 
 void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ScatterNewPlotFrame*) template_frame)->OnActivate(ae);
@@ -330,7 +328,6 @@ void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting ScatterNewPlotCanvas::DisplayRightClickMenu");
 }
 
 void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -528,8 +525,6 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
  as needed. */
 void ScatterNewPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::update");
-	
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
         SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
                                          statsX, statsY, regressionXY,
@@ -565,8 +560,6 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 		// regression lines have changed.
 		Refresh();
 	}
-   
-	LOG_MSG("Entering ScatterNewPlotCanvas::update");
 }
 
 wxString ScatterNewPlotCanvas::GetCanvasTitle()
@@ -1095,8 +1088,6 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	PopCanvPreResizeShpsHook();
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting ScatterNewPlotCanvas::PopulateCanvas");
 }
 
 void ScatterNewPlotCanvas::PopCanvPreResizeShpsHook()
@@ -1105,7 +1096,6 @@ void ScatterNewPlotCanvas::PopCanvPreResizeShpsHook()
 
 void ScatterNewPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -1141,7 +1131,6 @@ void ScatterNewPlotCanvas::TimeChange()
     UpdateStatusBar();
     
 	Refresh();
-	LOG_MSG("Exiting ScatterNewPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -1345,9 +1334,7 @@ void ScatterNewPlotCanvas::TimeSyncVariableToggle(int var_index)
 
 void ScatterNewPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In ScatterNewPlotCanvas::FixedScaleVariableToggle");
-	var_info[var_index].fixed_scale =
-		!var_info[var_index].fixed_scale;
+	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	PopulateCanvas();
 }
@@ -1359,7 +1346,6 @@ CatClassification::CatClassifType ScatterNewPlotCanvas::GetCcType()
 
 void ScatterNewPlotCanvas::ViewStandardizedData()
 {
-	LOG_MSG("In ScatterNewPlotCanvas::ViewStandardizedData");
 	standardized = true;
 	EmptyLowessCache();
 	PopulateCanvas();
@@ -1367,7 +1353,6 @@ void ScatterNewPlotCanvas::ViewStandardizedData()
 
 void ScatterNewPlotCanvas::ViewOriginalData()
 {
-	LOG_MSG("In ScatterNewPlotCanvas::ViewOriginalData");
 	standardized = false;
 	EmptyLowessCache();
 	PopulateCanvas();
@@ -1400,7 +1385,6 @@ void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
 
 void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::ViewRegressionSelected");
 	bool changed = false;
 	if (!display) {
 		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
@@ -1443,12 +1427,10 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 		}
 	}
 	Refresh();
-	LOG_MSG("Exiting ScatterNewPlotCanvas::ViewRegressionSelected");
 }
 
 void ScatterNewPlotCanvas::UpdateRegSelectedLine()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::UpdateRegSelectedLine");
 	pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
 	if (IsShowLinearSmoother()) {
 		double cc_degs_of_rot;
@@ -1466,12 +1448,10 @@ void ScatterNewPlotCanvas::UpdateRegSelectedLine()
 	} else {
 		reg_line_selected->setPen(*wxTRANSPARENT_PEN);
 	}
-	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateRegSelectedLine");	
 }
 
 void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::ViewRegressionSelectedExcluded");
 	bool changed = false;
 	if (!display) {
 		reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
@@ -1515,12 +1495,10 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 		}
 	}
 	Refresh();
-	LOG_MSG("Exiting ScatterNewPlotCanvas::ViewRegressionSelectedExcluded");	
 }
 
 void ScatterNewPlotCanvas::UpdateRegExcludedLine()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::UpdateRegExcludedLine");
 	pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
 	if (IsShowLinearSmoother()) {
 		double cc_degs_of_rot;
@@ -1538,12 +1516,10 @@ void ScatterNewPlotCanvas::UpdateRegExcludedLine()
 	} else {
 		reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
 	}
-	LOG_MSG("Exiting ScatterNewPlotCanvas::UpdateRegExcludedLine");
 }
 
 void ScatterNewPlotCanvas::DisplayStatistics(bool display_stats_s)
 {
-	LOG_MSG("In ScatterNewPlotCanvas::DisplayStatistics");
 	display_stats = display_stats_s;
 	UpdateDisplayStats();
 	UpdateDisplayLinesAndMargins();
@@ -1552,7 +1528,6 @@ void ScatterNewPlotCanvas::DisplayStatistics(bool display_stats_s)
 
 void ScatterNewPlotCanvas::ShowAxesThroughOrigin(bool show_origin_axes_s)
 {
-	LOG_MSG("In ScatterNewPlotCanvas::ShowAxesThroughOrigin");
 	show_origin_axes = show_origin_axes_s;
 	UpdateAxesThroughOrigin();
 	Refresh();
@@ -1573,11 +1548,8 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 	SmoothingUtils::LowessCacheEntry* lce = 0;
 	if (it != lowess_cache.end()) {
 		lce = it->second ;
-	} else {
-		LOG_MSG("Error: could not find LowessCacheEntry for key: " + key);
 	}
 	if (!lce) {
-		LOG_MSG("Error: LowessCacheEntry NULL for key: " + key);
 		return;
 	}
 	
@@ -1601,9 +1573,7 @@ void ScatterNewPlotCanvas::UpdateLowessOnRegimes()
 
 void ScatterNewPlotCanvas::ComputeChowTest()
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::ComputeChowTest");
-	wxString s;
-	s << "Chow test for sel/unsel regression subsets: ";
+	wxString s = _("Chow test for sel/unsel regression subsets: ");
 	int tot_sel = highlight_state->GetTotalHighlighted();
 	int hl_size = highlight_state->GetHighlightSize();
 	double N = X.size();
@@ -1611,7 +1581,7 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 	double sse_u = sse_sel + sse_unsel;
 	if (K+1 <= 0 || N-2*(K+1) <= 0 || sse_u == 0) {
 		chow_valid = false;
-		s << "can't compute";
+		s << _("can't compute");
 		chow_test_text->setText(s);
 		return;
 	}
@@ -1643,8 +1613,6 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 		s << "need two valid regressions";
 	}
 	chow_test_text->setText(s);
-	
-	LOG_MSG("Exiting ScatterNewPlotCanvas::ComputeChowTest");
 }
 
 /** Free allocated points arrays in lowess_cache and clear cache */
@@ -1883,9 +1851,6 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 																	 pt2.y));
 			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
 																	 pt2.y));
-			//s << ", select rect: ";
-			//s << GetNameWithTime(0) << "=[" << xmin << "," << xmax << "] and ";
-			//s << GetNameWithTime(1) << "=[" << ymin << "," << ymax << "]";
 		}
         s <<"  ";
 	}

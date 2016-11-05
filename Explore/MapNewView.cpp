@@ -126,8 +126,8 @@ BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
     EVT_IDLE(MapCanvas::OnIdle)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
-	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
-	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
+	//EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
+	//EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 	//EVT_KEY_DOWN(TemplateCanvas::OnKeyDown)
 END_EVENT_TABLE()
 
@@ -224,7 +224,6 @@ void MapCanvas::deleteLayerBms()
     if (layer0_bm) delete layer0_bm; layer0_bm = 0;
     if (layer1_bm) delete layer1_bm; layer1_bm = 0;
     if (layer2_bm) delete layer2_bm; layer2_bm = 0;
-    if (final_bm) delete final_bm; final_bm = 0;
     
     layer0_valid = false;
     layer1_valid = false;
@@ -247,6 +246,7 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
     
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
+        
         ResizeSelectableShps();
         
         return;
@@ -438,7 +438,6 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	layer0_bm = new wxBitmap(width, height);
 	layer1_bm = new wxBitmap(width, height);
 	layer2_bm = new wxBitmap(width, height);
-	final_bm = new wxBitmap(width, height);
 
 	layerbase_valid = false;	
 	layer0_valid = false;
@@ -463,19 +462,12 @@ void MapCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    if (draw_sel_shps_by_z_val) {
-        DrawSelectableShapesByZVal(dc);
-    } else {
-        DrawSelectableShapes(dc);
-    }
+    
+    DrawSelectableShapes(dc);
     
     layer0_valid = true;
     layer1_valid = false;
 }
-// in Linux/Win, following 3 functions will be inherited from TemplateCanvas
-//void MapCanvas::DrawLayer1()
-//void MapCanvas::DrawLayer2()
-//void MapCanvas::OnPaint(wxPaintEvent& event)
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
@@ -543,18 +535,19 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 int MapCanvas::GetBasemapType()
 {
-    if (basemap) return basemap->mapType;
-    return 0;
+    if (basemap)
+        return basemap->mapType;
+    return NULL;
 }
 
 void MapCanvas::CleanBasemapCache()
 {
-    if (basemap) basemap->CleanCache();
+    if (basemap)
+        basemap->CleanCache();
 }
 
 void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering MapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	if (MapFrame* f = dynamic_cast<MapFrame*>(template_frame)) {
@@ -572,7 +565,6 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 		template_frame->PopupMenu(optMenu, pos + GetPosition());
 		template_frame->UpdateOptionMenuItems();
 	}
-	LOG_MSG("Exiting MapCanvas::DisplayRightClickMenu");
 }
 
 void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -1139,7 +1131,6 @@ void MapCanvas::PopulateCanvas()
 	}
 
     ReDraw();
-	//ResizeSelectableShps();
 }
 
 void MapCanvas::TimeChange()

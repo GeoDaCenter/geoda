@@ -49,6 +49,7 @@ class SimpleAxisCanvas : public TemplateCanvas
                      bool is_standardized = false,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxDefaultSize);
+    
 	SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
 					 HLStateInt* hl_state_int,
 					 const std::vector<double>& X,

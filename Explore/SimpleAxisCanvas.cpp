@@ -70,6 +70,7 @@ is_standardized(is_standardized_)
 {
     
     last_scale_trans.SetData(0, 0, 100, 100);
+    last_scale_trans.SetFixedAspectRatio(false);
 	UpdateMargins();
 	
 	use_category_brushes = false;
@@ -114,6 +115,7 @@ is_standardized(is_standardized_)
 	LOG_MSG("Entering SimpleAxisCanvas::SimpleAxisCanvas");
 	
     last_scale_trans.SetData(0, 0, 100, 100);
+    last_scale_trans.SetFixedAspectRatio(false);
 	UpdateMargins();
 	
 	use_category_brushes = false;
@@ -150,7 +152,6 @@ void SimpleAxisCanvas::ViewStandardizedData(bool display)
 
 void SimpleAxisCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering SimpleAxisCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -161,6 +162,7 @@ void SimpleAxisCanvas::PopulateCanvas()
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();
+    
     last_scale_trans.SetView(win_width, win_height);
     
 	// Recall: Xmin/max can be smaller/larger than min/max in X
@@ -200,23 +202,22 @@ void SimpleAxisCanvas::PopulateCanvas()
 								 (number_ticks < 0 ? 4 : number_ticks) );
 	}
 	
-	// create axes
-	if (horiz_orient) {
-		x_baseline = new GdaAxis(Xname, axis_scale_x,
-								 wxRealPoint(0,0), wxRealPoint(100, 0));
-	} else {
-		x_baseline = new GdaAxis(Xname, axis_scale_x,
-								 wxRealPoint(0,0), wxRealPoint(0, 100));
-	}
-	x_baseline->autoDropScaleValues(true);
-	x_baseline->moveOuterValTextInwards(true);
-	x_baseline->hideNegativeLabels(hide_negative_labels);
+    
 	if (show_axes) {
+    	// create axes
+    	if (horiz_orient) {
+    		x_baseline = new GdaAxis(Xname, axis_scale_x,
+    								 wxRealPoint(0,0), wxRealPoint(100, 0));
+    	} else {
+    		x_baseline = new GdaAxis(Xname, axis_scale_x,
+    								 wxRealPoint(0,0), wxRealPoint(0, 100));
+    	}
+    	x_baseline->autoDropScaleValues(true);
+    	x_baseline->moveOuterValTextInwards(true);
+    	x_baseline->hideNegativeLabels(hide_negative_labels);
 		x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
-	} else {
-		x_baseline->setPen(*wxTRANSPARENT_PEN);
-	}
-	foreground_shps.push_back(x_baseline);
+        foreground_shps.push_back(x_baseline);
+    }
 	
 	ResizeSelectableShps();
 	LOG_MSG("Exiting SimpleAxisCanvas::PopulateCanvas");

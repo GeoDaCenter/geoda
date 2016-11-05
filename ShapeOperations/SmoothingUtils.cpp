@@ -41,7 +41,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 										const SimpleLinearRegression& reg,
 										const wxPen& pen)
 {
-	LOG_MSG("Entering SmoothingUtils::CalcRegressionLine");
 	reg_line.setBrush(*wxTRANSPARENT_BRUSH); // ensure brush is transparent
 	slope = 0; //default
 	infinite_slope = false; // default
@@ -111,7 +110,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
     cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
                                              reg_b.x, reg_b.y);
 	reg_line.setPen(pen);
-	LOG_MSG("Exiting SmoothingUtils::CalcRegressionLine");
 }
 
 /** This method will be used for adding text annotations to the displayed
@@ -121,7 +119,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 											   double b_x, double b_y)
 {	
-	LOG_MSG("Entering SmoothingUtils::RegLineToDegCCFromHoriz");
 	double dist = GenUtils::distance(wxRealPoint(a_x,a_y),wxRealPoint(b_x,b_y));
 	if (dist <= 4*DBL_MIN) return 0;
 	// normalize slope vector c = (c_x, c_y)
@@ -135,7 +132,6 @@ double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 	double theta = acos(x) * 57.2957796; // 180/pi = 57.2957796
 	if (y < 0) theta = 360.0 - theta;
 	
-	LOG_MSG("Exiting SmoothingUtils::RegLineToDegCCFromHoriz");
 	return theta;
 }
 
@@ -157,7 +153,6 @@ SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
                                  double& sse_sel,
                                  double& sse_unsel)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 	// find mean for X and Y according to highlight_state for both
 	// the currently selected, and the complement.
 	statsXselected = SampleStatistics();
@@ -258,7 +253,6 @@ SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
                                                 false, regressionXYexcluded,
                                                 sse_unsel);
 	}
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 }
 
 void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
@@ -399,7 +393,6 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 										 double& x_first, double& y_first,
 										 double& x_last, double& y_last)
 {
-	LOG_MSG("Entering SmoothingUtils::ExtendEndpointsToBB");
 	size_t n = X.size();
 	bool success = true;
 	// Extend end points to bounding box with linear interpolation.
@@ -495,8 +488,6 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 										 const std::vector<double>& Y,
                                          const std::vector<bool>& XY_undefs)
 {
-	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
-    
 	size_t n = X.size();
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	LowessCacheEntry* lce = 0;
@@ -535,7 +526,6 @@ SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 	lowess.calc(lce->X_srt, lce->Y_srt, lce->YS_srt);
 	lowess_cache[key] = lce;
 	
-	LOG_MSG("Exiting SmoothingUtils::UpdateLowessCacheForTime");
 	return lce;
 }
 
@@ -548,7 +538,6 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
                                        std::vector<double>& unsel_smthd_srt_y,
                                        std::vector<bool>& undefs)
 {
-	LOG_MSG("Entering SmoothingUtils::CalcLowessRegimes");
 	if (!lce || !(hl.size() > 1))
         return;
     
@@ -625,13 +614,10 @@ void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
 			lowess.calc(unsel_smthd_srt_x, Y_sorted, unsel_smthd_srt_y);
 		}
 	}
-
-	LOG_MSG("Exiting SmoothingUtils::CalcLowessRegimes");
 }
 
 void SmoothingUtils::EmptyLowessCache(LowessCacheType& lowess_cache)
 {
-	LOG_MSG("In SmoothingUtils::EmptyLowessCache");
 	for (LowessCacheType::iterator i=lowess_cache.begin();
 			 i!=lowess_cache.end(); ++i)
 	{

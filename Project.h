@@ -212,9 +212,7 @@ public:
 	    
 private:
 	bool CommonProjectInit();
-	int InitFromShapefileLayer();
 	bool InitFromOgrLayer();
-	int OpenShpFile(wxFileName shp_fname);
    
     // only for ESRI Shapefile .cpg file
     void SetupEncoding(wxString encode_str);

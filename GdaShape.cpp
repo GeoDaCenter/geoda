@@ -18,6 +18,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 #include <cmath> // for math abs and floor function
 #include <cfloat>
 #include <wx/graphics.h>
@@ -238,31 +239,25 @@ void GdaScaleTrans::Zoom(bool is_zoomin, wxPoint& from, wxPoint &to)
         
     } else {
         // zoom in
-        wxPoint left_top, right_bottom;
-        
-        if (from.x < to.x) {
-            left_top.x = from.x;
-            right_bottom.x = to.x;
-        } else {
-            left_top.x = to.x;
-            right_bottom.x = from.x;
-        }
-        
-        if (from.y < to.y) {
-            left_top.y = from.y;
-            right_bottom.y = to.y;
-        } else {
-            left_top.y = to.y;
-            right_bottom.y = from.y;
-        }
        
-        wxRealPoint lt_data = View2Data(left_top);
-        wxRealPoint rb_data = View2Data(right_bottom);
+        wxRealPoint from_data = View2Data(from);
+        wxRealPoint to_data = View2Data(to);
         
-        data_x_min = lt_data.x;
-        data_x_max = rb_data.x;
-        data_y_min = lt_data.y;
-        data_y_max = rb_data.y;
+        if (from_data.x < to_data.x) {
+            data_x_min = from_data.x;
+            data_x_max = to_data.x;
+        } else {
+            data_x_max = from_data.x;
+            data_x_min = to_data.x;
+        }
+        
+        if (from_data.y < to_data.y) {
+            data_y_min = from_data.y;
+            data_y_max = to_data.y;
+        } else {
+            data_y_max = from_data.y;
+            data_y_min = to_data.y;
+        }
     }
     
     calcAffineParams();
@@ -741,6 +736,10 @@ void GdaShapeAlgs::getBoundingBoxOrig(const GdaPolygon* p, double& xmin,
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 GdaPoint::GdaPoint()
 {
 	null_shape = true;
@@ -761,6 +760,14 @@ GdaPoint::GdaPoint(double x_orig, double y_orig)
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
+}
+
+void GdaPoint::Offset(double dx, double dy)
+{
+}
+
+void GdaPoint::Offset(int dx, int dy)
+{
 }
 
 double GdaPoint::GetX()
@@ -832,11 +839,45 @@ GdaCircle::GdaCircle(const GdaCircle& s)
 }
 
 GdaCircle::GdaCircle(wxRealPoint center_o_s, double radius_o_s,
-				   bool scale_radius_s)
+                     bool scale_radius_s)
 	: radius_o(radius_o_s), radius(radius_o_s), scale_radius(scale_radius_s)
 {
 	center = wxPoint((int) center_o_s.x, (int) center_o_s.y);
 	center_o = center_o_s;
+}
+
+GdaCircle::GdaCircle(wxPoint pt1, wxPoint pt2)
+{
+    Update(pt1, pt2);
+}
+
+void GdaCircle::Offset(double dx, double dy)
+{
+    center.x = center_o.x + dx;
+    center.y = center_o.y + dy;
+}
+
+void GdaCircle::Offset(int dx, int dy)
+{
+    center.x = center_o.x + dx;
+    center.y = center_o.y + dy;
+}
+
+void GdaCircle::Update(wxPoint pt1, wxPoint pt2)
+{
+    wxRealPoint c;
+    c.x = (pt1.x + pt2.x ) / 2.0;
+    c.y = (pt1.y + pt2.y ) / 2.0;
+    double r = (pt2.x - pt1.x) * (pt2.x - pt1.x) + (pt2.y - pt1.y) * (pt2.y - pt1.y);
+    r = sqrt(r) / 2.0;
+    
+    center = wxPoint((int) c.x, (int) c.y);
+    center_o = c;
+    radius_o = r;
+    radius = r;
+    scale_radius = false;
+    
+    null_shape = false;
 }
 
 bool GdaCircle::pointWithin(const wxPoint& pt)
@@ -906,11 +947,65 @@ lower_left_o(lower_left_o_s), upper_right_o(upper_right_o_s)
 	center = wxPoint((int) center_o.x, (int) center_o.y);
 }
 
+GdaRectangle::GdaRectangle(wxPoint pt1, wxPoint pt2)
+{
+    Update(pt1, pt2);
+}
+
+
 bool GdaRectangle::pointWithin(const wxPoint& pt)
 {
 	if (null_shape) return false;
 	return (pt.x >= lower_left.x && pt.x <= upper_right.x &&
 			pt.y <= lower_left.y && pt.y >= upper_right.y);
+}
+
+void GdaRectangle::Offset(double dx, double dy)
+{
+    // only offset the screen objects
+    lower_left.x = lower_left_o.x + dx;
+    lower_left.y = lower_left_o.y + dy;
+    
+    upper_right.x = upper_right_o.x + dx;
+    upper_right.y = upper_right_o.y + dy;
+}
+
+void GdaRectangle::Offset(int dx, int dy)
+{
+    // only offset the screen objects
+    lower_left.x +=  dx;
+    lower_left.y +=  dy;
+    
+    upper_right.x +=  dx;
+    upper_right.y +=  dy;
+    
+    lower_left_o.x +=  dx;
+    lower_left_o.y +=  dy;
+    
+    upper_right_o.x +=  dx;
+    upper_right_o.y +=  dy;
+}
+
+void GdaRectangle::Update(wxPoint pt1, wxPoint pt2)
+{
+    wxRealPoint ll;
+    wxRealPoint ur;
+    
+    ll.x = pt1.x < pt2.x ? pt1.x : pt2.x;
+    ur.x = pt1.x < pt2.x ? pt2.x : pt1.x;
+    ll.y = pt1.y > pt2.y ? pt1.y : pt2.y;
+    ur.y = pt1.y > pt2.y ? pt2.y : pt1.y;
+    
+    lower_left = ll;
+    lower_left_o = ll;
+    upper_right = ur;
+    upper_right_o = ur;
+    
+    center_o.x = (lower_left_o.x + upper_right_o.x)/2.0;
+    center_o.y = (lower_left_o.y + upper_right_o.y)/2.0;
+    center = wxPoint((int) center_o.x, (int) center_o.y);
+    
+    null_shape = false;
 }
 
 bool GdaRectangle::regionIntersect(const wxRegion& r)
@@ -1084,6 +1179,22 @@ GdaPolygon::~GdaPolygon()
 		delete [] count;
 		count = 0;
 	}
+}
+
+void GdaPolygon::Offset(double dx, double dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
+}
+
+void GdaPolygon::Offset(int dx, int dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
 }
 
 bool GdaPolygon::pointWithin(const wxPoint& pt)
@@ -1329,6 +1440,24 @@ GdaPolyLine::GdaPolyLine(double x1, double y1, double x2, double y2)
 	//}
 }
 
+GdaPolyLine::GdaPolyLine(wxPoint pt1, wxPoint pt2)
+{
+    double x1 = (double)pt1.x;
+    double y1 = (double)pt1.y;
+    double x2 = (double)pt2.x;
+    double y2 = (double)pt2.y;
+   
+    count = new int[1];
+    count[0] = n;
+    points = new wxPoint[n];
+    points_o = new wxRealPoint[n];
+    
+    Update(pt1, pt2);
+    
+}
+
+
+
 /** This constructs a potentially multi-part polyline. Only a pointer to the
  original data is kept, and this memory is not deleted in the destructor. */
 GdaPolyLine::GdaPolyLine(Shapefile::PolyLineContents* pc_s)
@@ -1374,6 +1503,43 @@ GdaPolyLine::~GdaPolyLine()
 	if (points) delete [] points; points = 0;
 	if (points_o) delete [] points_o; points_o = 0;
 	if (count) delete [] count; count = 0;
+}
+
+void GdaPolyLine::Offset(double dx, double dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
+}
+
+void GdaPolyLine::Offset(int dx, int dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
+}
+
+void GdaPolyLine::Update(wxPoint pt1, wxPoint pt2)
+{
+    if (n > 2)
+        return;
+    
+    points_o[0].x = pt1.x;
+    points_o[0].y = pt1.y;
+    points_o[1].x = pt2.x;
+    points_o[1].y = pt2.y;
+    points[0].x = (int) pt1.x;
+    points[0].y = (int) pt1.y;
+    points[1].x = (int) pt2.x;
+    points[1].y = (int) pt2.y;
+    
+    center_o = GdaShapeAlgs::calculateMeanCenter(n, points_o);
+    center.x = (int) center_o.x;
+    center.y = (int) center_o.y;
+    
+    null_shape = false;
 }
 
 GdaPolyLine& GdaPolyLine::operator=(const GdaPolyLine& s)
@@ -1534,7 +1700,7 @@ GdaSpline::GdaSpline(const std::vector<wxRealPoint>& points_orig)
 }
 
 GdaSpline::GdaSpline(const std::vector<double>& x_orig,
-										 const std::vector<double>& y_orig)
+                     const std::vector<double>& y_orig)
 : n((int) x_orig.size()), points_o(0), points(0)
 {
 	if (n == 0) {
@@ -1564,11 +1730,11 @@ GdaSpline::GdaSpline(const std::vector<double>& x_orig,
  is extended to the edges of the bounding box.
  */
 GdaSpline::GdaSpline(double x_orig_first, double y_orig_first,
-										 const std::vector<double>& x_orig,
-										 const std::vector<double>& y_orig,
-										 double x_orig_last, double y_orig_last,
-										 double x_trans, double y_trans,
-										 double x_scale, double y_scale)
+                     const std::vector<double>& x_orig,
+                     const std::vector<double>& y_orig,
+                     double x_orig_last, double y_orig_last,
+                     double x_trans, double y_trans,
+                     double x_scale, double y_scale)
 : n((int) x_orig.size()+2), points_o(0), points(0)
 {
 	if (n == 0) {
@@ -1596,11 +1762,11 @@ GdaSpline::GdaSpline(double x_orig_first, double y_orig_first,
 }
 
 void GdaSpline::addExtensions(double x_orig_first, double y_orig_first,
-											 const std::vector<double>& x_orig,
-											 const std::vector<double>& y_orig,
-											 double x_orig_last, double y_orig_last,
-											 double x_trans, double y_trans,
-											 double x_scale, double y_scale)
+                              const std::vector<double>& x_orig,
+                              const std::vector<double>& y_orig,
+                              double x_orig_last, double y_orig_last,
+                              double x_trans, double y_trans,
+                              double x_scale, double y_scale)
 {
 	n = (int) x_orig.size()+2;
 	null_shape = false;
@@ -1661,6 +1827,22 @@ GdaSpline::~GdaSpline()
 	if (points_o) delete [] points_o; points_o = 0;
 }
 
+void GdaSpline::Offset(double dx, double dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
+}
+
+void GdaSpline::Offset(int dx, int dy)
+{
+    for (int i=0; i<n; i++) {
+        points[i].x = points_o[i].x + dx;
+        points[i].y = points_o[i].y + dy;
+    }
+}
+
 GdaSpline& GdaSpline::operator=(const GdaSpline& s)
 {
 	//LOG_MSG("Entering GdaSpline::operator=");
@@ -1696,10 +1878,10 @@ bool GdaSpline::pointWithin(const wxPoint& pt)
 	for (int j=0, its=n-1; j<its; j++) {
 		hp.x = (points[j].x + points[j+1].x)/2.0;
 		hp.y = (points[j].y + points[j+1].y)/2.0;
-		hp_rad = GenUtils::distance(points[j],
-																points[j+1])/2.0;
+		hp_rad = GenUtils::distance(points[j], points[j+1])/2.0;
 		if ((GenUtils::pointToLineDist(pt, points[j], points[j+1]) <= r) &&
-				(GenUtils::distance(hp, pt) <= hp_rad + r)) return true;
+            (GenUtils::distance(hp, pt) <= hp_rad + r))
+            return true;
 	}
 	return false;
 }
@@ -1771,6 +1953,14 @@ GdaRay::GdaRay(wxRealPoint center_o_s, double degs_rot_cc_from_horiz_s,
 {
 	center = wxPoint((int) center_o_s.x, (int) center_o_s.y);
 	center_o = center_o_s;
+}
+
+void GdaRay::Offset(double dx, double dy)
+{
+}
+
+void GdaRay::Offset(int dx, int dy)
+{
 }
 
 bool GdaRay::pointWithin(const wxPoint& pt)
@@ -1858,6 +2048,14 @@ GdaShapeText::GdaShapeText(const GdaShapeText& s)
 	hidden(s.hidden)
 {
 	for (int i=0; i<5; i++) bb_poly[i] = s.bb_poly[i];
+}
+
+void GdaShapeText::Offset(double dx, double dy)
+{
+}
+
+void GdaShapeText::Offset(int dx, int dy)
+{
 }
 
 GdaShapeText& GdaShapeText::operator=(const GdaShapeText& s)
@@ -2089,6 +2287,14 @@ GdaShapeTable& GdaShapeTable::operator=(const GdaShapeTable& s)
 	return *this;
 }
 
+void GdaShapeTable::Offset(double dx, double dy)
+{
+}
+
+void GdaShapeTable::Offset(int dx, int dy)
+{
+}
+
 void GdaShapeTable::paintSelf(wxDC& dc)
 {
 	using namespace std;
@@ -2278,8 +2484,8 @@ GdaAxis::GdaAxis(const GdaAxis& s)
 }
 
 GdaAxis::GdaAxis(const wxString& caption_s, const AxisScale& s,
-								 const wxRealPoint& a_s, const wxRealPoint& b_s,
-								 int x_nudge, int y_nudge)
+                 const wxRealPoint& a_s, const wxRealPoint& b_s,
+                 int x_nudge, int y_nudge)
 	: caption(caption_s), scale(s), is_horizontal(a_s.y == b_s.y),
 	a(a_s), b(b_s), a_o(a_s), b_o(b_s),
 	font(*GdaConst::small_font), caption_font(*GdaConst::medium_font),
@@ -2293,19 +2499,27 @@ GdaAxis::GdaAxis(const wxString& caption_s, const AxisScale& s,
 /** Alternative consturctor where number of tics and tic lables are provided
  by a vector of strings.  In this case the AxisScale is ignored. */
 GdaAxis::GdaAxis(const wxString& caption_s,
-								 const std::vector<wxString>& tic_labels_s,
-								 const wxRealPoint& a_s, const wxRealPoint& b_s,
-								 int x_nudge, int y_nudge)
-	: caption(caption_s), tic_labels(tic_labels_s), is_horizontal(a_s.y == b_s.y),
-	a(a_s), b(b_s), a_o(a_s), b_o(b_s),
-	font(*GdaConst::small_font), caption_font(*GdaConst::medium_font),
-	hidden(false), hide_scale_values(false),
-	auto_drop_scale_values(true), move_outer_val_text_inwards(false),
-	hide_negative_labels(false)
+                 const std::vector<wxString>& tic_labels_s,
+                 const wxRealPoint& a_s, const wxRealPoint& b_s,
+                 int x_nudge, int y_nudge)
+: caption(caption_s), tic_labels(tic_labels_s),
+is_horizontal(a_s.y == b_s.y),
+a(a_s), b(b_s), a_o(a_s), b_o(b_s),
+font(*GdaConst::small_font), caption_font(*GdaConst::medium_font),
+hidden(false), hide_scale_values(false),
+auto_drop_scale_values(true), move_outer_val_text_inwards(false),
+hide_negative_labels(false)
 {
 	setNudge(x_nudge, y_nudge);
 }
 
+void GdaAxis::Offset(double dx, double dy)
+{
+}
+
+void GdaAxis::Offset(int dx, int dy)
+{
+}
 
 void GdaAxis::applyScaleTrans(const GdaScaleTrans& A)
 {
@@ -2511,14 +2725,17 @@ void GdaAxis::paintSelf(wxDC& dc)
 			GdaShapeText::HorizAlignment horiz_align = GdaShapeText::h_center;
 			if (move_outer_val_text_inwards && i == 0 && num_tics > 1) {
 				horiz_align = GdaShapeText::left;
-			} else if (move_outer_val_text_inwards && i+1 == num_tics && num_tics > 1) {
+			} else if (move_outer_val_text_inwards && i+1 == num_tics &&
+                       num_tics > 1)
+            {
 				horiz_align = GdaShapeText::right;
 			}
 			wxPoint text_pos = GdaShapeText::calcRefPoint(dc, text, font, ref_pt,
-																										cc_rot_degs, horiz_align,
-																										GdaShapeText::bottom);
-			if (!use_axis_scale || (scale.tics_str_show[i] &&
-															!hide_scale_values && print_tic[i])) {
+                                                          cc_rot_degs, horiz_align,
+                                                          GdaShapeText::bottom);
+			if (!use_axis_scale ||
+                (scale.tics_str_show[i] && !hide_scale_values && print_tic[i]))
+            {
 				dc.DrawRotatedText(text, text_pos.x, text_pos.y, cc_rot_degs);
 			}
 		}

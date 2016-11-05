@@ -304,11 +304,11 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 	}
 }
 
-void HistogramCanvas::DetermineMouseHoverObjects()
+void HistogramCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (selectable_shps[i]->pointWithin(sel1)) {
+		if (selectable_shps[i]->pointWithin(pt)) {
 			hover_obs[total_hover_obs++] = i;
 			if (total_hover_obs == max_hover_obs) break;
 		}

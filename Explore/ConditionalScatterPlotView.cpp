@@ -67,8 +67,6 @@ display_slope_values(true),
 show_linear_smoother(true),
 show_lowess_smoother(false)
 {
-	LOG_MSG("Entering ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas");
-    
 	double x_max = var_info[IND_VAR].max_over_time;
 	double x_min = var_info[IND_VAR].min_over_time;
 	double y_max = var_info[DEP_VAR].max_over_time;
@@ -119,13 +117,11 @@ show_lowess_smoother(false)
 	
 	all_init = true;
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConditionalScatterPlotCanvas::ConditionalScatterPlotCanvas");
 }
 
 ConditionalScatterPlotCanvas::~ConditionalScatterPlotCanvas()
 {
 	EmptyLowessCache();
-	LOG_MSG("In ConditionalScatterPlotCanvas::~ConditionalScatterPlotCanvas");
 }
 
 void ConditionalScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -249,11 +245,10 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			double mb = marg_bottom + ((d_rows-1)-row)*(pad+del_height);
 		
             GdaScaleTrans& sub_st = st[(vert_num_cats-1)-row][col];
-            sub_st.SetFixedAspectRatio(false);
             sub_st.SetData(shps_orig_xmin, shps_orig_ymin,
                            shps_orig_xmax, shps_orig_ymax);
-            sub_st.SetMargin(mt, mb, ml, mr);
             sub_st.SetView(vs_w, vs_h);
+            sub_st.SetMargin(mt, mb, ml, mr);
             
 			wxRealPoint ll(shps_orig_xmin, shps_orig_ymin);
 			wxRealPoint ur(shps_orig_xmax, shps_orig_ymax);
@@ -261,73 +256,9 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			bin_extents[(vert_num_cats-1)-row][col].applyScaleTrans(sub_st);
 		}
 	}
-	
-	BOOST_FOREACH( GdaShape* shp , foreground_shps ) { delete shp; }
-	foreground_shps.clear();
-	for (int row=0; row<vert_num_cats; row++) {
-		for (int col=0; col<horiz_num_cats; col++) {
-			GdaPolyLine* p = new GdaPolyLine(reg_line[row][col]);
-			p->applyScaleTrans(st[row][col]);
-			foreground_shps.push_back(p);
-			
-			// Note: It would be better to not have to re-allocate
-			// potentially large GdaSpline objects on resize.  This could
-			// be avoided by not deleting the GdaSpline objects in the above
-			// loop.  But, memory allocation / freeing would have to be
-			// handled carefully.
-			GdaSpline* sp = new GdaSpline(reg_line_lowess[row][col]);
-			sp->applyScaleTrans(st[row][col]);
-			foreground_shps.push_back(sp);
-			
-			GdaAxis* x_ax = new GdaAxis("", axis_scale_x,
-									  wxRealPoint(0,0), wxRealPoint(100, 0));
-			if (!display_axes_scale_values)
-                x_ax->hideScaleValues(true);
-			x_ax->setPen(*GdaConst::scatterplot_scale_pen);
-			x_ax->applyScaleTrans(st[row][col]);
-			foreground_shps.push_back(x_ax);
-			
-			GdaAxis* y_ax = new GdaAxis("", axis_scale_y,
-									  wxRealPoint(0,0), wxRealPoint(0, 100));
-			if (!display_axes_scale_values)
-                y_ax->hideScaleValues(true);
-			y_ax->setPen(*GdaConst::scatterplot_scale_pen);
-			y_ax->applyScaleTrans(st[row][col]);
-			foreground_shps.push_back(y_ax);
-			
-			if (display_slope_values && regression[row][col].valid) {
-				wxString s;
-				s << GenUtils::DblToStr(regression[row][col].beta);
-				if (regression[row][col].p_value_beta <= 0.01 &&
-					stats_x[row][col].sample_size >= 3) {
-					s << "**";
-				} else if (regression[row][col].p_value_beta <= 0.05 &&
-						   stats_x[row][col].sample_size >= 3) {
-					s << "*";
-				}
-                GdaShapeText* t =new GdaShapeText(s, *GdaConst::small_font,
-                                                  wxRealPoint(50, 100), 0,
-                                                  GdaShapeText::h_center,
-                                                  GdaShapeText::v_center);
-				t->setPen(*GdaConst::scatterplot_scale_pen);
-				t->applyScaleTrans(st[row][col]);
-				foreground_shps.push_back(t);
-			}
-		}
-	}
-	
-	int row_c;
-	int col_c;
-	for (int i=0; i<num_obs; i++) {
-        int v_time = var_info[VERT_VAR].time;
-        int h_time = var_info[HOR_VAR].time;
-		row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-		col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
-		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
-	}
-	
-	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
-	foreground_shps.clear();
+
+    BOOST_FOREACH( GdaShape* shp , foreground_shps ) { delete shp; }
+    foreground_shps.clear();
 	
 	double bg_xmin = marg_left;
 	double bg_xmax = scn_w-marg_right;
@@ -436,7 +367,71 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
 		ms->applyScaleTrans(background_st);
 	}
-	
+
+    
+    for (int row=0; row<vert_num_cats; row++) {
+        for (int col=0; col<horiz_num_cats; col++) {
+            GdaPolyLine* p = new GdaPolyLine(reg_line[row][col]);
+            p->applyScaleTrans(st[row][col]);
+            foreground_shps.push_back(p);
+            
+            // Note: It would be better to not have to re-allocate
+            // potentially large GdaSpline objects on resize.  This could
+            // be avoided by not deleting the GdaSpline objects in the above
+            // loop.  But, memory allocation / freeing would have to be
+            // handled carefully.
+            GdaSpline* sp = new GdaSpline(reg_line_lowess[row][col]);
+            sp->applyScaleTrans(st[row][col]);
+            foreground_shps.push_back(sp);
+            
+            
+            GdaAxis* x_ax = new GdaAxis("", axis_scale_x,
+                                        wxRealPoint(0,0), wxRealPoint(100, 0));
+            if (!display_axes_scale_values)
+                x_ax->hideScaleValues(true);
+            x_ax->setPen(*GdaConst::scatterplot_scale_pen);
+            x_ax->applyScaleTrans(st[row][col]);
+            foreground_shps.push_back(x_ax);
+            
+            GdaAxis* y_ax = new GdaAxis("", axis_scale_y,
+                                        wxRealPoint(0,0), wxRealPoint(0, 100));
+            if (!display_axes_scale_values)
+                y_ax->hideScaleValues(true);
+            y_ax->setPen(*GdaConst::scatterplot_scale_pen);
+            y_ax->applyScaleTrans(st[row][col]);
+            foreground_shps.push_back(y_ax);
+            
+            if (display_slope_values && regression[row][col].valid) {
+                wxString s;
+                s << GenUtils::DblToStr(regression[row][col].beta);
+                if (regression[row][col].p_value_beta <= 0.01 &&
+                    stats_x[row][col].sample_size >= 3) {
+                    s << "**";
+                } else if (regression[row][col].p_value_beta <= 0.05 &&
+                           stats_x[row][col].sample_size >= 3) {
+                    s << "*";
+                }
+                GdaShapeText* t =new GdaShapeText(s, *GdaConst::small_font,
+                                                  wxRealPoint(50, 100), 0,
+                                                  GdaShapeText::h_center,
+                                                  GdaShapeText::v_center);
+                t->setPen(*GdaConst::scatterplot_scale_pen);
+                t->applyScaleTrans(st[row][col]);
+                foreground_shps.push_back(t);
+            }
+        }
+    }
+    
+    int row_c;
+    int col_c;
+    for (int i=0; i<num_obs; i++) {
+        int v_time = var_info[VERT_VAR].time;
+        int h_time = var_info[HOR_VAR].time;
+        row_c = vert_cat_data.categories[v_time].id_to_cat[i];
+        col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
+    }
+    
 	layer0_valid = false;
 	Refresh();
 	
@@ -550,7 +545,8 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 			bool   reg_line_infinite_slope;
 			bool   reg_line_defined;
 			wxRealPoint a, b;
-            SmoothingUtils::CalcRegressionLine(reg_line[i][j], reg_line_slope,
+            SmoothingUtils::CalcRegressionLine(reg_line[i][j],
+                                               reg_line_slope,
                                                reg_line_infinite_slope,
                                                reg_line_defined, a, b,
                                                cc_degs_of_rot,
