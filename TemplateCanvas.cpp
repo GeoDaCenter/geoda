@@ -905,7 +905,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (selectstate == start) {
 			if (event.LeftDown()) {
                 prev = GetActualPos(event);
-                // if click in side brush_shape
+                // if click inside brush_shape
                 GdaShape* brush_shape = NULL;
                 if (brushtype == rectangle) {
                     brush_shape = new GdaRectangle(sel1, sel2);
@@ -914,8 +914,9 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                 } else if (brushtype == line) {
                     brush_shape = new GdaPolyLine(sel1, sel2);
                 }
-                if (brush_shape->Contains(prev)) {
+                if (prev!= sel1 && brush_shape->Contains(prev)) {
                     is_brushing = true;
+                    remember_shiftdown = false;
                     selectstate = brushing;
                 } else {
                     sel1 = prev;
@@ -949,7 +950,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 			} else if (event.LeftUp()) {
 				wxPoint act_pos = GetActualPos(event);
                 if (act_pos == sel1 ) {
-                    
+                    sel2 = sel1;
                 }
 				UpdateSelection(event.ShiftDown(), true);
 				selectstate = start;
@@ -966,22 +967,13 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateStatusBar();
 				Refresh(false);
                 
-			} else if (event.LeftUp() && !event.CmdDown()) {
+			} else if (event.LeftUp()) {
 				sel2 = GetActualPos(event);
 
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-				Refresh(false);
-                
-			} else if (event.LeftUp() && event.CmdDown()) {
-				selectstate = brushing;
-				sel2 = GetActualPos(event);
-				wxPoint diff = wxPoint(0,0);
-
-				UpdateSelection(remember_shiftdown);
-				remember_shiftdown = false;
-				Refresh(false);
+				//Refresh(false);
                 
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());

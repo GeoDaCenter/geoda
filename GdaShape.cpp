@@ -1441,12 +1441,13 @@ GdaPolyLine::GdaPolyLine(double x1, double y1, double x2, double y2)
 }
 
 GdaPolyLine::GdaPolyLine(wxPoint pt1, wxPoint pt2)
+    : n(2), pc(0), n_count(1), points_o(0), points(0), count(0)
 {
     double x1 = (double)pt1.x;
     double y1 = (double)pt1.y;
     double x2 = (double)pt2.x;
     double y2 = (double)pt2.y;
-   
+    
     count = new int[1];
     count[0] = n;
     points = new wxPoint[n];
