@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_REPORTBUG_DLG_H__
 #define __GEODA_CENTER_REPORTBUG_DLG_H__
 
+#include <string>
 #include <wx/dialog.h>
 #include <wx/bmpbuttn.h>
 #include <wx/choice.h>
@@ -27,6 +28,8 @@
 #include <wx/sizer.h>
 #include <wx/checkbox.h>
 #include <wx/hyperlink.h>
+
+using namespace std;
 
 class ReportResultDlg: public wxDialog
 {
@@ -57,10 +60,20 @@ public:
     ~ReportBugDlg();
     
 protected:
+    wxString desc_tip;
+    wxString steps_txt;
+    
+    
+    wxTextCtrl* title_txt_ctrl;
+    wxTextCtrl* steps_txt_ctrl;
+    wxTextCtrl* user_txt_ctrl;
+    wxTextCtrl* email_txt_ctrl;
+    
+    
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
    
-    
+    string CreateIssue(wxString title, wxString body);
 };
 
 #endif

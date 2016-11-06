@@ -32,12 +32,21 @@
 #include <wx/panel.h>
 #include <wx/textfile.h>
 #include <wx/regex.h>
+#include <wx/uri.h>
 #include <wx/combobox.h>
+#include <json_spirit/json_spirit.h>
+#include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
 
+#include "../GeneralWxUtils.h"
+#include "../GenUtils.h"
+#include "../GdaConst.h"
+#include "../GdaJson.h"
+#include "../logger.h"
 #include "ReportBugDlg.h"
 
 using namespace std;
+using namespace GdaJson;
 
 ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
                                  wxWindowID id,
@@ -78,13 +87,14 @@ size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
     return size*count;
 }
 
-string CreateIssueOnGithub(const string& post_data)
+string CreateIssueOnGithub(string& post_data)
 {
     string url = "https://api.github.com/repos/lixun910/colamap/issues";
     
-    string header_str = "Authorization: token ab6738a78ec5c1c21d18b1059563e0132438f409";
+    wxString header_auth = "Authorization: token " + GdaConst::tester_id;
    
-    string header_str1 = "User-Agent: GeoDaTester";
+    wxString header_user_agent = "User-Agent: GeoDaTester";
+    
     string response;
     
     CURL* curl = curl_easy_init();
@@ -92,8 +102,8 @@ string CreateIssueOnGithub(const string& post_data)
     if (curl) {
         struct curl_slist *chunk = NULL;
         
-        chunk = curl_slist_append(chunk, header_str.c_str());
-        chunk = curl_slist_append(chunk, header_str1.c_str());
+        chunk = curl_slist_append(chunk, header_auth.c_str());
+        chunk = curl_slist_append(chunk, header_user_agent.c_str());
        
         // set our custom set of headers
         res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
@@ -132,40 +142,40 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
    
-    wxString desc_tip = _("[Please briefly describe what went wrong]");
-    wxString steps_txt = _("[Steps you took before something went wrong]");
+    desc_tip = _("[Please briefly describe what went wrong]");
+    steps_txt = _("[Steps you took before something went wrong]");
     
-    wxTextCtrl* title_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, desc_tip);
-    wxTextCtrl* steps_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, steps_txt,
+    title_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, desc_tip);
+    steps_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, steps_txt,
                                                 wxDefaultPosition,
                                                 wxSize(500,200),
                                                 wxTE_MULTILINE);
     
-    wxString data_txt = _("Share part of your data for troubleshooting? (first 10 records)");
-    wxCheckBox* data_chk = new wxCheckBox(panel, wxID_ANY, data_txt);
+    //wxString data_txt = _("Share part of your data for troubleshooting? (first 10 records)");
+    //wxCheckBox* data_chk = new wxCheckBox(panel, wxID_ANY, data_txt);
   
     wxString user_tip = _("Your Github account (Optional):");
     wxStaticText* lbl_user = new wxStaticText(panel, wxID_ANY, user_tip);
-    wxTextCtrl* user_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
-                                               wxDefaultPosition, wxSize(150,-1));
+    user_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
+                                   wxDefaultPosition, wxSize(150,-1));
     wxBoxSizer* user_box = new wxBoxSizer(wxHORIZONTAL);
     user_box->Add(lbl_user);
     user_box->Add(user_txt_ctrl);
     
     wxString email_tip = _("Your Email address (Optional):");
     wxStaticText* lbl_email = new wxStaticText(panel, wxID_ANY, email_tip);
-    wxTextCtrl* email_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
-                                                wxDefaultPosition, wxSize(150,-1));
+    email_txt_ctrl = new wxTextCtrl(panel, wxID_ANY, "",
+                                    wxDefaultPosition, wxSize(150,-1));
     wxBoxSizer* email_box = new wxBoxSizer(wxHORIZONTAL);
     email_box->Add(lbl_email);
     email_box->AddSpacer(10);
     email_box->Add(email_txt_ctrl);
     
     // buttons
-    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel",
+    wxButton* btn_cancel= new wxButton(panel, wxID_CANCEL, _("Cancel"),
                                        wxDefaultPosition,
                                        wxDefaultSize, wxBU_EXACTFIT);
-    wxButton* btn_submit = new wxButton(panel, wxID_ANY, "Submit Bug Report",
+    wxButton* btn_submit = new wxButton(panel, wxID_ANY, _("Submit Bug Report"),
                                        wxDefaultPosition,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
@@ -176,7 +186,7 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(title_txt_ctrl, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(steps_txt_ctrl, 0, wxALIGN_TOP|wxEXPAND|wxLEFT|wxRIGHT | wxTOP, 10);
-    box->Add(data_chk, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
+    //box->Add(data_chk, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
     box->Add(user_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(email_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(btn_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
@@ -188,6 +198,9 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
     SetSizer(sizerAll);
     SetAutoLayout(true);
     
+    btn_submit->Bind(wxEVT_BUTTON, &ReportBugDlg::OnOkClick, this);
+    
+                     
     SetParent(parent);
     SetPosition(pos);
     Centre();
@@ -204,12 +217,105 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
 {
     //wxString rst = CreateIssueOnGithub("{\"title\": \"Test reporting bug from GeoDa software\", \"body\": \"We should have one\"}");
 
-    // parse results
+    wxString title =  title_txt_ctrl->GetValue();
+    wxString body = steps_txt_ctrl->GetValue();
+    wxString user_github = user_txt_ctrl->GetValue();
+    wxString email = email_txt_ctrl->GetValue();
     
-    ReportResultDlg dlg(this, "https://github.com/GeoDaCenter/geoda/issues/511");
-    dlg.ShowModal();
+    if (title.IsEmpty() || title == desc_tip) {
+        wxMessageDialog msgDlg(this,
+                               _("Please briefly describe what went wrong."),
+                               _("Input is required"),
+                               wxOK |wxICON_INFORMATION);
+        msgDlg.ShowModal();
+        return;
+    }
+    if (body.IsEmpty() || body == steps_txt) {
+        wxMessageDialog msgDlg(this,
+                               _("Please describe steps you took before something went wrong."),
+                               _("Input is required"),
+                               wxOK |wxICON_INFORMATION);
+        msgDlg.ShowModal();
+        return;
+    }
+    
+    if (!user_github.IsEmpty()) {
+        body << "\\n\\n@" << user_github << " " << email ;
+    }
+    
+    body << "\\n\\n";
+    
+    // parse results
+    string result = CreateIssue(title, body);
+    
+    if (!result.empty()) {
+        json_spirit::Value v;
+        try {
+            if (!json_spirit::read(result, v)) {
+                throw std::runtime_error("Could not parse title as JSON");
+            }
+            json_spirit::Value url_val;
+            if (!GdaJson::findValue(v, url_val, "html_url")) {
+                throw std::runtime_error("could not find url");
+            }
+            wxString url_issue = url_val.get_str();
+            ReportResultDlg dlg(this, url_issue);
+            dlg.ShowModal();
+            EndDialog(wxID_OK);
+            return;
+        } catch (std::runtime_error e) {
+            wxString msg;
+            msg << "JSON parsing failed: ";
+            msg << e.what();
+        }
+    }
+    
+    wxMessageDialog msgDlg(this,
+                           _("Oops. GeoDa encountered an error to submit bug report to our Github site. Please try again or send us an email spatial@uchicago.edu"),
+                           _("Submit Bug Error"),
+                           wxOK |wxICON_INFORMATION);
+    msgDlg.ShowModal();
+    
+    LOG_MSG("Submit Bug Report Error:");
+    LOG_MSG("title:");
+    LOG_MSG(title);
+    LOG_MSG("body:");
+    LOG_MSG(body);
+    LOG_MSG("return from Github:");
+    LOG_MSG(result);
 }
 
 void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
 {
+    
+}
+
+string ReportBugDlg::CreateIssue(wxString title, wxString body)
+{
+    // get log file to body
+    wxString logger_path;
+    if (GeneralWxUtils::isMac()) {
+        logger_path <<  GenUtils::GetBasemapCacheDir() <<  "../../../logger.txt";
+    } else {
+        logger_path <<  GenUtils::GetBasemapCacheDir() << "\\logger.txt";
+    }
+    wxTextFile tfile;
+    tfile.Open(logger_path);
+    
+    body << "\\n";
+    
+    while(!tfile.Eof())
+    {
+        body << tfile.GetNextLine() << "\\n";
+    }
+    
+    wxString labels = "[\"AutoBugReport\"]";
+    //wxString assignees = "[\"GeoDaTester\"]";
+    
+    wxString msg_templ = "{\"title\": \"%s\", \"body\": \"%s\", \"labels\": %s}";
+    wxString json_msg = wxString::Format(msg_templ, title, body, labels);
+    
+    string msg( json_msg.c_str());
+    
+    return CreateIssueOnGithub(msg);
 }

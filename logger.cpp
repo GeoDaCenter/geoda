@@ -1,52 +1,61 @@
-/**
- * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
- *
- * This file is part of GeoDa.
- *
- * GeoDa is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GeoDa is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// Copyright (c) 2005, 2006
+// Seweryn Habdank-Wojewodzki
+// Distributed under the Boost Software License,
+// Version 1.0.
+// (copy at http://www.boost.org/LICENSE_1_0.txt)
 #include "logger.h"
-#include "GenUtils.h"
-#include "GeneralWxUtils.h"
 
-#include <sstream>
-#include <fstream>
+#if !defined(CLEANLOG)
 
-inline char separator()
-{
-#ifdef __WIN32__
-    return '\\';
-#else
-    return '/';
-#endif
-}
 
-GdaLogger::GdaLogger()
-{
-//#ifdef DEBUG
-    is_activated = true;
-	std::ostringstream filepathBuf;
-	if (GeneralWxUtils::isMac()) {
-		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "../../../logger.txt";
-	} else {
-		filepathBuf <<  GenUtils::GetBasemapCacheDir() << separator() << "logger.txt";
-	}
-	
-    outstream_helper_ptr = std::auto_ptr<std::ostream>( new std::ofstream (filepathBuf.str().c_str()));
-    outstream = outstream_helper_ptr.get();
-//#else
-//    is_activated = false;
+#define FTLOG
+
+//#if !defined(DEBUG)
+//#undef FTLOG
+//#undef TLOG
 //#endif
-    
+
+#if defined (FTLOG)
+#include <fstream>
+#else
+#include <iostream>
+// http://www.msobczak.com/prog/bin/nullstream.zip
+#include "nullstream.h"
+#endif
+logger_t::logger_t()
+{}
+bool logger_t::is_activated = true;
+
+#if defined(TLOG)
+std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::auto_ptr<std::ostream>( new NullStream );
+std::ostream * logger_t::outstream = &std::cout;
+
+#elif defined (ETLOG)
+std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::auto_ptr <std::ostream>( new NullStream );
+std::ostream * logger_t::outstream = &std::cerr;
+
+#elif defined (FTLOG)
+std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
+= std::auto_ptr<std::ostream>( new std::ofstream ("logger.txt"));
+std::ostream * logger_t::outstream = outstream_helper_ptr.get();
+
+// here is a place for user defined output stream
+// and compiler flag
+
+#else
+std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::auto_ptr<std::ostream>( new NullStream );
+std::ostream* logger_t::outstream = outstream_helper_ptr.get();
+#endif
+
+logger_t & logger()
+{
+    static logger_t* ans = new logger_t();
+    return *ans;
 }
+
+#endif
+// !CLEANLOG
+

@@ -332,6 +332,8 @@ std::vector<wxColour> GdaConst::qualitative_colors(10);
 
 const wxString GdaConst::html_submenu_title("Web Plugins");
 
+const wxString GdaConst::tester_id("78efe42a40543bde29e54c76641eab8a577030a9");
+
 /**
  Certain objects such as wxFont objects need to be created after
  wxWidgets is sufficiently initialized.  This function will be
@@ -423,6 +425,7 @@ void GdaConst::init()
 	qualitative_colors[8] = wxColour(202, 178, 214);
 	qualitative_colors[9] = wxColour(106, 61, 154);
 	
+    
 	// Filenames or field names start with a letter, and they can contain any
 	// combination of the letters A through Z, the digits 0 through 9,
 	// the colon (:) (in dBASE II field names only), and the underscore (_)

@@ -694,7 +694,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
             // clean up memory
             delete Wp;
             
-            wxString msg = _("The current threshold distance value is too large to compute. Please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN).");
+            wxString msg = _("Current threshold distance value in weights creation may cause memory problems. Please input a smaller distance band (which might leave some observations neighborless) or use another weights (e.g. KNN).");
             throw GdaException(msg.mb_str());
         }
 		GwtElement& e = Wp->gwt[obs];
