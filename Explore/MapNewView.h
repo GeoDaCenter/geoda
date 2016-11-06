@@ -202,7 +202,8 @@ protected:
     // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
-    
+    // map
+    wxBitmap* map_bm;
     
 	virtual void UpdateStatusBar();
 		
@@ -253,8 +254,6 @@ public:
 	virtual void update(WeightsManState* o);
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
-	
-    virtual void OnCopyImageToClipboard(wxCommandEvent& event);
     
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);

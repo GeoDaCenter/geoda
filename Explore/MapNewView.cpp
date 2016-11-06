@@ -162,7 +162,8 @@ num_categories(num_categories_s),
 weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
-basemap_bm(0)
+basemap_bm(0),
+map_bm(0)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering MapCanvas::MapCanvas");
@@ -217,24 +218,29 @@ MapCanvas::~MapCanvas()
         delete basemap;
         basemap = NULL;
     }
+    
+    if (map_bm != NULL) {
+        delete map_bm;
+        map_bm = NULL;
+    }
 }
 
 void MapCanvas::deleteLayerBms()
 {
+    if (map_bm) delete map_bm; map_bm = 0;
     if (basemap_bm) delete basemap_bm; basemap_bm = 0;
-    if (layer0_bm) delete layer0_bm; layer0_bm = 0;
-    if (layer1_bm) delete layer1_bm; layer1_bm = 0;
-    if (layer2_bm) delete layer2_bm; layer2_bm = 0;
     
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
+    TemplateCanvas::deleteLayerBms();
 }
 
 void MapCanvas::ResetShapes()
 {
     if (isDrawBasemap) {
         basemap->Reset();
+        if (map_bm) {
+            delete map_bm;
+            map_bm = 0;
+        }
     }
     
     TemplateCanvas::ResetShapes();
@@ -247,7 +253,10 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
     
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
-        
+        if (map_bm) {
+            delete map_bm;
+            map_bm = 0;
+        }
         ResizeSelectableShps();
         
         return;
@@ -266,6 +275,10 @@ void MapCanvas::PanShapes()
         int delta_y = sel2.y - sel1.y;
         if (delta_x !=0 && delta_y != 0) {
             basemap->Pan(sel1.x, sel1.y, sel2.x, sel2.y);
+            if (map_bm) {
+                delete map_bm;
+                map_bm = 0;
+            }
             ResizeSelectableShps();
         }
         return;
@@ -295,11 +308,10 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         event.RequestMore(); // render continuously, not only once on idle
     }
     
-    if (!layer2_valid || !layer1_valid || !layer0_valid) {
-        if ( (isDrawBasemap == true && !layerbase_valid) || !isDrawBasemap ) {
-            DrawLayers();
-            event.RequestMore(); // render continuously, not only once on idle
-        }
+    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
+        DrawLayers();
+        event.RequestMore(); // render continuously, not only once on idle
+        
     }
 }
 
@@ -414,6 +426,8 @@ void MapCanvas::DrawLayers()
         DrawLayer2();
     }
     
+    wxWakeUpIdle();
+    
     Refresh();
 }
 
@@ -435,14 +449,9 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	deleteLayerBms();
     
 	basemap_bm = new wxBitmap(width, height);
-	layer0_bm = new wxBitmap(width, height);
-	layer1_bm = new wxBitmap(width, height);
-	layer2_bm = new wxBitmap(width, height);
-
-	layerbase_valid = false;	
-	layer0_valid = false;
-	layer1_valid = false;
-	layer2_valid = false;
+    layerbase_valid = false;
+    
+    TemplateCanvas::resizeLayerBms(width, height);
 }
 
 void MapCanvas::DrawLayer0()
@@ -472,42 +481,30 @@ void MapCanvas::DrawLayer0()
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
     if (isDrawBasemap) {
-        wxSize sz = dc.GetSize();
-        wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
-        wxMemoryDC _dc;
-        // use a special color for mask transparency: 244, 243, 242c
-        // wxImage::FindFirstUnusedColour(unsigned char *r, unsigned char *g, unsigned char *b)
-        wxColour maskColor(0, 123, 123);
-        wxBrush maskBrush(maskColor);
-        _dc.SetBackground(maskBrush);
-        _dc.SelectObject(bmp);
-        _dc.Clear();
-        
-        DrawSelectableShapes_dc(_dc);
-        
-        _dc.SelectObject(wxNullBitmap);
-        
-        wxImage image = bmp.ConvertToImage();
-        if (!image.HasAlpha()) {
-            image.InitAlpha();
-        }
-        unsigned char *alpha=image.GetAlpha();
-        memset(alpha, (int)(transparency * 255), image.GetWidth()*image.GetHeight());
-        
-        unsigned char r, _r;
-        unsigned char g, _g;
-        unsigned char b, _b;
-        
-        int cc_ts = cat_data.curr_canvas_tm_step;
-        int num_cats=cat_data.GetNumCategories(cc_ts);
-       
-        int alpha_value = transparency * 255;
-        
-        for (int cat=0; cat<num_cats; cat++) {
-            wxColour penColor = cat_data.GetCategoryPen(cc_ts, cat).GetColour();
-            _r = penColor.Red();
-            _g = penColor.Green();
-            _b = penColor.Blue();
+        if ( map_bm == NULL ) {
+            wxSize sz = dc.GetSize();
+            wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+            wxMemoryDC _dc;
+            // use a special color for mask transparency: 244, 243, 242c
+            wxColour maskColor(0, 123, 123);
+            wxBrush maskBrush(maskColor);
+            _dc.SetBackground(maskBrush);
+            _dc.SelectObject(bmp);
+            _dc.Clear();
+            
+            DrawSelectableShapes_dc(_dc);
+            
+            _dc.SelectObject(wxNullBitmap);
+            
+            wxImage image = bmp.ConvertToImage();
+            if (!image.HasAlpha()) {
+                image.InitAlpha();
+            }
+            int alpha_value = transparency * 255;
+            unsigned char *alpha=image.GetAlpha();
+            memset(alpha, alpha_value, image.GetWidth()*image.GetHeight());
+            
+            unsigned char r, g, b;
             
             for (int i=0; i< image.GetWidth(); i++) {
                 for (int j=0; j<image.GetHeight(); j++) {
@@ -517,16 +514,16 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
                     if (r == 0 && g == 123 && b == 123) {
                         image.SetAlpha(i, j, 0);
                         continue;
-                    } 
+                    }
                     
                     image.SetAlpha(i,j, alpha_value);
                 }
-                
             }
+            
+            //wxBitmap _bmp(image);
+            map_bm = new wxBitmap(image);
         }
-        
-        wxBitmap _bmp(image);
-        dc.DrawBitmap(_bmp,0,0);
+        dc.DrawBitmap(*map_bm,0,0);
     } else {
         DrawSelectableShapes_dc(dc);
     }
@@ -1819,40 +1816,6 @@ void MapFrame::closeObserver(boost::uuids::uuid id)
 		Close(true);
 	}
 }
-
-void MapFrame::OnCopyImageToClipboard(wxCommandEvent& event)
-{
-    LOG_MSG("Entering TemplateFrame::OnCopyImageToClipboard");
-    if (!template_canvas) return;
-    wxSize sz = template_canvas->GetVirtualSize();
-    
-    wxBitmap bitmap( sz.x, sz.y );
-    
-    wxMemoryDC dc;
-    dc.SelectObject( bitmap );
-
-	dc.SetBrush(template_canvas->canvas_background_color);
-    dc.DrawRectangle(wxPoint(0,0), sz);
-
-    MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
-    if (map_canvs_ref->isDrawBasemap) {
-        dc.DrawBitmap(*map_canvs_ref->GetBaseLayer(), 0, 0, true);
-    }
-    dc.DrawBitmap(*template_canvas->GetLayer0(), 0, 0, true);
-    dc.DrawBitmap(*template_canvas->GetLayer1(), 0, 0, true);
-    dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0, true);
-
-    dc.SelectObject( wxNullBitmap );
-    
-    if ( !wxTheClipboard->Open() ) {
-        wxMessageBox("Can't open clipboard.");
-    } else {
-        wxTheClipboard->AddData(new wxBitmapDataObject(bitmap));
-        wxTheClipboard->Close();
-    }
-    LOG_MSG("Exiting TemplateFrame::OnCopyImageToClipboard");
-}
-
 
 void MapFrame::OnNewCustomCatClassifA()
 {

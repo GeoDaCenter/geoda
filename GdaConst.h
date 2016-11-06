@@ -80,9 +80,7 @@ public:
 	static std::map<DataSourceType, std::string> datasrc_type_to_fullname;
 	static std::map<DataSourceType, std::set<std::string> > datasrc_req_flds;
 	static std::map<DataSourceType, std::set<std::string> > datasrc_opt_flds;
- 
-    static const wxString tester_id;
-    
+     
 	static wxString no_field_warning, db_field_warning, default_field_warning;
     static wxString default_field_name_regex, default_field_name_illegal_regex;
     static wxString db_field_name_regex, db_field_name_illegal_regex;

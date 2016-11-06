@@ -15,13 +15,13 @@
 class logger_t {
 public:
     static bool is_activated;
-    static std::auto_ptr < std::ostream >
-    outstream_helper_ptr;
+    static std::auto_ptr < std::ostream > outstream_helper_ptr;
     static std::ostream * outstream;
     logger_t ();private:
     logger_t ( const logger_t & );
     logger_t & operator= ( const logger_t & );
 };
+
 extern logger_t & logger();
 
 #define LOG(name)do {if (logger().is_activated ){\
@@ -55,28 +55,23 @@ std::tm* ltm = std::localtime(&now);\
 
 
 namespace logger_n {
-    template < typename T1, typename T2, \
-    typename T3, typename T4 >
+    template < typename T1, typename T2, typename T3, typename T4 >
     void put_debug_info ( logger_t & log, \
                          T1 const & t1, T2 const & t2, \
                          T3 const & t3, T4 const & t4 )
     {
         if ( log.is_activated )
         {
-            *(log.outstream) << t1 << " (" \
-            << t2 << ") : ";
-            *(log.outstream) << t3 << " = " \
-            << t4 << std::endl;
+            *(log.outstream) << t1 << " (" << t2 << ") : ";
+            *(log.outstream) << t3 << " = " << t4 << std::endl;
         }
     }
 }
-#define LOG_FN(name) logger_n::put_debug_info ( \
-logger(), __FILE__, __LINE__, #name, (name) )
+#define LOG_FN(name) logger_n::put_debug_info (logger(), __FILE__, __LINE__, #name, (name))
 // place for user defined logger formating data
-#define LOG_ON() do { \
-logger().is_activated = true; } while(false)
-#define LOG_OFF() do { \
-logger().is_activated = false; } while(false)
+#define LOG_ON() do { logger().is_activated = true; } while(false)
+#define LOG_OFF() do { logger().is_activated = false; } while(false)
+
 #if defined(CLEANLOG)
 #undef LOG
 #undef LOG_ON

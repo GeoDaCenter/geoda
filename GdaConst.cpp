@@ -332,7 +332,6 @@ std::vector<wxColour> GdaConst::qualitative_colors(10);
 
 const wxString GdaConst::html_submenu_title("Web Plugins");
 
-const wxString GdaConst::tester_id("78efe42a40543bde29e54c76641eab8a577030a9");
 
 /**
  Certain objects such as wxFont objects need to be created after

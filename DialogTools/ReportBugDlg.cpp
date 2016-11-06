@@ -38,6 +38,7 @@
 #include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
 
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../GdaConst.h"
@@ -89,9 +90,16 @@ size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
 
 string CreateIssueOnGithub(string& post_data)
 {
+    std::vector<std::string> tester_ids = OGRDataAdapter::GetInstance().GetHistory("tester_id");
+    if (tester_ids.empty()) {
+        return "";
+    }
+    
+    wxString tester_id = tester_ids[0];
+    
     string url = "https://api.github.com/repos/lixun910/colamap/issues";
     
-    wxString header_auth = "Authorization: token " + GdaConst::tester_id;
+    wxString header_auth = "Authorization: token " + tester_id;
    
     wxString header_user_agent = "User-Agent: GeoDaTester";
     
