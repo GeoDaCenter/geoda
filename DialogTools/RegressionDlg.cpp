@@ -19,6 +19,7 @@
 
 #include <time.h>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/grid.h>
 #include <wx/msgdlg.h>
 #include <wx/txtstrm.h>
@@ -29,7 +30,6 @@
 
 #include "../FramesManager.h"
 #include "../GenUtils.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../TemplateCanvas.h"
@@ -133,6 +133,8 @@ w_man_state(project_s->GetWManState()),
 autoPVal(0.01),
 regReportDlg(0)
 {
+    wxLogMessage("Open RegressionDlg.");
+    
 	Create(parent, id, caption, pos, size, style);
 	
 	RegressModel = 1;
@@ -159,11 +161,10 @@ regReportDlg(0)
 
 RegressionDlg::~RegressionDlg()
 {
-	LOG_MSG("Entering RegressionDlg::~RegressionDlg");
+    wxLogMessage("Close RegressionDlg.");
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
-	LOG_MSG("Exiting RegressionDlg::~RegressionDlg");
 }
 
 
@@ -266,7 +267,7 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 
 void RegressionDlg::OnRunClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnRunClick");
+	wxLogMessage("Click RegressionDlg::OnRunClick");
 
     m_gauge->Show();
 	UpdateMessageBox("calculating...");
@@ -759,8 +760,6 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	EnablingItems();
 	//FindWindow(XRCID("ID_RUN"))->Enable(false);
 	UpdateMessageBox("done");
-	
-	LOG_MSG("Exiting RegressionDlg::OnRunClick");
 }
 
 void RegressionDlg::DisplayRegression(wxString dump)
@@ -783,6 +782,7 @@ void RegressionDlg::SetupXNames(bool m_constant_term)
 }
 void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnViewResultsClick");
  	if (m_OpenDump) {
 		GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
 	}
@@ -790,6 +790,8 @@ void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 
 void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnSaveToTxtFileClick");
+    
  	if (!m_OpenDump) return;
 	
 	wxFileDialog dlg( this, "Regression Output Text File", wxEmptyString,
@@ -843,6 +845,8 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCListVarinDoubleClicked");
+    
 	if (lastSelection == 1) {
 		OnCButton1Click(event);
 	} else {
@@ -852,11 +856,15 @@ void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVaroutDoubleClicked( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCListVaroutDoubleClicked");
+    
 	OnCButton3Click(event);
 }
 
 void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCButton1Click");
+    
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			wxString temp = m_dependent->GetValue();
@@ -876,6 +884,9 @@ void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCButton2Click");
+
+    
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			int cur_sel = m_varlist->GetSelection();
@@ -896,6 +907,8 @@ void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCResetClick");
+    
 	logReport = wxEmptyString;
 	lastSelection = 1;
 	nVarName = 0;
@@ -916,6 +929,8 @@ void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCButton3Click");
+    
 	if (m_independentlist->GetCount() > 0) {
 		if(m_independentlist->GetSelection() >= 0) {
 			int cur_sel = m_independentlist->GetSelection();
@@ -936,6 +951,8 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCButton4Click");
+    
 	for (unsigned int i=0; i<m_varlist->GetCount(); i++) {
 		m_independentlist->Append(m_varlist->GetString(i));
 	}
@@ -949,6 +966,8 @@ void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCButton5Click");
+    
 	for (unsigned int i=0; i<m_independentlist->GetCount(); i++) {
 		m_varlist->Append(m_independentlist->GetString(i));
 	}
@@ -963,7 +982,7 @@ void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnCSaveRegressionClick");
+    wxLogMessage("Click RegressionDlg::OnCSaveRegressionClick");
 	if (!table_int) return;
 	int n_obs = table_int->GetNumberRows();
 
@@ -1025,27 +1044,26 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	dlg.ShowModal();	
 	
 	if (project->FindTableGrid()) project->FindTableGrid()->Refresh();
-	LOG_MSG("Exiting RegressionDlg::OnCSaveRegressionClick");
 }
 
 void RegressionDlg::OnCloseClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnCloseClick");
+    wxLogMessage("Click RegressionDlg::OnCloseClick");
+    
 	event.Skip();
 	EndDialog(wxID_CLOSE);
 	Destroy();
-	LOG_MSG("Entering RegressionDlg::OnCloseClick");
 }
 
 void RegressionDlg::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("Entering RegressionDlg::OnClose");
 	Destroy();
-	LOG_MSG("Exiting RegressionDlg::OnClose");
 }
 
 void RegressionDlg::OnCOpenWeightClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCOpenWeightClick");
+    
 	GdaFrame::GetGdaFrame()->OnToolsWeightsManager(event);
 	bool m_Run1 = m_independentlist->GetCount() > 0;
 	bool enable_run = (m_Run1 &&
@@ -1187,6 +1205,8 @@ boost::uuids::uuid RegressionDlg::GetWeightsId()
 
 void RegressionDlg::OnCWeightCheckClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCWeightCheckClick");
+    
 	b_done1 = b_done2 = b_done3 = false;
 	EnablingItems();
 
@@ -1214,7 +1234,6 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 												 int Obs, int nX,
 												 bool do_white_test)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
 	wxString f; // temporary formatting string
 	wxString slog;
 	
@@ -1387,15 +1406,12 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	
 	slog << "\n\n"; cnt++; cnt++;
 	logReport << slog;
-	
-	LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }
 
 void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 										   const wxString& wname,
 										   DiagnosticReport *r, int Obs, int nX)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowLagResults");
 	wxString f; // temporary formatting string
 	wxString slog;
 	
@@ -1516,7 +1532,6 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG("Exiting RegressionDlg::printAndShowLagResults");
 }
 
 void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
@@ -1524,7 +1539,6 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 											 DiagnosticReport *r,
 											 int Obs, int nX)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowErrorResults");
 	wxString m_Yname = m_dependent->GetValue();
 	wxString f; // temporary formatting string
 	wxString slog;
@@ -1640,13 +1654,12 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG("Exiting RegressionDlg::printAndShowErrorResults");
 }
-
-
 
 void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnCRadio1Selected");
+    
 	m_Run = false;
 	RegressModel = 1;
 	UpdateMessageBox(" ");
@@ -1657,6 +1670,8 @@ void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnCRadio2Selected");
+    
 	m_Run = false;
 	RegressModel = 2;
 	UpdateMessageBox(" ");
@@ -1667,6 +1682,8 @@ void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnCRadio3Selected");
+    
 	m_Run = false;
 	RegressModel = 3;
 	UpdateMessageBox(" ");
@@ -1677,6 +1694,8 @@ void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio4Selected( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnCRadio4Selected");
+    
 	m_Run = false;
 	RegressModel = 4;
 	UpdateMessageBox(" ");
@@ -1693,11 +1712,15 @@ void RegressionDlg::OnStandardizeClick( wxCommandEvent& event )
 
 void RegressionDlg::OnPredValCbClick( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnPredValCbClick");
+    
 	m_output1 = m_pred_val_cb->GetValue() == 1;
 }
 
 void RegressionDlg::OnCoefVarMatrixCbClick( wxCommandEvent& event )
 {
+    wxMessageBox("Click RegressionDlg::OnCoefVarMatrixCbClick");
+    
 	m_output2 = m_coef_var_matrix_cb->GetValue() == 1;
 }
 
@@ -1711,7 +1734,6 @@ This could be made more intelligent in the future, but is probably good
 enough for now. */
 void RegressionDlg::update(TableState* o)
 {
-	LOG_MSG("Entering RegressionDlg::update(TableState*)");
 	bool add_vars_only_event = false;
 	TableState::EventType et = o->GetEventType();
 	if (et == TableState::cols_delta) {
@@ -1755,12 +1777,10 @@ void RegressionDlg::update(TableState* o)
 		//OnCResetClick(event);
 		//kUpdateMessageBox("");
 	}
-	LOG_MSG("Exiting RegressionDlg::update(TableState*)");
 }
 
 void RegressionDlg::update(WeightsManState* o)
 {
-	LOG_MSG("In RegressionDlg::update(WeightsManState*)");
 	// Need to refresh weights list
 	InitWeightsList();
 	bool m_Run1 = m_independentlist->GetCount() > 0;

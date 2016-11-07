@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -32,7 +33,6 @@
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
-#include "../logger.h"
 #include "VariableSettingsDlg.h"
 
 /**
@@ -41,8 +41,10 @@
  */
 
 DiffMoranVarSettingDlg::DiffMoranVarSettingDlg(Project* project_s)
-    : wxDialog(NULL, -1, "Differential Moran Variable Settings", wxDefaultPosition, wxSize(590, 230))
+    : wxDialog(NULL, -1, _("Differential Moran Variable Settings"), wxDefaultPosition, wxSize(590, 230))
 {
+    wxLogMessage("Open DiffMoranVarSettingDlg.");
+    
     project = project_s;
     
     bool init_success = Init();
@@ -193,12 +195,16 @@ void DiffMoranVarSettingDlg::InitWeightsCombobox(wxComboBox* weights_ch)
 
 void DiffMoranVarSettingDlg::OnClose(wxCommandEvent& event )
 {
+    wxLogMessage("Close DiffMoranVarSettingDlg.");
+    
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
 void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
 {
+    wxLogMessage("Click DiffMoranVarSettingDlg::OnOK");
+    
     wxString col_name = combo_var->GetStringSelection();
     if (col_name.IsEmpty()) {
         wxMessageDialog dlg (this,
@@ -332,9 +338,10 @@ num_categories(4),
 hide_time(hide_time),
 all_init(false)
 {
+    wxLogMessage("Open VariableSettingsDlg");
+    
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
-		LOG_MSG("No Weights Found:\nGeoDa could not find the required weights file.\nPlease specify weights in Tools > Weights Manager.");
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
 		SetTitle("No Weights Found");
@@ -742,12 +749,14 @@ void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
 
 void VariableSettingsDlg::OnCancelClick(wxCommandEvent& event)
 {
+    wxLogMessage("Click VariableSettingsDlg::OnOkClick");
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 }
 
 void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 {
+    wxLogMessage("Click VariableSettingsDlg::OnOkClick:");
 	if (no_weights_found_fail) {
 		event.Skip();
 		EndDialog(wxID_CANCEL);
@@ -772,6 +781,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (!table_int->IsColTimeVariant(v1_col_id))
             v1_time = 0;
 	}
+    wxLogMessage(v1_name);
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
 			wxString msg(_T("No field chosen for second variable."));
@@ -788,6 +798,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v2_col_id))
                 v2_time = 0;
 		}
+        wxLogMessage(v2_name);
 	}
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
@@ -805,6 +816,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v3_col_id))
                 v3_time = 0;
 		}
+        wxLogMessage(v3_name);
 	}
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
@@ -822,6 +834,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v4_col_id))
                 v4_time = 0;
 		}
+        wxLogMessage(v4_name);
 	}
 	
 	FillData();
@@ -894,7 +907,6 @@ boost::uuids::uuid VariableSettingsDlg::GetWeightsId()
 	wxString s;
 	s << "VariableSettingsDlg::GetWeightsId() weight: ";
 	s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
-	LOG_MSG(s);
 	return weights_ids[sel];
 }
 

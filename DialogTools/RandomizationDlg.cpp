@@ -29,7 +29,6 @@
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
 #include "../GdaConst.h"
-#include "../logger.h"
 #include "RandomizationDlg.h"
 
 
@@ -393,7 +392,7 @@ BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
 	EVT_MOUSE_EVENTS(RandomizationDlg::OnMouse)
 END_EVENT_TABLE()
 
-RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
+RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const std::vector<double>& raw_data2_s,
 								   const GalElement* W_s,
 								   int NumPermutations,
@@ -405,7 +404,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	wxLogMessage("Open RandomizationDlg (bivariate).");
 	
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     
@@ -425,7 +424,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	wxLogMessage("Open RandomizationDlg (univariate).");
 	
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     
@@ -437,6 +436,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 
 RandomizationDlg::~RandomizationDlg()
 {
+    wxLogMessage("Close RandomizationDlg");
 }
 
 void RandomizationDlg::CreateControls()
@@ -464,6 +464,7 @@ void RandomizationDlg::OnClose( wxCloseEvent& event )
 
 void RandomizationDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RandomizationDlg::OnOkClick");
 	//wxRect rcClient = GetClientRect();
 	//CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
 	panel->RunRandomTrials();

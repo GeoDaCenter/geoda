@@ -20,16 +20,18 @@
 
 
 #include <fstream>
+
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
+
 #include <cpl_error.h>
 #include <cpl_conv.h>
 
 #include "../GenUtils.h"
-#include "../logger.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "LocaleSetupDlg.h"
@@ -47,6 +49,8 @@ LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
                      const wxPoint& pos,
                      const wxSize& size )
 {
+    wxLogMessage("Open LocaleSetupDlg.");
+    
     need_reopen = need_reopen_flag;
     
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_LOCALE_SETUP_DLG");
@@ -68,6 +72,8 @@ LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
 
 void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
 {
+    wxLogMessage("Click LocaleSetupDlg::OnResetSysLocale");
+    
     setlocale(LC_ALL, "");
     struct lconv *poLconv = localeconv();
     CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
@@ -92,6 +98,8 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
 
 void LocaleSetupDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click LocaleSetupDlg::OnOkClick");
+    
     wxString thousands_sep = m_txt_thousands->GetValue();
     wxString decimal_point = m_txt_decimal->GetValue();
     

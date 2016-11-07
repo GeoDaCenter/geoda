@@ -167,7 +167,6 @@
 #include <wx/xrc/xh_auitoolb.h>
 
 
-
 // The following is defined in rc/GdaAppResouces.cpp.  This file was
 // compiled with:
 /*
@@ -182,7 +181,7 @@ const int ID_TEST_MAP_FRAME = wxID_HIGHEST + 10;
 
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : checker(0), server(0)
+GdaApp::GdaApp() : checker(0), server(0), m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -192,18 +191,36 @@ GdaApp::GdaApp() : checker(0), server(0)
 GdaApp::~GdaApp()
 {
 	if (server) delete server; server = 0;
+    
+    wxLog::SetActiveTarget(NULL);
+    if (m_pLogFile != NULL){
+        fclose(m_pLogFile);
+    }
 }
 
 #include "rc/GeoDaIcon-16x16.xpm"
 
 bool GdaApp::OnInit(void)
 {
-	if (!wxApp::OnInit()) return false;
+	if (!wxApp::OnInit())
+        return false;
 
+    // Setup Logger
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxFileName exeFile(exePath);
+    wxString exeDir = exeFile.GetPathWithSep();
+    wxString loggerFile = exeDir + "logger.txt";
+    
+    if (m_pLogFile == NULL) {
+        m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
+        wxLog::SetActiveTarget(new wxLogStderr(m_pLogFile));
+    }
+    wxLog::EnableLogging(true);
+    wxLog::DisableTimestamp();
+    wxLogMessage("Test");
+    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
-   
-    
     
 	if (!GeneralWxUtils::isMac()) {
 		// GeoDa operates in single-instance mode.  This means that for
@@ -278,8 +295,7 @@ bool GdaApp::OnInit(void)
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
 	// issue #15331 for more details.
-	wxLog::SetLogLevel(0);
-    
+   
     //wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
     
 	GdaConst::init();
@@ -296,6 +312,7 @@ bool GdaApp::OnInit(void)
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
 	
     // Create the memory files
+    /*
     wxMemoryFSHandler::AddFile("logo.png", 
 							   wxBitmap(GeoDaIcon_16x16_xpm), wxBITMAP_TYPE_PNG);
     wxMemoryFSHandler::AddFile("page1.htm",
@@ -310,7 +327,7 @@ bool GdaApp::OnInit(void)
 							   "</head><body><h1>Page 2</h1>"
 							   "<p><a href='memory:page1.htm'>Page 1</a> was better.</p></body>");
     wxMemoryFSHandler::AddFile("test.css", "h1 {color: red;}");
-	
+	*/
 	
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	

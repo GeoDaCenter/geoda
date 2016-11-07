@@ -22,6 +22,8 @@
 #include <math.h>
 #include <map>
 #include <stdlib.h>
+
+#include <wx/wx.h>
 #include <wx/image.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/clipbrd.h>
@@ -52,7 +54,6 @@
 #include "GdaConst.h"
 #include "GenUtils.h"
 #include "GenGeomAlgs.h"
-#include "logger.h"
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "GdaConst.h"

@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 #include <queue>
+
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -43,7 +45,6 @@
 
 
 #include "../version.h"
-#include "../logger.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaException.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -254,14 +255,14 @@ wxString AutoUpdate::GetCheckList()
 
 AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
                              bool showSkip,
-                       wxWindowID id,
-                       const wxString& title,
-                       const wxPoint& pos,
-                       const wxSize& size )
+                             wxWindowID id,
+                             const wxString& title,
+                             const wxPoint& pos,
+                             const wxSize& size )
 : wxDialog(parent, id, title, pos, size)
 {
     
-    LOG_MSG("Entering AutoUpdateDlg::AutoUpdateDlg(..)");
+    wxLogMessage("Open AutoUpdateDlg:");
    
     // check update, suppose CheckUpdate() return true
     checklist = AutoUpdate::GetCheckList();
@@ -320,8 +321,6 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnOkClick), NULL, this);
     btn_cancel->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnCancelClick), NULL, this);
-                        
-    LOG_MSG("Exiting AutoUpdateDlg::AutoUpdateDlg(..)");
 }
 
 
@@ -406,19 +405,21 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
    
     if (success) {
         wxMessageDialog msgDlg(this,
-                               "Please restart GeoDa to finish installing updates.",
-                               "Update GeoDa completed",
+                               _("Please restart GeoDa to finish installing updates."),
+                               _("Update GeoDa completed"),
                                wxOK |wxICON_INFORMATION);
         msgDlg.ShowModal();
         EndDialog(wxID_OK);
     } else {
         // raise warning message
         wxMessageDialog msgDlg(this,
-                               "Please check your network connection, or contact GeoDa support team.",
-                               "Update GeoDa failed",
+                               _("Please check your network connection, or contact GeoDa support team."),
+                               _("Update GeoDa failed"),
                                wxOK |wxICON_ERROR);
         msgDlg.ShowModal();
     }
+    
+    wxLogMessage("Close AutoUpdateDlg");
 }
 
 void AutoUpdateDlg::OnCancelClick( wxCommandEvent& event )

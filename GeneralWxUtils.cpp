@@ -23,7 +23,6 @@
 #include <wx/platinfo.h>
 #include <wx/log.h>
 #include <wx/window.h>
-#include "logger.h"
 
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {

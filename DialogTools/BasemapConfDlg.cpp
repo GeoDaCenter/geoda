@@ -20,6 +20,7 @@
 
 
 #include <string>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -29,7 +30,6 @@
 #include "../Project.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 
-#include "../logger.h"
 #include "BasemapConfDlg.h"
 
 
@@ -45,7 +45,7 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
                        const wxSize& size )
 {
     
-    LOG_MSG("Entering BasemapConfDlg::BasemapConfDlg(..)");
+    wxLogMessage("Open BasemapConfDlg.");
     p = _p;
     
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_BASEMAP_CONF_DLG");
@@ -57,12 +57,13 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
     SetParent(parent);
     SetPosition(pos);
     Centre();
-    LOG_MSG("Exiting BasemapConfDlg::BasemapConfDlg(..)");
 }
 
 
 void BasemapConfDlg::OnOkClick( wxCommandEvent& event )
 {
+     wxLogMessage("BasemapConfDlg: Click OK Button.");
+    
     std::string nokia_uname(m_txt_nokia_uname->GetValue().Trim().mb_str());
     std::string nokia_key(m_txt_nokia_key->GetValue().Trim().mb_str());
     
@@ -76,6 +77,8 @@ void BasemapConfDlg::OnOkClick( wxCommandEvent& event )
 
 void BasemapConfDlg::OnResetClick( wxCommandEvent& event )
 {
+    wxLogMessage("BasemapConfDlg: Click Reset Button.");
+    
     std::string nokia_uname = "oRnRceLPyM8OFQQA5LYH";
     std::string nokia_key = "uEt3wtyghaTfPdDHdOsEGQ";
     

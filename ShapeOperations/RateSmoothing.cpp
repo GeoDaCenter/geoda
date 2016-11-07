@@ -20,7 +20,6 @@
 #include <math.h>
 #include "GalWeight.h"
 #include "RateSmoothing.h"
-#include "../logger.h"
 
 bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 								  const double* E, double* results,

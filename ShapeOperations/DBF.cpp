@@ -21,7 +21,6 @@
 #include <iomanip>
 #include "DBF.h"
 #include <wx/msgdlg.h>
-#include "../logger.h"
 #include "../GenUtils.h"
 
 DBF_field::DBF_field(const char* buf)
@@ -59,21 +58,16 @@ void DBF_field::MakeBuffer(char *buf)
 DBF::DBF(const wxString& fname, DBF_descr *ptr, const long nr, const int nf)
 	: NumOfFields(nf), NumOfRecords(nr), Field(ptr), record(1), pos(-1)
 {
-	LOG_MSG("Entering DBF::DBF, v1");
 	fn = GenUtils::swapExtension(fname, "dbf");
-	LOG_MSG("Exiting DBF::DBF, v1");
 }
 
 DBF::DBF(const wxString& fname, const wxString& dir)
 	: record(1), pos(0), Field(NULL)
 {
-	LOG_MSG("Entering DBF::DBF, v2");
 	fn = GenUtils::swapExtension(fname, "dbf");
-	LOG_MSG("Exiting DBF::DBF, v2");	
 }
 
 DBF::~DBF()  {
-	LOG_MSG("Entering DBF::~DBF");	
 	int cp= 0;
 	/*
 	 if (Field) {
@@ -83,7 +77,6 @@ DBF::~DBF()  {
 	 Field= NULL;
 	 };
 	 */
-	LOG_MSG("Exiting DBF::~DBF");	
 }
 
 DBF_descr* DBF::InitField(const wxString& nme, int ncols)
@@ -99,9 +92,6 @@ iDBF::iDBF(const wxString& fname, const wxString& dir)
 	: std::ifstream(),
 	DBF(fname, dir)  
 {
-	LOG_MSG("Entering iDBF::iDBF");
-	LOG(dir);
-	LOG(fname);
 	char sym;
 	char buffer[32];
 	int cp, maxfield= 19, HeaderSz= 0, RecordLength= 0;
@@ -110,7 +100,6 @@ iDBF::iDBF(const wxString& fname, const wxString& dir)
 	if (fail())	{
 		wxString msg("iDBF::iDBF Error: wasn't able to open DBF file: ");
 		msg << fname;
-		LOG_MSG(msg);
 		connectedToFile = false;
 		return;
 	}
@@ -145,35 +134,28 @@ iDBF::iDBF(const wxString& fname, const wxString& dir)
 	if (sym == '\x0D') get(sym);
 	// buf= new char[maxfield+1];
 	// buf= new char[512];
-	LOG_MSG("Exiting iDBF::iDBF");
 }
 
 iDBF::~iDBF()  
 {
-	LOG_MSG("Entering iDBF::~iDBF");	
 	
 	if (Field) {
-		LOG_MSG("iDBF::~iDBF: deleting DBF_field items in Field array");
 		for (int i=0; i<NumOfFields;i++) {
 			if (Field[i]) delete Field[i]; // deleting DBF_field items in Field array.
 			Field[i] = NULL;
 		}
 		delete [] Field;
 		Field = NULL;
-		LOG_MSG("iDBF::~iDBF: deleting Field array");
 	}
 	
 	if (is_open()) {
-		LOG_MSG("iDBF::~iDBF: file still open, calling close()");
 		close();
 	}
 	
-	LOG_MSG("Exiting iDBF::~iDBF");
 };
 
 bool iDBF::ReOpen()
 {
-	LOG_MSG("Entering iDBF::ReOpen");
 
 	if (is_open()) close();
 	
@@ -220,8 +202,7 @@ bool iDBF::ReOpen()
 	//  buf= new char[maxfield+1];
 	//buf= new char[512];
 	
-	LOG_MSG("Exiting iDBF::ReOpen");
-	return 1;	
+	return 1;
 }
 
 int iDBF::prefix() 
@@ -306,8 +287,6 @@ void iDBF::Read(char *v, const int &len)
  If such sequence is not found, returns -1.
   */
 int iDBF::FindField(const wxString& nme) {
-	LOG_MSG("Entering iDBF::FindField");
-	LOG(nme);
 	int cp = -1;
 	for (cp= 0; cp < NumOfFields; cp++)
 		if ( nme == wxString(Field[cp]->Name, wxConvUTF8) ) break;
@@ -315,9 +294,7 @@ int iDBF::FindField(const wxString& nme) {
 		cp = -1;
 		wxString msg(nme);
 		msg += " not found. Returning -1.";
-		LOG(msg);
 	}
-	LOG_MSG("Exiting iDBF::FindField");
 	return cp;
 }
 
@@ -383,7 +360,6 @@ int iDBF::GetIndexField(const wxString& st)
 
 bool iDBF::GetDblDataArray(const wxString& fieldname, double* dt) 
 {
-	LOG_MSG("Entering iDBF::GetDblDataArray");
 	
 	int rows = NumOfRecords;
 	int fld = FindField(fieldname);
@@ -421,7 +397,6 @@ bool iDBF::GetDblDataArray(const wxString& fieldname, double* dt)
 		}
 	}
 	
-	LOG_MSG("Exiting iDBF::GetDblDataArray");
 	return 1;
 }
 

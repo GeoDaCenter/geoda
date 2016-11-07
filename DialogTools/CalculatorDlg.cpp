@@ -35,7 +35,6 @@
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../GeoDa.h"
-#include "../logger.h"
 #include "../Project.h"
 #include "CalculatorDlg.h"
 
@@ -236,7 +235,6 @@ all_init(false)
 
 CalculatorDlg::~CalculatorDlg()
 {
-	LOG_MSG("In ~CalculatorDlg::CalculatorDlg");
 	if (table_state) table_state->removeObserver(this);
 }
 
@@ -277,7 +275,6 @@ wxString CalculatorDlg::h_title(const wxString& title, int level)
 
 void CalculatorDlg::OnFuncHelpSel(wxTreeEvent& ev)
 {
-	LOG_MSG("In CalculatorDlg::OnFuncHelpSel");
 	if (!all_init) return;
 	
 	wxString s;
@@ -416,7 +413,6 @@ void CalculatorDlg::OnFuncHelpSel(wxTreeEvent& ev)
 
 void CalculatorDlg::OnFuncHelpDClick(wxTreeEvent& ev)
 {
-	LOG_MSG("In CalculatorDlg::OnFuncHelpDClick");
 	if (!all_init) return;
 }
 
@@ -466,7 +462,6 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 		table_int->GetColData(col, (*val));
 		full_parser_table[*it] = val;
 		size_t val_obs = (*val).GetObs();
-		LOG(val_obs);
 	}
 	
 	GdaParser parser;
@@ -503,9 +498,7 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 	}
 	size_t V_sz = V.size();
 	double V_first = V[0];
-	LOG(V_tms);
-	LOG(V_obs);
-	LOG(V_first);
+
 	size_t obs = table_int->GetNumberRows();
 	
 	if (assign) {
@@ -616,7 +609,6 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 
 void CalculatorDlg::ConnectToProject(Project* project_)
 {
-	LOG_MSG("In CalculatorDlg::ConnectToProject");
 	project = project_;
 	table_state = project->GetTableState();
 	table_state->registerObserver(this);
@@ -629,7 +621,6 @@ void CalculatorDlg::ConnectToProject(Project* project_)
 
 void CalculatorDlg::DisconnectFromProject()
 {
-	LOG_MSG("In CalculatorDlg::DisconnectFromProject");
 	project = 0;
 	if (table_state) table_state->removeObserver(this);
 	table_state = 0;

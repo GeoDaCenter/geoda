@@ -34,7 +34,6 @@
 #include "../DialogTools/CatClassifDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
@@ -67,7 +66,6 @@ cc_state_map(0),
 full_map_redraw_needed(true)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering ConditionalMapCanvas::ConditionalMapCanvas");
 	SetCatType(CatClassification::no_theme);
 	
 	selectable_fill_color = GdaConst::map_default_fill_colour;
@@ -97,14 +95,11 @@ full_map_redraw_needed(true)
 	}
 	
 	all_init = true;
-	LOG_MSG("Exiting ConditionalMapCanvas::ConditionalMapCanvas");
 }
 
 ConditionalMapCanvas::~ConditionalMapCanvas()
 {
-	LOG_MSG("Entering ConditionalMapCanvas::~ConditionalMapCanvas");
 	if (cc_state_map) cc_state_map->removeObserver(this);
-	LOG_MSG("Exiting ConditionalMapCanvas::~ConditionalMapCanvas");
 }
 
 void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -147,7 +142,6 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting ConditionalMapCanvas::DisplayRightClickMenu");
 }
 
 /**
@@ -1096,7 +1090,6 @@ ConditionalMapLegend::ConditionalMapLegend(wxWindow *parent,
 
 ConditionalMapLegend::~ConditionalMapLegend()
 {
-    LOG_MSG("In ConditionalMapLegend::~ConditionalMapLegend");
 }
 
 
@@ -1113,12 +1106,9 @@ ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style)
 {
-	LOG_MSG("Entering ConditionalMapFrame::ConditionalMapFrame");
-
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
+
 		
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,
@@ -1153,12 +1143,10 @@ ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
     SetAutoLayout(true);
     DisplayStatusBar(true);
 	Show(true);
-	LOG_MSG("Exiting ConditionalMapFrame::ConditionalMapFrame");
 }
 
 ConditionalMapFrame::~ConditionalMapFrame()
 {
-	LOG_MSG("In ConditionalMapFrame::~ConditionalMapFrame");
 	DeregisterAsActive();
 }
 

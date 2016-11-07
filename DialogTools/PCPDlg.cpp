@@ -18,10 +18,11 @@
  */
 
 #include <set>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
+
 #include "../DataViewer/TableInterface.h"
-#include "../logger.h"
 #include "../Project.h"
 #include "PCPDlg.h"
 
@@ -43,6 +44,8 @@ PCPDlg::PCPDlg(Project* project_s, wxWindow* parent,
 			   const wxSize& size, long style )
 : project(project_s), table_int(project_s->GetTableInt())
 {
+    wxLogMessage("Open PCPDlg.");
+    
 	SetParent(parent);
 	CreateControls();
 	Init();
@@ -87,6 +90,7 @@ void PCPDlg::Init()
 
 void PCPDlg::OnIncAllClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnIncAllClick");
 	for (int i=0, iend=m_exclude_list->GetCount(); i<iend; i++) {
 		m_include_list->Append(m_exclude_list->GetString(i));
 	}
@@ -97,6 +101,7 @@ void PCPDlg::OnIncAllClick( wxCommandEvent& ev)
 
 void PCPDlg::OnIncOneClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnIncOneClick");
 	if (m_exclude_list->GetSelection() >= 0) {
 		wxString k = m_exclude_list->GetString(m_exclude_list->GetSelection());
 		m_include_list->Append(k);
@@ -107,11 +112,13 @@ void PCPDlg::OnIncOneClick( wxCommandEvent& ev)
 
 void PCPDlg::OnIncListDClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnIncListDClick");
 	OnExclOneClick(ev);
 }
 
 void PCPDlg::OnExclAllClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnExclAllClick");
 	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
 		m_exclude_list->Append(m_include_list->GetString(i));
 	}
@@ -121,6 +128,7 @@ void PCPDlg::OnExclAllClick( wxCommandEvent& ev)
 
 void PCPDlg::OnExclOneClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnExclOneClick");
 	if (m_include_list->GetSelection() >= 0) {
 		m_exclude_list->
 		Append(m_include_list->GetString(m_include_list->GetSelection()));
@@ -131,11 +139,14 @@ void PCPDlg::OnExclOneClick( wxCommandEvent& ev)
 
 void PCPDlg::OnExclListDClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnExclListDClick");
 	OnIncOneClick(ev);
 }
 
 void PCPDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click PCPDlg::OnOkClick");
+    
 	int n_pcp_obs_sel = m_include_list->GetCount();
 	
 	col_ids.resize(m_include_list->GetCount());
@@ -169,6 +180,8 @@ void PCPDlg::OnOkClick( wxCommandEvent& event )
 
 void PCPDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click PCPDlg::OnCancelClick");
+    
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 
@@ -176,5 +189,7 @@ void PCPDlg::OnCancelClick( wxCommandEvent& event )
 
 void PCPDlg::UpdateOkButton()
 {
+    wxLogMessage("Click PCPDlg::UpdateOkButton");
+    
 	FindWindow(XRCID("wxID_OK"))->Enable(m_include_list->GetCount() >= 2);
 }

@@ -31,25 +31,24 @@ BEGIN_EVENT_TABLE( AdjustYAxisDlg, wxDialog )
     EVT_BUTTON( wxID_CANCEL, AdjustYAxisDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-AdjustYAxisDlg::AdjustYAxisDlg( double min_val_s,
-								 double max_val_s,
-								 wxWindow* parent,
-								 wxWindowID id,
-								 const wxString& caption,
-								 const wxPoint& pos, const wxSize& size,
-								 long style )
+AdjustYAxisDlg::AdjustYAxisDlg(double min_val_s,
+                               double max_val_s,
+                               wxWindow* parent,
+                               wxWindowID id,
+                               const wxString& caption,
+                               const wxPoint& pos, const wxSize& size,
+                               long style )
 : o_min_val(min_val_s), o_max_val(max_val_s)
 {
     
-    LOG_MSG("Entering AdjustYAxisDlg::AdjustYAxisDlg(..)");
+    wxLogMessage(wxString::Format("AdjustYAxisDlg with new min_val %s and max_val %s", min_val_s, max_val_s));
+    
     s_min_val << min_val_s;
     s_max_val << max_val_s;
     
 	SetParent(parent);
     CreateControls();
     Centre();
-    
-    LOG_MSG("Exiting AdjustYAxisDlg::AdjustYAxisDlg(..)");
 }
 
 void AdjustYAxisDlg::CreateControls()
@@ -132,6 +131,8 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
                                              const wxSize& size,
                                              long style)
 {
+    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %s.", precision_s));
+    
     precision = precision_s;
     
     SetParent(parent);

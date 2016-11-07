@@ -166,7 +166,7 @@ basemap_bm(0),
 map_bm(0)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering MapCanvas::MapCanvas");
+	wxLogMessage("Entering MapCanvas::MapCanvas");
 	
 	cat_classif_def.cat_classif_type = theme_type;
 	if (theme_type == CatClassification::no_theme) {

@@ -66,7 +66,6 @@ WeightsManPtree* WeightsManPtree::Clone()
 void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								const wxString& proj_path)
 {
-	LOG_MSG("Entering WeightsManPtree::ReadPtree");
 	using boost::property_tree::ptree;
 	using namespace std;
 	weights_list.clear();
@@ -233,8 +232,6 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
-	
-	LOG_MSG("Exiting WeightsManPtree::ReadPtree");
 }
 
 void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,

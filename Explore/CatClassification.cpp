@@ -1196,7 +1196,6 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 												   TableInterface* table_int)
 {
-	LOG_MSG("Entering CatClassification::CorrectCatClassifFromTable");
 	if (!table_int)
         return false;
     
@@ -1373,7 +1372,6 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		_cc = cc;
 		changed = true;
 	}
-	LOG_MSG("Exiting CatClassification::CorrectCatClassifFromTable");
 	return changed;
 }
 

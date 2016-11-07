@@ -27,7 +27,6 @@
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
 #include "GdaConst.h"
-#include "logger.h"
 #include "GenUtils.h"
 
 using namespace std;
@@ -511,7 +510,6 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 												 double meanX, double meanY,
 												 double varX, double varY)
 {
-	LOG_MSG("Entering SimpleLinearRegression::CalculateRegression");
     n = X.size();
 	if (X.size() != Y.size() || X.size() < 2 )
         return;
@@ -571,7 +569,6 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		correlation = covariance / d;
 		valid_correlation = true;
 	}
-	LOG_MSG("Exiting SimpleLinearRegression::CalculateRegression");
 }
 
 double SimpleLinearRegression::TScoreTo2SidedPValue(double tscore, int df)
@@ -813,13 +810,11 @@ void GenUtils::DeviationFromMean(int nObs, double* data, std::vector<bool>& unde
 
 void GenUtils::DeviationFromMean(std::vector<double>& data)
 {
-	LOG_MSG("Entering GenUtils::DeviationFromMean");
 	if (data.size() == 0) return;
 	double sum = 0.0;
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
 	const double mean = sum / (double) data.size();
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
-	LOG_MSG("Exiting GenUtils::DeviationFromMean");
 }
 
 bool GenUtils::StandardizeData(int nObs, double* data)
@@ -862,7 +857,6 @@ bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
 
 bool GenUtils::StandardizeData(std::vector<double>& data)
 {
-	LOG_MSG("Entering GenUtils::StandardizeData");
 	if (data.size() <= 1) return false;
 	GenUtils::DeviationFromMean(data);
 	double ssum = 0.0;
@@ -870,7 +864,6 @@ bool GenUtils::StandardizeData(std::vector<double>& data)
 	const double sd = sqrt(ssum / (double) (data.size()-1.0));
 	if (sd == 0) return false;
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] /= sd;
-	LOG_MSG("Exiting GenUtils::StandardizeData");
 	return true;
 }
 
@@ -923,7 +916,6 @@ wxString GenUtils::GetFileExt(const wxString& path)
 
 wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 {
-	LOG_MSG("In GenUtils::RestorePath");
 	wxFileName path_fn(path);
 	if (path_fn.IsAbsolute()) return path;
 	if (!path_fn.IsOk()) return path;
@@ -946,23 +938,18 @@ wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 
 wxString GenUtils::SimplifyPath(const wxString& proj_path, const wxString& path)
 {
-	LOG_MSG("Entering GenUtils::SimplifyPath(const wxString&, "
-			"const wxString&");
-	wxFileName wd; 
+	wxFileName wd;
         wxFileName proj_path_fn(proj_path); 
 	if (proj_path_fn.GetExt().IsEmpty()) {
 		wd.AssignDir(proj_path);
 	} else {
 		wd.AssignDir(proj_path_fn.GetPath());
 	}
-	LOG_MSG("Exiting GenUtils::SimplifyPath");
 	return GenUtils::SimplifyPath(wd, path);
 }
 
 wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 {
-	LOG_MSG("Entering GenUtils::SimplifyPath(const wxFileName&, "
-			"const wxString&)");
     wxFileName path_fn(path);
 	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute() ||
 		path_fn.IsRelative()) return path;
@@ -985,7 +972,6 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 		}
 		return p.GetFullPath();
 	}
-	LOG_MSG("Exiting GenUtils::SimplifyPath");
 	return path;
 }
 

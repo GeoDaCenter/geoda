@@ -26,7 +26,6 @@
 #endif
 
 #include <wx/gauge.h>
-#include "../logger.h"
 #include "../ShapeOperations/GalWeight.h"
 
 #include "mix.h"
@@ -41,9 +40,9 @@ extern double fprob (int dfnum, int dfden, double F);
 extern double* JarqueBera(double* e, long n, long k);
 
 void Compute_MoranI(GalElement* g,
-												double *resid,
-												int dim,
-												double* rst);
+                    double *resid,
+                    int dim,
+                    double* rst);
 void Compute_RSLmError(GalElement* g,
 					   double *resid,
 					   int dim,
@@ -903,8 +902,6 @@ bool spatialLagRegression(GalElement *g,
 						  bool InclConstant,
 						  wxGauge* p_bar)  
 {
-	LOG_MSG("Entering spatialLagRegression, GalElement*");
-
 	typedef double* double_ptr_type;
 	const int n = dim;
 	DenseVector		y(Y, dim, false), *x = new DenseVector[deps];
@@ -1138,7 +1135,6 @@ bool spatialLagRegression(GalElement *g,
 	 dr->SetWaldTest(2,gammp((k-1)/2.0,w/2.0));
 	 */
 	
-	LOG_MSG("Exiting spatialLagRegression");
 	return true;
 }
 

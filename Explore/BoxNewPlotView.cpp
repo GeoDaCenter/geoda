@@ -76,13 +76,13 @@ vert_axis(0), display_stats(false), show_axes(true),
 hinge_15(true)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering BoxPlotCanvas::BoxPlotCanvas");
+	wxLogMessage("Open BoxPlotCanvas.");
+    
 	TableInterface* table_int = project->GetTableInt();
     
 	table_int->GetColData(col_ids[0], data[0]);
 	bool has_undef = table_int->GetColUndefined(col_ids[0], data_undef[0]);
 	int data0_times = data[0].shape()[0];
-    
     
 	sel_scratch.resize(num_obs);
 	hinge_stats.resize(data0_times);
@@ -146,19 +146,16 @@ hinge_15(true)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting BoxPlotCanvas::BoxPlotCanvas");
 }
 
 BoxPlotCanvas::~BoxPlotCanvas()
 {
-	LOG_MSG("Entering BoxPlotCanvas::~BoxPlotCanvas");
+	wxLogMessage("Close BoxPlotCanvas.");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting BoxPlotCanvas::~BoxPlotCanvas");
 }
 
 void BoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering BoxPlotCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((BoxPlotFrame*) template_frame)->OnActivate(ae);
@@ -172,7 +169,6 @@ void BoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting BoxPlotCanvas::DisplayRightClickMenu");
 }
 
 void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -299,7 +295,6 @@ void BoxPlotCanvas::DetermineMouseHoverObjects(wxPoint pt)
 // all GdaShape selectable objects.
 void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
-	//LOG_MSG("Entering BoxPlotCanvas::UpdateSelectionPoints");
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
 	
@@ -349,7 +344,6 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
-	//LOG_MSG("Exiting BoxPlotCanvas::UpdateSelectionPoints");
 }
 
 void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -444,8 +438,6 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void BoxPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering BoxPlotCanvas::update");
-	
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -453,7 +445,6 @@ void BoxPlotCanvas::update(HLStateInt* o)
 	Refresh();
     
     UpdateStatusBar();
-	LOG_MSG("Entering BoxPlotCanvas::update");	
 }
 
 wxString BoxPlotCanvas::GetCanvasTitle()
@@ -752,13 +743,10 @@ void BoxPlotCanvas::PopulateCanvas()
 	}
 	
 	ResizeSelectableShps();
-
-	LOG_MSG("Exiting BoxPlotCanvas::PopulateCanvas");
 }
 
 void BoxPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering BoxPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	var_info[0].time = project->GetTimeState()->GetCurrTime();
@@ -777,7 +765,6 @@ void BoxPlotCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting BoxPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -806,7 +793,6 @@ void BoxPlotCanvas::VarInfoAttributeChange()
 
 void BoxPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In BoxPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -815,7 +801,6 @@ void BoxPlotCanvas::TimeSyncVariableToggle(int var_index)
 
 void BoxPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In BoxPlotCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -968,8 +953,6 @@ BoxPlotFrame::BoxPlotFrame(wxFrame *parent, Project* project,
 								 const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering BoxPlotFrame::BoxPlotFrame");
-	
 	int width, height;
 	GetClientSize(&width, &height);
 	
@@ -983,19 +966,16 @@ BoxPlotFrame::BoxPlotFrame(wxFrame *parent, Project* project,
 	SetTitle(template_canvas->GetCanvasTitle());
 		
 	Show(true);
-	LOG_MSG("Exiting BoxPlotFrame::BoxPlotFrame");
 }
 
 BoxPlotFrame::~BoxPlotFrame()
 {
-	LOG_MSG("In BoxPlotFrame::~BoxPlotFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 
 void BoxPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In BoxPlotFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("BoxPlotFrame", GetTitle());
 	}
@@ -1004,7 +984,6 @@ void BoxPlotFrame::OnActivate(wxActivateEvent& event)
 
 void BoxPlotFrame::MapMenus()
 {
-	LOG_MSG("In BoxPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1022,8 +1001,6 @@ void BoxPlotFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("BoxPlotFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((BoxPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1042,14 +1019,13 @@ void BoxPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void BoxPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In BoxPlotFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
 
 void BoxPlotFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In BoxPlotFrame::OnShowAxes");
+	wxLogMessage("In BoxPlotFrame::OnShowAxes");
 	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -1057,7 +1033,7 @@ void BoxPlotFrame::OnShowAxes(wxCommandEvent& event)
 
 void BoxPlotFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In BoxPlotFrame::OnDisplayStatistics");
+	wxLogMessage("In BoxPlotFrame::OnDisplayStatistics");
 	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -1065,6 +1041,8 @@ void BoxPlotFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void BoxPlotFrame::OnHinge15(wxCommandEvent& event)
 {
+    wxLogMessage("In BoxPlotFrame::OnHinge15");
+
 	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->Hinge15();
 	UpdateOptionMenuItems();
@@ -1073,6 +1051,8 @@ void BoxPlotFrame::OnHinge15(wxCommandEvent& event)
 
 void BoxPlotFrame::OnHinge30(wxCommandEvent& event)
 {
+    wxLogMessage("In BoxPlotFrame::OnHinge30");
+
 	BoxPlotCanvas* t = (BoxPlotCanvas*) template_canvas;
 	t->Hinge30();
 	UpdateOptionMenuItems();

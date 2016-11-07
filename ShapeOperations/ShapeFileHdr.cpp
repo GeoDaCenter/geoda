@@ -20,7 +20,6 @@
 #include "ShapeFileHdr.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../logger.h"
 
 #ifndef GDA_SWAP
 #define GDA_SWAP(x, y, t) ((t) = (x), (x) = (y), (y) = (t))
@@ -34,26 +33,21 @@ ShapeFileHdr::ShapeFileHdr(const ShapeFileTypes::ShapeType FileShape)
 
 ShapeFileHdr::ShapeFileHdr(const char* s)
 {
-    LOG_MSG("Entering ShapeFileHdr::ShapeFileHdr(const char* s)");
     //MMM: very dangerous.  This is where the problems begin
     // on 64 bit builds!
 
 	HdrRecord *hr= (HdrRecord *) s;
 #ifdef WORDS_BIGENDIAN
 	FileCode = hr->f[0];
-        LOG_MSG("WORDS_BIGENDIAN defined");
 #else
-        LOG_MSG("WORDS_BIGENDIAN not defined");
 	FileCode = GenUtils::Reverse(hr->f[0]);
 #endif
 #ifdef WORDS_BIGENDIAN
 	FileLength = hr->f[6];
 #else
 	FileLength = GenUtils::Reverse(hr->f[6]);
-        LOG(FileLength);
         HdrRecord64 *hr64=(HdrRecord64 *) s;
         wxInt32 x = GenUtils::ReverseInt(hr64->f[6]);
-        LOG(x);
 #endif
 #ifdef WORDS_BIGENDIAN
 	Version = GenUtils::Reverse(hr->f[7]);
@@ -97,7 +91,6 @@ ShapeFileHdr::ShapeFileHdr(const char* s)
 	memcpy(&FileBox, &s[36], sizeof(double)*4);
 	hr->b = FileBox;
 #endif
-    LOG_MSG("Exiting ShapeFileHdr::ShapeFileHdr(const char* s)");
 }
 
 void ShapeFileHdr::SetFileBox(const Box& fBox) 
@@ -118,7 +111,6 @@ void ShapeFileHdr::SetFileLength(wxInt32 fl)
 
 void ShapeFileHdr::MakeBuffer(char* s) const
 {
-	LOG_MSG("Entering ShapeFileHdr::MakeBuffer");
 	HdrRecord * hr= (HdrRecord *) s;
 	
 	wxInt32 *ptr= (wxInt32 *) s;
@@ -157,7 +149,6 @@ void ShapeFileHdr::MakeBuffer(char* s) const
 	hr->b = FileBox;
 	memcpy(&s[36], &hr->b, sizeof(double)*4);
 #endif
-	LOG_MSG("Exiting ShapeFileHdr::MakeBuffer");		
 }
 
 void ShapeFileHdr::Replace (const wxString& fname, const wxInt32& recs)  

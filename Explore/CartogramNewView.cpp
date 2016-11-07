@@ -32,7 +32,6 @@
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -63,8 +62,6 @@ DorlingCartWorkerThread::~DorlingCartWorkerThread()
 
 wxThread::ExitCode DorlingCartWorkerThread::Entry()
 {
-	LOG_MSG(wxString::Format("DorlingCartWorkerThread %d started", thread_id));
-	
 	// improve by given number iterations
 	cart->improve(iters);
 	
@@ -848,9 +845,7 @@ void CartogramNewCanvas::UpdateStatusBar()
 void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 {
 	if (max_iters == 0 || max_seconds <= 0) return;
-	
-	LOG_MSG(wxString::Format("%d threading cores detected", num_cpus));
-	
+
 	// must decide on work-batch units for available CPUs.
 	// if num_time_periods <= nCPUs then each cpu gets one job
 	// otherwise, we have to spawn multiple rounds of multiple threads
@@ -860,12 +855,9 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 	// iters so that max_seconds is approximately respected.
 	// report actual elapsed time.
 	
-	LOG(EstItersGivenTime(max_seconds));
 	int update_rounds = 1; // do one round of batches by default
 	int iters = GenUtils::min<int>(max_iters, EstItersGivenTime(max_seconds));
 	int est_secs = EstSecondsGivenIters(iters);
-	LOG(est_secs);
-	LOG(iters);
 	int num_batches = GetNumBatches();
 	if (realtime_updates && est_secs > 2) {
 		// break up iters into multiple rounds if total time estimate is
@@ -879,17 +871,11 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 			iters = 1/(secs_per_iter* ((double) num_batches));
 		}
 	}
-	LOG(update_rounds);
-	LOG(iters);
 	for (int r=0; r<update_rounds; r++) {
-		LOG_MSG(wxString::Format("update round %d of %d", r+1, update_rounds));
 		int num_carts_rem = GetCurNumCartTms();
 		int crt_min_tm = var_info[RAD_VAR].time_min;		
 		for (int i=0; i<num_batches && num_carts_rem > 0; i++) {
-			LOG_MSG(wxString::Format("batch %d of %d:", i+1, num_batches));
 			int num_in_batch = GenUtils::min<int>(num_cpus, num_carts_rem);
-			LOG_MSG(wxString::Format("  improving carts %d to %d",
-									 crt_min_tm, crt_min_tm + (num_in_batch-1)));
 		
 			if (num_in_batch > 1) {
 				// mutext protects access to the worker_list
@@ -903,16 +889,14 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 				list<wxThread*> worker_list;
 				int thread_id = 0;
 				for (int t=crt_min_tm; t<crt_min_tm+num_in_batch; t++) {
-					LOG_MSG(wxString::Format("    creating thread for cart %d",
-											 t)); 
+					
 					DorlingCartWorkerThread* thread =
 						new DorlingCartWorkerThread(iters, carts[t],
 													&worker_list_mutex,
 													&worker_list_empty_cond,
 													&worker_list, thread_id++);
 					if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-						LOG_MSG("Error: Can't create thread, switching to "
-								"single thread mode!");
+						
 						delete thread;
 						num_cpus = 1;
 						ImproveAll(max_seconds, max_iters);
@@ -923,7 +907,6 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 					num_improvement_iters[t] += iters;
 				}
 			
-				LOG_MSG("Starting all worker threads");
 				list<wxThread*>::iterator it;
 				for (it = worker_list.begin(); it != worker_list.end(); it++) {
 					(*it)->Run();
@@ -934,9 +917,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 					worker_list_empty_cond.Wait();
 					// We have been woken up. If this was not a false
 					// alarm (spurious signal), the loop will exit.
-					LOG_MSG("work_list_empty_cond signaled");
 				}
-				LOG_MSG("All worker threads exited");
 			
 			} else {
 				carts[crt_min_tm]->improve(iters);
@@ -1065,8 +1046,6 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
 {
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
 		
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,

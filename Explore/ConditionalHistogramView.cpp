@@ -33,7 +33,6 @@
 #include "../GeneralWxUtils.h"
 #include "../GenGeomAlgs.h"
 #include "../FramesManager.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
@@ -68,7 +67,6 @@ ConditionalHistogramCanvas(wxWindow *parent,
 full_map_redraw_needed(true),
 show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 {
-	LOG_MSG("Entering ConditionalHistogramCanvas::ConditionalHistogramCanvas");
 	
 	int hist_var_tms = data[HIST_VAR].shape()[0];
 	data_stats.resize(hist_var_tms);
@@ -112,12 +110,10 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 	
 	all_init = true;
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConditionalHistogramCanvas::ConditionalHistogramCanvas");
 }
 
 ConditionalHistogramCanvas::~ConditionalHistogramCanvas()
 {
-	LOG_MSG("In ConditionalHistogramCanvas::~ConditionalHistogramCanvas");
 }
 
 void ConditionalHistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -176,7 +172,6 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 {
 	// NOTE: we do not support both fixed_aspect_ratio_mode
 	//    and fit_to_window_mode being false currently.
-	//LOG_MSG("Entering ConditionalHistogramCanvas::ResizeSelectableShps");
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 	if (vs_w <= 0 && vs_h <= 0) GetVirtualSize(&vs_w, &vs_h);
 	
@@ -395,9 +390,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	Refresh();
 	
 	for (int i=0; i<vert_num_cats; i++) delete [] st[i];
-	delete [] st;
-	
-	//LOG_MSG("Exiting ConditionalHistogramCanvas::ResizeSelectableShps");
+	delete [] st;	
 }
 
 void ConditionalHistogramCanvas::PopulateCanvas()
@@ -654,7 +647,6 @@ void ConditionalHistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 
 void ConditionalHistogramCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In ConditionalHistogramCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -681,7 +673,6 @@ void ConditionalHistogramCanvas::HistogramIntervals()
  obs_id_to_sel_shp, ival_obs_cnt and ival_obs_sel_cnt */ 
 void ConditionalHistogramCanvas::InitIntervals()
 {
-	LOG_MSG("Entering ConditionalHistogramCanvas::InitIntervals");
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 		
 	// determine correct ivals for each obs in current time period
@@ -791,7 +782,6 @@ void ConditionalHistogramCanvas::InitIntervals()
 		}
 	}
 	
-	LOG_MSG("Exiting ConditionalHistogramCanvas::InitIntervals");
 }
 
 void ConditionalHistogramCanvas::UpdateIvalSelCnts()
@@ -962,8 +952,6 @@ ConditionalHistogramFrame::ConditionalHistogramFrame(wxFrame *parent,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style)
 {
-	LOG_MSG("Entering ConditionalHistogramFrame::ConditionalHistogramFrame");
-	
 	int width, height;
 	GetClientSize(&width, &height);
 	

@@ -240,7 +240,6 @@ WeightsMetaInfo::SymmetryEnum
 bool WeightsNewManager::Lag(boost::uuids::uuid w_uuid, const GdaFlexValue& data,
 							GdaFlexValue& result)
 {
-	LOG_MSG("In ExampleWeightsMan::Lag");
 	if (!WeightsExists(w_uuid)) {
 		return false;
 	}
@@ -569,9 +568,7 @@ bool GdaWeightsTools::CheckWeightSymmetry(GeoDaWeight* w, ProgressDlg* p_dlg)
 
 bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 {
-	LOG_MSG("Entering GdaWeightsTools::CheckGalSymmetry");
-	
-	int obs = w->num_obs;
+    int obs = w->num_obs;
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GalElement* gal = w->gal;
@@ -592,24 +589,17 @@ bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 			}
 			if (!found) {
 				p_dlg->ValueUpdate(1);
-                /*
-				LOG_MSG(wxString::Format("Non-symmetric GAL file.  Observation "
-										 "%d is a neighbor of %d, but %d is not"
-										 " a neighbor of %d", elm_i[j], i,
-										 i, elm_i[j]));
-                */
+                
 				return false;
 			}
 		}
 	}
 	p_dlg->ValueUpdate(1);
-	LOG_MSG("Exiting GdaWeightsTools::CheckGalSymmetry");
 	return true;
 }
 
 bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 {
-	LOG_MSG("Entering GdaWeightsTools::CheckGwtSymmetry");	
 	int obs = w->num_obs;
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
@@ -637,7 +627,6 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 		}
 	}
 	p_dlg->ValueUpdate(1);
-	LOG_MSG("Exiting GdaWeightsTools::CheckGwtSymmetry");
 	return true;
 }
 
@@ -652,7 +641,6 @@ void GdaWeightsTools::DumpWeight(GeoDaWeight* w)
 
 void GdaWeightsTools::DumpGal(GalWeight* w)
 {
-	LOG_MSG("Entering GdaWeightsTools::DumpGal");
 	GalElement* gal = w->gal;
 	int obs = w->num_obs;
 	for (int i=0; i<obs; i++) {
@@ -663,12 +651,10 @@ void GdaWeightsTools::DumpGal(GalWeight* w)
 			msg << " " << elm_i[j];
 		}
 	}
-	LOG_MSG("Exiting GdaWeightsTools::DumpGal");
 }
 
 void GdaWeightsTools::DumpGwt(GwtWeight* w)
 {
-	LOG_MSG("Entering GdaWeightsTools::DumpGwt");
 	GwtElement* gwt = w->gwt;
 	int obs = w->num_obs;
 	for (int i=0; i<obs; i++) {
@@ -679,6 +665,5 @@ void GdaWeightsTools::DumpGwt(GwtWeight* w)
 			msg << " (" << data_i[j].nbx << ", " << data_i[j].weight << ")";
 		}
 	}
-	LOG_MSG("Exiting GdaWeightsTools::DumpGwt");	
 }
 

@@ -68,6 +68,7 @@ private:
 	wxString cmd_line_proj_file_name;
 	wxSingleInstanceChecker* checker;
 	GdaServer* server;
+    FILE *m_pLogFile;
 };
 
 DECLARE_APP(GdaApp)

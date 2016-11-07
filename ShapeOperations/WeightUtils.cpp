@@ -30,12 +30,10 @@
 #include "../DataViewer/TableInterface.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
-#include "../logger.h"
 #include "WeightUtils.h"
 
 wxString WeightUtils::ReadIdField(const wxString& fname)
 {
-	LOG_MSG("Entering WeightUtils::ReadIdField");
 	using namespace std;
 	wxString ext = GenUtils::GetFileExt(fname).Lower();
 	if (ext != "gal" && ext != "gwt") return "";
@@ -95,14 +93,12 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 	file.clear();
 	if (file.is_open()) file.close();
 	
-	LOG_MSG("Exiting WeightUtils::ReadIdField");
 	return key_field;
 }
 
 GalElement* WeightUtils::ReadGal(const wxString& fname,
 								 TableInterface* table_int)
 {
-	LOG_MSG("Entering WeightUtils::ReadGal");
 	using namespace std;
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
@@ -359,7 +355,6 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 	file.clear();
 	if (file.is_open()) file.close();
 	
-	LOG_MSG("Exiting WeightUtils::ReadGal");
 	return gal;
 }
 
@@ -368,7 +363,6 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 									  TableInterface* table_int)
 {
-	LOG_MSG("Entering WeightUtils::ReadGwtAsGal");
 	using namespace std;
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
@@ -516,10 +510,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
                 id_map[ vec[i] ] = i;
             }
         }
-		//for (int i=0; i<num_obs; i++) {
-		//	LOG_MSG(wxString::Format("id_map[vec[%d]]=%d", (int) vec[i],
-		//							 (int) id_map[vec[i]]));
-		//}
+
 		if (id_map.size() != num_obs) {
 			wxString msg = "Specified key value field \"";
 			msg << key_field << "\" in weights file contains duplicate ";
@@ -607,7 +598,6 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	file.clear();
 	if (file.is_open()) file.close();
 	
-	LOG_MSG("Exiting WeightUtils::ReadGwtAsGal");
 	return gal;
 }
 
@@ -616,7 +606,6 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 								 TableInterface* table_int)
 {
-	LOG_MSG("Entering WeightUtils::ReadGwt");
 	using namespace std;
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
@@ -829,7 +818,6 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	
 	if (file.is_open()) file.close();
 	
-	LOG_MSG("Exiting WeightUtils::ReadGwt");
 	return gwt;
 }
 

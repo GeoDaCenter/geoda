@@ -20,12 +20,12 @@
 #include <cctype>
 #include <string>
 #include <vector>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
 #include "../DbfFile.h"
-#include "../logger.h"
 #include "AddIdVariable.h"
 
 BEGIN_EVENT_TABLE( AddIdVariable, wxDialog )
@@ -40,16 +40,11 @@ AddIdVariable::AddIdVariable(TableInterface* table_int_s,
 							 long style )
 : table_int(table_int_s)
 {
-    LOG_MSG("Entering AddIdVariable::AddIdVariable(..)");
-    
     SetParent(parent);
     CreateControls();
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
     Centre();
-    
-    
-    LOG_MSG("Exiting AddIdVariable::AddIdVariable(..)");
 }
 
 void AddIdVariable::CreateControls()
@@ -75,7 +70,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	new_id_var_name.Trim(false);
 
     bool m_name_valid = table_int->IsValidDBColName(new_id_var_name);
-	//if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+
     if (!m_name_valid) {
 		wxString msg;
 		msg << "Error: \"" + new_id_var_name + "\" is an invalid ";
@@ -98,7 +93,8 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		return;
 	}
 	
-	
+    wxLogMessage(wxString::Format("Try to insert unique id (integer, %s) column in table.", new_id_var_name));
+    
     int col_insert_pos = 0;
 	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {
@@ -120,6 +116,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 
 void AddIdVariable::OnCancelClick( wxCommandEvent& event )
 {
+    
 	event.Skip();
 }
 

@@ -43,7 +43,6 @@
 #include "../Explore/CatClassifState.h"
 #include "../HighlightState.h"
 #include "../ShapeOperations/ShapeUtils.h"
-#include "../logger.h"
 #include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 
@@ -77,7 +76,6 @@ breaks(0), default_breaks(default_intervals-1),
 colors(0), default_colors(default_intervals)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering CatClassifHistCanvas::CatClassifHistCanvas");
 
 	cur_intervals = default_intervals;
 	
@@ -110,14 +108,11 @@ colors(0), default_colors(default_intervals)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting CatClassifHistCanvas::CatClassifHistCanvas");
 }
 
 CatClassifHistCanvas::~CatClassifHistCanvas()
 {
-	LOG_MSG("Entering CatClassifHistCanvas::~CatClassifHistCanvas");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting CatClassifHistCanvas::~CatClassifHistCanvas");
 }
 
 void CatClassifHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -1014,7 +1009,6 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 
 void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering CatClassifPanel::OnAssocVarChoice");
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 	assoc_var_tm_choice->Enable(is_tm_var);
@@ -1032,12 +1026,10 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	InitFromCCData();
 	UpdateCCState();
-	LOG_MSG("Exiting CatClassifPanel::OnAssocVarChoice");
 }
 
 void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering CatClassifPanel::OnAssocVarTmChoice");
 	if (cc_state) {
 		cc_state->GetCatClassif().assoc_db_fld_name = GetAssocDbFldNm();
 		cc_data.assoc_db_fld_name = GetAssocDbFldNm();
@@ -1049,13 +1041,11 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
     
 	InitFromCCData();
 	UpdateCCState();
-	LOG_MSG("Exiting CatClassifPanel::OnAssocVarTmChoice");
 }
 
 
 void CatClassifPanel::OnPreviewVarChoice(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering CatClassifPanel::OnPreviewVarChoice");
 	bool preview_unif_dist_mode = (preview_var_choice->GetSelection() == 0);
 	if (!preview_unif_dist_mode) {
 		wxString cur_fc_str = preview_var_choice->GetStringSelection();
@@ -1102,12 +1092,10 @@ void CatClassifPanel::OnPreviewVarChoice(wxCommandEvent& ev)
 	hist_canvas->ChangeAll(&preview_data,
 						   &cc_data.breaks, &cc_data.colors);
 	Refresh();
-	LOG_MSG("Exiting CatClassifPanel::OnPreviewVarChoice");
 }
 
 void CatClassifPanel::OnPreviewVarTmChoice(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering CatClassifPanel::OnPreviewVarTmChoice");
 	if (preview_var_choice->GetSelection() == 0) return;
 	if (GetPreviewDbFldNm() == "") {
 		SetSyncVars(true);
@@ -1125,23 +1113,19 @@ void CatClassifPanel::OnPreviewVarTmChoice(wxCommandEvent& ev)
 	hist_canvas->ChangeAll(&preview_data,
 						   &cc_data.breaks, &cc_data.colors);
 	Refresh();	
-	LOG_MSG("Exiting CatClassifPanel::OnPreviewVarTmChoice");
 }
 
 void CatClassifPanel::OnSyncVarsChk(wxCommandEvent& ev)
 {
-	LOG_MSG("In CatClassifPanel::OnSyncVarsChk");
 	// IsSyncVars() reflects the new value of the checkbox.  This
 	// callback is called after the value has changed.
 	preview_var_choice->Enable(!IsSyncVars());
 	preview_var_tm_choice->Enable(!IsSyncVars());
 	if (IsSyncVars()) InitFromCCData();
-	LOG_MSG("Exiting CatClassifPanel::OnSyncVarsChk");
 }
 
 void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnUnifDistMinEnter");
 	if (!all_init || !IsUnifDistMode()) return;
 	// When in uniform dist mode, there is no variable associated
 	// with the breaks.  Therefore the data must be resampled whenever
@@ -1185,7 +1169,6 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
 
 void CatClassifPanel::OnUnifDistMinKillFocus(wxFocusEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnUnifDistMinKillFocus");
 	wxCommandEvent ev;
 	OnUnifDistMinEnter(ev);
 	event.Skip();
@@ -1193,7 +1176,6 @@ void CatClassifPanel::OnUnifDistMinKillFocus(wxFocusEvent& event)
 
 void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnUnifDistMaxEnter");
 	if (!all_init || !IsUnifDistMode()) return;
 	// When in uniform dist mode, there is no variable associated
 	// with the breaks.  Therefore the data must be resampled whenever
@@ -1237,7 +1219,6 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
 
 void CatClassifPanel::OnUnifDistMaxKillFocus(wxFocusEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnUnifDistMaxKillFocus");
 	wxCommandEvent ev;
 	OnUnifDistMaxEnter(ev);
 	event.Skip();
@@ -1245,7 +1226,6 @@ void CatClassifPanel::OnUnifDistMaxKillFocus(wxFocusEvent& event)
 
 void CatClassifPanel::OnAutomaticLabelsCb(wxCommandEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnAutomaticLabelsCb");
     for (int i=0; i<cc_data.num_cats; i++) {
         cat_title_txt[i]->SetEditable( !event.IsChecked() );
     }
@@ -1269,7 +1249,6 @@ void CatClassifPanel::OnBrkRad(wxCommandEvent& event)
 	for (int i=0, iend=brk_rad.size(); i<iend && obj_id==-1; i++) {
 		if (obj == brk_rad[i]) obj_id = i;
 	}
-	LOG(obj_id);
 	if (obj_id < 0) return;
 	SetSliderFromBreak(obj_id);
 }
@@ -1282,7 +1261,6 @@ void CatClassifPanel::OnBrkTxtEnter(wxCommandEvent& event)
 	for (int i=0, iend=brk_txt.size(); i<iend && obj_id==-1; i++) {
 		if (obj == brk_txt[i]) obj_id = i;
 	}
-	LOG_MSG("In CatClassifPanel::OnBrkTxtEnter");
 	if (obj_id < 0) return;
 	wxString s(brk_txt[obj_id]->GetValue());
 	double val;
@@ -1313,7 +1291,6 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
 	if (!brk_slider->IsEnabled()) return;
 	if (last_brk_slider_pos == brk_slider->GetValue()) return;
 	last_brk_slider_pos = brk_slider->GetValue();
-	//LOG_MSG("In CatClassifPanel::OnBrkSlider");
 	int brk = GetActiveBrkRadio();
 	if (brk < 0 || brk > GetNumCats()-2) return;
 	double sr = ((double) (brk_slider->GetMax()-brk_slider->GetMin()));
@@ -1340,13 +1317,11 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
 
 void CatClassifPanel::OnScrollThumbRelease(wxScrollEvent& event)
 {
-	//LOG_MSG("In CatClassifPanel::OnScrollThumbRelease");
 	SetSliderFromBreak(GetActiveBrkRadio());
 }
 
 void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 {
-	LOG_MSG("In CatClassifPanel::OnKillFocusEvent");
 	wxWindow* w = (wxWindow*) (event.GetEventObject());
 	if (wxTextCtrl* tc = dynamic_cast<wxTextCtrl*>(w)) {
 		int obj_id = -1;
@@ -1853,7 +1828,6 @@ void CatClassifPanel::InitFromCCData()
  */
 void CatClassifPanel::InitAssocVarChoices()
 {
-	LOG_MSG("Entering CatClassifPanel::InitAssocVarChoices");
 	if (!all_init) return;
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
 	int cur_fc_tm_id = assoc_var_tm_choice->GetSelection();
@@ -1886,7 +1860,6 @@ void CatClassifPanel::InitAssocVarChoices()
 		// default to uniform distribution
 		assoc_var_choice->SetSelection(0);
 	}
-	LOG_MSG("Exiting CatClassifPanel::InitAssocVarChoices");
 }
 
 
@@ -1899,7 +1872,6 @@ void CatClassifPanel::InitAssocVarChoices()
  */
 void CatClassifPanel::InitPreviewVarChoices()
 {
-	LOG_MSG("Entering CatClassifPanel::InitPreviewVarChoices");
 	if (!all_init) return;
     
 	wxString cur_fc_str = preview_var_choice->GetStringSelection();
@@ -1933,7 +1905,6 @@ void CatClassifPanel::InitPreviewVarChoices()
 		// default to first item
 		preview_var_choice->SetSelection(0);
 	}
-	LOG_MSG("Exiting CatClassifPanel::InitPreivewVarChoices");
 }
 
 
@@ -1942,7 +1913,6 @@ void CatClassifPanel::InitPreviewVarChoices()
  is only called in the constructor currently. */
 void CatClassifPanel::InitCurCatsChoices()
 {
-	LOG_MSG("Entering CatClassifPanel::InitCutCatsChoices");
 	if (!all_init) return;
 	wxString cur_str = cur_cats_choice->GetStringSelection();
 	cur_cats_choice->Clear();
@@ -1958,7 +1928,6 @@ void CatClassifPanel::InitCurCatsChoices()
 	} else {
 		cur_cats_choice->SetSelection(0);
 	}
-	LOG_MSG("Exiting CatClassifPanel::InitCutCatsChoices");
 }
 
 /** Gets number of categories from num_cats_choice */
@@ -2339,7 +2308,6 @@ void CatClassifPanel::UpdateCCState()
 
 void CatClassifPanel::update(TableState* o)
 {
-	LOG_MSG("In CatClassifPanel::update(TableState* o)");
 	InitAssocVarChoices();
 	InitPreviewVarChoices();
 }
@@ -2354,7 +2322,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering CatClassifFrame::CatClassifFrame");
 	
 	/// START: wxBoxSizer desgin
 	wxPanel* histo_panel = new wxPanel(this);
@@ -2437,7 +2404,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
-	LOG_MSG("Exiting CatClassifFrame::CatClassifFrame");
 }
 
 ///MMM: Sort out in all Frames: what should be in the destructor?
@@ -2450,7 +2416,6 @@ CatClassifFrame::~CatClassifFrame()
 
 void CatClassifFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In CatClassifFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("CatClassifFrame", GetTitle());
 	}
@@ -2475,7 +2440,6 @@ void CatClassifFrame::OnSyncVarsChk(wxCommandEvent& event)
 /** Implementation of TimeStateObserver interface */
 void CatClassifFrame::update(TimeState* o)
 {
-	LOG_MSG("In CatClassifFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 }
 

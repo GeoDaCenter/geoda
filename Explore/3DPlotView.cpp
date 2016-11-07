@@ -34,7 +34,6 @@
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
-#include "../logger.h"
 #include "../Project.h"
 #include "3DPlotView.h"
 
@@ -53,12 +52,20 @@ C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
 							 wxWindowID id, const wxPoint& pos,
 							 const wxSize& size, long style)
 : wxGLCanvas(parent, id, pos, size, style), ball(0),
-project(project_s), table_int(project_s->GetTableInt()),
-num_obs(project_s->GetTableInt()->GetNumberRows()), num_vars(v_info.size()),
-num_time_vals(1), highlight_state(highlight_state_s), var_info(v_info),
-data(v_info.size()), data_undef(v_info.size()), scaled_d(v_info.size()),
+project(project_s),
+table_int(project_s->GetTableInt()),
+num_obs(project_s->GetTableInt()->GetNumberRows()),
+num_vars(v_info.size()),
+num_time_vals(1),
+highlight_state(highlight_state_s),
+var_info(v_info),
+data(v_info.size()),
+data_undef(v_info.size()),
+scaled_d(v_info.size()),
 c3d_plot_frame(t_frame)
 {
+    wxLogMessage("Open C3DPlotCanvas.");
+    
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
 	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
 	canvas_background_color=GdaConst::three_d_plot_default_background_colour;
@@ -147,6 +154,8 @@ C3DPlotCanvas::~C3DPlotCanvas()
 {
 	if (ball) delete ball; ball = 0;	
 	highlight_state->removeObserver(this);
+    
+    wxLogMessage("Close C3DPlotCanvas.");
 }
 
 void C3DPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -946,7 +955,6 @@ wxString C3DPlotCanvas::GetNameWithTime(int var)
 
 void C3DPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering C3DPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -974,8 +982,6 @@ void C3DPlotCanvas::TimeChange()
 	//invalidateBms();
 	//PopulateCanvas();
 	Refresh();
-	
-	LOG_MSG("Exiting C3DPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -1036,7 +1042,6 @@ void C3DPlotCanvas::UpdateScaledData()
 
 void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In C3DPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -1049,8 +1054,6 @@ void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
  that its state has changed. */
 void C3DPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("In C3DPlotCanvas::update");
-	
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::delta) {
 			
@@ -1101,7 +1104,6 @@ C3DPlotFrame::~C3DPlotFrame()
 
 void C3DPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("C3DPlotFrame", GetTitle());
 	}
@@ -1109,20 +1111,17 @@ void C3DPlotFrame::OnActivate(wxActivateEvent& event)
 
 void C3DPlotFrame::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnClose");
 	DeregisterAsActive();
 	Destroy();
 }
 
 void C3DPlotFrame::OnMenuClose(wxCommandEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnMenuClose");
 	Close();
 }
 
 void C3DPlotFrame::MapMenus()
 {
-	LOG_MSG("In C3DPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1146,7 +1145,6 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 
 void C3DPlotFrame::OnHighlightColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnHighlightColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->highlight_color,
@@ -1158,7 +1156,6 @@ void C3DPlotFrame::OnHighlightColor(wxCommandEvent& event)
 
 void C3DPlotFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnCanvasBackgroundColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->canvas_background_color,
@@ -1170,7 +1167,6 @@ void C3DPlotFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 
 void C3DPlotFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnSelectableOutlineColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->selectable_fill_color,
@@ -1183,7 +1179,6 @@ void C3DPlotFrame::OnSelectableFillColor(wxCommandEvent& event)
 /** Implementation of TimeStateObserver interface */
 void C3DPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In C3DPlotFrame::update(TimeState* o)");
 	canvas->TimeChange();
 	UpdateTitle();
 }

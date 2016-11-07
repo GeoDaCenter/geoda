@@ -21,6 +21,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -47,7 +48,6 @@
 #include "../PointSetAlgs.h"
 #include "AddIdVariable.h"
 #include "CreatingWeightDlg.h"
-#include "../logger.h"
 
 BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
 EVT_CLOSE( CreatingWeightDlg::OnClose )
@@ -95,6 +95,7 @@ m_num_obs(project_s->GetNumRecords()),
 m_cbx_precision_threshold_first_click(true),
 suspend_table_state_updates(false)
 {
+    wxLogMessage("Open CreatingWeightDlg");
 	Create(parent, id, caption, pos, size, style);
 	all_init = true;
 	frames_manager->registerObserver(this);
@@ -104,7 +105,6 @@ suspend_table_state_updates(false)
 
 CreatingWeightDlg::~CreatingWeightDlg()
 {
-	LOG_MSG("In CreatingWeightDlg::~CreatingWeightDlg");
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
@@ -112,11 +112,10 @@ CreatingWeightDlg::~CreatingWeightDlg()
 
 void CreatingWeightDlg::OnClose(wxCloseEvent& ev)
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnClose");
+	wxLogMessage("Close CreatingWeightDlg");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
-	LOG_MSG("Exiting CreatingWeightDlg::OnClose");
 }
 
 bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
@@ -184,7 +183,7 @@ void CreatingWeightDlg::CreateControls()
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnCreateNewIdClick");
+    wxLogMessage("Click CreatingWeightDlg::OnCreateNewIdClick");
 	
 	suspend_table_state_updates = true;
 	AddIdVariable dlg(table_int, this);
@@ -209,11 +208,11 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 	}
 	suspend_table_state_updates = false;
 	event.Skip();
-	LOG_MSG("Exiting CreatingWeightDlg::OnCreateNewIdClick");
 }
 
 void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCreateClick");
     try {
         CreateWeights();
     } catch(GdaException e) {
@@ -261,7 +260,6 @@ void CreatingWeightDlg::CreateWeights()
 	
 	wxString wildcard;
 	wxString defaultFile(project->GetProjectTitle());
-	LOG(defaultFile);
 	if (IsSaveAsGwt()) {
 		defaultFile += ".gwt";
 		wildcard = "GWT files (*.gwt)|*.gwt";
@@ -281,6 +279,8 @@ void CreatingWeightDlg::CreateWeights()
 	if (dlg.ShowModal() != wxID_OK) return;
 	outputfile = dlg.GetPath();
 	
+    wxLogMessage(outputfile);
+    
 	wxString id = wxEmptyString;
 	if ( m_id_field->GetSelection() != wxNOT_FOUND ) {
 		id = m_id_field->GetString(m_id_field->GetSelection());
@@ -479,6 +479,8 @@ void CreatingWeightDlg::CreateWeights()
 
 void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnPrecisionThresholdCheck");
+    
 	if (m_cbx_precision_threshold_first_click) {
 		// Show a warning message regarding the use of this function
 		wxString msg = _("Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations.");
@@ -498,12 +500,14 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCRadioRookSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioRookSelected");
 	SetRadioBtnAndAssocWidgets(ROOK);
 	SetRadioButtons(ROOK);
 }
 
 void CreatingWeightDlg::OnCRadioQueenSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioQueenSelected");
 	SetRadioBtnAndAssocWidgets(QUEEN);
 	SetRadioButtons(QUEEN);
 }
@@ -514,7 +518,6 @@ void CreatingWeightDlg::update(FramesManager* o)
 
 void CreatingWeightDlg::update(TableState* o)
 {
-	LOG_MSG("In CreatingWeightDlg::update(TableState*)");
 	if (suspend_table_state_updates) return;
 	if (o->GetEventType() == TableState::cols_delta ||
 			o->GetEventType() == TableState::col_rename ||
@@ -531,7 +534,6 @@ void CreatingWeightDlg::update(TableState* o)
 
 void CreatingWeightDlg::update(WeightsManState* o)
 {
-	LOG_MSG("In CreatingWeightDlg::update(WeightsManState*)");
 	Refresh();
 }
 
@@ -637,7 +639,6 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(RadioBtnId radio)
 // the current position of the slider
 void CreatingWeightDlg::UpdateThresholdValues()
 {
-	LOG_MSG("Entering CreatingWeightDlg::UpdateThresholdValues");
 	if (!all_init) return;
 	int sl_x, sl_y;
 	m_sliderdistance->GetPosition(&sl_x, &sl_y);
@@ -722,22 +723,24 @@ void CreatingWeightDlg::UpdateThresholdValues()
 			m_thres_max = d;
 		}
 	}
-	LOG(m_thres_min);
-	LOG(m_thres_max);
+
 	m_threshold_val = (m_sliderdistance->GetValue() *
 										 (m_thres_max-m_thres_min)/100.0) + m_thres_min;
 	m_thres_val_valid = true;
 	m_threshold->ChangeValue( wxString::Format("%f", m_threshold_val));
-	LOG_MSG("Exiting CreatingWeightDlg::UpdateThresholdValues");
 }
 
 void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCThresholdTextEdit:");
+    
 	if (!all_init) return;
-	LOG_MSG("In CreatingWeightDlg::OnCThresholdTextEdit");
 	wxString val = m_threshold->GetValue();
 	val.Trim(false);
 	val.Trim(true);
+    
+    wxLogMessage(val);
+    
 	double t = m_threshold_val;
 	m_thres_val_valid = val.ToDouble(&t);
 	if (m_thres_val_valid) {
@@ -755,6 +758,8 @@ void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCThresholdSliderUpdated:");
+    
 	if (!all_init) return;
 	bool m_rad_inv_dis_val = false;
 	
@@ -764,10 +769,16 @@ void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
 	if (m_threshold_val > 0)  {
 		FindWindow(XRCID("wxID_OK"))->Enable(true);
 	}
+    
+    wxString str_val;
+    str_val << m_threshold_val;
+    wxLogMessage(str_val);
 }
 
 void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioDistanceSelected");
+    
 	// Threshold Distance radio button selected
 	SetRadioBtnAndAssocWidgets(THRESH);
 	SetRadioButtons(THRESH);
@@ -776,6 +787,8 @@ void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioKnnSelected");
+    
 	SetRadioBtnAndAssocWidgets(KNN);
 	SetRadioButtons(KNN);
 	UpdateThresholdValues();
@@ -783,6 +796,8 @@ void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated");
+    
 	wxString val;
 	val << m_spincont->GetValue();
 	m_contiguity->SetValue(val);
@@ -790,6 +805,8 @@ void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
 
 void CreatingWeightDlg::OnCSpinKnnUpdated( wxSpinEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCSpinKnnUpdated");
+    
 	wxString val;
 	val << m_spinneigh->GetValue();
 	m_neighbors->SetValue(val);
@@ -1014,9 +1031,10 @@ bool CreatingWeightDlg::IsSaveAsGwt()
 
 void CreatingWeightDlg::OnXSelected(wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnXSelected");
-	if ( m_X->GetString(m_X->GetSelection()) == "<X-Centroids>" && 
-			m_Y->GetString(m_Y->GetSelection()) == "<Y-Mean-Centers>" ) {
+    wxLogMessage("Click CreatingWeightDlg::OnXSelected");
+    
+	if (m_X->GetString(m_X->GetSelection()) == "<X-Centroids>" &&
+        m_Y->GetString(m_Y->GetSelection()) == "<Y-Mean-Centers>" ) {
 		m_Y->SetSelection(0);
 	}
 	if ( m_X->GetString(m_X->GetSelection()) == "<X-Mean-Centers>" && 
@@ -1029,12 +1047,15 @@ void CreatingWeightDlg::OnXSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-	LOG_MSG("Exiting CreatingWeightDlg::OnXSelected");	
+    
+    wxString msg;
+    msg << "selected:" << m_X->GetSelection();
+    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnYSelected");
+	wxLogMessage("Click CreatingWeightDlg::OnYSelected");
 	if ( m_Y->GetString(m_Y->GetSelection()) == "<Y-Centroids>" && 
 			m_X->GetString(m_X->GetSelection()) == "<X-Mean-Centers>" ) {
 		m_X->SetSelection(0);
@@ -1049,21 +1070,29 @@ void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-	LOG_MSG("Exiting CreatingWeightDlg::OnYSelected");
+    
+    wxString msg;
+    msg << "selected:" << m_Y->GetSelection();
+    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnXTmSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnXTmSelected");
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnYTmSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnYTmSelected");
+    
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnDistanceChoiceSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnDistanceChoiceSelected");
+    
 	wxString s = m_dist_choice->GetStringSelection();
 	if (s == "Euclidean Distance") {
 		SetDistChoiceEuclid(false);
@@ -1115,6 +1144,8 @@ void CreatingWeightDlg::SetDistChoiceArcKms(bool update_sel)
 
 void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnIdVariableSelected");
+    
     wxString id = wxEmptyString;
 	if ( m_id_field->GetSelection() != wxNOT_FOUND ) {
 		id = m_id_field->GetString(m_id_field->GetSelection());
@@ -1129,7 +1160,11 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
     
 	EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
 	EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND) && !project->IsTableOnlyProject());
-	UpdateCreateButtonState();	
+	UpdateCreateButtonState();
+    
+    wxString msg;
+    msg << "selected:" << m_id_field->GetSelection();
+    wxLogMessage(msg);
 }
 
 /** layer_name: layer name

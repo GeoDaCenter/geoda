@@ -21,7 +21,6 @@
 #include <wx/sizer.h>
 #include <wx/button.h>
 #include <wx/xrc/xmlres.h>
-#include "../logger.h"
 
 BEGIN_EVENT_TABLE( ProgressDlg, wxDialog )
 	EVT_BUTTON( XRCID("wxID_OK"), ProgressDlg::OnOkClick)
