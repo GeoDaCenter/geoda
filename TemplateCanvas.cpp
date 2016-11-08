@@ -963,7 +963,6 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-				//Refresh(false);
                 
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
@@ -1114,7 +1113,7 @@ void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 {
 
 	if ((mousemode == select || mousemode == zoom || mousemode == zoomout)&&
-		(selectstate == dragging || selectstate == brushing) ) {
+		(selectstate == start || selectstate == dragging || selectstate == brushing) ) {
 		int xx=0, yy=0;
 		//CalcUnscrolledPosition(0, 0, &xx, &yy);
 		// xx and yy now have the scrolled amount
