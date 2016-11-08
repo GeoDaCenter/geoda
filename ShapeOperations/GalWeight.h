@@ -47,8 +47,9 @@ public:
     double GetRW(int idx);
     bool Check(long nbrIdx);
     
-private:
     std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
+    
+private:
 	std::vector<long> nbr;
 	std::vector<double> nbrWeight;
     std::vector<double> nbrAvgW;

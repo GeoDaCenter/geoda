@@ -122,6 +122,7 @@ void GalElement::SetNbrs(const GalElement& gal)
     
     nbr = gal.GetNbrs();
     nbrWeight = gal.GetNbrWeights();
+    nbrLookup = gal.nbrLookup;
 }
 
 const std::vector<long> & GalElement::GetNbrs() const
