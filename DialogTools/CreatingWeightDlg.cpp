@@ -1219,6 +1219,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 					}
 					//GdaFrame::GetGdaFrame()->ShowConnectivityMapView(uid);
 				}
+                delete w;
 			} else {
 				success = false;
 			}

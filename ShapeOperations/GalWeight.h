@@ -46,13 +46,14 @@ public:
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
     double GetRW(int idx);
     bool Check(long nbrIdx);
-    
+   
+    bool is_nbrAvgW_empty;
+    std::vector<double> nbrAvgW;
     std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
     
 private:
 	std::vector<long> nbr;
 	std::vector<double> nbrWeight;
-    std::vector<double> nbrAvgW;
 };
 
 class GalWeight : public GeoDaWeight {
