@@ -66,11 +66,11 @@ Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
-;Name: "{group}\GeoDa"; Filename: "{app}\GeoDa.exe"
-Name: "{group}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
+Name: "{group}\GeoDa"; Filename: "{app}\GeoDa.exe"
+;Name: "{group}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
-;Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
-Name: "{commondesktop}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
+Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
+;Name: "{commondesktop}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
 
 
 [Registry]
