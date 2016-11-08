@@ -33,12 +33,15 @@ ArchitecturesInstallIn64BitMode=x64
 ChangesAssociations=yes
 
 [dirs]
+Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
+Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
-Name: "{app}";  Permissions: everyone-full
+
 
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsX64
+Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
@@ -50,6 +53,7 @@ Source: "vcredist_x64.exe"; DestDir: "{app}"
 Source: "ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "ogr_OCI.dll"; DestDir: "{app}"
 Source: "ogr_SDE.dll"; DestDir: "{app}"
+Source: "..\..\run_geoda.bat"; DestDir: "{app}"
 Source: "..\..\Release\sqlite.dll"; DestDir: "{app}"
 Source: "..\..\temp\curl-7.46.0\builds\curlib\bin\libcurl.dll"; DestDir: "{app}"
 Source: "..\..\temp\expat-2.1.0\build\Release\expat.dll"; DestDir: "{app}"
@@ -68,24 +72,25 @@ Source: "..\..\temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll"; Dest
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll"; DestDir: "{app}"
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; DestDir: "{app}"
 
-Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{userdocs}\Examples"; Flags: recursesubdirs uninsneveruninstall
-
-
+Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
 Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
 Name: "{group}\GeoDa"; Filename: "{app}\GeoDa.exe"
+;Name: "{group}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
+;Name: "{commondesktop}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
+
 
 [Registry]
 ; set PATH
 ; set GEODA_GDAL_DATA
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_GDAL_DATA"; ValueData:"{pf}\GeoDa Software\data"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_GDAL_DATA"; ValueData:"{app}\data"; Flags: preservestringtype uninsdeletevalue
 ; set GEODA_OGR_DRIVER_PATH
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_OGR_DRIVER_PATH"; ValueData:"{pf}\GeoDa Software"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_OGR_DRIVER_PATH"; ValueData:"{app}"; Flags: preservestringtype uninsdeletevalue
 
 Root: HKCR; Subkey: ".gda"; ValueType: string; ValueName: ""; ValueData: "GeoDaProjectFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "GeoDaProjectFile"; ValueType: string; ValueName: ""; ValueData: "GeoDa Project File"; Flags: uninsdeletekey
@@ -124,5 +129,47 @@ begin
   Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1D8E6291-B0D5-35EC-8441-6616F567A0F7}');
 end;
 
+function GetUninstallString: string;
+var
+  sUnInstPath: string;
+  sUnInstallString: String;
+begin
+  Result := '';
+  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1'); //Your App GUID/ID
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
+function IsUpgrade: Boolean;
+begin
+  Result := (GetUninstallString() <> '');
+end;
+
+function InitializeSetup: Boolean;
+var
+  V: Integer;
+  iResultCode: Integer;
+  sUnInstallString: string;
+begin
+  Result := True; // in case when no previous version is found
+  if RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') then  //Your App GUID/ID
+  begin
+    V := MsgBox(ExpandConstant('An old version of GeoDa was detected. Please uninstall it before continuing.'), mbInformation, MB_YESNO); //Custom Message if App installed
+    if V = IDYES then
+    begin
+      sUnInstallString := GetUninstallString();
+      sUnInstallString :=  RemoveQuotes(sUnInstallString);
+      Exec(ExpandConstant(sUnInstallString), '', '', SW_SHOW, ewWaitUntilTerminated, iResultCode);
+      Result := True; //if you want to proceed after uninstall
+      //Exit; //if you want to quit after uninstall
+    end
+    else
+      Result := False; //when older version present and not uninstalled
+  end;
+end;
+
 [Run]
 Filename: {app}\vcredist_x64.exe; StatusMsg: Installing Visual Studio 2010 SP1 C++ CRT Libraries...; Check: VCRedistNeedsInstall
+

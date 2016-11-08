@@ -48,7 +48,7 @@ void Compute_RSLmError(GalElement* g,
 					   double *resid,
 					   int dim,
 					   double* rst,
-					   const std::vector< std::set<int> >& g_lookup);
+                       double t);
 
 void Compute_RSLmErrorRobust(GalElement* g,
 							 double** cov,
@@ -59,7 +59,7 @@ void Compute_RSLmErrorRobust(GalElement* g,
 							 int dim,
 							 int expl,
 							 double* rst,
-							 const std::vector< std::set<int> >& g_lookup);
+                             double t);
 
 void Compute_RSLmLag(GalElement* g,
 					 double** cov,
@@ -70,7 +70,7 @@ void Compute_RSLmLag(GalElement* g,
 					 int dim,
 					 int expl,
 					 double* rst,
-					 const std::vector< std::set<int> >& g_lookup);
+                     double t);
 
 void Compute_RSLmLagRobust(GalElement* g,
 						   double** cov,
@@ -81,7 +81,7 @@ void Compute_RSLmLagRobust(GalElement* g,
 						   int dim,
 						   int expl,
 						   double* rst,
-						   const std::vector< std::set<int> >& g_lookup);
+                           double t);
 
 void Compute_RSLmSarma(GalElement* g,
 					   double** cov,
@@ -92,7 +92,7 @@ void Compute_RSLmSarma(GalElement* g,
 					   int dim,
 					   int expl,
 					   double* rst,
-					   const std::vector< std::set<int> >& g_lookup);
+                       double t);
 
 
 bool ordinaryLS(DenseVector &y, 
@@ -129,10 +129,7 @@ void MakeFastLookupMat(GalElement *g, int dim,
 	}
 }
 
-// Note: it is expected that input g_lookup was initialized as follows:
-// MakeFastLookupMat(g, dim, g_lookup);
-double T(GalElement *g, int dim,
-		 const std::vector< std::set<int> >& g_lookup)  
+double T(GalElement *g, int dim)
 {
     // tr(W'W+WW)
     // = tr(W'W) + tr(WW)
@@ -140,7 +137,8 @@ double T(GalElement *g, int dim,
     
 	using namespace std;
     double	sum = 0;
-    
+   
+    /*
     int i=0, j=0;
     for (i = 0; i < dim; ++i) {
         for (j = 0; j < dim; ++j) {
@@ -157,7 +155,17 @@ double T(GalElement *g, int dim,
                 sum += g[j].GetRW(i) * g[j].GetRW(i);
         }
     }
+     */
     
+    for (int i = 0; i < dim; ++i) {
+        for (int j = 0; j < dim; ++j) {
+            double w_ij = g[i].GetRW(j);
+            double w_ji = g[j].GetRW(i);
+            sum += w_ij * w_ji;
+            sum += w_ji * w_ji;
+            
+        }
+    }
     /*
      // below is also incorrect when handling knn weights matrix
     int cnt = 0, cp = 0;
@@ -209,7 +217,7 @@ void Compute_RSLmLag(GalElement* g,
 					 int dim,
 					 int expl,
 					 double *rst,
-					 const std::vector< std::set<int> >& g_lookup)
+                     double t) // t = T(g, dim, g_lookup)
 {
     double *Y = y.getThis();
     double const ee = norm(resid, dim);
@@ -235,7 +243,7 @@ void Compute_RSLmLag(GalElement* g,
     z.squareTimesColumn( z2, cov );			// z2 = (X'X)^(-1)X'WXb
     const double xMx = z.product(z2); // (WXb)'X(X'X)^(-1)X'WXb
     // lag.norm : (WXb)'(WXb)
-    double v = (lag.norm() - xMx + T(g, dim, g_lookup) * sigma2) / sigma2;
+    double v = (lag.norm() - xMx + t * sigma2) / sigma2;
     RS /= v;
 
     double const RS_stat = gammp( 0.5, RS * 0.5);
@@ -257,7 +265,7 @@ void Compute_RSLmLagRobust(GalElement* g,
 						   int dim,
 						   int expl,
 						   double *rst,
-						   const std::vector< std::set<int> >& g_lookup)
+                           double T21) // T21 = T(g, dim, g_lookup)
 {
     double *Y = y.getThis();
     double const ee = norm(resid, dim);
@@ -292,7 +300,6 @@ void Compute_RSLmLagRobust(GalElement* g,
     // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
     const double T1 = T11 / sigma2;
-    const double T21 = T(g, dim, g_lookup);
     const double T2 = 1.0 / (T1 + T21);
 
     RS /= (1.0 / T2 - T21);
@@ -486,11 +493,10 @@ double Compute_MoranZ(GalElement* g,
 
 //
 // Performs spatial error test specification: computes RS statistic
-//
+// t =  tr[(W'+W)*W]
 void Compute_RSLmError(GalElement* g,
 					   double *resid,
-					   int dim, double *rst,
-					   const std::vector< std::set<int> >& g_lookup)
+					   int dim, double *rst, double t)
 {
     double const ee = norm(resid, dim);
     double const sigma2	=  ee / (dim);
@@ -505,7 +511,6 @@ void Compute_RSLmError(GalElement* g,
 
     double RS = geoda_sqr(re.product( lag ) / sigma2); // [e'We/sigma2]^2
 
-    double t = T(g, dim, g_lookup); // tr[(W'+W)*W]
     RS /= t;
     
 	double const RS_stat = gammp( 0.5, RS * 0.5);
@@ -523,7 +528,7 @@ void Compute_RSLmErrorRobust(GalElement* g,
 							 int dim,
 							 int expl,
 							 double *rst,
-							 const std::vector< std::set<int> >& g_lookup)
+                             double T21) //T21 = T(g, dim, g_lookup) tr[(W'+W)*W]
 {
     double *Y = y.getThis();
     double const ee = norm(resid, dim);
@@ -556,7 +561,7 @@ void Compute_RSLmErrorRobust(GalElement* g,
     // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
     const double T1 = T11 / sigma2;
-    const double T21 = T(g, dim, g_lookup);
+    
     const double T2 = 1.0 / (T1 + T21);
 
     const double RS = geoda_sqr(RS2 - (RS1 * T2 * T21)) / (T21-(T21*T21*T2));
@@ -576,7 +581,7 @@ void Compute_RSLmSarma(GalElement* g,
 					   int dim,
 					   int expl,
 					   double *rst,
-					   const std::vector< std::set<int> >& g_lookup)
+                       double T21)
 {
     double *Y = y.getThis();
     double const ee = norm(resid, dim);
@@ -609,7 +614,7 @@ void Compute_RSLmSarma(GalElement* g,
     // z.product(z2) : (WXb)'(X(X'X)^(-1)X')(WXb)
     const double T11 = Wy.norm() -  z.product(z2);
     const double T1 = T11 / sigma2;
-    const double T21 = T(g, dim, g_lookup);
+    
     const double T2 = 1.0 / (T1 + T21);
 
     const double RS = (geoda_sqr(RS1 - RS2)/ (1.0/T2 - T21)) + (RS2*RS2/T21);
@@ -738,38 +743,35 @@ bool classicalRegression(GalElement *g,
 	// diagnostics for spatial dependence
 	if (g != NULL)
 	{
-		std::vector< std::set<int> > g_lookup;
-		MakeFastLookupMat(g, dim, g_lookup);
-		
 		double *rst = new double[2];
+        
+        double t = T(g, dim); // tr[(W'+W)*W]
 
-		Compute_RSLmError(g, resid, dim, rst, g_lookup);
+		Compute_RSLmError(g, resid, dim, rst, t);
 		dr->SetLmError(0, 1.0);
 		dr->SetLmError(1, rst[0]);
 		dr->SetLmError(2, rst[1]);
 
 
-		Compute_RSLmErrorRobust(g, cov, y, x, ols, resid, dim, expl, rst,
-								g_lookup);
+		Compute_RSLmErrorRobust(g, cov, y, x, ols, resid, dim, expl, rst, t);
 		dr->SetLmErrRobust(0, 1.0);
 		dr->SetLmErrRobust(1, rst[0]);
 		dr->SetLmErrRobust(2, rst[1]);
 
 
-		Compute_RSLmLag(g, cov, y, x, ols, resid, dim, expl, rst, g_lookup);
+		Compute_RSLmLag(g, cov, y, x, ols, resid, dim, expl, rst, t);
 		dr->SetLmLag(0, 1.0);
 		dr->SetLmLag(1, rst[0]);
 		dr->SetLmLag(2, rst[1]);
 
 
-		Compute_RSLmLagRobust(g, cov, y, x, ols, resid, dim, expl, rst,
-							  g_lookup);
+		Compute_RSLmLagRobust(g, cov, y, x, ols, resid, dim, expl, rst, t);
 		dr->SetLmLagRobust(0, 1.0);
 		dr->SetLmLagRobust(1, rst[0]);
 		dr->SetLmLagRobust(2, rst[1]);
 
 
-		Compute_RSLmSarma(g, cov, y, x, ols, resid, dim, expl, rst, g_lookup);
+		Compute_RSLmSarma(g, cov, y, x, ols, resid, dim, expl, rst, t);
 		dr->SetLmSarma(0, 2.0);
 		dr->SetLmSarma(1, rst[0]);
 		dr->SetLmSarma(2, rst[1]);
