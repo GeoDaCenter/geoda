@@ -40,6 +40,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 GalElement::GalElement()
 {
+    is_nbrAvgW_empty = true;
 }
 
 bool GalElement::Check(long nbrIdx)
@@ -52,7 +53,7 @@ bool GalElement::Check(long nbrIdx)
 // return row standardized weights value
 double GalElement::GetRW(int idx)
 {
-    if (nbrAvgW.empty()) {
+    if (is_nbrAvgW_empty) {
         size_t sz = nbr.size();
         nbrAvgW.resize(sz);
         double sumW = 0.0;
@@ -63,11 +64,12 @@ double GalElement::GetRW(int idx)
         for (size_t i=0; i<sz; i++) {
             nbrAvgW[i] = nbrWeight[i] / sumW;
         }
+        is_nbrAvgW_empty = false;
     }
-    if (Check(idx) == false)
-        return 0;
     
-    return nbrAvgW[nbrLookup[idx]];
+    if (nbrLookup.find(idx) != nbrLookup.end())
+        return nbrAvgW[nbrLookup[idx]];
+    return 0;
 }
 
 void GalElement::SetSizeNbrs(size_t	sz)
@@ -168,6 +170,8 @@ void GalElement::SetNbrs(const GalElement& gal)
     nbr = gal.GetNbrs();
     nbrLookup = gal.nbrLookup;
     nbrWeight = gal.GetNbrWeights();
+    nbrLookup = gal.nbrLookup;
+    nbrAvgW = gal.nbrAvgW;
 }
 
 const std::vector<long> & GalElement::GetNbrs() const
