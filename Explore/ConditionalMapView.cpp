@@ -1106,6 +1106,8 @@ ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style)
 {
+    
+    wxLogMessage("Open ConditionalNewFrame.");
 	int width, height;
 	GetClientSize(&width, &height);
 
@@ -1153,6 +1155,7 @@ ConditionalMapFrame::~ConditionalMapFrame()
 void ConditionalMapFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
+        wxLogMessage("In ConditionalMapFrame::OnActivate()");
 		RegisterAsActive("ConditionalMapFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas )

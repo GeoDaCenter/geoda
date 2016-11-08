@@ -47,6 +47,8 @@ table_state(project_s->GetTableState()),
 w_man_state(project_s->GetWManState())
 
 {
+    wxLogMessage("Open FieldNewCalcSheetDlg.");
+    
 	Create(parent, id, caption, pos, size, style);
 
 	pSpecial = new FieldNewCalcSpecialDlg(project, m_note);
@@ -75,8 +77,6 @@ w_man_state(project_s->GetWManState())
 
 FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg()
 {
-	LOG_MSG("In FieldNewCalcSheetDlg::~FieldNewCalcSheetDlg");
-    
     frames_manager->removeObserver(this);
     table_state->removeObserver(this);
     w_man_state->removeObserver(this);
@@ -103,6 +103,7 @@ void FieldNewCalcSheetDlg::CreateControls()
 
 void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
 {
+    wxLogMessage("In FieldNewCalcSheetDlg::OnPageChange()");
 	int tab_idx = event.GetOldSelection();
 	int var_sel_idx = -1;
 	if (tab_idx == 0) 
@@ -127,6 +128,7 @@ void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
 
 void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 {
+    wxLogMessage("In FieldNewCalcSheetDlg::OnApplyClick()");
 	switch(m_note->GetSelection())
 	{
 		case 0:
@@ -176,7 +178,8 @@ void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )
 
 void FieldNewCalcSheetDlg::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("In FieldNewCalcSheetDlg::OnClose");
+    wxLogMessage("In FieldNewCalcSheetDlg::OnClose()");
+
     Destroy();
 }
 

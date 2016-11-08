@@ -19,6 +19,7 @@
 
 #include <utility> // std::pair
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include "../HighlightState.h"
@@ -52,7 +53,7 @@ selectable_outline_color(GdaConst::scatterplot_regression_color),
 selectable_fill_color(GdaConst::scatterplot_regression_excluded_color),
 highlight_color(GdaConst::scatterplot_regression_selected_color)
 {
-	LOG_MSG("Entering ScatterPlotMatFrame::ScatterPlotMatFrame");
+	wxLogMessage("Open ScatterPlotMatFrame.");
     
 	supports_timeline_changes = true;
 	{
@@ -101,12 +102,10 @@ highlight_color(GdaConst::scatterplot_regression_selected_color)
 	
 	wxCommandEvent ev;
 	OnShowVarsChooser(ev);
-	LOG_MSG("Exiting ScatterPlotMatFrame::ScatterPlotMatFrame");
 }
 
 ScatterPlotMatFrame::~ScatterPlotMatFrame()
 {
-	LOG_MSG("In ScatterPlotMatFrame::~ScatterPlotMatFrame");
 	if (lowess_param_frame) {
 		lowess_param_frame->removeObserver(this);
 		lowess_param_frame->closeAndDeleteWhenEmpty();
@@ -121,16 +120,12 @@ ScatterPlotMatFrame::~ScatterPlotMatFrame()
 
 void ScatterPlotMatFrame::OnMouseEvent(wxMouseEvent& event)
 {
-	LOG_MSG(wxString::Format("In ScatterPlotMatFrame::OnMouseEvent: (%d,%d)",
-                             (int) event.GetX(), (int) event.GetY()));
-	if (event.RightDown()) {
-	}
 }
 
 void ScatterPlotMatFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In ScatterPlotMatFrame::OnActivate");
 		RegisterAsActive("ScatterPlotMatFrame", GetTitle());
 	}
 	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -138,7 +133,6 @@ void ScatterPlotMatFrame::OnActivate(wxActivateEvent& event)
 
 void ScatterPlotMatFrame::MapMenus()
 {
-	LOG_MSG("In ScatterPlotMatFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
@@ -151,7 +145,6 @@ void ScatterPlotMatFrame::MapMenus()
 
 void ScatterPlotMatFrame::UpdateOptionMenuItems()
 {
-	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
 	if (menu == wxNOT_FOUND) {
@@ -230,9 +223,6 @@ void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
             scatt_plots[i]->SetSelectableOutlineColor(new_color);
         }
     }
-	//highlight_color = GdaConst::scatterplot_regression_selected_color;
-	//selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
-	//selectable_outline_color = GdaConst::scatterplot_regression_color;
 }
 
 void ScatterPlotMatFrame::OnSelectableFillColor(wxCommandEvent& event)

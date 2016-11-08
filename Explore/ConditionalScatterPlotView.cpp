@@ -23,6 +23,7 @@
 #include <set>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcbuffer.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
@@ -776,6 +777,7 @@ ConditionalScatterPlotFrame::ConditionalScatterPlotFrame(wxFrame *parent,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style), lowess_param_frame(0)
 {
+    wxLogMessage("Open ConditionalScatterPlotFrame.");
 	int width, height;
 	GetClientSize(&width, &height);
 	

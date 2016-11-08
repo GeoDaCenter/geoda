@@ -170,7 +170,7 @@ public:
     CartogramNewFrame(wxFrame *parent, Project* project,
 					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
-					  const wxString& title = "Cartogram",
+					  const wxString& title = _("Cartogram"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,
 					  const long style = wxDEFAULT_FRAME_STYLE);

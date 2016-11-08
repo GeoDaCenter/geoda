@@ -276,7 +276,7 @@ public:
                         const std::vector<GdaVarTools::VarInfo>& var_info,
                         const std::vector<int>& col_ids,
                         bool is_bubble_plot,
-                        const wxString& title = "Scatter Plot",
+                        const wxString& title = _("Scatter Plot"),
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize,
                         const long style = wxDEFAULT_FRAME_STYLE);

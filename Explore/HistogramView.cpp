@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
 #include <wx/msgdlg.h>
@@ -75,7 +76,6 @@ scale_x_over_time(false), scale_y_over_time(true),
 custom_classif_state(0), is_custom_category(false)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering HistogramCanvas::HistogramCanvas");
     
 	table_int = project->GetTableInt();
   
@@ -212,8 +212,8 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		mi->Check(var_info[0].sync_with_global_time);
 	}
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options",
-                 menu1, "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"),
+                 menu1, _("Time Variable Options"));
 	
 }
 
@@ -1083,7 +1083,7 @@ HistogramFrame::HistogramFrame(wxFrame *parent, Project* project,
 							   const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering HistogramFrame::HistogramFrame");
+	wxLogMessage("Open HistogramFrame.");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -1097,17 +1097,16 @@ HistogramFrame::HistogramFrame(wxFrame *parent, Project* project,
 	SetTitle(template_canvas->GetCanvasTitle());
 		
 	Show(true);
-	LOG_MSG("Exiting HistogramFrame::HistogramFrame");
 }
 
 HistogramFrame::~HistogramFrame()
 {
-	LOG_MSG("In HistogramFrame::~HistogramFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 void HistogramFrame::OnHistClassification(wxCommandEvent& event)
 {
+	wxLogMessage("In HistogramFrame::OnHistClassification()");
     int evtID = event.GetId();
     if (evtID == GdaConst::ID_HISTOGRAM_CLASSIFICATION) {
         ((HistogramCanvas*) template_canvas)->NewCustomCatClassif();
@@ -1120,6 +1119,7 @@ void HistogramFrame::OnHistClassification(wxCommandEvent& event)
 void HistogramFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
+        wxLogMessage("In HistogramFrame::OnActivate()");
 		RegisterAsActive("HistogramFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -1171,6 +1171,7 @@ void HistogramFrame::update(TimeState* o)
 
 void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 {
+    wxLogMessage("In HistogramFrame::OnShowAxes()");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -1178,6 +1179,7 @@ void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 
 void HistogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
+    wxLogMessage("In HistogramFrame::OnDisplayStatistics()");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -1185,13 +1187,13 @@ void HistogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void HistogramFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
+    wxLogMessage("In HistogramFrame::OnHistogramIntervals()");
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	t->HistogramIntervals();
 }
 
 void HistogramFrame::GetVizInfo(wxString& col_name, int& num_bins)
 {
-	
 	HistogramCanvas* t = (HistogramCanvas*) template_canvas;
 	num_bins = t->cur_intervals;
 	col_name = t->var_info[0].name;

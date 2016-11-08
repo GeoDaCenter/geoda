@@ -72,7 +72,8 @@ bool RegressionReportDlg::Create( wxWindow* parent, wxWindowID id,
 }
 
 void RegressionReportDlg::CreateControls()
-{    
+{
+    wxLogMessage("Open RegressionReportDlg.");
     //wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_REGRESSION_REPORT");
     //m_textbox = XRCCTRL(*this, "ID_TEXTCTRL1", wxTextCtrl);
     wxPanel *panel = new wxPanel(this, -1);
@@ -124,6 +125,7 @@ void RegressionReportDlg::OnMouseEvent(wxMouseEvent& event)
 
 void RegressionReportDlg::OnSaveToFile(wxCommandEvent& event)
 {
+    wxLogMessage("In RegressionReportDlg::OnSaveToFile()");
     wxFileDialog dlg( this, "Regression Output Text File", wxEmptyString,
                      wxEmptyString,
                      "TXT files (*.txt)|*.txt",
@@ -173,6 +175,7 @@ void RegressionReportDlg::OnSaveToFile(wxCommandEvent& event)
 
 void RegressionReportDlg::OnFontChanged(wxCommandEvent& event)
 {
+    wxLogMessage("In RegressionReportDlg::OnFontChanged()");
 	wxFontData data;
 	wxFontDialog dlg(NULL, data);
 	wxTextAttr attr;
@@ -188,6 +191,7 @@ void RegressionReportDlg::OnFontChanged(wxCommandEvent& event)
 
 void RegressionReportDlg::OnClose( wxCloseEvent& event )
 {
+    wxLogMessage("In RegressionReportDlg::OnClose()");
     Destroy();
     event.Skip();
 }

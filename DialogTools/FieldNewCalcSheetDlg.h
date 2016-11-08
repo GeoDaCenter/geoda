@@ -44,7 +44,7 @@ class FieldNewCalcSheetDlg: public wxDialog, public FramesManagerObserver,
 public:
     FieldNewCalcSheetDlg(Project* project,
 						 wxWindow* parent, wxWindowID id = wxID_ANY,
-						 const wxString& caption = "Var Calc Container",
+						 const wxString& caption = _("Var Calc Container"),
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = wxDefaultSize,
 						 long style = wxDEFAULT_DIALOG_STYLE );

@@ -18,11 +18,14 @@
  */
 
 #include <boost/foreach.hpp>
+
+#include <wx/wx.h>
 #include <wx/filename.h>
 #include <wx/textdlg.h>
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "DataViewerAddColDlg.h"
@@ -30,6 +33,8 @@
 #include "TableState.h"
 #include "../logger.h"
 #include "DataChangeType.h"
+
+using namespace std;
 
 BEGIN_EVENT_TABLE(DataChangeTypeFrame, TemplateFrame)
 	EVT_ACTIVATE(DataChangeTypeFrame::OnActivate)
@@ -45,7 +50,7 @@ add_var_btn(0), copy_btn(0),
 to_vars(0), to_data(0),
 ignore_callbacks(false)
 {
-	LOG_MSG("Entering DataChangeTypeFrame::DataChangeTypeFrame");
+	wxLogMessage("Open DataChangeTypeFrame.");
 	
 	panel = new wxPanel(this);
 	//panel->SetBackgroundColour(*wxWHITE);
@@ -175,7 +180,6 @@ ignore_callbacks(false)
 	
 	table_state->registerObserver(this);
 	Show(true);
-	LOG_MSG("Exiting DataChangeTypeFrame::DataChangeTypeFrame");
 }
 
 DataChangeTypeFrame::~DataChangeTypeFrame()
@@ -187,8 +191,8 @@ DataChangeTypeFrame::~DataChangeTypeFrame()
 
 void DataChangeTypeFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In DataChangeTypeFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In DataChangeTypeFrame::OnActivate");
 		RegisterAsActive("DataChangeTypeFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -196,10 +200,10 @@ void DataChangeTypeFrame::OnActivate(wxActivateEvent& event)
 
 void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
 {
-    using namespace std;
-	LOG_MSG("In DataChangeTypeFrame::OnAddVarBtn");
+	wxLogMessage("In DataChangeTypeFrame::OnAddVarBtn");
     
-	if (!from_vars || !from_data || !to_vars || !to_data) return;
+	if (!from_vars || !from_data || !to_vars || !to_data)
+        return;
     
     wxString from_name;
     wxString from_time;
@@ -246,7 +250,9 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         }
         to_sel = GetToVarSel(to_name, to_time);
     } else {
-        wxMessageDialog dlg (this, "Tip: clear selection on Transformed Variable list to add a new transformed variable", "Do you want to use \"" + to_name + "\" as Transformed Variable?", wxYES_NO | wxNO_DEFAULT);
+        wxString msg = _("Tip: clear selection on Transformed Variable list to add a new transformed variable");
+        wxString ttl = wxString::Format(_("Do you want to use \"%s\" as Transformed Variable?"), to_name);
+        wxMessageDialog dlg (this, msg, ttl, wxYES_NO | wxNO_DEFAULT);
         if (dlg.ShowModal() != wxID_YES) return;
     }
 	    
@@ -272,9 +278,8 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         to_type == GdaConst::unknown_type ||
         to_type == GdaConst::placeholder_type)
     {
-        wxString s;
-        s << "An unknown problem occurred. Could not copy data.";
-        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        wxString s = _("An unknown problem occurred. Could not copy data.");
+        wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         //copy_btn->Disable();
         return;
@@ -284,27 +289,14 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
         to_type == GdaConst::time_type ||
         to_type == GdaConst::datetime_type)
     {
-        wxString s;
-        s << "GeoDa does not support copying to date/time variables currently.";
-        wxMessageDialog dlg(NULL, s, "Information", wxOK | wxICON_INFORMATION);
+        wxString s = _("GeoDa does not support copying to date/time variables currently.");
+        wxMessageDialog dlg(NULL, s, _("Information"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
     
-    LOG(from_name);
-    LOG(from_time);
-    LOG(from_col);
-    LOG(from_tm);
-    LOG(from_type);
-    LOG(from_tm_variant);
-    LOG(to_name);
-    LOG(to_time);
-    LOG(to_col);
-    LOG(to_tm);
-    LOG(to_type);
-    LOG(to_tm_variant);
-    
     int num_rows = table_int->GetNumberRows();
+    
     vector<bool> undefined(num_rows, false);
     if (from_type == GdaConst::long64_type ||
         from_type == GdaConst::date_type ||
@@ -396,8 +388,7 @@ void DataChangeTypeFrame::OnAddVarBtn(wxCommandEvent& ev)
 
 void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 {
-	using namespace std;
-	LOG_MSG("Entering DataChangeTypeFrame::OnCopyBtn");
+	wxLogMessage("Entering DataChangeTypeFrame::OnCopyBtn");
 	wxString from_name;
 	wxString from_time;
 	int from_col = -1;
@@ -440,8 +431,7 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
         to_type == GdaConst::unknown_type ||
         to_type == GdaConst::placeholder_type)
 	{
-		wxString s;
-		s << "An unknown problem occurred. Could not copy data.";
+		wxString s = _("An unknown problem occurred. Could not copy data.");
 		wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		//copy_btn->Disable();
@@ -452,25 +442,11 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
         to_type == GdaConst::time_type ||
         to_type == GdaConst::datetime_type)
 	{
-		wxString s;
-		s << "GeoDa does not support copying to date variables currently.";
+		wxString s = _("GeoDa does not support copying to date variables currently.");
 		wxMessageDialog dlg(NULL, s, "Information", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
 	}
-	
-	LOG(from_name);
-	LOG(from_time);
-	LOG(from_col);
-	LOG(from_tm);
-	LOG(from_type);
-	LOG(from_tm_variant);
-	LOG(to_name);
-	LOG(to_time);
-	LOG(to_col);
-	LOG(to_tm);
-	LOG(to_type);
-	LOG(to_tm_variant);
 	
 	int num_rows = table_int->GetNumberRows();
 	vector<bool> undefined(num_rows, false);
@@ -554,13 +530,11 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
 			table_int->SetColData(to_col, to_tm, data);
 		}
 	}
-	
-	LOG_MSG("Exiting DataChangeTypeFrame::OnCopyBtn");
 }
 
 void DataChangeTypeFrame::OnFromVarsSel(wxListEvent& ev)
 {
-	LOG_MSG("In DataChangeTypeFrame::OnFromVarsSel");
+	wxLogMessage("In DataChangeTypeFrame::OnFromVarsSel");
 	if (!from_vars || !from_data || ignore_callbacks) return;
 	wxString name;
 	wxString time;
@@ -574,6 +548,7 @@ void DataChangeTypeFrame::OnFromVarsSel(wxListEvent& ev)
 
 void DataChangeTypeFrame::OnFromDataSel(wxListEvent& ev)
 {
+	wxLogMessage("In DataChangeTypeFrame::OnFromDataSel");
 	if (!from_data || ignore_callbacks) return;
 	int sel = ev.GetIndex();
 	if (sel < 0 || sel >= from_data->GetItemCount()) return;
@@ -582,7 +557,7 @@ void DataChangeTypeFrame::OnFromDataSel(wxListEvent& ev)
 
 void DataChangeTypeFrame::OnToVarsSel(wxListEvent& ev)
 {
-	LOG_MSG("In DataChangeTypeFrame::OnToVarsSel");
+	wxLogMessage("In DataChangeTypeFrame::OnToVarsSel");
 	if (!to_vars || !to_data || ignore_callbacks) return;
 	wxString name;
 	wxString time;
@@ -596,6 +571,7 @@ void DataChangeTypeFrame::OnToVarsSel(wxListEvent& ev)
 
 void DataChangeTypeFrame::OnToDataSel(wxListEvent& ev)
 {
+	wxLogMessage("In DataChangeTypeFrame::OnToDataSel");
 	if (!to_data || ignore_callbacks) return;
 	int sel = ev.GetIndex();
 	if (sel < 0 || sel >= to_data->GetItemCount()) return;
@@ -605,7 +581,6 @@ void DataChangeTypeFrame::OnToDataSel(wxListEvent& ev)
 /** Implementation of TableStateObserver interface */
 void DataChangeTypeFrame::update(TableState* o)
 {
-	LOG_MSG("In DataChangeTypeFrame::update(TableState* o)");
 	RefreshFromVars();
 	RefreshToVars();
 	UpdateButtons();
@@ -624,28 +599,23 @@ void DataChangeTypeFrame::UpdateButtons()
 
 int DataChangeTypeFrame::GetFromVarSel(wxString& name, wxString& time)
 {
-	LOG_MSG("In DataChangeTypeFrame::GetFromVarSel");
 	return GetVarSel(from_vars, name, time);
 }
 
 void DataChangeTypeFrame::RefreshFromVars()
 {
-	LOG_MSG("In DataChangeTypeFrame::RefreshFromVars");
 	RefreshVars(from_vars, from_data);
 }
 
 int DataChangeTypeFrame::GetToVarSel(wxString& name, wxString& time)
 {
-	LOG_MSG("In DataChangeTypeFrame::GetToVarSel");
 	return GetVarSel(to_vars, name, time);
 }
 
 
 void DataChangeTypeFrame::RefreshToVars()
 {
-	LOG_MSG("In DataChangeTypeFrame::RefreshToVars");
 	RefreshVars(to_vars, to_data);
-	
 }
 
 int DataChangeTypeFrame::GetVarSel(wxListCtrl* vars_list,
@@ -673,15 +643,14 @@ int DataChangeTypeFrame::GetVarSel(wxListCtrl* vars_list,
 void DataChangeTypeFrame::RefreshVars(wxListCtrl* vars_list,
 									  GdaColListCtrl* data_list)
 {
-	LOG_MSG("Entering DataChangeTypeFrame::RefreshVars");
-	if (!vars_list) return;
+	if (!vars_list)
+        return;
+    
 	ignore_callbacks = true;
 	wxString name;
 	wxString time;
 	int sel = GetVarSel(vars_list, name, time);
-	wxString msg("Current sel, name, time: ");
-	msg << sel << ", " << name << ", " << time;
-	LOG_MSG(msg);
+    
 	vars_list->DeleteAllItems();
 	int num_cols = table_int->GetNumberCols();
 	long item_cnt=0;
@@ -714,7 +683,6 @@ void DataChangeTypeFrame::RefreshVars(wxListCtrl* vars_list,
 		RefreshData(data_list, name, time);
 	}
 	ignore_callbacks = false;
-	LOG_MSG("Exiting DataChangeTypeFrame::RefreshVars");
 }
 
 void DataChangeTypeFrame::RefreshData(GdaColListCtrl* data_list,

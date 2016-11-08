@@ -121,7 +121,7 @@ class ConnectivityHistFrame : public TemplateFrame, public WeightsManStateObserv
 public:
     ConnectivityHistFrame(wxFrame *parent, Project* project,
 						  boost::uuids::uuid w_uuid,
-						  const wxString& title = "Connectivity Histogram",
+						  const wxString& title = _("Connectivity Histogram"),
 						  const wxPoint& pos = wxDefaultPosition,
 						  const wxSize& size = GdaConst::hist_default_size,
 						  const long style = wxDEFAULT_FRAME_STYLE);

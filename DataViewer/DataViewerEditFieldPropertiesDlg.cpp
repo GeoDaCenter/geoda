@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
@@ -45,7 +46,7 @@ DataViewerEditFieldPropertiesDlg::
 DataViewerEditFieldPropertiesDlg(Project* project_s,
                                  const wxPoint &pos,
                                  const wxSize &size )
-: wxDialog(0, wxID_ANY, "Variable Properties", pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+: wxDialog(0, wxID_ANY, _("Variable Properties"), pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
 project(project_s),
 table_int(project_s->GetTableInt()),
 cell_editor_open(false),
@@ -54,7 +55,8 @@ frames_manager(project_s->GetFramesManager()),
 table_state(project_s->GetTableState())
 {
     
-    LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::DataViewerEditFieldPropertiesDlg(..)");
+    wxLogMessage("Open DataViewerEditFieldPropertiesDlg");
+    
 	// determine columns to show and assign ids
 	NUM_COLS = 0;
 	COL_N = NUM_COLS++; // field name
@@ -76,12 +78,10 @@ table_state(project_s->GetTableState())
     combo_selection = -1;
 
     CreateControls();
-	SetTitle("Variable Properties - " + table_int->GetTableName());
+	SetTitle(_("Variable Properties - ") + table_int->GetTableName());
     Centre();
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
-    
-    LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::DataViewerEditFieldPropertiesDlg(..)");
 }
 
 DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
@@ -92,8 +92,6 @@ DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
 
 void DataViewerEditFieldPropertiesDlg::CreateControls()
 {
-	LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::CreateControls");
-	
 	//wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);
 	field_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(200,400));
 	field_grid->CreateGrid(table_int->GetNumberCols(), NUM_COLS, wxGrid::wxGridSelectRows);
@@ -121,22 +119,13 @@ void DataViewerEditFieldPropertiesDlg::CreateControls()
     for (int i=0; i<NUM_COLS; i++) {
         field_grid->EnableDragColSize(true);
     }
-	
-	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::CreateControls");
 }
 
 void DataViewerEditFieldPropertiesDlg::InitTable()
 {
-	LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::InitTable");
-	if (!field_grid) return;
-	LOG(table_int->IsReadOnly());
-	LOG(table_int->PermitRenameSimpleCol());
-	LOG(table_int->HasFixedLengths());
-	LOG(table_int->PermitChangeLength());
-	LOG(table_int->HasFixedDecimals());
-	LOG(table_int->PermitChangeDecimals());
-	LOG(table_int->PermitChangeDisplayedDecimals());
-	
+	if (!field_grid)
+        return;
+    
 	field_grid->DeleteRows(0, field_grid->GetNumberRows());
 	fn_freq.clear();
 	
@@ -306,12 +295,12 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
                        wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected),
                        NULL,
                        this);
-	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::InitTable");
 }
 
 
 void DataViewerEditFieldPropertiesDlg::OnFieldSelected( wxCommandEvent& ev )
 {
+	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnFieldSelected");
     field_grid->SaveEditControlValue();
     field_grid->EnableCellEditControl(false);
     ev.Skip();
@@ -319,26 +308,24 @@ void DataViewerEditFieldPropertiesDlg::OnFieldSelected( wxCommandEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCloseButton( wxCommandEvent& ev )
 {
-	LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::OnCloseButton");
+	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnCloseButton");
 	ev.Skip();
 	Close();
-	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::OnCloseButton");
 }
 
 void DataViewerEditFieldPropertiesDlg::OnClose( wxCloseEvent& ev )
 {
-	LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::OnClose");
+	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnClose");
 	// MMM: This was preventing GeoDa from exiting properly when
 	// the cell editor was open.
 	//if (cell_editor_open) return;
 	Destroy();
-	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::OnClose");
 }
 
 
 void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 {
-	LOG_MSG("Entering DataViewerEditFieldPropertiesDlg::OnCellChanging");
+	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnCellChanging");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	if (row < 0 || col < 0) {
@@ -359,8 +346,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		ev.Veto();
 		return;
 	}
-	LOG(cid);
-	LOG(time);
 	
 	wxString cur_str = field_grid->GetCellValue(row, col);
 	cur_str.Trim(false);
@@ -377,7 +362,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	wxString msg;
 	msg << "changing row " << row << ", col " << col << " from ";
 	msg << cur_str << " to " << new_str;
-	LOG_MSG(msg);
 	
 	GdaConst::FieldType type = GdaConst::unknown_type;
 	wxString type_str = field_grid->GetCellValue(row, COL_T);
@@ -395,7 +379,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		type = GdaConst::datetime_type;
 	} else {
 		ev.Veto();
-		LOG_MSG("Unknown field type in properties table.");
 		return;
 	}
 	
@@ -452,7 +435,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     new_type_str == "time" ||
                     new_type_str == "datetime")
                 {
-                    wxString m = "GeoDa doesn't support changing variable type to DATE/TIME. Please select other variable type.";
+                    wxString m = _("GeoDa doesn't support changing variable type to DATE/TIME. Please select other variable type.");
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
@@ -516,7 +499,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     if (tmp_col >= 0) {
                         table_int->DeleteCol(tmp_col);
                     }
-                    wxString m = wxString::Format("Change variable type for \"%s\" has failed. Please check all values are valid for conversion.", var_name);
+                    wxString m = wxString::Format(_("Change variable type for \"%s\" has failed. Please check all values are valid for conversion."), var_name);
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
@@ -532,12 +515,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
     } else if (col == COL_N) {
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidDBColName(new_str)) {
-			wxString m;
-			m << "Variable name \"" << new_str << "\" is either a duplicate ";
-			m << "or is invalid. Please enter an alternative, non-duplicate ";
-			m << "variable name. The first character must be a letter, ";
-			m << "and the remaining characters can be either letters, ";
-			m << "numbers or underscores. For DBF table, a valid variable name is between one and ten characters long.";
+			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
 			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
@@ -554,10 +532,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidGroupName(new_str)) {
-			wxString m;
-			m << "Variable name \"" << new_str << "\" is either a duplicate ";
-			m << "or is invalid. Please enter an alternative, non-duplicate ";
-			m << "variable name.";
+			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
 			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
@@ -597,11 +572,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         
 		if (col_type == GdaConst::string_type) {
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg;
-				msg << "The length of a string field must be at least ";
-				msg << min_v << " and at most " << max_v;
-				msg << ". Keeping original value.";
-				wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+				wxString msg = wxString::Format(_("The length of a string field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
 				return;
@@ -617,11 +589,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
             
 		} else if (col_type == GdaConst::long64_type) {
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg;
-				msg << "The length of an integral numeric field must be";
-				msg << " at least " << min_v << " and at most " << max_v;
-				msg << ". Keeping original value.";
-				wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+				wxString msg = wxString::Format(_("The length of an integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
 				return;
@@ -632,11 +601,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		} else {
             // table_int->GetColType(cid) == GdaConst::double_type
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg;
-				msg << "The length of a non-integral numeric field must be";
-				msg << " at least " << min_v << " and at most " << max_v;
-				msg << ". Keeping original value.";
-				wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+				wxString msg = wxString::Format(_("The length of an non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
 				return;
@@ -661,12 +627,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		min_v = GdaConst::min_dbf_double_decimals;
 		max_v = GdaConst::max_dbf_double_decimals;
 		if (new_val < min_v || max_v < new_val) {
-			wxString msg;
-			msg << "The number of decimal places for a non-integral ";
-			msg << "numeric field must be at least " << min_v;
-			msg << " and at most " << max_v;
-			msg << ". Keeping original value.";
-			wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+            wxString msg = wxString::Format(_("The number of decimal places for a non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+			wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
 			return;
@@ -691,12 +653,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 				min_v = 0;
 				max_v = GdaConst::max_dbf_double_decimals;
 				if (new_val < min_v || max_v < new_val) {
-					wxString msg;
-					msg << "The number of displayed decimal places for a ";
-					msg << "non-integral numeric field must be at least " << min_v;
-					msg << " and at most " << max_v;
-					msg << " Keeping original value.";
-					wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+                    wxString msg = wxString::Format(_("The number of displayed decimal places for a non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+					wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 					dlg.ShowModal();
 					ev.Veto();
 					return;
@@ -741,8 +699,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 	}
 	UpdateMinMax(row);
-	
-	LOG_MSG("Exiting DataViewerEditFieldPropertiesDlg::OnCellChanging");
 }
 
 void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
@@ -754,7 +710,7 @@ void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedEvent& ev )
 {
-    LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
+    wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
     cell_editor_open = true;
     int row = ev.GetRow();
     int col = ev.GetCol();
@@ -767,7 +723,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedE
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
 {
-	LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
+	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
 	cell_editor_open = true;
     int row = ev.GetRow();
     int col = ev.GetCol();
@@ -779,7 +735,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorHidden( wxGridEvent& ev )
 {
-	LOG_MSG("In DataViewerEditFieldPropertiesDlg::OnCellEditorHidden");
+	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorHidden");
 	cell_editor_open = false;
     
     int row = ev.GetRow();

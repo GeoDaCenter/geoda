@@ -81,7 +81,7 @@ class ScatterPlotMatFrame : public TemplateFrame, public LowessParamObserver, pu
 {
 public:
 	ScatterPlotMatFrame(wxFrame *parent, Project* project,
-                        const wxString& title = "Scatter Plot Matrix",
+                        const wxString& title = _("Scatter Plot Matrix"),
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
 	virtual ~ScatterPlotMatFrame();

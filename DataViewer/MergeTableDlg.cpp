@@ -20,6 +20,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/button.h>
@@ -61,18 +62,15 @@ using namespace std;
 MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 : table_int(_table_int)
 {
-    LOG_MSG("Entering MergeTableDlg::MergeTableDlg(..)");
+    wxLogMessage("Open MergeTableDlg.");
 	SetParent(NULL);
 	//table_int->FillColIdMap(col_id_map);
 	CreateControls();
 	Init();
 	wxString nm;
-	SetTitle("Merge - " + table_int->GetTableName());
+	SetTitle(_("Merge - ") + table_int->GetTableName());
 	SetPosition(pos);
     Centre();
-    
-    
-    LOG_MSG("Exiting MergeTableDlg::MergeTableDlg(..)");
 }
 
 MergeTableDlg::~MergeTableDlg()
@@ -102,8 +100,6 @@ void MergeTableDlg::CreateControls()
 
 void MergeTableDlg::Init()
 {
-    LOG_MSG("Entering MergeTableDlg::Init()");
-    
 	vector<wxString> col_names;
 	table_fnames.clear();
 	// get the field names from table interface
@@ -129,9 +125,6 @@ void MergeTableDlg::Init()
         }
     }
 	UpdateMergeButton();
-    
-    
-    LOG_MSG("Exiting MergeTableDlg::Init()");
 }
 
 void MergeTableDlg::OnKeyValRB( wxCommandEvent& ev )
@@ -146,8 +139,7 @@ void MergeTableDlg::OnRecOrderRB( wxCommandEvent& ev )
 
 void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 {
-    
-    LOG_MSG("Entering MergeTableDlg::OnOpenClick()");
+    wxLogMessage("Entering MergeTableDlg::OnOpenClick()");
     try {
         ConnectDatasourceDlg dlg(this);
         if (dlg.ShowModal() != wxID_OK) return;
@@ -188,15 +180,15 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         }
         
     }catch(GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }
-    LOG_MSG("Exiting MergeTableDlg::OnOpenClick()");
 }
 
 void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnIncAllClick()");
 	for (int i=0, iend=m_exclude_list->GetCount(); i<iend; i++) {
 		m_include_list->Append(m_exclude_list->GetString(i));
 	}
@@ -206,6 +198,7 @@ void MergeTableDlg::OnIncAllClick( wxCommandEvent& ev)
 
 void MergeTableDlg::OnIncOneClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnIncOneClick()");
 	if (m_exclude_list->GetSelection() >= 0) {
 		wxString k = m_exclude_list->GetString(m_exclude_list->GetSelection());
 		m_include_list->Append(k);
@@ -216,11 +209,13 @@ void MergeTableDlg::OnIncOneClick( wxCommandEvent& ev)
 
 void MergeTableDlg::OnIncListDClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnIncListDClick()");
 	OnExclOneClick(ev);
 }
 
 void MergeTableDlg::OnExclAllClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnExclAllClick()");
 	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
 		m_exclude_list->Append(m_include_list->GetString(i));
 	}
@@ -230,6 +225,7 @@ void MergeTableDlg::OnExclAllClick( wxCommandEvent& ev)
 
 void MergeTableDlg::OnExclOneClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnExclOneClick()");
 	if (m_include_list->GetSelection() >= 0) {
 		m_exclude_list->
 			Append(m_include_list->GetString(m_include_list->GetSelection()));
@@ -240,6 +236,7 @@ void MergeTableDlg::OnExclOneClick( wxCommandEvent& ev)
 
 void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Entering MergeTableDlg::OnExclListDClick()");
 	OnIncOneClick(ev);
 }
 
@@ -264,10 +261,7 @@ void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
     }
 	
     if (key_vec.size() != key_map.size()) {
-        wxString msg;
-        msg << "Chosen table merge key field " << key_name;
-        msg << " contains undefined or duplicate values. Key fields must contain valid unique values.\n\n";
-        msg << "Duplicated values are: ";
+        wxString msg = wxString::Format(_("Chosen table merge key field contains undefined or duplicate values. Key fields must contain valid unique values.\n\nDuplicated values are: \n"), key_name);
 			int count = 0;
 			for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
 				msg << it->first << "\n";
@@ -324,6 +318,8 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
 
 void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 {
+    wxLogMessage("In MergeTableDlg::OnMergeClick()");
+    
     try {
         wxString error_msg;
         
@@ -350,7 +346,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             wxString key1_name = m_current_key->GetString(key1_id);
             int col1_id = table_int->FindColId(key1_name);
             if (table_int->IsColTimeVariant(col1_id)) {
-                error_msg = wxString::Format("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key.", key1_name);
+                error_msg = wxString::Format(_("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."), key1_name);
                 throw GdaException(error_msg.mb_str());
             }
             
@@ -398,14 +394,14 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             }
             
             if ( n_matches == 0 ){
-                error_msg = "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values.";
+                error_msg = _("The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values.");
                 throw GdaException(error_msg.mb_str());
             }
         }
         // merge by order sequence
         else if (m_rec_order_rb->GetValue() == 1) {
             if (table_int->GetNumberRows() > merge_layer_proxy->GetNumRecords()) {
-                error_msg = wxString::Format("The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records", table_int->GetNumberRows());
+                error_msg = wxString::Format(_("The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"), table_int->GetNumberRows());
                 throw GdaException(error_msg.mb_str());
             }
         }
@@ -424,14 +420,13 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 	}
     catch (GdaException& ex) {
         if (ex.type() == GdaException::NORMAL) return;
-        wxMessageDialog dlg(this, ex.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(this, ex.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        //EndDialog(wxID_CANCEL);
         return;
     }
     
-	wxMessageDialog dlg(this, "File merged into Table successfully.",
-						"Success", wxOK );
+	wxMessageDialog dlg(this, _("File merged into Table successfully."),
+						_("Success"), wxOK );
 	dlg.ShowModal();
 	ev.Skip();
 	EndDialog(wxID_OK);	
@@ -513,6 +508,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
+    wxLogMessage("In MergeTableDlg::OnCloseClick()");
 	//ev.Skip();
 	EndDialog(wxID_CLOSE);
 }
@@ -524,6 +520,7 @@ void MergeTableDlg::OnClose( wxCloseEvent& ev)
 
 void MergeTableDlg::OnKeyChoice( wxCommandEvent& ev )
 {
+    wxLogMessage("In MergeTableDlg::OnKeyChoice()");
 	UpdateMergeButton();
 }
 

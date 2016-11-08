@@ -51,7 +51,6 @@ ConnectivityMapCanvas::ConnectivityMapCanvas(wxWindow *parent,
 			   no_smoothing, 1, weights_id, pos, size),
 	w_man_int(project->GetWManInt())
 {
-	LOG_MSG("Entering ConnectivityMapCanvas::ConnectivityMapCanvas");
 	SetWeightsId(weights_id);
 	
 	wxString w_title = project->GetWManInt()->GetShortDispName(GetWeightsId());
@@ -81,13 +80,10 @@ ConnectivityMapCanvas::ConnectivityMapCanvas(wxWindow *parent,
 	// Used to synchronize core selection amongst all ConnectivityMaps
 	shared_core_hs = project->GetConMapHlightState();
 	shared_core_hs->registerObserver(this);
-	
-	LOG_MSG("Exiting ConnectivityMapCanvas::ConnectivityMapCanvas");
 }
 
 ConnectivityMapCanvas::~ConnectivityMapCanvas()
 {
-	LOG_MSG("In ConnectivityMapCanvas::~ConnectivityMapCanvas");
 	proj_hs->removeObserver(this);
 	highlight_state->removeObserver(this);
 	// ensure child won't try to removeObserver as well.  Since this is
@@ -192,8 +188,7 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 				Refresh();
 			}
 		} else { // unknown state
-			LOG_MSG("TemplateCanvas::OnMouseEvent: ERROR, unknown SelectState");
-		}		
+		}
 	} else {
 		TemplateCanvas::OnMouseEvent(event);
 	}
@@ -205,7 +200,6 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 // all GdaShape selectable objects.
 void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
-	LOG_MSG("Entering ConnectivityMapCanvas::UpdateSelection");
 	size_t sel_shps_sz = selectable_shps.size();
 	
 	sel_cores.clear();
@@ -288,14 +282,10 @@ void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		shared_core_hs->SetEventType(HLStateInt::delta);
 		shared_core_hs->notifyObservers();
 	}
-	
-	LOG_MSG("Exiting ConnectivityMapCanvas::UpdateSelection");	
 }
 
 void ConnectivityMapCanvas::UpdateFromSharedCore()
 {
-	LOG_MSG("Entering ConnectivityMapCanvas::UpdateFromSharedCore");
-	
 	sel_cores.clear();
 	std::vector<bool>& sc_hs = shared_core_hs->GetHighlight();
 	for (size_t i=0, sz=sc_hs.size(); i<sz; ++i) {
@@ -327,7 +317,6 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 	}
 	
 	UpdateStatusBar();
-	LOG_MSG("Exiting ConnectivityMapCanvas::UpdateFromSharedCore");
 }
 
 /** Don't draw selection outline */
@@ -337,7 +326,6 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 
 void ConnectivityMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering ConnectivityMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	if (ConnectivityMapFrame* f =
@@ -355,14 +343,12 @@ void ConnectivityMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 		template_frame->PopupMenu(optMenu, pos + GetPosition());
 		template_frame->UpdateOptionMenuItems();
 	}
-	LOG_MSG("Exiting ConnectivityMapCanvas::DisplayRightClickMenu");
 }
 
 wxString ConnectivityMapCanvas::GetCanvasTitle()
 {
 	wxString s;
 	s << "Connectivity Map - " << w_man_int->GetLongDispName(weights_id);
-	//LOG_MSG("ConnectivityMapCanvas::GetCanvasTitle(): " + s);
 	return s;
 }
 
@@ -373,7 +359,6 @@ bool ConnectivityMapCanvas::ChangeMapType(
 							CatClassification::CatClassifType new_map_theme,
 							SmoothingType new_map_smoothing)
 {
-	LOG_MSG("In ConnectivityMapCanvas::ChangeMapType");
 	return false;
 }
 
@@ -390,7 +375,6 @@ void ConnectivityMapCanvas::SetCheckMarks(wxMenu* menu)
 /** Time changes have no effect */
 void ConnectivityMapCanvas::TimeChange()
 {
-	LOG_MSG("In ConnectivityMapCanvas::TimeChange");
 }
 
 /** Nothing to do */
@@ -434,16 +418,13 @@ void ConnectivityMapCanvas::ChangeWeights(boost::uuids::uuid new_id)
 
 void ConnectivityMapCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering ConnectivityMapCanvas::update");
 	if (o == proj_hs) {
 	} else if (o == highlight_state) {
 		TemplateCanvas::update(o);
 	} else { // o == shared_core_hs
 		UpdateFromSharedCore();
 	}
-	
-	LOG_MSG("Exiting ConnectivityMapCanvas::update");
-}	
+}
 
 void ConnectivityMapCanvas::UpdateStatusBar()
 {
@@ -492,7 +473,7 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
 										   const long style)
 : MapFrame(parent, project, pos, size, style)
 {
-	LOG_MSG("Entering ConnectivityMapFrame::ConnectivityMapFrame");
+	wxLogMessage("Open ConnectivityMapFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -529,28 +510,25 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
     DisplayStatusBar(true);
     SetTitle(template_canvas->GetCanvasTitle());
     
-    
 	Show(true);
-	LOG_MSG("Exiting ConnectivityMapFrame::ConnectivityMapFrame");
 }
 
 ConnectivityMapFrame::~ConnectivityMapFrame()
 {
-	LOG_MSG("In ConnectivityMapFrame::~ConnectivityMapFrame");
 }
 
 void ConnectivityMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In ConnectivityMapFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In ConnectivityMapFrame::OnActivate");
 		RegisterAsActive("ConnectivityMapFrame", GetTitle());
 	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    if ( event.GetActive() && template_canvas )
+        template_canvas->SetFocus();
 }
 
 void ConnectivityMapFrame::MapMenus()
 {
-	LOG_MSG("In ConnectivityMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -610,32 +588,26 @@ void ConnectivityMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 
 void ConnectivityMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering ConnectivityMapFrame::OnSelectCores");
+	wxLogMessage("Entering ConnectivityMapFrame::OnSelectCores");
 	
 	std::vector<bool> elem(project->GetNumRecords(), false);
 	CoreSelectHelper(elem);
-	
-	LOG_MSG("Exiting ConnectivityMapFrame::OnSelectCores");
 }
 
 void ConnectivityMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering ConnectivityMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering ConnectivityMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(project->GetNumRecords(), false);
 	CoreSelectHelper(elem);
-	
-	LOG_MSG("Exiting ConnectivityMapFrame::OnSelectNeighborsOfCores");
 }
 
 void ConnectivityMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering ConnectivityMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering ConnectivityMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(project->GetNumRecords(), false);
 	CoreSelectHelper(elem);
-	
-	LOG_MSG("Exiting ConnectivityMapFrame::OnSelectCoresAndNeighbors");
 }
 
 void ConnectivityMapFrame::ChangeWeights(boost::uuids::uuid new_id)

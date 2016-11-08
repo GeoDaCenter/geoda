@@ -23,6 +23,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <wx/wx.h>
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
 #include <wx/radiobut.h>

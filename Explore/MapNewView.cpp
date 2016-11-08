@@ -71,6 +71,9 @@ SliderDialog::SliderDialog(wxWindow * parent,
                            long style )
 : wxDialog( parent, id, caption, position, size, style)
 {
+    
+    wxLogMessage("Open SliderDialog");
+    
     canvas = _canvas;
     
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
@@ -166,7 +169,6 @@ basemap_bm(0),
 map_bm(0)
 {
 	using namespace Shapefile;
-	wxLogMessage("Entering MapCanvas::MapCanvas");
 	
 	cat_classif_def.cat_classif_type = theme_type;
 	if (theme_type == CatClassification::no_theme) {
@@ -1558,7 +1560,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, "Map", pos, size, style),
 w_man_state(project->GetWManState())
 {
-	LOG_MSG("Entering MapFrame::MapFrame");
+	wxLogMessage("Open MapFrame.");
 
     
 	int width, height;
@@ -1608,7 +1610,6 @@ w_man_state(project->GetWManState())
 	w_man_state->registerObserver(this);
 
 	Show(true);
-	LOG_MSG("Exiting MapFrame::MapFrame");
 }
 
 MapFrame::MapFrame(wxFrame *parent, Project* project,
@@ -1617,14 +1618,11 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, "Map", pos, size, style),
 w_man_state(project->GetWManState())
 {
-	LOG_MSG("Entering MapFrame::MapFrame");
 	w_man_state->registerObserver(this);
-	LOG_MSG("Exiting MapFrame::MapFrame");
 }
 
 MapFrame::~MapFrame()
 {
-	LOG_MSG("In MapFrame::~MapFrame");
 	if (w_man_state) {
 		w_man_state->removeObserver(this);
 		w_man_state = 0;
@@ -1707,7 +1705,7 @@ void MapFrame::OnMapRefresh(wxCommandEvent& e)
 //}
 void MapFrame::OnMapBasemap(wxCommandEvent& e)
 {
-    
+    wxLogMessage("In MapFrame::OnMapBasemap()");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_BASEMAP_MENU");
 	
     if (popupMenu) {
@@ -1733,8 +1731,8 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
 
 void MapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In MapFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In MapFrame::OnActivate");
 		RegisterAsActive("MapFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -1742,7 +1740,6 @@ void MapFrame::OnActivate(wxActivateEvent& event)
 
 void MapFrame::MapMenus()
 {
-	LOG_MSG("In MapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
@@ -1759,7 +1756,6 @@ void MapFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("MapFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		((MapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1778,7 +1774,6 @@ void MapFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void  MapFrame::update(TimeState* o)
 {
-	LOG_MSG("In MapFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 	if (template_legend) template_legend->Refresh();
@@ -1787,8 +1782,7 @@ void  MapFrame::update(TimeState* o)
 /** Implementation of WeightsManStateObserver interface */
 void MapFrame::update(WeightsManState* o)
 {
-	LOG_MSG("In MapFrame::update(WeightsManState*)");
-	if (o->GetWeightsId() != 
+	if (o->GetWeightsId() !=
 		((MapCanvas*) template_canvas)->GetWeightsId()) return;
 	if (o->GetEventType() == WeightsManState::name_change_evt) {
 		UpdateTitle();
@@ -1806,7 +1800,6 @@ int MapFrame::numMustCloseToRemove(boost::uuids::uuid id) const
 
 void MapFrame::closeObserver(boost::uuids::uuid id)
 {
-	LOG_MSG("In MapFrame::closeObserver");
 	if (numMustCloseToRemove(id) > 0) {
 		((MapCanvas*) template_canvas)->SetWeightsId(boost::uuids::nil_uuid());
 		if (w_man_state) {

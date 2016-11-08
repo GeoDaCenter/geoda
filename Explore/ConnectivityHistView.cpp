@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
 #include <wx/filename.h>
@@ -71,7 +72,6 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering ConnectivityHistCanvas::ConnectivityHistCanvas");
 	
 	InitData();
 	InitIntervals();
@@ -86,19 +86,15 @@ w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConnectivityHistCanvas::ConnectivityHistCanvas");
 }
 
 ConnectivityHistCanvas::~ConnectivityHistCanvas()
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::~ConnectivityHistCanvas");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting ConnectivityHistCanvas::~ConnectivityHistCanvas");
 }
 
 void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	if (ConnectivityHistFrame* f =
@@ -124,9 +120,7 @@ void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, cp_pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting ConnectivityHistCanvas::DisplayRightClickMenu");
 }
-
 
 void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)
 {
@@ -261,8 +255,6 @@ void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void ConnectivityHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::update");
-	
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -270,12 +262,7 @@ void ConnectivityHistCanvas::update(HLStateInt* o)
 	UpdateIvalSelCnts();
 	
 	Refresh();
-	
-	LOG_MSG("Entering ConnectivityHistCanvas::update");	
 }
-
-
-
 
 wxString ConnectivityHistCanvas::GetCanvasTitle()
 {
@@ -286,7 +273,6 @@ wxString ConnectivityHistCanvas::GetCanvasTitle()
 
 void ConnectivityHistCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -318,7 +304,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, 0);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, y_max), -9, 0);
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, y_max), -9, 0);
 		foreground_shps.push_back(y_axis);
 		
 		axis_scale_x = AxisScale(0, max_ival_val);
@@ -349,24 +335,22 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis("Number of Neighbors", axis_scale_x, wxRealPoint(0,0), wxRealPoint(x_max, 0), 0, 9);
+		x_axis = new GdaAxis(_("Number of Neighbors"), axis_scale_x, wxRealPoint(0,0), wxRealPoint(x_max, 0), 0, 9);
 		foreground_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
 	if (HasIsolates()) {
 		wxString msg;
-		msg << "Warning: " << num_isolates << " observation";
 		if (num_isolates > 1) {
-			msg << "s are ";
+            msg = wxString::Format(_("Warning: %s observations are neighborless."), num_isolates);
 		} else {
-			msg << " is ";
+            msg = wxString::Format(_("Warning: %s observations is neighborless."), num_isolates);
 		}
-		msg << "neighborless.";
-		s = new GdaShapeText(msg, *GdaConst::small_font,
-					   wxRealPoint(((double) x_max)/2.0,
-								   y_max), 0, GdaShapeText::h_center,
-					   GdaShapeText::bottom, 0, -15);
+        s = new GdaShapeText(msg, *GdaConst::small_font,
+                             wxRealPoint(((double) x_max)/2.0, y_max),
+                             0, GdaShapeText::h_center,
+                             GdaShapeText::bottom, 0, -15);
 		foreground_shps.push_back(s);
 	}
 		
@@ -474,8 +458,6 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	}
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting ConnectivityHistCanvas::PopulateCanvas");
 }
 
 void ConnectivityHistCanvas::ChangeWeights(boost::uuids::uuid new_id)
@@ -708,7 +690,7 @@ ConnectivityHistFrame::ConnectivityHistFrame(wxFrame *parent, Project* project,
 w_man_state(project->GetWManState()), w_man_int(project->GetWManInt()),
 w_uuid(w_uuid_s)
 {
-	LOG_MSG("Entering ConnectivityHistFrame::ConnectivityHistFrame");
+	wxLogMessage("Open ConnectivityHistFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -722,12 +704,10 @@ w_uuid(w_uuid_s)
 	w_man_state->registerObserver(this);
 		
 	Show(true);
-	LOG_MSG("Exiting ConnectivityHistFrame::ConnectivityHistFrame");
 }
 
 ConnectivityHistFrame::~ConnectivityHistFrame()
 {
-	LOG_MSG("In ConnectivityHistFrame::~ConnectivityHistFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 	if (w_man_state) {
@@ -738,16 +718,17 @@ ConnectivityHistFrame::~ConnectivityHistFrame()
 
 void ConnectivityHistFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("ConnectivityHistFrame::OnActivate");
+        
 		RegisterAsActive("ConnectivityHistFrame", GetTitle());
 	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    if ( event.GetActive() && template_canvas )
+        template_canvas->SetFocus();
 }
 
 void ConnectivityHistFrame::MapMenus()
 {
-	LOG_MSG("In ConnectivityHistFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -763,8 +744,6 @@ void ConnectivityHistFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConnectivityHistFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((ConnectivityHistCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));
@@ -784,14 +763,12 @@ void ConnectivityHistFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void ConnectivityHistFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(TimeState*)");
 	UpdateTitle();
 }
 
 /** Implementation of WeightsManStateObserver interface */
 void ConnectivityHistFrame::update(WeightsManState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(WeightsManState*)");
 	if (o->GetWeightsId() != w_uuid) return;
 	if (o->GetEventType() == WeightsManState::name_change_evt) {
 		UpdateTitle();
@@ -823,7 +800,7 @@ void ConnectivityHistFrame::ChangeWeights(boost::uuids::uuid new_id)
 
 void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnShowAxes");
+	wxLogMessage("In ConnectivityHistFrame::OnShowAxes");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -831,7 +808,7 @@ void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)
 
 void ConnectivityHistFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnDisplayStatistics");
+	wxLogMessage("In ConnectivityHistFrame::OnDisplayStatistics");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -839,21 +816,21 @@ void ConnectivityHistFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void ConnectivityHistFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnDisplayStatistics");
+	wxLogMessage("In ConnectivityHistFrame::OnDisplayStatistics");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->HistogramIntervals();
 }
 
 void ConnectivityHistFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnSaveConnectivityToTable");
+	wxLogMessage("In ConnectivityHistFrame::OnSaveConnectivityToTable");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->SaveConnectivityToTable();
 }
 
 void ConnectivityHistFrame::OnSelectIsolates(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnSelectIsolates");
+	wxLogMessage("In ConnectivityHistFrame::OnSelectIsolates");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->SelectIsolates();
 }

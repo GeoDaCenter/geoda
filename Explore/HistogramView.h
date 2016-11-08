@@ -155,7 +155,7 @@ public:
     HistogramFrame(wxFrame *parent, Project* project,
 				   const std::vector<GdaVarTools::VarInfo>& var_info,
 				   const std::vector<int>& col_ids,
-				   const wxString& title = "Histogram",
+				   const wxString& title = _("Histogram"),
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = GdaConst::hist_default_size,
 				   const long style = wxDEFAULT_FRAME_STYLE);

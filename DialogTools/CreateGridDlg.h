@@ -30,13 +30,13 @@ class CreateGridDlg: public wxDialog
 public:
     CreateGridDlg( );
     CreateGridDlg( wxWindow* parent, wxWindowID id = -1,
-				   const wxString& caption = "Creating Grid",
+				   const wxString& caption = _("Creating Grid"),
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
 				   long style = wxCAPTION|wxSYSTEM_MENU );
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Creating Grid",
+				const wxString& caption = _("Creating Grid"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );

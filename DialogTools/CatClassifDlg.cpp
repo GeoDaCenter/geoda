@@ -22,6 +22,7 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
 #include <wx/colourdata.h>
@@ -46,6 +47,7 @@
 #include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 
+using namespace std;
 
 BEGIN_EVENT_TABLE(CatClassifHistCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
@@ -268,8 +270,7 @@ void CatClassifHistCanvas::update(HLStateInt* o)
 
 wxString CatClassifHistCanvas::GetCanvasTitle()
 {
-	wxString s;
-	s << "Category Editor";
+	wxString s = _("Category Editor");
 	return s;
 }
 
@@ -566,7 +567,7 @@ void CatClassifHistCanvas::UpdateStatusBar()
 	sb->SetStatusText(s);
 }
 
-const wxString CatClassifPanel::unif_dist_txt("uniform distribution");
+const wxString CatClassifPanel::unif_dist_txt(_("uniform distribution"));
 const int CatClassifPanel::max_intervals = 10;
 const int CatClassifPanel::default_intervals = 4;
 const double CatClassifPanel::default_min = 0;
@@ -628,7 +629,6 @@ unif_dist_mode(true),
 all_init(false),
 useScientificNotation(_useScientificNotation)
 {
-	using namespace std;
 	SetParent(parent);
 	
 	CatClassifHistCanvas::InitUniformData(data, cc_data.uniform_dist_min,
@@ -824,9 +824,9 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 											int field_tm,
                                             bool prompt_title_dlg)
 {
-	if (!all_init) return 0;
-	wxString msg;
-	msg << "New Custom Categories Title:";
+	if (!all_init)
+        return 0;
+	wxString msg = _("New Custom Categories Title:");
 	wxString new_title = (suggested_title.IsEmpty() ?
 						  GetDefaultTitle(field_name, field_tm) :
 						  suggested_title);
@@ -835,7 +835,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
     
     if (prompt_title_dlg) {
         while (retry) {
-            wxTextEntryDialog dlg(this, msg, "New Categories Title");
+            wxTextEntryDialog dlg(this, msg, _("New Categories Title"));
             dlg.SetValue(new_title);
             if (dlg.ShowModal() == wxID_OK) {
                 new_title = dlg.GetValue();
@@ -844,9 +844,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
                 if (new_title.IsEmpty()) {
                     retry = false;
                 } else if (IsDuplicateTitle(new_title)) {
-                    wxString es;
-                    es << "Categories title \"" << new_title << "\" already ";
-                    es << "exists. Please choose a different title.";
+                    wxString es = wxString::Format(_("Categories title \"%s\" already exists. Please choose a different title."), new_title);
                     wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
                     ed.ShowModal();
                 } else {
@@ -859,6 +857,10 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         }
     }
 
+    
+    wxLogMessage("In CatClassifPanel::PromptNew");
+    wxLogMessage(_("suggested title:") + suggested_title);
+    wxLogMessage(_("field name:") + field_name);
     
     if (success || (prompt_title_dlg == false && !new_title.IsEmpty()) ) {
         cc_data = ccd;
@@ -892,13 +894,16 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
  re-initialize interface. */
 void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnCurCatsChoice");
+    
 	if (!all_init) return;
 	wxString cc_str_sel = cur_cats_choice->GetStringSelection();
 	cc_state = cat_classif_manager->FindClassifState(cc_str_sel);
 	if (!cc_state) return;
 	cc_data = cc_state->GetCatClassif();
 	SetSyncVars(true);
-    
+   
+    wxLogMessage(_("choice:") + cc_str_sel);
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
@@ -911,10 +916,13 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 
 void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnBreaksChoice");
+    
 	if (!all_init) return;
 	CatClassification::BreakValsType bv_type = GetBreakValsTypeChoice();
 	cc_data.break_vals_type = bv_type;
     
+    wxLogMessage(wxString::Format(_("choice: %s"), bv_type));
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
@@ -926,6 +934,8 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 
 void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnColorSchemeChoice");
+    
 	if (!all_init) return;
 	cc_data.color_scheme = GetColorSchemeChoice();
 	if (cc_data.color_scheme != CatClassification::custom_color_scheme) {
@@ -955,6 +965,8 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 
 void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnNumCatsChoice");
+    
 	if (!all_init) return;
 	int new_num_cats = GetNumCats();
 	if (new_num_cats == cc_data.num_cats ||
@@ -966,6 +978,8 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
     } else {
         brk_slider->Enable(true);
     }
+    
+    wxLogMessage(wxString::Format("choice: %s", new_num_cats));
     
 	CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
 	if (new_cat_typ == CatClassification::hinge_15_break_vals ||
@@ -1009,6 +1023,8 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 
 void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
 {
+    wxLogMessage("CatClassifPanel::OnAssocVarChoice");
+    
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 	assoc_var_tm_choice->Enable(is_tm_var);
@@ -1030,6 +1046,7 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
 
 void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
 {
+    wxLogMessage("CatClassifPanel::OnAssocVarTmChoice");
 	if (cc_state) {
 		cc_state->GetCatClassif().assoc_db_fld_name = GetAssocDbFldNm();
 		cc_data.assoc_db_fld_name = GetAssocDbFldNm();
@@ -1046,6 +1063,8 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
 
 void CatClassifPanel::OnPreviewVarChoice(wxCommandEvent& ev)
 {
+    wxLogMessage("CatClassifPanel::OnPreviewVarChoice");
+    
 	bool preview_unif_dist_mode = (preview_var_choice->GetSelection() == 0);
 	if (!preview_unif_dist_mode) {
 		wxString cur_fc_str = preview_var_choice->GetStringSelection();
@@ -1096,6 +1115,7 @@ void CatClassifPanel::OnPreviewVarChoice(wxCommandEvent& ev)
 
 void CatClassifPanel::OnPreviewVarTmChoice(wxCommandEvent& ev)
 {
+    wxLogMessage("CatClassifPanel::OnPreviewVarTmChoice");
 	if (preview_var_choice->GetSelection() == 0) return;
 	if (GetPreviewDbFldNm() == "") {
 		SetSyncVars(true);
@@ -1117,6 +1137,7 @@ void CatClassifPanel::OnPreviewVarTmChoice(wxCommandEvent& ev)
 
 void CatClassifPanel::OnSyncVarsChk(wxCommandEvent& ev)
 {
+    wxLogMessage("CatClassifPanel::OnSyncVarsChk");
 	// IsSyncVars() reflects the new value of the checkbox.  This
 	// callback is called after the value has changed.
 	preview_var_choice->Enable(!IsSyncVars());
@@ -1126,6 +1147,7 @@ void CatClassifPanel::OnSyncVarsChk(wxCommandEvent& ev)
 
 void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnUnifDistMinEnter");
 	if (!all_init || !IsUnifDistMode()) return;
 	// When in uniform dist mode, there is no variable associated
 	// with the breaks.  Therefore the data must be resampled whenever
@@ -1169,6 +1191,7 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
 
 void CatClassifPanel::OnUnifDistMinKillFocus(wxFocusEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnUnifDistMinKillFocus");
 	wxCommandEvent ev;
 	OnUnifDistMinEnter(ev);
 	event.Skip();
@@ -1176,6 +1199,7 @@ void CatClassifPanel::OnUnifDistMinKillFocus(wxFocusEvent& event)
 
 void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnUnifDistMaxEnter");
 	if (!all_init || !IsUnifDistMode()) return;
 	// When in uniform dist mode, there is no variable associated
 	// with the breaks.  Therefore the data must be resampled whenever
@@ -1226,6 +1250,7 @@ void CatClassifPanel::OnUnifDistMaxKillFocus(wxFocusEvent& event)
 
 void CatClassifPanel::OnAutomaticLabelsCb(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnAutomaticLabelsCb");
     for (int i=0; i<cc_data.num_cats; i++) {
         cat_title_txt[i]->SetEditable( !event.IsChecked() );
     }
@@ -1243,6 +1268,7 @@ void CatClassifPanel::OnAutomaticLabelsCb(wxCommandEvent& event)
 
 void CatClassifPanel::OnBrkRad(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnBrkRad");
 	if (!all_init) return;
 	wxRadioButton* obj = (wxRadioButton*) event.GetEventObject();
 	int obj_id = -1;
@@ -1255,6 +1281,7 @@ void CatClassifPanel::OnBrkRad(wxCommandEvent& event)
 
 void CatClassifPanel::OnBrkTxtEnter(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnBrkTxtEnter");
 	if (!all_init) return;
 	wxTextCtrl* obj = (wxTextCtrl*) event.GetEventObject();
 	int obj_id = -1;
@@ -1360,6 +1387,7 @@ void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 
 void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnCategoryColorButton");
 	if (!all_init) return;
 	int obj_id = -1;
 	
@@ -1419,6 +1447,7 @@ void CatClassifPanel::OnCategoryTitleText(wxCommandEvent& event)
 
 void CatClassifPanel::OnButtonChangeTitle(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnButtonChangeTitle");
 	if (!all_init) return;
 	wxString msg;
 	wxString cur_title = cur_cats_choice->GetStringSelection();
@@ -1455,6 +1484,7 @@ void CatClassifPanel::OnButtonChangeTitle(wxCommandEvent& event)
 
 void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnButtonNew");
 	if (!all_init) return;
 	wxString msg;
 	msg << "New Custom Categories Title:";
@@ -1502,6 +1532,7 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 
 void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnButtonDelete");
 	if (!all_init) return;
 	wxString custom_cat_title = cur_cats_choice->GetStringSelection();
 	if (IsOkToDelete(custom_cat_title)) {
@@ -1537,6 +1568,8 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 
 void CatClassifPanel::OnSaveCategories(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnSaveCategories");
+    
     wxString title = _("Save Categories to Table");
     wxString label = _("Categories of ") + cc_data.assoc_db_fld_name;
     SaveCategories(title, label, "CATEGORIES");
@@ -1588,6 +1621,7 @@ void CatClassifPanel::SaveCategories(const wxString& title,
 
 void CatClassifPanel::OnButtonClose(wxCommandEvent& event)
 {
+    wxLogMessage("CatClassifPanel::OnButtonClose");
 	template_frame->Close();
 }
 
@@ -2322,7 +2356,9 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	
+
+    wxLogMessage("Open CatClassifFrame");
+    
 	/// START: wxBoxSizer desgin
 	wxPanel* histo_panel = new wxPanel(this);
 	wxStaticText* preview_var_text = new wxStaticText(histo_panel, wxID_ANY,

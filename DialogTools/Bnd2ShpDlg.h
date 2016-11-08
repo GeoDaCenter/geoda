@@ -28,13 +28,13 @@ class Bnd2ShpDlg: public wxDialog
 public:
     Bnd2ShpDlg( );
     Bnd2ShpDlg( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Convert Boundary to SHP",
+				const wxString& caption = _("Convert Boundary to SHP"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Convert Boundary to SHP",
+				const wxString& caption = _("Convert Boundary to SHP"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );

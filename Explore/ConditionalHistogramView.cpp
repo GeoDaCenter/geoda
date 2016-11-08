@@ -23,6 +23,7 @@
 #include <set>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcbuffer.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
@@ -952,6 +953,7 @@ ConditionalHistogramFrame::ConditionalHistogramFrame(wxFrame *parent,
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
 					  size, style)
 {
+    wxLogMessage("Open ConditionalHistogramFrame");
 	int width, height;
 	GetClientSize(&width, &height);
 	
@@ -974,6 +976,7 @@ ConditionalHistogramFrame::~ConditionalHistogramFrame()
 void ConditionalHistogramFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
+        wxLogMessage("In ConditionalMapFrame::OnActivate()");
 		RegisterAsActive("ConditionalHistogramFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas )
@@ -1026,6 +1029,7 @@ void  ConditionalHistogramFrame::update(TimeState* o)
 
 void ConditionalHistogramFrame::OnShowAxes(wxCommandEvent& ev)
 {
+    wxLogMessage("In ConditionalHistogramFrame::OnShowAxes()");
 	ConditionalHistogramCanvas* t =
 		(ConditionalHistogramCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
@@ -1034,6 +1038,7 @@ void ConditionalHistogramFrame::OnShowAxes(wxCommandEvent& ev)
 
 void ConditionalHistogramFrame::OnHistogramIntervals(wxCommandEvent& ev)
 {
+    wxLogMessage("In ConditionalHistogramFrame::OnHistogramIntervals()");
 	ConditionalHistogramCanvas* t =
 		(ConditionalHistogramCanvas*) template_canvas;
 	t->HistogramIntervals();

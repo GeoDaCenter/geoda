@@ -30,14 +30,14 @@ class SHP2ASCDlg: public wxDialog
 public:
     SHP2ASCDlg( );
     SHP2ASCDlg( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Exporting Shape to Boundary",
+				const wxString& caption = _("Exporting Shape to Boundary"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );
     ~SHP2ASCDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Exporting Shape to Boundary",
+				const wxString& caption = _("Exporting Shape to Boundary"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );

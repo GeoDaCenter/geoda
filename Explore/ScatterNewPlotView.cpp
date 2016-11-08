@@ -26,6 +26,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
+#include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
@@ -48,6 +49,9 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
                                           const wxString & caption )
 : wxDialog( NULL, -1, caption, wxDefaultPosition, wxDefaultSize)
 {
+    
+    wxLogMessage("Open BubbleSizeDlg.");
+    
     canvas = _canvas;
     
     wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
@@ -140,7 +144,6 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
 bubble_size_scaler(1.0)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
 	use_category_brushes = true;
 	draw_sel_shps_by_z_val = false;
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
@@ -201,7 +204,6 @@ obs_id_to_z_val_order(boost::extents[0][0]), all_init(false),
 bubble_size_scaler(1.0)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering ScatterNewPlotCanvas::ScatterNewPlotCanvas");
 
 	TableInterface* table_int = project->GetTableInt();
 	for (size_t i=0; i<var_info.size(); i++) {
@@ -287,7 +289,6 @@ bubble_size_scaler(1.0)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ScatterNewPlotCanvas::ScatterNewPlotCanvas");
 }
 
 ScatterNewPlotCanvas::~ScatterNewPlotCanvas()
@@ -346,24 +347,22 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
 	if (var_info[0].is_time_variant) {
-		wxString s;
-		s << "Fixed x-axis scale over time";
+		wxString s = _("Fixed x-axis scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
 	}
 	if (var_info[1].is_time_variant) {
-		wxString s;
-		s << "Fixed y-axis scale over time";
+		wxString s = _("Fixed y-axis scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
 		mi->Check(var_info[1].fixed_scale);
 	}
 	
-	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
+	menu->Prepend(wxID_ANY, _("Scale Options"), menu2, _("Scale Options"));
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
@@ -739,9 +738,9 @@ void ScatterNewPlotCanvas::OnSaveCategories()
 		t_name = CatClassification::CatClassifTypeToString(GetCcType());
 	}
 	wxString label;
-	label << t_name << " Categories";
+	label << t_name << _(" Categories");
 	wxString title;
-	title << "Save " << label;
+	title << _("Save ") << label;
     
 	SaveCategories(title, label, "CATEGORIES", XYZ_undef);
 }
@@ -993,7 +992,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
                                                      X, Y, XYZ_undef);
 		
 		if (!lce) {
-			LOG_MSG("Error: could not create or find LOWESS cache entry");
+			//("Error: could not create or find LOWESS cache entry");
 		} else {
 			lowess_reg_line->reInit(lce->X_srt, lce->YS_srt,
                                     axis_scale_x.scale_min,
@@ -1001,7 +1000,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
                                     scaleX, scaleY);
 			lowess_reg_line->setPen(*pens.GetRegPen());
 			
-			LOG_MSG("End populating LOWESS curve (all obs)");
+			//("End populating LOWESS curve (all obs)");
 		}
 		if (IsShowRegimes()) {
 			UpdateLowessOnRegimes();
@@ -1323,7 +1322,6 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 
 void ScatterNewPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In ScatterNewPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	
@@ -1929,6 +1927,8 @@ ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
 var_info(var_info),
 is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 {
+    wxLogMessage("Open ScatterNewPlotFrame.");
+    
 	int width, height;
 	GetClientSize(&width, &height);
 	

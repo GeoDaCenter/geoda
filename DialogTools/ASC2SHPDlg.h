@@ -27,12 +27,12 @@ class ASC2SHPDlg: public wxDialog
 public:
     ASC2SHPDlg( );
     ASC2SHPDlg( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Convert ASCII to SHP",
+				const wxString& caption = _("Convert ASCII to SHP"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Convert ASCII to SHP",
+				const wxString& caption = _("Convert ASCII to SHP"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );

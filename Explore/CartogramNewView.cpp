@@ -23,6 +23,7 @@
 #include <set>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
@@ -254,8 +255,8 @@ void CartogramNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	}
 
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 
@@ -1044,6 +1045,7 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
 									 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
+    wxLogMessage("Open CartogramNewFrame.");
 	int width, height;
 	GetClientSize(&width, &height);
 		
@@ -1111,11 +1113,13 @@ void CartogramNewFrame::SetupToolbar()
 }
 void CartogramNewFrame::OnMapSelect(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapSelect()");
     OnSelectionMode(e);
 }
 
 void CartogramNewFrame::OnMapInvertSelect(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapInvertSelect()");
     HighlightState& hs = *project->GetHighlightState();
     hs.SetEventType(HLStateInt::invert);
     hs.notifyObservers();
@@ -1123,23 +1127,28 @@ void CartogramNewFrame::OnMapInvertSelect(wxCommandEvent& e)
 
 void CartogramNewFrame::OnMapPan(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapPan()");
     OnPanMode(e);
 }
 void CartogramNewFrame::OnMapZoom(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapZoom()");
     OnZoomMode(e);
 }
 void CartogramNewFrame::OnMapZoomOut(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapZoomOut()");
     OnZoomOutMode(e);
 }
 void CartogramNewFrame::OnMapExtent(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapExtent()");
     //OnFitToWindowMode(e);
     OnResetMap(e);
 }
 void CartogramNewFrame::OnMapRefresh(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapRefresh()");
     OnRefreshMap(e);
 }
 
@@ -1147,6 +1156,7 @@ void CartogramNewFrame::OnMapRefresh(wxCommandEvent& e)
 void CartogramNewFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
+        wxLogMessage("In CartogramNewFrame::OnActivate()");
 		RegisterAsActive("CartogramNewFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas )

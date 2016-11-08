@@ -71,6 +71,8 @@ void Bnd2ShpDlg::CreateControls()
 
 void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 {
+    wxLogMessage("In Bnd2ShpDlg::OnCreateClick()");
+    
 	wxString m_iASC = m_inputfile->GetValue();
 
     fstream ias;
@@ -92,7 +94,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	}
 	else
 	{
-		wxMessageBox("This format is not supported.");
+		wxMessageBox(_("This format is not supported."));
 		return;
 	}
 	
@@ -101,7 +103,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	
 	if (nRows < 1 || ID_name == wxEmptyString)
 	{
-		wxMessageBox("This format is not supported.");
+		wxMessageBox(_("This format is not supported."));
 		return;
 	}
    
@@ -116,8 +118,8 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
         IDs.push_back(ID);
 		if (nPoint < 1)
 		{
-			wxString xx= wxString::Format("at polygon-%d",ID);
-			wxMessageBox(wxT("Fail in reading the Boundary file: "+xx));
+			wxString xx= wxString::Format(_("Fail in reading the Boundary file: at polygon-%d"),ID);
+			wxMessageBox(xx);
 			return;
 		}
 
@@ -141,7 +143,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 			}
 			else
 			{
-				wxMessageBox("This format is not supported.");
+				wxMessageBox(_("This format is not supported."));
 				return;
 			}
             
@@ -197,7 +199,9 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 
 void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg ( this, "Input ASCII file", "", "",
+    wxLogMessage("In Bnd2ShpDlg::OnCOpenIascClick()");
+    
+    wxFileDialog dlg ( this, _("Input ASCII file"), "", "",
 					  "ASCII files (*.*)|*.*" );
 
 	wxString	m_path = wxEmptyString;
@@ -235,8 +239,7 @@ void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 		}
         if (pos < 0 || ID_name.IsNumber() )
 		{
-			wxMessageBox("The first line should have comma separated "
-						 "number of rows and ID name!");
+			wxMessageBox(_("The first line should have comma separated number of rows and ID name!"));
 			return;
 		}
 
@@ -245,22 +248,22 @@ void Bnd2ShpDlg::OnCOpenIascClick( wxCommandEvent& event )
 
 		if (nRows < 1)
 		{
-			wxMessageBox("Wrong number of rows!");
+			wxMessageBox(_("Wrong number of rows!"));
 	 			return;
 		}
 		else if(ID_name == wxEmptyString)
 		{
-			wxMessageBox("ID is not specified!");
+			wxMessageBox(_("ID is not specified!"));
 			return;
 		}
 
 		FindWindow(XRCID("ID_CREATE"))->Enable(true);
     }
-
 }
 
 void Bnd2ShpDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In Bnd2ShpDlg::OnCancelClick()");
 	event.Skip();
 	EndDialog(wxID_CANCEL);	
 }

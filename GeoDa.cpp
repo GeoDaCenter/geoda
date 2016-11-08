@@ -18,6 +18,7 @@
  */
 
 #undef check // undefine needed for Xcode compilation and Boost.Geometry
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -26,12 +27,16 @@
 #include <locale.h>
 #include <sstream>
 #include <iomanip>
+#include <stdlib.h>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
 #include <sqlite3.h>
+
+#include "ogrsf_frmts.h"
+#include "cpl_conv.h"
 
 #include <wx/sysopt.h>
 #include <wx/wxprec.h>
@@ -134,8 +139,6 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 
-//#include "TestMapView.h"
-
 #include "Regression/DiagnosticReport.h"
 
 #include "ShapeOperations/CsvFileUtils.h"
@@ -157,9 +160,7 @@
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
-#include "ogrsf_frmts.h"
-#include <stdlib.h>
-#include "cpl_conv.h"
+
 #include "version.h"
 
 
@@ -244,9 +245,6 @@ bool GdaApp::OnInit(void)
 			// instance is acting as the "server" so this instance
 			// becomes the "client" and requests that the server open
 			// the requested project before this instance exits.
-		
-			//LOG_MSG("Another instance of GeoDa is already running.  Attempting to communicate with IPC.");
-		
 			GdaClient* client = new GdaClient;
 		
 			// host_name will be ignored under DDE (Windows and
@@ -262,9 +260,7 @@ bool GdaApp::OnInit(void)
 				connection->Disconnect();
 				delete connection;
 			} else {
-				wxString msg;
-				msg << "The existing GeoDa instance may be too busy to ";
-				msg << "respond.\nPlease close any open dialogs and try again.";
+				wxString msg = _("The existing GeoDa instance may be too busy to respond.\nPlease close any open dialogs and try again.");
 			}
 			delete client;
 			delete checker; // OnExit() won't be called if we return false
@@ -295,8 +291,6 @@ bool GdaApp::OnInit(void)
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
 	// issue #15331 for more details.
-   
-    //wxSystemOptions::SetOption("mac.toolbar.no-native", 1);
     
 	GdaConst::init();
 	CalcHelp::init();
@@ -396,7 +390,8 @@ bool GdaApp::OnInit(void)
         if (no_crash == "false") {
             // ask user to send crash data
             wxString msg = _("It looks like GeoDa has been terminated abnormally. Do you want to send a crash report to GeoDa team?");
-            wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, "Send Crash Report",
+            wxString ttl = _("Send Crash Report");
+            wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
                                    wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
             if (msgDlg.ShowModal() == wxID_YES) {
                 wxCommandEvent ev;
@@ -411,15 +406,13 @@ bool GdaApp::OnInit(void)
 
 int GdaApp::OnExit(void)
 {
-	LOG_MSG("In GdaApp::OnExit");
 	if (checker) delete checker;
 	return 0;
 }
 
 void GdaApp::OnFatalException()
 {
-	LOG_MSG("In GdaApp::OnFatalException");
-	wxMessageBox("GeoDa has run into a problem and will close.");
+	wxMessageBox(_("GeoDa has run into a problem and will close."));
 }
 
 
@@ -436,7 +429,6 @@ const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
 void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
 	parser.SetDesc (GdaApp::globalCmdLineDesc);
-    // must refuse '/' as parameter starter or cannot use "/path" style paths
     parser.SetSwitchChars (wxT("-"));
 }
 
@@ -445,7 +437,6 @@ bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 	for (int i=0; i<parser.GetParamCount(); ++i) {
 	}
 	
-	// parser.GetParamCount();
 	if ( parser.GetParamCount() > 0) {
 		cmd_line_proj_file_name = parser.GetParam(0);
 	}
@@ -459,7 +450,8 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 	msg << "Request to open " << sz << " file(s):";
 	for (int i=0; i<sz; ++i)
         msg << "\n" << fileNames[i];
-	if (sz > 0) GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
+	if (sz > 0)
+        GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
 }
 
 std::vector<GdaFrame::MenuItem> GdaFrame::htmlMenuItems;
@@ -469,8 +461,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	// This method is called when no particular window is currently active.
 	// In this case, the close menu item should be disabled.
 
-	GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE,
-								   false);
+	GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE, false);
 
 	Project* p = GetProject();
 	bool proj_open = (p != 0);
@@ -481,7 +472,6 @@ void GdaFrame::UpdateToolbarAndMenus()
     
 	wxMenuBar* mb = GetMenuBar();
 
-	// Reset the toolbar frame title to default.
 	SetTitle("GeoDa");
 	if (proj_open && project_p) SetTitle(project_p->GetProjectTitle());
 	
@@ -497,7 +487,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 		// Save state to SaveButtonManager
 		EnableTool(XRCID("ID_SAVE_PROJECT"), proj_open);
 		GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SAVE_PROJECT"), false);
-        //
         UpdateRecentDatasourceMenu();
 	}
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_NEW_PROJ_FROM_RECENT_MENU"), !proj_open);
@@ -669,7 +658,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 		for (size_t i=0; i<htmlMenuItems.size(); ++i) {
 			html_menu->Append(base_id++, htmlMenuItems[i].menu_title);
 		}
-		//exp_menu->AppendSubMenu(html_menu, GdaConst::html_submenu_title);
 	}
     
     wxObject* tb_obj = wxXmlResource::Get()->LoadObject(this, "ToolBar", "wxAuiToolBar");
@@ -677,7 +665,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
     tb1->SetMargins(10,10);
     tb1->SetMinSize(GetMinSize());
     tb1->Realize();
-
     tb1->Connect(wxEVT_SIZE, wxSizeEventHandler(GdaFrame::OnSize), NULL, this);
     
     toolbar_list.push_front(tb1);
@@ -694,15 +681,18 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 
 GdaFrame::~GdaFrame()
 {
-	LOG_MSG("Entering GdaFrame::~GdaFrame()");
 	GdaFrame::gda_frame = 0;
-	LOG_MSG("Exiting GdaFrame::~GdaFrame()");
 }
 
 void GdaFrame::CheckUpdate()
 {
+    wxLogMessage("Check auto update:");
+    
     wxString version = AutoUpdate::CheckUpdate();
     if (!version.IsEmpty()) {
+        wxLogMessage("current version:");
+        wxLogMessage(version);
+        
         wxString skip_version;
         std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("no_update_version");
         if (items.size()>0)
@@ -744,7 +734,8 @@ void GdaFrame::EnableTool(int xrc_id, bool enable)
 void GdaFrame::EnableTool(const wxString& id_str, bool enable)
 {
 	BOOST_FOREACH( wxAuiToolBar* tb, toolbar_list ) {
-		if (tb)	tb->EnableTool(wxXmlResource::GetXRCID(id_str), enable);
+		if (tb)
+            tb->EnableTool(wxXmlResource::GetXRCID(id_str), enable);
 	}
 }
 
@@ -768,15 +759,11 @@ boost::uuids::uuid GdaFrame::GetWeightsId(const wxString& caption)
 
 void GdaFrame::OnOpenNewTable()
 {
-	LOG_MSG("Entering GdaFrame::OnOpenNewTable");
 	TableFrame* tf = 0;
 	wxGrid* g = project_p->FindTableGrid();
 	if (g) tf = (TableFrame*) g->GetParent()->GetParent(); // wxPanel<wxFrame
 	if (!tf) {
-		wxString msg("The Table should always be open, although somtimes it "
-					 "is hidden while the project is open.  This condition "
-					 "has been violated.  Please report this to "
-					 "the program developers.");
+		wxString msg = _("The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers.");
 		wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING);
 		dlg.ShowModal();
 		tf = new TableFrame(gda_frame, project_p,
@@ -788,15 +775,11 @@ void GdaFrame::OnOpenNewTable()
 	tf->Show(true);
 	tf->Maximize(false);
 	tf->Raise();
-	
-	LOG_MSG("Exiting GdaFrame::OnOpenNewTable");
 }
 
 /** returns false if user wants to abort the operation */
 bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 {
-	LOG_MSG("Entering GdaFrame::OnCloseProject");
-	
 	if (IsProjectOpen() && !ignore_unsaved_changes) {
         
 		bool is_new_project = project_p->GetProjectFullPath().empty() || !wxFileExists(project_p->GetProjectFullPath());
@@ -811,9 +794,9 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
         
 		if (unsaved_ds_data || unsaved_meta_data) {
 
-			title = "Do you want to save your data?";
+			title = _("Do you want to save your data?");
 			msg << "\n";
-			msg << "There are unsaved data source or time definition changes.";
+			msg << _("There are unsaved data source or time definition changes.");
 			
 			wxMessageDialog msgDlg(this, msg, title,
 								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
@@ -830,8 +813,8 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
         project_p->SaveProjectConf();
         
         if (project_p->IsDataTypeChanged()) {
-            wxString msg = "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?";
-            wxMessageDialog show_export_dlg(this, msg, "Geometries not saved",
+            wxString msg = _("Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?");
+            wxMessageDialog show_export_dlg(this, msg, _("Geometries not saved"),
                                             wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
             if (show_export_dlg.ShowModal() == wxID_YES) {
                 // e.g. dbf, add geometries (points), to shapefile
@@ -897,7 +880,7 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 
 void GdaFrame::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnClose");
+	wxLogMessage("Click GdaFrame::OnClose");
 	
 	bool is_new_project = (IsProjectOpen() &&
 						   (project_p->GetProjectFullPath().empty() ||
@@ -911,35 +894,30 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 	wxString msg;
 	wxString title;
 	if (unsaved_ds_data) {
-		title = "Exit with unsaved changes?";
-		
+		title = _("Exit with unsaved changes?");
 		msg << "\n";
-		
-        msg << "There are ";
-		
+        msg << _("There are ");
 		if (!is_new_project) {
-			msg << "unsaved project file changes, and ";
+			msg << _("unsaved project file changes, and ");
 		}
-		
 		if (unsaved_ds_data) {
-			msg << "unsaved data source (Table) changes.\n\n";
+			msg << _("unsaved data source (Table) changes.\n\n");
 		}
-		
 		if (!is_new_project) {
-            msg << "To save your project, go to File > Save Project\n\n";
+            msg << _("To save your project, go to File > Save Project\n\n");
         }
-		msg << "To save your work, go to File > Save";
+		msg << _("To save your work, go to File > Save");
 	} else {
-		title = "Exit?";
-		msg = "OK to Exit?";
+		title = _("Exit?");
+		msg = _("OK to Exit?");
 	}
 	
 	if (IsProjectOpen()) {
 		wxMessageDialog msgDlg(this, msg, title,
 							   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-	
 		// Show the message dialog, and if it returns wxID_YES...
-		if (msgDlg.ShowModal() != wxID_YES) return;
+		if (msgDlg.ShowModal() != wxID_YES)
+            return;
 	}
 	
 	OnCloseProject(true);
@@ -954,30 +932,31 @@ void GdaFrame::OnClose(wxCloseEvent& event)
         node = node->GetNext();
     }
 	Destroy();
+    
+    // close GeoDa successfully, mark it
     OGRDataAdapter::GetInstance().AddEntry("NoCrash", "true");
-	LOG_MSG("Exiting GdaFrame::OnClose");
 }
 
 void GdaFrame::OnMenuClose(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnMenuClose");
+    wxLogMessage("Click GdaFrame::OnMenuClose");
 	Close(); // This will result in a call to OnClose
-    LOG_MSG("Exiting GdaFrame::OnMenuClose");
 }
 
 void GdaFrame::OnCloseProjectEvt(wxCommandEvent& event)
 {
-	LOG_MSG("In GdaFrame::OnCloseProjectEvt");
+    wxLogMessage("Click GdaFrame::OnCloseProjectEvt");
 	OnCloseProject();
 }
 
 void GdaFrame::UpdateRecentDatasourceMenu()
 {
+    wxLogMessage("UpdateRecentDatasourceMenu()");
+    
     try {
         // update recent opened datasource menu
         RecentDatasource recent_ds;
         std::vector<wxString> recent_ds_list = recent_ds.GetList();
-        
         
         int recent_menu_xrcid = XRCID("ID_NEW_PROJ_FROM_RECENT_MENU");
         wxMenuBar* mb = GetMenuBar();
@@ -1008,12 +987,13 @@ void GdaFrame::UpdateRecentDatasourceMenu()
         }
     } catch(GdaException ex) {
         // do nothing but write to LOG
-        LOG_MSG(ex.what());
     }
 }
 
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnRecentDSClick");
+    
     if (project_p)
         return;
     
@@ -1029,6 +1009,8 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     wxString ds_name = mi->GetLabel();
     if (ds_name.IsEmpty())
         return;
+    
+    wxLogMessage(ds_name);
     
     RecentDatasource recent_ds;
     IDataSource* ds = recent_ds.GetDatasource(ds_name);
@@ -1063,8 +1045,6 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
  also be called from the shortcut "New Project From" File menu option. */
 void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
 {
-	LOG_MSG("Entering GdaFrame::NewProjectFromFile");
-	
 	wxString proj_title = wxFileName(full_file_path).GetName();
     wxString layer_name = proj_title;
 	
@@ -1095,14 +1075,13 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
     }
     
     InitWithProject();
-    
-	LOG_MSG("Exiting GdaFrame::NewProjectFromFile");
 }
 
 /** New Project opened by the user from within GeoDa */
 void GdaFrame::OnNewProject(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnNewProject");
+	wxLogMessage("Click GdaFrame::OnNewProject");
+    
 	ConnectDatasourceDlg dlg(this);
 	if (dlg.ShowModal() != wxID_OK)
         return;
@@ -1130,18 +1109,12 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
         error_msg << project_p->GetOpenErrorMessage();
     }
 	if (!error_msg.IsEmpty()) {
-        /*if(datasource) {
-            delete datasource;
-            datasource = NULL;
-        }*/
         wxMessageDialog dlg (this, error_msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }
     
     InitWithProject();
-    
-	LOG_MSG("Exiting GdaFrame::OnNewProject");	
 }
 
 /**
@@ -1154,40 +1127,33 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
  */
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
-	LOG_MSG("Entering GdaFrame::OpenProject");
-	{
-		wxString msg;
-		wxFileName fn(full_proj_path);
-		if (fn.GetExt().CmpNoCase("gda") != 0) {
-			// msg << "Error: \"" << full_proj_path << "\" not a project file.";
-			if (IsProjectOpen()) {
-				Raise();
-				wxString msg;
-				msg << "You have requested to create a new file project ";
-				msg << full_proj_path;
-				msg << " while another project is open.  Please close project ";
-				msg << project_p->GetProjectTitle();
-				msg << " and try again.";
-				LOG_MSG("Exiting GdaFrame::OpenProject");
-				return;
-			}
-			NewProjectFromFile(full_proj_path);
-			LOG_MSG("Exiting GdaFrame::OpenProject");
-			return;
-		}	
-		if (!wxFileExists(full_proj_path)) {
-            msg << "Error: \"" << full_proj_path << "\" not found.";
-		}
-		if (!msg.IsEmpty()) {
-			LOG_MSG(msg);
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;
-		}
-	}
+    wxString msg;
+    wxFileName fn(full_proj_path);
+    if (fn.GetExt().CmpNoCase("gda") != 0) {
+        if (IsProjectOpen()) {
+            Raise();
+            wxString msg;
+            msg << _("You have requested to create a new file project ");
+            msg << full_proj_path;
+            msg << _(" while another project is open.  Please close project ");
+            msg << project_p->GetProjectTitle();
+            msg << _(" and try again.");
+            return;
+        }
+        NewProjectFromFile(full_proj_path);
+        return;
+    }
+    if (!wxFileExists(full_proj_path)) {
+        msg << "Error: \"" << full_proj_path << "\" not found.";
+    }
+    if (!msg.IsEmpty()) {
+        LOG_MSG(msg);
+        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
 	
-	// if requested project to open is already open, just raise
-	// current window
+	// if requested project to open is already open, just raise current window
 	if (IsProjectOpen()) {
 		if (project_p->GetProjectFullPath().CmpNoCase(full_proj_path) == 0) {
 			Raise();
@@ -1195,27 +1161,23 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		}
 		Raise();
 		wxString msg;
-		msg << "You have requested to open project ";
+		msg << _("You have requested to open project ");
 		msg << full_proj_path;
-		msg << " while another project is open.  Please close project ";
+		msg << _(" while another project is open.  Please close project ");
 		msg << project_p->GetProjectTitle();
-		msg << " and try again.";
-		// For now, don't display a warning message to the user,
-		// just raise the toplevel window in either case.
-		//wxMessageDialog dlg (this, msg, "Information",
-		//					 wxOK | wxICON_INFORMATION);
-		//dlg.ShowModal();
+		msg << _(" and try again.");
 		return;
 	}
 	
 	if (project_p && project_p->GetFramesManager()->getNumberObservers() > 0) {
-		if (!OnCloseProject()) return;
+		if (!OnCloseProject())
+            return;
 	}
 
     try {
         project_p = new Project(full_proj_path);
         if (!project_p->IsValid()) {
-            wxString msg("Error while opening project:\n\n");
+            wxString msg = _("Error while opening project:\n\n");
             msg << project_p->GetOpenErrorMessage();
             throw GdaException(msg.c_str());
         }
@@ -1224,7 +1186,8 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
         wxString msg( e.what() ) ;
         wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
-		delete project_p; project_p = 0;
+		delete project_p;
+        project_p = 0;
 		return;
     }
 	
@@ -1234,14 +1197,15 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 
 void GdaFrame::OnOpenProject(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnOpenProject");
+	wxLogMessage("Click GdaFrame::OnOpenProject");
 	if (project_p && project_p->GetFramesManager()->getNumberObservers() > 0) {
 		if (!OnCloseProject())
             return;
 	}
 	wxString wildcard = "GeoDa Project (*.gda)|*.gda";
 	wxFileDialog dlg(this, "GeoDa Project File to Open", "", "", wildcard);
-	if (dlg.ShowModal() != wxID_OK) return;
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 
 	OpenProject(dlg.GetPath());
 }
@@ -1292,36 +1256,17 @@ void GdaFrame::InitWithProject()
 
 void GdaFrame::OnSaveProject(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnSaveProject");
-	if (!project_p) return;
-
-    // check if locale changed, if it did, warn people to export
-    /*
-    setlocale(LC_ALL, "");
-    struct lconv *poLconv = localeconv();
-    wxString sys_thousands_sep = poLconv->thousands_sep;
-    wxString sys_decimal_point = poLconv->decimal_point;
-    setlocale(LC_ALL, "C");
-    if ( sys_decimal_point !=  "." ) {
-        wxString msg = "GeoDa will save data (numbers) using standard C "
-        "locale, which uses dot \".\" as decimal point. It's different "
-        "than the current locale. If you want to keep your locale, please "
-        "export to a new datasource. Do you want to save?";
-        wxMessageDialog dlg(this, msg, "GeoDa Locale Information.",
-                            wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-        if (dlg.ShowModal() != wxID_YES) {
-            return;
-        }
-    }
-    */
-    
-	// Save Data Source changes first if needed
+	wxLogMessage("Click GdaFrame::OnSaveProject");
+	if (!project_p)
+        return;
 	try {
-        
         project_p->SaveDataSourceData();
+        // don't need to raise error if save project configuration failed
         try {
             project_p->SaveProjectConf();
-        } catch( GdaException& e) {}
+        } catch( GdaException& e) {
+            // do nothing
+        }
 
 	} catch (GdaException& e) {
 		wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
@@ -1329,58 +1274,51 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
 		return;
 	}
 	// We know Data Source data was saved successfully
-    
 	SaveButtonManager* sbm = project_p->GetSaveButtonManager();
 	if (sbm) {
 		sbm->SetAllowEnableSave(true);
 		sbm->SetMetaDataSaveNeeded(false);
 	}
-	
-	LOG_MSG("Exiting GdaFrame::OnSaveProject");
 }
 
 void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 {
-	if (!project_p || !project_p->GetTableInt()) return;
+    wxLogMessage("Click GdaFrame::OnSaveAsProject");
     
-	// Following 2 lines are original SaveAsProject dlg
-    //SaveAsDlg dlg(this, project_p);
-    //dlg.ShowModal();
-	
+	if (!project_p || !project_p->GetTableInt())
+        return;
+    
 	wxString proj_fname = project_p->GetProjectFullPath();
 	bool is_new_project = (proj_fname.empty() || !wxFileExists(proj_fname));
 	
-	wxString msg;
-
-		msg << "A project file contains extra information not directly ";
-		msg << "stored in the data source such as variable order and grouping.";
-		
-		wxMessageDialog proj_create_dlg(this, msg, "Create Project File Now?",
-										wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
-		if (proj_create_dlg.ShowModal() != wxID_YES) return;
-		
-		wxString wildcard = "GeoDa Project (*.gda)|*.gda";
-		wxFileDialog dlg(this, "New Project Filename", "", "", wildcard,
-						 wxFD_SAVE);
-		if (dlg.ShowModal() != wxID_OK) return;
-		
-		try {
-			project_p->SpecifyProjectConfFile(dlg.GetPath());
-		} catch (GdaException& e) {
-			wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;
-		}
+    wxString msg = _("A project file contains extra information not directly stored in the data source such as variable order and grouping.");
+    wxMessageDialog proj_create_dlg(this, msg, _("Create Project File Now?"),
+                                    wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
+    if (proj_create_dlg.ShowModal() != wxID_YES)
+        return;
+    wxString wildcard = _("GeoDa Project (*.gda)|*.gda");
+    wxFileDialog dlg(this, _("New Project Filename"), "", "", wildcard, wxFD_SAVE);
+    
+    if (dlg.ShowModal() != wxID_OK)
+        return;
+    
+    try {
+        project_p->SpecifyProjectConfFile(dlg.GetPath());
+    } catch (GdaException& e) {
+        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
 	
 	try {
         project_p->SaveProjectConf();
 		
-        wxString msg = "Saved successfully.";
-        if ( project_p->IsTableOnlyProject() &&
-            !project_p->main_data.records.empty() ) {
+        wxString msg = _("Saved successfully.");
+        if (project_p->IsTableOnlyProject() &&
+            !project_p->main_data.records.empty() )
+        {
             // case: users create geometries in a table-only project
-            msg << "\n\nWarning: Geometries will not be saved. ";
-            msg << "Please use \"File->Save As\" to save geometries and related data.";
+            msg << _("\n\nWarning: Geometries will not be saved. Please use \"File->Save As\" to save geometries and related data.");
         }
         wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
@@ -1389,15 +1327,17 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	LOG_MSG(wxString("Wrote GeoDa Project File: ") + proj_fname);
+	wxLogMessage(_("Wrote GeoDa Project File: ") + proj_fname);
 }
 
 void GdaFrame::OnSelectWithRect(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectWithRect");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
     if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
+        wxLogMessage("ScatterPlotMatFrame::OnSelectWithRect");
         f->OnSelectWithRect(event);
     } else {
         t->OnSelectWithRect(event);
@@ -1406,6 +1346,7 @@ void GdaFrame::OnSelectWithRect(wxCommandEvent& event)
 
 void GdaFrame::OnSelectWithCircle(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectWithCircle");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnSelectWithCircle(event);
@@ -1413,6 +1354,7 @@ void GdaFrame::OnSelectWithCircle(wxCommandEvent& event)
 
 void GdaFrame::OnSelectWithLine(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectWithLine");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnSelectWithLine(event);
@@ -1420,6 +1362,7 @@ void GdaFrame::OnSelectWithLine(wxCommandEvent& event)
 
 void GdaFrame::OnSelectionMode(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectionMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnSelectionMode(event);
@@ -1427,6 +1370,7 @@ void GdaFrame::OnSelectionMode(wxCommandEvent& event)
 
 void GdaFrame::OnFitToWindowMode(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnFitToWindowMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnFitToWindowMode(event);
@@ -1434,18 +1378,21 @@ void GdaFrame::OnFitToWindowMode(wxCommandEvent& event)
 
 void GdaFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnFixedAspectRatioMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnFixedAspectRatioMode(event);
 }
 
 void GdaFrame::OnZoomMode(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnZoomMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnZoomMode(event);
 }
 
 void GdaFrame::OnPanMode(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnPanMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnPanMode(event);
@@ -1453,7 +1400,7 @@ void GdaFrame::OnPanMode(wxCommandEvent& event)
 
 void GdaFrame::OnPrintCanvasState(wxCommandEvent& event)
 {
-	LOG_MSG("Called GdaFrame::OnPrintCanvasState");
+    wxLogMessage("Click GdaFrame::OnPrintCanvasState");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnPrintCanvasState(event);
 	
@@ -1465,6 +1412,7 @@ void GdaFrame::OnPrintCanvasState(wxCommandEvent& event)
 
 void GdaFrame::OnChangeMapTransparency(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnChangeMapTransparency");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t)
         return;
@@ -1475,6 +1423,7 @@ void GdaFrame::OnChangeMapTransparency(wxCommandEvent& event)
 }
 void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnCleanBasemap");
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (t) {
         if (MapFrame* f = dynamic_cast<MapFrame*>(t)) return
@@ -1483,6 +1432,7 @@ void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
 }
 void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetNoBasemap");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
@@ -1492,6 +1442,7 @@ void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap1");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
@@ -1501,6 +1452,7 @@ void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap2");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
@@ -1510,6 +1462,7 @@ void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap3");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
@@ -1519,6 +1472,7 @@ void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap4");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     
@@ -1528,6 +1482,7 @@ void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap5");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     
@@ -1537,6 +1492,7 @@ void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap6");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     
@@ -1546,6 +1502,7 @@ void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 }
 void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap7");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     
@@ -1556,6 +1513,7 @@ void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 
 void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSetBasemap8");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     
@@ -1566,6 +1524,7 @@ void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
 
 void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnBasemapConfig");
     BasemapConfDlg dlg(this,project_p);
     dlg.ShowModal();
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
@@ -1574,29 +1533,29 @@ void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
 
 void GdaFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSaveCanvasImageAs");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnSaveCanvasImageAs(event);
 }
 
 void GdaFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_MSG("Entering GdaFrame::OnQuit");
+    wxLogMessage("Click GdaFrame::OnQuit");
 	// Generate a wxCloseEvent for GdaFrame.  GdaFrame::OnClose will
 	// be called and will give the user a chance to not exit program.
 	Close();
-	LOG_MSG("Exiting GdaFrame::OnQuit");
 }
 
 void GdaFrame::OnSaveSelectedToColumn(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnSaveSelectedToColumn");
+    wxLogMessage("Click GdaFrame::OnSaveSelectedToColumn");
 	SaveSelectionDlg dlg(project_p, this);
 	dlg.ShowModal();
-	LOG_MSG("Exiting GdaFrame::OnSaveSelectedToColumn");
 }
 
 void GdaFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnCanvasBackgroundColor");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnCanvasBackgroundColor(event);
@@ -1604,6 +1563,7 @@ void GdaFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 
 void GdaFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnLegendUseScientificNotation");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     t->OnLegendUseScientificNotation(event);
@@ -1611,6 +1571,7 @@ void GdaFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 
 void GdaFrame::OnLegendBackgroundColor(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnLegendBackgroundColor");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     t->OnLegendBackgroundColor(event);
@@ -1618,6 +1579,7 @@ void GdaFrame::OnLegendBackgroundColor(wxCommandEvent& event)
 
 void GdaFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectableFillColor");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
@@ -1629,6 +1591,7 @@ void GdaFrame::OnSelectableFillColor(wxCommandEvent& event)
 
 void GdaFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectableOutlineColor");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     
@@ -1641,6 +1604,7 @@ void GdaFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 
 void GdaFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnSelectableOutlineVisible");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnSelectableOutlineVisible(event);
@@ -1648,6 +1612,7 @@ void GdaFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 
 void GdaFrame::OnHighlightColor(wxCommandEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnHighlightColor");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
@@ -1659,25 +1624,24 @@ void GdaFrame::OnHighlightColor(wxCommandEvent& event)
 
 void GdaFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnCopyImageToClipboard");
+    wxLogMessage("Click GdaFrame::OnCopyImageToClipboard");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnCopyImageToClipboard(event);
-	LOG_MSG("Exiting GdaFrame::OnCopyImageToClipboard");
 }
 
 
 void GdaFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnCopyLegendToClipboard");
+    wxLogMessage("Click GdaFrame::OnCopyLegendToClipboard");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     t->OnCopyLegendToClipboard(event);
-	LOG_MSG("Exiting GdaFrame::OnCopyLegendToClipboard");
 }
 
 void GdaFrame::OnKeyEvent(wxKeyEvent& event)
 {
+    wxLogMessage("Click GdaFrame::OnKeyEvent");
 	Project* project = GetProject();
 	if (event.GetModifiers() == wxMOD_CMD &&
 		project && project->GetTimeState() &&
@@ -1703,7 +1667,7 @@ void GdaFrame::OnKeyEvent(wxKeyEvent& event)
 
 void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 {
-	LOG_MSG("Entering GdaFrame::OnToolsWeightsManager");
+    wxLogMessage("Click GdaFrame::OnToolsWeightsManager");
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
 	FramesManager* fm = p->GetFramesManager();
@@ -1719,12 +1683,11 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 	}
 	
 	WeightsManFrame* f = new WeightsManFrame(this, p);
-	LOG_MSG("Existing GdaFrame::OnToolsWeightsManager");
 }
 
 void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )
 {
-	LOG_MSG("Entering GdaFrame::OnToolsWeightsCreate");
+    wxLogMessage("Click GdaFrame::OnToolsWeightsCreate");
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
 	FramesManager* fm = p->GetFramesManager();
@@ -1741,34 +1704,27 @@ void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )
 	
 	CreatingWeightDlg* dlg = new CreatingWeightDlg(0, p);
 	dlg->Show(true);
-    
-	LOG_MSG("Exiting GdaFrame::OnToolsWeightsCreate");
 }
 
 void GdaFrame::OnConnectivityHistView(wxCommandEvent& event )
 {
-	LOG_MSG("Entering GdaFrame::OnConnectivityHistView");
 	boost::uuids::uuid id = GetWeightsId();
 	if (id.is_nil()) return;
 	ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
-	LOG_MSG("Exiting GdaFrame::OnConnectivityHistView");
 }
 
 void GdaFrame::OnConnectivityMapView(wxCommandEvent& event )
 {
-	LOG_MSG("Entering GdaFrame::OnConnectivityMapView");
 	boost::uuids::uuid id = GetWeightsId("Choose Weights for Connectivity Map");
 	if (id.is_nil()) return;
 	ConnectivityMapFrame* f =
 		new ConnectivityMapFrame(this, project_p, id,
 								 wxDefaultPosition,
 								 GdaConst::conn_map_default_size);
-	LOG_MSG("Exiting GdaFrame::OnConnectivityMapView");
 }
 
 void GdaFrame::ShowConnectivityMapView(boost::uuids::uuid weights_id)
 {
-	LOG_MSG("Entering GdaFrame::ShowConnectivityMapView");
 	if (!project_p || !project_p->GetWManInt() ||
 		weights_id.is_nil()) return;
 	
@@ -1776,12 +1732,11 @@ void GdaFrame::ShowConnectivityMapView(boost::uuids::uuid weights_id)
 		new ConnectivityMapFrame(this, project_p, weights_id,
 								 wxDefaultPosition,
 								 GdaConst::conn_map_default_size);
-	LOG_MSG("Exiting GdaFrame::ShowConnectivityMapView");
 }
 
 void GdaFrame::OnMapChoices(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GdaFrame::OnMapChoices");
+	wxLogMessage("Entering GdaFrame::OnMapChoices");
 	wxMenu* popupMenu = 0;
 	if (GeneralWxUtils::isMac()) {
 		popupMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_CHOICES");
@@ -1790,12 +1745,12 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
 	}
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
-	LOG_MSG("Exiting GdaFrame::OnMapChoices");
 }
 
 #include "DialogTools/ASC2SHPDlg.h"
 void GdaFrame::OnShapePointsFromASCII(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("Open ASC2SHPDlg");
 	ASC2SHPDlg dlg(this);
 	dlg.ShowModal();
 }
@@ -1803,6 +1758,7 @@ void GdaFrame::OnShapePointsFromASCII(wxCommandEvent& WXUNUSED(event) )
 #include "DialogTools/CreateGridDlg.h"
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("Open CreateGridDlg");
 	CreateGridDlg dlg(this);
 	dlg.ShowModal();
 }
@@ -1810,6 +1766,7 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 #include "DialogTools/Bnd2ShpDlg.h"
 void GdaFrame::OnShapePolygonsFromBoundary(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("Open Bnd2ShpDlg");
 	Bnd2ShpDlg dlg(this);
 	dlg.ShowModal();
 }
@@ -1817,6 +1774,7 @@ void GdaFrame::OnShapePolygonsFromBoundary(wxCommandEvent& WXUNUSED(event) )
 #include "DialogTools/SHP2ASCDlg.h" 
 void GdaFrame::OnShapeToBoundary(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("Open SHP2ASCDlg");
 	SHP2ASCDlg dlg(this);
 	dlg.ShowModal();
 }
@@ -1979,12 +1937,14 @@ void GdaFrame::OnTimeEditor(wxCommandEvent& event)
 
 void GdaFrame::OnMoveSelectedToTop(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnMoveSelectedToTop");
 	if (!project_p || !project_p->FindTableBase()) return;
 	project_p->FindTableBase()->MoveSelectedToTop();
 }
 
 void GdaFrame::OnInvertSelection(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnInvertSelection");
 	if (!project_p || !project_p->FindTableBase()) return;
     
 	HighlightState& hs = *project_p->GetHighlightState();
@@ -1994,6 +1954,7 @@ void GdaFrame::OnInvertSelection(wxCommandEvent& event)
 
 void GdaFrame::OnClearSelection(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnClearSelection");
 	if (!project_p || !project_p->FindTableBase()) return;
 	project_p->FindTableBase()->DeselectAllRows();
 }
@@ -2137,8 +2098,8 @@ void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
     project_p->GetSelectedRows(selected_rows);
     if ( selected_rows.empty() ) {
         wxMessageDialog dlg (this,
-                             "Please select features first.",
-                             "Info", wxOK | wxICON_INFORMATION);
+                             _("Please select features first."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         return;
     }
@@ -2172,10 +2133,6 @@ void GdaFrame::OnShowProjectInfo(wxCommandEvent& event)
 
 void GdaFrame::OnHtmlEntry(int entry)
 {
-	LOG_MSG("In GdaFrame::OnHtmlEntry");
-	LOG(entry);
-	LOG(htmlMenuItems[entry].menu_title);
-	LOG(htmlMenuItems[entry].url);
 	if (!GetProject()) return;
 	WebViewExampleDlg* dlg =
 	new WebViewExampleDlg(project_p,
@@ -2293,8 +2250,6 @@ void GdaFrame::DisplayRegression(const wxString dump)
 
 void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_MSG("Entering GdaFrame::OnCondPlotChoices");
-    
     Project* p = GetProject();
     if (!p) return;
     
@@ -2316,7 +2271,6 @@ void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 									proj_open);
 		PopupMenu(popupMenu, wxDefaultPosition);
 	}
-	LOG_MSG("Exiting GdaFrame::OnCondPlotChoices");
 }
 
 void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
@@ -2324,15 +2278,17 @@ void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false,
-													false, "Conditional Map Variables",
-													"Horizontal Cells", "Vertical Cells", "Map Theme");
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
+                            _("Conditional Map Variables"),
+                            _("Horizontal Cells"), _("Vertical Cells"),
+                            _("Map Theme"));
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalMapFrame* subframe =
 	new ConditionalMapFrame(GdaFrame::gda_frame, project_p,
 							dlg.var_info, dlg.col_ids,
-							"Conditional Map", wxDefaultPosition,
+							_("Conditional Map"), wxDefaultPosition,
 							GdaConst::cond_view_default_size);
 }
 
@@ -2341,17 +2297,16 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false,
-													false,
-							"Conditional Histogram Variables",
-							"Horizontal Cells", "Vertical Cells",
-							"Histogram Variable");
+	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
+							_("Conditional Histogram Variables"),
+							_("Horizontal Cells"), _("Vertical Cells"),
+							_("Histogram Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalHistogramFrame* subframe =
 	new ConditionalHistogramFrame(GdaFrame::gda_frame, project_p,
 								  dlg.var_info, dlg.col_ids,
-								  "Conditional Histogram", wxDefaultPosition,
+								  _("Conditional Histogram"), wxDefaultPosition,
 								  GdaConst::cond_view_default_size);
 }
 
@@ -2362,16 +2317,16 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
     
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
 							false, false,
-							"Conditional Scatter Plot Variables",
-							"Horizontal Cells", "Vertical Cells",
-							"Independent Var (x-axis)",
-							"Dependent Var (y-axis)");
+							_("Conditional Scatter Plot Variables"),
+							_("Horizontal Cells"), _("Vertical Cells"),
+							_("Independent Var (x-axis)"),
+							_("Dependent Var (y-axis)"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalScatterPlotFrame* subframe =
 	new ConditionalScatterPlotFrame(GdaFrame::gda_frame, project_p,
 									dlg.var_info, dlg.col_ids,
-									"Conditional Scatter Plot",
+									_("Conditional Scatter Plot"),
 									wxDefaultPosition,
 									GdaConst::cond_view_default_size);
 }
@@ -2381,16 +2336,17 @@ void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
-													false, "Cartogram Variables",
-							"Circle Size", "Circle Color", "", "",
+	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false, false,
+                            _("Cartogram Variables"),
+							_("Circle Size"), _("Circle Color"), "", "",
 							true, false); // set second var from first
-	if (dlg.ShowModal() != wxID_OK) return;
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 	
 	CartogramNewFrame* subframe =
 		new CartogramNewFrame(GdaFrame::gda_frame, project_p,
 							  dlg.var_info, dlg.col_ids,
-							  "Cartogram", wxDefaultPosition,
+							  _("Cartogram"), wxDefaultPosition,
 							  GdaConst::map_default_size);
 }
 
@@ -2468,20 +2424,18 @@ void GdaFrame::OnCartogramImprove6(wxCommandEvent& event )
 
 void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_MSG("Entering GdaFrame::OnExploreHist");
     Project* p = GetProject();
     if (!p) return;
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate);
-	if (VS.ShowModal() != wxID_OK) return;
+	if (VS.ShowModal() != wxID_OK)
+        return;
 	
 	HistogramFrame* f = new HistogramFrame(GdaFrame::gda_frame, project_p,
-										   VS.var_info,
-										   VS.col_ids, "Histogram",
+										   VS.var_info, VS.col_ids,
+                                           _("Histogram"),
 										   wxDefaultPosition,
 										   GdaConst::hist_default_size);
-	
-	LOG_MSG("Exiting GdaFrame::OnExploreHist");
 }
 
 void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
@@ -2492,12 +2446,13 @@ void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate,
                             false,
                             false,
-                            "Scatter Plot Variables",
-							"Independent Var X",
-                            "Dependent Var Y");
-	if (dlg.ShowModal() != wxID_OK) return;
+                            _("Scatter Plot Variables"),
+							_("Independent Var X"),
+                            _("Dependent Var Y"));
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 	
-	wxString title("Scatter Plot");
+	wxString title = _("Scatter Plot");
 	ScatterNewPlotFrame* subframe =
 	new ScatterNewPlotFrame(GdaFrame::gda_frame, project_p,
 							dlg.var_info, dlg.col_ids,
@@ -2513,13 +2468,13 @@ void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
     
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
 							false, false,
-							"Bubble Chart Variables",
-							"X-Axis", "Y-Axis",
-							"Bubble Size", "Standard Deviation Color",
+							_("Bubble Chart Variables"),
+							_("X-Axis"), _("Y-Axis"),
+							_("Bubble Size"), _("Standard Deviation Color"),
 							false, true); // set fourth variable from third
 	if (dlg.ShowModal() != wxID_OK) return;
 	
-	wxString title("Bubble Chart");
+	wxString title(_("Bubble Chart"));
 	ScatterNewPlotFrame* subframe =
 	new ScatterNewPlotFrame(GdaFrame::gda_frame, project_p,
 							dlg.var_info, dlg.col_ids,
@@ -2533,7 +2488,10 @@ void GdaFrame::OnExploreScatterPlotMat(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	ScatterPlotMatFrame* f = new ScatterPlotMatFrame(GdaFrame::gda_frame, project_p, "Scatter Plot Matrix", wxDefaultPosition, GdaConst::scatterplot_default_size);
+	ScatterPlotMatFrame* f =
+    new ScatterPlotMatFrame(GdaFrame::gda_frame, project_p,
+                            _("Scatter Plot Matrix"), wxDefaultPosition,
+                            GdaConst::scatterplot_default_size);
 }
 
 void GdaFrame::OnExploreTestMap(wxCommandEvent& WXUNUSED(event))
@@ -4161,10 +4119,11 @@ void GdaFrame::OnSpatialRate(wxCommandEvent& event)
 
 void GdaFrame::OnOpenSpatialEmpiricalBayes(wxCommandEvent& event)
 {
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
-													true, false,
-													"Empirical Spatial Rate Smoothed Variable Settings",
-													"Event Variable", "Base Variable");
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
+                            true, false,
+                            "Empirical Spatial Rate Smoothed Variable Settings",
+                            "Event Variable", "Base Variable");
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
 									  dlg.var_info, dlg.col_ids,
@@ -4180,6 +4139,7 @@ void GdaFrame::OnOpenSpatialEmpiricalBayes(wxCommandEvent& event)
 
 void GdaFrame::OnSpatialEmpiricalBayes(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSpatialEmpiricalBayes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4191,6 +4151,7 @@ void GdaFrame::OnSpatialEmpiricalBayes(wxCommandEvent& event)
 
 void GdaFrame::OnSaveResults(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveResults()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4202,6 +4163,7 @@ void GdaFrame::OnSaveResults(wxCommandEvent& event)
 
 void GdaFrame::OnSelectIsolates(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSelectIsolates()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConnectivityHistFrame* f = dynamic_cast<ConnectivityHistFrame*>(t)) {
@@ -4213,6 +4175,7 @@ void GdaFrame::OnSelectIsolates(wxCommandEvent& event)
 
 void GdaFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveConnectivityToTable()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConnectivityHistFrame* f = dynamic_cast<ConnectivityHistFrame*>(t)) {
@@ -4224,6 +4187,7 @@ void GdaFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 
 void GdaFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
+    wxLogMessage("In OnHistogramIntervals()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConnectivityHistFrame* f = dynamic_cast<ConnectivityHistFrame*>(t)) {
@@ -4240,6 +4204,7 @@ void GdaFrame::OnHistogramIntervals(wxCommandEvent& event)
 
 void GdaFrame::OnRan99Per(wxCommandEvent& event)
 {
+    wxLogMessage("In OnRan99Per()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4254,6 +4219,7 @@ void GdaFrame::OnRan99Per(wxCommandEvent& event)
 
 void GdaFrame::OnRan199Per(wxCommandEvent& event)
 {
+    wxLogMessage("In OnRan199Per()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4268,6 +4234,7 @@ void GdaFrame::OnRan199Per(wxCommandEvent& event)
 
 void GdaFrame::OnRan499Per(wxCommandEvent& event)
 {
+    wxLogMessage("In OnRan499Per()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4282,6 +4249,7 @@ void GdaFrame::OnRan499Per(wxCommandEvent& event)
 
 void GdaFrame::OnRan999Per(wxCommandEvent& event)
 {
+    wxLogMessage("In OnRan999Per()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4296,6 +4264,7 @@ void GdaFrame::OnRan999Per(wxCommandEvent& event)
 
 void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
 {
+    wxLogMessage("In OnRanOtherPer()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4310,6 +4279,7 @@ void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
 
 void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
+    wxLogMessage("In OnUseSpecifiedSeed()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4323,6 +4293,7 @@ void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 
 void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSpecifySeedDlg()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4336,6 +4307,7 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 
 void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveMoranI()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
@@ -4345,6 +4317,7 @@ void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 
 void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSigFilter05()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4356,6 +4329,7 @@ void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 
 void GdaFrame::OnSigFilter01(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSigFilter01()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4367,6 +4341,7 @@ void GdaFrame::OnSigFilter01(wxCommandEvent& event)
 
 void GdaFrame::OnSigFilter001(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSigFilter001()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4378,6 +4353,7 @@ void GdaFrame::OnSigFilter001(wxCommandEvent& event)
 
 void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSigFilter0001()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4389,6 +4365,7 @@ void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
 
 void GdaFrame::OnAddMeanCenters(wxCommandEvent& event)
 {
+    wxLogMessage("In OnAddMeanCenters()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4398,6 +4375,7 @@ void GdaFrame::OnAddMeanCenters(wxCommandEvent& event)
 
 void GdaFrame::OnAddCentroids(wxCommandEvent& event)
 {
+    wxLogMessage("In OnAddCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4407,6 +4385,7 @@ void GdaFrame::OnAddCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayMeanCenters(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayMeanCenters()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4416,6 +4395,7 @@ void GdaFrame::OnDisplayMeanCenters(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4425,6 +4405,7 @@ void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayVoronoiDiagram(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayVoronoiDiagram()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4434,6 +4415,7 @@ void GdaFrame::OnDisplayVoronoiDiagram(wxCommandEvent& event)
 
 void GdaFrame::OnExportVoronoi(wxCommandEvent& event)
 {
+    wxLogMessage("In OnExportVoronoi()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4445,6 +4427,7 @@ void GdaFrame::OnExportVoronoi(wxCommandEvent& event)
 
 void GdaFrame::OnExportMeanCntrs(wxCommandEvent& event)
 {
+    wxLogMessage("In OnExportMeanCntrs()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (project_p) project_p->ExportCenters(true);
@@ -4452,6 +4435,7 @@ void GdaFrame::OnExportMeanCntrs(wxCommandEvent& event)
 
 void GdaFrame::OnExportCentroids(wxCommandEvent& event)
 {
+    wxLogMessage("In OnExportCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (project_p) project_p->ExportCenters(false);
@@ -4459,6 +4443,7 @@ void GdaFrame::OnExportCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnSaveVoronoiDupsToTable(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveVoronoiDupsToTable()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4470,6 +4455,7 @@ void GdaFrame::OnSaveVoronoiDupsToTable(wxCommandEvent& event)
 
 void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveGetisOrd()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
@@ -4479,6 +4465,7 @@ void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 
 void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSaveLisa()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4488,6 +4475,7 @@ void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 
 void GdaFrame::OnSelectCores(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSelectCores()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4499,6 +4487,7 @@ void GdaFrame::OnSelectCores(wxCommandEvent& event)
 
 void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSelectNeighborsOfCores()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4510,6 +4499,7 @@ void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 
 void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
+    wxLogMessage("In OnSelectCoresAndNeighbors()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4521,6 +4511,7 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 
 void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewStandardizedData()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
@@ -4534,6 +4525,7 @@ void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 
 void GdaFrame::OnViewOriginalData(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewOriginalData()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
@@ -4547,6 +4539,7 @@ void GdaFrame::OnViewOriginalData(wxCommandEvent& event)
 
 void GdaFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewLinearSmoother()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4561,6 +4554,7 @@ void GdaFrame::OnViewLinearSmoother(wxCommandEvent& event)
 
 void GdaFrame::OnViewLowessSmoother(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewLowessSmoother()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4577,6 +4571,7 @@ void GdaFrame::OnViewLowessSmoother(wxCommandEvent& event)
 
 void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 {
+    wxLogMessage("In OnEditLowessParams()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4593,6 +4588,7 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 
 void GdaFrame::OnEditVariables(wxCommandEvent& event)
 {
+    wxLogMessage("In OnEditVariables()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
@@ -4608,6 +4604,7 @@ void GdaFrame::OnEditVariables(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewRegimesRegression()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4621,6 +4618,7 @@ void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegressionSelectedExcluded(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewRegressionSelectedExcluded()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4630,6 +4628,7 @@ void GdaFrame::OnViewRegressionSelectedExcluded(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegressionSelected(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewRegressionSelected()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4639,6 +4638,7 @@ void GdaFrame::OnViewRegressionSelected(wxCommandEvent& event)
 
 void GdaFrame::OnCompareRegimes(wxCommandEvent& event)
 {
+    wxLogMessage("In OnViewRegressionSelected()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4667,6 +4667,7 @@ void GdaFrame::OnCompareRegAndTmPer(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayStatistics()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
