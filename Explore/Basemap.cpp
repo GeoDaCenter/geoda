@@ -655,7 +655,11 @@ bool Basemap::Draw(wxBitmap* buffer)
 {
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
+	dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
+	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return false;
    
     int x0 = startX;
     int x1 = endX;
@@ -683,11 +687,11 @@ bool Basemap::Draw(wxBitmap* buffer)
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             bool bmpOK = bmp.IsOk();
-            if (bmpOK) dc.DrawBitmap(bmp, pos_x, pos_y, true);
+            if (bmpOK) gc->DrawBitmap(bmp, pos_x, pos_y, 256,256);
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}
-    
+    delete gc;
     isTileDrawn = true;
     return isTileReady;
 }
