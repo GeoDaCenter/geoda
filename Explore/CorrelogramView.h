@@ -55,10 +55,10 @@ class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
 public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt
 {
 public:
-	CorrelogramFrame(wxFrame *parent, Project* project,
-											const wxString& title = "Scatter Plot Matrix",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize);
+    CorrelogramFrame(wxFrame *parent, Project* project,
+                     const wxString& title = _("Scatter Plot Matrix"),
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
 	virtual ~CorrelogramFrame();
 	
 	void OnMouseEvent(wxMouseEvent& event);

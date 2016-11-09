@@ -57,7 +57,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, style),
 popup_col(-1)
 {
-	LOG_MSG("Entering TableFrame::TableFrame");
+	wxLogMessage("Open TableFrame.");
 
     wxPanel *panel = new wxPanel(this, wxID_ANY);
     
@@ -158,8 +158,6 @@ popup_col(-1)
    
     // mouse event should be binded to grid window, not grid itself
     grid->GetGridWindow()->Bind(wxEVT_RIGHT_UP, &TableFrame::OnMouseEvent, this);
-   
-	LOG_MSG("Exiting TableFrame::TableFrame");
 }
 
 TableFrame::~TableFrame()
@@ -181,8 +179,8 @@ void TableFrame::OnMouseEvent(wxMouseEvent& event)
 
 void TableFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In TableFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In TableFrame::OnActivate");
 		RegisterAsActive("TableFrame", GetTitle());
 	}
 	event.Skip(false);
@@ -190,15 +188,13 @@ void TableFrame::OnActivate(wxActivateEvent& event)
 
 void TableFrame::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("Entering TableFrame::OnClose");
 	if (!GdaFrame::GetGdaFrame()) {
 		// This is an exit event, so allow close to proceed
 		event.Skip();
-		LOG_MSG("Exiting TableFrame::OnClose");
 		return;
 	}
 	if (!GdaFrame::IsProjectOpen()) {
-		LOG_MSG("In TableFrame::OnClose and actually closing.");
+		wxLogMessage("In TableFrame::OnClose and actually closing.");
 		event.Skip();
 		// NOTE: We should not have to explicitly close the grid, but
 		// if we don't an exception is thrown.  Very strange.  Hopefully
@@ -215,21 +211,17 @@ void TableFrame::OnClose(wxCloseEvent& event)
 		//Destroy();
 		//Close(true);
 	} else {
-		LOG_MSG("In TableFrame::OnClose, but just hiding.");
 		Hide();
 	}
-	LOG_MSG("Exiting TableFrame::OnClose");
 }
 
 void TableFrame::OnMenuClose(wxCommandEvent& event)
 {
-	LOG_MSG("In TableFrame::OnMenuClose");
 	Hide();
 }
 
 void TableFrame::MapMenus()
 {
-	LOG_MSG("In TableFrame::MapMenus");
 	// Map Default Options Menus
     //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
     wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
@@ -268,7 +260,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 		}
 	}
 	// Set Rename item
-	wxString rename_str("Rename Variable");
+	wxString rename_str(_("Rename Variable"));
 	if (popup_col != -1) {
 		rename_str << " \"" << ti->GetColName(popup_col) << "\"";
 	}
@@ -348,16 +340,13 @@ void TableFrame::OnRightClickEvent( wxGridEvent& ev )
 
 void TableFrame::OnColSizeEvent( wxGridSizeEvent& ev )
 {
-	LOG_MSG("Entering TableFrame::OnColSizeEvent");
 	ev.Veto();
-	LOG_MSG("Exiting TableFrame::OnColSizeEvent");
 }
 
 void TableFrame::OnColMoveEvent( wxGridEvent& ev )
 {
-	LOG_MSG("Entering TableFrame::OnColMoveEvent");
+    wxLogMessage("In TableFrame::OnColMoveEvent()");
 	table_base->notifyColMove();
-	LOG_MSG("Exiting TableFrame::OnColMoveEvent");
 }
 
 /**
@@ -383,8 +372,8 @@ void TableFrame::OnColMoveEvent( wxGridEvent& ev )
  */
 void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 {
+    wxLogMessage("In TableFrame::OnLabelLeftClickEvent()");
 	using namespace std;
-	LOG_MSG("Entering TableFrame::OnLabelLeftClickEvent");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	TableInterface* table_int = project->GetTableInt();
@@ -515,7 +504,7 @@ void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 
 void TableFrame::OnLabelLeftDClickEvent( wxGridEvent& ev)
 {
-	LOG_MSG("Entering TableFrame::OnLabelLeftDClickEvent");	
+	wxLogMessage("In TableFrame::OnLabelLeftDClickEvent()");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	if (col >= 0 && row < 0) {
@@ -551,11 +540,11 @@ void TableFrame::OnLabelLeftDClickEvent( wxGridEvent& ev)
 	} else {
 		ev.Skip(); // continue processing this event	
 	}
-	LOG_MSG("Exiting TableFrame::OnLabelLeftDClickEvent");
 }
 
 void TableFrame::OnCellChanged( wxGridEvent& ev )
 {
+	wxLogMessage("In TableFrame::OnCellChanged()");
 	TableInterface* ti = table_base->GetTableInt();
 	if (ti->IsSetCellFromStringFail()) {
 		wxMessageDialog dlg(this, ti->GetSetCellFromStringFailMsg(), "Warning",
@@ -650,20 +639,18 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 	wxString initial_msg;
 	wxString dlg_title;
 	if (is_group_col) {
-		dlg_title << "Rename Space-Time Variable";
-		initial_msg << "New space-time variable name";
+		dlg_title << _("Rename Space-Time Variable");
+		initial_msg << _("New space-time variable name");
 	} else {
-		dlg_title << "Rename Variable";
-		initial_msg << "New variable name";
+		dlg_title << _("Rename Variable");
+		initial_msg << _("New variable name");
 	}
 
 	bool done = false;
 	wxString curr_name = ti->GetColName(curr_col);
 	wxString new_name = initial_name;
 	wxString error_pre_msg = wxEmptyString; 
-	error_pre_msg 
-		<< "Variable name is either a duplicate or is invalid. Please\n"
-		<< "enter an alternative, non-duplicate variable name.\n\n";
+	error_pre_msg = _("Variable name is either a duplicate or is invalid. Please\nenter an alternative, non-duplicate variable name.\n\n");
 	wxString error_msg = wxEmptyString;
 
 	bool first = true;

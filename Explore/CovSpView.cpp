@@ -19,6 +19,7 @@
 
 #include <utility> // std::pair
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include "../DialogTools/VariableSettingsDlg.h"
@@ -40,12 +41,12 @@ END_EVENT_TABLE()
 using namespace std;
 
 CovSpFrame::CovSpFrame(wxFrame *parent, Project* project,
-											 const GdaVarTools::Manager& var_man_,
-											 WeightsMetaInfo::DistanceMetricEnum dist_metric_,
-											 WeightsMetaInfo::DistanceUnitsEnum dist_units_,
-											 const wxString& title,
-											 const wxPoint& pos,
-											 const wxSize& size)
+                       const GdaVarTools::Manager& var_man_,
+                       WeightsMetaInfo::DistanceMetricEnum dist_metric_,
+                       WeightsMetaInfo::DistanceUnitsEnum dist_units_,
+                       const wxString& title,
+                       const wxPoint& pos,
+                       const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 var_man(var_man_),
 dist_metric(dist_metric_), dist_units(dist_units_),
@@ -56,6 +57,7 @@ show_lowess_smoother(true), show_slope_values(false),
 scatt_plot(0), vert_label(0), horiz_label(0),
 too_many_obs(project->GetNumRecords() > 1000)
 {
+    wxLogMessage("Open CovSpFrame (Non-parametric Spatial Autocorrelation.");
 	if (!too_many_obs) {
 		pairs_hl_state = project->GetPairsHLState();
 		project->FillDistances(D, dist_metric, dist_units);
@@ -111,12 +113,10 @@ too_many_obs(project->GetNumRecords() > 1000)
 	UpdatePanel();
 	
 	Show(true);
-	LOG_MSG("Exiting CovSpFrame::CovSpFrame");
 }
 
 CovSpFrame::~CovSpFrame()
 {
-	LOG_MSG("In CovSpFrame::~CovSpFrame");
 	if (lowess_param_frame) {
 		lowess_param_frame->removeObserver(this);
 		lowess_param_frame->closeAndDeleteWhenEmpty();
@@ -133,8 +133,8 @@ void CovSpFrame::OnMouseEvent(wxMouseEvent& event)
 
 void CovSpFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In CovSpFrame::OnActivate()");
 		RegisterAsActive("CovSpFrame", GetTitle());
 	}
 	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -142,7 +142,6 @@ void CovSpFrame::OnActivate(wxActivateEvent& event)
 
 void CovSpFrame::MapMenus()
 {
-	LOG_MSG("In CovSpFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
@@ -171,27 +170,27 @@ void CovSpFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
-																show_linear_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
-																show_lowess_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
-																show_regimes);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
-																show_slope_values);
-	
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
+                                  show_linear_smoother);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
+                                  show_lowess_smoother);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
+                                  show_regimes);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
+                                  show_slope_values);
+    
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
 void CovSpFrame::UpdateTitle()
 {
-	wxString s("Nonparametric Spatial Autocorrelation");
+	wxString s = _("Nonparametric Spatial Autocorrelation");
 	if (var_man.GetVarsCount() > 0) s << " - " << var_man.GetNameWithTime(0);
 	SetTitle(s);
 }
 
 wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
-																							int total_hover_obs)
+                                              int total_hover_obs)
 {
 	wxString s;
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
@@ -220,7 +219,7 @@ wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
 
 void CovSpFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewLinearSmoother");
+	wxLogMessage("In CovSpFrame::OnViewLinearSmoother");
 	if (too_many_obs) return;
 	show_linear_smoother = !show_linear_smoother;
 	scatt_plot->ShowLinearSmoother(show_linear_smoother);
@@ -229,7 +228,7 @@ void CovSpFrame::OnViewLinearSmoother(wxCommandEvent& event)
 
 void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewLowessSmoother");
+	wxLogMessage("In CovSpFrame::OnViewLowessSmoother");
 	if (too_many_obs) return;
 	show_lowess_smoother = !show_lowess_smoother;
 	scatt_plot->ShowLowessSmoother(show_lowess_smoother);
@@ -238,7 +237,7 @@ void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 
 void CovSpFrame::OnEditLowessParams(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnEditLowessParams");
+	wxLogMessage("In CovSpFrame::OnEditLowessParams");
 	if (too_many_obs) return;
 	if (lowess_param_frame) {
 		lowess_param_frame->Iconize(false);
@@ -255,7 +254,7 @@ void CovSpFrame::OnEditLowessParams(wxCommandEvent& event)
 
 void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnShowVarsChooser");
+	wxLogMessage("In CovSpFrame::OnShowVarsChooser");
 	if (too_many_obs) return;
 	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate,
 												 false, true, "Variable Choice", "Variable");
@@ -297,7 +296,7 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 
 void CovSpFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewRegimesRegression");
+	wxLogMessage("In CovSpFrame::OnViewRegimesRegression");
 	if (too_many_obs) return;
 	show_regimes = !show_regimes;
 	scatt_plot->ShowRegimes(show_regimes);
@@ -306,7 +305,7 @@ void CovSpFrame::OnViewRegimesRegression(wxCommandEvent& event)
 
 void CovSpFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnDisplayStatistics");
+	wxLogMessage("In CovSpFrame::OnDisplayStatistics");
 	if (too_many_obs) return;
 	// should be managed here or by shared manager
 	//CovSpCanvas* t = (CovSpCanvas*) template_canvas;
@@ -316,7 +315,7 @@ void CovSpFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void CovSpFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnDisplaySlopeValues");
+	wxLogMessage("In CovSpFrame::OnDisplaySlopeValues");
 	if (too_many_obs) return;
 	show_slope_values = !show_slope_values;
 	scatt_plot->ShowSlopeValues(show_slope_values);
@@ -326,13 +325,11 @@ void CovSpFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 /** Implementation of TableStateObserver interface */
 void CovSpFrame::update(TableState* o)
 {
-	LOG_MSG("In CovSpFrame::update(TableState*)");
 }
 
 /** Implementation of TimeStateObserver interface */
 void CovSpFrame::update(TimeState* o)
 {
-	LOG_MSG("In CovSpFrame::update(TimeState* o)");
 	var_man.UpdateGlobalTime(o->GetCurrTime());
 	if (var_man.GetVarsCount() >= 1)
         UpdatePanel();
@@ -352,7 +349,6 @@ void CovSpFrame::notifyOfClosing(LowessParamObservable* o)
 
 void CovSpFrame::UpdatePanel()
 {
-	LOG_MSG("Entering CovSpFrame::UpdatePanel");
 	if (!panel || !bag_szr) return;
 	template_canvas = 0;
 	int num_vars = var_man.GetVarsCount();
@@ -407,7 +403,7 @@ void CovSpFrame::UpdatePanel()
 			int row = 0;
 			wxString z_nm(var_man.GetName(row));
 			int z_tm = var_man.GetTime(row);
-			wxString z_title = "Sample Autocorrelation";
+			wxString z_title = _("Sample Autocorrelation");
 			//var_man.GetNameWithTime(row);
 			wxString z_tm_str = table_int->GetTimeString(z_tm);
 			SimpleAxisCanvas* sa_can = 0;
@@ -490,7 +486,6 @@ void CovSpFrame::UpdatePanel()
 	top_h_sizer->RecalcSizes();
 	UpdateTitle();
 	Refresh();
-	LOG_MSG("Exiting CovSpFrame::UpdatePanel");
 }
 
 void CovSpFrame::UpdateMessageWin()
@@ -550,7 +545,6 @@ void CovSpFrame::UpdateMessageWin()
 /** Updates Z according to variable present in var_man. */
 void CovSpFrame::UpdateDataFromVarMan()
 {
-	LOG_MSG("Entering CovSpFrame::UpdateDataMapFromVarMan");
 	TableInterface* table_int = project->GetTableInt();
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
 	
@@ -683,8 +677,6 @@ void CovSpFrame::UpdateDataFromVarMan()
 			}
 		}
 	}
-	
-	LOG_MSG("Exiting CovSpFrame::UpdateDataFromVarMan");
 }
 
 wxString CovSpFrame::GetHelpHtml()

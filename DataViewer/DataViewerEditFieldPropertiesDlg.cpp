@@ -362,6 +362,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	wxString msg;
 	msg << "changing row " << row << ", col " << col << " from ";
 	msg << cur_str << " to " << new_str;
+    wxLogMessage(msg);
 	
 	GdaConst::FieldType type = GdaConst::unknown_type;
 	wxString type_str = field_grid->GetCellValue(row, COL_T);
@@ -706,11 +707,13 @@ void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
     int sel = ev.GetSelection();
     combo_selection = sel;
     ev.Skip();
+    
+	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnGridComboBox");
+    wxLogMessage(wxString::Format("%s", sel));
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedEvent& ev )
 {
-    wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
     cell_editor_open = true;
     int row = ev.GetRow();
     int col = ev.GetCol();
@@ -723,7 +726,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedE
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
 {
-	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorShown");
 	cell_editor_open = true;
     int row = ev.GetRow();
     int col = ev.GetCol();
@@ -735,7 +737,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorHidden( wxGridEvent& ev )
 {
-	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnCellEditorHidden");
 	cell_editor_open = false;
     
     int row = ev.GetRow();

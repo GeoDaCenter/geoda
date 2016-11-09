@@ -904,9 +904,12 @@ boost::uuids::uuid VariableSettingsDlg::GetWeightsId()
 	int sel = weights_ch->GetSelection();
 	if (sel < 0) sel = 0;
 	if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+    
 	wxString s;
 	s << "VariableSettingsDlg::GetWeightsId() weight: ";
 	s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
+    wxLogMessage(s);
+    
 	return weights_ids[sel];
 }
 

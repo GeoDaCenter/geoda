@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <utility> // std::pair
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include "../HighlightState.h"
@@ -53,6 +54,7 @@ correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
 hist_plot(0), local_hl_state(0), message_win(0), project(project)
 {
+    wxLogMessage("Open CorrelogramFrame (Scatter Plot Matrix)");
 	local_hl_state = new HighlightState();
 	supports_timeline_changes = true;
 	{
@@ -132,6 +134,7 @@ void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
 void CorrelogramFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
+        wxLogMessage("In CorrelogramFrame::OnActivate()");
 		RegisterAsActive("CorrelogramFrame", GetTitle());
 	}
 }
@@ -170,6 +173,7 @@ void CorrelogramFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 {
+    wxLogMessage("In CorrelogramFrame::OnShowCorrelParams()");
 	if (correl_params_frame) {
 		correl_params_frame->Iconize(false);
 		correl_params_frame->Raise();
@@ -185,6 +189,7 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
+    wxLogMessage("In CorrelogramFrame::OnDisplayStatistics()");
 	UpdateOptionMenuItems();
 }
 
@@ -607,8 +612,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	top_h_sizer->RecalcSizes();
     
     if (valid_sampling == false ) {
-        wxString msg = "The sample size for random sampling is too small.\nPlease increase the number of iterations.";
-        wxString title = "Insufficient Random Sampling";
+        wxString msg = _("The sample size for random sampling is too small.\nPlease increase the number of iterations.");
+        wxString title = _("Insufficient Random Sampling");
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }

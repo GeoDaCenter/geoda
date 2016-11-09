@@ -102,7 +102,7 @@ public HighlightStateObserver, public LineChartCanvasCallbackInt
 {
 public:
 	LineChartFrame(wxFrame *parent, Project* project,
-                 const wxString& title = "Averages Chart",
+                 const wxString& title = _("Averages Chart"),
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxSize(680,420));
 	virtual ~LineChartFrame();

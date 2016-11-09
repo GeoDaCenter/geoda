@@ -374,8 +374,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		time_steps = table_int->GetTimeSteps();
 	}
 
-	LOG_MSG(wxString::Format("Inserting new column %s into Table",
-							 colname.Upper().c_str()));
+	wxLogMessage(wxString::Format("Inserting new column %s into Table", colname.Upper()));
 	
 	bool success;
 	if (fixed_lengths) {
@@ -388,8 +387,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	
 	if (!success) {
-		wxString msg("Could not create a new variable. "
-					 "Possibly a read-only data source.");
+		wxString msg = _("Could not create a new variable. Possibly a read-only data source.");
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;

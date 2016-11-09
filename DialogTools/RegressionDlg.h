@@ -48,16 +48,16 @@ class RegressionDlg: public wxDialog, public FramesManagerObserver,
 public:
     RegressionDlg(Project* project,
 				  wxWindow* parent,
-				  wxString title = "Regression",
+				  wxString title = _("Regression"),
 				  wxWindowID id = -1,
-				  const wxString& caption = "Regression", 
+				  const wxString& caption = _("Regression"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize, 
 				  long style = wxCAPTION|wxSYSTEM_MENU );
 	virtual ~RegressionDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Regression",
+				const wxString& caption = _("Regression"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxSYSTEM_MENU );

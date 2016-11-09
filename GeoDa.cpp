@@ -1997,7 +1997,7 @@ void GdaFrame::OnFieldCalculation(wxCommandEvent& event)
 	
 	FieldNewCalcSheetDlg* dlg =
 		new FieldNewCalcSheetDlg(GetProject(), this,
-								 wxID_ANY, "Variable Calculation",
+								 wxID_ANY, _("Variable Calculation"),
 								 wxDefaultPosition,
 								 wxSize(700, 500));
 	dlg->Show(true);
@@ -2155,11 +2155,19 @@ void GdaFrame::OnHtmlEntry9(wxCommandEvent& event) { OnHtmlEntry(9); }
 
 void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 {
-	if (!GetProject() || !GetProject()->GetTableInt()) return;
+    wxLogMessage("In GdaFrame::OnGeneratePointShpFile()");
+    
+	if (!GetProject() || !GetProject()->GetTableInt())
+        return;
 	Project* p = GetProject();
 	TableInterface* table_int = p->GetTableInt();
-	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate, false, false, "New Map Coordinates","First Variable (X/Longitude)", "Second Variable (Y/Latitude)");
-	if (VS.ShowModal() != wxID_OK) return;
+	VariableSettingsDlg VS(GetProject(), VariableSettingsDlg::bivariate,
+                           false, false,
+                           _("New Map Coordinates"),
+                           _("First Variable (X/Longitude)"),
+                           _("Second Variable (Y/Latitude)"));
+	if (VS.ShowModal() != wxID_OK)
+        return;
 	
 	std::vector<double> xs;
 	std::vector<double> ys;
@@ -2203,7 +2211,6 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 	p->main_data.header.bbox_m_min = 0;
 	p->main_data.header.bbox_m_max = 0;
     
-	//LOG(p->main_data.records.size());
     p->isTableOnly = false;
 	UpdateToolbarAndMenus();
 	std::vector<int> col_ids;
@@ -2352,6 +2359,7 @@ void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
 
 void GdaFrame::OnCartogramImprove1(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove1()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2364,6 +2372,7 @@ void GdaFrame::OnCartogramImprove1(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove2(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove2()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2376,6 +2385,7 @@ void GdaFrame::OnCartogramImprove2(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove3(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove3()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2388,6 +2398,7 @@ void GdaFrame::OnCartogramImprove3(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove4(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove4()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2400,6 +2411,7 @@ void GdaFrame::OnCartogramImprove4(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove5(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove5()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2412,6 +2424,7 @@ void GdaFrame::OnCartogramImprove5(wxCommandEvent& event )
 
 void GdaFrame::OnCartogramImprove6(wxCommandEvent& event )
 {
+    wxLogMessage("In  GdaFrame::OnCartogramImprove6()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2496,22 +2509,21 @@ void GdaFrame::OnExploreScatterPlotMat(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExploreTestMap(wxCommandEvent& WXUNUSED(event))
 {
-	LOG_MSG("Entering GdaFrame::OnExploreTestMap");
-	
-	//MapFrame* subframe = new MapFrame(frame, project_p,
-	//										MapCanvas::no_theme,
-	//										MapCanvas::no_smoothing, 1,
-	//                                      boost::uuids::nil_uuid(),
-	//										wxDefaultPosition,
-	//										GdaConst::map_default_size);
-	//subframe->UpdateTitle();
-	
-	//	TestMapFrame *subframe = new TestMapFrame(frame, project_p,
-	//											  "Test Map Frame",
-	//											  wxDefaultPosition,
-	//											  GdaConst::map_default_size,
-	//											  wxDEFAULT_FRAME_STYLE);
-	LOG_MSG("Exiting GdaFrame::OnExploreTestMap");
+    /*
+    MapFrame* subframe = new MapFrame(frame, project_p,
+                                      MapCanvas::no_theme,
+                                      MapCanvas::no_smoothing, 1,
+                                      boost::uuids::nil_uuid(),
+                                      wxDefaultPosition,
+                                      GdaConst::map_default_size);
+    subframe->UpdateTitle();
+    
+    TestMapFrame *subframe = new TestMapFrame(frame, project_p,
+                                              "Test Map Frame",
+                                              wxDefaultPosition,
+                                              GdaConst::map_default_size,
+                                              wxDEFAULT_FRAME_STYLE);
+     */
 }
 
 void GdaFrame::OnExploreNewBox(wxCommandEvent& WXUNUSED(event))
@@ -2526,10 +2538,10 @@ void GdaFrame::OnExploreNewBox(wxCommandEvent& WXUNUSED(event))
 	int w = size.GetWidth();
 	if (VS.var_info[0].is_time_variant) size.SetWidth((w*3)/2);
 	else size.SetWidth(w/2);
-	BoxPlotFrame *sf = new BoxPlotFrame(GdaFrame::gda_frame, GetProject(),
-											  VS.var_info, VS.col_ids,
-											  "Box Plot", wxDefaultPosition,
-											  size);
+    BoxPlotFrame *sf = new BoxPlotFrame(GdaFrame::gda_frame, GetProject(),
+                                        VS.var_info, VS.col_ids,
+                                        _("Box Plot"), wxDefaultPosition,
+                                        size);
 }
 
 void GdaFrame::OnExplorePCP(wxCommandEvent& WXUNUSED(event))
@@ -2538,7 +2550,8 @@ void GdaFrame::OnExplorePCP(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
     
 	PCPDlg dlg(p,this);
-	if (dlg.ShowModal() != wxID_OK) return;
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 	PCPFrame* s = new PCPFrame(this, p, dlg.var_info, dlg.col_ids);
 }
 
@@ -2547,13 +2560,15 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg dlg(p, VariableSettingsDlg::trivariate, false, false, "3D Scatter Plot Variables", "X", "Y", "Z");
-	if (dlg.ShowModal() != wxID_OK) return;
+	VariableSettingsDlg dlg(p, VariableSettingsDlg::trivariate, false, false,
+                            _("3D Scatter Plot Variables"), "X", "Y", "Z");
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 		
 	C3DPlotFrame *subframe =
 		new C3DPlotFrame(GdaFrame::gda_frame, p,
 						 dlg.var_info, dlg.col_ids,
-						 "3D Plot", wxDefaultPosition,
+						 _("3D Plot"), wxDefaultPosition,
 						 GdaConst::three_d_default_size,
 						 wxDEFAULT_FRAME_STYLE);
 }
@@ -2564,7 +2579,7 @@ void GdaFrame::OnExploreLineChart(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
 
 	LineChartFrame* f = new LineChartFrame(GdaFrame::gda_frame, project_p,
-                                           "Average Comparison Chart",
+                                           _("Average Comparison Chart"),
                                            wxDefaultPosition,
                                            GdaConst::line_chart_default_size);
 }
@@ -2574,17 +2589,19 @@ void GdaFrame::OnExploreCovScatterPlot(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, false, true, "Variable Choice", "Variable");
-	if (VS.ShowModal() != wxID_OK) return;
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate,
+                           false, true, _("Variable Choice"), _("Variable"));
+	if (VS.ShowModal() != wxID_OK)
+        return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
 	std::vector<wxString> tm_strs;
 	project_p->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager var_man(tm_strs);
 	var_man.AppendVar(v.name, v.min, v.max, v.time,
-										v.sync_with_global_time, v.fixed_scale);
+                      v.sync_with_global_time, v.fixed_scale);
 	CovSpFrame* f = new CovSpFrame(GdaFrame::gda_frame, project_p, var_man,
-																 VS.GetDistanceMetric(),
-																 VS.GetDistanceUnits());
+                                   VS.GetDistanceMetric(),
+                                   VS.GetDistanceUnits());
 }
 
 void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
@@ -2592,8 +2609,9 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-    
-    CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, p, "Correlogram", wxDefaultPosition, GdaConst::scatterplot_default_size);
+    CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, p,
+                                               _("Correlogram"), wxDefaultPosition,
+                                               GdaConst::scatterplot_default_size);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
@@ -2606,15 +2624,15 @@ void GdaFrame::OnMoranMenuChoices(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	LOG_MSG("Entering GdaFrame::OnMoranMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_MORAN_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
-	LOG_MSG("Exiting GdaFrame::OnMoranMenuChoices");
 }
 
 void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaScatterPlotFrame (OnOpenMSPL).");
+    
     Project* p = GetProject();
     if (!p) return;
   
@@ -2622,20 +2640,21 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false);
-	if (VS.ShowModal() != wxID_OK) return;
+	if (VS.ShowModal() != wxID_OK)
+        return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
    
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2650,6 +2669,8 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
 }
 void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaScatterPlotFrame (OnOpenDiffMoran).");
+    
     Project* p = GetProject();
     if (!p) return;
    
@@ -2657,7 +2678,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -2666,7 +2687,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     
     bool has_time = table_int->IsTimeVariant();
     if (has_time == false) {
-        wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2679,7 +2700,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     int col_idx = VS.col_ids[0];
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
-        wxMessageDialog dlg (this, "The selected variable is not numeric. Please select another variable.", "Variable Type Error", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("The selected variable is not numeric. Please select another variable."), _("Variable Type Error"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2691,7 +2712,7 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2709,6 +2730,8 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaScatterPlotFrame (OnOpenGMoran).");
+    
     Project* p = GetProject();
     if (!p) return;
    
@@ -2716,14 +2739,14 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
     bool show_weights = true;
     bool show_distance = false;
-    wxString title = "Differential Moran Variable Settings";
+    wxString title = _("Differential Moran Variable Settings");
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, show_weights, show_distance, title);
 	if (VS.ShowModal() != wxID_OK)
         return;
@@ -2735,7 +2758,7 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2751,6 +2774,7 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
 
 void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaScatterPlotFrame (OnOpenMoranEB).");
     Project* p = GetProject();
     if (!p) return;
    
@@ -2758,15 +2782,15 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
 												 false,
-												 "Empirical Bayes Rate Standardization Variables",
-												 "Event Variable", "Base Variable");
+												 _("Empirical Bayes Rate Standardization Variables"),
+												 _("Event Variable"), _("Base Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
@@ -2774,7 +2798,7 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2793,11 +2817,9 @@ void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	LOG_MSG("Entering GdaFrame::OnLisaMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_LISA_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
-	LOG_MSG("Exiting GdaFrame::OnLisaMenuChoices");
 }
 
 void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
@@ -2805,15 +2827,15 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	LOG_MSG("Entering GdaFrame::OnGetisMenuChoices");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
-	LOG_MSG("Exiting GdaFrame::OnGetisMenuChoices");
 }
 
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaMapFrame (OnOpenUniLisa).");
+    
     Project* p = GetProject();
     if (!p) return;
     
@@ -2821,7 +2843,7 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -2834,7 +2856,7 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxMessageDialog dlg (this, "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2867,6 +2889,8 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaMapFrame (OnOpenMultiLisa).");
+    
     Project* p = GetProject();
     if (!p) return;
     
@@ -2879,7 +2903,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.", "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
         
@@ -2887,7 +2911,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     
     bool has_time = table_int->IsTimeVariant();
     if (has_time == false) {
-        wxMessageDialog dlg (this, "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, _("Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2899,7 +2923,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
         wxString msg = _T("The selected variable is not numeric. Please select another variable.");
-        wxMessageDialog dlg (this, msg, "Variable Type Error", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Variable Type Error"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -2919,9 +2943,6 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
-    
-    
-    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info,
 											  VS.col_ids,
@@ -2945,6 +2966,8 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 
 void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 {
+    wxLogMessage("Open LisaMapFrame (OnOpenLisaEB).");
+    
     Project* p = GetProject();
     if (!p) return;
    
@@ -2953,15 +2976,16 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
         wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
-        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
 	// Note: this is the only call to this particular constructor
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
-												 false, "Rates Variable Settings",
-												 "Event Variable", "Base Variable");
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate,
+                           true,false,
+                           _("Rates Variable Settings"),
+                           _("Event Variable"), _("Base Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	boost::uuids::uuid w_id = VS.GetWeightsId();
 	if (w_id.is_nil()) return;
@@ -3001,6 +3025,8 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 {
+    wxLogMessage("Open GetisOrdMapFrame (OnOpenGetisOrdStar).");
+    
     Project* p = GetProject();
     if (!p) return;
     
@@ -3056,6 +3082,8 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 
 void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 {
+    wxLogMessage("Open GetisOrdMapFrame (OnOpenGetisOrd).");
+    
     Project* p = GetProject();
     if (!p) return;
     
@@ -3121,6 +3149,8 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
 
 void GdaFrame::OnNewCustomCatClassifA(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnNewCustomCatClassifA()");
+    
     Project* p = GetProject();
     if (!p) return;
     
@@ -3141,6 +3171,8 @@ void GdaFrame::OnNewCustomCatClassifA(wxCommandEvent& event)
 
 void GdaFrame::OnNewCustomCatClassifB(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnNewCustomCatClassifB()");
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3150,6 +3182,8 @@ void GdaFrame::OnNewCustomCatClassifB(wxCommandEvent& event)
 
 void GdaFrame::OnNewCustomCatClassifC(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnNewCustomCatClassifC()");
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3159,6 +3193,8 @@ void GdaFrame::OnNewCustomCatClassifC(wxCommandEvent& event)
 
 void GdaFrame::OnCCClassifA(int cc_menu_num)
 {
+    wxLogMessage("In GdaFrame::OnCCClassifA()");
+    
 	CatClassifManager* ccm = project_p->GetCatClassifManager();
 	if (!ccm) return;
 	std::vector<wxString> titles;
@@ -3182,6 +3218,8 @@ void GdaFrame::OnCCClassifA(int cc_menu_num)
 
 void GdaFrame::OnCCClassifB(int cc_menu_num)
 {
+    wxLogMessage("In GdaFrame::OnCCClassifB()");
+    
 	CatClassifManager* ccm = project_p->GetCatClassifManager();
 	if (!ccm) return;
 	std::vector<wxString> titles;
@@ -3197,6 +3235,8 @@ void GdaFrame::OnCCClassifB(int cc_menu_num)
 
 void GdaFrame::OnCCClassifC(int cc_menu_num)
 {
+    wxLogMessage("In GdaFrame::OnCCClassifC()");
+    
 	CatClassifManager* ccm = project_p->GetCatClassifManager();
 	if (!ccm) return;
 	std::vector<wxString> titles;
@@ -3305,6 +3345,7 @@ void GdaFrame::OnCCClassifC29(wxCommandEvent& e) { OnCCClassifC(29); }
 
 void GdaFrame::OnOpenThemelessMap(wxCommandEvent& event)
 {
+    wxLogMessage("Open Themeless Map (OnOpenThemelessMap).");
 	std::vector<int> col_ids;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3319,6 +3360,7 @@ void GdaFrame::OnOpenThemelessMap(wxCommandEvent& event)
 
 void GdaFrame::OnThemelessMap(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnThemelessMap()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3349,6 +3391,8 @@ void GdaFrame::OnOpenQuantile10(wxCommandEvent& e) { OpenQuantile(10); }
 
 void GdaFrame::OpenQuantile(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::OpenQuantile(%s)", num_cats));
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3374,6 +3418,8 @@ void GdaFrame::OnQuantile10(wxCommandEvent& e) { ChangeToQuantile(10); }
 
 void GdaFrame::ChangeToQuantile(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToQuantile(%s)", num_cats));
+    
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	wxCommandEvent event;
@@ -3394,6 +3440,8 @@ void GdaFrame::ChangeToQuantile(int num_cats)
 
 void GdaFrame::OnOpenPercentile(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenPercentile()");
+    
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3408,6 +3456,7 @@ void GdaFrame::OnOpenPercentile(wxCommandEvent& event)
 
 void GdaFrame::OnPercentile(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPercentile()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3427,6 +3476,7 @@ void GdaFrame::OnPercentile(wxCommandEvent& event)
 
 void GdaFrame::OnOpenHinge15(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenHinge15()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3441,6 +3491,7 @@ void GdaFrame::OnOpenHinge15(wxCommandEvent& event)
 
 void GdaFrame::OnHinge15(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnHinge15()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3462,6 +3513,7 @@ void GdaFrame::OnHinge15(wxCommandEvent& event)
 
 void GdaFrame::OnOpenHinge30(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenHinge30()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3476,6 +3528,7 @@ void GdaFrame::OnOpenHinge30(wxCommandEvent& event)
 
 void GdaFrame::OnHinge30(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnHinge30()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3497,6 +3550,7 @@ void GdaFrame::OnHinge30(wxCommandEvent& event)
 
 void GdaFrame::OnOpenStddev(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenStddev()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3511,6 +3565,7 @@ void GdaFrame::OnOpenStddev(wxCommandEvent& event)
 
 void GdaFrame::OnStddev(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnStddev()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3541,6 +3596,7 @@ void GdaFrame::OnOpenNaturalBreaks10(wxCommandEvent& e) {OpenNaturalBreaks(10);}
 
 void GdaFrame::OpenNaturalBreaks(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::OpenNaturalBreaks(%s)", num_cats));
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3566,6 +3622,7 @@ void GdaFrame::OnNaturalBreaks10(wxCommandEvent& e) {ChangeToNaturalBreaks(10);}
 
 void GdaFrame::ChangeToNaturalBreaks(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToNaturalBreaks(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	wxCommandEvent event;
@@ -3607,6 +3664,7 @@ void GdaFrame::OnOpenEqualIntervals10(wxCommandEvent& e)
 
 void GdaFrame::OpenEqualIntervals(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::OpenEqualIntervals(%s)", num_cats));
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3642,6 +3700,7 @@ void GdaFrame::OnEqualIntervals10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToEqualIntervals(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToEqualIntervals(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	wxCommandEvent event;
@@ -3662,6 +3721,7 @@ void GdaFrame::ChangeToEqualIntervals(int num_cats)
 
 void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3676,6 +3736,7 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnUniqueValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -3696,6 +3757,7 @@ void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 
 void GdaFrame::OnCondVertThemelessMap(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertThemelessMap()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3726,6 +3788,7 @@ void GdaFrame::OnCondVertQuant10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertQuant(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertQuant(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3735,6 +3798,7 @@ void GdaFrame::ChangeToCondVertQuant(int num_cats)
 
 void GdaFrame::OnCondVertPercentile(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertPercentile()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3744,6 +3808,7 @@ void GdaFrame::OnCondVertPercentile(wxCommandEvent& event)
 
 void GdaFrame::OnCondVertHinge15(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertHinge15()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3753,6 +3818,7 @@ void GdaFrame::OnCondVertHinge15(wxCommandEvent& event)
 
 void GdaFrame::OnCondVertHinge30(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertHinge30()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3762,6 +3828,7 @@ void GdaFrame::OnCondVertHinge30(wxCommandEvent& event)
 
 void GdaFrame::OnCondVertStddev(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertStddev()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3792,6 +3859,7 @@ void GdaFrame::OnCondVertNatBrks10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertNatBrks(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertNatBrks(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3822,6 +3890,7 @@ void GdaFrame::OnCondVertEquInts10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertEquInts(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertEquInts(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3831,6 +3900,7 @@ void GdaFrame::ChangeToCondVertEquInts(int num_cats)
 
 void GdaFrame::OnCondVertUniqueValues(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondVertUniqueValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3840,6 +3910,7 @@ void GdaFrame::OnCondVertUniqueValues(wxCommandEvent& event)
 
 void GdaFrame::OnCondHorizThemelessMap(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizThemelessMap()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3870,6 +3941,7 @@ void GdaFrame::OnCondHorizQuant10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizQuant(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizQuant(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3879,6 +3951,7 @@ void GdaFrame::ChangeToCondHorizQuant(int num_cats)
 
 void GdaFrame::OnCondHorizPercentile(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizPercentile()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3888,6 +3961,7 @@ void GdaFrame::OnCondHorizPercentile(wxCommandEvent& event)
 
 void GdaFrame::OnCondHorizHinge15(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizHinge15()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3897,6 +3971,7 @@ void GdaFrame::OnCondHorizHinge15(wxCommandEvent& event)
 
 void GdaFrame::OnCondHorizHinge30(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizHinge30()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3906,6 +3981,7 @@ void GdaFrame::OnCondHorizHinge30(wxCommandEvent& event)
 
 void GdaFrame::OnCondHorizStddev(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizStddev()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3936,6 +4012,7 @@ void GdaFrame::OnCondHorizNatBrks10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizNatBrks(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizNatBrks(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3966,6 +4043,7 @@ void GdaFrame::OnCondHorizEquInts10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizEquInts(int num_cats)
 {
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizEquInts(%s)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3975,6 +4053,7 @@ void GdaFrame::ChangeToCondHorizEquInts(int num_cats)
 
 void GdaFrame::OnCondHorizUniqueValues(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnCondHorizUniqueValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3985,6 +4064,7 @@ void GdaFrame::OnCondHorizUniqueValues(wxCommandEvent& event)
 
 void GdaFrame::OnSaveCategories(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnSaveCategories()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4002,6 +4082,7 @@ void GdaFrame::OnSaveCategories(wxCommandEvent& event)
 
 void GdaFrame::OnOpenRawrate(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenRawrate()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
 													false, false,
 							"Raw Rate Smoothed Variable Settings",
@@ -4020,6 +4101,7 @@ void GdaFrame::OnOpenRawrate(wxCommandEvent& event)
 
 void GdaFrame::OnRawrate(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnRawrate()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4031,10 +4113,11 @@ void GdaFrame::OnRawrate(wxCommandEvent& event)
 
 void GdaFrame::OnOpenExcessrisk(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenExcessrisk()");
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::bivariate, false,
                             false,
-                            "Excess Risk Map Variable Settings",
-                            "Event Variable", "Base Variable");
+                            _("Excess Risk Map Variable Settings"),
+                            _("Event Variable"), _("Base Variable"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -4049,6 +4132,7 @@ void GdaFrame::OnOpenExcessrisk(wxCommandEvent& event)
 
 void GdaFrame::OnExcessrisk(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnExcessrisk()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4060,25 +4144,27 @@ void GdaFrame::OnExcessrisk(wxCommandEvent& event)
 
 void GdaFrame::OnOpenEmpiricalBayes(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenEmpiricalBayes()");
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
                             false, false,
-                            "Empirical Bayes Smoothed Variable Settings",
-                            "Event Variable", "Base Variable");
+                            _("Empirical Bayes Smoothed Variable Settings"),
+                            _("Event Variable"), _("Base Variable"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  dlg.GetCatClassifType(),
-									  MapCanvas::empirical_bayes,
-									  dlg.GetNumCategories(),
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                dlg.GetCatClassifType(),
+                                MapCanvas::empirical_bayes,
+                                dlg.GetNumCategories(),
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
 void GdaFrame::OnEmpiricalBayes(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnEmpiricalBayes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4090,10 +4176,11 @@ void GdaFrame::OnEmpiricalBayes(wxCommandEvent& event)
 
 void GdaFrame::OnOpenSpatialRate(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenSpatialRate()");
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
-													true, false,
-													"Spatial Rate Smoothed Variable Settings",
-													"Event Variable", "Base Variable");
+                            true, false,
+                            _("Spatial Rate Smoothed Variable Settings"),
+                            _("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
 									  dlg.var_info, dlg.col_ids,
@@ -4108,6 +4195,7 @@ void GdaFrame::OnOpenSpatialRate(wxCommandEvent& event)
 
 void GdaFrame::OnSpatialRate(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnSpatialRate()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) return;
@@ -4119,10 +4207,11 @@ void GdaFrame::OnSpatialRate(wxCommandEvent& event)
 
 void GdaFrame::OnOpenSpatialEmpiricalBayes(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnOpenSpatialEmpiricalBayes()");
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::rate_smoothed,
                             true, false,
-                            "Empirical Spatial Rate Smoothed Variable Settings",
-                            "Event Variable", "Base Variable");
+                            _("Empirical Spatial Rate Smoothed Variable Settings"),
+                            _("Event Variable"), _("Base Variable"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -4638,7 +4727,7 @@ void GdaFrame::OnViewRegressionSelected(wxCommandEvent& event)
 
 void GdaFrame::OnCompareRegimes(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewRegressionSelected()");
+    wxLogMessage("In OnCompareRegimes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4648,6 +4737,7 @@ void GdaFrame::OnCompareRegimes(wxCommandEvent& event)
 
 void GdaFrame::OnCompareTimePeriods(wxCommandEvent& event)
 {
+    wxLogMessage("In OnCompareTimePeriods()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4657,6 +4747,7 @@ void GdaFrame::OnCompareTimePeriods(wxCommandEvent& event)
 
 void GdaFrame::OnCompareRegAndTmPer(wxCommandEvent& event)
 {
+    wxLogMessage("In OnCompareRegAndTmPer()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4690,6 +4781,7 @@ void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void GdaFrame::OnShowAxesThroughOrigin(wxCommandEvent& event)
 {
+    wxLogMessage("In OnShowAxesThroughOrigin()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4699,6 +4791,7 @@ void GdaFrame::OnShowAxesThroughOrigin(wxCommandEvent& event)
 
 void GdaFrame::OnShowAxes(wxCommandEvent& event)
 {
+    wxLogMessage("In OnShowAxes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (BoxPlotFrame* f = dynamic_cast<BoxPlotFrame*>(t)) {
@@ -4720,6 +4813,7 @@ void GdaFrame::OnShowAxes(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayAxesScaleValues(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayAxesScaleValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalScatterPlotFrame* f =
@@ -4730,6 +4824,7 @@ void GdaFrame::OnDisplayAxesScaleValues(wxCommandEvent& event)
 
 void GdaFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplaySlopeValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalScatterPlotFrame* f =
@@ -4750,21 +4845,25 @@ void GdaFrame::OnTimeSyncVariable(int var_index)
 
 void GdaFrame::OnTimeSyncVariable1(wxCommandEvent& event)
 {
+    wxLogMessage("In OnTimeSyncVariable1()");
 	OnTimeSyncVariable(0);
 }
 
 void GdaFrame::OnTimeSyncVariable2(wxCommandEvent& event)
 {
+    wxLogMessage("In OnTimeSyncVariable2()");
 	OnTimeSyncVariable(1);
 }
 
 void GdaFrame::OnTimeSyncVariable3(wxCommandEvent& event)
 {
+    wxLogMessage("In OnTimeSyncVariable3()");
 	OnTimeSyncVariable(2);
 }
 
 void GdaFrame::OnTimeSyncVariable4(wxCommandEvent& event)
 {
+    wxLogMessage("In OnTimeSyncVariable4()");
 	OnTimeSyncVariable(3);
 }
 
@@ -4777,11 +4876,13 @@ void GdaFrame::OnFixedScaleVariable(int var_index)
 
 void GdaFrame::OnFixedScaleVariable1(wxCommandEvent& event)
 {
+    wxLogMessage("In OnFixedScaleVariable1()");
 	OnFixedScaleVariable(0);
 }
 
 void GdaFrame::OnFixedScaleVariable2(wxCommandEvent& event)
 {
+    wxLogMessage("In OnFixedScaleVariable2()");
 	OnFixedScaleVariable(1);
 }
 

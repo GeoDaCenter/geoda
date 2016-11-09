@@ -149,8 +149,9 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         IDataSource* datasource = dlg.GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
+       
+        wxLogMessage(_("ds:") + datasource_name + _(" layer") + layer_name);
         
-        //XXX: ToStdString() needs to take care of weird file path
         merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
         merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
         merge_layer_proxy->ReadData();
@@ -248,29 +249,28 @@ void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
 	map<wxString, int> dupKeys;
 	
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
-			wxString tmpK = key_vec[i];
+        wxString tmpK = key_vec[i];
         tmpK.Trim(false);
         tmpK.Trim(true);
-			if (key_map.find(tmpK) == key_map.end())
-        key_map[tmpK] = i;
-			else {
-				// duplicate key
-				dupKeys[tmpK] = i;
-			}
-
+        if (key_map.find(tmpK) == key_map.end())
+            key_map[tmpK] = i;
+        else {
+            // duplicate key
+            dupKeys[tmpK] = i;
+        }
     }
 	
     if (key_vec.size() != key_map.size()) {
         wxString msg = wxString::Format(_("Chosen table merge key field contains undefined or duplicate values. Key fields must contain valid unique values.\n\nDuplicated values are: \n"), key_name);
-			int count = 0;
-			for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
-				msg << it->first << "\n";
-				count++;
-				if (count > 5)
-					break;
-			}
-			if (count > 5)
-				msg << "...";
+        int count = 0;
+        for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
+            msg << it->first << "\n";
+            count++;
+            if (count > 5)
+                break;
+        }
+        if (count > 5)
+            msg << "...";
         throw GdaException(msg.mb_str());
     }
 }

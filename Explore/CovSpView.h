@@ -94,7 +94,7 @@ public:
 						 const GdaVarTools::Manager& var_man,
 						 WeightsMetaInfo::DistanceMetricEnum dist_metric,
 						 WeightsMetaInfo::DistanceUnitsEnum dist_units,
-						 const wxString& title = "Nonparametric Spatial Autocorrelation",
+						 const wxString& title = _("Nonparametric Spatial Autocorrelation"),
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = GdaConst::scatterplot_default_size);
 	virtual ~CovSpFrame();
@@ -105,8 +105,8 @@ public:
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
 	virtual void UpdateTitle();
-	virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
-																						int total_hover_obs);
+    virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
+                                              int total_hover_obs);
 	
 	void OnViewLinearSmoother(wxCommandEvent& event);
 	void OnViewLowessSmoother(wxCommandEvent& event);

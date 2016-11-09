@@ -50,6 +50,7 @@ RegressionReportDlg::RegressionReportDlg( wxWindow* parent,
 										   const wxSize& size, long style )
 :wxFrame(parent, id, caption, pos, size, style)
 {
+    wxLogMessage("Open RegressionReportDlg.");
 	results = showText;
     //Create(parent, id, caption, pos, size, style);
     SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
@@ -73,7 +74,7 @@ bool RegressionReportDlg::Create( wxWindow* parent, wxWindowID id,
 
 void RegressionReportDlg::CreateControls()
 {
-    wxLogMessage("Open RegressionReportDlg.");
+
     //wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_REGRESSION_REPORT");
     //m_textbox = XRCCTRL(*this, "ID_TEXTCTRL1", wxTextCtrl);
     wxPanel *panel = new wxPanel(this, -1);
@@ -97,7 +98,7 @@ void RegressionReportDlg::CreateControls()
     wxBitmap save = wxArtProvider::GetBitmap(wxART_FILE_SAVE);
     wxToolBar *toolbar = CreateToolBar();
 
-    toolbar->AddTool(wxID_SAVE, "Save Regression Results", save);
+    toolbar->AddTool(wxID_SAVE, _("Save Regression Results"), save);
     toolbar->Realize();
     Connect(wxID_SAVE, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnSaveToFile));
     

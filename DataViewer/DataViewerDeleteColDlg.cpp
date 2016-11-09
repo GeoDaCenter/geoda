@@ -82,7 +82,8 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
     	int col_del_pos = col_id_map[idx];
         wxString del_name;
     	del_name = table_int->GetColName(col_del_pos);
-
+        
+        wxLogMessage(del_name);
 
     	try{
     		table_int->DeleteCol(col_del_pos);

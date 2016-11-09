@@ -20,6 +20,7 @@
 
 
 #include <fstream>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h> 
@@ -52,6 +53,7 @@ PublishDlg::PublishDlg(wxWindow* parent, Project* _p,
                      const wxPoint& pos,
                      const wxSize& size )
 {
+    wxLogMessage("Open PublishDlg.");
     p = _p;
     
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_GEODA_PUBLISH_DLG");
@@ -75,6 +77,7 @@ PublishDlg::PublishDlg(wxWindow* parent, Project* _p,
 
 void PublishDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("In PublishDlg::OnOkClick()");
     wxString title(m_txt_title->GetValue());
     wxString description(m_txt_description->GetValue() );
     

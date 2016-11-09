@@ -74,7 +74,7 @@ class PublishDlg: public wxDialog
 public:
 	PublishDlg(wxWindow* parent, Project* p,
               wxWindowID id = wxID_ANY,
-              const wxString& title = "Publish Maps and Plots to GeoDa-Web",
+              const wxString& title = _("Publish Maps and Plots to GeoDa-Web"),
 			  const wxPoint& pos = wxDefaultPosition,
 			  const wxSize& size = wxDefaultSize );
 	

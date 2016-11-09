@@ -102,7 +102,8 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 			return;
 		}
 	}
-	
+
+    wxLogMessage(_("csv file:") + new_csv);
 	std::ofstream out_file;	
 	out_file.open(GET_ENCODED_FILENAME(new_csv),
 				  std::ios::out | std::ios::binary);

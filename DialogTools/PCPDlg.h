@@ -34,7 +34,7 @@ class PCPDlg: public wxDialog
 public:
 	PCPDlg(Project* project, wxWindow* parent,
 				 wxWindowID id = wxID_ANY,
-				 const wxString& title = "Parallel Coordinate Plot", 
+				 const wxString& title = _("Parallel Coordinate Plot"),
 				 const wxPoint& pos = wxDefaultPosition, 
 				 const wxSize& size = wxDefaultSize,
 				 long style = wxCAPTION|wxSYSTEM_MENU );

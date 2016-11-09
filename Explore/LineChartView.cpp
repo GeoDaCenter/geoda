@@ -22,6 +22,7 @@
 #include <vector>
 #include <boost/foreach.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include <wx/gauge.h>
@@ -85,7 +86,7 @@ use_def_y_range(false),
 has_selection(1),
 has_excluded(1)
 {
-	LOG_MSG("Entering LineChartFrame::LineChartFrame");
+	wxLogMessage("Open LineChartFrame(Average Charts).");
     
     // Init variables
 	supports_timeline_changes = true;
@@ -122,10 +123,10 @@ has_excluded(1)
     variable_sizer->SetFlexibleDirection(wxBOTH);
     variable_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
     
-    wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, "Variable:");
+    wxStaticText* lbl_variable =new wxStaticText(lpanel, wxID_ANY, _("Variable:"));
     choice_variable = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                    wxSize(230, -1));
-    wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, "Groups:");
+    wxStaticText* lbl_groups =new wxStaticText(lpanel, wxID_ANY, _("Groups:"));
     choice_groups = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                  wxSize(230, -1));
     variable_sizer->Add(lbl_variable, 1, wxEXPAND);
@@ -134,22 +135,22 @@ has_excluded(1)
     variable_sizer->Add(choice_groups, 1, wxEXPAND);
     
     wxStaticText* lbl_tests =new wxStaticText(lpanel, wxID_ANY,
-                                              "Difference-in-Means Test:");
+                                              _("Difference-in-Means Test:"));
     
     wxFlexGridSizer* tests_sizer = new wxFlexGridSizer(2,4, 10, 5);
     tests_sizer->SetFlexibleDirection(wxBOTH);
     tests_sizer->SetNonFlexibleGrowMode(wxFLEX_GROWMODE_NONE);
     
-    wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, "Group 1:");
+    wxStaticText* lbl_group1 =new wxStaticText(lpanel, wxID_ANY, _("Group 1:"));
     choice_group1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                  wxSize(90, -1));
-    wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, "Period 1:");
+    wxStaticText* lbl_time1 =new wxStaticText(lpanel, wxID_ANY, _("Period 1:"));
     choice_time1 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
-    wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, "Group 2:");
+    wxStaticText* lbl_group2 =new wxStaticText(lpanel, wxID_ANY, _("Group 2:"));
     choice_group2 = new wxChoice(lpanel, wxID_ANY, wxDefaultPosition,
                                  wxSize(90, -1));
-    wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, "Period 2:");
+    wxStaticText* lbl_time2 =new wxStaticText(lpanel, wxID_ANY, _("Period 2:"));
     choice_time2 = new wxChoice(lpanel,wxID_ANY, wxDefaultPosition,
                                 wxSize(80, -1));
     
@@ -164,13 +165,13 @@ has_excluded(1)
     
     //chk_run_test = new wxCheckBox(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
     
-    wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, "Save Dummy");
-    wxButton* btn_apply = new wxButton(lpanel, wxID_ANY, "Run Diff-in-Diff Test");
+    wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, _("Save Dummy"));
+    wxButton* btn_apply = new wxButton(lpanel, wxID_ANY,_("Run Diff-in-Diff Test"));
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
     btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
 
-    chk_save_did = new wxCheckBox(lpanel, wxID_ANY, "Save Test Results");
+    chk_save_did = new wxCheckBox(lpanel, wxID_ANY, _("Save Test Results"));
     wxBoxSizer* chk_box = new wxBoxSizer(wxHORIZONTAL);
     chk_box->Add(chk_save_did, 1, wxALIGN_LEFT |wxLEFT, 10);
     
@@ -254,13 +255,10 @@ has_excluded(1)
     Connect(XRCID("ID_ADJUST_Y_AXIS_PRECISION"),
             wxEVT_MENU,
             wxCommandEventHandler(LineChartFrame::OnAdjustYAxisPrecision));
-    
-	LOG_MSG("Exiting LineChartFrame::LineChartFrame");
 }
 
 LineChartFrame::~LineChartFrame()
 {
-	LOG_MSG("In LineChartFrame::~LineChartFrame");
 	highlight_state->removeObserver(this);
 	if (HasCapture())
         ReleaseMouse();
@@ -269,10 +267,9 @@ LineChartFrame::~LineChartFrame()
 
 void LineChartFrame::InitVariableChoiceCtrl()
 {
-    LOG_MSG("LineChartFrame::InitVariableChoiceCtrl()");
     TableInterface* table_int = project->GetTableInt();
     if (table_int == NULL) {
-        LOG_MSG("Table interface NULL.");
+        wxLogMessage("ERROR: Table interface NULL.");
         return;
     }
   
@@ -303,8 +300,8 @@ void LineChartFrame::InitVariableChoiceCtrl()
 
 void LineChartFrame::InitGroupsChoiceCtrl()
 {
-    choice_groups->Append("Selected vs. Unselected");
-    choice_groups->Append("All");
+    choice_groups->Append(_("Selected vs. Unselected"));
+    choice_groups->Append(_("All"));
     choice_groups->SetSelection(0);
     
 	choice_groups->Connect(wxEVT_CHOICE,
@@ -370,6 +367,8 @@ void LineChartFrame::OnSelectionChange()
     TableInterface* table_int = project->GetTableInt();
     wxString col_name = variable_names[var_selection];
     int col = table_int->FindColId(col_name);
+    
+    wxLogMessage(wxString::Format("var: %s, time1:%s, time2:%s, group1:%s, group2:%s", col_name, time1, time2, group1, group2));
     
     std::vector<double> min_vals;
     std::vector<double> max_vals;
@@ -441,11 +440,14 @@ void LineChartFrame::OnSelectionChange()
 
 void LineChartFrame::OnApplyButton(wxCommandEvent &event)
 {
+    wxLogMessage("In LineChartFrame::OnApplyButton()");
     RunDIDTest();
 }
 
 void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnVariableChoice()");
+    
     int variable_selection = choice_variable->GetSelection();
     if (variable_selection < 0 )
         return;
@@ -483,6 +485,8 @@ void LineChartFrame::OnVariableChoice(wxCommandEvent& event)
 
 void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnTime1Choice()");
+    
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
@@ -524,11 +528,13 @@ void LineChartFrame::OnTime1Choice(wxCommandEvent& event)
 
 void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnTime2Choice()");
+    
     int time1_selection = choice_time1->GetSelection();
     int time2_selection = choice_time2->GetSelection();
     int group_selection = choice_groups->GetSelection();
     int time_count = choice_time1->GetCount();
-    
+   
     if (group_selection == 0 ) {
         if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
             // sel vs excl
@@ -539,7 +545,7 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
                 if (time2_selection - 1 >=0 ) {
                     choice_time1->SetSelection(time2_selection-1);
                 } else {
-                    wxMessageBox("Please select Period 2 > Period 1.");
+                    wxMessageBox(_("Please select Period 2 > Period 1."));
                     choice_time1->SetSelection(0);
                     choice_time2->SetSelection(1);
                 }
@@ -552,7 +558,7 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
             if (time2_selection - 1 >=0 ) {
                 choice_time1->SetSelection(time2_selection-1);
             } else {
-                wxMessageBox("Please select Period 2 > Period 1.");
+                wxMessageBox(("Please select Period 2 > Period 1."));
                 choice_time1->SetSelection(0);
                 choice_time2->SetSelection(1);
             }
@@ -564,16 +570,19 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnGroupsChoice()");
+    
     int variable_selection = choice_variable->GetSelection();
     if (variable_selection < 0)
         return;
     
     wxString col_name = variable_names[variable_selection];
+    wxLogMessage(_("var name:") + col_name);
     
     TableInterface* table_int = project->GetTableInt();
     if (!table_int->IsColTimeVariant(col_name) ||table_int->GetTimeSteps() <= 1) {
         if (choice_groups->GetSelection() == 1) {
-            wxMessageBox("Please select a time variable first, and make sure more than one time steps have been defined.");
+            wxMessageBox(_("Please select a time variable first, and make sure more than one time steps have been defined."));
             choice_groups->SetSelection(0);
             return;
         }
@@ -587,6 +596,7 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnGroupsChoice()");
     int variable_selection = choice_variable->GetSelection();
     if (variable_selection < 0)
         return;
@@ -626,6 +636,7 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
 
 void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnGroup2Choice()");
     int variable_selection = choice_variable->GetSelection();
     if (variable_selection < 0)
         return;
@@ -719,15 +730,14 @@ void LineChartFrame::OnMouseEvent(wxMouseEvent& event)
 
 void LineChartFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In LineChartFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In LineChartFrame::OnActivate()");
 		RegisterAsActive("LineChartFrame", GetTitle());
 	}
 }
 
 void LineChartFrame::MapMenus()
 {
-	LOG_MSG("In LineChartFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
@@ -777,7 +787,7 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void LineChartFrame::OnUseAdjustYAxis(wxCommandEvent& event)
 {
-    
+	wxLogMessage("In LineChartFrame:OnUseAdjustYAxis()");
     if (use_def_y_range == false) {
         use_def_y_range = true;
         OnAdjustYAxis(event);
@@ -793,6 +803,7 @@ void LineChartFrame::OnUseAdjustYAxis(wxCommandEvent& event)
 
 void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
 {
+	wxLogMessage("In LineChartFrame:OnAdjustYAxis()");
     double y_axis_min = 0;
     double y_axis_max = 0;
     
@@ -818,7 +829,7 @@ void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
 
 void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 {
-    
+	wxLogMessage("In LineChartFrame:OnAdjustYAxisPrecision()");
     AxisLabelPrecisionDlg dlg(def_y_precision, this);
     if (dlg.ShowModal () != wxID_OK) return;
     
@@ -944,7 +955,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             }
         }
         if (n1 == 0) {
-            wxMessageBox("Please choose Period 1.");
+            wxMessageBox(_("Please choose Period 1."));
             return;
         }
         for (size_t t=0; t<n_ts; ++t) {
@@ -953,7 +964,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             }
         }
         if (n2 == 0) {
-            wxMessageBox("Please choose Period 2.");
+            wxMessageBox(_("Please choose Period 2."));
             return;
         }
         
@@ -990,7 +1001,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             }
         }
         if (n1 == 0) {
-            wxMessageBox("Please choose Period 1.");
+            wxMessageBox(_("Please choose Period 1."));
             return;
         }
         for (size_t t=0; t<n_ts; ++t) {
@@ -999,7 +1010,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             }
         }
         if (n2 == 0) {
-            wxMessageBox("Please choose Period 2.");
+            wxMessageBox(_("Please choose Period 2."));
             return;
         }
         
@@ -1193,15 +1204,14 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
 }
 void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
 {
-    LOG_MSG("Start LineChartFrame::OnSaveDummyTable");
+    wxLogMessage("Start LineChartFrame::OnSaveDummyTable");
     bool save_w = true;
     SaveDataAndResults(save_w);
-    LOG_MSG("End LineChartFrame::OnSaveDummyTable");
 }
 
 void LineChartFrame::RunDIDTest()
 {
-    LOG_MSG("Run LineChartFrame::RunDIDTest");
+    wxLogMessage("Run LineChartFrame::RunDIDTest");
     
     int var_cnt = var_man.GetVarsCount(); // should be 1
     int var_idx = 0;
@@ -1249,7 +1259,7 @@ void LineChartFrame::RunDIDTest()
                 has_selection = true;
         }
         if (!has_selection) {
-            wxMessageBox("Please first select observations in one of the other data or map views.");
+            wxMessageBox(_("Please first select observations in one of the other data or map views."));
             return;
         }
         
@@ -1265,7 +1275,7 @@ void LineChartFrame::RunDIDTest()
             }
         }
         if (!has_time0_def || !has_time1_def) {
-            wxMessageBox("Please choose Periods first.");
+            wxMessageBox(_("Please choose Periods first."));
             return;
         }
     }
@@ -1347,7 +1357,7 @@ void LineChartFrame::RunDIDTest()
             }
         }
         if (n1 == 0) {
-            wxMessageBox("Please choose Period 1 first.");
+            wxMessageBox(_("Please choose Period 1 first."));
             return;
         }
 		for (size_t t=0; t<n_ts; ++t) {
@@ -1356,7 +1366,7 @@ void LineChartFrame::RunDIDTest()
             }
         }
         if (n2 == 0) {
-            wxMessageBox("Please choose Period 2 first.");
+            wxMessageBox(_("Please choose Period 2 first."));
             return;
         }
         
@@ -1415,7 +1425,7 @@ void LineChartFrame::RunDIDTest()
             }
         }
         if (n1 == 0) {
-            wxMessageBox("Please choose Period 1 first.");
+            wxMessageBox(_("Please choose Period 1 first."));
             return;
         }
 		for (size_t t=0; t<n_ts; ++t) {
@@ -1424,7 +1434,7 @@ void LineChartFrame::RunDIDTest()
             }
         }
         if (n2 == 0) {
-            wxMessageBox("Please choose Period 2 first.");
+            wxMessageBox(_("Please choose Period 2 first."));
             return;
         }
         
@@ -1488,7 +1498,7 @@ void LineChartFrame::RunDIDTest()
     regReportDlg->m_textbox->SetSelection(0, 0);
     
     if (chk_save_did && chk_save_did->IsChecked()) {
-        wxMessageDialog saveDlg(this, "Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context.", "Save Diff-in-Diff Test Results", wxYES_NO | wxICON_QUESTION);
+        wxMessageDialog saveDlg(this, _("Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."), _("Save Diff-in-Diff Test Results"), wxYES_NO | wxICON_QUESTION);
         if (saveDlg.ShowModal() == wxID_YES) {
             bool save_w = false;
             bool save_did = true;
@@ -1501,8 +1511,6 @@ void LineChartFrame::RunDIDTest()
     
     m_DR->release_Var();
     delete m_DR;
-    
-    LOG_MSG("End LineChartFrame::RunDIDTest");
 }
 
 void LineChartFrame::OnReportClose(wxWindowDestroyEvent& event)
@@ -1512,6 +1520,7 @@ void LineChartFrame::OnReportClose(wxWindowDestroyEvent& event)
 
 void LineChartFrame::OnCompareRegimes(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnCompareRegimes()");
 	if (compare_regimes) return;
 	compare_regimes = true;
 	compare_time_periods = false;
@@ -1524,6 +1533,7 @@ void LineChartFrame::OnCompareRegimes(wxCommandEvent& event)
 
 void LineChartFrame::OnCompareTimePeriods(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnCompareTimePeriods()");
 	if (compare_time_periods) return;
 	compare_regimes = false;
 	compare_time_periods = true;
@@ -1535,6 +1545,7 @@ void LineChartFrame::OnCompareTimePeriods(wxCommandEvent& event)
 
 void LineChartFrame::OnCompareRegAndTmPer(wxCommandEvent& event)
 {
+    wxLogMessage("In LineChartFrame::OnCompareRegAndTmPer()");
 	if (compare_r_and_t) return;
 	compare_regimes = false;
 	compare_time_periods = false;
@@ -1556,7 +1567,7 @@ void LineChartFrame::OnSelectPeriod1(wxCommandEvent& event)
 
 void LineChartFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In LineChartFrame::DisplayStatistics");
+    wxLogMessage("In LineChartFrame::OnDisplayStatistics()");
 	display_stats = !display_stats;
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	Refresh();
@@ -1565,7 +1576,6 @@ void LineChartFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void LineChartFrame::update(HLStateInt* o)
 {
-	LOG_MSG("In LineChartFrame::update");
 	if (!compare_regimes && !compare_r_and_t) return;
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
@@ -1587,7 +1597,6 @@ void LineChartFrame::update(HLStateInt* o)
 /** Implementation of TableStateObserver interface */
 void LineChartFrame::update(TableState* o)
 {
-	LOG_MSG("In LineChartFrame::update(TableState*)");
 	UpdateDataMapFromVarMan();
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
@@ -1608,7 +1617,6 @@ void LineChartFrame::update(TableState* o)
 
 void LineChartFrame::update(VarsChooserObservable* o)
 {
-	LOG_MSG("In LineChartFrame::update(VarsChooserObservable*)");
 	UpdateDataMapFromVarMan();
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	Refresh();
@@ -1626,7 +1634,6 @@ void LineChartFrame::notifyOfClosing(VarsChooserObservable* o)
 void LineChartFrame::notifyNewSelection(const std::vector<bool>& tms_sel,
 										bool shiftdown, bool pointsel)
 {
-	LOG_MSG("LineChartFrame::notifyNewSelection");
 	wxString s;
 	size_t tms = tms_sel.size();
 	s << "  new selection:";
@@ -1744,7 +1751,6 @@ void LineChartFrame::notifyNewHoverMsg(const wxString& msg)
 
 void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 {
-	LOG_MSG("Entering LineChartFrame::SetupPanelForNumVariables");
 	if (!panel || !bag_szr) return;
 	if (message_win) {
 		message_win->Unbind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
@@ -1866,7 +1872,6 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
    
     UpdateStatsWinContent(0);
 	Refresh();
-	LOG_MSG("Exiting LineChartFrame::SetupPanelForNumVariables");
 }
 
 void LineChartFrame::UpdateMessageWin()
@@ -1924,7 +1929,6 @@ void LineChartFrame::UpdateTitleWin()
  in var_man. */
 void LineChartFrame::UpdateDataMapFromVarMan()
 {
-	LOG_MSG("Entering LineChartFrame::UpdateDataMapFromVarMan");
 	using namespace std;
 	// get set of var_man names
 	set<wxString> vm_nms;
@@ -1983,8 +1987,6 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 		}
         data_map_undef.insert(std::make_pair(nm, undef_all));
 	}
-	
-	LOG_MSG("Exiting LineChartFrame::UpdateDataMapFromVarMan");
 }
 
 wxString LineChartFrame::GetHelpHtml()
@@ -2314,8 +2316,6 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& _yName, double
                                                  int Obs, int nX,
                                                  bool do_white_test)
 {
-    LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
-    
     wxString yName(_yName);
     wxString time1, time2;
     for(size_t i=0; i < tms_subset0.size(); i++) {
@@ -2393,6 +2393,4 @@ void LineChartFrame::printAndShowClassicalResults(const wxString& _yName, double
     
     slog << "\n\n"; cnt++; cnt++;
     logReport << slog;
-    
-    LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }

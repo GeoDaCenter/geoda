@@ -238,7 +238,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString ds_name = datasource->GetOGRConnectStr();
     datasource_name = ds_name;
 	GdaConst::DataSourceType ds_type = datasource->GetType();
-    
+   
+    wxLogMessage(_("ds:") + ds_name);
     if (ds_name.length() <= 0 ) {
         wxMessageDialog dlg(this, _("Please specify a valid data source name."),
                             _("Warning"),
@@ -568,16 +569,16 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         prog_n_max = table_p->GetNumberRows();
    
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
-    OGRLayerProxy* new_layer = ogr_adapter.ExportDataSource(ds_format.ToStdString(),
-                                                            ds_name.ToStdString(),
-                                                            layer_name.ToStdString(),
-                                                            geom_type,
-                                                            ogr_geometries,
-                                                            table_p,
-                                                            selected_rows,
-                                                            spatial_ref,
-                                                            is_update);
-    
+    OGRLayerProxy* new_layer =
+    ogr_adapter.ExportDataSource(ds_format.ToStdString(),
+                                 ds_name.ToStdString(),
+                                 layer_name.ToStdString(),
+                                 geom_type,
+                                 ogr_geometries,
+                                 table_p,
+                                 selected_rows,
+                                 spatial_ref,
+                                 is_update);
     if (new_layer == NULL)
         return false;
     

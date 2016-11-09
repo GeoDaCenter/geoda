@@ -28,6 +28,7 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
 : wxDialog(0, -1, "Project Information", wxDefaultPosition, wxSize(250, 150))
 {
     wxLogMessage("Open ProjectInfoDlg.");
+    
 	using namespace std;
 	wxPanel* panel = new wxPanel(this, -1);
 	
