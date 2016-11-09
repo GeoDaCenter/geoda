@@ -120,12 +120,9 @@ isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
-undef_tms(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
-    
-    LOG_MSG("Entering LisaCoordinator::LisaCoordinator(..)");
     
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
@@ -134,19 +131,18 @@ row_standardize(row_standardize_s)
         var_info[i].is_moran = true;
 	}
     
+    undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
 	
 	weight_name = w_man_int->GetLongDispName(w_id);
 	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
-    LOG_MSG("Exiting LisaCoordinator::LisaCoordinator(..)");
 }
 
 
 LisaCoordinator::~LisaCoordinator()
 {
-	LOG_MSG("In LisaCoordinator::~LisaCoordinator");
 	w_man_state->removeObserver(this);
 	DeallocateVectors();
 }

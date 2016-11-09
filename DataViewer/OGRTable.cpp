@@ -809,6 +809,7 @@ bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
     bool has_undefined = false;
     
     undefined.resize(boost::extents[tms][rows]);
+    
     for (size_t t=0; t<tms; ++t) {
         if (ftr_c[t] != -1) {
             int col_idx = ftr_c[t];

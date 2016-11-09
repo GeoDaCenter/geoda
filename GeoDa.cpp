@@ -401,6 +401,9 @@ bool GdaApp::OnInit(void)
     }
     wxLog::EnableLogging(true);
     wxLog::DisableTimestamp();
+#ifdef __DEBUG__
+    wxLog::SetLogLevel(wxLOG_User);
+#endif
     
     // check update in a new thread
     CallAfter(&GdaFrame::CheckUpdate);
