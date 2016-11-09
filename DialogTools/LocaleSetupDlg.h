@@ -37,7 +37,7 @@ public:
 	LocaleSetupDlg(wxWindow* parent,
                    bool need_reopen = true,
               wxWindowID id = wxID_ANY,
-              const wxString& title = "Setup Locale of GeoDa Table",
+              const wxString& title = _("Setup Locale of GeoDa Table"),
 			  const wxPoint& pos = wxDefaultPosition,
 			  const wxSize& size = wxDefaultSize );
 	

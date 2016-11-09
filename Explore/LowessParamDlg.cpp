@@ -166,7 +166,7 @@ void LowessParamFrame::OnHelpBtn(wxCommandEvent& ev)
 {
 	LOG_MSG("In LowessParamFrame::OnHelpBtn");
 	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
-                                             wxID_ANY, "LOWESS Smoother Help");
+                                             wxID_ANY, _("LOWESS Smoother Help"));
 }
 
 void LowessParamFrame::OnApplyBtn(wxCommandEvent& ev)

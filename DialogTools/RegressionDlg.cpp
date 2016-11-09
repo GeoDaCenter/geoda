@@ -841,8 +841,6 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCListVarinDoubleClicked");
-    
 	if (lastSelection == 1) {
 		OnCButton1Click(event);
 	} else {
@@ -852,15 +850,11 @@ void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVaroutDoubleClicked( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCListVaroutDoubleClicked");
-    
 	OnCButton3Click(event);
 }
 
 void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCButton1Click");
-    
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			wxString temp = m_dependent->GetValue();
@@ -880,8 +874,6 @@ void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCButton2Click");
-    
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			int cur_sel = m_varlist->GetSelection();
@@ -924,8 +916,6 @@ void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCButton3Click");
-    
 	if (m_independentlist->GetCount() > 0) {
 		if(m_independentlist->GetSelection() >= 0) {
 			int cur_sel = m_independentlist->GetSelection();
@@ -946,8 +936,6 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCButton4Click");
-    
 	for (unsigned int i=0; i<m_varlist->GetCount(); i++) {
 		m_independentlist->Append(m_varlist->GetString(i));
 	}
@@ -961,8 +949,6 @@ void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 {
-    wxLogMessage("Click RegressionDlg::OnCButton5Click");
-    
 	for (unsigned int i=0; i<m_independentlist->GetCount(); i++) {
 		m_varlist->Append(m_independentlist->GetString(i));
 	}

@@ -270,7 +270,7 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     wxString url_update_description = AutoUpdate::GetUpdateUrl(checklist);
     
     wxString update_text;
-	update_text << "A newer version of GeoDa is found. Do you want to update to version ";
+	update_text << _("A newer version of GeoDa is found. Do you want to update to version ");
     update_text << version;
 	update_text << "?";
     
@@ -349,7 +349,7 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
        
         int n = (int)lines.size();
         int jobs = (n-2) / 3 + 1; // skip first and second lines
-        wxProgressDialog progressDlg("", "Downloading updates...",
+        wxProgressDialog progressDlg("", _("Downloading updates..."),
                                      jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
         progressDlg.Update(1);
         if (n > 2 && (n-2) % 3 == 0) {
@@ -424,11 +424,13 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
 
 void AutoUpdateDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("Cancel AutoUpdateDlg");
     EndDialog(wxID_CANCEL);
 }
 
 void AutoUpdateDlg::OnSkipClick( wxCommandEvent& event )
 {
+    wxLogMessage("Skip AutoUpdateDlg");
     EndDialog(wxID_NO);
 }
 wxString AutoUpdateDlg::GetVersion()

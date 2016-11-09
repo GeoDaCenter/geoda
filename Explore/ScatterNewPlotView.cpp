@@ -84,11 +84,15 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
 
 void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
 {
+    wxLogMessage("In BubbleSizeSliderDlg::OnReset()");
+    
     slider->SetValue(0);
     canvas->UpdateBubbleSize(1);
 }
 void BubbleSizeSliderDlg::OnSliderChange( wxScrollEvent & event )
 {
+    wxLogMessage("In BubbleSizeSliderDlg::OnSliderChange()");
+    
     int val = event.GetInt();
     if (val == 0){
         canvas->UpdateBubbleSize(1);

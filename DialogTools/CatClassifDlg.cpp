@@ -922,8 +922,6 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 	CatClassification::BreakValsType bv_type = GetBreakValsTypeChoice();
 	cc_data.break_vals_type = bv_type;
     
-    wxLogMessage(wxString::Format(_("choice: %s"), bv_type));
-    
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
@@ -979,7 +977,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
         brk_slider->Enable(true);
     }
     
-    wxLogMessage(wxString::Format("choice: %s", new_num_cats));
+    wxLogMessage(wxString::Format("choice: %d", new_num_cats));
     
 	CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
 	if (new_cat_typ == CatClassification::hinge_15_break_vals ||
@@ -1026,6 +1024,9 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     wxLogMessage("CatClassifPanel::OnAssocVarChoice");
     
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
+    
+    wxLogMessage(cur_fc_str);
+    
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 	assoc_var_tm_choice->Enable(is_tm_var);
 	if (is_tm_var && assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {

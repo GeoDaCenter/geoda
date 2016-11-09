@@ -101,7 +101,6 @@ void PCPDlg::OnIncAllClick( wxCommandEvent& ev)
 
 void PCPDlg::OnIncOneClick( wxCommandEvent& ev)
 {
-    wxLogMessage("Click PCPDlg::OnIncOneClick");
 	if (m_exclude_list->GetSelection() >= 0) {
 		wxString k = m_exclude_list->GetString(m_exclude_list->GetSelection());
 		m_include_list->Append(k);
@@ -112,13 +111,11 @@ void PCPDlg::OnIncOneClick( wxCommandEvent& ev)
 
 void PCPDlg::OnIncListDClick( wxCommandEvent& ev)
 {
-    wxLogMessage("Click PCPDlg::OnIncListDClick");
 	OnExclOneClick(ev);
 }
 
 void PCPDlg::OnExclAllClick( wxCommandEvent& ev)
 {
-    wxLogMessage("Click PCPDlg::OnExclAllClick");
 	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
 		m_exclude_list->Append(m_include_list->GetString(i));
 	}
@@ -128,7 +125,6 @@ void PCPDlg::OnExclAllClick( wxCommandEvent& ev)
 
 void PCPDlg::OnExclOneClick( wxCommandEvent& ev)
 {
-    wxLogMessage("Click PCPDlg::OnExclOneClick");
 	if (m_include_list->GetSelection() >= 0) {
 		m_exclude_list->
 		Append(m_include_list->GetString(m_include_list->GetSelection()));
@@ -139,7 +135,6 @@ void PCPDlg::OnExclOneClick( wxCommandEvent& ev)
 
 void PCPDlg::OnExclListDClick( wxCommandEvent& ev)
 {
-    wxLogMessage("Click PCPDlg::OnExclListDClick");
 	OnIncOneClick(ev);
 }
 
@@ -189,7 +184,5 @@ void PCPDlg::OnCancelClick( wxCommandEvent& event )
 
 void PCPDlg::UpdateOkButton()
 {
-    wxLogMessage("Click PCPDlg::UpdateOkButton");
-    
 	FindWindow(XRCID("wxID_OK"))->Enable(m_include_list->GetCount() >= 2);
 }

@@ -41,7 +41,7 @@ AdjustYAxisDlg::AdjustYAxisDlg(double min_val_s,
 : o_min_val(min_val_s), o_max_val(max_val_s)
 {
     
-    wxLogMessage(wxString::Format("AdjustYAxisDlg with new min_val %s and max_val %s", min_val_s, max_val_s));
+    wxLogMessage(wxString::Format("AdjustYAxisDlg with new min_val %f and max_val %f", min_val_s, max_val_s));
     
     s_min_val << min_val_s;
     s_max_val << max_val_s;
@@ -131,7 +131,7 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
                                              const wxSize& size,
                                              long style)
 {
-    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %s.", precision_s));
+    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.", precision_s));
     
     precision = precision_s;
     

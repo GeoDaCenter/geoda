@@ -42,7 +42,7 @@ class AutoUpdateDlg: public wxDialog
 public:
     AutoUpdateDlg(wxWindow* parent, bool showSkip = false,
                wxWindowID id = wxID_ANY,
-               const wxString& title = "GeoDa Update Dialog",
+               const wxString& title = _("GeoDa Update Dialog"),
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxSize(580,220));
     

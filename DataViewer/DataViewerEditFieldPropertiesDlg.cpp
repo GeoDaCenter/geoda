@@ -573,7 +573,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         
 		if (col_type == GdaConst::string_type) {
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg = wxString::Format(_("The length of a string field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxString msg = wxString::Format(_("The length of a string field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
 				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
@@ -590,7 +590,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
             
 		} else if (col_type == GdaConst::long64_type) {
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg = wxString::Format(_("The length of an integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxString msg = wxString::Format(_("The length of an integral numeric field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
 				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
@@ -602,7 +602,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		} else {
             // table_int->GetColType(cid) == GdaConst::double_type
 			if (new_val < min_v || max_v < new_val) {
-				wxString msg = wxString::Format(_("The length of an non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+				wxString msg = wxString::Format(_("The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
 				wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 				dlg.ShowModal();
 				ev.Veto();
@@ -628,7 +628,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		min_v = GdaConst::min_dbf_double_decimals;
 		max_v = GdaConst::max_dbf_double_decimals;
 		if (new_val < min_v || max_v < new_val) {
-            wxString msg = wxString::Format(_("The number of decimal places for a non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+            wxString msg = wxString::Format(_("The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
 			wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
@@ -654,7 +654,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 				min_v = 0;
 				max_v = GdaConst::max_dbf_double_decimals;
 				if (new_val < min_v || max_v < new_val) {
-                    wxString msg = wxString::Format(_("The number of displayed decimal places for a non-integral numeric field must be at least %s and at most %s. Keeping original value."), min_v, max_v);
+                    wxString msg = wxString::Format(_("The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
 					wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 					dlg.ShowModal();
 					ev.Veto();
@@ -709,7 +709,7 @@ void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
     ev.Skip();
     
 	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnGridComboBox");
-    wxLogMessage(wxString::Format("%s", sel));
+    wxLogMessage(wxString::Format("%d", sel));
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedEvent& ev )

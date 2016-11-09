@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <string>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -97,7 +98,7 @@ string CreateIssueOnGithub(string& post_data)
     
     wxString tester_id = tester_ids[0];
     
-    string url = "https://api.github.com/repos/lixun910/colamap/issues";
+    string url = "https://api.github.com/repos/GeoDaCenter/geoda/issues";
     
     wxString header_auth = "Authorization: token " + tester_id;
    
@@ -141,6 +142,7 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
                            const wxSize& size)
 : wxDialog(parent, id, title, pos, size)
 {
+    wxLogMessage("Open ReportBugDlg.");
     //
     // Description: please briefly describe what went wrong
     // Steps you took before something went wrong (Optional):
@@ -223,6 +225,7 @@ ReportBugDlg::~ReportBugDlg()
 
 void ReportBugDlg::OnOkClick(wxCommandEvent& event)
 {
+    wxLogMessage("In ReportBugDlg::OnOkClick()");
     //wxString rst = CreateIssueOnGithub("{\"title\": \"Test reporting bug from GeoDa software\", \"body\": \"We should have one\"}");
 
     wxString title =  title_txt_ctrl->GetValue();
@@ -253,29 +256,11 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
     
     body << "\\n\\n";
     
-    // parse results
-    string result = CreateIssue(title, body);
+    bool result = CreateIssue(title, body);
     
-    if (!result.empty()) {
-        json_spirit::Value v;
-        try {
-            if (!json_spirit::read(result, v)) {
-                throw std::runtime_error("Could not parse title as JSON");
-            }
-            json_spirit::Value url_val;
-            if (!GdaJson::findValue(v, url_val, "html_url")) {
-                throw std::runtime_error("could not find url");
-            }
-            wxString url_issue = url_val.get_str();
-            ReportResultDlg dlg(this, url_issue);
-            dlg.ShowModal();
-            EndDialog(wxID_OK);
-            return;
-        } catch (std::runtime_error e) {
-            wxString msg;
-            msg << "JSON parsing failed: ";
-            msg << e.what();
-        }
+    if (result) {
+        EndDialog(wxID_OK);
+        return;
     }
     
     wxMessageDialog msgDlg(this,
@@ -284,13 +269,9 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
                            wxOK |wxICON_INFORMATION);
     msgDlg.ShowModal();
     
-    LOG_MSG("Submit Bug Report Error:");
-    LOG_MSG("title:");
-    LOG_MSG(title);
-    LOG_MSG("body:");
-    LOG_MSG(body);
-    LOG_MSG("return from Github:");
-    LOG_MSG(result);
+    wxLogMessage("Submit Bug Report Error:");
+    wxLogMessage("title:");
+    wxLogMessage(title);
 }
 
 void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
@@ -298,7 +279,7 @@ void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
     
 }
 
-string ReportBugDlg::CreateIssue(wxString title, wxString body)
+bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 {
     // get log file to body
     wxString logger_path;
@@ -321,5 +302,29 @@ string ReportBugDlg::CreateIssue(wxString title, wxString body)
     
     string msg( json_msg.c_str());
     
-    return CreateIssueOnGithub(msg);
+    string result = CreateIssueOnGithub(msg);
+    
+    // parse results
+    
+    if (!result.empty()) {
+        json_spirit::Value v;
+        try {
+            if (!json_spirit::read(result, v)) {
+                throw std::runtime_error("Could not parse title as JSON");
+            }
+            json_spirit::Value url_val;
+            if (!GdaJson::findValue(v, url_val, "html_url")) {
+                throw std::runtime_error("could not find url");
+            }
+            wxString url_issue = url_val.get_str();
+            ReportResultDlg dlg(NULL, url_issue);
+            dlg.ShowModal();
+            return true;
+        } catch (std::runtime_error e) {
+            wxString msg;
+            msg << "JSON parsing failed: ";
+            msg << e.what();
+        }
+    }
+    return false;
 }

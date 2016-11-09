@@ -205,20 +205,6 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-
-    // Setup Logger
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString exeDir = exeFile.GetPathWithSep();
-    wxString loggerFile = exeDir + "logger.txt";
-    
-    if (m_pLogFile == NULL) {
-        m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
-        wxLog::SetActiveTarget(new wxLogStderr(m_pLogFile));
-    }
-    wxLog::EnableLogging(true);
-    wxLog::DisableTimestamp();
-    wxLogMessage("Test");
     
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
@@ -394,12 +380,30 @@ bool GdaApp::OnInit(void)
             wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
                                    wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
             if (msgDlg.ShowModal() == wxID_YES) {
-                wxCommandEvent ev;
-                GdaFrame::GetGdaFrame()->OnReportBug(ev);
+                //wxCommandEvent ev;
+                //GdaFrame::GetGdaFrame()->OnReportBug(ev);
+                wxString ttl = "Crash Report";
+                ReportBugDlg::CreateIssue(ttl, "Details:");
             }
         }
     }
     OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
+   
+    // Setup new Logger after crash check
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxFileName exeFile(exePath);
+    wxString exeDir = exeFile.GetPathWithSep();
+    wxString loggerFile = exeDir + "logger.txt";
+    
+    if (m_pLogFile == NULL) {
+        m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
+        wxLog::SetActiveTarget(new wxLogStderr(m_pLogFile));
+    }
+    wxLog::EnableLogging(true);
+    wxLog::DisableTimestamp();
+    
+    // check update in a new thread
+    CallAfter(&GdaFrame::CheckUpdate);
     
 	return true;
 }
@@ -674,9 +678,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetMenusToDefault();
  	UpdateToolbarAndMenus();
     SetEncodingCheckmarks(wxFONTENCODING_UTF8);
-		
-    // check update in a new thread
-    CallAfter(&GdaFrame::CheckUpdate);
 }
 
 GdaFrame::~GdaFrame()
@@ -951,8 +952,6 @@ void GdaFrame::OnCloseProjectEvt(wxCommandEvent& event)
 
 void GdaFrame::UpdateRecentDatasourceMenu()
 {
-    wxLogMessage("UpdateRecentDatasourceMenu()");
-    
     try {
         // update recent opened datasource menu
         RecentDatasource recent_ds;
@@ -1016,7 +1015,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     IDataSource* ds = recent_ds.GetDatasource(ds_name);
     if (ds == NULL) {
         // raise message dialog show can't connect to datasource
-        wxString msg = _T("Can't connect to datasource: ") + ds_name;
+        wxString msg = _("Can't connect to datasource: ") + ds_name;
         wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -3391,7 +3390,7 @@ void GdaFrame::OnOpenQuantile10(wxCommandEvent& e) { OpenQuantile(10); }
 
 void GdaFrame::OpenQuantile(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::OpenQuantile(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::OpenQuantile(%d)", num_cats));
     
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
@@ -3418,7 +3417,7 @@ void GdaFrame::OnQuantile10(wxCommandEvent& e) { ChangeToQuantile(10); }
 
 void GdaFrame::ChangeToQuantile(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToQuantile(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToQuantile(%d)", num_cats));
     
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
@@ -3596,7 +3595,7 @@ void GdaFrame::OnOpenNaturalBreaks10(wxCommandEvent& e) {OpenNaturalBreaks(10);}
 
 void GdaFrame::OpenNaturalBreaks(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::OpenNaturalBreaks(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::OpenNaturalBreaks(%d)", num_cats));
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3622,7 +3621,7 @@ void GdaFrame::OnNaturalBreaks10(wxCommandEvent& e) {ChangeToNaturalBreaks(10);}
 
 void GdaFrame::ChangeToNaturalBreaks(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToNaturalBreaks(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToNaturalBreaks(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	wxCommandEvent event;
@@ -3664,7 +3663,7 @@ void GdaFrame::OnOpenEqualIntervals10(wxCommandEvent& e)
 
 void GdaFrame::OpenEqualIntervals(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::OpenEqualIntervals(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::OpenEqualIntervals(%d)", num_cats));
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -3700,7 +3699,7 @@ void GdaFrame::OnEqualIntervals10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToEqualIntervals(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToEqualIntervals(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToEqualIntervals(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	wxCommandEvent event;
@@ -3788,7 +3787,7 @@ void GdaFrame::OnCondVertQuant10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertQuant(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertQuant(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertQuant(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3859,7 +3858,7 @@ void GdaFrame::OnCondVertNatBrks10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertNatBrks(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertNatBrks(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertNatBrks(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3890,7 +3889,7 @@ void GdaFrame::OnCondVertEquInts10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondVertEquInts(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertEquInts(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondVertEquInts(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -3941,7 +3940,7 @@ void GdaFrame::OnCondHorizQuant10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizQuant(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizQuant(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizQuant(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -4012,7 +4011,7 @@ void GdaFrame::OnCondHorizNatBrks10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizNatBrks(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizNatBrks(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizNatBrks(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -4043,7 +4042,7 @@ void GdaFrame::OnCondHorizEquInts10(wxCommandEvent& e)
 
 void GdaFrame::ChangeToCondHorizEquInts(int num_cats)
 {
-    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizEquInts(%s)", num_cats));
+    wxLogMessage(wxString::Format("In GdaFrame::ChangeToCondHorizEquInts(%d)", num_cats));
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
@@ -4464,7 +4463,7 @@ void GdaFrame::OnAddMeanCenters(wxCommandEvent& event)
 
 void GdaFrame::OnAddCentroids(wxCommandEvent& event)
 {
-    wxLogMessage("In OnAddCentroids()");
+    wxLogMessage("In GdaFrame::OnAddCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4474,7 +4473,7 @@ void GdaFrame::OnAddCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayMeanCenters(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplayMeanCenters()");
+    wxLogMessage("In GdaFrame::OnDisplayMeanCenters()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4484,7 +4483,7 @@ void GdaFrame::OnDisplayMeanCenters(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplayCentroids()");
+    wxLogMessage("In GdaFrame::OnDisplayCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4494,7 +4493,7 @@ void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayVoronoiDiagram(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplayVoronoiDiagram()");
+    wxLogMessage("In GdaFrame::OnDisplayVoronoiDiagram()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4504,7 +4503,7 @@ void GdaFrame::OnDisplayVoronoiDiagram(wxCommandEvent& event)
 
 void GdaFrame::OnExportVoronoi(wxCommandEvent& event)
 {
-    wxLogMessage("In OnExportVoronoi()");
+    wxLogMessage("In GdaFrame::OnExportVoronoi()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4516,7 +4515,7 @@ void GdaFrame::OnExportVoronoi(wxCommandEvent& event)
 
 void GdaFrame::OnExportMeanCntrs(wxCommandEvent& event)
 {
-    wxLogMessage("In OnExportMeanCntrs()");
+    wxLogMessage("In GdaFrame::OnExportMeanCntrs()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (project_p) project_p->ExportCenters(true);
@@ -4524,7 +4523,7 @@ void GdaFrame::OnExportMeanCntrs(wxCommandEvent& event)
 
 void GdaFrame::OnExportCentroids(wxCommandEvent& event)
 {
-    wxLogMessage("In OnExportCentroids()");
+    wxLogMessage("In GdaFrame::OnExportCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (project_p) project_p->ExportCenters(false);
@@ -4532,7 +4531,7 @@ void GdaFrame::OnExportCentroids(wxCommandEvent& event)
 
 void GdaFrame::OnSaveVoronoiDupsToTable(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSaveVoronoiDupsToTable()");
+    wxLogMessage("In GdaFrame::OnSaveVoronoiDupsToTable()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
@@ -4544,7 +4543,7 @@ void GdaFrame::OnSaveVoronoiDupsToTable(wxCommandEvent& event)
 
 void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSaveGetisOrd()");
+    wxLogMessage("In GdaFrame::OnSaveGetisOrd()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
@@ -4554,7 +4553,7 @@ void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 
 void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSaveLisa()");
+    wxLogMessage("In GdaFrame::OnSaveLisa()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4564,7 +4563,7 @@ void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 
 void GdaFrame::OnSelectCores(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSelectCores()");
+    wxLogMessage("In GdaFrame::OnSelectCores()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4576,7 +4575,7 @@ void GdaFrame::OnSelectCores(wxCommandEvent& event)
 
 void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSelectNeighborsOfCores()");
+    wxLogMessage("In GdaFrame::OnSelectNeighborsOfCores()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4588,7 +4587,7 @@ void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 
 void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-    wxLogMessage("In OnSelectCoresAndNeighbors()");
+    wxLogMessage("In GdaFrame::OnSelectCoresAndNeighbors()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
@@ -4600,7 +4599,7 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 
 void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewStandardizedData()");
+    wxLogMessage("In GdaFrame::OnViewStandardizedData()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
@@ -4614,7 +4613,7 @@ void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 
 void GdaFrame::OnViewOriginalData(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewOriginalData()");
+    wxLogMessage("In GdaFrame::OnViewOriginalData()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
@@ -4628,7 +4627,7 @@ void GdaFrame::OnViewOriginalData(wxCommandEvent& event)
 
 void GdaFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewLinearSmoother()");
+    wxLogMessage("In GdaFrame::OnViewLinearSmoother()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4643,7 +4642,7 @@ void GdaFrame::OnViewLinearSmoother(wxCommandEvent& event)
 
 void GdaFrame::OnViewLowessSmoother(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewLowessSmoother()");
+    wxLogMessage("In GdaFrame::OnViewLowessSmoother()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4660,7 +4659,7 @@ void GdaFrame::OnViewLowessSmoother(wxCommandEvent& event)
 
 void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 {
-    wxLogMessage("In OnEditLowessParams()");
+    wxLogMessage("In GdaFrame::OnEditLowessParams()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4677,7 +4676,7 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 
 void GdaFrame::OnEditVariables(wxCommandEvent& event)
 {
-    wxLogMessage("In OnEditVariables()");
+    wxLogMessage("In GdaFrame::OnEditVariables()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
@@ -4693,7 +4692,7 @@ void GdaFrame::OnEditVariables(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewRegimesRegression()");
+    wxLogMessage("In GdaFrame::OnViewRegimesRegression()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4707,7 +4706,7 @@ void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegressionSelectedExcluded(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewRegressionSelectedExcluded()");
+    wxLogMessage("In GdaFrame::OnViewRegressionSelectedExcluded()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4717,7 +4716,7 @@ void GdaFrame::OnViewRegressionSelectedExcluded(wxCommandEvent& event)
 
 void GdaFrame::OnViewRegressionSelected(wxCommandEvent& event)
 {
-    wxLogMessage("In OnViewRegressionSelected()");
+    wxLogMessage("In GdaFrame::OnViewRegressionSelected()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4727,7 +4726,7 @@ void GdaFrame::OnViewRegressionSelected(wxCommandEvent& event)
 
 void GdaFrame::OnCompareRegimes(wxCommandEvent& event)
 {
-    wxLogMessage("In OnCompareRegimes()");
+    wxLogMessage("In GdaFrame::OnCompareRegimes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4737,7 +4736,7 @@ void GdaFrame::OnCompareRegimes(wxCommandEvent& event)
 
 void GdaFrame::OnCompareTimePeriods(wxCommandEvent& event)
 {
-    wxLogMessage("In OnCompareTimePeriods()");
+    wxLogMessage("In GdaFrame::OnCompareTimePeriods()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4747,7 +4746,7 @@ void GdaFrame::OnCompareTimePeriods(wxCommandEvent& event)
 
 void GdaFrame::OnCompareRegAndTmPer(wxCommandEvent& event)
 {
-    wxLogMessage("In OnCompareRegAndTmPer()");
+    wxLogMessage("In GdaFrame::OnCompareRegAndTmPer()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
@@ -4758,7 +4757,7 @@ void GdaFrame::OnCompareRegAndTmPer(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplayStatistics()");
+    wxLogMessage("In GdaFrame::OnDisplayStatistics()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4781,7 +4780,7 @@ void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void GdaFrame::OnShowAxesThroughOrigin(wxCommandEvent& event)
 {
-    wxLogMessage("In OnShowAxesThroughOrigin()");
+    wxLogMessage("In GdaFrame::OnShowAxesThroughOrigin()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
@@ -4791,7 +4790,7 @@ void GdaFrame::OnShowAxesThroughOrigin(wxCommandEvent& event)
 
 void GdaFrame::OnShowAxes(wxCommandEvent& event)
 {
-    wxLogMessage("In OnShowAxes()");
+    wxLogMessage("In GdaFrame::OnShowAxes()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (BoxPlotFrame* f = dynamic_cast<BoxPlotFrame*>(t)) {
@@ -4813,7 +4812,7 @@ void GdaFrame::OnShowAxes(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayAxesScaleValues(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplayAxesScaleValues()");
+    wxLogMessage("In GdaFrame::OnDisplayAxesScaleValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalScatterPlotFrame* f =
@@ -4824,7 +4823,7 @@ void GdaFrame::OnDisplayAxesScaleValues(wxCommandEvent& event)
 
 void GdaFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 {
-    wxLogMessage("In OnDisplaySlopeValues()");
+    wxLogMessage("In GdaFrame::OnDisplaySlopeValues()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (ConditionalScatterPlotFrame* f =
@@ -4845,25 +4844,25 @@ void GdaFrame::OnTimeSyncVariable(int var_index)
 
 void GdaFrame::OnTimeSyncVariable1(wxCommandEvent& event)
 {
-    wxLogMessage("In OnTimeSyncVariable1()");
+    wxLogMessage("In GdaFrame::OnTimeSyncVariable1()");
 	OnTimeSyncVariable(0);
 }
 
 void GdaFrame::OnTimeSyncVariable2(wxCommandEvent& event)
 {
-    wxLogMessage("In OnTimeSyncVariable2()");
+    wxLogMessage("In GdaFrame::OnTimeSyncVariable2()");
 	OnTimeSyncVariable(1);
 }
 
 void GdaFrame::OnTimeSyncVariable3(wxCommandEvent& event)
 {
-    wxLogMessage("In OnTimeSyncVariable3()");
+    wxLogMessage("In GdaFrame::OnTimeSyncVariable3()");
 	OnTimeSyncVariable(2);
 }
 
 void GdaFrame::OnTimeSyncVariable4(wxCommandEvent& event)
 {
-    wxLogMessage("In OnTimeSyncVariable4()");
+    wxLogMessage("In GdaFrame::OnTimeSyncVariable4()");
 	OnTimeSyncVariable(3);
 }
 
@@ -4876,23 +4875,25 @@ void GdaFrame::OnFixedScaleVariable(int var_index)
 
 void GdaFrame::OnFixedScaleVariable1(wxCommandEvent& event)
 {
-    wxLogMessage("In OnFixedScaleVariable1()");
+    wxLogMessage("In GdaFrame::OnFixedScaleVariable1()");
 	OnFixedScaleVariable(0);
 }
 
 void GdaFrame::OnFixedScaleVariable2(wxCommandEvent& event)
 {
-    wxLogMessage("In OnFixedScaleVariable2()");
+    wxLogMessage("In GdaFrame::OnFixedScaleVariable2()");
 	OnFixedScaleVariable(1);
 }
 
 void GdaFrame::OnFixedScaleVariable3(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnFixedScaleVariable3()");
 	OnFixedScaleVariable(2);
 }
 
 void GdaFrame::OnFixedScaleVariable4(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnFixedScaleVariable4()");
 	OnFixedScaleVariable(3);
 }
 
@@ -4905,56 +4906,67 @@ void GdaFrame::OnPlotsPerView(int plots_per_view)
 
 void GdaFrame::OnPlotsPerView1(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView1()");
 	OnPlotsPerView(1);
 }
 
 void GdaFrame::OnPlotsPerView2(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView2()");
 	OnPlotsPerView(2);
 }
 
 void GdaFrame::OnPlotsPerView3(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView3()");
 	OnPlotsPerView(3);
 }
 
 void GdaFrame::OnPlotsPerView4(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView4()");
 	OnPlotsPerView(4);
 }
 
 void GdaFrame::OnPlotsPerView5(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView5()");
 	OnPlotsPerView(5);
 }
 
 void GdaFrame::OnPlotsPerView6(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView6()");
 	OnPlotsPerView(6);
 }
 
 void GdaFrame::OnPlotsPerView7(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView7()");
 	OnPlotsPerView(7);
 }
 
 void GdaFrame::OnPlotsPerView8(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView8()");
 	OnPlotsPerView(8);
 }
 
 void GdaFrame::OnPlotsPerView9(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView9()");
 	OnPlotsPerView(9);
 }
 
 void GdaFrame::OnPlotsPerView10(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView10()");
 	OnPlotsPerView(10);
 }
 
 void GdaFrame::OnPlotsPerViewOther(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView11()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnPlotsPerViewOther();
@@ -4962,6 +4974,7 @@ void GdaFrame::OnPlotsPerViewOther(wxCommandEvent& event)
 
 void GdaFrame::OnPlotsPerViewAll(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView12()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnPlotsPerViewAll();
@@ -4969,6 +4982,7 @@ void GdaFrame::OnPlotsPerViewAll(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 {
+    wxLogMessage("In GdaFrame::OnDisplayStatusBar()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnDisplayStatusBar(event);
@@ -4976,6 +4990,7 @@ void GdaFrame::OnDisplayStatusBar(wxCommandEvent& event)
 
 void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("In GdaFrame::OnReportBug()");
     ReportBugDlg bugDlg(this);
     bugDlg.ShowModal();
   
@@ -5008,14 +5023,15 @@ void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
 
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("In GdaFrame::OnCheckUpdates()");
     wxString version =  AutoUpdate::CheckUpdate();
     if (!version.IsEmpty()) {
         AutoUpdateDlg dlg(this);
         dlg.ShowModal();
     } else {
         wxMessageDialog msgDlg(this,
-                               "Your GeoDa is already up-to-date.",
-                               "No update required",
+                               _("Your GeoDa is already up-to-date."),
+                               _("No update required"),
                                wxOK |wxICON_INFORMATION);
         msgDlg.ShowModal();
     }
@@ -5027,11 +5043,15 @@ void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
     if (!event.IsChecked()) {
         checked = "yes";
     }
+    
+    wxLogMessage(_("In GdaFrame::OnCheckTestMode():") + checked);
+    
     OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
 }
 
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 {
+    wxLogMessage("In GdaFrame::OnHelpAbout()");
 	wxDialog dlg;
 	wxXmlResource::Get()->LoadDialog(&dlg, this, "IDD_ABOUTBOX");
 	
@@ -5326,6 +5346,7 @@ bool GdaFrame::GetHtmlMenuItems()
 
 bool GdaFrame::GetHtmlMenuItemsJson()
 {
+    /*
 	using namespace json_spirit;
 	using namespace GdaJson;
 	
@@ -5394,7 +5415,7 @@ bool GdaFrame::GetHtmlMenuItemsJson()
 		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
 		msg << "url: " << htmlMenuItems[i].url;
 	}
-	
+	*/
 	return true;
 }
 
@@ -5463,7 +5484,6 @@ int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 
 wxConnectionBase* GdaServer::OnAcceptConnection(const wxString& topic)
 {
-	LOG_MSG("In GdaServer::OnAcceptConnection");
 	if (topic.CmpNoCase("GdaApp") == 0) {
 		// Check there are no modal dialogs active
 		wxWindowList::Node* node = wxTopLevelWindows.GetFirst();
@@ -5485,7 +5505,6 @@ wxConnectionBase* GdaClient::OnMakeConnection()
 
 bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
 {
-	LOG_MSG("In GdaConnection::OnExec");
 	GdaFrame* frame = wxDynamicCast(wxGetApp().GetTopWindow(), GdaFrame);
 	wxString filename(data);
 	if (filename.IsEmpty()) {
@@ -5499,25 +5518,20 @@ bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
 LineChartEventDelay::LineChartEventDelay()
 : lc_frame(0)
 {
-	LOG_MSG("In LineChartEventDelay::LineChartEventDelay");
 }
 
 LineChartEventDelay::LineChartEventDelay(LineChartFrame* lc_frame_,
                                          const wxString& cb_name_)
 : lc_frame(lc_frame_), cb_name(cb_name_)
 {
-	LOG_MSG("Created LineChartEventDelay::LineChartEventDelay for callback: "
-					+ cb_name);
 	StartOnce(100);
 }
 
 LineChartEventDelay::~LineChartEventDelay()
 {
-	LOG_MSG("In LineChartEventDelay::~LineChartEventDelay");
 }
 
 void LineChartEventDelay::Notify() {
-	LOG_MSG("In LineChartEventDelay::Notify");
 	Stop();
 	wxCommandEvent ev;
 	if (cb_name == "ID_COMPARE_REGIMES") {

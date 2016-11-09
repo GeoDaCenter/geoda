@@ -237,7 +237,7 @@ void CreatingWeightDlg::CreateWeights()
 			return;
 		}
 		if (m_threshold_val*m_thres_delta_factor < m_thres_min) {
-			wxString msg = wxString::Format(_("The currently entered threshold value of %s is less than %s which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."), m_threshold_val, m_thres_min);
+			wxString msg = wxString::Format(_("The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."), m_threshold_val, m_thres_min);
 			wxMessageDialog dlg(this, msg, _("Warning"),
                                 wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
 			if (dlg.ShowModal() != wxID_YES)
@@ -347,7 +347,7 @@ void CreatingWeightDlg::CreateWeights()
 				done = true;
                 
 			} else {
-				wxString s = wxString::Format(_("Error: Maximum number of neighbors %s exceeded."), m_num_obs-1);
+				wxString s = wxString::Format(_("Error: Maximum number of neighbors %d exceeded."), m_num_obs-1);
 				wxMessageBox(s);
 			}
 		}

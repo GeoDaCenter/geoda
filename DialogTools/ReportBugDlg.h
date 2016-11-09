@@ -40,7 +40,7 @@ public:
     ReportResultDlg(wxWindow* parent,
                     wxString issue_url,
                     wxWindowID id = wxID_ANY,
-                    const wxString& title = "Check Bug Report on Github",
+                    const wxString& title = _("Check Bug Report on Github"),
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize);
     ~ReportResultDlg();
@@ -53,11 +53,13 @@ class ReportBugDlg : public wxDialog
 public:
     ReportBugDlg(wxWindow* parent,
                  wxWindowID id = wxID_ANY,
-                 const wxString& title = "GeoDa Bug Report Dialog",
+                 const wxString& title = _("GeoDa Bug Report Dialog"),
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxSize(580,450));
     
     ~ReportBugDlg();
+    
+    static bool CreateIssue(wxString title, wxString body);
     
 protected:
     wxString desc_tip;
@@ -73,7 +75,6 @@ protected:
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
    
-    string CreateIssue(wxString title, wxString body);
 };
 
 #endif

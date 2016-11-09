@@ -343,9 +343,9 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	if (HasIsolates()) {
 		wxString msg;
 		if (num_isolates > 1) {
-            msg = wxString::Format(_("Warning: %s observations are neighborless."), num_isolates);
+            msg = wxString::Format(_("Warning: %d observations are neighborless."), num_isolates);
 		} else {
-            msg = wxString::Format(_("Warning: %s observations is neighborless."), num_isolates);
+            msg = wxString::Format(_("Warning: %d observations is neighborless."), num_isolates);
 		}
         s = new GdaShapeText(msg, *GdaConst::small_font,
                              wxRealPoint(((double) x_max)/2.0, y_max),

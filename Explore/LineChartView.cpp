@@ -368,7 +368,7 @@ void LineChartFrame::OnSelectionChange()
     wxString col_name = variable_names[var_selection];
     int col = table_int->FindColId(col_name);
     
-    wxLogMessage(wxString::Format("var: %s, time1:%s, time2:%s, group1:%s, group2:%s", col_name, time1, time2, group1, group2));
+    wxLogMessage(wxString::Format("var: %s, time1:%d, time2:%d, group1:%d, group2:%d", col_name, time1, time2, group1, group2));
     
     std::vector<double> min_vals;
     std::vector<double> max_vals;
