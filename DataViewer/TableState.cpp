@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
+#include <wx/string.h>
+
 #include "../logger.h"
 #include "TableStateObserver.h"
 #include "TableState.h"
@@ -34,23 +37,19 @@ TableState::TableState()
 : delete_self_when_empty(false), event_type(TableState::empty),
 	modified_col_pos(-1)
 {
-	LOG_MSG("In TableState::TableState");
 }
 
 TableState::~TableState()
 {
-	LOG_MSG("In TableState::~TableState");
 }
 
 void TableState::closeAndDeleteWhenEmpty()
 {
-	LOG_MSG("Entering TableState::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
+		//LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
-	LOG_MSG("Exiting TableState::closeAndDeleteWhenEmpty");
 }
 
 void TableState::registerTableBase(TableStateObserver* o)
@@ -162,15 +161,9 @@ wxString TableState::GetDisallowTimelineChangesMsg()
 	wxString s;
 	int n = GetNumDisallowTimelineChanges();
 	if (n == 1) {
-		s << "Cannot proceed with operation since there is a ";
-		s << "view open that does not support add/remove, move, or ";
-		s << "rename operations on timeline identifiers.  Please close this";
-		s << " view and retry operation.";
+		s << "Cannot proceed with operation since there is a view open that does not support add/remove, move, or rename operations on timeline identifiers.  Please close this view and retry operation.";
 	} else if (n > 1) {
-		s << "Cannot proceed with operation since there are " << n;
-		s << " views currently open that do not support add/remove, move, or ";
-		s << "rename operations on timeline identifiers.  Please close these ";
-		s << n << " views and retry operation.";
+        s = wxString::Format(_("Cannot proceed with operation since there are %d views currently open that do not support add/remove, move, or rename operations on timeline identifiers.  Please close these %d views and retry operation."), n, n);
 	}
 	return s;
 }
@@ -193,15 +186,9 @@ wxString TableState::GetDisallowGroupModifyMsg(const wxString& grp_nm)
 	wxString s;
 	int n = GetNumDisallowGroupModify(grp_nm);
 	if (n == 1) {
-		s << "Cannot modify variable " << grp_nm << " since there is a ";
-		s << "view open that currently depends on this variable.  Please ";
-		s << "close or change variables in this view before retrying ";
-		s << "operation.";
+        s = wxString::Format(_("Cannot modify variable %s since there is a view open that currently depends on this variable.  Please close or change variables in this view before retrying operation."), grp_nm);
 	} else {
-		s << "Cannot modify variable " << grp_nm << " since there are ";
-		s << n << "views open that currently depend on this variable.  ";
-		s << "Please close or change variables in these views before ";
-		s << "retrying operation.";
+        s = wxString::Format(_("Cannot modify variable %s since there are %d views open that currently depend on this variable. Please close or change variables in these views before retrying operation."), grp_nm, n);
 	}
 	return s;
 }
@@ -224,13 +211,9 @@ wxString TableState::GetDisallowObservationAddDeleteMsg()
 	wxString s;
 	int n = GetNumDisallowObservationAddDelete();
 	if (n == 1) {
-		s << "Cannot add/delete observations since there is a ";
-		s << "view open that does not allow dynamic observation changes.  ";
-		s << "Please close this view before retrying.";
+		s << _("Cannot add/delete observations since there is a view open that does not allow dynamic observation changes. Please close this view before retrying.");
 	} else {
-		s << "Cannot add/delete observations since there are ";
-		s << n << "views open that currently do not allow dynamic ";
-		s << "observation changes.  Please close these views before retrying.";
+        s = wxString::Format(_("Cannot add/delete observations since there are %d views open that currently do not allow dynamic observation changes.  Please close these views before retrying."), n);
 	}
 	return s;
 }

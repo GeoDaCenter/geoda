@@ -144,7 +144,7 @@ popup_col(-1)
         grid->DisableDragColMove();
     }
     
-    grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
+    //grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
     grid->ForceRefresh();
    
     wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
@@ -498,8 +498,6 @@ void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 		grid->Refresh();
         //ev.Skip();
 	}
-	
-	LOG_MSG("Exiting TableFrame::OnLabelLeftClickEvent");
 }
 
 void TableFrame::OnLabelLeftDClickEvent( wxGridEvent& ev)

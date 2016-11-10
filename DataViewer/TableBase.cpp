@@ -102,7 +102,6 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	rows(_project->GetNumRecords()), row_order(_project->GetNumRecords()),
 	sorting_col(-1), sorting_ascending(false)
 {
-	LOG_MSG("Entering TableBase::TableBase");
     template_frame = t_frame;
 	SortByDefaultDecending();
 	
@@ -115,12 +114,10 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	time_state->registerObserver(this);
     
     UpdateStatusBar();
-	LOG_MSG("Exiting TableBase::TableBase");
 }
 
 TableBase::~TableBase()
 {
-	LOG_MSG("In TableBase::~TableBase");
 	highlight_state->removeObserver(this);
 	table_state->removeObserver(this);
 	time_state->removeObserver(this);
@@ -206,17 +203,7 @@ void TableBase::FromGridSelectRow(int row)
 	//LOG_MSG(wxString::Format("selecting %d", (int) row_order[row]));
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-    
     hs[ row_order[row] ]  = true;
-    /*
-	for (int i=0; i<hl_size; ++i) {
-        if (i == row_order[row]) {
-            hs[i] = true;
-        } else {
-            hs[i] = false;
-        }
-    }
-    */
     
 	highlight_state->SetEventType(HLStateInt::delta);
 	highlight_state->notifyObservers();
@@ -244,7 +231,6 @@ void TableBase::DeselectAllRows()
 
 void TableBase::SortByDefaultDecending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultDecending");
 	for (int i=0; i<rows; i++) {
 		row_order[i] = i;
 	}
@@ -254,7 +240,6 @@ void TableBase::SortByDefaultDecending()
 
 void TableBase::SortByDefaultAscending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultAscending");
 	int last_ind = rows-1;
 	for (int i=0; i<rows; i++) {
 		row_order[i] = last_ind - i;
@@ -369,7 +354,6 @@ void TableBase::SortByCol(int col, bool ascending)
 
 void TableBase::MoveSelectedToTop()
 {
-	LOG_MSG("Entering TableBase::MoveSelectedToTop");
 	std::set<int> sel_set;
 	for (int i=0, iend=rows; i<iend; i++) {
 		if (hs[row_order[i]]) sel_set.insert(row_order[i]);
@@ -385,7 +369,6 @@ void TableBase::MoveSelectedToTop()
 	}
 	sorting_col = -1;
 	if (GetView()) GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::MoveSelectedToTop");	
 }
 
 bool TableBase::FromGridIsSelectedCol(int col)
@@ -506,7 +489,6 @@ void TableBase::update(HLStateInt* o)
 void TableBase::update(TableState* o)
 {
 	using namespace std;
-	LOG_MSG("Entering TableBase::update(TableState*)");
 	if (!GetView()) return;
 	
 	if (o->GetEventType() == TableState::cols_delta) {
@@ -554,7 +536,6 @@ void TableBase::update(TableState* o)
 	}
 	
 	GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::update(TableState*)");
 }
 
 void TableBase::update(TimeState* o)
@@ -569,7 +550,6 @@ void TableBase::update(TimeState* o)
  changed.  It is called by TableFrame::OnColMoveEvent */
 void TableBase::notifyColMove()
 {
-	LOG_MSG("In TableBase::notifyColMove()");
 	table_state->SetColOrderChangeEvtTyp();
 	table_state->notifyObservers();
 }

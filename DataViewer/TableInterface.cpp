@@ -33,7 +33,6 @@ cols_ascii_only(true), is_valid(false)
 
 TableInterface::~TableInterface()
 {
-	LOG_MSG("In TableInterface::~TableInterface");
 	if (m_wx_encoding) delete m_wx_encoding;
 }
 
