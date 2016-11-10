@@ -2192,10 +2192,15 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
             min_x = max_x = xs[i];
             min_y = max_y = ys[i];
         }
-        if ( xs[i] < min_x ) min_x = xs[i];
-        else if ( xs[i] > max_x ) max_x = xs[i];
-        if ( ys[i] < min_y ) min_y = ys[i];
-        else if ( ys[i] > max_y ) max_y = ys[i];
+        if ( xs[i] < min_x )
+            min_x = xs[i];
+        else if ( xs[i] > max_x )
+            max_x = xs[i];
+        
+        if ( ys[i] < min_y )
+            min_y = ys[i];
+        else if ( ys[i] > max_y )
+            max_y = ys[i];
         
         Shapefile::PointContents* pc = new Shapefile::PointContents();
         pc->shape_type = Shapefile::POINT_TYP;

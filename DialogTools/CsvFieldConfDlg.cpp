@@ -86,7 +86,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
     lbl_box->AddSpacer(5);
-    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND | wxTOP , 10);
     
     
     // field grid selection control
@@ -97,14 +97,14 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxBoxSizer* grid_box = new wxBoxSizer(wxVERTICAL);
     grid_box->AddSpacer(5);
-    grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxLEFT, 10);
     
     // Preview label controls
     wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview"));
     
     wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxVERTICAL);
     prev_lbl_box->AddSpacer(5);
-    prev_lbl_box->Add(prev_lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    prev_lbl_box->Add(prev_lbl, 1, wxALIGN_CENTER | wxEXPAND |wxTOP | wxLEFT, 10);
    
     // Preview Grid controls
     previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 100));
@@ -114,20 +114,21 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxBoxSizer* preview_box = new wxBoxSizer(wxVERTICAL);
     preview_box->AddSpacer(5);
-    preview_box->Add(previewGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+    preview_box->Add(previewGrid, 1, wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
    
     // lat/lon
-    wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("X/Longitude:"));
-    wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("Y/Latitude:"));
+    wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) Latitude/X:"));
+    wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("Longitude/Y:"));
     lat_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
                                      wxDefaultSize, 0, NULL, wxCB_READONLY);
     lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
                                      wxDefaultSize, 0, NULL, wxCB_READONLY);
-    wxGridSizer* latlng_box = new wxGridSizer(1, 4, 5, 5);
-    latlng_box->Add(lng_lbl);
-    latlng_box->Add(lng_box);
+    wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
     latlng_box->Add(lat_lbl);
     latlng_box->Add(lat_box);
+    latlng_box->AddSpacer(5);
+    latlng_box->Add(lng_lbl);
+    latlng_box->Add(lng_box);
     
     // buttons
     wxButton* btn_locale= new wxButton(panel, wxID_ANY, _("Set Number Separators"),
@@ -152,8 +153,8 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
-    box->Add(latlng_box, 0, wxALIGN_CENTER| wxRIGHT | wxLEFT | wxTOP, 10);
-    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(latlng_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT , 10);
+    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxALL, 0);
     box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 20);
     
@@ -181,13 +182,12 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     ReadCSVT();
     UpdatePreviewGrid();
+    UpdateXYcombox();
     
     fieldGrid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
                        wxCommandEventHandler(CsvFieldConfDlg::OnFieldSelected),
                        NULL,
                        this);
-    
-    LOG_MSG("Exiting CsvFieldConfDlg::CsvFieldConfDlg(..)");
 }
 
 CsvFieldConfDlg::~CsvFieldConfDlg()
@@ -306,7 +306,8 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
     fieldGrid->SetColLabelValue(1, _("Data Type"));
     
     for (int i=0; i<col_names.size(); i++) {
-        fieldGrid->SetCellValue(i, 0, col_names[i]);
+        wxString col_name = col_names[i];
+        fieldGrid->SetCellValue(i, 0, col_name);
         
         wxString strChoices[4] = {"Real", "Integer", "String"};
         int COL_T = 1;
@@ -318,10 +319,53 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
         } else {
             fieldGrid->SetCellValue(i, COL_T, types[i]);
         }
+       
     }
     
     fieldGrid->ForceRefresh();
     fieldGrid->EndBatch();
+}
+
+void CsvFieldConfDlg::UpdateXYcombox( )
+{
+    lat_box->Clear();
+    lng_box->Clear();
+    
+    for (int i=0; i<col_names.size(); i++) {
+        if (types[i] == "Real") {
+            lat_box->Append(col_names[i]);
+            lng_box->Append(col_names[i]);
+        }
+    }
+    
+    wxString csvt_path = filepath + "t";
+    
+    if (wxFileExists(csvt_path)) {
+        // load data type from csvt file
+        wxTextFile csvt_file;
+        csvt_file.Open(csvt_path);
+        
+        // read the first line
+        wxString str = csvt_file.GetFirstLine();
+        wxStringTokenizer tokenizer(str, ",");
+        
+        int idx = 0;
+        while ( tokenizer.HasMoreTokens() )
+        {
+            wxString token = tokenizer.GetNextToken().Upper();
+            if (token.Contains("COORDX")) {
+                wxString col_name = col_names[idx];
+                int pos = lng_box->FindString(col_name);
+                lat_box->SetSelection(pos);
+            } else if (token.Contains("COORDY")) {
+                wxString col_name = col_names[idx];
+                int pos = lng_box->FindString(col_name);
+                lng_box->SetSelection(pos);
+            }
+            idx += 1;
+        }
+    }
+
 }
 
 void CsvFieldConfDlg::UpdatePreviewGrid( )
@@ -380,24 +424,35 @@ void CsvFieldConfDlg::ReadCSVT()
         {
             wxString token = tokenizer.GetNextToken().Upper();
             if (token.Contains("INTEGER")) {
-                types[idx++] = "Integer";
+                types[idx] = "Integer";
             } else if (token.Contains("REAL")) {
-                types[idx++] = "Real";
-            } else {
-                types[idx++] = "String";
+                types[idx] = "Real";
+            } else if (token.Contains("STRING")) {
+                types[idx] = "String";
             }
+            idx += 1;
         }
     }
 }
 
 void CsvFieldConfDlg::WriteCSVT()
 {
+    wxString lat_col_name = lat_box->GetValue();
+    wxString lng_col_name = lng_box->GetValue();
+    
     wxString csvt;
     
     int n_rows = col_names.size();
     for (int r=0; r < n_rows; r++ ) {
-        wxString type = fieldGrid->GetCellValue(r, 1);
-        csvt << type;
+        wxString col_name = fieldGrid->GetCellValue(r, 0);
+        if (col_name == lat_col_name) {
+            csvt << "CoordX";
+        } else if (col_name == lng_col_name ) {
+            csvt << "CoordY";
+        } else {
+            wxString type = fieldGrid->GetCellValue(r, 1);
+            csvt << type;
+        }
         if (r < n_rows-1)
             csvt << ",";
     }

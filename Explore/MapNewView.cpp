@@ -488,7 +488,7 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
             wxMemoryDC _dc;
             // use a special color for mask transparency: 244, 243, 242c
-            wxColour maskColor(0, 123, 123);
+            wxColour maskColor(123, 123, 123);
             wxBrush maskBrush(maskColor);
             _dc.SetBackground(maskBrush);
             _dc.SelectObject(bmp);
@@ -513,7 +513,7 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
                     r = image.GetRed(i,j);
                     g = image.GetGreen(i,j);
                     b = image.GetBlue(i,j);
-                    if (r == 0 && g == 123 && b == 123) {
+                    if (r == 123 && g == 123 && b == 123) {
                         image.SetAlpha(i, j, 0);
                         continue;
                     }

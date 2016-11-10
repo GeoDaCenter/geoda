@@ -65,6 +65,7 @@ private:
     
     void UpdateFieldGrid();
     void UpdatePreviewGrid();
+    void UpdateXYcombox();
     void OnSetupLocale( wxCommandEvent& event );
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
