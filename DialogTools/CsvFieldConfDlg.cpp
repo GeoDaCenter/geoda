@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -64,15 +65,15 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
 : wxDialog(parent, id, title, pos, size)
 {
     
-    LOG_MSG("Entering CsvFieldConfDlg::CsvFieldConfDlg(..)");
+    wxLogMessage("Open CsvFieldConfDlg.");
     
     filepath = _filepath;
     
-    wxString prmop_txt = "Please Specify Data Type for Each Data Column.";
+    wxString prmop_txt = _("Please Specify Data Type for Each Data Column.");
     wxString csvt_path = filepath + "t";
     
     if (wxFileExists(csvt_path)) {
-        prmop_txt += "\n(Note: Data types are loaded from .csvt file)";
+        prmop_txt += _("\n(Note: Data types are loaded from .csvt file)");
     }
     
     PrereadCSV();
@@ -89,7 +90,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     
     // field grid selection control
-    fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(250,200));
+    fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(250,150));
     fieldGrid->CreateGrid(n_prev_cols, 2, wxGrid::wxGridSelectRows);
     
     UpdateFieldGrid();
@@ -99,7 +100,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
     
     // Preview label controls
-    wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, "Data Preview");
+    wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview"));
     
     wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxVERTICAL);
     prev_lbl_box->AddSpacer(5);
@@ -114,17 +115,30 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* preview_box = new wxBoxSizer(wxVERTICAL);
     preview_box->AddSpacer(5);
     preview_box->Add(previewGrid, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
+   
+    // lat/lon
+    wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("X/Longitude:"));
+    wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("Y/Latitude:"));
+    lat_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                     wxDefaultSize, 0, NULL, wxCB_READONLY);
+    lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                     wxDefaultSize, 0, NULL, wxCB_READONLY);
+    wxGridSizer* latlng_box = new wxGridSizer(1, 4, 5, 5);
+    latlng_box->Add(lng_lbl);
+    latlng_box->Add(lng_box);
+    latlng_box->Add(lat_lbl);
+    latlng_box->Add(lat_box);
     
     // buttons
-    wxButton* btn_locale= new wxButton(panel, wxID_ANY, "Set Number Separators",
+    wxButton* btn_locale= new wxButton(panel, wxID_ANY, _("Set Number Separators"),
                                        wxDefaultPosition,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
-    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel",
+    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, _("Cancel"),
                                        wxDefaultPosition,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
-    wxButton* btn_update= new wxButton(panel, wxID_ANY, "OK",
+    wxButton* btn_update= new wxButton(panel, wxID_ANY, _("OK"),
                                        wxDefaultPosition,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
@@ -137,8 +151,8 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     // main container
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-    //box->Add(separator_box, 0, wxALIGN_CENTER| wxRIGHT | wxLEFT | wxTOP, 10);
     box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
+    box->Add(latlng_box, 0, wxALIGN_CENTER| wxRIGHT | wxLEFT | wxTOP, 10);
     box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 20);
@@ -288,8 +302,8 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
     fieldGrid->BeginBatch();
     fieldGrid->ClearGrid();
     
-    fieldGrid->SetColLabelValue(0, "Column Name");
-    fieldGrid->SetColLabelValue(1, "Data Type");
+    fieldGrid->SetColLabelValue(0, _("Column Name"));
+    fieldGrid->SetColLabelValue(1, _("Data Type"));
     
     for (int i=0; i<col_names.size(); i++) {
         fieldGrid->SetCellValue(i, 0, col_names[i]);

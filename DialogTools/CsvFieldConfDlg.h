@@ -38,7 +38,7 @@ class CsvFieldConfDlg: public wxDialog
 public:
     CsvFieldConfDlg(wxWindow* parent, wxString filepath,
                     wxWindowID id = wxID_ANY,
-                    const wxString& title = "GeoDa Csv Filed Configuration Dialog",
+                    const wxString& title = _("GeoDa Csv Filed Configuration Dialog"),
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxSize(580,580));
     ~CsvFieldConfDlg();
@@ -55,7 +55,8 @@ private:
     wxString filepath;
     wxGrid* fieldGrid;
     wxGrid* previewGrid;
-    
+    wxComboBox* lat_box;
+    wxComboBox* lng_box;
    
     void ReadCSVT();
     void WriteCSVT();
