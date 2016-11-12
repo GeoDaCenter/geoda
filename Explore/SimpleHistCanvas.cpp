@@ -71,8 +71,6 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(show_axes_),
 obs_id_to_ival(X.size())
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering SimpleHistCanvas::SimpleHistCanvas");
-	
 	for (size_t i=0, sz=X.size(); i<sz; i++) {
         if (X_undef[i])
             continue;
@@ -105,19 +103,15 @@ obs_id_to_ival(X.size())
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting SimpleHistCanvas::SimpleHistCanvas");
 }
 
 SimpleHistCanvas::~SimpleHistCanvas()
 {
-	LOG_MSG("Entering SimpleHistCanvas::~SimpleHistCanvas");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting SimpleHistCanvas::~SimpleHistCanvas");
 }
 
 void SimpleHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering SimpleHistCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	template_frame->OnActivate(ae);
@@ -128,19 +122,15 @@ void SimpleHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting SimpleHistCanvas::DisplayRightClickMenu");
 }
 
 /** Override of TemplateCanvas method. */
 void SimpleHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering SimpleHistCanvas::update");
-	layer0_valid = false;
+    ResetBrushing();
 	layer1_valid = false;
-	layer2_valid = false;
 	UpdateIvalSelCnts();
 	Refresh();
-	LOG_MSG("Exiting SimpleHistCanvas::update");	
 }
 
 wxString SimpleHistCanvas::GetCanvasTitle()
@@ -152,7 +142,6 @@ wxString SimpleHistCanvas::GetCanvasTitle()
 
 void SimpleHistCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In SimpleHistCanvas::TimeSyncVariableToggle");
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
@@ -160,7 +149,6 @@ void SimpleHistCanvas::TimeSyncVariableToggle(int var_index)
 
 void SimpleHistCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In SimpleHistCanvas::FixedScaleVariableToggle");
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
@@ -198,46 +186,51 @@ void SimpleHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		}
 		if (!any_selected) {
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-			highlight_state->notifyObservers();
-			return;
+			highlight_state->notifyObservers(this);
+            
+            selection_changed = true;
 		}
 	}
-	
-	for (int i=0; i<total_sel_shps; i++) {
-		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-                         (rect_sel && GenGeomAlgs::RectsIntersect(rec->lower_left,
-                                                                  rec->upper_right,
-                                                                  lower_left, upper_right)));
-		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
-		if (pointsel && all_sel && selected) {
-			// unselect all in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-					 it != ival_to_obs_ids[i].end(); it++) {
-                hs[(*it)] = false;
-                selection_changed  = true;
-			}
-		} else if (!all_sel && selected) {
-			// select currently unselected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-					 it != ival_to_obs_ids[i].end(); it++) {
-				if (hs[*it]) continue;
-                hs[(*it)] = true;
-                selection_changed  = true;
-			}
-		} else if (!selected && !shiftdown) {
-			// unselect all selected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-					 it != ival_to_obs_ids[i].end(); it++) {
-				if (!hs[*it]) continue;
-                hs[(*it)] = false;
-                selection_changed  = true;
-			}
-		}
-	}
+
+    if (selection_changed == false) {
+    	for (int i=0; i<total_sel_shps; i++) {
+    		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+    		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
+                             (rect_sel && GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right, lower_left, upper_right)));
+    		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
+    		if (pointsel && all_sel && selected) {
+    			// unselect all in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    					 it != ival_to_obs_ids[i].end(); it++) {
+                    hs[(*it)] = false;
+                    selection_changed  = true;
+    			}
+    		} else if (!all_sel && selected) {
+    			// select currently unselected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    					 it != ival_to_obs_ids[i].end(); it++) {
+    				if (hs[*it]) continue;
+                    hs[(*it)] = true;
+                    selection_changed  = true;
+    			}
+    		} else if (!selected && !shiftdown) {
+    			// unselect all selected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    					 it != ival_to_obs_ids[i].end(); it++) {
+    				if (!hs[*it]) continue;
+                    hs[(*it)] = false;
+                    selection_changed  = true;
+    			}
+    		}
+    	}
+    }
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
+        
+        layer1_valid = false;
+        UpdateIvalSelCnts();
+        Refresh();
 	}
 	UpdateStatusBar();
 }
@@ -252,13 +245,13 @@ void SimpleHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void SimpleHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	dc.SetPen(wxPen(highlight_color));
-	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 								((double) ival_obs_cnt[i]));
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+        dc.SetPen(rec->getPen());
+        dc.SetBrush(rec->getBrush());
         dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
                          rec->upper_right.x - rec->lower_left.x,
                          (rec->upper_right.y - rec->lower_left.y)*s);

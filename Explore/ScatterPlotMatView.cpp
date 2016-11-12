@@ -284,7 +284,6 @@ void ScatterPlotMatFrame::OnViewOriginalData(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnViewLinearSmoother");
 	show_linear_smoother = !show_linear_smoother;
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		scatt_plots[i]->ShowLinearSmoother(show_linear_smoother);
@@ -294,7 +293,7 @@ void ScatterPlotMatFrame::OnViewLinearSmoother(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnViewLowessSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnViewLowessSmoother");
+    wxLogMessage("In ScatterPlotMatFrame::OnViewLowessSmoother()");
 	show_lowess_smoother = !show_lowess_smoother;
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		scatt_plots[i]->ShowLowessSmoother(show_lowess_smoother);
@@ -304,7 +303,7 @@ void ScatterPlotMatFrame::OnViewLowessSmoother(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnEditLowessParams");
+    wxLogMessage("In ScatterPlotMatFrame::OnEditLowessParams()");
 	if (lowess_param_frame) {
 		lowess_param_frame->Iconize(false);
 		lowess_param_frame->Raise();
@@ -320,16 +319,15 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnShowVarsChooser");
 	if (vars_chooser_frame) {
 		vars_chooser_frame->Iconize(false);
 		vars_chooser_frame->Raise();
 		vars_chooser_frame->SetFocus();
 	} else {
-		wxString title("Scatter Plot Matrix Variables Add/Remove");
+		wxString title = _("Scatter Plot Matrix Variables Add/Remove");
 		vars_chooser_frame = new VarsChooserFrame(var_man, project, true, true,
                                                   GetHelpHtml(),
-                                                  "Scatter Plot Matrix Help",
+                                                  _("Scatter Plot Matrix Help"),
                                                   title);
 		vars_chooser_frame->registerObserver(this);
 		vars_chooser_frame->SetSize(-1, -1, -1, 400);
@@ -338,7 +336,7 @@ void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnViewRegimesRegression");
+    wxLogMessage("In ScatterPlotMatFrame::OnViewRegimesRegression()");
 	show_regimes = !show_regimes;
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		scatt_plots[i]->ShowRegimes(show_regimes);
@@ -348,7 +346,7 @@ void ScatterPlotMatFrame::OnViewRegimesRegression(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnDisplayStatistics");
+    wxLogMessage("In ScatterPlotMatFrame::OnDisplayStatistics()");
 	// should be managed here or by shared manager
 	//ScatterPlotMatCanvas* t = (ScatterPlotMatCanvas*) template_canvas;
 	//t->DisplayStatistics(!t->IsDisplayStats());
@@ -357,7 +355,7 @@ void ScatterPlotMatFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void ScatterPlotMatFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 {
-	LOG_MSG("In ScatterPlotMatFrame::OnDisplaySlopeValues");
+	wxLogMessage("In ScatterPlotMatFrame::OnDisplaySlopeValues");
 	show_slope_values = !show_slope_values;
 	for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
 		scatt_plots[i]->ShowSlopeValues(show_slope_values);
@@ -368,16 +366,13 @@ void ScatterPlotMatFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 /** Implementation of TableStateObserver interface */
 void ScatterPlotMatFrame::update(TableState* o)
 {
-	LOG_MSG("In ScatterPlotMatFrame::update(TableState*)");
-	if (vars_chooser_frame) vars_chooser_frame->UpdateFromTable();
+	if (vars_chooser_frame)
+        vars_chooser_frame->UpdateFromTable();
 }
 
 /** Implementation of TimeStateObserver interface */
 void ScatterPlotMatFrame::update(TimeState* o)
 {
-	LOG_MSG("In ScatterPlotMatFrame::update(TimeState* o)");
-	
-    
     bool has_time_var = false;
     for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
         if (i->second.size() > 1) {
@@ -414,7 +409,6 @@ void ScatterPlotMatFrame::notifyOfClosing(LowessParamObservable* o)
 
 void ScatterPlotMatFrame::update(VarsChooserObservable* o)
 {
-	LOG_MSG("In ScatterPlotMatFrame::update(VarsChooserObservable*)");
 	UpdateDataMapFromVarMan();
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	Refresh();
@@ -427,7 +421,6 @@ void ScatterPlotMatFrame::notifyOfClosing(VarsChooserObservable* o)
 
 void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 {
-	LOG_MSG("Entering ScatterPlotMatFrame::SetupPanelForNumVariables");
 	if (!panel || !bag_szr) return;
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
@@ -631,7 +624,6 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	top_h_sizer->RecalcSizes();
 	//Refresh();
-	LOG_MSG("Exiting ScatterPlotMatFrame::SetupPanelForNumVariables");
 }
 
 void ScatterPlotMatFrame::UpdateMessageWin()
@@ -688,7 +680,6 @@ void ScatterPlotMatFrame::UpdateMessageWin()
  in var_man. */
 void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 {
-	LOG_MSG("Entering ScatterPlotMatFrame::UpdateDataMapFromVarMan");
 	// get set of var_man names
 	set<wxString> vm_nms;
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
@@ -734,8 +725,6 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
         data_map[nm] = dat;
         data_undef_map[nm] = dat_undef;
 	}
-	
-	LOG_MSG("Exiting ScatterPlotMatFrame::UpdateDataMapFromVarMan");
 }
 
 wxString ScatterPlotMatFrame::GetHelpHtml()

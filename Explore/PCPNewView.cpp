@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcmemory.h>
 #include <wx/graphics.h>
 #include <wx/msgdlg.h>
@@ -160,20 +161,16 @@ num_categories(6), all_init(false)
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting PCPCanvas::PCPCanvas");
 }
 
 PCPCanvas::~PCPCanvas()
 {
-	LOG_MSG("Entering PCPCanvas::~PCPCanvas");
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting PCPCanvas::~PCPCanvas");
 }
 
 void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering PCPCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((PCPFrame*) template_frame)->OnActivate(ae);
@@ -189,7 +186,6 @@ void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting PCPCanvas::DisplayRightClickMenu");
 }
 
 void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -367,16 +363,15 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
  as needed. */
 void PCPCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering PCPCanvas::update");
-
-	// we want to force a full redraw of all selected objects
+    ResetBrushing();
+    
+	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
  
 	Refresh();
 
 	UpdateStatusBar();
-	LOG_MSG("Entering PCPCanvas::update");	
 }
 
 wxString PCPCanvas::GetCanvasTitle()
@@ -556,7 +551,6 @@ void PCPCanvas::OnSaveCategories()
 
 void PCPCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering PCPCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -725,13 +719,10 @@ void PCPCanvas::PopulateCanvas()
 	delete [] pts;
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting PCPCanvas::PopulateCanvas");
 }
 
 void PCPCanvas::TimeChange()
 {
-	LOG_MSG("Entering PCPCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -759,7 +750,6 @@ void PCPCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting PCPCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -869,7 +859,6 @@ void PCPCanvas::CreateAndUpdateCategories()
 
 void PCPCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -880,7 +869,6 @@ void PCPCanvas::TimeSyncVariableToggle(int var_index)
 
 void PCPCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -926,7 +914,7 @@ void PCPCanvas::StandardizeData(bool standardize)
 //   button. Can also specify wxMOUSE_BTN_LEFT / RIGHT / MIDDLE.  Or
 //   LeftDCLick(), etc.
 // LeftUp(): returns true at the moment the button changed to up.
-
+/*
 void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	// Capture the mouse when left mouse button is down.
@@ -934,7 +922,8 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.LeftUp() && HasCapture()) ReleaseMouse();
 
 	if ((mousemode != select) ||
-		(mousemode == select && selectstate != start)) {
+		(mousemode == select && selectstate != start))
+    {
 		show_pcp_control = false;
 		TemplateCanvas::OnMouseEvent(event);
 		return;
@@ -1034,6 +1023,7 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 		}			
 	}
 }
+ */
 
 void PCPCanvas::VarLabelClicked()
 {
@@ -1071,8 +1061,6 @@ void PCPCanvas::PaintControls(wxDC& dc)
  */
 void PCPCanvas::MoveControlLine(int final_y)
 {
-	LOG_MSG("Entering PCPCanvas::MoveControlLine");
-	
 	std::vector<int> new_order(num_vars);
 	// starting line is control_line_sel
 	// determine which control lines final_y is between
@@ -1118,7 +1106,6 @@ void PCPCanvas::MoveControlLine(int final_y)
 		var_order[i] = old_var_order[new_order[i]];
 	}
 	
-	LOG_MSG("Exiting PCPCanvas::MoveControlLine");
 	invalidateBms();
 	PopulateCanvas();
 }
@@ -1205,7 +1192,7 @@ PCPFrame::PCPFrame(wxFrame *parent, Project* project,
 								 const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering PCPFrame::PCPFrame");
+	wxLogMessage("Open PCPFrame.");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -1247,19 +1234,16 @@ PCPFrame::PCPFrame(wxFrame *parent, Project* project,
     splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
 	Show(true);
-	LOG_MSG("Exiting PCPFrame::PCPFrame");
 }
 
 PCPFrame::~PCPFrame()
 {
-	LOG_MSG("In PCPFrame::~PCPFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 
 void PCPFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("PCPFrame", GetTitle());
 	}
@@ -1268,7 +1252,6 @@ void PCPFrame::OnActivate(wxActivateEvent& event)
 
 void PCPFrame::MapMenus()
 {
-	LOG_MSG("In PCPFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1288,8 +1271,6 @@ void PCPFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("PCPFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((PCPCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1308,7 +1289,6 @@ void PCPFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void PCPFrame::update(TimeState* o)
 {
-	LOG_MSG("In PCPFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
@@ -1325,7 +1305,6 @@ void PCPFrame::OnCustomCatClassifA(const wxString& cc_title)
 
 void PCPFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnShowAxes");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -1333,7 +1312,6 @@ void PCPFrame::OnShowAxes(wxCommandEvent& event)
 
 void PCPFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnDisplayStatistics");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -1341,7 +1319,6 @@ void PCPFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void PCPFrame::OnViewOriginalData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnViewOriginalData");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(false);
 	UpdateOptionMenuItems();
@@ -1349,7 +1326,6 @@ void PCPFrame::OnViewOriginalData(wxCommandEvent& event)
 
 void PCPFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnViewStandardizedData");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(true);
 	UpdateOptionMenuItems();
@@ -1406,16 +1382,14 @@ void PCPFrame::OnSaveCategories()
 }
 
 void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
-								  int num_categories,
-								  const wxString& custom_classif_title)
+                               int num_categories,
+                               const wxString& custom_classif_title)
 {
-	((PCPCanvas*) template_canvas)->ChangeThemeType(new_theme,
-													   num_categories,
-													   custom_classif_title);
-	UpdateTitle();
-	UpdateOptionMenuItems();
-	if (template_legend) template_legend->Refresh();
+    ((PCPCanvas*) template_canvas)->ChangeThemeType(new_theme,
+                                                    num_categories,
+                                                    custom_classif_title);
+    UpdateTitle();
+    UpdateOptionMenuItems();
+    if (template_legend) template_legend->Refresh();
 }
-
-
 

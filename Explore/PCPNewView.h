@@ -87,7 +87,7 @@ public:
 	enum PCPSelectState { pcp_start, pcp_leftdown_on_circ,
 		pcp_leftdown_on_label, pcp_dragging };
 	/** The function handles all mouse events. */
-	void OnMouseEvent(wxMouseEvent& event);
+	//void OnMouseEvent(wxMouseEvent& event);
 	void VarLabelClicked();
 	/** Override PaintControls from TemplateCanvas */
 	virtual void PaintControls(wxDC& dc);

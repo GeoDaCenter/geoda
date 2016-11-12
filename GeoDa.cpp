@@ -1643,7 +1643,6 @@ void GdaFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 
 void GdaFrame::OnKeyEvent(wxKeyEvent& event)
 {
-    wxLogMessage("Click GdaFrame::OnKeyEvent");
 	Project* project = GetProject();
 	if (event.GetModifiers() == wxMOD_CMD &&
 		project && project->GetTimeState() &&

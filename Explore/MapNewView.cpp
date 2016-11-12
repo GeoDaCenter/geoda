@@ -1732,7 +1732,6 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
 void MapFrame::OnActivate(wxActivateEvent& event)
 {
 	if (event.GetActive()) {
-        wxLogMessage("In MapFrame::OnActivate");
 		RegisterAsActive("MapFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();

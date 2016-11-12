@@ -561,7 +561,7 @@ void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
 				Refresh();
 			}
 		} else { // unknown state
-		}
+        }
 		
 	} else if (mousemode == zoom) {
 		// we will allow zooming in up to a maximum virtual screen area

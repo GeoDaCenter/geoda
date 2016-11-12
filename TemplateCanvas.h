@@ -193,7 +193,8 @@ public:
     
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
-	
+
+    virtual void ResetBrushing();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
 	virtual void ResetShapes();
@@ -276,6 +277,7 @@ public:
                     std::vector<double>& bins);
 	
 protected:
+    bool          is_showing_brush;
 	SelectState   selectstate;
 	MouseMode     mousemode;
 	BrushType     brushtype;

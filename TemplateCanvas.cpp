@@ -109,7 +109,7 @@ layer0_bm(0), layer1_bm(0), layer2_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
-useScientificNotation(false)
+useScientificNotation(false), is_showing_brush(false)
 {
     // default is one time slice
 	cat_data.CreateEmptyCategories(1, highlight_state->GetHighlightSize());
@@ -350,11 +350,21 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
     layer2_valid = false;
 }
 
+void TemplateCanvas::ResetBrushing()
+{
+    is_showing_brush = false;
+    sel1.x = 0;
+    sel1.y = 0;
+    sel2.x = 0;
+    sel2.y = 0;
+}
+
 void TemplateCanvas::ResetShapes()
 {
     last_scale_trans.Reset();
 	is_pan_zoom = false;
-
+    
+    ResetBrushing();
 	SetMouseMode(select);
 	ResizeSelectableShps();
 }
@@ -371,9 +381,11 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
         sel2.y = sel1.y + 2;
     
     last_scale_trans.Zoom(is_zoomin, sel1, sel2);
-	
-	is_pan_zoom = true;
 
+	is_pan_zoom = true;
+    is_showing_brush = false;
+
+    ResetBrushing();
 	ResizeSelectableShps();
 }
 
@@ -385,7 +397,9 @@ void TemplateCanvas::PanShapes()
     last_scale_trans.PanView(sel1, sel2);
     
 	is_pan_zoom = true;
+    is_showing_brush = false;
 
+    ResetBrushing();
 	ResizeSelectableShps();
 }
 
@@ -531,11 +545,14 @@ void TemplateCanvas::UpdateSelectableOutlineColors()
  that its state has changed. */
 void TemplateCanvas::update(HLStateInt* o)
 {
+    ResetBrushing();
+    
 	if (draw_sel_shps_by_z_val) {
 		// force a full redraw
 		layer0_valid = false;
 		return;
 	}
+
     // re-paint highlight layer (layer1_bm)
 	layer1_valid = false;
     DrawLayers();
@@ -893,31 +910,46 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 	
 	if (mousemode == select) {
 		if (selectstate == start) {
+            is_showing_brush = true;
 			if (event.LeftDown()) {
                 prev = GetActualPos(event);
-                // if click inside brush_shape
-                GdaShape* brush_shape = NULL;
-                if (brushtype == rectangle) {
-                    brush_shape = new GdaRectangle(sel1, sel2);
-                } else if (brushtype == circle) {
-                    brush_shape = new GdaCircle(sel1, sel2);
-                } else if (brushtype == line) {
-                    brush_shape = new GdaPolyLine(sel1, sel2);
-                }
-                if (prev!= sel1 && brush_shape->Contains(prev)) {
-                    is_brushing = true;
-                    remember_shiftdown = false;
-                    selectstate = brushing;
+              
+                if (sel1.x > 0 && sel1.y > 0 && sel2.x > 0 && sel2.y >0) {
+                    // already has selection then
+                    // detect if click inside brush_shape
+                    GdaShape* brush_shape = NULL;
+                    if (brushtype == rectangle) {
+                        brush_shape = new GdaRectangle(sel1, sel2);
+                    } else if (brushtype == circle) {
+                        brush_shape = new GdaCircle(sel1, sel2);
+                    } else if (brushtype == line) {
+                        brush_shape = new GdaPolyLine(sel1, sel2);
+                    }
+                    if (brush_shape->Contains(prev)) {
+                        // brushing
+                        is_brushing = true;
+                        remember_shiftdown = false;  // brush will cancel shift
+                        selectstate = brushing;
+                    } else {
+                        // cancel brushing since click outside, restore leftdown
+                        sel1.x = 0; sel1.y = 0;
+                        sel2.x = 0; sel2.y = 0;
+                        sel1 = prev;
+                        selectstate = leftdown;
+                    }
+                    delete brush_shape;
+                    
                 } else {
                     sel1 = prev;
                     selectstate = leftdown;
                 }
-                delete brush_shape;
 
 			} else if (event.RightDown()) {
+                ResetBrushing();
 				DisplayRightClickMenu(event.GetPosition());
                 
 			} else {
+                // hover
 				if (template_frame && template_frame->IsStatusBarVisible()) {
 					wxPoint pt  = GetActualPos(event);
 					DetermineMouseHoverObjects(pt);
@@ -963,6 +995,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
+                Refresh(false);
                 
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
@@ -970,7 +1003,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
             
 		} else if (selectstate == brushing) {
 			if (event.LeftUp()) {
-                is_brushing = false;
+                is_brushing = false; // will check again if brushing when mouse down again
 				selectstate = start;
                 
 			} else if (event.RightDown()) {
@@ -986,21 +1019,24 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateStatusBar();
 
 				UpdateSelection();
-				Refresh(false);
+				Refresh(false); // keep painting the select rect
                 prev = cur;
 			}
 		}
 		
 	} else if (mousemode == zoom || mousemode == zoomout) {
-		// we will allow zooming in up to a maximum virtual screen area
+
 		if (selectstate == start) {
 			if (event.LeftDown()) {
 				prev = GetActualPos(event);
 				sel1 = prev;
 				selectstate = leftdown;
+                is_showing_brush = true;
+                
 			} else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
-			} 
+			}
+            
 		} else if (selectstate == leftdown) {
 			if (event.Moving() || event.Dragging()) {
 				wxPoint act_pos = GetActualPos(event);
@@ -1040,8 +1076,11 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				remember_shiftdown = event.ShiftDown() || event.CmdDown() || mousemode == zoomout;
 				ZoomShapes(!remember_shiftdown);
 				remember_shiftdown = false;
-				selectstate = start;
+				
+                selectstate = start;
+                ResetBrushing();
 				Refresh(false);
+                
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}			
@@ -1112,22 +1151,19 @@ void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 {
 
-	if ((mousemode == select || mousemode == zoom || mousemode == zoomout)&&
-		(selectstate == start || selectstate == dragging || selectstate == brushing) ) {
-		int xx=0, yy=0;
-		//CalcUnscrolledPosition(0, 0, &xx, &yy);
-		// xx and yy now have the scrolled amount
-		wxPoint ssel1(sel1.x-xx, sel1.y-yy);
-		wxPoint ssel2(sel2.x-xx, sel2.y-yy);
+	if (is_showing_brush && (mousemode == select || mousemode == zoom || mousemode == zoomout))
+    {
+        if (sel1 != sel2 && (sel1.x > 0 || sel1.y > 0) && (sel2.x > 0 || sel2.y > 0)) {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.SetPen(*wxBLACK_PEN);
 		if (brushtype == rectangle) {
-			dc.DrawRectangle(wxRect(ssel1, ssel2));
+			dc.DrawRectangle(wxRect(sel1, sel2));
 		} else if (brushtype == line) {
-			dc.DrawLine(ssel1, ssel2);
+			dc.DrawLine(sel1, sel2);
 		} else if (brushtype == circle) {
-			dc.DrawCircle(ssel1, GenUtils::distance(ssel1, ssel2));
+			dc.DrawCircle(sel1, GenUtils::distance(sel1, sel2));
 		}
+        }
 	}
 }
 
@@ -1246,6 +1282,13 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	} else {
 		UpdateSelectionPoints(shiftdown, pointsel);
 	}
+    
+    // re-paint highlight layer (layer1_bm)
+    layer1_valid = false;
+    DrawLayers();
+    Refresh();
+    
+    UpdateStatusBar();
 }
 
 // The following function assumes that the set of selectable objects
@@ -1389,7 +1432,7 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 	}
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 
@@ -1537,7 +1580,7 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 
@@ -1725,7 +1768,7 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 	}
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 
@@ -1760,7 +1803,7 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 
@@ -1789,12 +1832,12 @@ void TemplateCanvas::NotifyObservables()
 	if (total_newly_selected == 0 &&
 		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
 		highlight_state->SetEventType(HLStateInt::unhighlight_all);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	} else {
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
 		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 

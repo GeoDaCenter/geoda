@@ -85,8 +85,15 @@ void HighlightState::notifyObservers()
 	if (event_type == empty) return;
     if (observers.empty()) return;
 	// See section 18.4.4.2 of Stroustrup
-	std::for_each(observers.begin(), observers.end(),
-			 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));
+	//std::for_each(observers.begin(), observers.end(),
+	//		 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));
+   
+    std::list<HighlightStateObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        HighlightStateObserver* obj = *it;
+        obj->update(this);
+    }
+    
 }
 
 void HighlightState::notifyObservers(HighlightStateObserver* exclude)
@@ -97,6 +104,7 @@ void HighlightState::notifyObservers(HighlightStateObserver* exclude)
 		 i != observers.end(); ++i)
 	{
 		if ((*i) == exclude) {
+            
 		} else {
 			(*i)->update(this);
 		}

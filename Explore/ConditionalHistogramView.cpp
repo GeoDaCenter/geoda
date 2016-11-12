@@ -151,6 +151,8 @@ void ConditionalHistogramCanvas::SetCheckMarks(wxMenu* menu)
 /** Override of TemplateCanvas method. */
 void ConditionalHistogramCanvas::update(HLStateInt* o)
 {
+    ResetBrushing();
+    
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -595,8 +597,17 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
+    
+    // re-paint highlight layer (layer1_bm)
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+	UpdateIvalSelCnts();
+    DrawLayers();
+    Refresh();
+    
 	UpdateStatusBar();
 }
 

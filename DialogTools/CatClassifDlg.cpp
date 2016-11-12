@@ -185,51 +185,58 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		}
 		if (!any_selected) {
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-			highlight_state->notifyObservers();
-			return;
+			highlight_state->notifyObservers(this);
+            selection_changed = true;
 		}
 	}
-	
-	for (int i=0; i<total_sel_shps; i++) {
-		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-						 (rect_sel &&
-						  GenGeomAlgs::RectsIntersect(rec->lower_left,
-                                                      rec->upper_right,
-                                                      lower_left, upper_right)));
-		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
-		if (pointsel && all_sel && selected) {
-			// unselect all in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-				 it != ival_to_obs_ids[i].end(); it++) {
-                hs[(*it)] = false;
-                selection_changed = true;
-			}
-		} else if (!all_sel && selected) {
-			// select currently unselected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-				 it != ival_to_obs_ids[i].end(); it++) {
-				if (hs[*it]) continue;
-                hs[(*it)] = true;
-                selection_changed = true;
-			}
-		} else if (!selected && !shiftdown) {
-			// unselect all selected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-				 it != ival_to_obs_ids[i].end(); it++) {
-				if (!hs[*it]) continue;
-                hs[(*it)] = false;
-                selection_changed = true;
-			}
-		}
-	}
+
+    if (selection_changed == false) {
+    	for (int i=0; i<total_sel_shps; i++) {
+    		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+    		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
+    						 (rect_sel &&
+    						  GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                          rec->upper_right,
+                                                          lower_left,
+                                                          upper_right)));
+    		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
+    		if (pointsel && all_sel && selected) {
+    			// unselect all in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    				 it != ival_to_obs_ids[i].end(); it++) {
+                    hs[(*it)] = false;
+                    selection_changed = true;
+    			}
+    		} else if (!all_sel && selected) {
+    			// select currently unselected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    				 it != ival_to_obs_ids[i].end(); it++) {
+    				if (hs[*it]) continue;
+                    hs[(*it)] = true;
+                    selection_changed = true;
+    			}
+    		} else if (!selected && !shiftdown) {
+    			// unselect all selected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    				 it != ival_to_obs_ids[i].end(); it++) {
+    				if (!hs[*it]) continue;
+                    hs[(*it)] = false;
+                    selection_changed = true;
+    			}
+    		}
+    	}
+    }
     
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
+        
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        UpdateIvalSelCnts();
+        DrawLayers();
+        Refresh();
 	}
-    
-	UpdateStatusBar();
 }
 
 void CatClassifHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -242,14 +249,13 @@ void CatClassifHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void CatClassifHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	dc.SetPen(wxPen(highlight_color));
-	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 					((double) ival_obs_cnt[i]));
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+        dc.SetPen(rec->getPen());
+        dc.SetBrush(rec->getBrush());
 		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 						 rec->upper_right.x - rec->lower_left.x,
 						 (rec->upper_right.y - rec->lower_left.y)*s);
@@ -259,13 +265,15 @@ void CatClassifHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void CatClassifHistCanvas::update(HLStateInt* o)
 {
-	layer0_valid = false;
+    ResetBrushing();
+    
 	layer1_valid = false;
-	layer2_valid = false;
-	
+    
 	UpdateIvalSelCnts();
 	
 	Refresh();
+
+    UpdateStatusBar();
 }
 
 wxString CatClassifHistCanvas::GetCanvasTitle()

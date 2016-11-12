@@ -342,7 +342,7 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
    
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 
@@ -438,13 +438,7 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void BoxPlotCanvas::update(HLStateInt* o)
 {
-	layer0_valid = false;
-	layer1_valid = false;
-	layer2_valid = false;
-		
-	Refresh();
-    
-    UpdateStatusBar();
+    TemplateCanvas::update(o);
 }
 
 wxString BoxPlotCanvas::GetCanvasTitle()
