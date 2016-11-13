@@ -441,13 +441,7 @@ void ConditionalMapCanvas::ChangeCatThemeType(
 	}
 }
 
-void ConditionalMapCanvas::update(HLStateInt* o)
-{
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    Refresh();
-}
+
 
 void ConditionalMapCanvas::update(CatClassifState* o)
 {
@@ -466,132 +460,6 @@ void ConditionalMapCanvas::update(CatClassifState* o)
 		ConditionalNewCanvas::update(o);
 	}
 }
-
-// use virtual canvas style code
-void ConditionalMapCanvas::OnMouseEvent(wxMouseEvent& event)
-{
-	// Capture the mouse when left mouse button is down.
-	if (event.LeftIsDown() && !HasCapture()) CaptureMouse();
-	if (event.LeftUp() && HasCapture()) ReleaseMouse();
-	int wheel_rotation = event.GetWheelRotation();
-	int wheel_delta = GenUtils::max<int>(event.GetLinesPerAction(), 1);
-	int wheel_lines_per_action =GenUtils::max<int>(event.GetLinesPerAction(),1);
-	if (abs(wheel_rotation) >= wheel_delta) {
-	}
-	
-	if (mousemode == select) {
-		if (selectstate == start) {
-			if (event.LeftDown()) {
-				prev = GetActualPos(event);
-				sel1 = prev;
-				selectstate = leftdown;
-			} else if (event.RightDown()) {
-				DisplayRightClickMenu(event.GetPosition());
-			} else {
-				if (template_frame->IsStatusBarVisible()) {
-					prev = GetActualPos(event);
-					sel1 = prev; // sel1 now has current mouse position
-					DetermineMouseHoverObjects(prev);
-					UpdateStatusBar();
-				}
-			}
-		} else if (selectstate == leftdown) {
-			if (event.Moving() || event.Dragging()) {
-				wxPoint act_pos = GetActualPos(event);
-				if (fabs((double) (prev.x - act_pos.x)) +
-					fabs((double) (prev.y - act_pos.y)) > 2) {
-					sel1 = prev;
-					sel2 = GetActualPos(event);
-					selectstate = dragging;
-					remember_shiftdown = event.ShiftDown();
-					UpdateSelectRegion();
-					UpdateSelection(remember_shiftdown);
-					UpdateStatusBar();
-					Refresh();
-				}
-			} else if (event.LeftUp()) {
-				UpdateSelectRegion();
-				UpdateSelection(event.ShiftDown(), true);
-				selectstate = start;
-				Refresh();
-			} else if (event.RightDown()) {
-				selectstate = start;
-			}
-		} else if (selectstate == dragging) {
-			if (event.Dragging()) { // mouse moved while buttons still down
-				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
-				UpdateSelection(remember_shiftdown);
-				UpdateStatusBar();
-				Refresh();
-			} else if (event.LeftUp() && !event.CmdDown()) {
-				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
-				UpdateSelection(remember_shiftdown);
-				remember_shiftdown = false;
-				selectstate = start;
-				Refresh();
-			} else if (event.LeftUp() && event.CmdDown()) {
-				selectstate = brushing;
-				sel2 = GetActualPos(event);
-				wxPoint diff = wxPoint(0,0);
-				UpdateSelectRegion(false, diff);
-				UpdateSelection(remember_shiftdown);
-				remember_shiftdown = false;
-				Refresh();
-			}  else if (event.RightDown()) {
-				DisplayRightClickMenu(event.GetPosition());
-			}			
-		} else if (selectstate == brushing) {
-			if (event.LeftIsDown()) {
-			} else if (event.LeftUp()) {
-				selectstate = start;
-				Refresh();
-			}
-			else if (event.RightDown()) {
-				selectstate = start;
-				Refresh();
-			} else if (event.Moving()) {
-				wxPoint diff = GetActualPos(event) - sel2;
-				sel1 += diff;
-				sel2 = GetActualPos(event);
-				UpdateStatusBar();
-				UpdateSelectRegion(true, diff);
-				UpdateSelection();
-				Refresh();
-			}
-		} else { // unknown state
-        }
-		
-	} else if (mousemode == zoom) {
-		// we will allow zooming in up to a maximum virtual screen area
-		if (event.LeftUp()) {
-            
-		} else if (event.RightDown()) {
-			DisplayRightClickMenu(event.GetPosition());
-		}
-	} else if (mousemode == pan) {
-		if (event.Moving()) {
-			// in start state, do nothing
-		} else if (event.LeftDown()) {
-			prev = event.GetPosition();
-			// temporarily set scroll rate to 1
-			SetScrollRate(1,1);
-		} else if (event.Dragging()&& !event.LeftUp() && !event.LeftDown()) {
-			int xViewStart, yViewStart;
-			GetViewStart(&xViewStart, &yViewStart);
-			wxPoint diff = event.GetPosition() - prev;
-			prev = event.GetPosition();
-			Scroll(xViewStart-diff.x, yViewStart-diff.y);
-		} else if (event.LeftUp()) {
-			// restore original scroll rate
-			SetScrollRate(1,1);
-		} else if (event.RightDown()) {
-			DisplayRightClickMenu(event.GetPosition());
-		}		
-	}
-}
-
 
 void ConditionalMapCanvas::ZoomShapes(bool is_zoomin)
 {

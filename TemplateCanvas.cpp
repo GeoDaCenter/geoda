@@ -603,6 +603,8 @@ void TemplateCanvas::DrawLayers()
 // shapes.
 void TemplateCanvas::DrawLayer0()
 {
+    if (layer0_bm == NULL)
+        return;
     //LOG_MSG("In TemplateCanvas::DrawLayer0");
     wxSize sz = GetClientSize();
     wxMemoryDC dc(*layer0_bm);
@@ -626,6 +628,8 @@ void TemplateCanvas::DrawLayer0()
 // draw highlighted shapes.
 void TemplateCanvas::DrawLayer1()
 {
+    if (layer1_bm == NULL)
+        return;
     wxMemoryDC dc(*layer1_bm);
     dc.Clear();
     
@@ -655,6 +659,8 @@ void TemplateCanvas::DrawLayer1()
 
 void TemplateCanvas::DrawLayer2()
 {
+    if (layer2_bm == NULL)
+        return;
     wxMemoryDC dc(*layer2_bm);
     dc.Clear();
     dc.DrawBitmap(*layer1_bm, 0, 0);
@@ -1153,7 +1159,7 @@ void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 
 	if (is_showing_brush && (mousemode == select || mousemode == zoom || mousemode == zoomout))
     {
-        if (sel1 != sel2 && (sel1.x > 0 || sel1.y > 0) && (sel2.x > 0 || sel2.y > 0)) {
+        if (sel1 != sel2 ) {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.SetPen(*wxBLACK_PEN);
 		if (brushtype == rectangle) {

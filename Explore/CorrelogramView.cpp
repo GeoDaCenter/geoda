@@ -54,7 +54,7 @@ correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
 hist_plot(0), local_hl_state(0), message_win(0), project(project)
 {
-    wxLogMessage("Open CorrelogramFrame (Scatter Plot Matrix)");
+    wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
 	supports_timeline_changes = true;
 	{

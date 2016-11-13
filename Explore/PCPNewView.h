@@ -51,7 +51,7 @@ public:
 	virtual ~PCPCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HLStateInt* o);
+	//virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);

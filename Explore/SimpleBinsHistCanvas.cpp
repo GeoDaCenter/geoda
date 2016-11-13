@@ -122,12 +122,9 @@ void SimpleBinsHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 /** Override of TemplateCanvas method. */
 void SimpleBinsHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering SimpleBinsHistCanvas::update");
-	layer0_valid = false;
+    ResetBrushing();
 	layer1_valid = false;
-	layer2_valid = false;
 	Refresh();
-	LOG_MSG("Exiting SimpleBinsHistCanvas::update");	
 }
 
 wxString SimpleBinsHistCanvas::GetCanvasTitle()

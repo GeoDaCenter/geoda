@@ -402,11 +402,13 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     			}
     		}
     	}
+    	if ( selection_changed ) {
+    		highlight_state->SetEventType(HLStateInt::delta);
+    		highlight_state->notifyObservers(this);
+        }
     }
     
 	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         UpdateIvalSelCnts();

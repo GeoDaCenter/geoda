@@ -153,9 +153,7 @@ void ConditionalHistogramCanvas::update(HLStateInt* o)
 {
     ResetBrushing();
     
-	layer0_valid = false;
 	layer1_valid = false;
-	layer2_valid = false;
 	UpdateIvalSelCnts();
 	Refresh();
 }
@@ -550,63 +548,66 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		}
 		if (!any_selected) {
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-			highlight_state->notifyObservers();
-			return;
+			highlight_state->notifyObservers(this);
+            selection_changed = true;
 		}
 	}
-	
-	for (int i=0; i<total_sel_shps; i++) {
-		int r, c, ival;
-		sel_shp_to_cell(i, r, c, ival);
-		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-						 (rect_sel &&
-						  GenGeomAlgs::RectsIntersect(rec->lower_left,
-												   rec->upper_right,
-												   lower_left, upper_right)));
-		bool all_sel = (cell_data[t][r][c].ival_obs_cnt[ival] == 
-						cell_data[t][r][c].ival_obs_sel_cnt[ival]);
-		if (pointsel && all_sel && selected) {
-			// unselect all in ival
-			for (std::list<int>::iterator it =
-					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
-                hs[(*it)]= false;
-                selection_changed = true;
-			}
-		} else if (!all_sel && selected) {
-			// select currently unselected in ival
-			for (std::list<int>::iterator it =
-					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
-				if (hs[*it]) continue;
-                hs[(*it)]= true;
-                selection_changed = true;
-			}
-		} else if (!selected && !shiftdown) {
-			// unselect all selected in ival
-			for (std::list<int>::iterator it =
-					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
-				if (!hs[*it]) continue;
-                hs[(*it)]= false;
-                selection_changed = true;
-			}
-		}
-	}
+
+    if (selection_changed ==  false) {
+    	for (int i=0; i<total_sel_shps; i++) {
+    		int r, c, ival;
+    		sel_shp_to_cell(i, r, c, ival);
+    		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+    		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
+    						 (rect_sel &&
+    						  GenGeomAlgs::RectsIntersect(rec->lower_left,
+    												   rec->upper_right,
+    												   lower_left, upper_right)));
+    		bool all_sel = (cell_data[t][r][c].ival_obs_cnt[ival] == 
+    						cell_data[t][r][c].ival_obs_sel_cnt[ival]);
+    		if (pointsel && all_sel && selected) {
+    			// unselect all in ival
+    			for (std::list<int>::iterator it =
+    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+                    hs[(*it)]= false;
+                    selection_changed = true;
+    			}
+    		} else if (!all_sel && selected) {
+    			// select currently unselected in ival
+    			for (std::list<int>::iterator it =
+    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+    				if (hs[*it]) continue;
+                    hs[(*it)]= true;
+                    selection_changed = true;
+    			}
+    		} else if (!selected && !shiftdown) {
+    			// unselect all selected in ival
+    			for (std::list<int>::iterator it =
+    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+    				if (!hs[*it]) continue;
+                    hs[(*it)]= false;
+                    selection_changed = true;
+    			}
+    		}
+    	}
+    	if ( selection_changed ) {
+    		highlight_state->SetEventType(HLStateInt::delta);
+    		highlight_state->notifyObservers(this);
+        }
+    }
 	
 	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        UpdateIvalSelCnts();
+        DrawLayers();
+        Refresh();
 	}
     
-    // re-paint highlight layer (layer1_bm)
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-	UpdateIvalSelCnts();
-    DrawLayers();
-    Refresh();
+    
     
 	UpdateStatusBar();
 }
@@ -629,8 +630,6 @@ void ConditionalHistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void ConditionalHistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	dc.SetPen(wxPen(highlight_color));
-	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
 	int t = var_info[HIST_VAR].time;
 	int i=0;
 	double s;

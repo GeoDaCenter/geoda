@@ -357,26 +357,10 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 								  && GetNumCats() == 10);
 }
 
-/**
- Override of TemplateCanvas method.  We must still call the
- TemplateCanvas method after we update the regression lines
- as needed. */
-void PCPCanvas::update(HLStateInt* o)
-{
-    ResetBrushing();
-    
-	layer0_valid = false;
-	layer1_valid = false;
-	layer2_valid = false;
- 
-	Refresh();
-
-	UpdateStatusBar();
-}
 
 wxString PCPCanvas::GetCanvasTitle()
 {
-	wxString s("Parallel Coordinate Plot: ");
+	wxString s = _("Parallel Coordinate Plot: ");
 	s << GetNameWithTime(var_order[0]) << ", ";
 	if (num_vars > 2) s << "..., ";
 	s << GetNameWithTime(var_order[num_vars-1]);
