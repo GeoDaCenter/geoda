@@ -105,6 +105,7 @@ public:
 	void OnSaveAsProject(wxCommandEvent& event);
 	
 	void OnShowProjectInfo(wxCommandEvent& event);
+	void OnPreferenceSetup(wxCommandEvent& event);
 	
 	void OnHtmlEntry(int entry);
 	void OnHtmlEntry0(wxCommandEvent& event);

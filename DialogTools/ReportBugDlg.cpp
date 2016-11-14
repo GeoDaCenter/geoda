@@ -33,8 +33,11 @@
 #include <wx/panel.h>
 #include <wx/textfile.h>
 #include <wx/regex.h>
+#include <wx/grid.h>
 #include <wx/uri.h>
+#include <wx/slider.h>
 #include <wx/combobox.h>
+#include <wx/notebook.h>
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
@@ -49,6 +52,48 @@
 
 using namespace std;
 using namespace GdaJson;
+
+
+PreferenceDlg::PreferenceDlg(wxWindow* parent,
+                             wxWindowID id,
+                             const wxString& title,
+                             const wxPoint& pos,
+                             const wxSize& size)
+: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+{
+    SetBackgroundColour(*wxWHITE);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    
+    wxGridSizer* grid_sizer = new wxGridSizer(10, 2, 0, 0);
+   
+    wxString lbl = _("The transparency of highlighted objects in selection:");
+    grid_sizer->Add(new wxStaticText(this, wxID_ANY, lbl), 0, wxALL, 5);
+   
+    wxSlider* slider = new wxSlider(this, wxID_ANY, 40, 0, 100,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxSL_HORIZONTAL);
+    grid_sizer->Add(slider, 0, wxEXPAND | wxALL, 5);
+    //visGrid->SetCellValue(1, 0, "The transparency of unhighlighted objects in selection:");
+    //visGrid->SetCellValue(2, 0, "The default transparency of map when basemap is enabled:");
+    
+    wxButton *okButton = new wxButton(this, -1, _("Ok"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, -1, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    
+    hbox->Add(okButton, 1);
+    hbox->Add(closeButton, 1, wxLEFT, 5);
+    
+    vbox->Add(grid_sizer, 1, wxALIGN_CENTER | wxEXPAND| wxALL, 10);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    SetSizer(vbox);
+    vbox->Fit(this);
+    Centre();
+    ShowModal();
+    
+    Destroy();
+}
 
 ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
                                  wxWindowID id,

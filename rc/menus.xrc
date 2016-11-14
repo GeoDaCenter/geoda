@@ -4,18 +4,11 @@
     <object class="wxMenu" name="ID_MENU">
       <label>&amp;File</label>
 	  <object class="wxMenu" name="ID_NEW_PROJ_FROM_RECENT_MENU">
-		<label>New Project From Recent</label>
+		<label>New From Recent</label>
       </object>
       <object class="wxMenuItem" name="ID_NEW_PROJECT">
-        <label>&amp;New Project</label>
+        <label>&amp;New</label>
         <accel>Ctrl+N</accel>
-      </object>
-      <object class="wxMenuItem" name="ID_OPEN_PROJECT">
-        <label>&amp;Open Project</label>
-        <accel>Ctrl+O</accel>
-      </object>
-      <object class="wxMenuItem" name="ID_SAVE_AS_PROJECT">
-        <label>Save Project</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_SAVE_PROJECT">
@@ -28,12 +21,23 @@
         <label>Save Selected As</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="ID_OPEN_PROJECT">
+        <label>&amp;Open Project</label>
+        <accel>Ctrl+O</accel>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_AS_PROJECT">
+        <label>Save Project</label>
+      </object>
       <object class="wxMenuItem" name="ID_SHOW_PROJECT_INFO">
         <label>Project Information</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="ID_PREFERENCE_SETUP">
+        <label>Preferences...</label>
+      </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="ID_CLOSE_PROJECT">
-        <label>Close Project</label>
+        <label>Close</label>
       </object>
       <object class="wxMenuItem" name="wxID_EXIT">
         <label>Exit</label>

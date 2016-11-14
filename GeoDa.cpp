@@ -2132,6 +2132,12 @@ void GdaFrame::OnShowProjectInfo(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
+void GdaFrame::OnPreferenceSetup(wxCommandEvent& event)
+{
+	PreferenceDlg dlg(this);
+	dlg.Show(true);
+}
+
 void GdaFrame::OnHtmlEntry(int entry)
 {
 	if (!GetProject()) return;
@@ -5573,6 +5579,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     //EVT_TOOL(XRCID("ID_EXPORT_LAYER"), GdaFrame::OnExportToOGR)
     EVT_MENU(XRCID("ID_EXPORT_SELECTED"), GdaFrame::OnExportSelectedToOGR)
     EVT_MENU(XRCID("ID_SHOW_PROJECT_INFO"), GdaFrame::OnShowProjectInfo)
+    EVT_MENU(XRCID("ID_PREFERENCE_SETUP"), GdaFrame::OnPreferenceSetup)
     EVT_MENU(XRCID("wxID_CLOSE"), GdaFrame::OnMenuClose)
     EVT_MENU(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)
     EVT_TOOL(XRCID("ID_CLOSE_PROJECT"), GdaFrame::OnCloseProjectEvt)

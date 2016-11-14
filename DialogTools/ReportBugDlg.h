@@ -31,6 +31,17 @@
 
 using namespace std;
 
+class PreferenceDlg : public wxDialog
+{
+public:
+    PreferenceDlg(wxWindow* parent,
+                  wxWindowID id = wxID_ANY,
+                  const wxString& title = _("GeoDa Preference Setup"),
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxSize(580,450));
+    
+};
+
 class ReportResultDlg: public wxDialog
 {
 protected:
