@@ -69,6 +69,7 @@ X(X_), Xname(Xname_), Xmin(Xmin_), Xmax(Xmax_),
 is_standardized(is_standardized_)
 {
     
+    axis_display_precision = 1;
     last_scale_trans.SetData(0, 0, 100, 100);
     last_scale_trans.SetFixedAspectRatio(false);
 	UpdateMargins();
@@ -114,6 +115,7 @@ is_standardized(is_standardized_)
 {
 	LOG_MSG("Entering SimpleAxisCanvas::SimpleAxisCanvas");
 	
+    axis_display_precision = 1;
     last_scale_trans.SetData(0, 0, 100, 100);
     last_scale_trans.SetFixedAspectRatio(false);
 	UpdateMargins();
@@ -199,7 +201,8 @@ void SimpleAxisCanvas::PopulateCanvas()
 		double x_pad = 0.1 * (x_max - x_min);
 		axis_scale_x = AxisScale(x_min - (add_auto_padding_min ? x_pad : 0.0),
 								 x_max + (add_auto_padding_max ? x_pad : 0.0),
-								 (number_ticks < 0 ? 4 : number_ticks) );
+								 (number_ticks < 0 ? 4 : number_ticks),
+                                 axis_display_precision);
 	}
 	
     

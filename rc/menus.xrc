@@ -506,15 +506,21 @@
         <checkable>1</checkable>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES">
-      <label>Show Vertical Axis</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_HIST_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+          <label>Display Statistics</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES">
+          <label>Show Vertical Axis</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -1437,15 +1443,26 @@
     <object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
       <label>Edit LOWESS Parameters</label>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_AXES_SCALE_VALUES">
-      <label>Display Axes Scale Values</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_SLOPE_VALUES">
-      <label>Display Slope Values</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
+    <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_AXES_SCALE_VALUES">
+          <label>Display Axes Scale Values</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_SLOPE_VALUES">
+          <label>Display Slope Values</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Show Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -1478,11 +1495,7 @@
         <label>Background Color</label>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
+    
     <object class="separator"/>
     
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
@@ -1804,10 +1817,21 @@
     <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
       <label>Choose Intervals</label>
     </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES">
-      <label>Show Axes</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES">
+          <label>Show Axes</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Show Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -1819,13 +1843,7 @@
         <label>Background Color</label>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -2062,15 +2080,26 @@
     <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
       <label>Choose Intervals</label>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES">
-      <label>Show Axes</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_HIST_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+            <label>Display Statistics</label>
+            <checkable>1</checkable>
+            <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES">
+            <label>Show Axes</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -2082,11 +2111,7 @@
         <label>Background Color</label>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
+    
     <object class="separator"/>
     
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
@@ -2110,15 +2135,21 @@
     <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">
       <label>Choose Intervals</label>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES">
-      <label>Show Axes</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_HIST_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
+          <label>Display Statistics</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES">
+          <label>Show Axes</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -3187,7 +3218,7 @@
         </object>
     </object>
     <object class="wxMenu" name="ID_VIEW_SHOW_SUBMENU">
-        <label>Show</label>
+        <label>Display</label>
 
         <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
             <label>Statistics</label>
@@ -3254,7 +3285,7 @@
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS_PRECISION">
-              <label>Adjust Numeric Precision of Y-Axis</label>
+              <label>Set Display Precision of Y-Axis</label>
           </object>
       </object>
       
@@ -3353,6 +3384,9 @@
     
     <object class="wxMenu" name="ID_SCATTER_DATA_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
         <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
             <label>Regimes Regression</label>
             <checkable>1</checkable>
@@ -3491,6 +3525,9 @@
     
     <object class="wxMenu" name="ID_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
         <object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
             <label>Fixed Aspect Ratio Mode</label>
             <checkable>1</checkable>
@@ -3718,19 +3755,25 @@
         <checkable>1</checkable>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
-      <label>View Standardized Data</label>
-      <checkable>1</checkable>
-    </object>
-    <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
-      <label>View Original Data</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
-      <label>Show Axes Through Origin</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
+    <object class="wxMenu" name="ID_HIST_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
+          <label>View Standardized Data</label>
+          <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_VIEW_ORIGINAL_DATA">
+          <label>View Original Data</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_SHOW_AXES_THROUGH_ORIGIN">
+          <label>Show Axes Through Origin</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">

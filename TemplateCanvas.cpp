@@ -109,7 +109,8 @@ layer0_bm(0), layer1_bm(0), layer2_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
-useScientificNotation(false), is_showing_brush(false)
+useScientificNotation(false), is_showing_brush(false),
+axis_display_precision(2)
 {
     // default is one time slice
 	cat_data.CreateEmptyCategories(1, highlight_state->GetHighlightSize());
@@ -194,6 +195,11 @@ void TemplateCanvas::SetFixedAspectRatioMode(bool mode)
 	ResizeSelectableShps();
 }
 
+void TemplateCanvas::SetDisplayPrecision(int n)
+{
+    axis_display_precision = n;
+    PopulateCanvas();    
+}
 
 bool TemplateCanvas::GetFitToWindowMode()
 {
@@ -915,8 +921,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
         ReleaseMouse();
 	
 	if (mousemode == select) {
+        is_showing_brush = true;
 		if (selectstate == start) {
-            is_showing_brush = true;
 			if (event.LeftDown()) {
                 prev = GetActualPos(event);
               
@@ -938,8 +944,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         selectstate = brushing;
                     } else {
                         // cancel brushing since click outside, restore leftdown
-                        sel1.x = 0; sel1.y = 0;
-                        sel2.x = 0; sel2.y = 0;
+                        ResetBrushing();
                         sel1 = prev;
                         selectstate = leftdown;
                     }
@@ -953,7 +958,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 			} else if (event.RightDown()) {
                 ResetBrushing();
 				DisplayRightClickMenu(event.GetPosition());
-                
+
 			} else {
                 // hover
 				if (template_frame && template_frame->IsStatusBarVisible()) {
@@ -982,6 +987,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                 }
 				UpdateSelection(event.ShiftDown(), true);
 				selectstate = start;
+                ResetBrushing();
                 
 			} else if (event.RightDown()) {
 				selectstate = start;
@@ -1230,7 +1236,7 @@ wxPoint TemplateCanvas::GetActualPos(const wxMouseEvent& event)
 
 void TemplateCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-
+    ResetBrushing();
 }
 
 void TemplateCanvas::AppendCustomCategories(wxMenu* menu,

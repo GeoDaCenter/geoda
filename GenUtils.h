@@ -262,7 +262,7 @@ struct AxisScale {
 	AxisScale() : data_min(0), data_max(0),
 		scale_min(0), scale_max(0), scale_range(0), tic_inc(0), p(0),
 		ticks(5) {}
-	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=1);
+	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
 	AxisScale(const AxisScale& s);
 	virtual AxisScale& operator=(const AxisScale& s);
 	virtual ~AxisScale() {}

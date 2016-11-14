@@ -68,7 +68,6 @@ ConditionalHistogramCanvas(wxWindow *parent,
 full_map_redraw_needed(true),
 show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 {
-	
 	int hist_var_tms = data[HIST_VAR].shape()[0];
 	data_stats.resize(hist_var_tms);
 	data_sorted.resize(hist_var_tms);
@@ -418,13 +417,13 @@ void ConditionalHistogramCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
     
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, y_max, 3);
+		axis_scale_y = AxisScale(0, y_max, 3, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis("Frequency", axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, y_max),
 							-9, 0);
 		
-		axis_scale_x = AxisScale(0, max_ival_val[t]);
+		axis_scale_x = AxisScale(0, max_ival_val[t], 5, axis_display_precision);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val[t];
 		axis_scale_x.data_max = max_ival_val[t];

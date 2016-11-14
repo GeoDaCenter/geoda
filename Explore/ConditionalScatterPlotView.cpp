@@ -74,9 +74,9 @@ show_lowess_smoother(false)
 	double y_min = var_info[DEP_VAR].min_over_time;
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
-	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4);
+	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4, axis_display_precision);
 	axis_scale_x.SkipEvenTics();
-	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4);
+	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4, axis_display_precision);
 	axis_scale_y.SkipEvenTics();
 	
 	highlight_color = GdaConst::scatterplot_regression_selected_color;

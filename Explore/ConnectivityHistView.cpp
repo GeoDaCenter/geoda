@@ -315,7 +315,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		y_axis = new GdaAxis(_("Frequency"), axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, y_max), -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val);
+		axis_scale_x = AxisScale(0, max_ival_val, 5, axis_display_precision);
         
 		axis_scale_x.data_min = min_ival_val;
 		axis_scale_x.data_max = max_ival_val;

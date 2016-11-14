@@ -125,6 +125,7 @@ public:
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
+	void OnSetDisplayPrecision(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);

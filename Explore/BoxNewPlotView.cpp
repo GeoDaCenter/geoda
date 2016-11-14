@@ -343,7 +343,14 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers(this);
-	}
+        
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        DrawLayers();
+        Refresh();
+        
+        UpdateStatusBar();
+    }
 }
 
 void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -560,7 +567,7 @@ void BoxPlotCanvas::PopulateCanvas()
 		if (var_info[0].min[t] < y_min) y_min = var_info[0].min[t];
 	}
 	if (show_axes) {
-		axis_scale = AxisScale(y_min, y_max);
+		axis_scale = AxisScale(y_min, y_max, 5, axis_display_precision);
 		y_min = axis_scale.scale_min;
 		y_max = axis_scale.scale_max;
 		vert_axis = new GdaAxis(var_info[0].name, axis_scale,

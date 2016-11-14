@@ -22,6 +22,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include "../DialogTools/AdjustYAxisDlg.h"
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
@@ -51,7 +52,8 @@ show_lowess_smoother(false), show_slope_values(true),
 brush_rectangle(true), brush_circle(false), brush_line(false),
 selectable_outline_color(GdaConst::scatterplot_regression_color),
 selectable_fill_color(GdaConst::scatterplot_regression_excluded_color),
-highlight_color(GdaConst::scatterplot_regression_selected_color)
+highlight_color(GdaConst::scatterplot_regression_selected_color),
+axis_display_precision(1)
 {
 	wxLogMessage("Open ScatterPlotMatFrame.");
     
@@ -315,6 +317,23 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
                                                   project);
 		lowess_param_frame->registerObserver(this);
 	}
+}
+
+void ScatterPlotMatFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
+    AxisLabelPrecisionDlg dlg(axis_display_precision, this);
+    if (dlg.ShowModal () != wxID_OK)
+        return;
+    int def_precision = dlg.precision;
+    
+    for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
+        if (vert_labels[i]) vert_labels[i]->SetDisplayPrecision(def_precision);
+    }
+    for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
+        if (horiz_labels[i]) horiz_labels[i]->SetDisplayPrecision(def_precision);
+    }
+    axis_display_precision = def_precision;
 }
 
 void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)

@@ -125,7 +125,9 @@ public:
 	/** Implementation of VarsChooserObserver interface */
 	virtual void update(VarsChooserObservable* o);
 	virtual void notifyOfClosing(VarsChooserObservable* o);
-	
+
+    virtual void OnSetDisplayPrecision(wxCommandEvent& event);
+    
 	void GetVizInfo(vector<wxString>& vars);
 	
 protected:
@@ -133,7 +135,8 @@ protected:
 	void UpdateMessageWin();
 	void UpdateDataMapFromVarMan();
 	wxString GetHelpHtml();
-	
+
+    int axis_display_precision;
 	LowessParamFrame* lowess_param_frame;
 	VarsChooserFrame* vars_chooser_frame;
 	GdaVarTools::Manager var_man;

@@ -674,12 +674,7 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	}
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
-		ostringstream ss;
-        if (tics[i] < 10000000) {
-            ss << std::fixed;
-        }
-        ss << std::setprecision(lbl_precision) << tics[i];
-		tics_str[i] = ss.str();
+        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision);
 		tics_str_show[i] = true;
 	}
 }
@@ -760,6 +755,9 @@ wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
 wxString GenUtils::DblToStr(double x, int precision)
 {
 	std::stringstream ss;
+    if (x < 10000000) {
+        ss << std::fixed;
+    }
 	ss << std::setprecision(precision);
 	ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);

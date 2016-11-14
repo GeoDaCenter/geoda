@@ -130,6 +130,7 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
                                              const wxPoint& pos,
                                              const wxSize& size,
                                              long style)
+
 {
     wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.", precision_s));
     
@@ -145,9 +146,9 @@ void AxisLabelPrecisionDlg::CreateControls()
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_AXIS_LABEL_PRECISION_DLG");
     m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")), wxSpinCtrl);
     m_precision_spin->SetRange(1, 6);
-    
-
+    m_precision_spin->SetValue(precision);
 }
+
 void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
 {
     event.Skip();

@@ -39,6 +39,7 @@
 #include "Explore/LisaScatterPlotView.h"
 #include "Explore/PCPNewView.h"
 #include "Explore/ScatterNewPlotView.h"
+#include "DialogTools/AdjustYAxisDlg.h"
 
 
 #include "rc/GeoDaIcon-16x16.xpm"
@@ -148,12 +149,23 @@ void TemplateFrame::OnFitToWindowMode(wxCommandEvent& event)
 
 void TemplateFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 {
-	LOG_MSG("Entering TemplateFrame::OnFixedAspectRatioMode");
 	if (!template_canvas) return;
 	template_canvas->SetFixedAspectRatioMode(
 				!template_canvas->GetFixedAspectRatioMode());	
 	UpdateOptionMenuItems();
-	LOG_MSG("Exiting TemplateFrame::OnFixedAspectRatioMode");
+}
+
+void TemplateFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+{
+	if (!template_canvas) return;
+    
+    AxisLabelPrecisionDlg dlg(template_canvas->axis_display_precision, this);
+    if (dlg.ShowModal () != wxID_OK)
+        return;
+    int def_precision = dlg.precision;
+    template_canvas->SetDisplayPrecision(def_precision);
+    
+	UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnZoomMode(wxCommandEvent& event)

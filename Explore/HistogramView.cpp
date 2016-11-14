@@ -77,6 +77,8 @@ custom_classif_state(0), is_custom_category(false)
 {
 	using namespace Shapefile;
     
+    axis_display_precision = 1;
+    
 	table_int = project->GetTableInt();
   
     // Histogram has only one variable, so size of col_ids = 1
@@ -550,14 +552,14 @@ void HistogramCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, y_max, 5);
+		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis("Frequency", axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val[time]);
+		axis_scale_x = AxisScale(0, max_ival_val[time], 5, axis_display_precision);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val[time];
 		axis_scale_x.data_max = max_ival_val[time];
@@ -587,7 +589,7 @@ void HistogramCanvas::PopulateCanvas()
             GdaPolyLine* xdline = new GdaPolyLine(x0, y0, x0, y00);
             xdline->setNudge(0, 10);
             foreground_shps.push_back(xdline);
-            
+           
             if (i==0) {
                 axis_scale_x.tics[i] = axis_scale_x.data_min;
                 wxString tic_str;
@@ -595,7 +597,8 @@ void HistogramCanvas::PopulateCanvas()
                 axis_scale_x.tics_str[i] = tic_str;
                 
                 GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min),
+                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min,
+                                                    axis_display_precision),
                                  *GdaConst::small_font,
                                  wxRealPoint(x0, y0), 0,
                                  GdaShapeText::h_center,
@@ -604,12 +607,14 @@ void HistogramCanvas::PopulateCanvas()
             }
             if (i<cur_intervals-1) {
                 axis_scale_x.tics[i] = ival_breaks[time][i];
+                
                 wxString tic_str;
                 tic_str << ival_breaks[time][i];
                 axis_scale_x.tics_str[i] = tic_str;
                 
                 GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i]),
+                new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i],
+                                                    axis_display_precision),
                                  *GdaConst::small_font,
                                  wxRealPoint(x1, y0), 0,
                                  GdaShapeText::h_center,
@@ -622,7 +627,8 @@ void HistogramCanvas::PopulateCanvas()
                 tic_str << axis_scale_x.data_max;
                 axis_scale_x.tics_str[i] = tic_str;
                 GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max),
+                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max,
+                                                    axis_display_precision),
                                  *GdaConst::small_font,
                                  wxRealPoint(x1, y0), 0,
                                  GdaShapeText::h_center,
@@ -717,7 +723,7 @@ void HistogramCanvas::PopulateCanvas()
 		foreground_shps.push_back(s);
 	}
 	
-    last_scale_trans.SetMargin(25, 25, 25, 25);
+    last_scale_trans.SetMargin(35, 25, 25, 25);
 	
 	if (show_axes || display_stats) {
 		if (!display_stats) {

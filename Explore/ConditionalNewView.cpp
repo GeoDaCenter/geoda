@@ -74,7 +74,7 @@ table_int(project_s->GetTableInt()),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 cc_state_vert(0), cc_state_horiz(0), all_init(false)
 {
-	LOG_MSG("Entering ConditionalNewCanvas::ConditionalNewCanvas");
+    axis_display_precision = 1;
 	SetCatType(VERT_VAR, CatClassification::quantile, 3);
 	SetCatType(HOR_VAR, CatClassification::quantile, 3);
 	

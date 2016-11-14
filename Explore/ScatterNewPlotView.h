@@ -145,7 +145,7 @@ protected:
 
 	void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
-	
+
 	ScatterPlotPens pens;
 	
 	virtual void UpdateStatusBar();

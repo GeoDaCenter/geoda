@@ -184,14 +184,14 @@ void SimpleBinsHistCanvas::PopulateCanvas()
     
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, y_max, 5);
+		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis("Frequency", axis_scale_y,
 							 wxRealPoint(0,0), wxRealPoint(0, y_max),
 							 -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, Xmax);
+		axis_scale_x = AxisScale(0, Xmax, 5, axis_display_precision);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = Xmin;
 		axis_scale_x.data_max = Xmax;

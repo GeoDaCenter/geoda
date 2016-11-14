@@ -527,6 +527,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIT_TO_WINDOW_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ADJUST_AXIS_PRECISION"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ZOOM_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_PAN_MODE"), proj_open);	
 		
@@ -1383,6 +1384,13 @@ void GdaFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
     wxLogMessage("Click GdaFrame::OnFixedAspectRatioMode");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (t) t->OnFixedAspectRatioMode(event);
+}
+
+void GdaFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
+	TemplateFrame* t = TemplateFrame::GetActiveFrame();
+	if (t) t->OnSetDisplayPrecision(event);
 }
 
 void GdaFrame::OnZoomMode(wxCommandEvent& event)
@@ -5593,6 +5601,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
     // Fit-To-Window Mode
     EVT_MENU(XRCID("ID_FIXED_ASPECT_RATIO_MODE"), GdaFrame::OnFixedAspectRatioMode)
+    EVT_MENU(XRCID("ID_ADJUST_AXIS_PRECISION"), GdaFrame::OnSetDisplayPrecision)
     EVT_MENU(XRCID("ID_ZOOM_MODE"), GdaFrame::OnZoomMode)
     EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
     // Print Canvas State to Log File.  Used for debugging.

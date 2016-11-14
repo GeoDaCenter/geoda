@@ -214,6 +214,7 @@ public:
 
 	virtual bool GetFixedAspectRatioMode();
 	virtual void SetFixedAspectRatioMode(bool mode);
+	virtual void SetDisplayPrecision(int n);
 		
 	/** generic function to create and initialized the selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
@@ -250,6 +251,8 @@ public:
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
     
+	virtual void PopulateCanvas() = 0;
+    
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
     
@@ -276,38 +279,34 @@ public:
                     std::vector<wxString>& clrs,
                     std::vector<double>& bins);
 	
+    int           axis_display_precision;
+    
 protected:
     bool          is_showing_brush;
 	SelectState   selectstate;
 	MouseMode     mousemode;
 	BrushType     brushtype;
     bool          is_brushing;
-    
 	ScrollBarMode scrollbarmode;
 	GdaScaleTrans last_scale_trans;
-    
-	bool fit_to_window_mode;
+	bool          fit_to_window_mode;
 
 	/** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
 	 of the highlight state for every observation in the currently opened SHP
 	 file. This shared state object is the means by which the different
 	 views in GeoDa are linked. */
-	HLStateInt* highlight_state;
-
-	std::list<GdaShape*> background_shps;
+	HLStateInt*           highlight_state;
+	std::list<GdaShape*>  background_shps;
     
 	/** This is an array of selectable objects.  In a map, these would
 	 be the various observation regions or points, while in a histogram
 	 these would be the bars of the histogram. This array of shapes is drawn
 	 after the background_shps multi-set. */
 	std::vector<GdaShape*> selectable_shps;
-    
-    std::vector<bool> selectable_shps_undefs;
-    
-	SelectableShpType selectable_shps_type;
-    
-	std::list<GdaShape*> foreground_shps;
+    std::vector<bool>      selectable_shps_undefs;
+	SelectableShpType      selectable_shps_type;
+	std::list<GdaShape*>   foreground_shps;
     
 	// corresponds to the selectable color categories: generally between
 	// 1 and 10 permitted.  Selectable shape drawing routines use brushes

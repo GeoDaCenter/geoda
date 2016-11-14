@@ -60,6 +60,7 @@ lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0),
 y_axis_precision(1)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
+    last_scale_trans.SetFixedAspectRatio(false);
     last_scale_trans.SetData(0, 0, 100, 100);
 	UpdateMargins();
 	

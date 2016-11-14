@@ -916,8 +916,8 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
-	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad);
-	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad);
+	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5, axis_display_precision);
+	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5, axis_display_precision);
 
     /*
 	// used by status bar for showing selection rectangle range
