@@ -270,9 +270,16 @@ bool GdaApp::OnInit(void)
     // forcing to C locale, which is used internally in GeoDa
     setlocale(LC_ALL, "C");
     
+    // load preferences
+    PreferenceDlg::ReadFromCache();
+   
     // Other GDAL configurations
-    //CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
-    CPLSetConfigOption("PG_LIST_ALL_TABLES", "YES");
+    if (GdaConst::hide_sys_table_postgres == false) {
+        CPLSetConfigOption("PG_LIST_ALL_TABLES", "YES");
+    }
+    if (GdaConst::hide_sys_table_sqlite == false) {
+        CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
+    }
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
@@ -370,28 +377,27 @@ bool GdaApp::OnInit(void)
 	}
 
     // check crash
-    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
-    if (items.size() > 0) {
-        std::string no_crash = items[0];
-        if (no_crash == "false") {
-            // ask user to send crash data
-            wxString msg = _("It looks like GeoDa has been terminated abnormally. Do you want to send a crash report to GeoDa team?");
-            wxString ttl = _("Send Crash Report");
-            wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
-                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-            if (msgDlg.ShowModal() == wxID_YES) {
-                //wxCommandEvent ev;
-                //GdaFrame::GetGdaFrame()->OnReportBug(ev);
-                wxString ttl = "Crash Report";
-                ReportBugDlg::CreateIssue(ttl, "Details:");
+    if (GdaConst::disable_crash_detect == false) {
+        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
+        if (items.size() > 0) {
+            std::string no_crash = items[0];
+            if (no_crash == "false") {
+                // ask user to send crash data
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. Do you want to send a crash report to GeoDa team?");
+                wxString ttl = _("Send Crash Report");
+                wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
+                                       wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+                if (msgDlg.ShowModal() == wxID_YES) {
+                    //wxCommandEvent ev;
+                    //GdaFrame::GetGdaFrame()->OnReportBug(ev);
+                    wxString ttl = "Crash Report";
+                    ReportBugDlg::CreateIssue(ttl, "Details:");
+                }
             }
         }
+        OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     }
-    OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     
-    // load preference
-    PreferenceDlg::ReadFromCache();
-   
     // Setup new Logger after crash check
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
@@ -409,7 +415,9 @@ bool GdaApp::OnInit(void)
 #endif
     
     // check update in a new thread
-    CallAfter(&GdaFrame::CheckUpdate);
+    if (GdaConst::disable_auto_upgrade == false) {
+        CallAfter(&GdaFrame::CheckUpdate);
+    }
     
 	return true;
 }

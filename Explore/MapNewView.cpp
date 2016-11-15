@@ -166,7 +166,8 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_bm(0)
+map_bm(0),
+map_type(0)
 {
 	using namespace Shapefile;
 	
@@ -203,9 +204,13 @@ map_bm(0)
 					  boost::uuids::nil_uuid(),
 					  true, vi, cids);
 	}
-
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+    
+    isDrawBasemap = GdaConst::use_basemap_by_default;
+    if (isDrawBasemap) {
+        map_type = GdaConst::default_basemap_selection;
+    }
 }
 
 MapCanvas::~MapCanvas()
@@ -297,13 +302,14 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         int cs_w=0, cs_h=0;
         GetClientSize(&cs_w, &cs_h);
         
-        if (isDrawBasemap) {
-            basemap->ResizeScreen(cs_w, cs_h);
-        }
-       
         last_scale_trans.SetView(cs_w, cs_h);
         
         resizeLayerBms(cs_w, cs_h);
+        
+        if (isDrawBasemap) {
+            if (basemap == 0) InitBasemap();
+            basemap->ResizeScreen(cs_w, cs_h);
+        }
         
         ResizeSelectableShps();
         
@@ -347,62 +353,75 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
     TemplateCanvas::ResizeSelectableShps(virtual_scrn_w, virtual_scrn_h);
 }
 
-bool MapCanvas::DrawBasemap(bool flag, int map_type)
+bool MapCanvas::InitBasemap()
 {
+    if (basemap == 0) {
+        wxSize sz = GetClientSize();
+        int screenW = sz.GetWidth();
+        int screenH = sz.GetHeight();
+
+        OGRCoordinateTransformation *poCT = NULL;
+        
+        if (project->sourceSR != NULL) {
+            int nGCS = project->sourceSR->GetEPSGGeogCS();
+            if (nGCS != 4326) {
+                OGRSpatialReference destSR;
+                destSR.importFromEPSG(4326);
+                poCT = OGRCreateCoordinateTransformation(project->sourceSR,
+                                                         &destSR);
+            }
+        }
+        
+        GDA::Screen* screen = new GDA::Screen(screenW, screenH);
+        double shps_orig_ymax = last_scale_trans.orig_data_y_max;
+        double shps_orig_xmin = last_scale_trans.orig_data_x_min;
+        double shps_orig_ymin = last_scale_trans.orig_data_y_min;
+        double shps_orig_xmax = last_scale_trans.orig_data_x_max;
+        GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax,
+                                               shps_orig_xmin,
+                                               shps_orig_ymin,
+                                               shps_orig_xmax,
+                                               poCT);
+        if (poCT == NULL && !map->IsWGS84Valid()) {
+            isDrawBasemap = false;
+            return false;
+        } else {
+            basemap = new GDA::Basemap(screen, map, map_type,
+                                       GenUtils::GetBasemapCacheDir(),
+                                       poCT);
+        }
+    }
+    return true;
+}
+bool MapCanvas::DrawBasemap(bool flag, int map_type_)
+{
+    map_type = map_type_;
     isDrawBasemap = flag;
     
+    wxSize sz = GetClientSize();
+    int screenW = sz.GetWidth();
+    int screenH = sz.GetHeight();
+    
     if (isDrawBasemap == true) {
-        if (basemap == 0) {
-            wxSize sz = GetClientSize();
-            int screenW = sz.GetWidth();
-            int screenH = sz.GetHeight();
-            OGRCoordinateTransformation *poCT = NULL;
-            
-            if (project->sourceSR != NULL) {
-                int nGCS = project->sourceSR->GetEPSGGeogCS();
-                if (nGCS != 4326) {
-                    OGRSpatialReference destSR;
-                    destSR.importFromEPSG(4326);
-                    poCT = OGRCreateCoordinateTransformation(project->sourceSR,
-                                                             &destSR);
-                }
-            }
-            
-            GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-            double shps_orig_ymax = last_scale_trans.orig_data_y_max;
-            double shps_orig_xmin = last_scale_trans.orig_data_x_min;
-            double shps_orig_ymin = last_scale_trans.orig_data_y_min;
-            double shps_orig_xmax = last_scale_trans.orig_data_x_max;
-            GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax,
-                                                   shps_orig_xmin,
-                                                   shps_orig_ymin,
-                                                   shps_orig_xmax,
-                                                   poCT);
-            if (poCT == NULL && !map->IsWGS84Valid()) {
-                isDrawBasemap = false;
-                return false;
-            } else {
-                basemap = new GDA::Basemap(screen, map, map_type,
-                                           GenUtils::GetBasemapCacheDir(),
-                                           poCT);
-            }
+        if ( basemap == 0 && InitBasemap()  == false ) {
             ResizeSelectableShps();
+            return false;
         } else {
             basemap->SetupMapType(map_type);
         }
-        
     } else {
         // isDrawBasemap == false
-        if (basemap)
+        if ( basemap ) {
             basemap->mapType=0;
+        }
     }
     
     layerbase_valid = false;
     layer0_valid = false;
     layer1_valid = false;
     layer2_valid = false;
-    
-    DrawLayers();
+  
+    ReDraw();
     return true;
 }
 

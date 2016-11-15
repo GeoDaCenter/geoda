@@ -178,7 +178,10 @@ public:
 	bool isDrawBasemap;
     
 protected:
+  
+    bool InitBasemap();
     
+    int map_type;
 	bool layerbase_valid; // if false, then needs to be redrawn
     
 	TableInterface* table_int;

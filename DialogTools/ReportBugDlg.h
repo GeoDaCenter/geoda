@@ -57,9 +57,18 @@ protected:
     
     void Init();
     
+    void OnCrossHatch(wxCommandEvent& ev);
     void OnSlider1(wxScrollEvent& ev);
     void OnSlider2(wxScrollEvent& ev);
     //void OnSlider3(wxScrollEvent& ev);
+    void OnChoice3(wxCommandEvent& ev);
+    void OnDisableCrashDetect(wxCommandEvent& ev);
+    void OnDisableAutoUpgrade(wxCommandEvent& ev);
+   
+    void OnHideTablePostGIS(wxCommandEvent& ev);
+    void OnHideTableSQLITE(wxCommandEvent& ev);
+    
+    void OnReset(wxCommandEvent& ev);
 };
 
 class ReportResultDlg: public wxDialog

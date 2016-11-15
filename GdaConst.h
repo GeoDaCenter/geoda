@@ -294,10 +294,17 @@ public:
 	static const wxColour canvas_background_color; // white
 	static const wxColour legend_background_color; // white
 	
-	// Map
+	// Preferences
+    static bool use_cross_hatching;
     static int transparency_highlighted;
     static int transparency_unhighlighted;
     static int transparency_map_on_basemap;
+    static bool use_basemap_by_default;
+    static int default_basemap_selection;
+    static bool hide_sys_table_postgres;
+    static bool hide_sys_table_sqlite;
+    static bool disable_crash_detect;
+    static bool disable_auto_upgrade;
     
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
