@@ -108,6 +108,7 @@ public:
 	void CreateAndUpdateCategories();
 	
 public:
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	CatClassifDef cat_classif_def;

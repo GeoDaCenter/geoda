@@ -388,6 +388,9 @@ bool GdaApp::OnInit(void)
         }
     }
     OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
+    
+    // load preference
+    PreferenceDlg::ReadFromCache();
    
     // Setup new Logger after crash check
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
@@ -2142,8 +2145,13 @@ void GdaFrame::OnShowProjectInfo(wxCommandEvent& event)
 
 void GdaFrame::OnPreferenceSetup(wxCommandEvent& event)
 {
-	PreferenceDlg dlg(this);
-	dlg.Show(true);
+    if (!project_p) {
+    	PreferenceDlg dlg(this);
+    	dlg.Show(true);
+    } else {
+    	PreferenceDlg dlg(this, project_p->GetHighlightState());
+    	dlg.Show(true);
+    }
 }
 
 void GdaFrame::OnHtmlEntry(int entry)

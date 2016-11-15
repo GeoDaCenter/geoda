@@ -108,6 +108,8 @@ public:
 	static const int max_dbf_date_len = 8;
 	static const int min_dbf_date_len = 8;
 	static const int default_dbf_date_len = 8;
+    
+    
 	
 	// Resource Files
 	static const wxString gda_prefs_fname_json;
@@ -293,6 +295,10 @@ public:
 	static const wxColour legend_background_color; // white
 	
 	// Map
+    static int transparency_highlighted;
+    static int transparency_unhighlighted;
+    static int transparency_map_on_basemap;
+    
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
 	// this is a light forest green

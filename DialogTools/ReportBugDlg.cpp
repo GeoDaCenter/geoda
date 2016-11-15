@@ -34,6 +34,7 @@
 #include <wx/textfile.h>
 #include <wx/regex.h>
 #include <wx/grid.h>
+#include <wx/sizer.h>
 #include <wx/uri.h>
 #include <wx/slider.h>
 #include <wx/combobox.h>
@@ -42,6 +43,8 @@
 #include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
 
+#include "../HLStateInt.h"
+#include "../HighlightStateObserver.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -61,30 +64,102 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
                              const wxSize& size)
 : wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
+    highlight_state = NULL;
     SetBackgroundColour(*wxWHITE);
+    Init();
+}
+
+PreferenceDlg::PreferenceDlg(wxWindow* parent,
+                             HLStateInt* _highlight_state,
+                             wxWindowID id,
+                             const wxString& title,
+                             const wxPoint& pos,
+                             const wxSize& size)
+: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+{
+    highlight_state = _highlight_state;
+    SetBackgroundColour(*wxWHITE);
+    Init();
+}
+
+void PreferenceDlg::Init()
+{
+    ReadFromCache();
     
+    wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    
+    //  visualization tab
+    wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1 );
+    notebook->AddPage(vis_page, "Visualization");
+    wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(10, 2, 5, 20);
+  
+    wxString lbl1 = _("The transparency of highlighted objects in selection:");
+    wxStaticText* lbl_txt1 = new wxStaticText(vis_page, wxID_ANY, lbl1);
+    wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
+    wxSlider* slider1 = new wxSlider(vis_page, wxID_ANY,
+                                     GdaConst::transparency_highlighted, 0, 255,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxSL_HORIZONTAL);
+    wxTextCtrl* slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), wxString::Format("%d", GdaConst::transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    box1->Add(slider1);
+    box1->Add(slider_txt1);
+    grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
+    grid_sizer1->Add(box1, wxTOP);
+    slider1->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider1, this);
+    
+    wxString lbl2 = _("The transparency of unhighlighted objects in selection:");
+    wxStaticText* lbl_txt2 = new wxStaticText(vis_page, wxID_ANY, lbl2);
+    wxBoxSizer* box2 = new wxBoxSizer(wxHORIZONTAL);
+    wxSlider* slider2 = new wxSlider(vis_page, wxID_ANY,
+                                     GdaConst::transparency_unhighlighted, 0, 255,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxSL_HORIZONTAL);
+    wxTextCtrl* slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), wxString::Format("%d", GdaConst::transparency_unhighlighted),wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    box2->Add(slider2);
+    box2->Add(slider_txt2);
+    grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
+    grid_sizer1->Add(box2);
+    slider2->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider2, this);
+    
+    
+    grid_sizer1->AddGrowableCol(0, 1);
+    grid_sizer1->Fit(vis_page);
+    vis_page->SetSizer(grid_sizer1);
+
+    //  datasource (gdal) tab
+    wxNotebookPage* gdal_page = new wxNotebookPage(notebook, -1 );
+    notebook->AddPage(gdal_page, "Data Source");
+    wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 5, 20);
+  
+    wxString lbl21 = _("Postgresql connection hide system table:");
+    wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);
+    wxCheckBox* cbox21 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+    grid_sizer2->Add(lbl_txt21, 1, wxEXPAND| wxTOP, 10);
+    grid_sizer2->Add(cbox21, 0, wxALIGN_RIGHT| wxTOP, 13);
+    
+    
+    wxString lbl22 = _("SQILTE connection hide system table:");
+    wxStaticText* lbl_txt22 = new wxStaticText(gdal_page, wxID_ANY, lbl22);
+    wxCheckBox* cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+    grid_sizer2->Add(lbl_txt22, 1, wxEXPAND);
+    grid_sizer2->Add(cbox22, 0, wxALIGN_RIGHT);
+    
+    grid_sizer2->AddGrowableCol(0, 1);
+    grid_sizer2->Fit(gdal_page);
+    gdal_page->SetSizer(grid_sizer2);
+    
+    
+    // overall
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     
-    wxGridSizer* grid_sizer = new wxGridSizer(10, 2, 0, 0);
-   
-    wxString lbl = _("The transparency of highlighted objects in selection:");
-    grid_sizer->Add(new wxStaticText(this, wxID_ANY, lbl), 0, wxALL, 5);
-   
-    wxSlider* slider = new wxSlider(this, wxID_ANY, 40, 0, 100,
-                                    wxDefaultPosition, wxDefaultSize,
-                                    wxSL_HORIZONTAL);
-    grid_sizer->Add(slider, 0, wxEXPAND | wxALL, 5);
-    //visGrid->SetCellValue(1, 0, "The transparency of unhighlighted objects in selection:");
-    //visGrid->SetCellValue(2, 0, "The default transparency of map when basemap is enabled:");
-    
-    wxButton *okButton = new wxButton(this, -1, _("Ok"), wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(this, -1, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(this, -1, _("Reset"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_OK, _("Close"), wxDefaultPosition, wxSize(70, 30));
     
     hbox->Add(okButton, 1);
     hbox->Add(closeButton, 1, wxLEFT, 5);
     
-    vbox->Add(grid_sizer, 1, wxALIGN_CENTER | wxEXPAND| wxALL, 10);
+    vbox->Add(notebook, 1, wxALIGN_CENTER | wxEXPAND| wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
     
     SetSizer(vbox);
@@ -95,6 +170,69 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
     Destroy();
 }
 
+void PreferenceDlg::ReadFromCache()
+{
+    vector<string> transp_h = OGRDataAdapter::GetInstance().GetHistory("transparency_highlighted");
+    if (!transp_h.empty() ) {
+        long transp_l = 0;
+        wxString transp = transp_h[0];
+        if (transp.ToLong(&transp_l)) {
+            GdaConst::transparency_highlighted = transp_l;
+        }
+    }
+    vector<string> transp_uh = OGRDataAdapter::GetInstance().GetHistory("transparency_unhighlighted");
+    if (!transp_uh.empty() ) {
+        long transp_l = 0;
+        wxString transp = transp_uh[0];
+        if (transp.ToLong(&transp_l)) {
+            GdaConst::transparency_unhighlighted = transp_l;
+        }
+    }
+}
+
+void PreferenceDlg::OnSlider1(wxScrollEvent& ev)
+{
+    int val = ev.GetPosition();
+    GdaConst::transparency_highlighted = val;
+    wxString transp_str;
+    transp_str << val;
+    OGRDataAdapter::GetInstance().AddEntry("transparency_highlighted", transp_str.ToStdString());
+	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER1_TXT")), wxTextCtrl);
+    txt_ctl->SetValue(transp_str);
+    
+    if (highlight_state) {
+        highlight_state->notifyObservers();
+    }
+}
+void PreferenceDlg::OnSlider2(wxScrollEvent& ev)
+{
+    int val = ev.GetPosition();
+    GdaConst::transparency_unhighlighted = val;
+    wxString transp_str;
+    transp_str << val;
+    OGRDataAdapter::GetInstance().AddEntry("transparency_unhighlighted", transp_str.ToStdString());
+	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER2_TXT")), wxTextCtrl);
+    txt_ctl->SetValue(transp_str);
+    if (highlight_state) {
+        highlight_state->notifyObservers();
+    }
+}
+/*
+void PreferenceDlg::OnSlider3(wxScrollEvent& ev)
+{
+    int val = ev.GetPosition();
+    GdaConst::transparency_map_on_basemap = val;
+    wxString transp_str;
+    transp_str << val;
+    OGRDataAdapter::GetInstance().AddEntry("transparency_map_on_basemap", transp_str.ToStdString());
+	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER3_TXT")), wxTextCtrl);
+    txt_ctl->SetValue(transp_str);
+}
+ */
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
                                  wxWindowID id,
                                  const wxString& title,

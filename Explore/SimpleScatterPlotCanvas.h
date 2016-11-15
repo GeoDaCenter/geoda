@@ -83,6 +83,7 @@ public:
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void UpdateStatusBar();
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);

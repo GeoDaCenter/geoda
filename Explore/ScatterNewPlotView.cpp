@@ -522,6 +522,43 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
     
 }
 
+void ScatterNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+{
+    TemplateCanvas::UpdateSelection(shiftdown, pointsel);
+    if (IsRegressionSelected() || IsRegressionExcluded()) {
+        SmoothingUtils::CalcStatsRegimes(X, Y, XYZ_undef, XYZ_undef,
+                                         statsX, statsY, regressionXY,
+                                         highlight_state->GetHighlight(),
+                                         statsXselected, statsYselected,
+                                         statsXexcluded, statsYexcluded,
+                                         regressionXYselected,
+                                         regressionXYexcluded,
+                                         sse_sel, sse_unsel);
+        
+        if (IsRegressionSelected()) {
+            UpdateRegSelectedLine();
+        }
+        
+        if (IsRegressionExcluded()) {
+            UpdateRegExcludedLine();
+        }
+        
+        if (IsShowLowessSmoother() && IsShowRegimes()) {
+            UpdateLowessOnRegimes();
+        }
+    }
+    
+    if (IsDisplayStats() && IsShowLinearSmoother()) {
+        UpdateDisplayStats();
+    }
+
+    if (IsRegressionSelected() || IsRegressionExcluded()) {
+        // we only need to redraw everything if the optional
+        // regression lines have changed.
+        Refresh();
+    }
+    
+}
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines

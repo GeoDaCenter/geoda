@@ -309,12 +309,15 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         
         event.RequestMore(); // render continuously, not only once on idle
     }
-    
-    if (!layerbase_valid || !layer2_valid || !layer1_valid || !layer0_valid) {
-        DrawLayers();
-        event.RequestMore(); // render continuously, not only once on idle
-        
+   
+    if (layer2_valid && layer1_valid && layer0_valid) {
+        if (isDrawBasemap == false)
+            return;
+        if (layerbase_valid)
+            return;
     }
+    DrawLayers();
+    event.RequestMore();
 }
 
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
@@ -458,26 +461,83 @@ void MapCanvas::resizeLayerBms(int width, int height)
 
 void MapCanvas::DrawLayer0()
 {
-    wxSize sz = GetVirtualSize();
     wxMemoryDC dc(*layer0_bm);
-    double x, y;
-    dc.GetUserScale(&x, &y);
 
-    dc.SetPen(canvas_background_color);
-    dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(0,0), sz);
-
-    if (isDrawBasemap)
-		dc.DrawBitmap(*basemap_bm, 0, 0);
-
-    BOOST_FOREACH( GdaShape* shp, background_shps ) {
-        shp->paintSelf(dc);
+    if (!isDrawBasemap) {
+        wxSize sz = GetVirtualSize();
+        dc.SetPen(canvas_background_color);
+        dc.SetBrush(canvas_background_color);
+        dc.DrawRectangle(wxPoint(0,0), sz);
     }
-    
+
     DrawSelectableShapes(dc);
     
     layer0_valid = true;
     layer1_valid = false;
+}
+
+void MapCanvas::DrawLayer1()
+{
+    if (layer1_bm == NULL)
+        return;
+    wxMemoryDC dc(*layer1_bm);
+    dc.Clear();
+    
+    if (isDrawBasemap) {
+        dc.DrawBitmap(*basemap_bm,0,0);
+    }
+    
+    // faded the background half transparency
+    if (highlight_state->GetTotalHighlighted()>0) {
+        wxImage image;
+        if (isDrawBasemap) {
+            image = map_bm->ConvertToImage();
+        } else {
+            image = layer0_bm->ConvertToImage();
+        }
+        if (!image.HasAlpha()) {
+            image.InitAlpha();
+        }
+        for (int i=0; i< image.GetWidth(); i++) {
+            for (int j=0; j<image.GetHeight(); j++) {
+                if (image.GetAlpha(i, j) != 0) {
+                    image.SetAlpha(i, j, GdaConst::transparency_unhighlighted);
+                }
+            }
+        }
+        
+        wxBitmap _bmp(image);
+        dc.DrawBitmap(_bmp,0,0, true);
+    } else {
+        if (!isDrawBasemap) {
+            dc.DrawBitmap(*layer0_bm, 0, 0);
+        } else {
+            dc.DrawBitmap(*map_bm,0,0);
+        }
+    }
+   
+    DrawHighlightedShapes(dc);
+    
+    dc.SelectObject(wxNullBitmap);
+    layer1_valid = true;
+    layer2_valid = false;
+}
+
+void MapCanvas::DrawLayer2()
+{
+    if (layer2_bm == NULL)
+        return;
+    wxMemoryDC dc(*layer2_bm);
+    dc.Clear();
+    
+    dc.DrawBitmap(*layer1_bm, 0, 0);
+    
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(dc);
+    }
+    
+    dc.SelectObject(wxNullBitmap);
+    layer2_valid = true;
 }
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -494,6 +554,9 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             _dc.SelectObject(bmp);
             _dc.Clear();
             
+            BOOST_FOREACH( GdaShape* shp, background_shps ) {
+                shp->paintSelf(_dc);
+            }
             DrawSelectableShapes_dc(_dc);
             
             _dc.SelectObject(wxNullBitmap);
@@ -521,12 +584,13 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
                     image.SetAlpha(i,j, alpha_value);
                 }
             }
-            
-            //wxBitmap _bmp(image);
             map_bm = new wxBitmap(image);
         }
-        dc.DrawBitmap(*map_bm,0,0);
+        //dc.DrawBitmap(*map_bm,0,0);
     } else {
+        BOOST_FOREACH( GdaShape* shp, background_shps ) {
+            shp->paintSelf(dc);
+        }
         DrawSelectableShapes_dc(dc);
     }
 }

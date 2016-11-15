@@ -611,7 +611,7 @@ void TemplateCanvas::DrawLayer0()
 {
     if (layer0_bm == NULL)
         return;
-    //LOG_MSG("In TemplateCanvas::DrawLayer0");
+
     wxSize sz = GetClientSize();
     wxMemoryDC dc(*layer0_bm);
 
@@ -641,13 +641,12 @@ void TemplateCanvas::DrawLayer1()
     
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
-        double trans = transparency * 0.5;
         wxImage image = layer0_bm->ConvertToImage();
         if (!image.HasAlpha()) {
             image.InitAlpha();
         }
         unsigned char *alpha=image.GetAlpha();
-        memset(alpha, 50, image.GetWidth()*image.GetHeight());
+        memset(alpha, GdaConst::transparency_unhighlighted, image.GetWidth()*image.GetHeight());
 
         wxBitmap _bmp(image);
         dc.DrawBitmap(_bmp,0,0, true);
@@ -725,6 +724,7 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
 
 void TemplateCanvas::OnSize(wxSizeEvent& event)
 {
+    ResetBrushing();
     isResize = true;
     event.Skip();
 }
@@ -761,24 +761,78 @@ void TemplateCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 		}
 	}
 }
+
 // draw highlighted selectable shapes
 void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
 	if (selectable_shps.size() == 0)
         return;
+   
+    if (GdaConst::transparency_highlighted == 255) {
+        if (use_category_brushes) {
+            bool highlight_only = true;
+            DrawSelectableShapes_dc(dc, highlight_only);
+            
+        } else {
+            vector<bool>& hs = GetSelBitVec();
+            for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+                if (hs[i] && _IsShpValid(i)) {
+                    selectable_shps[i]->paintSelf(dc);
+                }
+            }
+        }
+        return;
+    }
+   
+    // Apply highlight objects with transparency
+    
+    wxSize sz = dc.GetSize();
+    wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+    wxMemoryDC _dc;
+    // use a special color for mask transparency: 244, 243, 242c
+    wxColour maskColor(123, 123, 123);
+    wxBrush maskBrush(maskColor);
+    _dc.SetBackground(maskBrush);
+    _dc.SelectObject(bmp);
+    _dc.Clear();
     
 	if (use_category_brushes) {
         bool highlight_only = true;
-		DrawSelectableShapes_dc(dc, highlight_only);
-		return;
-	}
+		DrawSelectableShapes_dc(_dc, highlight_only);
+
+    } else {
+    	vector<bool>& hs = GetSelBitVec();
+    	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+    		if (hs[i] && _IsShpValid(i)) {
+    			selectable_shps[i]->paintSelf(_dc);
+    		}
+    	}
+    }
     
-	vector<bool>& hs = GetSelBitVec();
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (hs[i] && _IsShpValid(i)) {
-			selectable_shps[i]->paintSelf(dc);
-		}
-	}
+    _dc.SelectObject(wxNullBitmap);
+    
+    wxImage image = bmp.ConvertToImage();
+    if (!image.HasAlpha()) {
+        image.InitAlpha();
+    }
+    int alpha_value = GdaConst::transparency_highlighted;
+    unsigned char r, g, b;
+    
+    for (int i=0; i< image.GetWidth(); i++) {
+        for (int j=0; j<image.GetHeight(); j++) {
+            r = image.GetRed(i,j);
+            g = image.GetGreen(i,j);
+            b = image.GetBlue(i,j);
+            if (r == 123 && g == 123 && b == 123) {
+                image.SetAlpha(i, j, 0);
+                continue;
+            }
+            image.SetAlpha(i,j, alpha_value);
+        }
+    }
+    
+    wxBitmap _bmp(image);
+    dc.DrawBitmap(_bmp,0,0, true);
 }
 
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only)

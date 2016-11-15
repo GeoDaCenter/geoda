@@ -140,8 +140,8 @@ public:
 	// TODO will be replace by wxImage drawing code
     virtual void resizeLayerBms(int width, int height);
 	virtual void DrawLayer0();
-	//virtual void DrawLayer1();
-	//virtual void DrawLayer2();
+	virtual void DrawLayer1();
+	virtual void DrawLayer2();
 	//virtual void OnPaint(wxPaintEvent& event);
 
     virtual void ResetShapes();

@@ -134,6 +134,32 @@ void SimpleScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	LOG_MSG("Exiting SimpleScatterPlotCanvas::DisplayRightClickMenu");
 }
 
+void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+{
+    if (IsShowRegimes() && IsShowLinearSmoother()) {
+        SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
+                                         statsX, statsY, regressionXY,
+                                         highlight_state->GetHighlight(),
+                                         statsXselected, statsYselected,
+                                         statsXexcluded, statsYexcluded,
+                                         regressionXYselected,
+                                         regressionXYexcluded,
+                                         sse_sel, sse_unsel);
+        UpdateLinearRegimesRegLines();
+    }
+    
+    if (IsShowRegimes() && IsShowLowessSmoother()) {
+        UpdateLowessOnRegimes();
+    }
+    //if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
+    
+    if (IsShowRegimes()) {
+        // we only need to redraw everything if the optional
+        // regression lines have changed.
+        Refresh();
+    }
+    TemplateCanvas::UpdateSelection(shiftdown, pointsel);
+}
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines

@@ -29,6 +29,9 @@
 #include <wx/checkbox.h>
 #include <wx/hyperlink.h>
 
+#include "../HLStateInt.h"
+#include "../HighlightStateObserver.h"
+
 using namespace std;
 
 class PreferenceDlg : public wxDialog
@@ -40,6 +43,23 @@ public:
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxSize(580,450));
     
+    PreferenceDlg(wxWindow* parent,
+                  HLStateInt* highlight_state,
+                  wxWindowID id = wxID_ANY,
+                  const wxString& title = _("GeoDa Preference Setup"),
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxSize(580,450));
+ 
+    static void ReadFromCache();
+    
+protected:
+    HLStateInt* highlight_state;
+    
+    void Init();
+    
+    void OnSlider1(wxScrollEvent& ev);
+    void OnSlider2(wxScrollEvent& ev);
+    //void OnSlider3(wxScrollEvent& ev);
 };
 
 class ReportResultDlg: public wxDialog

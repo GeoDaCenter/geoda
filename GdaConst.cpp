@@ -210,6 +210,10 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+int GdaConst::transparency_highlighted = 200;
+int GdaConst::transparency_unhighlighted = 255;
+int GdaConst::transparency_map_on_basemap = 200;
+
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
 
