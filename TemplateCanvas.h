@@ -253,15 +253,19 @@ public:
     
 	virtual void PopulateCanvas() = 0;
     
+    
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
     
 	// draw unhighlighted sel shapes
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
     
-    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false);
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false,
+                                         bool revert=false);
     
-    void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false);
+    void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false,
+                                        bool revert=false,
+                                        bool crosshatch= false);
     
 
     void SetTransparency(double _transparency) {

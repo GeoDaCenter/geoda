@@ -211,8 +211,8 @@ wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
 bool GdaConst::use_cross_hatching = false;
-int GdaConst::transparency_highlighted = 255;
-int GdaConst::transparency_unhighlighted = 150;
+int GdaConst::transparency_highlighted = 209;
+int GdaConst::transparency_unhighlighted = 255;
 int GdaConst::transparency_map_on_basemap = 200;
 bool GdaConst::use_basemap_by_default = false;
 int GdaConst::default_basemap_selection = 0;
@@ -220,6 +220,8 @@ bool GdaConst::hide_sys_table_postgres = false;
 bool GdaConst::hide_sys_table_sqlite = false;
 bool GdaConst::disable_crash_detect = false;
 bool GdaConst::disable_auto_upgrade = false;
+int GdaConst::plot_transparency_highlighted = 255;
+int GdaConst::plot_transparency_unhighlighted = 50;
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;

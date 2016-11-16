@@ -307,23 +307,23 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         resizeLayerBms(cs_w, cs_h);
         
         if (isDrawBasemap) {
-            if (basemap == 0) InitBasemap();
-            basemap->ResizeScreen(cs_w, cs_h);
+            if (basemap == 0)
+                InitBasemap();
+            if (basemap)
+                basemap->ResizeScreen(cs_w, cs_h);
         }
         
         ResizeSelectableShps();
         
         event.RequestMore(); // render continuously, not only once on idle
     }
-   
-    if (layer2_valid && layer1_valid && layer0_valid) {
-        if (isDrawBasemap == false)
-            return;
-        if (layerbase_valid)
-            return;
+    
+    if (!layer2_valid || !layer1_valid || !layer0_valid ||
+        (isDrawBasemap && !layerbase_valid) )
+    {
+        DrawLayers();
+        event.RequestMore();
     }
-    DrawLayers();
-    event.RequestMore();
 }
 
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
@@ -384,6 +384,14 @@ bool MapCanvas::InitBasemap()
                                                poCT);
         if (poCT == NULL && !map->IsWGS84Valid()) {
             isDrawBasemap = false;
+            wxStatusBar* sb = 0;
+            if (template_frame) {
+                sb = template_frame->GetStatusBar();
+                if (sb) {
+                    wxString s = _("GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file).");
+                    sb->SetStatusText(s);
+                }
+            }
             return false;
         } else {
             basemap = new GDA::Basemap(screen, map, map_type,
@@ -393,6 +401,7 @@ bool MapCanvas::InitBasemap()
     }
     return true;
 }
+
 bool MapCanvas::DrawBasemap(bool flag, int map_type_)
 {
     map_type = map_type_;
@@ -410,7 +419,6 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type_)
             basemap->SetupMapType(map_type);
         }
     } else {
-        // isDrawBasemap == false
         if ( basemap ) {
             basemap->mapType=0;
         }
@@ -425,15 +433,18 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type_)
     return true;
 }
 
+void MapCanvas::resizeLayerBms(int width, int height)
+{
+	deleteLayerBms();
+    
+	basemap_bm = new wxBitmap(width, height);
+    layerbase_valid = false;
+    
+    TemplateCanvas::resizeLayerBms(width, height);
+}
+
 void MapCanvas::DrawLayers()
 {
-    if (layer2_valid && layer1_valid && layer0_valid) {
-        if (isDrawBasemap == false)
-            return;
-        if (layerbase_valid)
-            return;
-    }
-    
     wxSize sz = GetClientSize();
     
     if (!layerbase_valid && isDrawBasemap)
@@ -468,16 +479,6 @@ void MapCanvas::DrawLayerBase()
     }
 }
 
-void MapCanvas::resizeLayerBms(int width, int height)
-{
-	deleteLayerBms();
-    
-	basemap_bm = new wxBitmap(width, height);
-    layerbase_valid = false;
-    
-    TemplateCanvas::resizeLayerBms(width, height);
-}
-
 void MapCanvas::DrawLayer0()
 {
     wxMemoryDC dc(*layer0_bm);
@@ -506,8 +507,13 @@ void MapCanvas::DrawLayer1()
         dc.DrawBitmap(*basemap_bm,0,0);
     }
     
+    bool revert = false;
+    
     // faded the background half transparency
-    if (highlight_state->GetTotalHighlighted()>0) {
+    if (highlight_state->GetTotalHighlighted()>0 &&
+        GdaConst::use_cross_hatching == false)
+    {
+        revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
         wxImage image;
         if (isDrawBasemap) {
             image = map_bm->ConvertToImage();
@@ -517,10 +523,11 @@ void MapCanvas::DrawLayer1()
         if (!image.HasAlpha()) {
             image.InitAlpha();
         }
+        int alpha = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
         for (int i=0; i< image.GetWidth(); i++) {
             for (int j=0; j<image.GetHeight(); j++) {
                 if (image.GetAlpha(i, j) != 0) {
-                    image.SetAlpha(i, j, GdaConst::transparency_unhighlighted);
+                    image.SetAlpha(i, j, alpha);
                 }
             }
         }
@@ -534,12 +541,86 @@ void MapCanvas::DrawLayer1()
             dc.DrawBitmap(*map_bm,0,0);
         }
     }
-   
-    DrawHighlightedShapes(dc);
+  
+    DrawHighlightedShapes(dc, revert);
     
     dc.SelectObject(wxNullBitmap);
     layer1_valid = true;
     layer2_valid = false;
+}
+
+// draw highlighted selectable shapes
+void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
+{
+    if (selectable_shps.size() == 0)
+        return;
+    
+    if (GdaConst::transparency_highlighted == 255 ||
+        GdaConst::use_cross_hatching) {
+        if (use_category_brushes) {
+            bool highlight_only = true;
+            DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
+            
+        } else {
+            vector<bool>& hs = GetSelBitVec();
+            for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+                if (hs[i] == !revert && _IsShpValid(i)) {
+                    selectable_shps[i]->paintSelf(dc);
+                }
+            }
+        }
+        return;
+    }
+    
+    // Apply highlight objects with transparency
+    
+    wxSize sz = dc.GetSize();
+    wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+    wxMemoryDC _dc;
+    // use a special color for mask transparency: 244, 243, 242c
+    wxColour maskColor(123, 123, 123);
+    wxBrush maskBrush(maskColor);
+    _dc.SetBackground(maskBrush);
+    _dc.SelectObject(bmp);
+    _dc.Clear();
+    
+    if (use_category_brushes) {
+        bool highlight_only = true;
+        DrawSelectableShapes_dc(_dc, highlight_only, revert);
+        
+    } else {
+        vector<bool>& hs = GetSelBitVec();
+        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+            if (hs[i] == !revert && _IsShpValid(i)) {
+                selectable_shps[i]->paintSelf(_dc);
+            }
+        }
+    }
+    
+    _dc.SelectObject(wxNullBitmap);
+    
+    wxImage image = bmp.ConvertToImage();
+    if (!image.HasAlpha()) {
+        image.InitAlpha();
+    }
+    int alpha = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
+    unsigned char r, g, b;
+    
+    for (int i=0; i< image.GetWidth(); i++) {
+        for (int j=0; j<image.GetHeight(); j++) {
+            r = image.GetRed(i,j);
+            g = image.GetGreen(i,j);
+            b = image.GetBlue(i,j);
+            if (r == 123 && g == 123 && b == 123) {
+                image.SetAlpha(i, j, 0);
+                continue;
+            }
+            image.SetAlpha(i,j, alpha);
+        }
+    }
+    
+    wxBitmap _bmp(image);
+    dc.DrawBitmap(_bmp,0,0, true);
 }
 
 void MapCanvas::DrawLayer2()
@@ -614,6 +695,17 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
     }
 }
 
+void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
+                                        bool use_crosshatch)
+{
+#ifdef __WXOSX__
+    wxGCDC dc(_dc);
+    helper_DrawSelectableShapes_dc(dc, hl_only, revert, use_crosshatch);
+#else
+    helper_DrawSelectableShapes_dc(_dc, hl_only, revert, use_crosshatch);
+    
+#endif
+}
 
 int MapCanvas::GetBasemapType()
 {
@@ -1746,7 +1838,7 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
     bool drawSuccess = ((MapCanvas*)template_canvas)->DrawBasemap(flag, map_type);
     
     if (drawSuccess==false) {
-        wxMessageBox("GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file).");
+        wxMessageBox(_("GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."));
     }
 }
 

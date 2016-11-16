@@ -7051,6 +7051,90 @@
       </object>
     </object>
   </object>
+  <object class="wxDialog" name="IDD_WELCOME_SELECTION_STYLE" subclass="WelcomeSelectionStyleDlg">
+      <object class="wxBoxSizer">
+          <orient>wxVERTICAL</orient>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+              <border>40</border>
+              <object class="wxStaticText">
+                  <label>Welcome to GeoDa 1.8.16</label>
+                  <font>
+                      <weight>bold</weight>
+                      <size>26</size>
+                  </font>
+                  <fg>#666666</fg>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+              <border>0</border>
+              <object class="wxStaticText">
+                  <label>Please click to choose a highlighting style in GeoDa:</label>
+                  <font>
+                      <size>16</size>
+                  </font>
+                  <fg>#666666</fg>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxRIGHT|wxBOTTOM</flag>
+              <border>25</border>
+              <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <border>50</border>
+                      <object class="wxStaticBitmap" name="IDC_SELECTION_STYLE1">
+                          <style>wxBORDER_NONE</style>
+                          <bitmap>selstyle1.png</bitmap>
+                          <bitmap2>selstyle1.png</bitmap2>
+                          <size>200,160</size>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <border>50</border>
+                      <object class="wxStaticBitmap" name="IDC_SELECTION_STYLE2">
+                          <style>wxBORDER_NONE</style>
+                          <bitmap>selstyle2.png</bitmap>
+                          <bitmap2>selstyle2.png</bitmap2>
+                          <size>200,160</size>
+                      </object>
+                  </object>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_LEFT|wxLEFT|wxRIGHT|wxBOTTOM</flag>
+              <border>30</border>
+              <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <object class="wxCheckBox" name="ID_AUTO_LABELS_CB">
+                          <checked>1</checked>
+                      </object>
+                  </object>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                      <object class="wxStaticText">
+                          <label>Don't show this dialog again (You can always change this setting using menu: File->Preferences)</label>
+                          <font>
+                              <size>10</size>
+                          </font>
+                          <fg>#666666</fg>
+                      </object>
+                  </object>
+              </object>
+          </object>
+      </object>
+      <title></title>
+      <centered>1</centered>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+      <bg>#FFFFFF</bg>
+  </object>
+
   <object class="wxDialog" name="IDD_CONNECT_DATASOURCE" subclass="ConnectDatasourceDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>

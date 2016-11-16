@@ -376,7 +376,17 @@ bool GdaApp::OnInit(void)
 		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
 
-    // check crash
+    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("show_welcome_dialog");
+    if (items.size() == 0) {
+        wxPoint welcome_pos = appFramePos;
+        welcome_pos.y += 150;
+        WelcomeSelectionStyleDlg styleDlg(GdaFrame::GetGdaFrame(), wxID_ANY, "",
+                                          welcome_pos);
+        styleDlg.Show();
+        OGRDataAdapter::GetInstance().AddEntry("show_welcome_dialog", "true");
+    }
+
+        // check crash
     if (GdaConst::disable_crash_detect == false) {
         std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
@@ -1095,7 +1105,7 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
 void GdaFrame::OnNewProject(wxCommandEvent& event)
 {
 	wxLogMessage("Click GdaFrame::OnNewProject");
-    
+   
 	ConnectDatasourceDlg dlg(this);
 	if (dlg.ShowModal() != wxID_OK)
         return;

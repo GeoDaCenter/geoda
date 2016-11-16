@@ -143,7 +143,11 @@ public:
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
 	//virtual void OnPaint(wxPaintEvent& event);
-
+    virtual void DrawHighlightedShapes(wxMemoryDC &dc, bool revert);
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only=false,
+                                         bool revert=false,
+                                         bool use_crosshatch=false);
+    
     virtual void ResetShapes();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();

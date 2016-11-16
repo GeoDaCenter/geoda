@@ -18,6 +18,7 @@
  */
 #include <string>
 #include <wx/wx.h>
+#include <wx/statbmp.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
@@ -57,6 +58,50 @@ using namespace std;
 using namespace GdaJson;
 
 
+IMPLEMENT_CLASS( WelcomeSelectionStyleDlg, wxDialog )
+
+BEGIN_EVENT_TABLE( WelcomeSelectionStyleDlg, wxDialog )
+END_EVENT_TABLE()
+
+WelcomeSelectionStyleDlg::WelcomeSelectionStyleDlg(wxWindow* parent,
+                                                   wxWindowID id,
+                                                   const wxString& title,
+                                                   const wxPoint& pos,
+                                                   const wxSize& size)
+{
+    SetParent(parent);
+    SetPosition(pos);
+    
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_WELCOME_SELECTION_STYLE");
+    
+    wxStaticBitmap* m_sel_style1 = XRCCTRL(*this, "IDC_SELECTION_STYLE1",wxStaticBitmap);
+    wxStaticBitmap* m_sel_style2 = XRCCTRL(*this, "IDC_SELECTION_STYLE2",wxStaticBitmap);
+    
+    m_sel_style1->Bind(wxEVT_LEFT_DOWN, &WelcomeSelectionStyleDlg::OnStyle1, this);
+    m_sel_style2->Bind(wxEVT_LEFT_DOWN, &WelcomeSelectionStyleDlg::OnStyle2, this);
+    
+    Centre();
+    Move(pos);
+    
+    ShowModal();
+    
+    Destroy();
+}
+
+void WelcomeSelectionStyleDlg::OnStyle1(wxMouseEvent& ev)
+{
+    GdaConst::use_cross_hatching = false;
+    OGRDataAdapter::GetInstance().AddEntry("use_cross_hatching", "0");
+    EndDialog(wxID_OK);
+}
+
+void WelcomeSelectionStyleDlg::OnStyle2(wxMouseEvent& ev)
+{
+    GdaConst::use_cross_hatching = true;
+    OGRDataAdapter::GetInstance().AddEntry("use_cross_hatching", "1");
+    EndDialog(wxID_OK);
+}
+
 PreferenceDlg::PreferenceDlg(wxWindow* parent,
                              wxWindowID id,
                              const wxString& title,
@@ -93,7 +138,8 @@ void PreferenceDlg::Init()
     notebook->AddPage(vis_page, "System");
     wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 5, 20);
     
-    grid_sizer1->AddSpacer(10);
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1,
+                     wxTOP | wxBOTTOM, 20);
     grid_sizer1->AddSpacer(10);
     
     wxString lbl0 = _("Use classic yellow cross-hatching to highlight selection in maps:");
@@ -132,9 +178,6 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(box2,0, wxALIGN_RIGHT);
     slider2->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider2, this);
    
-    grid_sizer1->AddSpacer(10);
-    grid_sizer1->AddSpacer(10);
-    
     wxString lbl3 = _("Add basemap automatically:");
     wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
     wxComboBox* cmb3 = new wxComboBox(vis_page, XRCID("PREF_BASEMAP_CHOICE"));
@@ -155,7 +198,42 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(cmb3, 0, wxALIGN_RIGHT);
     cmb3->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
     
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
+                     wxTOP | wxBOTTOM, 20);
     grid_sizer1->AddSpacer(10);
+   
+    wxString lbl6 = _("Set transparency of highlighted objects in selection:");
+    wxStaticText* lbl_txt6 = new wxStaticText(vis_page, wxID_ANY, lbl6);
+    wxBoxSizer* box6 = new wxBoxSizer(wxHORIZONTAL);
+    wxSlider* slider6 = new wxSlider(vis_page, wxID_ANY,
+                                     255, 0, 255,
+                                     wxDefaultPosition, wxDefaultSize,
+                                     wxSL_HORIZONTAL);
+    wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), wxString::Format("%d", GdaConst::plot_transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    box6->Add(slider6);
+    box6->Add(slider_txt6);
+    grid_sizer1->Add(lbl_txt6, 1, wxEXPAND);
+    grid_sizer1->Add(box6,0, wxALIGN_RIGHT);
+    slider6->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider6, this);
+    slider6->Enable(false);
+    
+    wxString lbl7 = _("Set transparency of unhighlighted objects in selection:");
+    wxStaticText* lbl_txt7 = new wxStaticText(vis_page, wxID_ANY, lbl7);
+    wxBoxSizer* box7 = new wxBoxSizer(wxHORIZONTAL);
+    wxSlider* slider7 = new wxSlider(vis_page, wxID_ANY,
+                                     GdaConst::plot_transparency_unhighlighted, 0, 255,
+                                     wxDefaultPosition, wxDefaultSize,
+                                     wxSL_HORIZONTAL);
+    wxTextCtrl* slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), wxString::Format("%d", GdaConst::plot_transparency_unhighlighted),wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    box7->Add(slider7);
+    box7->Add(slider_txt7);
+    grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
+    grid_sizer1->Add(box7,0, wxALIGN_RIGHT);
+    slider7->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider7, this);
+    
+    
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("System:")), 1,
+                     wxTOP | wxBOTTOM, 20);
     grid_sizer1->AddSpacer(10);
     
     wxString lbl4 = _("Disable crash detection for bug report:");
@@ -248,6 +326,14 @@ void PreferenceDlg::ReadFromCache()
         wxString transp = transp_uh[0];
         if (transp.ToLong(&transp_l)) {
             GdaConst::transparency_unhighlighted = transp_l;
+        }
+    }
+    vector<string> plot_transparency_unhighlighted = OGRDataAdapter::GetInstance().GetHistory("plot_transparency_unhighlighted");
+    if (!plot_transparency_unhighlighted.empty() ) {
+        long transp_l = 0;
+        wxString transp = plot_transparency_unhighlighted[0];
+        if (transp.ToLong(&transp_l)) {
+            GdaConst::plot_transparency_unhighlighted = transp_l;
         }
     }
     vector<string> basemap_sel = OGRDataAdapter::GetInstance().GetHistory("default_basemap_selection");
@@ -349,6 +435,33 @@ void PreferenceDlg::OnSlider2(wxScrollEvent& ev)
     transp_str << val;
     OGRDataAdapter::GetInstance().AddEntry("transparency_unhighlighted", transp_str.ToStdString());
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER2_TXT")), wxTextCtrl);
+    txt_ctl->SetValue(transp_str);
+    if (highlight_state) {
+        highlight_state->notifyObservers();
+    }
+}
+void PreferenceDlg::OnSlider6(wxScrollEvent& ev)
+{
+    int val = ev.GetPosition();
+    GdaConst::plot_transparency_highlighted = val;
+    wxString transp_str;
+    transp_str << val;
+    OGRDataAdapter::GetInstance().AddEntry("plot_transparency_highlighted", transp_str.ToStdString());
+	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER6_TXT")), wxTextCtrl);
+    txt_ctl->SetValue(transp_str);
+    
+    if (highlight_state) {
+        highlight_state->notifyObservers();
+    }
+}
+void PreferenceDlg::OnSlider7(wxScrollEvent& ev)
+{
+    int val = ev.GetPosition();
+    GdaConst::plot_transparency_unhighlighted = val;
+    wxString transp_str;
+    transp_str << val;
+    OGRDataAdapter::GetInstance().AddEntry("plot_transparency_unhighlighted", transp_str.ToStdString());
+	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER7_TXT")), wxTextCtrl);
     txt_ctl->SetValue(transp_str);
     if (highlight_state) {
         highlight_state->notifyObservers();

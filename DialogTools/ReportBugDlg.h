@@ -28,11 +28,28 @@
 #include <wx/sizer.h>
 #include <wx/checkbox.h>
 #include <wx/hyperlink.h>
+#include <wx/xrc/xmlres.h>
 
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
 
 using namespace std;
+
+
+class WelcomeSelectionStyleDlg : public wxDialog
+{
+    DECLARE_CLASS( WelcomeSelectionStyleDlg )
+    DECLARE_EVENT_TABLE()
+public:
+    WelcomeSelectionStyleDlg(wxWindow* parent,
+                             wxWindowID id = wxID_ANY,
+                             const wxString& title = _("Welcome to GeoDa"),
+                             const wxPoint& pos = wxDefaultPosition,
+                             const wxSize& size = wxDefaultSize);
+protected:
+    void OnStyle1(wxMouseEvent& ev);
+    void OnStyle2(wxMouseEvent& ev);
+};
 
 class PreferenceDlg : public wxDialog
 {
@@ -65,6 +82,9 @@ protected:
     void OnDisableCrashDetect(wxCommandEvent& ev);
     void OnDisableAutoUpgrade(wxCommandEvent& ev);
    
+    void OnSlider6(wxScrollEvent& ev);
+    void OnSlider7(wxScrollEvent& ev);
+    
     void OnHideTablePostGIS(wxCommandEvent& ev);
     void OnHideTableSQLITE(wxCommandEvent& ev);
     

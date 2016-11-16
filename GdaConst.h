@@ -305,6 +305,8 @@ public:
     static bool hide_sys_table_sqlite;
     static bool disable_crash_detect;
     static bool disable_auto_upgrade;
+    static int plot_transparency_highlighted;
+    static int plot_transparency_unhighlighted;
     
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
