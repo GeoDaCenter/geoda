@@ -242,6 +242,10 @@ void MapCanvas::deleteLayerBms()
 
 void MapCanvas::ResetShapes()
 {
+    if (faded_layer_bm) {
+        delete faded_layer_bm;
+        faded_layer_bm = NULL;
+    }
     if (isDrawBasemap) {
         basemap->Reset();
         if (map_bm) {
@@ -257,7 +261,11 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
 {
     if (sel2.x == 0 && sel2.y==0)
         return;
-    
+
+    if (faded_layer_bm) {
+        delete faded_layer_bm;
+        faded_layer_bm = NULL;
+    }
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
         if (map_bm) {
@@ -277,6 +285,10 @@ void MapCanvas::PanShapes()
     if (sel2.x == 0 && sel2.y==0)
         return;
 
+    if (faded_layer_bm) {
+        delete faded_layer_bm;
+        faded_layer_bm = NULL;
+    }
     if (isDrawBasemap) {
         int delta_x = sel2.x - sel1.x;
         int delta_y = sel2.y - sel1.y;
@@ -514,8 +526,9 @@ void MapCanvas::DrawLayer1()
     if (highlight_state->GetTotalHighlighted()>0 &&
         GdaConst::use_cross_hatching == false)
     {
+        revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
+        
         if (faded_layer_bm == NULL) {
-            revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
             wxImage image;
             if (isDrawBasemap) {
                 image = map_bm->ConvertToImage();

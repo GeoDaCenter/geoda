@@ -141,26 +141,25 @@ void PreferenceDlg::Init()
     notebook->AddPage(vis_page, "System");
     wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 15, 20);
     
-    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1,
-                     wxTOP | wxBOTTOM, 20);
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
     grid_sizer1->AddSpacer(10);
     
     wxString lbl0 = _("Use classic yellow cross-hatching to highlight selection in maps:");
     wxStaticText* lbl_txt0 = new wxStaticText(vis_page, wxID_ANY, lbl0);
-    wxCheckBox* cbox0 = new wxCheckBox(vis_page, XRCID("PREF_USE_CROSSHATCH"), "", wxDefaultPosition);
+    cbox0 = new wxCheckBox(vis_page, XRCID("PREF_USE_CROSSHATCH"), "", wxDefaultPosition);
     grid_sizer1->Add(lbl_txt0, 1, wxEXPAND);
     grid_sizer1->Add(cbox0,0, wxALIGN_RIGHT);
-    cbox0->SetValue(GdaConst::use_cross_hatching);
     cbox0->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCrossHatch, this);
     
     wxString lbl1 = _("Set transparency of highlighted objects in selection:");
     wxStaticText* lbl_txt1 = new wxStaticText(vis_page, wxID_ANY, lbl1);
     wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
-    wxSlider* slider1 = new wxSlider(vis_page, wxID_ANY,
-                                     GdaConst::transparency_highlighted, 0, 255,
-                                    wxDefaultPosition, wxDefaultSize,
-                                    wxSL_HORIZONTAL);
-    wxTextCtrl* slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), wxString::Format("%d", GdaConst::transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider1 = new wxSlider(vis_page, wxID_ANY,
+                           0, 0, 255,
+                           wxDefaultPosition, wxDefaultSize,
+                           wxSL_HORIZONTAL);
+    slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
+                                 wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box1->Add(slider1);
     box1->Add(slider_txt1);
     grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
@@ -170,11 +169,12 @@ void PreferenceDlg::Init()
     wxString lbl2 = _("Set transparency of unhighlighted objects in selection:");
     wxStaticText* lbl_txt2 = new wxStaticText(vis_page, wxID_ANY, lbl2);
     wxBoxSizer* box2 = new wxBoxSizer(wxHORIZONTAL);
-    wxSlider* slider2 = new wxSlider(vis_page, wxID_ANY,
-                                     GdaConst::transparency_unhighlighted, 0, 255,
-                                    wxDefaultPosition, wxDefaultSize,
-                                    wxSL_HORIZONTAL);
-    wxTextCtrl* slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), wxString::Format("%d", GdaConst::transparency_unhighlighted),wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider2 = new wxSlider(vis_page, wxID_ANY,
+                           0, 0, 255,
+                           wxDefaultPosition, wxDefaultSize,
+                           wxSL_HORIZONTAL);
+    slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
+                                 wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box2->Add(slider2);
     box2->Add(slider_txt2);
     grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
@@ -185,7 +185,7 @@ void PreferenceDlg::Init()
     wxString lbl3 = _("Add basemap automatically:");
     wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
-	wxComboBox* cmb33 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	cmb33 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
     cmb33->Append("No basemap");
     cmb33->Append("Carto Light");
     cmb33->Append("Carto Dark");
@@ -196,9 +196,6 @@ void PreferenceDlg::Init()
     cmb33->Append("Nokia Hybrid");
     cmb33->Append("Nokia Satellite");
     cmb33->SetSelection(0);
-    if (GdaConst::use_basemap_by_default) {
-        cmb33->SetSelection(GdaConst::default_basemap_selection);
-    }
 	cmb33->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
 	
     grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
@@ -228,11 +225,11 @@ void PreferenceDlg::Init()
     wxString lbl7 = _("Set transparency of unhighlighted objects in selection:");
     wxStaticText* lbl_txt7 = new wxStaticText(vis_page, wxID_ANY, lbl7);
     wxBoxSizer* box7 = new wxBoxSizer(wxHORIZONTAL);
-    wxSlider* slider7 = new wxSlider(vis_page, wxID_ANY,
-                                     GdaConst::plot_transparency_unhighlighted, 0, 255,
-                                     wxDefaultPosition, wxDefaultSize,
-                                     wxSL_HORIZONTAL);
-    wxTextCtrl* slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), wxString::Format("%d", GdaConst::plot_transparency_unhighlighted),wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider7 = new wxSlider(vis_page, wxID_ANY,
+                           0, 0, 255,
+                           wxDefaultPosition, wxDefaultSize,
+                           wxSL_HORIZONTAL);
+    slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box7->Add(slider7);
     box7->Add(slider_txt7);
     grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
@@ -246,24 +243,27 @@ void PreferenceDlg::Init()
     
     wxString lbl4 = _("Disable crash detection for bug report:");
     wxStaticText* lbl_txt4 = new wxStaticText(vis_page, wxID_ANY, lbl4);
-    wxCheckBox* cbox4 = new wxCheckBox(vis_page, XRCID("PREF_CRASH_DETECT"), "", wxDefaultPosition);
+    cbox4 = new wxCheckBox(vis_page, XRCID("PREF_CRASH_DETECT"), "", wxDefaultPosition);
     grid_sizer1->Add(lbl_txt4, 1, wxEXPAND);
     grid_sizer1->Add(cbox4, 0, wxALIGN_RIGHT);
-    cbox4->SetValue(GdaConst::disable_crash_detect);
     cbox4->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableCrashDetect, this);
     
     wxString lbl5 = _("Disable auto upgrade:");
     wxStaticText* lbl_txt5 = new wxStaticText(vis_page, wxID_ANY, lbl5);
-    wxCheckBox* cbox5 = new wxCheckBox(vis_page, XRCID("PREF_AUTO_UPGRADE"), "", wxDefaultPosition);
+    cbox5 = new wxCheckBox(vis_page, XRCID("PREF_AUTO_UPGRADE"), "", wxDefaultPosition);
     grid_sizer1->Add(lbl_txt5, 1, wxEXPAND);
     grid_sizer1->Add(cbox5, 0, wxALIGN_RIGHT);
-    cbox5->SetValue(GdaConst::disable_auto_upgrade);
     cbox5->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableAutoUpgrade, this);
     
     grid_sizer1->AddGrowableCol(0, 1);
-    grid_sizer1->Fit(vis_page);
-    vis_page->SetSizer(grid_sizer1);
+    
+    wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
+    nb_box1->Add(grid_sizer1, 1, wxEXPAND | wxALL, 20);
+    nb_box1->Fit(vis_page);
+    
+    vis_page->SetSizer(nb_box1);
 
+    //------------------------------------
     //  datasource (gdal) tab
     wxNotebookPage* gdal_page = new wxNotebookPage(notebook, -1 );
 #ifdef __WIN32__
@@ -274,27 +274,31 @@ void PreferenceDlg::Init()
   
     wxString lbl21 = _("Hide system table in Postgresql connection:");
     wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);
-    wxCheckBox* cbox21 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+    cbox21 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
     grid_sizer2->Add(lbl_txt21, 1, wxEXPAND| wxTOP, 10);
     grid_sizer2->Add(cbox21, 0, wxALIGN_RIGHT| wxTOP, 13);
     cbox21->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTablePostGIS, this);
-    cbox21->SetValue(GdaConst::hide_sys_table_postgres);
     
     
     wxString lbl22 = _("Hide system table in SQILTE connection:");
     wxStaticText* lbl_txt22 = new wxStaticText(gdal_page, wxID_ANY, lbl22);
-    wxCheckBox* cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+    cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
     grid_sizer2->Add(lbl_txt22, 1, wxEXPAND);
     grid_sizer2->Add(cbox22, 0, wxALIGN_RIGHT);
     cbox22->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTableSQLITE, this);
-    cbox22->SetValue(GdaConst::hide_sys_table_sqlite);
     
     grid_sizer2->AddGrowableCol(0, 1);
-    grid_sizer2->Fit(gdal_page);
-    gdal_page->SetSizer(grid_sizer2);
     
+    wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
+    nb_box2->Add(grid_sizer2, 1, wxEXPAND | wxALL, 20);
+    nb_box2->Fit(gdal_page);
+    
+    gdal_page->SetSizer(nb_box2);
+   
+    SetupControls();
     
     // overall
+    
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     
@@ -318,7 +322,54 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+    GdaConst::use_cross_hatching = false;
+    GdaConst::transparency_highlighted = 209;
+    GdaConst::transparency_unhighlighted = 255;
+    //GdaConst::transparency_map_on_basemap = 200;
+    GdaConst::use_basemap_by_default = false;
+    GdaConst::default_basemap_selection = 0;
+    GdaConst::hide_sys_table_postgres = false;
+    GdaConst::hide_sys_table_sqlite = false;
+    GdaConst::disable_crash_detect = false;
+    GdaConst::disable_auto_upgrade = false;
+    GdaConst::plot_transparency_highlighted = 255;
+    GdaConst::plot_transparency_unhighlighted = 50;
     
+    SetupControls();
+    
+    OGRDataAdapter& ogr_adapt  = OGRDataAdapter::GetInstance();
+    ogr_adapt.AddEntry("use_cross_hatching", "0");
+    ogr_adapt.AddEntry("transparency_highlighted", "209");
+    ogr_adapt.AddEntry("transparency_unhighlighted", "255");
+    ogr_adapt.AddEntry("use_basemap_by_default", "0");
+    ogr_adapt.AddEntry("default_basemap_selection", "0");
+    ogr_adapt.AddEntry("hide_sys_table_postgres", "0");
+    ogr_adapt.AddEntry("hide_sys_table_sqlite", "0");
+    ogr_adapt.AddEntry("disable_crash_detect", "0");
+    ogr_adapt.AddEntry("disable_auto_upgrade", "0");
+    ogr_adapt.AddEntry("plot_transparency_highlighted", "255");
+    ogr_adapt.AddEntry("plot_transparency_unhighlighted", "50");
+}
+
+void PreferenceDlg::SetupControls()
+{
+    cbox0->SetValue(GdaConst::use_cross_hatching);
+    slider1->SetValue(GdaConst::transparency_highlighted);
+    slider_txt1->SetValue(wxString::Format("%d", GdaConst::transparency_highlighted));
+    slider2->SetValue(GdaConst::transparency_unhighlighted);
+    slider_txt2->SetValue(wxString::Format("%d", GdaConst::transparency_unhighlighted));
+    if (GdaConst::use_basemap_by_default) {
+        cmb33->SetSelection(GdaConst::default_basemap_selection);
+    } else {
+        cmb33->SetSelection(0);
+    }
+    
+    slider7->SetValue( GdaConst::plot_transparency_unhighlighted);
+    slider_txt7->SetValue(wxString::Format("%d", GdaConst::plot_transparency_highlighted));
+    cbox4->SetValue(GdaConst::disable_crash_detect);
+    cbox5->SetValue(GdaConst::disable_auto_upgrade);
+    cbox21->SetValue(GdaConst::hide_sys_table_postgres);
+    cbox22->SetValue(GdaConst::hide_sys_table_sqlite);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -435,6 +486,7 @@ void PreferenceDlg::OnSlider1(wxScrollEvent& ev)
     txt_ctl->SetValue(transp_str);
     
     if (highlight_state) {
+        highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();
     }
 }
@@ -448,6 +500,7 @@ void PreferenceDlg::OnSlider2(wxScrollEvent& ev)
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER2_TXT")), wxTextCtrl);
     txt_ctl->SetValue(transp_str);
     if (highlight_state) {
+        highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();
     }
 }
@@ -462,6 +515,7 @@ void PreferenceDlg::OnSlider6(wxScrollEvent& ev)
     txt_ctl->SetValue(transp_str);
     
     if (highlight_state) {
+        highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();
     }
 }

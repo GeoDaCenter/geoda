@@ -74,8 +74,6 @@ c3d_plot_frame(t_frame)
 	var_min.resize(var_info.size());
 	var_max.resize(var_info.size());
 	
-	std::vector<double> temp_vec;
-    
 	for (int v=0; v<num_vars; v++) {
 		table_int->GetColData(col_ids[v], data[v]);
 		table_int->GetColData(col_ids[v], scaled_d[v]);
@@ -99,6 +97,7 @@ c3d_plot_frame(t_frame)
 		data_stats[v].resize(data_times);
         
 		for (int t=0; t<data_times; t++) {
+            std::vector<double> temp_vec;
 			for (int i=0; i<num_obs; i++) {
 				temp_vec.push_back(data[v][t][i]);
 			}

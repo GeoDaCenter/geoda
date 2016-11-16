@@ -42,7 +42,8 @@ public:
 		empty, // an empty event, observers should not be notified
 		delta, // check both newly_highlighted and newly_unhighlighted
 		unhighlight_all, // unhighlight everything
-		invert // flip highlight state for all observations
+		invert, // flip highlight state for all observations
+        transparency // transparency change
 	};
 	
 	/** Signal that HighlightState should be closed, but wait until

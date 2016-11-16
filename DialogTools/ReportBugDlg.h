@@ -71,8 +71,30 @@ public:
     
 protected:
     HLStateInt* highlight_state;
+    // PREF_USE_CROSSHATCH
+    wxCheckBox* cbox0;
+    // PREF_SLIDER1_TXT
+    wxSlider* slider1;
+    wxTextCtrl* slider_txt1;
+    // PREF_SLIDER2_TXT
+    wxSlider* slider2;
+    wxTextCtrl* slider_txt2;
+    // basemap auto
+    wxComboBox* cmb33;
+    // plot unhighlighted transp
+    wxSlider* slider7;
+    wxTextCtrl* slider_txt7;
+    // crash detect
+    wxCheckBox* cbox4;
+    // auto upgrade
+    wxCheckBox* cbox5;
+    // postgresql
+    wxCheckBox* cbox21;
+    // sqlite
+    wxCheckBox* cbox22;
     
     void Init();
+    void SetupControls();
     
     void OnCrossHatch(wxCommandEvent& ev);
     void OnSlider1(wxScrollEvent& ev);
