@@ -15,13 +15,13 @@
 #undef TLOG
 #endif
 
-#if defined (FTLOG)
-#include <fstream>
-#else
+//#if defined (FTLOG)
+//#include <fstream>
+//#else
 #include <iostream>
 // http://www.msobczak.com/prog/bin/nullstream.zip
 #include "nullstream.h"
-#endif
+//#endif
 logger_t::logger_t()
 {}
 bool logger_t::is_activated = true;
@@ -37,9 +37,12 @@ std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
 std::ostream * logger_t::outstream = &std::cerr;
 
 #elif defined (FTLOG)
-std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
-= std::auto_ptr<std::ostream>( new std::ofstream ("oldlogger.txt"));
-std::ostream * logger_t::outstream = outstream_helper_ptr.get();
+//std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
+//= std::auto_ptr<std::ostream>( new std::ofstream ("oldlogger.txt"));
+//std::ostream * logger_t::outstream = outstream_helper_ptr.get();
+std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::auto_ptr <std::ostream>( new NullStream );
+std::ostream * logger_t::outstream = &std::cout;
 
 // here is a place for user defined output stream
 // and compiler flag

@@ -44,12 +44,11 @@ help_html(help_html_), help_title(help_html_.IsEmpty() ? "Help" : help_title_),
 vars_list(0), include_list(0)
 {
 	LOG_MSG("Entering VarsChooserFrame::VarsChooserFrame");
-	
+	SetBackgroundColour(*wxWHITE);
 	wxPanel* panel = new wxPanel(this);
 	
 	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, "Variables");
-	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY,
-																										 "Include");
+	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, "Include");
 	
 	vars_list = new wxListBox(panel, XRCID("ID_VARS_LIST"), wxDefaultPosition,
 														wxSize(-1, 150), 0, 0, wxLB_SINGLE);
