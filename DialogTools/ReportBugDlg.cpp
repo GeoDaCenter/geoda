@@ -134,9 +134,12 @@ void PreferenceDlg::Init()
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
     
     //  visualization tab
-    wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1 );
+    wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 420) );
+#ifdef __WIN32__
+	vis_page->SetBackgroundColour(*wxWHITE);
+#endif
     notebook->AddPage(vis_page, "System");
-    wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 5, 20);
+    wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 15, 20);
     
     grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1,
                      wxTOP | wxBOTTOM, 20);
@@ -178,30 +181,35 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(box2,0, wxALIGN_RIGHT);
     slider2->Bind(wxEVT_SCROLL_THUMBTRACK, &PreferenceDlg::OnSlider2, this);
    
+	
     wxString lbl3 = _("Add basemap automatically:");
     wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
-    wxComboBox* cmb3 = new wxComboBox(vis_page, XRCID("PREF_BASEMAP_CHOICE"));
-    cmb3->Append("No basemap");
-    cmb3->Append("Carto Light");
-    cmb3->Append("Carto Dark");
-    cmb3->Append("Carto Light (No Labels)");
-    cmb3->Append("Carto Dark (No Labels)");
-    cmb3->Append("Nokia Day");
-    cmb3->Append("Nokia Night");
-    cmb3->Append("Nokia Hybrid");
-    cmb3->Append("Nokia Satellite");
-    cmb3->SetSelection(0);
+	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
+	wxComboBox* cmb33 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+    cmb33->Append("No basemap");
+    cmb33->Append("Carto Light");
+    cmb33->Append("Carto Dark");
+    cmb33->Append("Carto Light (No Labels)");
+    cmb33->Append("Carto Dark (No Labels)");
+    cmb33->Append("Nokia Day");
+    cmb33->Append("Nokia Night");
+    cmb33->Append("Nokia Hybrid");
+    cmb33->Append("Nokia Satellite");
+    cmb33->SetSelection(0);
     if (GdaConst::use_basemap_by_default) {
-        cmb3->SetSelection(GdaConst::default_basemap_selection);
+        cmb33->SetSelection(GdaConst::default_basemap_selection);
     }
+	cmb33->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
+	
     grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
-    grid_sizer1->Add(cmb3, 0, wxALIGN_RIGHT);
-    cmb3->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
+    grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
+    
     
     grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
                      wxTOP | wxBOTTOM, 20);
     grid_sizer1->AddSpacer(10);
    
+	
     wxString lbl6 = _("Set transparency of highlighted objects in selection:");
     wxStaticText* lbl_txt6 = new wxStaticText(vis_page, wxID_ANY, lbl6);
     wxBoxSizer* box6 = new wxBoxSizer(wxHORIZONTAL);
@@ -258,8 +266,11 @@ void PreferenceDlg::Init()
 
     //  datasource (gdal) tab
     wxNotebookPage* gdal_page = new wxNotebookPage(notebook, -1 );
+#ifdef __WIN32__
+	gdal_page->SetBackgroundColour(*wxWHITE);
+#endif
     notebook->AddPage(gdal_page, "Data Source");
-    wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 5, 20);
+    wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 15, 20);
   
     wxString lbl21 = _("Hide system table in Postgresql connection:");
     wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);

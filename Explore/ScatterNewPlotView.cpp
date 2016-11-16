@@ -221,11 +221,10 @@ bubble_size_scaler(1.0)
 		selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
 		selectable_outline_color = GdaConst::scatterplot_regression_color;
 	}
-
-    int timesteps_tbl = table_int->GetTimeSteps();
-    GdaVarTools::VarInfo& sec_var_info = var_info[2];
     
 	if (is_bubble_plot) {
+		int timesteps_tbl = table_int->GetTimeSteps();
+		GdaVarTools::VarInfo& sec_var_info = var_info[2];
 		Gda::dbl_int_pair_vec_type v_sorted(num_obs);
 		int times = sec_var_info.is_time_variant ? timesteps_tbl : 1;
 		obs_id_to_z_val_order.resize(boost::extents[times][num_obs]);
