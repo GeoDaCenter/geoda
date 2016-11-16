@@ -105,7 +105,7 @@ canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed), use_category_brushes(false),
 draw_sel_shps_by_z_val(false), transparency(0.5),
 isResize(false), 
-layer0_bm(0), layer1_bm(0), layer2_bm(0),
+layer0_bm(0), layer1_bm(0), layer2_bm(0), faded_layer_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
@@ -156,6 +156,7 @@ void TemplateCanvas::deleteLayerBms()
 	if (layer0_bm) delete layer0_bm; layer0_bm = 0;
 	if (layer1_bm) delete layer1_bm; layer1_bm = 0;
 	if (layer2_bm) delete layer2_bm; layer2_bm = 0;
+    if (faded_layer_bm) delete faded_layer_bm; faded_layer_bm = 0;
     
 	layer0_valid = false;
 	layer1_valid = false;
@@ -641,16 +642,18 @@ void TemplateCanvas::DrawLayer1()
     
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
-        wxImage image = layer0_bm->ConvertToImage();
-        if (!image.HasAlpha()) {
-            image.InitAlpha();
-        }
-        unsigned char *alpha=image.GetAlpha();
-        memset(alpha, GdaConst::plot_transparency_unhighlighted, image.GetWidth()*image.GetHeight());
+        if (faded_layer_bm == NULL) {
+            wxImage image = layer0_bm->ConvertToImage();
+            if (!image.HasAlpha()) {
+                image.InitAlpha();
+            }
+            unsigned char *alpha=image.GetAlpha();
+            memset(alpha, GdaConst::plot_transparency_unhighlighted,
+                   image.GetWidth()*image.GetHeight());
 
-        wxBitmap _bmp(image);
-        dc.DrawBitmap(_bmp,0,0, true);
-        
+            faded_layer_bm = new wxBitmap(image);
+        }
+        dc.DrawBitmap(*faded_layer_bm,0,0, true);
     } else {
         dc.DrawBitmap(*layer0_bm, 0, 0);
     }

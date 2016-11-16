@@ -510,31 +510,33 @@ void MapCanvas::DrawLayer1()
     
     bool revert = false;
     
-    // faded the background half transparency
+    // faded the background
     if (highlight_state->GetTotalHighlighted()>0 &&
         GdaConst::use_cross_hatching == false)
     {
-        revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
-        wxImage image;
-        if (isDrawBasemap) {
-            image = map_bm->ConvertToImage();
-        } else {
-            image = layer0_bm->ConvertToImage();
-        }
-        if (!image.HasAlpha()) {
-            image.InitAlpha();
-        }
-        int alpha = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
-        for (int i=0; i< image.GetWidth(); i++) {
-            for (int j=0; j<image.GetHeight(); j++) {
-                if (image.GetAlpha(i, j) != 0) {
-                    image.SetAlpha(i, j, alpha);
+        if (faded_layer_bm == NULL) {
+            revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
+            wxImage image;
+            if (isDrawBasemap) {
+                image = map_bm->ConvertToImage();
+            } else {
+                image = layer0_bm->ConvertToImage();
+            }
+            if (!image.HasAlpha()) {
+                image.InitAlpha();
+            }
+            int alpha = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
+            for (int i=0; i< image.GetWidth(); i++) {
+                for (int j=0; j<image.GetHeight(); j++) {
+                    if (image.GetAlpha(i, j) != 0) {
+                        image.SetAlpha(i, j, alpha);
+                    }
                 }
             }
+            
+            faded_layer_bm = new wxBitmap(image);
         }
-        
-        wxBitmap _bmp(image);
-        dc.DrawBitmap(_bmp,0,0, true);
+        dc.DrawBitmap(*faded_layer_bm,0,0, true);
     } else {
         if (!isDrawBasemap) {
             dc.DrawBitmap(*layer0_bm, 0, 0);

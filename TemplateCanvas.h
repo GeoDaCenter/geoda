@@ -345,6 +345,7 @@ protected:
 	int  prev_scroll_pos_y;
     
 	
+	wxBitmap* faded_layer_bm; // layer1_bm + foreground obs
 	wxBitmap* layer0_bm; // background items + unhighlighted obs
 	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
 	wxBitmap* layer2_bm; // layer1_bm + foreground obs
