@@ -621,21 +621,20 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         image.InitAlpha();
     }
     int alpha = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
-    unsigned char r, g, b;
-    
-    for (int i=0; i< image.GetWidth(); i++) {
-        for (int j=0; j<image.GetHeight(); j++) {
-            r = image.GetRed(i,j);
-            g = image.GetGreen(i,j);
-            b = image.GetBlue(i,j);
-            if (r == 123 && g == 123 && b == 123) {
-                image.SetAlpha(i, j, 0);
-                continue;
-            }
-            image.SetAlpha(i,j, alpha);
-        }
-    }
-    
+    unsigned char* alpha_vals = image.GetAlpha();
+	unsigned char* pixel_data = image.GetData();
+	int n_pixel = image.GetWidth() * image.GetHeight();
+
+	memset(alpha_vals, alpha, n_pixel);
+	int pos = 0;
+	for (int i=0; i< n_pixel; i++) {
+		// check rgb
+		pos = i * 3;
+		if (pixel_data[pos] != 123) continue;
+		if (pixel_data[pos+1] != 123) continue;
+		if (pixel_data[pos+2] != 123) continue;
+		alpha_vals[i] = 0;
+	}
     wxBitmap _bmp(image);
     dc.DrawBitmap(_bmp,0,0, true);
 }
@@ -684,23 +683,20 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             }
             int alpha_value = transparency * 255;
             unsigned char *alpha=image.GetAlpha();
-            memset(alpha, alpha_value, image.GetWidth()*image.GetHeight());
+			unsigned char* pixel_data = image.GetData();
+			int n_pixel = image.GetWidth() * image.GetHeight();
+
+			memset(alpha, alpha_value, n_pixel);
+			int pos = 0;
+			for (int i=0; i< n_pixel; i++) {
+				// check rgb
+				pos = i * 3;
+				if (pixel_data[pos] != 123) continue;
+				if (pixel_data[pos+1] != 123) continue;
+				if (pixel_data[pos+2] != 123) continue;
+				alpha[i] = 0;
+			}
             
-            unsigned char r, g, b;
-            
-            for (int i=0; i< image.GetWidth(); i++) {
-                for (int j=0; j<image.GetHeight(); j++) {
-                    r = image.GetRed(i,j);
-                    g = image.GetGreen(i,j);
-                    b = image.GetBlue(i,j);
-                    if (r == 123 && g == 123 && b == 123) {
-                        image.SetAlpha(i, j, 0);
-                        continue;
-                    }
-                    
-                    image.SetAlpha(i,j, alpha_value);
-                }
-            }
             map_bm = new wxBitmap(image);
         }
         //dc.DrawBitmap(*map_bm,0,0);
