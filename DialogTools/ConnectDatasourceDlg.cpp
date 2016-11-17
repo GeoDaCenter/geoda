@@ -577,8 +577,6 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         ds_layernames.push_back(layer_name);
         
         n_ds = ds_names.size();
-        
-        
     } else {
         ds_names.erase(ds_names.begin());
         ds_confs.erase(ds_confs.begin());

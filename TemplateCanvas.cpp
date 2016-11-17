@@ -1012,8 +1012,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 			} else {
                 // hover
 				if (template_frame && template_frame->IsStatusBarVisible()) {
-					wxPoint pt  = GetActualPos(event);
-					DetermineMouseHoverObjects(pt);
+					prev  = GetActualPos(event);
+					DetermineMouseHoverObjects(prev);
 					UpdateStatusBar();
 				}
 			}

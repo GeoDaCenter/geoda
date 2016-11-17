@@ -161,6 +161,7 @@ void LineChartCanvas::DisplayRightClickMenu(const wxPoint& pos)
 // are all rectangles.
 void LineChartCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
+    is_showing_brush = false;
 	bool rect_sel = (!pointsel && (brushtype == rectangle));
 		
     /*
@@ -197,7 +198,7 @@ void LineChartCanvas::UpdateStatusBar()
 			GdaCircle c(*summ_avg_circs[0]);
 			c.center.x += c.getXNudge();
 			c.radius = 6;
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
 				s << "Sample 1 mean=";
 				if (lcs.compare_regimes || lcs.compare_r_and_t) {
 					s << lcs.Y_sel_tm0_avg;
@@ -210,7 +211,7 @@ void LineChartCanvas::UpdateStatusBar()
 			GdaCircle c(*summ_avg_circs[1]);
 			c.radius = 6;
 			c.center.x += c.getXNudge();
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
 				if (!s.IsEmpty()) s << ", ";
 				s << "Sample 2 mean=";
 				if (lcs.compare_regimes || lcs.compare_r_and_t) {
@@ -224,7 +225,7 @@ void LineChartCanvas::UpdateStatusBar()
 			GdaCircle c(*summ_avg_circs[2]);
 			c.radius = 6;
 			c.center.x += c.getXNudge();
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
 				if (!s.IsEmpty()) s << ", ";
 				s << "Sample 3 mean="<< lcs.Y_sel_tm1_avg;
 			}
@@ -233,7 +234,7 @@ void LineChartCanvas::UpdateStatusBar()
 			GdaCircle c(*summ_avg_circs[3]);
 			c.radius = 6;
 			c.center.x += c.getXNudge();
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
 				if (!s.IsEmpty()) s << ", ";
 				s << "Sample 4 mean=" << lcs.Y_excl_tm1_avg;
 			}
@@ -251,7 +252,7 @@ void LineChartCanvas::UpdateStatusBar()
 		for (size_t t=0, tms=comb_circs.size(); t<tms; ++t) {
 			GdaCircle c(*comb_circs[t]);
 			c.radius = 6;
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
 				if (!s.IsEmpty()) s << ", ";
 				if (!time_inv) s << table_int->GetTimeString(t) << " ";
 				s << "all obs mean=" << lcs.Y_avg[t];
@@ -260,8 +261,8 @@ void LineChartCanvas::UpdateStatusBar()
 		for (size_t t=0, tms=sel_circs.size(); t<tms; ++t) {
 			GdaCircle c(*sel_circs[t]);
 			c.radius = 6;
-			if (c.pointWithin(sel1)) {
-                if (lcs.sel_sz_i > 0) {
+			if (c.pointWithin(prev)) {
+                if (lcs.sel_sz_i >=0 ) {
                     if (!s.IsEmpty()) s << ", ";
                     if (!time_inv) s << table_int->GetTimeString(t) << " ";
                 
@@ -272,7 +273,7 @@ void LineChartCanvas::UpdateStatusBar()
 		for (size_t t=0, tms=excl_circs.size(); t<tms; ++t) {
 			GdaCircle c(*excl_circs[t]);
 			c.radius = 6;
-			if (c.pointWithin(sel1)) {
+			if (c.pointWithin(prev)) {
                 if (lcs.sel_sz_i > 0) {
                     if (!s.IsEmpty()) s << ", ";
                     if (!time_inv) s << table_int->GetTimeString(t) << " ";
