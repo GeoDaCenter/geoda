@@ -504,6 +504,20 @@ void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
     delete copy_w;
 }
 
+void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+{
+    
+    TemplateCanvas::UpdateSelection(shiftdown, pointsel);
+    
+    invalidateBms();
+    PopulateCanvas();
+    
+    // Call TemplateCanvas::update to redraw objects as needed.
+    //TemplateCanvas::update(highlight_stateo);
+    
+    Refresh();
+
+}
 void LisaScatterPlotCanvas::update(HLStateInt* o)
 {
     invalidateBms();
@@ -552,7 +566,6 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 		raw_data1[i] = lisa_coord->data1_vecs[xt][i];
 	}
    
-    const GalElement* W = lisa_coord->Gal_vecs[cts]->gal;
     bool reuse_last_seed = lisa_coord->IsReuseLastSeed();
     uint64_t last_used_seed = lisa_coord->GetLastUsedSeed();
     
@@ -569,7 +582,10 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
         }
         // here W handles undefined
         rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
-                                        W, permutation,
+                                        lisa_coord->Gal_vecs[cts],
+                                        lisa_coord->undef_tms[cts],
+                                        highlight_state->GetHighlight(),
+                                        permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
 		
@@ -583,7 +599,10 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
             rand_dlg->Destroy();
             rand_dlg = 0;
         }
-        rand_dlg = new RandomizationDlg(raw_data1, W, permutation,
+        rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->Gal_vecs[cts],
+                                        lisa_coord->undef_tms[cts],
+                                        highlight_state->GetHighlight(),
+                                        permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
         rand_dlg->Connect(wxEVT_DESTROY,
@@ -713,7 +732,8 @@ void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;
 	if (dlg_val.ToULongLong(&val)) {
-		if (!lisa_coord->IsReuseLastSeed()) lisa_coord->SetLastUsedSeed(true);
+		if (!lisa_coord->IsReuseLastSeed())
+            lisa_coord->SetLastUsedSeed(true);
 		uint64_t new_seed_val = val;
 		lisa_coord->SetLastUsedSeed(new_seed_val);
 	} else {

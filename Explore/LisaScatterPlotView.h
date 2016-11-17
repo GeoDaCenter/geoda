@@ -47,6 +47,7 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
     virtual void update(HLStateInt* o);
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
     
 	void ShowRandomizationDialog(int permutation);
 	void SaveMoranI();

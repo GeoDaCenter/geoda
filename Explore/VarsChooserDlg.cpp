@@ -26,6 +26,7 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../DialogTools/WebViewHelpWin.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "VarsChooserDlg.h"
 
 VarsChooserFrame::VarsChooserFrame(GdaVarTools::Manager& var_man,
@@ -44,6 +45,7 @@ help_html(help_html_), help_title(help_html_.IsEmpty() ? "Help" : help_title_),
 vars_list(0), include_list(0)
 {
 	LOG_MSG("Entering VarsChooserFrame::VarsChooserFrame");
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetBackgroundColour(*wxWHITE);
 	wxPanel* panel = new wxPanel(this);
 	
