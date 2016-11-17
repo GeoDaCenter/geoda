@@ -166,7 +166,7 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_bm(0),
+map_bm(0), map_hl_bm(0),
 map_type(0)
 {
 	using namespace Shapefile;
@@ -230,11 +230,16 @@ MapCanvas::~MapCanvas()
         delete map_bm;
         map_bm = NULL;
     }
+    if (map_hl_bm != NULL) {
+        delete map_hl_bm;
+        map_hl_bm = NULL;
+    }
 }
 
 void MapCanvas::deleteLayerBms()
 {
     if (map_bm) delete map_bm; map_bm = 0;
+    if (map_hl_bm) delete map_hl_bm; map_hl_bm = 0;
     if (basemap_bm) delete basemap_bm; basemap_bm = 0;
     
     TemplateCanvas::deleteLayerBms();
@@ -451,6 +456,7 @@ void MapCanvas::resizeLayerBms(int width, int height)
 	deleteLayerBms();
     
 	basemap_bm = new wxBitmap(width, height);
+	map_hl_bm = new wxBitmap(width, height);
     layerbase_valid = false;
     
     TemplateCanvas::resizeLayerBms(width, height);
@@ -590,16 +596,12 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     
     // Apply highlight objects with transparency
     
-    wxSize sz = dc.GetSize();
-    wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
     wxMemoryDC _dc;
-    // use a special color for mask transparency: 244, 243, 242c
     wxColour maskColor(123, 123, 123);
     wxBrush maskBrush(maskColor);
     _dc.SetBackground(maskBrush);
-    _dc.SelectObject(bmp);
+    _dc.SelectObject(*map_hl_bm);
     _dc.Clear();
-    
     if (use_category_brushes) {
         bool highlight_only = true;
         DrawSelectableShapes_dc(_dc, highlight_only, revert);
@@ -612,10 +614,9 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
             }
         }
     }
-    
     _dc.SelectObject(wxNullBitmap);
     
-    wxImage image = bmp.ConvertToImage();
+    wxImage image = map_hl_bm->ConvertToImage();
     if (!image.HasAlpha()) {
         image.InitAlpha();
     }
