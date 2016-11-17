@@ -198,6 +198,12 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
+                try {
+                    RecentDatasource recent_ds;
+                    recent_ds.Add(ds_file_path.GetFullPath(), "", "");
+                } catch( GdaException ex) {
+                    LOG_MSG(ex.what());
+                }
                 EndDialog(wxID_CANCEL);
             }
             return;
@@ -431,7 +437,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
     
 	return datasource;
 }
-
+                                                
 void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds,
                                                 const wxString& layer_name)
 {
@@ -439,7 +445,6 @@ void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds,
     try {
         RecentDatasource recent_ds;
         recent_ds.Add(ds, layer_name);
-        recent_ds.Save();
     } catch( GdaException ex) {
         LOG_MSG(ex.what());
     }
@@ -545,24 +550,23 @@ void RecentDatasource::Save()
     OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
 }
 
-void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name)
+void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_name)
 {
-    wxString ds_name = ds->GetOGRConnectStr();
-    wxString ds_conf = ds->GetJsonStr();
-    
     // remove existed one
-    std::vector<wxString>::iterator it;
-    it = std::find(ds_names.begin(), ds_names.end(), ds_name);
-    if (it != ds_names.end()) {
-        ds_names.erase(it);
+    n_ds = ds_names.size();
+    int search_idx = -1;
+    
+    for (int i=0; i<n_ds; i++) {
+        if (ds_names[i] == ds_name) {
+            search_idx = i;
+            break;
+        }
     }
-    it = std::find(ds_confs.begin(), ds_confs.end(), ds_conf);
-    if (it != ds_confs.end()) {
-        ds_confs.erase(it);
-    }
-    it = std::find(ds_layernames.begin(), ds_layernames.end(), layer_name);
-    if (it != ds_layernames.end()) {
-        ds_layernames.erase(it);
+   
+    if (search_idx >= 0) {
+        ds_names.erase(ds_names.begin() + search_idx);
+        ds_confs.erase(ds_confs.begin() + search_idx);
+        ds_layernames.erase(ds_layernames.begin() + search_idx);
     }
     
     n_ds = ds_names.size();
@@ -586,6 +590,14 @@ void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name)
     }
     
     Save();
+}
+
+void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name)
+{
+    wxString ds_name = ds->GetOGRConnectStr();
+    wxString ds_conf = ds->GetJsonStr();
+    
+    Add(ds_name, ds_conf, layer_name);
 }
 
 void RecentDatasource::Clear()

@@ -42,7 +42,7 @@ public:
     RecentDatasource();
     virtual ~RecentDatasource();
    
-    void Add(wxString ds_name, wxString ds_val);
+    void Add(wxString ds_name, wxString ds_conf, wxString ds_layername);
     void Add(IDataSource* ds, const wxString& layer_name);
     void Clear();
     void Save();

@@ -1036,6 +1036,11 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     
     wxLogMessage(ds_name);
     
+    if (ds_name.EndsWith(".gda")) {
+        OpenProject(ds_name);
+        return;
+    }
+    
     RecentDatasource recent_ds;
     IDataSource* ds = recent_ds.GetDatasource(ds_name);
     if (ds == NULL) {
