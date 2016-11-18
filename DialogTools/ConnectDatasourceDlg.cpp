@@ -163,13 +163,18 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     filepath->SetForegroundColour(wxColour(70,70,70));
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 10);
   
-    wxString file_path;
+    wxString file_path_str;
     if (ds_thumb.IsEmpty()) {
         ds_thumb = "no_map.png";
     }
-    file_path << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << ds_thumb;
+    file_path_str << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << ds_thumb;
     
-    wxImage img(file_path);
+    wxImage img(file_path_str);
+    if (!img.IsOk()) {
+        ds_thumb = "no_map.png";
+        file_path_str << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << ds_thumb;
+        img.LoadFile(file_path_str);
+    }
     img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
     wxBitmap bmp(img);
     

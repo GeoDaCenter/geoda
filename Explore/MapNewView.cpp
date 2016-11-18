@@ -30,6 +30,7 @@
 #include <wx/dcgraph.h>
 #include <wx/dcsvg.h>
 #include <wx/filename.h>
+#include <wx/time.h>
 
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
@@ -676,8 +677,10 @@ void MapCanvas::SaveThumbnail()
         
         wxImage image = layer2_bm->ConvertToImage();
         RecentDatasource recent_ds;
-        wxString last_idx = recent_ds.GetLastIndex();
-        wxString file_name = last_idx + ".bmp";
+        
+        long current_time_sec = wxGetUTCTime();
+        wxString file_name;
+        file_name << current_time_sec << ".bmp";
         wxString file_path;
         file_path << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << file_name;
         bool su = image.SaveFile(file_path, wxBITMAP_TYPE_BMP );

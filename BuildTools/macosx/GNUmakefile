@@ -53,6 +53,7 @@ build-geoda-mac:
 	mkdir -p build/GeoDa.app/Contents
 	mkdir -p build/GeoDa.app/Contents/MacOS
 	mkdir -p build/GeoDa.app/Contents/MacOS/basemap_cache
+	mkdir -p build/GeoDa.app/Contents/MacOS/web_plugins
 	mkdir -p build/GeoDa.app/Contents/Resources
 	mkdir -p build/GeoDa.app/Contents/Resources/gdaldata
 	mkdir -p build/GeoDa.app/Contents/Resources/plugins
