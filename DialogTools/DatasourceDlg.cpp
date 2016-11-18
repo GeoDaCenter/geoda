@@ -95,7 +95,9 @@ void DatasourceDlg::Init()
 
 void DatasourceDlg::CreateControls()
 {
+#ifdef __WIN32__
     SetBackgroundColour(*wxWHITE);
+#endif
     
     m_ds_filepath_txt = XRCCTRL(*this, "IDC_FIELD_ASC",wxTextCtrl);
 	m_database_type = XRCCTRL(*this, "IDC_CDS_DB_TYPE",wxChoice);
@@ -106,7 +108,10 @@ void DatasourceDlg::CreateControls()
 	m_database_upwd = XRCCTRL(*this, "IDC_CDS_DB_UPWD",wxTextCtrl);
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
+    
+#ifdef __WIN32__
     m_ds_notebook->SetBackgroundColour(*wxWHITE);
+#endif
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
 	
     m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);

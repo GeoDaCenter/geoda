@@ -48,14 +48,18 @@ public:
     void Add(IDataSource* ds, const wxString& layer_name, wxString ds_thumb="");
     void Clear();
     void Save();
-   
+  
+    int GetRecords() {return n_ds;}
     wxString GetLastIndex();
     void UpdateLastThumb(wxString ds_thumb);
     vector<wxString> GetList();
    
     IDataSource* GetDatasource(wxString ds_name);
     wxString GetLayerName(wxString ds_name);
-    
+   
+    wxString GetDSName(int idx) {return ds_names[idx];}
+    wxString GetDSLayerName(int idx) {return ds_layernames[idx];}
+    wxString GetDSThumbnail(int idx) {return ds_thumbnails[idx];}
 protected:
     static const int N_MAX_ITEMS;
     static const string KEY_NAME_IN_GDA_HISTORY;
@@ -101,10 +105,15 @@ protected:
 	IDataSource*   datasource;
     wxPanel* recent_panel;
    
-    void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl);
+    int base_xrcid_recent_thumb;
+    void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                       wxString ds_name, wxString ds_layername,
+                       wxString ds_thumb, int id);
     void InitRecentPanel(wxScrolledWindow* scrl);
     IDataSource* CreateDataSource();
     void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
+    
+    void OnRecent(wxCommandEvent& event);
     
 	DECLARE_EVENT_TABLE()
 };

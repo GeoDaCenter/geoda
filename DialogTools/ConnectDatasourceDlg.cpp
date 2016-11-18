@@ -31,6 +31,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
 #include <wx/dnd.h>
+#include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
@@ -48,6 +49,8 @@
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
+
+using namespace std;
 
 class DnDFile : public wxFileDropTarget
 {
@@ -84,11 +87,11 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
 END_EVENT_TABLE()
 
-using namespace std;
 
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 :datasource(0)
 {
+    base_xrcid_recent_thumb = 7000;
     // init controls defined in parent class
     DatasourceDlg::Init();
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
@@ -97,22 +100,32 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	CreateControls();
 	SetPosition(pos);
   
-    wxBoxSizer* sizer;
-    sizer = new wxBoxSizer( wxVERTICAL );
-    
-    wxScrolledWindow* scrl;
-    scrl = new wxScrolledWindow(recent_panel, wxID_ANY, wxDefaultPosition, wxSize(200,200), wxVSCROLL );
-    scrl->SetScrollRate( 5, 5 );
-    sizer->Add( scrl, 1, wxEXPAND | wxALL, 5 );
-   
-    InitRecentPanel(scrl);
-    
-    recent_panel->SetSizer( sizer );
-    recent_panel->Layout();
-    sizer->Fit( recent_panel );
-    
-    //SetSize(700,500);
-    //wxLC_REPORT|wxLC_SINGLE_SEL|wxSUNKEN_BORDER|wxLC_NO_HEADER
+    RecentDatasource recent_ds;
+    if (recent_ds.GetRecords() > 0) {
+        wxBoxSizer* sizer;
+        sizer = new wxBoxSizer( wxVERTICAL );
+        
+        wxStaticText* recent_txt;
+        recent_txt = new wxStaticText(recent_panel, wxID_ANY, _("Recent:"));
+        recent_txt->SetFont(*GdaConst::small_font);
+        recent_txt->SetForegroundColour(wxColour(100,100,100));
+        sizer->Add( recent_txt, 0, wxALIGN_LEFT | wxTOP |wxLEFT, 10);
+        
+        wxScrolledWindow* scrl;
+        scrl = new wxScrolledWindow(recent_panel, wxID_ANY, wxDefaultPosition, wxSize(420,200), wxVSCROLL );
+        scrl->SetScrollRate( 5, 5 );
+        sizer->Add( scrl, 1, wxEXPAND | wxRIGHT, 20 );
+        
+        InitRecentPanel(scrl);
+        
+        recent_panel->SetSizer( sizer );
+        recent_panel->Layout();
+        sizer->Fit( recent_panel );
+        
+        //SetSize(700,500);
+        //wxLC_REPORT|wxLC_SINGLE_SEL|wxSUNKEN_BORDER|wxLC_NO_HEADER
+
+    }
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
     
@@ -120,6 +133,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
     
 	Centre();
+    Move(pos);
+    
     GetSizer()->Fit(this);
 }
 
@@ -128,18 +143,96 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
 	if (datasource) delete datasource;
 }
 
-void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl)
+void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                                         wxString ds_name, wxString ds_layername,
+                                         wxString ds_thumb, int id)
 {
-    wxStaticText* layername_1;
-    layername_1 = new wxStaticText(scrl, wxID_ANY, "testsetset");
+    wxBoxSizer* text_sizer;
+    text_sizer = new wxBoxSizer( wxVERTICAL );
+    wxStaticText* layername;
+    layername = new wxStaticText(scrl, wxID_ANY,  ds_layername);
+    layername->SetFont(*GdaConst::medium_font);
+    layername->SetForegroundColour(wxColour(100,100,100));
+    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL, 10);
     
-    sizer->Add(layername_1, 1, wxALIGN_LEFT | wxALL, 10);
+    wxString lbl_ds_name = ds_name;
+    lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
+    wxStaticText* filepath;
+    filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
+    filepath->SetFont(*GdaConst::extra_small_font);
+    filepath->SetForegroundColour(wxColour(70,70,70));
+    text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 10);
+  
+    wxString file_path;
+    if (ds_thumb.IsEmpty()) {
+        ds_thumb = "no_map.png";
+    }
+    file_path << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << ds_thumb;
+    
+    wxImage img(file_path);
+    img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
+    wxBitmap bmp(img);
+    
+    wxBitmapButton* thumb;
+    thumb = new wxBitmapButton(scrl, id, bmp);
+    thumb->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnRecent, this);
+    
+    wxBoxSizer* row_sizer;
+    row_sizer = new wxBoxSizer( wxHORIZONTAL );
+    row_sizer->Add(thumb, 0, wxALIGN_CENTER | wxALL, 0);
+    row_sizer->Add(text_sizer, 1, wxALIGN_LEFT | wxEXPAND | wxALL, 10);
+    
+    sizer->Add(row_sizer, 0, wxALIGN_LEFT | wxALL, 2);
+}
+
+void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
+{
+    int xrcid = event.GetId();
+    int recent_idx = xrcid - base_xrcid_recent_thumb;
+    
+    RecentDatasource recent_ds;
+    wxString ds_name = recent_ds.GetDSName(recent_idx);
+    
+    wxLogMessage(ds_name);
+    
+    if (ds_name.EndsWith(".gda")) {
+        GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
+        gda_frame->OpenProject(ds_name);
+        recent_ds.Add(ds_name, ds_name, "");
+        EndDialog(wxID_CANCEL);
+    } else {
+    
+        IDataSource* ds = recent_ds.GetDatasource(ds_name);
+        if (ds == NULL) {
+            // raise message dialog show can't connect to datasource
+            wxString msg = _("Can't connect to datasource: ") + ds_name;
+            wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        } else {
+            wxString layername = recent_ds.GetLayerName(ds_name);
+            SaveRecentDataSource(ds, layername);
+            layer_name = layername;
+            datasource = ds;
+            EndDialog(wxID_OK);
+        }
+    }
 }
 
 void ConnectDatasourceDlg::InitRecentPanel(wxScrolledWindow* scrl)
 {
     wxBoxSizer* sizer;
     sizer = new wxBoxSizer( wxVERTICAL );
+    
+    RecentDatasource recent_ds;
+    int n_records = recent_ds.GetRecords();
+    
+    for (int i=n_records-1; i>=0; i--) {
+        wxString ds_name = recent_ds.GetDSName(i);
+        wxString ds_layername = recent_ds.GetDSLayerName(i);
+        wxString ds_thumb = recent_ds.GetDSThumbnail(i);
+        AddRecentItem(sizer, scrl, ds_name, ds_layername, ds_thumb, base_xrcid_recent_thumb+i);
+    }
     
     scrl->SetSizer( sizer );
     scrl->Layout();
@@ -244,7 +337,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
                 try {
                     RecentDatasource recent_ds;
-                    recent_ds.Add(ds_file_path.GetFullPath(), "", "");
+                    recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), "");
                 } catch( GdaException ex) {
                     LOG_MSG(ex.what());
                 }
@@ -668,6 +761,7 @@ void RecentDatasource::UpdateLastThumb(wxString ds_thumb)
     if (last_idx >= 0) {
         ds_thumbnails[last_idx] = ds_thumb;
     }
+    Save();
 }
 
 void RecentDatasource::Clear()

@@ -98,6 +98,7 @@ public:
 	
 	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
+    void ShowOpenDatasourceDlg(wxPoint pos);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
     

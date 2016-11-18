@@ -661,13 +661,19 @@ void MapCanvas::DrawLayer2()
     dc.SelectObject(wxNullBitmap);
     
     layer2_valid = true;
-    
-    CallAfter(&MapCanvas::SaveThumbnail);
+   
+    if ( MapCanvas::has_thumbnail_saved == false) {
+        if (isDrawBasemap && layerbase_valid == false) {
+            return;
+        } 
+        CallAfter(&MapCanvas::SaveThumbnail);
+    }
 }
 
 void MapCanvas::SaveThumbnail()
 {
     if (MapCanvas::has_thumbnail_saved == false) {
+        
         wxImage image = layer2_bm->ConvertToImage();
         RecentDatasource recent_ds;
         wxString last_idx = recent_ds.GetLastIndex();

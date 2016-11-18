@@ -376,17 +376,17 @@ bool GdaApp::OnInit(void)
 		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
 
+    wxPoint welcome_pos = appFramePos;
+    welcome_pos.y += 150;
     std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("show_welcome_dialog");
     if (items.size() == 0) {
-        wxPoint welcome_pos = appFramePos;
-        welcome_pos.y += 150;
         WelcomeSelectionStyleDlg styleDlg(GdaFrame::GetGdaFrame(), wxID_ANY, "",
                                           welcome_pos);
         styleDlg.Show();
         OGRDataAdapter::GetInstance().AddEntry("show_welcome_dialog", "true");
     }
 
-        // check crash
+    // check crash
     if (GdaConst::disable_crash_detect == false) {
         std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
@@ -424,11 +424,13 @@ bool GdaApp::OnInit(void)
     wxLog::SetLogLevel(wxLOG_User);
 #endif
     
+    // show open file dialog
+    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
+    
     // check update in a new thread
     if (GdaConst::disable_auto_upgrade == false) {
         CallAfter(&GdaFrame::CheckUpdate);
     }
-    
 	return true;
 }
 
@@ -1111,12 +1113,17 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
 void GdaFrame::OnNewProject(wxCommandEvent& event)
 {
 	wxLogMessage("Click GdaFrame::OnNewProject");
-   
-	ConnectDatasourceDlg dlg(this);
-	if (dlg.ShowModal() != wxID_OK)
+
+    ShowOpenDatasourceDlg(wxPoint(80, 200));
+}
+
+void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
+{
+    ConnectDatasourceDlg dlg(this, pos);
+    if (dlg.ShowModal() != wxID_OK)
         return;
-   
-	wxString proj_title = dlg.GetProjectTitle();
+    
+    wxString proj_title = dlg.GetProjectTitle();
     wxString layer_name = dlg.GetLayerName();
     IDataSource* datasource = dlg.GetDataSource();
     
@@ -1124,10 +1131,10 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
         // this datasource will be freed when dlg exit, so make a copy
         // in project_p
         project_p = new Project(proj_title, layer_name, datasource);
-       
+        
     } catch (GdaException& e) {
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
+        dlg.ShowModal();
         return;
     }
     
@@ -1138,13 +1145,14 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
         error_msg << "Error:";
         error_msg << project_p->GetOpenErrorMessage();
     }
-	if (!error_msg.IsEmpty()) {
+    if (!error_msg.IsEmpty()) {
         wxMessageDialog dlg (this, error_msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
+        dlg.ShowModal();
         return;
     }
     
     InitWithProject();
+
 }
 
 /**

@@ -218,7 +218,6 @@ protected:
     // map
     wxBitmap* map_bm;
     wxBitmap* map_hl_bm;
-	wxImage* hl_img;
     
 	virtual void UpdateStatusBar();
 		
