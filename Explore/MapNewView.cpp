@@ -29,6 +29,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/dcgraph.h>
 #include <wx/dcsvg.h>
+#include <wx/filename.h>
 
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
@@ -39,6 +40,7 @@
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../DialogTools/ExportDataDlg.h"
+#include "../DialogTools/ConnectDatasourceDlg.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
@@ -135,6 +137,7 @@ BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
 	//EVT_KEY_DOWN(TemplateCanvas::OnKeyDown)
 END_EVENT_TABLE()
 
+bool MapCanvas::has_thumbnail_saved = false;
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project_s,
@@ -149,6 +152,7 @@ MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                  project_s->GetHighlightState(),
                  pos, size, true, true),
 num_obs(project_s->GetNumRecords()),
+p_datasource(project_s->GetDataSource()),
 num_time_vals(1),
 custom_classif_state(0), 
 data(0), 
@@ -220,6 +224,7 @@ MapCanvas::~MapCanvas()
     
 	if (custom_classif_state)
         custom_classif_state->removeObserver(this);
+   
     
     if (basemap != NULL) {
         delete basemap;
@@ -333,7 +338,7 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         ResizeSelectableShps();
         
         event.RequestMore(); // render continuously, not only once on idle
-    }
+    } 
     
     if (!layer2_valid || !layer1_valid || !layer0_valid ||
         (isDrawBasemap && !layerbase_valid) )
@@ -545,12 +550,13 @@ void MapCanvas::DrawLayer1()
                 image.InitAlpha();
             }
             int alpha = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
-            for (int i=0; i< image.GetWidth(); i++) {
-                for (int j=0; j<image.GetHeight(); j++) {
-                    if (image.GetAlpha(i, j) != 0) {
-                        image.SetAlpha(i, j, alpha);
-                    }
-                }
+            
+            unsigned char* alpha_vals = image.GetAlpha();
+            int n_pixel = image.GetWidth() * image.GetHeight();
+            
+            for (int i=0; i< n_pixel; i++) {
+                if (alpha_vals[i])
+                    alpha_vals[i] = alpha;
             }
             
             faded_layer_bm = new wxBitmap(image);
@@ -653,7 +659,28 @@ void MapCanvas::DrawLayer2()
     }
     
     dc.SelectObject(wxNullBitmap);
+    
     layer2_valid = true;
+    
+    CallAfter(&MapCanvas::SaveThumbnail);
+}
+
+void MapCanvas::SaveThumbnail()
+{
+    if (MapCanvas::has_thumbnail_saved == false) {
+        wxImage image = layer2_bm->ConvertToImage();
+        RecentDatasource recent_ds;
+        wxString last_idx = recent_ds.GetLastIndex();
+        wxString file_name = last_idx + ".bmp";
+        wxString file_path;
+        file_path << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << file_name;
+        bool su = image.SaveFile(file_path, wxBITMAP_TYPE_BMP );
+        if (su) {
+            recent_ds.UpdateLastThumb(file_name);
+        }
+        image.Destroy();
+        MapCanvas::has_thumbnail_saved = true;
+    }
 }
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)

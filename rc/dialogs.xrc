@@ -7139,349 +7139,361 @@
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
-        <object class="wxNotebook" name="IDC_DS_NOTEBOOK">
-          <object class="notebookpage">
-            <object class="wxPanel" name="dsFile">
-              <object class="wxBoxSizer">
-                <orient>wxVERTICAL</orient>
-                <object class="spacer">
-                  <size>0,40</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFlexGridSizer">
-                    <cols>3</cols>
-                    <rows>2</rows>
-                    <vgap>0</vgap>
-                    <hgap>0</hgap>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Input file </label>
+          <object class="wxBoxSizer">
+              <orient>wxHORIZONTAL</orient>
+              <object class="sizeritem">
+                  <object class="wxNotebook" name="IDC_DS_NOTEBOOK">
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsFile">
+                              <object class="wxBoxSizer">
+                                  <orient>wxVERTICAL</orient>
+                                  <object class="spacer">
+                                      <size>0,40</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxFlexGridSizer">
+                                          <cols>3</cols>
+                                          <rows>2</rows>
+                                          <vgap>0</vgap>
+                                          <hgap>0</hgap>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Input file </label>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_FIELD_ASC">
+                                                  <size>172,-1d</size>
+                                                  <style>wxTE_READONLY</style>
+                                              </object>
+                                              <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>5</border>
+                                              <object class="wxBitmapButton" name="IDC_OPEN_IASC">
+                                                  <style>wxBORDER_NONE</style>
+                                                  <bitmap>open-folder.png</bitmap>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC_EMPTY">
+                                                  <label/>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>15</border>
+                                              <object class="wxStaticBitmap" name="IDC_DRAG_DROP_BOX">
+                                                  <style>wxBORDER_NONE</style>
+                                                  <bitmap>dragdrop.png</bitmap>
+                                                  <bitmap2>dragdrop.png</bitmap2>
+                                              </object>
+                                          </object>
+                                      </object>
+                                  </object>
+                                  <object class="spacer">
+                                      <size>0,40</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxBoxSizer">
+                                          <object class="spacer">
+                                              <size>4,10</size>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText">
+                                                  <label>Data Source Overview/Help: </label>
+                                              </object>
+                                          </object>
+                                          <orient>wxHORIZONTAL</orient>
+                                          <object class="sizeritem">
+                                              <object class="wxHyperlinkCtrl">
+                                                  <url>http://geodacenter.github.io/formats.html</url>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText">
+                                                  <label/>
+                                              </object>
+                                          </object>
+                                      </object>
+                                  </object>
+                              </object>
+                          </object>
+                          <label>File</label>
                       </object>
-                      <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_FIELD_ASC">
-                        <size>172,-1d</size>
-                        <style>wxTE_READONLY</style>
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsDatabase">
+                              <object class="wxBoxSizer">
+                                  <orient>wxVERTICAL</orient>
+                                  <object class="spacer">
+                                      <size>0,10</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxFlexGridSizer">
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="ID_STATICTEXT">
+                                                  <label>Database Type</label>
+                                              </object>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_CDS_DB_TYPE">
+                                                  <size>340,-1</size>
+                                                  <content>
+                                                  </content>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                              <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Database Host</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_HOST" subclass="AutoTextCtrl">
+                                                  <size>170,-1d</size>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Database Port</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_PORT" subclass="AutoTextCtrl">
+                                                  <size>170,-1d</size>
+                                                  <value/>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Database/Instance Name</label>
+                                              </object>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_NAME" subclass="AutoTextCtrl">
+                                                  <size>170,-1d</size>
+                                                  <value/>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>User name</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_UNAME" subclass="AutoTextCtrl">
+                                                  <size>170,-1d</size>
+                                                  <value/>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Password</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_UPWD">
+                                                  <size>170,-1d</size>
+                                                  <value/>
+                                                  <style>wxTE_PASSWORD</style>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC_DB_TABLE">
+                                                  <label>Table Name</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE">
+                                                  <size>170,-1d</size>
+                                                  <enabled>0</enabled>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxBitmapButton" name="ID_BTN_LOOKUP_TABLE">
+                                                  <bitmap stock_id="wxART_FIND"/>
+                                                  <style>wxBORDER_NONE</style>
+                                              </object>
+                                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                          </object>
+                                          <cols>3</cols>
+                                          <rows>8</rows>
+                                          <vgap>15</vgap>
+                                          <hgap>10</hgap>
+                                      </object>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  </object>
+                              </object>
+                          </object>
+                          <label>Database</label>
                       </object>
-                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                      <border>5</border>
-                      <object class="wxBitmapButton" name="IDC_OPEN_IASC">
-                        <style>wxBORDER_NONE</style>
-                        <bitmap>open-folder.png</bitmap>
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsWebServices">
+                              <object class="wxBoxSizer">
+                                  <orient>wxVERTICAL</orient>
+                                  <object class="spacer">
+                                      <size>0,50</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxFlexGridSizer">
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>Input WFS URL</label>
+                                              </object>
+                                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CDS_WS_URL" subclass="AutoTextCtrl">
+                                                  <size>162,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <cols>4</cols>
+                                          <rows>2</rows>
+                                          <vgap>0</vgap>
+                                          <hgap>0</hgap>
+                                      </object>
+                                      <flag>wxTOP|wxALIGN_TOP</flag>
+                                  </object>
+                              </object>
+                          </object>
+                          <label>Web Service</label>
                       </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC_EMPTY">
-                        <label/>
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsCartoDB">
+                              <object class="wxBoxSizer">
+                                  <orient>wxVERTICAL</orient>
+                                  <object class="spacer">
+                                      <size>0,40</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxFlexGridSizer">
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="ID_STATICTEXT">
+                                                  <label>User Name</label>
+                                              </object>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CARTODB_USERNAME">
+                                                  <size>130,-1</size>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                              <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+                                              <border>5</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC">
+                                                  <label>App Key</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CARTODB_KEY">
+                                                  <size>130,-1d</size>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC_CARTODB_TABLE_NAME">
+                                                  <label>Table Name</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_CARTODB_TABLE_NAME">
+                                                  <size>130,-1d</size>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText"/>
+                                          </object>
+                                          <cols>3</cols>
+                                          <rows>5</rows>
+                                          <vgap>15</vgap>
+                                          <hgap>10</hgap>
+                                      </object>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  </object>
+                                  <object class="spacer">
+                                      <size>0,40</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxBoxSizer">
+                                          <object class="spacer">
+                                              <size>4,10</size>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText">
+                                                  <label>Get a free Carto account: </label>
+                                              </object>
+                                          </object>
+                                          <orient>wxHORIZONTAL</orient>
+                                          <object class="sizeritem">
+                                              <object class="wxHyperlinkCtrl">
+                                                  <url>https://www.carto.com/</url>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText">
+                                                  <label/>
+                                              </object>
+                                          </object>
+                                      </object>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  </object>
+                              </object>
+                          </object>
+                          <label>Carto</label>
                       </object>
-                      <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                      <border>15</border>
-                      <object class="wxStaticBitmap" name="IDC_DRAG_DROP_BOX">
-                        <style>wxBORDER_NONE</style>
-                        <bitmap>dragdrop.png</bitmap>
-                        <bitmap2>dragdrop.png</bitmap2>
-                      </object>
-                    </object>
+                      <size>560,340</size>
                   </object>
-                </object>
-                <object class="spacer">
-                  <size>0,40</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxBoxSizer">
-                    <object class="spacer">
-                      <size>4,10</size>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText">
-                        <label>Data Source Overview/Help: </label>
-                      </object>
-                    </object>
-                    <orient>wxHORIZONTAL</orient>
-                    <object class="sizeritem">
-                      <object class="wxHyperlinkCtrl">
-                        <url>http://geodacenter.github.io/formats.html</url>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText">
-                        <label/>
-                      </object>
-                    </object>
-                  </object>
-                </object>
+                  <option>0</option>
+                  <flag>wxALL</flag>
+                  <border>5</border>
               </object>
-            </object>
-            <label>File</label>
-          </object>
-          <object class="notebookpage">
-            <object class="wxPanel" name="dsDatabase">
-              <object class="wxBoxSizer">
-                <orient>wxVERTICAL</orient>
-                <object class="spacer">
-                  <size>0,10</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFlexGridSizer">
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="ID_STATICTEXT">
-                        <label>Database Type</label>
-                      </object>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxChoice" name="IDC_CDS_DB_TYPE">
-                        <size>340,-1</size>
-                        <content>
-                        </content>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Database Host</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_HOST" subclass="AutoTextCtrl">
-                        <size>170,-1d</size>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Database Port</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_PORT" subclass="AutoTextCtrl">
-                        <size>170,-1d</size>
-                        <value/>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Database/Instance Name</label>
-                      </object>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_NAME" subclass="AutoTextCtrl">
-                        <size>170,-1d</size>
-                        <value/>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>User name</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_UNAME" subclass="AutoTextCtrl">
-                        <size>170,-1d</size>
-                        <value/>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Password</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_UPWD">
-                        <size>170,-1d</size>
-                        <value/>
-                        <style>wxTE_PASSWORD</style>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC_DB_TABLE">
-                        <label>Table Name</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE">
-                        <size>170,-1d</size>
-                        <enabled>0</enabled>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxBitmapButton" name="ID_BTN_LOOKUP_TABLE">
-                        <bitmap stock_id="wxART_FIND"/>
-                        <style>wxBORDER_NONE</style>
-                      </object>
-                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                    </object>
-                    <cols>3</cols>
-                    <rows>8</rows>
-                    <vgap>15</vgap>
-                    <hgap>10</hgap>
+              <object class="sizeritem">
+                  <object class="wxPanel" name="dsRecentListSizer">
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
-                </object>
+                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                  <border>0</border>
+                  <option>1</option>
               </object>
-            </object>
-            <label>Database</label>
+              <flag></flag>
           </object>
-          <object class="notebookpage">
-            <object class="wxPanel" name="dsWebServices">
-              <object class="wxBoxSizer">
-                <orient>wxVERTICAL</orient>
-                <object class="spacer">
-                  <size>0,50</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFlexGridSizer">
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>Input WFS URL</label>
-                      </object>
-                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CDS_WS_URL" subclass="AutoTextCtrl">
-                        <size>162,-1d</size>
-                      </object>
-                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                      <border>5</border>
-                    </object>
-                    <cols>4</cols>
-                    <rows>2</rows>
-                    <vgap>0</vgap>
-                    <hgap>0</hgap>
-                  </object>
-                  <flag>wxTOP|wxALIGN_TOP</flag>
-                </object>
-              </object>
-            </object>
-            <label>Web Service</label>
-          </object>
-          <object class="notebookpage">
-            <object class="wxPanel" name="dsCartoDB">
-              <object class="wxBoxSizer">
-                <orient>wxVERTICAL</orient>
-                <object class="spacer">
-                  <size>0,40</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFlexGridSizer">
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="ID_STATICTEXT">
-                        <label>User Name</label>
-                      </object>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CARTODB_USERNAME">
-                        <size>130,-1</size>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                      <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
-                      <border>5</border>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC">
-                        <label>App Key</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CARTODB_KEY">
-                        <size>130,-1d</size>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText" name="IDC_STATIC_CARTODB_TABLE_NAME">
-                        <label>Table Name</label>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxTextCtrl" name="IDC_CARTODB_TABLE_NAME">
-                        <size>130,-1d</size>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText"/>
-                    </object>
-                    <cols>3</cols>
-                    <rows>5</rows>
-                    <vgap>15</vgap>
-                    <hgap>10</hgap>
-                  </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
-                </object>
-                <object class="spacer">
-                  <size>0,40</size>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxBoxSizer">
-                    <object class="spacer">
-                      <size>4,10</size>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText">
-                        <label>Get a free Carto account: </label>
-                      </object>
-                    </object>
-                    <orient>wxHORIZONTAL</orient>
-                    <object class="sizeritem">
-                      <object class="wxHyperlinkCtrl">
-                        <url>https://www.carto.com/</url>
-                      </object>
-                    </object>
-                    <object class="sizeritem">
-                      <object class="wxStaticText">
-                        <label/>
-                      </object>
-                    </object>
-                  </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
-                </object>
-                
-              </object>
-              
-            </object>
-            <label>Carto</label>
-          </object>
-          <size>560,340</size>
-        </object>
-        <option>30</option>
-        <flag>wxALL|wxEXPAND</flag>
-        <border>5</border>
       </object>
+      
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <orient>wxVERTICAL</orient>
@@ -7489,7 +7501,7 @@
             <size>0,0</size>
           </object>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE|wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxALL|wxALIGN_CENTRE|wxALIGN_CENTER_HORIZONTAL</flag>
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
@@ -7514,7 +7526,7 @@
     </object>
     <title>Connect to Data Source</title>
     <centered>1</centered>
-    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX|wxRESIZE_BORDER</style>
   </object>
   <object class="wxDialog" name="IDD_FIELDCALC_SHEET" subclass="FieldNewCalcSheetDlg">
     <object class="wxBoxSizer">

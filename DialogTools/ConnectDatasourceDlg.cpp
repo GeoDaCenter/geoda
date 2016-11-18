@@ -23,6 +23,7 @@
 #include <fstream>
 #include <wx/progdlg.h>
 #include <wx/filedlg.h>
+#include <wx/listctrl.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/notebook.h>
@@ -46,6 +47,7 @@
 #include "../GeoDa.h"
 #include "ConnectDatasourceDlg.h"
 #include "DatasourceDlg.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 
 class DnDFile : public wxFileDropTarget
 {
@@ -94,16 +96,54 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
-	Centre();
+  
+    wxBoxSizer* sizer;
+    sizer = new wxBoxSizer( wxVERTICAL );
+    
+    wxScrolledWindow* scrl;
+    scrl = new wxScrolledWindow(recent_panel, wxID_ANY, wxDefaultPosition, wxSize(200,200), wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    sizer->Add( scrl, 1, wxEXPAND | wxALL, 5 );
    
+    InitRecentPanel(scrl);
+    
+    recent_panel->SetSizer( sizer );
+    recent_panel->Layout();
+    sizer->Fit( recent_panel );
+    
+    //SetSize(700,500);
+    //wxLC_REPORT|wxLC_SINGLE_SEL|wxSUNKEN_BORDER|wxLC_NO_HEADER
+    
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
     
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource, this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
+         this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+    
+	Centre();
+    GetSizer()->Fit(this);
 }
 
 ConnectDatasourceDlg::~ConnectDatasourceDlg()
 {
 	if (datasource) delete datasource;
+}
+
+void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl)
+{
+    wxStaticText* layername_1;
+    layername_1 = new wxStaticText(scrl, wxID_ANY, "testsetset");
+    
+    sizer->Add(layername_1, 1, wxALIGN_LEFT | wxALL, 10);
+}
+
+void ConnectDatasourceDlg::InitRecentPanel(wxScrolledWindow* scrl)
+{
+    wxBoxSizer* sizer;
+    sizer = new wxBoxSizer( wxVERTICAL );
+    
+    scrl->SetSizer( sizer );
+    scrl->Layout();
+    sizer->Fit( scrl );
 }
 
 void ConnectDatasourceDlg::CreateControls()
@@ -119,7 +159,11 @@ void ConnectDatasourceDlg::CreateControls()
 	//m_database_lookup_wslayer = XRCCTRL(*this, "ID_BTN_LOOKUP_WSLAYER", wxBitmapButton);
 	m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE", wxTextCtrl);
     m_database_table->Hide(); // don't need this
+    
     XRCCTRL(*this, "IDC_STATIC_DB_TABLE", wxStaticText)->Hide();
+   
+    recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
+    
     
     // create controls defined in parent class
     DatasourceDlg::CreateControls();
@@ -481,7 +525,7 @@ void RecentDatasource::Init(wxString json_str_)
     if (json_str_.IsEmpty())
         return;
     
-    // "recent_ds" : [{"ds_name":"/data/test.shp", "layer_name":"test", "ds_config":"..."}, ]
+    // "recent_ds" : [{"ds_name":"/data/test.shp", "layer_name":"test", "ds_config":"...", "thumb":"..."}, ]
     std::string json_str(json_str_.mb_str());
     json_spirit::Value v;
     
@@ -496,7 +540,7 @@ void RecentDatasource::Init(wxString json_str_)
         
         for (size_t i=0; i<n_ds; i++) {
             const json_spirit::Object& o = ds_list[i].get_obj();
-            wxString ds_name, ds_conf, layer_name;
+            wxString ds_name, ds_conf, layer_name, ds_thumb;
             
             for (json_spirit::Object::const_iterator i=o.begin(); i!=o.end(); ++i)
             {
@@ -513,10 +557,15 @@ void RecentDatasource::Init(wxString json_str_)
                     val = i->value_;
                     ds_conf = val.get_str();
                 }
+                else if (i->name_ == "ds_thumb") {
+                    val = i->value_;
+                    ds_thumb = val.get_str();
+                }
             }
             ds_names.push_back(ds_name);
             ds_layernames.push_back(layer_name);
             ds_confs.push_back(ds_conf);
+            ds_thumbnails.push_back(ds_thumb);
         }
         
         
@@ -538,9 +587,11 @@ void RecentDatasource::Save()
         std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
         std::string layer_name( GET_ENCODED_FILENAME(ds_layernames[i]));
         std::string ds_conf( ds_confs[i].mb_str() );
+        std::string ds_thumb( GET_ENCODED_FILENAME(ds_thumbnails[i]) );
         ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
         ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
         ds_obj.push_back( json_spirit::Pair("ds_config", ds_conf) );
+        ds_obj.push_back( json_spirit::Pair("ds_thumb", ds_thumb) );
         ds_list_obj.push_back( ds_obj);
     }
 
@@ -550,7 +601,8 @@ void RecentDatasource::Save()
     OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
 }
 
-void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_name)
+void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_name,
+                           wxString ds_thumb)
 {
     // remove existed one
     n_ds = ds_names.size();
@@ -567,6 +619,7 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         ds_names.erase(ds_names.begin() + search_idx);
         ds_confs.erase(ds_confs.begin() + search_idx);
         ds_layernames.erase(ds_layernames.begin() + search_idx);
+        ds_thumbnails.erase(ds_thumbnails.begin() + search_idx);
     }
     
     n_ds = ds_names.size();
@@ -575,27 +628,46 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         ds_names.push_back(ds_name);
         ds_confs.push_back(ds_conf);
         ds_layernames.push_back(layer_name);
+        ds_thumbnails.push_back(ds_thumb);
         
         n_ds = ds_names.size();
     } else {
         ds_names.erase(ds_names.begin());
         ds_confs.erase(ds_confs.begin());
-        ds_layernames.erase(ds_layernames.begin());
+        ds_thumbnails.erase(ds_thumbnails.begin());
         
         ds_names.push_back(ds_name);
         ds_confs.push_back(ds_conf);
         ds_layernames.push_back(layer_name);
+        ds_thumbnails.push_back(ds_thumb);
     }
     
     Save();
 }
 
-void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name)
+void RecentDatasource::Add(IDataSource* ds, const wxString& layer_name, wxString ds_thumb)
 {
     wxString ds_name = ds->GetOGRConnectStr();
     wxString ds_conf = ds->GetJsonStr();
     
-    Add(ds_name, ds_conf, layer_name);
+    Add(ds_name, ds_conf, layer_name, ds_thumb);
+}
+
+wxString RecentDatasource::GetLastIndex()
+{
+    int last_idx = ds_names.size() - 1;
+    if (last_idx < 0)
+        last_idx = 0;
+    wxString str;
+    str << last_idx;
+    return str;
+}
+void RecentDatasource::UpdateLastThumb(wxString ds_thumb)
+{
+    int last_idx = ds_names.size() - 1;
+    if (last_idx >= 0) {
+        ds_thumbnails[last_idx] = ds_thumb;
+    }
 }
 
 void RecentDatasource::Clear()

@@ -24,6 +24,7 @@
 #include <vector>
 #include <wx/dialog.h>
 #include <wx/bmpbuttn.h>
+#include <wx/listctrl.h>
 
 #include <wx/checkbox.h>
 #include "../DataViewer/DataSource.h"
@@ -42,11 +43,14 @@ public:
     RecentDatasource();
     virtual ~RecentDatasource();
    
-    void Add(wxString ds_name, wxString ds_conf, wxString ds_layername);
-    void Add(IDataSource* ds, const wxString& layer_name);
+    void Add(wxString ds_name, wxString ds_conf, wxString ds_layername,
+             wxString ds_thumb = "");
+    void Add(IDataSource* ds, const wxString& layer_name, wxString ds_thumb="");
     void Clear();
     void Save();
-    
+   
+    wxString GetLastIndex();
+    void UpdateLastThumb(wxString ds_thumb);
     vector<wxString> GetList();
    
     IDataSource* GetDatasource(wxString ds_name);
@@ -62,6 +66,7 @@ protected:
     vector<wxString> ds_names;
     vector<wxString> ds_layernames;
     vector<wxString> ds_confs;
+    vector<wxString> ds_thumbnails;
     
     void Init(wxString json_str);
 };
@@ -94,7 +99,10 @@ protected:
     wxTextCtrl*   m_database_table;
 	AutoTextCtrl*  m_webservice_url;
 	IDataSource*   datasource;
-    
+    wxPanel* recent_panel;
+   
+    void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl);
+    void InitRecentPanel(wxScrolledWindow* scrl);
     IDataSource* CreateDataSource();
     void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
     

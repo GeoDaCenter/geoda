@@ -34,6 +34,7 @@
 #include "CatClassifStateObserver.h"
 
 #include "Basemap.h"
+#include "../DataViewer/DataSource.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
@@ -180,9 +181,14 @@ public:
 	std::vector<GdaVarTools::VarInfo> var_info;
     
 	bool isDrawBasemap;
+
+    static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
+private:
+    IDataSource* p_datasource;
+    static bool has_thumbnail_saved;
+    void SaveThumbnail();
     
 protected:
-  
     bool InitBasemap();
     
     int map_type;

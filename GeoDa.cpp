@@ -900,6 +900,7 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 
 	UpdateToolbarAndMenus();
 	
+    MapCanvas::ResetThumbnail();
 	return true;
 }
 
