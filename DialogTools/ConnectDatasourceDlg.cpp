@@ -732,6 +732,7 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
     } else {
         ds_names.erase(ds_names.begin());
         ds_confs.erase(ds_confs.begin());
+        ds_layernames.erase(ds_layernames.begin());
         ds_thumbnails.erase(ds_thumbnails.begin());
         
         ds_names.push_back(ds_name);
