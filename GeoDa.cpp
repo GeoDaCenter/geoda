@@ -335,7 +335,7 @@ bool GdaApp::OnInit(void)
 		frameWidth = 1020;
  		frameHeight = 120;
 #ifdef __linux__
-        wxLinuxDistributionInfo linux_info = wxPlatformInfo::wxGetLinuxDistributionInfo();
+        wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
         if (linux_info.Description.Lower().Contains("centos"))
             frameHeight = 180;
 #endif

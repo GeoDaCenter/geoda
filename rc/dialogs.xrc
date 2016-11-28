@@ -6408,6 +6408,15 @@
               <style>wxBU_EXACTFIT</style>
             </object>
           </object>
+          <object class="spacer">
+            <size>5,5d</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxButton" name="wxID_CANCEL">
+              <label>Close</label>
+              <style>wxBU_EXACTFIT</style>
+            </object>
+          </object>
           <orient>wxHORIZONTAL</orient>
         </object>
         <flag>wxBOTTOM|wxALIGN_CENTRE_HORIZONTAL</flag>
