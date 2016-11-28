@@ -47,21 +47,26 @@ geoda-target:
 build-geoda-mac:
 	rm -rf build
 	mkdir -p build
+	mkdir build/basemap_cache
+	mkdir build/web_plugins
 	mkdir build/Resources
 	mkdir build/gdaldata
 	mkdir build/plugins
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
 	cp $(GeoDa_ROOT)/rc/menus.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/toolbar.xrc build/Resources
-	cp $(GEODA_HOME)/libraries/lib/libgdal.so.1.16.2 build/plugins/libgdal.so.1
+	cp $(GEODA_HOME)/libraries/lib/libgdal.so.20.0.0 build/plugins/libgdal.so.20
 	cp $(GEODA_HOME)/libraries/lib/libkmldom.so.0.0.0 build/plugins/libkmldom.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlengine.so.0.0.0 build/plugins/libkmlengine.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlbase.so.0.0.0 build/plugins/libkmlbase.so.0
+	cp $(GEODA_HOME)/libraries/lib/libkmlconvenience.so.0.0.0 build/plugins/libkmlconvenience.so.0
+	cp $(GEODA_HOME)/libraries/lib/libkmlregionator.so.0.0.0 build/plugins/libkmlregionator.so.0
 	cp $(GEODA_HOME)/libraries/lib/libkmlxsd.so.0.0.0 build/plugins/libkmlxsd.so.0
 	cp $(GEODA_HOME)/libraries/lib/libxerces-c-3.1.so build/plugins/libxerces-c-3.1.so
 	cp $(GEODA_HOME)/libraries/lib/libspatialite.so.5.0.1 build/plugins/libspatialite.so.5
@@ -75,7 +80,10 @@ build-geoda-mac:
 	cp $(GEODA_HOME)/libraries/lib/libminizip.so.0.0.0 build/plugins/libminizip.so.0
 	cp $(GEODA_HOME)/libraries/lib/liburiparser.so.1.0.5 build/plugins/liburiparser.so.1
 	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/
-	cp $(GEODA_HOME)/plugins/x64/*.so build/plugins/
+	cp $(GEODA_HOME)/libraries/lib/libpq.so.5.5 build/plugins/
+	cp $(GEODA_HOME)/libraries/lib/libcurl.so.4.4.0 build/plugins/libcurl.so.4
+	cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
+	#cp $(GEODA_HOME)/plugins/x64/*.so build/plugins/
 	cp libraries/share/gdal/* build/gdaldata
 
 clean:

@@ -495,7 +495,7 @@ void MapCanvas::DrawLayerBase()
 {
     if (isDrawBasemap) {
         if (basemap != 0) {
-            basemap_bm->UseAlpha();
+            //basemap_bm->UseAlpha();
             layerbase_valid = basemap->Draw(basemap_bm);
             // trigger to draw again, since it's drawing on ONE bitmap,
             // not multilayer with transparency support
@@ -539,14 +539,12 @@ void MapCanvas::DrawLayer1()
         GdaConst::use_cross_hatching == false)
     {
         revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
+        if (!isDrawBasemap) {
+            dc.DrawBitmap(*layer0_bm, 0, 0);
+        }
         
         if (faded_layer_bm == NULL) {
-            wxImage image;
-            if (isDrawBasemap) {
-                image = map_bm->ConvertToImage();
-            } else {
-                image = layer0_bm->ConvertToImage();
-            }
+            wxImage image = map_bm->ConvertToImage();
             if (!image.HasAlpha()) {
                 image.InitAlpha();
             }
@@ -566,9 +564,8 @@ void MapCanvas::DrawLayer1()
     } else {
         if (!isDrawBasemap) {
             dc.DrawBitmap(*layer0_bm, 0, 0);
-        } else {
-            dc.DrawBitmap(*map_bm,0,0);
         }
+        dc.DrawBitmap(*map_bm,0,0);
     }
   
     DrawHighlightedShapes(dc, revert);
@@ -694,7 +691,7 @@ void MapCanvas::SaveThumbnail()
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-    if (isDrawBasemap) {
+    //if (isDrawBasemap) {
         if ( map_bm == NULL ) {
             wxSize sz = dc.GetSize();
             wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
@@ -717,7 +714,8 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             if (!image.HasAlpha()) {
                 image.InitAlpha();
             }
-            int alpha_value = transparency * 255;
+            int alpha_value =  GdaConst::transparency_unhighlighted;
+if (isDrawBasemap) { alpha_value = transparency * 255; }
             unsigned char *alpha=image.GetAlpha();
 			unsigned char* pixel_data = image.GetData();
 			int n_pixel = image.GetWidth() * image.GetHeight();
@@ -736,12 +734,12 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             map_bm = new wxBitmap(image);
         }
         //dc.DrawBitmap(*map_bm,0,0);
-    } else {
-        BOOST_FOREACH( GdaShape* shp, background_shps ) {
-            shp->paintSelf(dc);
-        }
-        DrawSelectableShapes_dc(dc);
-    }
+    //} else {
+    //    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+    //        shp->paintSelf(dc);
+    //    }
+    //    DrawSelectableShapes_dc(dc);
+   // }
 }
 
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,

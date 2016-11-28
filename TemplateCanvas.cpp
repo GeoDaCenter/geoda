@@ -641,12 +641,23 @@ void TemplateCanvas::DrawLayer0()
     dc.SetPen(canvas_background_color);
     dc.SetBrush(canvas_background_color);
     dc.DrawRectangle(wxPoint(0,0), sz);
-
+/*
+    if (objects_bm == NULL) {
+    wxColour maskColor(89,45,67);
+    wxBrush maskBrush(maskColor);
+   
+    wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+    wxMemoryDC _dc; 
+    _dc.SetBackground(maskBrush);
+    _dc.SelectObject(bmp);
+    _dc.Clear();
+*/
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
     
     DrawSelectableShapes(dc);
+    //}
 
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
@@ -661,6 +672,10 @@ void TemplateCanvas::DrawLayer1()
         return;
     wxMemoryDC dc(*layer1_bm);
     dc.Clear();
+    wxSize sz = GetClientSize();
+    dc.SetPen(canvas_background_color);
+    dc.SetBrush(canvas_background_color);
+    dc.DrawRectangle(wxPoint(0,0), sz);
     
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
@@ -675,7 +690,7 @@ void TemplateCanvas::DrawLayer1()
 
             faded_layer_bm = new wxBitmap(image);
         }
-        dc.DrawBitmap(*faded_layer_bm,0,0, true);
+        dc.DrawBitmap(*faded_layer_bm,0,0);
     } else {
         dc.DrawBitmap(*layer0_bm, 0, 0);
     }
@@ -810,7 +825,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
                                              bool revert)
 {
-#ifdef __WXOSX__
+#ifndef __WIN32__
     wxGCDC dc(_dc);
     helper_DrawSelectableShapes_dc(dc, hl_only, revert);
 #else
@@ -1203,7 +1218,7 @@ void TemplateCanvas::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event)
 
 void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 {
-#ifdef __WXMAC__
+#ifndef __WIN32__
     wxGCDC dc(_dc);
     helper_PaintSelectionOutline(dc);
 #else

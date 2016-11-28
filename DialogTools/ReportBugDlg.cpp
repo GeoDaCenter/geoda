@@ -150,13 +150,14 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(lbl_txt0, 1, wxEXPAND);
     grid_sizer1->Add(cbox0,0, wxALIGN_RIGHT);
     cbox0->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCrossHatch, this);
-    
+   
+    wxSize sl_sz(200,-1); 
     wxString lbl1 = _("Set transparency of highlighted objects in selection:");
     wxStaticText* lbl_txt1 = new wxStaticText(vis_page, wxID_ANY, lbl1);
     wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
     slider1 = new wxSlider(vis_page, wxID_ANY,
                            0, 0, 255,
-                           wxDefaultPosition, wxDefaultSize,
+                           wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
@@ -171,7 +172,7 @@ void PreferenceDlg::Init()
     wxBoxSizer* box2 = new wxBoxSizer(wxHORIZONTAL);
     slider2 = new wxSlider(vis_page, wxID_ANY,
                            0, 0, 255,
-                           wxDefaultPosition, wxDefaultSize,
+                           wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
@@ -212,7 +213,7 @@ void PreferenceDlg::Init()
     wxBoxSizer* box6 = new wxBoxSizer(wxHORIZONTAL);
     wxSlider* slider6 = new wxSlider(vis_page, wxID_ANY,
                                      255, 0, 255,
-                                     wxDefaultPosition, wxDefaultSize,
+                                     wxDefaultPosition, sl_sz,
                                      wxSL_HORIZONTAL);
     wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), wxString::Format("%d", GdaConst::plot_transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box6->Add(slider6);
@@ -227,7 +228,7 @@ void PreferenceDlg::Init()
     wxBoxSizer* box7 = new wxBoxSizer(wxHORIZONTAL);
     slider7 = new wxSlider(vis_page, wxID_ANY,
                            0, 0, 255,
-                           wxDefaultPosition, wxDefaultSize,
+                           wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box7->Add(slider7);

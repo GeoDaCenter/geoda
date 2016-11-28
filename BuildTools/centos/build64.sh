@@ -37,8 +37,7 @@ fi
 read -p "Do you want to install pre-requisites (e.g. libreadline, zlib, libexpat, libcurl ...)?[y/n]" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    #sudo apt-get install g++ libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
-    sudo yum install readline-devel zlib-devel expat-devel curl-devel autoreconf libtool openssl-devel libidn-devel openldap-devel mesa-libGL-devel mesa-libGLU-devel gtk2
+    sudo yum install readline-devel zlib-devel expat-devel curl-devel autoreconf libtool openssl-devel libidn-devel openldap-devel mesa-libGL-devel mesa-libGLU-devel gtk3 freeglut-devel webkitgtk3-devel
 fi
 
 unset ORACLE_HOME

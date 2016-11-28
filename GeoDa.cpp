@@ -39,6 +39,7 @@
 #include "cpl_conv.h"
 
 #include <wx/sysopt.h>
+#include <wx/platinfo.h>
 #include <wx/wxprec.h>
 #include <wx/aboutdlg.h>
 #include <wx/valtext.h>
@@ -332,7 +333,9 @@ bool GdaApp::OnInit(void)
 	}
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
 		frameWidth = 1020;
- 		frameHeight = 80;
+ 		frameHeight = 120;
+             wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
+             if (linux_info.Description.Lower().Contains("centos")) frameHeight = 180;
 	}
 
     
