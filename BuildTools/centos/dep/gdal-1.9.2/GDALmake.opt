@@ -1,4 +1,4 @@
-GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal-1.9.2
+GDAL_ROOT	=	$(GEODA_HOME)/temp/gdal
 top_builddir	=	$(GDAL_ROOT)
 
 #
@@ -32,7 +32,7 @@ INSTALL_DIR	= 	$(GDAL_ROOT)/install-sh -d
 
 # SDE_LIB needs to be first because it embeds zlib.  We need to use its symbols instead of -lz's
 
-LIBS	=	$(SDE_LIB) -lidn -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -kmlbase -kmlconvenience -lkmldom -lkmlengine -lkmlregionator -lkmlxsd -lminizip -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
+LIBS	=	$(SDE_LIB) -lssl -lrtmp -lidn -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
         $(KAK_LIBS) $(DWG_LIBS) $(CURL_LIB) \
 		$(MRSID_LIBS) $(MRSID_LIDAR_LIBS) $(INGRES_LIB) \
 		$(PCIDSK_LIB) $(RASDAMAN_LIB) $(CHARLS_LIB) \
@@ -68,8 +68,8 @@ INST_DOCS	=	${prefix}/doc
 INST_MAN	=	${prefix}/share/gdal/man
 INST_HTML	=	$(HOME)/www/gdal
 
-CPPFLAGS	=  -I$(GDAL_ROOT)/port 
-CFLAGS		=  -g -O2 -DDEBUG  -Wall -Wdeclaration-after-statement $(USER_DEFS)
+CPPFLAGS	=  -I$(GDAL_ROOT)/port  -I$(GDAL_ROOT)/gcore  -I$(GDAL_ROOT)/ogr  -I$(GDAL_ROOT)/ogr/ogrsf_frmts -I$(GDAL_ROOT)/alg
+CFLAGS		=  -g -O2 -DGDAL_COMPILATION -DDEBUG  -Wall -Wdeclaration-after-statement $(USER_DEFS)
 CXXFLAGS	=  -g -O2 -DDEBUG  -Wall $(USER_DEFS)
 LDFLAGS     = 
 
@@ -90,17 +90,17 @@ GDAL_INCLUDE	=	-I$(GDAL_ROOT)/port -I$(GDAL_ROOT)/gcore \
 
 # libtool targets and help variables
 LIBGDAL	:=		libgdal.la
-LIBGDAL_CURRENT	:=	17
-LIBGDAL_REVISION	:=	2
-LIBGDAL_AGE	:=	16
+LIBGDAL_CURRENT	:=	20
+LIBGDAL_REVISION	:=	0
+LIBGDAL_AGE	:=	0
 
 # native build targets and variables
-GDAL_VER	=	1.9.2
+GDAL_VER	=	2.1.0
 
 # version info
-GDAL_VERSION_MAJOR =    1
-GDAL_VERSION_MINOR =    9
-GDAL_VERSION_REV   =    2
+GDAL_VERSION_MAJOR =    2
+GDAL_VERSION_MINOR =    1
+GDAL_VERSION_REV   =    0
 
 GDAL_LIB	= 	$(GDAL_ROOT)/libgdal.a
 GDAL_SLIB	=	$(GDAL_ROOT)/libgdal.$(SO_EXT)
@@ -226,8 +226,9 @@ EXPAT_INCLUDE = -I/usr/include
 #
 # Google libkml for the new OGR KML driver written by Brian Case
 #
-HAVE_LIBKML = yes
-LIBKML_INCLUDE = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/libraries/include/kml -I$(GEODA_HOME)/libraries/include/kml/third_party/boost_1_34_1
+HAVE_LIBKML = no
+#LIBKML_INCLUDE = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/libraries/include/kml -I$(GEODA_HOME)/libraries/include/kml/third_party/boost_1_34_1
+LIBKML_INCLUDE =
 
 #
 # Oracle Spatial Support
@@ -278,8 +279,14 @@ HAVE_VFK = yes
 # Curl
 #
 CURL_SETTING 	=	yes
-CURL_LIB	=	$(GEODA_HOME)/libraries/lib/libcurl.a -lldap -lz
+CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz -lcares
 CURL_INC	=	-I$(GEODA_HOME)/libraries/include
+
+#
+# libjson-c
+#
+LIBJSONC_SETTING = internal
+JSON_INCLUDE = -I$(GDAL_ROOT)/ogr/ogrsf_frmts/geojson/libjson
 
 # 
 # OpenCL support

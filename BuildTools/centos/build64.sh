@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 #############################################################################
 # ./build.sh
 # ./build.sh [CPU]
@@ -21,25 +21,25 @@ fi
 
 if ! type "g++" > /dev/null; then
     echo "You need to install g++ to run this script."
-    #sudo apt-get install g++
+    sudo yum install gcc-c++
 fi
 
 if ! type "cmake" > /dev/null; then
     echo "You need to install cmake to run this script."
-    #sudo apt-get install cmake
+    sudo yum install cmake
 fi
 
 if ! type "curl" > /dev/null; then
     echo "You need to install curl to run this script."
-    #sudo apt-get install curl
+    sudo yum install curl
 fi
 
 read -p "Do you want to install pre-requisites (e.g. libreadline, zlib, libexpat, libcurl ...)?[y/n]" -n 1 -r
 echo
-#if [[ $REPLY =~ ^[Yy]$ ]]; then
+if [[ $REPLY =~ ^[Yy]$ ]]; then
     #sudo apt-get install g++ libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
-#fi
-# yum install readline-devel, zlib-devel, autoreconf, libtool
+    sudo yum install readline-devel zlib-devel expat-devel curl-devel autoreconf libtool openssl-devel libidn-devel openldap-devel mesa-libGL-devel mesa-libGLU-devel gtk2
+fi
 
 unset ORACLE_HOME
 export GEODA_HOME=$PWD
@@ -141,7 +141,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%"
 #########################################################################
 # install c-ares -- for cURL, prevent crash on Mac oSx with threads
 #########################################################################
-install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
+install_library c-ares-1.10.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/c-ares-1.10.0.tar.gz libcares.a
 
 
 #########################################################################
@@ -337,7 +337,8 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%"
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
         chmod +x configure
-        ./configure CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib -liconv -lsqlite3" --prefix=$PREFIX --enable-geos --enable-iconv --enable-proj --with-geosconfig=$PREFIX/bin/geos-config
+	echo $PREFIX
+        ./configure CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" --prefix=$PREFIX --enable-geos --enable-iconv --enable-proj --with-geosconfig=$PREFIX/bin/geos-config
         $MAKER
         make install
     fi
@@ -567,12 +568,12 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -k -O $LIB_URL
-        unzip $LIB_FILENAME
+        #curl -k -O $LIB_URL
+        #unzip $LIB_FILENAME
+        git clone https://github.com/lixun910/gdal.git gdal-GeoDa17Merge
         mv gdal-GeoDa17Merge/gdal gdal
     fi
 
-    cp -rf $GEODA_HOME/dep/$LIB_NAME .
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
         chmod +x configure
@@ -582,6 +583,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp GDALmake64.opt GDALmake.opt
         #make clean
         $MAKER
+        touch .libs/libgdal.lai
         make install
         #cd ogr/ogrsf_frmts/oci
         #make plugin
@@ -624,7 +626,8 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=2 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        ./configure --with-gtk=3 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        #make clean
         $MAKER
         make install
         cd ..
@@ -645,8 +648,9 @@ echo "% Building: GeoDa %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     cd $GEODA_HOME
-    cp ../../GeoDamake.ubuntu.opt ../../GeoDamake.opt
+    cp ../../GeoDamake.centos../../GeoDamake.opt
     mkdir ../../o
+    make clean
     $MAKER
     make app
     #cp plugins/x64/*.so build/plugins/
