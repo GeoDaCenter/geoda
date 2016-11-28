@@ -30,16 +30,16 @@ class PermutationCounterDlg: public wxDialog
 public:
     PermutationCounterDlg( );
     PermutationCounterDlg( wxWindow* parent, wxWindowID id = -1,
-						   const wxString& caption="Set Number of Permutation",
+						   const wxString& caption=_("Set Number of Permutation"),
 						   const wxPoint& pos = wxDefaultPosition,
 						   const wxSize& size = wxDefaultSize,
-						   long style = wxCAPTION|wxSYSTEM_MENU );
+						   long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Set Number of Permutation",
+				const wxString& caption = _("Set Number of Permutation"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU );
+				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );

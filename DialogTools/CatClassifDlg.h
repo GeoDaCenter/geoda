@@ -139,7 +139,7 @@ public:
 					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
-					long style = wxCAPTION|wxSYSTEM_MENU);
+					long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	virtual ~CatClassifPanel();
 	
 	CatClassifState* PromptNew(const CatClassifDef& ccd,

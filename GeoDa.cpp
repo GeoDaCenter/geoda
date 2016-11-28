@@ -334,8 +334,12 @@ bool GdaApp::OnInit(void)
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
 		frameWidth = 1020;
  		frameHeight = 120;
-             wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
-             if (linux_info.Description.Lower().Contains("centos")) frameHeight = 180;
+#ifdef __linux__
+        wxLinuxDistributionInfo linux_info = wxPlatformInfo::wxGetLinuxDistributionInfo();
+        if (linux_info.Description.Lower().Contains("centos"))
+            frameHeight = 180;
+#endif
+
 	}
 
     

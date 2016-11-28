@@ -111,10 +111,10 @@ public:
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,                    
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
+					 const wxString& caption = _("Randomization"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	RandomizationDlg( const std::vector<double>& raw_data1,
 					 const std::vector<double>& raw_data2,
 					 const GalWeight* W,
@@ -124,10 +124,10 @@ public:
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
+					 const wxString& caption = _("Randomization"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	virtual ~RandomizationDlg();
     
     void CreateControls();

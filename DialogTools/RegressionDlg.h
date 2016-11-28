@@ -53,14 +53,14 @@ public:
 				  const wxString& caption = _("Regression"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize, 
-				  long style = wxCAPTION|wxSYSTEM_MENU );
+				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~RegressionDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
 				const wxString& caption = _("Regression"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU );
+				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
     void OnRunClick( wxCommandEvent& event );

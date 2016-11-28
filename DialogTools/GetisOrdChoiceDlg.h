@@ -28,10 +28,10 @@ class GetisOrdChoiceDlg: public wxDialog
 {    
 public:
     GetisOrdChoiceDlg( wxWindow* parent, wxWindowID id = wxID_ANY,
-					  const wxString& caption = "Maps To Open",
+					  const wxString& caption = _("Maps To Open"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,
-					  long style = wxCAPTION | wxSYSTEM_MENU);
+					  long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE);
 
     void CreateControls();
 

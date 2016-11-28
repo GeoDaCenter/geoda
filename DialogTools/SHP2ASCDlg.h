@@ -33,14 +33,14 @@ public:
 				const wxString& caption = _("Exporting Shape to Boundary"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU );
+				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
     ~SHP2ASCDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
 				const wxString& caption = _("Exporting Shape to Boundary"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU );
+				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     bool CreateASCBoundary(wxString oasc, wxString orasc, int field,
                            int type, bool isR);

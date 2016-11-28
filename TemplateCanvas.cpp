@@ -110,7 +110,8 @@ layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
 useScientificNotation(false), is_showing_brush(false),
-axis_display_precision(2)
+axis_display_precision(2),
+MASK_R(183), MASK_G(184), MASK_B(185)
 {
     // default is one time slice
 	cat_data.CreateEmptyCategories(1, highlight_state->GetHighlightSize());
@@ -641,23 +642,13 @@ void TemplateCanvas::DrawLayer0()
     dc.SetPen(canvas_background_color);
     dc.SetBrush(canvas_background_color);
     dc.DrawRectangle(wxPoint(0,0), sz);
-/*
-    if (objects_bm == NULL) {
-    wxColour maskColor(89,45,67);
-    wxBrush maskBrush(maskColor);
-   
-    wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
-    wxMemoryDC _dc; 
-    _dc.SetBackground(maskBrush);
-    _dc.SelectObject(bmp);
-    _dc.Clear();
-*/
+
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
     
     DrawSelectableShapes(dc);
-    //}
+
 
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;

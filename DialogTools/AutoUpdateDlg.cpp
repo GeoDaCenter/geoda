@@ -290,7 +290,7 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     lbl_box->Add(prg_bar, 1, wxEXPAND |wxALL, 10);
     
     wxButton* btn_skip = NULL;
-    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    wxButton* btn_cancel= new wxButton(panel, wxID_ANY, _("Cancel"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     if (showSkip)
         btn_skip = new wxButton(panel, wxID_ANY, "Skip");
     wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

@@ -101,7 +101,7 @@ SliderDialog::SliderDialog(wxWindow * parent,
                   wxALIGN_CENTER_VERTICAL|wxALL);
 
 	boxSizer->Add(subSizer);
-    wxString txt_transparency = wxString::Format("Current Transparency: %.1f", trasp);
+    wxString txt_transparency = wxString::Format(_("Current Transparency: %.1f"), trasp);
     
     slider_text = new wxStaticText(this,
                                    wxID_ANY,
@@ -109,6 +109,7 @@ SliderDialog::SliderDialog(wxWindow * parent,
                                    wxDefaultPosition,
                                    wxSize(100, -1));
     boxSizer->Add(slider_text, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
+    boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
     
     topSizer->Fit(this);
 }
@@ -601,7 +602,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     // Apply highlight objects with transparency
     
     wxMemoryDC _dc;
-    wxColour maskColor(123, 123, 123);
+    wxColour maskColor(MASK_R, MASK_G, MASK_B);
     wxBrush maskBrush(maskColor);
     _dc.SetBackground(maskBrush);
     _dc.SelectObject(*map_hl_bm);
@@ -634,9 +635,9 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
 	for (int i=0; i< n_pixel; i++) {
 		// check rgb
 		pos = i * 3;
-		if (pixel_data[pos] != 123) continue;
-		if (pixel_data[pos+1] != 123) continue;
-		if (pixel_data[pos+2] != 123) continue;
+		if (pixel_data[pos] != MASK_R) continue;
+		if (pixel_data[pos+1] != MASK_G) continue;
+		if (pixel_data[pos+2] != MASK_B) continue;
 		alpha_vals[i] = 0;
 	}
     wxBitmap _bmp(image);
@@ -691,55 +692,47 @@ void MapCanvas::SaveThumbnail()
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-    //if (isDrawBasemap) {
-        if ( map_bm == NULL ) {
-            wxSize sz = dc.GetSize();
-            wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
-            wxMemoryDC _dc;
-            // use a special color for mask transparency: 244, 243, 242c
-            wxColour maskColor(123, 123, 123);
-            wxBrush maskBrush(maskColor);
-            _dc.SetBackground(maskBrush);
-            _dc.SelectObject(bmp);
-            _dc.Clear();
-            
-            BOOST_FOREACH( GdaShape* shp, background_shps ) {
-                shp->paintSelf(_dc);
-            }
-            DrawSelectableShapes_dc(_dc);
-            
-            _dc.SelectObject(wxNullBitmap);
-            
-            wxImage image = bmp.ConvertToImage();
-            if (!image.HasAlpha()) {
-                image.InitAlpha();
-            }
-            int alpha_value =  GdaConst::transparency_unhighlighted;
-if (isDrawBasemap) { alpha_value = transparency * 255; }
-            unsigned char *alpha=image.GetAlpha();
-			unsigned char* pixel_data = image.GetData();
-			int n_pixel = image.GetWidth() * image.GetHeight();
-
-			memset(alpha, alpha_value, n_pixel);
-			int pos = 0;
-			for (int i=0; i< n_pixel; i++) {
-				// check rgb
-				pos = i * 3;
-				if (pixel_data[pos] != 123) continue;
-				if (pixel_data[pos+1] != 123) continue;
-				if (pixel_data[pos+2] != 123) continue;
-				alpha[i] = 0;
-			}
-            
-            map_bm = new wxBitmap(image);
+    if ( map_bm == NULL ) {
+        wxSize sz = dc.GetSize();
+        wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+        wxMemoryDC _dc;
+        // use a special color for mask transparency: 244, 243, 242c
+        wxColour maskColor(MASK_R, MASK_G, MASK_B);
+        wxBrush maskBrush(maskColor);
+        _dc.SetBackground(maskBrush);
+        _dc.SelectObject(bmp);
+        _dc.Clear();
+        
+        BOOST_FOREACH( GdaShape* shp, background_shps ) {
+            shp->paintSelf(_dc);
         }
-        //dc.DrawBitmap(*map_bm,0,0);
-    //} else {
-    //    BOOST_FOREACH( GdaShape* shp, background_shps ) {
-    //        shp->paintSelf(dc);
-    //    }
-    //    DrawSelectableShapes_dc(dc);
-   // }
+        DrawSelectableShapes_dc(_dc);
+        
+        _dc.SelectObject(wxNullBitmap);
+        
+        wxImage image = bmp.ConvertToImage();
+        if (!image.HasAlpha()) {
+            image.InitAlpha();
+        }
+        int alpha_value = 255;
+        if (isDrawBasemap) { alpha_value = transparency * 255; }
+        unsigned char *alpha=image.GetAlpha();
+        unsigned char* pixel_data = image.GetData();
+        int n_pixel = image.GetWidth() * image.GetHeight();
+        
+        memset(alpha, alpha_value, n_pixel);
+        int pos = 0;
+        for (int i=0; i< n_pixel; i++) {
+            // check rgb
+            pos = i * 3;
+            if (pixel_data[pos] != MASK_R) continue;
+            if (pixel_data[pos+1] != MASK_G) continue;
+            if (pixel_data[pos+2] != MASK_B) continue;
+            alpha[i] = 0;
+        }
+        
+        map_bm = new wxBitmap(image);
+    }
 }
 
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
@@ -758,7 +751,7 @@ int MapCanvas::GetBasemapType()
 {
     if (basemap)
         return basemap->mapType;
-    return NULL;
+    return 0;
 }
 
 void MapCanvas::CleanBasemapCache()

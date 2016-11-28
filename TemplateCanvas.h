@@ -286,6 +286,11 @@ public:
     int           axis_display_precision;
     
 protected:
+    
+    int MASK_R;
+    int MASK_G;
+    int MASK_B;
+    
     bool          is_showing_brush;
 	SelectState   selectstate;
 	MouseMode     mousemode;

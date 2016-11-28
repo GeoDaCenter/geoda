@@ -32,10 +32,10 @@ class AddIdVariable: public wxDialog {
 public:
 	AddIdVariable(TableInterface* table_int,
 				  wxWindow* parent, wxWindowID id = -1,
-				  const wxString& caption = "Add New ID Variable",
+				  const wxString& caption = _("Add New ID Variable"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize,
-				  long style = wxCAPTION|wxSYSTEM_MENU );
+				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	
 	void CreateControls();
 	void OnOkClick( wxCommandEvent& event );
