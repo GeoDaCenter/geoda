@@ -419,7 +419,7 @@ bool GdaApp::OnInit(void)
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();
-    wxString loggerFile = exeDir + "logger.txt";
+    wxString loggerFile = exeDir + "web_plugins" + wxFileName::GetPathSeparator() +"logger.txt";
     
     if (m_pLogFile == NULL) {
         m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );

@@ -94,7 +94,7 @@ install_library()
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
 	chmod +x configure
-        ./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib/x86_64-linux-gnu" --prefix=$PREFIX $CONFIGURE_FLAGS
+        ./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib64" --prefix=$PREFIX $CONFIGURE_FLAGS
         #./configure --prefix=$PREFIX
         $MAKER
         make install
@@ -647,13 +647,11 @@ echo "% Building: GeoDa %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     cd $GEODA_HOME
-    cp ../../GeoDamake.centos../../GeoDamake.opt
+    cp ../../GeoDamake.centos.opt ../../GeoDamake.opt
     mkdir ../../o
     make clean
     $MAKER
     make app
     #cp plugins/x64/*.so build/plugins/
-    cp ../CommonDistFiles/cache.sqlite build/
-    cp ../CommonDistFiles/geoda_prefs.sqlite build/
-    cp ../CommonDistFiles/geoda_prefs.json build/
+    cp ../CommonDistFiles/web_plugins/no_map.png build/web_plugins/no_map.png
 }

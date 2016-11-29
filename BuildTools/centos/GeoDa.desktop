@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.8
+Name[en_US]=GeoDa
+GenericName=GeoDa 1.8
+Exec=/usr/local/GeoDa/run.sh
+Terminal=false
+Icon=/usr/local/GeoDa/GeoDa.png
+Type=Application
+Categories=Applications;
+Comment[en_US]=GeoDa Software

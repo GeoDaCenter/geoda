@@ -32,7 +32,7 @@ INSTALL_DIR	= 	$(GDAL_ROOT)/install-sh -d
 
 # SDE_LIB needs to be first because it embeds zlib.  We need to use its symbols instead of -lz's
 
-LIBS	=	$(SDE_LIB) -lssl -lrtmp -lidn -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
+LIBS	=	$(SDE_LIB) -lssl -lidn -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
         $(KAK_LIBS) $(DWG_LIBS) $(CURL_LIB) \
 		$(MRSID_LIBS) $(MRSID_LIDAR_LIBS) $(INGRES_LIB) \
 		$(PCIDSK_LIB) $(RASDAMAN_LIB) $(CHARLS_LIB) \
@@ -69,8 +69,8 @@ INST_MAN	=	${prefix}/share/gdal/man
 INST_HTML	=	$(HOME)/www/gdal
 
 CPPFLAGS	=  -I$(GDAL_ROOT)/port  -I$(GDAL_ROOT)/gcore  -I$(GDAL_ROOT)/ogr  -I$(GDAL_ROOT)/ogr/ogrsf_frmts -I$(GDAL_ROOT)/alg
-CFLAGS		=  -g -O2 -DGDAL_COMPILATION -DDEBUG  -Wall -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS	=  -g -O2 -DDEBUG  -Wall $(USER_DEFS)
+CFLAGS		=  -g -O2 -DGDAL_COMPILATION -Wall -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS	=  -g -O2 -Wall $(USER_DEFS)
 LDFLAGS     = 
 
 RANLIB		=	ranlib

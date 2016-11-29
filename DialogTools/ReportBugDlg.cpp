@@ -848,7 +848,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 {
     // get log file to body
     wxString logger_path;
-    logger_path <<  GenUtils::GetBasemapCacheDir() <<  "logger.txt";
+    logger_path <<  GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << "logger.txt";
     wxTextFile tfile;
     tfile.Open(logger_path);
     

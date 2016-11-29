@@ -7,7 +7,7 @@ CXX     =	g++
 LD	=	g++ 
 RM	=	/bin/rm -f
 
-WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,xml,net,base)
+WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,webview,qa,adv,core,xml,net,base)
 WX_HEADER = $(shell $(GEODA_HOME)/libraries/bin/wx-config --cppflags)
 
 LIBS = $(WXLIBS) \
@@ -19,7 +19,7 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
         $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
         -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl -lcares \
-        -lGL -lGLU -lglut -lidn -lrt -lssl -lrtmp -lidn
+        -L/lib64 -lGL -lGLU -lidn -lrt -lssl -lidn
 
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
 
