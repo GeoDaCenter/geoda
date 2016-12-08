@@ -1040,7 +1040,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     if (mi == NULL)
         return;
  
-    wxString ds_name = mi->GetLabel();
+    wxString ds_name = mi->GetItemLabelText();
     if (ds_name.IsEmpty())
         return;
     

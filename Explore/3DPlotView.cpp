@@ -51,7 +51,7 @@ C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
 							 wxWindow *parent,
 							 wxWindowID id, const wxPoint& pos,
 							 const wxSize& size, long style)
-: wxGLCanvas(parent, id, pos, size, style), ball(0),
+: wxGLCanvas(parent, id, 0, pos, size, style), ball(0),
 project(project_s),
 table_int(project_s->GetTableInt()),
 num_obs(project_s->GetTableInt()->GetNumberRows()),
@@ -66,6 +66,7 @@ c3d_plot_frame(t_frame)
 {
     wxLogMessage("Open C3DPlotCanvas.");
     
+	m_context = new wxGLContext(this);
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
 	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
 	canvas_background_color=GdaConst::three_d_plot_default_background_colour;
@@ -153,7 +154,7 @@ C3DPlotCanvas::~C3DPlotCanvas()
 {
 	if (ball) delete ball; ball = 0;	
 	highlight_state->removeObserver(this);
-    
+    delete m_context;
     wxLogMessage("Close C3DPlotCanvas.");
 }
 
@@ -195,13 +196,12 @@ void C3DPlotCanvas::SetCheckMarks(wxMenu* menu)
 
 void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 {
+	if(!IsShown()) return;
+
     /* must always be here */
     wxPaintDC dc(this);
 
-    if (!GetContext())
-        return;
-
-    SetCurrent();
+	wxGLCanvas::SetCurrent(*m_context);
     
 
     /* initialize OpenGL */
@@ -266,15 +266,15 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 void C3DPlotCanvas::OnSize(wxSizeEvent& event)
 {
     // this is also necessary to update the context on some platforms
-    wxGLCanvas::OnSize(event);
+    //wxGLCanvas::OnSize(event);
     
     // set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
     int w, h;
     GetClientSize(&w, &h);
 
-    if (GetContext()) {
+    //if (GetContext()) {
         glViewport(0, 0, (GLint) w, (GLint) h);
-    }
+    //}
 }
 
 void C3DPlotCanvas::OnEraseBackground(wxEraseEvent& event)
@@ -585,7 +585,7 @@ void C3DPlotCanvas::SelectByRect()
 
 void C3DPlotCanvas::InitGL(void)
 {
-    SetCurrent();
+    //SetCurrent();
 
     //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearColor(((GLfloat) canvas_background_color.Red())/((GLfloat) 255.0),

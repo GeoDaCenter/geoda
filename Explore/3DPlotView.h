@@ -134,6 +134,7 @@ public:
 	bool bSelect;
 	C3DControlPan *m_dlg;
 	C3DPlotFrame* c3d_plot_frame;
+	wxGLContext*	m_context;
 	
 	DECLARE_EVENT_TABLE()
 };

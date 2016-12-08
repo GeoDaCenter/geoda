@@ -109,7 +109,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     // Preview Grid controls
     previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 100));
     previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
-    previewGrid->SetEditable(false);
+    previewGrid->EnableEditing(false);
     previewGrid->SetDefaultCellAlignment( wxALIGN_RIGHT, wxALIGN_TOP );
     
     wxBoxSizer* preview_box = new wxBoxSizer(wxVERTICAL);
