@@ -7492,11 +7492,26 @@
                   <flag>wxALL</flag>
                   <border>5</border>
               </object>
+            
               <object class="sizeritem">
-                  <object class="wxPanel" name="dsRecentListSizer">
+                  <object class="wxNotebook" name="IDC_DS_LIST">
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsRecentListSizer">
+                          </object>
+                          <label>Recent</label>
+                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                      </object>
+                      <object class="notebookpage">
+                          <object class="wxPanel" name="dsSampleList">
+                          </object>
+                          <label>Samples</label>
+                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                      </object>
+                      <size>420,340</size>
+                      <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
                   </object>
                   <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
-                  <border>0</border>
+                  <border>5</border>
                   <option>1</option>
               </object>
               <flag></flag>

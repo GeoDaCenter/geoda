@@ -48,6 +48,7 @@ public:
     void Add(IDataSource* ds, const wxString& layer_name, wxString ds_thumb="");
     void Clear();
     void Save();
+    void Delete(int idx);
   
     int GetRecords() {return n_ds;}
     wxString GetLastIndex();
@@ -104,16 +105,20 @@ protected:
 	AutoTextCtrl*  m_webservice_url;
 	IDataSource*   datasource;
     wxPanel* recent_panel;
+    wxPanel* smaples_panel;
+    wxScrolledWindow* scrl;
    
     int base_xrcid_recent_thumb;
     void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
                        wxString ds_name, wxString ds_layername,
                        wxString ds_thumb, int id);
-    void InitRecentPanel(wxScrolledWindow* scrl);
+    void InitRecentPanel();
+    void InitSamplePanel();
     IDataSource* CreateDataSource();
     void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
     
     void OnRecent(wxCommandEvent& event);
+    void OnRecentDelete(wxCommandEvent& event);
     
 	DECLARE_EVENT_TABLE()
 };

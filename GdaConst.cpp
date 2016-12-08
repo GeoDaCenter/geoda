@@ -22,7 +22,7 @@
 #include "GenUtils.h"
 #include <wx/mstream.h>
 
-char* GdaConst::raw_zoom_in[] = {
+const char* GdaConst::raw_zoom_in[] = {
 
 	"16 16 48 1",
 	" 	g None",
@@ -91,7 +91,7 @@ char* GdaConst::raw_zoom_in[] = {
 	"                "
 };
 
-char* GdaConst::raw_zoom_out[] = {
+const char* GdaConst::raw_zoom_out[] = {
 	"16 16 48 1",
 	" 	g None",
 	".	g #979797",
@@ -157,6 +157,41 @@ char* GdaConst::raw_zoom_out[] = {
 	"             ii ",
 	"                ",
 	"                "};
+
+const char* GdaConst::delete_icon_xpm[] = {
+    "16 16 14 1 ",
+    "  c #E91611",
+    ". c #EA1711",
+    "X c #ED1813",
+    "o c #FD1E18",
+    "O c #FE1F1A",
+    "+ c #F02917",
+    "@ c #F02918",
+    "# c #F02A19",
+    "$ c #F02D1B",
+    "% c #F02D1C",
+    "& c #DA2E2A",
+    "* c #DA302A",
+    "= c #E93A2D",
+    "- c None",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "---%%+#####$=---",
+    "---*o.XXXX.o&---",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------",
+    "----------------"
+};
+
 
 wxString GdaConst::FieldTypeToStr(GdaConst::FieldType ft)
 {

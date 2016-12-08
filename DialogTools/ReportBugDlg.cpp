@@ -310,7 +310,7 @@ void PreferenceDlg::Init()
     hbox->Add(resetButton, 1);
     hbox->Add(closeButton, 1, wxLEFT, 5);
     
-    vbox->Add(notebook, 1, wxALIGN_CENTER | wxEXPAND| wxALL, 10);
+    vbox->Add(notebook, 1, wxEXPAND| wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
     
     SetSizer(vbox);

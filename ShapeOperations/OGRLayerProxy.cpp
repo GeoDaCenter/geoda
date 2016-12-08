@@ -395,7 +395,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
    
     bool ignore_case = false;
     
-    if (ds_type == GdaConst::ds_postgresql) {
+    if (ds_type == GdaConst::ds_postgresql ||
+        ds_type == GdaConst::ds_sqlite) {
         ignore_case = true;
     }
     

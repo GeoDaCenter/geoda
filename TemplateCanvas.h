@@ -266,6 +266,9 @@ public:
     void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false);
+    void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc, bool hl_only=false,
+                                        bool revert=false,
+                                        bool crosshatch= false);
     
 
     void SetTransparency(double _transparency) {

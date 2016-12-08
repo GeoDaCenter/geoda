@@ -1338,3 +1338,13 @@ std::string GenUtils::GetBasemapCacheDir()
 	wxString exeDir = exeFile.GetPathWithSep();
 	return std::string(exeDir.mb_str());
 }
+
+std::string GenUtils::GetWebPluginsDir()
+{
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	wxFileName exeFile(exePath);
+	wxString exeDir = exeFile.GetPathWithSep();
+    exeDir << "web_plugins" << wxFileName::GetPathSeparator();
+    
+	return std::string(exeDir.mb_str());
+}

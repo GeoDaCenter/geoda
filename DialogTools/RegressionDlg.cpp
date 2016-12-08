@@ -1639,7 +1639,7 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 
 void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnCRadio1Selected");
+    wxLogMessage("Click RegressionDlg::OnCRadio1Selected");
     
 	m_Run = false;
 	RegressModel = 1;
@@ -1651,7 +1651,7 @@ void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnCRadio2Selected");
+    wxLogMessage("Click RegressionDlg::OnCRadio2Selected");
     
 	m_Run = false;
 	RegressModel = 2;
@@ -1663,7 +1663,7 @@ void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnCRadio3Selected");
+    wxLogMessage("Click RegressionDlg::OnCRadio3Selected");
     
 	m_Run = false;
 	RegressModel = 3;
@@ -1675,7 +1675,7 @@ void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio4Selected( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnCRadio4Selected");
+    wxLogMessage("Click RegressionDlg::OnCRadio4Selected");
     
 	m_Run = false;
 	RegressModel = 4;
@@ -1687,20 +1687,20 @@ void RegressionDlg::OnCRadio4Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnStandardizeClick( wxCommandEvent& event )
 {
-	wxMessageBox("row standardization is by default");
+	wxLogMessage("row standardization is by default");
 	// m_standardize->SetValue(true);
 }
 
 void RegressionDlg::OnPredValCbClick( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnPredValCbClick");
+    wxLogMessage("Click RegressionDlg::OnPredValCbClick");
     
 	m_output1 = m_pred_val_cb->GetValue() == 1;
 }
 
 void RegressionDlg::OnCoefVarMatrixCbClick( wxCommandEvent& event )
 {
-    wxMessageBox("Click RegressionDlg::OnCoefVarMatrixCbClick");
+    wxLogMessage("Click RegressionDlg::OnCoefVarMatrixCbClick");
     
 	m_output2 = m_coef_var_matrix_cb->GetValue() == 1;
 }

@@ -417,8 +417,9 @@ public:
     static wxCursor zoomInCursor;
     static wxCursor zoomOutCursor;
 
-	static char* raw_zoom_out[65];
-	static char* raw_zoom_in[65];
+	static const char* raw_zoom_out[65];
+	static const char* raw_zoom_in[65];
+	static const char* delete_icon_xpm[31];
 };
 
 #endif

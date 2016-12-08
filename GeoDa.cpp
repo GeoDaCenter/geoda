@@ -385,13 +385,6 @@ bool GdaApp::OnInit(void)
 
     wxPoint welcome_pos = appFramePos;
     welcome_pos.y += 150;
-    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("show_welcome_dialog");
-    if (items.size() == 0) {
-        WelcomeSelectionStyleDlg styleDlg(GdaFrame::GetGdaFrame(), wxID_ANY, "",
-                                          welcome_pos);
-        styleDlg.Show();
-        OGRDataAdapter::GetInstance().AddEntry("show_welcome_dialog", "true");
-    }
 
     // check crash
     if (GdaConst::disable_crash_detect == false) {

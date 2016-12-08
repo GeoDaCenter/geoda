@@ -260,10 +260,10 @@ void MapCanvas::ResetShapes()
     }
     if (isDrawBasemap) {
         basemap->Reset();
-        if (map_bm) {
-            delete map_bm;
-            map_bm = 0;
-        }
+    }
+    if (map_bm) {
+        delete map_bm;
+        map_bm = 0;
     }
     
     TemplateCanvas::ResetShapes();
@@ -278,12 +278,12 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
         delete faded_layer_bm;
         faded_layer_bm = NULL;
     }
+    if (map_bm) {
+        delete map_bm;
+        map_bm = 0;
+    }
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
-        if (map_bm) {
-            delete map_bm;
-            map_bm = 0;
-        }
         ResizeSelectableShps();
         
         return;
@@ -301,15 +301,15 @@ void MapCanvas::PanShapes()
         delete faded_layer_bm;
         faded_layer_bm = NULL;
     }
+    if (map_bm) {
+        delete map_bm;
+        map_bm = 0;
+    }
     if (isDrawBasemap) {
         int delta_x = sel2.x - sel1.x;
         int delta_y = sel2.y - sel1.y;
         if (delta_x !=0 && delta_y != 0) {
             basemap->Pan(sel1.x, sel1.y, sel2.x, sel2.y);
-            if (map_bm) {
-                delete map_bm;
-                map_bm = 0;
-            }
             ResizeSelectableShps();
         }
         return;
@@ -582,8 +582,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     if (selectable_shps.size() == 0)
         return;
     
-    if (GdaConst::transparency_highlighted == 255 ||
-        GdaConst::use_cross_hatching) {
+    //if (GdaConst::transparency_highlighted == 255 || GdaConst::use_cross_hatching) {
         if (use_category_brushes) {
             bool highlight_only = true;
             DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
@@ -597,7 +596,8 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
             }
         }
         return;
-    }
+    //}
+  
     
     // Apply highlight objects with transparency
     
@@ -678,10 +678,10 @@ void MapCanvas::SaveThumbnail()
         
         long current_time_sec = wxGetUTCTime();
         wxString file_name;
-        file_name << current_time_sec << ".bmp";
+        file_name << current_time_sec << ".png";
         wxString file_path;
-        file_path << GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << file_name;
-        bool su = image.SaveFile(file_path, wxBITMAP_TYPE_BMP );
+        file_path << GenUtils::GetWebPluginsDir() << file_name;
+        bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
         if (su) {
             recent_ds.UpdateLastThumb(file_name);
         }

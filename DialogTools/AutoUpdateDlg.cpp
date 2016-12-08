@@ -37,6 +37,10 @@
 #include <wx/stdpaths.h>
 #include <wx/progdlg.h>
 #include <wx/panel.h>
+#include <wx/filesys.h>
+#include <wx/zipstrm.h>
+#include <wx/wfstream.h>
+#include <memory>
 
 #include "stdio.h"
 #include <iostream>

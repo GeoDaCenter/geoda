@@ -360,6 +360,7 @@ namespace GenUtils {
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 
 	std::string GetBasemapCacheDir();
+	std::string GetWebPluginsDir();
     
 }
 
