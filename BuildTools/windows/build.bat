@@ -610,9 +610,9 @@ if %GDA_BUILD% == BUILD_32 (
   copy /Y %BUILD_HOME%\plugins\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 ) else (
   xcopy /Y /E %BUILD_HOME%\dep\mysql\my_default.h %DOWNLOAD_HOME%\%LIB_NAME%\include
-  copy /Y  %BUILD_HOME%\plugins\x64\mysqlclient.lib %LIBRARY_HOME%\%LIB_HM_LIB%\mysqlclient.lib
+  copy /Y  %BUILD_HOME%\plugins\64\mysqlclient.lib %LIBRARY_HOME%\%LIB_HM_LIB%\mysqlclient.lib
   REM xcopy /Y /E %BUILD_HOME%\plugins\x64\libmysql.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.lib
-  copy /Y  %BUILD_HOME%\plugins\x64\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
+  copy /Y  %BUILD_HOME%\plugins\64\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 )
 set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
