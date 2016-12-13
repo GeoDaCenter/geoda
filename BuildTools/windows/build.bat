@@ -737,7 +737,7 @@ if %GDA_BUILD% == BUILD_32 (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
 )
-
+REM # Even though we are skipping this part, the code is still wrong. The name of the dll should be 310u/310ud rather than 31u/31ud.
 copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31u_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_vc_custom.dll
 copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31u_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_gl_vc_custom.dll
 copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31ud_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31ud_vc_custom.dll
@@ -974,8 +974,8 @@ if %GDA_BUILD% == BUILD_32 (
 ) else (
   copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Debug\.
 )
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31ud_vc_custom.dll Release\.
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31ud_gl_vc_custom.dll Release\.
+copy /Y temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310ud_vc_custom.dll Debug\.
+copy /Y temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310ud_gl_vc_custom.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Debug\.
