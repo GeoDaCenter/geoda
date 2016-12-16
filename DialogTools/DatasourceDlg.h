@@ -40,7 +40,7 @@ class DatasourceDlg : public wxDialog
 protected:
     enum DS_IDS
     {
-        ID_DS_START=1001
+        ID_DS_START=8001
     };
     
 public:

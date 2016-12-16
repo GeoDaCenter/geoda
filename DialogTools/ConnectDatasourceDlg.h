@@ -96,7 +96,8 @@ public:
 	void OnLookupDSTableBtn( wxCommandEvent& event );
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
-        
+    
+    
 protected:
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
@@ -109,7 +110,12 @@ protected:
     wxScrolledWindow* scrl;
    
     int base_xrcid_recent_thumb;
+    int base_xrcid_sample_thumb;
     void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                       wxString ds_name, wxString ds_layername,
+                       wxString ds_thumb, int id);
+    void AddSampleItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                       wxString name, 
                        wxString ds_name, wxString ds_layername,
                        wxString ds_thumb, int id);
     void InitRecentPanel();
@@ -118,6 +124,7 @@ protected:
     void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
     
     void OnRecent(wxCommandEvent& event);
+    void OnSample(wxCommandEvent& event);
     void OnRecentDelete(wxCommandEvent& event);
     
 	DECLARE_EVENT_TABLE()

@@ -420,6 +420,10 @@ public:
 	static const char* raw_zoom_out[65];
 	static const char* raw_zoom_in[65];
 	static const char* delete_icon_xpm[31];
+    
+	static const char* sample_names[255];
+	static const char* sample_layer_names[255];
+	static const char* sample_datasources[255];
 };
 
 #endif
