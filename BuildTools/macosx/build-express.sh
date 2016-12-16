@@ -62,7 +62,30 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     unzip libraries.zip
     rm libraries.zip
     cd libraries/lib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libgdal.20.dylib" libgdal.20.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlengine.0.dylib" libkmlengine.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlregionator.0.dylib" libkmlregionator.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlxsd.0.dylib" libkmlxsd.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmldom.0.dylib" libkmldom.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlbase.0.dylib" libkmlbase.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlconvenience.0.dylib" libkmlconvenience.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libkmlengine.0.dylib" libkmlengine.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libminizip.0.dylib" libminizip.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/liburiparser.1.dylib" liburiparser.1.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libxerces-c-3.1.dylib" libxerces-c-3.1.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libpq.5.dylib" libpq.5.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libspatialite.5.dylib" libspatialite.5.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libfreexl.1.dylib" libfreexl.1.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libproj.0.dylib" libproj.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libsqlite3.0.dylib" libsqlite3.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libgeos_c.1.dylib" libgeos_c.1.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libgeos-3.3.8.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libcurl.4.dylib" libcurl.4.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libproj.0.dylib" libproj.0.dylib
+    install_name_tool -id "$GEODA_HOME/libraries/lib/libcares.2.dylib" libcares.2.dylib
+    #
     install_name_tool -change "$MC_HOME/libraries/lib/libgdal.20.dylib" "$GEODA_HOME/libraries/lib/libgdal.20.dylib" libgdal.20.dylib
+    install_name_tool -change "$MC_HOME/libraries/lib/libcares.2.dylib" "$GEODA_HOME/libraries/lib/libcares.2.dylib" libgdal.20.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libkmlengine.0.dylib" "$GEODA_HOME/libraries/lib/libkmlengine.0.dylib" libgdal.20.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libkmlregionator.0.dylib" "$GEODA_HOME/libraries/lib/libkmlregionator.0.dylib" libgdal.20.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libkmlxsd.0.dylib" "$GEODA_HOME/libraries/lib/libkmlxsd.0.dylib" libgdal.20.dylib
@@ -93,6 +116,8 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libgeos_c.1.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libgeos-3.3.8.dylib" "$GEODA_HOME/libraries/lib/libgeos-3.3.8.dylib" libspatialite.5.dylib
     install_name_tool -change "$MC_HOME/libraries/lib/libcurl.4.dylib" "$GEODA_HOME/libraries/lib/libcurl.4.dylib" libxerces-c-3.1.dylib
+    install_name_tool -change "$MC_HOME/libraries/lib/libcares.2.dylib" "$GEODA_HOME/libraries/lib/libcares.2.dylib" libxerces-c-3.1.dylib
+    install_name_tool -change "$MC_HOME/libraries/lib/libcares.2.dylib" "$GEODA_HOME/libraries/lib/libcares.2.dylib" libcurl.4.dylib
     cd ../..
 fi
 

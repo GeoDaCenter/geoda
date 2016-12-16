@@ -291,7 +291,9 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             }
         }
     }
-    this->PopupMenu(m_ds_menu);
+ 
+    
+    event.Skip();
 }
 
 /**

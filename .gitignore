@@ -47,6 +47,8 @@ BuildTools/macosx/GeoDa.xcodeproj/project.xcworkspace/xcuserdata/xun.xcuserdatad
 
 *.xcuserstate
 
+rc/GdaAppResources.cpp$*
+
 rc/Drop-Files-Here-extra.png
 
 rc/Drop-Files-Here-extra-black.png
@@ -62,3 +64,6 @@ BuildTools/.DS_Store
 
 BuildTools/macosx/libraries.zip
 BuildTools/windows/oldlogger.txt
+
+*.o
+

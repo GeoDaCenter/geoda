@@ -82,7 +82,7 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-//
+// Class RecentDatasource
 ////////////////////////////////////////////////////////////////////////////////
 
 const int RecentDatasource::N_MAX_ITEMS = 10;
@@ -319,7 +319,7 @@ wxString RecentDatasource::GetLayerName(wxString ds_name)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-//
+// Class ConnectDatasourceDlg
 ////////////////////////////////////////////////////////////////////////////////
 
 BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
@@ -335,6 +335,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 :datasource(0), scrl(0), recent_panel(0)
 {
     base_xrcid_recent_thumb = 7000;
+    base_xrcid_sample_thumb = 7500;
     // init controls defined in parent class
     DatasourceDlg::Init();
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
@@ -356,7 +357,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
         sizer->Fit( recent_panel );
     }
    
-    //InitSamplePanel();
+    InitSamplePanel();
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
     
@@ -373,6 +374,8 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
 {
 	if (datasource) delete datasource;
 }
+
+
 
 void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
                                          wxString ds_name, wxString ds_layername,
@@ -862,29 +865,127 @@ void ConnectDatasourceDlg::InitSamplePanel()
     wxBoxSizer* sizer;
     sizer = new wxBoxSizer( wxVERTICAL );
     
+    wxScrolledWindow* sample_scrl;
+    sample_scrl = new wxScrolledWindow(smaples_panel, wxID_ANY,
+                                       wxDefaultPosition, wxSize(420,200),
+                                       wxVSCROLL );
+    sample_scrl->SetScrollRate( 5, 5 );
     {
-        wxScrolledWindow* scrl;
-        scrl = new wxScrolledWindow(smaples_panel, wxID_ANY, wxDefaultPosition, wxSize(420,200), wxVSCROLL );
-        scrl->SetScrollRate( 5, 5 );
-        
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );
-        
-        wxString sample_ds_name = "";
-        const char* layer_names[255] = {"Altanta", "Baltimore", "Bostonhsg", "Buenosaires", "Charleston1", "Charleston2", "Columbus", "Grid100", "Hickory1", "Hickory2", "Houston", "Juvenile", "Lansing1", "Lansing2","Laozone", "LasRosas1999", "LasRosas2001", "Malaria-Colombia", "Milwaukee1", "Milwaukee2", "NCOVR", "natregimes", "NDVI", "Nepal", "NYC", "Ohiolung", "Orlando1", "Orlando2", "Oz9799", "Phoenix-ACS", "Pittsburgh", "Police", "Sacramento1", "Sacramento2" };
-        
-        //AddRecentItem(sizer, scrl, sample_ds_name, ds_layername, ds_thumb, base_xrcid_recent_thumb+i);
-        
-        scrl->SetSizer( sizer );
-        scrl->Layout();
-        sizer->Fit( scrl );
-        
+        int n = 36;
+        for (int i=0; i<n; i++) {
+            wxString sample_name = GdaConst::sample_names[i];
+            wxString sample_ds_name = GdaConst::sample_datasources[i];
+            wxString ds_layername = GdaConst::sample_layer_names[i];
+            wxString ds_thumb = GdaConst::sample_layer_names[i];
+            AddSampleItem(sizer, sample_scrl, sample_name, sample_ds_name,
+                          ds_layername, ds_thumb, base_xrcid_sample_thumb+i);
+        }
+        sample_scrl->SetSizer( sizer );
+        sample_scrl->Layout();
+        sizer->Fit( sample_scrl );
     }
     
-    sizer->Add( scrl, 1, wxEXPAND | wxRIGHT, 5 );
+    sizer->Add( sample_scrl, 1, wxEXPAND | wxRIGHT, 5 );
     
     smaples_panel->SetSizer( sizer );
     smaples_panel->Layout();
     sizer->Fit( smaples_panel );
+}
+
+void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
+                                         wxScrolledWindow* scrl,
+                                         wxString name,
+                                         wxString ds_name,
+                                         wxString ds_layername,
+                                         wxString ds_thumb, int id)
+{
+    wxBoxSizer* text_sizer;
+    text_sizer = new wxBoxSizer( wxVERTICAL );
+    
+    wxString lbl_ds_layername = ds_layername;
+    lbl_ds_layername = GenUtils::PadTrim(lbl_ds_layername, 30, false);
+    
+    wxStaticText* layername;
+    layername = new wxStaticText(scrl, wxID_ANY,  lbl_ds_layername.Trim());
+    layername->SetFont(*GdaConst::medium_font);
+    layername->SetForegroundColour(wxColour(100,100,100));
+    layername->SetToolTip(ds_layername);
+    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL, 5);
+    
+    wxString lbl_name = name;
+    lbl_name = GenUtils::PadTrim(lbl_name, 60, false);
+    
+    wxStaticText* obs_txt;
+    obs_txt = new wxStaticText(scrl, wxID_ANY, lbl_name);
+    obs_txt->SetFont(*GdaConst::extra_small_font);
+    obs_txt->SetForegroundColour(wxColour(70,70,70));
+    obs_txt->SetToolTip(name);
+    text_sizer->Add(obs_txt, 0, wxALIGN_LEFT | wxALL, 5);
+    
+    wxString lbl_ds_name = ds_name;
+    lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
+    wxStaticText* filepath;
+    filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
+    filepath->SetFont(*GdaConst::extra_small_font);
+    filepath->SetForegroundColour(wxColour(70,70,70));
+    filepath->SetToolTip(lbl_ds_name);
+    text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
+    
+    wxString file_path_str;
+    file_path_str = GenUtils::GetWebPluginsDir() + ds_thumb + ".png";
+    if (!wxFileExists(file_path_str)) {
+        file_path_str = GenUtils::GetWebPluginsDir() + "no_map.png";
+    }
+    wxImage img(file_path_str);
+    if (!img.IsOk()) {
+        file_path_str = GenUtils::GetWebPluginsDir() + "no_map.png";
+        img.LoadFile(file_path_str);
+    }
+    img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
+    wxBitmap bmp(img);
+    
+    wxBitmapButton* thumb;
+    thumb = new wxBitmapButton(scrl, id, bmp);
+    thumb->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnSample, this);
+    
+    wxBoxSizer* row_sizer;
+    row_sizer = new wxBoxSizer( wxHORIZONTAL );
+    row_sizer->Add(thumb, 0, wxALIGN_CENTER | wxALL, 0);
+    row_sizer->Add(text_sizer, 1, wxALIGN_LEFT | wxALIGN_TOP | wxEXPAND | wxTOP, 5);
+    
+    sizer->Add(row_sizer, 0, wxALIGN_LEFT | wxALL, 2);
+}
+
+void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
+{
+    int xrcid = event.GetId();
+    int sample_idx = xrcid - base_xrcid_sample_thumb;
+   
+    // '{"ds_type":"ds_shapefile", "ds_path": "/test.shp", "db_name":"test"..}'
+    wxString ds_json;
+    wxString layername = GdaConst::sample_layer_names[sample_idx];
+    wxString ds_name = GdaConst::sample_datasources[sample_idx];
+    if (ds_name == "samples.sqlite") {
+        ds_name = GenUtils::GetWebPluginsDir() + ds_name;
+        ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
+    } else {
+        ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
+    }
+    
+    IDataSource* ds = IDataSource::CreateDataSource(ds_json);
+    if (ds == NULL) {
+        // raise message dialog show can't connect to datasource
+        wxString msg = _("Can't connect to datasource: ") + ds_name;
+        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    } else {
+        datasource = ds;
+        layer_name = layername;
+        EndDialog(wxID_OK);
+    }
+
 }
 
