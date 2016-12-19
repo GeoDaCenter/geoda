@@ -62,6 +62,8 @@ GDA_CXXFLAGS="-Os -arch x86_64"
 GDA_LDFLAGS="-arch x86_64"
 GDA_WITH_SYSROOT="/Developer/SDKs/MacOSX10.6.sdk/"
 
+CURL="/usr/bin/curl"
+
 if ! [ -d $DOWNLOAD_HOME ]; then
     mkdir $DOWNLOAD_HOME
 fi
@@ -84,7 +86,7 @@ install_library()
     cd $DOWNLOAD_HOME
 
     if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -OL $LIB_URL  # add -L so that we can tar this properly
+        $CURL -OL $LIB_URL  # add -L so that we can tar this properly
     fi
 
     if ! [ -d "$LIB_NAME" ] ; then
@@ -121,7 +123,7 @@ echo $LIB_NAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ] ; then
-    curl -O $LIB_URL
+    $CURL -O $LIB_URL
     unzip $LIB_FILENAME
 fi
 
@@ -183,7 +185,7 @@ install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_librarie
 # install libkml requires 1.3
 #########################################################################
 LIB_NAME=libkml-1.3.0
-LIB_CHECKER=libkmlbase.a # I dont know if we need to change checker or not.
+LIB_CHECKER=libkmlbase.a 
 LIB_URL=https://codeload.github.com/libkml/libkml/zip/1.3.0
 LIB_FILENAME=libkml-1.3.0.zip
 echo $LIB_NAME
@@ -191,26 +193,29 @@ echo $LIB_NAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ] ; then
-curl -o $LIB_FILENAME $LIB_URL
+    $CURL -o $LIB_FILENAME $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
-tar -xf $LIB_FILENAME
+    tar -xf $LIB_FILENAME
 fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    rm -rf bld
+    mkdir bld
+    cd bld
+    cmake ../ 
     mkdir libkml-1.3.0.build
     cd libkml-1.3.0.build
-    cmake ../libkml-1.3.0
-    make
-    sudo make install
+    BOOST_ROOT=../../boost_1_57_0 cmake -DMACOSX_RPATH=1 -DCMAKE_INSTALL_PREFIX=$PREFIX -DBOOST_ROOT=../../boost_1_57_0 ../
+    make && make install
 fi
 
-# I can't decide how to change this, so I just comment this
-#if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-#    echo "Error! Exit"
-#    exit
-#fi
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 
 #########################################################################
 # install SpatiaLite
@@ -224,7 +229,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-    curl -O $LIB_URL
+    $CURL -O $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -258,7 +263,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+    $CURL -O $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -289,7 +294,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+    $CURL -O $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -328,7 +333,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -O $LIB_URL
+    $CURL -O $LIB_URL
     unzip $LIB_FILENAME
 fi
 
@@ -366,7 +371,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-    curl -O $LIB_URL
+    $CURL -O $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -406,7 +411,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -k -O $LIB_URL
+    $CURL -k -O $LIB_URL
     unzip $LIB_FILENAME
     mv gdal-GeoDa17Merge/gdal gdal
 fi
@@ -451,7 +456,7 @@ echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
 if ! [ -f "$LIB_FILENAME" ] ; then
-    curl -k -o $LIB_FILENAME $LIB_URL
+    $CURL -k -o $LIB_FILENAME $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
