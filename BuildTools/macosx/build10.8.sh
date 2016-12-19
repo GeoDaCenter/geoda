@@ -287,6 +287,46 @@ install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geod
 install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
+# install boost library
+#########################################################################
+LIB_NAME=boost_1_57_0
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+LIB_FILENAME=$LIB_NAME.tar.gz
+LIB_CHECKER=libboost_system.a
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+    $CURL -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+cd $PREFIX/include
+rm boost
+ln -s $DOWNLOAD_HOME/$LIB_NAME/ ./boost
+
+if ! [ -f $DOWNLOAD_HOME/$LIB_NAME/stage/lib/$LIB_CHECKER ]; then
+    cd $DOWNLOAD_HOME/$LIB_NAME
+    ./bootstrap.sh
+    ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=static threading=multi toolset=darwin cxxflags="-arch x86_64" stage
+    ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=shared threading=multi toolset=darwin cxxflags="-arch x86_64" stage
+    #./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64 -mmacosx-version-min=10.5 -isysroot $GDA_WITH_SYSROOT" macosx-version=10.5 stage
+    #bjam toolset=darwin address-model=32
+
+    # 10.5 against 1_50_0
+    #./bjam --toolset=darwin --toolset-root=/usr/bin/gcc-4.2 address-model=32 macosx-version=10.5.5
+fi
+
+if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+
+#########################################################################
 # install libkml requires 1.3
 #########################################################################
 LIB_NAME=libkml-1.3.0
@@ -313,6 +353,12 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cmake -DBOOST_ROOT=$PREFIX/include/boost -DBOOST_LIBRARYDIR=$PREFIX/include/boost/stage/lib -DCMAKE_MACOSX_RPATH=0 ../ -DCMAKE_INSTALL_NAME_DIR:PATH=$PREFIX/lib -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX
     make && make install
 fi
+
+# for gdal
+rm -rf $PREFIX/include/kml/third_party
+mkdir $PREFIX/include/kml/third_party
+cd $PREFIX/include/kml/third_party
+ln -s $PREFIX/include/boost/ ./boost_1_34_1
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     echo "Error! Exit"
@@ -373,53 +419,13 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     rm -rf bld
     mkdir bld
     cd bld
-    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake -DCMAKE_INSTALL_PREFIX=$PREFIX ../
+    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_NAME_DIR:PATH=$PREFIX/lib ../
     $MAKE
     make install
     cp $GEODA_HOME/dep/mysql/my_default.h $PREFIX/include/my_default.h
 fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    echo "Error! Exit"
-    exit
-fi
-
-#########################################################################
-# install boost library
-#########################################################################
-LIB_NAME=boost_1_57_0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
-LIB_FILENAME=$LIB_NAME.tar.gz
-LIB_CHECKER=libboost_system.a
-echo $LIB_FILENAME
-
-cd $DOWNLOAD_HOME
-
-if ! [ -f "$LIB_FILENAME" ] ; then
-    $CURL -O $LIB_URL
-fi
-
-if ! [ -d "$LIB_NAME" ]; then
-    tar -xf $LIB_FILENAME
-fi
-
-cd $PREFIX/include
-rm boost
-ln -s $DOWNLOAD_HOME/$LIB_NAME/ ./boost
-
-if ! [ -f $DOWNLOAD_HOME/$LIB_NAME/stage/lib/$LIB_CHECKER ]; then
-    cd $DOWNLOAD_HOME/$LIB_NAME
-    ./bootstrap.sh
-    ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=static threading=multi toolset=darwin cxxflags="-arch x86_64" stage
-    ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=shared threading=multi toolset=darwin cxxflags="-arch x86_64" stage
-    #./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64 -mmacosx-version-min=10.5 -isysroot $GDA_WITH_SYSROOT" macosx-version=10.5 stage
-    #bjam toolset=darwin address-model=32
-
-    # 10.5 against 1_50_0
-    #./bjam --toolset=darwin --toolset-root=/usr/bin/gcc-4.2 address-model=32 macosx-version=10.5.5
-fi
-
-if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
     echo "Error! Exit"
     exit
 fi
@@ -446,15 +452,17 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     rm -rf bld
     mkdir bld
     cd bld
-    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake -DBOOST_ROOT=$PREFIX/include/boost/ ../
+    #CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake -DBOOST_ROOT=$PREFIX/include/boost/ ../
+    cmake -DBOOST_ROOT=$PREFIX/include/boost/ -DCMAKE_INSTALL_PREFIX=$PREFIX ../
     $MAKE
-    rm -rf "$PREFIX/include/json_spirit"
-    rm -f "$PREFIX/lib/$LIB_CHECKER"
-    mkdir "$PREFIX/include/json_spirit"
-    echo "Copying JSON Sprit includes..."
-    cp -R "../json_spirit" "$PREFIX/include/."
-    echo "Copying libjson_spirit.a"
-    cp json_spirit/libjson_spirit.a "$PREFIX/lib/."
+    make install
+    #rm -rf "$PREFIX/include/json_spirit"
+    #rm -f "$PREFIX/lib/$LIB_CHECKER"
+    #mkdir "$PREFIX/include/json_spirit"
+    #echo "Copying JSON Sprit includes..."
+    #cp -R "../json_spirit" "$PREFIX/include/."
+    #echo "Copying libjson_spirit.a"
+    #cp json_spirit/libjson_spirit.a "$PREFIX/lib/."
 fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
@@ -526,10 +534,10 @@ if [[ $NODEBUG -eq 1 ]] ; then
     ./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --without-libtool --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config
 else
     # with debug
-    ./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --without-libtool --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --with-mysql=$PREFIX/bin/mysql_config --enable-debug
+    ./configure CC="$GDA_CC" CXX="$GDA_CXX" CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --without-libtool --with-jpeg=internal --prefix=$PREFIX --with-freexl=$PREFIX --with-libiconv-prefix="-L/usr/lib" --with-sqlite3=$PREFIX --with-spatialite=$PREFIX --with-static-proj4=$PREFIX --with-curl=$PREFIX/bin/curl-config --with-geos=$PREFIX/bin/geos-config --with-libkml=$PREFIX --with-xerces=$PREFIX --with-xerces-inc="$PREFIX/include" --with-xerces-lib="-L$PREFIX/lib -lxerces-c -framework CoreServices" --with-pg=$PREFIX/bin/pg_config --with-mysql=$PREFIX/bin/mysql_config --without-pam --with-xml2=no --enable-debug
 fi
 echo "$GEODA_HOME/dep/$LIB_NAME"
-#make clean
+make clean
 $MAKER
 make install
 #cd ogr/ogrsf_frmts/oci
@@ -580,10 +588,17 @@ fi
 # build GeoDa
 #########################################################################
 cd $GEODA_HOME
-#cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+cp ../../GeoDamake.macosx.10.8.opt ../../GeoDamake.opt
+rm -rf ../../o
 mkdir ../../o
 $MAKER
 if [ -d "build" ] ; then
     rm -rf build
 fi
 make app
+cp libraries/lib/libgdal* build/GeoDa.app/Contents/Resources/plugins/
+cp libraries/lib/libkml* build/GeoDa.app/Contents/Resources/plugins/
+cp libraries/lib/libminizip*  build/GeoDa.app/Contents/Resources/plugins/
+cp libraries/lib/liburiparser* build/GeoDa.app/Contents/Resources/plugins/
+cp libraries/lib/libz* build/GeoDa.app/Contents/Resources/plugins/
+cp libraries/lib/libmysqlclient* build/GeoDa.app/Contents/Resources/plugins/
