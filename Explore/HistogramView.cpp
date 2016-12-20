@@ -137,11 +137,13 @@ custom_classif_state(0), is_custom_category(false)
     obs_id_to_ival.resize(boost::extents[col_time_steps][num_obs]);
     max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
     cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+    /*
     if (num_obs > 49) {
         int c = sqrt((double) num_obs);
         cur_intervals = GenUtils::min<int>(max_intervals, c);
         cur_intervals = GenUtils::min<int>(cur_intervals, 25);
     }
+     */
     min_ival_val.resize(col_time_steps);
     max_ival_val.resize(col_time_steps);
     max_num_obs_in_ival.resize(col_time_steps);
@@ -861,6 +863,7 @@ void HistogramCanvas::HistogramIntervals()
         return;
 	cur_intervals = dlg.num_intervals;
     
+	isResize = true;
     is_custom_category = false;
 	InitIntervals();
 	invalidateBms();
