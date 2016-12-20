@@ -404,7 +404,8 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		int min_IQR = hinge_stats[t].min_IQR_ind;
 		int max_IQR = hinge_stats[t].max_IQR_ind;
 		int ind_base = (t-cur_first_ind)*num_obs;
-		dc.SetPen(*wxRED_PEN);
+		dc.SetPen(selectable_fill_color);
+		dc.SetBrush(*wxWHITE_BRUSH);
 		for (int i=0; i<min_IQR; i++) {
             int idx = data_sorted[t][i].second;
             if (data_undef[0][t][idx])
@@ -425,7 +426,8 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 		}
 		int iqr_s = GenUtils::max<double>(min_IQR, 0);
 		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
-		dc.SetPen(highlight_color);
+		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
+		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
             int idx = data_sorted[t][i].second;
             if (data_undef[0][t][idx])

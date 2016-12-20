@@ -161,6 +161,7 @@ void PreferenceDlg::Init()
                            wxSL_HORIZONTAL);
     slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider_txt1->Hide();
     box1->Add(slider1);
     box1->Add(slider_txt1);
     grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
@@ -176,6 +177,7 @@ void PreferenceDlg::Init()
                            wxSL_HORIZONTAL);
     slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider_txt2->Hide();
     box2->Add(slider2);
     box2->Add(slider_txt2);
     grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
@@ -216,6 +218,7 @@ void PreferenceDlg::Init()
                                      wxDefaultPosition, sl_sz,
                                      wxSL_HORIZONTAL);
     wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), wxString::Format("%d", GdaConst::plot_transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider_txt6->Hide();
     box6->Add(slider6);
     box6->Add(slider_txt6);
     grid_sizer1->Add(lbl_txt6, 1, wxEXPAND);
@@ -231,6 +234,7 @@ void PreferenceDlg::Init()
                            wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider_txt7->Hide();
     box7->Add(slider7);
     box7->Add(slider_txt7);
     grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
@@ -530,6 +534,7 @@ void PreferenceDlg::OnSlider7(wxScrollEvent& ev)
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER7_TXT")), wxTextCtrl);
     txt_ctl->SetValue(transp_str);
     if (highlight_state) {
+        highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();
     }
 }
