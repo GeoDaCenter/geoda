@@ -186,6 +186,8 @@ public:
 private:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
+    wxString layer_name;
+    wxString ds_name;
     void SaveThumbnail();
     
 protected:

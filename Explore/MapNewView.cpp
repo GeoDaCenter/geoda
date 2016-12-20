@@ -197,7 +197,10 @@ map_type(0)
 		selectable_shps_type = polygons;
 		highlight_color = GdaConst::map_default_highlight_colour;
 	}
-	
+    
+    layer_name = project->layername;
+    ds_name = project->GetDataSource()->GetOGRConnectStr();
+    
 	use_category_brushes = true;
 	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories,
 					   weights_id, true, var_info_s, col_ids_s))
@@ -672,20 +675,24 @@ void MapCanvas::DrawLayer2()
 void MapCanvas::SaveThumbnail()
 {
     if (MapCanvas::has_thumbnail_saved == false) {
-        
-        wxImage image = layer2_bm->ConvertToImage();
         RecentDatasource recent_ds;
         
-        long current_time_sec = wxGetUTCTime();
-        wxString file_name;
-        file_name << current_time_sec << ".png";
-        wxString file_path;
-        file_path << GenUtils::GetWebPluginsDir() << file_name;
-        bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
-        if (su) {
-            recent_ds.UpdateLastThumb(file_name);
+        if (layer_name == recent_ds.GetLastLayerName() &&
+            !ds_name.EndsWith("samples.sqlite") &&
+            !ds_name.Contains("geodacenter.github.io")) {
+        
+            wxImage image = layer2_bm->ConvertToImage();
+            long current_time_sec = wxGetUTCTime();
+            wxString file_name;
+            file_name << current_time_sec << ".png";
+            wxString file_path;
+            file_path << GenUtils::GetWebPluginsDir() << file_name;
+            bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
+            if (su) {
+                recent_ds.UpdateLastThumb(file_name);
+            }
+            image.Destroy();
         }
-        image.Destroy();
         MapCanvas::has_thumbnail_saved = true;
     }
 }

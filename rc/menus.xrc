@@ -4494,4 +4494,50 @@
     </object>
     <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_DATASOURCE_POPUP">
+    <object class="wxMenuItem" name="ID_DS_SHPEFILE">
+      <label>ESRI Shapefile (*.shp)|*.shp</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_GEODATABASE">
+      <label>ESRI File Geodatabase (*.gdb)|*.gdb</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_GEODATABASE">
+      <label>GeoJSON (*.geojson;*.json)|*.geojson;*.json</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_GEOPACKAGE">
+      <label>GeoPackage (*.gpkg)|*.gpkg</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_SQLITE">
+      <label>SQLite/SpatiaLite (*.sqlite)|*.sqlite</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_PGEO">
+      <label>ESRI Personal Geodatabase (*.mdb)|*.mdb</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_GML">
+      <label>Geography Markup Language (*.gml)|*.gml</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_KML">
+      <label>Keyhole Markup Language (*.kml)|*.kml</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_MAPINFO">
+      <label>MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_DS_DBASE">
+      <label>dBase Database File (*.dbf)|*.dbf</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_CSV">
+      <label>Comma Separated Value (*.csv)|*.csv</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_XLS">
+      <label>MS Excel (*.xls)|*.xls</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DS_ODS">
+      <label>Open Document Spreadsheet (*.ods)|*.ods</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_DS_GDA">
+      <label>GeoDa Project File (*.gda)|*.gda</label>
+    </object>
+  </object>
 </resource>

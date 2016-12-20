@@ -7,8 +7,10 @@ BuildTools/windows/ipch/
 BuildTools/windows/GeoDa.vcxproj.filters
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
+BuildTools/macosx/libraries108/
 BuildTools/macosx/temp/
 BuildTools/macosx/temp1/
+BuildTools/macosx/temp108/
 BuildTools/macosx/build/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
@@ -70,3 +72,7 @@ BuildTools/windows/oldlogger.txt
 
 
 BuildTools/macosx/temp1/boost_1_57_0/b2
+
+*.xcworkspacedata
+
+*.plist

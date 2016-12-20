@@ -25,6 +25,7 @@
 #include <wx/dialog.h>
 #include <wx/bmpbuttn.h>
 #include <wx/listctrl.h>
+#include <wx/notebook.h>
 
 #include <wx/checkbox.h>
 #include "../DataViewer/DataSource.h"
@@ -52,6 +53,8 @@ public:
   
     int GetRecords() {return n_ds;}
     wxString GetLastIndex();
+    wxString GetLastLayerName();
+    wxString GetLastDSName();
     void UpdateLastThumb(wxString ds_thumb);
     vector<wxString> GetList();
    
@@ -108,6 +111,7 @@ protected:
     wxPanel* recent_panel;
     wxPanel* smaples_panel;
     wxScrolledWindow* scrl;
+    wxNotebook* recent_nb;
    
     int base_xrcid_recent_thumb;
     int base_xrcid_sample_thumb;

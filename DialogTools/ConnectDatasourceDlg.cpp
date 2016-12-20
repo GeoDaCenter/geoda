@@ -34,6 +34,7 @@
 #include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <wx/artprov.h>
+#include <wx/notebook.h>
 
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
@@ -276,6 +277,27 @@ wxString RecentDatasource::GetLastIndex()
     str << last_idx;
     return str;
 }
+
+wxString RecentDatasource::GetLastLayerName()
+{
+    int last_idx = ds_layernames.size() - 1;
+    if (last_idx < 0)
+        return "";
+    wxString str;
+    str << ds_layernames[last_idx];
+    return str;
+}
+
+wxString RecentDatasource::GetLastDSName()
+{
+    int last_idx = ds_names.size() - 1;
+    if (last_idx < 0)
+        return "";
+    wxString str;
+    str << ds_names[last_idx];
+    return str;
+}
+
 void RecentDatasource::UpdateLastThumb(wxString ds_thumb)
 {
     int last_idx = ds_names.size() - 1;
@@ -498,7 +520,10 @@ void ConnectDatasourceDlg::InitRecentPanel()
     
     RecentDatasource recent_ds;
     int n_records = recent_ds.GetRecords();
-    
+   
+    if (n_records > 0) {
+        recent_nb->SetSelection(0);
+    }
     for (int i=n_records-1; i>=0; i--) {
         wxString ds_name = recent_ds.GetDSName(i);
         wxString ds_layername = recent_ds.GetDSLayerName(i);
@@ -526,7 +551,9 @@ void ConnectDatasourceDlg::CreateControls()
     m_database_table->Hide(); // don't need this
     
     XRCCTRL(*this, "IDC_STATIC_DB_TABLE", wxStaticText)->Hide();
-   
+	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
+  
+    recent_nb->SetSelection(1);
     recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
     smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
     
