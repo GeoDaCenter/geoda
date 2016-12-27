@@ -432,16 +432,40 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         for (int i=0; i<num_obs; i++) {
             undefs[i] = lisa_coord->undef_tms[t][i] || !hl[i];
         }
-        RegimeMoran(undefs, regressionXYselected);
+        std::vector<double> X;
+        std::vector<double> Y;
+        RegimeMoran(undefs, regressionXYselected, X, Y);
         UpdateRegSelectedLine();
+        
+        for (int i=0; i<X.size(); i++){
+            GdaPoint* pt = new GdaPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                        (Y[i] - axis_scale_y.scale_min) * scaleY
+                                        );
+            pt->setPen(wxPen(*wxRED));
+            pt->setBrush(*wxTRANSPARENT_BRUSH);
+            ApplyLastResizeToShp(pt);
+            foreground_shps.push_back(pt);
+        }
         
         undefs.clear();
         undefs.resize(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             undefs[i] = lisa_coord->undef_tms[t][i] || hl[i];
         }
-        RegimeMoran(undefs, regressionXYexcluded);
+        std::vector<double> X_ex;
+        std::vector<double> Y_ex;
+        RegimeMoran(undefs, regressionXYexcluded, X_ex, Y_ex);
         UpdateRegExcludedLine();
+        for (int i=0; i<X_ex.size(); i++){
+            //foreground_shps.push_back(new GdaPoint(X_ex[i], Y_ex[i]));
+            GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
+                                        (Y_ex[i] - axis_scale_y.scale_min) * scaleY
+                                        );
+            pt->setPen(wxPen(*wxBLACK));
+            pt->setBrush(*wxTRANSPARENT_BRUSH);
+            ApplyLastResizeToShp(pt);
+            foreground_shps.push_back(pt);
+        }
         
         wxString s("Moran's I: ");
         s << regressionXY.beta;
@@ -460,7 +484,9 @@ void LisaScatterPlotCanvas::PopulateCanvas()
 }
 
 void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
-                                        SimpleLinearRegression& regime_lreg)
+                                        SimpleLinearRegression& regime_lreg,
+                                        std::vector<double>& X,
+                                        std::vector<double>& Y)
 {
     int t = project->GetTimeState()->GetCurrTime();
     GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
@@ -476,8 +502,6 @@ void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
             data2 = lisa_coord->data2_vecs[t];
     }
     
-    std::vector<double> X;
-    std::vector<double> Y;
     std::vector<bool> XY_undefs;
     
     for (int i=0; i<num_obs; i++) {

@@ -54,7 +54,9 @@ public:
 	
 protected:
     void RegimeMoran(const std::vector<bool>& undefs,
-                     SimpleLinearRegression& regime_lreg);
+                     SimpleLinearRegression& regime_lreg,
+                     std::vector<double>& X,
+                     std::vector<double>& Y);
     void OnRandDlgClose( wxWindowDestroyEvent& event);
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();

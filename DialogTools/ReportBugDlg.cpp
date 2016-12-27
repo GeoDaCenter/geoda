@@ -161,7 +161,6 @@ void PreferenceDlg::Init()
                            wxSL_HORIZONTAL);
     slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
-    slider_txt1->Hide();
     box1->Add(slider1);
     box1->Add(slider_txt1);
     grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
@@ -177,7 +176,6 @@ void PreferenceDlg::Init()
                            wxSL_HORIZONTAL);
     slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
                                  wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
-    slider_txt2->Hide();
     box2->Add(slider2);
     box2->Add(slider_txt2);
     grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
@@ -217,8 +215,7 @@ void PreferenceDlg::Init()
                                      255, 0, 255,
                                      wxDefaultPosition, sl_sz,
                                      wxSL_HORIZONTAL);
-    wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), wxString::Format("%d", GdaConst::plot_transparency_highlighted), wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
-    slider_txt6->Hide();
+    wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), "0.0", wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
     box6->Add(slider6);
     box6->Add(slider_txt6);
     grid_sizer1->Add(lbl_txt6, 1, wxEXPAND);
@@ -234,7 +231,6 @@ void PreferenceDlg::Init()
                            wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
-    slider_txt7->Hide();
     box7->Add(slider7);
     box7->Add(slider_txt7);
     grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
@@ -360,9 +356,11 @@ void PreferenceDlg::SetupControls()
 {
     cbox0->SetValue(GdaConst::use_cross_hatching);
     slider1->SetValue(GdaConst::transparency_highlighted);
-    slider_txt1->SetValue(wxString::Format("%d", GdaConst::transparency_highlighted));
+    wxString t_hl = wxString::Format("%.2f", (255-GdaConst::transparency_highlighted) / 255.0);
+    slider_txt1->SetValue(t_hl);
     slider2->SetValue(GdaConst::transparency_unhighlighted);
-    slider_txt2->SetValue(wxString::Format("%d", GdaConst::transparency_unhighlighted));
+    wxString t_uhl = wxString::Format("%.2f", (255-GdaConst::transparency_unhighlighted) / 255.0);
+    slider_txt2->SetValue(t_uhl);
     if (GdaConst::use_basemap_by_default) {
         cmb33->SetSelection(GdaConst::default_basemap_selection);
     } else {
@@ -370,7 +368,8 @@ void PreferenceDlg::SetupControls()
     }
     
     slider7->SetValue( GdaConst::plot_transparency_unhighlighted);
-    slider_txt7->SetValue(wxString::Format("%d", GdaConst::plot_transparency_highlighted));
+    wxString t_p_hl = wxString::Format("%.2f", (255-GdaConst::plot_transparency_highlighted) / 255.0);
+    slider_txt7->SetValue(t_p_hl);
     cbox4->SetValue(GdaConst::disable_crash_detect);
     cbox5->SetValue(GdaConst::disable_auto_upgrade);
     cbox21->SetValue(GdaConst::hide_sys_table_postgres);
@@ -488,7 +487,9 @@ void PreferenceDlg::OnSlider1(wxScrollEvent& ev)
     transp_str << val;
     OGRDataAdapter::GetInstance().AddEntry("transparency_highlighted", transp_str.ToStdString());
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER1_TXT")), wxTextCtrl);
-    txt_ctl->SetValue(transp_str);
+    
+    wxString t_hl = wxString::Format("%.2f", (255-val) / 255.0);
+    txt_ctl->SetValue(t_hl);
     
     if (highlight_state) {
         highlight_state->SetEventType(HLStateInt::transparency);
@@ -503,7 +504,10 @@ void PreferenceDlg::OnSlider2(wxScrollEvent& ev)
     transp_str << val;
     OGRDataAdapter::GetInstance().AddEntry("transparency_unhighlighted", transp_str.ToStdString());
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER2_TXT")), wxTextCtrl);
-    txt_ctl->SetValue(transp_str);
+    
+    wxString t_hl = wxString::Format("%.2f", (255-val) / 255.0);
+    txt_ctl->SetValue(t_hl);
+    
     if (highlight_state) {
         highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();
@@ -517,7 +521,9 @@ void PreferenceDlg::OnSlider6(wxScrollEvent& ev)
     transp_str << val;
     OGRDataAdapter::GetInstance().AddEntry("plot_transparency_highlighted", transp_str.ToStdString());
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER6_TXT")), wxTextCtrl);
-    txt_ctl->SetValue(transp_str);
+    
+    wxString t_hl = wxString::Format("%.2f", (255-val) / 255.0);
+    txt_ctl->SetValue(t_hl);
     
     if (highlight_state) {
         highlight_state->SetEventType(HLStateInt::transparency);
@@ -532,7 +538,10 @@ void PreferenceDlg::OnSlider7(wxScrollEvent& ev)
     transp_str << val;
     OGRDataAdapter::GetInstance().AddEntry("plot_transparency_unhighlighted", transp_str.ToStdString());
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER7_TXT")), wxTextCtrl);
-    txt_ctl->SetValue(transp_str);
+    
+    wxString t_hl = wxString::Format("%.2f", (255-val) / 255.0);
+    txt_ctl->SetValue(t_hl);
+    
     if (highlight_state) {
         highlight_state->SetEventType(HLStateInt::transparency);
         highlight_state->notifyObservers();

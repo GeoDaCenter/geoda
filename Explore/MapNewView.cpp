@@ -391,12 +391,12 @@ bool MapCanvas::InitBasemap()
         
         if (project->sourceSR != NULL) {
             int nGCS = project->sourceSR->GetEPSGGeogCS();
-            if (nGCS != 4326) {
+            //if (nGCS != 4326) {
                 OGRSpatialReference destSR;
                 destSR.importFromEPSG(4326);
                 poCT = OGRCreateCoordinateTransformation(project->sourceSR,
                                                          &destSR);
-            }
+            //}
         }
         
         GDA::Screen* screen = new GDA::Screen(screenW, screenH);
