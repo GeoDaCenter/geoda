@@ -65,7 +65,7 @@ public:
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,450));
+                  const wxSize& size = wxSize(580,560));
  
     static void ReadFromCache();
     

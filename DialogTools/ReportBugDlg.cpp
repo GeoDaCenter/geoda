@@ -134,12 +134,12 @@ void PreferenceDlg::Init()
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
     
     //  visualization tab
-    wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 420) );
+    wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 500) );
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
     notebook->AddPage(vis_page, "System");
-    wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 15, 20);
+    wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 12, 15);
     
     grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
     grid_sizer1->AddSpacer(10);
