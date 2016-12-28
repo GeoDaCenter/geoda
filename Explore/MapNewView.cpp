@@ -172,7 +172,7 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_bm(0), map_hl_bm(0),
+map_bm(0),
 map_type(0)
 {
 	using namespace Shapefile;
@@ -240,16 +240,11 @@ MapCanvas::~MapCanvas()
         delete map_bm;
         map_bm = NULL;
     }
-    if (map_hl_bm != NULL) {
-        delete map_hl_bm;
-        map_hl_bm = NULL;
-    }
 }
 
 void MapCanvas::deleteLayerBms()
 {
     if (map_bm) delete map_bm; map_bm = 0;
-    if (map_hl_bm) delete map_hl_bm; map_hl_bm = 0;
     if (basemap_bm) delete basemap_bm; basemap_bm = 0;
     
     TemplateCanvas::deleteLayerBms();
@@ -465,8 +460,7 @@ void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
     
-	basemap_bm = new wxBitmap(width, height);
-	map_hl_bm = new wxBitmap(width, height);
+	basemap_bm = new wxBitmap(width, height, 32);
     layerbase_valid = false;
     
     TemplateCanvas::resizeLayerBms(width, height);
@@ -529,8 +523,10 @@ void MapCanvas::DrawLayer1()
 {
     if (layer1_bm == NULL)
         return;
+   
     wxMemoryDC dc(*layer1_bm);
     dc.Clear();
+    wxSize sz = dc.GetSize();
     
     if (isDrawBasemap) {
         dc.DrawBitmap(*basemap_bm,0,0);
@@ -538,41 +534,56 @@ void MapCanvas::DrawLayer1()
     
     bool revert = false;
     
-    // faded the background
     if (highlight_state->GetTotalHighlighted()>0 &&
         GdaConst::use_cross_hatching == false)
     {
+        // faded the background
         revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
-        if (!isDrawBasemap) {
-            dc.DrawBitmap(*layer0_bm, 0, 0);
-        }
         
         if (faded_layer_bm == NULL) {
-            wxImage image = map_bm->ConvertToImage();
+            wxImage image = layer0_bm->ConvertToImage();
             if (!image.HasAlpha()) {
                 image.InitAlpha();
             }
             int alpha = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
-            
             unsigned char* alpha_vals = image.GetAlpha();
             int n_pixel = image.GetWidth() * image.GetHeight();
             
             for (int i=0; i< n_pixel; i++) {
-                if (alpha_vals[i])
+                if (alpha_vals[i] != 0)
                     alpha_vals[i] = alpha;
             }
-            
             faded_layer_bm = new wxBitmap(image);
         }
-        dc.DrawBitmap(*faded_layer_bm,0,0, true);
-    } else {
-        if (!isDrawBasemap) {
-            dc.DrawBitmap(*layer0_bm, 0, 0);
+        dc.DrawBitmap(*faded_layer_bm,0,0);
+        
+        // draw highlighted
+        wxBitmap bmp(sz.GetWidth(), sz.GetHeight(), 32);
+        wxMemoryDC _dc(bmp);
+        
+        DrawHighlightedShapes(_dc, revert);
+        
+        wxImage image = bmp.ConvertToImage();
+        if (!image.HasAlpha()) {
+            image.InitAlpha();
         }
-        dc.DrawBitmap(*map_bm,0,0);
+        int alpha = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
+        unsigned char* alpha_vals = image.GetAlpha();
+        int n_pixel = image.GetWidth() * image.GetHeight();
+        
+        for (int i=0; i< n_pixel; i++) {
+            if (alpha_vals[i] == 255)
+                alpha_vals[i] = alpha;
+        }
+        wxBitmap bm(image);
+        dc.DrawBitmap(bm,0,0);
+        
+    } else {
+        dc.DrawBitmap(*layer0_bm, 0, 0);
+        if (GdaConst::use_cross_hatching == true) {
+            DrawHighlightedShapes(dc, revert);
+        } 
     }
-  
-    DrawHighlightedShapes(dc, revert);
     
     dc.SelectObject(wxNullBitmap);
     layer1_valid = true;
@@ -585,72 +596,25 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     if (selectable_shps.size() == 0)
         return;
     
-    //if (GdaConst::transparency_highlighted == 255 || GdaConst::use_cross_hatching) {
-        if (use_category_brushes) {
-            bool highlight_only = true;
-            DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
-            
-        } else {
-            vector<bool>& hs = GetSelBitVec();
-            for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-                if (hs[i] == !revert && _IsShpValid(i)) {
-                    selectable_shps[i]->paintSelf(dc);
-                }
-            }
-        }
-        return;
-    //}
-  
-    
-    // Apply highlight objects with transparency
-    
-    wxMemoryDC _dc;
-    wxColour maskColor(MASK_R, MASK_G, MASK_B);
-    wxBrush maskBrush(maskColor);
-    _dc.SetBackground(maskBrush);
-    _dc.SelectObject(*map_hl_bm);
-    _dc.Clear();
     if (use_category_brushes) {
         bool highlight_only = true;
-        DrawSelectableShapes_dc(_dc, highlight_only, revert);
+        DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
         
     } else {
         vector<bool>& hs = GetSelBitVec();
         for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (hs[i] == !revert && _IsShpValid(i)) {
-                selectable_shps[i]->paintSelf(_dc);
+                selectable_shps[i]->paintSelf(dc);
             }
         }
     }
-    _dc.SelectObject(wxNullBitmap);
-    
-    wxImage image = map_hl_bm->ConvertToImage();
-    if (!image.HasAlpha()) {
-        image.InitAlpha();
-    }
-    int alpha = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
-    unsigned char* alpha_vals = image.GetAlpha();
-	unsigned char* pixel_data = image.GetData();
-	int n_pixel = image.GetWidth() * image.GetHeight();
-
-	memset(alpha_vals, alpha, n_pixel);
-	int pos = 0;
-	for (int i=0; i< n_pixel; i++) {
-		// check rgb
-		pos = i * 3;
-		if (pixel_data[pos] != MASK_R) continue;
-		if (pixel_data[pos+1] != MASK_G) continue;
-		if (pixel_data[pos+2] != MASK_B) continue;
-		alpha_vals[i] = 0;
-	}
-    wxBitmap _bmp(image);
-    dc.DrawBitmap(_bmp,0,0, true);
 }
 
 void MapCanvas::DrawLayer2()
 {
     if (layer2_bm == NULL)
         return;
+    
     wxMemoryDC dc(*layer2_bm);
     dc.Clear();
     
@@ -699,16 +663,42 @@ void MapCanvas::SaveThumbnail()
 
 void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
+    
+    // if already drawn, re-use previous one
     if ( map_bm == NULL ) {
         wxSize sz = dc.GetSize();
-        wxBitmap bmp(sz.GetWidth(), sz.GetHeight());
+        wxBitmap bmp(sz.GetWidth(), sz.GetHeight(), 32);
         wxMemoryDC _dc;
+        _dc.SelectObject(bmp);
+       
+        BOOST_FOREACH( GdaShape* shp, background_shps ) {
+            shp->paintSelf(_dc);
+        }
+        DrawSelectableShapes_dc(_dc);
+        
+        _dc.SelectObject(wxNullBitmap);
+        wxImage image = bmp.ConvertToImage();
+        if (!image.HasAlpha()) {
+            image.InitAlpha();
+        }
+        
+        if (isDrawBasemap) {
+            int alpha_value = 255;
+            if (isDrawBasemap) {
+                alpha_value = transparency * 255;
+            }
+            unsigned char *alpha=image.GetAlpha();
+            int n_pixel = image.GetWidth() * image.GetHeight();
+            for (int i=0; i< n_pixel; i++) {
+                if (alpha[i] == 255)
+                    alpha[i] = alpha_value;
+            }
+        }
+        /*
         // use a special color for mask transparency: 244, 243, 242c
         wxColour maskColor(MASK_R, MASK_G, MASK_B);
         wxBrush maskBrush(maskColor);
         _dc.SetBackground(maskBrush);
-        _dc.SelectObject(bmp);
-        _dc.Clear();
         
         BOOST_FOREACH( GdaShape* shp, background_shps ) {
             shp->paintSelf(_dc);
@@ -737,9 +727,12 @@ void MapCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             if (pixel_data[pos+2] != MASK_B) continue;
             alpha[i] = 0;
         }
+        */
         
         map_bm = new wxBitmap(image);
     }
+    
+    dc.DrawBitmap(*map_bm, 0, 0);
 }
 
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,

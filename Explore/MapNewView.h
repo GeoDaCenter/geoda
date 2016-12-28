@@ -219,7 +219,6 @@ protected:
 	GDA::Basemap* basemap;
     // map
     wxBitmap* map_bm;
-    wxBitmap* map_hl_bm;
     
 	virtual void UpdateStatusBar();
 		

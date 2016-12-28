@@ -168,9 +168,9 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 
-	layer0_bm = new wxBitmap(width, height);
-	layer1_bm = new wxBitmap(width, height);
-	layer2_bm = new wxBitmap(width, height);
+	layer0_bm = new wxBitmap(width, height, 32);
+	layer1_bm = new wxBitmap(width, height, 32);
+	layer2_bm = new wxBitmap(width, height, 32);
 	
 	layer0_valid = false;
 	layer1_valid = false;
@@ -835,7 +835,7 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
 	// mac OSX and Linux (GTK: cairo)
     wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
     wxGraphicsContext* context = renderer->CreateContext (_dc);
-	//helper_DrawSelectableShapes_gc(*gc, hl_only, revert);
+	//helper_DrawSelectableShapes_gc(*context, hl_only, revert);
     wxGCDC gdc;
     gdc.SetGraphicsContext (context);
     helper_DrawSelectableShapes_dc(gdc, hl_only, revert);
@@ -871,9 +871,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
                 dc.SetPen(wxPen(highlight_color));
             } else {
                 wxColour clr = cat_data.GetCategoryColor(cc_ts, cat);
-                wxColour new_clr( clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
-                dc.SetPen(wxPen(new_clr));
-                //dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
+                //wxColour new_clr( clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
+                //dc.SetPen(wxPen(new_clr));
+                dc.SetPen(wxPen(clr));
             }
 
 			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
@@ -942,18 +942,18 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
             } else {
                 if (selectable_outline_visible) {
                     wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
-                    wxColour clr = pen.GetColour();
-                    wxColour new_clr(clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
-                    pen.SetColour(new_clr);
+                    //wxColour clr = pen.GetColour();
+                    //wxColour new_clr(clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
+                    //pen.SetColour(new_clr);
                     dc.SetPen(pen);
                     
                 } else {
                     dc.SetPen(*wxTRANSPARENT_PEN);
                 }
                 wxBrush brush =  cat_data.GetCategoryBrush(cc_ts, cat);
-                wxColour clr = brush.GetColour();
-                wxColour new_clr(clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
-                brush.SetColour(new_clr);
+                //wxColour clr = brush.GetColour();
+                //wxColour new_clr(clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
+                //brush.SetColour(new_clr);
                 dc.SetBrush(brush);
             }
 			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
@@ -980,8 +980,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
             } else {
                 //dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
                 wxColour clr = cat_data.GetCategoryColor(cc_ts, cat);
-                wxColour new_clr( clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
-                dc.SetPen(wxPen(new_clr));
+                //wxColour new_clr( clr.Red(), clr.Green(), clr.Blue(), GdaConst::plot_transparency_highlighted);
+                //dc.SetPen(wxPen(new_clr));
+                dc.SetPen(wxPen(clr));
                 
             }
 			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
@@ -1006,6 +1007,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                                                     bool revert, bool crosshatch)
 {
     gc.SetAntialiasMode(wxANTIALIAS_NONE);
+    gc.SetInterpolationQuality( wxINTERPOLATION_NONE );
     vector<bool>& hs = GetSelBitVec();
     
     int cc_ts = cat_data.curr_canvas_tm_step;
