@@ -981,7 +981,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
 // draw unhighlighted selectable shapes with wxGraphicsContext
 void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                                                     bool hl_only,
-                                                    bool revert, bool crosshatch)
+                                                    bool revert, 
+													bool crosshatch,
+													int alpha)
 {
     gc.SetAntialiasMode(wxANTIALIAS_NONE);
     gc.SetInterpolationQuality( wxINTERPOLATION_NONE );
@@ -1012,7 +1014,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                 char r = penClr.Red();
                 char b = penClr.Blue();
                 char g = penClr.Green();
-                wxColour newClr(r, g, b, GdaConst::plot_transparency_highlighted);
+                wxColour newClr(r, g, b, alpha);
                 gc.SetPen(wxPen(newClr));
             }
             std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
@@ -1049,7 +1051,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                 char r = brushClr.Red();
                 char b = brushClr.Blue();
                 char g = brushClr.Green();
-                wxColour newClr(r, g, b, GdaConst::plot_transparency_highlighted);
+                wxColour newClr(r, g, b, alpha);
                 wxBrush newBrush(newClr);
                 gc.SetBrush(newBrush);
             }
@@ -1095,10 +1097,8 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
             } else {
                 wxColour penClr = cat_data.GetCategoryPen(cc_ts, cat).GetColour();
                 wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();
-                wxColour newPenClr(penClr.Red(), penClr.Green(), penClr.Blue(),
-                                   GdaConst::plot_transparency_highlighted);
-                wxColour newBrushClr(brushClr.Red(), brushClr.Green(), brushClr.Blue(),
-                                     GdaConst::plot_transparency_highlighted);
+                wxColour newPenClr(penClr.Red(), penClr.Green(), penClr.Blue(), alpha);
+                wxColour newBrushClr(brushClr.Red(), brushClr.Green(), brushClr.Blue(), alpha);
                 gc.SetPen(wxPen(newPenClr));
                 gc.SetBrush(wxBrush(newBrushClr));
             }
@@ -1141,8 +1141,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
         GdaPolyLine* s = 0;
         for (int cat=0; cat<num_cats; cat++) {
             wxColour penClr = cat_data.GetCategoryPen(cc_ts, cat).GetColour();
-            wxColour newPenClr(penClr.Red(), penClr.Green(), penClr.Blue(),
-                               GdaConst::plot_transparency_highlighted);
+            wxColour newPenClr(penClr.Red(), penClr.Green(), penClr.Blue(),alpha);
             
             gc.SetPen(wxPen(newPenClr));
             

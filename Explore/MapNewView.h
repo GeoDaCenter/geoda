@@ -131,8 +131,6 @@ public:
     
     virtual void deleteLayerBms();
     
-	void DrawSelectableShapes(wxMemoryDC &dc);
-    
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
     
@@ -217,10 +215,6 @@ protected:
     // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
-    // map
-    wxBitmap* map_bm;
-	wxBitmap* map_hl_bm;
-
     
 	virtual void UpdateStatusBar();
 		

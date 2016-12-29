@@ -268,7 +268,8 @@ public:
                                         bool crosshatch= false);
     void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc, bool hl_only=false,
                                         bool revert=false,
-                                        bool crosshatch= false);
+                                        bool crosshatch= false,
+										int alpha=255);
     
 
     void SetTransparency(double _transparency) {
