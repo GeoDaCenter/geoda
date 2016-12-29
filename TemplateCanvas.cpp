@@ -103,7 +103,7 @@ selectable_fill_color(GdaConst::selectable_fill_color),
 highlight_color(GdaConst::highlight_color),
 canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed), use_category_brushes(false),
-draw_sel_shps_by_z_val(false), transparency(0.5),
+draw_sel_shps_by_z_val(false),
 isResize(false), 
 layer0_bm(0), layer1_bm(0), layer2_bm(0), faded_layer_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
@@ -816,7 +816,12 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
                                              bool revert)
 {
+#ifdef __WXOSX__
+    wxGCDC dc(_dc);
+    helper_DrawSelectableShapes_dc(dc, hl_only, revert);
+#else
 	helper_DrawSelectableShapes_dc(_dc, hl_only, revert);
+#endif
 }
 
 void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
@@ -1021,7 +1026,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
             wxGraphicsPath path = gc.CreatePath();
             
             for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]])) {
+                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]== revert)) {
                     continue;
                 }
                 p = (GdaPoint*) selectable_shps[ids[i]];
@@ -1060,7 +1065,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
             
             for (int i=0, iend=ids.size(); i<iend; i++) {
                 wxGraphicsPath path = gc.CreatePath();
-                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]) ) {
+                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]== revert) ) {
                     continue;
                 }
                 p = (GdaPolygon*) selectable_shps[ids[i]];
@@ -1106,7 +1111,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
             std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             if (selectable_outline_visible) {
                 for (int i=0, iend=ids.size(); i<iend; i++) {
-                    if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]) ) {
+                    if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]== revert) ) {
                         continue;
                     }
                     c = (GdaCircle*) selectable_shps[ids[i]];
@@ -1121,7 +1126,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                 // than filling them one at a time.  This does not appear
                 // to be true for polygons.
                 for (int i=0, iend=ids.size(); i<iend; i++) {
-                    if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]) ) {
+                    if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]== revert) ) {
                         continue;
                     }
                     c = (GdaCircle*) selectable_shps[ids[i]];
@@ -1148,7 +1153,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
             std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
             wxGraphicsPath path = gc.CreatePath();
             for (int i=0, iend=ids.size(); i<iend; i++) {
-                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]) ) {
+                if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]]== revert) ) {
                     continue;
                 }
                 s = (GdaPolyLine*) selectable_shps[ids[i]];

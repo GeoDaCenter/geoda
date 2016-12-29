@@ -87,21 +87,21 @@ SliderDialog::SliderDialog(wxWindow * parent,
     
     // A text control for the user’s name
     ID_SLIDER = wxID_ANY;
-    double trasp = canvas->GetTransparency();
+    double trasp = (double)GdaConst::transparency_unhighlighted / 255.0;
     int trasp_scale = 100 * trasp;
 
 	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
     slider = new wxSlider(this, ID_SLIDER, trasp_scale, 0, 100,
                           wxDefaultPosition, wxSize(200, -1),
                           wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"0"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"0.0"), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
 
 	boxSizer->Add(subSizer);
-    wxString txt_transparency = wxString::Format(_("Current Transparency: %.1f"), trasp);
+    wxString txt_transparency = wxString::Format(_("Current Transparency: %.1f"), 1.0 - trasp);
     
     slider_text = new wxStaticText(this,
                                    wxID_ANY,
@@ -122,9 +122,9 @@ SliderDialog::~SliderDialog()
 void SliderDialog::OnSliderChange( wxScrollEvent & event )
 {
     int val = event.GetInt();
-    double trasp = val / 100.0;
+    double trasp = 1.0 - val / 100.0;
     slider_text->SetLabel(wxString::Format("Current Transparency: %.1f", trasp));
-    canvas->SetTransparency(trasp);
+    GdaConst::transparency_unhighlighted = trasp * 255;
     canvas->ReDraw();
 }
 
@@ -335,6 +335,7 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                      int virtual_scrn_h)
 {
+    
     if (isDrawBasemap) {
         BOOST_FOREACH( GdaShape* ms, background_shps ) {
             if (ms)
@@ -410,6 +411,7 @@ bool MapCanvas::InitBasemap()
 
 bool MapCanvas::DrawBasemap(bool flag, int map_type_)
 {
+    ResetShapes();
     ResetBrushing();
     map_type = map_type_;
     isDrawBasemap = flag;
@@ -476,6 +478,10 @@ void MapCanvas::DrawLayers()
 void MapCanvas::DrawLayerBase()
 {
     if (isDrawBasemap) {
+        if (faded_layer_bm) {
+            delete faded_layer_bm;
+            faded_layer_bm = NULL;
+        }
         if (basemap != 0) {
             layerbase_valid = basemap->Draw(basemap_bm);
             // trigger to draw again, since it's drawing on ONE bitmap,
@@ -498,17 +504,17 @@ void MapCanvas::DrawLayer0()
         dc.SetBackground(maskBrush);
 	}
 
-		dc.SelectObject(*layer0_bm);
-		dc.Clear();
+	dc.SelectObject(*layer0_bm);
+	dc.Clear();
 
-		wxSize sz = dc.GetSize();
-        
-        BOOST_FOREACH( GdaShape* shp, background_shps ) {
-            shp->paintSelf(dc);
-        }
-        DrawSelectableShapes_dc(dc);
-        
-        dc.SelectObject(wxNullBitmap);
+	wxSize sz = dc.GetSize();
+    
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    DrawSelectableShapes_dc(dc);
+    
+    dc.SelectObject(wxNullBitmap);
         
     layer0_valid = true;
     layer1_valid = false;
@@ -531,24 +537,21 @@ void MapCanvas::DrawLayer1()
         dc.DrawRectangle(wxPoint(0,0), sz);
     }
     
-    bool revert = false;
+    bool revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
     int  alpha_value = 255;
 	bool mask_needed = false;
-	bool draw_highlight = false;
+	bool draw_highlight = highlight_state->GetTotalHighlighted() > 0;
 
-	if (isDrawBasemap) { 
-		alpha_value = transparency * 255; 
+    
+	if (isDrawBasemap) {
 		mask_needed = true;
+        alpha_value = GdaConst::transparency_unhighlighted;
 	}
 
-    if (highlight_state->GetTotalHighlighted()>0 &&
-        GdaConst::use_cross_hatching == false)
+    if (draw_highlight && GdaConst::use_cross_hatching == false)
     {
-        // faded the background
-        revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
-        alpha_value = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
 		mask_needed = true;
-		draw_highlight = true;
+        alpha_value = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
 	}
 
 	if (mask_needed) 
@@ -722,8 +725,10 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool reve
                                         bool use_crosshatch)
 {
 #ifdef __WXOSX__
-    wxGCDC dc(_dc);
-    helper_DrawSelectableShapes_dc(dc, hl_only, revert, use_crosshatch);
+    wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
+    wxGraphicsContext* gc= renderer->CreateContext (_dc);
+    
+    helper_DrawSelectableShapes_gc(*gc, hl_only, revert, use_crosshatch);
 #else
     helper_DrawSelectableShapes_dc(_dc, hl_only, revert, use_crosshatch);
     
