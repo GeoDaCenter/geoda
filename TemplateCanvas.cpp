@@ -816,30 +816,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
                                              bool revert)
 {
-#ifdef __WIN32__
-
-	// MSW (Direct2D)
-#if wxUSE_GRAPHICS_DIRECT2D 
-    wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDirect2DRenderer(); 
-    wxGraphicsContext* context = renderer->CreateContext (_dc);
-
-    wxGCDC gdc;
-	gdc.SetGraphicsContext (context); 
-    helper_DrawSelectableShapes_dc(gdc, hl_only, revert);
-#else
-	// MSW (GDIPlus)
 	helper_DrawSelectableShapes_dc(_dc, hl_only, revert);
-#endif
-    
-#else
-	// mac OSX and Linux (GTK: cairo)
-    wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
-    wxGraphicsContext* context = renderer->CreateContext (_dc);
-	//helper_DrawSelectableShapes_gc(*context, hl_only, revert);
-    wxGCDC gdc;
-    gdc.SetGraphicsContext (context);
-    helper_DrawSelectableShapes_dc(gdc, hl_only, revert);
-#endif
 }
 
 void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
