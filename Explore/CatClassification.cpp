@@ -49,7 +49,7 @@ void create_unique_val_mapping(std::vector<UniqueValElem>& uv_mapping,
 {
 	uv_mapping.clear();
 	//uv_mapping.push_back(UniqueValElem(v[0], 0, 0));
-	int cur_ind = 0;
+	int cur_ind = -1;
    
 	for (int i=0, iend=v.size(); i<iend; i++) {
         if (v_undef[i])
