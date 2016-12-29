@@ -124,7 +124,7 @@ void SliderDialog::OnSliderChange( wxScrollEvent & event )
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
     slider_text->SetLabel(wxString::Format("Current Transparency: %.1f", trasp));
-    GdaConst::transparency_unhighlighted = trasp * 255;
+    GdaConst::transparency_unhighlighted = (1-trasp) * 255;
     canvas->ReDraw();
 }
 
@@ -553,8 +553,8 @@ void MapCanvas::DrawLayer1()
 		mask_needed = true;
         alpha_value = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
 	}
-
-	if (mask_needed) 
+    
+	if (mask_needed)
 	{
         if (faded_layer_bm == NULL) {
 			wxImage image = layer0_bm->ConvertToImage();
@@ -588,7 +588,7 @@ void MapCanvas::DrawLayer1()
 		int hl_alpha_value = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
 
 		if ( draw_highlight ) {
-			if ( hl_alpha_value == 255 ) {
+            if ( hl_alpha_value == 255 || GdaConst::use_cross_hatching) {
 				DrawHighlightedShapes(dc, revert);
 			} else {
 				// draw a highlight with transparency
@@ -1126,6 +1126,7 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 		wxString msg = _T("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
 		wxMessageDialog dlg (this, msg, "Information", wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
+        return false;
 	}
 	
 	if (new_map_theme == CatClassification::custom) {
@@ -1494,18 +1495,19 @@ void MapCanvas::CreateAndUpdateCategories()
                     continue;
                 
                 if (P[i] == 0) {
+                    undef_res[i] = true;
                     hasZeroBaseVal = true;
                     hs[i] = false;
                 } else {
                     hs[i] = true;
                 }
 				if (P[i] <= 0) {
-					map_valid[t] = false;
+					//map_valid[t] = false;
 					map_error_message[t] = _T("Error: Base values contain non-positive numbers which will result in undefined values.");
 					continue;
 				}
 			}
-		
+            /*
             if (hasZeroBaseVal) {
                 wxString msg(_T("Base field has zero values. Do you want to save a subset of non-zeros as a new shape file? "));
                 wxMessageDialog dlg (this, msg, "Warning", 
@@ -1517,10 +1519,9 @@ void MapCanvas::CreateAndUpdateCategories()
         		hs = hs_backup;
         		return;
             }
+             */
             hs = hs_backup;
             
-			if (!map_valid[t])
-                continue;
 			
 			if (smoothing_type == raw_rate) {
                 GdaAlgs::RateSmoother_RawRate(num_obs, P, E,

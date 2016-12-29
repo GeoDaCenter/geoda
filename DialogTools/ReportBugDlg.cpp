@@ -843,7 +843,7 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
     }
     
     wxMessageDialog msgDlg(this,
-                           _("Oops. GeoDa encountered an error to submit bug report to our Github site. Please try again or send us an email spatial@uchicago.edu"),
+                           _("Oops. GeoDa encountered an error to submit bug report to our Github site. Please try again or create a bug report online at https://github.com/GeoDaCenter/geoda/issues."),
                            _("Submit Bug Error"),
                            wxOK |wxICON_INFORMATION);
     msgDlg.ShowModal();
