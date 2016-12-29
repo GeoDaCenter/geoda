@@ -2073,7 +2073,7 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
+		highlight_state->notifyObservers();
 	}
 }
 
