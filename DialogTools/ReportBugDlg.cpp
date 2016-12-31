@@ -641,7 +641,7 @@ ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
 
     wxBoxSizer* bSizer = new wxBoxSizer( wxVERTICAL );
     
-    wxString result_tip = _("Thanks for reporting bug! You can click the following link to check and trace the reported bug. \n\nGeoDa team thanks you to upload your data or screenshots for troubleshooting using this link or send to spatial@uchicago.edu privately.");
+    wxString result_tip = _("Thank you for helping us improve GeoDa with your bug report! \n\nYou can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):");
     
     wxStaticText* lbl_tip = new wxStaticText(panel, wxID_ANY, result_tip);
     m_hyperlink1 = new wxHyperlinkCtrl(panel, wxID_ANY, issue_url,
