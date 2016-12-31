@@ -160,11 +160,8 @@ wxString TableState::GetDisallowTimelineChangesMsg()
 {
 	wxString s;
 	int n = GetNumDisallowTimelineChanges();
-	if (n == 1) {
-		s << "Cannot proceed with operation since there is a view open that does not support add/remove, move, or rename operations on timeline identifiers.  Please close this view and retry operation.";
-	} else if (n > 1) {
-        s = wxString::Format(_("Cannot proceed with operation since there are %d views currently open that do not support add/remove, move, or rename operations on timeline identifiers.  Please close these %d views and retry operation."), n, n);
-	}
+	s = wxString::Format(_("Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."), n);
+	
 	return s;
 }
 
@@ -185,11 +182,7 @@ wxString TableState::GetDisallowGroupModifyMsg(const wxString& grp_nm)
 {
 	wxString s;
 	int n = GetNumDisallowGroupModify(grp_nm);
-	if (n == 1) {
-        s = wxString::Format(_("Cannot modify variable %s since there is a view open that currently depends on this variable.  Please close or change variables in this view before retrying operation."), grp_nm);
-	} else {
-        s = wxString::Format(_("Cannot modify variable %s since there are %d views open that currently depend on this variable. Please close or change variables in these views before retrying operation."), grp_nm, n);
-	}
+	s = wxString::Format(_("Before you can modify the variable %s, please close the %d view(s) that depend on it."), grp_nm, n);
 	return s;
 }
 
@@ -210,10 +203,7 @@ wxString TableState::GetDisallowObservationAddDeleteMsg()
 {
 	wxString s;
 	int n = GetNumDisallowObservationAddDelete();
-	if (n == 1) {
-		s << _("Cannot add/delete observations since there is a view open that does not allow dynamic observation changes. Please close this view before retrying.");
-	} else {
-        s = wxString::Format(_("Cannot add/delete observations since there are %d views open that currently do not allow dynamic observation changes.  Please close these views before retrying."), n);
-	}
+	s = wxString::Format(_("Before add/delete observations, please close the %d view(s) that depend on it."), n);
+
 	return s;
 }
