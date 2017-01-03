@@ -452,9 +452,9 @@ void LineChartCanvas::PopulateCanvas()
 				if (lcs.tms_subset0[t]) {
 					GdaPolyLine* p = new GdaPolyLine(x0, 0, x1, 0);
 					if (lcs.compare_time_periods || lcs.compare_r_and_t) {
-						p->setPen(wxPen(GdaConst::ln_cht_clr_tm1_light, 6));
+						p->setPen(wxPen(GdaConst::ln_cht_clr_tm1_light, 9));
 					} else {
-						p->setPen(wxPen(GdaConst::ln_cht_clr_regimes_hl, 6));
+						p->setPen(wxPen(GdaConst::ln_cht_clr_regimes_hl, 9));
 					}
 					p->setNudge(0, 5);
 					foreground_shps.push_back(p);
@@ -462,7 +462,7 @@ void LineChartCanvas::PopulateCanvas()
 				if ((lcs.compare_time_periods || lcs.compare_r_and_t)
 						&& lcs.tms_subset1[t]) {
 					GdaPolyLine* p = new GdaPolyLine(x0, 0, x1, 0);
-					p->setPen(wxPen(GdaConst::ln_cht_clr_tm2_light, 6));
+					p->setPen(wxPen(GdaConst::ln_cht_clr_tm2_light, 9));
 					p->setNudge(0, 5);
 					foreground_shps.push_back(p);
 				}
