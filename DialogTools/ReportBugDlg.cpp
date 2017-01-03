@@ -216,6 +216,10 @@ void PreferenceDlg::Init()
                                      wxDefaultPosition, sl_sz,
                                      wxSL_HORIZONTAL);
     wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), "0.0", wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    lbl_txt6->Hide();
+    slider6->Hide();
+    slider_txt6->Hide();
+    
     box6->Add(slider6);
     box6->Add(slider_txt6);
     grid_sizer1->Add(lbl_txt6, 1, wxEXPAND);
