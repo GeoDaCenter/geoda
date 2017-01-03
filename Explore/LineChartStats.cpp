@@ -155,12 +155,25 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 	Y_excl_ss.resize(tms);
 
 	double num_sel = 0;
-    for (size_t i=0; i<Y_undef.size(); ++i) {
-        if (!Y_undef[i] && hs[i] ) {
-			num_sel += 1.0;
+    double num_excl = 0;
+    bool num_sel_valid = false;
+    bool num_unsel_valid = false;
+    
+    for (size_t i=0; i<hs.size(); ++i) {
+        if ( hs[i] ) {
+            if ( Y_undef[i] == false ) {
+                num_sel_valid = true;
+			    num_sel += 1.0;
+            }
+        } else {
+            if ( Y_undef[i] == false ) {
+                num_unsel_valid = true;
+                num_excl += 1.0;
+            }
         }
     }
-	double num_excl = num_obs_d - num_sel;
+	
+    
 	sel_sz_i = (int) num_sel;
 	sel_sz_d = num_sel;
 	excl_sz_i = (int) num_excl;
@@ -178,14 +191,18 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
             if (Y_undef[i])
                 continue;
 			if (hs[i]) {
-				Y_sel_avg[t] += Y[t][i];
-				Y_sel_ss[t] += Y[t][i] * Y[t][i];
+                if (num_sel_valid) {
+                    Y_sel_avg[t] += Y[t][i];
+                    Y_sel_ss[t] += Y[t][i] * Y[t][i];
+                }
 			} else {
-				Y_excl_avg[t] += Y[t][i];
-				Y_excl_ss[t] += Y[t][i] * Y[t][i];
+                if (num_unsel_valid) {
+                    Y_excl_avg[t] += Y[t][i];
+                    Y_excl_ss[t] += Y[t][i] * Y[t][i];
+                }
 			}
 		}
-		if (num_sel > 0) {
+		if (num_sel > 0 && num_sel_valid) {
             if (num_sel > 0)
                 Y_sel_avg[t] /= num_sel;
             else
@@ -202,7 +219,7 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 				Y_sel_avg_max = Y_sel_avg[t];
 			}
 		}
-		if (num_excl > 0) {
+		if (num_excl > 0 && num_unsel_valid) {
             if (num_excl > 0)
                 Y_excl_avg[t] /= num_excl;
             else
@@ -219,6 +236,7 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
 				Y_excl_avg_max = Y_excl_avg[t];
 			}
 		}
+        
 	}
     
     // override Y_sel_avg_valid if user selected in UI
@@ -228,6 +246,11 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
     if (default_Y_sel_avg_valid >= 0 ) {
         Y_sel_avg_valid = default_Y_sel_avg_valid;
     }
+    
+    if (!num_sel_valid)
+        Y_sel_avg_valid = num_sel_valid;
+    if (!num_unsel_valid)
+        Y_excl_avg_valid = num_unsel_valid;
 }
 
 void LineChartStats::UpdateOtherStats()
@@ -421,7 +444,7 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 	Y_excl_tm0_avg = 0;
 	Y_sel_tm1_avg = 0;
 	Y_excl_tm1_avg = 0;
-	
+    
 	size_t tms = tms_subset0.size();
 	size_t tsub0_sz = 0;
 	if (Y.size() > 1) {
