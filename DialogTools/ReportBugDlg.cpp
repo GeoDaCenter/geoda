@@ -281,7 +281,7 @@ void PreferenceDlg::Init()
     cbox21->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTablePostGIS, this);
     
     
-    wxString lbl22 = _("Hide system table in SQILTE connection:");
+    wxString lbl22 = _("Hide system table in SQLITE connection:");
     wxStaticText* lbl_txt22 = new wxStaticText(gdal_page, wxID_ANY, lbl22);
     cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
     grid_sizer2->Add(lbl_txt22, 1, wxEXPAND);
