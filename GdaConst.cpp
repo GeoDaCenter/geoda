@@ -435,6 +435,8 @@ bool GdaConst::disable_auto_upgrade = false;
 int GdaConst::plot_transparency_highlighted = 255;
 int GdaConst::plot_transparency_unhighlighted = 50;
 
+int GdaConst::gda_ogr_csv_header = 2;
+
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
 

@@ -38,6 +38,7 @@
 #include <wx/textfile.h>
 #include <wx/regex.h>
 #include <wx/combobox.h>
+#include <wx/spinctrl.h>
 
 #include <ogrsf_frmts.h>
 
@@ -67,14 +68,12 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxLogMessage("Open CsvFieldConfDlg.");
     
+    n_max_rows = 10;
     filepath = _filepath;
     
-    wxString prmop_txt = _("Please Specify Data Type for Each Data Column.");
+    wxString prmop_txt = _("(Optional) You can change the data type for a field:");
     wxString csvt_path = filepath + "t";
     
-    if (wxFileExists(csvt_path)) {
-        prmop_txt += _("\n(Note: Data types are loaded from .csvt file)");
-    }
     
     PrereadCSV();
     
@@ -85,8 +84,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, prmop_txt);
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
-    lbl_box->AddSpacer(5);
-    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND | wxTOP , 10);
+    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND | wxTOP , 0);
     
     
     // field grid selection control
@@ -100,14 +98,22 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxLEFT, 10);
     
     // Preview label controls
-    wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview"));
+    wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview - number of preview records:"));
+    prev_spin = new wxSpinCtrl(panel, wxID_ANY, "");
+    n_max_rows = 10;
+    prev_spin->SetRange(0, 1000);
+    prev_spin->SetValue(n_max_rows);
+    prev_spin->Connect(wxEVT_SPINCTRL,
+                       wxCommandEventHandler(CsvFieldConfDlg::OnSampleSpinClick),
+                       NULL,
+                       this);
     
-    wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxVERTICAL);
-    prev_lbl_box->AddSpacer(5);
-    prev_lbl_box->Add(prev_lbl, 1, wxALIGN_CENTER | wxEXPAND |wxTOP | wxLEFT, 10);
+    wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxHORIZONTAL);
+    prev_lbl_box->Add(prev_lbl, 0, wxALIGN_CENTER | wxEXPAND |wxTOP |wxLEFT , 10);
+    prev_lbl_box->Add(prev_spin, 0, wxALIGN_CENTER | wxEXPAND |wxTOP, 10);
    
     // Preview Grid controls
-    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 100));
+    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 150));
     previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
     previewGrid->EnableEditing(false);
     previewGrid->SetDefaultCellAlignment( wxALIGN_RIGHT, wxALIGN_TOP );
@@ -124,11 +130,29 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
                                      wxDefaultSize, 0, NULL, wxCB_READONLY);
     wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
-    latlng_box->Add(lat_lbl);
-    latlng_box->Add(lat_box);
+    latlng_box->Add(lat_lbl, 0, wxALIGN_CENTER_VERTICAL);
+    latlng_box->Add(lat_box, 0, wxALIGN_CENTER_VERTICAL);
     latlng_box->AddSpacer(5);
-    latlng_box->Add(lng_lbl);
-    latlng_box->Add(lng_box);
+    latlng_box->Add(lng_lbl, 0, wxALIGN_CENTER_VERTICAL);
+    latlng_box->Add(lng_box, 0, wxALIGN_CENTER_VERTICAL);
+    
+    // first row
+    wxStaticText* header_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) First record has field names? "));
+    wxComboBox* header_cmb = new wxComboBox(panel, wxID_ANY, _(""),
+                                            wxDefaultPosition,
+                                            wxDefaultSize, 0, NULL, wxCB_READONLY);
+    header_cmb->Append("NO");
+    header_cmb->Append("YES");
+    header_cmb->Append("AUTO DETECT");
+    header_cmb->SetSelection(2);
+    header_cmb->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
+                       wxCommandEventHandler(CsvFieldConfDlg::OnHeaderCmbClick),
+                       NULL,
+                       this);
+    wxBoxSizer* header_box = new wxBoxSizer(wxHORIZONTAL);
+    header_box->Add(header_lbl, 0, wxALIGN_CENTER_VERTICAL);
+    header_box->Add(header_cmb, 0, wxALIGN_CENTER_VERTICAL);
+    
     
     // buttons
     wxButton* btn_locale= new wxButton(panel, wxID_ANY, _("Set Number Separators"),
@@ -146,16 +170,18 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
     btn_box->Add(btn_locale, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     btn_box->AddSpacer(10);
-    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
     
     // main container
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
+    box->Add(header_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
+    box->Add(latlng_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
+    
     box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-    box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
-    box->Add(latlng_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT , 10);
-    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxALL, 0);
-    box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT | wxTOP, 0);
+    box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT, 10);
+    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND |  wxTOP, 30);
+    box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT, 10);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 20);
     
     panel->SetSizerAndFit(box);
@@ -197,15 +223,34 @@ CsvFieldConfDlg::~CsvFieldConfDlg()
     }
 }
 
-void CsvFieldConfDlg::PrereadCSV()
+void CsvFieldConfDlg::PrereadCSV(int HEADERS)
 {
     const char* pszDsPath = GET_ENCODED_FILENAME(filepath);
-    const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
-    GDALDataset* poDS = (GDALDataset*) GDALOpenEx(pszDsPath,
-                                                  GDAL_OF_VECTOR,
-                                                  NULL,
-                                                  papszOpenOptions,
-                                                  NULL);
+    
+    GDALDataset* poDS;
+    if (HEADERS == 1) {
+        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "HEADERS=YES"};
+        poDS = (GDALDataset*) GDALOpenEx(pszDsPath,
+                                         GDAL_OF_VECTOR,
+                                         NULL,
+                                         papszOpenOptions,
+                                         NULL);
+    } else if (HEADERS == 0) {
+        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "HEADERS=NO"};
+        poDS = (GDALDataset*) GDALOpenEx(pszDsPath,
+                                         GDAL_OF_VECTOR,
+                                         NULL,
+                                         papszOpenOptions,
+                                         NULL);
+        
+    } else {
+        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
+        poDS = (GDALDataset*) GDALOpenEx(pszDsPath,
+                                         GDAL_OF_VECTOR,
+                                         NULL,
+                                         papszOpenOptions,
+                                         NULL);
+    }
     if( poDS == NULL ) {
         return;
     }
@@ -227,7 +272,7 @@ void CsvFieldConfDlg::PrereadCSV()
         if( poFieldDefn->GetType() == OFTInteger ) {
             types.push_back("Integer");
         } else if( poFieldDefn->GetType() == OFTInteger64 ) {
-            types.push_back("Integer");
+            types.push_back("Integer64");
         } else if( poFieldDefn->GetType() == OFTReal ) {
             types.push_back("Real");
         } else {
@@ -236,19 +281,19 @@ void CsvFieldConfDlg::PrereadCSV()
     }
     
     prev_lines.clear();
-    int n_max_line = 10;
     int cnt = 0;
     
     for (size_t i=0; i<prev_data.size(); i++) {
         OGRFeature::DestroyFeature(prev_data[i]);
     }
     prev_data.clear();
+   
     
     OGRFeature *poFeature;
     poLayer->ResetReading();
     while( (poFeature = poLayer->GetNextFeature()) != NULL )
     {
-        if (cnt > n_max_line)
+        if (cnt > n_max_rows)
             break;
         
         for(int iField = 0; iField < nFields; iField++)
@@ -256,7 +301,7 @@ void CsvFieldConfDlg::PrereadCSV()
             OGRFieldDefn *poFieldDefn = poFDefn->GetFieldDefn( iField );
             
             if( poFieldDefn->GetType() == OFTInteger ) {
-                poFeature->GetFieldAsInteger( iField );
+                poFeature->GetFieldAsInteger64( iField );
             } else if( poFieldDefn->GetType() == OFTInteger64 ) {
                 poFeature->GetFieldAsInteger64( iField );
             } else if( poFieldDefn->GetType() == OFTReal ) {
@@ -272,7 +317,7 @@ void CsvFieldConfDlg::PrereadCSV()
     }
     
     n_prev_rows = cnt;
-    
+   
     GDALClose(poDS);
 }
 
@@ -290,9 +335,10 @@ void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
     }
    
     WriteCSVT();
-    PrereadCSV();
+    PrereadCSV(HEADERS);
     
     UpdatePreviewGrid();
+    UpdateXYcombox();
     event.Skip();
 }
 
@@ -309,9 +355,9 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
         wxString col_name = col_names[i];
         fieldGrid->SetCellValue(i, 0, col_name);
         
-        wxString strChoices[4] = {"Real", "Integer", "String"};
+        wxString strChoices[5] = {"Real", "Integer", "Integer64","String"};
         int COL_T = 1;
-        wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(4, strChoices, false);
+        wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(5, strChoices, false);
         fieldGrid->SetCellEditor(i, COL_T, m_editor);
         
         if (types.size() == 0 || i >= types.size() ) {
@@ -330,9 +376,15 @@ void CsvFieldConfDlg::UpdateXYcombox( )
 {
     lat_box->Clear();
     lng_box->Clear();
-    
+  
+    bool first_item = true;
     for (int i=0; i<col_names.size(); i++) {
         if (types[i] == "Real") {
+            if (first_item ) {
+                lat_box->Append("");
+                lng_box->Append("");
+                first_item = false;
+            }
             lat_box->Append(col_names[i]);
             lng_box->Append(col_names[i]);
         }
@@ -373,11 +425,24 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
     previewGrid->BeginBatch();
     previewGrid->ClearGrid();
     
+    int n_grid_row =previewGrid->GetNumberRows();
+    
+    int n_new_row = n_prev_rows;
+    
+    if (n_max_rows < n_new_row) n_new_row = n_max_rows;
+        
+    if (n_grid_row < n_new_row) {
+        previewGrid->InsertRows(0, n_new_row - n_grid_row);
+    }
+    if (n_grid_row > n_new_row) {
+        previewGrid->DeleteRows(0,  n_grid_row - n_new_row);
+    }
+    
     for (int i=0; i<col_names.size(); i++) {
         previewGrid->SetColLabelValue(i, col_names[i]);
     }
     
-    for (int i=0; i<prev_data.size(); i++) {
+    for (int i=0; i<n_new_row; i++) {
         OGRFeature* poFeature = prev_data[i];
         for (int j=0; j<col_names.size(); j++) {
             bool undef = !poFeature->IsFieldSet(j);
@@ -386,7 +451,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 continue;
             }
             
-            if (types[j] == "Integer") {
+            if (types[j] == "Integer" || types[j] == "Integer64") {
                 wxInt64 val = poFeature->GetFieldAsInteger64(j);
                 wxString str = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"), val);
                 previewGrid->SetCellValue(i, j, str);
@@ -423,7 +488,9 @@ void CsvFieldConfDlg::ReadCSVT()
         while ( tokenizer.HasMoreTokens() )
         {
             wxString token = tokenizer.GetNextToken().Upper();
-            if (token.Contains("INTEGER")) {
+            if (token.Contains("INTEGER64")) {
+                types[idx] = "Integer64";
+            } else if (token.Contains("INTEGER")) {
                 types[idx] = "Integer";
             } else if (token.Contains("REAL")) {
                 types[idx] = "Real";
@@ -473,7 +540,7 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 {
    
     WriteCSVT();
-    
+    GdaConst::gda_ogr_csv_header = HEADERS;
     EndDialog(wxID_OK);
 }
 
@@ -487,7 +554,24 @@ void CsvFieldConfDlg::OnSetupLocale( wxCommandEvent& event )
     bool need_reopen = false;
     LocaleSetupDlg localeDlg(this, need_reopen);
     localeDlg.ShowModal();
+   
+    PrereadCSV(HEADERS);
+    UpdatePreviewGrid();
+}
+
+void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
+{
+    HEADERS = (int)(event.GetSelection());
     
-    PrereadCSV();
+    PrereadCSV(HEADERS);
+    
+    UpdatePreviewGrid();
+    UpdateXYcombox();
+
+}
+
+void CsvFieldConfDlg::OnSampleSpinClick( wxCommandEvent& event )
+{
+    n_max_rows = prev_spin->GetValue();
     UpdatePreviewGrid();
 }

@@ -48,9 +48,18 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     
     
     if (ds_type == GdaConst::ds_csv) {
-        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-        
+        if (GdaConst::gda_ogr_csv_header == 0) {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        } else if (GdaConst::gda_ogr_csv_header == 1) {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        } else {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            
+        }
+
     } else {
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     }

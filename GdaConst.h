@@ -308,6 +308,8 @@ public:
     static int plot_transparency_highlighted;
     static int plot_transparency_unhighlighted;
     
+    static int gda_ogr_csv_header;
+    
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
 	// this is a light forest green
