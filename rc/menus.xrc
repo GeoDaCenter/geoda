@@ -469,7 +469,7 @@
         <label>Check Updates</label>
       </object>
       <object class="wxMenuItem" name="wxID_REPORTBUG">
-        <label>Report Bug</label>
+        <label>Bug Report</label>
       </object>
       <object class="wxMenuItem" name="wxID_ABOUT">
         <label>About GeoDa</label>
