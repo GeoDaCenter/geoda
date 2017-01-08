@@ -7550,7 +7550,7 @@
     </object>
     <title>Connect to Data Source</title>
     <centered>1</centered>
-    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX|wxRESIZE_BORDER</style>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
   <object class="wxDialog" name="IDD_FIELDCALC_SHEET" subclass="FieldNewCalcSheetDlg">
     <object class="wxBoxSizer">
