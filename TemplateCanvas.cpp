@@ -372,14 +372,20 @@ void TemplateCanvas::ResetShapes()
     last_scale_trans.Reset();
 	is_pan_zoom = false;
     
+    ResetFadedLayer();
+    
+    ResetBrushing();
+	SetMouseMode(select);
+	ResizeSelectableShps();
+}
+
+void TemplateCanvas::ResetFadedLayer()
+{
     if (faded_layer_bm) {
         delete faded_layer_bm;
         faded_layer_bm = NULL;
     }
     
-    ResetBrushing();
-	SetMouseMode(select);
-	ResizeSelectableShps();
 }
 
 void TemplateCanvas::ZoomShapes(bool is_zoomin)
@@ -395,10 +401,7 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
     
     last_scale_trans.Zoom(is_zoomin, sel1, sel2);
 
-    if (faded_layer_bm) {
-        delete faded_layer_bm;
-        faded_layer_bm = NULL;
-    }
+    ResetFadedLayer();
     
 	is_pan_zoom = true;
     is_showing_brush = false;
@@ -414,10 +417,7 @@ void TemplateCanvas::PanShapes()
    
     last_scale_trans.PanView(sel1, sel2);
    
-    if (faded_layer_bm) {
-        delete faded_layer_bm;
-        faded_layer_bm = NULL;
-    }
+    ResetFadedLayer();
     
 	is_pan_zoom = true;
     is_showing_brush = false;
@@ -578,10 +578,7 @@ void TemplateCanvas::update(HLStateInt* o)
 
     HLStateInt::EventType type = o->GetEventType();
     if (type == HLStateInt::transparency) {
-        if (faded_layer_bm) {
-            delete faded_layer_bm;
-            faded_layer_bm = NULL;
-        }
+        ResetFadedLayer();
     }
     // re-paint highlight layer (layer1_bm)
 	layer1_valid = false;

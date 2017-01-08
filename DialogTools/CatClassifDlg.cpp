@@ -230,7 +230,8 @@ void CatClassifHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers(this);
-        
+       
+        ResetFadedLayer();
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         UpdateIvalSelCnts();
@@ -497,6 +498,8 @@ void CatClassifHistCanvas::ChangeAll(Gda::dbl_int_pair_vec_type* new_data,
 	colors = new_colors;
 	cur_intervals = breaks->size() + 1;
 	InitIntervals();
+    ResetBrushing();
+    ResetFadedLayer();
 	PopulateCanvas();
 }
 

@@ -423,8 +423,8 @@ wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
 bool GdaConst::use_cross_hatching = false;
-int GdaConst::transparency_highlighted = 190;
-int GdaConst::transparency_unhighlighted = 255;
+int GdaConst::transparency_highlighted = 255;
+int GdaConst::transparency_unhighlighted = 190;
 int GdaConst::transparency_map_on_basemap = 200;
 bool GdaConst::use_basemap_by_default = false;
 int GdaConst::default_basemap_selection = 0;
