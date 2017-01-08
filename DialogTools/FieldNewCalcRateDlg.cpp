@@ -242,6 +242,7 @@ void FieldNewCalcRateDlg::Apply()
 		}
 	}
 	if (Base_undefined) {
+        /*
 		wxString msg("Base field has undefined values. Do you want to "
                      "save a subset without undefined values as a new "
                      "shape file? or please define "
@@ -254,6 +255,7 @@ void FieldNewCalcRateDlg::Apply()
         }
 		hs = hs_backup;
 		return;
+         */
 	}
 
 	for (int i=0; i<obs; i++) {
@@ -285,6 +287,7 @@ void FieldNewCalcRateDlg::Apply()
 		}
 	}
 	if (Base_non_positive) {
+        /*
 		wxString msg("Base field has zero or negative values, but all base "
 					 "values must be strictly greater than zero. Do you want "
                      "to save a subset of non-zeros as a new shape file? ");
@@ -296,6 +299,7 @@ void FieldNewCalcRateDlg::Apply()
         }
 		hs = hs_backup;
 		return;
+         */
 	}
 	hs = hs_backup;
 
@@ -342,13 +346,13 @@ void FieldNewCalcRateDlg::Apply()
 
 		switch (op) {
 			case 0:
-				GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
 				break;
 			case 1:
-				GdaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
 				break;
 			case 2:
-				GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
 				break;
 			case 3:
 				has_undefined = GdaAlgs::RateSmoother_SRS(obs, w_man_int,
@@ -361,7 +365,7 @@ void FieldNewCalcRateDlg::Apply()
 														   undef_r);
 				break;
 			case 5:
-				GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
 				break;
 			default:
 				break;
