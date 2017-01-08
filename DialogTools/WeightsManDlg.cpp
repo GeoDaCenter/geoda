@@ -216,7 +216,9 @@ void WeightsManFrame::OnCreateBtn(wxCommandEvent& ev)
 
 void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 {
-	wxFileDialog dlg( this, "Choose Weights File", "", "",
+    wxFileName default_dir = project_p->GetWorkingDir();
+    wxString default_path = default_dir.GetPath();
+	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
 					 "Weights Files (*.gal, *.gwt)|*.gal;*.gwt");
 	
     if (dlg.ShowModal() != wxID_OK) return;
@@ -250,8 +252,6 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		suspend_w_man_state_updates = false;
 		return;
 	}
-	
-
 	
 	GalElement* tempGal = 0;
 	if (ext == "gal") {
