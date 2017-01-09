@@ -564,7 +564,8 @@ void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
     HEADERS = (int)(event.GetSelection());
     
     PrereadCSV(HEADERS);
-    
+   
+    UpdateFieldGrid();
     UpdatePreviewGrid();
     UpdateXYcombox();
 

@@ -413,10 +413,11 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             int time_step = 0;
           
             if (col_pos < 0) {
-                wxString msg = wxString::Format(_(" Save column %s failed. Please check your data, or contact GeoDa team."), fname);
-                error_message << msg;
-                export_progress = -1;
-                return;
+                //wxString msg = wxString::Format(_(" Save column %s failed. Please check your data, or contact GeoDa team."), fname);
+                //error_message << msg;
+                //export_progress = -1;
+                //return;
+                continue;
             }
             
             vector<bool> undefs;
