@@ -57,7 +57,6 @@ void create_unique_val_mapping(std::vector<UniqueValElem>& uv_mapping,
         if (uv_mapping.empty()) {
 			cur_ind++;
 			uv_mapping.push_back(UniqueValElem(v[i], i, i));
-            continue;
         } else {
     		if (uv_mapping[cur_ind].val != v[i]) {
     			uv_mapping[cur_ind].last = i-1;
@@ -975,7 +974,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				SetNaturalBreaksCats(max_num_categories,
 								var, var_undef, cat_data, cats_valid,
 								CatClassification::qualitative_color_scheme);
-				return;
+                return;
 			} else {
 				cat_data.SetCategoryBrushesAtCanvasTm(
 								CatClassification::qualitative_color_scheme,
@@ -1481,7 +1480,7 @@ SetNaturalBreaksCats(int num_cats,
         for (int i=0; i<num_obs; i++) {
             double val = var[t][i].first;
             int ind = var[t][i].second;
-            v[ind] = val;
+            v[i] = val;
         }
         
 		if (!cats_valid[t])
@@ -1551,7 +1550,7 @@ SetNaturalBreaksCats(int num_cats,
 			for (int j=ss; j<tt; j++) {
                 double val = var[t][j].first;
                 int ind = var[t][j].second;
-                int c = var_undef[t][ind] ? i : t_cats;
+                int c = var_undef[t][ind] ? t_cats : i;
 				cat_data.AppendIdToCategory(t, c, ind);
 			}
 			wxString l;
