@@ -918,7 +918,7 @@ All Rights Reserved</label>
               </object>
               <object class="sizeritem">
                 <object class="wxListBox" name="ID_FIELD_CHOICE">
-                  <style>wxLB_MULTIPLE</style>
+                  <style>wxLB_MULTIPLE | wxLB_HSCROLL</style>
                   <size>100, 80d</size>
                 </object>
                 <flag>wxALIGN_LEFT|wxALL</flag>
