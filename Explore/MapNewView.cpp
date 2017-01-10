@@ -639,6 +639,10 @@ void MapCanvas::DrawLayer1()
 		}
 
 	} else {
+        if (faded_layer_bm) {
+            DrawLayer0();
+            ResetFadedLayer();
+        }
 		dc.DrawBitmap(*layer0_bm, 0, 0);
         if (GdaConst::use_cross_hatching == true) {
             DrawHighlightedShapes(dc, revert);
