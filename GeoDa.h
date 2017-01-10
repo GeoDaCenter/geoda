@@ -655,6 +655,8 @@ public:
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
+   
+    void RemoveInvalidRecentDS();
     
     void UpdateRecentDatasourceMenu();
 

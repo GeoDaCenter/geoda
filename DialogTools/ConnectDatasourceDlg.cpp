@@ -268,6 +268,13 @@ void RecentDatasource::Delete(int idx)
     }
 }
 
+void RecentDatasource::DeleteLastRecord()
+{
+    if (n_ds > 0) {
+        Delete(n_ds -1);
+    }
+}
+
 wxString RecentDatasource::GetLastIndex()
 {
     int last_idx = ds_names.size() - 1;
@@ -322,7 +329,11 @@ IDataSource* RecentDatasource::GetDatasource(wxString ds_name)
     for (int i=0; i<n_ds; i++) {
         if (ds_names[i] == ds_name) {
             wxString ds_conf = ds_confs[i];
-            return IDataSource::CreateDataSource(ds_conf);
+            try {
+                return IDataSource::CreateDataSource(ds_conf);
+            } catch(GdaException& ex){
+                return NULL;
+            }
         }
     }
     return NULL;
@@ -900,7 +911,7 @@ void ConnectDatasourceDlg::InitSamplePanel()
     {
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );
-        int n = 36;
+        int n = 58;
         for (int i=0; i<n; i++) {
             wxString sample_name = GdaConst::sample_names[i];
             wxString sample_ds_name = GdaConst::sample_datasources[i];

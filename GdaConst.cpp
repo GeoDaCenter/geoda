@@ -23,7 +23,7 @@
 #include <wx/mstream.h>
 
 const char* GdaConst::sample_names[] = {
-    "NATREGIMES US County Homicides",
+    "US County Homicides",
     "Baltimore: house sales prices and hedonics",
     "Baltimore: house sales prices and trend surface residuals",
     "Buenosaires: Electoral Data for 1999 Argentinean Elections",
@@ -176,7 +176,7 @@ const char* GdaConst::sample_datasources[] = {
     "http://geodacenter.github.io/sample_data/orlando_counties.geojson",
     "http://geodacenter.github.io/sample_data/orlando_final_census2.geojson",
     "http://geodacenter.github.io/sample_data/OrlandoMSA2.geojson",
-    "http://geodacenter.github.io/sample_data/oz9799.geojson"
+    "http://geodacenter.github.io/sample_data/oz9799.geojson",
     "http://geodacenter.github.io/sample_data/phx.geojson",
     "http://geodacenter.github.io/sample_data/pitt93.geojson",
     "http://geodacenter.github.io/sample_data/pitt94.geojson",

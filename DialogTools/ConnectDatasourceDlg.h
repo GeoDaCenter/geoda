@@ -50,6 +50,7 @@ public:
     void Clear();
     void Save();
     void Delete(int idx);
+    void DeleteLastRecord();
   
     int GetRecords() {return n_ds;}
     wxString GetLastIndex();

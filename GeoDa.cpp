@@ -1017,6 +1017,12 @@ void GdaFrame::UpdateRecentDatasourceMenu()
     }
 }
 
+void GdaFrame::RemoveInvalidRecentDS()
+{
+    RecentDatasource recent_ds;
+    recent_ds.DeleteLastRecord();
+}
+
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnRecentDSClick");
@@ -1063,6 +1069,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
         project_p = new Project(proj_title, layername, ds);
         
     } catch (GdaException& e) {
+        RemoveInvalidRecentDS();
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -1087,6 +1094,7 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
         // in project_p
         project_p = new Project(proj_title, layer_name, &fds);
     } catch (GdaException& e) {
+        RemoveInvalidRecentDS();
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
@@ -1133,6 +1141,7 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
         project_p = new Project(proj_title, layer_name, datasource);
         
     } catch (GdaException& e) {
+        RemoveInvalidRecentDS();
         wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -1215,6 +1224,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
     try {
         project_p = new Project(full_proj_path);
         if (!project_p->IsValid()) {
+            RemoveInvalidRecentDS();
             wxString msg = _("Error while opening project:\n\n");
             msg << project_p->GetOpenErrorMessage();
             throw GdaException(msg.c_str());
