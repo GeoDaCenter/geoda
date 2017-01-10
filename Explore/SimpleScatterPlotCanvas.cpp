@@ -21,6 +21,8 @@
 #include <boost/foreach.hpp>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include <wx/regex.h>
+
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
@@ -220,6 +222,7 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 				sb->SetStatusText(str);
 			}
             wxString s;
+            wxString old_s = sb->GetStatusText(0);
             
             const std::vector<bool>& hl = highlight_state->GetHighlight();
             
@@ -233,11 +236,28 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
                         n_undefs += 1;
                     }
                 }
+                
                 if (n_undefs> 0) {
-                    s << "(undefined:" << n_undefs << ") ";
+                    s << "undefined: ";
+                    wxString undef_str;
+                    undef_str << "@" << Xname << "/" << Yname << "";
+                    
+                    wxRegEx re_select("[0-9]+@([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)");
+                    while (re_select.Matches(old_s)) {
+                        size_t start, len;
+                        re_select.GetMatch(&start, &len, 0);
+                        wxString f = re_select.GetMatch(old_s, 0);
+                        wxString f1 = re_select.GetMatch(old_s, 1);
+                        wxString f2 = re_select.GetMatch(old_s, 2);
+                        if (!undef_str.Contains(f1) || !undef_str.Contains(f2)) {
+                            s << f << " ";
+                        }
+                        
+                        old_s = old_s.Mid (start + len);
+                    }
+                    s << n_undefs << undef_str << " ";
                 }
             }
-
             
             if (mousemode == select && selectstate == start) {
                 if (total_hover_obs >= 1) {

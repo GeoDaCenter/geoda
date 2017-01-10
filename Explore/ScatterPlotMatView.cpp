@@ -602,11 +602,13 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     if (X[i] > col_max)
                         col_max = X[i];
                 }
+                const vector<bool>& X_undef = data_undef_map[row_nm][row_tm];
+                const vector<bool>& Y_undef = data_undef_map[col_nm][col_tm];
                 wxString xrcid_scatter_menu = "ID_SCATTER_PLOT_MAT_MENU_OPTIONS";
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
                                                      project->GetHighlightState(),
-                                                     0, X, Y, XY_undef, XY_undef,
+                                                     0, X, Y, X_undef, Y_undef,
                                                      col_title, row_title,
                                                      col_min, col_max,
                                                      row_min, row_max,
