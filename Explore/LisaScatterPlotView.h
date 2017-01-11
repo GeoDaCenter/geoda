@@ -48,9 +48,13 @@ public:
 	virtual void FixedScaleVariableToggle(int var_index);
     virtual void update(HLStateInt* o);
     virtual void UpdateSelection(bool shiftdown, bool pointsel);
-    
+    //virtual void ResizeSelectableShps(int virtual_scrn_w=0, int virtual_scrn_h=0);
+    //virtual void OnIdle(wxIdleEvent& event);
 	void ShowRandomizationDialog(int permutation);
 	void SaveMoranI();
+    
+    void UpdateRegSelectedLine();
+    void UpdateRegExcludedLine();
 	
 protected:
     void RegimeMoran(const std::vector<bool>& undefs,
@@ -80,7 +84,7 @@ public:
     LisaScatterPlotFrame(wxFrame *parent, Project* project,
 					LisaCoordinator* lisa_coordinator,
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GdaConst::scatterplot_default_size,
+					const wxSize& size = wxSize(860, 530),
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
 	

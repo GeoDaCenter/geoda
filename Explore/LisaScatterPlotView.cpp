@@ -88,7 +88,7 @@ rand_dlg(0)
 	PopulateCanvas();
 	
 	UpdateDisplayLinesAndMargins();
-	ResizeSelectableShps();	
+	ResizeSelectableShps();
 
 	LOG_MSG("Exiting LisaScatterPlotCanvas::LisaMapCanvas");
 }
@@ -408,21 +408,23 @@ void LisaScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 	//lisa_coord->notifyObservers();
 }
 
+
 void LisaScatterPlotCanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering LisaScatterPlotCanvas::PopulateCanvas");
 	
+    int n_hl = highlight_state->GetTotalHighlighted();
+    
 	// need to modify var_info temporarily for PopulateCanvas since
 	var_info_orig = var_info;
 	var_info = sp_var_info;
-   
+    
 	ScatterNewPlotCanvas::PopulateCanvas();
     
     // sel vs unsel moran calculation
     // for regressionXYselected and regressionXYexcluded
     // UpdateRegSelectedLine
     // UpdateRegExcludedLine
-    int n_hl = highlight_state->GetTotalHighlighted();
     if (n_hl > 0) {
         const std::vector<bool>& hl = highlight_state->GetHighlight();
         int t = project->GetTimeState()->GetCurrTime();
@@ -435,16 +437,23 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         std::vector<double> X;
         std::vector<double> Y;
         RegimeMoran(undefs, regressionXYselected, X, Y);
-        UpdateRegSelectedLine();
+       
+        GdaScaleTrans sub_scale;
+        sub_scale = last_scale_trans;
+        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
+        sub_scale.left_margin = 40;
+        sub_scale.calcAffineParams();
         
         for (int i=0; i<X.size(); i++){
             GdaPoint* pt = new GdaPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-                                        (Y[i] - axis_scale_y.scale_min) * scaleY
-                                        );
-            pt->setPen(wxPen(*wxRED));
+                                        (Y[i] - axis_scale_y.scale_min) * scaleY);
+            pt->setPen(wxPen(wxColour(245,140,140)));
             pt->setBrush(*wxTRANSPARENT_BRUSH);
-            ApplyLastResizeToShp(pt);
-            foreground_shps.push_back(pt);
+            //ApplyLastResizeToShp(pt);
+            
+            pt->applyScaleTrans(sub_scale);
+            
+            foreground_shps.insert(foreground_shps.begin(), pt);
         }
         
         undefs.clear();
@@ -455,32 +464,153 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         std::vector<double> X_ex;
         std::vector<double> Y_ex;
         RegimeMoran(undefs, regressionXYexcluded, X_ex, Y_ex);
-        UpdateRegExcludedLine();
+        
+        GdaScaleTrans ex_scale;
+        ex_scale = last_scale_trans;
+        ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
+        ex_scale.right_margin = 5;
+        ex_scale.calcAffineParams();
+        
         for (int i=0; i<X_ex.size(); i++){
             //foreground_shps.push_back(new GdaPoint(X_ex[i], Y_ex[i]));
             GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
                                         (Y_ex[i] - axis_scale_y.scale_min) * scaleY
                                         );
-            pt->setPen(wxPen(*wxBLACK));
+            pt->setPen(wxPen(wxColour(100,100,100)));
             pt->setBrush(*wxTRANSPARENT_BRUSH);
-            ApplyLastResizeToShp(pt);
-            foreground_shps.push_back(pt);
+            pt->applyScaleTrans(ex_scale);
+            foreground_shps.insert(foreground_shps.begin(),pt);
         }
         
-        wxString s("Moran's I: ");
-        s << regressionXY.beta;
-        if (highlight_state->GetTotalHighlighted()>0) {
-            wxString str = wxString::Format(" (selected: %.3f, unselected: %.3f)",
-                                            regressionXYselected.beta,
-                                            regressionXYexcluded.beta);
-            s << str;
+        UpdateRegSelectedLine();
+        UpdateRegExcludedLine();
+      
+        
+        GdaAxis* x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
+                                 wxRealPoint(0,0), wxRealPoint(100, 0));
+        x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+        x_baseline->applyScaleTrans(sub_scale);
+        x_baseline->hideCaption(true);
+        foreground_shps.push_back(x_baseline);
+        GdaAxis* y_baseline = new GdaAxis(GetNameWithTime(1), axis_scale_y,
+                                 wxRealPoint(0,0), wxRealPoint(0, 100));
+        y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+        y_baseline->applyScaleTrans(sub_scale);
+        y_baseline->hideCaption(true);
+        foreground_shps.push_back(y_baseline);
+      
+        GdaPolyLine* x_axis_through_origin = new GdaPolyLine(0,50,100,50);
+        x_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+        GdaPolyLine* y_axis_through_origin = new GdaPolyLine(50,0,50,100);
+        y_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+        foreground_shps.push_back(x_axis_through_origin);
+        foreground_shps.push_back(y_axis_through_origin);
+        
+        GdaAxis* x_baseline1 = new GdaAxis(GetNameWithTime(0), axis_scale_x,
+                                 wxRealPoint(0,0), wxRealPoint(100, 0));
+        x_baseline1->setPen(*GdaConst::scatterplot_scale_pen);
+        x_baseline1->hideCaption(true);
+        x_baseline1->applyScaleTrans(ex_scale);
+        foreground_shps.push_back(x_baseline1);
+        GdaAxis* y_baseline1 = new GdaAxis(GetNameWithTime(1), axis_scale_y,
+                                 wxRealPoint(0,0), wxRealPoint(0, 100));
+        y_baseline1->setPen(*GdaConst::scatterplot_scale_pen);
+        y_baseline1->applyScaleTrans(ex_scale);
+        y_baseline1->hideCaption(true);
+        foreground_shps.push_back(y_baseline1);
+        
+        GdaPolyLine* x_axis_through_origin1 = new GdaPolyLine(0,50,100,50);
+        x_axis_through_origin1->setPen(*wxTRANSPARENT_PEN);
+        GdaPolyLine* y_axis_through_origin1 = new GdaPolyLine(50,0,50,100);
+        y_axis_through_origin1->setPen(*wxTRANSPARENT_PEN);
+        foreground_shps.push_back(x_axis_through_origin1);
+        foreground_shps.push_back(y_axis_through_origin1);
+        
+        if (show_origin_axes &&
+            axis_scale_y.scale_min < 0 && 0 < axis_scale_y.scale_max) {
+            double y_inter = 100.0 * ((-axis_scale_y.scale_min) /
+                                      (axis_scale_y.scale_max-axis_scale_y.scale_min));
+            x_axis_through_origin->operator=(GdaPolyLine(0,y_inter,100,y_inter));
+            x_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
+            x_axis_through_origin->applyScaleTrans(sub_scale);
+            x_axis_through_origin1->operator=(GdaPolyLine(0,y_inter,100,y_inter));
+            x_axis_through_origin1->setPen(*GdaConst::scatterplot_origin_axes_pen);
+            x_axis_through_origin1->applyScaleTrans(ex_scale);
         }
-        morans_i_text->setText(s);
+        if (show_origin_axes &&
+            axis_scale_x.scale_min < 0 && 0 < axis_scale_x.scale_max) {
+            double x_inter = 100.0 * ((-axis_scale_x.scale_min) /
+                                      (axis_scale_x.scale_max-axis_scale_x.scale_min));
+            y_axis_through_origin->operator=(GdaPolyLine(x_inter,0,x_inter,100));
+            y_axis_through_origin->setPen(*GdaConst::scatterplot_origin_axes_pen);
+            y_axis_through_origin->applyScaleTrans(sub_scale);
+            y_axis_through_origin1->operator=(GdaPolyLine(x_inter,0,x_inter,100));
+            y_axis_through_origin1->setPen(*GdaConst::scatterplot_origin_axes_pen);
+            y_axis_through_origin1->applyScaleTrans(ex_scale);
+        }
+        
     }
     
 	var_info = var_info_orig;
 	
 	LOG_MSG("Exiting LisaScatterPlotCanvas::PopulateCanvas");
+}
+
+void LisaScatterPlotCanvas::UpdateRegSelectedLine()
+{
+    pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+    if (IsShowLinearSmoother()) {
+        double cc_degs_of_rot;
+        wxRealPoint a, b;
+        SmoothingUtils::CalcRegressionLine(*reg_line_selected,
+                                           reg_line_selected_slope,
+                                           reg_line_selected_infinite_slope,
+                                           reg_line_selected_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYselected,
+                                           *pens.GetRegSelPen());
+        GdaScaleTrans sub_scale;
+        sub_scale = last_scale_trans;
+        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
+        sub_scale.left_margin = 40;
+        sub_scale.calcAffineParams();
+        
+        reg_line_selected->applyScaleTrans(sub_scale);
+        layer2_valid = false;
+    } else {
+        reg_line_selected->setPen(*wxTRANSPARENT_PEN);
+    }
+}
+
+void LisaScatterPlotCanvas::UpdateRegExcludedLine()
+{
+    pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+    if (IsShowLinearSmoother()) {
+        double cc_degs_of_rot;
+        wxRealPoint a, b;
+        SmoothingUtils::CalcRegressionLine(*reg_line_excluded,
+                                           reg_line_excluded_slope,
+                                           reg_line_excluded_infinite_slope,
+                                           reg_line_excluded_defined, a, b,
+                                           cc_degs_of_rot,
+                                           axis_scale_x, axis_scale_y,
+                                           regressionXYexcluded,
+                                           *pens.GetRegExlPen());
+        
+        GdaScaleTrans ex_scale;
+        ex_scale = last_scale_trans;
+        ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
+        ex_scale.right_margin = 5;
+        ex_scale.calcAffineParams();
+        
+       
+        reg_line_excluded->setPen(wxPen(wxColour(0,0,0)));
+        reg_line_excluded->applyScaleTrans(ex_scale);
+        layer2_valid = false;
+    } else {
+        reg_line_excluded->setPen(*wxTRANSPARENT_PEN);
+    }
 }
 
 void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
@@ -532,7 +662,7 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
     
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
-    
+  
     invalidateBms();
     PopulateCanvas();
     
@@ -558,10 +688,28 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
     if (highlight_state->GetTotalHighlighted()>0) {
-        wxString str = wxString::Format(" (selected: %.2f, unselected: %.2f)",
-                                        regressionXYselected.beta,
+        wxString str = wxString::Format("(selected: %.2f)",
+                                        regressionXYselected.beta);
+        GdaShapeText* morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
+                                         wxRealPoint(20, 100), 0,
+                                         GdaShapeText::h_center,
+                                         GdaShapeText::v_center,
+                                         0, -15);
+        
+        morans_sel_text->setPen(wxPen(*wxRED));
+        
+        wxString str1 = wxString::Format("(unselected: %.2f)",
                                         regressionXYexcluded.beta);
-        s << str;
+        GdaShapeText* morans_unsel_text = new GdaShapeText(str1, *GdaConst::small_font,
+                                                         wxRealPoint(80, 100), 0,
+                                                         GdaShapeText::h_center,
+                                                         GdaShapeText::v_center,
+                                                         0, -15);
+        
+        morans_unsel_text->setPen(wxPen(*wxBLACK));
+        
+        foreground_shps.push_back(morans_sel_text);
+        foreground_shps.push_back(morans_unsel_text);
     }
     morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
                                      wxRealPoint(50, 100), 0,
