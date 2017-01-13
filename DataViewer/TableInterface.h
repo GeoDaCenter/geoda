@@ -148,7 +148,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
-    
+   
 	virtual void GetColData(int col, int time, std::vector<double>& data,
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data,
@@ -159,6 +159,13 @@ public:
 	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;
 	virtual bool GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined) = 0;
+    
+    // using underneath columns, not vargroup
+	virtual void GetDirectColData(int col, std::vector<double>& data) =0;
+	virtual void GetDirectColData(int col, std::vector<wxInt64>& data)=0;
+	virtual void GetDirectColData(int col, std::vector<wxString>& data)=0;
+	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefs)=0;
+    
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals) = 0;
 	virtual void GetMinMaxVals(int col, int time,

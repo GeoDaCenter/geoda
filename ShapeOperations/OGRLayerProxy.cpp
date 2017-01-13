@@ -410,7 +410,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
            
             // get underneath column position (no group and time =0)
             int col_pos = table->GetColIdx(fname, ignore_case);
-            int time_step = 0;
           
             if (col_pos < 0) {
                 //wxString msg = wxString::Format(_(" Save column %s failed. Please check your data, or contact GeoDa team."), fname);
@@ -425,7 +424,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             if ( ftype == GdaConst::long64_type) {
                 
                 vector<wxInt64> col_data;
-                table->GetColData(col_pos, time_step, col_data, undefs);
+                table->GetDirectColData(col_pos, col_data);
+                table->GetDirectColUndefined(col_pos, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
@@ -442,7 +442,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             } else if (ftype == GdaConst::double_type) {
                 
                 vector<double> col_data;
-                table->GetColData(col_pos, time_step, col_data, undefs);
+                table->GetDirectColData(col_pos, col_data);
+                table->GetDirectColUndefined(col_pos, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
@@ -461,7 +462,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                        ftype == GdaConst::datetime_type ) {
                 
                 vector<wxInt64> col_data;
-                table->GetColData(col_pos, time_step, col_data, undefs);
+                table->GetDirectColData(col_pos, col_data);
+                table->GetDirectColUndefined(col_pos, undefs);
                 
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
@@ -495,7 +497,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 // others are treated as string_type
                 // XXX encodings
                 vector<wxString> col_data;
-                table->GetColData(col_pos, time_step, col_data, undefs);
+                table->GetDirectColData(col_pos, col_data);
+                table->GetDirectColUndefined(col_pos, undefs);
                 
                 if (ds_type == GdaConst::ds_csv) {
                     for (int m=0; m<col_data.size(); m++) {

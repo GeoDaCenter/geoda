@@ -755,6 +755,42 @@ void OGRTable::GetColData(int col, s_array_type& data)
 	}
 }
 
+void OGRTable::GetDirectColData(int col, std::vector<double>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
+void OGRTable::GetDirectColData(int col, std::vector<wxInt64>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
+void OGRTable::GetDirectColData(int col, std::vector<wxString>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
 	//if (!IsColNumeric(col)) return;
@@ -848,6 +884,22 @@ bool OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
     return false;
 }
 
+bool OGRTable::GetDirectColUndefined(int col, std::vector<bool>& undefined)
+{
+    if (col < 0 || col >= columns.size())
+        return false;
+    
+    OGRColumn* ogr_col = columns[col];
+    
+    undefined = ogr_col->GetUndefinedMarkers();
+    
+    for (size_t i=0; i<undefined.size(); i++) {
+        if (undefined[i] == true)
+            return true;
+    }
+    return false;
+}
+
 /**
  * min_vals, max_vals: the values of same column at different time steps
  *
@@ -904,7 +956,7 @@ void OGRTable::GetMinMaxVals(int col, int time,
 {
 	min_val = 0;
 	max_val = 0;
-	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
+	if (col < 0 || col >= GetNumberCols()) return;
 	if (!IsColNumeric(col)) return;
 	if (time < 0 || time > GetColTimeSteps(col)) return;
 
@@ -918,7 +970,8 @@ void OGRTable::GetMinMaxVals(int col, int time,
 void OGRTable::SetColData(int col, int time,
                           const std::vector<double>& data)
 {
-	if (col < 0 || col >= GetNumberCols()) return;
+	if (col < 0 || col >= GetNumberCols())
+        return;
 	if (!IsColNumeric(col)) return;
 	int ogr_col_id = FindOGRColId(col, time);
 	if (ogr_col_id == wxNOT_FOUND) return;
@@ -1108,7 +1161,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 	// NOTE: if called from wxGrid, must use row_order[row] to permute
 	is_set_cell_from_string_fail = false;
 	if (row<0 || row>=rows) return false;
-	if (col<0 || col>=var_order.GetNumVarGroups()) return false;
+	if (col<0 || col>=GetNumberCols()) return false;
 	
 	int t_col = FindOGRColId(col, time);
 	if (t_col == -1) {

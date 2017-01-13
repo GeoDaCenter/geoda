@@ -47,6 +47,7 @@ BEGIN_EVENT_TABLE(LisaScatterPlotCanvas, ScatterNewPlotCanvas)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
+    EVT_IDLE(LisaScatterPlotCanvas::OnIdle)
 END_EVENT_TABLE()
 
 LisaScatterPlotCanvas::LisaScatterPlotCanvas(wxWindow *parent,
@@ -62,8 +63,6 @@ is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized),
 is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential),
 rand_dlg(0)
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::LisaMapCanvas");
-	
 	show_reg_selected = false;
 	show_reg_excluded = false;
 	
@@ -89,17 +88,13 @@ rand_dlg(0)
 	
 	UpdateDisplayLinesAndMargins();
 	ResizeSelectableShps();
-
-	LOG_MSG("Exiting LisaScatterPlotCanvas::LisaMapCanvas");
 }
 
 LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::~LisaScatterPlotCanvas");
     if (rand_dlg) {
         rand_dlg->Destroy();
     }
-	LOG_MSG("Exiting LisaScatterPlotCanvas::~LisaScatterPlotCanvas");
 }
 
 void LisaScatterPlotCanvas::OnRandDlgClose( wxWindowDestroyEvent& event)
@@ -109,7 +104,6 @@ void LisaScatterPlotCanvas::OnRandDlgClose( wxWindowDestroyEvent& event)
             
 void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((LisaScatterPlotFrame*) template_frame)->OnActivate(ae);
@@ -122,7 +116,6 @@ void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting LisaScatterPlotCanvas::DisplayRightClickMenu");
 }
 
 void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -239,7 +232,6 @@ void LisaScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
 
 void LisaScatterPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -269,7 +261,6 @@ void LisaScatterPlotCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LisaScatterPlotCanvas::TimeChange");
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -382,7 +373,6 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 
 void LisaScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In LisaScatterPlotCanvas::TimeSyncVariableToggle");
 	lisa_coord->var_info[var_index].sync_with_global_time =
 		!lisa_coord->var_info[var_index].sync_with_global_time;
 	lisa_coord->var_info[0].time = var_info[0].time;
@@ -396,23 +386,65 @@ void LisaScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 
 void LisaScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In LisaScatterPlotCanvas::FixedScaleVariableToggle");
-	// Not implemented for now.
-	//lisa_coord->var_info[var_index].fixed_scale =
-	//	!lisa_coord->var_info[var_index].fixed_scale;
-	//lisa_coord->var_info[0].time = var_info[0].time;
-	//if (is_bi || is_rate) {
-	//	lisa_coord->var_info[1].time = var_info[1].time;
-	//}
-	//lisa_coord->VarInfoAttributeChange();
-	//lisa_coord->notifyObservers();
 }
 
+void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
+{
+    if (isResize) {
+        isResize = false;
+        
+        int vs_w, vs_h;
+        
+        GetClientSize(&vs_w, &vs_h);
+        
+        last_scale_trans.SetView(vs_w, vs_h);
+        
+        resizeLayerBms(vs_w, vs_h);
+       
+        ResizeSelectableShps();
+        
+        PopulateCanvas();
+        
+        event.RequestMore(); // render continuously, not only once on idle
+    }
+    
+    if (!layer2_valid || !layer1_valid || !layer0_valid) {
+        DrawLayers();
+        event.RequestMore(); // render continuously, not only once on idle
+    }
+}
+
+void LisaScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
+                                          int virtual_scrn_h)
+{
+    int vs_w = virtual_scrn_w;
+    int vs_h = virtual_scrn_h;
+    
+    if (vs_w <= 0 && vs_h <=0 ) {
+        GetClientSize(&vs_w, &vs_h);
+    }
+    
+    // view: extent, margins, width, height
+    last_scale_trans.SetView(vs_w, vs_h);
+   
+    if (last_scale_trans.IsValid()) {
+        BOOST_FOREACH( GdaShape* ms, background_shps ) {
+            ms->applyScaleTrans(last_scale_trans);
+        }
+        BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
+            ms->applyScaleTrans(last_scale_trans);
+        }
+        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+            ms->applyScaleTrans(last_scale_trans);
+        }
+    }
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+}
 
 void LisaScatterPlotCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering LisaScatterPlotCanvas::PopulateCanvas");
-	
     int n_hl = highlight_state->GetTotalHighlighted();
     
 	// need to modify var_info temporarily for PopulateCanvas since
@@ -552,8 +584,6 @@ void LisaScatterPlotCanvas::PopulateCanvas()
     }
     
 	var_info = var_info_orig;
-	
-	LOG_MSG("Exiting LisaScatterPlotCanvas::PopulateCanvas");
 }
 
 void LisaScatterPlotCanvas::UpdateRegSelectedLine()
@@ -700,7 +730,8 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
         
         wxString str1 = wxString::Format("(unselected: %.2f)",
                                         regressionXYexcluded.beta);
-        GdaShapeText* morans_unsel_text = new GdaShapeText(str1, *GdaConst::small_font,
+        GdaShapeText* morans_unsel_text = new GdaShapeText(str1,
+                                                           *GdaConst::small_font,
                                                          wxRealPoint(80, 100), 0,
                                                          GdaShapeText::h_center,
                                                          GdaShapeText::v_center,
@@ -918,7 +949,6 @@ void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 
 void LisaScatterPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In LisaScatterPlotFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("LisaScatterPlotFrame", GetTitle());
 	}
@@ -927,7 +957,6 @@ void LisaScatterPlotFrame::OnActivate(wxActivateEvent& event)
 
 void LisaScatterPlotFrame::MapMenus()
 {
-	LOG_MSG("In LisaScatterPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1019,7 +1048,6 @@ void LisaScatterPlotFrame::update(LisaCoordinator* o)
 
 void LisaScatterPlotFrame::closeObserver(LisaCoordinator* o)
 {
-	LOG_MSG("In LisaScatterPlotFrame::closeObserver(LisaCoordinator*)");
 	if (lisa_coord) {
 		lisa_coord->removeObserver(this);
 		lisa_coord = 0;
