@@ -32,6 +32,7 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../VarTools.h"
+#include "../GenUtils.h"
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
@@ -581,8 +582,33 @@ void LisaScatterPlotCanvas::PopulateCanvas()
             y_axis_through_origin1->applyScaleTrans(ex_scale);
         }
         
+        wxString str = wxString::Format("selected): %.4f",
+                                        regressionXYselected.beta);
+        GdaShapeText* morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
+                                                         wxRealPoint(50, 100), 0,
+                                                         GdaShapeText::h_center,
+                                                         GdaShapeText::v_center,
+                                                         0, -15);
+        
+        morans_sel_text->setPen(wxPen(*wxRED));
+        morans_sel_text->applyScaleTrans(sub_scale);
+        
+        wxString str1 = wxString::Format("unselected: %.4f",
+                                         regressionXYexcluded.beta);
+        GdaShapeText* morans_unsel_text = new GdaShapeText(str1,
+                                                           *GdaConst::small_font,
+                                                           wxRealPoint(50, 100), 0,
+                                                           GdaShapeText::h_center,
+                                                           GdaShapeText::v_center,
+                                                           0, -15);
+        
+        morans_unsel_text->setPen(wxPen(*wxBLACK));
+        morans_unsel_text->applyScaleTrans(ex_scale);
+        foreground_shps.push_back(morans_sel_text);
+        foreground_shps.push_back(morans_unsel_text);
+        
     }
-    
+   
 	var_info = var_info_orig;
 }
 
@@ -643,7 +669,7 @@ void LisaScatterPlotCanvas::UpdateRegExcludedLine()
     }
 }
 
-void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
+void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
                                         SimpleLinearRegression& regime_lreg,
                                         std::vector<double>& X,
                                         std::vector<double>& Y)
@@ -652,14 +678,20 @@ void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
     GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
     copy_w->Update(undefs);
     GalElement* W = copy_w->gal;
+   
     
-    double* data1 = lisa_coord->data1_vecs[t];
+    double* data1 = new double[num_obs];
     double* data2 = NULL;
     
     if (lisa_coord->isBivariate) {
-        data2 = lisa_coord->data2_vecs[0];
-        if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
-            data2 = lisa_coord->data2_vecs[t];
+        data2 = new double[num_obs];
+    }
+    
+    lisa_coord->GetRawData(t, data1, data2);
+    
+    GenUtils::StandardizeData(num_obs, data1, undefs);
+    if (lisa_coord->isBivariate) {
+        GenUtils::StandardizeData(num_obs, data2, undefs);
     }
     
     std::vector<bool> XY_undefs;
@@ -685,7 +717,11 @@ void LisaScatterPlotCanvas::RegimeMoran(const std::vector<bool>& undefs,
                                          statsX.var_without_bessel,
                                          statsY.var_without_bessel);
     
+    cout << regime_lreg.beta;
+    
     delete copy_w;
+    delete[] data1;
+    delete[] data2;
 }
 
 void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -717,32 +753,7 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
     // if has highlighted, then the text will be added after RegimeMoran()
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
-    if (highlight_state->GetTotalHighlighted()>0) {
-        wxString str = wxString::Format("(selected: %.2f)",
-                                        regressionXYselected.beta);
-        GdaShapeText* morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
-                                         wxRealPoint(20, 100), 0,
-                                         GdaShapeText::h_center,
-                                         GdaShapeText::v_center,
-                                         0, -15);
-        
-        morans_sel_text->setPen(wxPen(*wxRED));
-        
-        wxString str1 = wxString::Format("(unselected: %.2f)",
-                                        regressionXYexcluded.beta);
-        GdaShapeText* morans_unsel_text = new GdaShapeText(str1,
-                                                           *GdaConst::small_font,
-                                                         wxRealPoint(80, 100), 0,
-                                                         GdaShapeText::h_center,
-                                                         GdaShapeText::v_center,
-                                                         0, -15);
-        
-        morans_unsel_text->setPen(wxPen(*wxBLACK));
-        
-        foreground_shps.push_back(morans_sel_text);
-        foreground_shps.push_back(morans_unsel_text);
-    }
-    morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
+        morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
                                      wxRealPoint(50, 100), 0,
                                      GdaShapeText::h_center,
                                      GdaShapeText::v_center,

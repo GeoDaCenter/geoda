@@ -59,7 +59,7 @@ public:
     void UpdateRegExcludedLine();
 	
 protected:
-    void RegimeMoran(const std::vector<bool>& undefs,
+    void RegimeMoran(std::vector<bool>& undefs,
                      SimpleLinearRegression& regime_lreg,
                      std::vector<double>& X,
                      std::vector<double>& Y);

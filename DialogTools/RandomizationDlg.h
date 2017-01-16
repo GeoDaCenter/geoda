@@ -32,6 +32,7 @@ class RandomizationPanel: public wxPanel
 {
 public:
     RandomizationPanel(const std::vector<double>& raw_data1,
+                       const std::vector<bool>& undefs_s,
                        const GalElement* W, int NumPermutations,
                        bool reuse_user_seed,
                        uint64_t user_specified_seed,
@@ -39,6 +40,7 @@ public:
                        const wxSize& size);
     RandomizationPanel(const std::vector<double>& raw_data1,
                        const std::vector<double>& raw_data2,
+                       const std::vector<bool>& undefs_s,
                        const GalElement* W, int NumPermutations,
                        bool reuse_user_seed,
                        uint64_t user_specified_seed,
@@ -82,6 +84,7 @@ public:
 	const GalElement* W;
 	std::vector<double> raw_data1;
 	std::vector<double> raw_data2;
+	std::vector<bool> undefs;
 	double Moran;
 	double  MMean;
 	double  MSdev;

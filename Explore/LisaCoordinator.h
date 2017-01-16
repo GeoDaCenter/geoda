@@ -172,6 +172,8 @@ public:
 
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
+    
+    void GetRawData(int time, double* data1, double* data2);
 
 protected:
 	void DeallocateVectors();

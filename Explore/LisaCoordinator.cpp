@@ -329,6 +329,52 @@ void LisaCoordinator::InitFromVarInfo()
     
 }
 
+void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
+{
+    if (lisa_type == differential) {
+        int t=0;
+        for (int i=0; i<num_obs; i++) {
+            int t0 = var_info[0].time;
+            int t1 = var_info[1].time;
+            data1[i] = data[0][t0][i] - data[0][t1][i];
+        }
+        
+    } else if (lisa_type == univariate || lisa_type == bivariate) {
+        for (int i=0; i<num_obs; i++) {
+            data1[i] = data[0][time][i];
+        }
+        if (lisa_type == bivariate) {
+            for (int i=0; i<num_obs; i++) {
+                data2[i] = data[1][time][i];
+            }
+        }
+    } else { // lisa_type == eb_rate_standardized
+        std::vector<bool> undef_res(num_obs, false);
+        double* smoothed_results = new double[num_obs];
+        double* E = new double[num_obs]; // E corresponds to var_info[0]
+        double* P = new double[num_obs]; // P corresponds to var_info[1]
+        // we will only fill data1 for eb_rate_standardized and
+        // further lisa calcs will treat as univariate
+        for (int i=0; i<num_obs; i++) {
+            E[i] = data[0][time][i];
+        }
+        for (int i=0; i<num_obs; i++) {
+            P[i] = data[1][time][i];
+        }
+        bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
+                                                  smoothed_results,
+                                                  undef_res);
+        if (success) {
+            for (int i=0; i<num_obs; i++) {
+                data1[i] = smoothed_results[i];
+            }
+        }
+        if (smoothed_results) delete [] smoothed_results;
+        if (E) delete [] E;
+        if (P) delete [] P;
+    }
+}
+
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void LisaCoordinator::VarInfoAttributeChange()

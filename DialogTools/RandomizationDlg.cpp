@@ -29,10 +29,12 @@
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
 #include "../GdaConst.h"
+#include "../GenUtils.h"
 #include "RandomizationDlg.h"
 
 
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
+                                       const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,
                                        bool reuse_user_seed,
                                        uint64_t user_specified_seed,
@@ -41,6 +43,7 @@ RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
 : start(-1),
 stop(1),
 raw_data1(raw_data1_s),
+undefs(undefs_s),
 W(W_s),
 num_obs(raw_data1_s.size()),
 Permutations(NumPermutations),
@@ -65,12 +68,15 @@ wxPanel(parent, -1, wxDefaultPosition, size)
 
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
                                        const std::vector<double>& raw_data2_s,
+                                       const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,
                                        bool reuse_user_seed,
                                        uint64_t user_specified_seed,
                                        wxFrame* parent,
                                        const wxSize& size)
-: start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s), W(W_s),
+: start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s),
+undefs(undefs_s),
+W(W_s),
 num_obs(raw_data1_s.size()), Permutations(NumPermutations),
 MoranI(NumPermutations, 0), is_bivariate(true),
 wxPanel(parent, -1, wxDefaultPosition, size)
@@ -116,17 +122,42 @@ void RandomizationPanel::OnRunClick( wxCommandEvent& event )
 
 void RandomizationPanel::CalcMoran()
 {
-	Moran = 0;
-	if (is_bivariate) {
-		for (int i=0; i<num_obs; i++) {
-			Moran += W[i].SpatialLag(raw_data2) * raw_data1[i];
+    std::vector<bool> XY_undefs;
+    std::vector<double> X;
+    std::vector<double> Y;
+   
+    for (int i=0; i<num_obs; i++) {
+        if (undefs[i])
+            continue;
+        double Wdata = 0;
+        if (is_bivariate) {
+            Wdata = W[i].SpatialLag(raw_data2);
+        } else {
+            Wdata = W[i].SpatialLag(raw_data1);
 		}
-	} else {
-		for (int i=0; i<num_obs; i++) {
+        X.push_back(raw_data1[i]);
+        Y.push_back(Wdata);
+        XY_undefs.push_back(false);
+    }
+    
+    SampleStatistics statsX(X, XY_undefs);
+    SampleStatistics statsY(Y, XY_undefs);
+    SimpleLinearRegression lreg (X, Y, XY_undefs, XY_undefs,
+                                         statsX.mean, statsY.mean,
+                                         statsX.var_without_bessel,
+                                         statsY.var_without_bessel);
+    Moran = lreg.beta;
+    /*
+	Moran = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (is_bivariate) {
+			Moran += W[i].SpatialLag(raw_data2) * raw_data1[i];
+        } else {
 			Moran += W[i].SpatialLag(raw_data1) * raw_data1[i];
 		}
 	}
 	Moran /= (double) num_obs - 1.0;
+     */
 }
 
 void RandomizationPanel::Init()
@@ -428,14 +459,16 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
         sz.SetHeight(200);
     }
     
-    GalElement* W = W_s->gal;
+    GalElement* W = NULL;
     if (has_undef) {
         copy_w = new GalWeight(*W_s);
         copy_w->Update(_undef);
-        GalElement* W = copy_w->gal;
+        W = copy_w->gal;
+    } else {
+        W = W_s->gal;
     }
     
-    panel = new RandomizationPanel(raw_data1_s, raw_data2_s, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+    panel = new RandomizationPanel(raw_data1_s, raw_data2_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
     
     
     if ( has_hl) {
@@ -445,7 +478,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
         }
         copy_w_sel = new GalWeight(*W_s);
         copy_w_sel->Update(sel_undefs);
-        panel_sel = new RandomizationPanel(raw_data1_s, raw_data2_s, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        panel_sel = new RandomizationPanel(raw_data1_s, raw_data2_s, sel_undefs, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
         
         std::vector<bool> unsel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
@@ -453,19 +486,13 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
         }
         copy_w_unsel = new GalWeight(*W_s);
         copy_w_unsel->Update(unsel_undefs);
-        panel_unsel = new RandomizationPanel(raw_data1_s, raw_data2_s, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        panel_unsel = new RandomizationPanel(raw_data1_s, raw_data2_s, unsel_undefs, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
         
         CreateControls_regime();
         
     } else {
         CreateControls();
     }
-
-    
-    
-    
-    CreateControls();
-	
 }
 
 RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
@@ -505,9 +532,9 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
     if (has_undef) {
         copy_w = new GalWeight(*W_s);
         copy_w->Update(_undef);
-        GalElement* W = copy_w->gal;
+        W = copy_w->gal;
     }
-    panel = new RandomizationPanel(raw_data1_s, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+    panel = new RandomizationPanel(raw_data1_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
    
    
     if ( has_hl) {
@@ -517,7 +544,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
         }
         copy_w_sel = new GalWeight(*W_s);
         copy_w_sel->Update(sel_undefs);
-        panel_sel = new RandomizationPanel(raw_data1_s, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this,sz);
+        panel_sel = new RandomizationPanel(raw_data1_s, sel_undefs, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this,sz);
         
         std::vector<bool> unsel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
@@ -525,7 +552,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
         }
         copy_w_unsel = new GalWeight(*W_s);
         copy_w_unsel->Update(unsel_undefs);
-        panel_unsel = new RandomizationPanel(raw_data1_s, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        panel_unsel = new RandomizationPanel(raw_data1_s, unsel_undefs, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
         
         CreateControls_regime();
         
