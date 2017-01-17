@@ -88,6 +88,8 @@ protected:
     wxCheckBox* cbox4;
     // auto upgrade
     wxCheckBox* cbox5;
+    // show recent
+    wxCheckBox* cbox8;
     // postgresql
     wxCheckBox* cbox21;
     // sqlite
@@ -103,6 +105,7 @@ protected:
     void OnChoice3(wxCommandEvent& ev);
     void OnDisableCrashDetect(wxCommandEvent& ev);
     void OnDisableAutoUpgrade(wxCommandEvent& ev);
+    void OnShowRecent(wxCommandEvent& ev);
    
     void OnSlider6(wxScrollEvent& ev);
     void OnSlider7(wxScrollEvent& ev);

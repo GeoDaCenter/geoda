@@ -7527,6 +7527,16 @@
         </object>
         <flag>wxALL|wxALIGN_CENTRE|wxALIGN_CENTER_HORIZONTAL</flag>
       </object>
+      
+      <object class="sizeritem">
+          <object class="wxCheckBox" name="IDC_NOSHOW_RECENT_SAMPLES">
+              <label>Don't show Recent/Samples panel again</label>
+              <checked>0</checked>
+          </object>
+          <flag>wxRIGHT|wxALIGN_RIGHT|wxALIGN_CENTER_HORIZONTAL</flag>
+          <border>30</border>
+      </object>
+      
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
@@ -7545,7 +7555,8 @@
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxALIGN_CENTRE_HORIZONTAL | wxALL</flag>
+        <border>5</border>
       </object>
     </object>
     <title>Connect to Data Source</title>

@@ -142,7 +142,9 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
     wxLogMessage("Entering MergeTableDlg::OnOpenClick()");
     try {
         ConnectDatasourceDlg dlg(this);
-        if (dlg.ShowModal() != wxID_OK) return;
+        
+        if (dlg.ShowModal() != wxID_OK)
+            return;
         
         wxString proj_title = dlg.GetProjectTitle();
         wxString layer_name = dlg.GetLayerName();

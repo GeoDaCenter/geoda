@@ -245,6 +245,14 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("System:")), 1,
                      wxTOP | wxBOTTOM, 20);
     grid_sizer1->AddSpacer(10);
+
+    
+    wxString lbl8 = _("Show Recent/Samples panel in Connect Datasource Dialog:");
+    wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
+    cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", wxDefaultPosition);
+    grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);
+    grid_sizer1->Add(cbox8, 0, wxALIGN_RIGHT);
+    cbox8->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowRecent, this);
     
     wxString lbl4 = _("Disable crash detection for bug report:");
     wxStaticText* lbl_txt4 = new wxStaticText(vis_page, wxID_ANY, lbl4);
@@ -328,8 +336,8 @@ void PreferenceDlg::Init()
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
     GdaConst::use_cross_hatching = false;
-    GdaConst::transparency_highlighted = 209;
-    GdaConst::transparency_unhighlighted = 255;
+    GdaConst::transparency_highlighted = 255;
+    GdaConst::transparency_unhighlighted = 100;
     //GdaConst::transparency_map_on_basemap = 200;
     GdaConst::use_basemap_by_default = false;
     GdaConst::default_basemap_selection = 0;
@@ -339,13 +347,14 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::disable_auto_upgrade = false;
     GdaConst::plot_transparency_highlighted = 255;
     GdaConst::plot_transparency_unhighlighted = 50;
+    GdaConst::show_recent_sample_connect_ds_dialog = true;
     
     SetupControls();
     
     OGRDataAdapter& ogr_adapt  = OGRDataAdapter::GetInstance();
     ogr_adapt.AddEntry("use_cross_hatching", "0");
-    ogr_adapt.AddEntry("transparency_highlighted", "209");
-    ogr_adapt.AddEntry("transparency_unhighlighted", "255");
+    ogr_adapt.AddEntry("transparency_highlighted", "255");
+    ogr_adapt.AddEntry("transparency_unhighlighted", "100");
     ogr_adapt.AddEntry("use_basemap_by_default", "0");
     ogr_adapt.AddEntry("default_basemap_selection", "0");
     ogr_adapt.AddEntry("hide_sys_table_postgres", "0");
@@ -354,6 +363,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("disable_auto_upgrade", "0");
     ogr_adapt.AddEntry("plot_transparency_highlighted", "255");
     ogr_adapt.AddEntry("plot_transparency_unhighlighted", "50");
+    ogr_adapt.AddEntry("show_recent_sample_connect_ds_dialog", "1");
 }
 
 void PreferenceDlg::SetupControls()
@@ -378,6 +388,7 @@ void PreferenceDlg::SetupControls()
     cbox5->SetValue(GdaConst::disable_auto_upgrade);
     cbox21->SetValue(GdaConst::hide_sys_table_postgres);
     cbox22->SetValue(GdaConst::hide_sys_table_sqlite);
+    cbox8->SetValue(GdaConst::show_recent_sample_connect_ds_dialog);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -481,6 +492,17 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
+    vector<string> show_recent_sample_connect_ds_dialog = OGRDataAdapter::GetInstance().GetHistory("show_recent_sample_connect_ds_dialog");
+    if (!show_recent_sample_connect_ds_dialog.empty() ) {
+        long sel_l = 0;
+        wxString sel = show_recent_sample_connect_ds_dialog[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::show_recent_sample_connect_ds_dialog = true;
+            else if (sel_l == 0)
+                GdaConst::show_recent_sample_connect_ds_dialog = false;
+        }
+    }
 }
 
 void PreferenceDlg::OnSlider1(wxScrollEvent& ev)
@@ -628,6 +650,18 @@ void PreferenceDlg::OnDisableAutoUpgrade(wxCommandEvent& ev)
     } else {
         GdaConst::disable_auto_upgrade = true;
         OGRDataAdapter::GetInstance().AddEntry("disable_auto_upgrade", "1");
+        
+    }
+}
+void PreferenceDlg::OnShowRecent(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::show_recent_sample_connect_ds_dialog = false;
+        OGRDataAdapter::GetInstance().AddEntry("show_recent_sample_connect_ds_dialog", "0");
+    } else {
+        GdaConst::show_recent_sample_connect_ds_dialog = true;
+        OGRDataAdapter::GetInstance().AddEntry("show_recent_sample_connect_ds_dialog", "1");
         
     }
 }

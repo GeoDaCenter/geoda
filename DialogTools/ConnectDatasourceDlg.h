@@ -113,6 +113,7 @@ protected:
     wxPanel* smaples_panel;
     wxScrolledWindow* scrl;
     wxNotebook* recent_nb;
+    wxCheckBox* noshow_recent;
    
     int base_xrcid_recent_thumb;
     int base_xrcid_sample_thumb;
@@ -131,6 +132,8 @@ protected:
     void OnRecent(wxCommandEvent& event);
     void OnSample(wxCommandEvent& event);
     void OnRecentDelete(wxCommandEvent& event);
+    
+    void OnNoShowRecent(wxCommandEvent& event);
     
 	DECLARE_EVENT_TABLE()
 };

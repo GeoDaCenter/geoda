@@ -364,11 +364,13 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
 END_EVENT_TABLE()
 
 
-ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos, const wxSize& size)
+ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
+                                           const wxSize& size)
 :datasource(0), scrl(0), recent_panel(0)
 {
     base_xrcid_recent_thumb = 7000;
     base_xrcid_sample_thumb = 7500;
+    
     // init controls defined in parent class
     DatasourceDlg::Init();
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
@@ -376,24 +378,28 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
-  
-    RecentDatasource recent_ds;
-    if (recent_ds.GetRecords() > 0) {
-        wxBoxSizer* sizer;
-        sizer = new wxBoxSizer( wxVERTICAL );
-        
-        InitRecentPanel();
-        sizer->Add( scrl, 1, wxEXPAND | wxRIGHT, 5 );
-        
-        recent_panel->SetSizer( sizer );
-        recent_panel->Layout();
-        sizer->Fit( recent_panel );
+ 
+    if (GdaConst::show_recent_sample_connect_ds_dialog) {
+        RecentDatasource recent_ds;
+        if (recent_ds.GetRecords() > 0) {
+            wxBoxSizer* sizer;
+            sizer = new wxBoxSizer( wxVERTICAL );
+            
+            InitRecentPanel();
+            sizer->Add( scrl, 1, wxEXPAND | wxRIGHT, 5 );
+            
+            recent_panel->SetSizer( sizer );
+            recent_panel->Layout();
+            sizer->Fit( recent_panel );
+        }
+       
+        InitSamplePanel();
+    } else {
+        recent_nb->Hide();
     }
-   
-    InitSamplePanel();
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
-    
+   
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
     
@@ -567,6 +573,12 @@ void ConnectDatasourceDlg::CreateControls()
     recent_nb->SetSelection(1);
     recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
     smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
+    noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
+    
+    noshow_recent->Bind(wxEVT_CHECKBOX, &ConnectDatasourceDlg::OnNoShowRecent, this);
+    if (!GdaConst::show_recent_sample_connect_ds_dialog) {
+        noshow_recent->Hide();
+    }
     
     // create controls defined in parent class
     DatasourceDlg::CreateControls();
@@ -574,6 +586,16 @@ void ConnectDatasourceDlg::CreateControls()
     // setup WSF auto-completion
 	std::vector<std::string> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
 	m_webservice_url->SetAutoList(ws_url_cands);
+}
+
+void ConnectDatasourceDlg::OnNoShowRecent( wxCommandEvent& event)
+{
+    recent_nb->Hide();
+    noshow_recent->Hide();
+    GetSizer()->Fit(this);
+    
+    GdaConst::show_recent_sample_connect_ds_dialog = false;
+    OGRDataAdapter::GetInstance().AddEntry("show_recent_sample_connect_ds_dialog", "0");
 }
 
 /**

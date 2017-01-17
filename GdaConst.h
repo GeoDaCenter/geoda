@@ -295,6 +295,7 @@ public:
 	static const wxColour legend_background_color; // white
 	
 	// Preferences
+    static bool show_recent_sample_connect_ds_dialog;
     static bool use_cross_hatching;
     static int transparency_highlighted;
     static int transparency_unhighlighted;

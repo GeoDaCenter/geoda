@@ -422,6 +422,7 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
 int GdaConst::transparency_highlighted = 255;
 int GdaConst::transparency_unhighlighted = 100;
