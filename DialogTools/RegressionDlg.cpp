@@ -611,7 +611,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-				wxMessageBox(_("Only symmetric weights are supported for this operation, please choose a symmetric weights file. You can still choose Classic regression for non-symmetric weights."));
+                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
 				UpdateMessageBox("");
 				return;
 			}
@@ -660,7 +660,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-				wxMessageBox(_("Only symmetric weights are supported for this operation, please choose a symmetric weights file. You can still choose Classic regression for non-symmetric weights."));
+                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
 				UpdateMessageBox("");
 				return;
 			}			
