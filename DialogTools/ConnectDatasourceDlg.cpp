@@ -365,8 +365,9 @@ END_EVENT_TABLE()
 
 
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
-                                           const wxSize& size)
-:datasource(0), scrl(0), recent_panel(0)
+                                           const wxSize& size,
+                                           bool showCsvConfigure_)
+:datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_)
 {
     base_xrcid_recent_thumb = 7000;
     base_xrcid_sample_thumb = 7500;
@@ -679,7 +680,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         }
        
         // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
-        if (ds_file_path.GetExt().Lower() == "csv") {
+        if (ds_file_path.GetExt().Lower() == "csv" && showCsvConfigure) {
             wxString csv_path = ds_file_path.GetFullPath();
             CsvFieldConfDlg csvDlg(this, csv_path);
             csvDlg.ShowModal();

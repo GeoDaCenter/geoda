@@ -91,7 +91,8 @@ class ConnectDatasourceDlg: public DatasourceDlg
 public:
 	ConnectDatasourceDlg(wxWindow* parent,
 		const wxPoint& pos = wxDefaultPosition,
-		const wxSize& size = wxDefaultSize );
+		const wxSize& size = wxDefaultSize,
+                         bool showCsvConfigure=true);
     virtual ~ConnectDatasourceDlg();
     
     void CreateControls();
@@ -103,6 +104,7 @@ public:
     
     
 protected:
+    bool showCsvConfigure;
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;

@@ -141,7 +141,8 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
 {
     wxLogMessage("Entering MergeTableDlg::OnOpenClick()");
     try {
-        ConnectDatasourceDlg dlg(this);
+        bool showCsvConfigure = false;
+        ConnectDatasourceDlg dlg(this, wxDefaultPosition, wxDefaultSize, showCsvConfigure);
         
         if (dlg.ShowModal() != wxID_OK)
             return;
