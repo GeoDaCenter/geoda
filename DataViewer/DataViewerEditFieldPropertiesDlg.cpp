@@ -436,7 +436,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     new_type_str == "time" ||
                     new_type_str == "datetime")
                 {
-                    wxString m = _("GeoDa doesn't support changing variable type to DATE/TIME. Please select other variable type.");
+                    wxString m = _("GeoDa can't change the variable type to DATE/TIME. Please select another type.");
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
