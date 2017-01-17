@@ -1511,19 +1511,6 @@ void MapCanvas::CreateAndUpdateCategories()
 					continue;
 				}
 			}
-            /*
-            if (hasZeroBaseVal) {
-                wxString msg(_T("Base field has zero values. Do you want to save a subset of non-zeros as a new shape file? "));
-                wxMessageDialog dlg (this, msg, "Warning", 
-                                     wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-                if (dlg.ShowModal() == wxID_YES) {
-                    ExportDataDlg exp_dlg(this, project, true);
-                    exp_dlg.ShowModal();
-                }
-        		hs = hs_backup;
-        		return;
-            }
-             */
             hs = hs_backup;
             
 			
