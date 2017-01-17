@@ -582,7 +582,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
             y_axis_through_origin1->applyScaleTrans(ex_scale);
         }
         
-        wxString str = wxString::Format("selected): %.4f",
+        wxString str = wxString::Format("selected: %.4f",
                                         regressionXYselected.beta);
         GdaShapeText* morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
                                                          wxRealPoint(50, 100), 0,
@@ -717,7 +717,6 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
                                          statsX.var_without_bessel,
                                          statsY.var_without_bessel);
     
-    cout << regime_lreg.beta;
     
     delete copy_w;
     delete[] data1;

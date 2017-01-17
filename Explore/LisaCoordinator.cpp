@@ -32,6 +32,7 @@
 #include "LisaCoordinator.h"
 
 LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
+                                   const std::vector<bool>& undefs_,
                                    int obs_start_s, int obs_end_s,
 								   uint64_t	seed_start_s,
 								   LisaCoordinator* lisa_coord_s,
@@ -41,6 +42,7 @@ LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
 								   int thread_id_s)
 : wxThread(),
 W(W_),
+undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 lisa_coord(lisa_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -59,7 +61,7 @@ wxThread::ExitCode LisaWorkerThread::Entry()
 	LOG_MSG(wxString::Format("LisaWorkerThread %d started", thread_id));
 
 	// call work for assigned range of observations
-	lisa_coord->CalcPseudoP_range(W, obs_start, obs_end, seed_start);
+	lisa_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
     
@@ -483,7 +485,7 @@ void LisaCoordinator::CalcLisa()
 			}
 			lags[i] = Wdata;
 			localMoran[i] = data1[i] * Wdata;
-					
+				
 			// assign the cluster
 			if (W[i].Size() > 0) {
 				if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
@@ -500,7 +502,6 @@ void LisaCoordinator::CalcLisa()
 
 void LisaCoordinator::CalcPseudoP()
 {
-	LOG_MSG("Entering LisaCoordinator::CalcPseudoP");
 	if (!calc_significances) return;
 	wxStopWatch sw;
 	int nCPUs = wxThread::GetCPUCount();
@@ -513,7 +514,8 @@ void LisaCoordinator::CalcPseudoP()
 	
 	
 	for (int t=0; t<num_time_vals; t++) {
-		
+	
+        std::vector<bool>& undefs = undef_tms[t];
 		data1 = data1_vecs[t];
 		if (isBivariate) {
 			data2 = data2_vecs[0];
@@ -531,9 +533,10 @@ void LisaCoordinator::CalcPseudoP()
             if (!reuse_last_seed) {
                 last_seed_used = time(0);
             }
-			CalcPseudoP_range(Gal_vecs[t]->gal, 0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
+                              0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded(Gal_vecs[t]->gal);
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
 	}
     
@@ -547,9 +550,9 @@ void LisaCoordinator::CalcPseudoP()
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP");
 }
 
-void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
+void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
+                                           const std::vector<bool>& undefs)
 {
-	LOG_MSG("Entering LisaCoordinator::CalcPseudoP_threaded");
 	int nCPUs = wxThread::GetCPUCount();
 	
 	// mutext protects access to the worker_list
@@ -597,7 +600,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 		msg << ", seed: " << seed_start << "->" << seed_end;
 		
 		LisaWorkerThread* thread =
-			new LisaWorkerThread(W, a, b, seed_start, this,
+			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
 								 &worker_list_mutex,
 								 &worker_list_empty_cond,
 								 &worker_list, thread_id);
@@ -610,7 +613,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 	}
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(W, 0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
 	} else {
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
@@ -624,11 +627,10 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W)
 			// alarm (sprious signal), the loop will exit.
 		}
 	}
-
-	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP_threaded");
 }
 
 void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
+                                        const std::vector<bool>& undefs,
                                         int obs_start, int obs_end,
 										uint64_t seed_start)
 {
@@ -636,6 +638,10 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
 	//Randik rng;
 	int max_rand = num_obs-1;
 	for (int cnt=obs_start; cnt<=obs_end; cnt++) {
+        
+        if (undefs[cnt])
+            continue;
+        
 		const int numNeighbors = W[cnt].Size();
 		
 		uint64_t countLarger = 0;
@@ -647,7 +653,9 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
 				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
-				if (newRandom != cnt && !workPermutation.Belongs(newRandom))
+				if (newRandom != cnt &&
+                    !workPermutation.Belongs(newRandom) &&
+                    undefs[newRandom] == false)
 				{
 					workPermutation.Push(newRandom);
 					rand++;

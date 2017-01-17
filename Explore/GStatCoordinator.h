@@ -51,6 +51,7 @@ class GStatWorkerThread : public wxThread
 {
 public:
     GStatWorkerThread(const GalElement* W,
+                      const std::vector<bool>& undefs,
                       int obs_start, int obs_end, uint64_t seed_start,
                       GStatCoordinator* gstat_coord,
                       wxMutex* worker_list_mutex,
@@ -61,6 +62,7 @@ public:
 	virtual void* Entry();  // thread execution starts here
 
     const GalElement* W;
+    const std::vector<bool>& undefs;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -182,8 +184,8 @@ public:
 	std::vector<GetisOrdMapFrame*> maps;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W, int obs_start,
-                           int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs,
+                           int obs_start, int obs_end, uint64_t seed_start);
 	
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -194,7 +196,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded(const GalElement* W);
+	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
 	void CalcGs();
 	std::vector<bool> has_undefined;
 	std::vector<bool> has_isolates;

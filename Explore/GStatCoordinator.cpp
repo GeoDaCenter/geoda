@@ -81,6 +81,7 @@
 
 
 GStatWorkerThread::GStatWorkerThread(const GalElement* W_,
+                                     const std::vector<bool>& undefs_,
                                      int obs_start_s, int obs_end_s,
 									 uint64_t seed_start_s,
 									 GStatCoordinator* gstat_coord_s,
@@ -90,6 +91,7 @@ GStatWorkerThread::GStatWorkerThread(const GalElement* W_,
 									 int thread_id_s)
 : wxThread(),
 W(W_),
+undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 gstat_coord(gstat_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -108,7 +110,7 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 	LOG_MSG(wxString::Format("GStatWorkerThread %d started", thread_id));
 	
 	// call work for assigned range of observations
-	gstat_coord->CalcPseudoP_range(W, obs_start, obs_end, seed_start);
+	gstat_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
 	// remove ourself from the list
@@ -577,6 +579,8 @@ void GStatCoordinator::CalcPseudoP()
 	
 	for (int t=0; t<num_time_vals; t++) {
 
+        std::vector<bool>& undefs = x_undefs[t];
+        
 		G = G_vecs[t];
 		G_defined = G_defined_vecs[t];
 		G_star = G_star_vecs[t];
@@ -591,9 +595,9 @@ void GStatCoordinator::CalcPseudoP()
 		
 		if (nCPUs <= 1) {
 			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(Gal_vecs[t]->gal, 0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded(Gal_vecs[t]->gal);
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
 	}
 	/*
@@ -606,7 +610,8 @@ void GStatCoordinator::CalcPseudoP()
 	LOG_MSG("Exiting GStatCoordinator::CalcPseudoP");
 }
 
-void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W)
+void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W,
+                                            const std::vector<bool>& undefs)
 {
 	LOG_MSG("Entering GStatCoordinator::CalcPseudoP_threaded");
 	int nCPUs = wxThread::GetCPUCount();
@@ -651,7 +656,7 @@ void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W)
 		msg << ", seed: " << seed_start << "->" << seed_end;
 		
 		GStatWorkerThread* thread =
-			new GStatWorkerThread(W, a, b, seed_start, this,
+			new GStatWorkerThread(W, undefs, a, b, seed_start, this,
 								  &worker_list_mutex,
 								  &worker_list_empty_cond,
 								  &worker_list, thread_id);
@@ -664,7 +669,7 @@ void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W)
 	}
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(W, 0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
 	} else {
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
@@ -686,6 +691,7 @@ void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W)
  self-neighbors and handled the situation appropriately.  For the
  permutation code, we will disallow self-neighbors. */
 void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
+                                         const std::vector<bool>& undefs,
                                          int obs_start, int obs_end,
 										 uint64_t seed_start)
 {
@@ -695,6 +701,9 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
     
 	for (long i=obs_start; i<=obs_end; i++) {
         
+        if (undefs[i])
+            continue;
+
 		const int numNeighsI = W[i].Size();
 		const double numNeighsD = W[i].Size();
         
@@ -717,7 +726,9 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
                     //https://github.com/GeoDaCenter/geoda/issues/488
                     int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
                     
-					if (newRandom != i && !workPermutation.Belongs(newRandom))
+					if (newRandom != i &&
+                        !workPermutation.Belongs(newRandom) &&
+                        undefs[newRandom] == false)
 					{
 						workPermutation.Push(newRandom);
 						rand++;
