@@ -487,6 +487,9 @@ PCPCanvas::ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
 	PopulateCanvas();
+   
+    ResetFadedLayer();
+    
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
