@@ -90,6 +90,8 @@ protected:
     wxCheckBox* cbox5;
     // show recent
     wxCheckBox* cbox8;
+    // show cvs in merge
+    wxCheckBox* cbox9;
     // postgresql
     wxCheckBox* cbox21;
     // sqlite
@@ -106,6 +108,7 @@ protected:
     void OnDisableCrashDetect(wxCommandEvent& ev);
     void OnDisableAutoUpgrade(wxCommandEvent& ev);
     void OnShowRecent(wxCommandEvent& ev);
+    void OnShowCsvInMerge(wxCommandEvent& ev);
    
     void OnSlider6(wxScrollEvent& ev);
     void OnSlider7(wxScrollEvent& ev);

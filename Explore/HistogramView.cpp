@@ -458,6 +458,12 @@ void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 void HistogramCanvas::update(HLStateInt* o)
 {
     ResetBrushing();
+   
+    HLStateInt::EventType type = o->GetEventType();
+    if (type == HLStateInt::transparency) {
+        ResetFadedLayer();
+    }
+    
 	//layer0_valid = false;
 	layer1_valid = false;
 	//layer2_valid = false;

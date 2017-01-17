@@ -151,7 +151,9 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(cbox0,0, wxALIGN_RIGHT);
     cbox0->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCrossHatch, this);
    
-    wxSize sl_sz(200,-1); 
+    wxSize sl_sz(200,-1);
+    wxSize txt_sz(35,-1);
+    
     wxString lbl1 = _("Set transparency of highlighted objects in selection:");
     wxStaticText* lbl_txt1 = new wxStaticText(vis_page, wxID_ANY, lbl1);
     wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
@@ -160,7 +162,7 @@ void PreferenceDlg::Init()
                            wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
-                                 wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+                                 wxDefaultPosition, txt_sz, wxTE_READONLY);
     box1->Add(slider1);
     box1->Add(slider_txt1);
     grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
@@ -175,7 +177,7 @@ void PreferenceDlg::Init()
                            wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
     slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
-                                 wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+                                 wxDefaultPosition, txt_sz, wxTE_READONLY);
     box2->Add(slider2);
     box2->Add(slider_txt2);
     grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
@@ -215,7 +217,7 @@ void PreferenceDlg::Init()
                                      255, 0, 255,
                                      wxDefaultPosition, sl_sz,
                                      wxSL_HORIZONTAL);
-    wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), "0.0", wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), "0.0", wxDefaultPosition, txt_sz, wxTE_READONLY);
     lbl_txt6->Hide();
     slider6->Hide();
     slider_txt6->Hide();
@@ -234,7 +236,7 @@ void PreferenceDlg::Init()
                            0, 0, 255,
                            wxDefaultPosition, sl_sz,
                            wxSL_HORIZONTAL);
-    slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, wxSize(30,-1), wxTE_READONLY);
+    slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "",wxDefaultPosition, txt_sz, wxTE_READONLY);
     box7->Add(slider7);
     box7->Add(slider_txt7);
     grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
@@ -253,6 +255,13 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);
     grid_sizer1->Add(cbox8, 0, wxALIGN_RIGHT);
     cbox8->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowRecent, this);
+    
+    wxString lbl9 = _("Show CSV Configuration in Merge Data Dialog:");
+    wxStaticText* lbl_txt9 = new wxStaticText(vis_page, wxID_ANY, lbl9);
+    cbox9 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_CSV_IN_MERGE"), "", wxDefaultPosition);
+    grid_sizer1->Add(lbl_txt9, 1, wxEXPAND);
+    grid_sizer1->Add(cbox9, 0, wxALIGN_RIGHT);
+    cbox9->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowCsvInMerge, this);
     
     wxString lbl4 = _("Disable crash detection for bug report:");
     wxStaticText* lbl_txt4 = new wxStaticText(vis_page, wxID_ANY, lbl4);
@@ -348,6 +357,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::plot_transparency_highlighted = 255;
     GdaConst::plot_transparency_unhighlighted = 50;
     GdaConst::show_recent_sample_connect_ds_dialog = true;
+    GdaConst::show_csv_configure_in_merge = false;
     
     SetupControls();
     
@@ -364,6 +374,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("plot_transparency_highlighted", "255");
     ogr_adapt.AddEntry("plot_transparency_unhighlighted", "50");
     ogr_adapt.AddEntry("show_recent_sample_connect_ds_dialog", "1");
+    ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
 }
 
 void PreferenceDlg::SetupControls()
@@ -382,13 +393,15 @@ void PreferenceDlg::SetupControls()
     }
     
     slider7->SetValue( GdaConst::plot_transparency_unhighlighted);
-    wxString t_p_hl = wxString::Format("%.2f", (255-GdaConst::plot_transparency_highlighted) / 255.0);
+    wxString t_p_hl = wxString::Format("%.2f", (255-GdaConst::plot_transparency_unhighlighted) / 255.0);
     slider_txt7->SetValue(t_p_hl);
+    
     cbox4->SetValue(GdaConst::disable_crash_detect);
     cbox5->SetValue(GdaConst::disable_auto_upgrade);
     cbox21->SetValue(GdaConst::hide_sys_table_postgres);
     cbox22->SetValue(GdaConst::hide_sys_table_sqlite);
     cbox8->SetValue(GdaConst::show_recent_sample_connect_ds_dialog);
+    cbox9->SetValue(GdaConst::show_csv_configure_in_merge);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -501,6 +514,18 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::show_recent_sample_connect_ds_dialog = true;
             else if (sel_l == 0)
                 GdaConst::show_recent_sample_connect_ds_dialog = false;
+        }
+    }
+    
+    vector<string> show_csv_configure_in_merge = OGRDataAdapter::GetInstance().GetHistory("show_csv_configure_in_merge");
+    if (!show_csv_configure_in_merge.empty() ) {
+        long sel_l = 0;
+        wxString sel = show_csv_configure_in_merge[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::show_csv_configure_in_merge = true;
+            else if (sel_l == 0)
+                GdaConst::show_csv_configure_in_merge = false;
         }
     }
 }
@@ -663,6 +688,17 @@ void PreferenceDlg::OnShowRecent(wxCommandEvent& ev)
         GdaConst::show_recent_sample_connect_ds_dialog = true;
         OGRDataAdapter::GetInstance().AddEntry("show_recent_sample_connect_ds_dialog", "1");
         
+    }
+}
+void PreferenceDlg::OnShowCsvInMerge(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::show_csv_configure_in_merge = false;
+        OGRDataAdapter::GetInstance().AddEntry("show_csv_configure_in_merge", "0");
+    } else {
+        GdaConst::show_csv_configure_in_merge = true;
+        OGRDataAdapter::GetInstance().AddEntry("show_csv_configure_in_merge", "1");
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
