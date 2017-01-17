@@ -528,9 +528,6 @@
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Point Color</label>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -1100,9 +1097,6 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -1488,9 +1482,6 @@
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Point Color</label>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -1836,9 +1827,6 @@
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2051,9 +2039,6 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2104,9 +2089,6 @@
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2154,9 +2136,6 @@
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2238,9 +2217,6 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -2377,9 +2353,6 @@
   <object class="wxMenu" name="ID_CAT_CLASSIF_HIST_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2489,9 +2462,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -2608,9 +2578,6 @@
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2712,9 +2679,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Point Color</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -3002,9 +2966,6 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -3037,9 +2998,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Map</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background</label>
@@ -3250,9 +3208,6 @@
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -3407,9 +3362,6 @@
         <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
             <label>Point Color</label>
         </object>
-        <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-            <label>Highlight Color</label>
-        </object>
     </object>
     
     <label>Options</label>
@@ -3465,9 +3417,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Point Color</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
     </object>
 		<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
@@ -3561,9 +3510,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Point Color</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -3782,9 +3728,6 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -4122,9 +4065,6 @@
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
       </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
-      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -4157,9 +4097,6 @@
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
-      </object>
-      <object class="wxMenuItem" name="ID_HIGHLIGHT_COLOR">
-        <label>Highlight Color</label>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
