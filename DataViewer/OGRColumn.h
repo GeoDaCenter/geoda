@@ -65,6 +65,8 @@ public:
     
     bool IsNewColumn() { return is_new;}
     
+    void SetInserted() { is_new = false; }
+    
     bool IsCellUpdated(int row);
     
     bool IsDeleted() { return is_deleted;}

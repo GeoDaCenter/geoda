@@ -773,8 +773,8 @@ void DataViewerEditFieldPropertiesDlg::UpdateMinMax(int row)
 	}
 	int t=0;
 	wxString tm_str = field_grid->GetCellValue(row, COL_TM);
-	LOG(tm_str);
-	if (!tm_str.IsEmpty()) t = tm_str_map[tm_str];
+	if (!tm_str.IsEmpty())
+        t = tm_str_map[tm_str];
 	
 	wxString smax;
 	wxString smin;
