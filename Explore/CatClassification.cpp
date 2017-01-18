@@ -334,7 +334,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                        CatClassifData& cat_data,
                        std::vector<bool>& cats_valid,
                        std::vector<wxString>& cats_error_message,
-                       bool useSciNotation)
+                       bool useSciNotation,
+                       bool useUndefinedCategory)
 {
 	int num_cats = cat_def.num_cats;
 	CatClassifType theme = cat_def.cat_classif_type;
@@ -400,13 +401,16 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 	if (theme == CatClassification::no_theme) {
 		for (int t=0; t<num_time_vals; t++) {
             
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
             for (int i=0; i<num_obs; i++) {
                 int ind = var[t][i].second;
+                if (!useUndefinedCategory && var_undef[t][ind]) {
+                    continue;
+                }
                 int c = var_undef[t][ind] ? 1 : 0;
                 cat_data.AppendIdToCategory(t, c, ind);
             }
@@ -439,7 +443,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			if (!cats_valid[t])
                 continue;
             
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
 			
 			hinge_stats[t].CalculateHingeStats(var[t], var_undef[t]);
@@ -459,8 +463,10 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				val = var[t][i].first;
 				ind = var[t][i].second;
                 
-                if (var_undef[t][ind]) {
-                    cat_data.AppendIdToCategory(t, 6, ind); //0-5 hinge
+                if (var_undef[t][ind] ) {
+                    if (useUndefinedCategory) {
+                        cat_data.AppendIdToCategory(t, 6, ind); //0-5 hinge
+                    }
                     continue;
                 }
                 
@@ -535,11 +541,13 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				if (!cats_valid[t])
                     continue;
                 
-                if (undef_cnts_tms[t]>0)
+                if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
                 
 				for (int i=0, iend=var[t].size(); i<iend; i++) {
                     int ind = var[t][i].second;
+                    if (!useUndefinedCategory && var_undef[t][ind])
+                        continue;
                     int c = var_undef[t][ind] ? 1 : 0;
                     cat_data.AppendIdToCategory(t, c, ind);
 				}
@@ -563,7 +571,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				if (!cats_valid[t])
                     continue;
                 
-                if (undef_cnts_tms[t]>0)
+                if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
                 
 				// Set default cat_min / cat_max values for when
@@ -582,7 +590,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					val = var[t][i].first;
 					ind = var[t][i].second;
                     if (var_undef[t][ind]) {
-                        cat_data.AppendIdToCategory(t, num_breaks+1, ind);
+                        if (useUndefinedCategory) {
+                            cat_data.AppendIdToCategory(t, num_breaks+1, ind);
+                        }
                         continue;
                     }
 					bool found = false;
@@ -668,10 +678,13 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 
 				if (!cats_valid[t])
                     continue;
-                if (undef_cnts_tms[t]>0)
+                if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
+                
 				for (int i=0, iend=var[t].size(); i<iend; i++) {
                     int ind = var[t][i].second;
+                    if (!useUndefinedCategory && var_undef[t][ind])
+                        continue;
                     int c = var_undef[t][ind] ? 1 : 0;
 					cat_data.AppendIdToCategory(t, c, ind);
 				}
@@ -693,7 +706,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			for (int t=0; t<num_time_vals; t++) {
 				if (!cats_valid[t])
                     continue;
-                if (undef_cnts_tms[t]>0)
+                if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
                 
 				for (int i=0; i<num_breaks; i++) {
@@ -716,7 +729,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					val = var[t][i].first;
 					ind = var[t][i].second;
                     if (var_undef[t][ind]) {
-                        cat_data.AppendIdToCategory(t, num_breaks+1, ind);
+                        if (useUndefinedCategory) {
+                            cat_data.AppendIdToCategory(t, num_breaks+1, ind);
+                        }
                         continue;
                     }
 					bool found = false;
@@ -777,7 +792,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			if (!cats_valid[t])
                 continue;
             
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
 		
             double p_min = DBL_MAX;
@@ -793,7 +808,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				val = var[t][i].first;
 				ind = var[t][i].second;
                 if (var_undef[t][ind]) {
-                    cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    if (useUndefinedCategory) {
+                        cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    }
                     continue;
                 }
                 if (val < p_min)
@@ -860,7 +877,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			if (!cats_valid[t])
                 continue;
 			
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
             for (int i=0; i<num_obs; i++) {
@@ -882,7 +899,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				val = var[t][i].first;
 				ind = var[t][i].second;
                 if (var_undef[t][ind]) {
-                    cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    if (useUndefinedCategory) {
+                        cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    }
                     continue;
                 }
 				int cat_num = 0;
@@ -988,7 +1007,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			if (!cats_valid[t])
                 continue;
             
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
 			int t_num_cats = u_vals_map[t].size();
@@ -1013,7 +1032,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 double val = var[t][i].first;
                 int ind = var[t][i].second;
                 
-                if (var_undef[t][ind]) {
+                if (var_undef[t][ind] && useUndefinedCategory) {
                     cat_data.AppendIdToCategory(t, cur_cat+1, var[t][i].second);
                 }
             }
@@ -1063,12 +1082,14 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				cat_data.SetCategoryBrushesAtCanvasTm(
 					CatClassification::sequential_color_scheme, 1, false, t);
                 
-                if (undef_cnts_tms[t]>0)
+                if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                     cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
                 
 				for (int i=0; i<num_obs; i++) {
                     double val = var[t][i].first;
                     int ind = var[t][i].second;
+                    if (!useUndefinedCategory && var_undef[t][ind])
+                        continue;
                     int c = var_undef[t][ind] ? 1 : 0;
 					cat_data.AppendIdToCategory(t, c, ind);
 				}
@@ -1084,7 +1105,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			cat_data.SetCategoryBrushesAtCanvasTm(
 				CatClassification::sequential_color_scheme, num_cats, false, t);
 		
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
 			std::vector<double> cat_min(num_cats);
@@ -1102,7 +1123,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				int ind = var[t][i].second;
                
                 if (var_undef[t][ind]) {
-                    cat_data.AppendIdToCategory(t, last_cat+1, ind);
+                    if (useUndefinedCategory) {
+                        cat_data.AppendIdToCategory(t, last_cat+1, ind);
+                    }
                     continue;
                 }
                 
@@ -1130,7 +1153,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			if (!cats_valid[t])
                 continue;
 			
-            if (undef_cnts_tms[t]>0)
+            if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
 			double val;
@@ -1139,7 +1162,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				val = var[t][i].first;
 				ind = var[t][i].second;
                 if (var_undef[t][ind]) {
-                    cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    if (useUndefinedCategory) {
+                        cat_data.AppendIdToCategory(t, 6, ind); // 0-5 for percentiles
+                    }
                     continue;
                 }
 				int cat_num = 0;

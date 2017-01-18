@@ -761,13 +761,17 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		}
         CatClassification::CatClassifType& theme = cat_classif_def_vert.cat_classif_type;
 		cat_classif_def_vert.color_scheme = CatClassification::GetColSchmForType(theme);
+        
+        
+        bool useUndefinedCategory = false;
 		CatClassification::PopulateCatClassifData(cat_classif_def_vert,
 												  vert_var_sorted,
                                                   vert_undef_tms,
 												  vert_cat_data,
 												  vert_cats_valid,
 												  vert_cats_error_message,
-                                                  this->useScientificNotation);
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory);
 		int vt = var_info[var_id].time;
 		vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
 		CatClassification::ChangeNumCats(vert_num_cats, cat_classif_def_vert);
@@ -787,12 +791,16 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		cat_classif_def_horiz.color_scheme =
 			CatClassification::GetColSchmForType(
 									cat_classif_def_horiz.cat_classif_type);
+        
+        bool useUndefinedCategory = false;
 		CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
 												  horiz_var_sorted,
                                                   horiz_undef_tms,
 												  horiz_cat_data,
 												  horiz_cats_valid,
-												  horiz_cats_error_message);
+												  horiz_cats_error_message,
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory);
 		int ht = var_info[var_id].time;
 		horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();
 		CatClassification::ChangeNumCats(horiz_num_cats, cat_classif_def_horiz);

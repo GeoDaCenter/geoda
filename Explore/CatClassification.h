@@ -70,7 +70,8 @@ namespace CatClassification {
                                 const std::vector<std::vector<bool> >& var_undef,
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
-                                bool useSciNotation=false);
+                                bool useSciNotation=false,
+                                bool useUndefinedCategory=true);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int);
