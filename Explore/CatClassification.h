@@ -35,7 +35,7 @@ class TableInterface;
 
 namespace CatClassification {
 	
-	const int max_num_categories = 10;
+	const int max_num_categories = 20;
 	
 	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, natural_breaks,
@@ -51,7 +51,7 @@ namespace CatClassification {
 		unique_values_break_vals, natural_breaks_break_vals,
 		equal_intervals_break_vals, custom_break_vals };
 	
-	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme, unique_color_scheme };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,

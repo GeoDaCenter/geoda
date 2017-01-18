@@ -985,20 +985,14 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 		for (int t=0; t<num_time_vals; t++) {
 			if (!cats_valid[t])
                 continue;
-            
-			if (u_vals_map[t].size() > max_num_categories) {
-				// automatically use Natural Breaks when number of
-				// unique values exceeds max_num_categories.  This will avoid
-				// all error messages.
-				SetNaturalBreaksCats(max_num_categories,
-								var, var_undef, cat_data, cats_valid,
-								CatClassification::qualitative_color_scheme);
-                return;
-			} else {
-				cat_data.SetCategoryBrushesAtCanvasTm(
-								CatClassification::qualitative_color_scheme,
-								u_vals_map[t].size(), false, t);
-			}
+           
+            int n_cat = u_vals_map[t].size();
+            if (n_cat > max_num_categories)
+                n_cat = max_num_categories;
+           
+            bool reversed = false;
+			cat_data.SetCategoryBrushesAtCanvasTm(CatClassification::unique_color_scheme,
+                                                  n_cat, reversed, t);
 		}
 		
 		cat_data.ResetAllCategoryMinMax();
@@ -1010,7 +1004,6 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             if (undef_cnts_tms[t]>0 && useUndefinedCategory)
                 cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
             
-			int t_num_cats = u_vals_map[t].size();
 			int cur_cat = 0;
             
 			for (int i=0; i<num_obs; i++) {
@@ -1021,13 +1014,17 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                     continue;
                 }
                 
-				if (u_vals_map[t][cur_cat]  != val)
+				if (u_vals_map[t][cur_cat]  != val &&
+                    cur_cat < max_num_categories-1)
+                {
                     cur_cat++;
+                }
                 
 				cat_data.AppendIdToCategory(t, cur_cat, var[t][i].second);
 				cat_data.UpdateCategoryMinMax(t, cur_cat, var[t][i].first);
 			}
             
+            // for undefined category
             for (int i=0; i<num_obs; i++) {
                 double val = var[t][i].first;
                 int ind = var[t][i].second;
@@ -1037,14 +1034,28 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 }
             }
             
-			std::vector<wxString> labels(t_num_cats);
-			for (int cat=0; cat<t_num_cats; cat++) {
+            // for labels
+            int n_cat = u_vals_map[t].size();
+            if (n_cat > max_num_categories)
+                n_cat = max_num_categories;
+            
+			std::vector<wxString> labels(n_cat);
+			for (int cat=0; cat<n_cat; cat++) {
+                int n_obs_in_cat = cat_data.GetNumObsInCategory(t, cat);
+                
                 ss.str("");
-                ss << u_vals_map[t][cat];
+                if (cat < max_num_categories - 1) {
+                    ss << u_vals_map[t][cat];
+                } else {
+                    if (n_obs_in_cat == 1) {
+                        ss << u_vals_map[t][cat];
+                    } else {
+                        ss << "Others";
+                    }
+                }
                 labels[cat] << ss.str();
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
-				cat_data.SetCategoryCount(t, cat,
-										  cat_data.GetNumObsInCategory(t, cat));
+				cat_data.SetCategoryCount(t, cat, n_obs_in_cat);
 			}
 		}
 	} else if (theme == natural_breaks) {
@@ -1651,10 +1662,47 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 								  ColorScheme coltype, int num_color,
 								  bool reversed)
 {
+    
+    
+    if (coltype == unique_color_scheme) {
+        color_vec.resize(num_color, *wxBLUE);
+        wxColour unique_colors[20] = {
+            wxColour(166,206,227),
+            wxColour(31,120,180),
+            wxColour(178,223,138),
+            wxColour(51,160,44),
+            wxColour(251,154,153),
+            wxColour(227,26,28),
+            wxColour(253,191,111),
+            wxColour(255,127,0),
+            wxColour(106,61,154),
+            wxColour(255,255,153),
+            wxColour(177,89,40),
+            wxColour(255,255,179),
+            wxColour(190,186,218),
+            wxColour(251,128,114),
+            wxColour(128,177,211),
+            wxColour(179,222,105),
+            wxColour(252,205,229),
+            wxColour(217,217,217),
+            wxColour(188,128,189),
+            wxColour(204,235,197)
+        };
+        
+        for (int i = 0; i < num_color; i++) {
+            color_vec[i] = unique_colors[i];
+        }
+        return;
+    }
+    
 	if (num_color < 1) num_color = 1;
 	if (num_color > 10) num_color = 10;
 	short colpos[11] = {0, 0, 1, 3, 6, 10, 15, 21, 28, 36, 45};
 	
+    if (color_vec.size() != num_color) {
+        color_vec.resize(num_color, *wxBLUE);
+    }
+    
 	wxColour Color1[56] = { //Sequential (colorblind safe)
 		wxColour(217, 95, 14),
 		
@@ -1781,21 +1829,7 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 		wxColour(202, 178, 214), wxColour(106, 61, 154)
     };
 	
-	// MMM: The following is comment out for now, but is a quick
-	//      way to test alpha-blending.
-	//for (int i=0; i<56; ++i) {
-	//	Color1[i] = wxColour(Color1[i].Red(), Color1[i].Green(),
-	//						 Color1[i].Blue(), 128);
-	//	Color2[i] = wxColour(Color2[i].Red(), Color2[i].Green(),
-	//						 Color2[i].Blue(), 128);
-	//	Color3[i] = wxColour(Color3[i].Red(), Color3[i].Green(),
-	//						 Color3[i].Blue(), 128);
-	//}
-	
-    if (color_vec.size() != num_color) {
-		color_vec.resize(num_color, *wxBLUE);
-	}
-	
+    
     if (!reversed) {
         switch (coltype) {
             case sequential_color_scheme:
