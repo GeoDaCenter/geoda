@@ -209,6 +209,10 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         wxString thumbnail_name = ds_thumbnails[search_idx];
         wxString file_path_str;
         file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+       
+        if (wxFileExists(file_path_str) ) {
+            wxRemoveFile(file_path_str);
+        }
         
         ds_thumbnails.erase(ds_thumbnails.begin() + search_idx);
     }
@@ -230,6 +234,10 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         wxString thumbnail_name = ds_thumbnails[0];
         wxString file_path_str;
         file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+      
+        if (wxFileExists(file_path_str) ) {
+            wxRemoveFile(file_path_str);
+        }
         
         ds_thumbnails.erase(ds_thumbnails.begin());
         
@@ -260,6 +268,10 @@ void RecentDatasource::Delete(int idx)
         wxString thumbnail_name = ds_thumbnails[idx];
         wxString file_path_str;
         file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+       
+        if (wxFileExists(file_path_str) ) {
+            wxRemoveFile(file_path_str);
+        }
         
         ds_thumbnails.erase(ds_thumbnails.begin() + idx);
         
@@ -309,6 +321,7 @@ void RecentDatasource::UpdateLastThumb(wxString ds_thumb)
 {
     int last_idx = ds_names.size() - 1;
     if (last_idx >= 0) {
+        
         ds_thumbnails[last_idx] = ds_thumb;
     }
     Save();
@@ -934,7 +947,7 @@ void ConnectDatasourceDlg::InitSamplePanel()
     {
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );
-        int n = 58;
+        int n = 57;
         for (int i=0; i<n; i++) {
             wxString sample_name = GdaConst::sample_names[i];
             wxString sample_ds_name = GdaConst::sample_datasources[i];
