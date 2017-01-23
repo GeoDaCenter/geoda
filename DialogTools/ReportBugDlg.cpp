@@ -946,6 +946,8 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
     {
         body << tfile.GetNextLine() << "\\n";
     }
+   
+    body.Replace("\"", "'");
     
     wxString labels = "[\"AutoBugReport\"]";
     //wxString assignees = "[\"GeoDaTester\"]";
