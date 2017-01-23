@@ -100,6 +100,7 @@ public:
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
+	void OnAddNeighborToSelection(wxCommandEvent& event);
 	
 	virtual void update(LisaCoordinator* o);
 	virtual void closeObserver(LisaCoordinator* o);

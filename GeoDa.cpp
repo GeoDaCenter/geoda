@@ -4668,6 +4668,18 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 }
 
+void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnAddNeighborToSelection()");
+	TemplateFrame* t = TemplateFrame::GetActiveFrame();
+	if (!t) return;
+	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
+		f->OnAddNeighborToSelection(event);
+	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
+		f->OnAddNeighborToSelection(event);
+	}
+}
+
 void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnViewStandardizedData()");
@@ -5820,6 +5832,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SAVE_GETIS_ORD"), GdaFrame::OnSaveGetisOrd)
     EVT_MENU(XRCID("ID_SAVE_LISA"), GdaFrame::OnSaveLisa)
     EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)
+    EVT_MENU(XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"), GdaFrame::OnAddNeighborToSelection)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

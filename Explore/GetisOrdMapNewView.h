@@ -108,7 +108,8 @@ public:
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
-	
+	void OnAddNeighborToSelection(wxCommandEvent& event);
+    
 	virtual void update(GStatCoordinator* o);
 	virtual void closeObserver(GStatCoordinator* o);
 	GStatCoordinator* GetGStatCoordinator() { return gs_coord; }

@@ -2425,6 +2425,9 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+        <label>Add Neighbors To Selection</label>
+    </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
@@ -2540,6 +2543,9 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+        <label>Add Neighbors To Selection</label>
+    </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
