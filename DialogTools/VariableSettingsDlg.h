@@ -91,6 +91,7 @@ public:
 	void CreateControls();
 	void Init(VarType var_type);
 
+    void OnMapThemeChange( wxCommandEvent& event );
 	void OnListVariable1DoubleClicked( wxCommandEvent& event );
 	void OnListVariable2DoubleClicked( wxCommandEvent& event );
 	void OnListVariable3DoubleClicked( wxCommandEvent& event );

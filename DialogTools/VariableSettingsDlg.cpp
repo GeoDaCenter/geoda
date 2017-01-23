@@ -594,12 +594,31 @@ void VariableSettingsDlg::CreateControls()
 	
 	if (FindWindow(XRCID("ID_THEMATIC"))) {
         map_theme_ch = XRCCTRL(*this, "ID_THEMATIC", wxChoice);
+        map_theme_ch->Bind(wxEVT_CHOICE, &VariableSettingsDlg::OnMapThemeChange, this);
 	}
 	if (FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN"))) {
         num_cats_spin = XRCCTRL(*this, "ID_NUM_CATEGORIES_SPIN", wxSpinCtrl);
 		num_categories = num_cats_spin->GetValue();
 	}
 	
+}
+
+void VariableSettingsDlg::OnMapThemeChange(wxCommandEvent& event)
+{
+    if (map_theme_ch) {
+        int m_theme = map_theme_ch->GetSelection();
+        //        map_theme_ch->Append("Percentile Map");
+        //        map_theme_ch->Append("Box Map (Hinge=1.5)");
+        //        map_theme_ch->Append("Box Map (Hinge=3.0)");
+        //        map_theme_ch->Append("Standard Deviation Map");
+        if (m_theme == 1 || m_theme == 2 ||
+            m_theme == 3 || m_theme == 4 )
+        {
+            num_cats_spin->Disable();
+        } else {
+            num_cats_spin->Enable();
+        }
+    }
 }
 
 void VariableSettingsDlg::OnListVariable1DoubleClicked(wxCommandEvent& event)
@@ -763,8 +782,9 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
 	
-	if (map_theme_ch)
+    if (map_theme_ch) {
         m_theme = map_theme_ch->GetSelection();
+    }
 	
 	if (lb1->GetSelection() == wxNOT_FOUND) {
 		wxString msg(_T("No field chosen for first variable."));
