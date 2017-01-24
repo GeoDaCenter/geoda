@@ -133,15 +133,15 @@ void RecentDatasource::Init(wxString json_str_)
                 json_spirit::Value val;
                 if (i->name_ == "ds_name") {
                     val = i->value_;
-                    ds_name = val.get_str();
+                    ds_name = wxString::FromUTF8(val.get_str().c_str());
                 }
                 else if (i->name_ == "layer_name") {
                     val = i->value_;
-                    layer_name = val.get_str();
+                    layer_name = wxString::FromUTF8(val.get_str().c_str());
                 }
                 else if (i->name_ == "ds_config") {
                     val = i->value_;
-                    ds_conf = val.get_str();
+                    ds_conf = wxString::FromUTF8(val.get_str().c_str());
                 }
                 else if (i->name_ == "ds_thumb") {
                     val = i->value_;
@@ -458,26 +458,29 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     text_sizer = new wxBoxSizer( wxVERTICAL );
     
     wxString lbl_ds_layername = ds_layername;
-    lbl_ds_layername = GenUtils::PadTrim(lbl_ds_layername, 30, false);
+    lbl_ds_layername = GenUtils::PadTrim(lbl_ds_layername, 28, false);
     
     wxBoxSizer* title_sizer;
     title_sizer = new wxBoxSizer( wxHORIZONTAL );
     wxStaticText* layername;
     layername = new wxStaticText(scrl, wxID_ANY,  lbl_ds_layername.Trim());
     layername->SetFont(*GdaConst::medium_font);
+    layername->SetToolTip(ds_layername);
     layername->SetForegroundColour(wxColour(100,100,100));
-    
+   
 #ifdef __WIN32__
+    int pad_remove_btn = 10;
 	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(30,18), wxBORDER_NONE|wxBU_EXACTFIT);
 	remove->SetFont(*GdaConst::extra_small_font); 
 #else
+    int pad_remove_btn = 0;
 	wxBitmap remove_bitmap(GdaConst::delete_icon_xpm);
     wxBitmapButton* remove;
-    remove = new wxBitmapButton(scrl, id, remove_bitmap);
+    remove = new wxBitmapButton(scrl, id, remove_bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE|wxBU_EXACTFIT);
 #endif
 	remove->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnRecentDelete, this);
     
-    title_sizer->Add(layername, 1, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    title_sizer->Add(layername, 1, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL | wxRIGHT, pad_remove_btn);
     title_sizer->Add(remove, 0, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL| wxALIGN_TOP | wxLEFT, 5);
     
     text_sizer->Add(title_sizer, 1, wxALIGN_LEFT | wxALL, 5);
@@ -487,6 +490,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     wxStaticText* filepath;
     filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
     filepath->SetFont(*GdaConst::extra_small_font);
+    filepath->SetToolTip(ds_name);
     filepath->SetForegroundColour(wxColour(70,70,70));
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 10);
   
@@ -516,7 +520,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
     int recent_idx = xrcid - base_xrcid_recent_thumb;
     
     RecentDatasource recent_ds;
-    wxString ds_name = recent_ds.GetDSName(recent_idx);
+    wxString ds_name = recent_ds.GetDSName(recent_idx); // UTF-8 decoded
     
     wxLogMessage(ds_name);
     
@@ -1011,7 +1015,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
     filepath->SetFont(*GdaConst::extra_small_font);
     filepath->SetForegroundColour(wxColour(70,70,70));
-    filepath->SetToolTip(lbl_ds_name);
+    filepath->SetToolTip(ds_name);
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
     
     wxString file_path_str;

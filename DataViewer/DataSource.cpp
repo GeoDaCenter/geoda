@@ -256,8 +256,10 @@ IDataSource* IDataSource::CreateDataSource(wxString ds_json)
             {
                 json_spirit::Value json_ds_path;
                 if (GdaJson::findValue(v, json_ds_path, "ds_path")) {
+                    // decode UTF-8
                     std::string ds_path_str = json_ds_path.get_str();
-                    return new FileDataSource(ds_path_str);
+                    wxString ds_path = wxString::FromUTF8(ds_path_str.c_str());
+                    return new FileDataSource(ds_path);
                 }
                 
             } else if (type == GdaConst::ds_oci ||
@@ -286,7 +288,8 @@ IDataSource* IDataSource::CreateDataSource(wxString ds_json)
                 json_spirit::Value json_ds_path;
                 if (GdaJson::findValue(v, json_ds_path, "ds_path")) {
                     std::string ds_path_str = json_ds_path.get_str();
-                    return new WebServiceDataSource(type, ds_path_str);
+                    wxString ds_path = wxString::FromUTF8(ds_path_str.c_str());
+                    return new WebServiceDataSource(type, ds_path);
                 }
                 
             }

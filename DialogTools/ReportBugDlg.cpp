@@ -934,6 +934,7 @@ void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
 
 bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 {
+    body.Replace("\n", "\\n");
     // get log file to body
     wxString logger_path;
     logger_path <<  GenUtils::GetBasemapCacheDir() <<  "web_plugins" << wxFileName::GetPathSeparator() << "logger.txt";
@@ -948,12 +949,21 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
     }
    
     body.Replace("\"", "'");
+    body.Replace("\t", "");
+    body.Replace("\r", "");
     
     wxString labels = "[\"AutoBugReport\"]";
     //wxString assignees = "[\"GeoDaTester\"]";
     
-    wxString msg_templ = "{\"title\": \"%s\", \"body\": \"%s\", \"labels\": %s}";
-    wxString json_msg = wxString::Format(msg_templ, title, body, labels);
+    //wxString msg_templ = "{\"title\": \"%s\", \"body\": \"%s\", \"labels\": %s}";
+    wxString json_msg = "{\"title\": \"";
+    json_msg << title;
+    json_msg << "\", \"body\": \"";
+    json_msg << body;
+    json_msg << "\", \"labels\": ";
+    json_msg << labels;
+    json_msg << "}";
+    //wxString json_msg = wxString::Format(msg_templ, title, body, labels);
     
     string msg( json_msg.c_str());
     
