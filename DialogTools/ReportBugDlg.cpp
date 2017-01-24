@@ -965,7 +965,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
     json_msg << "}";
     //wxString json_msg = wxString::Format(msg_templ, title, body, labels);
     
-    string msg( json_msg.c_str());
+    string msg( json_msg.mb_str(wxConvUTF8));
     
     string result = CreateIssueOnGithub(msg);
     

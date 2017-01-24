@@ -692,6 +692,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
+                wxLogMessage(_("Open project file:") + ds_file_path.GetFullPath());
                 try {
                     RecentDatasource recent_ds;
                     recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), "");
@@ -752,7 +753,10 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		// At this point, there is a valid datasource and layername.
         if (layer_name.IsEmpty())
             layer_name = layername;
-       
+      
+        wxLogMessage(_("Open Datasource:") + datasource->GetOGRConnectStr());
+        wxLogMessage(_("Open Layer:") + layername);
+        
         SaveRecentDataSource(datasource, layer_name);
         
         EndDialog(wxID_OK);
