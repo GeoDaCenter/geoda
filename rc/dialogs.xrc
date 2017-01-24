@@ -7504,7 +7504,7 @@
                       <object class="notebookpage">
                           <object class="wxPanel" name="dsSampleList">
                           </object>
-                          <label>Samples</label>
+                          <label>Sample Data</label>
                           <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
                       </object>
                       <size>420,340</size>
@@ -7530,7 +7530,7 @@
       
       <object class="sizeritem">
           <object class="wxCheckBox" name="IDC_NOSHOW_RECENT_SAMPLES">
-              <label>Don't show Recent/Samples panel again</label>
+              <label>Don't show Recent/Sample Data panel again</label>
               <checked>0</checked>
           </object>
           <flag>wxRIGHT|wxALIGN_RIGHT|wxALIGN_CENTER_HORIZONTAL</flag>
