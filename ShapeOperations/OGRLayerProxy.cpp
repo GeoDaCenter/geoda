@@ -575,6 +575,7 @@ bool OGRLayerProxy::ReadData()
 	int row_idx = 0;
 	OGRFeature *feature = NULL;
     map<int, OGRFeature*> feature_dict;
+    
     layer->ResetReading();
 	while ((feature = layer->GetNextFeature()) != NULL) {
         if (feature == NULL) {
@@ -582,10 +583,14 @@ bool OGRLayerProxy::ReadData()
 		    << "\n\nDetails:"<< CPLGetLastErrorMsg();
             return false;
         }
+        
+        // thread feature: user can stop reading
 		if (stop_reading)
             break;
-        long fid = feature->GetFID();
+        
+        //long fid = feature->GetFID();
         feature_dict[row_idx] = feature;
+        
         // keep load_progress not 100%, so that it can finish this function
 		load_progress = row_idx++;
 	}
@@ -596,12 +601,32 @@ bool OGRLayerProxy::ReadData()
         return false;
     }
 	n_rows = row_idx;
+    
+    // check empty rows at the end of table, remove empty rows #563
+    for (int i = n_rows-1; i>=0; i--) {
+        OGRFeature* my_feature = feature_dict[i];
+        bool is_empty = true;
+        for (int j= 0; j<n_cols; j++) {
+            if (my_feature->IsFieldSet(j)) {
+                is_empty = false;
+                break;
+            }
+        }
+        if (is_empty) {
+            OGRGeometry* my_geom = my_feature->GetGeometryRef();
+            if (my_geom == NULL) {
+                n_rows -= 1;
+            }
+        }
+    }
+    // create copies of OGRFeatures
     for (int i = 0; i < n_rows; i++) {
         OGRFeature* my_feature = feature_dict[i]->Clone();
         data.push_back(my_feature);
         OGRFeature::DestroyFeature(feature_dict[i]);
     }
-    load_progress = n_rows;
+    
+    load_progress = row_idx;
     feature_dict.clear();
     
 	return true;
