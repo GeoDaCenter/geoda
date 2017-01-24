@@ -434,38 +434,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
                                          wxString ds_name, wxString ds_layername,
                                          wxString ds_thumb, int id)
 {
-    wxBoxSizer* text_sizer;
-    text_sizer = new wxBoxSizer( wxVERTICAL );
-    
-    wxString lbl_ds_layername = ds_layername;
-    lbl_ds_layername = GenUtils::PadTrim(lbl_ds_layername, 30, false);
-    
-    wxBoxSizer* title_sizer;
-    title_sizer = new wxBoxSizer( wxHORIZONTAL );
-    wxStaticText* layername;
-    layername = new wxStaticText(scrl, wxID_ANY,  lbl_ds_layername.Trim());
-    layername->SetFont(*GdaConst::medium_font);
-    layername->SetForegroundColour(wxColour(100,100,100));
-    
-	wxBitmap remove_bitmap(GdaConst::delete_icon_xpm);
-    wxBitmapButton* remove;
-    remove = new wxBitmapButton(scrl, id, remove_bitmap);
-    remove->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnRecentDelete, this);
-    
-    title_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL, 0);
-    title_sizer->Add(remove, 0, wxALIGN_LEFT | wxALIGN_TOP | wxLEFT, 5);
-    
-    text_sizer->Add(title_sizer, 1, wxALIGN_LEFT | wxALL, 5);
-    
-    wxString lbl_ds_name = ds_name;
-    lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
-    wxStaticText* filepath;
-    filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
-    filepath->SetFont(*GdaConst::extra_small_font);
-    filepath->SetForegroundColour(wxColour(70,70,70));
-    text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 10);
-  
-    wxString file_path_str;
+	wxString file_path_str;
     if (ds_thumb.IsEmpty()) {
         ds_thumb = "no_map.png";
     }
@@ -483,6 +452,44 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     wxBitmapButton* thumb;
     thumb = new wxBitmapButton(scrl, id, bmp);
     thumb->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnRecent, this);
+    
+
+    wxBoxSizer* text_sizer;
+    text_sizer = new wxBoxSizer( wxVERTICAL );
+    
+    wxString lbl_ds_layername = ds_layername;
+    lbl_ds_layername = GenUtils::PadTrim(lbl_ds_layername, 30, false);
+    
+    wxBoxSizer* title_sizer;
+    title_sizer = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText* layername;
+    layername = new wxStaticText(scrl, wxID_ANY,  lbl_ds_layername.Trim());
+    layername->SetFont(*GdaConst::medium_font);
+    layername->SetForegroundColour(wxColour(100,100,100));
+    
+#ifdef __WIN32__
+	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(30,18), wxBORDER_NONE|wxBU_EXACTFIT);
+	remove->SetFont(*GdaConst::extra_small_font); 
+#else
+	wxBitmap remove_bitmap(GdaConst::delete_icon_xpm);
+    wxBitmapButton* remove;
+    remove = new wxBitmapButton(scrl, id, remove_bitmap);
+#endif
+	remove->Bind(wxEVT_BUTTON, &ConnectDatasourceDlg::OnRecentDelete, this);
+    
+    title_sizer->Add(layername, 1, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    title_sizer->Add(remove, 0, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL| wxALIGN_TOP | wxLEFT, 5);
+    
+    text_sizer->Add(title_sizer, 1, wxALIGN_LEFT | wxALL, 5);
+    
+    wxString lbl_ds_name = ds_name;
+    lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
+    wxStaticText* filepath;
+    filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
+    filepath->SetFont(*GdaConst::extra_small_font);
+    filepath->SetForegroundColour(wxColour(70,70,70));
+    text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 10);
+  
     
     wxBoxSizer* row_sizer;
     row_sizer = new wxBoxSizer( wxHORIZONTAL );
@@ -1043,6 +1050,7 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     wxString ds_name = GdaConst::sample_datasources[sample_idx];
     if (ds_name == "samples.sqlite") {
         ds_name = GenUtils::GetWebPluginsDir() + ds_name;
+		ds_name.Replace("\\", "\\\\");
         ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
     } else {
         ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
