@@ -527,7 +527,12 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
     if (ds_name.EndsWith(".gda")) {
         GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
         gda_frame->OpenProject(ds_name);
-        recent_ds.Add(ds_name, ds_name, "");
+        Project* project = gda_frame->GetProject();
+        wxString layer_name;
+        if (project) {
+            layer_name = project->layername;
+        }
+        recent_ds.Add(ds_name, ds_name, layer_name);
         EndDialog(wxID_CANCEL);
     } else {
     

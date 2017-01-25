@@ -1479,7 +1479,7 @@ bool Project::InitFromOgrLayer()
                              time_state, *variable_order);
     
 	if (!table_int) {
-		open_err_msg << "There was a problem reading the table";
+		open_err_msg << _("There was a problem reading the table");
 		delete table_state;
 		throw GdaException(open_err_msg.c_str());
 	}
