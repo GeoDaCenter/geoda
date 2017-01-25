@@ -182,7 +182,8 @@ void TemplateCanvas::invalidateBms()
 {
 	layer0_valid = false;
 	layer1_valid = false;
-	layer2_valid = false;	
+	layer2_valid = false;
+    ResetFadedLayer();
 }
 
 bool TemplateCanvas::GetFixedAspectRatioMode()
@@ -356,6 +357,7 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
     layer0_valid = false;
     layer1_valid = false;
     layer2_valid = false;
+    ResetFadedLayer();
 }
 
 void TemplateCanvas::ResetBrushing()
@@ -401,8 +403,6 @@ void TemplateCanvas::ZoomShapes(bool is_zoomin)
     
     last_scale_trans.Zoom(is_zoomin, sel1, sel2);
 
-    ResetFadedLayer();
-    
 	is_pan_zoom = true;
     is_showing_brush = false;
 
@@ -417,8 +417,6 @@ void TemplateCanvas::PanShapes()
    
     last_scale_trans.PanView(sel1, sel2);
    
-    ResetFadedLayer();
-    
 	is_pan_zoom = true;
     is_showing_brush = false;
 
