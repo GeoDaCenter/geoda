@@ -238,6 +238,7 @@ void GStatCoordinator::AllocateVectors()
     
     x_undefs.resize(tms);
     Gal_vecs.resize(tms);
+    Gal_vecs_orig.resize(tms);
     
 	
 	n.resize(tms, 0);
@@ -325,6 +326,7 @@ void GStatCoordinator::InitFromVarInfo()
             }
             W = gw->gal ;
             Gal_vecs[t] = gw;
+            Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
         
 		x = x_vecs[t];

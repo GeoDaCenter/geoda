@@ -156,6 +156,7 @@ public:
 
 	boost::uuids::uuid w_id;
     std::vector<GalWeight*> Gal_vecs;
+    std::vector<GalWeight*> Gal_vecs_orig;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
