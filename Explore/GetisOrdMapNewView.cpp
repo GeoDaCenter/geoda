@@ -770,7 +770,7 @@ void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	for (int i=0; i<gs_coord->num_obs; i++) {
 		if (c_val[i] == 1 || c_val[i] == 2) {
 			elem[i] = true;
-			const GalElement& e = gs_coord->Gal_vecs[ts]->gal[i];
+			const GalElement& e = gs_coord->Gal_vecs_orig[ts]->gal[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -800,7 +800,7 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	for (int i=0; i<gs_coord->num_obs; i++) {
 		if (c_val[i] == 1 || c_val[i] == 2) {
 			elem[i] = true;
-			const GalElement& e = gs_coord->Gal_vecs[ts]->gal[i];
+			const GalElement& e = gs_coord->Gal_vecs_orig[ts]->gal[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -814,7 +814,7 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 {
     int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    GalWeight* gal_weights = gs_coord->Gal_vecs[ts];
+    GalWeight* gal_weights = gs_coord->Gal_vecs_orig[ts];
     
     HighlightState& hs = *project->GetHighlightState();
     std::vector<bool>& h = hs.GetHighlight();

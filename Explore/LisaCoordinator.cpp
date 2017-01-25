@@ -467,6 +467,7 @@ void LisaCoordinator::CalcLisa()
         }
         GalElement* W = gw->gal;
         Gal_vecs.push_back(gw);
+        Gal_vecs_orig.push_back(w_man_int->GetGal(w_id));
 	
 		for (int i=0; i<num_obs; i++) {
             

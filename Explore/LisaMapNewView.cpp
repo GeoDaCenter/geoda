@@ -758,7 +758,7 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs[ts]->gal;
+    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
 	
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
@@ -790,7 +790,7 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs[ts]->gal;
+    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
@@ -810,7 +810,7 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 void LisaMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 {
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    GalWeight* gal_weights = lisa_coord->Gal_vecs[ts];
+    GalWeight* gal_weights = lisa_coord->Gal_vecs_orig[ts];
    
     HighlightState& hs = *project->GetHighlightState();
     std::vector<bool>& h = hs.GetHighlight();
