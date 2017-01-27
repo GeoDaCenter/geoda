@@ -368,13 +368,12 @@ wxString RecentDatasource::GetLayerName(wxString ds_name)
 // Class ConnectDatasourceDlg
 ////////////////////////////////////////////////////////////////////////////////
 
-BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxFrame)
+BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
 	//EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
-    EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 
@@ -424,8 +423,6 @@ showRecentPanel(showRecentPanel_)
     Move(pos);
     
     GetSizer()->Fit(this);
-    Restore();
-    Raise();
 }
 
 ConnectDatasourceDlg::~ConnectDatasourceDlg()
@@ -519,8 +516,6 @@ void ConnectDatasourceDlg::OnRecentDelete(wxCommandEvent& event)
     InitRecentPanel();
 }
 
-
-
 void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
 {
     int xrcid = event.GetId();
@@ -540,7 +535,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             layer_name = project->layername;
         }
         recent_ds.Add(ds_name, ds_name, layer_name);
-        EndDialog();
+        EndDialog(wxID_CANCEL);
     } else {
     
         IDataSource* ds = recent_ds.GetDatasource(ds_name);
@@ -555,8 +550,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             SaveRecentDataSource(ds, layername);
             layer_name = layername;
             datasource = ds;
-            is_ok_clicked = true;
-            EndDialog();
+            EndDialog(wxID_OK);
         }
     }
 }
@@ -594,7 +588,7 @@ void ConnectDatasourceDlg::InitRecentPanel()
 void ConnectDatasourceDlg::CreateControls()
 {
     
-    bool test = wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
+    bool test = wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
     m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
@@ -691,6 +685,12 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
 }
 
 
+/**
+ * This function handles the event of user click OK button.
+ * When user chooses a data source, validate it first,
+ * then create a Project() that will be used by the
+ * main program.
+ */
 void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 {
 	LOG_MSG("Entering ConnectDatasourceDlg::OnOkClick");
@@ -707,7 +707,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 } catch( GdaException ex) {
                     LOG_MSG(ex.what());
                 }
-                EndDialog();
+                EndDialog(wxID_CANCEL);
             }
             return;
         }
@@ -766,9 +766,8 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         wxLogMessage(_("Open Layer:") + layername);
         
         SaveRecentDataSource(datasource, layer_name);
-       
-        is_ok_clicked = true;
-        EndDialog();
+        
+        EndDialog(wxID_OK);
 		
 	} catch (GdaException& e) {
 		wxString msg;
@@ -1083,8 +1082,7 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     } else {
         datasource = ds;
         layer_name = layername;
-        is_ok_clicked = true;
-        EndDialog();
+        EndDialog(wxID_OK);
     }
 
 }

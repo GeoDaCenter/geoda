@@ -50,39 +50,6 @@
 
 using namespace std;
 
-DatasourceDlg::DatasourceDlg()
-: is_ok_clicked(false)
-{
-    
-}
-
-int DatasourceDlg::ShowModal()
-{
-    MakeModal(true);
-    Show(true);
-    
-    // mow to stop execution start a event loop
-    eventLoop = new wxEventLoop;
-    eventLoop->Run();
-    
-    if (is_ok_clicked)
-        return wxID_OK;
-    else
-        return wxID_CANCEL;
-}
-
-void DatasourceDlg::EndDialog()
-{
-    MakeModal(false);
-    eventLoop->Exit();
-    Destroy();
-}
-
-void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
-{
-    EndDialog();
-}
-
 void DatasourceDlg::Init()
 {
     m_ds_menu = NULL;

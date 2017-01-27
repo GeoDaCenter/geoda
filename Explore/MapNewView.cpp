@@ -446,10 +446,19 @@ void MapCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
     
-	basemap_bm = new wxBitmap(width, height, 32);
+    int vs_w, vs_h;
+    GetClientSize(&vs_w, &vs_h);
+    
+	basemap_bm = new wxBitmap(vs_w, vs_h, 32);
     layerbase_valid = false;
     
-    TemplateCanvas::resizeLayerBms(width, height);
+    layer0_bm = new wxBitmap(width, height, 32);
+    layer1_bm = new wxBitmap(width, height, 32);
+    layer2_bm = new wxBitmap(width, height, 32);
+    
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
 }
 
 void MapCanvas::DrawLayers()
@@ -558,9 +567,6 @@ void MapCanvas::DrawLayer1()
 	{
         if (faded_layer_bm == NULL) {
 			wxImage image = layer0_bm->ConvertToImage();
-            if (enable_high_dpi_support) {
-                image.Rescale(sz.GetWidth(), sz.GetHeight());
-            }
 			if (!image.HasAlpha()) {
 				image.InitAlpha();
 			}
@@ -614,9 +620,6 @@ void MapCanvas::DrawLayer1()
 				_dc.SelectObject(wxNullBitmap);
 
 				wxImage image = map_hl_bm.ConvertToImage();
-                if (enable_high_dpi_support) {
-                    image.Rescale(sz.GetWidth(), sz.GetHeight());
-                }
 				if (!image.HasAlpha()) {
 					image.InitAlpha();
 				}

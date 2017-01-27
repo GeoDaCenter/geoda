@@ -759,10 +759,6 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         
         double scale_factor = 1.0;
         
-        if (enable_high_dpi_support) {
-            scale_factor = GetContentScaleFactor();
-        }
-        
         last_scale_trans.SetView(vs_w, vs_h, scale_factor);
         
         resizeLayerBms(vs_w, vs_h);

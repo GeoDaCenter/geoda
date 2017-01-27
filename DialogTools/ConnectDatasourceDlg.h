@@ -104,6 +104,7 @@ public:
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
     
+    
 protected:
     bool showCsvConfigure;
     bool showRecentPanel;
