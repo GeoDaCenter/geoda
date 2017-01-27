@@ -971,7 +971,7 @@ void ConnectDatasourceDlg::InitSamplePanel()
     {
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );
-        int n = 57;
+        int n = 10;
         for (int i=0; i<n; i++) {
             wxString sample_name = GdaConst::sample_names[i];
             wxString sample_ds_name = GdaConst::sample_datasources[i];
