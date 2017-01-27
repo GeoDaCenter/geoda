@@ -142,7 +142,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
     wxLogMessage("Entering MergeTableDlg::OnOpenClick()");
     try {
         bool showCsvConfigure = GdaConst::show_csv_configure_in_merge;
-        ConnectDatasourceDlg dlg(this, wxDefaultPosition, wxDefaultSize, showCsvConfigure);
+        wxPoint pos = GetPosition();
+        wxSize sz = GetSize();
+        pos.x += sz.GetWidth();
+        ConnectDatasourceDlg dlg(this, pos, wxDefaultSize, showCsvConfigure, false);
         
         if (dlg.ShowModal() != wxID_OK)
             return;

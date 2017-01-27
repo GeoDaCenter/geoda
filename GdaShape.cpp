@@ -129,10 +129,10 @@ void GdaScaleTrans::SetData(double x_min, double y_min,
 }
 
 
-void GdaScaleTrans::SetView(int screen_w, int screen_h)
+void GdaScaleTrans::SetView(int screen_w, int screen_h, double scale_factor)
 {
-    screen_width  = screen_w;
-    screen_height = screen_h;
+    screen_width  = screen_w * scale_factor;
+    screen_height = screen_h * scale_factor;
 
     calcAffineParams();
 }

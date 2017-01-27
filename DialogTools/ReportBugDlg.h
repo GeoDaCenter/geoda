@@ -92,6 +92,8 @@ protected:
     wxCheckBox* cbox8;
     // show cvs in merge
     wxCheckBox* cbox9;
+    // enable High DPI 
+    wxCheckBox* cbox10;
     // postgresql
     wxCheckBox* cbox21;
     // sqlite
@@ -109,6 +111,7 @@ protected:
     void OnDisableAutoUpgrade(wxCommandEvent& ev);
     void OnShowRecent(wxCommandEvent& ev);
     void OnShowCsvInMerge(wxCommandEvent& ev);
+    void OnEnableHDPISupport(wxCommandEvent& ev);
    
     void OnSlider6(wxScrollEvent& ev);
     void OnSlider7(wxScrollEvent& ev);

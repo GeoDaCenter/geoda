@@ -168,8 +168,8 @@ has_excluded(1)
     wxButton* btn_save_dummy = new wxButton(lpanel, wxID_ANY, _("Save Dummy"));
     wxButton* btn_apply = new wxButton(lpanel, wxID_ANY,_("Run Diff-in-Diff Test"));
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
-    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_apply, 1, wxALIGN_CENTER | wxALL, 10);
+    btn_box->Add(btn_save_dummy, 1, wxALIGN_CENTER | wxALL, 10);
 
     chk_save_did = new wxCheckBox(lpanel, wxID_ANY, _("Save Test Results"));
     wxBoxSizer* chk_box = new wxBoxSizer(wxHORIZONTAL);

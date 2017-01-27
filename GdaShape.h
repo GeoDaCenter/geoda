@@ -45,7 +45,7 @@ struct GdaScaleTrans {
    
     void SetData(double x_min, double y_min, double x_max, double y_max);
 
-    void SetView(int screen_w, int screen_h);
+    void SetView(int screen_w, int screen_h, double scale_factor=1.0);
     
     void SetMargin(int _top_marg=GdaConst::default_virtual_screen_marg_top,
                    int _bottom_marg=GdaConst::default_virtual_screen_marg_bottom,

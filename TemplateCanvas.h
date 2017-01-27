@@ -60,7 +60,8 @@ public:
                    HLStateInt* hl_state_int,
                    const wxPoint& pos, const wxSize& size,
                    bool fixed_aspect_ratio_mode = false,
-                   bool fit_to_window_mode = true);
+                   bool fit_to_window_mode = true,
+                   bool enable_high_dpi_support = GdaConst::enable_high_dpi_support);
 	virtual ~TemplateCanvas();
 
 public:
@@ -286,6 +287,8 @@ protected:
     int MASK_R;
     int MASK_G;
     int MASK_B;
+    
+    bool          enable_high_dpi_support;
     
     bool          is_showing_brush;
 	SelectState   selectstate;

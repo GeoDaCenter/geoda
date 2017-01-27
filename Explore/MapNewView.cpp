@@ -558,7 +558,9 @@ void MapCanvas::DrawLayer1()
 	{
         if (faded_layer_bm == NULL) {
 			wxImage image = layer0_bm->ConvertToImage();
-
+            if (enable_high_dpi_support) {
+                image.Rescale(sz.GetWidth(), sz.GetHeight());
+            }
 			if (!image.HasAlpha()) {
 				image.InitAlpha();
 			}
@@ -612,6 +614,9 @@ void MapCanvas::DrawLayer1()
 				_dc.SelectObject(wxNullBitmap);
 
 				wxImage image = map_hl_bm.ConvertToImage();
+                if (enable_high_dpi_support) {
+                    image.Rescale(sz.GetWidth(), sz.GetHeight());
+                }
 				if (!image.HasAlpha()) {
 					image.InitAlpha();
 				}
@@ -710,6 +715,7 @@ void MapCanvas::SaveThumbnail()
             !ds_name.Contains("geodacenter.github.io")) {
         
             wxImage image = layer2_bm->ConvertToImage();
+            
             long current_time_sec = wxGetUTCTime();
             wxString file_name;
             file_name << current_time_sec << ".png";

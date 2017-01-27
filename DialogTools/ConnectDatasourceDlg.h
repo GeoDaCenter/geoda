@@ -82,17 +82,19 @@ protected:
 
 
 
+////////////////////////////////////////////////////////////////////////////////
 //
 // Class ConnectDatasourceDlg
 // 
-//
+////////////////////////////////////////////////////////////////////////////////
 class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
 	ConnectDatasourceDlg(wxWindow* parent,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize,
-                         bool showCsvConfigure=true);
+                         bool showCsvConfigure=true,
+                         bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog);
     virtual ~ConnectDatasourceDlg();
     
     void CreateControls();
@@ -102,9 +104,10 @@ public:
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
     
-    
 protected:
     bool showCsvConfigure;
+    bool showRecentPanel;
+    
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
@@ -136,6 +139,7 @@ protected:
     void OnRecentDelete(wxCommandEvent& event);
     
     void OnNoShowRecent(wxCommandEvent& event);
+   
     
 	DECLARE_EVENT_TABLE()
 };

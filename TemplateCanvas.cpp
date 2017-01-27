@@ -85,13 +85,14 @@ BEGIN_EVENT_TABLE(TemplateCanvas, wxScrolledWindow)
 END_EVENT_TABLE()
 
 TemplateCanvas::TemplateCanvas(wxWindow* parent,
-                             TemplateFrame* template_frame_,
-                             Project* project_s,
-                             HLStateInt* hl_state_int_,
-                             const wxPoint& pos,
-                             const wxSize& size,
-                             bool fixed_aspect_ratio_mode_s,
-                             bool fit_to_window_mode_s)
+                               TemplateFrame* template_frame_,
+                               Project* project_s,
+                               HLStateInt* hl_state_int_,
+                               const wxPoint& pos,
+                               const wxSize& size,
+                               bool fixed_aspect_ratio_mode_s,
+                               bool fit_to_window_mode_s,
+                               bool enable_high_dpi_support_)
 : wxScrolledWindow(parent, -1, pos, size,
                    wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
 mousemode(select), selectstate(start), brushtype(rectangle), is_brushing(false),
@@ -110,7 +111,7 @@ layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
 useScientificNotation(false), is_showing_brush(false),
-axis_display_precision(2),
+axis_display_precision(2), enable_high_dpi_support(enable_high_dpi_support_),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
     // default is one time slice
@@ -168,10 +169,25 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 
-	layer0_bm = new wxBitmap(width, height, 32);
-	layer1_bm = new wxBitmap(width, height, 32);
-	layer2_bm = new wxBitmap(width, height, 32);
-	
+
+    int vs_w, vs_h;
+    GetClientSize(&vs_w, &vs_h);
+    
+    if (enable_high_dpi_support) {
+        double scale_factor = GetContentScaleFactor();
+
+        layer0_bm = new wxBitmap;
+        layer1_bm = new wxBitmap;
+        layer2_bm = new wxBitmap;
+        layer0_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+        layer1_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+        layer2_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+    } else {
+    	layer0_bm = new wxBitmap(width, height, 32);
+    	layer1_bm = new wxBitmap(width, height, 32);
+    	layer2_bm = new wxBitmap(width, height, 32);
+    }
+
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
@@ -667,6 +683,10 @@ void TemplateCanvas::DrawLayer1()
     if (highlight_state->GetTotalHighlighted()>0) {
         if (faded_layer_bm == NULL) {
             wxImage image = layer0_bm->ConvertToImage();
+            if (enable_high_dpi_support) {
+                image.Rescale(sz.GetWidth(), sz.GetHeight());
+            }
+
             if (!image.HasAlpha()) {
                 image.InitAlpha();
             }
@@ -728,12 +748,22 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
         isResize = false;
+       
         
         int vs_w, vs_h;
         
         GetClientSize(&vs_w, &vs_h);
+       
+        vs_w = vs_w;
+        vs_h = vs_h;
         
-        last_scale_trans.SetView(vs_w, vs_h);
+        double scale_factor = 1.0;
+        
+        if (enable_high_dpi_support) {
+            scale_factor = GetContentScaleFactor();
+        }
+        
+        last_scale_trans.SetView(vs_w, vs_h, scale_factor);
         
         resizeLayerBms(vs_w, vs_h);
 

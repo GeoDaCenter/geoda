@@ -90,7 +90,7 @@ void RegressionReportDlg::CreateControls()
         
     }
     
-    vbox->Add(m_textbox, 1, wxEXPAND|wxALL|wxALIGN_CENTRE);
+    vbox->Add(m_textbox, 1, wxEXPAND|wxALL);
     panel->SetSizer(vbox);
    
     

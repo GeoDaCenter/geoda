@@ -84,7 +84,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, prmop_txt);
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
-    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND | wxTOP , 0);
+    lbl_box->Add(lbl, 1, wxALIGN_CENTER |  wxTOP , 0);
     
     
     // field grid selection control
@@ -95,7 +95,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxBoxSizer* grid_box = new wxBoxSizer(wxVERTICAL);
     grid_box->AddSpacer(5);
-    grid_box->Add(fieldGrid, 1, wxALIGN_CENTER | wxEXPAND |wxLEFT, 10);
+    grid_box->Add(fieldGrid, 1, wxEXPAND |wxLEFT, 10);
     
     // Preview label controls
     wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview - number of preview records:"));
@@ -109,8 +109,8 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                        this);
     
     wxBoxSizer* prev_lbl_box = new wxBoxSizer(wxHORIZONTAL);
-    prev_lbl_box->Add(prev_lbl, 0, wxALIGN_CENTER | wxEXPAND |wxTOP |wxLEFT , 10);
-    prev_lbl_box->Add(prev_spin, 0, wxALIGN_CENTER | wxEXPAND |wxTOP, 10);
+    prev_lbl_box->Add(prev_lbl, 0, wxEXPAND |wxTOP |wxLEFT , 10);
+    prev_lbl_box->Add(prev_spin, 0, wxEXPAND |wxTOP, 10);
    
     // Preview Grid controls
     previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 150));
@@ -120,7 +120,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxBoxSizer* preview_box = new wxBoxSizer(wxVERTICAL);
     preview_box->AddSpacer(5);
-    preview_box->Add(previewGrid, 1, wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
+    preview_box->Add(previewGrid, 1, wxEXPAND | wxLEFT, 10);
    
     // lat/lon
     wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) Latitude/X:"));
@@ -149,6 +149,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                        wxCommandEventHandler(CsvFieldConfDlg::OnHeaderCmbClick),
                        NULL,
                        this);
+    header_cmb->SetFocus();
     wxBoxSizer* header_box = new wxBoxSizer(wxHORIZONTAL);
     header_box->Add(header_lbl, 0, wxALIGN_CENTER_VERTICAL);
     header_box->Add(header_cmb, 0, wxALIGN_CENTER_VERTICAL);
@@ -168,20 +169,20 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_locale, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_locale, 1, wxALIGN_CENTER | wxALL, 10);
     btn_box->AddSpacer(10);
-    btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
-    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxALL, 10);
+    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER | wxALL, 10);
     
     // main container
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
-    box->Add(header_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
-    box->Add(latlng_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
+    box->Add(header_box, 0, wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
+    box->Add(latlng_box, 0, wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
     
-    box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-    box->Add(grid_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT, 10);
-    box->Add(prev_lbl_box, 0, wxALIGN_TOP | wxEXPAND |  wxTOP, 30);
-    box->Add(preview_box, 0, wxALIGN_CENTER| wxEXPAND| wxRIGHT, 10);
+    box->Add(lbl_box, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(grid_box, 0, wxEXPAND| wxRIGHT, 10);
+    box->Add(prev_lbl_box, 0, wxEXPAND |  wxTOP, 30);
+    box->Add(preview_box, 0, wxEXPAND| wxRIGHT, 10);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 20);
     
     panel->SetSizerAndFit(box);

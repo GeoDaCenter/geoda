@@ -144,7 +144,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
     make clean
-    ./configure --with-cocoa --disable-shared --enable-mediactrl=no --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
+    ./configure --with-cocoa --disable-shared --enable-mediactrl=no --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --disable-mediactrl --with-macosx-sdk=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

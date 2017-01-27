@@ -263,6 +263,13 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(cbox9, 0, wxALIGN_RIGHT);
     cbox9->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowCsvInMerge, this);
     
+    wxString lbl10 = _("Enable High DPI/Retina support:");
+    wxStaticText* lbl_txt10 = new wxStaticText(vis_page, wxID_ANY, lbl10);
+    cbox10 = new wxCheckBox(vis_page, XRCID("PREF_ENABLE_HDPI"), "", wxDefaultPosition);
+    grid_sizer1->Add(lbl_txt10, 1, wxEXPAND);
+    grid_sizer1->Add(cbox10, 0, wxALIGN_RIGHT);
+    cbox10->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnEnableHDPISupport, this);
+    
     wxString lbl4 = _("Disable crash detection for bug report:");
     wxStaticText* lbl_txt4 = new wxStaticText(vis_page, wxID_ANY, lbl4);
     cbox4 = new wxCheckBox(vis_page, XRCID("PREF_CRASH_DETECT"), "", wxDefaultPosition);
@@ -358,6 +365,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::plot_transparency_unhighlighted = 50;
     GdaConst::show_recent_sample_connect_ds_dialog = true;
     GdaConst::show_csv_configure_in_merge = false;
+    GdaConst::enable_high_dpi_support = true;
     
     SetupControls();
     
@@ -375,6 +383,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("plot_transparency_unhighlighted", "50");
     ogr_adapt.AddEntry("show_recent_sample_connect_ds_dialog", "1");
     ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
+    ogr_adapt.AddEntry("enable_high_dpi_support", "1");
 }
 
 void PreferenceDlg::SetupControls()
@@ -402,6 +411,7 @@ void PreferenceDlg::SetupControls()
     cbox22->SetValue(GdaConst::hide_sys_table_sqlite);
     cbox8->SetValue(GdaConst::show_recent_sample_connect_ds_dialog);
     cbox9->SetValue(GdaConst::show_csv_configure_in_merge);
+    cbox10->SetValue(GdaConst::enable_high_dpi_support);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -526,6 +536,17 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::show_csv_configure_in_merge = true;
             else if (sel_l == 0)
                 GdaConst::show_csv_configure_in_merge = false;
+        }
+    }
+    vector<string> enable_high_dpi_support = OGRDataAdapter::GetInstance().GetHistory("enable_high_dpi_support");
+    if (!enable_high_dpi_support.empty() ) {
+        long sel_l = 0;
+        wxString sel = enable_high_dpi_support[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::enable_high_dpi_support = true;
+            else if (sel_l == 0)
+                GdaConst::enable_high_dpi_support = false;
         }
     }
 }
@@ -701,6 +722,17 @@ void PreferenceDlg::OnShowCsvInMerge(wxCommandEvent& ev)
         OGRDataAdapter::GetInstance().AddEntry("show_csv_configure_in_merge", "1");
     }
 }
+void PreferenceDlg::OnEnableHDPISupport(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::enable_high_dpi_support = false;
+        OGRDataAdapter::GetInstance().AddEntry("enable_high_dpi_support", "0");
+    } else {
+        GdaConst::enable_high_dpi_support = true;
+        OGRDataAdapter::GetInstance().AddEntry("enable_high_dpi_support", "1");
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ReportResultDlg::ReportResultDlg( wxWindow* parent, wxString issue_url,
@@ -843,8 +875,8 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
                                        wxDefaultSize, wxBU_EXACTFIT);
     
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
-    btn_box->Add(btn_submit, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER | wxALL, 10);
+    btn_box->Add(btn_submit, 1, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(title_txt_ctrl, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);

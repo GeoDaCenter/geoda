@@ -289,8 +289,8 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     
     wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
     lbl_box->AddSpacer(20);
-    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxEXPAND |wxALL, 10);
-    lbl_box->Add(whatsnew, 1, wxALIGN_LEFT | wxEXPAND |wxALL, 10);
+    lbl_box->Add(lbl, 1, wxALIGN_CENTER | wxALL, 10);
+    lbl_box->Add(whatsnew, 1, wxALIGN_LEFT | wxALL, 10);
     lbl_box->Add(prg_bar, 1, wxEXPAND |wxALL, 10);
     
     wxButton* btn_skip = NULL;
@@ -299,15 +299,15 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
         btn_skip = new wxButton(panel, wxID_ANY, "Skip");
     wxButton* btn_update= new wxButton(panel, wxID_ANY, "Update", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     wxBoxSizer* btn_box = new wxBoxSizer(wxHORIZONTAL);
-    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER |wxEXPAND| wxALL, 10);
+    btn_box->Add(btn_cancel, 1, wxALIGN_CENTER | wxALL, 10);
     if (showSkip) {
-        btn_box->Add(btn_skip, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+        btn_box->Add(btn_skip, 1, wxALIGN_CENTER | wxALL, 10);
         btn_skip->Connect(wxEVT_BUTTON, wxCommandEventHandler(AutoUpdateDlg::OnSkipClick), NULL, this);
     }
-    btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxEXPAND | wxALL, 10);
+    btn_box->Add(btn_update, 1, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
-    box->Add(lbl_box, 0, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+    box->Add(lbl_box, 0, wxALIGN_TOP | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(btn_box, 0, wxALIGN_CENTER| wxLEFT | wxRIGHT | wxTOP, 30);
     
     panel->SetSizerAndFit(box);

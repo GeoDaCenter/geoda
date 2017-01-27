@@ -31,11 +31,13 @@
 #include <wx/notebook.h>
 #include <wx/checkbox.h>
 #include <wx/statbmp.h>
+#include <wx/frame.h>
+#include <wx/evtloop.h>
 
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
 
-class DatasourceDlg : public wxDialog
+class DatasourceDlg : public wxFrame
 {
 protected:
     enum DS_IDS
@@ -44,13 +46,17 @@ protected:
     };
     
 public:
-    DatasourceDlg(){}
+    DatasourceDlg();
     virtual ~DatasourceDlg(){}
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
 	
 	wxFileName      ds_file_path;
     
 protected:
+    
+    wxEventLoop* eventLoop;
+    bool is_ok_clicked;
+    
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
 	//wxBitmapButton* m_database_lookup_table;
@@ -74,6 +80,10 @@ protected:
     wxArrayString   ds_names;
     
 public:
+    void EndDialog();
+    int ShowModal();
+    void OnCancelClick( wxCommandEvent& event );
+    
     void Init();
     void CreateControls();
 	void PromptDSLayers(IDataSource* datasource);

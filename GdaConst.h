@@ -295,6 +295,7 @@ public:
 	static const wxColour legend_background_color; // white
 	
 	// Preferences
+    static bool enable_high_dpi_support;
     static bool show_csv_configure_in_merge;
     static bool show_recent_sample_connect_ds_dialog;
     static bool use_cross_hatching;
