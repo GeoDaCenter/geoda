@@ -249,7 +249,7 @@ void PreferenceDlg::Init()
     grid_sizer1->AddSpacer(10);
 
     
-    wxString lbl8 = _("Show Recent/Samples panel in Connect Datasource Dialog:");
+    wxString lbl8 = _("Show Recent/Sample Data panel in Connect Datasource Dialog:");
     wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
     cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", wxDefaultPosition);
     grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);

@@ -469,10 +469,10 @@ fi
 #########################################################################
 # install wxWidgets library
 #########################################################################
-LIB_NAME=wxWidgets-3.0.2
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_NAME=wxWidgets-3.1.0
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-LIB_CHECKER=libwx_baseu-3.0.a
+LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME

@@ -393,7 +393,7 @@ bool GdaApp::OnInit(void)
             std::string no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally. Do you want to send a crash report to GeoDa team?");
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?");
                 wxString ttl = _("Send Crash Report");
                 wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
                                        wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
