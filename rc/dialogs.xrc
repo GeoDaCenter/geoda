@@ -7144,7 +7144,7 @@
       <bg>#FFFFFF</bg>
   </object>
 
-  <object class="wxDialog" name="IDD_CONNECT_DATASOURCE" subclass="ConnectDatasourceDlg">
+  <object class="wxFrame" name="IDD_CONNECT_DATASOURCE" subclass="ConnectDatasourceDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
@@ -7663,7 +7663,7 @@
     <title>Time Setup</title>
     <style>wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
-  <object class="wxDialog" name="IDD_EXPORT_OGRDATA" subclass="ExportDataDlg">
+  <object class="wxFrame" name="IDD_EXPORT_OGRDATA" subclass="ExportDataDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">

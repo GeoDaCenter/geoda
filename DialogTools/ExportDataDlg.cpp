@@ -51,9 +51,10 @@
 
 using namespace std;
 
-BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
+BEGIN_EVENT_TABLE( ExportDataDlg, wxFrame )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), ExportDataDlg::OnBrowseDSfileBtn )
     EVT_BUTTON( wxID_OK, ExportDataDlg::OnOkClick )
+    EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -159,7 +160,7 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 
 void ExportDataDlg::CreateControls()
 {
-    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_EXPORT_OGRDATA");
+    wxXmlResource::Get()->LoadFrame(this, GetParent(), "IDD_EXPORT_OGRDATA");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
     m_chk_create_project = XRCCTRL(*this, "IDC_CREATE_PROJECT_FILE",wxCheckBox);
@@ -421,7 +422,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 	//wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
     //dlg.ShowModal();
     
-	EndDialog(wxID_OK);
+    is_ok_clicked = true;
+    EndDialog();
 }
 
 /**

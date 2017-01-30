@@ -91,8 +91,8 @@ class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
 	ConnectDatasourceDlg(wxWindow* parent,
-		const wxPoint& pos = wxDefaultPosition,
-		const wxSize& size = wxDefaultSize,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize,
                          bool showCsvConfigure=true,
                          bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog);
     virtual ~ConnectDatasourceDlg();
