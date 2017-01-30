@@ -3,7 +3,7 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 TARGET      = GeoDa
 
 CC	=	gcc
-CXX     =	g++ -Os -arch x86_64 -std=c++11 -stdlib=libc++
+CXX     =	g++ -Os -arch x86_64
 LD	=	g++ -arch x86_64
 RM	=	/bin/rm -f
 
@@ -14,7 +14,7 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
-            -L/usr/lib -liconv -lc++ \
+            -L/usr/lib -liconv \
             -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
             $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
             $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \

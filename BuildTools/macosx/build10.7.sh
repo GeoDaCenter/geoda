@@ -152,7 +152,35 @@ install_library $XERCES_NAME $XERCES_URL libxerces-c.a
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2 libgeos.a
+#install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2 libgeos.a
+LIB_NAME=geos-3.3.8
+LIB_CHECKER=libgeos.a
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2
+LIB_FILENAME=geos-3.3.8.tar.bz2
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure CC=/usr/bin/clang CXX=/usr/bin/clang++ --prefix=$PREFIX
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+export PATH=$PREFIX/bin:$PATH
 
 #########################################################################
 # install PROJ.4
@@ -469,10 +497,10 @@ fi
 #########################################################################
 # install wxWidgets library
 #########################################################################
-LIB_NAME=wxWidgets-3.0.2
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_NAME=wxWidgets-3.1.0
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-LIB_CHECKER=libwx_baseu-3.0.a
+LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
