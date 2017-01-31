@@ -536,19 +536,13 @@ void LineChartFrame::OnTime2Choice(wxCommandEvent& event)
     int time_count = choice_time1->GetCount();
    
     if (group_selection == 0 ) {
-        if (choice_group1->GetSelection() != choice_group2->GetSelection()) {
-            // sel vs excl
-            choice_time1->SetSelection(time2_selection);
-        } else {
-            if (time2_selection == time1_selection ||
-                time1_selection > time2_selection) {
-                if (time2_selection - 1 >=0 ) {
-                    choice_time1->SetSelection(time2_selection-1);
-                } else {
-                    wxMessageBox(_("Please select Period 2 > Period 1."));
-                    choice_time1->SetSelection(0);
-                    choice_time2->SetSelection(1);
-                }
+        if (time1_selection > time2_selection) {
+            if (time2_selection - 1 >=0 ) {
+                choice_time1->SetSelection(time2_selection-1);
+            } else {
+                wxMessageBox(_("Please select Period 2 > Period 1."));
+                choice_time1->SetSelection(0);
+                choice_time2->SetSelection(1);
             }
         }
         
@@ -1014,13 +1008,20 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             return;
         }
         
-        bool filter_flag = choice_group1->GetSelection() == 0 ? true : false;
         
         int idx = 0;
         for (int t=0; t<n_ts; t++) {
             if (tms_subset0[t] || tms_subset1[t]) {
+                bool filter_flag = false;
+                if (tms_subset0[t]) {
+                    filter_flag = choice_group1->GetSelection() == 0 ? true :false;
+                    
+                } else if (tms_subset1[t]) {
+                    filter_flag = choice_group2->GetSelection() == 0 ? true :false;
+                }
+                
                 for (int j=0; j<n_obs; j++) {
-                    if (undefs[j])
+                    if (undefs[j] || hs[j] != filter_flag )
                         continue;
                     var_stack_array[idx_var].push_back(Y[t][j]);
                     dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
@@ -1075,7 +1076,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
                     
                     vector<wxString> new_id_vec;
                     for (int ii=0; ii<n; ii++) {
-                        if (undefs[ii])
+                        if (undefs[ii % n_obs])
                             continue;
                         new_id_vec.push_back(id_vec[id_stack[ii]]);
                     }
