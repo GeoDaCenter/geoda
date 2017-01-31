@@ -328,7 +328,7 @@ bool GdaApp::OnInit(void)
 		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
-		frameWidth = 1060;
+		frameWidth = 1080;
 		frameHeight = 120;
 	}
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
