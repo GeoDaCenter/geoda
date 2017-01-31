@@ -521,10 +521,11 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             ss << " [" << hinge_stats[t].Q3 << " : " << extreme_upper << "]";
             labels_ext[4] = ss.str();
             ss.str("");
-           if (cat_data.GetNumObsInCategory(t, num_cats-1) == 0)
-               ss << " [" << extreme_upper << " : " << p_max << "]";
+            if (cat_data.GetNumObsInCategory(t, num_cats-1) == 0 &&
+                p_max > extreme_upper)
+                ss << " [" << extreme_upper << " : " << p_max << "]";
             else
-               ss << " [" << extreme_upper << " : inf]";
+                ss << " [" << extreme_upper << " : inf]";
             labels_ext[5] = ss.str();
        
             

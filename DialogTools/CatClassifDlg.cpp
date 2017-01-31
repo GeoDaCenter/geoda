@@ -342,7 +342,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 						-9, 0);
 	foreground_shps.push_back(y_axis);
 
-    last_scale_trans.SetMargin(25, 25+32, 25+35, 25);
+    last_scale_trans.SetMargin(45, 25+32, 25+35, 25);
 	
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
