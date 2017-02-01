@@ -763,7 +763,7 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
         
         resizeLayerBms(vs_w, vs_h);
 
-        ResizeSelectableShps();
+        ResizeSelectableShps(vs_w, vs_h);
         
         event.RequestMore(); // render continuously, not only once on idle
     }

@@ -37,6 +37,7 @@
 #include "../GdaShape.h"
 #include "CorrelogramAlgs.h"
 
+class SimpleHistStatsCanvas;
 class HighlightState;
 class SimpleAxisCanvas;
 class CorrelogramFrame;
@@ -107,6 +108,7 @@ protected:
 	std::vector<SimpleAxisCanvas*> vert_labels;
 	std::vector<SimpleAxisCanvas*> horiz_labels;
 	SimpleBinsHistCanvas* hist_plot;
+    SimpleHistStatsCanvas* shs_plot;
 	HLStateInt* local_hl_state;
 	
 	wxBoxSizer* top_h_sizer;

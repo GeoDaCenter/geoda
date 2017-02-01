@@ -31,6 +31,7 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "SimpleAxisCanvas.h"
+#include "SimpleHistCanvas.h"
 #include "CorrelogramView.h"
 
 #ifdef __WIN32__
@@ -52,7 +53,7 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
-hist_plot(0), local_hl_state(0), message_win(0), project(project)
+hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -281,11 +282,10 @@ void CorrelogramFrame::notifyNewHistHover(const std::vector<int>& hover_obs,
  be changed in the future, so will leave the num_vars parameter. */
 void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 {
-	if (!panel || !bag_szr) return;
-	LOG(num_vars);
+	if (!panel || !bag_szr)
+        return;
 	int num_top_rows = GenUtils::max<int>(1, num_vars);
-	LOG(num_top_rows);
-	int num_rows_total = num_top_rows + 2;
+	int num_rows_total = num_top_rows + 3;
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent, this);
 		message_win->Destroy();
@@ -308,6 +308,11 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		hist_plot->Destroy();
 	}
 	hist_plot = 0;
+    if (shs_plot) {
+        shs_plot->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent, this);
+        shs_plot->Destroy();
+    }
+    shs_plot = 0;
 	for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
 		if (vert_labels[i])
             vert_labels[i]->Destroy();
@@ -519,7 +524,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 									 wxGBSpan(1,1), wxEXPAND);
 			hist_plot = sh_can;
 		}
-		
+        
+        
 		// add blank cell lower left-hand corner
 		bag_szr->Add(50, 50, wxGBPosition(num_top_rows+1, 0), wxGBSpan(1,1));
 		
@@ -579,26 +585,37 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		bag_szr->Add(sa_can, wxGBPosition(num_top_rows+1, 1),
 								 wxGBSpan(1,1), wxEXPAND);
 		horiz_labels.push_back(sa_can);
-			
+		
+        // add blank cell lower left-hand corner
+        bag_szr->Add(0, 0, wxGBPosition(num_top_rows+2, 0), wxGBSpan(1,1));
+        bag_szr->Add(0, 0, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1));
+        
+        
 	}
-    
-	
+   
 	bag_szr->SetFlexibleDirection(wxBOTH);
+    
 	// first column
-	if (bag_szr->IsColGrowable(0)) bag_szr->RemoveGrowableCol(0);
-	// final row
-	if (bag_szr->IsRowGrowable(num_rows_total)) {
-		bag_szr->RemoveGrowableRow(num_rows_total);
+    if (bag_szr->IsColGrowable(0)) {
+        bag_szr->RemoveGrowableCol(0);
+    }
+	// final row  - 1(axis)
+	if (bag_szr->IsRowGrowable(num_rows_total-2)) {
+		bag_szr->RemoveGrowableRow(num_rows_total-2);
 	}
 	
 	// second column
-	if (bag_szr->IsColGrowable(1)) bag_szr->RemoveGrowableCol(1);
-	bag_szr->AddGrowableCol(1, 1);
+    if (bag_szr->IsColGrowable(1)) {
+        bag_szr->RemoveGrowableCol(1);
+    }
+	bag_szr->AddGrowableCol(1, 2);
 
 	// all rows exluding last two
 	for (int i=0; i<num_top_rows; ++i) {
-		if (bag_szr->IsRowGrowable(i)) bag_szr->RemoveGrowableRow(i);
-		bag_szr->AddGrowableRow(i, 2);
+        if (bag_szr->IsRowGrowable(i)) {
+            bag_szr->RemoveGrowableRow(i);
+        }
+		bag_szr->AddGrowableRow(i, 1);
 	}
 
 	// second-to-last row
@@ -606,9 +623,51 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		bag_szr->RemoveGrowableRow(num_top_rows);
 	}
 	bag_szr->AddGrowableRow(num_top_rows, 1);
-	
-	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
-	LOG(bag_szr->GetItemCount());
+    
+	// last row
+   /*
+	if (bag_szr->IsRowGrowable(num_top_rows+1)) {
+		bag_szr->RemoveGrowableRow(num_top_rows+1);
+	}
+	bag_szr->AddGrowableRow(num_top_rows+1, 1);
+	if (bag_szr->IsRowGrowable(num_top_rows+2)) {
+		bag_szr->RemoveGrowableRow(num_top_rows+2);
+	}
+	bag_szr->AddGrowableRow(num_top_rows+2, 1);
+	*/
+	panel_v_szr->Add(bag_szr, 1, wxALL | wxEXPAND);
+    
+    
+    vector<wxString> lbls;
+    lbls.push_back("Autocorr.");
+    lbls.push_back("Min");
+    lbls.push_back("Max");
+    lbls.push_back("# Pairs");
+    vector<vector<double> > vals;
+    vector<double> stats;
+    
+    for (size_t i=0; i<cbins.size(); ++i) {
+        vector<double> sub_vals;
+        sub_vals.push_back(cbins[i].corr_avg);
+        sub_vals.push_back(cbins[i].dist_min);
+        sub_vals.push_back(cbins[i].dist_max);
+        sub_vals.push_back(cbins[i].num_pairs);
+        vals.push_back(sub_vals);
+    }
+    
+    SimpleHistStatsCanvas* shs_can = 0;
+    shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
+                                        lbls, vals, stats,
+                                        "ID_CORRELOGRAM_MENU_OPTIONS",
+                                        wxDefaultPosition, wxSize(-1, 80));
+    shs_can->SetFixedAspectRatioMode(false);
+    
+    //bag_szr->Add(shs_can, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1), wxEXPAND);
+    
+    shs_plot = shs_can;
+    
+    panel_v_szr->Add(shs_can, 0, wxLEFT | wxRIGHT | wxEXPAND);
+   
 	top_h_sizer->RecalcSizes();
     
     if (valid_sampling == false ) {

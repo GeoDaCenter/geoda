@@ -39,6 +39,166 @@
 #include "../ShapeOperations/ShapeUtils.h"
 #include "SimpleHistCanvas.h"
 
+using namespace std;
+
+//////////////////////////////////////////////////////////////////////////////// //
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+IMPLEMENT_CLASS(SimpleHistStatsCanvas, TemplateCanvas)
+BEGIN_EVENT_TABLE(SimpleHistStatsCanvas, TemplateCanvas)
+	EVT_PAINT(TemplateCanvas::OnPaint)
+    EVT_IDLE(TemplateCanvas::OnIdle)
+	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
+	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
+	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
+END_EVENT_TABLE()
+
+SimpleHistStatsCanvas::SimpleHistStatsCanvas(wxWindow *parent,
+                                             TemplateFrame* t_frame,
+                                             Project* project,
+                                             HLStateInt* hl_state_int,
+                                             const vector<wxString>& lbls,
+                                             const vector<vector<double> >& vals,
+                                             const vector<double>& stats_,
+                                             const wxString& right_click_menu_id_,
+                                             const wxPoint& pos,
+                                             const wxSize& size)
+: TemplateCanvas(parent, t_frame, project, hl_state_int, pos, size),
+labels(lbls), values(vals), stats(stats_), right_click_menu_id(right_click_menu_id_)
+{
+    last_scale_trans.SetFixedAspectRatio(false);
+    PopulateCanvas();
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+    highlight_state->registerObserver(this);
+}
+
+SimpleHistStatsCanvas::~SimpleHistStatsCanvas()
+{
+	highlight_state->removeObserver(this);
+}
+
+void SimpleHistStatsCanvas::PopulateCanvas()
+{
+    BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
+    background_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
+    selectable_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
+    foreground_shps.clear();
+    
+	// orig_x_pos is the center of each histogram bar
+    int cur_intervals = values.size();
+	vector<double> orig_x_pos(cur_intervals);
+    vector<double> orig_x_pos_left(cur_intervals);
+    vector<double> orig_x_pos_right(cur_intervals);
+    int    default_intervals = 7;
+    double left_pad = 0;
+    double right_pad = 0;
+    double interval_width = 10;
+    double interval_gap = 0;
+    
+    for (int i=0; i<cur_intervals; i++) {
+        double xc = left_pad + interval_width/2.0 + i * (interval_width + interval_gap);
+        double x0 = xc - interval_width/2.0;
+        double x1 = xc + interval_width/2.0;
+        orig_x_pos[i] = xc;
+        orig_x_pos_left[i] = x0;
+        orig_x_pos_right[i] = x1;
+    }
+   
+    double x_min = 0;
+    double x_max = left_pad + right_pad + interval_width * cur_intervals + interval_gap * (cur_intervals-1);
+    double y_min = 0;
+    double y_max = 100;//overall_max_num_obs_in_ival;
+    
+    last_scale_trans.SetData(x_min, y_min, x_max, y_max);
+    
+    
+    int table_w=0;
+    int table_h=0;
+    int cols = 1;
+    int rows = labels.size();
+    
+    vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+    wxFont font = *GdaConst::small_font;
+    wxRealPoint ref_pt(0, 0);
+    GdaShapeText::HorizAlignment horiz_align = GdaShapeText::h_center;
+    GdaShapeText::VertAlignment vert_align = GdaShapeText::top;
+    GdaShapeText::HorizAlignment cell_h_align = GdaShapeText::right;
+    GdaShapeText::VertAlignment cell_v_align = GdaShapeText::v_center;
+    int row_gap = 3;
+    int col_gap = 10;
+    int x_nudge = -22;
+    int y_nudge = -60;
+    
+    int virtual_screen_marg_top = 0;//20;
+    int virtual_screen_marg_right = 0;//20;
+    int virtual_screen_marg_bottom = 5;//45;
+    int virtual_screen_marg_left = 45;//45;
+    last_scale_trans.SetMargin(virtual_screen_marg_top,
+                               virtual_screen_marg_bottom,
+                               virtual_screen_marg_left,
+                               virtual_screen_marg_right);
+    
+    GdaShape* s = new GdaShapeTable(labels, attribs, rows, cols,
+                                    font, ref_pt, horiz_align, vert_align,
+                                    cell_h_align, cell_v_align,
+                                    row_gap, col_gap, x_nudge, y_nudge);
+    
+    foreground_shps.push_back(s);
+    wxClientDC dc(this);
+    ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+    
+   
+    for (int i=0; i<values.size(); i++) {
+        std::vector<wxString> vals(rows);
+        vals[0] << GenUtils::DblToStr(values[i][0], 3);
+        vals[1] << GenUtils::DblToStr(values[i][1], 3);
+        vals[2] << GenUtils::DblToStr(values[i][2], 3);
+        vals[3] << (int)values[i][3];
+        //vals[4] << GenUtils::DblToStr(values[i][4], 3);
+        
+        std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+        GdaShape* s1 = new GdaShapeTable(vals, attribs, rows, cols,
+                              font,
+                              wxRealPoint(orig_x_pos[i], 0),
+                              GdaShapeText::h_center, GdaShapeText::top,
+                              GdaShapeText::h_center, GdaShapeText::v_center,
+                              3, 10, 0, -60);
+        foreground_shps.push_back(s1);
+    }
+    
+    ResizeSelectableShps(table_w, table_h);
+}
+
+void SimpleHistStatsCanvas::DisplayRightClickMenu(const wxPoint& pos)
+{
+    if (right_click_menu_id.IsEmpty()) return;
+    // Workaround for right-click not changing window focus in OSX / wxW 3.0
+    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+    template_frame->OnActivate(ae);
+    
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
+    
+    template_frame->UpdateContextMenuItems(optMenu);
+    template_frame->PopupMenu(optMenu, pos + GetPosition());
+    template_frame->UpdateOptionMenuItems();
+}
+
+void SimpleHistStatsCanvas::update(HLStateInt* o)
+{
+    ResetBrushing();
+    layer1_valid = false;
+    Refresh();
+}
+
+//////////////////////////////////////////////////////////////////////////////// //
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
 IMPLEMENT_CLASS(SimpleHistCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(SimpleHistCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)

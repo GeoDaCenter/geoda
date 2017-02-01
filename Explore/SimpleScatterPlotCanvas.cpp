@@ -724,9 +724,9 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	//chow_test_text = new GdaShapeText();
 	//chow_test_text->hidden = true;
 	//foreground_shps.push_back(chow_test_text);
-	stats_table = new GdaShapeTable();
-	stats_table->hidden = true;
-	foreground_shps.push_back(stats_table);
+	//stats_table = new GdaShapeTable();
+	//stats_table->hidden = true;
+	//foreground_shps.push_back(stats_table);
 
 	ResizeSelectableShps();
 	
