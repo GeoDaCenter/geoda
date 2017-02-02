@@ -90,6 +90,11 @@ public:
 	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
 															int total_hover_obs);
 	
+    virtual void OnRightClick(const wxPoint& pos);
+    
+    void OnSaveResult(wxCommandEvent& event);
+    
+    
 protected:
     void ReDraw();
 	void SetupPanelForNumVariables(int num_vars);

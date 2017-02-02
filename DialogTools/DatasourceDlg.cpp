@@ -328,7 +328,10 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             }
         }
     }
- 
+
+    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+    OnActivate(ae);
+    
     PopupMenu(m_ds_menu);
     
     event.Skip();

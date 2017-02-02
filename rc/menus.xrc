@@ -3382,6 +3382,10 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
+	<object class="wxMenuItem" name="ID_SAVE_CORRELOGRAM_STATS">
+      <label>Save Results</label>
+      <checkable>0</checkable>
+    </object>
     <label>Options</label>
   </object>
 	<object class="wxMenu" name="ID_COV_SCATTER_PLOT_MENU_OPTIONS">

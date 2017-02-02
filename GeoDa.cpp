@@ -910,7 +910,24 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 void GdaFrame::OnClose(wxCloseEvent& event)
 {
 	wxLogMessage("Click GdaFrame::OnClose");
-	
+
+    if (IsProjectOpen() == false) {
+        // Close windows not associated managed by Project
+        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+        while (node) {
+            wxWindow* win = node->GetData();
+            if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
+                w->Close(true);
+            }
+            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+                w->EndDialog();
+            }
+            node = node->GetNext();
+        }
+        Destroy();
+        return;
+    }
+    
 	bool is_new_project = (IsProjectOpen() &&
 						   (project_p->GetProjectFullPath().empty() ||
 							!wxFileExists(project_p->GetProjectFullPath())));
@@ -4773,6 +4790,15 @@ void GdaFrame::OnEditVariables(wxCommandEvent& event)
 	}
 }
 
+void GdaFrame::OnSaveStatsToCsv(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnSaveStatsToCsv()");
+	TemplateFrame* t = TemplateFrame::GetActiveFrame();
+	if (!t) return;
+	if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+		f->OnSaveResult(event);
+	}
+}
 void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnViewRegimesRegression()");
@@ -6150,6 +6176,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_VIEW_LOWESS_SMOOTHER"), GdaFrame::OnViewLowessSmoother)
     EVT_MENU(XRCID("ID_EDIT_LOWESS_PARAMS"), GdaFrame::OnEditLowessParams)
     EVT_MENU(XRCID("ID_EDIT_VARIABLES"), GdaFrame::OnEditVariables)
+    EVT_MENU(XRCID("ID_SAVE_CORRELOGRAM_STATS"), GdaFrame::OnSaveStatsToCsv)
     EVT_MENU(XRCID("ID_VIEW_REGIMES_REGRESSION"), GdaFrame::OnViewRegimesRegression)
     EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED"), GdaFrame::OnViewRegressionSelected)
     EVT_MENU(XRCID("ID_VIEW_REGRESSION_SELECTED_EXCLUDED"), GdaFrame::OnViewRegressionSelectedExcluded)

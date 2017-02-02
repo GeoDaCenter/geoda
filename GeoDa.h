@@ -574,6 +574,7 @@ public:
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);
 	void OnEditVariables(wxCommandEvent& event);
+	void OnSaveStatsToCsv(wxCommandEvent& event);
 	void OnViewRegimesRegression(wxCommandEvent& event);
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnViewRegressionSelected(wxCommandEvent& event);

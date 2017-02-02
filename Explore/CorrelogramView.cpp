@@ -116,20 +116,34 @@ CorrelogramFrame::~CorrelogramFrame()
 
 void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
 {
-    if (event.RightUp()) {
+    if (event.RightDown()) {
         const wxPoint& pos = event.GetPosition();
     	// Workaround for right-click not changing window focus in OSX / wxW 3.0
     	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
     	OnActivate(ae);
-    	
-    	wxMenu* optMenu;
-    	optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
-    	if (!optMenu) return;
-    	
-    	UpdateContextMenuItems(optMenu);
-    	PopupMenu(optMenu, pos);
-    	UpdateOptionMenuItems();
+    
+        OnRightClick(pos);
     }
+}
+
+void CorrelogramFrame::OnRightClick(const wxPoint& pos)
+{
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
+    if (!optMenu) return;
+    
+    UpdateContextMenuItems(optMenu);
+    PopupMenu(optMenu, pos);
+    UpdateOptionMenuItems();
+    
+    wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_CORRELOGRAM_STATS"));
+    Connect(save_menu->GetId(), wxEVT_MENU,
+            wxCommandEventHandler(CorrelogramFrame::OnSaveResult));
+}
+
+void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
+{
+    
 }
 
 void CorrelogramFrame::OnActivate(wxActivateEvent& event)
