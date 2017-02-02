@@ -911,62 +911,43 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 {
 	wxLogMessage("Click GdaFrame::OnClose");
 
-    if (IsProjectOpen() == false) {
-        // Close windows not associated managed by Project
-        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-        while (node) {
-            wxWindow* win = node->GetData();
-            if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-                w->Close(true);
+    if (IsProjectOpen()) {
+        bool is_new_project = ((project_p->GetProjectFullPath().empty() ||
+                                !wxFileExists(project_p->GetProjectFullPath())));
+        bool unsaved_meta_data = is_new_project || (project_p->GetSaveButtonManager() && project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
+        bool unsaved_ds_data = project_p->HasUnsavedChange();
+        
+        wxString msg;
+        wxString title;
+        if (unsaved_ds_data) {
+            title = _("Exit with unsaved changes?");
+            msg << "\n";
+            msg << _("There are ");
+            if (!is_new_project) {
+                msg << _("unsaved project file changes, and ");
             }
-            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-                w->EndDialog();
+            if (unsaved_ds_data) {
+                msg << _("unsaved data source (Table) changes.\n\n");
             }
-            node = node->GetNext();
+            if (!is_new_project) {
+                msg << _("To save your project, go to File > Save Project\n\n");
+            }
+            msg << _("To save your work, go to File > Save");
+        } else {
+            title = _("Exit?");
+            msg = _("OK to Exit?");
         }
-        Destroy();
-        return;
+        
+        if (IsProjectOpen()) {
+            wxMessageDialog msgDlg(this, msg, title,
+                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+            // Show the message dialog, and if it returns wxID_YES...
+            if (msgDlg.ShowModal() != wxID_YES)
+                return;
+        }
+        
+        OnCloseProject(true);
     }
-    
-	bool is_new_project = (IsProjectOpen() &&
-						   (project_p->GetProjectFullPath().empty() ||
-							!wxFileExists(project_p->GetProjectFullPath())));
-	bool unsaved_meta_data = is_new_project ||
-		(IsProjectOpen() && project_p->GetSaveButtonManager() &&
-		project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
-	bool unsaved_ds_data = (IsProjectOpen() &&
-							project_p->HasUnsavedChange());
-	
-	wxString msg;
-	wxString title;
-	if (unsaved_ds_data) {
-		title = _("Exit with unsaved changes?");
-		msg << "\n";
-        msg << _("There are ");
-		if (!is_new_project) {
-			msg << _("unsaved project file changes, and ");
-		}
-		if (unsaved_ds_data) {
-			msg << _("unsaved data source (Table) changes.\n\n");
-		}
-		if (!is_new_project) {
-            msg << _("To save your project, go to File > Save Project\n\n");
-        }
-		msg << _("To save your work, go to File > Save");
-	} else {
-		title = _("Exit?");
-		msg = _("OK to Exit?");
-	}
-	
-	if (IsProjectOpen()) {
-		wxMessageDialog msgDlg(this, msg, title,
-							   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-		// Show the message dialog, and if it returns wxID_YES...
-		if (msgDlg.ShowModal() != wxID_YES)
-            return;
-	}
-	
-	OnCloseProject(true);
 
 	// Close windows not associated managed by Project
 	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
@@ -975,6 +956,9 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
 			w->Close(true);
 		}
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+            w->EndDialog();
+        }
         node = node->GetNext();
     }
 	Destroy();
