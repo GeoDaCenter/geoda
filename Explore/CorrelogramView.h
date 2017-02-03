@@ -84,11 +84,11 @@ public:
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
 	virtual void notifyNewHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+                                int total_hover_obs);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
 	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+                                    int total_hover_obs);
 	
     virtual void OnRightClick(const wxPoint& pos);
     
@@ -101,6 +101,7 @@ protected:
 	void UpdateMessageWin();
 	void UpdateDataMapFromVarMan();
 	bool UpdateCorrelogramData();
+    double GetEstDistWithZeroAutocorr(double& rng_left, double& rng_right);
 	
     Project* project;
 	CorrelParamsFrame* correl_params_frame;

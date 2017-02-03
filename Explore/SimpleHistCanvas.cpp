@@ -130,7 +130,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     int row_gap = 3;
     int col_gap = 10;
     int x_nudge = -22;
-    int y_nudge = -60;
+    int y_nudge = -70;
     
     int virtual_screen_marg_top = 0;//20;
     int virtual_screen_marg_right = 0;//20;
@@ -165,9 +165,24 @@ void SimpleHistStatsCanvas::PopulateCanvas()
                               wxRealPoint(orig_x_pos[i], 0),
                               GdaShapeText::h_center, GdaShapeText::top,
                               GdaShapeText::h_center, GdaShapeText::v_center,
-                              3, 10, 0, -60);
+                              3, 10, 0, -70);
         foreground_shps.push_back(s1);
     }
+    
+    wxString sts;
+    sts << "min: " << stats[0];
+    sts << ", max: " << wxString::Format("%.3f", stats[1]);
+    sts << ", total # pairs: " << stats[2];
+    if (stats[5] >= 0) {
+        sts << ", Autocorr. = 0 at " << wxString::Format("~%.3f", stats[5]);
+        sts << " in range: [" << wxString::Format("%.3f", stats[3]) << "," << wxString::Format("%.3f", stats[4]) << "]";
+    }
+    
+    s = new GdaShapeText(sts, *GdaConst::small_font,
+                         wxRealPoint(x_max/2.0, 0), 0,
+                         GdaShapeText::h_center, GdaShapeText::v_center,
+                         0, table_h - 60);
+    foreground_shps.push_back(s);
     
     ResizeSelectableShps(table_w, table_h);
 }
@@ -356,7 +371,10 @@ void SimpleHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     	for (int i=0; i<total_sel_shps; i++) {
     		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
     		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-                             (rect_sel && GenGeomAlgs::RectsIntersect(rec->lower_left, rec->upper_right, lower_left, upper_right)));
+                             (rect_sel &&
+                              GenGeomAlgs::RectsIntersect(rec->lower_left,
+                                                          rec->upper_right, lower_left,
+                                                          upper_right)));
     		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
     		if (pointsel && all_sel && selected) {
     			// unselect all in ival

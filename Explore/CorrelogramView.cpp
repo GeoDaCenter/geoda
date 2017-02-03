@@ -22,9 +22,13 @@
 #include <iomanip>
 #include <utility> // std::pair
 #include <boost/foreach.hpp>
+
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include <wx/wfstream.h>
+#include <wx/txtstrm.h>
+
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
@@ -143,7 +147,58 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
 
 void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
 {
+    wxLogMessage("In CorrelogramFrame::OnSaveResult()");
+    wxFileDialog
+    saveFileDialog(this, _("Save Statistics file"), "", "",
+                   "csv files (*.csv)|*.csv", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
     
+    wxFileOutputStream output_stream(saveFileDialog.GetPath());
+    if (!output_stream.IsOk())
+    {
+        wxLogError("Cannot save current contents in file '%s'.", saveFileDialog.GetPath());
+        return;
+    }
+    // write logReport to a text file
+    wxTextOutputStream txt_out( output_stream );
+    txt_out << "";
+    
+    vector<wxString> lbls;
+    lbls.push_back("Autocorr.");
+    lbls.push_back("Min");
+    lbls.push_back("Max");
+    lbls.push_back("# Pairs");
+   
+    wxString header = "";
+    int total_pairs = 0;
+    for (size_t i=0; i<cbins.size(); ++i) {
+        header << "," << "bin-" << i;
+        lbls[0] << "," << cbins[i].corr_avg;
+        lbls[1] << "," << cbins[i].dist_min;
+        lbls[2] << "," << cbins[i].dist_max;
+        lbls[3] << "," << cbins[i].num_pairs;
+        total_pairs += cbins[i].num_pairs;
+    }
+    
+    txt_out << header << "\n";
+    for (size_t i=0; i<lbls.size(); i++) {
+        txt_out << lbls[i] << "\n";
+    }
+    
+    double min = cbins[0].dist_min;
+    double max = cbins[cbins.size()-1].dist_max;
+    double range_left = 0, range_right=0;
+    double est_dist = GetEstDistWithZeroAutocorr(range_left, range_right);
+    
+    txt_out << "\nSummary:\n";
+    txt_out << "min dist, max dist, total # pairs, Autocorr.=0 range, est. distance\n";
+    txt_out << min << "," << max << "," << total_pairs << ",";
+    txt_out << "[" << range_left << " : " << range_right << "],";
+    txt_out << est_dist << "\n";
+    
+    txt_out.Flush();
+    output_stream.Close();
 }
 
 void CorrelogramFrame::OnActivate(wxActivateEvent& event)
@@ -171,8 +226,7 @@ void CorrelogramFrame::UpdateOptionMenuItems()
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
-	if (menu == wxNOT_FOUND) {
-	} else {
+	if (menu != wxNOT_FOUND) {
 		CorrelogramFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
 }
@@ -211,7 +265,8 @@ void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 /** Implementation of TableStateObserver interface */
 void CorrelogramFrame::update(TableState* o)
 {
-	if (correl_params_frame) correl_params_frame->UpdateFromTable();
+	if (correl_params_frame)
+        correl_params_frame->UpdateFromTable();
 }
 
 /** Implementation of TimeStateObserver interface */
@@ -660,6 +715,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     vector<vector<double> > vals;
     vector<double> stats;
     
+    int sum_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
         vector<double> sub_vals;
         sub_vals.push_back(cbins[i].corr_avg);
@@ -667,7 +723,19 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
         sub_vals.push_back(cbins[i].dist_max);
         sub_vals.push_back(cbins[i].num_pairs);
         vals.push_back(sub_vals);
+        sum_pairs += cbins[i].num_pairs;
     }
+   
+    double min = cbins[0].dist_min;
+    double max = cbins[cbins.size()-1].dist_max;
+    double range_left = 0, range_right=0;
+    double est_dist = GetEstDistWithZeroAutocorr(range_left, range_right);
+    stats.push_back(min);
+    stats.push_back(max);
+    stats.push_back(sum_pairs);
+    stats.push_back(range_left);
+    stats.push_back(range_right);
+    stats.push_back(est_dist);
     
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
@@ -690,6 +758,32 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
+}
+
+double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
+                                                    double& rng_right)
+{
+    double rst = -1;
+    for (size_t i=0; i<cbins.size()-1; ++i) {
+        double a1 = cbins[i].corr_avg;
+        double a2 = cbins[i+1].corr_avg;
+        bool cross_axis_down = a1 == abs(a1) && a2 != abs(a2);
+        bool cross_axis_up = a1 != abs(a1) && a2 == abs(a2);
+        
+        if ( cross_axis_down || cross_axis_up ) {
+            double d1 = (cbins[i].dist_max + cbins[i].dist_min) / 2.0;
+            double d2 = (cbins[i+1].dist_max + cbins[i+1].dist_min) / 2.0;
+          
+            rng_left = d1;
+            rng_right = d2;
+            
+            //(d2 - d) / (a2 -0) = (d2 - d1) / (a2 - a1) ;
+            double d = d2 - (d2 - d1) / (a2 - a1) * a2;
+            rst = d;
+            break;
+        }
+    }
+    return rst;
 }
 
 void CorrelogramFrame::UpdateMessageWin()
