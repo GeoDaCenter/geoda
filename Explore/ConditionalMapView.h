@@ -20,8 +20,11 @@
 #ifndef __GEODA_CENTER_CONDITIONAL_MAP_VIEW_H__
 #define __GEODA_CENTER_CONDITIONAL_MAP_VIEW_H__
 
+#include <vector>
 #include "../TemplateLegend.h"
 #include "ConditionalNewView.h"
+
+using namespace std;
 
 class ConditionalMapFrame;
 class ConditionalMapCanvas;
@@ -32,12 +35,13 @@ class ConditionalMapCanvas : public ConditionalNewCanvas {
 	DECLARE_CLASS(ConditionalMapCanvas)
 public:
 	
-	ConditionalMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-					   Project* project,
-					   const std::vector<GdaVarTools::VarInfo>& var_info,
-					   const std::vector<int>& col_ids,
-					   const wxPoint& pos = wxDefaultPosition,
-					   const wxSize& size = wxDefaultSize);
+    ConditionalMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                         Project* project,
+                         const vector<GdaVarTools::VarInfo>& var_info,
+                         const vector<int>& col_ids,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize);
+    
 	virtual ~ConditionalMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCategoriesTitle();
@@ -77,11 +81,11 @@ public:
 protected:
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories
-	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-    std::vector<std::vector<bool> > cat_var_undef;
+	vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    vector<vector<bool> > cat_var_undef;
     
-	std::vector<bool> map_valid;
-	std::vector<wxString> map_error_message;
+	vector<bool> map_valid;
+	vector<wxString> map_error_message;
 	
 	// background map related:
 	wxBitmap* bin_bm;
@@ -108,8 +112,8 @@ class ConditionalMapFrame : public ConditionalNewFrame {
    DECLARE_CLASS(ConditionalMapFrame)
 public:
     ConditionalMapFrame(wxFrame *parent, Project* project,
-					  const std::vector<GdaVarTools::VarInfo>& var_info,
-					  const std::vector<int>& col_ids,
+					  const vector<GdaVarTools::VarInfo>& var_info,
+					  const vector<int>& col_ids,
 					  const wxString& title = _("Conditional Map"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,

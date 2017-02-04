@@ -101,6 +101,8 @@ public:
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 	void OnAddNeighborToSelection(wxCommandEvent& event);
+    
+    void OnShowAsConditionalMap(wxCommandEvent& event);
 	
 	virtual void update(LisaCoordinator* o);
 	virtual void closeObserver(LisaCoordinator* o);

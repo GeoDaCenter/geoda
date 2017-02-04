@@ -847,6 +847,11 @@ void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
     }
 }
 
+void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
+{
+    
+}
+
 /** Called by GStatCoordinator to notify that state has changed.  State changes
  can include:
  - variable sync change and therefore all Gi categories have changed

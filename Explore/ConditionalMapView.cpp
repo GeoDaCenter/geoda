@@ -17,11 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm> // std::sort
+#include <algorithm> // sort
 #include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <vector>
 #include <boost/foreach.hpp>
 #include <wx/dcbuffer.h>
 #include <wx/msgdlg.h>
@@ -39,6 +40,7 @@
 #include "../ShapeOperations/ShapeUtils.h"
 #include "ConditionalMapView.h"
 
+using namespace std;
 
 IMPLEMENT_CLASS(ConditionalMapCanvas, ConditionalNewCanvas)
 BEGIN_EVENT_TABLE(ConditionalMapCanvas, ConditionalNewCanvas)
@@ -54,8 +56,8 @@ ConditionalMapCanvas::
 ConditionalMapCanvas(wxWindow *parent,
                      TemplateFrame* t_frame,
                      Project* project_s,
-                     const std::vector<GdaVarTools::VarInfo>& v_info,
-                     const std::vector<int>& col_ids,
+                     const vector<GdaVarTools::VarInfo>& v_info,
+                     const vector<int>& col_ids,
                      const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   true, true, pos, size),
@@ -110,29 +112,6 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
-	
-	// Due to problems with zooming, the following menu options have been
-	// temporarily removed from the XRC file:
-	//<object class="wxMenuItem" name="ID_SELECTION_MODE">
-	//<label>Selection Mode</label>
-	//<checkable>1</checkable>
-    //</object>
-    //<object class="wxMenuItem" name="ID_PAN_MODE">
-	//<label>Panning Mode</label>
-	//<checkable>1</checkable>
-    //</object>
-    //<object class="wxMenuItem" name="ID_ZOOM_MODE">
-	//<label>Zooming Mode</label>
-	//<checkable>1</checkable>
-    //</object>
-    //<object class="wxMenuItem" name="ID_FIT_TO_WINDOW_MODE">
-	//<label>Fit-To-Window Mode</label>
-	//<checkable>1</checkable>
-    //</object>
-    //<object class="wxMenuItem" name="ID_FIXED_ASPECT_RATIO_MODE">
-	//<label>Fixed Aspect Ratio Mode</label>
-	//<checkable>1</checkable>
-    //</object>
 	
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu,
@@ -337,7 +316,7 @@ void ConditionalMapCanvas::OnSaveCategories()
 	wxString title;
 	title << "Save " << label;
     
-    std::vector<bool> undefs(num_obs, false);
+    vector<bool> undefs(num_obs, false);
     
     for (size_t i=0; i<cat_var_undef.size(); i++) {
         for (size_t j=0; j<cat_var_undef[i].size(); j++) {
@@ -358,7 +337,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 	if (cat_classif_def_map.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(cat_classif_def_map.num_cats,
 										 cat_classif_def_map);
-		std::vector<wxString> temp_cat_labels; // will be ignored
+		vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_map.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[var_info[CAT_VAR].time],
@@ -419,13 +398,16 @@ void ConditionalMapCanvas::ChangeCatThemeType(
             return;
 		if (cc_state_map == new_ccs)
             return;
-		if (cc_state_map)
+        if (cc_state_map) {
             cc_state_map->removeObserver(this);
+        }
 		cc_state_map = new_ccs;
 		cc_state_map->registerObserver(this);
 		cat_classif_def_map = cc_state_map->GetCatClassif();
 	} else {
-		if (cc_state_map) cc_state_map->removeObserver(this);
+        if (cc_state_map) {
+            cc_state_map->removeObserver(this);
+        }
 		cc_state_map = 0;
 	}
 	SetCatType(new_cat_theme);
@@ -440,8 +422,6 @@ void ConditionalMapCanvas::ChangeCatThemeType(
 		}
 	}
 }
-
-
 
 void ConditionalMapCanvas::update(CatClassifState* o)
 {
@@ -603,8 +583,8 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
 		
-	std::vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
-	std::vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
+	vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
+	vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
 	
 	for (int row=0; row<vert_num_cats-1; row++) {
 		double y = (bin_extents[row][0].lower_left.y +
@@ -846,12 +826,12 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Sort each vector in ascending order
-	std::sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
+	sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
 			  Gda::dbl_int_pair_cmp_less);
     
 	if (var_info[CAT_VAR].sync_with_global_time) {
 		for (int t=1; t<num_time_vals; t++) {
-			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
+			sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
 					  Gda::dbl_int_pair_cmp_less);
 		}
 	} else {
@@ -871,7 +851,8 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
                                               cat_var_undef,
-											  cat_data, map_valid,
+											  cat_data,
+                                              map_valid,
 											  map_error_message,
                                               this->useScientificNotation);
 	if (ref_var_index != -1) {
@@ -910,7 +891,7 @@ void ConditionalMapCanvas::UpdateStatusBar()
     
     int t = var_info[CAT_VAR].time;
     
-    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    const vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
@@ -967,8 +948,8 @@ BEGIN_EVENT_TABLE(ConditionalMapFrame, ConditionalNewFrame)
 END_EVENT_TABLE()
 
 ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
-									 const std::vector<GdaVarTools::VarInfo>& var_info,
-									 const std::vector<int>& col_ids,
+									 const vector<GdaVarTools::VarInfo>& var_info,
+									 const vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,

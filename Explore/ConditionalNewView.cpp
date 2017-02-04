@@ -86,7 +86,7 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 	}
     
 	horiz_num_time_vals = data[HOR_VAR].size();
-	vert_num_time_vals = data[VERT_VAR].size();
+	vert_num_time_vals  = data[VERT_VAR].size();
     
     horiz_undef_tms.resize(horiz_num_time_vals);
     vert_undef_tms.resize(vert_num_time_vals);

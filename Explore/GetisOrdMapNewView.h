@@ -110,6 +110,8 @@ public:
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 	void OnAddNeighborToSelection(wxCommandEvent& event);
     
+    void OnShowAsConditionalMap(wxCommandEvent& event);
+    
 	virtual void update(GStatCoordinator* o);
 	virtual void closeObserver(GStatCoordinator* o);
 	GStatCoordinator* GetGStatCoordinator() { return gs_coord; }

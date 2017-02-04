@@ -31,6 +31,8 @@
 #include "../Project.h"
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
+#include "../DialogTools/VariableSettingsDlg.h"
+#include "ConditionalClusterMapView.h"
 #include "LisaCoordinator.h"
 #include "LisaMapNewView.h"
 #include "../ShpFile.h"
@@ -841,6 +843,25 @@ void LisaMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
         hs.SetEventType(HLStateInt::delta);
         hs.notifyObservers();
     }
+}
+
+void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
+{
+    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
+                            false, false,
+                            _("Conditional LISA Map Variables"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"));
+    
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    
+    ConditionalClusterMapFrame* subframe =
+    new ConditionalClusterMapFrame(this, project,
+                                   dlg.var_info, dlg.col_ids, lisa_coord,
+                                   _("Conditional LISA  Map"), wxDefaultPosition,
+                                   GdaConst::cond_view_default_size);
 }
 
 /** Called by LisaCoordinator to notify that state has changed.  State changes

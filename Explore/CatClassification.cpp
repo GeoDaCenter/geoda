@@ -1601,8 +1601,8 @@ SetNaturalBreaksCats(int num_cats,
 	}
 }
 
-CatClassification::ColorScheme CatClassification::GetColSchmForType(
-													CatClassifType theme)
+CatClassification::ColorScheme
+CatClassification::GetColSchmForType(CatClassifType theme)
 {
 	if (theme == CatClassification::no_theme ||
 		theme == CatClassification::custom) {

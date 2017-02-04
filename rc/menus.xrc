@@ -2425,8 +2425,11 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SHOW_AS_COND_MAP">
+        <label>Show As Conditional Map</label>
+    </object>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Add Neighbors To Selection</label>
+        <label>Show Cores and Neighbors</label>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
@@ -2543,8 +2546,11 @@
       <label>Save Results</label>
     </object>
     <object class="separator"/>
+    <object class="wxMenuItem" name="ID_SHOW_AS_COND_MAP">
+        <label>Show As Conditional Map</label>
+    </object>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Add Neighbors To Selection</label>
+        <label>Show Cores and Neighbors</label>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
