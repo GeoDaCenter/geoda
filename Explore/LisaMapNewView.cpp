@@ -857,10 +857,12 @@ void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
         return;
     }
     
+	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
+    wxString title = lc->GetCanvasTitle();
     ConditionalClusterMapFrame* subframe =
     new ConditionalClusterMapFrame(this, project,
                                    dlg.var_info, dlg.col_ids, lisa_coord,
-                                   _("Conditional LISA  Map"), wxDefaultPosition,
+                                   title, wxDefaultPosition,
                                    GdaConst::cond_view_default_size);
 }
 

@@ -53,7 +53,7 @@ using namespace std;
 DatasourceDlg::DatasourceDlg()
 : is_ok_clicked(false), eventLoop(NULL)
 {
-    
+	Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(DatasourceDlg::OnExit) );
 }
 
 DatasourceDlg::~DatasourceDlg()
@@ -71,6 +71,9 @@ int DatasourceDlg::ShowModal()
     
     // mow to stop execution start a event loop
     eventLoop = new wxEventLoop;
+    if (eventLoop == NULL)
+        return wxID_CANCEL;
+    
     eventLoop->Run();
     
     if (is_ok_clicked)
@@ -86,6 +89,11 @@ void DatasourceDlg::EndDialog()
 }
 
 void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
+{
+    EndDialog();
+}
+
+void DatasourceDlg::OnExit(wxCloseEvent& e)
 {
     EndDialog();
 }

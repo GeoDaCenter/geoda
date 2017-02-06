@@ -61,6 +61,7 @@ ConditionalClusterMapCanvas(wxWindow *parent,
                             Project* project_s,
                             const vector<GdaVarTools::VarInfo>& v_info,
                             const vector<int>& col_ids,
+                            const wxString& ttl,
                             const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   true, true, pos, size),
@@ -68,7 +69,8 @@ num_categories(1),bin_bm(0),
 bin_bg_map_pen(wxColor(200,200,200)),
 bin_bg_map_brush(wxColor(200,200,200)),
 cc_state_map(0),
-full_map_redraw_needed(true)
+full_map_redraw_needed(true),
+title(ttl)
 {
 
 }
@@ -117,7 +119,10 @@ void ConditionalClusterMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
-	
+
+    wxMenuItem* first_map_menu_item = optMenu->FindItemByPosition(0);
+    optMenu->Delete(first_map_menu_item);
+    
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
@@ -134,6 +139,21 @@ void ConditionalClusterMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 void ConditionalClusterMapCanvas::OnScrollChanged(wxScrollWinEvent& event)
 {
 	event.Skip();
+}
+
+wxString ConditionalClusterMapCanvas::GetCategoriesTitle()
+{
+	return title;
+}
+
+wxString ConditionalClusterMapCanvas::GetCanvasTitle()
+{
+	wxString v;
+	v << "Conditional Map - ";
+	v << "x: " << GetNameWithTime(HOR_VAR);
+	v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << ", " << title;
+	return v;
 }
 
 
@@ -746,8 +766,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
                            LisaCoordinator* lisa_coord,
                            const wxString& title, const wxPoint& pos,
                            const wxSize& size, const long style)
-: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
-					  size, style)
+: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,size, style)
 {
     
     wxLogMessage("Open ConditionalNewFrame -- LISA.");
@@ -762,10 +781,11 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
     template_canvas = new ConditionalLISAClusterMapCanvas(rpanel, this, project,
-                                                      var_info, col_ids,
-                                                      lisa_coord,
-                                                      wxDefaultPosition,
-                                                      wxDefaultSize);
+                                                          var_info, col_ids,
+                                                          lisa_coord,
+                                                          title,
+                                                          wxDefaultPosition,
+                                                          wxDefaultSize);
 	SetTitle(template_canvas->GetCanvasTitle());
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
@@ -796,6 +816,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
                            const vector<GdaVarTools::VarInfo>& var_info,
                            const vector<int>& col_ids,
                            GStatCoordinator* g_coord,
+                           bool is_gi, bool is_perm,
                            const wxString& title, const wxPoint& pos,
                            const wxSize& size, const long style)
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
@@ -814,10 +835,11 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
     
     wxPanel* rpanel = new wxPanel(splitter_win);
     template_canvas = new ConditionalGClusterMapCanvas(rpanel, this, project,
-                                                          var_info, col_ids,
-                                                          g_coord,
-                                                          wxDefaultPosition,
-                                                          wxDefaultSize);
+                                                       var_info, col_ids,
+                                                       g_coord, is_gi, is_perm,
+                                                       title,
+                                                       wxDefaultPosition,
+                                                       wxDefaultSize);
     SetTitle(template_canvas->GetCanvasTitle());
     template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
@@ -864,10 +886,12 @@ void ConditionalClusterMapFrame::MapMenus()
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
-	((ConditionalClusterMapCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+    
+    wxMenuItem* first_map_menu_item = optMenu->FindItemByPosition(0);
+    optMenu->Delete(first_map_menu_item);
+
+	((ConditionalClusterMapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((ConditionalClusterMapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
@@ -988,9 +1012,10 @@ ConditionalLISAClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 const vector<GdaVarTools::VarInfo>& var_info,
                                 const vector<int>& col_ids,
                                 LisaCoordinator* lisa_coordinator,
+                                const wxString& title,
                                 const wxPoint& pos,
                                 const wxSize& size)
-: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, pos, size),
+: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, title, pos, size),
 lisa_coord(lisa_coordinator)
 {
     Init(size);
@@ -999,23 +1024,6 @@ lisa_coord(lisa_coordinator)
 ConditionalLISAClusterMapCanvas::~ConditionalLISAClusterMapCanvas()
 {
     
-}
-
-wxString ConditionalLISAClusterMapCanvas::GetCategoriesTitle()
-{
-	wxString v;
-    v << "LISA Cluster Map: " << lisa_coord->var_info[0].name;
-	return v;
-}
-
-wxString ConditionalLISAClusterMapCanvas::GetCanvasTitle()
-{
-	wxString v;
-	v << "Conditional Map - ";
-	v << "x: " << GetNameWithTime(HOR_VAR);
-	v << ", y: " << GetNameWithTime(VERT_VAR);
-    v << ", LISA:" << lisa_coord->var_info[0].name;
-	return v;
 }
 
 void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
@@ -1218,10 +1226,13 @@ ConditionalGClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              const vector<GdaVarTools::VarInfo>& var_info,
                              const vector<int>& col_ids,
                              GStatCoordinator* g_coordinator,
+                             bool is_gi_,
+                             bool is_perm_,
+                             const wxString& title,
                              const wxPoint& pos,
                              const wxSize& size)
-: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, pos, size),
-g_coord(g_coordinator)
+: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, title, pos, size),
+g_coord(g_coordinator), is_gi(is_gi_), is_perm(is_perm_)
 {
     Init(size);
 }
@@ -1229,23 +1240,6 @@ g_coord(g_coordinator)
 ConditionalGClusterMapCanvas::~ConditionalGClusterMapCanvas()
 {
     
-}
-
-wxString ConditionalGClusterMapCanvas::GetCategoriesTitle()
-{
-	wxString v;
-    v << "LISA Cluster Map: " << g_coord->var_info[0].name;
-	return v;
-}
-
-wxString ConditionalGClusterMapCanvas::GetCanvasTitle()
-{
-	wxString v;
-	v << "Conditional Map - ";
-	v << "x: " << GetNameWithTime(HOR_VAR);
-	v << ", y: " << GetNameWithTime(VERT_VAR);
-    v << ", LISA:" << g_coord->var_info[0].name;
-	return v;
 }
 
 void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
@@ -1271,8 +1265,6 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
         vector<wxInt64> cluster;
-        bool is_gi = false;
-        bool is_perm = false;
         g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0; i<num_obs; i++) {
@@ -1353,8 +1345,6 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         vector<wxInt64> cluster;
-        bool is_gi = false;
-        bool is_perm = false;
         g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0, iend=g_coord->num_obs; i<iend; i++) {

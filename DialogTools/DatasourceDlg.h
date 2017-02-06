@@ -49,7 +49,9 @@ public:
     DatasourceDlg();
     virtual ~DatasourceDlg();
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
-	
+
+    void OnExit(wxCloseEvent& e);
+    
 	wxFileName      ds_file_path;
     
 protected:

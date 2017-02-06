@@ -861,10 +861,12 @@ void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
         return;
     }
     
+	GetisOrdMapCanvas* lc = (GetisOrdMapCanvas*) template_canvas;
+    wxString title = lc->GetCanvasTitle();
     ConditionalClusterMapFrame* subframe =
     new ConditionalClusterMapFrame(this, project,
-                                   dlg.var_info, dlg.col_ids, gs_coord,
-                                   _("Conditional G Cluster Map"), wxDefaultPosition,
+                                   dlg.var_info, dlg.col_ids, gs_coord, is_gi, is_perm,
+                                   title, wxDefaultPosition,
                                    GdaConst::cond_view_default_size);
 }
 

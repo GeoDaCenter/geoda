@@ -125,10 +125,10 @@ fi
 #########################################################################
 # install wxWidgets library
 #########################################################################
-LIB_NAME=wxWidgets-3.0.2
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_NAME=wxWidgets-3.1.0
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-LIB_CHECKER=libwx_baseu-3.0.a
+LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
 
 cd $DOWNLOAD_HOME
@@ -144,7 +144,8 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
     make clean
-    ./configure --with-cocoa --disable-shared --enable-mediactrl=no --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --disable-mediactrl --with-macosx-sdk=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk --prefix=$PREFIX
+    ./configure --with-cocoa --disable-shared --enable-mediactrl=no --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --disable-mediactrl -prefix=$PREFIX
+    #./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

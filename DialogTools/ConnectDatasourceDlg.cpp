@@ -375,6 +375,8 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxFrame )
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
     EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
+    EVT_BUTTON(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
+    EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 
@@ -382,7 +384,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
                                            bool showRecentPanel_)
-:datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_),
+:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_),
 showRecentPanel(showRecentPanel_)
 {
     base_xrcid_recent_thumb = 7000;
