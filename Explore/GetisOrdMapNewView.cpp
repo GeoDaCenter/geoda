@@ -33,6 +33,8 @@
 #include "../Project.h"
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
+#include "../DialogTools/VariableSettingsDlg.h"
+#include "ConditionalClusterMapView.h"
 #include "GStatCoordinator.h"
 #include "GetisOrdMapNewView.h"
 
@@ -849,7 +851,21 @@ void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 
 void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
+    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
+                            false, false,
+                            _("Conditional G Cluster Map Variables"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"));
     
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    
+    ConditionalClusterMapFrame* subframe =
+    new ConditionalClusterMapFrame(this, project,
+                                   dlg.var_info, dlg.col_ids, gs_coord,
+                                   _("Conditional G Cluster Map"), wxDefaultPosition,
+                                   GdaConst::cond_view_default_size);
 }
 
 /** Called by GStatCoordinator to notify that state has changed.  State changes

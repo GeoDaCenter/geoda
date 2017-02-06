@@ -39,6 +39,7 @@
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
 #include "LisaCoordinator.h"
+#include "GStatCoordinator.h"
 
 #include "ConditionalClusterMapView.h"
 
@@ -60,7 +61,6 @@ ConditionalClusterMapCanvas(wxWindow *parent,
                             Project* project_s,
                             const vector<GdaVarTools::VarInfo>& v_info,
                             const vector<int>& col_ids,
-                            LisaCoordinator* lisa_coord,
                             const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   true, true, pos, size),
@@ -68,15 +68,24 @@ num_categories(1),bin_bm(0),
 bin_bg_map_pen(wxColor(200,200,200)),
 bin_bg_map_brush(wxColor(200,200,200)),
 cc_state_map(0),
-full_map_redraw_needed(true),
-lisa_coord(lisa_coord)
+full_map_redraw_needed(true)
+{
+
+}
+
+ConditionalClusterMapCanvas::~ConditionalClusterMapCanvas()
+{
+	if (cc_state_map) cc_state_map->removeObserver(this);
+}
+
+void ConditionalClusterMapCanvas::Init(const wxSize& size)
 {
     is_any_sync_with_global_time = true;
-	using namespace Shapefile;
-	SetCatType(CatClassification::custom);
-	
-	selectable_fill_color = GdaConst::map_default_fill_colour;
-
+    using namespace Shapefile;
+    SetCatType(CatClassification::custom);
+    
+    selectable_fill_color = GdaConst::map_default_fill_colour;
+    
     last_scale_trans.SetMargin(25,50,50,25);
     last_scale_trans.SetFixedAspectRatio(false);
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
@@ -84,25 +93,20 @@ lisa_coord(lisa_coord)
                              project->main_data.header.bbox_x_max,
                              project->main_data.header.bbox_y_max);
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
-  
     
-	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
-		selectable_shps_type = points;
-		highlight_color = *wxRED;
-	} else {
-		selectable_shps_type = polygons;
-		highlight_color = GdaConst::map_default_highlight_colour;
-	}
+    
+    if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
+        selectable_shps_type = points;
+        highlight_color = *wxRED;
+    } else {
+        selectable_shps_type = polygons;
+        highlight_color = GdaConst::map_default_highlight_colour;
+    }
     
    	use_category_brushes = true;
     ChangeCatThemeType(CatClassification::custom, 5);
-	
-	all_init = true;
-}
-
-ConditionalClusterMapCanvas::~ConditionalClusterMapCanvas()
-{
-	if (cc_state_map) cc_state_map->removeObserver(this);
+    
+    all_init = true;
 }
 
 void ConditionalClusterMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -273,23 +277,6 @@ void ConditionalClusterMapCanvas::SetCheckMarks(wxMenu* menu)
 								   CatClassification::natural_breaks)
 								  && GetNumCats() == 10);
 	
-}
-
-wxString ConditionalClusterMapCanvas::GetCategoriesTitle()
-{
-	wxString v;
-    v << "LISA Cluster Map: " << lisa_coord->var_info[0].name;
-	return v;
-}
-
-wxString ConditionalClusterMapCanvas::GetCanvasTitle()
-{
-	wxString v;
-	v << "Conditional Map - ";
-	v << "x: " << GetNameWithTime(HOR_VAR);
-	v << ", y: " << GetNameWithTime(VERT_VAR);
-    v << ", LISA:" << lisa_coord->var_info[0].name;
-	return v;
 }
 
 void ConditionalClusterMapCanvas::OnSaveCategories()
@@ -720,148 +707,7 @@ void ConditionalClusterMapCanvas::TimeChange()
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index.
  This method populates cat_var_sorted from data array. */
-void ConditionalClusterMapCanvas::CreateAndUpdateCategories()
-{
-	cat_var_sorted.clear();
-	map_valid.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++)
-        map_valid[t] = true;
-    
-	map_error_message.resize(num_time_vals);
-    
-	for (int t=0; t<num_time_vals; t++)
-        map_error_message[t] = wxEmptyString;
-	
-	//NOTE: cat_var_sorted is sized to current num_time_vals, but
-	// cat_var_sorted_vert and horiz is sized to all available number time
-	// vals.  Perhaps this should be moved into the constructor since
-	// we do not allow smoothing with multiple time variables.
-	cat_var_sorted.resize(num_time_vals);
-    cat_var_undef.resize(num_time_vals);
-    
-	for (int t=0; t<num_time_vals; t++) {
-		cat_var_sorted[t].resize(num_obs);
-        cat_var_undef[t].resize(num_obs);
-        
-		for (int i=0; i<num_obs; i++) {
-			cat_var_sorted[t][i].first = lisa_coord->cluster_vecs[t][i];
-			cat_var_sorted[t][i].second = i;
-            
-            cat_var_undef[t][i] = lisa_coord->undef_data[0][t][i];
-		}
-	}
-	
-	// Sort each vector in ascending order
-	sort(cat_var_sorted[0].begin(),
-         cat_var_sorted[0].end(), Gda::dbl_int_pair_cmp_less);
-    
-	if (is_any_sync_with_global_time) {
-		for (int t=1; t<num_time_vals; t++) {
-			sort(cat_var_sorted[t].begin(),
-                 cat_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
-		}
-	} else {
-		// just copy first sorted results
-		for (int t=1; t<num_time_vals; t++) {
-			cat_var_sorted[t] = cat_var_sorted[0];
-		}
-	}
-	
-    cat_classif_def_map.color_scheme = CatClassification::custom_color_scheme;
-    
-    // get cat_data
-    int num_time = lisa_coord->num_time_vals;
-    int num_obs = lisa_coord->num_obs;
-    cat_data.CreateEmptyCategories(num_time, num_obs);
-    
-    for (int t=0; t<num_time_vals; t++) {
-        int undefined_cat = -1;
-        int isolates_cat = -1;
-        int num_cats = 0;
-        double stop_sig = 0;
-        
-        if (lisa_coord->GetHasIsolates(t))
-            num_cats++;
-        if (lisa_coord->GetHasUndefined(t))
-            num_cats++;
-        
-        num_cats += 5;
-       
-        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-        
-        Shapefile::Header& hdr = project->main_data.header;
-        
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
-        
-        if (hdr.shape_type == Shapefile::POINT_TYP) {
-            cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-        } else {
-            cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-        }
-        cat_data.SetCategoryLabel(t, 1, "High-High");
-        cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
-        cat_data.SetCategoryLabel(t, 2, "Low-Low");
-        cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
-        cat_data.SetCategoryLabel(t, 3, "Low-High");
-        cat_data.SetCategoryColor(t, 3, wxColour(150, 150, 255));
-        cat_data.SetCategoryLabel(t, 4, "High-Low");
-        cat_data.SetCategoryColor(t, 4, wxColour(255, 150, 150));
-        if (lisa_coord->GetHasIsolates(t) &&
-            lisa_coord->GetHasUndefined(t)) {
-            isolates_cat = 5;
-            undefined_cat = 6;
-        } else if (lisa_coord->GetHasUndefined(t)) {
-            undefined_cat = 5;
-        } else if (lisa_coord->GetHasIsolates(t)) {
-            isolates_cat = 5;
-        }
-        
-        if (undefined_cat != -1) {
-            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-            cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
-        }
-        if (isolates_cat != -1) {
-            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-            cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
-        }
-       
-        double cuttoff = lisa_coord->significance_cutoff;
-        double* p = lisa_coord->sig_local_moran_vecs[t];
-        int* cluster = lisa_coord->cluster_vecs[t];
-        int* sigCat = lisa_coord->sig_cat_vecs[t];
-        
-        for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
-            if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
-                cat_data.AppendIdToCategory(t, 0, i); // not significant
-            } else if (cluster[i] == 5) {
-                cat_data.AppendIdToCategory(t, isolates_cat, i);
-            } else if (cluster[i] == 6) {
-                cat_data.AppendIdToCategory(t, undefined_cat, i);
-            } else {
-                cat_data.AppendIdToCategory(t, cluster[i], i);
-            }
-        }
-        for (int cat=0; cat<num_cats; cat++) {
-            cat_data.SetCategoryCount(t, cat,
-                                      cat_data.GetNumObsInCategory(t, cat));
-        }
-    }
-    
-    cat_data.SetCurrentCanvasTmStep(0);
-    int mt = cat_data.GetCurrentCanvasTmStep();
-    num_categories = cat_data.categories[mt].cat_vec.size();
-    CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
-    
-}
 
-void ConditionalClusterMapCanvas::TimeSyncVariableToggle(int var_index)
-{
-	lisa_coord->var_info[0].sync_with_global_time = !lisa_coord->var_info[0].sync_with_global_time;
-	
-	VarInfoAttributeChange();
-	CreateAndUpdateCategories();
-	PopulateCanvas();
-}
 
 CatClassification::CatClassifType ConditionalClusterMapCanvas::GetCatType()
 {
@@ -873,51 +719,7 @@ void ConditionalClusterMapCanvas::SetCatType(CatClassification::CatClassifType t
 	cat_classif_def_map.cat_classif_type = t;
 }
 
-void ConditionalClusterMapCanvas::UpdateStatusBar()
-{
-	wxStatusBar* sb = template_frame->GetStatusBar();
-	if (!sb) return;
-    
-    //int t = var_info[CAT_VAR].time;
-    int t = 0;
-    
-    const vector<bool>& hl = highlight_state->GetHighlight();
-    wxString s;
-    if (highlight_state->GetTotalHighlighted()> 0) {
-        int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
-        
-        int n_undefs = 0;
-        for (int i=0; i<num_obs; i++) {
-            if (cat_var_undef[t][i] && hl[i]) {
-                n_undefs += 1;
-            }
-        }
-        if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
-        }
-    }
-	if (mousemode == select && selectstate == start) {
-		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = ";
-			s << lisa_coord->cluster_vecs[t][hover_obs[0]];
-		}
-		if (total_hover_obs >= 2) {
-			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = ";
-			s << lisa_coord->cluster_vecs[t][hover_obs[1]];
-		}
-		if (total_hover_obs >= 3) {
-			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = ";
-			s << lisa_coord->cluster_vecs[t][hover_obs[2]];
-		}
-		if (total_hover_obs >= 4) {
-			s << ", ...";
-		}
-	} 
-	sb->SetStatusText(s);
-}
+
 
 
 ConditionalClusterMapLegend::ConditionalClusterMapLegend(wxWindow *parent,
@@ -948,7 +750,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 					  size, style)
 {
     
-    wxLogMessage("Open ConditionalNewFrame.");
+    wxLogMessage("Open ConditionalNewFrame -- LISA.");
 	int width, height;
 	GetClientSize(&width, &height);
 
@@ -959,7 +761,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 	splitter_win->SetMinimumPaneSize(10);
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new ConditionalClusterMapCanvas(rpanel, this, project,
+    template_canvas = new ConditionalLISAClusterMapCanvas(rpanel, this, project,
                                                       var_info, col_ids,
                                                       lisa_coord,
                                                       wxDefaultPosition,
@@ -987,6 +789,58 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
     SetAutoLayout(true);
     DisplayStatusBar(true);
 	Show(true);
+}
+
+ConditionalClusterMapFrame::
+ConditionalClusterMapFrame(wxFrame *parent, Project* project,
+                           const vector<GdaVarTools::VarInfo>& var_info,
+                           const vector<int>& col_ids,
+                           GStatCoordinator* g_coord,
+                           const wxString& title, const wxPoint& pos,
+                           const wxSize& size, const long style)
+: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
+                      size, style)
+{
+    
+    wxLogMessage("Open ConditionalNewFrame.");
+    int width, height;
+    GetClientSize(&width, &height);
+    
+    
+    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+                                                          wxDefaultPosition, wxDefaultSize,
+                                                          wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+    splitter_win->SetMinimumPaneSize(10);
+    
+    wxPanel* rpanel = new wxPanel(splitter_win);
+    template_canvas = new ConditionalGClusterMapCanvas(rpanel, this, project,
+                                                          var_info, col_ids,
+                                                          g_coord,
+                                                          wxDefaultPosition,
+                                                          wxDefaultSize);
+    SetTitle(template_canvas->GetCanvasTitle());
+    template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
+    
+    wxPanel* lpanel = new wxPanel(splitter_win);
+    template_legend = new ConditionalClusterMapLegend(lpanel, template_canvas,
+                                                      wxPoint(0,0), wxSize(0,0));
+    wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    template_legend->GetContainingSizer()->Detach(template_legend);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+    splitter_win->SplitVertically(lpanel, rpanel,
+                                  GdaConst::map_default_legend_width);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
+    DisplayStatusBar(true);
+    Show(true);
 }
 
 ConditionalClusterMapFrame::~ConditionalClusterMapFrame()
@@ -1120,4 +974,467 @@ void ConditionalClusterMapFrame::ChangeThemeType(
 	UpdateTitle();
 	UpdateOptionMenuItems();
 	template_legend->Refresh();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+ConditionalLISAClusterMapCanvas::
+ConditionalLISAClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                Project* project,
+                                const vector<GdaVarTools::VarInfo>& var_info,
+                                const vector<int>& col_ids,
+                                LisaCoordinator* lisa_coordinator,
+                                const wxPoint& pos,
+                                const wxSize& size)
+: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, pos, size),
+lisa_coord(lisa_coordinator)
+{
+    Init(size);
+}
+
+ConditionalLISAClusterMapCanvas::~ConditionalLISAClusterMapCanvas()
+{
+    
+}
+
+wxString ConditionalLISAClusterMapCanvas::GetCategoriesTitle()
+{
+	wxString v;
+    v << "LISA Cluster Map: " << lisa_coord->var_info[0].name;
+	return v;
+}
+
+wxString ConditionalLISAClusterMapCanvas::GetCanvasTitle()
+{
+	wxString v;
+	v << "Conditional Map - ";
+	v << "x: " << GetNameWithTime(HOR_VAR);
+	v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << ", LISA:" << lisa_coord->var_info[0].name;
+	return v;
+}
+
+void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
+{
+    cat_var_sorted.clear();
+    map_valid.resize(num_time_vals);
+    for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
+    map_error_message.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
+    
+    //NOTE: cat_var_sorted is sized to current num_time_vals, but
+    // cat_var_sorted_vert and horiz is sized to all available number time
+    // vals.  Perhaps this should be moved into the constructor since
+    // we do not allow smoothing with multiple time variables.
+    cat_var_sorted.resize(num_time_vals);
+    cat_var_undef.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        cat_var_sorted[t].resize(num_obs);
+        cat_var_undef[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            cat_var_sorted[t][i].first = lisa_coord->cluster_vecs[t][i];
+            cat_var_sorted[t][i].second = i;
+            
+            cat_var_undef[t][i] = lisa_coord->undef_data[0][t][i];
+        }
+    }
+    
+    // Sort each vector in ascending order
+    sort(cat_var_sorted[0].begin(),
+         cat_var_sorted[0].end(), Gda::dbl_int_pair_cmp_less);
+    
+    if (is_any_sync_with_global_time) {
+        for (int t=1; t<num_time_vals; t++) {
+            sort(cat_var_sorted[t].begin(),
+                 cat_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
+    } else {
+        // just copy first sorted results
+        for (int t=1; t<num_time_vals; t++) {
+            cat_var_sorted[t] = cat_var_sorted[0];
+        }
+    }
+    
+    cat_classif_def_map.color_scheme = CatClassification::custom_color_scheme;
+    
+    // get cat_data
+    int num_time = lisa_coord->num_time_vals;
+    int num_obs = lisa_coord->num_obs;
+    cat_data.CreateEmptyCategories(num_time, num_obs);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        int undefined_cat = -1;
+        int isolates_cat = -1;
+        int num_cats = 0;
+        double stop_sig = 0;
+        
+        if (lisa_coord->GetHasIsolates(t))
+            num_cats++;
+        if (lisa_coord->GetHasUndefined(t))
+            num_cats++;
+        
+        num_cats += 5;
+        
+        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+        
+        Shapefile::Header& hdr = project->main_data.header;
+        
+        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        
+        if (hdr.shape_type == Shapefile::POINT_TYP) {
+            cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+        } else {
+            cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+        }
+        cat_data.SetCategoryLabel(t, 1, "High-High");
+        cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
+        cat_data.SetCategoryLabel(t, 2, "Low-Low");
+        cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
+        cat_data.SetCategoryLabel(t, 3, "Low-High");
+        cat_data.SetCategoryColor(t, 3, wxColour(150, 150, 255));
+        cat_data.SetCategoryLabel(t, 4, "High-Low");
+        cat_data.SetCategoryColor(t, 4, wxColour(255, 150, 150));
+        if (lisa_coord->GetHasIsolates(t) &&
+            lisa_coord->GetHasUndefined(t)) {
+            isolates_cat = 5;
+            undefined_cat = 6;
+        } else if (lisa_coord->GetHasUndefined(t)) {
+            undefined_cat = 5;
+        } else if (lisa_coord->GetHasIsolates(t)) {
+            isolates_cat = 5;
+        }
+        
+        if (undefined_cat != -1) {
+            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+        }
+        if (isolates_cat != -1) {
+            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+        }
+        
+        double cuttoff = lisa_coord->significance_cutoff;
+        double* p = lisa_coord->sig_local_moran_vecs[t];
+        int* cluster = lisa_coord->cluster_vecs[t];
+        int* sigCat = lisa_coord->sig_cat_vecs[t];
+        
+        for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
+            if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
+                cat_data.AppendIdToCategory(t, 0, i); // not significant
+            } else if (cluster[i] == 5) {
+                cat_data.AppendIdToCategory(t, isolates_cat, i);
+            } else if (cluster[i] == 6) {
+                cat_data.AppendIdToCategory(t, undefined_cat, i);
+            } else {
+                cat_data.AppendIdToCategory(t, cluster[i], i);
+            }
+        }
+        for (int cat=0; cat<num_cats; cat++) {
+            cat_data.SetCategoryCount(t, cat,
+                                      cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
+    
+    cat_data.SetCurrentCanvasTmStep(0);
+    int mt = cat_data.GetCurrentCanvasTmStep();
+    num_categories = cat_data.categories[mt].cat_vec.size();
+    CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
+    
+}
+
+void ConditionalLISAClusterMapCanvas::TimeSyncVariableToggle(int var_index)
+{
+    lisa_coord->var_info[0].sync_with_global_time = !lisa_coord->var_info[0].sync_with_global_time;
+    
+    VarInfoAttributeChange();
+    CreateAndUpdateCategories();
+    PopulateCanvas();
+}
+
+void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = template_frame->GetStatusBar();
+    if (!sb) return;
+    
+    //int t = var_info[CAT_VAR].time;
+    int t = 0;
+    
+    const vector<bool>& hl = highlight_state->GetHighlight();
+    wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (cat_var_undef[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << lisa_coord->cluster_vecs[t][hover_obs[0]];
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << "obs " << hover_obs[1]+1 << " = ";
+            s << lisa_coord->cluster_vecs[t][hover_obs[1]];
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << "obs " << hover_obs[2]+1 << " = ";
+            s << lisa_coord->cluster_vecs[t][hover_obs[2]];
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    }
+    sb->SetStatusText(s);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+ConditionalGClusterMapCanvas::
+ConditionalGClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                             Project* project,
+                             const vector<GdaVarTools::VarInfo>& var_info,
+                             const vector<int>& col_ids,
+                             GStatCoordinator* g_coordinator,
+                             const wxPoint& pos,
+                             const wxSize& size)
+: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, pos, size),
+g_coord(g_coordinator)
+{
+    Init(size);
+}
+
+ConditionalGClusterMapCanvas::~ConditionalGClusterMapCanvas()
+{
+    
+}
+
+wxString ConditionalGClusterMapCanvas::GetCategoriesTitle()
+{
+	wxString v;
+    v << "LISA Cluster Map: " << g_coord->var_info[0].name;
+	return v;
+}
+
+wxString ConditionalGClusterMapCanvas::GetCanvasTitle()
+{
+	wxString v;
+	v << "Conditional Map - ";
+	v << "x: " << GetNameWithTime(HOR_VAR);
+	v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << ", LISA:" << g_coord->var_info[0].name;
+	return v;
+}
+
+void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
+{
+    cat_var_sorted.clear();
+    map_valid.resize(num_time_vals);
+    for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
+    map_error_message.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
+    
+    //NOTE: cat_var_sorted is sized to current num_time_vals, but
+    // cat_var_sorted_vert and horiz is sized to all available number time
+    // vals.  Perhaps this should be moved into the constructor since
+    // we do not allow smoothing with multiple time variables.
+    cat_var_sorted.resize(num_time_vals);
+    cat_var_undef.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        cat_var_sorted[t].resize(num_obs);
+        cat_var_undef[t].resize(num_obs);
+        vector<wxInt64> cluster;
+        bool is_gi = false;
+        bool is_perm = false;
+        g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
+        
+        for (int i=0; i<num_obs; i++) {
+            cat_var_sorted[t][i].first = cluster[i];
+            cat_var_sorted[t][i].second = i;
+            
+            cat_var_undef[t][i] = g_coord->data_undef[0][t][i];
+        }
+    }
+    
+    // Sort each vector in ascending order
+    sort(cat_var_sorted[0].begin(),
+         cat_var_sorted[0].end(), Gda::dbl_int_pair_cmp_less);
+    
+    if (is_any_sync_with_global_time) {
+        for (int t=1; t<num_time_vals; t++) {
+            sort(cat_var_sorted[t].begin(),
+                 cat_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
+    } else {
+        // just copy first sorted results
+        for (int t=1; t<num_time_vals; t++) {
+            cat_var_sorted[t] = cat_var_sorted[0];
+        }
+    }
+    
+    cat_classif_def_map.color_scheme = CatClassification::custom_color_scheme;
+    
+    // get cat_data
+    int num_time = g_coord->num_time_vals;
+    int num_obs = g_coord->num_obs;
+    cat_data.CreateEmptyCategories(num_time, num_obs);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        int undefined_cat = -1;
+        int isolates_cat = -1;
+        int num_cats = 0;
+        double stop_sig = 0;
+        
+        if (g_coord->GetHasIsolates(t))
+            num_cats++;
+        if (g_coord->GetHasUndefined(t))
+            num_cats++;
+        
+        num_cats += 3;
+        
+        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+        
+        Shapefile::Header& hdr = project->main_data.header;
+        
+        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        
+        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+        cat_data.SetCategoryLabel(t, 1, "High");
+        cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
+        cat_data.SetCategoryLabel(t, 2, "Low");
+        cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
+        
+        if (g_coord->GetHasIsolates(t) &&
+            g_coord->GetHasUndefined(t))
+        {
+            isolates_cat = 3;
+            undefined_cat = 4;
+        } else if (g_coord->GetHasUndefined(t)) {
+            undefined_cat = 3;
+        } else if (g_coord->GetHasIsolates(t)) {
+            isolates_cat = 3;
+        }
+        
+        if (undefined_cat != -1) {
+            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+        }
+        if (isolates_cat != -1) {
+            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+        }
+        
+        vector<wxInt64> cluster;
+        bool is_gi = false;
+        bool is_perm = false;
+        g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
+        
+        for (int i=0, iend=g_coord->num_obs; i<iend; i++) {
+            if (cluster[i] == 0) {
+                cat_data.AppendIdToCategory(t, 0, i); // not significant
+            } else if (cluster[i] == 3) {
+                cat_data.AppendIdToCategory(t, isolates_cat, i);
+            } else if (cluster[i] == 4) {
+                cat_data.AppendIdToCategory(t, undefined_cat, i);
+            } else {
+                cat_data.AppendIdToCategory(t, cluster[i], i);
+            }
+        }
+        
+        for (int cat=0; cat<num_cats; cat++) {
+            cat_data.SetCategoryCount(t, cat,
+                                      cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
+    
+    cat_data.SetCurrentCanvasTmStep(0);
+    int mt = cat_data.GetCurrentCanvasTmStep();
+    num_categories = cat_data.categories[mt].cat_vec.size();
+    CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
+    
+}
+
+void ConditionalGClusterMapCanvas::TimeSyncVariableToggle(int var_index)
+{
+    g_coord->var_info[0].sync_with_global_time = !g_coord->var_info[0].sync_with_global_time;
+    
+    VarInfoAttributeChange();
+    CreateAndUpdateCategories();
+    PopulateCanvas();
+}
+
+void ConditionalGClusterMapCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = template_frame->GetStatusBar();
+    if (!sb) return;
+    
+    //int t = var_info[CAT_VAR].time;
+    int t = 0;
+    
+    const vector<bool>& hl = highlight_state->GetHighlight();
+    wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (cat_var_undef[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
+    /*
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << g_coord->cluster_vecs[t][hover_obs[0]];
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << "obs " << hover_obs[1]+1 << " = ";
+            s << g_coord->cluster_vecs[t][hover_obs[1]];
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << "obs " << hover_obs[2]+1 << " = ";
+            s << g_coord->cluster_vecs[t][hover_obs[2]];
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    } 
+     */
+    sb->SetStatusText(s);
 }

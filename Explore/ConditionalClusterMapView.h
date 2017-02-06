@@ -27,6 +27,7 @@
 using namespace std;
 
 class LisaCoordinator;
+class GStatCoordinator;
 class ConditionalClusterMapFrame;
 class ConditionalClusterMapCanvas;
 class ConditionalClusterMapLegend;
@@ -40,15 +41,19 @@ public:
                                 Project* project,
                                 const vector<GdaVarTools::VarInfo>& var_info,
                                 const vector<int>& col_ids,
-                                LisaCoordinator* lisa_coordinator,
                                 const wxPoint& pos = wxDefaultPosition,
                                 const wxSize& size = wxDefaultSize);
     
 	virtual ~ConditionalClusterMapCanvas();
-	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	virtual wxString GetCategoriesTitle();
-	virtual wxString GetCanvasTitle();
+    
+    
+    virtual wxString GetCategoriesTitle() = 0;
+    virtual wxString GetCanvasTitle() = 0;
+    virtual void CreateAndUpdateCategories() = 0;
+    virtual void TimeSyncVariableToggle(int var_index) = 0;
 
+    void Init(const wxSize& size);
+	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void NewCustomCatClassifMap();
 	virtual void ChangeCatThemeType(
 						CatClassification::CatClassifType new_theme,
@@ -68,8 +73,6 @@ public:
 	//virtual void OnMouseEvent(wxMouseEvent& event);
 	virtual void OnScrollChanged(wxScrollWinEvent& event);
     
-	virtual void CreateAndUpdateCategories();
-	virtual void TimeSyncVariableToggle(int var_index);
 	
 	void SetCatType(CatClassification::CatClassifType cc_type);
 	int GetNumCats() { return num_categories; }
@@ -78,10 +81,8 @@ public:
 	CatClassification::CatClassifType GetCatType();
 
 protected:
-	virtual void UpdateStatusBar();
+    virtual void UpdateStatusBar() = 0;
     virtual void PopulateCanvas();
-  
-    LisaCoordinator* lisa_coord;
     
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories
@@ -118,7 +119,15 @@ public:
                                const vector<GdaVarTools::VarInfo>& var_info,
                                const vector<int>& col_ids,
                                LisaCoordinator* lisa_coord,
-                               const wxString& title = _("Conditional Map"),
+                               const wxString& title = _("Conditional LISA Map"),
+                               const wxPoint& pos = wxDefaultPosition,
+                               const wxSize& size = wxDefaultSize,
+                               const long style = wxDEFAULT_FRAME_STYLE);
+    ConditionalClusterMapFrame(wxFrame *parent, Project* project,
+                               const vector<GdaVarTools::VarInfo>& var_info,
+                               const vector<int>& col_ids,
+                               GStatCoordinator* g_coord,
+                               const wxString& title = _("Conditional GetisOrd Map"),
                                const wxPoint& pos = wxDefaultPosition,
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
@@ -152,6 +161,64 @@ public:
 						const wxString& custom_classif_title = wxEmptyString);
 		
     DECLARE_EVENT_TABLE()
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// LISA Cluster Conditional map
+//
+////////////////////////////////////////////////////////////////////////////////
+class ConditionalLISAClusterMapCanvas : public ConditionalClusterMapCanvas {
+    //DECLARE_CLASS(ConditionalLISAClusterMapCanvas)
+public:
+    
+    ConditionalLISAClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                Project* project,
+                                const vector<GdaVarTools::VarInfo>& var_info,
+                                const vector<int>& col_ids,
+                                LisaCoordinator* lisa_coordinator,
+                                const wxPoint& pos = wxDefaultPosition,
+                                const wxSize& size = wxDefaultSize);
+    
+    virtual ~ConditionalLISAClusterMapCanvas();
+    
+	virtual wxString GetCategoriesTitle();
+	virtual wxString GetCanvasTitle();
+	virtual void CreateAndUpdateCategories();
+	virtual void TimeSyncVariableToggle(int var_index);
+    
+protected:
+    LisaCoordinator* lisa_coord;
+    virtual void UpdateStatusBar();
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// GetisOrder Cluster Conditional map
+//
+////////////////////////////////////////////////////////////////////////////////
+class ConditionalGClusterMapCanvas : public ConditionalClusterMapCanvas {
+    //DECLARE_CLASS(ConditionalGClusterMapCanvas)
+public:
+    
+    ConditionalGClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                    Project* project,
+                                    const vector<GdaVarTools::VarInfo>& var_info,
+                                    const vector<int>& col_ids,
+                                    GStatCoordinator* g_coordinator,
+                                    const wxPoint& pos = wxDefaultPosition,
+                                    const wxSize& size = wxDefaultSize);
+    
+    virtual ~ConditionalGClusterMapCanvas();
+    
+	virtual wxString GetCategoriesTitle();
+	virtual wxString GetCanvasTitle();
+	virtual void CreateAndUpdateCategories();
+	virtual void TimeSyncVariableToggle(int var_index);
+protected:
+    GStatCoordinator* g_coord;
+    virtual void UpdateStatusBar();
 };
 
 #endif
