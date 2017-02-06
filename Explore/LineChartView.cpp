@@ -1838,6 +1838,22 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
                                       has_selection,
                                       has_excluded);
 			lcs_p->UpdateOtherStats();
+            if (lcs_p->compare_r_and_t) {
+                int group1 = choice_group1->GetSelection();
+                int group2 = choice_group2->GetSelection();
+                int time1 = choice_time1->GetSelection();
+                int time2 = choice_time2->GetSelection();
+                lcs_p->Y_sel_tm0_avg_valid = false;
+                lcs_p->Y_excl_tm0_avg_valid = false;
+                lcs_p->Y_sel_tm1_avg_valid = false;
+                lcs_p->Y_excl_tm1_avg_valid = false;
+                
+                lcs_p->Y_sel_tm0_avg_valid = group1 == 0;
+                lcs_p->Y_excl_tm0_avg_valid = group1 == 1;
+                
+                lcs_p->Y_sel_tm1_avg_valid = group2 == 0;
+                lcs_p->Y_excl_tm1_avg_valid = group2 == 1;
+            }
 			lc_stats.push_back(lcs_p);
 			
 			LineChartCanvas* canvas = 0;
