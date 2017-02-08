@@ -69,7 +69,7 @@ wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
     wxGridCellAttr *attr = wxGridCellAttrProvider::GetAttr(row, col, kind);
 	
 	bool row_sel = (row >= 0 && selected[row_order[row]]);
-	bool col_sel = (selected_cols.size()>0 && col >=0 && selected_cols[col]);
+	bool col_sel = (selected_cols.size()>col && col >=0 && selected_cols[col]);
     
 	if ( !attr ) {
 		attr = attrForAll;

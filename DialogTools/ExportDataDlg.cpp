@@ -47,6 +47,7 @@
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "ExportDataDlg.h"
 
 using namespace std;
@@ -156,6 +157,7 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 	CreateControls();
 	SetPosition(pos);
 	Centre();
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 }
 
 void ExportDataDlg::CreateControls()

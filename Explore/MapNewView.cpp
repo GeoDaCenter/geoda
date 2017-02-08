@@ -1009,18 +1009,20 @@ void MapCanvas::OnSaveCategories()
 	} else {
 		t_name = CatClassification::CatClassifTypeToString(GetCcType());
 	}
-	wxString label;
-	label << t_name << " Categories";
-	wxString title;
-	title << "Save " << label;
     
-    std::vector<bool> undefs(num_obs);
-    for (int t=0; t<num_time_vals; t++) {
-        for (int i=0; i<num_obs; i++) {
-            undefs[i] = undefs[i] || data_undef[0][t][i];
-        }
-    }
-	SaveCategories(title, label, "CATEGORIES", undefs);
+	if (data_undef.size()>0) {
+		wxString label;
+		label << t_name << " Categories";
+		wxString title;
+		title << "Save " << label;
+		std::vector<bool> undefs(num_obs);
+		for (int t=0; t<num_time_vals; t++) {
+			for (int i=0; i<num_obs; i++) {
+				undefs[i] = undefs[i] || data_undef[0][t][i];
+			}
+		}
+		SaveCategories(title, label, "CATEGORIES", undefs);
+	}
 }
 
 void MapCanvas::NewCustomCatClassif()
