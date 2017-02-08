@@ -426,6 +426,7 @@ bool GdaApp::OnInit(void)
     
     // show open file dialog
     GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
+
     
     // check update in a new thread
     if (GdaConst::disable_auto_upgrade == false) {
@@ -1123,14 +1124,28 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 {
 	wxLogMessage("Click GdaFrame::OnNewProject");
 
-    ShowOpenDatasourceDlg(wxPoint(80, 200));
+    ShowOpenDatasourceDlg(wxPoint(80, 220));
 }
 
 void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
 {
+	// check if dialog has already been opened
+	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+			w->Show(true);
+			w->Maximize(false);
+			w->Raise();
+			return;
+        }
+        node = node->GetNext();
+    }
+
     ConnectDatasourceDlg dlg(this, pos);
-    if (dlg.ShowModal() != wxID_OK)
+    if (dlg.ShowModal() != wxID_OK) {
         return;
+	}
     
     wxString proj_title = dlg.GetProjectTitle();
     wxString layer_name = dlg.GetLayerName();
@@ -2113,8 +2128,7 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 	}
 	*/
 	DataViewerEditFieldPropertiesDlg
-	dlg(p, wxDefaultPosition,
-											   wxSize(600, 400));
+	dlg(p, wxDefaultPosition, wxSize(600, 400));
 	dlg.ShowModal();
 }
 

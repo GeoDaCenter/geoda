@@ -49,6 +49,7 @@
     <None Include="..\..\rc\release-notes.txt">
       <Filter>rc</Filter>
     </None>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc">
@@ -627,6 +628,9 @@
     <ClInclude Include="..\..\DialogTools\ReportBugDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1144,6 +1148,9 @@
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp">
       <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp">
+      <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
