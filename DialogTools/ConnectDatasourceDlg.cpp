@@ -387,6 +387,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 :DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_),
 showRecentPanel(showRecentPanel_)
 {
+
     base_xrcid_recent_thumb = 7000;
     base_xrcid_sample_thumb = 7500;
     
@@ -419,6 +420,8 @@ showRecentPanel(showRecentPanel_)
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
    
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
          this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
     

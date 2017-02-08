@@ -126,9 +126,9 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) Latitude/X:"));
     wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("Longitude/Y:"));
     lat_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                     wxDefaultSize, 0, NULL, wxCB_READONLY);
+                                     wxSize(80,-1), 0, NULL, wxCB_READONLY);
     lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                     wxDefaultSize, 0, NULL, wxCB_READONLY);
+                                     wxSize(80,-1), 0, NULL, wxCB_READONLY);
     wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
     latlng_box->Add(lat_lbl, 0, wxALIGN_CENTER_VERTICAL);
     latlng_box->Add(lat_box, 0, wxALIGN_CENTER_VERTICAL);

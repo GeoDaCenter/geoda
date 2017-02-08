@@ -2097,6 +2097,7 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 {
 	Project* p = GetProject();
 	if (!p || !p->GetTableInt()) return;
+	/*
 	FramesManager* fm = p->GetFramesManager();
 	std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
 	std::list<FramesManagerObserver*>::iterator it;
@@ -2110,11 +2111,11 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 			return;
 		}
 	}
-	
-	DataViewerEditFieldPropertiesDlg* dlg;
-	dlg = new DataViewerEditFieldPropertiesDlg(p, wxDefaultPosition,
+	*/
+	DataViewerEditFieldPropertiesDlg
+	dlg(p, wxDefaultPosition,
 											   wxSize(600, 400));
-	dlg->Show(true);
+	dlg.ShowModal();
 }
 
 void GdaFrame::OnChangeFieldType(wxCommandEvent& event)

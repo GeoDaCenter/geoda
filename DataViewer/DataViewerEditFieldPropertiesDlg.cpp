@@ -325,6 +325,7 @@ void DataViewerEditFieldPropertiesDlg::OnClose( wxCloseEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 {
+	
 	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnCellChanging");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
@@ -673,6 +674,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 		table_int->ColChangeDisplayedDecimals(cid, new_val);
 	}
+	
 	// if the code execution makes it this far, then a cell value of the
 	// table has been changed.
 	GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
@@ -700,6 +702,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 	}
 	UpdateMinMax(row);
+	ev.Skip();
+	
 }
 
 void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
@@ -721,7 +725,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedE
         wxControl *ctl = ev.GetControl();
         ctl->Bind(wxEVT_COMBOBOX, &DataViewerEditFieldPropertiesDlg::OnGridComboBox, this);
     }
-    ev.Skip();
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorShown( wxGridEvent& ev )
@@ -743,12 +746,11 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorHidden( wxGridEvent& ev )
     int col = ev.GetCol();
     
     if (col == 1) {
-        /*if (combo_selection >=0) {
+        if (combo_selection >=0) {
             wxString strChoices[4] = {"real", "integer", "date","string"};
             field_grid->SetCellValue(row, col, strChoices[combo_selection]);
         }
         combo_selection = -1;
-         */
     }
     ev.Skip();
 }
@@ -818,5 +820,5 @@ void DataViewerEditFieldPropertiesDlg::update(FramesManager* o)
 
 void DataViewerEditFieldPropertiesDlg::update(TableState* o)
 {
-	InitTable();
+	//InitTable();
 }
