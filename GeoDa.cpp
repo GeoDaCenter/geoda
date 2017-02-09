@@ -257,11 +257,6 @@ bool GdaApp::OnInit(void)
 	}
  
     // By defaut, GDAL will use user's system locale to read any input datasource
-    //int lan = wxLocale::GetSystemLanguage();
-    //wxString locale_name = wxLocale::GetLanguageCanonicalName(lan);
-    //setlocale(LC_ALL, locale_name.mb_str());
-    //CPLsetlocale(LC_ALL, locale_name.mb_str());
-    
     // However, user can change the Separators in GeoDa, after re-open the
     // datasource, CSV reader will use the Separators
     struct lconv *poLconv = localeconv();
@@ -299,26 +294,7 @@ bool GdaApp::OnInit(void)
     wxFileSystem::AddHandler(new wxArchiveFSHandler);
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
 	
-    // Create the memory files
-    /*
-    wxMemoryFSHandler::AddFile("logo.png", 
-							   wxBitmap(GeoDaIcon_16x16_xpm), wxBITMAP_TYPE_PNG);
-    wxMemoryFSHandler::AddFile("page1.htm",
-							   "<html><head><title>File System Example</title>"
-							   "<link rel='stylesheet' type='text/css' href='memory:test.css'>"
-							   "</head><body><h1>Page 1</h1>"
-							   "<p><img src='memory:logo.png'></p>"
-							   "<p>Some text about <a href='memory:page2.htm'>Page 2</a>.</p></body>");
-    wxMemoryFSHandler::AddFile("page2.htm",
-							   "<html><head><title>File System Example</title>"
-							   "<link rel='stylesheet' type='text/css' href='memory:test.css'>"
-							   "</head><body><h1>Page 2</h1>"
-							   "<p><a href='memory:page1.htm'>Page 1</a> was better.</p></body>");
-    wxMemoryFSHandler::AddFile("test.css", "h1 {color: red;}");
-	*/
-	
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
-	
 	
 	int frameWidth = 980;
 	int frameHeight = 80;
@@ -408,10 +384,14 @@ bool GdaApp::OnInit(void)
         OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     }
     
-    // Setup new Logger after crash check
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();
+	// Set GEODA_GDAL_DATA 
+	wxString gal_data_dir = exeDir + "data";
+	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+
+    // Setup new Logger after crash check
     wxString loggerFile = exeDir + "web_plugins" + wxFileName::GetPathSeparator() +"logger.txt";
     
     if (m_pLogFile == NULL) {
