@@ -5079,7 +5079,7 @@
                   </object>
                   <orient>wxVERTICAL</orient>
                 </object>
-                <flag>wxALL|wxALIGN_TOP</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
               </object>
               <object class="sizeritem">
@@ -5107,7 +5107,7 @@
                   </object>
                   <orient>wxVERTICAL</orient>
                 </object>
-                <flag>wxALL|wxALIGN_TOP</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
               </object>
             </object>
@@ -5214,7 +5214,7 @@
                   </object>
                   <orient>wxVERTICAL</orient>
                 </object>
-                <flag>wxALL|wxALIGN_TOP</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
               </object>
               <object class="sizeritem">
@@ -5233,7 +5233,7 @@
                   </object>
                   <orient>wxVERTICAL</orient>
                 </object>
-                <flag>wxALL|wxALIGN_TOP</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
               </object>
               <object class="sizeritem">
@@ -5261,7 +5261,7 @@
                     <border>3</border>
                   </object>
                 </object>
-                <flag>wxALL|wxALIGN_TOP</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
               </object>
             </object>

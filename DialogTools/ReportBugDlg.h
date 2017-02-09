@@ -58,14 +58,14 @@ public:
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,450));
+                  const wxSize& size = wxSize(580,640));
     
     PreferenceDlg(wxWindow* parent,
                   HLStateInt* highlight_state,
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,560));
+                  const wxSize& size = wxSize(580,640));
  
     static void ReadFromCache();
     
@@ -81,6 +81,8 @@ protected:
     wxTextCtrl* slider_txt2;
     // basemap auto
     wxComboBox* cmb33;
+	// Transparency of highlighted object
+    wxSlider* slider6;
     // plot unhighlighted transp
     wxSlider* slider7;
     wxTextCtrl* slider_txt7;
@@ -103,9 +105,9 @@ protected:
     void SetupControls();
     
     void OnCrossHatch(wxCommandEvent& ev);
-    void OnSlider1(wxScrollEvent& ev);
-    void OnSlider2(wxScrollEvent& ev);
-    //void OnSlider3(wxScrollEvent& ev);
+    void OnSlider1(wxCommandEvent& ev);
+    void OnSlider2(wxCommandEvent& ev);
+    //void OnSlider3(wxCommandEvent& ev);
     void OnChoice3(wxCommandEvent& ev);
     void OnDisableCrashDetect(wxCommandEvent& ev);
     void OnDisableAutoUpgrade(wxCommandEvent& ev);
@@ -113,8 +115,8 @@ protected:
     void OnShowCsvInMerge(wxCommandEvent& ev);
     void OnEnableHDPISupport(wxCommandEvent& ev);
    
-    void OnSlider6(wxScrollEvent& ev);
-    void OnSlider7(wxScrollEvent& ev);
+    void OnSlider6(wxCommandEvent& ev);
+    void OnSlider7(wxCommandEvent& ev);
     
     void OnHideTablePostGIS(wxCommandEvent& ev);
     void OnHideTableSQLITE(wxCommandEvent& ev);
