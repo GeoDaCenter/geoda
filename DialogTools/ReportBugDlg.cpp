@@ -182,6 +182,7 @@ void PreferenceDlg::Init()
 	box2->Add(slider_txt2);
 	grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
 	grid_sizer1->Add(box2, 0, wxALIGN_RIGHT);
+	slider2->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider2, this);
 
 
 	wxString lbl3 = _("Add basemap automatically:");
@@ -225,6 +226,7 @@ void PreferenceDlg::Init()
 	box6->Add(slider_txt6);
 	grid_sizer1->Add(lbl_txt6, 1, wxEXPAND);
 	grid_sizer1->Add(box6, 0, wxALIGN_RIGHT);
+	slider6->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider6, this);
 	slider6->Enable(false);
 
 	wxString lbl7 = _("Set transparency of unhighlighted objects in selection:");
