@@ -276,6 +276,9 @@ bool GdaApp::OnInit(void)
     if (GdaConst::hide_sys_table_sqlite == false) {
         CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
     }
+    if (GdaConst::gdal_http_timeout >= 0 ) {
+        CPLSetConfigOption("GDAL_HTTP_TIMEOUT", wxString::Format("%d", GdaConst::gdal_http_timeout));
+    }
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
@@ -388,8 +391,14 @@ bool GdaApp::OnInit(void)
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();
 	// Set GEODA_GDAL_DATA 
+#ifdef __WIN32__
 	wxString gal_data_dir = exeDir + "data";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+#else
+	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
+	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+#endif
+    
 
     // Setup new Logger after crash check
     wxString loggerFile = exeDir + "web_plugins" + wxFileName::GetPathSeparator() +"logger.txt";

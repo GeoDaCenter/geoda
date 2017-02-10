@@ -48,7 +48,7 @@ OGRLayerProxy::OGRLayerProxy(string layer_name,
 : n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type), layer(_layer),
 load_progress(0), stop_reading(false), export_progress(0)
 {
-    if (!isNew) n_rows = layer->GetFeatureCount();
+    if (!isNew) n_rows = layer->GetFeatureCount(FALSE);
     is_writable = layer->TestCapability(OLCCreateField) != 0;
     
 	eGType = layer->GetGeomType();

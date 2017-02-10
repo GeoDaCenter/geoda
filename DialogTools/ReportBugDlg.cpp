@@ -43,6 +43,8 @@
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
+#include "ogrsf_frmts.h"
+#include "cpl_conv.h"
 
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
@@ -316,6 +318,14 @@ void PreferenceDlg::Init()
 	grid_sizer2->Add(cbox22, 0, wxALIGN_RIGHT);
 	cbox22->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTableSQLITE, this);
 
+    
+	wxString lbl23 = _("Http connection timeout (seconds) for e.g. WFS, Geojson etc.:");
+	wxStaticText* lbl_txt23 = new wxStaticText(gdal_page, wxID_ANY, lbl23);
+	txt23 = new wxTextCtrl(gdal_page, XRCID("ID_HTTP_TIMEOUT"), "", wxDefaultPosition, txt_sz, wxTE_PROCESS_ENTER);
+	grid_sizer2->Add(lbl_txt23, 1, wxEXPAND);
+	grid_sizer2->Add(txt23, 0, wxALIGN_RIGHT);
+	txt23->Bind(wxEVT_TEXT, &PreferenceDlg::OnTimeoutInput, this);
+   
 	grid_sizer2->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
@@ -366,6 +376,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	GdaConst::show_recent_sample_connect_ds_dialog = true;
 	GdaConst::show_csv_configure_in_merge = false;
 	GdaConst::enable_high_dpi_support = true;
+    GdaConst::gdal_http_timeout = 5;
+    
 
 	SetupControls();
 
@@ -384,6 +396,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("show_recent_sample_connect_ds_dialog", "1");
 	ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
 	ogr_adapt.AddEntry("enable_high_dpi_support", "1");
+	ogr_adapt.AddEntry("gdal_http_timeout", "5");
 }
 
 void PreferenceDlg::SetupControls()
@@ -413,6 +426,8 @@ void PreferenceDlg::SetupControls()
 	cbox8->SetValue(GdaConst::show_recent_sample_connect_ds_dialog);
 	cbox9->SetValue(GdaConst::show_csv_configure_in_merge);
 	cbox10->SetValue(GdaConst::enable_high_dpi_support);
+    
+    txt23->SetValue(wxString::Format("%d", GdaConst::gdal_http_timeout));
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -550,6 +565,27 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::enable_high_dpi_support = false;
 		}
 	}
+	vector<string> gdal_http_timeout = OGRDataAdapter::GetInstance().GetHistory("gdal_http_timeout");
+	if (!gdal_http_timeout.empty()) {
+		long sel_l = 0;
+		wxString sel = gdal_http_timeout[0];
+		if (sel.ToLong(&sel_l)) {
+            GdaConst::gdal_http_timeout = sel_l;
+		}
+	}
+}
+
+void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)
+{
+    wxString sec_str = txt23->GetValue();
+    long sec;
+    if (sec_str.ToLong(&sec)) {
+        if (sec >= 0) {
+            GdaConst::gdal_http_timeout = sec;
+            OGRDataAdapter::GetInstance().AddEntry("gdal_http_timeout", sec_str.ToStdString());
+            CPLSetConfigOption("GDAL_HTTP_TIMEOUT", sec_str);
+        }
+    }
 }
 
 void PreferenceDlg::OnSlider1(wxCommandEvent& ev)

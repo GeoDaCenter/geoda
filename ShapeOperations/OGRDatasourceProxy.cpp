@@ -46,6 +46,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
     
+    CPLErrorReset();
     
     if (ds_type == GdaConst::ds_csv) {
         if (GdaConst::gda_ogr_csv_header == 0) {
@@ -77,10 +78,11 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
 			msg << "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html";
-            //if ( error_detail.length() == 0 || error_detail == "Unknown") {  
-            //} else {
-            //    msg << error_detail;
-            //}
+            
+            if ( error_detail.length() == 0 || error_detail == "Unknown") {
+            } else {
+                msg << "\n\nDetails: " << error_detail;
+            }
 
             throw GdaException(msg.str().c_str());
 			//}

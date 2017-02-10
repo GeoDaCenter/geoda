@@ -100,6 +100,8 @@ protected:
     wxCheckBox* cbox21;
     // sqlite
     wxCheckBox* cbox22;
+    // timeout
+    wxTextCtrl* txt23;
     
     void Init();
     void SetupControls();
@@ -120,6 +122,7 @@ protected:
     
     void OnHideTablePostGIS(wxCommandEvent& ev);
     void OnHideTableSQLITE(wxCommandEvent& ev);
+    void OnTimeoutInput(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };
