@@ -30,7 +30,6 @@
                 <object class="wxChoice" name="ID_CUR_CATS_CHOICE">
                   <size>105,-1d</size>
                 </object>
-                <flag>wxALIGN_CENTRE_VERTICAL</flag>
               </object>
               <object class="sizeritem">
                 <object class="wxBoxSizer">
@@ -1929,7 +1928,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2065,7 +2064,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2151,7 +2150,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2237,7 +2236,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2343,7 +2342,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2440,7 +2439,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2478,12 +2477,12 @@
                       <object class="sizeritem">
                         <object class="wxChoice" name="ID_TIME2"/>
                         <option>1</option>
-                        <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                        <flag>wxRIGHT|wxEXPAND</flag>
                         <border>5</border>
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                     <border>5</border>
                   </object>
                 </object>
@@ -2494,7 +2493,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2571,7 +2570,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2609,12 +2608,12 @@
                       <object class="sizeritem">
                         <object class="wxChoice" name="ID_TIME2"/>
                         <option>1</option>
-                        <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                        <flag>wxRIGHT|wxEXPAND</flag>
                         <border>5</border>
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                     <border>5</border>
                   </object>
                 </object>
@@ -2625,7 +2624,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2726,7 +2725,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2770,7 +2769,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2780,7 +2779,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -2898,7 +2897,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2941,7 +2940,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -2951,7 +2950,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -3091,7 +3090,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -3128,12 +3127,12 @@
                       <object class="sizeritem">
                         <object class="wxChoice" name="ID_TIME2"/>
                         <option>1</option>
-                        <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                        <flag>wxRIGHT|wxEXPAND</flag>
                         <border>5</border>
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                     <border>5</border>
                   </object>
                 </object>
@@ -3176,7 +3175,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -3186,7 +3185,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -3262,7 +3261,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -3299,12 +3298,12 @@
                       <object class="sizeritem">
                         <object class="wxChoice" name="ID_TIME2"/>
                         <option>1</option>
-                        <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                        <flag>wxRIGHT|wxEXPAND</flag>
                         <border>5</border>
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                     <border>5</border>
                   </object>
                 </object>
@@ -3342,12 +3341,12 @@
                       <object class="sizeritem">
                         <object class="wxChoice" name="ID_TIME3"/>
                         <option>1</option>
-                        <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                        <flag>wxRIGHT|wxEXPAND</flag>
                         <border>5</border>
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                     <border>5</border>
                   </object>
                 </object>
@@ -3390,7 +3389,7 @@
                       </object>
                       <orient>wxHORIZONTAL</orient>
                     </object>
-                    <flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+                    <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                   </object>
                 </object>
                 <option>1</option>
@@ -3400,7 +3399,7 @@
               <orient>wxHORIZONTAL</orient>
             </object>
             <option>1</option>
-            <flag>wxEXPAND|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxEXPAND</flag>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
@@ -4245,7 +4244,7 @@
               <vgap>0</vgap>
               <hgap>0</hgap>
               <object class="sizeritem">
-                <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                <flag>wxALIGN_LEFT|wxALL|wxADJUST_MINSIZE</flag>
                 <border>5</border>
                 <object class="wxStaticText" name="IDC_STATIC">
                   <label>Input file (text file)</label>
@@ -4256,11 +4255,11 @@
                   <size>172,-1d</size>
                   <style>wxTE_READONLY</style>
                 </object>
-                <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                 <border>5</border>
               </object>
               <object class="sizeritem">
-                <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                 <border>5</border>
                 <object class="wxBitmapButton" name="IDC_OPEN_IASC">
                   <style>wxBORDER_NONE</style>
@@ -4268,7 +4267,7 @@
                 </object>
               </object>
               <object class="sizeritem">
-                <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                <flag>wxALIGN_LEFT|wxALL|wxADJUST_MINSIZE</flag>
                 <border>5</border>
                 <object class="wxStaticText" name="ID_STATICTEXT2">
                   <label>Output file (*.shp)</label>
@@ -4279,11 +4278,11 @@
                   <size>172,-1d</size>
                   <style>wxTE_READONLY</style>
                 </object>
-                <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                 <border>5</border>
               </object>
               <object class="sizeritem">
-                <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                 <border>5</border>
                 <object class="wxBitmapButton" name="IDC_OPEN_OSHP">
                   <style>wxBORDER_NONE</style>
@@ -4298,19 +4297,19 @@
             <object class="wxBoxSizer">
               <orient>wxHORIZONTAL</orient>
               <object class="sizeritem">
-                <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
                 <object class="wxBoxSizer">
                   <orient>wxHORIZONTAL</orient>
                   <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                     <object class="wxStaticText" name="ID_STATICTEXT1">
                       <label>X-coord</label>
                     </object>
                   </object>
                   <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <flag>wxALL</flag>
                     <border>5</border>
                     <object class="wxChoice" name="IDC_KEYVAR">
                       <size>77,-1d</size>
@@ -4319,19 +4318,19 @@
                 </object>
               </object>
               <object class="sizeritem">
-                <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                <flag>wxALL</flag>
                 <border>5</border>
                 <object class="wxBoxSizer">
                   <orient>wxHORIZONTAL</orient>
                   <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxADJUST_MINSIZE</flag>
                     <border>5</border>
                     <object class="wxStaticText" name="ID_STATICTEXT">
                       <label>Y-coord</label>
                     </object>
                   </object>
                   <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <flag>wxALL</flag>
                     <border>5</border>
                     <object class="wxChoice" name="IDC_KEYVAR2">
                       <size>77,-1d</size>
@@ -4349,14 +4348,14 @@
         <object class="wxBoxSizer">
           <orient>wxHORIZONTAL</orient>
           <object class="sizeritem">
-            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+            <flag>wxALL</flag>
             <border>5</border>
             <object class="wxButton" name="IDOK_ADD">
               <label>C&amp;reate</label>
             </object>
           </object>
           <object class="sizeritem">
-            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+            <flag>wxALL</flag>
             <border>5</border>
             <object class="wxButton" name="IDCANCEL">
               <label>&amp;Close</label>
@@ -4753,7 +4752,7 @@
   <object class="wxDialog" name="IDD_GETIS_ORD_CHOICE" subclass="GetisOrdChoiceDlg">
     <object class="wxBoxSizer">
       <object class="sizeritem">
-        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+        <flag>wxALL</flag>
         <border>5</border>
         <object class="wxBoxSizer">
           <orient>wxVERTICAL</orient>
@@ -4851,7 +4850,7 @@
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_TOP|wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
         <border>5</border>
       </object>
       <orient>wxVERTICAL</orient>
@@ -7350,14 +7349,14 @@
                                                   <bitmap stock_id="wxART_FIND"/>
                                                   <style>wxBORDER_NONE</style>
                                               </object>
-                                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                              <flag></flag>
                                           </object>
                                           <cols>3</cols>
                                           <rows>8</rows>
                                           <vgap>15</vgap>
                                           <hgap>10</hgap>
                                       </object>
-                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
                               </object>
                           </object>
@@ -7391,7 +7390,7 @@
                                           <vgap>0</vgap>
                                           <hgap>0</hgap>
                                       </object>
-                                      <flag>wxTOP|wxALIGN_TOP</flag>
+                                      <flag>wxTOP</flag>
                                   </object>
                               </object>
                           </object>
@@ -7453,7 +7452,7 @@
                                           <vgap>15</vgap>
                                           <hgap>10</hgap>
                                       </object>
-                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
                                   <object class="spacer">
                                       <size>0,40</size>
@@ -7480,7 +7479,7 @@
                                               </object>
                                           </object>
                                       </object>
-                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
                               </object>
                           </object>
@@ -7499,18 +7498,18 @@
                           <object class="wxPanel" name="dsRecentListSizer">
                           </object>
                           <label>Recent</label>
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                          <flag>wxALL|wxEXPAND</flag>
                       </object>
                       <object class="notebookpage">
                           <object class="wxPanel" name="dsSampleList">
                           </object>
                           <label>Sample Data</label>
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                          <flag>wxALL|wxEXPAND</flag>
                       </object>
                       <size>420,340</size>
-                      <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                      <flag>wxALL|wxEXPAND</flag>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+                  <flag>wxALL|wxEXPAND</flag>
                   <border>5</border>
                   <option>1</option>
               </object>
@@ -7525,7 +7524,7 @@
             <size>0,0</size>
           </object>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE|wxALIGN_CENTER_HORIZONTAL</flag>
+        <flag>wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
       </object>
       
       <object class="sizeritem">
@@ -7533,7 +7532,7 @@
               <label>Don't show Recent/Sample Data panel again</label>
               <checked>0</checked>
           </object>
-          <flag>wxRIGHT|wxALIGN_RIGHT|wxALIGN_CENTER_HORIZONTAL</flag>
+          <flag>wxRIGHT|wxALIGN_RIGHT</flag>
           <border>30</border>
       </object>
       
@@ -7850,7 +7849,7 @@
                     <vgap>15</vgap>
                     <hgap>10</hgap>
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
               </object>
             </object>
@@ -7913,7 +7912,7 @@
                     <vgap>15</vgap>
                     <hgap>10</hgap>
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
                 <object class="spacer">
                   <size>0,40</size>
@@ -7940,7 +7939,7 @@
                       </object>
                     </object>
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
                 
               </object>
@@ -8276,7 +8275,7 @@
                     <vgap>15</vgap>
                     <hgap>10</hgap>
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
                 <object class="spacer">
                   <size>0,40</size>
@@ -8303,7 +8302,7 @@
                       </object>
                     </object>
                   </object>
-                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                  <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                 </object>
                 
               </object>
@@ -8384,7 +8383,7 @@
                               <vgap>15</vgap>
                               <hgap>10</hgap>
                           </object>
-                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                       </object>
                       <object class="spacer">
                           <size>0,40</size>
@@ -8411,7 +8410,7 @@
                                   </object>
                               </object>
                           </object>
-                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_VERTICAL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                          <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                       </object>
                       
                   </object>
