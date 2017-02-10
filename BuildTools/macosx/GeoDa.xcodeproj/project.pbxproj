@@ -161,7 +161,6 @@
 		DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB37A0711CBBB730020C8A9 /* TemplateLegend.cpp */; };
 		DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77C0B139820CB00569A1E /* GStatCoordinator.cpp */; };
 		DDB77F3E140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77F3C140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp */; };
-		DDBDFE6A19E73E07004CCEDA /* web_plugins in Resources */ = {isa = PBXBuildFile; fileRef = DDBDFE6119E73E07004CCEDA /* web_plugins */; };
 		DDBDFE6B19E73E13004CCEDA /* web_plugins in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDBDFE6119E73E07004CCEDA /* web_plugins */; };
 		DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC48EF418AE506400FD773F /* ProjectInfoDlg.cpp */; };
 		DDC906921A129CFF002334D2 /* SimpleAxisCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9068C1A129CFF002334D2 /* SimpleAxisCanvas.cpp */; };
@@ -1236,7 +1235,6 @@
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
 				A19F51501756A11E006E31B4 /* plugins in Resources */,
-				DDBDFE6A19E73E07004CCEDA /* web_plugins in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
