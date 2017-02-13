@@ -114,7 +114,6 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
-    
     int table_w=0;
     int table_h=0;
     int cols = 1;
@@ -130,7 +129,12 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     int row_gap = 3;
     int col_gap = 10;
     int x_nudge = -22;
+#ifdef __WIN32__
+    int y_nudge = -80;
+#else
     int y_nudge = -70;
+#endif 
+
     
     int virtual_screen_marg_top = 0;//20;
     int virtual_screen_marg_right = 0;//20;
@@ -165,7 +169,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
                               wxRealPoint(orig_x_pos[i], 0),
                               GdaShapeText::h_center, GdaShapeText::top,
                               GdaShapeText::h_center, GdaShapeText::v_center,
-                              3, 10, 0, -70);
+                              3, 10, 0, y_nudge);
         foreground_shps.push_back(s1);
     }
     
@@ -181,7 +185,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     s = new GdaShapeText(sts, *GdaConst::small_font,
                          wxRealPoint(x_max/2.0, 0), 0,
                          GdaShapeText::h_center, GdaShapeText::v_center,
-                         0, table_h - 60);
+                         0, table_h + y_nudge + 10);
     foreground_shps.push_back(s);
     
     ResizeSelectableShps(table_w, table_h);

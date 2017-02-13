@@ -27,11 +27,12 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../DialogTools/WebViewHelpWin.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "CorrelParamsDlg.h"
 
 CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params,
-																		 GdaVarTools::Manager& var_man,
-																		 Project* project_)
+	GdaVarTools::Manager& var_man,
+	Project* project_)
 : wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
 					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 CorrelParamsObservable(correl_params, var_man), project(project_),
@@ -231,6 +232,7 @@ help_btn(0), apply_btn(0)
     else
         OnAllPairsRadioSelected(ev);
         
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     Show(true);
 	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }

@@ -741,7 +741,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
                                         lbls, vals, stats,
                                         "ID_CORRELOGRAM_MENU_OPTIONS",
-                                        wxDefaultPosition, wxSize(-1, 80));
+                                        wxDefaultPosition, wxSize(-1, 90));
     shs_can->SetFixedAspectRatioMode(false);
     
     //bag_szr->Add(shs_can, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1), wxEXPAND);

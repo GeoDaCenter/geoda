@@ -29,6 +29,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/fontdlg.h>
 #include "../GeneralWxUtils.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "RegressionReportDlg.h"
 
 
@@ -89,12 +90,8 @@ void RegressionReportDlg::CreateControls()
         m_textbox->SetFont(font);
         
     }
-    
     vbox->Add(m_textbox, 1, wxEXPAND|wxALL);
     panel->SetSizer(vbox);
-   
-    
-
     wxBitmap save = wxArtProvider::GetBitmap(wxART_FILE_SAVE);
     wxToolBar *toolbar = CreateToolBar();
 
@@ -103,6 +100,7 @@ void RegressionReportDlg::CreateControls()
     Connect(wxID_SAVE, wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler(RegressionReportDlg::OnSaveToFile));
     
     Center();
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 }
 void RegressionReportDlg::AddNewReport(const wxString report)
 {
