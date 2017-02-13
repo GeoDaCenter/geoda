@@ -74,7 +74,6 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxString prmop_txt = _("(Optional) You can change the data type for a field:");
     wxString csvt_path = filepath + "t";
     
-    
     PrereadCSV();
     
     // Create controls UI
@@ -82,17 +81,14 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     panel->SetBackgroundColour(*wxWHITE);
     
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, prmop_txt);
-    
-    wxBoxSizer* lbl_box = new wxBoxSizer(wxVERTICAL);
-    lbl_box->Add(lbl, 1, wxALIGN_CENTER |  wxTOP , 0);
-    
+    wxBoxSizer* lbl_box = new wxBoxSizer(wxHORIZONTAL);
+    lbl_box->Add(lbl, 1, wxEXPAND |  wxTOP , 0);
     
     // field grid selection control
-    fieldGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(250,150));
+    fieldGrid = new wxGrid(panel, wxID_ANY, wxDefaultPosition, wxSize(250,150));
     fieldGrid->CreateGrid(n_prev_cols, 2, wxGrid::wxGridSelectRows);
-    
     UpdateFieldGrid();
-    
+	fieldGrid->EnableEditing(true);
     wxBoxSizer* grid_box = new wxBoxSizer(wxVERTICAL);
     grid_box->AddSpacer(5);
     grid_box->Add(fieldGrid, 1, wxEXPAND |wxLEFT, 10);
@@ -113,7 +109,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     prev_lbl_box->Add(prev_spin, 0, wxEXPAND |wxTOP, 10);
    
     // Preview Grid controls
-    previewGrid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(300, 150));
+    previewGrid = new wxGrid(panel, wxID_ANY, wxDefaultPosition, wxSize(300, 150));
     previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
     previewGrid->EnableEditing(false);
     previewGrid->SetDefaultCellAlignment( wxALIGN_RIGHT, wxALIGN_TOP );
@@ -131,9 +127,11 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                                      wxSize(80,-1), 0, NULL, wxCB_READONLY);
     wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
     latlng_box->Add(lat_lbl, 0, wxALIGN_CENTER_VERTICAL);
+    latlng_box->AddSpacer(5);
     latlng_box->Add(lat_box, 0, wxALIGN_CENTER_VERTICAL);
     latlng_box->AddSpacer(5);
     latlng_box->Add(lng_lbl, 0, wxALIGN_CENTER_VERTICAL);
+    latlng_box->AddSpacer(5);
     latlng_box->Add(lng_box, 0, wxALIGN_CENTER_VERTICAL);
     
     // first row
@@ -178,7 +176,6 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxBoxSizer* box = new wxBoxSizer(wxVERTICAL);
     box->Add(header_box, 0, wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
     box->Add(latlng_box, 0, wxEXPAND | wxLEFT | wxRIGHT |wxTOP , 10);
-    
     box->Add(lbl_box, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
     box->Add(grid_box, 0, wxEXPAND| wxRIGHT, 10);
     box->Add(prev_lbl_box, 0, wxEXPAND |  wxTOP, 30);
@@ -195,7 +192,6 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     SetParent(parent);
     SetPosition(pos);
     Centre();
-    
     
     btn_locale->Connect(wxEVT_BUTTON,
                         wxCommandEventHandler(CsvFieldConfDlg::OnSetupLocale),
