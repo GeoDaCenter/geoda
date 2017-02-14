@@ -78,6 +78,7 @@ is_save_centroids(false)
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
+    type = 2;
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -94,6 +95,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
+    type = 2;
 }
 
 // Export POINT data only, e.g. centroids/mean centers
@@ -117,6 +119,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
         geometries.push_back((GdaShape*)_geometries[i]);
     }
     Init(parent, pos);
+    type = 2;
 }
 
 // Export in-memory table (e.g. space-time table)
@@ -127,6 +130,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
 : is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false)
 {
     Init(parent, pos);
+    type = 2;
 }
 
 

@@ -32,19 +32,29 @@
 #include <wx/grid.h>
 
 #include "DataSource.h"
+#include "../FramesManagerObserver.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDatasourceProxy.h"
 #include "../DataViewer/TableInterface.h"
 
-class MergeTableDlg: public wxDialog
+class ConnectDatasourceDlg;
+class FramesManager;
+
+class MergeTableDlg: public wxDialog, public FramesManagerObserver
 {    
 public:
-    MergeTableDlg(TableInterface* _table_int,
+    MergeTableDlg(wxWindow* parent,
+                  TableInterface* _table_int,
+                  FramesManager* frames_manager,
                   const wxPoint& pos = wxDefaultPosition);
 	virtual ~MergeTableDlg();
 
     void CreateControls();
 	void Init();
+    
+	/** Implementation of FramesManagerObserver interface */
+	virtual void update(FramesManager* o);
+    
 	void OnKeyValRB( wxCommandEvent& ev );
 	void OnRecOrderRB( wxCommandEvent& ev );
 	void OnOpenClick( wxCommandEvent& ev );
@@ -77,6 +87,9 @@ public:
 	std::set<wxString> table_fnames;
 	
 private:
+    ConnectDatasourceDlg* connect_dlg;
+	FramesManager* frames_manager;
+    
 	std::map<wxString, int> dedup_to_id;
 	std::set<wxString> dups;
 	// a mapping from displayed col order to actual col ids in table

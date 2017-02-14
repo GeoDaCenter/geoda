@@ -31,6 +31,8 @@
 #include "DbfColContainer.h"
 #include "TableBase.h"
 #include "TableInterface.h"
+#include "../FramesManagerObserver.h"
+#include "../FramesManager.h"
 #include "../DbfFile.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -59,11 +61,14 @@ END_EVENT_TABLE()
 
 using namespace std;
 
-MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
-: table_int(_table_int)
+MergeTableDlg::MergeTableDlg(wxWindow* parent,
+                             TableInterface* _table_int,
+                             FramesManager* frames_manager_,
+                             const wxPoint& pos)
+: table_int(_table_int), connect_dlg(NULL), frames_manager(frames_manager_)
 {
     wxLogMessage("Open MergeTableDlg.");
-	SetParent(NULL);
+	SetParent(parent);
 	//table_int->FillColIdMap(col_id_map);
 	CreateControls();
 	Init();
@@ -71,12 +76,19 @@ MergeTableDlg::MergeTableDlg(TableInterface* _table_int, const wxPoint& pos)
 	SetTitle(_("Merge - ") + table_int->GetTableName());
 	SetPosition(pos);
     Centre();
+    
+	frames_manager->registerObserver(this);
 }
 
 MergeTableDlg::~MergeTableDlg()
 {
     //delete merge_datasource_proxy;
     //merge_datasource_proxy = NULL;
+	frames_manager->removeObserver(this);
+}
+
+void MergeTableDlg::update(FramesManager* o)
+{
 }
 
 void MergeTableDlg::CreateControls()
@@ -145,14 +157,31 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxPoint pos = GetPosition();
         wxSize sz = GetSize();
         pos.x += sz.GetWidth();
-        ConnectDatasourceDlg dlg(this, pos, wxDefaultSize, showCsvConfigure, false);
+       
+        int dialog_type = 1;
+        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+        while (node) {
+            wxWindow* win = node->GetData();
+            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+                if (w->GetType() == dialog_type) {
+                    w->Show(true);
+                    w->Maximize(false);
+                    w->Raise();
+                    return;
+                }
+            }
+            node = node->GetNext();
+        }
         
-        if (dlg.ShowModal() != wxID_OK)
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
+        
+        if (connect_dlg.ShowModal() != wxID_OK) {
             return;
+        }
         
-        wxString proj_title = dlg.GetProjectTitle();
-        wxString layer_name = dlg.GetLayerName();
-        IDataSource* datasource = dlg.GetDataSource();
+        wxString proj_title = connect_dlg.GetProjectTitle();
+        wxString layer_name = connect_dlg.GetLayerName();
+        IDataSource* datasource = connect_dlg.GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
@@ -516,12 +545,26 @@ void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
 	//ev.Skip();
+    int dialog_type = 1;
+    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+            if (w->GetType() == dialog_type) {
+                w->EndDialog();
+                w->Close(true);
+                break;
+            }
+        }
+        node = node->GetNext();
+    }
+
 	EndDialog(wxID_CLOSE);
 }
 
-void MergeTableDlg::OnClose( wxCloseEvent& ev) 
+void MergeTableDlg::OnClose( wxCloseEvent& ev)
 {
-    EndDialog(wxID_CLOSE);
+    Destroy();
 }
 
 void MergeTableDlg::OnKeyChoice( wxCommandEvent& ev )

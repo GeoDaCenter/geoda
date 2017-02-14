@@ -383,9 +383,9 @@ END_EVENT_TABLE()
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
-                                           bool showRecentPanel_)
-:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_),
-showRecentPanel(showRecentPanel_)
+                                           bool showRecentPanel_,
+                                           int dialogType)
+:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_), showRecentPanel(showRecentPanel_)
 {
 
     base_xrcid_recent_thumb = 7000;
@@ -393,6 +393,7 @@ showRecentPanel(showRecentPanel_)
     
     // init controls defined in parent class
     DatasourceDlg::Init();
+    type = dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
 
 	SetParent(parent);

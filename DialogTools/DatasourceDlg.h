@@ -52,12 +52,14 @@ public:
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
 
     void OnExit(wxCloseEvent& e);
+    int GetType();
     
-	wxFileName      ds_file_path;
+	wxFileName ds_file_path;
     
 protected:
     wxEventLoop* eventLoop;
     bool is_ok_clicked;
+    int type; /*0 connect 1 export 2 Merge*/
     
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;

@@ -887,6 +887,10 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
 			w->DisconnectFromProject();
 		}
+		if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
+            w->EndDialog();
+            w->Close();
+		}
         node = node->GetNext();
     }
 
@@ -948,6 +952,11 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 		}
         if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
             w->EndDialog();
+            w->Close(true);
+        }
+        if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
+            w->EndDialog();
+            w->Close(true);
         }
         node = node->GetNext();
     }
@@ -1123,10 +1132,12 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
     while (node) {
         wxWindow* win = node->GetData();
         if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-			w->Show(true);
-			w->Maximize(false);
-			w->Raise();
-			return;
+            if (w->GetType() == 0) {
+    			w->Show(true);
+    			w->Maximize(false);
+    			w->Raise();
+    			return;
+            }
         }
         node = node->GetNext();
     }
@@ -2145,9 +2156,25 @@ void GdaFrame::OnChangeFieldType(wxCommandEvent& event)
 void GdaFrame::OnMergeTableData(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->FindTableBase()) return;
-	
-	MergeTableDlg dlg(project_p->GetTableInt(), wxDefaultPosition);
-	dlg.ShowModal();
+
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MergeTableDlg* w = dynamic_cast<MergeTableDlg*>(*it))
+        {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+	MergeTableDlg* dlg =  new MergeTableDlg(this,
+                                            project_p->GetTableInt(),
+                                            project_p->GetFramesManager(),
+                                            wxDefaultPosition);
+	dlg->Show(true);
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)

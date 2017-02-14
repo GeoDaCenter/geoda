@@ -65,6 +65,11 @@ DatasourceDlg::~DatasourceDlg()
     }
 }
 
+int DatasourceDlg::GetType()
+{
+    return type;
+}
+
 int DatasourceDlg::ShowModal()
 {
     Show(true);
@@ -86,6 +91,7 @@ void DatasourceDlg::EndDialog()
 {
     eventLoop->Exit();
     Show(false);
+    Destroy();
 }
 
 void DatasourceDlg::OnCancelClick( wxCommandEvent& event )

@@ -94,7 +94,8 @@ public:
                          const wxPoint& pos = wxDefaultPosition,
                          const wxSize& size = wxDefaultSize,
                          bool showCsvConfigure=true,
-                         bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog);
+                         bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog,
+                         int dialogType = 0);
     virtual ~ConnectDatasourceDlg();
     
     void CreateControls();
