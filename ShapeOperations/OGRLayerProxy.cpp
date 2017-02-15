@@ -522,14 +522,17 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         }
     }
     export_progress = export_size / 2;
-    
-    for (size_t i=0; i<data.size(); i++) {
-        if (stop_exporting) return;
-        if ((i+1)%2==0)
+   
+    int n_data = data.size();
+    for (int i=0; i<n_data; i++) {
+        if (stop_exporting)
+            return;
+        if ((i+1)%2==0) {
             export_progress++;
+        }
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-            wxString msg = wxString::Format(" Failed to create feature (%d/%d).", i + 1, data.size());
-            error_message << msg;
+            wxString msg = wxString::Format(" Failed to create feature (%d/%d).", i + 1, n_data);
+            error_message << msg << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;
         }
