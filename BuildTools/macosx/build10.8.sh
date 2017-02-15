@@ -60,7 +60,6 @@ GDA_CFLAGS="-Os -arch x86_64"
 GDA_CXX="g++"
 GDA_CXXFLAGS="-Os -arch x86_64"
 GDA_LDFLAGS="-arch x86_64"
-GDA_WITH_SYSROOT="/Developer/SDKs/MacOSX10.6.sdk/"
 
 CURL="/usr/bin/curl"
 
@@ -314,11 +313,6 @@ if ! [ -f $DOWNLOAD_HOME/$LIB_NAME/stage/lib/$LIB_CHECKER ]; then
     ./bootstrap.sh
     ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=static threading=multi toolset=darwin cxxflags="-arch x86_64" stage
     ./b2 --with-thread --with-date_time --with-chrono --with-system --with-test link=shared threading=multi toolset=darwin cxxflags="-arch x86_64" stage
-    #./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi toolset=darwin cxxflags="-arch x86_64 -mmacosx-version-min=10.5 -isysroot $GDA_WITH_SYSROOT" macosx-version=10.5 stage
-    #bjam toolset=darwin address-model=32
-
-    # 10.5 against 1_50_0
-    #./bjam --toolset=darwin --toolset-root=/usr/bin/gcc-4.2 address-model=32 macosx-version=10.5.5
 fi
 
 if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
