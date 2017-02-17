@@ -201,10 +201,36 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 								  vector<int>& selected_rows)
 {
 	OGRwkbGeometryType eGType = wkbNone;
-    for (size_t i = 0; i < selected_rows.size(); i++ ) {
+    int n = selected_rows.size();
+    
+    // check geometry type: in case of Postgresql, OGRPolygon and OGRMultiPolygon
+    // can NOT be created at the same time
+    for (size_t i = 0; i < n; i++ ) {
         int id = selected_rows[i];
         if ( shape_type == Shapefile::POINT_TYP ) {
             eGType = wkbPoint;
+            break;
+        } else if ( shape_type == Shapefile::POLYGON ) {
+            GdaPolygon* poly = (GdaPolygon*) geometries[id];
+            if (poly->isNull()) {
+                
+            } else {
+                int numParts     = poly->n_count;
+                if ( numParts == 1 ) {
+                    if (eGType != wkbMultiPolygon)
+                        eGType = wkbPolygon;
+                } else {
+                    eGType = wkbMultiPolygon;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // make geometries to OGRGeometry
+    for (size_t i = 0; i < n; i++ ) {
+        int id = selected_rows[i];
+        if ( shape_type == Shapefile::POINT_TYP ) {
             GdaPoint* pc = (GdaPoint*) geometries[id];
             OGRPoint* pt = (OGRPoint*)OGRGeometryFactory::createGeometry(wkbPoint);
             if (!pc->isNull()) {
@@ -217,18 +243,14 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
             
             GdaPolygon* poly = (GdaPolygon*) geometries[id];
             if (poly->isNull()) {
-				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
-				//OGRLinearRing* ring =(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
-                //ring->closeRings();
-                //polygon->addRingDirectly(ring);
+				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(eGType);
                 ogr_geometries.push_back(polygon);
                 
             } else {
-                int numParts     = poly->n_count;
-                int numPoints    = poly->n;
+                int numParts = poly->n_count;
+                int numPoints = poly->n;
                 double x, y;
                 if ( numParts == 1 ) {
-                    eGType = wkbPolygon;
     				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
     				OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
                     for ( int j = 0; j < numPoints; j++ ) { 
@@ -247,17 +269,25 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
                     }
                     ring->closeRings();
                     polygon->addRingDirectly(ring);
-                    ogr_geometries.push_back(polygon);
+                    
+                    if (eGType == wkbMultiPolygon) {
+                        OGRMultiPolygon* multi_polygon = (OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+                        multi_polygon->addGeometryDirectly(polygon);
+                        ogr_geometries.push_back(multi_polygon);
+                    } else {
+                        ogr_geometries.push_back(polygon);
+                    }
                 
                 } else if ( numParts > 1 ) {
-                    eGType = wkbMultiPolygon;
     				OGRMultiPolygon* multi_polygon = (OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
                     for ( int num_part = 0; num_part < numParts; num_part++ ) {
     					OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
                         OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
                         vector<wxInt32> startIndexes = poly->pc->parts;
                         startIndexes.push_back(numPoints);
-                        for ( size_t j = startIndexes[num_part]; j < startIndexes[num_part+1]; j++ ) {
+                        for ( size_t j = startIndexes[num_part];
+                              j < startIndexes[num_part+1]; j++ )
+                        {
                             
                             x = poly->pc->points[j].x;
                             y = poly->pc->points[j].y;
