@@ -38,7 +38,7 @@ BEGIN_EVENT_TABLE( DataViewerEditFieldPropertiesDlg, wxDialog )
 	EVT_GRID_EDITOR_HIDDEN( DataViewerEditFieldPropertiesDlg::OnCellEditorHidden )
     EVT_GRID_EDITOR_CREATED(DataViewerEditFieldPropertiesDlg::OnCellEditorCreated )
 	EVT_BUTTON( wxID_CLOSE, DataViewerEditFieldPropertiesDlg::OnCloseButton )
-	EVT_CLOSE( DataViewerEditFieldPropertiesDlg::OnClose )
+	//EVT_CLOSE( DataViewerEditFieldPropertiesDlg::OnClose )
 	EVT_GRID_CELL_CHANGING(DataViewerEditFieldPropertiesDlg::OnCellChanging)
 END_EVENT_TABLE()
 
@@ -51,7 +51,6 @@ project(project_s),
 table_int(project_s->GetTableInt()),
 cell_editor_open(false),
 field_grid(0),
-frames_manager(project_s->GetFramesManager()),
 table_state(project_s->GetTableState())
 {
     
@@ -80,13 +79,13 @@ table_state(project_s->GetTableState())
     CreateControls();
 	SetTitle(_("Variable Properties - ") + table_int->GetTableName());
     Centre();
-	frames_manager->registerObserver(this);
+	//frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
 }
 
 DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
 {
-	frames_manager->removeObserver(this);
+	//frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 }
 

@@ -73,7 +73,6 @@ private:
     
 	wxGrid* field_grid;
 	Project* project;
-	FramesManager* frames_manager;
 	TableInterface* table_int;
 	TableState* table_state;
 		
