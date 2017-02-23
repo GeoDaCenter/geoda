@@ -763,39 +763,39 @@
         <object class="wxStaticBitmap" name="wxID_STATIC">
           <bitmap>about-geoda-logo.png</bitmap>
         </object>
-        <flag>wxALIGN_CENTRE|wxALL</flag>
+        <flag>wxALIGN_CENTER|wxALL</flag>
         <border>8</border>
       </object>
       <object class="sizeritem">
         <object class="wxStaticText" name="ID_COPYRIGHT">
           <label>Copyright (C) year-year by Luc Anselin</label>
-          <style>wxALIGN_CENTRE</style>
+          <style>wxALIGN_CENTER</style>
         </object>
-        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTRE</flag>
+        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTER</flag>
         <border>10</border>
       </object>
       <object class="sizeritem">
         <object class="wxStaticText" name="ID_ALL_RIGHTS_RESERVED">
           <label>All Rights Reserved</label>
         </object>
-        <flag>wxTOP|wxALIGN_CENTRE</flag>
+        <flag>wxTOP|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <object class="sizeritem">
         <object class="wxStaticText" name="ID_VERSION_LABEL">
           <label>GeoDa maj.min.bld (type), day month year</label>
-          <style>wxALIGN_CENTRE</style>
+          <style>wxALIGN_CENTER</style>
         </object>
-        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
         <border>10</border>
       </object>
       <object class="sizeritem">
         <object class="wxCheckBox" name="IDC_CHECK_TESTMODE_STABLE">
           <label>Stable Version and Bug Fixes Only</label>
           <checked>1</checked>
-          <style>wxALIGN_CENTRE</style>
+          <style>wxALIGN_CENTER</style>
         </object>
-        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+        <flag>wxTOP|wxLEFT|wxRIGHT|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
         <border>20</border>
       </object>
       <object class="sizeritem">
@@ -815,7 +815,7 @@
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxTOP|wxBOTTOM|wxALIGN_CENTRE</flag>
+        <flag>wxTOP|wxBOTTOM|wxALIGN_CENTER</flag>
         <border>15</border>
       </object>
     </object>
@@ -3545,7 +3545,7 @@
               <vgap>5</vgap>
               <hgap>40</hgap>
             </object>
-            <flag>wxALIGN_CENTRE</flag>
+            <flag>wxALIGN_CENTER</flag>
           </object>
           <label>Contiguity Weight</label>
           <orient>wxHORIZONTAL</orient>
@@ -3571,7 +3571,7 @@
                     <object class="wxChoice" name="IDC_DISTANCE_METRIC">
                       <size>98,-1d</size>
                     </object>
-                    <flag>wxALIGN_CENTRE</flag>
+                    <flag>wxALIGN_CENTER</flag>
                     <border>2</border>
                   </object>
                   <object class="spacer"/>
@@ -3586,14 +3586,14 @@
                     <object class="wxChoice" name="IDC_XCOORDINATES">
                       <size>98,-1d</size>
                     </object>
-                    <flag>wxALIGN_CENTRE</flag>
+                    <flag>wxALIGN_CENTER</flag>
                     <border>2</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_XCOORD_TIME">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALIGN_CENTRE</flag>
+                    <flag>wxALIGN_CENTER</flag>
                   </object>
                   <object class="sizeritem">
                     <object class="wxStaticText" name="IDC_STATIC2">
@@ -3606,14 +3606,14 @@
                     <object class="wxChoice" name="IDC_YCOORDINATES">
                       <size>98,-1d</size>
                     </object>
-                    <flag>wxALIGN_CENTRE</flag>
+                    <flag>wxALIGN_CENTER</flag>
                     <border>2</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_YCOORD_TIME">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALIGN_CENTRE</flag>
+                    <flag>wxALIGN_CENTER</flag>
                   </object>
                   <cols>3</cols>
                   <rows>3</rows>
@@ -3948,7 +3948,7 @@
                           <size>80,-1d</size>
                           <label>choose a variable</label>
                         </object>
-                        <flag>wxALIGN_CENTRE</flag>
+                        <flag>wxALIGN_CENTER</flag>
                       </object>
                       <object class="spacer">
                         <size>3,5d</size>
@@ -4888,21 +4888,21 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_SPECIAL_RESULT">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_SPECIAL_RESULT_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
         </object>
@@ -5024,21 +5024,21 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_UNARY_RESULT">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_UNARY_RESULT_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
         </object>
@@ -5066,14 +5066,14 @@
                     <object class="wxStaticText" name="ID_STATICTEXT2">
                       <label>Operator</label>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_UNARY_OPERATOR">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <orient>wxVERTICAL</orient>
@@ -5087,21 +5087,21 @@
                     <object class="wxStaticText">
                       <label>Variable / Constant</label>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxComboBox" name="IDC_UNARY_OPERAND">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_UNARY_OPERAND_TM">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <orient>wxVERTICAL</orient>
@@ -5152,21 +5152,21 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_BINARY_RESULT">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_BINARY_RESULT_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
         </object>
@@ -5194,21 +5194,21 @@
                     <object class="wxStaticText" name="ID_STATICTEXT3">
                       <label>Variable / Constant</label>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxComboBox" name="IDC_BINARY_OPERAND1">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_BINARY_OPERAND1_TM">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <orient>wxVERTICAL</orient>
@@ -5222,12 +5222,12 @@
                     <object class="wxStaticText" name="ID_STATICTEXT4">
                       <label>Operator</label>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_BINARY_OPERATOR"/>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <orient>wxVERTICAL</orient>
@@ -5241,14 +5241,14 @@
                     <object class="wxStaticText" name="IDC_STATIC">
                       <label>Variable / Constant</label>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                    <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                     <border>3</border>
                   </object>
                   <object class="sizeritem">
                     <object class="wxComboBox" name="IDC_BINARY_OPERAND2">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                   <orient>wxVERTICAL</orient>
@@ -5256,7 +5256,7 @@
                     <object class="wxChoice" name="IDC_BINARY_OPERAND2_TM">
                       <size>80,-1d</size>
                     </object>
-                    <flag>wxALL|wxALIGN_CENTRE</flag>
+                    <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
                   </object>
                 </object>
@@ -5302,21 +5302,21 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_LAG_RESULT">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_LAG_RESULT_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <orient>wxVERTICAL</orient>
@@ -5362,19 +5362,19 @@
                   </object>
                   <orient>wxHORIZONTAL</orient>
                 </object>
-                <flag>wxALL|wxALIGN_CENTRE</flag>
+                <flag>wxALL|wxALIGN_CENTER</flag>
                 <border>3</border>
               </object>
               <object class="sizeritem">
                 <object class="wxChoice" name="IDC_CURRENTUSED_W">
                   <size>220,-1d</size>
                 </object>
-                <flag>wxALL|wxGROW|wxALIGN_CENTRE</flag>
+                <flag>wxALL|wxGROW|wxALIGN_CENTER</flag>
                 <border>3</border>
               </object>
               <orient>wxVERTICAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
           </object>
           <object class="sizeritem">
             <object class="wxBoxSizer">
@@ -5382,26 +5382,26 @@
                 <object class="wxStaticText" name="IDC_STATIC">
                   <label>Variable</label>
                 </object>
-                <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+                <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
                 <border>3</border>
               </object>
               <object class="sizeritem">
                 <object class="wxChoice" name="IDC_LAG_OPERAND">
                   <size>80,-1d</size>
                 </object>
-                <flag>wxALL|wxALIGN_CENTRE</flag>
+                <flag>wxALL|wxALIGN_CENTER</flag>
                 <border>3</border>
               </object>
               <object class="sizeritem">
                 <object class="wxChoice" name="IDC_LAG_OPERAND_TM">
                   <size>80,-1d</size>
                 </object>
-                <flag>wxALL|wxALIGN_CENTRE</flag>
+                <flag>wxALL|wxALIGN_CENTER</flag>
                 <border>3</border>
               </object>
               <orient>wxVERTICAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>5</border>
           </object>
           <object class="sizeritem">
@@ -5432,19 +5432,19 @@
             <object class="wxStaticText" name="ID_STATICTEXT3">
               <label>Method</label>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE|wxADJUST_MINSIZE</flag>
+            <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_OPERATOR">
               <size>110,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <flag>wxALL|wxGROW|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxGROW|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <object class="sizeritem">
@@ -5470,26 +5470,26 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_RESULT">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_RESULT_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <object class="sizeritem">
@@ -5503,7 +5503,7 @@
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <object class="sizeritem">
@@ -5533,19 +5533,19 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_WEIGHT">
               <size>220,-1d</size>
             </object>
-            <flag>wxALL|wxGROW|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxGROW|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <orient>wxVERTICAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <object class="spacer">
@@ -5566,42 +5566,42 @@
             <object class="wxStaticText" name="IDC_STATIC">
               <label>Event Variable</label>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxStaticText" name="ID_STATICTEXT5">
               <label>Base Variable</label>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_OPERAND1">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_OPERAND2">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_OPERAND1_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <object class="sizeritem">
             <object class="wxChoice" name="IDC_RATE_OPERAND2_TM">
               <size>80,-1d</size>
             </object>
-            <flag>wxALL|wxALIGN_CENTRE</flag>
+            <flag>wxALL|wxALIGN_CENTER</flag>
             <border>3</border>
           </object>
           <cols>2</cols>
@@ -5609,7 +5609,7 @@
           <vgap>0</vgap>
           <hgap>20</hgap>
         </object>
-        <flag>wxALIGN_CENTRE</flag>
+        <flag>wxALIGN_CENTER</flag>
       </object>
     </object>
   </object>
@@ -6237,7 +6237,7 @@
             <object class="wxChoice" name="IDC_CURRENTUSED_W">
               <size>162,-1d</size>
             </object>
-            <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE|wxALIGN_CENTRE_VERTICAL</flag>
+            <flag>wxLEFT|wxRIGHT|wxALIGN_CENTER|wxALIGN_CENTRE_VERTICAL</flag>
             <border>5</border>
           </object>
           <object class="sizeritem">
@@ -6450,7 +6450,7 @@
           <style>wxTE_MULTILINE|wxTE_READONLY</style>
         </object>
         <option>1</option>
-        <flag>wxEXPAND|wxALIGN_CENTRE</flag>
+        <flag>wxEXPAND|wxALIGN_CENTER</flag>
       </object>
     </object>
     <size>620,560</size>

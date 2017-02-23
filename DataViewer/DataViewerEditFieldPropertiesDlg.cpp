@@ -163,7 +163,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 			}
             
 			field_grid->SetCellValue(r, COL_N, name);
-			field_grid->SetCellAlignment(r, COL_N, wxALIGN_CENTRE, wxALIGN_CENTRE);
+			field_grid->SetCellAlignment(r, COL_N, wxALIGN_CENTER, wxALIGN_CENTER);
             
 			if (!table_int->PermitRenameSimpleCol()) {
 				field_grid->SetCellTextColour(r, COL_N, GdaConst::table_no_edit_color);
@@ -173,7 +173,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				// parent group
 				wxString pg = table_int->GetColName(cid);
 				field_grid->SetCellValue(r, COL_PG, pg);
-				field_grid->SetCellAlignment(r, COL_PG, wxALIGN_CENTRE, wxALIGN_CENTRE);
+				field_grid->SetCellAlignment(r, COL_PG, wxALIGN_CENTER, wxALIGN_CENTER);
 				field_grid->SetReadOnly(r, COL_PG, true); 
 				// time
 				field_grid->SetCellValue(r, COL_TM, table_int->GetTimeString(t));
@@ -181,12 +181,12 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				field_grid->SetCellTextColour(r, COL_PG, GdaConst::table_no_edit_color);
 				field_grid->SetReadOnly(r, COL_PG, true);
 			}
-			field_grid->SetCellAlignment(r, COL_TM, wxALIGN_CENTRE, wxALIGN_CENTRE);
+			field_grid->SetCellAlignment(r, COL_TM, wxALIGN_CENTER, wxALIGN_CENTER);
 			field_grid->SetCellTextColour(r, COL_TM, GdaConst::table_no_edit_color);
 			field_grid->SetReadOnly(r, COL_TM, true);
 		
 			// type
-			field_grid->SetCellAlignment(r, COL_T, wxALIGN_CENTRE, wxALIGN_CENTRE);
+			field_grid->SetCellAlignment(r, COL_T, wxALIGN_CENTER, wxALIGN_CENTER);
 			field_grid->SetCellTextColour(r, COL_T, GdaConst::table_no_edit_color);
             
 			//field_grid->SetReadOnly(r, COL_T, true);
@@ -274,8 +274,8 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				field_grid->SetReadOnly(r, COL_MAX, true);
 				field_grid->SetCellTextColour(r, COL_MIN, GdaConst::table_no_edit_color);
 				field_grid->SetCellTextColour(r, COL_MAX, GdaConst::table_no_edit_color);
-				field_grid->SetCellAlignment(r, COL_MIN, wxALIGN_CENTRE, wxALIGN_CENTRE);
-				field_grid->SetCellAlignment(r, COL_MAX, wxALIGN_CENTRE, wxALIGN_CENTRE);
+				field_grid->SetCellAlignment(r, COL_MIN, wxALIGN_CENTER, wxALIGN_CENTER);
+				field_grid->SetCellAlignment(r, COL_MAX, wxALIGN_CENTER, wxALIGN_CENTER);
 			}
 		}
 	}
