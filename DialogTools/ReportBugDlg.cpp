@@ -104,16 +104,22 @@ void WelcomeSelectionStyleDlg::OnStyle2(wxMouseEvent& ev)
 	EndDialog(wxID_OK);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// PreferenceDlg
+//
+////////////////////////////////////////////////////////////////////////////////
 PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	wxWindowID id,
 	const wxString& title,
 	const wxPoint& pos,
 	const wxSize& size)
-	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 	highlight_state = NULL;
 	SetBackgroundColour(*wxWHITE);
 	Init();
+    SetMinSize(wxSize(550, -1));
 }
 
 PreferenceDlg::PreferenceDlg(wxWindow* parent,
@@ -122,11 +128,12 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	const wxString& title,
 	const wxPoint& pos,
 	const wxSize& size)
-	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 	highlight_state = _highlight_state;
 	SetBackgroundColour(*wxWHITE);
 	Init();
+    SetMinSize(wxSize(550, -1));
 }
 
 void PreferenceDlg::Init()
@@ -353,6 +360,7 @@ void PreferenceDlg::Init()
 
 	SetSizer(vbox);
 	vbox->Fit(this);
+    
 	Centre();
 	ShowModal();
 
