@@ -774,7 +774,12 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
-	
+
+    GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
+                                   GetCcType() != CatClassification::no_theme);
+    
+    
+    
 	if (template_frame) {
 		template_frame->UpdateContextMenuItems(optMenu);
 		template_frame->PopupMenu(optMenu, pos + GetPosition());
@@ -807,8 +812,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
+
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 					GetCcType() == CatClassification::no_theme);
 
 	// since XRCID is a macro, we can't make this into a loop
