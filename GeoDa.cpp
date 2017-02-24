@@ -412,6 +412,13 @@ bool GdaApp::OnInit(void)
 #ifdef __DEBUG__
     wxLog::SetLogLevel(wxLOG_User);
 #endif
+    wxLogMessage(GeneralWxUtils::LogOsId());
+    wxString versionlog = wxString::Format("vs: %d-%d-%d-%d",
+                                           Gda::version_major,
+                                           Gda::version_minor,
+                                           Gda::version_build,
+                                           Gda::version_subbuild);
+    wxLogMessage(versionlog);
     
     // show open file dialog
     GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);

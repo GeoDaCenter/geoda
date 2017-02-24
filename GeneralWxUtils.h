@@ -26,6 +26,7 @@
 class GeneralWxUtils	{
 public:
 	static wxOperatingSystemId GetOsId();
+	static wxString LogOsId();
 	static bool isMac();
 	static bool isWindows();
 	static bool isUnix();

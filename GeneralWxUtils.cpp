@@ -31,6 +31,28 @@ wxOperatingSystemId GeneralWxUtils::GetOsId()
 	return osId;
 }
 
+wxString GeneralWxUtils::LogOsId()
+{
+    wxString oslog;
+  
+    int os = 0;
+    
+    if (isMac()) {
+        os = 1;
+    } else if (isWindows()) {
+        os = 2;
+    } else if (isUnix()) {
+        os = 3;
+    }
+    
+	int majorVsn = 0;
+	int minorVsn = 0;
+	wxGetOsVersion(&majorVsn, &minorVsn);
+    
+    oslog = wxString::Format("os: %d-%d-%d", os, majorVsn, minorVsn);
+    return oslog;
+}
+
 bool GeneralWxUtils::isMac()
 {
 	static bool r = (GetOsId() & wxOS_MAC ? true : false);
