@@ -492,7 +492,7 @@ void LineChartCanvas::PopulateCanvas()
 				double fracX = ((double) t)/((double) (tms-1));
 				double x = fracX * 100.0;
 				double y = (lcs.Y_excl_avg[t] - axis_scale_y.scale_min) * scaleY;
-				if (lcs.tms_subset0[t]) {
+				if (lcs.tms_subset0[t] && lcs.Y_excl_tm0_avg_valid) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					if (lcs.compare_r_and_t) {
 						c->setPen(GdaConst::ln_cht_clr_tm1_light);
@@ -503,7 +503,7 @@ void LineChartCanvas::PopulateCanvas()
 					}
 					foreground_shps.push_back(c);
 				}
-				if (lcs.compare_r_and_t && lcs.tms_subset1[t]) {
+				if (lcs.compare_r_and_t && lcs.tms_subset1[t] &&lcs.Y_excl_tm1_avg_valid ) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					c->setPen(GdaConst::ln_cht_clr_tm2_light);
 					c->setBrush(GdaConst::ln_cht_clr_tm2_light);
@@ -516,7 +516,7 @@ void LineChartCanvas::PopulateCanvas()
 				double fracX = ((double) t)/((double) (tms-1));
 				double x = fracX * 100.0;	
 				double y = (lcs.Y_sel_avg[t] - axis_scale_y.scale_min) * scaleY;
-				if (lcs.tms_subset0[t]) {
+				if (lcs.tms_subset0[t] && lcs.Y_sel_tm0_avg_valid) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					if (lcs.compare_r_and_t) {
 						c->setPen(GdaConst::ln_cht_clr_tm1_light);
@@ -527,7 +527,7 @@ void LineChartCanvas::PopulateCanvas()
 					}
 					foreground_shps.push_back(c);
 				}
-				if (lcs.compare_r_and_t && lcs.tms_subset1[t]) {
+				if (lcs.compare_r_and_t && lcs.tms_subset1[t] && lcs.Y_sel_tm1_avg_valid) {
 					GdaCircle* c = new GdaCircle(wxRealPoint(x, y), ss_circ_rad);
 					c->setPen(GdaConst::ln_cht_clr_tm2_light);
 					c->setBrush(GdaConst::ln_cht_clr_tm2_light);
@@ -535,6 +535,7 @@ void LineChartCanvas::PopulateCanvas()
 				}
 			}
 		}
+        /*
 		if (lcs.Y_avg_valid && lcs.Y_excl_avg_valid == lcs.Y_sel_avg_valid) {
 			for (size_t t=0; t<tms; ++t) {
 				double fracX = ((double) t)/((double) (tms-1));
@@ -560,7 +561,7 @@ void LineChartCanvas::PopulateCanvas()
 				}
 			}
 		}
-		
+         */
 		// Draw everything else
         if (lcs.Y_avg_valid) {
 			for (size_t t=0; t<tms; ++t) {
