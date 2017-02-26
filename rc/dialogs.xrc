@@ -7372,15 +7372,20 @@
                                   <object class="sizeritem">
                                       <object class="wxFlexGridSizer">
                                           <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC">
-                                                  <label>Input WFS URL</label>
+                                              <object class="wxChoice" name="ID_CDS_WEB_CHOICE">
+                                                  <size>56,-1d</size>
+                                                  <content>
+                                                      <item>GeoJson URL</item>
+                                                      <item>WFS URL</item>
+                                                  </content>
+                                                  <selection>0</selection>
                                               </object>
                                               <flag>wxALIGN_CENTRE_VERTICAL</flag>
                                               <border>5</border>
                                           </object>
                                           <object class="sizeritem">
                                               <object class="wxTextCtrl" name="IDC_CDS_WS_URL" subclass="AutoTextCtrl">
-                                                  <size>162,-1d</size>
+                                                  <size>200,-1d</size>
                                               </object>
                                               <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                               <border>5</border>
@@ -7394,7 +7399,7 @@
                                   </object>
                               </object>
                           </object>
-                          <label>Web Service</label>
+                          <label>Web</label>
                       </object>
                       <object class="notebookpage">
                           <object class="wxPanel" name="dsCartoDB">

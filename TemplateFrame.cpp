@@ -441,7 +441,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
 	wxString default_fname(project->GetProjectTitle() + type);
-	wxString filter("BMP|*.bmp|PNG|*.png|SVG|*.svg");
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+        
+    }
 	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
 	//
@@ -471,6 +475,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
 			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
@@ -489,6 +496,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
 			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
@@ -500,16 +510,27 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			image.Destroy();
 		}
 			break;
-		/* case 2:
+		case 2:
 		{
-			LOG_MSG("PostScript selected");
+			LOG_MSG("SVG selected");
+			wxSVGFileDC dc(str_fname + ".svg", sz.x, sz.y);
+            
+			template_canvas->RenderToDC(dc, sz.x, sz.y);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 2.5);
+            }
+		}
+			break;
+		case 3:
+		{
 			wxPrintData printData;
 			printData.SetFilename(str_fname + ".ps");
 			printData.SetPrintMode(wxPRINT_MODE_FILE);
 			wxPostScriptDC dc(printData);
-			dc.SetBrush(*wxTRANSPARENT_BRUSH);
-			dc.SetPen(*wxTRANSPARENT_PEN);
-			dc.SetPen(*wxBLACK_PEN);
+            
+			//dc.SetBrush(*wxTRANSPARENT_BRUSH);
+			//dc.SetPen(*wxTRANSPARENT_PEN);
+			//dc.SetPen(*wxBLACK_PEN);
 			int w, h;
 			dc.GetSize(&w, &h);
 			LOG_MSG(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
@@ -518,44 +539,28 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 				dc.StartDoc("printing...");
 				int paperW, paperH;
 				dc.GetSize(&paperW, &paperH);
-				paperW += 14; // experimentally obtained tweak
-				paperH += -52; // experimentally obtained tweak
 				double marginFactor = 0.03;
-				int margin = (int) (paperW*marginFactor);
-				int workingW = paperW - 2*margin;
-				int workingH = paperH - 2*margin;
-				int originX = margin+1; // experimentally obtained tweak
-				int originY = margin+50; // experimentally obtained tweak
-				dc.SetDeviceOrigin(originX, originY); 
-				LOG_MSG(wxString::Format(
-					"PostScript DC origin set to (%d,%d)",
-										 originX, originY));
-				//dc.SetPen(*wxRED_PEN);
-				//dc.SetBrush(*wxBLUE_BRUSH);
-				//wxRect rect(wxPoint(0,0), wxPoint(workingW, workingH));
-				//dc.DrawRectangle(rect);
-				// Calculate the scaling factor to fit the picture to the page.
+				int marginW = (int) (paperW*marginFactor);
+				int marginH = (int) (paperH*marginFactor);
+                int workingW = paperW - 2*marginW;
+				int workingH = paperH - 2*marginH;
+				int originX = marginW+1; // experimentally obtained tweak
+				int originY = marginH+150; // experimentally obtained tweak
+				dc.SetDeviceOrigin(originX, originY);
 				int pictW = sz.GetWidth();
 				int pictH = sz.GetHeight();
-				double scale = wxMin((double) workingH/pictH,
+				double scale = 1.0 / wxMin((double) workingH/pictH,
 									 (double) workingW/pictW);
-				LOG_MSG(wxString::Format("PostScript DC scale factor = %f",
-										 (float) scale));
-				canvas->Draw(&dc);
+                if (template_legend) {
+                    template_legend->RenderToDC(dc, scale);
+                }
+                template_canvas->RenderToDC(dc,w, h);
 				dc.EndDoc();
 			} else {
 				wxString msg("There was a problem generating the ");
 				msg << "PostScript file.  Failed.";
 				wxMessageBox(msg);
 			}
-		}
-			break;
-        */
-		case 2:
-		{
-			LOG_MSG("SVG selected");
-			wxSVGFileDC dc(str_fname + ".svg", sz.x, sz.y);
-			template_canvas->RenderToDC(dc, true);
 		}
 			break;
 		 

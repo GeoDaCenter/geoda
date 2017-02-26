@@ -20,6 +20,8 @@
 #include <wx/colordlg.h>
 #include <wx/colourdata.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/dcgraph.h>
+
 #include "logger.h"
 #include "GdaConst.h"
 #include "TemplateCanvas.h"
@@ -117,9 +119,10 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	if (cat_clicked < 0 || cat_clicked >= num_cats) return;
 	wxString s;
 	s << "Color for Category";
-	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts,
-																cat_clicked);
-	if (!cat_label.IsEmpty()) s << ": " << cat_label;
+	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
+	if (!cat_label.IsEmpty())
+        s << ": " << cat_label;
+    
 	menu->Prepend(ID_CATEGORY_COLOR, s, s);
 	opt_menu_cat = cat_clicked;
 }
@@ -130,8 +133,7 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 	int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
 	if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
 	
-	wxColour col = template_canvas->cat_data.GetCategoryColor(c_ts,
-															  opt_menu_cat);
+	wxColour col = template_canvas->cat_data.GetCategoryColor(c_ts, opt_menu_cat);
 	wxColourData data;
 	data.SetColour(col);
 	data.SetChooseFull(true);
@@ -159,7 +161,9 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 
 void TemplateLegend::OnDraw(wxDC& dc)
 {
-	if (!template_canvas) return;
+	if (!template_canvas)
+        return;
+    
     dc.SetFont(*GdaConst::small_font);
     dc.DrawText(template_canvas->GetCategoriesTitle(), px, 13);
 	
@@ -181,6 +185,39 @@ void TemplateLegend::OnDraw(wxDC& dc)
 		cur_y += d_rect;
 	}
 }
+
+void TemplateLegend::RenderToDC(wxDC& dc, double scale)
+{
+	if (template_canvas == NULL)
+        return;
+    
+    wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
+                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                              wxEmptyString, wxFONTENCODING_DEFAULT);
+    dc.SetFont(*fnt);
+    
+    dc.DrawText(template_canvas->GetCategoriesTitle(), px / scale, 13 / scale);
+	
+	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int cur_y = py;
+	int numRect = template_canvas->cat_data.GetNumCategories(time);
+	
+    dc.SetPen(*wxBLACK_PEN);
+	for (int i=0; i<numRect; i++) {
+        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
+        if (clr.IsOk())
+            dc.SetBrush(clr);
+        else
+            dc.SetBrush(*wxBLACK_BRUSH);
+        
+		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
+					(px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
+		dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
+                         m_l / scale, m_w / scale);
+		cur_y += d_rect;
+	}
+}
+
 
 void TemplateLegend::SelectAllInCategory(int category,
 										 bool add_to_selection)

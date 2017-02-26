@@ -619,6 +619,7 @@ void ConnectDatasourceDlg::CreateControls()
     recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
     smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
     noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
+    m_web_choice =  XRCCTRL(*this, "ID_CDS_WEB_CHOICE", wxChoice);
     
     noshow_recent->Bind(wxEVT_CHECKBOX, &ConnectDatasourceDlg::OnNoShowRecent, this);
     if (!showRecentPanel) {
@@ -850,8 +851,6 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 		wxString dbuser = m_database_uname->GetValue().Trim();
 		wxString dbpwd  = m_database_upwd->GetValue().Trim();
         
-
-        
         GdaConst::DataSourceType ds_type = GdaConst::ds_unknown;
         if (cur_sel == DBTYPE_ORACLE) ds_type = GdaConst::ds_oci;
         else if (cur_sel == DBTYPE_ARCSDE) ds_type = GdaConst::ds_esri_arc_sde;
@@ -914,22 +913,26 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         wxRegEx regex;
         regex.Compile("^(https|http)://");
         if (!regex.Matches( ws_url )){
-            throw GdaException(
-                wxString("Please input a valid WFS url address.").mb_str());
+            throw GdaException(wxString("Please input a valid url address.").mb_str());
         }
         if (ws_url.IsEmpty()) {
-            throw GdaException(
-                wxString("Please input WFS url.").mb_str());
+            throw GdaException(wxString("Please input a valid url.").mb_str());
         } else {
             OGRDataAdapter::GetInstance().AddHistory("ws_url", ws_url.ToStdString());
         }
-        if ((!ws_url.StartsWith("WFS:") || !ws_url.StartsWith("wfs:"))
-            && !ws_url.EndsWith("SERVICE=WFS")) {
-            ws_url = "WFS:" + ws_url;
+        
+        if (m_web_choice->GetSelection() == 0 ) {
+            datasource = new FileDataSource(ws_url);
+        } else {
+            if ((!ws_url.StartsWith("WFS:") || !ws_url.StartsWith("wfs:"))
+                && !ws_url.EndsWith("SERVICE=WFS"))
+            {
+                ws_url = "WFS:" + ws_url;
+            }
+            datasource = new WebServiceDataSource(GdaConst::ds_wfs, ws_url);
+            // prompt user to select a layer from WFS
+            //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
         }
-        datasource = new WebServiceDataSource(GdaConst::ds_wfs, ws_url);
-        // prompt user to select a layer from WFS
-        //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
         
 	} else if ( datasource_type == 3 ) {
         

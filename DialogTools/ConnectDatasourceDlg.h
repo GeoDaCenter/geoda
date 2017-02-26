@@ -121,6 +121,7 @@ protected:
     wxScrolledWindow* scrl;
     wxNotebook* recent_nb;
     wxCheckBox* noshow_recent;
+    wxChoice* m_web_choice;
    
     int base_xrcid_recent_thumb;
     int base_xrcid_sample_thumb;

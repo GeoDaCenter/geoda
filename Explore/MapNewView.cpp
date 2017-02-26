@@ -335,8 +335,12 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                      int virtual_scrn_h)
 {
-    
+   
     if (isDrawBasemap) {
+        if ( virtual_scrn_w > 0 && virtual_scrn_h> 0) {
+            basemap->ResizeScreen(virtual_scrn_w, virtual_scrn_h);
+        }
+        
         BOOST_FOREACH( GdaShape* ms, background_shps ) {
             if (ms)
                 ms->projectToBasemap(basemap);

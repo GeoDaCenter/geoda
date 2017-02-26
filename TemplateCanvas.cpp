@@ -602,22 +602,34 @@ void TemplateCanvas::update(HLStateInt* o)
     UpdateStatusBar();
 }
 
-void TemplateCanvas::RenderToDC(wxDC &dc, bool disable_crosshatch_brush)
+void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
-	wxSize sz = GetClientSize();
+
 	dc.SetPen(canvas_background_color);
 	dc.SetBrush(canvas_background_color);
-	dc.DrawRectangle(wxPoint(0,0), sz);
+	//dc.DrawRectangle(wxPoint(0,0), sz);
+    
+    resizeLayerBms(w, h);
+    ResizeSelectableShps(w, h);
     
 	BOOST_FOREACH( GdaShape* shp, background_shps ) {
 		shp->paintSelf(dc);
 	}
 
     helper_DrawSelectableShapes_dc(dc);
+
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
 		shp->paintSelf(dc);
 	}
+    
+	wxSize sz = GetClientSize();
+    
+    w = sz.GetWidth();
+    h = sz.GetHeight();
+    resizeLayerBms(w, h);
+    ResizeSelectableShps(w, h);
+    isResize = true;
 }
 
 void TemplateCanvas::DrawLayers()
