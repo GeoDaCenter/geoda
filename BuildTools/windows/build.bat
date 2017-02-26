@@ -723,7 +723,7 @@ REM # that declares wxWidgets is high-DPI display aware.  wxWidgets
 REM # isn't high-DPI display aware and we actually want Windows 8.1
 REM # to apply pixel scaling so that the layout of windows isn't messed
 REM # up.  OSX already handles Retina displays properly.
-REM xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
+xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
 
 cd %DOWNLOAD_HOME%\%LIB_NAME%\build\msw
 set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
@@ -731,8 +731,6 @@ set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
 if %GDA_BUILD% == BUILD_32 (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
-  
-  
 )  else (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64

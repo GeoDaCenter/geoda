@@ -52,9 +52,9 @@ MSVC_VER=1500
 
 ODBC_DRV_HOME= "C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64"
 
-!IF EXIST("C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64")
-ODBC_DRV_HOME= "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64"
-!ENDIF
+#!IF EXIST("C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64")
+#ODBC_DRV_HOME= "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64"
+#!ENDIF
 
 !IFNDEF GDAL_HOME
 GDAL_HOME = C:\OSGeo4W
