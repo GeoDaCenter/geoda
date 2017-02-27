@@ -463,6 +463,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     if (dialog.ShowModal() != wxID_OK) return;
 	
 	wxSize sz =  canvas->GetVirtualSize();
+    wxSize sz_legend = template_legend->GetClientSize();
+    int new_bmp_w = sz.x + sz_legend.x;
+    int new_bmp_h = sz.y;
 	
 	wxFileName fname = wxFileName(dialog.GetPath());
 	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
@@ -471,17 +474,18 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 0:
 		{
 			LOG_MSG("BMP selected");
-			wxBitmap bitmap( sz.x, sz.y );
+			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+			dc.DrawBitmap(*template_canvas->GetLayer2(), sz_legend.x, 0);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			image.ClearAlpha();
 			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}			
@@ -492,21 +496,22 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 1:
 		{
 			LOG_MSG("PNG selected");
-			wxBitmap bitmap( sz.x, sz.y );
+			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+			dc.DrawBitmap(*template_canvas->GetLayer2(), sz_legend.x, 0);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			image.ClearAlpha();
 			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}
-			
+		
 			image.Destroy();
 		}
 			break;
