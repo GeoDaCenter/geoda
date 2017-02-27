@@ -467,8 +467,8 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     int new_bmp_h = sz.y;
     int offset_x = 0;
     if (template_legend) {
-        wxSize sz_legend = template_legend->GetClientSize();
-        offset_x = sz_legend.x;
+        wxSize sz_legend = template_legend->GetVirtualSize();
+        offset_x = sz_legend.x * 2;
         new_bmp_w += offset_x;
     }
 	

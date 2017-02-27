@@ -103,7 +103,7 @@ public:
 	/** Set to true if TemplateFrame implements GetUpdateStatusBarString. */
 	virtual void SetGetStatusBarStringFromFrame(bool get_sb_string);
 	virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
-																						int total_hover_obs);
+                                              int total_hover_obs);
 	virtual Project* GetProject() { return project; }
 	/** return value can be null */
 	virtual TemplateLegend* GetTemplateLegend() { return template_legend; }
