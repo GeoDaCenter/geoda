@@ -463,9 +463,14 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     if (dialog.ShowModal() != wxID_OK) return;
 	
 	wxSize sz =  canvas->GetVirtualSize();
-    wxSize sz_legend = template_legend->GetClientSize();
-    int new_bmp_w = sz.x + sz_legend.x;
+    int new_bmp_w = sz.x;
     int new_bmp_h = sz.y;
+    int offset_x = 0;
+    if (template_legend) {
+        wxSize sz_legend = template_legend->GetClientSize();
+        offset_x = sz_legend.x;
+        new_bmp_w += offset_x;
+    }
 	
 	wxFileName fname = wxFileName(dialog.GetPath());
 	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
@@ -479,7 +484,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), sz_legend.x, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
@@ -501,7 +506,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), sz_legend.x, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
