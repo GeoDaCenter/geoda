@@ -38,6 +38,7 @@
 #include "ogrsf_frmts.h"
 #include "cpl_conv.h"
 
+#include <wx/utils.h>
 #include <wx/sysopt.h>
 #include <wx/platinfo.h>
 #include <wx/wxprec.h>
@@ -967,10 +968,12 @@ void GdaFrame::OnClose(wxCloseEvent& event)
         }
         node = node->GetNext();
     }
-	Destroy();
-    
+	
     // close GeoDa successfully, mark it
     OGRDataAdapter::GetInstance().AddEntry("NoCrash", "true");
+    
+    wxMilliSleep(100);
+    Destroy();
 }
 
 void GdaFrame::OnMenuClose(wxCommandEvent& event)
@@ -1616,30 +1619,14 @@ void GdaFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
 	if (t) t->OnSaveCanvasImageAs(event);
 }
 
-void GdaFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+void GdaFrame::OnQuit(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnQuit");
 	// Generate a wxCloseEvent for GdaFrame.  GdaFrame::OnClose will
 	// be called and will give the user a chance to not exit program.
     // Close windows not associated managed by Project
-    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-        if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-            w->Close(true);
-        }
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            w->EndDialog();
-            w->Close(true);
-        }
-        if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
-            w->EndDialog();
-            w->Close(true);
-        }
-        node = node->GetNext();
-    }
-
 	Close();
+    event.Skip(false);
 }
 
 void GdaFrame::OnSaveSelectedToColumn(wxCommandEvent& event)

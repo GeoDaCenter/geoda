@@ -58,7 +58,6 @@ DatasourceDlg::DatasourceDlg()
 
 DatasourceDlg::~DatasourceDlg()
 {
-    Destroy();
     if (eventLoop) {
         delete eventLoop;
         eventLoop = NULL;
