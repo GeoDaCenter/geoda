@@ -1621,6 +1621,24 @@ void GdaFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
     wxLogMessage("Click GdaFrame::OnQuit");
 	// Generate a wxCloseEvent for GdaFrame.  GdaFrame::OnClose will
 	// be called and will give the user a chance to not exit program.
+    // Close windows not associated managed by Project
+    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
+            w->Close(true);
+        }
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+            w->EndDialog();
+            w->Close(true);
+        }
+        if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
+            w->EndDialog();
+            w->Close(true);
+        }
+        node = node->GetNext();
+    }
+
 	Close();
 }
 

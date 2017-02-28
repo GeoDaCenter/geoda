@@ -827,12 +827,12 @@
     <object class="wxButton" name="ID_CLOSE">
       <size>50,15d</size>
       <pos>400,7d</pos>
-      <label>&amp;Close</label>
+      <label>Close</label>
     </object>
     <object class="wxButton" name="ID_OK">
       <size>50,15d</size>
       <pos>400,27d</pos>
-      <label>&amp;Run</label>
+      <label>Run</label>
     </object>
     <size>470,200d</size>
     <title>Randomization</title>

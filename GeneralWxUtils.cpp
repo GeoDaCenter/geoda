@@ -49,7 +49,7 @@ wxString GeneralWxUtils::LogOsId()
 	int minorVsn = 0;
 	wxGetOsVersion(&majorVsn, &minorVsn);
     
-    oslog = wxString::Format("os: %d-%d-%d", os, majorVsn, minorVsn);
+    oslog = wxString::Format("\nos: %d-%d-%d", os, majorVsn, minorVsn);
     return oslog;
 }
 
