@@ -388,12 +388,20 @@ void LineChartFrame::OnSelectionChange()
             if (time1 > -1 && time2 > -1 && (time1 != time2) ) {
                 compare_regimes = false;
                 compare_r_and_t = true;
+                if (choice_group1->GetSelection() == 0) {
+                    // first choice is "selected"
+                    has_selection = 1;
+                    has_excluded = 2;
+                } else {
+                    has_selection = 2;
+                    has_excluded = 1;
+                }
             } else {
                 compare_regimes = true;
                 compare_r_and_t = false;
+                has_selection = 1;
+                has_excluded = 1;
             }
-            has_selection = 1;
-            has_excluded = 1;
         } else {
             compare_time_periods = false;
             compare_regimes = false;

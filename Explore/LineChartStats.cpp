@@ -239,6 +239,11 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
         
 	}
     
+    if (!num_sel_valid)
+        Y_sel_avg_valid = num_sel_valid;
+    if (!num_unsel_valid)
+        Y_excl_avg_valid = num_unsel_valid;
+    
     // override Y_sel_avg_valid if user selected in UI
     if (default_Y_excl_avg_valid >=0) {
         Y_excl_avg_valid = default_Y_excl_avg_valid;
@@ -246,11 +251,6 @@ void LineChartStats::UpdateRegimesStats(const std::vector<bool>& hs,
     if (default_Y_sel_avg_valid >= 0 ) {
         Y_sel_avg_valid = default_Y_sel_avg_valid;
     }
-    
-    if (!num_sel_valid)
-        Y_sel_avg_valid = num_sel_valid;
-    if (!num_unsel_valid)
-        Y_excl_avg_valid = num_unsel_valid;
 }
 
 void LineChartStats::UpdateOtherStats()
@@ -469,7 +469,9 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 				Y_sel_tm0_avg += Y_sel_avg[t];
 		}
 		Y_sel_tm0_avg /= (double) tsub0_sz;
-		Y_sel_tm0_avg_valid = true;
+        if (Y_sel_avg_valid == 1) {
+            Y_sel_tm0_avg_valid = true;
+        }
 	}
 	
 	if (tsub0_sz > 0 && Y_excl_avg_valid) {
@@ -478,7 +480,9 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 				Y_excl_tm0_avg += Y_excl_avg[t];
 		}
 		Y_excl_tm0_avg /= (double) tsub0_sz;
-		Y_excl_tm0_avg_valid = true;
+        if (Y_excl_avg_valid == 1) {
+            Y_excl_tm0_avg_valid = true;
+        }
 	}
 	
 	if (tsub1_sz > 0 && Y_sel_avg_valid) {
@@ -487,7 +491,10 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 				Y_sel_tm1_avg += Y_sel_avg[t];
 		}
 		Y_sel_tm1_avg /= (double) tsub1_sz;
-		Y_sel_tm1_avg_valid = true;
+        if (Y_sel_avg_valid == 2 ||
+            (Y_sel_avg_valid == 1 && Y_excl_avg_valid == 0)) {
+            Y_sel_tm1_avg_valid = true;
+        }
 	}
 	
 	if (tsub1_sz > 0 && Y_excl_avg_valid) {
@@ -496,7 +503,10 @@ void LineChartStats::UpdateCompareRegAndTmStats()
 				Y_excl_tm1_avg += Y_excl_avg[t];
 		}
 		Y_excl_tm1_avg /= (double) tsub1_sz;
-		Y_excl_tm1_avg_valid = true;
+        if (Y_excl_avg_valid == 2 ||
+            (Y_excl_avg_valid == 1 && Y_sel_avg_valid == 0)) {
+            Y_excl_tm1_avg_valid = true;
+        }
 	}
 	
     size_t valid_num_obs = 0;

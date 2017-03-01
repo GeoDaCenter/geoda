@@ -47,11 +47,11 @@ struct LineChartStats {
 	double Y_avg_min, Y_avg_max;
 	
 	vec_dbl_type Y_sel_avg;
-	bool Y_sel_avg_valid;
+	int Y_sel_avg_valid;
 	double Y_sel_avg_min, Y_sel_avg_max;
 	
 	vec_dbl_type Y_excl_avg;
-	bool Y_excl_avg_valid;
+	int Y_excl_avg_valid;
 	double Y_excl_avg_min, Y_excl_avg_max;
 
 	vec_dbl_type Y_ss;
