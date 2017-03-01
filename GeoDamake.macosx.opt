@@ -2,8 +2,8 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 
 TARGET      = GeoDa
 
-CC	=	gcc
-CXX     =	g++ -Os -arch x86_64
+CC	=	gcc -O2
+CXX     =	g++ -O2 -arch x86_64
 LD	=	g++ -arch x86_64
 RM	=	/bin/rm -f
 
