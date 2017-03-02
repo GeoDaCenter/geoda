@@ -195,8 +195,10 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
-    
-    dc.DrawText(template_canvas->GetCategoriesTitle(), px / scale, 13 / scale);
+  
+	wxString ttl = template_canvas->GetCategoriesTitle();
+	ttl = ttl.BeforeFirst(':');
+    dc.DrawText(ttl, px / scale, 13 / scale);
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int cur_y = py;
