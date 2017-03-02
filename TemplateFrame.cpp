@@ -550,7 +550,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 				int paperW, paperH;
 				dc.GetSize(&paperW, &paperH);
 				double marginFactor = 0.03;
-				int marginW = (int) (paperW*marginFactor);
+				int marginW = (int) (paperW*marginFactor/2.0);
 				int marginH = (int) (paperH*marginFactor);
                 int workingW = paperW - 2*marginW;
 				int workingH = paperH - 2*marginH;
@@ -559,7 +559,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 				dc.SetDeviceOrigin(originX, originY);
 				int pictW = sz.GetWidth();
 				int pictH = sz.GetHeight();
-				double scale = 1.0 / wxMin((double) workingH/pictH,
+				double scale = 1.5 / wxMin((double) workingH/pictH,
 									 (double) workingW/pictW);
                 if (template_legend) {
                     template_legend->RenderToDC(dc, scale);

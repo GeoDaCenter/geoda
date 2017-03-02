@@ -616,7 +616,7 @@ void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 		shp->paintSelf(dc);
 	}
 
-    helper_DrawSelectableShapes_dc(dc);
+    helper_DrawSelectableShapes_dc(dc, false, false, false, true);
 
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
@@ -858,7 +858,9 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
 }
 
 void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
-                                                    bool revert, bool crosshatch)
+                                                    bool revert,
+                                                    bool crosshatch,
+                                                    bool is_print)
 {
     
     vector<bool>& hs = GetSelBitVec();
@@ -880,6 +882,8 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
         if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
             r = 0.2;
         }
+        if (is_print)
+            r = 15;
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch ){
@@ -901,7 +905,8 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
                     continue;
                 }
 				int bnd_idx = p->center.x + p->center.y*w;
-				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+				if (is_print ||
+                    (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx])) {
 					dc.DrawCircle(p->center.x, p->center.y, r);
 					dirty[bnd_idx] = true;
 				}
