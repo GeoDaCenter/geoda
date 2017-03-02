@@ -1424,7 +1424,19 @@ bool Project::InitFromOgrLayer()
     // in case read a empty datasource or n_rows is not read
     if (prog_n_max <= 0)
         prog_n_max = 2;
-    
+   
+#ifdef __linux__
+    // using wx3.1 we have a problem/conflict between the new open datasrouce dlg
+    // , which can't show pop-up menu correctly, and the progress dialog on LINUX
+    // Here we temporarely disable progressbar here
+    while ((layer_proxy->load_progress < layer_proxy->n_rows ||
+            layer_proxy->n_rows <= 0) &&
+           !layer_proxy->HasError())
+    {
+        wxMilliSleep(100);
+    }
+
+#else
 	wxProgressDialog prog_dlg(_("Open data source progress dialog"),
                               _("Loading data..."), prog_n_max,  NULL,
                               wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
@@ -1449,6 +1461,7 @@ bool Project::InitFromOgrLayer()
 		}
 		wxMilliSleep(100);
 	}
+#endif
     
 	if (!layer_proxy) {
 		open_err_msg << _("There was a problem reading the layer");
