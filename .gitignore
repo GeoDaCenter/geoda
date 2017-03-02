@@ -1,7 +1,15 @@
 *~
 
+*.deb
+
 BuildTools/centos/libraries/
 BuildTools/centos/temp/
+
+BuildTools/ubuntu/libraries/
+BuildTools/ubuntu/temp/
+BuildTools/ubuntu/product/
+BuildTools/ubuntu/build/
+
 BuildTools/windows/.vs/
 BuildTools/windows/temp/
 BuildTools/windows/Debug/
