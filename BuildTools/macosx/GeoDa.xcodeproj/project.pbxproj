@@ -38,6 +38,22 @@
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
+		A496C9881E6A17FE008F87DD /* Baltimore Home Sales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9871E6A17FE008F87DD /* Baltimore Home Sales.png */; };
+		A496C98A1E6A180D008F87DD /* Boston Home Sales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9891E6A180D008F87DD /* Boston Home Sales.png */; };
+		A496C98C1E6A1813008F87DD /* Buenos Aires Elections.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C98B1E6A1813008F87DD /* Buenos Aires Elections.png */; };
+		A496C98E1E6A1819008F87DD /* Colombia Malaria.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C98D1E6A1819008F87DD /* Colombia Malaria.png */; };
+		A496C9901E6A181E008F87DD /* Columbus Crime.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C98F1E6A181E008F87DD /* Columbus Crime.png */; };
+		A496C9921E6A182A008F87DD /* Milwaukee 2000 Census.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9911E6A182A008F87DD /* Milwaukee 2000 Census.png */; };
+		A496C9941E6A182F008F87DD /* NAT.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9931E6A182F008F87DD /* NAT.png */; };
+		A496C9961E6A1833008F87DD /* Nepal Aid.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9951E6A1833008F87DD /* Nepal Aid.png */; };
+		A496C9981E6A1839008F87DD /* no_map.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9971E6A1839008F87DD /* no_map.png */; };
+		A496C99A1E6A183F008F87DD /* NYC Data.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9991E6A183F008F87DD /* NYC Data.png */; };
+		A496C99C1E6A1844008F87DD /* Phoenix ACS.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C99B1E6A1844008F87DD /* Phoenix ACS.png */; };
+		A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A496C99D1E6A184C008F87DD /* samples.sqlite */; };
+		A496C9A01E6A1851008F87DD /* SanFran Crime.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C99F1E6A1851008F87DD /* SanFran Crime.png */; };
+		A496C9A21E6A1857008F87DD /* SIDS NC.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A11E6A1857008F87DD /* SIDS NC.png */; };
+		A496C9A41E6A185B008F87DD /* US Homicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A31E6A185B008F87DD /* US Homicides.png */; };
+		A496C9A61E6A1861008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A51E6A1860008F87DD /* watermark-20.png */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */; };
 		DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */; };
@@ -161,7 +177,6 @@
 		DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB37A0711CBBB730020C8A9 /* TemplateLegend.cpp */; };
 		DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77C0B139820CB00569A1E /* GStatCoordinator.cpp */; };
 		DDB77F3E140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77F3C140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp */; };
-		DDBDFE6B19E73E13004CCEDA /* web_plugins in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDBDFE6119E73E07004CCEDA /* web_plugins */; };
 		DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC48EF418AE506400FD773F /* ProjectInfoDlg.cpp */; };
 		DDC906921A129CFF002334D2 /* SimpleAxisCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9068C1A129CFF002334D2 /* SimpleAxisCanvas.cpp */; };
 		DDC906931A129CFF002334D2 /* SimpleHistCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9068E1A129CFF002334D2 /* SimpleHistCanvas.cpp */; };
@@ -215,7 +230,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				DDBDFE6B19E73E13004CCEDA /* web_plugins in CopyFiles */,
 				DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */,
 				A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */,
 				A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */,
@@ -285,6 +299,22 @@
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
 		A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
+		A496C9871E6A17FE008F87DD /* Baltimore Home Sales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Baltimore Home Sales.png"; path = "BuildTools/CommonDistFiles/web_plugins/Baltimore Home Sales.png"; sourceTree = "<group>"; };
+		A496C9891E6A180D008F87DD /* Boston Home Sales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Boston Home Sales.png"; path = "BuildTools/CommonDistFiles/web_plugins/Boston Home Sales.png"; sourceTree = "<group>"; };
+		A496C98B1E6A1813008F87DD /* Buenos Aires Elections.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Buenos Aires Elections.png"; path = "BuildTools/CommonDistFiles/web_plugins/Buenos Aires Elections.png"; sourceTree = "<group>"; };
+		A496C98D1E6A1819008F87DD /* Colombia Malaria.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Colombia Malaria.png"; path = "BuildTools/CommonDistFiles/web_plugins/Colombia Malaria.png"; sourceTree = "<group>"; };
+		A496C98F1E6A181E008F87DD /* Columbus Crime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Columbus Crime.png"; path = "BuildTools/CommonDistFiles/web_plugins/Columbus Crime.png"; sourceTree = "<group>"; };
+		A496C9911E6A182A008F87DD /* Milwaukee 2000 Census.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Milwaukee 2000 Census.png"; path = "BuildTools/CommonDistFiles/web_plugins/Milwaukee 2000 Census.png"; sourceTree = "<group>"; };
+		A496C9931E6A182F008F87DD /* NAT.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NAT.png; path = BuildTools/CommonDistFiles/web_plugins/NAT.png; sourceTree = "<group>"; };
+		A496C9951E6A1833008F87DD /* Nepal Aid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Nepal Aid.png"; path = "BuildTools/CommonDistFiles/web_plugins/Nepal Aid.png"; sourceTree = "<group>"; };
+		A496C9971E6A1839008F87DD /* no_map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = no_map.png; path = BuildTools/CommonDistFiles/web_plugins/no_map.png; sourceTree = "<group>"; };
+		A496C9991E6A183F008F87DD /* NYC Data.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "NYC Data.png"; path = "BuildTools/CommonDistFiles/web_plugins/NYC Data.png"; sourceTree = "<group>"; };
+		A496C99B1E6A1844008F87DD /* Phoenix ACS.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Phoenix ACS.png"; path = "BuildTools/CommonDistFiles/web_plugins/Phoenix ACS.png"; sourceTree = "<group>"; };
+		A496C99D1E6A184C008F87DD /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
+		A496C99F1E6A1851008F87DD /* SanFran Crime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SanFran Crime.png"; path = "BuildTools/CommonDistFiles/web_plugins/SanFran Crime.png"; sourceTree = "<group>"; };
+		A496C9A11E6A1857008F87DD /* SIDS NC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "SIDS NC.png"; path = "BuildTools/CommonDistFiles/web_plugins/SIDS NC.png"; sourceTree = "<group>"; };
+		A496C9A31E6A185B008F87DD /* US Homicides.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "US Homicides.png"; path = "BuildTools/CommonDistFiles/web_plugins/US Homicides.png"; sourceTree = "<group>"; };
+		A496C9A51E6A1860008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		DD00ADE611138A2C008FE572 /* TemplateFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateFrame.h; sourceTree = "<group>"; };
 		DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemplateFrame.cpp; sourceTree = "<group>"; };
@@ -673,6 +703,22 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A496C9A51E6A1860008F87DD /* watermark-20.png */,
+				A496C9A31E6A185B008F87DD /* US Homicides.png */,
+				A496C9A11E6A1857008F87DD /* SIDS NC.png */,
+				A496C99F1E6A1851008F87DD /* SanFran Crime.png */,
+				A496C99D1E6A184C008F87DD /* samples.sqlite */,
+				A496C99B1E6A1844008F87DD /* Phoenix ACS.png */,
+				A496C9991E6A183F008F87DD /* NYC Data.png */,
+				A496C9971E6A1839008F87DD /* no_map.png */,
+				A496C9951E6A1833008F87DD /* Nepal Aid.png */,
+				A496C9931E6A182F008F87DD /* NAT.png */,
+				A496C9911E6A182A008F87DD /* Milwaukee 2000 Census.png */,
+				A496C98F1E6A181E008F87DD /* Columbus Crime.png */,
+				A496C98D1E6A1819008F87DD /* Colombia Malaria.png */,
+				A496C98B1E6A1813008F87DD /* Buenos Aires Elections.png */,
+				A496C9891E6A180D008F87DD /* Boston Home Sales.png */,
+				A496C9871E6A17FE008F87DD /* Baltimore Home Sales.png */,
 				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
@@ -1235,6 +1281,22 @@
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
 				A19F51501756A11E006E31B4 /* plugins in Resources */,
+				A496C9881E6A17FE008F87DD /* Baltimore Home Sales.png in Resources */,
+				A496C98A1E6A180D008F87DD /* Boston Home Sales.png in Resources */,
+				A496C98C1E6A1813008F87DD /* Buenos Aires Elections.png in Resources */,
+				A496C98E1E6A1819008F87DD /* Colombia Malaria.png in Resources */,
+				A496C9901E6A181E008F87DD /* Columbus Crime.png in Resources */,
+				A496C9921E6A182A008F87DD /* Milwaukee 2000 Census.png in Resources */,
+				A496C9941E6A182F008F87DD /* NAT.png in Resources */,
+				A496C9961E6A1833008F87DD /* Nepal Aid.png in Resources */,
+				A496C9981E6A1839008F87DD /* no_map.png in Resources */,
+				A496C99A1E6A183F008F87DD /* NYC Data.png in Resources */,
+				A496C99C1E6A1844008F87DD /* Phoenix ACS.png in Resources */,
+				A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */,
+				A496C9A01E6A1851008F87DD /* SanFran Crime.png in Resources */,
+				A496C9A21E6A1857008F87DD /* SIDS NC.png in Resources */,
+				A496C9A41E6A185B008F87DD /* US Homicides.png in Resources */,
+				A496C9A61E6A1861008F87DD /* watermark-20.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

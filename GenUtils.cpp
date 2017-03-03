@@ -1348,3 +1348,22 @@ std::string GenUtils::GetWebPluginsDir()
     
 	return std::string(exeDir.mb_str());
 }
+
+std::string GenUtils::GetResourceDir()
+{
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	wxFileName exeFile(exePath);
+	wxString exeDir = exeFile.GetPathWithSep();
+    exeDir << "../Resources" << wxFileName::GetPathSeparator();
+    
+	return std::string(exeDir.mb_str());
+}
+
+std::string GenUtils::GetSamplesDir()
+{
+#ifdef __win32__
+    return GetWebPluginsDir();
+#else
+    return GetResourceDir();
+#endif
+}

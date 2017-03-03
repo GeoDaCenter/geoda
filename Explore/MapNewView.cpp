@@ -727,7 +727,7 @@ void MapCanvas::SaveThumbnail()
             wxString file_name;
             file_name << current_time_sec << ".png";
             wxString file_path;
-            file_path << GenUtils::GetWebPluginsDir() << file_name;
+            file_path << GenUtils::GetSamplesDir() << file_name;
             bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
             if (su) {
                 recent_ds.UpdateLastThumb(file_name);

@@ -208,7 +208,7 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         
         wxString thumbnail_name = ds_thumbnails[search_idx];
         wxString file_path_str;
-        file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+        file_path_str << GenUtils::GetSamplesDir() << thumbnail_name;
        
         if (wxFileExists(file_path_str) ) {
             wxRemoveFile(file_path_str);
@@ -233,7 +233,7 @@ void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_na
         
         wxString thumbnail_name = ds_thumbnails[0];
         wxString file_path_str;
-        file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+        file_path_str << GenUtils::GetSamplesDir() << thumbnail_name;
       
         if (wxFileExists(file_path_str) ) {
             wxRemoveFile(file_path_str);
@@ -267,7 +267,7 @@ void RecentDatasource::Delete(int idx)
         
         wxString thumbnail_name = ds_thumbnails[idx];
         wxString file_path_str;
-        file_path_str << GenUtils::GetWebPluginsDir() << thumbnail_name;
+        file_path_str << GenUtils::GetSamplesDir() << thumbnail_name;
        
         if (wxFileExists(file_path_str) ) {
             wxRemoveFile(file_path_str);
@@ -452,12 +452,12 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     if (ds_thumb.IsEmpty()) {
         ds_thumb = "no_map.png";
     }
-    file_path_str = GenUtils::GetWebPluginsDir() + ds_thumb;
+    file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
     
     wxImage img(file_path_str);
     if (!img.IsOk()) {
         ds_thumb = "no_map.png";
-        file_path_str = GenUtils::GetWebPluginsDir() + ds_thumb;
+        file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
         img.LoadFile(file_path_str);
     }
     img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
@@ -1048,13 +1048,13 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
     
     wxString file_path_str;
-    file_path_str = GenUtils::GetWebPluginsDir() + ds_thumb + ".png";
+    file_path_str = GenUtils::GetSamplesDir() + ds_thumb + ".png";
     if (!wxFileExists(file_path_str)) {
-        file_path_str = GenUtils::GetWebPluginsDir() + "no_map.png";
+        file_path_str = GenUtils::GetSamplesDir() + "no_map.png";
     }
     wxImage img(file_path_str);
     if (!img.IsOk()) {
-        file_path_str = GenUtils::GetWebPluginsDir() + "no_map.png";
+        file_path_str = GenUtils::GetSamplesDir() + "no_map.png";
         img.LoadFile(file_path_str);
     }
     img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
@@ -1082,7 +1082,7 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     wxString layername = GdaConst::sample_layer_names[sample_idx];
     wxString ds_name = GdaConst::sample_datasources[sample_idx];
     if (ds_name == "samples.sqlite") {
-        ds_name = GenUtils::GetWebPluginsDir() + ds_name;
+        ds_name = GenUtils::GetSamplesDir() + ds_name;
 		ds_name.Replace("\\", "\\\\");
         ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
     } else {

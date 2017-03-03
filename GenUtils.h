@@ -361,6 +361,8 @@ namespace GenUtils {
 
 	std::string GetBasemapCacheDir();
 	std::string GetWebPluginsDir();
+	std::string GetResourceDir();
+    std::string GetSamplesDir();
     
 }
 
