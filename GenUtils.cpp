@@ -1361,7 +1361,7 @@ std::string GenUtils::GetResourceDir()
 
 std::string GenUtils::GetSamplesDir()
 {
-#ifdef __win32__
+#ifdef __WIN32__
     return GetWebPluginsDir();
 #else
     return GetResourceDir();

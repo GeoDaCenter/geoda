@@ -28,6 +28,7 @@ public:
 	static wxOperatingSystemId GetOsId();
 	static wxString LogOsId();
 	static bool isMac();
+	static bool isMac106();
 	static bool isWindows();
 	static bool isUnix();
 	static bool isXP();

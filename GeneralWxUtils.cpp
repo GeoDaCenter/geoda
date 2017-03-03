@@ -59,6 +59,19 @@ bool GeneralWxUtils::isMac()
 	return r;
 }
 
+bool GeneralWxUtils::isMac106()
+{
+	static bool r = (GetOsId() & wxOS_MAC ? true : false);
+
+	int majorVsn = 0;
+	int minorVsn = 0;
+	wxGetOsVersion(&majorVsn, &minorVsn);
+
+	r = r & (minorVsn == 6);
+
+	return r;
+}
+
 bool GeneralWxUtils::isWindows()
 {
 	static bool r = (GetOsId() & wxOS_WINDOWS ? true : false);

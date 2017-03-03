@@ -66,6 +66,7 @@
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManPtree.h"
 #include "ShapeOperations/OGRDataAdapter.h"
+#include "GeneralWxUtils.h"
 #include "Project.h"
 
 // used by TemplateCanvas
@@ -1425,43 +1426,42 @@ bool Project::InitFromOgrLayer()
     if (prog_n_max <= 0)
         prog_n_max = 2;
    
-#ifdef __linux__
-    // using wx3.1 we have a problem/conflict between the new open datasrouce dlg
-    // , which can't show pop-up menu correctly, and the progress dialog on LINUX
-    // Here we temporarely disable progressbar here
-    while ((layer_proxy->load_progress < layer_proxy->n_rows ||
-            layer_proxy->n_rows <= 0) &&
-           !layer_proxy->HasError())
-    {
-        wxMilliSleep(100);
-    }
-
-#else
-	wxProgressDialog prog_dlg(_("Open data source progress dialog"),
-                              _("Loading data..."), prog_n_max,  NULL,
-                              wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
-	bool cont = true;
-	while ((layer_proxy->load_progress < layer_proxy->n_rows ||
-            layer_proxy->n_rows <= 0) &&
-           !layer_proxy->HasError())
-	{
-		if (layer_proxy->n_rows == -1) {
-			// if cannot get n_rows, make the progress stay at the half position
-			cont = prog_dlg.Update(1);
+	if (GeneralWxUtils::isUnix() || GeneralWxUtils::isMac106()) {
+		// using wx3.1 we have a problem/conflict between the new open datasrouce dlg
+		// , which can't show pop-up menu correctly, and the progress dialog on LINUX
+		// Here we temporarely disable progressbar here
+		while ((layer_proxy->load_progress < layer_proxy->n_rows ||
+				layer_proxy->n_rows <= 0) &&
+			   !layer_proxy->HasError())
+		{
+			wxMilliSleep(100);
+		}
+	} else {
+		wxProgressDialog prog_dlg(_("Open data source progress dialog"),
+								  _("Loading data..."), prog_n_max,  NULL,
+								  wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+		bool cont = true;
+		while ((layer_proxy->load_progress < layer_proxy->n_rows ||
+				layer_proxy->n_rows <= 0) &&
+			   !layer_proxy->HasError())
+		{
+			if (layer_proxy->n_rows == -1) {
+				// if cannot get n_rows, make the progress stay at the half position
+				cont = prog_dlg.Update(1);
             
-		} else{
-			if (layer_proxy->load_progress >= 0 &&
-                layer_proxy->load_progress < prog_n_max ) {
-				cont = prog_dlg.Update(layer_proxy->load_progress);
-            }
+			} else{
+				if (layer_proxy->load_progress >= 0 &&
+					layer_proxy->load_progress < prog_n_max ) {
+					cont = prog_dlg.Update(layer_proxy->load_progress);
+				}
+			}
+			if (!cont)  {
+				OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
+				return false;
+			}
+			wxMilliSleep(100);
 		}
-		if (!cont)  {
-			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
-			return false;
-		}
-		wxMilliSleep(100);
 	}
-#endif
     
 	if (!layer_proxy) {
 		open_err_msg << _("There was a problem reading the layer");

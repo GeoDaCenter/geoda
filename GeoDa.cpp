@@ -402,7 +402,7 @@ bool GdaApp::OnInit(void)
     
 
     // Setup new Logger after crash check
-    wxString loggerFile = exeDir + "web_plugins" + wxFileName::GetPathSeparator() +"logger.txt";
+    wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
     
     if (m_pLogFile == NULL) {
         m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
