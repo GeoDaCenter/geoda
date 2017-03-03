@@ -234,10 +234,10 @@ wxString AutoUpdate::GetCheckList()
         isTestMode = true;
     }
    
-    wxString checklistUrl = "http://geodacenter.github.io/updates/checklist";
+    wxString checklistUrl = "https://s3.amazonaws.com/geodaupdate/checklist";
     
     if (isTestMode) {
-        checklistUrl = "http://geodacenter.github.io/updates/test.checklist";
+        checklistUrl = "https://s3.amazonaws.com/geodaupdate/test.checklist";
     }
     
     // download checklist.txt
