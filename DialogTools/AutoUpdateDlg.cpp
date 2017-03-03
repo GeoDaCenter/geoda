@@ -374,32 +374,45 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                 wxString file_size = lines.front();
                 lines.pop();
                 
-                file_name = exeDir + file_name;
-                wxString update_file_name = file_name + ".update";
-                wxString backup_file_name = file_name + ".backup";
                 int size = wxAtoi(file_size);
                 
-				wxRemoveFile(backup_file_name);
-                wxRemoveFile(update_file_name);
-                
-                if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
-                    // check file size
-                    wxFileName updateFile(update_file_name);
-                    wxULongLong update_size = updateFile.GetSize();
+                if (size == 0) {
+                    // create a directory using file_name
+                    wxString new_dir = exeDir + file_name;
+                    if (!wxDirExists(new_dir)) {
+                        if (!wxMkdir(new_dir)){
+                            success = false;
+                            break;
+                        }
+                    }
                     
-                    if (update_size != size )
-                        throw GdaException("");
+                } else {
+                    file_name = exeDir + file_name;
+                    wxString update_file_name = file_name + ".update";
+                    wxString backup_file_name = file_name + ".backup";
                     
-                    // replace the old file
-                    wxRenameFile(file_name, backup_file_name);
-                    wxRenameFile(update_file_name, file_name);
+    				wxRemoveFile(backup_file_name);
+                    wxRemoveFile(update_file_name);
                     
-					wxRemoveFile(backup_file_name);
-					wxRemoveFile(update_file_name);
+                    if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
+                        // check file size
+                        wxFileName updateFile(update_file_name);
+                        wxULongLong update_size = updateFile.GetSize();
+                        
+                        if (update_size != size )
+                            throw GdaException("");
+                        
+                        // replace the old file
+                        wxRenameFile(file_name, backup_file_name);
+                        wxRenameFile(update_file_name, file_name);
+                        
+    					wxRemoveFile(backup_file_name);
+    					wxRemoveFile(update_file_name);
 
-                    success = true;
+                        success = true;
+                    }
+                    progressDlg.Update(current_job++);
                 }
-                progressDlg.Update(current_job++);
             }
         }
     } catch(...) {

@@ -4,6 +4,7 @@
 
 BuildTools/centos/libraries/
 BuildTools/centos/temp/
+BuildTools/centos/build/
 
 BuildTools/ubuntu/libraries/
 BuildTools/ubuntu/temp/
