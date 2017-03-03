@@ -108,7 +108,7 @@ SliderDialog::SliderDialog(wxWindow * parent,
                                    txt_transparency,
                                    wxDefaultPosition,
                                    wxSize(100, -1));
-    boxSizer->Add(slider_text, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
+    boxSizer->Add(slider_text, 0, wxGROW|wxALL, 5);
     boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
     
     topSizer->Fit(this);

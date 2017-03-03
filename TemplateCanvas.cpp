@@ -905,8 +905,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only,
                     continue;
                 }
 				int bnd_idx = p->center.x + p->center.y*w;
-				if (is_print ||
-                    (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx])) {
+				if (is_print) {
+					dc.DrawCircle(p->center.x, p->center.y, r);
+				} else if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
 					dc.DrawCircle(p->center.x, p->center.y, r);
 					dirty[bnd_idx] = true;
 				}
