@@ -173,6 +173,13 @@ wxString AutoUpdate::CheckUpdate()
         // released version
         return version;
     }
+
+    if (update_build == Gda::version_build && update_build % 2 == 0) {
+    	// release sub-version e.g. 1.8.16.2
+        if ( update_subbuild > Gda::version_subbuild) {
+            return version;
+        }
+    }
     
     // could be a testing version
     if (isTestMode) {
@@ -227,6 +234,30 @@ wxString AutoUpdate::GetUpdateUrl(wxString checklist)
     return updateUrl;
 }
 
+wxString AutoUpdate::GetUpdateMsg(wxString checklist)
+{
+    wxStringTokenizer tokenizer;
+    
+    tokenizer.SetString(checklist, "\r\n");
+    if (!tokenizer.HasMoreTokens()) {
+        tokenizer.SetString(checklist, "\n");
+        if (!tokenizer.HasMoreTokens()) {
+            return "";
+        }
+    }
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    wxString version = tokenizer.GetNextToken();
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    wxString updateUrl = tokenizer.GetNextToken();
+    
+    if (!tokenizer.HasMoreTokens()) return "";
+    wxString updateMsg = tokenizer.GetNextToken();
+
+    return updateMsg;
+}
+
 wxString AutoUpdate::GetCheckList()
 {
     bool isTestMode = false;
@@ -276,18 +307,22 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     // check update, suppose CheckUpdate() return true
     checklist = AutoUpdate::GetCheckList();
     version = AutoUpdate::GetVersion(checklist);
-    wxString url_update_description = AutoUpdate::GetUpdateUrl(checklist);
+    wxString url_update_url = AutoUpdate::GetUpdateUrl(checklist);
+    wxString url_update_description = AutoUpdate::GetUpdateMsg(checklist);
     
     wxString update_text;
 	update_text << _("A newer version of GeoDa is found. Do you want to update to version ");
     update_text << version;
 	update_text << "?";
+    if (!url_update_description.IsEmpty()) {
+        update_text << "\n\n" << url_update_description;
+    }
     
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
     
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, update_text);
-    wxHyperlinkCtrl* whatsnew = new wxHyperlinkCtrl(panel, wxID_ANY, "Check what's new in this update.", url_update_description);
+    wxHyperlinkCtrl* whatsnew = new wxHyperlinkCtrl(panel, wxID_ANY, "Check what's new in this update.", url_update_url);
     prg_bar = new wxGauge(panel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize);
     
     
@@ -363,7 +398,8 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
         progressDlg.Update(1);
         if (n > 2 && (n-2) % 3 == 0) {
             lines.pop(); // version
-            lines.pop(); // description page
+            lines.pop(); // url 
+            lines.pop(); // msg
        
             wxString exePath = wxStandardPaths::Get().GetExecutablePath();
             wxFileName exeFile(exePath);

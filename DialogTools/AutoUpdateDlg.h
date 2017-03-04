@@ -35,6 +35,7 @@ namespace AutoUpdate {
     wxString GetCheckList();
     wxString GetVersion(wxString checklist);
     wxString GetUpdateUrl(wxString checklist);
+    wxString GetUpdateMsg(wxString checklist);
 }
 
 class AutoUpdateDlg: public wxDialog

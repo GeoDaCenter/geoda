@@ -90,7 +90,7 @@ void DatasourceDlg::EndDialog()
 {
     eventLoop->Exit();
     Show(false);
-    Destroy();
+    //Destroy();
 }
 
 void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
