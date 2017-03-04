@@ -103,6 +103,7 @@ bool DownloadUrl(const char* url, const char* filepath)
     if (curl) {
         fp = fopen(filepath, "wb");
         if (fp) {
+            //char *output = curl_easy_escape(curl, url, strlen(url));
             curl_easy_setopt(curl, CURLOPT_URL, url);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_file);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -393,7 +394,8 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
     				wxRemoveFile(backup_file_name);
                     wxRemoveFile(update_file_name);
-                    
+                   
+                    file_url.Replace(" ", "%20");
                     if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
                         // check file size
                         wxFileName updateFile(update_file_name);
