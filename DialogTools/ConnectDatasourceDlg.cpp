@@ -1048,6 +1048,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
     
     wxString file_path_str;
+    ds_thumb.Replace(" ", "");
     file_path_str = GenUtils::GetSamplesDir() + ds_thumb + ".png";
     if (!wxFileExists(file_path_str)) {
         file_path_str = GenUtils::GetSamplesDir() + "no_map.png";
