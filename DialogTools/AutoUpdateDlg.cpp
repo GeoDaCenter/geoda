@@ -249,7 +249,11 @@ wxString AutoUpdate::GetCheckList()
             checklistUrl += ".win64.txt";
         }
     } else if (GeneralWxUtils::isMac()) {
-        checklistUrl += ".macosx.txt";
+        if (GeneralWxUtils::isMac106()) {
+            checklistUrl += ".macosx106.txt";
+        } else {
+            checklistUrl += ".macosx107.txt";
+        }
     } else {
         // we don't support auto update on other platforms
         return "";
