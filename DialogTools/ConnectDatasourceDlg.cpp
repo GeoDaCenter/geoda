@@ -576,6 +576,9 @@ void ConnectDatasourceDlg::InitRecentPanel()
     scrl = new wxScrolledWindow(recent_panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(420,200), wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
+#ifdef __WIN32__
+    scrl->SetBackgroundColour(*wxWHITE);
+#endif
     
     wxBoxSizer* sizer;
     sizer = new wxBoxSizer( wxVERTICAL );
@@ -984,6 +987,9 @@ void ConnectDatasourceDlg::InitSamplePanel()
                                        wxDefaultPosition, wxSize(420,200),
                                        wxVSCROLL );
     sample_scrl->SetScrollRate( 5, 5 );
+#ifdef __WIN32__
+    sample_scrl->SetBackgroundColour(*wxWHITE);
+#endif
     {
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );

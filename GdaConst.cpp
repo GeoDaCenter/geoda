@@ -470,6 +470,10 @@ void GdaConst::init()
 		ref_medium_pt_sz += 5;
 		ref_large_pt_sz += 5;
 	}
+
+	if (GeneralWxUtils::isWindows()) {
+		ref_extra_small_pt_sz += 2;
+	}
 	
 	extra_small_font = wxFont::New(ref_extra_small_pt_sz,
                                    wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
