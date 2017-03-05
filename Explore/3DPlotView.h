@@ -39,7 +39,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class C3DPlotCanvas: public wxGLCanvas, public HighlightStateObserver
 {
 public:
-	C3DPlotCanvas(Project* project, C3DPlotFrame* t_frame,
+	C3DPlotCanvas(Project* project, C3DPlotFrame* t_frame, const wxGLAttributes& dispAttrs,
 				  HLStateInt* highlight_state,
 				  const std::vector<GdaVarTools::VarInfo>& var_info,
 				  const std::vector<int>& col_ids,

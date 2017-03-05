@@ -44,14 +44,14 @@ BEGIN_EVENT_TABLE(C3DPlotCanvas, wxGLCanvas)
     EVT_MOUSE_EVENTS(C3DPlotCanvas::OnMouse)
 END_EVENT_TABLE()
 
-C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
+C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame, const wxGLAttributes& dispAttrs,
 							 HLStateInt* highlight_state_s,
 							 const std::vector<GdaVarTools::VarInfo>& v_info,
 							 const std::vector<int>& col_ids,
 							 wxWindow *parent,
 							 wxWindowID id, const wxPoint& pos,
 							 const wxSize& size, long style)
-: wxGLCanvas(parent, id, 0, pos, size, style), ball(0),
+: wxGLCanvas(parent, dispAttrs, id, pos, size, style), ball(0),
 project(project_s),
 table_int(project_s->GetTableInt()),
 num_obs(project_s->GetTableInt()->GetNumberRows()),
@@ -1083,7 +1083,12 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 {
 	m_splitter = new wxSplitterWindow(this);
     
-	canvas = new C3DPlotCanvas(project, this,
+	wxGLAttributes glAttributes; 
+	//glAttributes.Defaults().RGBA().DoubleBuffer().Depth(16).Stencil(8).SampleBuffers(1).Samplers(4).EndList(); 
+	glAttributes.PlatformDefaults().RGBA().DoubleBuffer().Depth(24).EndList();
+	
+
+	canvas = new C3DPlotCanvas(project, this, glAttributes,
 							   project->GetHighlightState(),
 							   var_info, col_ids,
 							   m_splitter);

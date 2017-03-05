@@ -74,7 +74,7 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
     
 	boxSizer->Add(subSizer);
     resetBtn = new wxButton(this, XRCID("ID_RESET"), wxT("Reset"), wxDefaultPosition, wxSize(100, -1));
-    topSizer->Add(resetBtn, 0, wxALIGN_CENTER_HORIZONTAL|wxGROW|wxALL, 5);
+    topSizer->Add(resetBtn, 0, wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
     
