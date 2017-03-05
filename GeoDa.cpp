@@ -421,14 +421,14 @@ bool GdaApp::OnInit(void)
                                            Gda::version_subbuild);
     wxLogMessage(versionlog);
     
-    // show open file dialog
-    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
-
-    
     // check update in a new thread
     if (GdaConst::disable_auto_upgrade == false) {
         CallAfter(&GdaFrame::CheckUpdate);
     }
+    
+    // show open file dialog
+    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
+
 	return true;
 }
 

@@ -314,8 +314,8 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
 	update_text << _("A newer version of GeoDa is found. Do you want to update to version ");
     update_text << version;
 	update_text << "?";
-    if (!url_update_description.IsEmpty()) {
-        update_text << "\n\n" << url_update_description;
+    if (url_update_description != "MSG") {
+        update_text << "\n" << url_update_description;
     }
     
     wxPanel* panel = new wxPanel(this);
@@ -392,11 +392,11 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
         }
        
         int n = (int)lines.size();
-        int jobs = (n-2) / 3 + 1; // skip first and second lines
+        int jobs = (n-3) / 3 + 1; // skip first and second lines and third line
         wxProgressDialog progressDlg("", _("Downloading updates..."),
                                      jobs, this, wxPD_APP_MODAL | wxPD_AUTO_HIDE);
         progressDlg.Update(1);
-        if (n > 2 && (n-2) % 3 == 0) {
+        if (n > 3 && (n-3) % 3 == 0) {
             lines.pop(); // version
             lines.pop(); // url 
             lines.pop(); // msg
