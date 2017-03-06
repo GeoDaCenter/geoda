@@ -28,6 +28,7 @@ install -m 0766 -d $RPM_BUILD_ROOT/usr/local/GeoDa/plugins
 install -m 0766 -d $RPM_BUILD_ROOT/usr/local/GeoDa/gdaldata
 install -m 0766 -d $RPM_BUILD_ROOT/usr/local/GeoDa/web_plugins
 install -m 0755 run.sh $RPM_BUILD_ROOT/usr/local/GeoDa/run.sh
+install -m 0755 cache.sqlite $RPM_BUILD_ROOT/usr/local/GeoDa/cache.sqlite
 install -m 0755 GeoDa $RPM_BUILD_ROOT/usr/local/GeoDa/GeoDa
 install -m 0755 GeoDa.png $RPM_BUILD_ROOT/usr/local/GeoDa/GeoDa.png
 install -m 0755 Resources/* $RPM_BUILD_ROOT/usr/local/GeoDa/Resources/
@@ -45,9 +46,10 @@ install -m 0755 GeoDa.desktop $RPM_BUILD_ROOT/usr/share/applications/GeoDa.deskt
 /usr/local/GeoDa/Resources/*
 /usr/local/GeoDa/plugins/*
 /usr/local/GeoDa/gdaldata/*
-%attr(0767, root, root) /usr/local/GeoDa/basemap_cache/
-%attr(0767, root, root) /usr/local/GeoDa/web_plugins/
-%attr(0767, root, root) /usr/local/GeoDa/web_plugins/cache.sqlite
+/usr/local/GeoDa/web_plugins/*
+%attr(0767, -, -) /usr/local/GeoDa/basemap_cache/
+%attr(0767, -, -) /usr/local/GeoDa/web_plugins/
+%attr(0767, -, -) /usr/local/GeoDa/cache.sqlite
 
 %doc
 

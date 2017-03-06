@@ -589,7 +589,7 @@ void MapCanvas::DrawLayer1()
 				{
 					alpha[i] = 0;
 				} else {
-					alpha[i] = alpha_value;
+					if (alpha[i] !=0 ) alpha[i] = alpha_value;
 				}
 			}
             
@@ -641,7 +641,7 @@ void MapCanvas::DrawLayer1()
 					{
 						alpha_vals[i] = 0;
 					} else {
-						alpha_vals[i] = hl_alpha_value;
+						if (alpha_vals[i] !=0) alpha_vals[i] = hl_alpha_value;
 					}
 				}
 

@@ -24,7 +24,7 @@ wxString GdaCache::GetFullPath()
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();
-    exeDir = exeDir + wxFileName::GetPathSeparator() + "cache.sqlite";
+    exeDir = exeDir + "cache.sqlite";
     return exeDir;
 }
 

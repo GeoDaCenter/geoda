@@ -1,0 +1,3 @@
+%packager xunli
+%_topdir /home/xun/geoda_trunk/BuildTools/centos/rpm
+%_tmppaath /home/xun/geoda_trunk/BuildTools/centos/rpm/tmp

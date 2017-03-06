@@ -56,7 +56,7 @@ build-geoda-mac:
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
 	cp GeoDa.desktop build/GeoDa.desktop
-	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/web_plugins/cache.sqlite
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp -rf $(GeoDa_ROOT)/BuildTools/CommonDistFiles/web_plugins/* build/web_plugins/
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/GeoDa.png build/GeoDa.png
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
