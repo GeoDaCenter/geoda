@@ -69,8 +69,8 @@ INST_MAN	=	${prefix}/share/gdal/man
 INST_HTML	=	$(HOME)/www/gdal
 
 CPPFLAGS	=  -I$(GDAL_ROOT)/port  -I$(GDAL_ROOT)/gcore  -I$(GDAL_ROOT)/ogr  -I$(GDAL_ROOT)/ogr/ogrsf_frmts -I$(GDAL_ROOT)/alg
-CFLAGS		=  -g -O2 -Wall -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS	=  -g -O2 -Wall $(USER_DEFS)
+CFLAGS		=  -O2 -Wall -Wdeclaration-after-statement $(USER_DEFS)
+CXXFLAGS	=  -O2 -Wall $(USER_DEFS)
 LDFLAGS     = 
 
 RANLIB		=	ranlib
