@@ -74,7 +74,9 @@ all_init(false)
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
         m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20), wxTE_PROCESS_ENTER);
         
-        m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(SaveToTableDlg::OnOkClick),NULL, this);
+        m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER,
+                                wxCommandEventHandler(SaveToTableDlg::OnOkClick),
+                                NULL, this);
         
 		if (is_space_time) {
 			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
@@ -170,7 +172,6 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-	LOG_MSG(wxString::Format("Add Variable button# pressed: %d", obj_id));
 	
 	// remember existing col choices before adding a new column.
 	std::vector<wxString> prev_col_nm(data.size());
@@ -178,8 +179,7 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		prev_col_nm[i] = m_field[i]->GetStringSelection();
 	}
 	
-	LOG(data[obj_id].field_default);
-	LOG(data[obj_id].type);
+
     // Multiple time periods seems complex to user, we don't set "multiple time periods" by default, even there is time defined.
 	DataViewerAddColDlg dlg(project, this, true, true,
 							data[obj_id].field_default,
@@ -362,15 +362,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	std::set<wxString>::iterator it;
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
-        /*
-		TableState* ts = project->GetTableState();
-		if (!Project::CanModifyGrpAndShowMsgIfNot(ts, s))
-            return;
-		if (project->GetTableInt()->IsTimeVariant()
-			&& m_time[i]->IsEnabled()) {
-			s << " (" << m_time[i]->GetStringSelection() << ")";
-		}
-         */
+        
 		it = names.find(s);
 		if (it != names.end()) {
 			wxMessageDialog dlg(this, "Duplicate variable names specified.",
@@ -383,20 +375,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	}
 	
 	for (int i=0, iend=data.size(); i<iend; i++) {
-        /*
-		if (is_check[i]) {
-			int col = col_id_maps[i][m_field[i]->GetSelection()];
-			int time = is_space_time ? m_time[i]->GetSelection() : 0;
-			if (data[i].d_val) {
-				table_int->SetColData(col, time, *data[i].d_val);
-			} else if (data[i].l_val) {
-				table_int->SetColData(col, time, *data[i].l_val);
-			}
-			if (data[i].undefined) {
-				table_int->SetColUndefined(col, time, *data[i].undefined);
-			}
-		}
-        */
+        
         if (is_check[i]) {
             wxString field_name = m_txt_field[i]->GetValue();
             int time=0;

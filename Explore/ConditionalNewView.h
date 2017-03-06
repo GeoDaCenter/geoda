@@ -36,6 +36,8 @@ class ConditionalNewLegend;
 class TableInterface;
 
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
+
 typedef boost::multi_array<GdaRectangle, 2> rec_array_type;
 
 class ConditionalNewCanvas
@@ -102,6 +104,7 @@ protected:
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
@@ -110,6 +113,10 @@ protected:
 	int vert_num_cats; // number of vertical categories
 	std::vector<Gda::dbl_int_pair_vec_type> horiz_var_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> vert_var_sorted;
+    
+    std::vector<std::vector<bool> > horiz_undef_tms; // undef tms
+    std::vector<std::vector<bool> > vert_undef_tms; // undef tms
+    
 	CatClassifData horiz_cat_data;
 	CatClassifData vert_cat_data;
 	std::vector<bool> horiz_cats_valid;

@@ -28,9 +28,6 @@ LowessParamObservable::LowessParamObservable(double f_, int iter_,
 f(f_), iter(iter_), delta_factor(delta_factor_)
 {
 	LOG_MSG("In LowessParamObservable::LowessParamObservable");
-	LOG(f);
-	LOG(iter);
-	LOG(delta_factor);
 }
 
 LowessParamObservable::~LowessParamObservable()
@@ -43,7 +40,6 @@ void LowessParamObservable::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering LowessParamObservable::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting LowessParamObservable::closeAndDeleteWhenEmpty");
@@ -69,7 +65,6 @@ void LowessParamObservable::removeObserver(LowessParamObserver* o)
 {
 	LOG_MSG("Entering LowessParamObservable::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) delete this;
 	LOG_MSG("Exiting LowessParamObservable::removeObserver");
 }

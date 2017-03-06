@@ -165,7 +165,6 @@ GdaFVSmtPtr GdaParser::add_expr()
 			wxString ss;
 			ss << "GdaParser + op: operand " << (*left).ToStr();
 			ss << ", operand " << (*right).ToStr();
-			LOG_MSG(ss);
 			(*left) += (*right);
 		} else if (curr_token() == Gda::MINUS) {
 			inc_token(); // consume '-'

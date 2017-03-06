@@ -44,7 +44,7 @@ bool GwtElement::alloc(const int sz)
 }
 
 double GwtElement::SpatialLag(const std::vector<double>& x,
-															const bool std) const
+                              const bool std) const
 {
 	double lag= 0;
 	int cnt = 0;
@@ -70,6 +70,11 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+
+void GwtWeight::Update(const std::vector<bool>& undefs)
+{
+    
+}
 
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {

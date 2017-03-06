@@ -66,17 +66,10 @@ TableCellAttrProvider::~TableCellAttrProvider()
 wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 									wxGridCellAttr::wxAttrKind kind ) const
 {
-	//LOG_MSG(wxString::Format("Calling TableCellAttrProvider::GetAttr"
-	//						 "(%d, %d, %d)", row, col, kind));
     wxGridCellAttr *attr = wxGridCellAttrProvider::GetAttr(row, col, kind);
 	
-	//if (row >= 0) LOG_MSG(wxString::Format("GetAttr: row=%d, "
-	//									   "col=%d selected=%d",
-	//									   row, col,
-	//									   selected[row_order[row]] ? 1 : 0));
-	
 	bool row_sel = (row >= 0 && selected[row_order[row]]);
-	bool col_sel = (selected_cols.size()>0 && col >=0 && selected_cols[col]);
+	bool col_sel = (selected_cols.size()>col && col >=0 && selected_cols[col]);
     
 	if ( !attr ) {
 		attr = attrForAll;
@@ -109,7 +102,6 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	rows(_project->GetNumRecords()), row_order(_project->GetNumRecords()),
 	sorting_col(-1), sorting_ascending(false)
 {
-	LOG_MSG("Entering TableBase::TableBase");
     template_frame = t_frame;
 	SortByDefaultDecending();
 	
@@ -122,12 +114,10 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	time_state->registerObserver(this);
     
     UpdateStatusBar();
-	LOG_MSG("Exiting TableBase::TableBase");
 }
 
 TableBase::~TableBase()
 {
-	LOG_MSG("In TableBase::~TableBase");
 	highlight_state->removeObserver(this);
 	table_state->removeObserver(this);
 	time_state->removeObserver(this);
@@ -213,17 +203,7 @@ void TableBase::FromGridSelectRow(int row)
 	//LOG_MSG(wxString::Format("selecting %d", (int) row_order[row]));
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-    
     hs[ row_order[row] ]  = true;
-    /*
-	for (int i=0; i<hl_size; ++i) {
-        if (i == row_order[row]) {
-            hs[i] = true;
-        } else {
-            hs[i] = false;
-        }
-    }
-    */
     
 	highlight_state->SetEventType(HLStateInt::delta);
 	highlight_state->notifyObservers();
@@ -251,7 +231,6 @@ void TableBase::DeselectAllRows()
 
 void TableBase::SortByDefaultDecending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultDecending");
 	for (int i=0; i<rows; i++) {
 		row_order[i] = i;
 	}
@@ -261,7 +240,6 @@ void TableBase::SortByDefaultDecending()
 
 void TableBase::SortByDefaultAscending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultAscending");
 	int last_ind = rows-1;
 	for (int i=0; i<rows; i++) {
 		row_order[i] = last_ind - i;
@@ -304,6 +282,8 @@ void TableBase::SortByCol(int col, bool ascending)
 	int tm=time_state->GetCurrTime();
 	switch (table_int->GetColType(col)) {
 		case GdaConst::date_type:
+		case GdaConst::time_type:
+		case GdaConst::datetime_type:
 		case GdaConst::long64_type:
 		{
 			std::vector<wxInt64> temp;
@@ -374,7 +354,6 @@ void TableBase::SortByCol(int col, bool ascending)
 
 void TableBase::MoveSelectedToTop()
 {
-	LOG_MSG("Entering TableBase::MoveSelectedToTop");
 	std::set<int> sel_set;
 	for (int i=0, iend=rows; i<iend; i++) {
 		if (hs[row_order[i]]) sel_set.insert(row_order[i]);
@@ -390,7 +369,6 @@ void TableBase::MoveSelectedToTop()
 	}
 	sorting_col = -1;
 	if (GetView()) GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::MoveSelectedToTop");	
 }
 
 bool TableBase::FromGridIsSelectedCol(int col)
@@ -450,10 +428,6 @@ wxString TableBase::GetValue(int row, int col)
 //       compute the correct row.
 void TableBase::SetValue(int row, int col, const wxString &value)
 {
-	LOG_MSG(wxString::Format("TableBase::SetValue(%d, %d, %s)",
-							 row, col,
-							 (const_cast<char*>((const char*)value.mb_str()))));
-	
 	int curr_ts = (table_int->IsColTimeVariant(col) ?
 				   time_state->GetCurrTime() : 0);
 	table_int->SetCellFromString(row_order[row], col, curr_ts, value);
@@ -506,21 +480,19 @@ wxString TableBase::GetColLabelValue(int col)
 
 void TableBase::update(HLStateInt* o)
 {
-	if (GetView()) GetView()->Refresh();
+    if (GetView()) {
+        GetView()->Refresh();
+    }
     UpdateStatusBar();
 }
 
 void TableBase::update(TableState* o)
 {
 	using namespace std;
-	LOG_MSG("Entering TableBase::update(TableState*)");
 	if (!GetView()) return;
 	
 	if (o->GetEventType() == TableState::cols_delta) {
-		LOG_MSG("event_type == TableState::cols_delta");
-		LOG_MSG("  processing wxGrid notify messages...");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
-			LOG_MSG(e.ToString());
 			if (e.insert) {
 				if (e.pos_at_op <= sorting_col) sorting_col++;
 				wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED,
@@ -536,10 +508,8 @@ void TableBase::update(TableState* o)
 				GetView()->ProcessTableMessage( msg );
 			}
 		}
-		LOG_MSG("  formatting wxGrid columns... ");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 			if (e.insert) {
-				LOG_MSG(e.ToString());
 				if (e.type == GdaConst::long64_type) {
 					GetView()->SetColFormatNumber(e.pos_final);
 				} else if (e.type == GdaConst::double_type) {
@@ -558,7 +528,6 @@ void TableBase::update(TableState* o)
 			} // no formatting needed for removing columns
 		}
 	} else if (o->GetEventType() == TableState::col_disp_decimals_change) {
-		LOG_MSG("event_type == TableState::col_disp_decimals_change");
 		int pos = o->GetModifiedColPos();
 		if (table_int->GetColType(pos) == GdaConst::double_type) {
 			int dd = table_int->GetColDispDecimals(pos);
@@ -567,7 +536,6 @@ void TableBase::update(TableState* o)
 	}
 	
 	GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::update(TableState*)");
 }
 
 void TableBase::update(TimeState* o)
@@ -582,7 +550,6 @@ void TableBase::update(TimeState* o)
  changed.  It is called by TableFrame::OnColMoveEvent */
 void TableBase::notifyColMove()
 {
-	LOG_MSG("In TableBase::notifyColMove()");
 	table_state->SetColOrderChangeEvtTyp();
 	table_state->notifyObservers();
 }

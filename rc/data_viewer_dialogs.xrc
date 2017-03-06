@@ -426,7 +426,7 @@
               </object>
               <orient>wxHORIZONTAL</orient>
             </object>
-            <flag>wxBOTTOM|wxALIGN_CENTRE</flag>
+            <flag>wxBOTTOM|wxALIGN_CENTER</flag>
             <border>5</border>
           </object>
           <object class="sizeritem">
@@ -857,21 +857,21 @@
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
-        <flag>wxALIGN_CENTRE|wxALL</flag>
+        <flag>wxALIGN_CENTER|wxALL</flag>
         <border>5</border>
         <object class="wxStaticBitmap" name="wxID_STATIC">
           <bitmap>about-geoda-logo.png</bitmap>
         </object>
       </object>
       <object class="sizeritem">
-        <flag>wxALIGN_CENTRE|wxALL|wxADJUST_MINSIZE</flag>
+        <flag>wxALIGN_CENTER|wxALL|wxADJUST_MINSIZE</flag>
         <border>5</border>
         <object class="wxStaticText" name="IDC_STATIC">
           <label>Copyright (C) 1998-2011
 GeoDa Center for Geospatial Analysis and Computation
 and Arizona Board of Regents
 All Rights Reserved</label>
-          <style>wxALIGN_CENTRE</style>
+          <style>wxALIGN_CENTER</style>
         </object>
       </object>
       <object class="sizeritem">
@@ -882,7 +882,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxStaticText" name="ID_STATICTEXT">
               <label>DBF Viewer 0.8 (July 29, 2011)</label>
-              <style>wxALIGN_CENTRE</style>
+              <style>wxALIGN_CENTER</style>
             </object>
             <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
             <border>5</border>
@@ -918,7 +918,7 @@ All Rights Reserved</label>
               </object>
               <object class="sizeritem">
                 <object class="wxListBox" name="ID_FIELD_CHOICE">
-                  <style>wxLB_MULTIPLE</style>
+                  <style>wxLB_MULTIPLE | wxLB_HSCROLL</style>
                   <size>100, 80d</size>
                 </object>
                 <flag>wxALIGN_LEFT|wxALL</flag>
@@ -1071,7 +1071,7 @@ All Rights Reserved</label>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <orient>wxVERTICAL</orient>
@@ -1149,7 +1149,7 @@ All Rights Reserved</label>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <orient>wxVERTICAL</orient>
@@ -1297,7 +1297,7 @@ All Rights Reserved</label>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <orient>wxVERTICAL</orient>
@@ -1400,7 +1400,7 @@ All Rights Reserved</label>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxALL|wxALIGN_CENTRE</flag>
+        <flag>wxALL|wxALIGN_CENTER</flag>
         <border>5</border>
       </object>
       <orient>wxVERTICAL</orient>
@@ -1573,7 +1573,7 @@ All Rights Reserved</label>
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK"/>
             <option>1</option>
-            <flag>wxALIGN_CENTRE</flag>
+            <flag>wxALIGN_CENTER</flag>
             <border>10</border>
           </object>
           <orient>wxHORIZONTAL</orient>

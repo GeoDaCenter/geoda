@@ -39,7 +39,6 @@ void VarsChooserObservable::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering VarsChooserObservable::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting VarsChooserObservable::closeAndDeleteWhenEmpty");
@@ -65,7 +64,6 @@ void VarsChooserObservable::removeObserver(VarsChooserObserver* o)
 {
 	LOG_MSG("Entering VarsChooserObservable::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) delete this;
 	LOG_MSG("Exiting VarsChooserObservable::removeObserver");
 }

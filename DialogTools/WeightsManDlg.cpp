@@ -193,7 +193,6 @@ void WeightsManFrame::OnWListItemSelect(wxListEvent& ev)
 {
 	LOG_MSG("In WeightsManFrame::OnWListItemSelect");
 	long item = ev.GetIndex();
-	LOG(item);
 	SelectId(ids[item]);
 	UpdateButtons();
 	Refresh();
@@ -217,7 +216,9 @@ void WeightsManFrame::OnCreateBtn(wxCommandEvent& ev)
 
 void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 {
-	wxFileDialog dlg( this, "Choose Weights File", "", "",
+    wxFileName default_dir = project_p->GetWorkingDir();
+    wxString default_path = default_dir.GetPath();
+	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
 					 "Weights Files (*.gal, *.gwt)|*.gal;*.gwt");
 	
     if (dlg.ShowModal() != wxID_OK) return;
@@ -233,7 +234,6 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	
 	WeightsMetaInfo wmi;
 	wxString id_field = WeightUtils::ReadIdField(path);
-	LOG(id_field);
 	wmi.SetToCustom(id_field);
 	wmi.filename = path;
 	
@@ -243,7 +243,6 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	// new default if already loaded.
 	boost::uuids::uuid id = w_man_int->FindIdByFilename(path);
 	if (id.is_nil()) {
-		LOG_MSG("could not find existing weight with filename: " + path);
 		//id = w_man_int->FindIdByMetaInfo(wmi);
 	}
 	if (!id.is_nil()) {
@@ -253,8 +252,6 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		suspend_w_man_state_updates = false;
 		return;
 	}
-	
-
 	
 	GalElement* tempGal = 0;
 	if (ext == "gal") {
@@ -346,19 +343,15 @@ void WeightsManFrame::update(WeightsManState* o)
 {
 	LOG_MSG("In WeightsManFrame::update(WeightsManState* o)");
 	if (suspend_w_man_state_updates) {
-		LOG_MSG("WeightsManFrame ignoring WeightsManStateObserver::update");
 		return;
 	}
 	boost::uuids::uuid id = o->GetWeightsId();
 	if (o->GetEventType() == WeightsManState::add_evt) {
 		ids.push_back(id);
 		if (!ids.size()-1 == w_list->GetItemCount()) {
-			LOG(ids.size());
-			LOG(w_list->GetItemCount());
 		}
 		long x = w_list->InsertItem(ids.size(), wxEmptyString);
 		if (x == -1) {
-			LOG(x);
 		} else {
 			w_list->SetItem(x, TITLE_COL, w_man_int->GetTitle(id));
 		}
@@ -519,8 +512,6 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 			row_content.push_back(rs);
 		}
 	}
-	LOG(row_title.size());
-	LOG(row_content.size());
 	SetDetailsWin(row_title, row_content);
 }
 

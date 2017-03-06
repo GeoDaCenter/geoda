@@ -37,13 +37,17 @@
 #include "../GdaShape.h"
 #include "CorrelogramAlgs.h"
 
+class SimpleHistStatsCanvas;
 class HighlightState;
 class SimpleAxisCanvas;
 class CorrelogramFrame;
 class Project;
 typedef std::vector<double> vec_dbl_type;
 typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
-typedef std::map<wxString, vec_vec_dbl_type> data_map_type; 
+typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
+
+typedef std::vector<std::vector<bool> > vec_vec_bool_type;
+typedef std::map<wxString, vec_vec_bool_type> data_undef_map_type;
 
 /**
  CorrelogramFrame manages all of its canvas child windows.
@@ -52,10 +56,10 @@ class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
 public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt
 {
 public:
-	CorrelogramFrame(wxFrame *parent, Project* project,
-											const wxString& title = "Scatter Plot Matrix",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize);
+    CorrelogramFrame(wxFrame *parent, Project* project,
+                     const wxString& title = _("Scatter Plot Matrix"),
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
 	virtual ~CorrelogramFrame();
 	
 	void OnMouseEvent(wxMouseEvent& event);
@@ -80,29 +84,37 @@ public:
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
 	virtual void notifyNewHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+                                int total_hover_obs);
 	
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
 	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-															int total_hover_obs);
+                                    int total_hover_obs);
 	
+    virtual void OnRightClick(const wxPoint& pos);
+    
+    void OnSaveResult(wxCommandEvent& event);
+    
+    
 protected:
     void ReDraw();
 	void SetupPanelForNumVariables(int num_vars);
 	void UpdateMessageWin();
 	void UpdateDataMapFromVarMan();
 	bool UpdateCorrelogramData();
+    double GetEstDistWithZeroAutocorr(double& rng_left, double& rng_right);
 	
     Project* project;
 	CorrelParamsFrame* correl_params_frame;
 	CorrelParams par;
 	GdaVarTools::Manager var_man;
 	data_map_type data_map;
+	data_undef_map_type data_undef_map;
 	std::vector<CorrelogramAlgs::CorreloBin> cbins;
 	std::vector<SimpleScatterPlotCanvas*> scatt_plots;
 	std::vector<SimpleAxisCanvas*> vert_labels;
 	std::vector<SimpleAxisCanvas*> horiz_labels;
 	SimpleBinsHistCanvas* hist_plot;
+    SimpleHistStatsCanvas* shs_plot;
 	HLStateInt* local_hl_state;
 	
 	wxBoxSizer* top_h_sizer;

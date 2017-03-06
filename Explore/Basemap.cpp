@@ -1,10 +1,21 @@
-//
-//  Basemap.cpp
-//  GeoDa
-//
-//  Created by Xun Li on 5/29/15.
-//  Copyright (c) 2015 __MyCompanyName__. All rights reserved.
-//
+/**
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
+ *
+ * This file is part of GeoDa.
+ * 
+ * GeoDa is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeoDa is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <iostream>
 #include <sstream>
@@ -655,7 +666,11 @@ bool Basemap::Draw(wxBitmap* buffer)
 {
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
+	dc.SetBackground( *wxTRANSPARENT_BRUSH );
     dc.Clear();
+	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc)
+        return false;
    
     int x0 = startX;
     int x1 = endX;
@@ -683,11 +698,12 @@ bool Basemap::Draw(wxBitmap* buffer)
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             bool bmpOK = bmp.IsOk();
-            if (bmpOK) dc.DrawBitmap(bmp, pos_x, pos_y, true);
+            if (bmpOK)
+                gc->DrawBitmap(bmp, pos_x, pos_y, 256,256);
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}
-    
+    delete gc;
     isTileDrawn = true;
     return isTileReady;
 }

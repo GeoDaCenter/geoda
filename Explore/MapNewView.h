@@ -28,8 +28,13 @@
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
 #include <wx/window.h>
+#include <wx/dcgraph.h>
+
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
+
+#include "Basemap.h"
+#include "../DataViewer/DataSource.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
 #include "../TemplateFrame.h"
@@ -44,6 +49,7 @@ class MapNewLegend;
 class TableInterface;
 class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 
 // Transparency SliderBar dialog for Basemap
@@ -53,11 +59,13 @@ class SliderDialog: public wxDialog
     DECLARE_EVENT_TABLE()
 public:
     SliderDialog ();
-	SliderDialog (wxWindow * parent, TemplateCanvas* _canvas, wxWindowID id=wxID_ANY,
+    SliderDialog (wxWindow * parent,
+                  TemplateCanvas* _canvas,
+                  wxWindowID id=wxID_ANY,
                   const wxString & caption="Slider Dialog",
-                 const wxPoint & pos = wxDefaultPosition,
-                 const wxSize & size = wxDefaultSize,
-                 long style = wxDEFAULT_DIALOG_STYLE );
+                  const wxPoint & pos = wxDefaultPosition,
+                  const wxSize & size = wxDefaultSize,
+                  long style = wxDEFAULT_DIALOG_STYLE );
     virtual ~SliderDialog ();
     
 private:
@@ -73,20 +81,21 @@ class MapCanvas : public TemplateCanvas, public CatClassifStateObserver
 	DECLARE_CLASS(MapCanvas)
 public:
 	
-	enum SmoothingType { no_smoothing, raw_rate, excess_risk, empirical_bayes,
-		spatial_rate, spatial_empirical_bayes };
-	
-	MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-				 Project* project,
-				 const std::vector<GdaVarTools::VarInfo>& var_info,
-				 const std::vector<int>& col_ids,
-				 CatClassification::CatClassifType theme_type =
-					CatClassification::no_theme,
-				 SmoothingType smoothing_type = no_smoothing,
-				 int num_categories = 1,
-				 boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
-				 const wxPoint& pos = wxDefaultPosition,
-				 const wxSize& size = wxDefaultSize);
+    enum SmoothingType { no_smoothing, raw_rate,
+        excess_risk, empirical_bayes,
+        spatial_rate, spatial_empirical_bayes };
+    
+    MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+              Project* project,
+              const std::vector<GdaVarTools::VarInfo>& var_info,
+              const std::vector<int>& col_ids,
+              CatClassification::CatClassifType theme_type = CatClassification::no_theme,
+              SmoothingType smoothing_type = no_smoothing,
+              int num_categories = 1,
+              boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
+              const wxPoint& pos = wxDefaultPosition,
+              const wxSize& size = wxDefaultSize);
+    
 	virtual ~MapCanvas();
 
 
@@ -96,14 +105,14 @@ public:
 	virtual wxString GetNameWithTime(int var);
 	
 	virtual void NewCustomCatClassif();
-	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
-						SmoothingType new_map_smoothing,
-						int num_categories,
-						boost::uuids::uuid weights_id,
-						bool use_new_var_info_and_col_ids,
-						const std::vector<GdaVarTools::VarInfo>& new_var_info,
-						const std::vector<int>& new_col_ids,
-						const wxString& custom_classif_title = wxEmptyString);
+    virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
+                               SmoothingType new_map_smoothing,
+                               int num_categories,
+                               boost::uuids::uuid weights_id,
+                               bool use_new_var_info_and_col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& new_var_info,
+                               const std::vector<int>& new_col_ids,
+                               const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
 	virtual void SaveRates();
@@ -111,31 +120,39 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
-    int GetBasemapType();
+    int  GetBasemapType();
     void CleanBasemapCache();
     
-    
-public:
 	bool DrawBasemap(bool flag, int map_type);
+    
+    const wxBitmap* GetBaseLayer() { return basemap_bm; }
+   
+    void OnIdle(wxIdleEvent& event);
+    
+    virtual void deleteLayerBms();
+    
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
-#ifdef __linux__
-	// in linux, use old style drawing without transparency support
+    
+	// in linux, windows use old style drawing without transparency support
 	// the commented out functions are inherited from TemplateCanvas class
 	// TODO will be replace by wxImage drawing code
-    	virtual void resizeLayerBms(int width, int height);
-	virtual void DrawLayer0();
-	//virtual void DrawLayer1();
-	//virtual void DrawLayer2();
-	//virtual void OnPaint(wxPaintEvent& event);
-#else
-    	virtual void resizeLayerBms(int width, int height);
+    virtual void resizeLayerBms(int width, int height);
 	virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
-	virtual void OnPaint(wxPaintEvent& event);
-#endif
+	//virtual void OnPaint(wxPaintEvent& event);
+    virtual void DrawHighlightedShapes(wxMemoryDC &dc, bool revert);
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only=false,
+                                         bool revert=false,
+                                         bool use_crosshatch=false);
+    
+    virtual void ResetShapes();
+	virtual void ZoomShapes(bool is_zoomin = true);
+	virtual void PanShapes();
 
+    virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
+                                      int virtual_scrn_h = 0);
     
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
@@ -161,7 +178,21 @@ public:
 	
 	std::vector<GdaVarTools::VarInfo> var_info;
     
+	bool isDrawBasemap;
+
+    static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
+private:
+    IDataSource* p_datasource;
+    static bool has_thumbnail_saved;
+    wxString layer_name;
+    wxString ds_name;
+    void SaveThumbnail();
+    
 protected:
+    bool InitBasemap();
+    
+    int map_type;
+	bool layerbase_valid; // if false, then needs to be redrawn
     
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
@@ -169,6 +200,7 @@ protected:
 	int num_obs;
 	int num_time_vals;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
@@ -177,11 +209,13 @@ protected:
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
 	std::vector<wxString> map_error_message;
-	
 	bool full_map_redraw_needed;
-	
 	boost::uuids::uuid weights_id;
-	
+
+    // basemap
+	wxBitmap* basemap_bm;
+	GDA::Basemap* basemap;
+    
 	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
@@ -199,22 +233,22 @@ class MapFrame : public TemplateFrame, public WeightsManStateObserver
    DECLARE_CLASS(MapFrame)
 public:
     MapFrame(wxFrame *parent, Project* project,
-				const std::vector<GdaVarTools::VarInfo>& var_info,
-				const std::vector<int>& col_ids,
-				CatClassification::CatClassifType theme_type =
-					CatClassification::no_theme,
-				MapCanvas::SmoothingType smoothing_type
-				  = MapCanvas::no_smoothing,
-				int num_categories = 1,
-				boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
-				const long style = wxDEFAULT_FRAME_STYLE);
+             const std::vector<GdaVarTools::VarInfo>& var_info,
+             const std::vector<int>& col_ids,
+             CatClassification::CatClassifType theme_type = CatClassification::no_theme,
+             MapCanvas::SmoothingType smoothing_type = MapCanvas::no_smoothing,
+             int num_categories = 1,
+             boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
+             const wxPoint& pos = wxDefaultPosition,
+             const wxSize& size = wxDefaultSize,
+             const long style = wxDEFAULT_FRAME_STYLE);
+    
 	/** This constructor should only be called by derived classes */
-	MapFrame(wxFrame *parent, Project* project,
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
-				const long style = wxDEFAULT_FRAME_STYLE);
+    MapFrame(wxFrame *parent, Project* project,
+             const wxPoint& pos = wxDefaultPosition,
+             const wxSize& size = wxDefaultSize,
+             const long style = wxDEFAULT_FRAME_STYLE);
+    
     virtual ~MapFrame();
 
     void SetupToolbar();
@@ -231,9 +265,6 @@ public:
 	virtual void update(WeightsManState* o);
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
-	
-    virtual void OnCopyImageToClipboard(wxCommandEvent& event);
-    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);

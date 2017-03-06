@@ -598,8 +598,8 @@ echo "% Building wxWidgets 3.0.2 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
-    LIB_NAME=wxWidgets-3.0.2
-    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2"
+    LIB_NAME=wxWidgets-3.1.0
+    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2"
 
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config

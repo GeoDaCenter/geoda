@@ -51,17 +51,17 @@ public:
 	CreatingWeightDlg(wxWindow* parent,
                     Project* project,
                     wxWindowID id = -1,
-                    const wxString& caption = "Weights File Creation",
+                    const wxString& caption = _("Weights File Creation"),
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize,
-                    long style = wxCAPTION|wxSYSTEM_MENU );
+                    long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~CreatingWeightDlg();
 	void OnClose(wxCloseEvent& ev);
 	bool Create( wxWindow* parent, wxWindowID id = -1,
-							const wxString& caption = "Weights File Creation",
+							const wxString& caption = _("Weights File Creation"),
 							const wxPoint& pos = wxDefaultPosition,
 							const wxSize& size = wxDefaultSize,
-							long style = wxCAPTION|wxSYSTEM_MENU );
+							long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
 	
@@ -178,9 +178,10 @@ private:
 	bool CheckID(const wxString& id);
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
-											 const wxString& ifn, const wxString& ofn,
-											 const wxString& idd,
-											 const WeightsMetaInfo& wmi);
+                         const wxString& ifn, const wxString& ofn,
+                         const wxString& idd,
+                         const WeightsMetaInfo& wmi);
+    void CreateWeights();
 	
 	wxString s_int;
 	bool suspend_table_state_updates;

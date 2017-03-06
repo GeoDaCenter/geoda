@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
@@ -24,9 +25,8 @@
 #include <wx/regex.h>
 #include <wx/xrc/xmlres.h>
 
-#include "FieldNameCorrectionDlg.h"
 #include "../GdaConst.h"
-#include "../logger.h"
+#include "FieldNameCorrectionDlg.h"
 
 
 BEGIN_EVENT_TABLE( FieldNameCorrectionDlg, wxDialog )
@@ -435,7 +435,7 @@ bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 	if ( GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end() )
 	{
-        LOG_MSG("Error:no valid entry in datasrc_field_lens, could be a unwritable ds");
+        wxLogMessage("Error:no valid entry in datasrc_field_lens, could be a unwritable ds");
 		return false;
 	}
 	
@@ -478,7 +478,6 @@ bool ScrolledWidgetsPane::CheckUserInput()
                 }
 			}
 		} else {
-			LOG_MSG("Error: text input field empty!");
             txt_input[i]->SetForegroundColour(*wxRED);
             txt_info[i]->SetLabel("Field name is not valid.");
             return false;
@@ -500,7 +499,6 @@ bool ScrolledWidgetsPane::CheckUserInput()
     }
     
     if (uniq_fnames.size() != field_names_dict.size()) {
-        LOG_MSG("Current user inputs still have conflict with duplicated field names");
         for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
             wxString user_field_name = txt_input[i]->GetValue();
             if (uniq_fnames[user_field_name] > 1) {
@@ -560,6 +558,8 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        wxString title)
 : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(600,300))
 {
+    wxLogMessage("Open FieldNameCorrectionDlg:");
+    
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	fieldPane = new ScrolledWidgetsPane(this, wxID_ANY,
                                         ds_type,
@@ -584,6 +584,7 @@ FieldNameCorrectionDlg::~FieldNameCorrectionDlg()
 
 void FieldNameCorrectionDlg::OnClose(wxCloseEvent& ev)
 {
+    wxLogMessage("Click FieldNameCorrectionDlg::OnClose");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
@@ -593,18 +594,17 @@ void FieldNameCorrectionDlg::OnClose(wxCloseEvent& ev)
 
 void FieldNameCorrectionDlg::OnOkClick(wxCommandEvent& event)
 {
-	LOG_MSG("Entering FieldNameCorrectionDlg::OnOkClick");
+	wxLogMessage("Click FieldNameCorrectionDlg::OnOkClick");
 	// check user input
     if (fieldPane->CheckUserInput()) {
         EndDialog(wxID_OK);
         event.Skip();
     }
-	
-	LOG_MSG("Exiting FieldNameCorrectionDlg::OnOkClick");
 }
 
 void FieldNameCorrectionDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click FieldNameCorrectionDlg::OnCancelClick");
 	event.Skip();
 	EndDialog(wxID_CANCEL);	
 }

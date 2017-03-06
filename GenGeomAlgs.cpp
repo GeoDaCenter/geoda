@@ -411,9 +411,9 @@ void GenGeomAlgs::StandardizeRect(const wxPoint& s1, const wxPoint& s2,
 /** assumes input corners are all screen-coordinate correct for
  lower left and upper right corners */
 bool GenGeomAlgs::RectsIntersect(const wxPoint& r1_lower_left,
-																 const wxPoint& r1_upper_right,
-																 const wxPoint& r2_lower_left,
-																 const wxPoint& r2_upper_right)
+                                 const wxPoint& r1_upper_right,
+                                 const wxPoint& r2_lower_left,
+                                 const wxPoint& r2_upper_right)
 {
 	// return negation of all situations where rectangles
 	// do not intersect.

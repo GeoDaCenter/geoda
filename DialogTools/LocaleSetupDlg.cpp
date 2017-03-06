@@ -20,16 +20,18 @@
 
 
 #include <fstream>
+
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/dir.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
+
 #include <cpl_error.h>
 #include <cpl_conv.h>
 
 #include "../GenUtils.h"
-#include "../logger.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "LocaleSetupDlg.h"
@@ -41,11 +43,16 @@ BEGIN_EVENT_TABLE( LocaleSetupDlg, wxDialog )
 END_EVENT_TABLE()
 
 LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
+                               bool need_reopen_flag,
                      wxWindowID id,
                      const wxString& title,
                      const wxPoint& pos,
                      const wxSize& size )
 {
+    wxLogMessage("Open LocaleSetupDlg.");
+    
+    need_reopen = need_reopen_flag;
+    
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_LOCALE_SETUP_DLG");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
 	m_txt_thousands = XRCCTRL(*this, "IDC_FIELD_THOUSANDS",wxTextCtrl);
@@ -65,6 +72,8 @@ LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
 
 void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
 {
+    wxLogMessage("Click LocaleSetupDlg::OnResetSysLocale");
+    
     setlocale(LC_ALL, "");
     struct lconv *poLconv = localeconv();
     CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
@@ -89,6 +98,8 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
 
 void LocaleSetupDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click LocaleSetupDlg::OnOkClick");
+    
     wxString thousands_sep = m_txt_thousands->GetValue();
     wxString decimal_point = m_txt_decimal->GetValue();
     
@@ -97,12 +108,13 @@ void LocaleSetupDlg::OnOkClick( wxCommandEvent& event )
     if ( !decimal_point.IsEmpty() )
         CPLSetConfigOption("GDAL_LOCALE_DECIMAL",
                            (const char*)decimal_point.mb_str());
-    
-    wxString msg = "Locale for numbers has been setup successfully. Please "
-    "re-open current project to enable this locale.";
-    wxMessageDialog msg_dlg(this, msg,
-                           "Setup locale",
-                           wxOK | wxOK_DEFAULT | wxICON_INFORMATION);
-    msg_dlg.ShowModal();
+   
+    if (need_reopen) {
+        wxString msg = _("Locale for numbers has been setup successfully. Please re-open current project to enable this locale.");
+        wxMessageDialog msg_dlg(this, msg,
+                               "Setup locale",
+                               wxOK | wxOK_DEFAULT | wxICON_INFORMATION);
+        msg_dlg.ShowModal();
+    }
 	EndDialog(wxID_OK);
 }

@@ -18,10 +18,11 @@
  */
 
 #include <set>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/xrc/xmlres.h>
+
 #include "../DataViewer/TableInterface.h"
-#include "../logger.h"
 #include "../Project.h"
 #include "PCPDlg.h"
 
@@ -43,6 +44,8 @@ PCPDlg::PCPDlg(Project* project_s, wxWindow* parent,
 			   const wxSize& size, long style )
 : project(project_s), table_int(project_s->GetTableInt())
 {
+    wxLogMessage("Open PCPDlg.");
+    
 	SetParent(parent);
 	CreateControls();
 	Init();
@@ -87,6 +90,7 @@ void PCPDlg::Init()
 
 void PCPDlg::OnIncAllClick( wxCommandEvent& ev)
 {
+    wxLogMessage("Click PCPDlg::OnIncAllClick");
 	for (int i=0, iend=m_exclude_list->GetCount(); i<iend; i++) {
 		m_include_list->Append(m_exclude_list->GetString(i));
 	}
@@ -136,6 +140,8 @@ void PCPDlg::OnExclListDClick( wxCommandEvent& ev)
 
 void PCPDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click PCPDlg::OnOkClick");
+    
 	int n_pcp_obs_sel = m_include_list->GetCount();
 	
 	col_ids.resize(m_include_list->GetCount());
@@ -169,6 +175,8 @@ void PCPDlg::OnOkClick( wxCommandEvent& event )
 
 void PCPDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click PCPDlg::OnCancelClick");
+    
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 

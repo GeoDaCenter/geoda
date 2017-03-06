@@ -19,6 +19,7 @@
 
 #include <time.h>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/grid.h>
 #include <wx/msgdlg.h>
 #include <wx/txtstrm.h>
@@ -29,7 +30,6 @@
 
 #include "../FramesManager.h"
 #include "../GenUtils.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../TemplateCanvas.h"
@@ -51,20 +51,37 @@
 #include "RegressionDlg.h"
 #include "RegressionReportDlg.h"
 
-bool classicalRegression(GalElement *g, int num_obs, double * Y,
-						 int dim, double ** X, 
-						 int expl, DiagnosticReport *dr, bool InclConstant,
-						 bool m_moranz, wxGauge* gauge,
+bool classicalRegression(GalElement *g,
+                         int num_obs,
+                         double * Y,
+						 int dim,
+                         double ** X,
+						 int expl,
+                         DiagnosticReport *dr,
+                         bool InclConstant,
+						 bool m_moranz,
+                         wxGauge* gauge,
 						 bool do_white_test);
 
-bool spatialLagRegression(GalElement *g, int num_obs, double * Y,
-						  int dim, double ** X, int deps, DiagnosticReport *dr,
-						  bool InclConstant, wxGauge* p_bar = 0) ;
+bool spatialLagRegression(GalElement *g,
+                          int num_obs,
+                          double * Y,
+						  int dim,
+                          double ** X,
+                          int deps,
+                          DiagnosticReport *dr,
+						  bool InclConstant,
+                          wxGauge* p_bar = 0) ;
 
-bool spatialErrorRegression(GalElement *g, int num_obs, double * Y,
-							int dim, double ** XX, int deps,
+bool spatialErrorRegression(GalElement *g,
+                            int num_obs,
+                            double * Y,
+							int dim,
+                            double ** XX,
+                            int deps,
 							DiagnosticReport *rr, 
-							bool InclConstant, wxGauge* p_bar = 0);
+							bool InclConstant,
+                            wxGauge* p_bar = 0);
 
 BEGIN_EVENT_TABLE( RegressionDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_RUN"), RegressionDlg::OnRunClick )
@@ -116,6 +133,8 @@ w_man_state(project_s->GetWManState()),
 autoPVal(0.01),
 regReportDlg(0)
 {
+    wxLogMessage("Open RegressionDlg.");
+    
 	Create(parent, id, caption, pos, size, style);
 	
 	RegressModel = 1;
@@ -142,16 +161,15 @@ regReportDlg(0)
 
 RegressionDlg::~RegressionDlg()
 {
-	LOG_MSG("Entering RegressionDlg::~RegressionDlg");
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
-	LOG_MSG("Exiting RegressionDlg::~RegressionDlg");
 }
 
 
 void RegressionDlg::OnReportClose(wxWindowDestroyEvent& event)
 {
+    wxLogMessage("Close RegressionDlg.");
     regReportDlg = 0;
 }
 
@@ -249,25 +267,100 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 
 void RegressionDlg::OnRunClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnRunClick");
+	wxLogMessage("Click RegressionDlg::OnRunClick");
 
     m_gauge->Show();
 	UpdateMessageBox("calculating...");
 	
+	wxString m_Yname = m_dependent->GetValue();
+   
+    wxLogMessage(_("y:") + m_Yname);
+    
+    // Y and X's data
+    //wxString st;
+    m_independentlist->SetSelection(0);
+    m_independentlist->SetFirstItem(m_independentlist->GetSelection());
+    
+    const unsigned int sz = m_independentlist->GetCount();
+    m_Yname.Trim(false);
+    m_Yname.Trim(true);
+    
+    double** dt = new double* [sz + 1];
+    for (int i = 0; i < sz + 1; i++) {
+        dt[i] = new double[m_obs];
+    }
+    
+    // WS1447
+    // fill in each field from m_independentlist and tack on
+    // m_Yname to the end
+    // NOTE: We need to close this gapping memory leak!d  It looks like
+    // dt and x is allocated, but never freed!
+    std::vector<double> vec(m_obs);
+    undefs.resize(m_obs);
+    
+    wxLogMessage("x:");
+    
+    for (int i=0; i < m_independentlist->GetCount(); i++) {
+        wxString nm = name_to_nm[m_independentlist->GetString(i)];
+        wxLogMessage(nm);
+        
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        int tm = name_to_tm_id[m_independentlist->GetString(i)];
+        table_int->GetColData(col, tm, vec);
+        for (int j=0; j<m_obs; j++)
+            dt[i][j] = vec[j];
+        
+        std::vector<bool> vec_undef(m_obs);
+        table_int->GetColUndefined(col, tm, vec_undef);
+        for (int j=0; j<m_obs; j++)
+            undefs[j] = undefs[j] || vec_undef[j];
+    }
+    
+    int y_col_id = table_int->FindColId(name_to_nm[m_Yname]);
+    if (y_col_id == wxNOT_FOUND) {
+        wxString err_msg = wxString::Format("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data.", name_to_nm[m_Yname]);
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    table_int->GetColData(y_col_id, name_to_tm_id[m_Yname], vec);
+    for (int j=0; j<m_obs; j++) {
+        dt[sz][j] = vec[j];
+    }
+    
+    std::vector<bool> vec_undef(m_obs);
+    table_int->GetColUndefined(y_col_id, name_to_tm_id[m_Yname], vec_undef);
+    for (int j=0; j<m_obs; j++)
+        undefs[j] = undefs[j] || vec_undef[j];
+    
 	// Getting X's name
 	int nX = m_independentlist->GetCount();
-	LOG(nX);
 	
 	m_Xnames.resize(nX+3);
 
 	int ix = 0, ixName = 0;
-	unsigned int i = 0;
 	//Option to not use "include constant" removed.
 	bool m_constant_term = true; // m_CheckConstant->GetValue();
 	bool m_WeightCheck = m_CheckWeight->GetValue();
 	bool m_standardization = true; // m_standardize->GetValue();
 
-	wxString m_Yname = m_dependent->GetValue();
+    // get valid obs
+    int valid_obs = 0;
+    std::map<int, int> orig_valid_map;
+    
+    for (int i=0; i<m_obs; i++) {
+        if (!undefs[i]) {
+            orig_valid_map[i] = valid_obs;
+            valid_obs += 1;
+        }
+    }
 
 	if (m_constant_term) {
 		nX = nX + 1;
@@ -282,7 +375,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 
 	if (m_constant_term) {
 		x = new double* [nX + 1]; // the last one is for Y
-		alloc(x[0], m_obs, 1.0);
+		alloc(x[0], valid_obs, 1.0); // constant  with 1.0
+        
 	} else {
 		x = new double* [nX];
 	}
@@ -291,113 +385,114 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 
 	int col = 0, row = 0;
  
-	// Y and X's data
-	//wxString st;
-	m_independentlist->SetSelection(0);
-	m_independentlist->SetFirstItem(m_independentlist->GetSelection());
-	
-	const unsigned int sz = m_independentlist->GetCount();
-	LOG(sz);
-	m_Yname.Trim(false);
-	m_Yname.Trim(true);
-	
-	double** dt = new double* [sz + 1];
-	for (i = 0; i < sz + 1; i++) dt[i] = new double[m_obs];
-
-	// WS1447
-	// fill in each field from m_independentlist and tack on
-	// m_Yname to the end
-	// NOTE: We need to close this gapping memory leak!d  It looks like
-	// dt and x is allocated, but never freed!
-	std::vector<double> vec(m_obs);
-	for (i=0; i < m_independentlist->GetCount(); i++) {
-		wxString nm = name_to_nm[m_independentlist->GetString(i)];
-		int col = table_int->FindColId(nm);
-		if (col == wxNOT_FOUND) {
-			wxString err_msg;
-			err_msg << "Variable " << nm << " is no longer ";
-			err_msg << "in the Table.  Please close and reopen the ";
-			err_msg << "Regression Dialog to synchronize with Table data.";
-			wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-			dlg.ShowModal();
-			return;
-		}
-		int tm = name_to_tm_id[m_independentlist->GetString(i)];
-		table_int->GetColData(col, tm, vec);
-		for (int j=0; j<m_obs; j++) dt[i][j] = vec[j];
-	}
-	int y_col_id = table_int->FindColId(name_to_nm[m_Yname]);
-	if (y_col_id == wxNOT_FOUND) {
-		wxString err_msg;
-		err_msg << "Variable " << name_to_nm[m_Yname];
-		err_msg << " is no longer in the Table.  Please close and reopen the ";
-		err_msg << "Regression Dialog to synchronize with Table data.";
-		wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		return;
-	}
-	table_int->GetColData(y_col_id, name_to_tm_id[m_Yname], vec);
-	for (int j=0; j<m_obs; j++) dt[sz][j] = vec[j];
-		
-	for (i = 0; i < sz + 1; i++) {
-		x[i + ix] = dt[i];
+	for (int i = 0; i < sz + 1; i++) {
+        x[i + ix] = new double[valid_obs];
+        int xidx = 0;
+        for (int j=0; j<m_obs; j++) {
+            if (undefs[j])
+                continue;
+            x[i+ix][xidx++] = dt[i][j];
+        }
 	}
 	
 	if (m_constant_term) {
-		y = x[sz + 1];
+        y = new double[valid_obs];
+        int yidx = 0;
+        for (int j=0; j<valid_obs; j++) {
+            y[j] = x[sz + 1][j];
+        }
 	} else {
-		y = x[sz];  
+        y = new double[valid_obs];
+        for (int j=0; j<valid_obs; j++) {
+            y[j] = x[sz][j];
+        }
 	}
-	
+
+    // free memory of dt[][]
+    for (int i = 0; i < sz + 1; i++) {
+        delete[] dt[i];
+    }
+    delete[] dt;
+    
+    
 	double* result = NULL;
 	
-	const int n = m_obs;
+	const int n = valid_obs;
 	bool do_white_test = m_white_test_cb->GetValue();
-	
-        if (m_constant_term) {
-            if (RegressModel == 2) {             
-                wxString W_name = "W_" + m_Yname;
-                W_name = W_name.Left(12);
-                m_Xnames[0] = W_name;
-                m_Xnames[1] = "CONSTANT";
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i + 2] = m_independentlist->GetString(i);
-                }
-            } else if (RegressModel == 3) {            
-                m_Xnames[nX] = "LAMBDA";
-                m_Xnames[0]  = "CONSTANT";
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i + 1] = m_independentlist->GetString(i);
-                }
-            } else {
-                m_Xnames[0]  = "CONSTANT";
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i + 1] = m_independentlist->GetString(i);
-                }
+    if (m_constant_term) {
+        if (RegressModel == 2) {
+            wxString W_name = "W_" + m_Yname;
+            W_name = W_name.Left(12);
+            m_Xnames[0] = W_name;
+            m_Xnames[1] = "CONSTANT";
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i + 2] = m_independentlist->GetString(i);
+            }
+        } else if (RegressModel == 3) {
+            m_Xnames[nX] = "LAMBDA";
+            m_Xnames[0]  = "CONSTANT";
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i + 1] = m_independentlist->GetString(i);
             }
         } else {
-            if (RegressModel == 2) {            
-                wxString W_name = "W_" + m_Yname;
-                W_name = W_name.Left(12);
-                m_Xnames[0] = W_name;
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i + 1] = m_independentlist->GetString(i);
-                }
-            } else if (RegressModel == 3) {            
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i] = m_independentlist->GetString(i);
-                }
-                m_Xnames[nX] = "LAMBDA";
-            } else {
-                for (i = 0; i < m_independentlist->GetCount(); i++) {
-                    m_Xnames[i] = m_independentlist->GetString(i);
+            m_Xnames[0]  = "CONSTANT";
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i + 1] = m_independentlist->GetString(i);
+            }
+        }
+    } else {
+        if (RegressModel == 2) {
+            wxString W_name = "W_" + m_Yname;
+            W_name = W_name.Left(12);
+            m_Xnames[0] = W_name;
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i + 1] = m_independentlist->GetString(i);
+            }
+        } else if (RegressModel == 3) {
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i] = m_independentlist->GetString(i);
+            }
+            m_Xnames[nX] = "LAMBDA";
+        } else {
+            for (int i = 0; i < m_independentlist->GetCount(); i++) {
+                m_Xnames[i] = m_independentlist->GetString(i);
+            }
+        }
+    }
+    
+	if (m_WeightCheck) {
+		boost::uuids::uuid id = GetWeightsId();
+        GalElement* gal_weight = NULL;
+        GalWeight* gw = w_man_int->GetGal(id);
+        
+        if (valid_obs == m_obs) {
+    		gal_weight = gw ? gw->gal : NULL;
+            
+        } else {
+            // construct a new weights with only valid records
+            if (gw) {
+                gal_weight = new GalElement[valid_obs];
+                int cnt = 0;
+                for (int i=0; i<m_obs; i++) {
+                    if (!undefs[i]) {
+                        vector<long> nbrs = gw->gal[i].GetNbrs();
+                        vector<double> nbrs_w = gw->gal[i].GetNbrWeights();
+                       
+                        int n_idx = 0;
+                        for (int j=0; j<nbrs.size(); j++) {
+                            int nid = nbrs[j];
+                            if ( !undefs[nid] ) {
+                                double w = nbrs_w[j];
+                                int new_nid = orig_valid_map[nid];
+                                gal_weight[cnt].SetNbr(n_idx++, new_nid, w);
+                            }
+                        }
+                        
+                        cnt += 1;
+                    }
                 }
             }
         }
-	if (m_WeightCheck) {
-		boost::uuids::uuid id = GetWeightsId();
-		GalWeight* gw = w_man_int->GetGal(id);
-		GalElement* gal_weight = gw ? gw->gal : NULL;
 		
         bool isAuto = false;
         if (RegressModel == 4) {
@@ -408,11 +503,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             DiagnosticReport m_DR(n, nX, m_constant_term, true, 1);
             
             if (gal_weight &&
-				!classicalRegression(gal_weight, m_obs, y, n, x, nX, &m_DR,
+				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
 									 do_white_test)) 
             {
-                wxMessageBox("Error: the inverse matrix is ill-conditioned");
+                wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
                 m_OpenDump = false;
                 OnCResetClick(event);
                 UpdateMessageBox("");
@@ -438,9 +533,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
                     rr = m_DR.GetLMERRRob();
                     double RLMError1 = rr[2];
                     if (RLMLag1 < autoPVal && RLMLag1 < autoPVal) {
-                        wxMessageBox("Both are significant, Spatial Lag Model "
-                                     "has been "
-                                     "selected.");
+                        wxMessageBox(_("Both are significant, Spatial Lag Model has been selected."));
                         RegressModel = 2;
                     } else if (RLMLag1 <= RLMError1) {
                         // go to lag model estimation
@@ -461,12 +554,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
                     if (HetFlag) {
                         // get White error variance
                         do_white_test = true;
-                        wxMessageBox("OLS Model with White test has been "
-                                     "selected.");
+                        wxMessageBox(_("OLS Model with White test has been selected."));
                     } else {
                         // stick with original one
                         do_white_test = false;
-                        wxMessageBox("OLS Model has been selected.");
+                        wxMessageBox(_("OLS Model has been selected."));
                     }
                 }
             }
@@ -475,16 +567,17 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         
         
 		if (RegressModel == 1) {
+            wxLogMessage("OLS model");
 			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
 
 			if (gal_weight &&
-				!classicalRegression(gal_weight, m_obs, y, n, x, nX, &m_DR,
+				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
 									 do_white_test)) {
-				wxMessageBox("Error: the inverse matrix is ill-conditioned");
+				wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -505,22 +598,20 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			gal_weight = NULL;
 
 		} else if (RegressModel == 2) {
+            wxLogMessage("Spatial Lag model");
 			// Check for Symmetry first
 			WeightsMetaInfo::SymmetryEnum sym = w_man_int->IsSym(id);
 			if (sym == WeightsMetaInfo::SYM_unknown) {
 				ProgressDlg* p_dlg = new ProgressDlg(this, wxID_ANY,
-													 "Weights Symmetry Check");
+													 _("Weights Symmetry Check"));
 				p_dlg->Show();
-				p_dlg->StatusUpdate(0, "Checking Symmetry...");
+				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
 				p_dlg->StatusUpdate(1, "Finished");
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-				wxMessageBox("Only symmetric weights are supported for "
-							 "this operation, please choose a symmetric "
-							 "weights file. You can still choose Classic "
-							 "regression for non-symmetric weights.");
+                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
 				UpdateMessageBox("");
 				return;
 			}
@@ -532,10 +623,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
 
-			if (gal_weight && !spatialLagRegression(gal_weight, m_obs,
+			if (gal_weight && !spatialLagRegression(gal_weight, valid_obs,
 													y, n, x, nX, &m_DR, true,
 													m_gauge)) {
-				wxMessageBox("Error: the inverse matrix is ill-conditioned.");
+				wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -556,22 +647,20 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			gal_weight = NULL;
             
 		} else if (RegressModel == 3) {
+            wxLogMessage("Spatial Error model");
 			// Check for Symmetry first
 			WeightsMetaInfo::SymmetryEnum sym = w_man_int->IsSym(id);
 			if (sym == WeightsMetaInfo::SYM_unknown) {
 				ProgressDlg* p_dlg = new ProgressDlg(this, wxID_ANY,
-													 "Weights Symmetry Check");
+													 _("Weights Symmetry Check"));
 				p_dlg->Show();
-				p_dlg->StatusUpdate(0, "Checking Symmetry...");
+				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
 				p_dlg->StatusUpdate(1, "Finished");
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-				wxMessageBox("Only symmetric weights are supported for "
-							 "this operation, please choose a symmetric "
-							 "weights file. You can still choose Classic "
-							 "regression for non-symmetric weights.");
+                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
 				UpdateMessageBox("");
 				return;
 			}			
@@ -583,10 +672,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
 
-			if (gal_weight && !spatialErrorRegression(gal_weight, m_obs,
+			if (gal_weight && !spatialErrorRegression(gal_weight, valid_obs,
 													  y, n, x, nX,
 													  &m_DR, true, m_gauge)) {
-				wxMessageBox("Error: the inverse matrix is ill-conditioned.");
+				wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -607,7 +696,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			gal_weight = NULL;
 
 		} else {
-			wxMessageBox("wrong model number");
+			wxMessageBox(_("wrong model number"));
 			UpdateMessageBox("");
 			return;
 		}
@@ -616,6 +705,12 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             // reset regressModel after auto
             RegressModel = 4;
         }
+        
+        
+        if (valid_obs == m_obs) {
+            delete[] gal_weight;
+        }
+        
 	} else {
 		DiagnosticReport m_DR(n, nX, m_constant_term, false, RegressModel);
 		SetXVariableNames(&m_DR);
@@ -625,7 +720,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		if (!classicalRegression((GalElement*)NULL, m_obs, y, n, x, nX, &m_DR, 
 								 m_constant_term, false, m_gauge,
 								 do_white_test)) {
-			wxMessageBox("Error: the inverse matrix is ill-conditioned.");
+			wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
 			m_OpenDump = false;
 			OnCResetClick(event);
 			UpdateMessageBox("");
@@ -647,20 +742,24 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		//GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
 		DisplayRegression(logReport);
 	}
-	
+
+    
+	for (int i = 0; i < sz + 1; i++) {
+        delete [] x[i];
+    }
+    delete[] x;
+    delete [] y;
 
     
 	EnablingItems();
 	//FindWindow(XRCID("ID_RUN"))->Enable(false);
 	UpdateMessageBox("done");
-	
-	LOG_MSG("Exiting RegressionDlg::OnRunClick");
 }
 
 void RegressionDlg::DisplayRegression(wxString dump)
 {
     wxDateTime now = wxDateTime::Now();
-    dump = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION\n----------\n" + dump;
+    dump = ">>" + now.FormatDate() + " " + now.FormatTime() + _("\nREGRESSION\n----------\n") + dump;
     if (regReportDlg == 0) {
         regReportDlg = new RegressionReportDlg(this, dump);
         regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(RegressionDlg::OnReportClose), NULL, this);
@@ -677,6 +776,7 @@ void RegressionDlg::SetupXNames(bool m_constant_term)
 }
 void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 {
+    wxLogMessage(_("Click RegressionDlg::OnViewResultsClick"));
  	if (m_OpenDump) {
 		GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
 	}
@@ -684,9 +784,12 @@ void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 
 void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 {
- 	if (!m_OpenDump) return;
+    wxLogMessage(_("Click RegressionDlg::OnSaveToTxtFileClick"));
+    
+ 	if (!m_OpenDump)
+        return;
 	
-	wxFileDialog dlg( this, "Regression Output Text File", wxEmptyString,
+	wxFileDialog dlg( this, _("Regression Output Text File"), wxEmptyString,
 					 wxEmptyString,
 					 "TXT files (*.txt)|*.txt",
 					 wxFD_SAVE );
@@ -700,10 +803,11 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 	// Prompt for overwrite permission
 	if (wxFileExists(new_txt)) {
 		wxString msg;
-		msg << new_txt << " already exists.  OK to overwrite?";
-		wxMessageDialog dlg (this, msg, "Overwrite?",
+		msg << new_txt << _(" already exists.  OK to overwrite?");
+		wxMessageDialog dlg (this, msg, _("Overwrite?"),
 							 wxYES_NO | wxCANCEL | wxNO_DEFAULT);
-		if (dlg.ShowModal() != wxID_YES) return;
+		if (dlg.ShowModal() != wxID_YES)
+            return;
 	}
 	
 	bool failed = false;
@@ -729,7 +833,7 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 	
 	if (failed) {
 		wxString msg;
-		msg << "Unable to overwrite " << new_txt;
+		msg << _("Unable to overwrite ") << new_txt;
 		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
@@ -790,6 +894,8 @@ void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCResetClick");
+    
 	logReport = wxEmptyString;
 	lastSelection = 1;
 	nVarName = 0;
@@ -857,10 +963,11 @@ void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnCSaveRegressionClick");
+    wxLogMessage("Click RegressionDlg::OnCSaveRegressionClick");
 	if (!table_int) return;
 	int n_obs = table_int->GetNumberRows();
-	
+
+    std::vector<bool> save_undefs(n_obs);
 	std::vector<double> yhat(table_int->GetNumberRows());
 	std::vector<double> resid(table_int->GetNumberRows());
 	std::vector<double> prederr(RegressModel > 1 ? n_obs : 0);
@@ -872,6 +979,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 		for (int i=0; i<n_obs; i++) {
 			yhat[i] = m_yhat1[i];
 			resid[i] = m_resid1[i];
+            save_undefs[i] = undefs[i];
 		}
 	} else if (RegressModel==2) {
 		pre = "LAG_";
@@ -879,6 +987,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 			yhat[i] = m_yhat2[i];
 			resid[i] = m_resid2[i];
 			prederr[i] = m_prederr2[i];
+            save_undefs[i] = undefs[i];
 		}
 	} else { // RegressModel==3
 		pre = "ERR_";
@@ -886,21 +995,25 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 			yhat[i] = m_yhat3[i];
 			resid[i] = m_resid3[i];
 			prederr[i] = m_prederr3[i];
+            save_undefs[i] = undefs[i];
 		}
 	}	
 	
 	data[0].d_val = &yhat;
+    data[0].undefined = &save_undefs;
 	data[0].label = "Predicted Value";
 	data[0].field_default = pre + "PREDIC";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &resid;
+    data[1].undefined = &save_undefs;
 	data[1].label = "Residual";
 	data[1].field_default = pre + "RESIDU";
 	data[1].type = GdaConst::double_type;
 		
 	if (RegressModel > 1) {
 		data[2].d_val = &prederr;
+        data[2].undefined = &save_undefs;
 		data[2].label = "Prediction Error";
 		data[2].field_default = pre + "PRDERR";
 		data[2].type = GdaConst::double_type;
@@ -912,27 +1025,26 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	dlg.ShowModal();	
 	
 	if (project->FindTableGrid()) project->FindTableGrid()->Refresh();
-	LOG_MSG("Exiting RegressionDlg::OnCSaveRegressionClick");
 }
 
 void RegressionDlg::OnCloseClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RegressionDlg::OnCloseClick");
+    wxLogMessage("Click RegressionDlg::OnCloseClick");
+    
 	event.Skip();
 	EndDialog(wxID_CLOSE);
 	Destroy();
-	LOG_MSG("Entering RegressionDlg::OnCloseClick");
 }
 
 void RegressionDlg::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("Entering RegressionDlg::OnClose");
 	Destroy();
-	LOG_MSG("Exiting RegressionDlg::OnClose");
 }
 
 void RegressionDlg::OnCOpenWeightClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCOpenWeightClick");
+    
 	GdaFrame::GetGdaFrame()->OnToolsWeightsManager(event);
 	bool m_Run1 = m_independentlist->GetCount() > 0;
 	bool enable_run = (m_Run1 &&
@@ -1074,6 +1186,8 @@ boost::uuids::uuid RegressionDlg::GetWeightsId()
 
 void RegressionDlg::OnCWeightCheckClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCWeightCheckClick");
+    
 	b_done1 = b_done2 = b_done3 = false;
 	EnablingItems();
 
@@ -1101,7 +1215,6 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 												 int Obs, int nX,
 												 bool do_white_test)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowClassicalResults");
 	wxString f; // temporary formatting string
 	wxString slog;
 	
@@ -1261,7 +1374,7 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 		slog << "        PREDICTED        RESIDUAL\n"; cnt++;
 		double *res = r->GetResidual();
 		double *yh = r->GetYHAT();
-		for (int i=0; i<m_obs; i++) {
+		for (int i=0; i<Obs; i++) {
 			slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f\n",
 									 i+1, y[i], yh[i], res[i]); cnt++;
 		}
@@ -1274,16 +1387,12 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	
 	slog << "\n\n"; cnt++; cnt++;
 	logReport << slog;
-	
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
-	LOG_MSG("Exiting RegressionDlg::printAndShowClassicalResults");
 }
 
 void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 										   const wxString& wname,
 										   DiagnosticReport *r, int Obs, int nX)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowLagResults");
 	wxString f; // temporary formatting string
 	wxString slog;
 	
@@ -1392,7 +1501,7 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 		double *res  = r->GetResidual();
 		double *yh = r->GetYHAT();
 		double *pe = r->GetPredError();
-		for (int i=0; i<m_obs; i++) {
+		for (int i=0; i<Obs; i++) {
 			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
 			slog << wxString::Format(f, i+1, y[i], yh[i], res[i], pe[i]);
 		}
@@ -1404,8 +1513,6 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
-	LOG_MSG("Exiting RegressionDlg::printAndShowLagResults");
 }
 
 void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
@@ -1413,7 +1520,6 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 											 DiagnosticReport *r,
 											 int Obs, int nX)
 {
-	LOG_MSG("Entering RegressionDlg::printAndShowErrorResults");
 	wxString m_Yname = m_dependent->GetValue();
 	wxString f; // temporary formatting string
 	wxString slog;
@@ -1529,14 +1635,12 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 	slog <<  " ================================\n\n"; cnt++; cnt++;
 	
 	logReport << slog;
-	LOG_MSG(wxString::Format("%d lines written to logReport.", cnt));
-	LOG_MSG("Exiting RegressionDlg::printAndShowErrorResults");
 }
-
-
 
 void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCRadio1Selected");
+    
 	m_Run = false;
 	RegressModel = 1;
 	UpdateMessageBox(" ");
@@ -1547,6 +1651,8 @@ void RegressionDlg::OnCRadio1Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCRadio2Selected");
+    
 	m_Run = false;
 	RegressModel = 2;
 	UpdateMessageBox(" ");
@@ -1557,6 +1663,8 @@ void RegressionDlg::OnCRadio2Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCRadio3Selected");
+    
 	m_Run = false;
 	RegressModel = 3;
 	UpdateMessageBox(" ");
@@ -1567,6 +1675,8 @@ void RegressionDlg::OnCRadio3Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnCRadio4Selected( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCRadio4Selected");
+    
 	m_Run = false;
 	RegressModel = 4;
 	UpdateMessageBox(" ");
@@ -1577,17 +1687,21 @@ void RegressionDlg::OnCRadio4Selected( wxCommandEvent& event )
 
 void RegressionDlg::OnStandardizeClick( wxCommandEvent& event )
 {
-	wxMessageBox("row standardization is by default");
+	wxLogMessage("row standardization is by default");
 	// m_standardize->SetValue(true);
 }
 
 void RegressionDlg::OnPredValCbClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnPredValCbClick");
+    
 	m_output1 = m_pred_val_cb->GetValue() == 1;
 }
 
 void RegressionDlg::OnCoefVarMatrixCbClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click RegressionDlg::OnCoefVarMatrixCbClick");
+    
 	m_output2 = m_coef_var_matrix_cb->GetValue() == 1;
 }
 
@@ -1601,7 +1715,6 @@ This could be made more intelligent in the future, but is probably good
 enough for now. */
 void RegressionDlg::update(TableState* o)
 {
-	LOG_MSG("Entering RegressionDlg::update(TableState*)");
 	bool add_vars_only_event = false;
 	TableState::EventType et = o->GetEventType();
 	if (et == TableState::cols_delta) {
@@ -1616,11 +1729,8 @@ void RegressionDlg::update(TableState* o)
 			// is safe to query the table for details about new columns
 			BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 				wxString name = e.group_name;
-				LOG(name);
 				int id = table_int->FindColId(name);
-				LOG(id);
 				bool tm_vari = table_int->IsColTimeVariant(id);
-				LOG(tm_vari);
 				if (tm_vari) {
 					for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
 						wxString nm = name;
@@ -1628,13 +1738,11 @@ void RegressionDlg::update(TableState* o)
 						name_to_nm[nm] = name;
 						name_to_tm_id[nm] = t;
 						m_varlist->Append(nm);
-						LOG_MSG("Appending: " + nm);
 					}
 				} else {
 					name_to_nm[name] = name;
 					name_to_tm_id[name] = 0;
 					m_varlist->Append(name);
-					LOG_MSG("Appending: " + name);
 				}
 			}
 		}
@@ -1644,20 +1752,16 @@ void RegressionDlg::update(TableState* o)
 		add_vars_only_event = true;
 	}
 	if (!add_vars_only_event) {
-		LOG_MSG("TableState event not just simple variable addition.  "
-				"Reset dialog");
 		// default is to reset dialog
 		//wxCommandEvent event;
 		//m_OpenDump = false;
 		//OnCResetClick(event);
 		//kUpdateMessageBox("");
 	}
-	LOG_MSG("Exiting RegressionDlg::update(TableState*)");
 }
 
 void RegressionDlg::update(WeightsManState* o)
 {
-	LOG_MSG("In RegressionDlg::update(WeightsManState*)");
 	// Need to refresh weights list
 	InitWeightsList();
 	bool m_Run1 = m_independentlist->GetCount() > 0;

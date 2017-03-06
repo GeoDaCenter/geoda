@@ -55,7 +55,7 @@ public:
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -86,14 +86,13 @@ protected:
 							int cols, int ivals);
 	
 	bool full_map_redraw_needed;
-	std::vector<double> X;
-	std::vector<double> Y;
 	
 	static const int HIST_VAR; // histogram variable
 	
 	// size = time_steps if HIST_VAR is time variant
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
+    std::vector<std::vector<bool> > undef_tms;
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
@@ -136,7 +135,7 @@ public:
     ConditionalHistogramFrame(wxFrame *parent, Project* project,
 							  const std::vector<GdaVarTools::VarInfo>& var_info,
 							  const std::vector<int>& col_ids,
-							  const wxString& title = "Conditional Histogram",
+							  const wxString& title = _("Conditional Histogram"),
 							  const wxPoint& pos = wxDefaultPosition,
 							  const wxSize& size = wxDefaultSize,
 							  const long style = wxDEFAULT_FRAME_STYLE);

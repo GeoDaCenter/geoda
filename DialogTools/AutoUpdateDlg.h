@@ -35,6 +35,7 @@ namespace AutoUpdate {
     wxString GetCheckList();
     wxString GetVersion(wxString checklist);
     wxString GetUpdateUrl(wxString checklist);
+    wxString GetUpdateMsg(wxString checklist);
 }
 
 class AutoUpdateDlg: public wxDialog
@@ -42,9 +43,9 @@ class AutoUpdateDlg: public wxDialog
 public:
     AutoUpdateDlg(wxWindow* parent, bool showSkip = false,
                wxWindowID id = wxID_ANY,
-               const wxString& title = "GeoDa Update Dialog",
+               const wxString& title = _("GeoDa Update Dialog"),
                const wxPoint& pos = wxDefaultPosition,
-               const wxSize& size = wxSize(580,220));
+               const wxSize& size = wxSize(580,240));
     
     wxString GetVersion();
     

@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../FramesManager.h"
@@ -46,23 +47,20 @@ END_EVENT_TABLE()
 
 DataMovieTimer::DataMovieTimer() : data_movie_dlg(0)
 {
-	LOG_MSG("In DataMovieTimer::DataMovieTimer");
 }
 
 DataMovieTimer::DataMovieTimer(DataMovieDlg* dlg) :
 	data_movie_dlg(dlg)
 {
-	LOG_MSG("In DataMovieTimer::DataMovieTimer");
 }
 
 DataMovieTimer::~DataMovieTimer()
 {
-	LOG_MSG("In DataMovieTimer::~DataMovieTimer");
 	data_movie_dlg = 0;
 }
 
-void DataMovieTimer::Notify() {
-	LOG_MSG("In DataMovieTimer::Notify");
+void DataMovieTimer::Notify()
+{
 	if (data_movie_dlg) data_movie_dlg->TimerCall();
 }
 
@@ -82,7 +80,7 @@ cur_field_choice(""), cur_field_choice_tm(0),
 is_ascending(true), is_cumulative(true),
 all_init(false)
 {
-	LOG_MSG("Entering DataMovieDlg::DataMovieDlg");
+	wxLogMessage("Open DataMovieDlg.");
 	SetParent(parent);
 	wxXmlResource::Get()->LoadDialog(this, GetParent(),
 									 "ID_DATA_MOVIE_DLG");
@@ -145,8 +143,6 @@ all_init(false)
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
 	SetMinSize(wxSize(100,50));
-	
-	LOG_MSG("Exiting DataMovieDlg::DataMovieDlg");
 }
 
 DataMovieDlg::~DataMovieDlg()
@@ -158,15 +154,15 @@ DataMovieDlg::~DataMovieDlg()
 
 void DataMovieDlg::OnClose(wxCloseEvent& ev)
 {
-	LOG_MSG("Entering DataMovieDlg::OnClose");
+	wxLogMessage("Close DataMovieDlg::OnClose");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
-	LOG_MSG("Exiting DataMovieDlg::OnClose");
 }
 
 void DataMovieDlg::OnMoveSlider(wxCommandEvent& ev)
 {
+	wxLogMessage("In DataMovieDlg::OnMoveSlider");
 	if (!all_init || ignore_slider_event) return;
 	if (playing) StopPlaying();
 	ChangePosNum(GetSliderPosNum());
@@ -175,17 +171,15 @@ void DataMovieDlg::OnMoveSlider(wxCommandEvent& ev)
 
 void DataMovieDlg::OnMoveSpeedSlider(wxCommandEvent& ev)
 {
+	wxLogMessage("In DataMovieDlg::OnMoveSpeedSlider");
 	if (!all_init) return;
 	UpdateDelayFromSlider();
 }
 
 void DataMovieDlg::ChangePosNum(int new_pos_num)
 {
-	LOG_MSG("In DataMovieDlg::ChangePosNum");
 	if (!all_init) return;
-	LOG(new_pos_num);
 	int slider_val = slider->GetValue();
-	LOG(slider_val);
 	slider->SetValue(new_pos_num);
 	SetCurTxt(new_pos_num);
 	if (new_pos_num == 0) {
@@ -244,6 +238,7 @@ void DataMovieDlg::StopPlaying()
 
 void DataMovieDlg::OnPlayPauseButton(wxCommandEvent& ev)
 {
+    wxLogMessage("DataMovieDlg::OnPlayPauseButton");
 	if (!all_init) return;
 	if (playing) {
 		// stop playing
@@ -270,6 +265,7 @@ void DataMovieDlg::OnPlayPauseButton(wxCommandEvent& ev)
 
 void DataMovieDlg::OnStepForwardButton(wxCommandEvent& ev)
 {
+    wxLogMessage("DataMovieDlg::OnStepForwardButton");
 	if (!all_init) return;
 	if (playing) StopPlaying();
 	int new_slider_val = GetSliderPosNum()+1;
@@ -279,6 +275,7 @@ void DataMovieDlg::OnStepForwardButton(wxCommandEvent& ev)
 
 void DataMovieDlg::OnStepBackButton(wxCommandEvent& ev)
 {
+    wxLogMessage("DataMovieDlg::OnStepBackButton");
 	if (!all_init) return;
 	if (playing) StopPlaying();
 	int new_slider_val = GetSliderPosNum()-1;
@@ -296,12 +293,14 @@ void DataMovieDlg::ChangeSpeed(int delay_ms)
 
 void DataMovieDlg::OnReverseCheckBox(wxCommandEvent& ev)
 {
+    wxLogMessage("DataMovieDlg::OnReverseCheckBox");
 	if (!all_init) return;
 	forward = (reverse_cb->GetValue() == 0);
 }
 
 void DataMovieDlg::OnLoopCheckBox(wxCommandEvent& ev)
 {
+    wxLogMessage("DataMovieDlg::OnLoopCheckBox");
 	if (!all_init) return;
 	loop = (loop_cb->GetValue() == 1);
 }
@@ -314,7 +313,6 @@ void DataMovieDlg::OnLoopCheckBox(wxCommandEvent& ev)
  */
 void DataMovieDlg::InitFieldChoices()
 {
-	LOG_MSG("Entering DataMovieDlg::InitFieldChoices");
 	if (!all_init) return;
 	wxString cur_fc_str = field_choice->GetStringSelection();
 	int cur_fc_tm_id = field_choice_tm->GetSelection();
@@ -353,13 +351,11 @@ void DataMovieDlg::InitFieldChoices()
 	}
 	
 	EnableControls(field_choice->FindString(cur_fc_str) != wxNOT_FOUND);
-	LOG(table_int->IsColTimeVariant(cur_fc_str));
-	LOG_MSG("Exiting DataMovieDlg::InitFieldChoices");
 }
 
 void DataMovieDlg::OnFieldChoice(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering DataMovieDlg::OnFieldChoice");
+	wxLogMessage("Entering DataMovieDlg::OnFieldChoice");
 	wxString cur_fc_str = field_choice->GetStringSelection();
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
 	field_choice_tm->Enable(is_tm_var);
@@ -369,26 +365,26 @@ void DataMovieDlg::OnFieldChoice(wxCommandEvent& ev)
 	InitFieldChoices();
 	InitNewFieldChoice();
 	ChangePosNum(GetSliderPosNum());
-	LOG_MSG("Exiting DataMovieDlg::OnFieldChoice");
 }
 
 void DataMovieDlg::OnFieldChoiceTm(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering DataMovieDlg::OnFieldChoiceTm");
+	wxLogMessage("Entering DataMovieDlg::OnFieldChoiceTm");
 	InitFieldChoices();
 	InitNewFieldChoice();
 	ChangePosNum(GetSliderPosNum());
-	LOG_MSG("Exiting DataMovieDlg::OnFieldChoiceTm");
 }
 
 void DataMovieDlg::OnCumulativeCheckBox(wxCommandEvent& ev)
 {
+	wxLogMessage("Entering DataMovieDlg::OnCumulativeCheckBox");
 	if (!all_init) return;
 	is_cumulative = cumulative_cb->GetValue() == 1;
 }
 
 void DataMovieDlg::OnAscendingRB(wxCommandEvent& ev)
 {
+	wxLogMessage("Entering DataMovieDlg::OnAscendingRB");
 	if (!all_init) return;
 	is_ascending = true;
 	min_label_txt->SetLabel("min:");
@@ -399,6 +395,7 @@ void DataMovieDlg::OnAscendingRB(wxCommandEvent& ev)
 
 void DataMovieDlg::OnDescendingRB(wxCommandEvent& ev)
 {
+	wxLogMessage("Entering DataMovieDlg::OnDescendingRB");
 	if (!all_init) return;
 	is_ascending = false;
 	min_label_txt->SetLabel("max:");
@@ -439,7 +436,6 @@ void DataMovieDlg::EnableControls(bool enable)
  */
 void DataMovieDlg::InitNewFieldChoice()
 {
-	LOG_MSG("Entering DataMovieDlg::InitNewFieldChoice");
 	if (cur_field_choice.IsEmpty()) {
 		EnableControls(false);
 		return;
@@ -459,11 +455,8 @@ void DataMovieDlg::InitNewFieldChoice()
 		std::sort(data_sorted.begin(), data_sorted.end(),
 				  Gda::dbl_int_pair_cmp_greater);
 	}
-	LOG(data_sorted[0].first);
-	LOG(data_sorted[num_obs-1].first);
 	min_txt->SetLabelText(GenUtils::DblToStr(data_sorted[0].first));
 	max_txt->SetLabelText(GenUtils::DblToStr(data_sorted[num_obs-1].first));
-	LOG_MSG("Exiting DataMovieDlg::InitNewFieldChoice");
 }
 
 int DataMovieDlg::GetSliderPosNum()
@@ -534,17 +527,16 @@ void DataMovieDlg::update(FramesManager* o)
 
 void DataMovieDlg::update(TableState* o)
 {
-	LOG_MSG("Entering DataMovieDlg::update(TableState* o)");
 	InitFieldChoices();
-	LOG_MSG("Exiting DataMovieDlg::update(TableState* o)");
 }
 
 void DataMovieDlg::OnKeyEvent(wxKeyEvent& event)
 {
+    wxLogMessage("In DataMovieDlg::OnKeyEvent");
+    
 	if (event.GetModifiers() == wxMOD_CMD &&
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
-		LOG(del);
 		time_state->SetCurrTime(time_state->GetCurrTime() + del);
 		if (time_state->GetCurrTime() < 0) {
 			time_state->SetCurrTime(time_state->GetTimeSteps()-1);

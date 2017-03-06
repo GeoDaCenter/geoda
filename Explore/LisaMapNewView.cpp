@@ -31,6 +31,8 @@
 #include "../Project.h"
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
+#include "../DialogTools/VariableSettingsDlg.h"
+#include "ConditionalClusterMapView.h"
 #include "LisaCoordinator.h"
 #include "LisaMapNewView.h"
 #include "../ShpFile.h"
@@ -43,16 +45,18 @@ BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
+using namespace std;
+
 LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project,
-								   LisaCoordinator* lisa_coordinator,
-								   CatClassification::CatClassifType theme_type_s,
-								   bool isBivariate, bool isEBRate,
-								   const wxPoint& pos, const wxSize& size)
-: MapCanvas(parent, t_frame, project,
-			   std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
-			   CatClassification::no_theme,
-			   no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+                             Project* project,
+                             LisaCoordinator* lisa_coordinator,
+                             CatClassification::CatClassifType theme_type_s,
+                             bool isBivariate, bool isEBRate,
+                             const wxPoint& pos, const wxSize& size)
+:MapCanvas(parent, t_frame, project,
+           vector<GdaVarTools::VarInfo>(0), vector<int>(0),
+           CatClassification::no_theme,
+           no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 lisa_coord(lisa_coordinator),
 is_clust(theme_type_s==CatClassification::lisa_categories),
 is_bi(isBivariate),
@@ -129,9 +133,9 @@ wxString LisaMapCanvas::GetCanvasTitle()
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by LISA maps */
-bool LisaMapCanvas::ChangeMapType(
-					CatClassification::CatClassifType new_map_theme,
-					SmoothingType new_map_smoothing)
+bool
+LisaMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
+                             SmoothingType new_map_smoothing)
 {
 	LOG_MSG("In LisaMapCanvas::ChangeMapType");
 	return false;
@@ -205,12 +209,34 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-		if (lisa_coord->GetHasIsolates(t)) num_cats++;
-		if (lisa_coord->GetHasUndefined(t)) num_cats++;
+        double stop_sig = 0;
+        
+		if (lisa_coord->GetHasIsolates(t))
+            num_cats++;
+		if (lisa_coord->GetHasUndefined(t))
+            num_cats++;
 		if (is_clust) {
 			num_cats += 5;
 		} else {
-			num_cats += 6-lisa_coord->GetSignificanceFilter();
+            // significance map
+			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+			int s_f = lisa_coord->GetSignificanceFilter();
+            num_cats += 6 - s_f;
+            
+            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            double sig_cutoff = lisa_coord->significance_cutoff;
+            int set_perm = lisa_coord->permutations;
+            stop_sig = 1.0 / (1.0 + set_perm);
+            
+			if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+                num_cats -= 1;
+            }
 		}
 		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
 		
@@ -251,29 +277,38 @@ void LisaMapCanvas::CreateAndUpdateCategories()
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
+   
+            int skip_cat = 0;
+            if (s_f <=4 && stop_sig <= 0.0001) {
+                cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
+                cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
+            } else skip_cat++;
             
-			cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-			cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-			if (s_f <= 3) {
+			if (s_f <= 3 && stop_sig <= 0.001) {
 				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));	
-			}
-			if (s_f <= 2) {
+				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
+            } else skip_cat++;
+            
+			if (s_f <= 2 && stop_sig <= 0.01) {
 				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
 				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
-			}
+            } else skip_cat++;
+            
 			if (s_f <= 1) {
 				cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
 				cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
 			}
 			if (lisa_coord->GetHasIsolates(t) &&
 				lisa_coord->GetHasUndefined(t)) {
-				isolates_cat = 6-s_f;
-				undefined_cat = 7-s_f;
+				isolates_cat = 6 - s_f - skip_cat;
+				undefined_cat = 7 - s_f - skip_cat;
+                
 			} else if (lisa_coord->GetHasUndefined(t)) {
-				undefined_cat = 6-s_f;
+				undefined_cat = 6 -s_f - skip_cat;
+                
 			} else if (lisa_coord->GetHasIsolates(t)) {
-				isolates_cat = 6-s_f;
+				isolates_cat = 6 - s_f -skip_cat;
+                
 			}
 		}
 		if (undefined_cat != -1) {
@@ -370,11 +405,11 @@ IMPLEMENT_CLASS(LisaMapFrame, MapFrame)
 END_EVENT_TABLE()
 
 LisaMapFrame::LisaMapFrame(wxFrame *parent, Project* project,
-								 LisaCoordinator* lisa_coordinator,
-								 bool isClusterMap, bool isBivariate,
-								 bool isEBRate,
-								 const wxPoint& pos, const wxSize& size,
-								 const long style)
+                           LisaCoordinator* lisa_coordinator,
+                           bool isClusterMap, bool isBivariate,
+                           bool isEBRate,
+                           const wxPoint& pos, const wxSize& size,
+                           const long style)
 : MapFrame(parent, project, pos, size, style),
 lisa_coord(lisa_coordinator)
 {
@@ -388,23 +423,24 @@ lisa_coord(lisa_coordinator)
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
+    CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::lisa_categories : CatClassification::lisa_significance;
+    
     wxPanel* rpanel = new wxPanel(splitter_win);
-	template_canvas = new LisaMapCanvas(rpanel, this, project,
-                                       lisa_coordinator,
-                                       (isClusterMap ?
-                                        CatClassification::lisa_categories :
-                                        CatClassification::lisa_significance),
-                                       isBivariate, isEBRate,
-                                       wxDefaultPosition,
+    template_canvas = new LisaMapCanvas(rpanel, this, project,
+                                        lisa_coordinator,
+                                        theme_type_s,
+                                        isBivariate,
+                                        isEBRate,
+                                        wxDefaultPosition,
                                         wxDefaultSize);
-                                       //wxSize(width,height));
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
 	
 	wxPanel* lpanel = new wxPanel(splitter_win);
-    template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+    template_legend = new MapNewLegend(lpanel, template_canvas,
+                                       wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
     template_legend->GetContainingSizer()->Detach(template_legend);
     lbox->Add(template_legend, 1, wxEXPAND);
@@ -606,6 +642,11 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
     } else {
         data.resize(3);
     }
+   
+    std::vector<bool> undefs(lisa_coord->num_obs, false);
+    for (int i=0; i<lisa_coord->undef_data[0][t].size(); i++){
+        undefs[i] = undefs[i] || lisa_coord->undef_data[0][t][i];
+    }
     
 	std::vector<double> tempLocalMoran(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
@@ -615,6 +656,7 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[0].label = "Lisa Indices";
 	data[0].field_default = "LISA_I";
 	data[0].type = GdaConst::double_type;
+    data[0].undefined = &undefs;
 	
 	double cuttoff = lisa_coord->significance_cutoff;
 	double* p = lisa_coord->sig_local_moran_vecs[t];
@@ -631,6 +673,7 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].label = "Clusters";
 	data[1].field_default = "LISA_CL";
 	data[1].type = GdaConst::long64_type;
+    data[1].undefined = &undefs;
 	
 	std::vector<double> sig(lisa_coord->num_obs);
     std::vector<double> diff(lisa_coord->num_obs);
@@ -649,13 +692,15 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[2].d_val = &sig;
 	data[2].label = "Significance";
 	data[2].field_default = "LISA_P";
-	data[2].type = GdaConst::double_type;	
+	data[2].type = GdaConst::double_type;
+    data[2].undefined = &undefs;
 	
     if (lc->is_diff) {
         data[3].d_val = &diff;
         data[3].label = "Diff Values";
         data[3].field_default = "DIFF_VAL2";
         data[3].type = GdaConst::double_type;
+        data[3].undefined = &undefs;
     }
     
 	SaveToTableDlg dlg(project, this, data,
@@ -715,12 +760,13 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
+    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
 	
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
 			elem[i] = true;
-			const GalElement& e = lisa_coord->W[i];
+			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -746,12 +792,13 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	int* clust = lisa_coord->cluster_vecs[ts];
 	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
 	int sf = lisa_coord->significance_filter;
-	
+    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
+    
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<lisa_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
 			elem[i] = true;
-			const GalElement& e = lisa_coord->W[i];
+			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
 				elem[e[j]] = true;
 			}
@@ -760,6 +807,63 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	CoreSelectHelper(elem);
 	
 	LOG_MSG("Exiting LisaMapFrame::OnSelectCoresAndNeighbors");
+}
+
+void LisaMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+{
+	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    GalWeight* gal_weights = lisa_coord->Gal_vecs_orig[ts];
+   
+    HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& h = hs.GetHighlight();
+    int nh_cnt = 0;
+    std::vector<bool> add_elem(gal_weights->num_obs, false);
+    
+    std::vector<int> new_highlight_ids;
+    
+    for (int i=0; i<gal_weights->num_obs; i++) {
+        if (h[i]) {
+            GalElement& e = gal_weights->gal[i];
+            for (int j=0, jend=e.Size(); j<jend; j++) {
+                int obs = e[j];
+                if (!h[obs] && !add_elem[obs]) {
+                    add_elem[obs] = true;
+                    new_highlight_ids.push_back(obs);
+                }
+            }
+        }
+    }
+    
+    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
+        h[ new_highlight_ids[i] ] = true;
+        nh_cnt ++;
+    }
+    
+    if (nh_cnt > 0) {
+        hs.SetEventType(HLStateInt::delta);
+        hs.notifyObservers();
+    }
+}
+
+void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
+{
+    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
+                            false, false,
+                            _("Conditional LISA Map Variables"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"));
+    
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    
+	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
+    wxString title = lc->GetCanvasTitle();
+    ConditionalClusterMapFrame* subframe =
+    new ConditionalClusterMapFrame(this, project,
+                                   dlg.var_info, dlg.col_ids, lisa_coord,
+                                   title, wxDefaultPosition,
+                                   GdaConst::cond_view_default_size);
 }
 
 /** Called by LisaCoordinator to notify that state has changed.  State changes

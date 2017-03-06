@@ -53,9 +53,11 @@ build-geoda-mac:
 	mkdir -p build/GeoDa.app/Contents
 	mkdir -p build/GeoDa.app/Contents/MacOS
 	mkdir -p build/GeoDa.app/Contents/MacOS/basemap_cache
+	mkdir -p build/GeoDa.app/Contents/MacOS/web_plugins
 	mkdir -p build/GeoDa.app/Contents/Resources
 	mkdir -p build/GeoDa.app/Contents/Resources/gdaldata
 	mkdir -p build/GeoDa.app/Contents/Resources/plugins
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/web_plugins/*.* build/GeoDa.app/Contents/Resources/
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/GeoDa.app/Contents/MacOS
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa.app/Contents/MacOS/GeoDa
 	cp run.sh build/GeoDa.app/Contents/MacOS/run.sh

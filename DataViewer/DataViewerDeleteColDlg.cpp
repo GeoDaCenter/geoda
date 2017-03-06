@@ -41,11 +41,11 @@ DataViewerDeleteColDlg::DataViewerDeleteColDlg( TableInterface* table_int_s,
 											   wxWindow* parent)
 : table_int(table_int_s)
 {
-    LOG_MSG("Entering DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
+    wxLogMessage("Open DataViewerDeleteColDlg.");
 	SetParent(parent);
     CreateControls();
     Centre();
-    LOG_MSG("Exiting DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
+
 }
 
 void DataViewerDeleteColDlg::CreateControls()
@@ -64,6 +64,8 @@ void DataViewerDeleteColDlg::CreateControls()
 
 void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerDeleteColDlg::OnDelete()");
+    
     wxArrayInt selections;
     m_field->GetSelections(selections);
     
@@ -80,7 +82,8 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
     	int col_del_pos = col_id_map[idx];
         wxString del_name;
     	del_name = table_int->GetColName(col_del_pos);
-
+        
+        wxLogMessage(del_name);
 
     	try{
     		table_int->DeleteCol(col_del_pos);
@@ -103,6 +106,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 
 void DataViewerDeleteColDlg::OnChoice( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerDeleteColDlg::OnChoice()");
 	m_message->SetLabelText("");
     wxArrayInt selections;
     m_field->GetSelections(selections);

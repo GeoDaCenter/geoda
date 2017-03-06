@@ -107,7 +107,7 @@ install_library()
 #########################################################################
 # install c-ares -- for cURL, prevent crash on Mac oSx with threads
 #########################################################################
-install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
+install_library c-ares-1.10.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/c-ares-1.10.0.tar.gz libcares.a
 
 #########################################################################
 # install cURL
@@ -488,7 +488,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     make clean
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --with-macosx-version-min=10.6 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --prefix=$PREFIX
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

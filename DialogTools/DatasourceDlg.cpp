@@ -26,6 +26,7 @@
 #include <wx/filedlg.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
+#include <wx/frame.h>
 #include <wx/notebook.h>
 #include <wx/progdlg.h>
 #include <wx/regex.h>
@@ -49,6 +50,59 @@
 
 using namespace std;
 
+DatasourceDlg::DatasourceDlg()
+: is_ok_clicked(false), eventLoop(NULL)
+{
+	Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(DatasourceDlg::OnExit) );
+}
+
+DatasourceDlg::~DatasourceDlg()
+{
+    if (eventLoop) {
+        delete eventLoop;
+        eventLoop = NULL;
+    }
+}
+
+int DatasourceDlg::GetType()
+{
+    return type;
+}
+
+int DatasourceDlg::ShowModal()
+{
+    Show(true);
+    
+    // mow to stop execution start a event loop
+    eventLoop = new wxEventLoop;
+    if (eventLoop == NULL)
+        return wxID_CANCEL;
+    
+    eventLoop->Run();
+    
+    if (is_ok_clicked)
+        return wxID_OK;
+    else
+        return wxID_CANCEL;
+}
+
+void DatasourceDlg::EndDialog()
+{
+    eventLoop->Exit();
+    Show(false);
+    //Destroy();
+}
+
+void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
+{
+    EndDialog();
+}
+
+void DatasourceDlg::OnExit(wxCloseEvent& e)
+{
+    EndDialog();
+}
+
 void DatasourceDlg::Init()
 {
     m_ds_menu = NULL;
@@ -57,9 +111,7 @@ void DatasourceDlg::Init()
     // create file type dataset pop-up menu dynamically
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
-    ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
-                 "GeoJSON (*.geojson)|*.geojson|"
-                 "GeoJSON (*.json)|*.json");
+    ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
     ds_names.Add("GeoPackage (*.gpkg)|*.gpkg");
     ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
 
@@ -69,11 +121,7 @@ void DatasourceDlg::Init()
     
     ds_names.Add("Geography Markup Language (*.gml)|*.gml");
     ds_names.Add("Keyhole Markup Language (*.kml)|*.kml");
-    ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
-                 "MapInfo Tab (*.tab)|*.tab|"
-                 "MapInfo MID (*.mid)|*.mid|"
-                 "MapInfo MID (*.mif)|*.mif");
-    ds_names.Add("");
+    ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid");
     ds_names.Add("dBase Database File (*.dbf)|*.dbf");
     ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("MS Excel (*.xls)|*.xls");
@@ -87,15 +135,20 @@ void DatasourceDlg::Init()
     
     // create database tab drop-down list items dynamically
     DBTYPE_ORACLE = "Oracle Spatial Database";
-    if( GeneralWxUtils::isX64() ) DBTYPE_ARCSDE = "ESRI ArcSDE (ver 10.x)";
-    else if ( GeneralWxUtils::isX86() ) DBTYPE_ARCSDE = "ESRI ArcSDE (ver 9.x)";
+    if( GeneralWxUtils::isX64() ) {
+        DBTYPE_ARCSDE = "ESRI ArcSDE (ver 10.x)";
+    } else if ( GeneralWxUtils::isX86() ) {
+        DBTYPE_ARCSDE = "ESRI ArcSDE (ver 9.x)";
+    }
     DBTYPE_POSTGIS = "PostgreSQL/PostGIS Database";
     DBTYPE_MYSQL = "MySQL Spatial Database";
 }
 
 void DatasourceDlg::CreateControls()
 {
+#ifdef __WIN32__
     SetBackgroundColour(*wxWHITE);
+#endif
     
     m_ds_filepath_txt = XRCCTRL(*this, "IDC_FIELD_ASC",wxTextCtrl);
 	m_database_type = XRCCTRL(*this, "IDC_CDS_DB_TYPE",wxChoice);
@@ -106,7 +159,10 @@ void DatasourceDlg::CreateControls()
 	m_database_upwd = XRCCTRL(*this, "IDC_CDS_DB_UPWD",wxTextCtrl);
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
+    
+#ifdef __WIN32__
     m_ds_notebook->SetBackgroundColour(*wxWHITE);
+#endif
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
 	
     m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);
@@ -121,13 +177,13 @@ void DatasourceDlg::CreateControls()
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
-	std::vector<std::string> host_cands =
+	vector<string> host_cands =
 		OGRDataAdapter::GetInstance().GetHistory("db_host");
-	std::vector<std::string> port_cands =
+	vector<string> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
-	std::vector<std::string> uname_cands =
+	vector<string> uname_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_user");
-	std::vector<std::string> name_cands =
+	vector<string> name_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_name");
 
 	m_database_host->SetAutoList(host_cands);
@@ -136,14 +192,14 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    std::vector<std::string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    vector<string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
-        std::string db_info = db_infos[0];
+        string db_info = db_infos[0];
         json_spirit::Value v;
         // try to parse as JSON
         try {
             if (!json_spirit::read( db_info, v)) {
-                throw std::runtime_error("Could not parse title as JSON");
+                throw runtime_error("Could not parse title as JSON");
             }
             json_spirit::Value json_db_type;
             if (GdaJson::findValue(v, json_db_type, "db_type")) {
@@ -187,17 +243,17 @@ void DatasourceDlg::CreateControls()
     }
     
     // get a latest CartoDB account
-    std::vector<std::string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    vector<string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
     if (!cartodb_user.empty()) {
-        std::string user = cartodb_user[0];
+        string user = cartodb_user[0];
         CartoDBProxy::GetInstance().SetUserName(user);
         // control
         m_cartodb_uname->SetValue(user);
     }
     
-    std::vector<std::string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    vector<string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
     if (!cartodb_key.empty()) {
-        std::string key = cartodb_key[0];
+        string key = cartodb_key[0];
         CartoDBProxy::GetInstance().SetKey(key);
         // control
         m_cartodb_key->SetValue(key);
@@ -222,7 +278,6 @@ void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
 				//wxArrayString files;
 				//wxDir::GetAllFiles(name, &files);
 			}
-                
         }
     }
 }
@@ -237,7 +292,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
     GdaConst::DataSourceType ds_type = datasource->GetType();
 
 	if (ds_name.IsEmpty()) {
-        wxString msg = "Can't get layers from unknown datasource. Please complete the datasource fields.";
+        wxString msg = _("Can't get layers from unknown datasource. Please complete the datasource fields.");
 		throw GdaException(msg.mb_str());
 	}
     
@@ -250,7 +305,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
         for	(int i=0; i<n_tables; i++)  {
 			choices[i] = table_names[i];
         }
-		wxSingleChoiceDialog choiceDlg(NULL, "Please select the layer name to connect:", "Layer names", n_tables, choices);
+		wxSingleChoiceDialog choiceDlg(NULL, _("Please select the layer name to connect:"), _("Layer names"), n_tables, choices);
         
 		if (choiceDlg.ShowModal() == wxID_OK) {
 			if (choiceDlg.GetSelection() >= 0) {
@@ -260,11 +315,11 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		delete[] choices;
         
 	} else if ( n_tables == 0) {
-		wxMessageDialog dlg(NULL, "No layer was found in the selected data source.", "Info", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg(NULL, _("No layer was found in the selected data source."), _("Info"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         
 	} else {
-        wxString msg = "No layer has been selected. Please select a layer.";
+        wxString msg = _("No layer has been selected. Please select a layer.");
 		throw GdaException(msg.mb_str());
 	}
 }
@@ -286,7 +341,13 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             }
         }
     }
-    this->PopupMenu(m_ds_menu);
+
+    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+    OnActivate(ae);
+    
+    PopupMenu(m_ds_menu);
+    
+    event.Skip();
 }
 
 /**

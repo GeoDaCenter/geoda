@@ -82,7 +82,6 @@ void SaveButtonManager::SetDbSaveNeeded(bool save_needed)
 
 void SaveButtonManager::update(TableState* o)
 {
-	LOG_MSG("Entering SaveButtonManager::update(TableState*)");
 	bool md_chgs_prev = metadata_chgs_since_last_save;
 	bool db_chgs_prev = db_chgs_since_last_save;
 	
@@ -123,17 +122,10 @@ void SaveButtonManager::update(TableState* o)
 		(metadata_chgs_since_last_save || db_chgs_since_last_save)) {
 		UpdateSaveMenuItems();
 	}
-	
-	LOG(md_chgs_prev);
-	LOG(metadata_chgs_since_last_save);
-	LOG(db_chgs_prev);
-	LOG(db_chgs_since_last_save);
-	LOG_MSG("Exiting SaveButtonManager::update(TableState*)");
 }
 
 void SaveButtonManager::update(WeightsManState* o)
 {
-	LOG_MSG("In SaveButtonManager::update(WeightsManState*)");
 	bool md_chgs_prev = metadata_chgs_since_last_save;
 	metadata_chgs_since_last_save = true;
 	if (!md_chgs_prev && metadata_chgs_since_last_save) {

@@ -55,6 +55,8 @@ public:
 	void UpdateMinMax(int row);
     
     void OnGridComboBox(wxCommandEvent& ev );
+    
+    void OnFieldSelected( wxCommandEvent& ev );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -71,7 +73,6 @@ private:
     
 	wxGrid* field_grid;
 	Project* project;
-	FramesManager* frames_manager;
 	TableInterface* table_int;
 	TableState* table_state;
 		

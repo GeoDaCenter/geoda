@@ -70,9 +70,9 @@ class CovSpHLStateProxy;
 class Project {
 public:
 	Project(const wxString& proj_fname);
-	Project(const wxString& project_title,
-					const wxString& layername,
-					IDataSource* p_datasource);
+    Project(const wxString& project_title,
+            const wxString& layername,
+            IDataSource* p_datasource);
 	virtual ~Project();
 
 	bool IsValid() { return is_project_valid; }
@@ -212,9 +212,10 @@ public:
 	    
 private:
 	bool CommonProjectInit();
-	int InitFromShapefileLayer();
 	bool InitFromOgrLayer();
-	int OpenShpFile(wxFileName shp_fname);
+   
+    // only for ESRI Shapefile .cpg file
+    void SetupEncoding(wxString encode_str);
     
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();

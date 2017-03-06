@@ -19,7 +19,6 @@
 
 #include "ShapeFileTriplet.h"
 #include "../GenUtils.h"
-#include "../logger.h"
 
 #include <wx/string.h>
 
@@ -36,19 +35,11 @@ oShapeFileTriplet::oShapeFileTriplet(const wxString& fname,
 	offset(GdaConst::ShpHeaderSize),
 	dbf(fname.c_str(), dbfdesc,1,numfld), head(s)  
 {
-	LOG_MSG("Entering oShapeFileTriplet::oShapeFileTriplet v.1");
-	LOG(fBox.Bmin.x);
-	LOG(fBox.Bmin.y);
-	LOG(fBox.Bmax.x);
-	LOG(fBox.Bmax.y);
+
 	head.SetFileBox(fBox);
-	LOG(head.BoundingBox().Bmin.x);
-	LOG(head.BoundingBox().Bmin.y);
-	LOG(head.BoundingBox().Bmax.x);
-	LOG(head.BoundingBox().Bmax.y);
+
 	shp << head;
 	shx << head;
-	LOG_MSG("Exiting oShapeFileTriplet::oShapeFileTriplet v.1");
 }
 
 // Use this when we would like to have a very simple dbf file
@@ -64,19 +55,11 @@ oShapeFileTriplet::oShapeFileTriplet(const wxString& fname,
 	offset(GdaConst::ShpHeaderSize),
 	dbf(fname, DBF::InitField(nme, 1),1,1), head(s)  
 {
-	LOG_MSG("Entering oShapeFileTriplet::oShapeFileTriplet v.2");
-	LOG(fBox.Bmin.x);
-	LOG(fBox.Bmin.y);
-	LOG(fBox.Bmax.x);
-	LOG(fBox.Bmax.y);	
+	
 	head.SetFileBox(fBox);
-	LOG(head.BoundingBox().Bmin.x);
-	LOG(head.BoundingBox().Bmin.y);
-	LOG(head.BoundingBox().Bmax.x);
-	LOG(head.BoundingBox().Bmax.y);
+
 	shp << head;
 	shx << head;
-	LOG_MSG("Exitinging oShapeFileTriplet::oShapeFileTriplet v.2");
 }
 
 /* This is only for creating Record Header */

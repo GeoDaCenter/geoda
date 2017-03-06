@@ -32,34 +32,58 @@ class Project;
 class SimpleAxisCanvas : public TemplateCanvas
 {
 	DECLARE_CLASS(SimpleAxisCanvas)
+    SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
+                     HLStateInt* hl_state_int,
+                     const std::vector<double>& X,
+                     const wxString& Xname,
+                     double Xmin, double Xmax,
+                     bool horizontal_orientation, // if false then vert
+                     bool show_axes = true,
+                     bool hide_negative_labels = false,
+                     bool add_auto_padding_min = true,
+                     bool add_auto_padding_max = true,
+                     int number_ticks = -1, // -1 for default
+                     bool force_tick_at_min = false,
+                     bool force_tick_at_max = false,
+                     AxisScale* custom_axis_scale = 0, // overrides many params
+                     bool is_standardized = false,
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
+    
 	SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
-									 HLStateInt* hl_state_int,
-									 const std::vector<double>& X,
-									 const wxString& Xname,
-									 double Xmin, double Xmax,
-									 bool horizontal_orientation, // if false then vert
-									 bool show_axes = true,
-									 bool hide_negative_labels = false,
-									 bool add_auto_padding_min = true,
-									 bool add_auto_padding_max = true,
-									 int number_ticks = -1, // -1 for default
-									 bool force_tick_at_min = false,
-									 bool force_tick_at_max = false,
-									 AxisScale* custom_axis_scale = 0, // overrides many params
-									 const wxPoint& pos = wxDefaultPosition,
-									 const wxSize& size = wxDefaultSize);
+					 HLStateInt* hl_state_int,
+					 const std::vector<double>& X,
+					 const std::vector<bool>& X_undefs,
+					 const wxString& Xname,
+					 double Xmin, double Xmax,
+					 bool horizontal_orientation, // if false then vert
+					 bool show_axes = true,
+					 bool hide_negative_labels = false,
+					 bool add_auto_padding_min = true,
+					 bool add_auto_padding_max = true,
+					 int number_ticks = -1, // -1 for default
+					 bool force_tick_at_min = false,
+					 bool force_tick_at_max = false,
+					 AxisScale* custom_axis_scale = 0, // overrides many params
+                     bool is_standardized = false,
+					 const wxPoint& pos = wxDefaultPosition,
+					 const wxSize& size = wxDefaultSize);
 	virtual ~SimpleAxisCanvas();
 	
 	virtual void UpdateStatusBar();
 	void ShowAxes(bool display);
 	bool IsShowAxes() { return show_axes; }
+    
+    void ViewStandardizedData(bool display);
 	
 protected:
 	virtual void PopulateCanvas();
 	void UpdateMargins();
 	
+    bool is_standardized;
 	bool horiz_orient;
-	const std::vector<double>& X;
+	std::vector<double> X;
+	std::vector<bool> X_undefs;
 	wxString Xname;
 	double Xmin, Xmax;
 	bool show_axes;

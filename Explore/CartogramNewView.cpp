@@ -23,6 +23,7 @@
 #include <set>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
@@ -32,7 +33,6 @@
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
-#include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -40,11 +40,13 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "CartogramNewView.h"
 
+using namespace std;
+
 DorlingCartWorkerThread::DorlingCartWorkerThread(int iters_s,
 								DorlingCartogram* cart_s,
 								wxMutex* worker_list_mutex_s,
 								wxCondition* worker_list_empty_cond_s,
-								std::list<wxThread*> *worker_list_s,
+								list<wxThread*> *worker_list_s,
 								int thread_id_s)
 : wxThread(),
 iters(iters_s), cart(cart_s),
@@ -61,8 +63,6 @@ DorlingCartWorkerThread::~DorlingCartWorkerThread()
 
 wxThread::ExitCode DorlingCartWorkerThread::Entry()
 {
-	LOG_MSG(wxString::Format("DorlingCartWorkerThread %d started", thread_id));
-	
 	// improve by given number iterations
 	cart->improve(iters);
 	
@@ -71,9 +71,7 @@ wxThread::ExitCode DorlingCartWorkerThread::Entry()
 	worker_list->remove(this);
 	// if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
-	LOG_MSG(wxString::Format("DorlingCartWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
-		LOG_MSG("worker_list is empty, so signaling main thread");
 		worker_list_empty_cond->Signal();
 	}
 	
@@ -92,23 +90,27 @@ END_EVENT_TABLE()
 const int CartogramNewCanvas::RAD_VAR = 0; // circle size variable
 const int CartogramNewCanvas::THM_VAR = 1; // circle color variable
 
-CartogramNewCanvas::CartogramNewCanvas(wxWindow *parent,
-									   TemplateFrame* t_frame,
-									   Project* project_s,
-									   const std::vector<GdaVarTools::VarInfo>& v_info,
-									   const std::vector<int>& col_ids,
-									   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, true, true),
-num_obs(project_s->GetNumRecords()), num_time_vals(1), num_categories(6),
-custom_classif_state(0), data(v_info.size()), var_info(v_info),
+CartogramNewCanvas::
+CartogramNewCanvas(wxWindow *parent,
+                   TemplateFrame* t_frame,
+                   Project* project_s,
+                   const vector<GdaVarTools::VarInfo>& v_info,
+                   const vector<int>& col_ids,
+                   const wxPoint& pos, const wxSize& size)
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, true, true),
+num_obs(project_s->GetNumRecords()),
+num_time_vals(1), num_categories(6),
+custom_classif_state(0),
+data(v_info.size()),
+data_undef(v_info.size()),
+var_info(v_info),
 table_int(project_s->GetTableInt()), gal_weight(0),
 full_map_redraw_needed(true),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 improve_table(6), realtime_updates(false), all_init(false)
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering CartogramNewCanvas::CartogramNewCanvas");
 	
 	cat_classif_def.cat_classif_type = CatClassification::no_theme;
 	cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
@@ -119,6 +121,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	for (size_t i=0; i<var_info.size(); i++) {
 		template_frame->AddGroupDependancy(var_info[i].name);
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], data_undef[i]);
 	}
 	
 	for (size_t i=0; i<var_info.size(); i++) {
@@ -131,9 +134,9 @@ improve_table(6), realtime_updates(false), all_init(false)
 		}
 	}
 		
-	std::vector<double> orig_x(num_obs);
-	std::vector<double> orig_y(num_obs);
-	std::vector<double> orig_data(num_obs);
+	vector<double> orig_x(num_obs);
+	vector<double> orig_y(num_obs);
+	vector<double> orig_data(num_obs);
 	project->GetCentroids(orig_x, orig_y);
 	
 	cart_nbr_info = new CartNbrInfo(project->GetVoronoiRookNeighborGal(),
@@ -142,6 +145,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 						  project->GetTableInt()->GetTimeSteps() : 1);
 	carts.resize(num_cart_times);
 	num_improvement_iters.resize(num_cart_times);
+    
 	for (int t=0; t<num_cart_times; t++) {
 		table_int->GetColData(col_ids[RAD_VAR], t, orig_data);
 		carts[t] = new DorlingCartogram(cart_nbr_info, orig_x,
@@ -150,6 +154,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 										var_info[RAD_VAR].max_over_time);
 		num_improvement_iters[t] = 0;
 	}
+    
 	// get timing for single iteration
 	int cur_cart_ts = var_info[RAD_VAR].time;
 	int iter_ms = carts[cur_cart_ts]->improve(1);
@@ -159,14 +164,15 @@ improve_table(6), realtime_updates(false), all_init(false)
 	}
 	num_improvement_iters[cur_cart_ts]++;
 	secs_per_iter = carts[cur_cart_ts]->secs_per_iter;
-	LOG(secs_per_iter);
+    
 	num_cpus = wxThread::GetCPUCount();
-	if (num_cpus < 1) num_cpus = 1;
-	LOG(num_cpus);
+	if (num_cpus < 1)
+        num_cpus = 1;
 	
 	// only improve across all time periods if a single iteration of
 	// the Cartogram takes less than 1 second.
-	if (iter_ms < 1000) ImproveAll(2, 200);
+	if (iter_ms < 1000)
+        ImproveAll(2, 200);
 	UpdateImproveLevelTable();
 	
 	// experiment with outlines that are just slightly brighter than
@@ -191,28 +197,9 @@ improve_table(6), realtime_updates(false), all_init(false)
 	selectable_fill_color = GdaConst::map_default_fill_colour;
 
 	// Note: the shps_orig min/max will depend on the bubble sizes
-	virtual_screen_marg_top = 25;
-	virtual_screen_marg_bottom = 25;
-	virtual_screen_marg_left = 25;
-	virtual_screen_marg_right = 25;	
-	shps_orig_xmin = min_out_x;
-	shps_orig_ymin = min_out_y;
-	shps_orig_xmax = max_out_x;
-	shps_orig_ymax = max_out_y;
-	
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-								   shps_orig_xmax, shps_orig_ymax,
-								   virtual_screen_marg_top,
-								   virtual_screen_marg_bottom,
-								   virtual_screen_marg_left,
-								   virtual_screen_marg_right,
-								   GetVirtualSize().GetWidth(),
-								   GetVirtualSize().GetHeight(),
-								   fixed_aspect_ratio_mode, fit_to_window_mode,
-								   &scale_x, &scale_y, &trans_x, &trans_y, 0, 0,
-								   &current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
+    last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    last_scale_trans.SetMargin(25, 25, 25, 25);
+    last_scale_trans.SetData(min_out_x, min_out_y, max_out_x, max_out_y);
 
 	selectable_shps_type = circles;
 	highlight_color = GdaConst::map_default_highlight_colour;
@@ -226,23 +213,18 @@ improve_table(6), realtime_updates(false), all_init(false)
 	
 	all_init = true;
 	highlight_state->registerObserver(this);
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting CartogramNewCanvas::CartogramNewCanvas");
 }
 
 CartogramNewCanvas::~CartogramNewCanvas()
 {
-	LOG_MSG("Entering CartogramNewCanvas::~CartogramNewCanvas");
 	for (size_t i=0; i<carts.size(); i++) if (carts[i]) delete carts[i];
 	if (cart_nbr_info) delete cart_nbr_info;
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting CartogramNewCanvas::~CartogramNewCanvas");
 }
 
 void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering CartogramNewCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((CartogramNewFrame*) template_frame)->OnActivate(ae);
@@ -256,7 +238,6 @@ void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting CartogramNewCanvas::DisplayRightClickMenu");
 }
 
 void CartogramNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -274,8 +255,8 @@ void CartogramNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	}
 
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 
@@ -418,7 +399,7 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
 								   CatClassification::natural_breaks)
 								  && GetNumCats() == 10);
 	
-	std::vector<wxString> txt(6);
+	vector<wxString> txt(6);
 	for (size_t i=0; i<txt.size(); i++) {
 		int seconds = (int) improve_table[i].first;
 		txt[i] << improve_table[i].second << " more iterations, ~";
@@ -498,7 +479,16 @@ void CartogramNewCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");
+    
+    vector<bool> undefs(num_obs, false);
+    
+    for (size_t i=0; i<var_undefs.size(); i++) {
+        for (size_t j=0; j<var_undefs[i].size(); j++) {
+            undefs[j] = undefs[j] || var_undefs[i][j];
+        }
+    }
+    
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void CartogramNewCanvas::NewCustomCatClassif()
@@ -509,10 +499,11 @@ void CartogramNewCanvas::NewCustomCatClassif()
 		int tht = var_info[THM_VAR].time;
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
 										 cat_classif_def);
-		std::vector<wxString> temp_cat_labels; // will be ignored
+		vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[tht],
+                                          var_undefs[tht],
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
@@ -539,9 +530,6 @@ void CartogramNewCanvas::NewCustomCatClassif()
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
     
-	//wxString s;
-	//CatClassification::PrintCatClassifDef(cat_classif_def, s);
-	//LOG_MSG(s);
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -555,10 +543,11 @@ void CartogramNewCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
-void CartogramNewCanvas::ChangeThemeType(
-						CatClassification::CatClassifType new_cat_theme,
-						int num_categories_s,
-						const wxString& custom_classif_title)
+void
+CartogramNewCanvas::
+ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
+                int num_categories_s,
+                const wxString& custom_classif_title)
 {
 	num_categories = num_categories_s;
 	
@@ -619,9 +608,8 @@ void CartogramNewCanvas::update(CatClassifState* o)
  already. */
 void CartogramNewCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering CartogramNewCanvas::PopulateCanvas");
-	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
-	background_shps.clear();
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
+	foreground_shps.clear();
 
 	int canvas_ts = cat_data.GetCurrentCanvasTmStep();
 	if (!map_valid[canvas_ts]) full_map_redraw_needed = true;
@@ -641,31 +629,26 @@ void CartogramNewCanvas::PopulateCanvas()
 			int cur_cart_ts = var_info[RAD_VAR].time;
 			GdaCircle* c;
 			for (int i=0; i<num_obs; i++) {
-				c = new GdaCircle(wxRealPoint(carts[cur_cart_ts]->output_x[i],
-											 carts[cur_cart_ts]->output_y[i]),
-								 carts[cur_cart_ts]->output_radius[i], true);
+                double o_x = carts[cur_cart_ts]->output_x[i];
+                double o_y = carts[cur_cart_ts]->output_y[i];
+                double o_r = carts[cur_cart_ts]->output_radius[i];
+				c = new GdaCircle(wxRealPoint(o_x, o_y), o_r, true);
 				selectable_shps.push_back(c);
 			}
 			full_map_redraw_needed = false;
 		}
 	} else {
-		wxRealPoint cntr_ref_pnt(shps_orig_xmin +
-								 (shps_orig_xmax-shps_orig_xmin)/2.0,
-								 shps_orig_ymin+ 
-								 (shps_orig_ymax-shps_orig_ymin)/2.0);
+		wxRealPoint cntr_ref_pnt = last_scale_trans.GetDataCenter();
 		GdaShapeText* txt_shp = new GdaShapeText(map_error_message[canvas_ts],
 									 *GdaConst::medium_font, cntr_ref_pnt);
-		background_shps.push_back(txt_shp);
+		foreground_shps.push_back(txt_shp);
 	}
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting CartogramNewCanvas::PopulateCanvas");
 }
 
 void CartogramNewCanvas::TimeChange()
 {
-	LOG_MSG("Entering CartogramNewCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -695,7 +678,6 @@ void CartogramNewCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting CartogramNewCanvas::TimeChange");
 }
 
 void CartogramNewCanvas::VarInfoAttributeChange()
@@ -728,6 +710,8 @@ void CartogramNewCanvas::VarInfoAttributeChange()
 void CartogramNewCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
+    var_undefs.clear();
+    
 	map_valid.resize(num_time_vals);
 	for (int t=0; t<num_time_vals; t++)
         map_valid[t] = true;
@@ -759,24 +743,30 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	// Everything below assumes that GetCcType() != no_theme
 	// We assume data has been initialized to correct data
 	// for all time periods.
-	
+    var_undefs.resize(num_time_vals);
 	cat_var_sorted.resize(num_time_vals);
+    
 	for (int t=0; t<num_time_vals; t++) {
+        var_undefs[t].resize(num_obs);
 		cat_var_sorted[t].resize(num_obs);
 		int thm_t = (var_info[THM_VAR].sync_with_global_time ? 
 					 t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[THM_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
+            
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[THM_VAR][thm_t][i];
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][thm_t][i];
 		}
 	}
 	
 	// Sort each vector in ascending order
-	std::sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
+	sort(cat_var_sorted[0].begin(), cat_var_sorted[0].end(),
 			  Gda::dbl_int_pair_cmp_less);
+    
 	if (var_info[THM_VAR].sync_with_global_time) {
 		for (int t=1; t<num_time_vals; t++) {
-			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
+			sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
 					  Gda::dbl_int_pair_cmp_less);
 		}
 	} else {
@@ -793,6 +783,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              var_undefs,
 											  cat_data, map_valid,
 											  map_error_message,
                                               this->useScientificNotation);
@@ -806,7 +797,6 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 
 void CartogramNewCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In CartogramNewCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	
@@ -855,11 +845,8 @@ void CartogramNewCanvas::UpdateStatusBar()
 
 void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 {
-	LOG_MSG("Entering CartogramNewCanvas::ImproveAll");
 	if (max_iters == 0 || max_seconds <= 0) return;
-	
-	LOG_MSG(wxString::Format("%d threading cores detected", num_cpus));
-	
+
 	// must decide on work-batch units for available CPUs.
 	// if num_time_periods <= nCPUs then each cpu gets one job
 	// otherwise, we have to spawn multiple rounds of multiple threads
@@ -869,12 +856,9 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 	// iters so that max_seconds is approximately respected.
 	// report actual elapsed time.
 	
-	LOG(EstItersGivenTime(max_seconds));
 	int update_rounds = 1; // do one round of batches by default
 	int iters = GenUtils::min<int>(max_iters, EstItersGivenTime(max_seconds));
 	int est_secs = EstSecondsGivenIters(iters);
-	LOG(est_secs);
-	LOG(iters);
 	int num_batches = GetNumBatches();
 	if (realtime_updates && est_secs > 2) {
 		// break up iters into multiple rounds if total time estimate is
@@ -888,17 +872,11 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 			iters = 1/(secs_per_iter* ((double) num_batches));
 		}
 	}
-	LOG(update_rounds);
-	LOG(iters);
 	for (int r=0; r<update_rounds; r++) {
-		LOG_MSG(wxString::Format("update round %d of %d", r+1, update_rounds));
 		int num_carts_rem = GetCurNumCartTms();
 		int crt_min_tm = var_info[RAD_VAR].time_min;		
 		for (int i=0; i<num_batches && num_carts_rem > 0; i++) {
-			LOG_MSG(wxString::Format("batch %d of %d:", i+1, num_batches));
 			int num_in_batch = GenUtils::min<int>(num_cpus, num_carts_rem);
-			LOG_MSG(wxString::Format("  improving carts %d to %d",
-									 crt_min_tm, crt_min_tm + (num_in_batch-1)));
 		
 			if (num_in_batch > 1) {
 				// mutext protects access to the worker_list
@@ -909,19 +887,17 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 			
 				// List of all the threads currently alive.  As soon as the
 				// thread terminates, it removes itself from the list.
-				std::list<wxThread*> worker_list;
+				list<wxThread*> worker_list;
 				int thread_id = 0;
 				for (int t=crt_min_tm; t<crt_min_tm+num_in_batch; t++) {
-					LOG_MSG(wxString::Format("    creating thread for cart %d",
-											 t)); 
+					
 					DorlingCartWorkerThread* thread =
 						new DorlingCartWorkerThread(iters, carts[t],
 													&worker_list_mutex,
 													&worker_list_empty_cond,
 													&worker_list, thread_id++);
 					if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-						LOG_MSG("Error: Can't create thread, switching to "
-								"single thread mode!");
+						
 						delete thread;
 						num_cpus = 1;
 						ImproveAll(max_seconds, max_iters);
@@ -932,8 +908,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 					num_improvement_iters[t] += iters;
 				}
 			
-				LOG_MSG("Starting all worker threads");
-				std::list<wxThread*>::iterator it;
+				list<wxThread*>::iterator it;
 				for (it = worker_list.begin(); it != worker_list.end(); it++) {
 					(*it)->Run();
 				}
@@ -943,9 +918,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 					worker_list_empty_cond.Wait();
 					// We have been woken up. If this was not a false
 					// alarm (spurious signal), the loop will exit.
-					LOG_MSG("work_list_empty_cond signaled");
 				}
-				LOG_MSG("All worker threads exited");
 			
 			} else {
 				carts[crt_min_tm]->improve(iters);
@@ -963,13 +936,9 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 			Update();
 		}
 	}
-	LOG_MSG(wxString::Format("Previous secs_per_iter: %f", secs_per_iter));
 	secs_per_iter = carts[var_info[RAD_VAR].time]->secs_per_iter;
-	LOG_MSG(wxString::Format("Updated secs_per_iter: %f", secs_per_iter));
 	UpdateImproveLevelTable();
 	full_map_redraw_needed = true;
-	
-	LOG_MSG("Exiting CartogramNewCanvas::ImproveAll");
 }
 
 int CartogramNewCanvas::GetCurNumCartTms()
@@ -1048,7 +1017,7 @@ void CartogramNewCanvas::UpdateImproveLevelTable()
 	improve_table[5].second = 1000; // iterations
 	improve_table[5].first = EstSecondsGivenIters(improve_table[5].second);
 
-	std::sort(improve_table.begin(), improve_table.end(),
+	sort(improve_table.begin(), improve_table.end(),
 			  Gda::dbl_int_pair_cmp_second_less);	
 }
 
@@ -1062,7 +1031,6 @@ CartogramNewLegend::CartogramNewLegend(wxWindow *parent,
 
 CartogramNewLegend::~CartogramNewLegend()
 {
-    LOG_MSG("In CartogramNewLegend::~CartogramNewLegend");
 }
 
 IMPLEMENT_CLASS(CartogramNewFrame, TemplateFrame)
@@ -1071,18 +1039,15 @@ BEGIN_EVENT_TABLE(CartogramNewFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
-									 const std::vector<GdaVarTools::VarInfo>& var_info,
-									 const std::vector<int>& col_ids,
+									 const vector<GdaVarTools::VarInfo>& var_info,
+									 const vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering CartogramNewFrame::CartogramNewFrame");
-
+    wxLogMessage("Open CartogramNewFrame.");
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
 		
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,
@@ -1128,12 +1093,10 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
 
     DisplayStatusBar(true);
 	Show(true);
-	LOG_MSG("Exiting CartogramNewFrame::CartogramNewFrame");
 }
 
 CartogramNewFrame::~CartogramNewFrame()
 {
-	LOG_MSG("In CartogramNewFrame::~CartogramNewFrame");
 	DeregisterAsActive();
 }
 
@@ -1150,11 +1113,13 @@ void CartogramNewFrame::SetupToolbar()
 }
 void CartogramNewFrame::OnMapSelect(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapSelect()");
     OnSelectionMode(e);
 }
 
 void CartogramNewFrame::OnMapInvertSelect(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapInvertSelect()");
     HighlightState& hs = *project->GetHighlightState();
     hs.SetEventType(HLStateInt::invert);
     hs.notifyObservers();
@@ -1162,31 +1127,36 @@ void CartogramNewFrame::OnMapInvertSelect(wxCommandEvent& e)
 
 void CartogramNewFrame::OnMapPan(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapPan()");
     OnPanMode(e);
 }
 void CartogramNewFrame::OnMapZoom(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapZoom()");
     OnZoomMode(e);
 }
 void CartogramNewFrame::OnMapZoomOut(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapZoomOut()");
     OnZoomOutMode(e);
 }
 void CartogramNewFrame::OnMapExtent(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapExtent()");
     //OnFitToWindowMode(e);
     OnResetMap(e);
 }
 void CartogramNewFrame::OnMapRefresh(wxCommandEvent& e)
 {
+    wxLogMessage("In CartogramNewFrame::OnMapRefresh()");
     OnRefreshMap(e);
 }
 
 
 void CartogramNewFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In CartogramNewFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In CartogramNewFrame::OnActivate()");
 		RegisterAsActive("CartogramNewFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas )
@@ -1195,7 +1165,6 @@ void CartogramNewFrame::OnActivate(wxActivateEvent& event)
 
 void CartogramNewFrame::MapMenus()
 {
-	LOG_MSG("In CartogramNewFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
@@ -1212,8 +1181,6 @@ void CartogramNewFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("CartogramNewFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((CartogramNewCanvas*)
 		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));
@@ -1234,7 +1201,6 @@ void CartogramNewFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void  CartogramNewFrame::update(TimeState* o)
 {
-	LOG_MSG("In CartogramNewFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 	if (template_legend) template_legend->Refresh();
@@ -1314,7 +1280,6 @@ void CartogramNewFrame::ChangeThemeType(
 
 void CartogramNewFrame::CartogramImproveLevel(int level)
 {
-	LOG_MSG(wxString::Format("Improve Cartogram to Level %d", level));
 	((CartogramNewCanvas*) template_canvas)->CartogramImproveLevel(level);
 	UpdateOptionMenuItems();
 }

@@ -33,10 +33,10 @@ public:
 					int default_num_intervals,
 					int max_intervals,
 					wxWindow* parent, wxWindowID id = -1,
-					const wxString& caption = "Intervals in the Histogram",
+					const wxString& caption = _("Intervals in the Histogram"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
-					long style = wxCAPTION|wxSYSTEM_MENU );
+					long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );

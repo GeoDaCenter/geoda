@@ -36,17 +36,17 @@ typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
 class LineChartCanvas : public TemplateCanvas
 {
 	DECLARE_CLASS(LineChartCanvas)
-	LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame,
-									Project* project,
-									const LineChartStats& lcs,
-									LineChartCanvasCallbackInt* lc_canv_cb = 0,
-									const wxPoint& pos = wxDefaultPosition,
-									const wxSize& size = wxDefaultSize);
+    LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                    Project* project,
+                    const LineChartStats& lcs,
+                    LineChartCanvasCallbackInt* lc_canv_cb = 0,
+                    const wxPoint& pos = wxDefaultPosition,
+                    const wxSize& size = wxDefaultSize);
 	virtual ~LineChartCanvas();
 	
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void UpdateSelection(bool shiftdown = false,
-															 bool pointsel = false);
+                                 bool pointsel = false);
 	virtual void UpdateStatusBar();
 	
 	virtual void UpdateAll();

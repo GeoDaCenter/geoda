@@ -80,12 +80,10 @@ void DefaultVarsPtree::ReadPtree(const boost::property_tree::ptree& pt,
 		BOOST_FOREACH(const ptree::value_type &v,
 					  pt.get_child("default_vars")) {
 			wxString key = v.first.data();
-			LOG_MSG(key);
 			if (key == "default_var") {
 				DefaultVar dv;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
-					LOG_MSG(key);
 					if (key == "name") {
 						wxString s = v.second.data();
 						dv.name = s;
@@ -95,14 +93,12 @@ void DefaultVarsPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else {
 						wxString msg("Warning: unrecognized key: ");
 						msg << key;
-						LOG_MSG(msg);
 					}
 				}
 				default_vars_list.push_back(dv);
 			} else {
 				wxString msg("Warning: unrecognized key: ");
 				msg << key;
-				LOG_MSG(msg);
 			}
 		}
 	} catch (std::exception &e) {

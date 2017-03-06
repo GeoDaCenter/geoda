@@ -66,7 +66,6 @@ WeightsManPtree* WeightsManPtree::Clone()
 void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								const wxString& proj_path)
 {
-	LOG_MSG("Entering WeightsManPtree::ReadPtree");
 	using boost::property_tree::ptree;
 	using namespace std;
 	weights_list.clear();
@@ -83,12 +82,10 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 		BOOST_FOREACH(const ptree::value_type &v,
 					  pt.get_child("weights_entries")) {
 			wxString key = v.first.data();
-			LOG_MSG(key);
 			if (key == "weights") {
 				WeightsPtreeEntry e;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
-					LOG_MSG(key);
 					if (key == "title") {
 						wxString s = v.second.data();
 						e.title = s;
@@ -97,7 +94,6 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else if (key == "meta_info") {
 						BOOST_FOREACH(const ptree::value_type &v, v.second) {
 							wxString key = v.first.data();
-							LOG_MSG(key);
 							if (key == "weights_type") {
 								wxString s = v.second.data();
 								if (s == "rook") {
@@ -223,11 +219,9 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 						// ignore unrecognized key
 						wxString msg("unrecognized key: ");
 						msg << key;
-						LOG_MSG(msg);
 					}
 				}
                 
-				LOG_MSG(e.ToStr());
 				weights_list.push_back(e);
 			} else {
 				wxString msg("unrecognized key: ");
@@ -238,8 +232,6 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
-	
-	LOG_MSG("Exiting WeightsManPtree::ReadPtree");
 }
 
 void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,

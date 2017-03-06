@@ -33,7 +33,6 @@ cols_ascii_only(true), is_valid(false)
 
 TableInterface::~TableInterface()
 {
-	LOG_MSG("In TableInterface::~TableInterface");
 	if (m_wx_encoding) delete m_wx_encoding;
 }
 
@@ -209,7 +208,53 @@ std::vector<wxString> TableInterface::GetGroupNames()
 }
 
 
-int TableInterface::GetColIdx(const wxString& name)
+int TableInterface::GetColIdx(const wxString& name, bool ignore_case)
 {
     return -1;
+}
+
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<double>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<wxInt64>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<wxString>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<double>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<wxInt64>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<wxString>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
 }

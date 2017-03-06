@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <fstream>
 #include <set>
+#include <wx/wx.h>
 #include <wx/bmpbuttn.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -42,6 +43,7 @@ ExportCsvDlg::ExportCsvDlg(wxWindow* parent, Project* project_s,
 						   const wxPoint& pos, const wxSize& size)
 : project(project_s), table_int(project_s->GetTableInt()), all_init(false)
 {
+    wxLogMessage("Open ExportCsvDlg");
 	SetParent(parent);
     CreateControls();
 	SetPosition(pos);
@@ -62,6 +64,7 @@ void ExportCsvDlg::CreateControls()
 
 void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("In ExportCsvDlg::OnOkClick()");
 	using namespace std;
 	if (!all_init) return;
 	
@@ -99,7 +102,8 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 			return;
 		}
 	}
-	
+
+    wxLogMessage(_("csv file:") + new_csv);
 	std::ofstream out_file;	
 	out_file.open(GET_ENCODED_FILENAME(new_csv),
 				  std::ios::out | std::ios::binary);
@@ -166,6 +170,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 
 void ExportCsvDlg::OnIncludeVarNamesHelp( wxCommandEvent& event )
 {
+    wxLogMessage("In ExportCsvDlg::OnIncludeVarNamesHelp()");
 	wxString msg;
 	msg << "Check checkbox to write out the Table variable names ";
 	msg << "as the first row of data in the comma seperated value file.";

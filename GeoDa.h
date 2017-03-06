@@ -68,6 +68,7 @@ private:
 	wxString cmd_line_proj_file_name;
 	wxSingleInstanceChecker* checker;
 	GdaServer* server;
+    FILE *m_pLogFile;
 };
 
 DECLARE_APP(GdaApp)
@@ -97,23 +98,15 @@ public:
 	
 	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
-	void OnNewProjectFromShp(wxCommandEvent& event);
-	void OnNewProjectFromSqlite(wxCommandEvent& event);
-	void OnNewProjectFromGpkg(wxCommandEvent& event);
-	void OnNewProjectFromCsv(wxCommandEvent& event);
-	void OnNewProjectFromDbf(wxCommandEvent& event);
-	void OnNewProjectFromGdb(wxCommandEvent& event);
-	void OnNewProjectFromJson(wxCommandEvent& event);
-	void OnNewProjectFromGml(wxCommandEvent& event);
-	void OnNewProjectFromKml(wxCommandEvent& event);
-	void OnNewProjectFromMapinfo(wxCommandEvent& event);
-	void OnNewProjectFromXls(wxCommandEvent& event);
+    void ShowOpenDatasourceDlg(wxPoint pos);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
+    
 	void OnSaveProject(wxCommandEvent& event);
 	void OnSaveAsProject(wxCommandEvent& event);
 	
 	void OnShowProjectInfo(wxCommandEvent& event);
+	void OnPreferenceSetup(wxCommandEvent& event);
 	
 	void OnHtmlEntry(int entry);
 	void OnHtmlEntry0(wxCommandEvent& event);
@@ -133,6 +126,7 @@ public:
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
+	void OnSetDisplayPrecision(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
@@ -560,6 +554,8 @@ public:
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
+	void OnAddNeighborToSelection(wxCommandEvent& event);
+	void OnShowAsConditionalMap(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);
@@ -579,6 +575,7 @@ public:
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);
 	void OnEditVariables(wxCommandEvent& event);
+	void OnSaveStatsToCsv(wxCommandEvent& event);
 	void OnViewRegimesRegression(wxCommandEvent& event);
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnViewRegressionSelected(wxCommandEvent& event);
@@ -622,6 +619,7 @@ public:
 	void OnDisplayStatusBar(wxCommandEvent& event);
 	
 	void OnHelpAbout(wxCommandEvent& event);
+	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
 	void OnCheckTestMode(wxCommandEvent& event);
     
@@ -651,6 +649,8 @@ public:
 	void OnEncodingSHIFT_JIS(wxCommandEvent& event);
 	void OnEncodingEUC_JP(wxCommandEvent& event);
 	void OnEncodingEUC_KR(wxCommandEvent& event);
+	void OnRecentDSClick(wxCommandEvent& event);
+    
     void SetEncodingCheckmarks(wxFontEncoding e);
     void SetBasemapCheckmarks(int idx);
     
@@ -658,6 +658,10 @@ public:
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
+   
+    void RemoveInvalidRecentDS();
+    
+    void UpdateRecentDatasourceMenu();
 
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
 	static GdaFrame* GetGdaFrame() { return gda_frame; }
@@ -677,7 +681,9 @@ public:
 	
     void CheckUpdate();
 
-private:
+protected:
+    void InitWithProject();
+    
 	static void SetProjectOpen(bool open);
     
     bool hasUpdate;

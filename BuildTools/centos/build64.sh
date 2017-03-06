@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 #############################################################################
 # ./build.sh
 # ./build.sh [CPU]
@@ -6,35 +6,39 @@
 # ./build.sh [CPU] [NODEBUG, true=1 false=0(default)]
 # ./build.sh 8 1 (no debug)
 #############################################################################
-CPUS=2
+CPUS=4
 NODEBUG=1
-
-if ! type "cmake" > /dev/null; then
-    echo "You need to install cmake to run this script."
-    #sudo apt-get install cmake
+if [[ $CPUS == "" ]] ; then
+    CPUS=8
+fi
+if [[ $NODEBUG == "" ]] ; then
+    NODEBUG=0
+else
+    if ! [[ $NODEBUG -eq 1 ]] ; then
+        NODEBUG=0
+    fi
 fi
 
 if ! type "g++" > /dev/null; then
     echo "You need to install g++ to run this script."
-    #sudo apt-get install g++
+    sudo yum install gcc-c++
 fi
 
-if ! type "svn" > /dev/null; then
-    echo "You need to install SVN to run this script."
-    #sudo apt-get install subversion
+if ! type "cmake" > /dev/null; then
+    echo "You need to install cmake to run this script."
+    sudo yum install cmake
 fi
 
 if ! type "curl" > /dev/null; then
     echo "You need to install curl to run this script."
-    #sudo apt-get install curl
+    sudo yum install curl
 fi
 
 read -p "Do you want to install pre-requisites (e.g. libreadline, zlib, libexpat, libcurl ...)?[y/n]" -n 1 -r
 echo
-#if [[ $REPLY =~ ^[Yy]$ ]]; then
-    #sudo apt-get install g++ libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
-#fi
-# yum install readline-devel, zlib-devel, autoreconf, libtool
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    sudo yum install readline-devel zlib-devel expat-devel curl-devel autoreconf libtool openssl-devel libidn-devel openldap-devel mesa-libGL-devel mesa-libGLU-devel gtk3 freeglut-devel webkitgtk3-devel
+fi
 
 unset ORACLE_HOME
 export GEODA_HOME=$PWD
@@ -63,23 +67,35 @@ install_library()
     LIB_NAME=$1
     LIB_URL=$2
     LIB_CHECKER=$3
-    LIB_FILENAME=$(basename "$LIB_URL" ".tar")
+    LIB_FILENAME=$(basename "$LIB_URL")
+    CONFIGURE_FLAGS=$4
+    echo ""
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+    echo "% Building: $LIB_FILENAME"
+    echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
+
     if ! [ -f "$LIB_FILENAME" ] ; then
+	echo "$LIB_FILENAME not found. Downloading..."
         curl -O $LIB_URL
+    else
+	echo "$LIB_FILENAME found.  Download skipped."
     fi
 
     if ! [ -d "$LIB_NAME" ] ; then
+	echo "Directory $LIB_NAME not found.  Expanding..."
         tar -xf $LIB_FILENAME
+    else
+	echo "Directory $LIB_NAME found.  File expansion skipped."
     fi
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
 	chmod +x configure
-        #./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib/x86_64-linux-gnu" --prefix=$PREFIX
-        ./configure --prefix=$PREFIX
+        ./configure CFLAGS="-m64" CXXFLAGS="-m64" LDFLAGS="-m64 -L/usr/lib64" --prefix=$PREFIX $CONFIGURE_FLAGS
+        #./configure --prefix=$PREFIX
         $MAKER
         make install
     fi
@@ -91,6 +107,10 @@ install_library()
 #########################################################################
 # install libiConv
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: libiConv %"
+echo "%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="libiconv-1.13"
     LIB_URL="http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.tar.gz"
@@ -118,16 +138,54 @@ install_library()
 }
 
 #########################################################################
+# install c-ares -- for cURL, prevent crash on Mac oSx with threads
+#########################################################################
+install_library c-ares-1.10.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/c-ares-1.10.0.tar.gz libcares.a
+
+
+#########################################################################
 # install cURL
 #########################################################################
-install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libcurl.a
+
+LIB_NAME=curl-7.46.0
+LIB_CHECKER=libcurl.a
+LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_FILENAME=curl-7.46.0.zip
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+    unzip $LIB_FILENAME
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX --without-librtmp
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 
 #########################################################################
 # install Xerces
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Xerces %"
+echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="xerces-c-3.1.1"
-    LIB_URL="http://mirror.metrocast.net/apache//xerces/c/3/sources/xerces-c-3.1.1.tar.gz"
+    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
     LIB_CHECKER="libxerces-c.a"
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     echo $LIB_FILENAME
@@ -156,48 +214,58 @@ install_library curl-7.30.0 http://curl.haxx.se/download/curl-7.30.0.tar.gz libc
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 http://download.osgeo.org/geos/geos-3.3.8.tar.bz2 libgeos.a
+install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2  libgeos.a
 
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 http://download.osgeo.org/proj/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f http://www.gaia-gis.it/gaia-sins/freexl-sources/freexl-1.0.0f.tar.gz libfreexl.a
+install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
 
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 http://www.sqlite.org/2013/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
 # libreadline, zlib
 echo "install libreadline, zlib"
-install_library postgresql-9.2.4 http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install libkml requires 1.3
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: libkml %"
+echo "%%%%%%%%%%%%%%%%%%%%"
 # libexpat,libcurl4-gnutls-dev 
 #install_library libkml-1.2.0 https://libkml.googlecode.com/files/libkml-1.2.0.tar.gz libkmlbase.a
 {
     LIB_NAME="libkml"
     LIB_CHECKER="libkmlbase.a"
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libkml-r680.tar.gz
+    LIB_FILENAME=libkml-r680.tar.gz
     echo $LIB_NAME
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        svn checkout http://libkml.googlecode.com/svn/trunk/ libkml
+        curl -O $LIB_URL
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
+        tar -xf $LIB_FILENAME
     fi
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
@@ -241,16 +309,20 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         echo "Error! Exit"
-        #exit
+        exit
     fi
 }
 
 #########################################################################
 # install SpatiaLite
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Spatialite %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
-    LIB_URL=http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.0.0.tar.gz
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=libspatialite.a
     echo $LIB_FILENAME
@@ -264,7 +336,8 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
         chmod +x configure
-        ./configure CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib -liconv -lsqlite3" --prefix=$PREFIX --enable-geos --enable-iconv --enable-proj --with-geosconfig=$PREFIX/bin/geos-config
+	echo $PREFIX
+        ./configure CFLAGS="-I$PREFIX/include" CXXFLAGS="-I$PREFIX/include" LDFLAGS="-L$PREFIX/lib" --prefix=$PREFIX --enable-geos --enable-iconv --enable-proj --with-geosconfig=$PREFIX/bin/geos-config
         $MAKER
         make install
     fi
@@ -278,9 +351,13 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 # MySQL 
 #########################################################################
 #cmake, curse
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%"
+echo "% Building: MySQL %"
+echo "%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=mysql-5.6.14
-    LIB_URL=http://cdn.mysql.com/Downloads/MySQL-5.6/mysql-5.6.14.tar.gz
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14.tar.gz
     LIB_CHECKER=libmysqlclient.a
 
     echo $LIB_NAME
@@ -310,79 +387,102 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 }
 
 #########################################################################
-# install GDAL/OGR
-#########################################################################
-{
-    LIB_NAME=gdal-1.9.2
-    #LIB_URL=http://download.osgeo.org/gdal/gdal-1.9.2.tar.gz
-    #LIB_NAME=gdal-1.10.1
-    #LIB_URL=http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
-    LIB_FILENAME=$(basename "$LIB_URL" ".tar")
-    LIB_CHECKER=libgdal.a
-    echo $LIB_FILENAME
-
-    cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ] ; then
-        svn co https://github.com/lixun910/gdal-1.9.2-work gdal-1.9.2
-    fi
-
-    cp -rf $GEODA_HOME/dep/$LIB_NAME .
-    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        cd $LIB_NAME
-        chmod +x configure
-        chmod +x install-sh
-        ./configure
-        cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
-        #make clean
-        $MAKER
-        make install
-        #cd ogr/ogrsf_frmts/oci
-        #make plugin
-        #mv ogr_OCI.so ogr_OCI.dylib
-        #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
-    fi
-    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        echo "Error! Exit"
-        exit
-    fi
-}
-
-#########################################################################
 # install boost library
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Boost 1.57 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=boost_1_57_0
-    LIB_URL=http://softlayer-dal.dl.sourceforge.net/project/boost/boost/1.57.0/boost_1_57_0.tar.bz2
-    LIB_FILENAME=boost_1_57_0.tar.bz2
+    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+    LIB_FILENAME=boost_1_57_0.tar.gz
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ]; then
+    if ! [ -f "$LIB_FILENAME" ]; then
+	echo "$LIB_FILENAME not found. Downloading..."
         curl -O $LIB_URL
+    else
+	echo "$LIB_FILENAME found. Skipping download."
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
+	echo "Directory $LIB_NAME not found. Expanding archive."
         tar -xf $LIB_FILENAME
+    else
+	echo "Directory $LIB_NAME found. Skipping expansion."
     fi
 
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
+	echo "$LIB_CHECKER not found.  Building Boost..."
         cd $PREFIX/include
         rm boost
         ln -s $DOWNLOAD_HOME/boost_1_57_0 boost
         cd $DOWNLOAD_HOME/boost_1_57_0
         chmod +x bootstrap.sh
-        chmod +x tools/build/v2/engine/build.sh
+        #chmod +x tools/build/v2/engine/build.sh
         ./bootstrap.sh
         chmod +x b2
         ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
     fi
 
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
-        echo "Error! Exit"
+        echo "Error: Target library $LIB_CHECKER not found. Exiting build."
         exit
     fi
 }
+
+#########################################################################
+# install JSON Spirit
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: JSON Spirit %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
+LIB_NAME="json_spirit_v4.08"
+LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+LIB_CHECKER="libjson_spirit.a"
+LIB_FILENAME="json_spirit_v4.08.zip"
+echo $LIB_FILENAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ]; then
+    curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
+    unzip $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cp $GEODA_HOME/dep/json_spirit/CMakeLists.txt .
+    mkdir bld
+    cd bld
+    CC=$GDA_CC CXX=$GDA_CXX CFLAGS=$GDA_CFLAGS CXXFLAGS=$GDA_CXXFLAGS LDFLAGS=$GDA_LDFLAGS cmake ..
+    make
+    rm -rf "$PREFIX/include/json_spirit"
+    rm -f "$PREFIX/lib/$LIB_CHECKER"
+    mkdir "$PREFIX/include/json_spirit"
+    echo "Copying JSON Sprit includes..."
+    cp -R "../json_spirit" "$PREFIX/include/."
+    echo "Copying libjson_spirit.a"
+    cp json_spirit/libjson_spirit.a "$PREFIX/lib/."
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+
 #########################################################################
 # install CLAPACK
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: CLAPACK 3.2.1 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     CLAPACK_NAME="CLAPACK-3.2.1"
     LIB_CHECKER="libf2c.a"
@@ -390,7 +490,7 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$CLAPACK_NAME" ]; then
-        curl -O http://www.netlib.org/clapack/clapack.tgz
+        curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz
         tar -xvf clapack.tgz
     fi
 
@@ -421,28 +521,112 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
 }
 
 #########################################################################
+# install json-c
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: json-c                 "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+{
+
+    LIB_NAME=json-c
+    LIB_CHECKER=libjson-c.a
+
+    if ! [ -d "$LIB_NAME" ] ; then
+	git clone https://github.com/json-c/json-c.git
+    fi
+
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        cd $LIB_NAME
+	sh autogen.sh
+        ./configure --prefix=$PREFIX
+	make
+	make install
+    fi
+
+    #if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        #echo "Error! Exit"
+        #exit
+    #fi
+}
+
+#########################################################################
+# install GDAL/OGR
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Custom GDAL/OGR 1.9.2 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+{
+    LIB_NAME=gdal
+    LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
+    LIB_FILENAME=GeoDa17Merge
+    LIB_CHECKER=libgdal.a
+    echo $LIB_FILENAME
+
+    cd $DOWNLOAD_HOME
+    if ! [ -d "$LIB_NAME" ] ; then
+        #curl -k -O $LIB_URL
+        #unzip $LIB_FILENAME
+        git clone https://github.com/lixun910/gdal.git gdal-GeoDa17Merge
+        mv gdal-GeoDa17Merge/gdal gdal
+    fi
+
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        cd $LIB_NAME
+        chmod +x configure
+        chmod +x install-sh
+        ./configure
+        cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
+        cp GDALmake64.opt GDALmake.opt
+        #make clean
+        $MAKER
+        touch .libs/libgdal.lai
+        make install
+        #cd ogr/ogrsf_frmts/oci
+        #make plugin
+        #mv ogr_OCI.so ogr_OCI.dylib
+        #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
+    fi
+    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+        echo "Error! Exit"
+        exit
+    fi
+}
+
+#########################################################################
 # install wxWidgets library
 #########################################################################
-# wxWidgets 2.9.2 doesn't compile on Ubuntu 13 64bit
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building wxWidgets 3.0.2 %"
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
-    LIB_NAME=wxWidgets-3.0.2
-    LIB_URL="http://iweb.dl.sourceforge.net/project/wxwindows/3.0.2/wxWidgets-3.0.2.tar.bz2"
+    LIB_NAME=wxWidgets-3.1.0
+    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2"
+
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+    if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -k -o $LIB_FILENAME $LIB_URL
+    fi
+
+    if ! [ -d "$LIB_NAME" ]; then
         tar -xf $LIB_FILENAME
     fi
 
     if ! [ -f "$PREFIX/bin/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
+        cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=2 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --prefix=$PREFIX
+        ./configure --with-gtk=3 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        #make clean
         $MAKER
         make install
         cd ..
@@ -453,13 +637,21 @@ install_library jpeg-8 http://www.ijg.org/files/jpegsrc.v8.tar.gz libjpeg.a
         exit
     fi
 }
+
 #########################################################################
 # build GeoDa
 #########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%"
+echo "% Building: GeoDa %"
+echo "%%%%%%%%%%%%%%%%%%%"
 {
     cd $GEODA_HOME
-    cp ../../GeoDamake.ubuntu.opt ../../GeoDamake.opt
+    cp ../../GeoDamake.centos.opt ../../GeoDamake.opt
     mkdir ../../o
+    make clean
     $MAKER
     make app
+    #cp plugins/x64/*.so build/plugins/
+    cp ../CommonDistFiles/web_plugins/no_map.png build/web_plugins/no_map.png
 }

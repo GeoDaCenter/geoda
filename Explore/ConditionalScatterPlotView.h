@@ -79,6 +79,7 @@ protected:
 	bool full_map_redraw_needed;
 	std::vector<double> X;
 	std::vector<double> Y;
+    std::vector<bool> XY_undef;
 	
 	static const int IND_VAR; // scatter plot x-axis
 	static const int DEP_VAR; // scatter plot y-axis
@@ -115,7 +116,7 @@ public:
     ConditionalScatterPlotFrame(wxFrame *parent, Project* project,
 						const std::vector<GdaVarTools::VarInfo>& var_info,
 						const std::vector<int>& col_ids,
-						const wxString& title = "Conditional Map",
+						const wxString& title = _("Conditional Map"),
 						const wxPoint& pos = wxDefaultPosition,
 						const wxSize& size = wxDefaultSize,
 						const long style = wxDEFAULT_FRAME_STYLE);

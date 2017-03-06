@@ -27,7 +27,6 @@
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
 #include "GdaConst.h"
-#include "logger.h"
 #include "GenUtils.h"
 
 using namespace std;
@@ -100,8 +99,9 @@ bool Gda::dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 }
 
 
-void HingeStats::CalculateHingeStats(
-							const std::vector<Gda::dbl_int_pair_type>& data)
+void
+HingeStats::
+CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	num_obs = data.size();
 	double N = num_obs;
@@ -141,6 +141,79 @@ void HingeStats::CalculateHingeStats(
 	if (max_IQR_ind > 0) max_IQR_ind--;
 }
 
+void
+HingeStats::
+CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
+                    const std::vector<bool>& data_undef)
+{
+    num_obs = data.size();
+    double N = 0.0;
+    std::vector<double> data_valid;
+    
+    bool has_init = false;
+    for (size_t i =0; i<num_obs; i++) {
+        int obs_idx = data[i].second;
+        if (!data_undef[obs_idx]) {
+            double val = data[i].first;
+            data_valid.push_back(val); // sorted
+            if (!has_init) {
+                min_val = val;
+                max_val = val;
+                has_init = true;
+            }
+            if (val < min_val)
+                min_val = val;
+            if (val > max_val)
+                max_val = val;
+        }
+    }
+    
+    N = data_valid.size();
+    is_even_num_obs = (data_valid.size() % 2) == 0;
+    
+    Q2_ind = (N+1)/2.0 - 1;
+    if (is_even_num_obs) {
+        Q1_ind = (N+2)/4.0 - 1;
+        Q3_ind = (3*N+2)/4.0 - 1;
+    } else {
+        Q1_ind = (N+3)/4.0 - 1;
+        Q3_ind = (3*N+1)/4.0 - 1;
+    }
+    Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
+    Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
+    Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
+    
+    IQR = Q3 - Q1;
+    
+    extreme_lower_val_15 = Q1 - 1.5*IQR;
+    extreme_lower_val_30 = Q1 - 3.0*IQR;
+    extreme_upper_val_15 = Q3 + 1.5*IQR;
+    extreme_upper_val_30 = Q3 + 3.0*IQR;
+    
+    min_IQR_ind = -1;
+    for (int i=0; i<num_obs; i++) {
+        if (data[i].first < Q1) {
+            min_IQR_ind = i;
+        }
+        else
+            break;
+    }
+    if (min_IQR_ind < num_obs-1) {
+        min_IQR_ind++;
+    }
+    max_IQR_ind = num_obs;
+    
+    for (int i=num_obs-1; i>=0; i--) {
+        if (data[i].first > Q3) {
+            max_IQR_ind = i;
+        }
+        else
+            break;
+    }
+    if (max_IQR_ind > 0)
+        max_IQR_ind--;
+}
+
 // Assume input v is sorted.  If not, can sort
 // with std::sort(v.begin(), v.end())
 // Testing: for v = {15, 20, 35, 40, 50},
@@ -168,18 +241,40 @@ double Gda::percentile(double x, const std::vector<double>& v)
 }
 
 // Same assumptions as above
+double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v,
+                       const std::vector<bool>& undefs)
+{
+    std::vector<double> valid_data;
+    for (size_t i = 0; i<v.size(); i++ ) {
+        double val = v[i].first;
+        int ind = v[i].second;
+        
+        if (undefs[ind])
+            continue;
+        
+        valid_data.push_back(val);
+    }
+    return percentile(x, valid_data);
+}
+
+// Same assumptions as above
 double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 {
 	int N = v.size();
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
-	if (x <= p_0) return v[0].first;
-	if (x >= p_Nm1) return v[N-1].first;
+    
+	if (x <= p_0)
+        return v[0].first;
+    
+	if (x >= p_Nm1)
+        return v[N-1].first;
 	
 	for (int i=1; i<N; i++) {
 		double p_i = (100.0/Nd) * ((((double) i)+1.0)-0.5);
-		if (x == p_i) return v[i].first;
+		if (x == p_i)
+            return v[i].first;
 		if (x < p_i) {
 			double p_im1 = (100.0/Nd) * ((((double) i))-0.5);
 			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first
@@ -189,7 +284,6 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 	return v[N-1].first; // execution should never get here
 }
 
-
 SampleStatistics::SampleStatistics(const std::vector<double>& data)
 	: sample_size(0), min(0), max(0), mean(0),
 	var_with_bessel(0), var_without_bessel(0),
@@ -198,6 +292,46 @@ SampleStatistics::SampleStatistics(const std::vector<double>& data)
 	CalculateFromSample(data);
 }
 
+SampleStatistics::SampleStatistics(const std::vector<double>& data,
+                                   const std::vector<bool>& undefs)
+	: sample_size(0), min(0), max(0), mean(0),
+	var_with_bessel(0), var_without_bessel(0),
+	sd_with_bessel(0), sd_without_bessel(0)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs[i] == false)
+            valid_data.push_back(data[i]);
+    }
+	CalculateFromSample(valid_data);
+}
+
+SampleStatistics::SampleStatistics(const std::vector<double>& data,
+                                   const std::vector<bool>& undefs1,
+                                   const std::vector<bool>& undefs2)
+	: sample_size(0), min(0), max(0), mean(0),
+	var_with_bessel(0), var_without_bessel(0),
+	sd_with_bessel(0), sd_without_bessel(0)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs1[i] || undefs2[i])
+            continue;
+        valid_data.push_back(data[i]);
+    }
+	CalculateFromSample(valid_data);
+}
+
+void SampleStatistics::CalculateFromSample(const std::vector<double>& data,
+                                           const std::vector<bool>& undefs)
+{
+    std::vector<double> valid_data;
+    for (int i=0; i<data.size(); i++) {
+        if (undefs[i] == false)
+            valid_data.push_back(data[i]);
+    }
+    CalculateFromSample(valid_data);
+}
 void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 {
 	sample_size = data.size();
@@ -225,20 +359,30 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 }
 
 /** We assume that the data has been sorted in ascending order */
-void SampleStatistics::CalculateFromSample(
-							const std::vector<Gda::dbl_int_pair_type>& data)
+void
+SampleStatistics::
+CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
+                    const std::vector<bool>& undefs)
 {
+    std::vector<double> data;
+    for (int i=0, iend = data_.size(); i<iend; i++) {
+        int id = data_[i].second;
+        if (!undefs[id]) {
+            data.push_back(data_[i].first);
+        }
+    }
+    
 	sample_size = data.size();
 	if (sample_size == 0) return;
 	
-	min = data[0].first;
-	max = data[sample_size-1].first;
+	min = data[0];
+	max = data[sample_size-1];
 	mean = CalcMean(data);
 	
 	double n = sample_size;
 	double sum_squares = 0;
 	for (int i=0, iend = data.size(); i<iend; i++) {
-		sum_squares += data[i].first * data[i].first;
+		sum_squares += data[i] * data[i];
 	}
 	
 	var_without_bessel = (sum_squares/n) - (mean*mean);
@@ -326,7 +470,7 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
 											   const std::vector<double>& Y,
 											   double meanX, double meanY,
 											   double varX, double varY)
-	: covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
+	: n(0), covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
 	std_err_of_estimate(0), std_err_of_beta(0), std_err_of_alpha(0),
 	t_score_alpha(0), t_score_beta(0), p_value_alpha(0), p_value_beta(0),
 	valid(false), valid_correlation(false), valid_std_err(false),
@@ -335,31 +479,50 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
 	CalculateRegression(X, Y, meanX, meanY, varX, varY);
 }
 
+SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
+											   const std::vector<double>& Y,
+                                               const std::vector<bool>& X_undef,
+                                               const std::vector<bool>& Y_undef,
+											   double meanX, double meanY,
+											   double varX, double varY)
+	: n(0), covariance(0), correlation(0), alpha(0), beta(0), r_squared(0),
+	std_err_of_estimate(0), std_err_of_beta(0), std_err_of_alpha(0),
+	t_score_alpha(0), t_score_beta(0), p_value_alpha(0), p_value_beta(0),
+	valid(false), valid_correlation(false), valid_std_err(false),
+	error_sum_squares(0)
+{
+    
+    std::vector<double> X_valid;
+    std::vector<double> Y_valid;
+    
+    for (int i=0; i<X.size(); i++) {
+        if (X_undef[i] || Y_undef[i])
+            continue;
+        
+        X_valid.push_back(X[i]);
+        Y_valid.push_back(Y[i]);
+    }
+	CalculateRegression(X_valid, Y_valid, meanX, meanY, varX, varY);
+}
+
 void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 												 const std::vector<double>& Y,
 												 double meanX, double meanY,
 												 double varX, double varY)
 {
-	LOG_MSG("Entering SimpleLinearRegression::CalculateRegression");
-	LOG(meanX);
-	LOG(meanY);
-	LOG(varX);
-	LOG(varY);
-	if (X.size() != Y.size() || X.size() < 2 ) return;
+    n = X.size();
+	if (X.size() != Y.size() || X.size() < 2 )
+        return;
 	double expectXY = 0;
 	for (int i=0, iend=X.size(); i<iend; i++) {
 		expectXY += X[i]*Y[i];
 	}
 	expectXY /= (double) X.size();
 	covariance = expectXY - meanX * meanY;
-	LOG(expectXY);
-	LOG(covariance);
 	if (varX > 4*DBL_MIN) {
 		beta = covariance / varX;
 		alpha = meanY - beta * meanX;
 		valid = true;
-		LOG(alpha);
-		LOG(beta);
 	}
 	double SS_tot = varY*Y.size();
 	error_sum_squares = 0; // error_sum_squares = SS_err
@@ -368,13 +531,11 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		err = Y[i] - (alpha + beta * X[i]);
 		error_sum_squares += err * err;
 	}
-	LOG(error_sum_squares);
 	if (error_sum_squares < 16*DBL_MIN) {
 		r_squared = 1;
 	} else {
 		r_squared = 1 - error_sum_squares / SS_tot;
 	}
-	LOG(r_squared);
 	
 	if (Y.size()>2 && varX > 4*DBL_MIN) {
 		// error_sum_squares/(n-k-1), k=1
@@ -400,13 +561,6 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		p_value_alpha = TScoreTo2SidedPValue(t_score_alpha, X.size()-2);
 		p_value_beta = TScoreTo2SidedPValue(t_score_beta, X.size()-2);
 		
-		LOG(std_err_of_estimate);
-		LOG(std_err_of_beta);
-		LOG(std_err_of_alpha);
-		LOG(t_score_alpha);
-		LOG(p_value_alpha);
-		LOG(t_score_beta);
-		LOG(p_value_beta);
 		valid_std_err = true;
 	}
 	
@@ -414,9 +568,7 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 	if (d > 4*DBL_MIN) {
 		correlation = covariance / d;
 		valid_correlation = true;
-		LOG(correlation);
 	}
-	LOG_MSG("Exiting SimpleLinearRegression::CalculateRegression");
 }
 
 double SimpleLinearRegression::TScoreTo2SidedPValue(double tscore, int df)
@@ -522,12 +674,7 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	}
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
-		ostringstream ss;
-        if (tics[i] < 10000000) {
-            ss << std::fixed;
-        }
-        ss << std::setprecision(lbl_precision) << tics[i];
-		tics_str[i] = ss.str();
+        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision);
 		tics_str_show[i] = true;
 	}
 }
@@ -608,6 +755,9 @@ wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
 wxString GenUtils::DblToStr(double x, int precision)
 {
 	std::stringstream ss;
+    if (x < 10000000) {
+        ss << std::fixed;
+    }
 	ss << std::setprecision(precision);
 	ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
@@ -638,16 +788,31 @@ void GenUtils::DeviationFromMean(int nObs, double* data)
 	for (int i=0, iend=nObs; i<iend; i++) data[i] -= mean;
 }
 
+void GenUtils::DeviationFromMean(int nObs, double* data, std::vector<bool>& undef)
+{
+	if (nObs == 0) return;
+    
+    int nValid = 0;
+	double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i])
+            continue;
+        sum += data[i];
+        nValid += 1;
+    }
+	const double mean = sum / (double) nValid;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] -= mean;
+    }
+}
+
 void GenUtils::DeviationFromMean(std::vector<double>& data)
 {
-	LOG_MSG("Entering GenUtils::DeviationFromMean");
 	if (data.size() == 0) return;
 	double sum = 0.0;
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
 	const double mean = sum / (double) data.size();
-	LOG(mean);
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
-	LOG_MSG("Exiting GenUtils::DeviationFromMean");
 }
 
 bool GenUtils::StandardizeData(int nObs, double* data)
@@ -657,24 +822,46 @@ bool GenUtils::StandardizeData(int nObs, double* data)
 	double ssum = 0.0;
 	for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
 	const double sd = sqrt(ssum / (double) (nObs-1.0));
-	LOG(sd);
 	if (sd == 0) return false;
 	for (int i=0, iend=nObs; i<iend; i++) data[i] /= sd;
 	return true;
 }
 
+bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
+{
+	if (nObs <= 1) return false;
+    
+    int nValid = 0;
+    for (int i=0; i<undef.size(); i++) {
+        if (!undef[i])
+            nValid += 1;
+    }
+    
+	GenUtils::DeviationFromMean(nObs, data, undef);
+	double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i])
+            continue;
+        ssum += data[i] * data[i];
+    }
+	const double sd = sqrt(ssum / (double) (nValid-1.0));
+	if (sd == 0)
+        return false;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] /= sd;
+    }
+	return true;
+}
+
 bool GenUtils::StandardizeData(std::vector<double>& data)
 {
-	LOG_MSG("Entering GenUtils::StandardizeData");
 	if (data.size() <= 1) return false;
 	GenUtils::DeviationFromMean(data);
 	double ssum = 0.0;
 	for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
 	const double sd = sqrt(ssum / (double) (data.size()-1.0));
-	LOG(sd);
 	if (sd == 0) return false;
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] /= sd;
-	LOG_MSG("Exiting GenUtils::StandardizeData");
 	return true;
 }
 
@@ -727,7 +914,6 @@ wxString GenUtils::GetFileExt(const wxString& path)
 
 wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 {
-	LOG_MSG("In GenUtils::RestorePath");
 	wxFileName path_fn(path);
 	if (path_fn.IsAbsolute()) return path;
 	if (!path_fn.IsOk()) return path;
@@ -741,10 +927,8 @@ wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute()) return path;
 	if (path_fn.MakeAbsolute(wd.GetPath())) {
 		if (path_fn.GetExt().IsEmpty()) {
-			LOG_MSG(path_fn.GetPath());
 			return path_fn.GetPath();
 		}
-		LOG_MSG(path_fn.GetFullPath());
 		return path_fn.GetFullPath();
 	}
 	return path;
@@ -752,28 +936,19 @@ wxString GenUtils::RestorePath(const wxString& proj_path, const wxString& path)
 
 wxString GenUtils::SimplifyPath(const wxString& proj_path, const wxString& path)
 {
-	LOG_MSG("Entering GenUtils::SimplifyPath(const wxString&, "
-			"const wxString&");
-	wxFileName wd; 
+	wxFileName wd;
         wxFileName proj_path_fn(proj_path); 
 	if (proj_path_fn.GetExt().IsEmpty()) {
 		wd.AssignDir(proj_path);
 	} else {
 		wd.AssignDir(proj_path_fn.GetPath());
 	}
-	LOG_MSG("Exiting GenUtils::SimplifyPath");
 	return GenUtils::SimplifyPath(wd, path);
 }
 
 wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 {
-	LOG_MSG("Entering GenUtils::SimplifyPath(const wxFileName&, "
-			"const wxString&)");
-	LOG(wd.GetPath());
-	LOG(wd.GetFullPath());
-	LOG(wd.IsDir());
-	LOG(path);
-        wxFileName path_fn(path);
+    wxFileName path_fn(path);
 	if (!wd.IsOk() || !wd.IsDir() || !wd.IsAbsolute() ||
 		path_fn.IsRelative()) return path;
 	wxFileName p;
@@ -791,13 +966,10 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 	}
 	if (p.MakeRelativeTo(wd.GetPath())) {
 		if (p.IsDir()) {
-			LOG_MSG(p.GetPath());
 			return p.GetPath();
 		}
-		LOG_MSG(p.GetFullPath());
 		return p.GetFullPath();
 	}
-	LOG_MSG("Exiting GenUtils::SimplifyPath");
 	return path;
 }
 
@@ -1165,4 +1337,33 @@ std::string GenUtils::GetBasemapCacheDir()
 	wxFileName exeFile(exePath);
 	wxString exeDir = exeFile.GetPathWithSep();
 	return std::string(exeDir.mb_str());
+}
+
+std::string GenUtils::GetWebPluginsDir()
+{
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	wxFileName exeFile(exePath);
+	wxString exeDir = exeFile.GetPathWithSep();
+    exeDir << "web_plugins" << wxFileName::GetPathSeparator();
+    
+	return std::string(exeDir.mb_str());
+}
+
+std::string GenUtils::GetResourceDir()
+{
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	wxFileName exeFile(exePath);
+	wxString exeDir = exeFile.GetPathWithSep();
+    exeDir << "../Resources" << wxFileName::GetPathSeparator();
+    
+	return std::string(exeDir.mb_str());
+}
+
+std::string GenUtils::GetSamplesDir()
+{
+#ifdef __WXOSX__
+    return GetResourceDir();
+#else
+    return GetWebPluginsDir();
+#endif
 }

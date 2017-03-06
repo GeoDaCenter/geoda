@@ -36,7 +36,9 @@
 #include "../logger.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "SaveAsDlg.h"
+
 
 
 BEGIN_EVENT_TABLE( SaveAsDlg, wxDialog )
@@ -74,6 +76,8 @@ SaveAsDlg::SaveAsDlg(wxWindow* parent,
     m_chk_create_project->SetValue(true);
     m_project_path_txt->Enable();
     m_browse_project_btn->Enable();
+
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
     SetParent(parent);
 	SetPosition(pos);

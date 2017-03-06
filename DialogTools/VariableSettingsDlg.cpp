@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -32,7 +33,6 @@
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
-#include "../logger.h"
 #include "VariableSettingsDlg.h"
 
 /**
@@ -41,8 +41,10 @@
  */
 
 DiffMoranVarSettingDlg::DiffMoranVarSettingDlg(Project* project_s)
-    : wxDialog(NULL, -1, "Differential Moran Variable Settings", wxDefaultPosition, wxSize(590, 230))
+    : wxDialog(NULL, -1, _("Differential Moran Variable Settings"), wxDefaultPosition, wxSize(590, 230))
 {
+    wxLogMessage("Open DiffMoranVarSettingDlg.");
+    
     project = project_s;
     
     bool init_success = Init();
@@ -86,17 +88,24 @@ void DiffMoranVarSettingDlg::CreateControls()
     wxSize var_size(100, -1);
     wxSize  time_size(100,-1);
     
-    wxStaticText  *st = new wxStaticText (panel, wxID_ANY, wxT("Select variable "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st = new wxStaticText (panel, wxID_ANY, _("Select variable "),
+                                          wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, var_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                     var_size, 0, NULL, wxCB_READONLY);
     
-    wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY, wxT(" and two time periods: "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY,
+                                           _(" and two time periods: "),
+                                           wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      time_size, 0, NULL, wxCB_READONLY);
     
-    wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, wxT(" and "),  wxDefaultPosition, wxDefaultSize);
+    wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, _(" and "),
+                                           wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, time_size, 0, NULL, wxCB_READONLY);
+    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      time_size, 0, NULL, wxCB_READONLY);
     
     hbox->Add(st, 1, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
     hbox->Add(box, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
@@ -106,9 +115,11 @@ void DiffMoranVarSettingDlg::CreateControls()
     hbox->Add(box2, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM |wxRIGHT, 10);
     
     
-    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),  wxDefaultPosition, wxSize(70,-1));
+    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),
+                                           wxDefaultPosition, wxSize(70,-1));
     
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
     
     hbox1->Add(st3, 0, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
     hbox1->Add(box3, 0, wxALIGN_LEFT | wxTOP | wxBOTTOM, 10);
@@ -118,8 +129,10 @@ void DiffMoranVarSettingDlg::CreateControls()
     
     panel->SetSizer(vbox);
     
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"),  wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
     
     hbox2->Add(okButton, 1);
     hbox2->Add(closeButton, 1, wxLEFT, 5);
@@ -182,15 +195,22 @@ void DiffMoranVarSettingDlg::InitWeightsCombobox(wxComboBox* weights_ch)
 
 void DiffMoranVarSettingDlg::OnClose(wxCommandEvent& event )
 {
+    wxLogMessage("Close DiffMoranVarSettingDlg.");
+    
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
 void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
 {
+    wxLogMessage("Click DiffMoranVarSettingDlg::OnOK");
+    
     wxString col_name = combo_var->GetStringSelection();
     if (col_name.IsEmpty()) {
-        wxMessageDialog dlg (this, "Please select a variable first.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this,
+                             "Please select a variable first.",
+                             "Warning",
+                             wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -198,7 +218,9 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     int time1 = combo_time1->GetSelection();
     int time2 = combo_time2->GetSelection();
     if (time1 < 0 || time2 < 0 || time1 == time2) {
-        wxMessageDialog dlg (this, "Please choose two different time periods.", "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this,
+                             "Please choose two different time periods.",
+                             "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -213,7 +235,7 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     col_ids[0] = col_idx;
     col_ids[1] = col_idx;
     
-    for (int i=0; i<2; i++) {
+    for (int i=0; i<num_var; i++) {
         var_info[i].name = col_name;
         var_info[i].is_time_variant = true;
         
@@ -227,8 +249,6 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    //event.Skip();
-    
     bool check_group_var = true;
     try {
         for (int i=0; i<col_ids.size(); i++) {
@@ -236,7 +256,8 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
         }
     } catch(GdaException& ex) {
         // place holder found
-        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
+        wxString str_tmplt = _T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
+        wxString msg = wxString::Format(str_tmplt, project->GetTableInt()->GetTimeSteps());
         wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         check_group_var = false;
@@ -317,10 +338,10 @@ num_categories(4),
 hide_time(hide_time),
 all_init(false)
 {
+    wxLogMessage("Open VariableSettingsDlg");
+    
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
-		LOG_MSG("No Weights Found:\n"
-                "GeoDa could not find the required weights file.\nPlease specify weights in Tools > Weights Manager.");
 		wxXmlResource::Get()->LoadDialog(this, GetParent(),
 										 "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
 		SetTitle("No Weights Found");
@@ -383,18 +404,24 @@ void VariableSettingsDlg::Init(VarType var_type)
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 2 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1)) {
+		if (num_var >= 2 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
+        {
 			if (!set_second_from_first_mode) {
 				lb2_cur_sel = i;
 			}
 		}
-		if (num_var >= 3 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2)) {
+		if (num_var >= 3 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
+        {
 			lb3_cur_sel = i;
 			if (set_fourth_from_third_mode && num_var >= 4) {
 				lb4_cur_sel = i;
 			}
 		}
-		if (num_var >= 4 && table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3)) {
+		if (num_var >= 4 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
+        {
 			if (!set_fourth_from_third_mode) {
 				lb4_cur_sel = i;
 			}
@@ -425,52 +452,74 @@ void VariableSettingsDlg::Init(VarType var_type)
 
 void VariableSettingsDlg::CreateControls()
 {
+    wxString ctrl_xrcid;
+    
 	// show_distance is only supported for univariate
-	if (num_var == 1 && is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1_DIST");
-	} else if (num_var == 1 && !is_time && show_distance) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_DIST");
-	} else if (num_var == 1 && is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_1");
-	} else if (num_var == 1 && is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(),  "ID_VAR_SETTINGS_TIME_DLG_1_W");
-	} else if (num_var == 1 && !is_time && !show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1");
-	} else if (num_var == 1 && !is_time && show_weights) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_1_W");
-	} else if (num_var == 2 && is_time && !show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2");
-		}
-	} else if (num_var == 2 && is_time && show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_RATE_W");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_2_W");
-		}
-	} else if (num_var == 2 && !is_time && !show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2");
-		}
-	} else if (num_var == 2 && !is_time && show_weights) {
-		if (v_type == rate_smoothed) {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_RATE_W");
-		} else {
-			wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_2_W");
-		}
-	} else if (num_var == 3 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_3");
-	} else if (num_var == 3 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_3");
-	} else if (num_var == 4 && is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_TIME_DLG_4");
-	} else if (num_var == 4 && !is_time) {
-		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_VAR_SETTINGS_DLG_4");
-	}
+    if (num_var == 1 && is_time && show_distance) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1_DIST";
+        
+    } else if (num_var == 1 && !is_time && show_distance) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1_DIST";
+        
+    } else if (num_var == 1 && is_time && !show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1";
+        
+    } else if (num_var == 1 && is_time && show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_1_W";
+        
+    } else if (num_var == 1 && !is_time && !show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1";
+        
+    } else if (num_var == 1 && !is_time && show_weights) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_1_W";
+        
+    } else if (num_var == 2 && is_time && !show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_RATE";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_2";
+            
+        }
+    } else if (num_var == 2 && is_time && show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_RATE_W";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_2_W";
+            
+        }
+    } else if (num_var == 2 && !is_time && !show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_RATE";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_2";
+            
+        }
+    } else if (num_var == 2 && !is_time && show_weights) {
+        if (v_type == rate_smoothed) {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_RATE_W";
+            
+        } else {
+            ctrl_xrcid = "ID_VAR_SETTINGS_DLG_2_W";
+            
+        }
+    } else if (num_var == 3 && is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_3";
+        
+    } else if (num_var == 3 && !is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_3";
+        
+    } else if (num_var == 4 && is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_TIME_DLG_4";
+        
+    } else if (num_var == 4 && !is_time) {
+        ctrl_xrcid = "ID_VAR_SETTINGS_DLG_4";
+        
+    }
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), ctrl_xrcid);
+    
 	
 	if (is_time) {
         if (hide_time) {
@@ -545,6 +594,7 @@ void VariableSettingsDlg::CreateControls()
 	
 	if (FindWindow(XRCID("ID_THEMATIC"))) {
         map_theme_ch = XRCCTRL(*this, "ID_THEMATIC", wxChoice);
+        map_theme_ch->Bind(wxEVT_CHOICE, &VariableSettingsDlg::OnMapThemeChange, this);
 	}
 	if (FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN"))) {
         num_cats_spin = XRCCTRL(*this, "ID_NUM_CATEGORIES_SPIN", wxSpinCtrl);
@@ -553,9 +603,28 @@ void VariableSettingsDlg::CreateControls()
 	
 }
 
+void VariableSettingsDlg::OnMapThemeChange(wxCommandEvent& event)
+{
+    if (map_theme_ch) {
+        int m_theme = map_theme_ch->GetSelection();
+        //        map_theme_ch->Append("Percentile Map");
+        //        map_theme_ch->Append("Box Map (Hinge=1.5)");
+        //        map_theme_ch->Append("Box Map (Hinge=3.0)");
+        //        map_theme_ch->Append("Standard Deviation Map");
+        if (m_theme == 1 || m_theme == 2 ||
+            m_theme == 3 || m_theme == 4 )
+        {
+            num_cats_spin->Disable();
+        } else {
+            num_cats_spin->Enable();
+        }
+    }
+}
+
 void VariableSettingsDlg::OnListVariable1DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
 		lb2_cur_sel = lb1_cur_sel;
@@ -569,13 +638,15 @@ void VariableSettingsDlg::OnListVariable1DoubleClicked(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnListVariable2DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	OnOkClick(event);
 }
 
 void VariableSettingsDlg::OnListVariable3DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
 		lb4_cur_sel = lb3_cur_sel;
@@ -589,13 +660,15 @@ void VariableSettingsDlg::OnListVariable3DoubleClicked(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnListVariable4DoubleClicked(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	OnOkClick(event);
 }
 
 void VariableSettingsDlg::OnTime1(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v1_time = time_lb1->GetSelection();
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
@@ -608,14 +681,16 @@ void VariableSettingsDlg::OnTime1(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnTime2(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v2_time = time_lb2->GetSelection();
 	InitFieldChoices();
 }
 
 void VariableSettingsDlg::OnTime3(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v3_time = time_lb3->GetSelection();
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
@@ -628,14 +703,16 @@ void VariableSettingsDlg::OnTime3(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnTime4(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	v4_time = time_lb4->GetSelection();
 	InitFieldChoices();
 }
 
 void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb1_cur_sel = lb1->GetSelection();
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
@@ -649,13 +726,15 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb2_cur_sel = lb2->GetSelection();
 }
 
 void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb3_cur_sel = lb3->GetSelection();
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
@@ -669,13 +748,15 @@ void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 
 void VariableSettingsDlg::OnVar4Change(wxCommandEvent& event)
 {
-	if (!all_init) return;
+	if (!all_init)
+        return;
 	lb4_cur_sel = lb4->GetSelection();
 }
 
 void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
 {
-	if (!num_cats_spin) return;
+	if (!num_cats_spin)
+        return;
 	num_categories = num_cats_spin->GetValue();
 	if (num_categories < num_cats_spin->GetMin()) {
 		num_categories = num_cats_spin->GetMin();
@@ -687,23 +768,27 @@ void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
 
 void VariableSettingsDlg::OnCancelClick(wxCommandEvent& event)
 {
+    wxLogMessage("Click VariableSettingsDlg::OnOkClick");
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 }
 
 void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 {
+    wxLogMessage("Click VariableSettingsDlg::OnOkClick:");
 	if (no_weights_found_fail) {
 		event.Skip();
 		EndDialog(wxID_CANCEL);
 		return;
 	}
 	
-	if (map_theme_ch) m_theme = map_theme_ch->GetSelection();
+    if (map_theme_ch) {
+        m_theme = map_theme_ch->GetSelection();
+    }
 	
 	if (lb1->GetSelection() == wxNOT_FOUND) {
-		wxString msg("No field chosen for first variable.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg(_T("No field chosen for first variable."));
+		wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -713,12 +798,14 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	if (is_time) {
 		v1_time = time_lb1->GetSelection();
 		project->SetDefaultVarTime(0, v1_time);
-		if (!table_int->IsColTimeVariant(v1_col_id)) v1_time = 0;
+		if (!table_int->IsColTimeVariant(v1_col_id))
+            v1_time = 0;
 	}
+    wxLogMessage(v1_name);
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for second variable.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg(_T("No field chosen for second variable."));
+			wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -728,12 +815,14 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v2_time = time_lb2->GetSelection();
 			project->SetDefaultVarTime(1, v2_time);
-			if (!table_int->IsColTimeVariant(v2_col_id)) v2_time = 0;
+			if (!table_int->IsColTimeVariant(v2_col_id))
+                v2_time = 0;
 		}
+        wxLogMessage(v2_name);
 	}
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for third variable.");
+			wxString msg(_T("No field chosen for third variable."));
 			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
@@ -744,12 +833,14 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v3_time = time_lb3->GetSelection();
 			project->SetDefaultVarTime(2, v3_time);
-			if (!table_int->IsColTimeVariant(v3_col_id)) v3_time = 0;
+			if (!table_int->IsColTimeVariant(v3_col_id))
+                v3_time = 0;
 		}
+        wxLogMessage(v3_name);
 	}
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
-			wxString msg("No field chosen for fourth variable.");
+			wxString msg(_T("No field chosen for fourth variable."));
 			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
@@ -760,13 +851,16 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (is_time) {
 			v4_time = time_lb4->GetSelection();
 			project->SetDefaultVarTime(3, v4_time);
-			if (!table_int->IsColTimeVariant(v4_col_id)) v4_time = 0;
+			if (!table_int->IsColTimeVariant(v4_col_id))
+                v4_time = 0;
 		}
+        wxLogMessage(v4_name);
 	}
 	
 	FillData();
 	
-	if (show_weights) project->GetWManInt()->MakeDefault(GetWeightsId());
+	if (show_weights)
+        project->GetWManInt()->MakeDefault(GetWeightsId());
 	
 	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
 		project->SetDefaultDistMetric(GetDistanceMetric());
@@ -783,8 +877,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         }
     } catch(GdaException& ex) {
         // place holder found
-        wxString msg = wxString::Format("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.", project->GetTableInt()->GetTimeSteps());
-        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
+        wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+        wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         check_group_var = false;
     }
@@ -830,10 +924,12 @@ boost::uuids::uuid VariableSettingsDlg::GetWeightsId()
 	int sel = weights_ch->GetSelection();
 	if (sel < 0) sel = 0;
 	if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+    
 	wxString s;
 	s << "VariableSettingsDlg::GetWeightsId() weight: ";
 	s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
-	LOG_MSG(s);
+    wxLogMessage(s);
+    
 	return weights_ids[sel];
 }
 
@@ -993,6 +1089,7 @@ void VariableSettingsDlg::FillData()
 		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
 		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
+        
 		// var_info[i].time already set above
 		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
 		var_info[i].sync_with_global_time = var_info[i].is_time_variant;

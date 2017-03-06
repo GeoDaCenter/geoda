@@ -27,10 +27,10 @@ class LisaWhat2OpenDlg: public wxDialog
 
 public:
     LisaWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
-					 const wxString& caption = "What windows to open?",
+					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU );
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
 
@@ -52,10 +52,10 @@ class GetisWhat2OpenDlg: public wxDialog
 
 public:
     GetisWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
-					 const wxString& caption = "What windows to open?",
+					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU );
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
 

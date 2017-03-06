@@ -45,19 +45,24 @@ class GStatCoordinator;
 class Project;
 class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class GStatWorkerThread : public wxThread
 {
 public:
-	GStatWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
-					 GStatCoordinator* gstat_coord,
-					 wxMutex* worker_list_mutex,
-					 wxCondition* worker_list_empty_cond,
-					 std::list<wxThread*> *worker_list,
-					 int thread_id);
+    GStatWorkerThread(const GalElement* W,
+                      const std::vector<bool>& undefs,
+                      int obs_start, int obs_end, uint64_t seed_start,
+                      GStatCoordinator* gstat_coord,
+                      wxMutex* worker_list_mutex,
+                      wxCondition* worker_list_empty_cond,
+                      std::list<wxThread*> *worker_list,
+                      int thread_id);
 	virtual ~GStatWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
+    const GalElement* W;
+    const std::vector<bool>& undefs;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -134,6 +139,7 @@ protected:
 public:
 	std::vector<double*> G_vecs; //threaded
 	std::vector<bool*> G_defined_vecs; // check for divide-by-zero //threaded
+                                       // as well as undefined values
 	std::vector<double*> G_star_vecs; //threaded
 	// z-val corresponding to each G_i
 	std::vector<double*> z_vecs;
@@ -146,9 +152,11 @@ public:
 	std::vector<double*> pseudo_p_vecs; //threaded
 	std::vector<double*> pseudo_p_star_vecs; //threaded
 	std::vector<double*> x_vecs; //threaded
+    std::vector<std::vector<bool> > x_undefs;
 
 	boost::uuids::uuid w_id;
-	const GalElement* W;
+    std::vector<GalWeight*> Gal_vecs;
+    std::vector<GalWeight*> Gal_vecs_orig;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
@@ -156,6 +164,7 @@ public:
 	
 	// This variable should be empty for GStatMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
+	std::vector<b_array_type> data_undef; // data[variable][time][obs]
 	
 	// All GetisOrdMapCanvas objects synchronize themselves
 	// from the following 6 variables.
@@ -176,7 +185,8 @@ public:
 	std::vector<GetisOrdMapFrame*> maps;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs,
+                           int obs_start, int obs_end, uint64_t seed_start);
 	
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -187,7 +197,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded();
+	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
 	void CalcGs();
 	std::vector<bool> has_undefined;
 	std::vector<bool> has_isolates;

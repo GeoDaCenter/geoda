@@ -38,8 +38,9 @@ public:
 	virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
 	virtual wxString GetTitle(); // returns portion of wflnm if title empty
 	virtual bool HasIsolates() { return true; } // implement in
+   
     
-    // following two implemented in inherited classes: GalWeights and GwtWeights
+    // following functions implemented in inherited classes: GalWeights and GwtWeights
     virtual bool SaveDIDWeights(Project* project,
                                 int num_obs,
                                 std::vector<wxInt64>& newids,
@@ -47,6 +48,8 @@ public:
                                 const wxString& ofname)=0;
     virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)=0;
    
+    virtual void Update(const std::vector<bool>& undefs)=0;
+    
 public:
 	enum WeightType { gal_type, gwt_type };
 	// subclasses

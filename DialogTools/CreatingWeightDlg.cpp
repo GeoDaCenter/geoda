@@ -21,6 +21,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -47,7 +48,6 @@
 #include "../PointSetAlgs.h"
 #include "AddIdVariable.h"
 #include "CreatingWeightDlg.h"
-#include "../logger.h"
 
 BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
 EVT_CLOSE( CreatingWeightDlg::OnClose )
@@ -95,6 +95,7 @@ m_num_obs(project_s->GetNumRecords()),
 m_cbx_precision_threshold_first_click(true),
 suspend_table_state_updates(false)
 {
+    wxLogMessage("Open CreatingWeightDlg");
 	Create(parent, id, caption, pos, size, style);
 	all_init = true;
 	frames_manager->registerObserver(this);
@@ -104,7 +105,6 @@ suspend_table_state_updates(false)
 
 CreatingWeightDlg::~CreatingWeightDlg()
 {
-	LOG_MSG("In CreatingWeightDlg::~CreatingWeightDlg");
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
@@ -112,11 +112,10 @@ CreatingWeightDlg::~CreatingWeightDlg()
 
 void CreatingWeightDlg::OnClose(wxCloseEvent& ev)
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnClose");
+	wxLogMessage("Close CreatingWeightDlg");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
-	LOG_MSG("Exiting CreatingWeightDlg::OnClose");
 }
 
 bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
@@ -184,17 +183,12 @@ void CreatingWeightDlg::CreateControls()
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnCreateNewIdClick");
+    wxLogMessage("Click CreatingWeightDlg::OnCreateNewIdClick");
 	
 	suspend_table_state_updates = true;
 	AddIdVariable dlg(table_int, this);
 	if (dlg.ShowModal() == wxID_OK) {
-    	
 		// We know that the new id has been added to the the table in memory
-        //wxString new_id = dlg.GetIdVarName();
-		//m_id_field->Insert(new_id, 0);
-		//m_id_field->SetSelection(0);
-        
     	col_id_map.clear();
     	table_int->FillColIdMap(col_id_map);
     	
@@ -209,47 +203,50 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 	}
 	suspend_table_state_updates = false;
 	event.Skip();
-	LOG_MSG("Exiting CreatingWeightDlg::OnCreateNewIdClick");
 }
 
 void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCreateClick");
+    try {
+        CreateWeights();
+    } catch(GdaException e) {
+        wxString msg;
+        msg << e.what();
+        wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+}
+
+void CreatingWeightDlg::CreateWeights()
+{
 	WeightsMetaInfo wmi;
 	
 	if (m_radio == NO_RADIO) {
-		wxString msg;
-		msg << "Please select a weights type.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+        wxString msg = _("Please select a weights type.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (m_radio == THRESH) {
 		if (!m_thres_val_valid) {
-			wxString msg;
-			msg << "The currently entered threshold value is not ";
-			msg << "a valid number.  Please move the slider, or enter ";
-			msg << "a valid number.";
-			wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
+			wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
 		if (m_threshold_val*m_thres_delta_factor < m_thres_min) {
-			wxString msg;
-			msg << "The currently entered threshold value of ";
-			msg << m_threshold_val << " is less than ";
-			msg << m_thres_min << " which is the minimum value for which ";
-			msg << "there will be no neighborless observations (isolates). ";
-			msg << "Press Yes to proceed anyhow, press No to abort.";
-			wxMessageDialog dlg(this, msg, "Warning",
+			wxString msg = wxString::Format(_("The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."), m_threshold_val, m_thres_min);
+			wxMessageDialog dlg(this, msg, _("Warning"),
                                 wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-			if (dlg.ShowModal() != wxID_YES) return;
+			if (dlg.ShowModal() != wxID_YES)
+                return;
 		}
 	}
 	
 	wxString wildcard;
 	wxString defaultFile(project->GetProjectTitle());
-	LOG(defaultFile);
 	if (IsSaveAsGwt()) {
 		defaultFile += ".gwt";
 		wildcard = "GWT files (*.gwt)|*.gwt";
@@ -259,16 +256,19 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 	}
 	
 	wxFileDialog dlg(this,
-                     "Choose an output weights file name.",
+                     _("Choose an output weights file name."),
                      project->GetWorkingDir().GetPath(),
                      defaultFile,
                      wildcard,
                      wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	
 	wxString outputfile;
-	if (dlg.ShowModal() != wxID_OK) return;
+	if (dlg.ShowModal() != wxID_OK)
+        return;
 	outputfile = dlg.GetPath();
 	
+    wxLogMessage(_("CreateWeights()") + outputfile);
+    
 	wxString id = wxEmptyString;
 	if ( m_id_field->GetSelection() != wxNOT_FOUND ) {
 		id = m_id_field->GetString(m_id_field->GetSelection());
@@ -310,19 +310,15 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
             
 			if (m_is_arc && m_arc_in_km) {
-				t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
+				//t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
 			}
             
 			if (t_val > 0) {
 				using namespace SpatialIndAlgs;
 				Wp = thresh_build(m_XCOO, m_YCOO, t_val * m_thres_delta_factor, m_is_arc, !m_arc_in_km);
 				if (!Wp || !Wp->gwt) {
-					wxString m;
-					m << "No weights file was created due to all observations ";
-					m << "being isolates for the specified threshold value.  ";
-					m << "Increase the threshold to create a ";
-					m << "non-empty weights file.";
-					wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+					wxString m = _("No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file.");
+					wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 					dlg.ShowModal();
 					return;
 				}
@@ -351,9 +347,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				done = true;
                 
 			} else {
-				wxString s;
-				s << "Error: Maximum number of neighbors " << m_num_obs-1;
-				s << " exceeded.";
+				wxString s = wxString::Format(_("Error: Maximum number of neighbors %d exceeded."), m_num_obs-1);
 				wxMessageBox(s);
 			}
 		}
@@ -382,9 +376,8 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				}
 				gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
 				if (!gal) {
-					wxString msg("There was a problem generating voronoi "
-                                 "contiguity neighbors.  Please report this.");
-					wxMessageDialog dlg(NULL, msg, "Voronoi Contiguity Error", wxOK | wxICON_ERROR);
+					wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
+					wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
 					dlg.ShowModal();
 					break;
 				}
@@ -395,8 +388,9 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 						wxString prec_thres =
 						m_txt_precision_threshold->GetValue();
 						double value;
-						if ( prec_thres.ToDouble(&value) )
+                        if ( prec_thres.ToDouble(&value) ) {
 							precision_threshold = value;
+                        }
 					} else {
 						precision_threshold = 0.0;
 					}
@@ -418,7 +412,7 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 			if (empty_w) {
 				// could be an empty weights file, and should prompt user
 				// to setup Precision Threshold
-				wxString msg("None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold.");
+				wxString msg = _("None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold.");
 				wxMessageDialog dlg(NULL, msg, "Empty Contiguity Weights", wxOK | wxICON_WARNING);
 				dlg.ShowModal();
 				
@@ -443,12 +437,10 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 				break;
 			}
             if (has_island) {
-                wxString msg("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
+                wxString msg = _("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
                 wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
                 dlg.ShowModal();
             }
-            
-            
 			if (m_ooC > 1) {
 				Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, gal, m_check1);
 				WriteWeightFile(gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
@@ -467,12 +459,13 @@ void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnPrecisionThresholdCheck");
+    
 	if (m_cbx_precision_threshold_first_click) {
 		// Show a warning message regarding the use of this function
-		wxString msg;
-        msg << "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations.";
-		wxMessageDialog dlg(NULL, msg, "About Precision Threshold",
-												wxOK | wxICON_INFORMATION);
+		wxString msg = _("Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations.");
+		wxMessageDialog dlg(NULL, msg, _("About Precision Threshold"),
+                            wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		m_cbx_precision_threshold_first_click = false;
 	}
@@ -487,12 +480,14 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCRadioRookSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioRookSelected");
 	SetRadioBtnAndAssocWidgets(ROOK);
 	SetRadioButtons(ROOK);
 }
 
 void CreatingWeightDlg::OnCRadioQueenSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioQueenSelected");
 	SetRadioBtnAndAssocWidgets(QUEEN);
 	SetRadioButtons(QUEEN);
 }
@@ -503,7 +498,6 @@ void CreatingWeightDlg::update(FramesManager* o)
 
 void CreatingWeightDlg::update(TableState* o)
 {
-	LOG_MSG("In CreatingWeightDlg::update(TableState*)");
 	if (suspend_table_state_updates) return;
 	if (o->GetEventType() == TableState::cols_delta ||
 			o->GetEventType() == TableState::col_rename ||
@@ -520,7 +514,6 @@ void CreatingWeightDlg::update(TableState* o)
 
 void CreatingWeightDlg::update(WeightsManState* o)
 {
-	LOG_MSG("In CreatingWeightDlg::update(WeightsManState*)");
 	Refresh();
 }
 
@@ -626,7 +619,6 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(RadioBtnId radio)
 // the current position of the slider
 void CreatingWeightDlg::UpdateThresholdValues()
 {
-	LOG_MSG("Entering CreatingWeightDlg::UpdateThresholdValues");
 	if (!all_init) return;
 	int sl_x, sl_y;
 	m_sliderdistance->GetPosition(&sl_x, &sl_y);
@@ -634,7 +626,10 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	m_sliderdistance->SetSize(sl_x, sl_y, 500, sl_size.GetHeight());
 	
 	if (m_X->GetSelection() == wxNOT_FOUND ||
-			m_Y->GetSelection() == wxNOT_FOUND) return;
+        m_Y->GetSelection() == wxNOT_FOUND) {
+        return;
+    }
+    
 	wxString mm_x = m_X->GetString(m_X->GetSelection());
 	wxString mm_y = m_Y->GetString(m_Y->GetSelection());
 	wxString v1 = mm_x;
@@ -693,8 +688,9 @@ void CreatingWeightDlg::UpdateThresholdValues()
 		}
 	}
 	
-	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO, m_is_arc,
-																									!m_arc_in_km);
+	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO,
+                                                    m_is_arc,
+                                                    !m_arc_in_km);
 	{
 		using namespace PointSetAlgs;
 		using namespace GenGeomAlgs;
@@ -707,22 +703,24 @@ void CreatingWeightDlg::UpdateThresholdValues()
 			m_thres_max = d;
 		}
 	}
-	LOG(m_thres_min);
-	LOG(m_thres_max);
+
 	m_threshold_val = (m_sliderdistance->GetValue() *
 										 (m_thres_max-m_thres_min)/100.0) + m_thres_min;
 	m_thres_val_valid = true;
 	m_threshold->ChangeValue( wxString::Format("%f", m_threshold_val));
-	LOG_MSG("Exiting CreatingWeightDlg::UpdateThresholdValues");
 }
 
 void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCThresholdTextEdit:");
+    
 	if (!all_init) return;
-	LOG_MSG("In CreatingWeightDlg::OnCThresholdTextEdit");
 	wxString val = m_threshold->GetValue();
 	val.Trim(false);
 	val.Trim(true);
+    
+    wxLogMessage(val);
+    
 	double t = m_threshold_val;
 	m_thres_val_valid = val.ToDouble(&t);
 	if (m_thres_val_valid) {
@@ -740,19 +738,26 @@ void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCThresholdSliderUpdated:");
+    
 	if (!all_init) return;
 	bool m_rad_inv_dis_val = false;
 	
-	m_threshold_val = (m_sliderdistance->GetValue() *
-										 (m_thres_max-m_thres_min)/100.0) + m_thres_min;
+	m_threshold_val = (m_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
 	m_threshold->ChangeValue( wxString::Format("%f", (double) m_threshold_val));
 	if (m_threshold_val > 0)  {
 		FindWindow(XRCID("wxID_OK"))->Enable(true);
 	}
+    
+    wxString str_val;
+    str_val << m_threshold_val;
+    wxLogMessage(str_val);
 }
 
 void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioDistanceSelected");
+    
 	// Threshold Distance radio button selected
 	SetRadioBtnAndAssocWidgets(THRESH);
 	SetRadioButtons(THRESH);
@@ -761,6 +766,8 @@ void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCRadioKnnSelected");
+    
 	SetRadioBtnAndAssocWidgets(KNN);
 	SetRadioButtons(KNN);
 	UpdateThresholdValues();
@@ -768,6 +775,8 @@ void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated");
+    
 	wxString val;
 	val << m_spincont->GetValue();
 	m_contiguity->SetValue(val);
@@ -775,6 +784,8 @@ void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
 
 void CreatingWeightDlg::OnCSpinKnnUpdated( wxSpinEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnCSpinKnnUpdated");
+    
 	wxString val;
 	val << m_spinneigh->GetValue();
 	m_neighbors->SetValue(val);
@@ -898,8 +909,8 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
             if (regex.Matches(item)) {
                 str_id_vec[i] = item;
             } else {
-        		wxString msg = id + " should contains only numbers/letters as IDs.  Please choose ";
-        		msg += "a different ID Variable.";
+                wxString msg = id;
+                msg += _(" should contains only numbers/letters as IDs.  Please choose a different ID Variable.");
         		wxMessageBox(msg);
         		return false;
             }
@@ -911,8 +922,7 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
 		id_set.insert(str_id_vec[i]);
 	}
 	if (str_id_vec.size() != id_set.size()) {
-		wxString msg = id + " has duplicate values.  Please choose ";
-		msg += "a different ID Variable.";
+		wxString msg = id + _(" has duplicate values.  Please choose a different ID Variable.");
 		wxMessageBox(msg);
 		return false;
 	}
@@ -999,9 +1009,10 @@ bool CreatingWeightDlg::IsSaveAsGwt()
 
 void CreatingWeightDlg::OnXSelected(wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnXSelected");
-	if ( m_X->GetString(m_X->GetSelection()) == "<X-Centroids>" && 
-			m_Y->GetString(m_Y->GetSelection()) == "<Y-Mean-Centers>" ) {
+    wxLogMessage("Click CreatingWeightDlg::OnXSelected");
+    
+	if (m_X->GetString(m_X->GetSelection()) == "<X-Centroids>" &&
+        m_Y->GetString(m_Y->GetSelection()) == "<Y-Mean-Centers>" ) {
 		m_Y->SetSelection(0);
 	}
 	if ( m_X->GetString(m_X->GetSelection()) == "<X-Mean-Centers>" && 
@@ -1014,12 +1025,15 @@ void CreatingWeightDlg::OnXSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-	LOG_MSG("Exiting CreatingWeightDlg::OnXSelected");	
+    
+    wxString msg;
+    msg << _("selected:") << m_X->GetSelection();
+    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 {
-	LOG_MSG("Entering CreatingWeightDlg::OnYSelected");
+	wxLogMessage("Click CreatingWeightDlg::OnYSelected");
 	if ( m_Y->GetString(m_Y->GetSelection()) == "<Y-Centroids>" && 
 			m_X->GetString(m_X->GetSelection()) == "<X-Mean-Centers>" ) {
 		m_X->SetSelection(0);
@@ -1034,21 +1048,29 @@ void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-	LOG_MSG("Exiting CreatingWeightDlg::OnYSelected");
+    
+    wxString msg;
+    msg << "selected:" << m_Y->GetSelection();
+    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnXTmSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnXTmSelected");
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnYTmSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnYTmSelected");
+    
 	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnDistanceChoiceSelected(wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnDistanceChoiceSelected");
+    
 	wxString s = m_dist_choice->GetStringSelection();
 	if (s == "Euclidean Distance") {
 		SetDistChoiceEuclid(false);
@@ -1100,6 +1122,8 @@ void CreatingWeightDlg::SetDistChoiceArcKms(bool update_sel)
 
 void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
 {
+    wxLogMessage("Click CreatingWeightDlg::OnIdVariableSelected");
+    
     wxString id = wxEmptyString;
 	if ( m_id_field->GetSelection() != wxNOT_FOUND ) {
 		id = m_id_field->GetString(m_id_field->GetSelection());
@@ -1114,7 +1138,11 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
     
 	EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
 	EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND) && !project->IsTableOnlyProject());
-	UpdateCreateButtonState();	
+	UpdateCreateButtonState();
+    
+    wxString msg;
+    msg << _("selected:") << m_id_field->GetSelection();
+    wxLogMessage(msg);
 }
 
 /** layer_name: layer name
@@ -1167,16 +1195,14 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 	}
     
 	if (!flag) {
-		wxString msg("Failed to create the weights file.");
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Failed to create the weights file.");
+		wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	} else {
 		wxFileName t_ofn(ofn);
 		wxString file_name(t_ofn.GetFullName());
-		wxString msg = wxEmptyString;
-		msg = "Weights file \"" + file_name + "\" created successfully.";
-		LOG_MSG(msg);
-		wxMessageDialog dlg(NULL, msg, "Success", wxOK | wxICON_INFORMATION);
+		wxString msg = wxString::Format(_("Weights file \"%s\" created successfully."), file_name);
+		wxMessageDialog dlg(NULL, msg, _("Success"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		success = true;
 	}
@@ -1186,7 +1212,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 		wxString ext = t_ofn.GetExt().Lower();
 		GalWeight* w = 0;
 		if (ext != "gal" && ext != "gwt") {
-			LOG_MSG("File extention not gal or gwt");
+			//LOG_MSG("File extention not gal or gwt");
 		} else {
 			GalElement* tempGal = 0;
 			if (ext == "gal") {
@@ -1204,12 +1230,13 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 				WeightsMetaInfo e(wmi);
 				e.filename = ofn;
 				boost::uuids::uuid uid = w_man_int->RequestWeights(e);
-				if (uid.is_nil()) success = false;
+				if (uid.is_nil())
+                    success = false;
 				if (success) {
 					// deep copy of w
 					GalWeight* dcw = new GalWeight(*w);
-					success =
-					((WeightsNewManager*) w_man_int)->AssociateGal(uid, dcw);
+					success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, dcw);
+                    
 					if (success) {
 						w_man_int->MakeDefault(uid);
 						//wxCommandEvent event;
@@ -1219,6 +1246,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
 					}
 					//GdaFrame::GetGdaFrame()->ShowConnectivityMapView(uid);
 				}
+                delete w;
 			} else {
 				success = false;
 			}

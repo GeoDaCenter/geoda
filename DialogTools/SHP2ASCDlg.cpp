@@ -111,7 +111,7 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
         }
         
 	} else {
-		wxMessageBox("This file type is not supported.");
+		wxMessageBox(_("This file type is not supported."));
 		return false;
 	}
 
@@ -207,25 +207,6 @@ bool SHP2ASCDlg::CreateASCBoundary(wxString oasc, wxString orasc, int field,
                 }
             }
            
-            /*
-			switch(type)
-			{
-			case 3:
-			case 4:
-                    if ( poly != NULL) {
-                        asc << wxString::Format("%.10f", ext_ring->getX(0));
-                        asc << ",";
-                        asc << wxString::Format("%.10f", ext_ring->getY(0));
-                        asc << endl;
-                    }
-				break;
-			case 1:
-			case 2:
-				break;
-			default:
-				return false;
-			}
-            */
 		}
 	}
 
@@ -307,8 +288,9 @@ void SHP2ASCDlg::CreateControls()
 
 void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnOkAddClick()");
 	if(type == -1) {
-		wxMessageBox("Please select an option.");
+		wxMessageBox(_("Please select an option."));
 		return;
 	}
 
@@ -324,14 +306,7 @@ void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 	else 
 		DirName = m_ishp;
 
-	//char buf_ifl[512];
-	//strcpy( buf_ifl, (const char*)DirName.mb_str(wxConvUTF8) );
-	//char* ifl = buf_ifl;
 	wxString ifl = DirName;
-
-	//char buf_ofl[512];
-	//strcpy( buf_ofl, (const char*)m_oasc.mb_str(wxConvUTF8) );
-	//char* ofl = buf_ofl;
 	wxString ofl = m_oasc;
 
 	pos = m_oasc.Find('.',true);
@@ -347,25 +322,22 @@ void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 
 	if(m_isR) {
 		wxString orf = RName+ "_r" +RNameExt;
-		//char buf_orfl[512];
-		//strcpy( buf_orfl, (const char*)orf.mb_str(wxConvUTF8) );
-		//char* orfl = buf_orfl;
 
 		if(!CreateASCBoundary(ofl, orf, m_X->GetSelection(), type, m_isR)) {
-			wxMessageBox("Can't write output file!");
+			wxMessageBox(_("Can't write output file!"));
 			return;
 		}
 			
 	} else {
 		if(!CreateASCBoundary(ofl, wxEmptyString, m_X->GetSelection(),
                               type, m_isR)) {
-			wxMessageBox("Can't write output file!");
+			wxMessageBox(_("Can't write output file!"));
 			return;
 		}
 	}
 
-    wxMessageDialog dlg (this, "Export shape to boundary successfully.",
-                         "Info", wxOK | wxICON_INFORMATION);
+    wxMessageDialog dlg (this, _("Export shape to boundary successfully."),
+                         _("Info"), wxOK | wxICON_INFORMATION);
     dlg.ShowModal();
     
 	event.Skip();
@@ -373,18 +345,16 @@ void SHP2ASCDlg::OnOkAddClick( wxCommandEvent& event )
 
 void SHP2ASCDlg::OnCOpenOascClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg
-                 (
-                    this,
-                    "Output ASCII file",
-                    wxEmptyString,
-                    fn + ".txt",
-                    "ASCII files (*.txt)|*.txt",
-					wxFD_SAVE | wxFD_OVERWRITE_PROMPT
-                 );
-
+    wxLogMessage("In SHP2ASCDlg::OnCOpenOascClick()");
+    
+    wxFileDialog dlg(this,
+                     _("Output ASCII file"),
+                     wxEmptyString,
+                     fn + ".txt",
+                     "ASCII files (*.txt)|*.txt",
+                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	
-	wxString	m_path = wxEmptyString;
+	wxString m_path = wxEmptyString;
 
     if (dlg.ShowModal() == wxID_OK) {
 		m_path  = dlg.GetPath();
@@ -396,33 +366,41 @@ void SHP2ASCDlg::OnCOpenOascClick( wxCommandEvent& event )
 
 void SHP2ASCDlg::OnOkdoneClick( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnOkdoneClick()");
+    
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 }
 
 void SHP2ASCDlg::OnCRadio1Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnCRadio1Selected()");
+    
     type = 1;
 }
 
 void SHP2ASCDlg::OnCRadio2Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnCRadio2Selected()");
     type = 2;
 }
 
 void SHP2ASCDlg::OnCRadio3Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnCRadio3Selected()");
     type = 3;
 }
 
 void SHP2ASCDlg::OnCRadio4Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnCRadio4Selected()");
     type = 4;
 }
 
 
 void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
 {
+    wxLogMessage("In SHP2ASCDlg::OnCOpenIshpClick()");
     try{
         ConnectDatasourceDlg dlg(this);
         if (dlg.ShowModal() != wxID_OK) return;
@@ -440,12 +418,11 @@ void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
         bool is_valid_layer = true;
         
         if (ogr_layer->IsTableOnly()) {
-            wxMessageBox("This is not a shape datasource. Please open a valid "
-                         "shape datasource, e.g. ESRI Shapefile, PostGIS layer...");
+            wxMessageBox(_("This is not a shape datasource. Please open a valid shape datasource, e.g. ESRI Shapefile, PostGIS layer..."));
             is_valid_layer = false;
         }
         if (ogr_layer->GetNumFields() == 0){
-            wxMessageBox("No fields found!");
+            wxMessageBox(_("No fields found!"));
             is_valid_layer = false;
         }
         if ( !is_valid_layer) {

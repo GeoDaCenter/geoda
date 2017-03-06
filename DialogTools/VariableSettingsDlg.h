@@ -79,11 +79,11 @@ public:
 	VariableSettingsDlg( Project* project, VarType v_type,
 						bool show_weights = false,
 						bool show_distance = false,
-						const wxString& title="Variable Settings",
-						const wxString& var1_title="First Variable (X)",
-						const wxString& var2_title="Second Variable (Y)",
-						const wxString& var3_title="Third Variable (Z)",
-						const wxString& var4_title="Fourth Variable",
+						const wxString& title=_("Variable Settings"),
+						const wxString& var1_title=_("First Variable (X)"),
+						const wxString& var2_title=_("Second Variable (Y)"),
+						const wxString& var3_title=_("Third Variable (Z)"),
+						const wxString& var4_title=_("Fourth Variable"),
 						bool set_second_from_first_mode = false,
 						bool set_fourth_from_third_mode = false,
                         bool hide_time = false);
@@ -91,6 +91,7 @@ public:
 	void CreateControls();
 	void Init(VarType var_type);
 
+    void OnMapThemeChange( wxCommandEvent& event );
 	void OnListVariable1DoubleClicked( wxCommandEvent& event );
 	void OnListVariable2DoubleClicked( wxCommandEvent& event );
 	void OnListVariable3DoubleClicked( wxCommandEvent& event );

@@ -64,7 +64,8 @@ m_decimals_val(0), m_length_valid(true),
 time_variant(project_s->GetTableInt()->IsTimeVariant()),
 fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 {
-    LOG_MSG("Entering DataViewerAddColDlg::DataViewerAddColDlg(..)");
+    wxLogMessage("Open DataViewerAddColDlg.");
+    
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -87,8 +88,6 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	m_insert_pos->SetSelection(0);
      
 	UpdateApplyButton();
-    
-    LOG_MSG("Exiting DataViewerAddColDlg::DataViewerAddColDlg(..)");
 }
 
 
@@ -130,7 +129,7 @@ void DataViewerAddColDlg::CreateControls()
 	m_type->Append("real (eg 1.03, 45.7)");
 	m_type->Append("integer (eg -1, 0, 23)");
 	m_type->Append("string (eg New York)");
-	m_type->Append("date (eg 20110131)");
+	//m_type->Append("date (eg 20110131)");
 	
 	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
 	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);
@@ -195,6 +194,8 @@ void DataViewerAddColDlg::CreateControls()
 
 void DataViewerAddColDlg::OnChoiceType( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerAddColDlg::OnChoiceType()");
+    
 	switch (ev.GetSelection()) {
 		case 0:
 			if (cur_type == GdaConst::double_type) return;
@@ -295,7 +296,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 
 void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 {
-	LOG_MSG("Entering DataViewerAddColDlg::OnOkClick");
+	wxLogMessage("Entering DataViewerAddColDlg::OnOkClick");
     wxString colname = m_name->GetValue();
 	colname.Trim(true);  // trim white-space from right of string
 	colname.Trim(false); // trim white-space from left of string
@@ -373,8 +374,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		time_steps = table_int->GetTimeSteps();
 	}
 
-	LOG_MSG(wxString::Format("Inserting new column %s into Table",
-							 colname.Upper().c_str()));
+	wxLogMessage(wxString::Format("Inserting new column %s into Table", colname.Upper()));
 	
 	bool success;
 	if (fixed_lengths) {
@@ -387,8 +387,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	
 	if (!success) {
-		wxString msg("Could not create a new variable. "
-					 "Possibly a read-only data source.");
+		wxString msg = _("Could not create a new variable. Possibly a read-only data source.");
 		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
@@ -408,11 +407,11 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     
 	ev.Skip();
 	EndDialog(wxID_OK);
-	LOG_MSG("Exiting DataViewerAddColDlg::OnOkClick");
 }
 
 void DataViewerAddColDlg::OnEditName( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnEditName()");
 	CheckName();
 }
 
@@ -431,6 +430,8 @@ void DataViewerAddColDlg::CheckName()
 
 void DataViewerAddColDlg::OnEditLength( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnEditLength()");
+    
 	if (!fixed_lengths) return;
 	wxString s = m_length->GetValue();
 	long val = 0;
@@ -469,7 +470,10 @@ void DataViewerAddColDlg::OnEditLength( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
 {
-	if (!fixed_lengths) return;
+    wxLogMessage("DataViewerAddColDlg::OnEditDecimals()");
+    
+	if (!fixed_lengths)
+        return;
 	if (!cur_type == GdaConst::double_type) {
 		m_decimals_valid = true;
 		UpdateApplyButton();
@@ -498,6 +502,8 @@ void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnChoiceDisplayedDecimals()");
+    
 	if (fixed_lengths && cur_type == GdaConst::double_type)
         UpdateMinMaxValues();
     

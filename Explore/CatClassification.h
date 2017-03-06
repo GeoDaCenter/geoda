@@ -35,7 +35,7 @@ class TableInterface;
 
 namespace CatClassification {
 	
-	const int max_num_categories = 10;
+	const int max_num_categories = 20;
 	
 	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, natural_breaks,
@@ -51,7 +51,7 @@ namespace CatClassification {
 		unique_values_break_vals, natural_breaks_break_vals,
 		equal_intervals_break_vals, custom_break_vals };
 	
-	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme, unique_color_scheme };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
@@ -61,25 +61,31 @@ namespace CatClassification {
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
+                        const std::vector<bool>& var_undef,
 						const CatClassifType theme, int num_cats,
                         bool useScientificNotation=false);
 	
-	void PopulateCatClassifData(const CatClassifDef& cat_def,
-				const std::vector<Gda::dbl_int_pair_vec_type>& var,
-				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				std::vector<wxString>& cats_error_message,
-                bool useSciNotation=false);
+    void PopulateCatClassifData(const CatClassifDef& cat_def,
+                                const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                                const std::vector<std::vector<bool> >& var_undef,
+                                CatClassifData& cat_data, std::vector<bool>& cats_valid,
+                                std::vector<wxString>& cats_error_message,
+                                bool useSciNotation=false,
+                                bool useUndefinedCategory=true);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int);
 	
 	void FindNaturalBreaks(int num_cats,
 						   const Gda::dbl_int_pair_vec_type& var,
+                           const std::vector<bool>& var_undef,
 						   std::vector<double>& nat_breaks);
-	void SetNaturalBreaksCats(int num_cats,
-				const std::vector<Gda::dbl_int_pair_vec_type>& var,
-				CatClassifData& cat_data, std::vector<bool>& cats_valid,
-				ColorScheme coltype=CatClassification::sequential_color_scheme);
+    
+    void SetNaturalBreaksCats(int num_cats,
+                              const std::vector<Gda::dbl_int_pair_vec_type>& var,
+                              const std::vector<std::vector<bool> >& var_undef,
+                              CatClassifData& cat_data, std::vector<bool>& cats_valid,
+                              ColorScheme coltype=CatClassification::sequential_color_scheme);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	
@@ -165,7 +171,8 @@ struct CatClassifData {
 	// Note: Canvas Time Steps might not correspond to global time steps.
 	// For views that display data from two or more variables such as
 	// Scatter Plot, there may be fewer canvas time steps than global time
-	// steps.	
+	// steps.
+    void AppendUndefCategory(int time, int count);
 	void CreateEmptyCategories(int num_canvas_tms, int num_obs);
 	void CreateCategoriesAllCanvasTms(int num_cats, int num_canvas_tms,
 									  int num_obs);

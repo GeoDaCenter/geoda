@@ -172,11 +172,11 @@ private:
 	int OffsetFromMinSyncedTm(int var);
 	
 	struct Entry {
-		Entry(const wxString& name, int time,
-					bool is_time_variant, bool sync_with_global_time,
-					bool fixed_scale,
-					const std::vector<double>& min_vals,
-					const std::vector<double>& max_vals);
+        Entry(const wxString& name, int time,
+              bool is_time_variant, bool sync_with_global_time,
+              bool fixed_scale,
+              const std::vector<double>& min_vals,
+              const std::vector<double>& max_vals);
 		Entry(const Entry& e);
 		virtual Entry& operator=(const Entry& s);
 		
@@ -204,6 +204,7 @@ struct VarInfo {
 	int time; // current time, always between time_min and time_max
 	std::vector<double> min; // min values for each time
 	std::vector<double> max; // max values for each time
+	std::vector<bool> has_undef; // max values for each time
 	/* Keep synchronized with reference time.
 	 * This only applies to time-variant variables.
 	 * If false for a time-variant variable, then that variable
@@ -213,6 +214,8 @@ struct VarInfo {
 	// scale is set according to min/max values over all possible times
 	// for this particular variable combination.
 	bool fixed_scale;
+    
+    bool is_moran; // moran requires |min| == |max|
 	
 	// Secondary Attributes
 	

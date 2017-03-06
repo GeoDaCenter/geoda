@@ -80,14 +80,12 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 		BOOST_FOREACH(const ptree::value_type &v,
 					  pt.get_child("custom_classifications")) {
 			wxString key = v.first.data();
-			LOG_MSG(key);
 			if (key == "classification_definition") {
 				bool first_name = false;
 				bool first_color = false;
 				CatClassifDef cc_data;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
-					LOG_MSG(key);
 					if (key == "title") {
 						wxString s = v.second.data();
 						cc_data.title = s;
@@ -156,7 +154,6 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else if (key == "breaks") {
 						BOOST_FOREACH(const ptree::value_type &v, v.second) {
 							wxString key = v.first.data();
-							LOG_MSG(key);
 							if (key == "break") {
 								wxString s = v.second.data();
 								double n;
@@ -175,7 +172,6 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else if (key == "names") {
 						BOOST_FOREACH(const ptree::value_type &v, v.second) {
 							wxString key = v.first.data();
-							LOG_MSG(key);
 							if (key == "name") {
 								if (!first_name) {
 									cc_data.names.clear();
@@ -191,7 +187,6 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else if (key == "colors") {
 						BOOST_FOREACH(const ptree::value_type &v, v.second) {
 							wxString key = v.first.data();
-							LOG_MSG(key);
 							if (key == "color") {
 								if (!first_color) {
 									cc_data.colors.clear();
@@ -204,7 +199,6 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 											  v.second)
 								{
 									wxString key = v.first.data();
-									LOG_MSG(key);
 									if (key == "red") {
 										wxString s = v.second.data();
 										if (!s.ToLong(&red)) {

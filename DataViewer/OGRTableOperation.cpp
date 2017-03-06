@@ -98,29 +98,44 @@ void OGRTableOpDeleteColumn::Rollback()
         int n_rows = ogr_col->GetNumRows();
         if ( type == GdaConst::long64_type){
             vector<wxInt64> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, (GIntBig)col_data[i]);
             }
         } else if ( type == GdaConst::double_type){
             vector<double> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i]);
             }
-        } else if ( type == GdaConst::date_type){
+        } else if (type == GdaConst::date_type ||
+                   type == GdaConst::time_type ||
+                   type == GdaConst::datetime_type ){
+            
             vector<wxInt64> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 wxInt64 val = col_data[i];
-                int year = val / 10000;
-                int month = val % 10000 / 100;
-                int day = val % 1000000;
-                ogr_layer->SetValueAt(i, pos, year, month, day);
+                // 20081203120100 YYYYMMDDHHMMSS
+                int year = val / 10000000000;
+                val = val % 10000000000;
+                int month = val / 100000000;
+                val = val % 100000000;
+                int day = val  / 1000000;
+                val = val % 1000000;
+                int hour = val / 10000;
+                val = val % 10000;
+                int minute = val / 100;
+                int second = val % 100;
+                ogr_layer->SetValueAt(i, pos, year, month, day, hour, minute, second);
             }
         } else {
             vector<wxString> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i].mb_str());
             }
@@ -192,7 +207,8 @@ OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
 {
     int n_rows = ogr_col->GetNumRows();
     d_old_data.resize(n_rows);
-    ogr_col->FillData(d_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(d_old_data, undef_old_data);
     d_new_data = new_data;
 }
 
@@ -202,7 +218,8 @@ OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
 {
     int n_rows = ogr_col->GetNumRows();
     l_old_data.resize(n_rows);
-    ogr_col->FillData(l_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(l_old_data, undef_old_data);
     l_new_data = new_data;
 }
 
@@ -212,7 +229,8 @@ OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
 {
     int n_rows = ogr_col->GetNumRows();
     s_old_data.resize(n_rows);
-    ogr_col->FillData(s_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(s_old_data, undef_old_data);
     s_new_data = new_data;
 }
 

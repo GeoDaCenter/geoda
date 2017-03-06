@@ -46,11 +46,21 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
     
+    CPLErrorReset();
     
     if (ds_type == GdaConst::ds_csv) {
-        const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES"};
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-        
+        if (GdaConst::gda_ogr_csv_header == 0) {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        } else if (GdaConst::gda_ogr_csv_header == 1) {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        } else {
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
+            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            
+        }
+
     } else {
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     }
@@ -68,10 +78,11 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             string error_detail = CPLGetLastErrorMsg();
             ostringstream msg;
 			msg << "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html";
-            //if ( error_detail.length() == 0 || error_detail == "Unknown") {  
-            //} else {
-            //    msg << error_detail;
-            //}
+            
+            if ( error_detail.length() == 0 || error_detail == "Unknown") {
+            } else {
+                msg << "\n\nDetails: " << error_detail;
+            }
 
             throw GdaException(msg.str().c_str());
 			//}
@@ -344,7 +355,8 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     // LAUNDER is for database: rename desired field name
     char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
     
-    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(), poOutputSRS, eGType, papszLCO);
+    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(),
+                                           poOutputSRS, eGType, papszLCO);
     
     if( poDstLayer == NULL ) {
         error_message << "Can't write/create layer \"" << layer_name << "\". \n\nDetails: Attemp to write a readonly database, or "
@@ -360,9 +372,10 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
         std::vector<int> col_id_map;
         table->FillColIdMap(col_id_map);
         
-        int time_steps = table->GetTimeSteps();
-        
-        for ( int id=0; id < table->GetNumberCols(); id++ ) {
+        for (int id=0; id < table->GetNumberCols(); id++) {
+            
+            bool is_time_var = table->IsColTimeVariant(id);
+            int time_steps = is_time_var ? table->GetTimeSteps() : 1;
             
             for ( int t=0; t < time_steps; t++ ) {
                 
@@ -385,6 +398,10 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                     ogr_type = OFTReal;
                 } else if (ftype == GdaConst::date_type){
                     ogr_type = OFTDate;
+                } else if (ftype == GdaConst::time_type){
+                    ogr_type = OFTTime;
+                } else if (ftype == GdaConst::datetime_type) {
+                    ogr_type = OFTDateTime;
                 } else {
                     ogr_type = OFTString;
                 }

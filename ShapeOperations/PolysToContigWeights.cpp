@@ -1057,16 +1057,30 @@ int PartitionM::Sum() const {
 };
 
 void PartitionM::initIx(const int incl, const double lwr, const double upr)  {
-	int lower= (int)floor(lwr/step), upper= (int)floor(upr/step);
-	if (lwr < 0 || upper > cells || incl < 0 || incl >= elements)  
-	{
-		//     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr; 
-		exit(1);  
-	};
-	if (lower < 0) lower= 0;
-	else if (lower >= cells) lower= cells-1;
-	if (upper >= cells) upper= cells-1;
-	else if (upper < 0) upper= 0;
+    int lower= (int)floor(lwr/step);
+    int upper= (int)floor(upr/step);
+    
+    
+    if (lower < 0) {
+        lower= 0;
+    } else if (lower >= cells) {
+        lower= cells-1;
+    }
+    
+    if (upper >= cells) {
+        upper= cells-1;
+    }
+    else if (upper < 0) {
+        upper= 0;
+    }
+    
+    if (lower < 0 || upper > cells || incl < 0 || incl >= elements)
+    {
+        //     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr;
+        exit(1);
+    }
+
+    
 	cellIndex [ incl ] = lower;
 	lastIndex [ incl ] = upper;
 	return;
@@ -1143,13 +1157,17 @@ GalElement* MakeContiguity(Shapefile::Main& main, bool is_queen,
 	for (int step= 0; step < gMinX.Cells(); ++step) {
 		// include all elements from xmin[step]
 		for (curr= gMinX.first(step); curr != GdaConst::EMPTY;
-				 curr= gMinX.tail(curr)) gY->include(curr);
+             curr= gMinX.tail(curr))
+        {
+            gY->include(curr);
+        }
 		
 		// test each element in xmax[step]
 		for (curr= gMaxX.first(step); curr != GdaConst::EMPTY;
-				 curr= gMaxX.tail(curr))  {
-			PolygonContents* ply = dynamic_cast<PolygonContents*> (
-																														 main.records[curr].contents_p);
+             curr= gMaxX.tail(curr))
+        {
+            RecordContents* rec = main.records[curr].contents_p;
+			PolygonContents* ply = dynamic_cast<PolygonContents*> (rec);
 			PolygonPartition testPoly(ply);
 			testPoly.MakePartition();
 			
@@ -1165,8 +1183,9 @@ GalElement* MakeContiguity(Shapefile::Main& main, bool is_queen,
 			// test each potential neighbor
 			for (int nbr = Neighbors.Pop(); nbr != GdaConst::EMPTY;
 					 nbr = Neighbors.Pop()) {
-				PolygonContents* nbr_ply = dynamic_cast<PolygonContents*> (
-																																	 main.records[nbr].contents_p);
+                RecordContents* nbr_rec = main.records[nbr].contents_p;
+                PolygonContents* nbr_ply = dynamic_cast<PolygonContents*>(nbr_rec);
+                
 				if (ply->intersect(nbr_ply)) {
 					
 					PolygonPartition nbrPoly(nbr_ply);
@@ -1176,10 +1195,8 @@ GalElement* MakeContiguity(Shapefile::Main& main, bool is_queen,
 					if (curr == 0 && nbr == 0) {
 						
 					}
-					
 					// run sweep with testPoly as a host and nbrPoly as a guest
-					int related = testPoly.sweep(nbrPoly, is_queen,
-																			 precision_threshold);
+					int related = testPoly.sweep(nbrPoly, is_queen, precision_threshold);
 					if (related) Related.Push(nbr);
 				}
 			}
@@ -1187,7 +1204,9 @@ GalElement* MakeContiguity(Shapefile::Main& main, bool is_queen,
 			
 			if (size_t sz = Related.Size()) {
 				gl[curr].SetSizeNbrs(sz);
-				for (size_t i=0; i<sz; ++i) gl[curr].SetNbr(i, Related.Pop());
+                for (size_t i=0; i<sz; ++i) {
+                    gl[curr].SetNbr(i, Related.Pop());
+                }
 			}
 			
 			gY->remove(curr);       // remove from the partition
@@ -1222,7 +1241,7 @@ void MakeFull(GalElement* W, size_t obs)
 
 
 GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
-                    double precision_threshold)
+                                 double precision_threshold)
 {
 	using namespace Shapefile;
 	
@@ -1241,9 +1260,9 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
 	gMaxX.alloc(gRecords, gx, shp_x_len );
 	
 	for (cnt= 0; cnt < gRecords; ++cnt) {
-		PolygonContents* ply = dynamic_cast<PolygonContents*> (
-																					main.records[cnt].contents_p);
-		
+        RecordContents* rec = main.records[cnt].contents_p;
+		PolygonContents* ply = dynamic_cast<PolygonContents*>(rec);
+	
 		gMinX.include( cnt, ply->box[0] - shp_min_x );
 		gMaxX.include( cnt, ply->box[2] - shp_min_x );
 	}
@@ -1252,9 +1271,11 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
 	do {
 		gY= new PartitionM(gRecords, gy, shp_y_len );
 		for (cnt= 0; cnt < gRecords; ++cnt) {
-			PolygonContents* ply = dynamic_cast<PolygonContents*> (
-																				main.records[cnt].contents_p);
-			gY->initIx( cnt, ply->box[1] - shp_min_y, ply->box[3] - shp_min_y );
+            RecordContents* rec = main.records[cnt].contents_p;
+			PolygonContents* ply = dynamic_cast<PolygonContents*>(rec);
+            double lwr = ply->box[1] - shp_min_y;
+            double upr = ply->box[3] - shp_min_y;
+			gY->initIx(cnt, lwr, upr);
 		}
 		total= gY->Sum();
 		if (total > gRecords * 8) {

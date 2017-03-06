@@ -138,6 +138,8 @@ struct HingeStats {
 		Q2(0), Q2_ind(0), Q1(0), Q1_ind(0),
 		Q3(0), Q3_ind(0), min_IQR_ind(0), max_IQR_ind(0) {}
 	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data);
+	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& data_undef);
 	int num_obs;
 	double min_val;
 	double max_val;
@@ -168,16 +170,27 @@ namespace Gda {
 	// Assumes that input vector v is sorted in ascending order.
 	// Duplicate values are allowed.
 	double percentile(double x, const std::vector<double>& v);
-	double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
+    double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
+	double percentile(double x, const Gda::dbl_int_pair_vec_type& v,
+                      const std::vector<bool>& undefs);
 }
 
 struct SampleStatistics {
 	SampleStatistics() : sample_size(0), min(0), max(0), mean(0),
     var_with_bessel(0), var_without_bessel(0),
     sd_with_bessel(0), sd_without_bessel(0) {}
-	SampleStatistics(const std::vector<double>& data);
-	void CalculateFromSample(const std::vector<double>& data);
-	void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data);
+    SampleStatistics(const std::vector<double>& data);
+    SampleStatistics(const std::vector<double>& data,
+                     const std::vector<bool>& undefs);
+    SampleStatistics(const std::vector<double>& data,
+                     const std::vector<bool>& undefs1,
+                     const std::vector<bool>& undefs2);
+    void CalculateFromSample(const std::vector<double>& data);
+    void CalculateFromSample(const std::vector<double>& data,
+                             const std::vector<bool>& undefs);
+    void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& undefs);
+    
 	std::string ToString();
 	
 	int sample_size;
@@ -204,17 +217,29 @@ struct SimpleLinearRegression {
 		p_value_alpha(0), p_value_beta(0),
 		valid(false), valid_correlation(false),
 		valid_std_err(false) {}
+    
 	SimpleLinearRegression(const std::vector<double>& X,
 						   const std::vector<double>& Y,
 						   double meanX, double meanY,
 						   double varX, double varY);
+    
+	SimpleLinearRegression(const std::vector<double>& X,
+						   const std::vector<double>& Y,
+                           const std::vector<bool>& X_undef,
+						   const std::vector<bool>& Y_undef,
+						   double meanX, double meanY,
+						   double varX, double varY);
+    
 	void CalculateRegression(const std::vector<double>& X,
 							 const std::vector<double>& Y,
 							 double meanX, double meanY,
 							 double varX, double varY);
+    
 	static double TScoreTo2SidedPValue(double tscore, int df);
+    
 	std::string ToString();
-	
+
+    int n;
 	double covariance;
 	double correlation;
 	double alpha;
@@ -237,7 +262,7 @@ struct AxisScale {
 	AxisScale() : data_min(0), data_max(0),
 		scale_min(0), scale_max(0), scale_range(0), tic_inc(0), p(0),
 		ticks(5) {}
-	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=1);
+	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
 	AxisScale(const AxisScale& s);
 	virtual AxisScale& operator=(const AxisScale& s);
 	virtual ~AxisScale() {}
@@ -272,8 +297,10 @@ namespace GenUtils {
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
 	void DeviationFromMean(int nObs, double* data);
+    void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);
+    bool StandardizeData(int nObs, double* data, std::vector<bool>& undef);
 	bool StandardizeData(std::vector<double>& data);
 	template<class T> T abs(const T& x);
 	template<class T> const T& max(const T& x, const T& y);
@@ -333,6 +360,9 @@ namespace GenUtils {
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 
 	std::string GetBasemapCacheDir();
+	std::string GetWebPluginsDir();
+	std::string GetResourceDir();
+    std::string GetSamplesDir();
     
 }
 

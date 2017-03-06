@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/GeoDaCenter/geoda.svg?branch=master)](https://travis-ci.org/GeoDaCenter/geoda)
+
 # Acknowledgements #
 
 GeoDa TM is built upon several open source libraries and source-code files.
@@ -71,18 +73,4 @@ Below is a list of some of these that we'd like to acknowledge.
         Author: Daniel Sunday
         License: unknown
         Links: http://www.tandfonline.com/doi/abs/10.1080/10867651.2002.10487556
-
-* logger.h source code
-
-        Author: Seweryn Habdank-Wojewodzki
-        Note: We have copied the source for logger.h and modified it slightly
-        to work with wxString.
-        License: Boost Software License - Version 1.0
-        Links: http://accu.org/index.php/journals/1304
-
-* nullstream.h source code
-
-        Author: Maciej Sobczak
-        License: See logger.h in included source files
-        Links: http://www.msobczak.com/
 

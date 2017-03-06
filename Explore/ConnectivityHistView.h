@@ -46,7 +46,7 @@ public:
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -121,7 +121,7 @@ class ConnectivityHistFrame : public TemplateFrame, public WeightsManStateObserv
 public:
     ConnectivityHistFrame(wxFrame *parent, Project* project,
 						  boost::uuids::uuid w_uuid,
-						  const wxString& title = "Connectivity Histogram",
+						  const wxString& title = _("Connectivity Histogram"),
 						  const wxPoint& pos = wxDefaultPosition,
 						  const wxSize& size = GdaConst::hist_default_size,
 						  const long style = wxDEFAULT_FRAME_STYLE);
