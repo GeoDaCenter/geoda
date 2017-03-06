@@ -287,7 +287,7 @@ wxString AutoUpdate::GetCheckList()
         }
     } else {
         // we don't support auto update on other platforms
-        return "";
+        checklistUrl += ".linux.txt";
     }
     
     return ReadUrlContent(checklistUrl);
