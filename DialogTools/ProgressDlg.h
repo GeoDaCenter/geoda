@@ -28,10 +28,10 @@ class ProgressDlg: public wxDialog
 {
 public:
 	ProgressDlg(wxWindow* parent, wxWindowID id = wxID_ANY,
-				const wxString& title = "Progress",
+				const wxString& title = _("Progress"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION | wxSYSTEM_MENU );
+				long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE );
 	void StatusUpdate( double val, const wxString& msg );
 	void MessageUpdate( const wxString& msg );
 	void ValueUpdate( double val );

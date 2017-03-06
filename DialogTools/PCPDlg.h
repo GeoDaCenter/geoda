@@ -34,10 +34,10 @@ class PCPDlg: public wxDialog
 public:
 	PCPDlg(Project* project, wxWindow* parent,
 				 wxWindowID id = wxID_ANY,
-				 const wxString& title = "Parallel Coordinate Plot", 
+				 const wxString& title = _("Parallel Coordinate Plot"),
 				 const wxPoint& pos = wxDefaultPosition, 
 				 const wxSize& size = wxDefaultSize,
-				 long style = wxCAPTION|wxSYSTEM_MENU );
+				 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
 	std::vector<int> pcp_col_ids;
 	std::vector<int> pcp_col_tm_ids;

@@ -47,7 +47,7 @@ class DataChangeTypeFrame : public TemplateFrame
 {
 public:
     DataChangeTypeFrame(wxFrame *parent, Project* project,
-				const wxString& title = "Change Variable Type",
+				const wxString& title = _("Change Variable Type"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = GdaConst::data_change_type_frame_default_size,
 				const long style = wxDEFAULT_FRAME_STYLE);

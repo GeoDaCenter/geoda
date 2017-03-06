@@ -51,6 +51,7 @@ private:
     OGRLayerProxy* ogr_layer;
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
+    
     // var_map will be deprecate in 1.8.8, and replace by _var_names
 	map<wxString, int> var_map;
     vector<wxString> org_var_names;
@@ -111,7 +112,7 @@ public:
 	
 	virtual bool DbColNmToColAndTm(const wxString& name, int& col, int& tm);
 	virtual int  FindColId(const wxString& name);
-    virtual int  GetColIdx(const wxString& name);
+    virtual int  GetColIdx(const wxString& name, bool ignore_case=false);
 	virtual void FillColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
@@ -137,17 +138,23 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
-	virtual void GetColUndefined(int col, b_array_type& undefined);
-	virtual void GetColUndefined(int col, int time,
+    
+	virtual void GetDirectColData(int col, std::vector<double>& data);
+	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);
+	virtual void GetDirectColData(int col, std::vector<wxString>& data);
+	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefined);
+    
+	virtual bool GetColUndefined(int col, b_array_type& undefined);
+	virtual bool GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined);
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals);
 	virtual void GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val);
 	virtual void SetColData(int col, int time,
-							const std::vector<double>& data);
+                            const std::vector<double>& data);
 	virtual void SetColData(int col, int time,
-							const std::vector<wxInt64>& data);
+                            const std::vector<wxInt64>& data);
 	virtual void SetColData(int col, int time,
                             const std::vector<wxString>& data);
 	virtual void SetColUndefined(int col, int time,

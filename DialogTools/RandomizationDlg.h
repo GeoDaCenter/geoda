@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_RANDOMIZATION_DLG_H__
 
 #include <vector>
+#include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/Randik.h"
 
 
@@ -31,16 +32,20 @@ class RandomizationPanel: public wxPanel
 {
 public:
     RandomizationPanel(const std::vector<double>& raw_data1,
+                       const std::vector<bool>& undefs_s,
                        const GalElement* W, int NumPermutations,
                        bool reuse_user_seed,
                        uint64_t user_specified_seed,
-                       wxFrame* parent);
+                       wxFrame* parent,
+                       const wxSize& size);
     RandomizationPanel(const std::vector<double>& raw_data1,
                        const std::vector<double>& raw_data2,
+                       const std::vector<bool>& undefs_s,
                        const GalElement* W, int NumPermutations,
                        bool reuse_user_seed,
                        uint64_t user_specified_seed,
-                       wxFrame* parent);
+                       wxFrame* parent,
+                       const wxSize& size);
    
     virtual ~RandomizationPanel();
     
@@ -79,6 +84,7 @@ public:
 	const GalElement* W;
 	std::vector<double> raw_data1;
 	std::vector<double> raw_data2;
+	std::vector<bool> undefs;
 	double Moran;
 	double  MMean;
 	double  MSdev;
@@ -101,32 +107,47 @@ class RandomizationDlg: public wxFrame
 
 public:
 	RandomizationDlg(const std::vector<double>& raw_data1,
-					 const GalElement* W, int NumPermutations,
+					 const GalWeight* W,
+                     const std::vector<bool>& undef,
+                     const std::vector<bool>& hl,
+                     int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,                    
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
+					 const wxString& caption = _("Randomization"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	RandomizationDlg( const std::vector<double>& raw_data1,
 					 const std::vector<double>& raw_data2,
-					 const GalElement* W, int NumPermutations,
+					 const GalWeight* W,
+                     const std::vector<bool>& undef,
+                     const std::vector<bool>& hl,
+                     int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,
 					 wxWindow* parent, wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Randomization",
+					 const wxString& caption = _("Randomization"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& my_size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU);
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	virtual ~RandomizationDlg();
+    
     void CreateControls();
+    void CreateControls_regime();
 
 	void OnMouse( wxMouseEvent& event );
     void OnClose( wxCloseEvent& event );
     void OnOkClick( wxCommandEvent& event );
+    void OnRunAll( wxCommandEvent& event );
 
     RandomizationPanel* panel;
+    RandomizationPanel* panel_sel;
+    RandomizationPanel* panel_unsel;
+    
+    GalWeight* copy_w;
+    GalWeight* copy_w_sel;
+    GalWeight* copy_w_unsel;
 };
 
 #endif

@@ -27,12 +27,12 @@
 namespace GdaAlgs {
 	bool RateStandardizeEB(const int nObs, const double* P, const double* E,
 						   double* results, std::vector<bool>& undefined);
-	void RateSmoother_RawRate(int obs, double *P, double *E,
+	bool RateSmoother_RawRate(int obs, double *P, double *E,
 							  double *results, std::vector<bool>& undefined);
-	void RateSmoother_ExcessRisk(int obs, double *P, double *E,
+	bool RateSmoother_ExcessRisk(int obs, double *P, double *E,
 								 double *results,
 								 std::vector<bool>& undefined);
-	void RateSmoother_EBS(int obs, double *P, double *E,
+	bool RateSmoother_EBS(int obs, double *P, double *E,
 						  double *results, std::vector<bool>& undefined);
 	bool RateSmoother_SEBS(int obs, WeightsManInterface* w_man_int,
 						   boost::uuids::uuid weights_id,

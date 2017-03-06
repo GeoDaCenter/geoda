@@ -1,5 +1,17 @@
 *~
 
+*.deb
+
+BuildTools/centos/libraries/
+BuildTools/centos/temp/
+BuildTools/centos/build/
+
+BuildTools/ubuntu/libraries/
+BuildTools/ubuntu/temp/
+BuildTools/ubuntu/product/
+BuildTools/ubuntu/build/
+
+BuildTools/windows/.vs/
 BuildTools/windows/temp/
 BuildTools/windows/Debug/
 BuildTools/windows/Release/
@@ -7,7 +19,10 @@ BuildTools/windows/ipch/
 BuildTools/windows/GeoDa.vcxproj.filters
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
+BuildTools/macosx/libraries108/
 BuildTools/macosx/temp/
+BuildTools/macosx/temp1/
+BuildTools/macosx/temp108/
 BuildTools/macosx/build/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
@@ -47,6 +62,8 @@ BuildTools/macosx/GeoDa.xcodeproj/project.xcworkspace/xcuserdata/xun.xcuserdatad
 
 *.xcuserstate
 
+rc/GdaAppResources.cpp$*
+
 rc/Drop-Files-Here-extra.png
 
 rc/Drop-Files-Here-extra-black.png
@@ -59,3 +76,15 @@ BuildTools/.DS_Store
 .DS_Store
 
 *.DS_Store
+
+BuildTools/macosx/libraries.zip
+BuildTools/windows/oldlogger.txt
+
+*.o
+
+
+BuildTools/macosx/temp1/boost_1_57_0/b2
+
+*.xcworkspacedata
+
+*.plist

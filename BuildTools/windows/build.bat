@@ -610,9 +610,9 @@ if %GDA_BUILD% == BUILD_32 (
   copy /Y %BUILD_HOME%\plugins\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 ) else (
   xcopy /Y /E %BUILD_HOME%\dep\mysql\my_default.h %DOWNLOAD_HOME%\%LIB_NAME%\include
-  copy /Y  %BUILD_HOME%\plugins\x64\mysqlclient.lib %LIBRARY_HOME%\%LIB_HM_LIB%\mysqlclient.lib
+  copy /Y  %BUILD_HOME%\plugins\64\mysqlclient.lib %LIBRARY_HOME%\%LIB_HM_LIB%\mysqlclient.lib
   REM xcopy /Y /E %BUILD_HOME%\plugins\x64\libmysql.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.lib
-  copy /Y  %BUILD_HOME%\plugins\x64\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
+  copy /Y  %BUILD_HOME%\plugins\64\libmysql.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 )
 set CHK_LIB=%LIBRARY_HOME%\%LIB_HM_LIB%\libmysql.dll
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
@@ -691,19 +691,19 @@ echo #####################################################
 echo #   build wxWidgets 
 echo #####################################################
 echo.
-set LIB_NAME=wxWidgets-3.0.2
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.7z"
+set LIB_NAME=wxWidgets-3.1.0
+set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
 set WX_DLL_PATH=vc_dll
 if %GDA_BUILD% == BUILD_32 (
-  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_dll\wxmsw30u.lib set ALL_EXIST=false
-  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_dll\wxmsw30ud.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_dll\wxmsw31u.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_dll\wxmsw31ud.lib set ALL_EXIST=false
   set WX_DLL_PATH=vc_dll
 ) else (
-  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_x64_dll\wxmsw30u.lib set ALL_EXIST=false
-  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_x64_dll\wxmsw30ud.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_x64_dll\wxmsw31u.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\lib\vc_x64_dll\wxmsw31ud.lib set ALL_EXIST=false
   set WX_DLL_PATH=vc_x64_dll
 )
 if %ALL_EXIST% == true (
@@ -731,22 +731,20 @@ set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
 if %GDA_BUILD% == BUILD_32 (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
-  
-  
 )  else (
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=debug MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
   nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
 )
-
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll
-copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll
+REM # Even though we are skipping this part, the code is still wrong. The name of the dll should be 310u/310ud rather than 31u/31ud.
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31u_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31u_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_gl_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31ud_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31ud_vc_custom.dll
+copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31ud_gl_vc_custom.dll %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31ud_gl_vc_custom.dll
 
 REM # We are only checking for a small subset of wxWidgets libraries
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30u.lib
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31u.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
-set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw30ud.lib
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\lib\%WX_DLL_PATH%\wxmsw31ud.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 :SKIP_WXWIDGETS_BUILD
 
@@ -974,8 +972,8 @@ if %GDA_BUILD% == BUILD_32 (
 ) else (
   copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Debug\.
 )
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_vc_custom.dll Release\.
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30ud_gl_vc_custom.dll Release\.
+copy /Y temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310ud_vc_custom.dll Debug\.
+copy /Y temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310ud_gl_vc_custom.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Debug\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Debug\.
@@ -1001,8 +999,8 @@ if %GDA_BUILD% == BUILD_32 (
 ) else (
   copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libintl-8.dll Release\.
 )
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_vc_custom.dll Release\.
-copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw30u_gl_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_vc_custom.dll Release\.
+copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\wxmsw31u_gl_vc_custom.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll Release\.
 copy /Y temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll Release\.

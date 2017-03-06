@@ -64,7 +64,7 @@ public:
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -139,7 +139,7 @@ public:
 					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
-					long style = wxCAPTION|wxSYSTEM_MENU);
+					long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	virtual ~CatClassifPanel();
 	
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
@@ -269,6 +269,7 @@ private:
 	
 	int num_obs;
 	Gda::dbl_int_pair_vec_type data;
+    std::vector<bool> data_undef;
 	CatClassifDef cc_data;
 	Gda::dbl_int_pair_vec_type preview_data;
 	
@@ -290,7 +291,7 @@ class CatClassifFrame : public TemplateFrame
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
                     bool useScientificNotation = false,
-					const wxString& title = "Category Editor",
+					const wxString& title = _("Category Editor"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);

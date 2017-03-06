@@ -23,9 +23,12 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/valtext.h>
+
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../FramesManager.h"
@@ -38,9 +41,9 @@
 #include "RangeSelectionDlg.h"
 
 BEGIN_EVENT_TABLE( RangeSelectionDlg, wxDialog )
-EVT_RADIOBUTTON(XRCID("IDC_RADIO_NEWSELECT"), RangeSelectionDlg::OnSetNewSelect)
-EVT_RADIOBUTTON(XRCID("IDC_RADIO_SUBSELECT"), RangeSelectionDlg::OnSetSubSelect)
-EVT_RADIOBUTTON(XRCID("IDC_RADIO_APPENDSELECT"), RangeSelectionDlg::OnSetAppendSelect)
+    EVT_RADIOBUTTON(XRCID("IDC_RADIO_NEWSELECT"), RangeSelectionDlg::OnSetNewSelect)
+    EVT_RADIOBUTTON(XRCID("IDC_RADIO_SUBSELECT"), RangeSelectionDlg::OnSetSubSelect)
+    EVT_RADIOBUTTON(XRCID("IDC_RADIO_APPENDSELECT"), RangeSelectionDlg::OnSetAppendSelect)
 	EVT_CHOICE( XRCID("ID_FIELD_CHOICE"), RangeSelectionDlg::OnFieldChoice )
 	EVT_CHOICE( XRCID("ID_FIELD_CHOICE_TM"), RangeSelectionDlg::OnFieldChoiceTm )
 	EVT_TEXT( XRCID("ID_MIN_TEXT"), RangeSelectionDlg::OnRangeTextChange )
@@ -80,6 +83,8 @@ m_save_field_choice(0), m_sel_check_box(0),
 m_sel_val_text(0), m_unsel_check_box(0), m_unsel_val_text(0),
 m_apply_save_button(0), all_init(false), m_selection_made(false)
 {
+    wxLogMessage("Open RangeSelectionDlg");
+    
 	SetParent(parent);
 	RefreshColIdMap();
     CreateControls();
@@ -209,24 +214,27 @@ void RangeSelectionDlg::OnSetAppendSelect( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnFieldChoice( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnFieldChoice()");
 	InitSelectionVars();
 	CheckRangeButtonSettings();
 }
 
 void RangeSelectionDlg::OnFieldChoiceTm( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnFieldChoiceTm()");
 	InitSelectionVars();
 	CheckRangeButtonSettings();
 }
 
 void RangeSelectionDlg::OnRangeTextChange( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnRangeTextChange()");
 	CheckRangeButtonSettings();
 }
 
 void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering RangeSelectionDlg::OnApplySelClick");
+	wxLogMessage("Entering RangeSelectionDlg::OnApplySelClick");
 	HighlightState& hs = *project->GetHighlightState();
 	std::vector<bool>& h = hs.GetHighlight();
     
@@ -256,7 +264,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
     }
     std::vector<bool> cur_sel(n);
     
-	LOG(table_int->GetColName(mcol));
+
 	double min_dval = 0;
 	m_min_text->GetValue().ToDouble(&min_dval);
 	double max_dval = 1;
@@ -320,11 +328,12 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 	current_sel_mcol = mcol;
 	m_selection_made = true;
 	CheckApplySaveSettings();
-	LOG_MSG("Exiting RangeSelectionDlg::OnApplySelClick");
+
 }
 
 void RangeSelectionDlg::OnSelUndefClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnSelUndefClick()");
 	HighlightState& hs = *project->GetHighlightState();
 	std::vector<bool>& h = hs.GetHighlight();
     bool selection_changed = false;
@@ -363,6 +372,7 @@ void RangeSelectionDlg::OnRandomSelClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnClearSelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnClearSelClick()");
 	HighlightState& hs = *project->GetHighlightState();
 	hs.SetEventType(HLStateInt::unhighlight_all);
 	hs.notifyObservers();
@@ -372,6 +382,7 @@ void RangeSelectionDlg::OnClearSelClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnInvertSelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnInvertSelClick()");
 	HighlightState& hs = *project->GetHighlightState();
 	hs.SetEventType(HLStateInt::invert);
 	hs.notifyObservers();
@@ -381,11 +392,13 @@ void RangeSelectionDlg::OnInvertSelClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnAddNeighsToSelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnAddNeighsToSelClick()");
 	project->AddNeighborsToSelection(GetWeightsId());
 }
 
 void RangeSelectionDlg::OnAddField( wxCommandEvent& event )
-{	
+{
+    wxLogMessage("In RangeSelectionDlg::OnAddField()");
 	DataViewerAddColDlg dlg(project, this, true, true, "SELECT",GdaConst::long64_type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
@@ -405,33 +418,39 @@ void RangeSelectionDlg::OnAddField( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnSaveFieldChoice( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnSaveFieldChoice()");
 	InitSaveVars();
 	CheckApplySaveSettings();
 }
 
 void RangeSelectionDlg::OnSaveFieldChoiceTm( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnSaveFieldChoiceTm()");
 	InitSaveVars();
 	CheckApplySaveSettings();
 }
 
 void RangeSelectionDlg::OnSelCheckBox( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnSelCheckBox()");
 	CheckApplySaveSettings();
 }
 
 void RangeSelectionDlg::OnUnselCheckBox( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnUnselCheckBox()");
 	CheckApplySaveSettings();
 }
 
 void RangeSelectionDlg::OnSelUnselTextChange( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnSelUnselTextChange()");
 	CheckApplySaveSettings();
 }
 
 void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnApplySaveClick()");
 	 // The Apply button is only enable when Selected / Unselected values
 	 // are valid (only when checked), and at least one checkbox is
 	 // selected.  The Target Variable is not empty, but has not been
@@ -537,7 +556,6 @@ void RangeSelectionDlg::update(FramesManager* o)
 
 void RangeSelectionDlg::update(TableState* o)
 {
-	LOG_MSG("In RangeSelectionDlg::update(TableState* o)");
 	RefreshColIdMap();
 	InitSelectionVars();
 	InitSaveVars();
@@ -549,7 +567,6 @@ void RangeSelectionDlg::update(TableState* o)
 /** Implementation of WeightsManStateObserver interface */
 void RangeSelectionDlg::update(WeightsManState* o)
 {
-	LOG_MSG("In RangeSelectionDlg::update(WeightsManState* o)");
 	RefreshWeightsIds();
 	Refresh();
 }
@@ -595,7 +612,7 @@ boost::uuids::uuid RangeSelectionDlg::GetWeightsId()
 	wxString s;
 	s << "RangeSelectionDlg::GetWeightsId() weight: ";
 	s << w_man_int->GetShortDispName(weights_ids[sel]);
-	LOG_MSG(s);
+
 	return weights_ids[sel];
 }
 
@@ -705,6 +722,8 @@ void RangeSelectionDlg::CheckRangeButtonSettings()
 
 void RangeSelectionDlg::CheckApplySaveSettings()
 {
+    wxLogMessage("In RangeSelectionDlg::CheckApplySaveSettings()");
+    
 	if (!all_init) return;
 	
 	bool target_field_empty = m_save_field_choice->GetSelection()==wxNOT_FOUND;

@@ -36,6 +36,7 @@ class PCPCanvas;
 class PCPLegend;
 class PCPFrame;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class PCPCanvas : public TemplateCanvas, public CatClassifStateObserver
 {
@@ -50,7 +51,7 @@ public:
 	virtual ~PCPCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HLStateInt* o);
+	//virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);
@@ -86,7 +87,7 @@ public:
 	enum PCPSelectState { pcp_start, pcp_leftdown_on_circ,
 		pcp_leftdown_on_label, pcp_dragging };
 	/** The function handles all mouse events. */
-	void OnMouseEvent(wxMouseEvent& event);
+	//void OnMouseEvent(wxMouseEvent& event);
 	void VarLabelClicked();
 	/** Override PaintControls from TemplateCanvas */
 	virtual void PaintControls(wxDC& dc);
@@ -111,6 +112,8 @@ protected:
 	std::vector<int> var_order; // var id for position 0 to position num_vars-1
 	
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
+    std::vector<std::vector<bool> > undef_markers; // times * num_obs
 	//std::vector< std::vector<HingeStats> > hinge_stats;
 	std::vector< std::vector<SampleStatistics> > data_stats;
 	// overall absolute value maximum of standardized data

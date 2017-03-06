@@ -54,6 +54,7 @@ build-geoda-mac:
 	mkdir build/gdaldata
 	mkdir build/plugins
 	mkdir build/basemap_cache
+	mkdir build/web_plugins
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
@@ -77,7 +78,8 @@ build-geoda-mac:
 	cp $(GEODA_HOME)/libraries/lib/libminizip.so.0.0.0 build/plugins/libminizip.so.0
 	cp $(GEODA_HOME)/libraries/lib/liburiparser.so.1.0.5 build/plugins/liburiparser.so.1
 	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/libgeos-3.3.8.so
-	cp libraries/share/gdal/* build/gdaldata
+	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
+	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
 
 clean:
 	rm -f ../../o/*

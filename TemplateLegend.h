@@ -33,7 +33,8 @@ public:
 	TemplateLegend(wxWindow *parent, TemplateCanvas* template_canvas,
 				   const wxPoint& pos, const wxSize& size);
 	virtual ~TemplateLegend();
-	
+
+    void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
 	virtual void OnDraw(wxDC& dc);

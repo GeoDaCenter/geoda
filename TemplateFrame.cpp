@@ -39,6 +39,7 @@
 #include "Explore/LisaScatterPlotView.h"
 #include "Explore/PCPNewView.h"
 #include "Explore/ScatterNewPlotView.h"
+#include "DialogTools/AdjustYAxisDlg.h"
 
 
 #include "rc/GeoDaIcon-16x16.xpm"
@@ -148,12 +149,23 @@ void TemplateFrame::OnFitToWindowMode(wxCommandEvent& event)
 
 void TemplateFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 {
-	LOG_MSG("Entering TemplateFrame::OnFixedAspectRatioMode");
 	if (!template_canvas) return;
 	template_canvas->SetFixedAspectRatioMode(
 				!template_canvas->GetFixedAspectRatioMode());	
 	UpdateOptionMenuItems();
-	LOG_MSG("Exiting TemplateFrame::OnFixedAspectRatioMode");
+}
+
+void TemplateFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+{
+	if (!template_canvas) return;
+    
+    AxisLabelPrecisionDlg dlg(template_canvas->axis_display_precision, this);
+    if (dlg.ShowModal () != wxID_OK)
+        return;
+    int def_precision = dlg.precision;
+    template_canvas->SetDisplayPrecision(def_precision);
+    
+	UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnZoomMode(wxCommandEvent& event)
@@ -184,7 +196,6 @@ void TemplateFrame::OnPrintCanvasState(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnPrintCanvasState");
 	if (template_canvas) {
-		LOG_MSG(template_canvas->GetCanvasStateString());
 	}
 }
 
@@ -331,7 +342,6 @@ void TemplateFrame::DisplayStatusBar(bool show)
 		}
 		SendSizeEvent();
 	}
-	LOG(is_status_bar_visible);
 	LOG_MSG("Exiting TemplateFrame::DisplayStatusBar");
 }
 
@@ -382,7 +392,6 @@ void TemplateFrame::DeregisterAsActive()
 	if (activeFrame == this) {
 		activeFrame = NULL;
 		activeFrName = wxEmptyString;
-		LOG_MSG("reset toolbar to default.");
 		// restore to a default state.
 		GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
 	}
@@ -412,7 +421,6 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
 		TimeState* time_state = project->GetTimeState();
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
-		LOG(del);
 		time_state->SetCurrTime(time_state->GetCurrTime() + del);
 		if (time_state->GetCurrTime() < 0) {
 			time_state->SetCurrTime(time_state->GetTimeSteps()-1);
@@ -433,7 +441,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	LOG_MSG("Entering TemplateFrame::ExportImage");
 	
 	wxString default_fname(project->GetProjectTitle() + type);
-	wxString filter("BMP|*.bmp|PNG|*.png");
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+        
+    }
 	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
 	//
@@ -451,6 +463,14 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     if (dialog.ShowModal() != wxID_OK) return;
 	
 	wxSize sz =  canvas->GetVirtualSize();
+    int new_bmp_w = sz.x;
+    int new_bmp_h = sz.y;
+    int offset_x = 0;
+    if (template_legend) {
+        wxSize sz_legend = template_legend->GetVirtualSize();
+        offset_x = sz_legend.x * 2;
+        new_bmp_w += offset_x;
+    }
 	
 	wxFileName fname = wxFileName(dialog.GetPath());
 	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
@@ -459,14 +479,18 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 0:
 		{
 			LOG_MSG("BMP selected");
-			wxBitmap bitmap( sz.x, sz.y );
+			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			
 			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}			
@@ -477,31 +501,46 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 1:
 		{
 			LOG_MSG("PNG selected");
-			wxBitmap bitmap( sz.x, sz.y );
+			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
-			dc.DrawBitmap(*template_canvas->GetLayer2(), 0, 0);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
-			
 			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}
-			
+		
 			image.Destroy();
 		}
 			break;
-		/* case 2:
+		case 2:
 		{
-			LOG_MSG("PostScript selected");
+			LOG_MSG("SVG selected");
+			wxSVGFileDC dc(str_fname + ".svg", sz.x, sz.y);
+            
+			template_canvas->RenderToDC(dc, sz.x, sz.y);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 2.5);
+            }
+		}
+			break;
+		case 3:
+		{
 			wxPrintData printData;
 			printData.SetFilename(str_fname + ".ps");
 			printData.SetPrintMode(wxPRINT_MODE_FILE);
 			wxPostScriptDC dc(printData);
-			dc.SetBrush(*wxTRANSPARENT_BRUSH);
-			dc.SetPen(*wxTRANSPARENT_PEN);
-			dc.SetPen(*wxBLACK_PEN);
+            
+			//dc.SetBrush(*wxTRANSPARENT_BRUSH);
+			//dc.SetPen(*wxTRANSPARENT_PEN);
+			//dc.SetPen(*wxBLACK_PEN);
 			int w, h;
 			dc.GetSize(&w, &h);
 			LOG_MSG(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
@@ -510,30 +549,22 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 				dc.StartDoc("printing...");
 				int paperW, paperH;
 				dc.GetSize(&paperW, &paperH);
-				paperW += 14; // experimentally obtained tweak
-				paperH += -52; // experimentally obtained tweak
 				double marginFactor = 0.03;
-				int margin = (int) (paperW*marginFactor);
-				int workingW = paperW - 2*margin;
-				int workingH = paperH - 2*margin;
-				int originX = margin+1; // experimentally obtained tweak
-				int originY = margin+50; // experimentally obtained tweak
-				dc.SetDeviceOrigin(originX, originY); 
-				LOG_MSG(wxString::Format(
-					"PostScript DC origin set to (%d,%d)",
-										 originX, originY));
-				//dc.SetPen(*wxRED_PEN);
-				//dc.SetBrush(*wxBLUE_BRUSH);
-				//wxRect rect(wxPoint(0,0), wxPoint(workingW, workingH));
-				//dc.DrawRectangle(rect);
-				// Calculate the scaling factor to fit the picture to the page.
+				int marginW = (int) (paperW*marginFactor/2.0);
+				int marginH = (int) (paperH*marginFactor);
+                int workingW = paperW - 2*marginW;
+				int workingH = paperH - 2*marginH;
+				int originX = marginW+1; // experimentally obtained tweak
+				int originY = marginH+150; // experimentally obtained tweak
+				dc.SetDeviceOrigin(originX, originY);
 				int pictW = sz.GetWidth();
 				int pictH = sz.GetHeight();
-				double scale = wxMin((double) workingH/pictH,
+				double scale = 1.5 / wxMin((double) workingH/pictH,
 									 (double) workingW/pictW);
-				LOG_MSG(wxString::Format("PostScript DC scale factor = %f",
-										 (float) scale));
-				canvas->Draw(&dc);
+                if (template_legend) {
+                    template_legend->RenderToDC(dc, scale);
+                }
+                template_canvas->RenderToDC(dc,w, h);
 				dc.EndDoc();
 			} else {
 				wxString msg("There was a problem generating the ");
@@ -542,14 +573,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			}
 		}
 			break;
-		case 2:
-		{
-			LOG_MSG("SVG selected");
-			wxSVGFileDC dc(str_fname + ".svg", sz.x, sz.y);
-			template_canvas->RenderToDC(dc, true);
-		}
-			break;
-		 */
+		 
 			
 		default:
 		{

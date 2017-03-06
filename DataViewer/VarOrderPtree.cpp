@@ -71,19 +71,14 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 		BOOST_FOREACH(const ptree::value_type &v,
 					  pt.get_child("variable_order")) {
 			wxString key = v.first.data();
-			LOG_MSG(key);
 			if (key == "var") {
 				VarGroup ent;
 				ent.name = v.second.data();
-				LOG_MSG("found var: ");
-				LOG_MSG(v.second.data());
 				//var_order.push_back(v.second.data());
 				var_grps.push_back(ent);
 			} else if (key == "time_ids") {
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
-					LOG_MSG(key);
-					LOG_MSG(v.second.data());
 					time_ids.push_back(v.second.data());
 				}
 			} else if (key == "group") {
@@ -91,20 +86,13 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
 					if (key == "name") {
-						LOG_MSG("found name: ");
-						LOG_MSG(v.second.data());
 						ent.name = v.second.data();
 					} else if (key == "var") {
-						LOG_MSG("found var: ");
-						LOG_MSG(v.second.data());
 						ent.vars.push_back(v.second.data());
 					} else if (key == "placeholder") {
-						LOG_MSG("placeholder found");
 						ent.vars.push_back("");
 					} else if (key == "displayed_decimals") {
 						wxString vs(v.second.data());
-						LOG_MSG("found displayed_decimals: ");
-						LOG_MSG(vs);
 						long dd;
 						if (!vs.ToLong(&dd)) dd = -1;
 						ent.displayed_decimals = dd;
@@ -130,7 +118,6 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 	if (time_ids.size() == 0) {
 		time_ids.push_back("time 0"); // Insert a single default time
 	}
-	LOG_MSG("Exiting VarOrderPtree::ReadPtree");
 }
 
 void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
@@ -205,27 +192,11 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 		}
 	}
 	
-	LOG_MSG(VarOrderToStr());
-	
-	//LOG_MSG("var_set: ");
-	//BOOST_FOREACH(const wxString& v, var_set) { LOG(v); }
-	//LOG_MSG("ds_var_set: ");
-	//BOOST_FOREACH(const wxString& v, var_set) { LOG(v); }
-	
-	// Should also modify group names so that they don't confict
-	// with any names in ds_var_list
-	//BOOST_FOREACH(const wxString& v, group_nm_set) {
-	//	if (ds_var_set.find(v) != ds_var_set.end()) {
-	//	}
-	//}
-	
-	LOG_MSG("\nRemoving vars not in DS:");
 	// Remove all items in var_set not in ds_var_set
 	BOOST_FOREACH(const wxString& v, var_set) {
 		if (ds_var_set.find(v) == ds_var_set.end() &&
             ds_var_set.find(v.Upper()) == ds_var_set.end() &&
             ds_var_set.find(v.Lower()) == ds_var_set.end()) {
-			LOG(v);
 			RemoveFromVarGroups(v);
 			changed = true;
 		}
@@ -273,8 +244,6 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 			var_grps.push_back(ent);
 		}
 	}	
-	
-	LOG_MSG(VarOrderToStr());
 	
 	LOG_MSG("Exiting VarOrderPtree::CorrectVarGroups");
 	return changed;
@@ -389,7 +358,6 @@ bool VarOrderPtree::IsTypeCompatible(const std::vector<wxString>& vars,
             if ( m_it == ds_var_type_map.end()) {
 				wxString ss;
 				ss << "Error: could not find type for var: " << v;
-				LOG_MSG(ss);
 				return false;
 			}
             GdaConst::FieldType type = m_it->second;

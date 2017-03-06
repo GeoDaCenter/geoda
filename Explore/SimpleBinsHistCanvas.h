@@ -54,15 +54,15 @@ class SimpleBinsHistCanvas : public TemplateCanvas
 {
 public:
 	DECLARE_CLASS(SimpleBinsHistCanvas)
-	SimpleBinsHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
-											 Project* project, HLStateInt* hl_state_int,
-											 SimpleBinsHistCanvasCbInt* sbh_canv_cb, //optional
-											 const std::vector<SimpleBin>& hist_bins,
-											 const wxString& Xname, double Xmin, double Xmax,
-											 const wxString& right_click_menu_id = wxEmptyString,
-											 bool show_axes = false,
-											 const wxPoint& pos = wxDefaultPosition,
-											 const wxSize& size = wxDefaultSize);
+    SimpleBinsHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                         Project* project, HLStateInt* hl_state_int,
+                         SimpleBinsHistCanvasCbInt* sbh_canv_cb, //optional
+                         const std::vector<SimpleBin>& hist_bins,
+                         const wxString& Xname, double Xmin, double Xmax,
+                         const wxString& right_click_menu_id = wxEmptyString,
+                         bool show_axes = false,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize);
 	virtual ~SimpleBinsHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);

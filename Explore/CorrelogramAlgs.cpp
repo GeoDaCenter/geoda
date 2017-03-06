@@ -33,13 +33,24 @@
 #include "CorrelogramAlgs.h"
 
 
-void CorrelogramAlgs::GetSampMeanAndVar(const std::vector<double>& Z,
+void CorrelogramAlgs::GetSampMeanAndVar(const std::vector<double>& Z_,
+                                        const std::vector<bool>& Z_undef,
 										double& mean, double& var)
 {
+    // get valid Z using Z_undef
+    std::vector<double> Z;
+    for (size_t i=0; i<Z_.size(); i++) {
+        if (Z_undef[i] == false) {
+            Z.push_back(Z_[i]);
+        }
+    }
+    // get mean & var
 	size_t Z_sz = Z.size();
 	double N = (double) Z_sz;
 	double sum = 0.0;
-	for (size_t i=0; i<Z_sz; ++i) sum += Z[i];
+    for (size_t i=0; i<Z_sz; ++i) {
+        sum += Z[i];
+    }
 	double smpl_mn = sum/N;
 	double ssd = 0.0;
 	double diff = 0;
@@ -48,14 +59,14 @@ void CorrelogramAlgs::GetSampMeanAndVar(const std::vector<double>& Z,
 		ssd += diff*diff;
 	}
 	double smpl_var = ssd/N;
-	LOG(smpl_mn);
-	LOG(smpl_var);
+    
 	mean = smpl_mn;
 	var = smpl_var;
 }
 
 bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 									   const std::vector<double>& Z,
+									   const std::vector<bool>& Z_undef,
 									   bool is_arc,
 									   double dist_cutoff,
 									   int num_bins, int iters,
@@ -82,13 +93,13 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 	double mean = 0;
 	double var = 0;
 	if (calc_prods) {
-		GetSampMeanAndVar(Z, mean, var);
+		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
-	if (num_bins <= 0) num_bins = 1;
+	if (num_bins <= 0)
+        num_bins = 1;
 	out.clear();
 	out.resize(num_bins);
 	double binw = dist_cutoff/nbins_d; // bin width
@@ -101,12 +112,32 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 	}
 	
 	int ta_cnt = 0; // throw away count
-	for (int t=0; t<iters; ++t) {
+    int t = 0;
+    int t_max = 0;
+    int t_max_const = iters + 9999999;
+    while (t < iters ) {
 		size_t i=X(rng);
 		size_t j=X(rng);
+        
+        // potential hangs here
+        if (Z_undef.size() > 0 && (Z_undef[i] || Z_undef[j])) {
+            if (t_max < t_max_const) {
+                continue;
+            } else {
+                // ERROR: too many undefined values, computing hangs and exits.
+                return false;
+            }
+            t_max += 1;
+        }
+        
+        t += 1;
+        
 		const wxRealPoint& p1(pts[i]);
 		const wxRealPoint& p2(pts[j]);
 		double d;
+        
+        // NOTE: performance boost here: cache the computed distance
+        // the cache could have a limited size e.g. 10000
 		if (is_arc) {
 			d = ComputeArcDistRad(p1.x, p1.y, p2.x, p2.y);
 		} else {
@@ -118,36 +149,24 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 			continue;
 		}
 		out[b].num_pairs++;
-		if (calc_prods) {
+		if (calc_prods && var != 0) {
 			double prod = (Z[i]-mean)*(Z[j]-mean)/var;
 			out[b].corr_avg += prod;
 		}
 	}
 	for (size_t b=0; b<num_bins; ++b) {
-		if (calc_prods) {
+		if (out[b].num_pairs >0 && calc_prods) {
 			out[b].corr_avg /= ((double) out[b].num_pairs);
 		}
-		LOG(b);
-		LOG(out[b].dist_min);
-		LOG(out[b].dist_max);
-		if (out[b].corr_avg_valid) LOG(out[b].corr_avg);
-		LOG(out[b].corr_avg_valid);
-		LOG(out[b].num_pairs);
 	}
-	LOG(ta_cnt);
 
-	{
-		stringstream ss;
-		ss << "MakeCorrRandSamp with " << iters << " random samples" << endl;
-		ss << "  finished in " << sw.Time() << " ms.";
-		LOG_MSG(ss.str());
-	}
 	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrRandSamp");
 	return true;
 }
 
 bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 									   const std::vector<double>& Z,
+                                       const std::vector<bool>& Z_undef,
 									   bool is_arc, int num_bins,
 									   std::vector<CorreloBin>& out)
 
@@ -159,29 +178,41 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 
 	size_t nobs = pts.size();
 
-	bool calc_prods = (Z.size() == pts.size());
+	bool calc_prods = (Z.size() == nobs);
 	double mean = 0;
 	double var = 0;
+    
 	if (calc_prods) {
-		GetSampMeanAndVar(Z, mean, var);
+		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
 
 	double min_d, max_d;
-	min_d = (is_arc ? ComputeArcDistRad(pts[0].x, pts[0].y, pts[1].x, pts[1].y) :
+	min_d = (is_arc ?
+             ComputeArcDistRad(pts[0].x, pts[0].y, pts[1].x, pts[1].y) :
 			 ComputeEucDist(pts[0].x, pts[0].y, pts[1].x, pts[1].y));
 	max_d = min_d;
 
 	size_t pairs = ((nobs-1)*nobs)/2;
 	vector<double> Zdist(pairs);
 	vector<double> Zprod(calc_prods ? pairs : 0);
+	vector<double> Zprod_undef(calc_prods ? pairs : 0);
 	size_t pc = 0;
 	for (size_t i=0; i<nobs; ++i) {
 		for (size_t j=i+1; j<nobs; ++j) {
-			double d = (is_arc ? ComputeArcDistRad(pts[i].x, pts[i].y,pts[j].x, pts[j].y) :
+            
+            if (Z_undef.size() > 0 && (Z_undef[i] || Z_undef[j])) {
+                Zprod_undef[pc] = true;
+                Zdist[pc] = 0;
+                Zprod[pc] = 0;
+                continue;
+            }
+            
+            Zprod_undef[pc] = false;
+			double d = (is_arc ?
+                        ComputeArcDistRad(pts[i].x, pts[i].y,pts[j].x, pts[j].y) :
 						ComputeEucDist(pts[i].x, pts[i].y, pts[j].x, pts[j].y));
 			if (d < min_d) {
 				min_d = d;
@@ -189,17 +220,16 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 				max_d = d;
 			}
 			Zdist[pc] = d;
-			if (calc_prods)
+            if (calc_prods && var != 0) {
                 Zprod[pc] = (Z[i]-mean)*(Z[j]-mean)/var;
+            }
 			++pc;
 		}
 	}
-	LOG(min_d);
-	LOG(max_d);
-	LOG(pairs);
-	LOG(pc);
 	
-	if (num_bins <= 0) num_bins = 1;
+    if (num_bins <= 0) {
+        num_bins = 1;
+    }
 	out.clear();
 	out.resize(num_bins);
 	double nbins_d = (double) num_bins;
@@ -214,7 +244,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 
 	size_t ta_cnt = 0;
 	for (size_t i=0, sz=Zdist.size(); i<sz; ++i) {
-        if (wxIsNaN(Zdist[i])) {
+        if (wxIsNaN(Zdist[i]) || Zprod_undef[i]) {
             // todo something wrong here, Zdist value is NaN
             continue;
         }
@@ -225,32 +255,31 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 			ta_cnt++;
 		}
 		out[b].num_pairs++;
-		if (calc_prods) out[b].corr_avg += Zprod[i];
+        if (calc_prods) {
+            out[b].corr_avg += Zprod[i];
+        }
 	}
 	LOG(ta_cnt); // should be at most 1
 	
 	for (size_t b=0; b<num_bins; ++b) {
-		out[b].corr_avg /= ((double) out[b].num_pairs);
-		LOG(b);
-		LOG(out[b].dist_min);
-		LOG(out[b].dist_max);
-		if (calc_prods) LOG(out[b].corr_avg);
-		LOG(out[b].corr_avg_valid);
-		LOG(out[b].num_pairs);
+		if (out[b].num_pairs != 0 && calc_prods) {
+            out[b].corr_avg /= ((double) out[b].num_pairs);
+        }
 	}
-
-	{
+    
+	/*
 		stringstream ss;
 		ss << "MakeCorrMakeCorrAllPairs with " << pairs
 		   << " pairs finished in " << sw.Time() << " ms.";
 		LOG_MSG(ss.str());
-	}
+	*/
 	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrAllPairs");
 	return true;
 }
 
 bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 									 const std::vector<double>& Z,
+                                     const std::vector<bool>& Z_undef,
 									 double thresh, int num_bins,
 									 std::vector<CorreloBin>& out)
 {
@@ -263,6 +292,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 	if (thresh <= 0) return false;
 	bool calc_prods = (Z.size() == rtree.size());
 	double nbins_d = (double) num_bins;
+    
 	if (num_bins <= 0) num_bins = 1;
 	out.clear();
 	out.resize(num_bins);
@@ -278,9 +308,9 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 	double mean= 0;
 	double var=0;
 	if (calc_prods) {
-		GetSampMeanAndVar(Z, mean, var);
+		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
+			//LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -301,50 +331,47 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 		BOOST_FOREACH(const pt_2d_val& w, q) {
 			const size_t j = w.second;
 			if (i >= j) continue;
+            if (Z_undef.size() > 0 && (Z_undef[i] || Z_undef[j])) 
+                continue;
+            
 			double d = bg::distance(v.first, w.first);
 			int b = (int) (d/binw);
 			if (b >= num_bins || b<0) {
 				++ta_cnt;
 				continue;
 			}
+            
 			++pairs_cnt;
 			out[b].num_pairs++;
-			if (calc_prods) {
-				double prod = (Z[i]-mean)*(Z[j]-mean)/var;
-				out[b].corr_avg += prod;
+			if (calc_prods && var !=0) {
+                double prod = (Z[i]-mean)*(Z[j]-mean)/var;
+                out[b].corr_avg += prod;
 			}
 		}
 	}
-	LOG(ta_cnt);
-	LOG(pairs_cnt);
 	
 	for (size_t b=0; b<num_bins; ++b) {
 		if (out[b].num_pairs != 0 && calc_prods) {
-			out[b].corr_avg /= ((double) out[b].num_pairs);
+            out[b].corr_avg /= ((double) out[b].num_pairs);
 		}
-		LOG(b);
-		LOG(out[b].dist_min);
-		LOG(out[b].dist_max);
-		if (calc_prods) LOG(out[b].corr_avg);
-		LOG(out[b].corr_avg_valid);
-		LOG(out[b].num_pairs);
 	}
 
-	{
+	/*
 		stringstream ss;
 		ss << "MakeCorrThresh with threshold " << thresh
 		   << " finished in " << sw.Time() << " ms.";
 		LOG_MSG(ss.str());
-	}
+	*/
 	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrThresh (plane)");
 	return true;
 }
 
 /** thresh is assumed to be in radians.  Output is also in radians. */
 bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
-																		 const std::vector<double>& Z,
-																		 double thresh, int num_bins,
-																		 std::vector<CorreloBin>& out)
+                                     const std::vector<double>& Z,
+                                     const std::vector<bool>& Z_undef,
+                                     double thresh, int num_bins,
+                                     std::vector<CorreloBin>& out)
 {
 	using namespace std;
 	using namespace GenGeomAlgs;
@@ -370,17 +397,15 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 	double mean= 0;
 	double var=0;
 	if (calc_prods) {
-		GetSampMeanAndVar(Z, mean, var);
+		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			LOG_MSG("Error: non-positive variance calculated");
+			//LOG_MSG("Error: non-positive variance calculated");
 			return false;
 		}
 	}
 	
 	// thresh is in radians.  Need to convert to unit sphere secant distance
 	double sec_thresh = RadToUnitDist(thresh);
-	LOG(thresh);
-	LOG(sec_thresh);
 	
 	int ta_cnt = 0; // throw away count
 	int pairs_cnt = 0; // pairs count
@@ -400,6 +425,8 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 		BOOST_FOREACH(const pt_3d_val& w, q) {
 			const size_t j = w.second;
 			if (i >= j) continue;
+            if (Z_undef.size() > 0 && (Z_undef[i] || Z_undef[j]))
+                continue;
 			double d = bg::distance(v.first, w.first);
 			double rad_d = UnitDistToRad(d);
 			
@@ -410,33 +437,25 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 			}
 			++pairs_cnt;
 			out[b].num_pairs++;
-			if (calc_prods) {
+			if (calc_prods && var != 0) {
 				double prod = (Z[i]-mean)*(Z[j]-mean)/var;
 				out[b].corr_avg += prod;
 			}
 		}
 	}
-	LOG(ta_cnt);
-	LOG(pairs_cnt);
 	
 	for (size_t b=0; b<num_bins; ++b) {
 		if (out[b].num_pairs != 0 && calc_prods) {
 			out[b].corr_avg /= ((double) out[b].num_pairs);
 		}
-		LOG(b);
-		LOG(out[b].dist_min);
-		LOG(out[b].dist_max);
-		if (calc_prods) LOG(out[b].corr_avg);
-		LOG(out[b].corr_avg_valid);
-		LOG(out[b].num_pairs);
 	}
 	
-	{
+	/*
 		stringstream ss;
 		ss << "MakeCorrThresh with threshold " << thresh
 		<< " finished in " << sw.Time() << " ms.";
 		LOG_MSG(ss.str());
-	}
+	*/
 	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrThresh (sphere)");
 	return true;
 }

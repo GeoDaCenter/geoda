@@ -33,10 +33,10 @@ public:
     AdjustYAxisDlg( double min_val,
 					double max_val,
 					wxWindow* parent, wxWindowID id = -1,
-					const wxString& caption = "Adjust Values of Y Axis",
+					const wxString& caption = _("Adjust Values of Y Axis"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
-					long style = wxCAPTION|wxSYSTEM_MENU );
+					long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
@@ -62,10 +62,10 @@ class AxisLabelPrecisionDlg : public wxDialog{
 public:
     AxisLabelPrecisionDlg( int precision,
                    wxWindow* parent, wxWindowID id = -1,
-                   const wxString& caption = "Set the Decimal Precision of Values on Axis",
+                   const wxString& caption = _("Set Display Precision on Axis"),
                    const wxPoint& pos = wxDefaultPosition,
                    const wxSize& size = wxDefaultSize,
-                   long style = wxCAPTION|wxSYSTEM_MENU );
+                   long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
     
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );

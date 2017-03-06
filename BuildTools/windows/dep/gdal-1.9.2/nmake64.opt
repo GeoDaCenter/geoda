@@ -51,7 +51,11 @@ MSVC_VER=1500
 # But the paths *should* be absolute (relative paths mess up in submakefiles).
 
 ODBC_DRV_HOME= "C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64"
+
+#!IF EXIST("C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64")
 #ODBC_DRV_HOME= "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64"
+#!ENDIF
+
 !IFNDEF GDAL_HOME
 GDAL_HOME = C:\OSGeo4W
 #GDAL_HOME = %%LIBRARY_HOME%%
@@ -77,7 +81,7 @@ HTMLDIR = $(GDAL_HOME)\html
 
 # Set this to the installed directory containing python.  If you don't
 # have python just let it point to a directory that does not exist (as now).
-!IFNDEF PYDIR 
+!IFNDEF PYDIR
 PYDIR   =	"C:\Software\Python24"
 !ENDIF
 
@@ -125,9 +129,9 @@ OPTFLAGS=	/nologo /MD /EHsc /GR /Zi /Fd$(GDAL_ROOT)\gdal$(VERSION).pdb  /DDEBUG
 !ENDIF  #MSVC_VER
 !ENDIF  # OPTFLAGS
 
-# 
+#
 # Set flags controlling warnings level, and supression of some warnings.
-# 
+#
 !IFNDEF WARNFLAGS
 WARNFLAGS =	/W4 /wd4127 /wd4251 /wd4275 /wd4786 /wd4100 /wd4245 /wd4206 /wd4018 /wd4389
 !ENDIF
@@ -148,16 +152,16 @@ LDEBUG= /debug
 # compiles.
 WIN64=YES
 
-# If you don't want some entry points to have STDCALL conventions, 
+# If you don't want some entry points to have STDCALL conventions,
 # comment out the following and add -DCPL_DISABLE_STDCALL in OPTFLAGS.
 # This option has no effect on 64-bit windows.
 STDCALL=YES
 
-# Version number embedded in DLL name. 
+# Version number embedded in DLL name.
 VERSION =	20
 
 # Comment the following out if you want PAM supported disabled
-# by default.  
+# by default.
 PAM_SETTING=-DPAM_ENABLED
 
 # Uncomment the following to link OGR utilities against main GDAL DLL
@@ -165,14 +169,14 @@ PAM_SETTING=-DPAM_ENABLED
 #DLLBUILD=1
 
 # Enable all OGR formats, or only raster formats?  Comment out to disable
-# vector formats. 
+# vector formats.
 INCLUDE_OGR_FRMTS = YES
 
 # Location of Visual C++ directory (only required for following SETARGV stuff)
 #VCDIR   = 	"D:\Software\VStudio\VC98"
 
 # Enable the following if VCDIR set properly, and you want the utility
-# programs to be able to expand wildcards. 
+# programs to be able to expand wildcards.
 #SETARGV =	$(VCDIR)\lib\setargv.obj
 
 # Uncomment to build with libiconv library to support extended character
@@ -235,8 +239,8 @@ JPEG12_SUPPORTED = 1
 #		$(LIBKML_DIR)/third_party\uriparser-0.7.5.win32/release/uriparser.lib \
 #		$(LIBKML_DIR)/third_party\zlib-1.2.3.win32/lib/minizip.lib \
 #		$(LIBKML_DIR)/third_party\zlib-1.2.3.win32/lib/zlib.lib
-							
-# Uncomment the following and update to enable ECW read support with the 
+
+# Uncomment the following and update to enable ECW read support with the
 # 4.1+ readonly SDK
 #ECWDIR  = 	"c:/Program Files/ERDAS/ERDAS ECW JPEG2000 Read SDK"
 #ECWFLAGS =	-DECWSDK_VERSION=41 \
@@ -247,9 +251,9 @@ JPEG12_SUPPORTED = 1
 #		$(ECWDIR)\lib\vc90\win32\NCSUtil4.lib \
 #		$(ECWDIR)\lib\vc90\win32\NCScnet4.lib
 
-# To add Write support, use the write SDK, change NCSEcw4_RO.lib to 
+# To add Write support, use the write SDK, change NCSEcw4_RO.lib to
 # NCSEcw4.lib, and add -DHAVE_COMPRESS to ECWFLAGS.  The ECWDIR setting will
-# also need some adjustment. 
+# also need some adjustment.
 
 # To build ECW support as a plugin uncomment the following, and make sure
 # to do "nmake /f makefile.vc plugin" in gdal/frmts/ecw and copy the two
@@ -293,7 +297,7 @@ EXPAT_LIB = $(EXPAT_DIR)\lib\expat.lib
 #XERCES_DIR =	$(GDAL_HOME)
 #XERCES_INCLUDE = -I$(XERCES_DIR)/include -I$(XERCES_DIR)/include/xercesc
 #XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib advapi32.lib
-#XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib 
+#XERCES_LIB = $(XERCES_DIR)/lib/xerces-c_static_3.lib
 
 # Uncomment the following for Interlis support.  Note that a Xercex 2.x
 # is also required (see above).  Also, Interlis support only works with
@@ -321,7 +325,7 @@ EXPAT_LIB = $(EXPAT_DIR)\lib\expat.lib
 # Uncomment the following and update to enable NCSA HDF Release 5 support.
 #HDF5_PLUGIN = NO
 #HDF5_DIR =	c:\warmerda\supportlibs\hdf5\5-164-win
-#HDF5_LIB =	$(HDF5_DIR)\dll\hdf5dll.lib 
+#HDF5_LIB =	$(HDF5_DIR)\dll\hdf5dll.lib
 
 # Uncomment the following for MrSID support.  Only MRSID_DIR is required,
 # which may point to a MrSID Raster SDK, Lidar SDK, or the combined SDK, and
@@ -350,10 +354,10 @@ PCIDSK_SETTING=INTERNAL
 # PostGIS Libraries
 PG_INC_DIR = $(GDAL_HOME)\include
 PG_LIB = $(GDAL_HOME)\lib\libpq.lib wsock32.lib
-#PG_LIB = $(GDAL_HOME)\lib\postgres.lib 
+#PG_LIB = $(GDAL_HOME)\lib\postgres.lib
 
 # MySQL Libraries
-# NOTE: Need /MT instead of /MD, also enable /EHsc switch. 
+# NOTE: Need /MT instead of /MD, also enable /EHsc switch.
 #MYSQL_INC_DIR = $(DOWNLOAD_HOME)\mysql-5.6.16-winx64\include
 #MYSQL_LIB = $(GDAL_HOME)\lib\mysqlclient.lib advapi32.lib
 
@@ -364,7 +368,7 @@ SQLITE_INC=-I$(SQLITE_HOME)\include
 # For spatialite support, try this instead (assuming you grab the libspatialite-amalgamation-2.3.1 and installed it in osgeo4w):
 # The -DSPATIALITE_AMALGAMATION, which cause "spatialite/sqlite3.h" to be included instead of "sqlite3.h" might not be necessary
 # depending on the layout of the include directories. In case of compilation errors, remove it.
-#SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE 
+#SQLITE_INC=-I$(GDAL_HOME)\include -DHAVE_SPATIALITE
 SQLITE_LIB=$(GDAL_HOME)\lib\spatialite_i.lib $(SQLITE_HOME)\lib\sqlite3_i.lib
 
 # Informix Data Blade
@@ -420,15 +424,15 @@ PROJ_LIBRARY = $(GDAL_HOME)\lib\proj.lib
 #SDE_VERSION=
 #SDE_PLUGIN = YES
 #SDE_SDK = "C:\Program Files\ArcGIS\ArcSDE"
-#SDE_INC = $(SDE_SDK)\include 
+#SDE_INC = $(SDE_SDK)\include
 #SDE_LIB = $(SDE_SDK)\lib\pe$(SDE_VERSION).lib \
-#          $(SDE_SDK)\lib\sde$(SDE_VERSION).lib $(SDE_SDK)\lib\sg$(SDE_VERSION).lib      
+#          $(SDE_SDK)\lib\sde$(SDE_VERSION).lib $(SDE_SDK)\lib\sg$(SDE_VERSION).lib
 
 
 #FGDB_ENABLED = YES
 #FGDB_PLUGIN = YES
 #FGDB_SDK = C:\FileGDB
-#FGDB_INC = $(FGDB_SDK)\include 
+#FGDB_INC = $(FGDB_SDK)\include
 #FGDB_LIB = $(FGDB_SDK)\lib\FileGDBAPI.lib
 
 
@@ -448,7 +452,7 @@ PROJ_LIBRARY = $(GDAL_HOME)\lib\proj.lib
 CURL_DIR=$(GDAL_HOME)
 CURL_INC = -I$(CURL_DIR)/include
 # Uncoment following line to use libcurl as dynamic library
-CURL_LIB = $(CURL_DIR)\lib\libcurl.lib wsock32.lib wldap32.lib winmm.lib 
+CURL_LIB = $(CURL_DIR)\lib\libcurl.lib wsock32.lib wldap32.lib winmm.lib
 # Uncoment following two lines to use libcurl as static library
 #CURL_LIB = $(CURL_DIR)\lib\libcurl_a.lib wsock32.lib wldap32.lib winmm.lib
 #CURL_CFLAGS = -DCURL_STATICLIB
@@ -519,8 +523,8 @@ ADD_LIBS	= Ws2_32.lib
 
 # Comment out the following if you want to build with Python support, but
 # you don't have Numeric Python installed (with include files).  Numeric
-# integration may not work.  This only appears to the old generation 
-# bindings. 
+# integration may not work.  This only appears to the old generation
+# bindings.
 #HAVE_NUMPY=1
 
 ########### END OF STUFF THAT NORMALLY NEEDS TO BE UPDATED ##################
@@ -543,14 +547,14 @@ MSVC_VLD_LIB=/LIBPATH:$(MSVC_VLD_DIR)/lib
 OGR_FLAG = -DOGR_ENABLED
 !ENDIF
 
-#LINKER_FLAGS =	/NODEFAULTLIB:LIBC 
-LINKER_FLAGS = $(MSVC_VLD_LIB) $(LDEBUG) /NODEFAULTLIB:library 
+#LINKER_FLAGS =	/NODEFAULTLIB:LIBC
+LINKER_FLAGS = $(MSVC_VLD_LIB) $(LDEBUG) /NODEFAULTLIB:library
 
 
 CFLAGS	=	$(OPTFLAGS) $(WARNFLAGS) $(INC) $(EXTRAFLAGS) $(OGR_FLAG) $(MSVC_VLD_FLAGS) -DGDAL_COMPILATION
 MAKE	=	nmake /nologo
 
-CC	=	cl 
+CC	=	cl
 
 INSTALL	=	xcopy /y /r /d /f
 
@@ -644,10 +648,9 @@ EXTERNAL_LIBS =	$(OGDILIB) $(XERCES_LIB) $(EXPAT_LIB) $(OCI_LIB) $(PG_LIB) \
 	$(ODBCLIB) $(JASPER_LIB) $(PNG_LIB) $(ADD_LIBS) $(OPENJPEG_LIB) \
 	$(MRSID_LIDAR_LIB) $(LIBKML_LIBS) $(SOSI_LIBS) $(POPPLER_LIBS) $(PODOFO_LIBS) $(LZMA_LIBS) \
 	$(LIBICONV_LIBRARY) $(WEBP_LIBS) $(FGDB_LIB_LINK) $(FREEXL_LIBS) $(GTA_LIBS)
-		
-.c.obj:	
+
+.c.obj:
 	$(CC) $(CFLAGS) /c $*.c
 
-.cpp.obj:	
+.cpp.obj:
 	$(CC) $(CFLAGS) /c $*.cpp
-

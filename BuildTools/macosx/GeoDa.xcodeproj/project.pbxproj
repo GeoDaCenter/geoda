@@ -26,6 +26,7 @@
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
+		A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
 		A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77FDA17889BE200CC1037 /* OGRTable.cpp */; };
 		A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78133178A90A100CC1037 /* OGRDatasourceProxy.cpp */; };
@@ -36,6 +37,24 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
+		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
+		A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A496C99D1E6A184C008F87DD /* samples.sqlite */; };
+		A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */; };
+		A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */; };
+		A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */; };
+		A496C9AE1E6A43D6008F87DD /* ColombiaMalaria.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9AD1E6A43D6008F87DD /* ColombiaMalaria.png */; };
+		A496C9B01E6A43DA008F87DD /* ColumbusCrime.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9AF1E6A43DA008F87DD /* ColumbusCrime.png */; };
+		A496C9B21E6A43E5008F87DD /* Milwaukee2000Census.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9B11E6A43E4008F87DD /* Milwaukee2000Census.png */; };
+		A496C9B41E6A43E8008F87DD /* NAT.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9B31E6A43E8008F87DD /* NAT.png */; };
+		A496C9B61E6A43EE008F87DD /* NepalAid.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9B51E6A43EE008F87DD /* NepalAid.png */; };
+		A496C9B91E6A43FA008F87DD /* no_map.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9B81E6A43FA008F87DD /* no_map.png */; };
+		A496C9BB1E6A43FE008F87DD /* NYCData.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9BA1E6A43FE008F87DD /* NYCData.png */; };
+		A496C9BD1E6A4402008F87DD /* PhoenixACS.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9BC1E6A4402008F87DD /* PhoenixACS.png */; };
+		A496C9BF1E6A4405008F87DD /* SanFranCrime.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9BE1E6A4405008F87DD /* SanFranCrime.png */; };
+		A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C01E6A440A008F87DD /* SIDSNC.png */; };
+		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
+		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
+		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */; };
 		DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */; };
 		DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0FC7E61A9EC17500A6715B /* CorrelogramAlgs.cpp */; };
@@ -158,8 +177,6 @@
 		DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB37A0711CBBB730020C8A9 /* TemplateLegend.cpp */; };
 		DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77C0B139820CB00569A1E /* GStatCoordinator.cpp */; };
 		DDB77F3E140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDB77F3C140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp */; };
-		DDBDFE6A19E73E07004CCEDA /* web_plugins in Resources */ = {isa = PBXBuildFile; fileRef = DDBDFE6119E73E07004CCEDA /* web_plugins */; };
-		DDBDFE6B19E73E13004CCEDA /* web_plugins in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDBDFE6119E73E07004CCEDA /* web_plugins */; };
 		DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC48EF418AE506400FD773F /* ProjectInfoDlg.cpp */; };
 		DDC906921A129CFF002334D2 /* SimpleAxisCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9068C1A129CFF002334D2 /* SimpleAxisCanvas.cpp */; };
 		DDC906931A129CFF002334D2 /* SimpleHistCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9068E1A129CFF002334D2 /* SimpleHistCanvas.cpp */; };
@@ -213,7 +230,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				DDBDFE6B19E73E13004CCEDA /* web_plugins in CopyFiles */,
 				DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */,
 				A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */,
 				A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */,
@@ -260,6 +276,8 @@
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
 		A1DA623917BCBC070070CAAB /* AutoCompTextCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoCompTextCtrl.h; sourceTree = "<group>"; };
+		A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
+		A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
 		A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportDataDlg.cpp; sourceTree = "<group>"; };
 		A1E77E19177D6A2E00CC1037 /* ExportDataDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportDataDlg.h; sourceTree = "<group>"; };
 		A1E77FDA17889BE200CC1037 /* OGRTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRTable.cpp; path = DataViewer/OGRTable.cpp; sourceTree = "<group>"; };
@@ -279,6 +297,26 @@
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
+		A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
+		A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
+		A496C99D1E6A184C008F87DD /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
+		A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BaltimoreHomeSales.png; path = BuildTools/CommonDistFiles/web_plugins/BaltimoreHomeSales.png; sourceTree = "<group>"; };
+		A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BostonHomeSales.png; path = BuildTools/CommonDistFiles/web_plugins/BostonHomeSales.png; sourceTree = "<group>"; };
+		A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BuenosAiresElections.png; path = BuildTools/CommonDistFiles/web_plugins/BuenosAiresElections.png; sourceTree = "<group>"; };
+		A496C9AD1E6A43D6008F87DD /* ColombiaMalaria.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ColombiaMalaria.png; path = BuildTools/CommonDistFiles/web_plugins/ColombiaMalaria.png; sourceTree = "<group>"; };
+		A496C9AF1E6A43DA008F87DD /* ColumbusCrime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ColumbusCrime.png; path = BuildTools/CommonDistFiles/web_plugins/ColumbusCrime.png; sourceTree = "<group>"; };
+		A496C9B11E6A43E4008F87DD /* Milwaukee2000Census.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Milwaukee2000Census.png; path = BuildTools/CommonDistFiles/web_plugins/Milwaukee2000Census.png; sourceTree = "<group>"; };
+		A496C9B31E6A43E8008F87DD /* NAT.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NAT.png; path = BuildTools/CommonDistFiles/web_plugins/NAT.png; sourceTree = "<group>"; };
+		A496C9B51E6A43EE008F87DD /* NepalAid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NepalAid.png; path = BuildTools/CommonDistFiles/web_plugins/NepalAid.png; sourceTree = "<group>"; };
+		A496C9B71E6A43F3008F87DD /* NepalAid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NepalAid.png; path = BuildTools/CommonDistFiles/web_plugins/NepalAid.png; sourceTree = "<group>"; };
+		A496C9B81E6A43FA008F87DD /* no_map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = no_map.png; path = BuildTools/CommonDistFiles/web_plugins/no_map.png; sourceTree = "<group>"; };
+		A496C9BA1E6A43FE008F87DD /* NYCData.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NYCData.png; path = BuildTools/CommonDistFiles/web_plugins/NYCData.png; sourceTree = "<group>"; };
+		A496C9BC1E6A4402008F87DD /* PhoenixACS.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PhoenixACS.png; path = BuildTools/CommonDistFiles/web_plugins/PhoenixACS.png; sourceTree = "<group>"; };
+		A496C9BE1E6A4405008F87DD /* SanFranCrime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SanFranCrime.png; path = BuildTools/CommonDistFiles/web_plugins/SanFranCrime.png; sourceTree = "<group>"; };
+		A496C9C01E6A440A008F87DD /* SIDSNC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SIDSNC.png; path = BuildTools/CommonDistFiles/web_plugins/SIDSNC.png; sourceTree = "<group>"; };
+		A496C9C21E6A4417008F87DD /* USHomicides.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = USHomicides.png; path = BuildTools/CommonDistFiles/web_plugins/USHomicides.png; sourceTree = "<group>"; };
+		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
+		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		DD00ADE611138A2C008FE572 /* TemplateFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateFrame.h; sourceTree = "<group>"; };
 		DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemplateFrame.cpp; sourceTree = "<group>"; };
 		DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RangeSelectionDlg.cpp; sourceTree = "<group>"; };
@@ -666,6 +704,24 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A496C9C41E6A441D008F87DD /* watermark-20.png */,
+				A496C9C21E6A4417008F87DD /* USHomicides.png */,
+				A496C9C01E6A440A008F87DD /* SIDSNC.png */,
+				A496C9BE1E6A4405008F87DD /* SanFranCrime.png */,
+				A496C9BC1E6A4402008F87DD /* PhoenixACS.png */,
+				A496C9BA1E6A43FE008F87DD /* NYCData.png */,
+				A496C9B81E6A43FA008F87DD /* no_map.png */,
+				A496C9B71E6A43F3008F87DD /* NepalAid.png */,
+				A496C9B51E6A43EE008F87DD /* NepalAid.png */,
+				A496C9B31E6A43E8008F87DD /* NAT.png */,
+				A496C9B11E6A43E4008F87DD /* Milwaukee2000Census.png */,
+				A496C9AF1E6A43DA008F87DD /* ColumbusCrime.png */,
+				A496C9AD1E6A43D6008F87DD /* ColombiaMalaria.png */,
+				A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */,
+				A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */,
+				A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */,
+				A496C99D1E6A184C008F87DD /* samples.sqlite */,
+				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
 				DD972054150A6EE4000206F4 /* CmdLineUtils */,
@@ -753,6 +809,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */,
+				A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */,
 				A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */,
 				A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */,
 				A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */,
@@ -862,6 +920,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */,
+				A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */,
 				DD7975B80F1D2A9000496A84 /* 3DPlotView.cpp */,
 				DD7975B90F1D2A9000496A84 /* 3DPlotView.h */,
 				DD2B42AF1522552B00888E51 /* BoxNewPlotView.cpp */,
@@ -1221,8 +1281,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
+				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
 				A19F51501756A11E006E31B4 /* plugins in Resources */,
-				DDBDFE6A19E73E07004CCEDA /* web_plugins in Resources */,
+				A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */,
+				A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */,
+				A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */,
+				A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */,
+				A496C9AE1E6A43D6008F87DD /* ColombiaMalaria.png in Resources */,
+				A496C9B01E6A43DA008F87DD /* ColumbusCrime.png in Resources */,
+				A496C9B21E6A43E5008F87DD /* Milwaukee2000Census.png in Resources */,
+				A496C9B41E6A43E8008F87DD /* NAT.png in Resources */,
+				A496C9B61E6A43EE008F87DD /* NepalAid.png in Resources */,
+				A496C9B91E6A43FA008F87DD /* no_map.png in Resources */,
+				A496C9BB1E6A43FE008F87DD /* NYCData.png in Resources */,
+				A496C9BD1E6A4402008F87DD /* PhoenixACS.png in Resources */,
+				A496C9BF1E6A4405008F87DD /* SanFranCrime.png in Resources */,
+				A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */,
+				A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */,
+				A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1292,6 +1368,7 @@
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
 				DDF14CDA139432B000363FA1 /* DataViewerDeleteColDlg.cpp in Sources */,
+				A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */,
 				DDF14CDC139432C100363FA1 /* DataViewerResizeColDlg.cpp in Sources */,
 				DDF14CDD139432CB00363FA1 /* DataViewerAddColDlg.cpp in Sources */,
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
@@ -1359,6 +1436,7 @@
 				DD92D22417BAAF2300F8FE01 /* TimeEditorDlg.cpp in Sources */,
 				A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */,
 				A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */,
+				A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */,
 				DD92851C17F5FC7300B9481A /* VarOrderPtree.cpp in Sources */,
 				DD92851F17F5FD4500B9481A /* VarOrderMapper.cpp in Sources */,
 				DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */,
@@ -1430,6 +1508,7 @@
 		DD7974680F1D1B0700496A84 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				COPY_PHASE_STRIP = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1446,6 +1525,7 @@
 		DD7974690F1D1B0700496A84 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				COPY_PHASE_STRIP = YES;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 2;
@@ -1476,10 +1556,11 @@
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.0",
-					"-I./libraries/include/wx-3.0/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
+					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-D_FILE_OFFSET_BITS=64",
@@ -1509,24 +1590,24 @@
 					OpenGL,
 					"-framework",
 					AGL,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.0.a",
-					"./libraries/lib/libwx_baseu_xml-3.0.a",
-					"./libraries/lib/libwx_baseu_net-3.0.a",
-					"./libraries/lib/libwx_baseu-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.0.a",
-					"-lwxpng-3.0",
-					"-lwxjpeg-3.0",
+					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
+					"./libraries/lib/libwx_baseu_xml-3.1.a",
+					"./libraries/lib/libwx_baseu_net-3.1.a",
+					"./libraries/lib/libwx_baseu-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
+					"-lwxpng-3.1",
+					"-lwxjpeg-3.1",
 					"-framework",
 					WebKit,
 					"-lexpat",
-					"-lwxregexu-3.0",
+					"-lwxregexu-3.1",
 					"-lz",
 					"-lpthread",
 					"-liconv",
@@ -1563,11 +1644,12 @@
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.0",
-					"-I./libraries/include/wx-3.0/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
+					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-D_FILE_OFFSET_BITS=64",
@@ -1595,25 +1677,25 @@
 					OpenGL,
 					"-framework",
 					AGL,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.0.a",
-					"./libraries/lib/libwx_baseu_xml-3.0.a",
-					"./libraries/lib/libwx_baseu_net-3.0.a",
-					"./libraries/lib/libwx_baseu-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.0.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.0.a",
-					"-lwxpng-3.0",
-					"-lwxjpeg-3.0",
+					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
+					"./libraries/lib/libwx_baseu_xml-3.1.a",
+					"./libraries/lib/libwx_baseu_net-3.1.a",
+					"./libraries/lib/libwx_baseu-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
+					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
+					"-lwxpng-3.1",
+					"-lwxjpeg-3.1",
 					"-framework",
 					WebKit,
 					"-lexpat",
-					"-lwxregexu-3.0",
-					"-lwxtiff-3.0",
+					"-lwxregexu-3.1",
+					"-lwxtiff-3.1",
 					"-lz",
 					"-lpthread",
 					"-liconv",

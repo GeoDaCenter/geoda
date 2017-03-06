@@ -29,24 +29,27 @@
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
 #include "../GdaConst.h"
-#include "../logger.h"
+#include "../GenUtils.h"
 #include "RandomizationDlg.h"
 
 
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
+                                       const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,
                                        bool reuse_user_seed,
                                        uint64_t user_specified_seed,
-                                       wxFrame* parent)
+                                       wxFrame* parent,
+                                       const wxSize& size)
 : start(-1),
 stop(1),
 raw_data1(raw_data1_s),
+undefs(undefs_s),
 W(W_s),
 num_obs(raw_data1_s.size()),
 Permutations(NumPermutations),
 MoranI(NumPermutations, 0),
 is_bivariate(false),
-wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
+wxPanel(parent, -1, wxDefaultPosition, size)
 {
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     
@@ -65,14 +68,18 @@ wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
 
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
                                        const std::vector<double>& raw_data2_s,
+                                       const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,
                                        bool reuse_user_seed,
                                        uint64_t user_specified_seed,
-                                       wxFrame* parent)
-: start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s), W(W_s),
+                                       wxFrame* parent,
+                                       const wxSize& size)
+: start(-1), stop(1), raw_data1(raw_data1_s), raw_data2(raw_data2_s),
+undefs(undefs_s),
+W(W_s),
 num_obs(raw_data1_s.size()), Permutations(NumPermutations),
 MoranI(NumPermutations, 0), is_bivariate(true),
-wxPanel(parent, -1, wxDefaultPosition, wxSize(550,300))
+wxPanel(parent, -1, wxDefaultPosition, size)
 {
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     
@@ -115,17 +122,42 @@ void RandomizationPanel::OnRunClick( wxCommandEvent& event )
 
 void RandomizationPanel::CalcMoran()
 {
-	Moran = 0;
-	if (is_bivariate) {
-		for (int i=0; i<num_obs; i++) {
-			Moran += W[i].SpatialLag(raw_data2) * raw_data1[i];
+    std::vector<bool> XY_undefs;
+    std::vector<double> X;
+    std::vector<double> Y;
+   
+    for (int i=0; i<num_obs; i++) {
+        if (undefs[i])
+            continue;
+        double Wdata = 0;
+        if (is_bivariate) {
+            Wdata = W[i].SpatialLag(raw_data2);
+        } else {
+            Wdata = W[i].SpatialLag(raw_data1);
 		}
-	} else {
-		for (int i=0; i<num_obs; i++) {
+        X.push_back(raw_data1[i]);
+        Y.push_back(Wdata);
+        XY_undefs.push_back(false);
+    }
+    
+    SampleStatistics statsX(X, XY_undefs);
+    SampleStatistics statsY(Y, XY_undefs);
+    SimpleLinearRegression lreg (X, Y, XY_undefs, XY_undefs,
+                                         statsX.mean, statsY.mean,
+                                         statsX.var_without_bessel,
+                                         statsY.var_without_bessel);
+    Moran = lreg.beta;
+    /*
+	Moran = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (is_bivariate) {
+			Moran += W[i].SpatialLag(raw_data2) * raw_data1[i];
+        } else {
 			Moran += W[i].SpatialLag(raw_data1) * raw_data1[i];
 		}
 	}
 	Moran /= (double) num_obs - 1.0;
+     */
 }
 
 void RandomizationPanel::Init()
@@ -393,9 +425,11 @@ BEGIN_EVENT_TABLE( RandomizationDlg, wxFrame)
 	EVT_MOUSE_EVENTS(RandomizationDlg::OnMouse)
 END_EVENT_TABLE()
 
-RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
+RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const std::vector<double>& raw_data2_s,
-								   const GalElement* W_s,
+								   const GalWeight* W_s,
+                                   const std::vector<bool>& _undef,
+                                   const std::vector<bool>& hl,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -403,19 +437,68 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const wxString& caption, 
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
-: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
+: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	wxLogMessage("Open RandomizationDlg (bivariate).");
 	
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+    SetBackgroundColour(*wxWHITE);
+   
+    int num_obs = raw_data1_s.size();
     
-    panel = new RandomizationPanel(raw_data1_s, raw_data2_s, W_s, NumPermutations, reuse_user_seed, user_specified_seed, this);
-    CreateControls();
-	
+    bool has_undef = false;
+    bool has_hl = false;
+    
+    for (int i=0; i<num_obs;i++) if (_undef[i]) has_undef = true;
+    for (int i=0; i<num_obs;i++) if (hl[i]) has_hl = true;
+   
+    wxSize sz(500,300);
+   
+    if (has_hl ) {
+        sz.SetHeight(200);
+    }
+    
+    GalElement* W = NULL;
+    if (has_undef) {
+        copy_w = new GalWeight(*W_s);
+        copy_w->Update(_undef);
+        W = copy_w->gal;
+    } else {
+        W = W_s->gal;
+    }
+    
+    panel = new RandomizationPanel(raw_data1_s, raw_data2_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+    
+    
+    if ( has_hl) {
+        std::vector<bool> sel_undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            sel_undefs[i] = _undef[i] || !hl[i];
+        }
+        copy_w_sel = new GalWeight(*W_s);
+        copy_w_sel->Update(sel_undefs);
+        panel_sel = new RandomizationPanel(raw_data1_s, raw_data2_s, sel_undefs, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        
+        std::vector<bool> unsel_undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            unsel_undefs[i] = _undef[i] || hl[i];
+        }
+        copy_w_unsel = new GalWeight(*W_s);
+        copy_w_unsel->Update(unsel_undefs);
+        panel_unsel = new RandomizationPanel(raw_data1_s, raw_data2_s, unsel_undefs, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        
+        CreateControls_regime();
+        
+    } else {
+        CreateControls();
+    }
 }
 
 RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
-								   const GalElement* W_s,
+								   const GalWeight* W_s,
+                                   const std::vector<bool>& _undef,
+                                   const std::vector<bool>& hl,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -423,37 +506,120 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const wxString& caption, 
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
-: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300))
+: wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
 {
-	LOG_MSG("In RandomizationDlg::RandomizationDlg");
+	wxLogMessage("Open RandomizationDlg (univariate).");
 	
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+    SetBackgroundColour(*wxWHITE);
     
-    panel = new RandomizationPanel(raw_data1_s, W_s, NumPermutations, reuse_user_seed, user_specified_seed, this);
-    CreateControls();
+    int num_obs = raw_data1_s.size();
+    
+    bool has_undef = false;
+    bool has_hl = false;
+    
+    for (int i=0; i<num_obs;i++) if (_undef[i]) has_undef = true;
+    for (int i=0; i<num_obs;i++) if (hl[i]) has_hl = true;
+
+    wxSize sz(500,300);
+    
+    if (has_hl ) {
+        sz.SetHeight(200);
+    }
+    
+    GalElement* W = W_s->gal;
+    if (has_undef) {
+        copy_w = new GalWeight(*W_s);
+        copy_w->Update(_undef);
+        W = copy_w->gal;
+    }
+    panel = new RandomizationPanel(raw_data1_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+   
+   
+    if ( has_hl) {
+        std::vector<bool> sel_undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            sel_undefs[i] = _undef[i] || !hl[i];
+        }
+        copy_w_sel = new GalWeight(*W_s);
+        copy_w_sel->Update(sel_undefs);
+        panel_sel = new RandomizationPanel(raw_data1_s, sel_undefs, copy_w_sel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this,sz);
+        
+        std::vector<bool> unsel_undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            unsel_undefs[i] = _undef[i] || hl[i];
+        }
+        copy_w_unsel = new GalWeight(*W_s);
+        copy_w_unsel->Update(unsel_undefs);
+        panel_unsel = new RandomizationPanel(raw_data1_s, unsel_undefs, copy_w_unsel->gal, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
+        
+        CreateControls_regime();
+        
+    } else {
+        CreateControls();
+    }
 }
 
 
 
 RandomizationDlg::~RandomizationDlg()
 {
+    wxLogMessage("Close RandomizationDlg");
+    
+    if (copy_w) {
+        delete copy_w;
+        copy_w = NULL;
+    }
+    if (copy_w_sel) {
+        delete copy_w_sel;
+        copy_w_sel = NULL;
+    }
+    if (copy_w_unsel) {
+        delete copy_w_unsel;
+        copy_w_unsel = NULL;
+    }
 }
 
 void RandomizationDlg::CreateControls()
-{    
-    wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Run"));
-    hbox2->AddSpacer(100);
-    hbox2->Add(button);
-    vbox->Add(hbox2, 0, wxALIGN_RIGHT | wxLEFT | wxTOP, 100);
+{
+    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
+   
+    wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
+    panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);
+    panel_box->Add(panel, 1, wxEXPAND | wxALL, 10);
     
-    panel->SetSizer(vbox);
-    
+    SetSizer(panel_box);
+    panel_box->Fit(this);
     Centre();
     
     Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnOkClick));
+}
+
+void RandomizationDlg::CreateControls_regime()
+{
+    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
     
+    wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
+    panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);
+    wxStaticText* lbl1 = new wxStaticText(this, wxID_ANY, _("All"));
+    lbl1->SetFont(*GdaConst::small_font);
+    panel_box->Add(lbl1, 0,  wxALIGN_CENTER| wxALL, 0);
+    panel_box->Add(panel, 1, wxEXPAND | wxALL, 10);
+    wxStaticText* lbl2 = new wxStaticText(this, wxID_ANY, _("Selected"));
+    lbl2->SetFont(*GdaConst::small_font);
+    panel_box->Add(lbl2, 0,  wxALIGN_CENTER | wxALL, 0);
+    panel_box->Add(panel_sel, 1, wxEXPAND | wxALL, 10);
+    wxStaticText* lbl3 = new wxStaticText(this, wxID_ANY, _("Unselected"));
+    lbl3->SetFont(*GdaConst::small_font);
+    panel_box->Add(lbl3, 0,  wxALIGN_CENTER | wxALL, 0);
+    panel_box->Add(panel_unsel, 1, wxEXPAND | wxALL, 10);
+    
+    SetSizer(panel_box);
+    panel_box->Fit(this);
+    Centre();
+    
+    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(RandomizationDlg::OnRunAll));
 }
 
 void RandomizationDlg::OnClose( wxCloseEvent& event )
@@ -462,14 +628,23 @@ void RandomizationDlg::OnClose( wxCloseEvent& event )
     event.Skip();
 }
 
+void RandomizationDlg::OnRunAll( wxCommandEvent& event )
+{
+    wxLogMessage("Click RandomizationDlg::OnRunAll");
+	panel->RunRandomTrials();
+	panel->Refresh();
+	panel_sel->RunRandomTrials();
+	panel_sel->Refresh();
+	panel_unsel->RunRandomTrials();
+	panel_unsel->Refresh();
+}
+
 void RandomizationDlg::OnOkClick( wxCommandEvent& event )
 {
-	//wxRect rcClient = GetClientRect();
-	//CheckSize(rcClient.GetWidth(), rcClient.GetHeight());
+    wxLogMessage("Click RandomizationDlg::OnOkClick");
 	panel->RunRandomTrials();
 	panel->Refresh();
 }
- 
 void RandomizationDlg::OnMouse( wxMouseEvent& event )
 {
 	if (event.RightDown()) {

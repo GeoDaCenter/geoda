@@ -38,7 +38,7 @@ public:
     C3DControlPan( wxWindow* parent, wxWindowID id = -1,
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize,
-				  long style = wxCAPTION|wxSYSTEM_MENU,
+				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE,
 				  const wxString& x3d_l = "X",
 				  const wxString& y3d_l = "Y",
 				  const wxString& z3d_l = "Z" );
@@ -46,7 +46,7 @@ public:
     bool Create( wxWindow* parent, wxWindowID id = -1,
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
-				long style = wxCAPTION|wxSYSTEM_MENU,
+				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE,
 				const wxString& x3d_l = "X",
 				const wxString& y3d_l = "Y",
 				const wxString& z3d_l = "Z" );

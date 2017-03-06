@@ -108,6 +108,11 @@ protected:
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
+    std::vector<std::vector<bool> > var_undefs;
+    
+	//std::vector<b_array_type> data_undef;
+    
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
@@ -165,7 +170,7 @@ public:
     CartogramNewFrame(wxFrame *parent, Project* project,
 					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
-					  const wxString& title = "Cartogram",
+					  const wxString& title = _("Cartogram"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,
 					  const long style = wxDEFAULT_FRAME_STYLE);

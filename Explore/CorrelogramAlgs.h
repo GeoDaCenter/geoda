@@ -39,7 +39,8 @@ namespace CorrelogramAlgs {
 	};
 	
 	void GetSampMeanAndVar(const std::vector<double>& Z,
-												 double& mean, double& var);
+                           const std::vector<bool>& Z_undef,
+                           double& mean, double& var);
 	
 	/**
 	 Input:
@@ -55,14 +56,16 @@ namespace CorrelogramAlgs {
 	   out: vector of CorreloBin output objects of size num_cats
 		 true if success, false if sample variance <= 0
 	 */
-	bool MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
-												const std::vector<double>& Z,
-												bool is_arc, double dist_cutoff,
-												int num_bins, int iters,
-												std::vector<CorreloBin>& out);
+    bool MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
+                          const std::vector<double>& Z,
+                          const std::vector<bool>& Z_undef,
+                          bool is_arc, double dist_cutoff,
+                          int num_bins, int iters,
+                          std::vector<CorreloBin>& out);
 
 	bool MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 						  const std::vector<double>& Z,
+                          const std::vector<bool>& Z_undef,
 						  bool is_arc, int num_bins,
 						  std::vector<CorreloBin>& out);
 	
@@ -72,13 +75,15 @@ namespace CorrelogramAlgs {
 	 to choose the threshold.  */
 	bool MakeCorrThresh(const rtree_pt_2d_t& rtree,
 						const std::vector<double>& Z,
+                        const std::vector<bool>& Z_undef,
 						double thresh, int num_bins,
 						std::vector<CorreloBin>& out);
 	
-	bool MakeCorrThresh(const rtree_pt_3d_t& rtree,
-											const std::vector<double>& Z,
-											double thresh, int num_bins,
-											std::vector<CorreloBin>& out);
+    bool MakeCorrThresh(const rtree_pt_3d_t& rtree,
+                        const std::vector<double>& Z,
+                        const std::vector<bool>& Z_undef,
+                        double thresh, int num_bins,
+                        std::vector<CorreloBin>& out);
 }
 
 #endif

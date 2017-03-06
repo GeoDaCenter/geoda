@@ -41,11 +41,11 @@ typedef struct Box_stru {
 	DPOINT p2;
 } myBox;
 
-bool CreatePointShapeFile(
-						  char* otfl,         // Target File name
-						  const int nPoint,   // Number of point or records
-						  double *x,          // x-coordinates vector
-						  double *y)          // y-ccordinates vector
+bool CreatePointShapeFile(char* otfl,         // Target File name
+                          const int nPoint,   // Number of point or records
+                          double *x,          // x-coordinates vector
+                          double *y)          // y-ccordinates vector
+                          
 {
 	
 	//Do we really need this code?
@@ -178,6 +178,8 @@ void ASC2SHPDlg::CreateControls()
 
 void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 {
+    wxLogMessage("In ASC2SHPDlg::OnOkAddClick()");
+    
 	wxString m_iASC = m_inputfile->GetValue();
 	wxString m_oSHP = m_outputfile->GetValue();
     int idx_x = m_X->GetSelection();
@@ -191,10 +193,9 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 	char name[10000];
 	ias.getline(name,100);
 	sscanf(name,"%d,%d",&n_recs, &n_fields);
-
+    
     if( (n_recs <= 0) || (n_fields < 2) ) {
-		wxString msg = "Number of columns has to be more than 2\n";
-		msg += "At least it includes ID,X-Coord, and Y-Coord!";
+		wxString msg = _("Number of columns has to be more than 2. \nAt least it includes ID,X-Coord, and Y-Coord!");
 		wxMessageBox(msg);
 		return;
 	}
@@ -231,8 +232,7 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 		}
 		else
 		{
-			wxString msg = "Error: there was a problem reading the\n";
-			msg +=         "    field names from the text file.";
+			wxString msg = _("Error: there was a problem reading the field names from the text file.");
 			wxMessageBox(msg);
 			return;
 		}
@@ -280,7 +280,7 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 			}
 			else
 			{
-				wxMessageBox("Error: Wrong format.");
+				wxMessageBox(_("Error: Wrong format."));
 				delete [] x; x = NULL;
 				delete [] y; y = NULL;
 				delete [] buff; buff = NULL;
@@ -321,7 +321,7 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 
 	if(odbf.fail)
 	{
-		wxMessageBox("Can't open output file!");
+		wxMessageBox(_("Can't open output file!"));
 
 		delete [] x;
 		x = NULL;
@@ -362,7 +362,8 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 
 void ASC2SHPDlg::OnCOpenIascClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg( this, "Input ASCII file", "", "",
+    wxLogMessage("In ASC2SHPDlg::OnCOpenIascClick()");
+    wxFileDialog dlg( this, _("Input ASCII file"), "", "",
 					 "ASCII files (*.txt)|*.txt");
 
 	
@@ -393,14 +394,12 @@ void ASC2SHPDlg::OnCOpenIascClick( wxCommandEvent& event )
 		sscanf(name,"%d,%d",&n_recs, &n_fields);
 
 		if( (n_recs <= 0) ) {
-			wxString msg = "Error: number of records must be > 0,\nbut only ";
-			msg << n_recs << " records found.";
+			wxString msg = _("Error: number of records must be > 0.");
 			wxMessageBox(msg);
 		}
 
 		if( (n_fields <= 2) ) {
-			wxString msg = "Error: number of fields must be > 2,\nbut only ";
-			msg << n_fields << " fields found.";
+            wxString msg = _("Error: number of fields must be > 2.");
 			wxMessageBox(msg);
 		}
 
@@ -430,7 +429,7 @@ void ASC2SHPDlg::OnCOpenIascClick( wxCommandEvent& event )
 			{
 				m_X->Clear();
 				m_Y->Clear();
-				wxMessageBox("Error: field names listed in wrong format.");
+				wxMessageBox(_("Error: field names listed in wrong format."));
 				return;
 			}
 		}
@@ -458,12 +457,13 @@ void ASC2SHPDlg::OnCOpenIascClick( wxCommandEvent& event )
 
 void ASC2SHPDlg::OnCOpenOshpClick( wxCommandEvent& event )
 {
-    wxFileDialog dlg(this, "Output Shp file", wxEmptyString, fn + ".shp",
+    wxLogMessage("In ASC2SHPDlg::OnCOpenOshpClick()");
+    wxFileDialog dlg(this, _("Output Shp file"), wxEmptyString, fn + ".shp",
                     "Shp files (*.shp)|*.shp",
 					wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
 	
-	wxString	m_path = wxEmptyString;
+	wxString m_path = wxEmptyString;
 
     if (dlg.ShowModal() == wxID_OK) {
 		m_path  = dlg.GetPath();
@@ -475,6 +475,7 @@ void ASC2SHPDlg::OnCOpenOshpClick( wxCommandEvent& event )
 
 void ASC2SHPDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In ASC2SHPDlg::OnCancelClick()");
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 }

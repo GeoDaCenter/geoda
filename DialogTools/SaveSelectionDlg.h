@@ -35,10 +35,10 @@ class SaveSelectionDlg: public wxDialog
 public:
     SaveSelectionDlg(Project* Project, wxWindow* parent,
 					 wxWindowID id = wxID_ANY,
-					 const wxString& caption = "Save Selection",
+					 const wxString& caption = _("Save Selection"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU );
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
 	void OnAddField( wxCommandEvent& event );

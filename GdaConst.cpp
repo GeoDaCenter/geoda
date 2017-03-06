@@ -22,7 +22,47 @@
 #include "GenUtils.h"
 #include <wx/mstream.h>
 
-char* GdaConst::raw_zoom_in[] = {
+// 10 local + 29 http
+const char* GdaConst::sample_names[] = {
+    "US County Homicides",
+    "House Prices Baltimore",
+    "House Prices Boston",
+    "Columbus Crime",
+    "NC SIDS",
+    "Nepal Aid",
+    "NYC Data",
+    "Malaria Colombia Cities",
+    "Phoenix ACS",
+    "San Francisco Crime"
+};
+
+const char* GdaConst::sample_layer_names[] = {
+    "US Homicides",
+    "Baltimore Home Sales",
+    "Boston Home Sales",
+    "Columbus Crime",
+    "SIDS NC",
+    "Nepal Aid",
+    "NYC Data",
+    "Colombia Malaria",
+    "Phoenix ACS",
+    "SanFran Crime"
+};
+
+const char* GdaConst::sample_datasources[] = {
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite",
+    "samples.sqlite"
+};
+
+const char* GdaConst::raw_zoom_in[] = {
 
 	"16 16 48 1",
 	" 	g None",
@@ -91,7 +131,7 @@ char* GdaConst::raw_zoom_in[] = {
 	"                "
 };
 
-char* GdaConst::raw_zoom_out[] = {
+const char* GdaConst::raw_zoom_out[] = {
 	"16 16 48 1",
 	" 	g None",
 	".	g #979797",
@@ -158,12 +198,66 @@ char* GdaConst::raw_zoom_out[] = {
 	"                ",
 	"                "};
 
+const char* GdaConst::delete_icon_xpm[] = {
+    "16 16 31 1 ",
+    "  c #CD5050",
+    ". c #D76262",
+    "X c #DA6868",
+    "o c #DB6868",
+    "O c #DB6969",
+    "+ c #DC6969",
+    "@ c #DC6B6B",
+    "# c #DE6B6B",
+    "$ c #DD6C6C",
+    "% c #E17070",
+    "& c #E07171",
+    "* c #E07272",
+    "= c #E17272",
+    "- c #E27373",
+    "; c #E37373",
+    ": c #E37474",
+    "> c #EB7C7C",
+    ", c #F88E8E",
+    "< c #FB9191",
+    "1 c #FB9292",
+    "2 c #FA9393",
+    "3 c #FD9191",
+    "4 c #FF9191",
+    "5 c #FF9393",
+    "6 c #FD9494",
+    "7 c #FE9494",
+    "8 c #FF9494",
+    "9 c #FF9595",
+    "0 c #FF9696",
+    "q c #FF9898",
+    "w c None",
+    "wwwwwwwwwwwwwwww",
+    "www wwwwwwwwwwww",
+    "ww#8#wwwwwww-5.w",
+    "ww&88Owwwww&88Ow",
+    "www&88Owww-88Oww",
+    "wwww-88$w-88Owww",
+    "wwwww&q,>88Owwww",
+    "wwwwww-111Owwwww",
+    "wwwwww&125Owwwww",
+    "wwwww&q,>18Owwww",
+    "wwww&85$w&88Owww",
+    "www&88#www-88Oww",
+    "ww&q8Owwwww&88Ow",
+    "ww#8$wwwwwww-5.w",
+    "www wwwwwwwwwwww",
+    "wwwwwwwwwwwwwwww"
+};
+
+
 wxString GdaConst::FieldTypeToStr(GdaConst::FieldType ft)
 {
 	if (ft == GdaConst::double_type) return "real";
 	if (ft == GdaConst::long64_type) return "integer";
 	if (ft == GdaConst::string_type) return "string";
 	if (ft == GdaConst::date_type) return "date";
+	if (ft == GdaConst::time_type) return "time";
+	if (ft == GdaConst::datetime_type) return "datetime";
 	if (ft == GdaConst::placeholder_type) return "placeholder";
 	return "unknown";
 }
@@ -207,6 +301,25 @@ wxFont* GdaConst::extra_small_font = 0;
 wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
+
+int GdaConst::gdal_http_timeout = 5;
+bool GdaConst::enable_high_dpi_support = true;
+bool GdaConst::show_csv_configure_in_merge = false;
+bool GdaConst::show_recent_sample_connect_ds_dialog = true;
+bool GdaConst::use_cross_hatching = false;
+int GdaConst::transparency_highlighted = 255;
+int GdaConst::transparency_unhighlighted = 80;
+int GdaConst::transparency_map_on_basemap = 200;
+bool GdaConst::use_basemap_by_default = false;
+int GdaConst::default_basemap_selection = 0;
+bool GdaConst::hide_sys_table_postgres = false;
+bool GdaConst::hide_sys_table_sqlite = false;
+bool GdaConst::disable_crash_detect = false;
+bool GdaConst::disable_auto_upgrade = false;
+int GdaConst::plot_transparency_highlighted = 255;
+int GdaConst::plot_transparency_unhighlighted = 50;
+
+int GdaConst::gda_ogr_csv_header = 2;
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
@@ -330,6 +443,7 @@ std::vector<wxColour> GdaConst::qualitative_colors(10);
 
 const wxString GdaConst::html_submenu_title("Web Plugins");
 
+
 /**
  Certain objects such as wxFont objects need to be created after
  wxWidgets is sufficiently initialized.  This function will be
@@ -355,6 +469,10 @@ void GdaConst::init()
 		ref_small_pt_sz += 4;
 		ref_medium_pt_sz += 5;
 		ref_large_pt_sz += 5;
+	}
+
+	if (GeneralWxUtils::isWindows()) {
+		ref_extra_small_pt_sz += 2;
 	}
 	
 	extra_small_font = wxFont::New(ref_extra_small_pt_sz,
@@ -421,6 +539,7 @@ void GdaConst::init()
 	qualitative_colors[8] = wxColour(202, 178, 214);
 	qualitative_colors[9] = wxColour(106, 61, 154);
 	
+    
 	// Filenames or field names start with a letter, and they can contain any
 	// combination of the letters A through Z, the digits 0 through 9,
 	// the colon (:) (in dBASE II field names only), and the underscore (_)

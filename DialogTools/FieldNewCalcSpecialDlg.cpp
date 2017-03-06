@@ -172,7 +172,7 @@ void FieldNewCalcSpecialDlg::Apply()
                 } else if (col_type == GdaConst::string_type) {
                     std::vector<wxString> data(n_rows, wxEmptyString);
                     for (int i=0; i<n_rows; i++) {
-                        data[i] = wxString::Format(wxT("%f"), X());
+                        data[i] = wxString::Format("%f", X());
                     }
                     table_int->SetColData(result_col, time_list[t], data);
                     
@@ -194,7 +194,7 @@ void FieldNewCalcSpecialDlg::Apply()
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::string_type) {
                     std::vector<wxString> data(n_rows, wxEmptyString);
-                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format(wxT("%f"), X());
+                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%f", X());
                     table_int->SetColData(result_col, time_list[t], data);
                 }
                 table_int->SetColUndefined(result_col, time_list[t], undefined);
@@ -212,7 +212,7 @@ void FieldNewCalcSpecialDlg::Apply()
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::string_type) {
                     std::vector<wxString> data(n_rows, wxEmptyString);
-                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format(wxT("%d"), i+1);
+                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%d", i+1);
                     table_int->SetColData(result_col, time_list[t], data);
                 }                
                 table_int->SetColUndefined(result_col, time_list[t], undefined);

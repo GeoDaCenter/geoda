@@ -15,6 +15,8 @@
 		A14CB4651C866E110082B436 /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */; };
 		A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */; };
 		A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB46C1C86705B0082B436 /* PublishDlg.cpp */; };
+		A15609181E52442C009F4178 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A15609161E52442C009F4178 /* ReportBugDlg.cpp */; };
+		A156091B1E524445009F4178 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A15609191E524445009F4178 /* ConditionalClusterMapView.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
@@ -23,6 +25,7 @@
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
+		A1D766D91D7A2196002365D6 /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
@@ -238,6 +241,10 @@
 		A14CB4641C866E110082B436 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
 		A14CB46C1C86705B0082B436 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
 		A14CB46D1C86705B0082B436 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
+		A15609161E52442C009F4178 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
+		A15609171E52442C009F4178 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
+		A15609191E524445009F4178 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
+		A156091A1E524445009F4178 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoUpdateDlg.cpp; sourceTree = "<group>"; };
@@ -253,6 +260,8 @@
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
 		A1C9F3EB18B55EE000E14394 /* FieldNameCorrectionDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNameCorrectionDlg.h; sourceTree = "<group>"; };
 		A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNameCorrectionDlg.cpp; sourceTree = "<group>"; };
+		A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
+		A1D766D81D7A2196002365D6 /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -746,7 +755,11 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A15609161E52442C009F4178 /* ReportBugDlg.cpp */,
+				A15609171E52442C009F4178 /* ReportBugDlg.h */,
 				A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */,
+				A1D766D71D7A2195002365D6 /* CsvFieldConfDlg.cpp */,
+				A1D766D81D7A2196002365D6 /* CsvFieldConfDlg.h */,
 				A16D406D1CD4233A0025C64C /* AutoUpdateDlg.h */,
 				A14CB46C1C86705B0082B436 /* PublishDlg.cpp */,
 				A14CB46D1C86705B0082B436 /* PublishDlg.h */,
@@ -853,6 +866,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A15609191E524445009F4178 /* ConditionalClusterMapView.cpp */,
+				A156091A1E524445009F4178 /* ConditionalClusterMapView.h */,
 				DD7975B80F1D2A9000496A84 /* 3DPlotView.cpp */,
 				DD7975B90F1D2A9000496A84 /* 3DPlotView.h */,
 				DD2B42AF1522552B00888E51 /* BoxNewPlotView.cpp */,
@@ -1283,6 +1298,7 @@
 				DDF14CDC139432C100363FA1 /* DataViewerResizeColDlg.cpp in Sources */,
 				DDF14CDD139432CB00363FA1 /* DataViewerAddColDlg.cpp in Sources */,
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
+				A15609181E52442C009F4178 /* ReportBugDlg.cpp in Sources */,
 				DD209598139F129900B9E648 /* GetisOrdChoiceDlg.cpp in Sources */,
 				DD181BC813A90445004B0EC2 /* SaveToTableDlg.cpp in Sources */,
 				DDF85D1813B257B6006C1B08 /* DataViewerEditFieldPropertiesDlg.cpp in Sources */,
@@ -1350,6 +1366,7 @@
 				DD92851C17F5FC7300B9481A /* VarOrderPtree.cpp in Sources */,
 				DD92851F17F5FD4500B9481A /* VarOrderMapper.cpp in Sources */,
 				DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */,
+				A156091B1E524445009F4178 /* ConditionalClusterMapView.cpp in Sources */,
 				A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */,
 				DD40B083181894F20084173C /* VarGroupingEditorDlg.cpp in Sources */,
 				DD7B2A9D185273FF00727A91 /* SaveButtonManager.cpp in Sources */,
@@ -1411,6 +1428,7 @@
 				A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */,
 				A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */,
 				A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */,
+				A1D766D91D7A2196002365D6 /* CsvFieldConfDlg.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

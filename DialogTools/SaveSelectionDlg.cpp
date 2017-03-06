@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 #include <wx/msgdlg.h>
 #include <wx/valtext.h>
@@ -25,7 +26,6 @@
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
-#include "../logger.h"
 #include "SaveSelectionDlg.h"
 
 BEGIN_EVENT_TABLE( SaveSelectionDlg, wxDialog )
@@ -55,6 +55,8 @@ SaveSelectionDlg::SaveSelectionDlg(Project* project_s,
 : project(project_s), table_int(project_s->GetTableInt()),
 m_all_init(false), is_space_time(project_s->GetTableInt()->IsTimeVariant())
 {
+    wxLogMessage("Open SaveSelectionDlg.");
+    
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -158,7 +160,9 @@ void SaveSelectionDlg::InitField()
 
 
 void SaveSelectionDlg::OnAddField( wxCommandEvent& event )
-{	
+{
+    wxLogMessage("Click SaveSelectionDlg::OnAddField");
+    
 	DataViewerAddColDlg dlg(project, this, false, true, "SELECT", GdaConst::long64_type);
 	if (dlg.ShowModal() != wxID_OK) return;
 	int col = dlg.GetColId();
@@ -180,12 +184,16 @@ void SaveSelectionDlg::OnAddField( wxCommandEvent& event )
 
 void SaveSelectionDlg::OnSaveFieldChoice( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnSaveFieldChoice");
+    
 	EnableTimeField();
 	CheckApplySaveSettings();
 }
 
 void SaveSelectionDlg::OnSaveFieldChoiceTm( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnSaveFieldChoiceTm");
+    
 	if (!is_space_time) return;
 	
 	int prev_col = -1;
@@ -218,16 +226,22 @@ void SaveSelectionDlg::EnableTimeField()
 
 void SaveSelectionDlg::OnSelCheckBox( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnSelCheckBox");
+    
 	CheckApplySaveSettings();
 }
 
 void SaveSelectionDlg::OnUnselCheckBox( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnUnselCheckBox");
+    
 	CheckApplySaveSettings();
 }
 
 void SaveSelectionDlg::OnSelUnselTextChange( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnSelUnselTextChange");
+    
 	CheckApplySaveSettings();
 }
 
@@ -274,6 +288,7 @@ void SaveSelectionDlg::CheckApplySaveSettings()
  checked for validity. */
 void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnApplySaveClick");
     
     wxString field_name = m_save_sel_var_name->GetValue();
     if (field_name.empty()) {
@@ -389,6 +404,8 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 
 void SaveSelectionDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("Click SaveSelectionDlg::OnCancelClick");
+    
 	event.Skip();
 	EndDialog(wxID_CANCEL);
 }

@@ -18,6 +18,7 @@
  */
 
 #include <time.h>
+#include <math.h>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
 #include "../DataViewer/TableInterface.h"
@@ -30,7 +31,9 @@
 #include "LisaCoordinatorObserver.h"
 #include "LisaCoordinator.h"
 
-LisaWorkerThread::LisaWorkerThread(int obs_start_s, int obs_end_s,
+LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
+                                   const std::vector<bool>& undefs_,
+                                   int obs_start_s, int obs_end_s,
 								   uint64_t	seed_start_s,
 								   LisaCoordinator* lisa_coord_s,
 								   wxMutex* worker_list_mutex_s,
@@ -38,6 +41,8 @@ LisaWorkerThread::LisaWorkerThread(int obs_start_s, int obs_end_s,
 								   std::list<wxThread*> *worker_list_s,
 								   int thread_id_s)
 : wxThread(),
+W(W_),
+undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 lisa_coord(lisa_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -56,16 +61,16 @@ wxThread::ExitCode LisaWorkerThread::Entry()
 	LOG_MSG(wxString::Format("LisaWorkerThread %d started", thread_id));
 
 	// call work for assigned range of observations
-	lisa_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
+	lisa_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
+    
 	// remove ourself from the list
 	worker_list->remove(this);
-	// if empty, signal on empty condition since only main thread
+	
+    // if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
-	LOG_MSG(wxString::Format("LisaWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
-		LOG_MSG("worker_list is empty, so signaling main thread");
 		worker_list_empty_cond->Signal();
 	}
 	
@@ -98,13 +103,14 @@ wxThread::ExitCode LisaWorkerThread::Entry()
    
  */
 
-LisaCoordinator::LisaCoordinator(boost::uuids::uuid weights_id,
-                         Project* project,
-                         const std::vector<GdaVarTools::VarInfo>& var_info_s,
-                         const std::vector<int>& col_ids,
-                         LisaType lisa_type_s,
-                         bool calc_significances_s,
-                         bool row_standardize_s)
+LisaCoordinator::
+LisaCoordinator(boost::uuids::uuid weights_id,
+                Project* project,
+                const std::vector<GdaVarTools::VarInfo>& var_info_s,
+                const std::vector<int>& col_ids,
+                LisaType lisa_type_s,
+                bool calc_significances_s,
+                bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -115,30 +121,30 @@ calc_significances(calc_significances_s),
 isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
+undef_data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
     
-    LOG_MSG("Entering LisaCoordinator::LisaCoordinator(..)");
-	GalWeight* gw = w_man_int->GetGal(w_id);
-	W = (gw ? gw->gal : 0);
-	weight_name = w_man_int->GetLongDispName(w_id);
-	SetSignificanceFilter(1);
-    
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], undef_data[i]);
+        var_info[i].is_moran = true;
 	}
+    
+    undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
+	
+	weight_name = w_man_int->GetLongDispName(w_id);
+	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
-    LOG_MSG("Exiting LisaCoordinator::LisaCoordinator(..)");
 }
 
 
 LisaCoordinator::~LisaCoordinator()
 {
-	LOG_MSG("In LisaCoordinator::~LisaCoordinator");
 	w_man_state->removeObserver(this);
 	DeallocateVectors();
 }
@@ -149,6 +155,7 @@ void LisaCoordinator::DeallocateVectors()
 		if (lags_vecs[i]) delete [] lags_vecs[i];
 	}
 	lags_vecs.clear();
+    
 	for (int i=0; i<local_moran_vecs.size(); i++) {
 		if (local_moran_vecs[i]) delete [] local_moran_vecs[i];
 	}
@@ -173,12 +180,22 @@ void LisaCoordinator::DeallocateVectors()
 		if (data2_vecs[i]) delete [] data2_vecs[i];
 	}
 	data2_vecs.clear();
+    
+    // clear W_vecs
+    for (size_t i=0; i<has_undefined.size(); i++) {
+        if (has_undefined[i]) {
+            // clean the copied weights
+            delete Gal_vecs[i];
+        }
+    }
+    Gal_vecs.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
 void LisaCoordinator::AllocateVectors()
 {
 	int tms = num_time_vals;
+    
 	lags_vecs.resize(tms);
 	local_moran_vecs.resize(tms);
 	sig_local_moran_vecs.resize(tms);
@@ -189,6 +206,7 @@ void LisaCoordinator::AllocateVectors()
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
+    
 	for (int i=0; i<tms; i++) {
 		lags_vecs[i] = new double[num_obs];
 		local_moran_vecs[i] = new double[num_obs];
@@ -303,8 +321,60 @@ void LisaCoordinator::InitFromVarInfo()
 	}
 	
 	StandardizeData();
-	CalcLisa();
-	if (calc_significances) CalcPseudoP();
+	
+    CalcLisa();
+    
+    if (calc_significances) {
+        CalcPseudoP();
+    }
+    
+    
+}
+
+void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
+{
+    if (lisa_type == differential) {
+        int t=0;
+        for (int i=0; i<num_obs; i++) {
+            int t0 = var_info[0].time;
+            int t1 = var_info[1].time;
+            data1[i] = data[0][t0][i] - data[0][t1][i];
+        }
+        
+    } else if (lisa_type == univariate || lisa_type == bivariate) {
+        for (int i=0; i<num_obs; i++) {
+            data1[i] = data[0][time][i];
+        }
+        if (lisa_type == bivariate) {
+            for (int i=0; i<num_obs; i++) {
+                data2[i] = data[1][time][i];
+            }
+        }
+    } else { // lisa_type == eb_rate_standardized
+        std::vector<bool> undef_res(num_obs, false);
+        double* smoothed_results = new double[num_obs];
+        double* E = new double[num_obs]; // E corresponds to var_info[0]
+        double* P = new double[num_obs]; // P corresponds to var_info[1]
+        // we will only fill data1 for eb_rate_standardized and
+        // further lisa calcs will treat as univariate
+        for (int i=0; i<num_obs; i++) {
+            E[i] = data[0][time][i];
+        }
+        for (int i=0; i<num_obs; i++) {
+            P[i] = data[1][time][i];
+        }
+        bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
+                                                  smoothed_results,
+                                                  undef_res);
+        if (success) {
+            for (int i=0; i<num_obs; i++) {
+                data1[i] = smoothed_results[i];
+            }
+        }
+        if (smoothed_results) delete [] smoothed_results;
+        if (E) delete [] E;
+        if (P) delete [] P;
+    }
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -336,12 +406,23 @@ void LisaCoordinator::VarInfoAttributeChange()
 void LisaCoordinator::StandardizeData()
 {
 	for (int t=0; t<data1_vecs.size(); t++) {
-		GenUtils::StandardizeData(num_obs, data1_vecs[t]);
-	}
-	if (isBivariate) {
-		for (int t=0; t<data2_vecs.size(); t++) {
-			GenUtils::StandardizeData(num_obs, data2_vecs[t]);
-		}
+        undef_tms[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
+        }
+        if (isBivariate) {
+            for (int i=0; i<num_obs; i++) {
+                undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+            }
+        }
+    }
+    
+	for (int t=0; t<data1_vecs.size(); t++) {
+		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
+        if (isBivariate) {
+            GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
+        }
 	}
 }
 
@@ -359,10 +440,44 @@ void LisaCoordinator::CalcLisa()
 		localMoran = local_moran_vecs[t];
 		cluster = cluster_vecs[t];
 	
-		has_undefined[t] = false;
 		has_isolates[t] = false;
+    
+        // get undefs of objects/values at this time step
+        std::vector<bool> undefs;
+        bool has_undef = false;
+        for (int i=0; i<undef_data[0][t].size(); i++){
+            bool is_undef = undef_data[0][t][i];
+            if (isBivariate) {
+                is_undef = is_undef || undef_data[1][t][i];
+            }
+            if (is_undef && !has_undef) {
+                has_undef = true;
+            }
+            undefs.push_back(is_undef);
+        }
+        has_undefined[t] = has_undef;
+       
+        // local weights copy
+        GalWeight* gw = NULL;
+        if ( has_undef ) {
+            gw = new GalWeight(*w_man_int->GetGal(w_id));
+            gw->Update(undefs);
+        } else {
+            gw = w_man_int->GetGal(w_id);
+        }
+        GalElement* W = gw->gal;
+        Gal_vecs.push_back(gw);
+        Gal_vecs_orig.push_back(w_man_int->GetGal(w_id));
 	
 		for (int i=0; i<num_obs; i++) {
+            
+            if (undefs[i] == true) {
+                lags[i] = 0;
+                localMoran[i] = 0;
+                cluster[i] = 6; // undefined value
+                continue;
+            }
+            
 			double Wdata = 0;
 			if (isBivariate) {
 				Wdata = W[i].SpatialLag(data2);
@@ -371,7 +486,7 @@ void LisaCoordinator::CalcLisa()
 			}
 			lags[i] = Wdata;
 			localMoran[i] = data1[i] * Wdata;
-					
+				
 			// assign the cluster
 			if (W[i].Size() > 0) {
 				if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
@@ -388,7 +503,6 @@ void LisaCoordinator::CalcLisa()
 
 void LisaCoordinator::CalcPseudoP()
 {
-	LOG_MSG("Entering LisaCoordinator::CalcPseudoP");
 	if (!calc_significances) return;
 	wxStopWatch sw;
 	int nCPUs = wxThread::GetCPUCount();
@@ -399,18 +513,10 @@ void LisaCoordinator::CalcPseudoP()
 	// 2. Perform multi-threaded computation
 	// 3. copy results into results array
 	
-	if (nCPUs <= 1) {
-		LOG_MSG(wxString::Format("%d threading cores detected "
-								 "so running single threaded", nCPUs));
-	} else {
-		LOG_MSG(wxString::Format("%d threading cores detected, "
-								 "running multi-threaded.", nCPUs));
-	}
 	
 	for (int t=0; t<num_time_vals; t++) {
-		LOG_MSG(wxString::Format("Calculating LISA significances for time "
-								 "period %d", t));
-		
+	
+        std::vector<bool>& undefs = undef_tms[t];
 		data1 = data1_vecs[t];
 		if (isBivariate) {
 			data2 = data2_vecs[0];
@@ -424,26 +530,30 @@ void LisaCoordinator::CalcPseudoP()
 		sigCat = sig_cat_vecs[t];
 		cluster = cluster_vecs[t];
 		
-		if (nCPUs <= 1) {
-			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(0, num_obs-1, last_seed_used);
+		if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
+            if (!reuse_last_seed) {
+                last_seed_used = time(0);
+            }
+			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
+                              0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded();
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
 	}
+    
+    
 	{
 		wxString m;
 		m << "LISA on " << num_obs << " obs with " << permutations;
 		m << " perms over " << num_time_vals << " time periods took ";
 		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
-		LOG_MSG(m);
 	}
 	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP");
 }
 
-void LisaCoordinator::CalcPseudoP_threaded()
+void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
+                                           const std::vector<bool>& undefs)
 {
-	LOG_MSG("Entering LisaCoordinator::CalcPseudoP_threaded");
 	int nCPUs = wxThread::GetCPUCount();
 	
 	// mutext protects access to the worker_list
@@ -459,6 +569,11 @@ void LisaCoordinator::CalcPseudoP_threaded()
 	// divide up work according to number of observations
 	// and number of CPUs
 	int work_chunk = num_obs / nCPUs;
+    
+    if (work_chunk == 0) {
+        work_chunk = 1;
+    }
+    
 	int obs_start = 0;
 	int obs_end = obs_start + work_chunk;
 	
@@ -484,15 +599,13 @@ void LisaCoordinator::CalcPseudoP_threaded()
 		wxString msg;
 		msg << "thread " << thread_id << ": " << a << "->" << b;
 		msg << ", seed: " << seed_start << "->" << seed_end;
-		LOG_MSG(msg);
 		
 		LisaWorkerThread* thread =
-			new LisaWorkerThread(a, b, seed_start, this,
+			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
 								 &worker_list_mutex,
 								 &worker_list_empty_cond,
 								 &worker_list, thread_id);
 		if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-			LOG_MSG("Error: Can't create thread!");
 			delete thread;
 			is_thread_error = true;
 		} else {
@@ -500,12 +613,9 @@ void LisaCoordinator::CalcPseudoP_threaded()
 		}
 	}
 	if (is_thread_error) {
-		LOG_MSG("Error: Could not spawn a worker thread, falling back "
-				"to single-threaded pseudo-p calculation.");
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
 	} else {
-		LOG_MSG("Starting all worker threads");
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
 			(*it)->Run();
@@ -516,21 +626,23 @@ void LisaCoordinator::CalcPseudoP_threaded()
 			worker_list_empty_cond.Wait();
 			// We have been woken up. If this was not a false
 			// alarm (sprious signal), the loop will exit.
-			LOG_MSG("work_list_empty_cond signaled");
 		}
-		LOG_MSG("All worker threads exited");
 	}
-
-	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP_threaded");
 }
 
-void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
+void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
+                                        const std::vector<bool>& undefs,
+                                        int obs_start, int obs_end,
 										uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
 	//Randik rng;
 	int max_rand = num_obs-1;
 	for (int cnt=obs_start; cnt<=obs_end; cnt++) {
+        
+        if (undefs[cnt])
+            continue;
+        
 		const int numNeighbors = W[cnt].Size();
 		
 		uint64_t countLarger = 0;
@@ -538,11 +650,13 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			int rand=0;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
-				//int newRandom = (int) (rng.fValue() * max_rand);
-				int newRandom = (int) (Gda::ThomasWangHashDouble(seed_start++)
-									   * max_rand);
-				//int newRandom = X(rng);
-				if (newRandom != cnt && !workPermutation.Belongs(newRandom))
+                double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                // round is needed to fix issue
+                //https://github.com/GeoDaCenter/geoda/issues/488
+				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
+				if (newRandom != cnt &&
+                    !workPermutation.Belongs(newRandom) &&
+                    undefs[newRandom] == false)
 				{
 					workPermutation.Push(newRandom);
 					rand++;
@@ -563,9 +677,13 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 			
 			//NOTE: we shouldn't have to row-standardize or
 			// multiply by data1[cnt]
-			if (numNeighbors && row_standardize) permutedLag /= numNeighbors;
+            if (numNeighbors && row_standardize) {
+                permutedLag /= numNeighbors;
+            }
 			const double localMoranPermuted = permutedLag * data1[cnt];
-			if (localMoranPermuted >= localMoran[cnt]) countLarger++;
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger++;
+            }
 		}
 		// pick the smallest
 		if (permutations-countLarger <= countLarger) { 
@@ -581,6 +699,7 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 		else sigCat[cnt]= 0;
 		
 		// observations with no neighbors get marked as isolates
+        // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
 		if (numNeighbors == 0) {
 			sigCat[cnt] = 5;
 		}
@@ -629,7 +748,6 @@ void LisaCoordinator::removeObserver(LisaCoordinatorObserver* o)
 	observers.remove(o);
 	LOG(observers.size());
 	if (observers.size() == 0) {
-		LOG_MSG("No more observers left so deleting self.");
 		delete this;
 	}
 	LOG_MSG("Exiting LisaCoordinator::removeObserver");

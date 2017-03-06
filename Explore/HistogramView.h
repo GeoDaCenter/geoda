@@ -55,7 +55,7 @@ public:
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -68,6 +68,9 @@ public:
 
     
 protected:
+    int col_id;
+    TableInterface* table_int;
+    
     bool is_custom_category;
     CatClassifState* custom_classif_state;
     CatClassifDef cat_classif_def;
@@ -127,11 +130,12 @@ protected:
 	std::vector<double> max_ival_val; // size = time_steps
 	std::vector<double> max_num_obs_in_ival; // size = time_steps
 	double overall_max_num_obs_in_ival;
-	
+
 	i_array_type ival_obs_cnt; // size = time_steps * cur_num_intervals
 	i_array_type ival_obs_sel_cnt;  // size = time_steps * cur_num_intervals
 	i_array_type obs_id_to_ival; // size = time_steps * num_obs
 	std::vector< std::vector<std::list<int> > > ival_to_obs_ids;
+	std::vector< std::vector<bool> > undef_tms;
 	
 	int max_intervals; // min of num_obs and MAX_INTERVALS
 	static const int MAX_INTERVALS;
@@ -151,7 +155,7 @@ public:
     HistogramFrame(wxFrame *parent, Project* project,
 				   const std::vector<GdaVarTools::VarInfo>& var_info,
 				   const std::vector<int>& col_ids,
-				   const wxString& title = "Histogram",
+				   const wxString& title = _("Histogram"),
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = GdaConst::hist_default_size,
 				   const long style = wxDEFAULT_FRAME_STYLE);

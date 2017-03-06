@@ -52,67 +52,88 @@ END_EVENT_TABLE()
 const int ConditionalNewCanvas::HOR_VAR = 0; // horizonatal variable
 const int ConditionalNewCanvas::VERT_VAR = 1; // vertical variable
 
-ConditionalNewCanvas::ConditionalNewCanvas(wxWindow *parent,
-										TemplateFrame* t_frame,
-										Project* project_s,
-										const std::vector<GdaVarTools::VarInfo>& v_info,
-										const std::vector<int>& col_ids,
-										bool fixed_aspect_ratio_mode,
-										bool fit_to_window_mode,
-										const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
+ConditionalNewCanvas::
+ConditionalNewCanvas(wxWindow *parent,
+                     TemplateFrame* t_frame,
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     bool fixed_aspect_ratio_mode,
+                     bool fit_to_window_mode,
+                     const wxPoint& pos, const wxSize& size)
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
 num_obs(project_s->GetNumRecords()), num_time_vals(1),
 vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
 bin_extents(boost::extents[3][3]), bin_w(0), bin_h(0),
-data(v_info.size()), var_info(v_info),
+data(v_info.size()),
+data_undef(v_info.size()),
+var_info(v_info),
 table_int(project_s->GetTableInt()),
 is_any_time_variant(false), is_any_sync_with_global_time(false),
 cc_state_vert(0), cc_state_horiz(0), all_init(false)
 {
-	LOG_MSG("Entering ConditionalNewCanvas::ConditionalNewCanvas");
+    axis_display_precision = 1;
 	SetCatType(VERT_VAR, CatClassification::quantile, 3);
 	SetCatType(HOR_VAR, CatClassification::quantile, 3);
 	
 	template_frame->ClearAllGroupDependencies();
 	for (size_t i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}
+    
 	horiz_num_time_vals = data[HOR_VAR].size();
+	vert_num_time_vals  = data[VERT_VAR].size();
+    
+    horiz_undef_tms.resize(horiz_num_time_vals);
+    vert_undef_tms.resize(vert_num_time_vals);
+    
 	horiz_var_sorted.resize(horiz_num_time_vals);
 	horiz_cats_valid.resize(horiz_num_time_vals);
 	horiz_cats_error_message.resize(horiz_num_time_vals);
+    
 	for (int t=0; t<horiz_num_time_vals; t++) {
 		horiz_var_sorted[t].resize(num_obs);
+        horiz_undef_tms[t].resize(num_obs);
 		for (int i=0; i<num_obs; i++) {
 			horiz_var_sorted[t][i].first = data[HOR_VAR][t][i];
 			horiz_var_sorted[t][i].second = i;
+            horiz_undef_tms[t][i] = horiz_undef_tms[t][i] ||
+                                    data_undef[HOR_VAR][t][i];
 		}
 		std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
 	}
-	vert_num_time_vals = data[VERT_VAR].size();
+    
 	vert_var_sorted.resize(vert_num_time_vals);
 	vert_cats_valid.resize(vert_num_time_vals);
 	vert_cats_error_message.resize(vert_num_time_vals);
+    
 	for (int t=0; t<vert_num_time_vals; t++) {
 		vert_var_sorted[t].resize(num_obs);
+        vert_undef_tms[t].resize(num_obs);
 		for (int i=0; i<num_obs; i++) {
 			vert_var_sorted[t][i].first = data[VERT_VAR][t][i];
 			vert_var_sorted[t][i].second = i;
+            vert_undef_tms[t][i] = vert_undef_tms[t][i] ||
+                                    data_undef[VERT_VAR][t][i];
 		}
 		std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(),
 				  Gda::dbl_int_pair_cmp_less);
 	}
-	VarInfoAttributeChange();
+	
+    VarInfoAttributeChange();
 
 	if (num_obs < 3) {
 		horiz_num_cats = num_obs;
 		vert_num_cats = num_obs;
-		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
-		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
+		SetCatType(VERT_VAR, CatClassification::unique_values,
+                   vert_num_cats);
+		SetCatType(HOR_VAR, CatClassification::unique_values,
+                   horiz_num_cats);
 	}
 	CreateAndUpdateCategories(VERT_VAR);
 	CreateAndUpdateCategories(HOR_VAR);
@@ -120,7 +141,6 @@ cc_state_vert(0), cc_state_horiz(0), all_init(false)
 	highlight_state->registerObserver(this);
 	// child classes will set all_init = true;
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConditionalNewCanvas::ConditionalNewCanvas");
 }
 
 ConditionalNewCanvas::~ConditionalNewCanvas()
@@ -129,12 +149,10 @@ ConditionalNewCanvas::~ConditionalNewCanvas()
 	highlight_state->removeObserver(this);
 	if (cc_state_vert) cc_state_vert->removeObserver(this);
 	if (cc_state_horiz) cc_state_horiz->removeObserver(this);
-	LOG_MSG("Exiting ConditionalNewCanvas::~ConditionalNewCanvas");
 }
 
 void ConditionalNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("In ConditionalNewCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalNewFrame*) template_frame)->OnActivate(ae);
@@ -486,19 +504,26 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 	int var_id = VERT_VAR;
 	// we know that all three var_info variables are defined, so need
 	// need to prompt user as with MapCanvas
-	
+
+    GdaVarTools::VarInfo& var = var_info[var_id];
+    int t = var.time;
+    
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def_vert.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(cat_classif_def_vert.num_cats,
 										 cat_classif_def_vert);
+        
 		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_vert.breaks,
 										  temp_cat_labels,
-										  vert_var_sorted[var_info[var_id].time],
+										  vert_var_sorted[var.time],
+                                          vert_undef_tms[var.time],
 										  cat_classif_def_vert.cat_classif_type,
 										  cat_classif_def_vert.num_cats);
+        
 		int time = vert_cat_data.GetCurrentCanvasTmStep();
+        
 		for (int i=0; i<cat_classif_def_vert.num_cats; i++) {
 			cat_classif_def_vert.colors[i] =
 				vert_cat_data.GetCategoryColor(time, i);
@@ -508,11 +533,15 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 	}
 	
 	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
-	if (!ccf) return;
+	if (!ccf)
+        return;
+    
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_vert, "",
-										  var_info[var_id].name,
-										  var_info[var_id].time);
-	if (cc_state_vert) cc_state_vert->removeObserver(this);
+										  var.name,
+										  var.time);
+	if (cc_state_vert)
+        cc_state_vert->removeObserver(this);
+    
 	cat_classif_def_vert = ccs->GetCatClassif();
 	cc_state_vert = ccs;
 	cc_state_vert->registerObserver(this);
@@ -533,7 +562,10 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 	int var_id = HOR_VAR;
 	// we know that all three var_info variables are defined, so need
 	// need to prompt user as with MapCanvas
-	
+
+    GdaVarTools::VarInfo& var = var_info[var_id];
+    int t = var.time;
+    
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
@@ -542,9 +574,11 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 		std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_horiz.breaks,
 										  temp_cat_labels,
-										  horiz_var_sorted[var_info[var_id].time],
+										  horiz_var_sorted[var.time],
+                                          horiz_undef_tms[var.time ],
 										  cat_classif_def_horiz.cat_classif_type,
 										  cat_classif_def_horiz.num_cats);
+        
 		int time = horiz_cat_data.GetCurrentCanvasTmStep();
 		for (int i=0; i<cat_classif_def_horiz.num_cats; i++) {
 			cat_classif_def_horiz.colors[i] =
@@ -555,11 +589,14 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 	}
 	
 	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame();
-	if (!ccf) return;
+	if (!ccf)
+        return;
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_horiz, "",
-										  var_info[var_id].name,
-										  var_info[var_id].time);
-	if (cc_state_horiz) cc_state_horiz->removeObserver(this);
+										  var.name,
+										  var.time);
+	if (cc_state_horiz)
+        cc_state_horiz->removeObserver(this);
+    
 	cat_classif_def_horiz = ccs->GetCatClassif();
 	cc_state_horiz = ccs;
 	cc_state_horiz->registerObserver(this);
@@ -576,10 +613,12 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 }
 
 
-void ConditionalNewCanvas::ChangeThemeType(int var_id,
-							CatClassification::CatClassifType new_cat_theme,
-							int num_categories,
-							const wxString& custom_classif_title)
+void
+ConditionalNewCanvas::
+ChangeThemeType(int var_id,
+                CatClassification::CatClassifType new_cat_theme,
+                int num_categories,
+                const wxString& custom_classif_title)
 {
 	CatClassifState* ccs = (var_id==VERT_VAR ? cc_state_vert : cc_state_horiz);
 	if (new_cat_theme == CatClassification::custom) {
@@ -687,7 +726,8 @@ void ConditionalNewCanvas::VarInfoAttributeChange()
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
 	for (size_t i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) is_any_time_variant = true;
+		if (var_info[i].is_time_variant)
+            is_any_time_variant = true;
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
@@ -696,7 +736,8 @@ void ConditionalNewCanvas::VarInfoAttributeChange()
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
+		if (var_info[i].is_ref_variable)
+            ref_var_index = i;
 	}
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -
@@ -713,25 +754,31 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 			vert_cats_error_message[t] = wxEmptyString;
 		}
 		
-		if (cat_classif_def_vert.cat_classif_type !=
-			CatClassification::custom) {
+		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom)
+        {
 			CatClassification::ChangeNumCats(vert_num_cats,
 											 cat_classif_def_vert);
 		}
-		cat_classif_def_vert.color_scheme =
-			CatClassification::GetColSchmForType(
-									cat_classif_def_vert.cat_classif_type);
+        CatClassification::CatClassifType& theme = cat_classif_def_vert.cat_classif_type;
+		cat_classif_def_vert.color_scheme = CatClassification::GetColSchmForType(theme);
+        
+        
+        bool useUndefinedCategory = false;
 		CatClassification::PopulateCatClassifData(cat_classif_def_vert,
 												  vert_var_sorted,
+                                                  vert_undef_tms,
 												  vert_cat_data,
 												  vert_cats_valid,
 												  vert_cats_error_message,
-                                                  this->useScientificNotation);
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory);
 		int vt = var_info[var_id].time;
 		vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
 		CatClassification::ChangeNumCats(vert_num_cats, cat_classif_def_vert);
 	} else {
-		for (int t=0; t<horiz_num_time_vals; t++) horiz_cats_valid[t] = true;
+		for (int t=0; t<horiz_num_time_vals; t++)
+            horiz_cats_valid[t] = true;
+        
 		for (int t=0; t<horiz_num_time_vals; t++) {
 			horiz_cats_error_message[t] = wxEmptyString;
 		}
@@ -744,11 +791,16 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		cat_classif_def_horiz.color_scheme =
 			CatClassification::GetColSchmForType(
 									cat_classif_def_horiz.cat_classif_type);
+        
+        bool useUndefinedCategory = false;
 		CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
 												  horiz_var_sorted,
+                                                  horiz_undef_tms,
 												  horiz_cat_data,
 												  horiz_cats_valid,
-												  horiz_cats_error_message);
+												  horiz_cats_error_message,
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory);
 		int ht = var_info[var_id].time;
 		horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();
 		CatClassification::ChangeNumCats(horiz_num_cats, cat_classif_def_horiz);
@@ -812,11 +864,13 @@ IMPLEMENT_CLASS(ConditionalNewFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(ConditionalNewFrame, TemplateFrame)
 END_EVENT_TABLE()
 
-ConditionalNewFrame::ConditionalNewFrame(wxFrame *parent, Project* project,
-									 const std::vector<GdaVarTools::VarInfo>& var_info,
-									 const std::vector<int>& col_ids,
-									 const wxString& title, const wxPoint& pos,
-									 const wxSize& size, const long style)
+ConditionalNewFrame::
+ConditionalNewFrame(wxFrame *parent,
+                    Project* project,
+                    const std::vector<GdaVarTools::VarInfo>& var_info,
+                    const std::vector<int>& col_ids,
+                    const wxString& title, const wxPoint& pos,
+                    const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
 	LOG_MSG("In ConditionalNewFrame::ConditionalNewFrame");
@@ -838,8 +892,6 @@ void ConditionalNewFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConditionalNewFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
 	} else {
 		((ConditionalNewCanvas*)
 		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));

@@ -23,7 +23,6 @@
 #include <iostream>
 #include "ShapeFile.h"
 #include "BasePoint.h"
-#include "../logger.h"
 
 /*
  Box

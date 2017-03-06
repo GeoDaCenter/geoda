@@ -23,7 +23,6 @@
 #include <wx/platinfo.h>
 #include <wx/log.h>
 #include <wx/window.h>
-#include "logger.h"
 
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {
@@ -32,9 +31,44 @@ wxOperatingSystemId GeneralWxUtils::GetOsId()
 	return osId;
 }
 
+wxString GeneralWxUtils::LogOsId()
+{
+    wxString oslog;
+  
+    int os = 0;
+    
+    if (isMac()) {
+        os = 1;
+    } else if (isWindows()) {
+        os = 2;
+    } else if (isUnix()) {
+        os = 3;
+    }
+    
+	int majorVsn = 0;
+	int minorVsn = 0;
+	wxGetOsVersion(&majorVsn, &minorVsn);
+    
+    oslog = wxString::Format("\nos: %d-%d-%d", os, majorVsn, minorVsn);
+    return oslog;
+}
+
 bool GeneralWxUtils::isMac()
 {
 	static bool r = (GetOsId() & wxOS_MAC ? true : false);
+	return r;
+}
+
+bool GeneralWxUtils::isMac106()
+{
+	static bool r = (GetOsId() & wxOS_MAC ? true : false);
+
+	int majorVsn = 0;
+	int minorVsn = 0;
+	wxGetOsVersion(&majorVsn, &minorVsn);
+
+	r = r & (minorVsn == 6);
+
 	return r;
 }
 
@@ -121,8 +155,6 @@ bool GeneralWxUtils::isLittleEndian()
 bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 								 wxMenu* newMenu)
 {
-	LOG_MSG("Entering GeneralWxUtils::ReplaceMenu");
-	LOG(title);	
 	//int menu_count = mb->GetMenuCount();
 	//LOG(menu_count);
 	//for (int i=0; i<menu_count; i++) {
@@ -132,7 +164,6 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	int m_ind = mb->FindMenu(title);
 	if (m_ind == wxNOT_FOUND) {
 		delete newMenu;
-		LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu in unexpected way!");
 		return false;
 	}
 	//wxMenu* prev_opt_menu = mb->GetMenu(m_ind);
@@ -143,7 +174,6 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	// menu label is set to empty after Replace is called.
 	//mb->SetMenuLabel(m_ind, title);
 	if (prev_opt_menu) delete prev_opt_menu;
-	LOG_MSG("Exiting GeneralWxUtils::ReplaceMenu");
 	return true;
 }
 

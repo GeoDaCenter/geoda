@@ -80,14 +80,18 @@
  */
 
 
-GStatWorkerThread::GStatWorkerThread(int obs_start_s, int obs_end_s,
-									 uint64_t	seed_start_s,
+GStatWorkerThread::GStatWorkerThread(const GalElement* W_,
+                                     const std::vector<bool>& undefs_,
+                                     int obs_start_s, int obs_end_s,
+									 uint64_t seed_start_s,
 									 GStatCoordinator* gstat_coord_s,
 									 wxMutex* worker_list_mutex_s,
 									 wxCondition* worker_list_empty_cond_s,
 									 std::list<wxThread*> *worker_list_s,
 									 int thread_id_s)
 : wxThread(),
+W(W_),
+undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 gstat_coord(gstat_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -106,16 +110,14 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 	LOG_MSG(wxString::Format("GStatWorkerThread %d started", thread_id));
 	
 	// call work for assigned range of observations
-	gstat_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
+	gstat_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
 	// remove ourself from the list
 	worker_list->remove(this);
 	// if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
-	LOG_MSG(wxString::Format("GStatWorkerThread %d finished", thread_id));
 	if (worker_list->empty()) {
-		LOG_MSG("worker_list is empty, so signaling main thread");
 		worker_list_empty_cond->Signal();
 	}
 	
@@ -123,11 +125,12 @@ wxThread::ExitCode GStatWorkerThread::Entry()
 }
 
 
-GStatCoordinator::GStatCoordinator(boost::uuids::uuid weights_id,
-								   Project* project,
-								   const std::vector<GdaVarTools::VarInfo>& var_info_s,
-								   const std::vector<int>& col_ids,
-								   bool row_standardize_weights)
+GStatCoordinator::
+GStatCoordinator(boost::uuids::uuid weights_id,
+                 Project* project,
+                 const std::vector<GdaVarTools::VarInfo>& var_info_s,
+                 const std::vector<int>& col_ids,
+                 bool row_standardize_weights)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -136,16 +139,18 @@ row_standardize(row_standardize_weights),
 permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
+data_undef(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false)
 {
-	GalWeight* gw = w_man_int->GetGal(w_id);
-	W = (gw ? gw->gal : 0);
-	weight_name = w_man_int->GetLongDispName(w_id);
-	SetSignificanceFilter(1);
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
+        table_int->GetColUndefined(col_ids[i], data_undef[i]);
 	}
+    
+	weight_name = w_man_int->GetLongDispName(w_id);
+	SetSignificanceFilter(1);
+    
 	InitFromVarInfo();
 	
 	maps.resize(8);
@@ -205,6 +210,15 @@ void GStatCoordinator::DeallocateVectors()
 	
 	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
 	x_vecs.clear();
+   
+    // clear W_vecs
+    for (size_t i=0; i<has_undefined.size(); i++) {
+        if (has_undefined[i]) {
+            delete Gal_vecs[i];
+        }
+    }
+    Gal_vecs.clear();
+    x_undefs.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
@@ -221,6 +235,11 @@ void GStatCoordinator::AllocateVectors()
 	pseudo_p_vecs.resize(tms);
 	pseudo_p_star_vecs.resize(tms);
 	x_vecs.resize(tms);
+    
+    x_undefs.resize(tms);
+    Gal_vecs.resize(tms);
+    Gal_vecs_orig.resize(tms);
+    
 	
 	n.resize(tms, 0);
 	x_star.resize(tms, 0);
@@ -236,6 +255,7 @@ void GStatCoordinator::AllocateVectors()
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
+    
 	for (int i=0; i<tms; i++) {
 		G_vecs[i] = new double[num_obs];
 		G_defined_vecs[i] = new bool[num_obs];
@@ -251,6 +271,8 @@ void GStatCoordinator::AllocateVectors()
 		
 		map_valid[i] = true;
 		map_error_message[i] = wxEmptyString;
+        
+        Gal_vecs[i] = NULL;
 	}
 }
 
@@ -274,12 +296,39 @@ void GStatCoordinator::InitFromVarInfo()
 
 	AllocateVectors();
 	
+    bool has_undef = false;
+    
 	for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
 		int d_t = t - var_info[0].time_min;
-		for (int i=0; i<num_obs; i++) x_vecs[d_t][i] = data[0][t][i];
+        vector<bool> undefs(num_obs);
+        for (int i=0; i<num_obs; i++) {
+            x_vecs[d_t][i] = data[0][t][i];
+            undefs[i] = data_undef[0][t][i];
+            G_defined_vecs[d_t][i] = !undefs[i];
+            if (undefs[i]) {
+                has_undef = true;
+            }
+        }
+        x_undefs[d_t] = undefs;
+        has_undefined[d_t] = has_undef;
 	}
-	
+    
 	for (int t=0; t<num_time_vals; t++) {
+        GalElement* W  = NULL;
+        if (Gal_vecs.empty() || Gal_vecs[t] == NULL) {
+            // local weights copy
+            GalWeight* gw = NULL;
+            if ( has_undefined[t] ) {
+                gw = new GalWeight(*w_man_int->GetGal(w_id));
+                gw->Update(x_undefs[t]);
+            } else {
+                gw = w_man_int->GetGal(w_id);
+            }
+            W = gw->gal ;
+            Gal_vecs[t] = gw;
+            Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
+        }
+        
 		x = x_vecs[t];
 		for (int i=0; i<num_obs; i++) {
 			if ( W[i].Size() > 0 ) {
@@ -334,7 +383,8 @@ void GStatCoordinator::VarInfoAttributeChange()
  significance filter and significance values corresponding to specified
  canvas_time.  */
 void GStatCoordinator::FillClusterCats(int canvas_time,
-									   bool is_gi, bool is_perm,
+									   bool is_gi,
+                                       bool is_perm,
 									   std::vector<wxInt64>& c_val)
 {
 	int t = canvas_time;
@@ -345,14 +395,19 @@ void GStatCoordinator::FillClusterCats(int canvas_time,
 	if (!is_gi && !is_perm) p_val = p_star_vecs[t];
 	double* z_val = is_gi ? z_vecs[t] : z_star_vecs[t];
 	
+    const GalElement* W = Gal_vecs[t]->gal;
+    
 	c_val.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
-		if (W[i].Size() == 0) {
+        if (!G_defined_vecs[t][i]) {
+            c_val[i] = 4; // undefined
+            
+        } else if (W[i].Size() == 0) {
 			c_val[i] = 3; // isolate
-		} else if (!G_defined_vecs[t][i]) {
-			c_val[i] = 4; // undefined
+            
 		} else if (p_val[i] <= significance_cutoff) {
 			c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
+            
 		} else {
 			c_val[i] = 0; // not significant
 		}
@@ -382,9 +437,17 @@ void GStatCoordinator::CalcGs()
 		
 		has_undefined[t] = false;
 		has_isolates[t] = false;
+        
+        const GalElement* W = Gal_vecs[t]->gal;
 
 		double n_expr = sqrt((n[t]-1)*(n[t]-1)*(n[t]-2));
 		for (long i=0; i<num_obs; i++) {
+            if (x_undefs[t][i]) {
+                G_defined[i] = false;
+                has_undefined[t] = true;
+                continue;
+            }
+            
 			const GalElement& elm_i = W[i];
 			if ( elm_i.Size() > 0 ) {
 				double lag = 0;
@@ -432,36 +495,57 @@ void GStatCoordinator::CalcGs()
 		}
 	
 		if (x_star[t] == 0) {
-			for (long i=0; i<num_obs; i++) G_defined[i] = false;
+            for (long i=0; i<num_obs; i++) {
+                G_defined[i] = false;
+            }
 			has_undefined[t] = true;
 			break;
 		}
 	
 		if (row_standardize) {
 			for (long i=0; i<num_obs; i++) {
+                if (x_undefs[t][i]) {
+                    G_star[i] = 0;
+                    z_star[i] = 0;
+                    continue;
+                }
 				const GalElement& elm_i = W[i];
 				double lag = 0;
 				bool self_neighbor = false;
 				int sz_i=W[i].Size();
 				for (int j=0; j<sz_i; j++) {
-					if (elm_i[j] == i) self_neighbor = true;
+                    if (elm_i[j] == i) {
+                        self_neighbor = true;
+                    }
 					lag += x[elm_i[j]];
 				}
-				G_star[i] = self_neighbor ? lag/(sz_i * x_star[t]) :
-					(lag+x[i])/((sz_i+1) * x_star[t]);
+				G_star[i] = self_neighbor ? lag / (sz_i * x_star[t]) :
+					(lag+x[i]) / ((sz_i+1) * x_star[t]);
 				z_star[i] = (G_star[i] - ExGstar[t])/sdGstar[t];
 			}
+            
 		} else { // binary weights
+            
 			double n_expr_mean_x = n[t] * sqrt(n[t]-1) * mean_x[t];
+            
 			for (long i=0; i<num_obs; i++) {
+                if (x_undefs[t][i]) {
+                    G_star[i] = 0;
+                    z_star[i] = 0;
+                    continue;
+                }
 				const GalElement& elm_i = W[i];
 				double lag = 0;
 				bool self_neighbor = false;
 				for (int j=0, sz=elm_i.Size(); j<sz; j++) {
-					if (elm_i[j] == i) self_neighbor = true;
+                    if (elm_i[j] == i) {
+                        self_neighbor = true;
+                    }
 					lag += x[elm_i[j]];
 				}
-				if (!self_neighbor) lag += x[i];
+                if (!self_neighbor) {
+                    lag += x[i];
+                }
 				G_star[i] = lag / x_star[t];
 				double Wi = self_neighbor ? W[i].Size() : W[i].Size()+1;
 				// location-specific mean
@@ -495,18 +579,10 @@ void GStatCoordinator::CalcPseudoP()
 	// 2. Perform multi-threaded computation
 	// 3. copy results into results array
 	
-	if (nCPUs <= 1) {
-		LOG_MSG(wxString::Format("%d threading cores detected "
-								 "so running single threaded", nCPUs));
-	} else {
-		LOG_MSG(wxString::Format("%d threading cores detected, "
-								 "running multi-threaded.", nCPUs));
-	}
-	
 	for (int t=0; t<num_time_vals; t++) {
-		LOG_MSG(wxString::Format("Calculating GStat significances for time "
-								 "period %d", t));
 
+        std::vector<bool>& undefs = x_undefs[t];
+        
 		G = G_vecs[t];
 		G_defined = G_defined_vecs[t];
 		G_star = G_star_vecs[t];
@@ -521,22 +597,23 @@ void GStatCoordinator::CalcPseudoP()
 		
 		if (nCPUs <= 1) {
 			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded();
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
 	}
-	{
+	/*
 		wxString m;
 		m << "GStat on " << num_obs << " obs with " << permutations;
 		m << " perms over " << num_time_vals << " time periods took ";
 		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
 		LOG_MSG(m);
-	}
+	*/
 	LOG_MSG("Exiting GStatCoordinator::CalcPseudoP");
 }
 
-void GStatCoordinator::CalcPseudoP_threaded()
+void GStatCoordinator::CalcPseudoP_threaded(const GalElement* W,
+                                            const std::vector<bool>& undefs)
 {
 	LOG_MSG("Entering GStatCoordinator::CalcPseudoP_threaded");
 	int nCPUs = wxThread::GetCPUCount();
@@ -579,15 +656,13 @@ void GStatCoordinator::CalcPseudoP_threaded()
 		wxString msg;
 		msg << "thread " << thread_id << ": " << a << "->" << b;
 		msg << ", seed: " << seed_start << "->" << seed_end;
-		LOG_MSG(msg);
 		
 		GStatWorkerThread* thread =
-			new GStatWorkerThread(a, b, seed_start, this,
+			new GStatWorkerThread(W, undefs, a, b, seed_start, this,
 								  &worker_list_mutex,
 								  &worker_list_empty_cond,
 								  &worker_list, thread_id);
 		if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-			LOG_MSG("Error: Can't create thread!");
 			delete thread;
 			is_thread_error = true;
 		} else {
@@ -595,12 +670,9 @@ void GStatCoordinator::CalcPseudoP_threaded()
 		}
 	}
 	if (is_thread_error) {
-		LOG_MSG("Error: Could not spawn a worker thread, falling back "
-				"to single-threaded pseudo-p calculation.");
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
 	} else {
-		LOG_MSG("Starting all worker threads");
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
 			(*it)->Run();
@@ -611,9 +683,7 @@ void GStatCoordinator::CalcPseudoP_threaded()
 			worker_list_empty_cond.Wait();
 			// We have been woken up. If this was not a false
 			// alarm (spurious signal), the loop will exit.
-			LOG_MSG("work_list_empty_cond signaled");
 		}
-		LOG_MSG("All worker threads exited");
 	}
 	
 	LOG_MSG("Exiting GStatCoordinator::CalcPseudoP_threaded");
@@ -622,37 +692,46 @@ void GStatCoordinator::CalcPseudoP_threaded()
 /** In the code that computes Gi and Gi*, we specifically checked for 
  self-neighbors and handled the situation appropriately.  For the
  permutation code, we will disallow self-neighbors. */
-void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
+void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
+                                         const std::vector<bool>& undefs,
+                                         int obs_start, int obs_end,
 										 uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
-	//Randik rng;
-	//const int DBGI = 4;
-	//std::map<int,int> freq;
-	//for (int j=0; j<num_obs; j++) freq[j] = 0;
+    
 	int max_rand = num_obs-1;
+    
 	for (long i=obs_start; i<=obs_end; i++) {
+        
+        if (undefs[i])
+            continue;
+
 		const int numNeighsI = W[i].Size();
 		const double numNeighsD = W[i].Size();
-		if ( numNeighsI > 0 && G_defined[i]) { //only compute for non-isolates
-			double xd_i = x_star_t - x[i]; // know != 0 since G_defined[i] true
+        
+        //only compute for non-isolates
+		if ( numNeighsI > 0 && G_defined[i]) {
+            // know != 0 since G_defined[i] true
+			double xd_i = x_star_t - x[i];
 			
 			int countGLarger = 0;
 			int countGStarLarger = 0;
 			double permutedG = 0;
 			double permutedGStar = 0;
-			for (int perm=0; perm<permutations; perm++) {
+            
+			for (int perm=0; perm < permutations; perm++) {
 				int rand = 0;
 				while (rand < numNeighsI) {
 					// computing 'perfect' permutation of given size
-					//int newRandom = (int) (rng.fValue() * max_rand);
-					int newRandom = (int) (Gda::ThomasWangHashDouble(seed_start++)
-										   * max_rand);
-					//int newRandom = X(rng);
-					if (newRandom != i && !workPermutation.Belongs(newRandom))
+                    double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                    // round is needed to fix issue
+                    //https://github.com/GeoDaCenter/geoda/issues/488
+                    int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
+                    
+					if (newRandom != i &&
+                        !workPermutation.Belongs(newRandom) &&
+                        undefs[newRandom] == false)
 					{
-						//if (i == DBGI) freq[newRandom]++;
-						//if (i == DBGI && perm < 20) m << newRandom << " ";
 						workPermutation.Push(newRandom);
 						rand++;
 					}
@@ -672,25 +751,10 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 					permutedG = lag_i / xd_i;
 					permutedGStar = (lag_i+x[i]) / x_star_t;
 				}
-				//LOG(G[i]);
-				//LOG(permutedG);
-				//LOG(G_star[i]);
-				//LOG(permutedGStar);
-				
-				//if (i == DBGI && perm < 20) {
-				//	m << "Gi*: " << permutedGStar;
-				//	LOG_MSG(m);
-				//}
 				
 				if (permutedG >= G[i]) countGLarger++;
 				if (permutedGStar >= G_star[i]) countGStarLarger++;
 			}
-			//if (i == DBGI) {
-			//	for (int j=0; j<num_obs; j++) LOG(freq[j]);
-			//	LOG(G_star[i]);
-			//	LOG(countGStarLarger);
-			//	LOG(permutations);
-			//}
 			// pick the smallest
 			if (permutations-countGLarger < countGLarger) { 
 				countGLarger=permutations-countGLarger;
@@ -702,7 +766,6 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 				countGStarLarger=permutations-countGStarLarger;
 			}
 			pseudo_p_star[i] = (countGStarLarger + 1.0)/(permutations+1.0);
-			//if (i == DBGI) LOG(pseudo_p_star[i]);
 		}
 	}
 }
@@ -758,9 +821,7 @@ void GStatCoordinator::removeObserver(GetisOrdMapFrame* o)
 	maps[o->map_type] = 0;
 	int num_observers=0;
 	for (int i=0, iend=maps.size(); i<iend; i++) if (maps[i]) num_observers++;
-	LOG(num_observers);
 	if (num_observers == 0) {
-		LOG_MSG("No more observers left, so deleting self");
 		delete this;
 	}
 	LOG_MSG("Exiting GStatCoordinator::removeObserver");

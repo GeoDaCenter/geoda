@@ -30,14 +30,14 @@ public:
     RegressionReportDlg( );
     RegressionReportDlg( wxWindow* parent, wxString showText,
         wxWindowID id = wxID_ANY,
-        const wxString& caption = "Regression Report",
+        const wxString& caption = _("Regression Report"),
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxSize(680, 480),
         long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
 
     bool Create( wxWindow* parent,
         wxWindowID id = wxID_ANY,
-        const wxString& caption = "Regression Report",
+        const wxString& caption = _("Regression Report"),
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxSize(680, 480),
         long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );

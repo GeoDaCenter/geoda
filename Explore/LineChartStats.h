@@ -29,27 +29,29 @@ typedef std::vector<double> vec_dbl_type;
 typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
 
 struct LineChartStats {
-	LineChartStats(const vec_vec_dbl_type& Y,
-				 const wxString& Yname,
-				 const std::vector<bool>& tms_subset0,
-				 const std::vector<bool>& tms_subset1,
-				 const bool& compare_regimes,
-				 const bool& compare_time_periods,
-				 const bool& compare_r_and_t);
+    LineChartStats(const vec_vec_dbl_type& Y,
+                   const std::vector<bool>& Y_undef,
+                   const wxString& Yname,
+                   const std::vector<bool>& tms_subset0,
+                   const std::vector<bool>& tms_subset1,
+                   const bool& compare_regimes,
+                   const bool& compare_time_periods,
+                   const bool& compare_r_and_t);
 	
 	wxString Yname;
 	
 	const vec_vec_dbl_type& Y;
+    const std::vector<bool>& Y_undef;
 	vec_dbl_type Y_avg;
 	bool Y_avg_valid;
 	double Y_avg_min, Y_avg_max;
 	
 	vec_dbl_type Y_sel_avg;
-	bool Y_sel_avg_valid;
+	int Y_sel_avg_valid;
 	double Y_sel_avg_min, Y_sel_avg_max;
 	
 	vec_dbl_type Y_excl_avg;
-	bool Y_excl_avg_valid;
+	int Y_excl_avg_valid;
 	double Y_excl_avg_min, Y_excl_avg_max;
 
 	vec_dbl_type Y_ss;

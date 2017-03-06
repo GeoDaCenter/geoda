@@ -26,6 +26,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -33,6 +34,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -72,7 +74,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -88,11 +90,11 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw30ud.lib;wxmsw30ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.0.2\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -104,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -116,25 +118,30 @@
       <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw30ud.lib;wxmsw30ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.0.2\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDPIAwareness>false</EnableDPIAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -147,11 +154,11 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw30u.lib;wxmsw30u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.0.2\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gdal_i.lib;libcurl.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -161,7 +168,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.0.2\include;temp\wxWidgets-3.0.2\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -175,11 +182,11 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.0.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>libcurl.lib;gdal_i.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw30u.lib;wxmsw30u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.0.2\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl.lib;gdal_i.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -195,6 +202,7 @@
     </None>
     <None Include="..\..\rc\release-notes.txt" />
     <None Include="..\..\rc\toolbar.xrc" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc" />
@@ -207,10 +215,12 @@
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
     <ClCompile Include="..\..\Explore\ConnectivityMapView.cpp" />
     <ClCompile Include="..\..\Explore\CorrelogramAlgs.cpp" />
     <ClCompile Include="..\..\Explore\CorrelogramView.cpp" />
@@ -280,6 +290,7 @@
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
@@ -287,6 +298,7 @@
     <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h" />
     <ClInclude Include="..\..\DialogTools\WeightsManDlg.h" />
     <ClInclude Include="..\..\Explore\Basemap.h" />
+    <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
     <ClInclude Include="..\..\Explore\ConnectivityMapView.h" />
     <ClInclude Include="..\..\Explore\CorrelogramAlgs.h" />
     <ClInclude Include="..\..\Explore\CorrelogramView.h" />

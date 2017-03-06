@@ -51,6 +51,8 @@ public:
 		long64_type, // N or F with decimals = 0 in DBF
 		string_type, // C in DBF, max 254 characters
 		date_type, // D in DBF, YYYYMMDD format
+        time_type, // HH:MM:SS
+        datetime_type, // YYYY-MM-DD HH:MM:SS geodatabase
 		placeholder_type
 	};
 	static wxString FieldTypeToStr(GdaConst::FieldType ft);
@@ -78,7 +80,7 @@ public:
 	static std::map<DataSourceType, std::string> datasrc_type_to_fullname;
 	static std::map<DataSourceType, std::set<std::string> > datasrc_req_flds;
 	static std::map<DataSourceType, std::set<std::string> > datasrc_opt_flds;
- 
+     
 	static wxString no_field_warning, db_field_warning, default_field_warning;
     static wxString default_field_name_regex, default_field_name_illegal_regex;
     static wxString db_field_name_regex, db_field_name_illegal_regex;
@@ -106,6 +108,8 @@ public:
 	static const int max_dbf_date_len = 8;
 	static const int min_dbf_date_len = 8;
 	static const int default_dbf_date_len = 8;
+    
+    
 	
 	// Resource Files
 	static const wxString gda_prefs_fname_json;
@@ -290,7 +294,26 @@ public:
 	static const wxColour canvas_background_color; // white
 	static const wxColour legend_background_color; // white
 	
-	// Map
+	// Preferences
+    static int gdal_http_timeout;
+    static bool enable_high_dpi_support;
+    static bool show_csv_configure_in_merge;
+    static bool show_recent_sample_connect_ds_dialog;
+    static bool use_cross_hatching;
+    static int transparency_highlighted;
+    static int transparency_unhighlighted;
+    static int transparency_map_on_basemap;
+    static bool use_basemap_by_default;
+    static int default_basemap_selection;
+    static bool hide_sys_table_postgres;
+    static bool hide_sys_table_sqlite;
+    static bool disable_crash_detect;
+    static bool disable_auto_upgrade;
+    static int plot_transparency_highlighted;
+    static int plot_transparency_unhighlighted;
+    
+    static int gda_ogr_csv_header;
+    
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
 	// this is a light forest green
@@ -400,8 +423,13 @@ public:
     static wxCursor zoomInCursor;
     static wxCursor zoomOutCursor;
 
-	static char* raw_zoom_out[65];
-	static char* raw_zoom_in[65];
+	static const char* raw_zoom_out[65];
+	static const char* raw_zoom_in[65];
+	static const char* delete_icon_xpm[48];
+    
+	static const char* sample_names[255];
+	static const char* sample_layer_names[255];
+	static const char* sample_datasources[255];
 };
 
 #endif
