@@ -745,6 +745,10 @@ void HistogramCanvas::PopulateCanvas()
 	}
 	 
 	selectable_shps.resize(cur_intervals);
+    if (!is_custom_category) {
+        cat_classif_def.colors.resize(cur_intervals);
+        cat_classif_def.names.resize(cur_intervals);
+    }
 	for (int i=0; i<cur_intervals; i++) {
         double x0 = orig_x_pos_left[i];
         double x1 = orig_x_pos_right[i];
@@ -757,6 +761,7 @@ void HistogramCanvas::PopulateCanvas()
             int sz = GdaConst::qualitative_colors.size();
             selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
             selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
+            cat_classif_def.colors[i] = GdaConst::qualitative_colors[i%sz];
         } else {
             selectable_shps[i]->setPen(cat_classif_def.colors[i]);
             selectable_shps[i]->setBrush(cat_classif_def.colors[i]);
@@ -890,6 +895,8 @@ void HistogramCanvas::InitIntervals()
 	ival_obs_cnt.resize(boost::extents[ts][cur_intervals]);
 	ival_obs_sel_cnt.resize(boost::extents[ts][cur_intervals]);
     
+    cat_classif_def.num_cats = cur_intervals;
+    
 	for (int t=0; t<ts; t++)
         ival_to_obs_ids[t].clear();
 	for (int t=0; t<ts; t++)
@@ -939,8 +946,10 @@ void HistogramCanvas::InitIntervals()
 		double ival_size = range/((double) cur_intervals);
 		
         if (!is_custom_category) {
+            cat_classif_def.breaks.resize(cur_intervals-1);
             for (int i=0; i<cur_intervals-1; i++) {
                 ival_breaks[t][i] = min_ival_val[t]+ival_size*((double) (i+1));
+                cat_classif_def.breaks[i] = ival_breaks[t][i];
             }
         } else {
             for (int i=0; i<cur_intervals-1; i++) {
@@ -989,6 +998,9 @@ void HistogramCanvas::InitIntervals()
 		}
 	}
 
+    int sel_t = var_info[0].time;
+    cat_classif_def.uniform_dist_min = data_stats[sel_t].min;
+    cat_classif_def.uniform_dist_max = data_stats[sel_t].max;
 }
 
 void HistogramCanvas::UpdateIvalSelCnts()

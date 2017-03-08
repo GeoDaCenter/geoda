@@ -287,7 +287,7 @@ wxString AutoUpdate::GetCheckList()
         }
     } else {
         // we don't support auto update on other platforms
-        return "";
+        checklistUrl += ".linux.txt";
     }
     
     return ReadUrlContent(checklistUrl);
@@ -429,29 +429,43 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
                 } else {
                     file_name = exeDir + file_name;
-                    wxString update_file_name = file_name + ".update";
-                    wxString backup_file_name = file_name + ".backup";
                     
-    				wxRemoveFile(backup_file_name);
-                    wxRemoveFile(update_file_name);
-                   
-                    file_url.Replace(" ", "%20");
-                    if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
-                        // check file size
-                        wxFileName updateFile(update_file_name);
-                        wxULongLong update_size = updateFile.GetSize();
-                        
-                        if (update_size != size )
-                            throw GdaException("");
-                        
-                        // replace the old file
-                        wxRenameFile(file_name, backup_file_name);
-                        wxRenameFile(update_file_name, file_name);
-                        
-    					wxRemoveFile(backup_file_name);
-    					wxRemoveFile(update_file_name);
-
+                    wxStructStat strucStat;
+                    wxStat(file_name, &strucStat);
+                    wxFileOffset filelen=strucStat.st_size;
+                    
+                    // should skip unless some criticle file
+                    if (filelen == size &&
+                        file_name.EndsWith("cache.sqlite") )
+                    {
                         success = true;
+                        
+                    } else {
+                    
+                        wxString update_file_name = file_name + ".update";
+                        wxString backup_file_name = file_name + ".backup";
+                        
+        				wxRemoveFile(backup_file_name);
+                        wxRemoveFile(update_file_name);
+                       
+                        file_url.Replace(" ", "%20");
+                        if (DownloadUrl(file_url.mb_str(), update_file_name.mb_str())){
+                            // check file size
+                            wxFileName updateFile(update_file_name);
+                            wxULongLong update_size = updateFile.GetSize();
+                            
+                            if (update_size != size )
+                                throw GdaException("");
+                            
+                            // replace the old file
+                            wxRenameFile(file_name, backup_file_name);
+                            wxRenameFile(update_file_name, file_name);
+                            
+        					wxRemoveFile(backup_file_name);
+        					wxRemoveFile(update_file_name);
+
+                            success = true;
+                        }
                     }
                     progressDlg.Update(current_job++);
                 }
