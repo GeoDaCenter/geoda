@@ -28,8 +28,7 @@
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
-#include "CatClassifState.h"
-#include "CatClassifManager.h"
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -38,9 +37,12 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
+
+#include "CatClassifState.h"
+#include "CatClassifManager.h"
 #include "LisaCoordinator.h"
 #include "GStatCoordinator.h"
-
+#include "LocalGearyCoordinator.h"
 #include "ConditionalClusterMapView.h"
 
 using namespace std;
@@ -865,6 +867,58 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
     Show(true);
 }
 
+ConditionalClusterMapFrame::
+ConditionalClusterMapFrame(wxFrame *parent, Project* project,
+                           const vector<GdaVarTools::VarInfo>& var_info,
+                           const vector<int>& col_ids,
+                           LocalGearyCoordinator* local_geary_coord,
+                           const wxString& title, const wxPoint& pos,
+                           const wxSize& size, const long style)
+: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,size, style)
+{
+    
+    wxLogMessage("Open ConditionalNewFrame -- Local Geary.");
+	int width, height;
+	GetClientSize(&width, &height);
+
+		
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+        wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+	splitter_win->SetMinimumPaneSize(10);
+	
+    wxPanel* rpanel = new wxPanel(splitter_win);
+    template_canvas = new ConditionalLocalGearyClusterMapCanvas(rpanel, this, project,
+                                                          var_info, col_ids,
+                                                          local_geary_coord,
+                                                          title,
+                                                          wxDefaultPosition,
+                                                          wxDefaultSize);
+	SetTitle(template_canvas->GetCanvasTitle());
+	template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
+    
+	wxPanel* lpanel = new wxPanel(splitter_win);
+	template_legend = new ConditionalClusterMapLegend(lpanel, template_canvas,
+									   wxPoint(0,0), wxSize(0,0));
+	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    template_legend->GetContainingSizer()->Detach(template_legend);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+
+	splitter_win->SplitVertically(lpanel, rpanel,
+								  GdaConst::map_default_legend_width);
+	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    splitter_win->SetSize(wxSize(width,height));
+    SetAutoLayout(true);
+    DisplayStatusBar(true);
+	Show(true);
+}
+
 ConditionalClusterMapFrame::~ConditionalClusterMapFrame()
 {
 	DeregisterAsActive();
@@ -1426,5 +1480,219 @@ void ConditionalGClusterMapCanvas::UpdateStatusBar()
         }
     } 
      */
+    sb->SetStatusText(s);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Local Geary Cluster
+//
+///////////////////////////////////////////////////////////////////////////////
+ConditionalLocalGearyClusterMapCanvas::
+ConditionalLocalGearyClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                Project* project,
+                                const vector<GdaVarTools::VarInfo>& var_info,
+                                const vector<int>& col_ids,
+                                LocalGearyCoordinator* local_geary_coordinator,
+                                const wxString& title,
+                                const wxPoint& pos,
+                                const wxSize& size)
+: ConditionalClusterMapCanvas(parent, t_frame, project, var_info, col_ids, title, pos, size),
+local_geary_coord(local_geary_coordinator)
+{
+    Init(size);
+}
+
+ConditionalLocalGearyClusterMapCanvas::~ConditionalLocalGearyClusterMapCanvas()
+{
+    
+}
+
+void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
+{
+    cat_var_sorted.clear();
+    map_valid.resize(num_time_vals);
+    for (int t=0; t<num_time_vals; t++)
+        map_valid[t] = true;
+    
+    map_error_message.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++)
+        map_error_message[t] = wxEmptyString;
+    
+    //NOTE: cat_var_sorted is sized to current num_time_vals, but
+    // cat_var_sorted_vert and horiz is sized to all available number time
+    // vals.  Perhaps this should be moved into the constructor since
+    // we do not allow smoothing with multiple time variables.
+    cat_var_sorted.resize(num_time_vals);
+    cat_var_undef.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        cat_var_sorted[t].resize(num_obs);
+        cat_var_undef[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            cat_var_sorted[t][i].first = local_geary_coord->cluster_vecs[t][i];
+            cat_var_sorted[t][i].second = i;
+            
+            cat_var_undef[t][i] = local_geary_coord->undef_data[0][t][i];
+        }
+    }
+    
+    // Sort each vector in ascending order
+    sort(cat_var_sorted[0].begin(),
+         cat_var_sorted[0].end(), Gda::dbl_int_pair_cmp_less);
+    
+    if (is_any_sync_with_global_time) {
+        for (int t=1; t<num_time_vals; t++) {
+            sort(cat_var_sorted[t].begin(),
+                 cat_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
+    } else {
+        // just copy first sorted results
+        for (int t=1; t<num_time_vals; t++) {
+            cat_var_sorted[t] = cat_var_sorted[0];
+        }
+    }
+    
+    cat_classif_def_map.color_scheme = CatClassification::custom_color_scheme;
+    
+    // get cat_data
+    int num_time = local_geary_coord->num_time_vals;
+    int num_obs = local_geary_coord->num_obs;
+    cat_data.CreateEmptyCategories(num_time, num_obs);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        int undefined_cat = -1;
+        int isolates_cat = -1;
+        int num_cats = 0;
+        double stop_sig = 0;
+        
+        if (local_geary_coord->GetHasIsolates(t))
+            num_cats++;
+        if (local_geary_coord->GetHasUndefined(t))
+            num_cats++;
+        
+        num_cats += 5;
+        
+        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+        
+        Shapefile::Header& hdr = project->main_data.header;
+        
+        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        
+        if (hdr.shape_type == Shapefile::POINT_TYP) {
+            cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+        } else {
+            cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+        }
+        cat_data.SetCategoryLabel(t, 1, "High-High");
+        cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
+        cat_data.SetCategoryLabel(t, 2, "Low-Low");
+        cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
+        cat_data.SetCategoryLabel(t, 3, "Other Pos");
+        cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
+        cat_data.SetCategoryLabel(t, 4, "Negative");
+        cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
+        if (local_geary_coord->GetHasIsolates(t) &&
+            local_geary_coord->GetHasUndefined(t)) {
+            isolates_cat = 5;
+            undefined_cat = 6;
+        } else if (local_geary_coord->GetHasUndefined(t)) {
+            undefined_cat = 5;
+        } else if (local_geary_coord->GetHasIsolates(t)) {
+            isolates_cat = 5;
+        }
+        
+        if (undefined_cat != -1) {
+            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+        }
+        if (isolates_cat != -1) {
+            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+        }
+        
+        double cuttoff = local_geary_coord->significance_cutoff;
+        double* p = local_geary_coord->sig_local_geary_vecs[t];
+        int* cluster = local_geary_coord->cluster_vecs[t];
+        int* sigCat = local_geary_coord->sig_cat_vecs[t];
+        
+        for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
+            if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
+                cat_data.AppendIdToCategory(t, 0, i); // not significant
+            } else if (cluster[i] == 5) {
+                cat_data.AppendIdToCategory(t, isolates_cat, i);
+            } else if (cluster[i] == 6) {
+                cat_data.AppendIdToCategory(t, undefined_cat, i);
+            } else {
+                cat_data.AppendIdToCategory(t, cluster[i], i);
+            }
+        }
+        for (int cat=0; cat<num_cats; cat++) {
+            cat_data.SetCategoryCount(t, cat,
+                                      cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
+    
+    cat_data.SetCurrentCanvasTmStep(0);
+    int mt = cat_data.GetCurrentCanvasTmStep();
+    num_categories = cat_data.categories[mt].cat_vec.size();
+    CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
+    
+}
+
+void ConditionalLocalGearyClusterMapCanvas::TimeSyncVariableToggle(int var_index)
+{
+    local_geary_coord->var_info[0].sync_with_global_time = !local_geary_coord->var_info[0].sync_with_global_time;
+    
+    VarInfoAttributeChange();
+    CreateAndUpdateCategories();
+    PopulateCanvas();
+}
+
+void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = template_frame->GetStatusBar();
+    if (!sb) return;
+    
+    //int t = var_info[CAT_VAR].time;
+    int t = 0;
+    
+    const vector<bool>& hl = highlight_state->GetHighlight();
+    wxString s;
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << "#selected=" << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (cat_var_undef[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << "(undefined:" << n_undefs << ") ";
+        }
+    }
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << local_geary_coord->cluster_vecs[t][hover_obs[0]];
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << "obs " << hover_obs[1]+1 << " = ";
+            s << local_geary_coord->cluster_vecs[t][hover_obs[1]];
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << "obs " << hover_obs[2]+1 << " = ";
+            s << local_geary_coord->cluster_vecs[t][hover_obs[2]];
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    }
     sb->SetStatusText(s);
 }

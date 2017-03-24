@@ -37,6 +37,8 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
+		A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */; };
+		A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
 		A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A496C99D1E6A184C008F87DD /* samples.sqlite */; };
 		A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */; };
@@ -297,6 +299,11 @@
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
+		A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyCoordinator.cpp; sourceTree = "<group>"; };
+		A43D31531E845985007488D9 /* LocalGearyCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinator.h; sourceTree = "<group>"; };
+		A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinatorObserver.h; sourceTree = "<group>"; };
+		A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyMapNewView.cpp; sourceTree = "<group>"; };
+		A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyMapNewView.h; sourceTree = "<group>"; };
 		A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
 		A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
 		A496C99D1E6A184C008F87DD /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
@@ -920,6 +927,11 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */,
+				A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */,
+				A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */,
+				A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */,
+				A43D31531E845985007488D9 /* LocalGearyCoordinator.h */,
 				A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */,
 				A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */,
 				DD7975B80F1D2A9000496A84 /* 3DPlotView.cpp */,
@@ -1324,6 +1336,7 @@
 				DD7975890F1D296F00496A84 /* RegressionDlg.cpp in Sources */,
 				DD79758B0F1D296F00496A84 /* RegressionReportDlg.cpp in Sources */,
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
+				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,
 				DD7975920F1D296F00496A84 /* SaveSelectionDlg.cpp in Sources */,
 				DD7975940F1D296F00496A84 /* SHP2ASCDlg.cpp in Sources */,
 				DD7975980F1D296F00496A84 /* VariableSettingsDlg.cpp in Sources */,
@@ -1491,6 +1504,7 @@
 				DDEFAAA71AA4F07200F6AAFA /* PointSetAlgs.cpp in Sources */,
 				DD72C19A1AAE95480000420B /* SpatialIndAlgs.cpp in Sources */,
 				DDD2392D1AB86D8F00E4E1BF /* NumericTests.cpp in Sources */,
+				A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */,
 				DDFFC7CC1AC0E58B00F7DD6D /* CorrelogramView.cpp in Sources */,
 				DDFFC7CD1AC0E58B00F7DD6D /* CorrelParamsObservable.cpp in Sources */,
 				DDFFC7D51AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp in Sources */,

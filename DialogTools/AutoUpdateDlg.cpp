@@ -436,7 +436,7 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
                     // should skip unless some criticle file
                     if (filelen == size &&
-                        file_name.EndsWith("cache.sqlite") )
+                        !file_name.EndsWith("cache.sqlite") )
                     {
                         success = true;
                         

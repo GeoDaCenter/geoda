@@ -71,4 +71,32 @@ public:
     bool m_NormMap;
 
 };
+
+/*
+class LocalGearyWhat2OpenDlg: public wxDialog
+{    
+    DECLARE_CLASS( LocalGearyWhat2OpenDlg )
+    DECLARE_EVENT_TABLE()
+
+public:
+    LocalGearyWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
+					 const wxString& caption = _("What windows to open?"),
+					 const wxPoint& pos = wxDefaultPosition,
+					 const wxSize& size = wxDefaultSize,
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+    void CreateControls();
+    void OnOkClick( wxCommandEvent& event );
+
+    wxCheckBox* m_check1;
+    wxCheckBox* m_check2;
+    wxCheckBox* m_check3;
+    wxCheckBox* m_check4;
+
+	bool m_SigMap;
+	bool m_ClustMap;
+	bool m_Moran;
+    bool m_RowStand;
+};
+ */
+
 #endif

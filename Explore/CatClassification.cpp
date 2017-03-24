@@ -1651,6 +1651,9 @@ wxString CatClassification::CatClassifTypeToString(CatClassifType theme_type)
 	} else if (theme_type == CatClassification::getis_ord_categories ||
 			   theme_type == CatClassification::getis_ord_significance) {
 		return "Getis-Ord";
+	} else if (theme_type == CatClassification::local_geary_categories ||
+			   theme_type == CatClassification::local_geary_significance) {
+		return "Local Geary";
 	} else if (theme_type == CatClassification::custom) {
 		return "Custom";
 	}

@@ -123,6 +123,8 @@
 #include "Explore/LisaMapNewView.h"
 #include "Explore/LisaScatterPlotView.h"
 #include "Explore/LisaCoordinator.h"
+#include "Explore/LocalGearyCoordinator.h"
+#include "Explore/LocalGearyMapNewView.h"
 #include "Explore/ConditionalMapView.h"
 #include "Explore/ConditionalNewView.h"
 #include "Explore/ConditionalScatterPlotView.h"
@@ -144,7 +146,6 @@
 #include "Regression/DiagnosticReport.h"
 
 #include "ShapeOperations/CsvFileUtils.h"
-#include "ShpFile.h"
 #include "ShapeOperations/ShapeUtils.h"
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManState.h"
@@ -152,6 +153,7 @@
 
 #include "VarCalc/CalcHelp.h"
 
+#include "ShpFile.h"
 #include "GdaException.h"
 #include "FramesManager.h"
 #include "GdaConst.h"
@@ -2944,6 +2946,63 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+}
+
+void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
+{
+    wxLogMessage("Open LocalGearyFrame (OnOpenUniLocalGeary).");
+    
+    Project* p = GetProject();
+    if (!p) return;
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+	VariableSettingsDlg VS(p, VariableSettingsDlg::univariate, true, false);
+	if (VS.ShowModal() != wxID_OK) return;
+	boost::uuids::uuid w_id = VS.GetWeightsId();
+	if (w_id.is_nil()) return;
+		
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+	LisaWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
+	
+    
+	LocalGearyCoordinator* lc = new LocalGearyCoordinator(w_id, p,
+											  VS.var_info,
+											  VS.col_ids,
+											  LocalGearyCoordinator::univariate,
+											  true, LWO.m_RowStand);
+
+    /*
+	if (LWO.m_Moran) {
+		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
+															p, lc);
+	}
+     */
+	if (LWO.m_ClustMap) {
+		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
+												  lc, true, false, false);
+	}
+	if (LWO.m_SigMap) {
+		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
+												  lc, false, false, false,
+												  wxDefaultPosition);
+	}
 }
 
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
@@ -5875,6 +5934,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+    EVT_TOOL(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
+
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
     EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
     EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
