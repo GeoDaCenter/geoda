@@ -29,10 +29,14 @@
 #include <wx/combobox.h>
 #include <wx/panel.h>
 
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
+#include "../GeneralWxUtils.h"
+#include "../pca.h"
+#include "SaveToTableDlg.h"
 #include "VariableSettingsDlg.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -285,6 +289,328 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
 //
 ////////////////////////////////////////////////////////////////////////////
 
+PCASettingsDlg::PCASettingsDlg(Project* project_s)
+    : wxDialog(NULL, -1, _("PCA Settings"), wxDefaultPosition, wxSize(620, 430), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+{
+    wxLogMessage("Open PCASettingsDlg.");
+    
+    project = project_s;
+    
+    bool init_success = Init();
+    
+    if (init_success == false) {
+        EndDialog(wxID_CANCEL);
+    } else {
+        CreateControls();
+    }
+}
+
+PCASettingsDlg::~PCASettingsDlg()
+{
+}
+
+bool PCASettingsDlg::Init()
+{
+    if (project == NULL)
+        return false;
+    
+    table_int = project->GetTableInt();
+    if (table_int == NULL)
+        return false;
+    
+    
+    table_int->GetTimeStrings(tm_strs);
+    
+    return true;
+}
+
+void PCASettingsDlg::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+    // label & listbox
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("PCA Input: Select Variables"),
+                                          wxDefaultPosition, wxDefaultSize);
+    
+    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(250,250), 0, NULL,
+                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    // Component Selections
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Max Components:"),
+                                          wxDefaultPosition, wxSize(120,-1));
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
+    hbox->Add(box1, 1, wxEXPAND);
+   
+    /*
+    // Variance Coverage
+    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, wxT("Variance Coverage:"),
+                                           wxDefaultPosition, wxSize(120,-1));
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
+     */
+
+    // buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    
+    //
+    vbox->Add(st, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
+    //vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
+    
+    
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new wxTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,830), wxTE_MULTILINE | wxTE_READONLY);
+    
+    if (GeneralWxUtils::isWindows()) {
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+    } else {
+        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+        
+    }
+    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
+    
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    container->Add(vbox1,1, wxEXPAND | wxALL);
+    
+    panel->SetSizer(container);
+    
+    Centre();
+    
+    // Content
+    InitVariableCombobox(box);
+    
+    combo_var = box;
+    combo_n = box1;
+    //combo_cov = box3;
+    
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnOK, this);
+    saveButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnSave, this);
+    closeButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnClose, this);
+}
+
+void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
+{
+    wxArrayString items;
+    
+	std::vector<int> col_id_map;
+	table_int->FillNumericColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                name_to_nm[nm] = name;
+                name_to_tm_id[nm] = t;
+                items.Add(nm);
+            }
+        } else {
+            name_to_nm[name] = name;
+            name_to_tm_id[name] = 0;
+            items.Add(name);
+        }
+    }
+    
+    var_box->InsertItems(items,0);
+}
+
+void PCASettingsDlg::OnClose(wxCommandEvent& event )
+{
+    wxLogMessage("Close PCASettingsDlg.");
+    
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+}
+
+void PCASettingsDlg::OnSave(wxCommandEvent& event )
+{
+    wxLogMessage("OnSave PCASettingsDlg.");
+   
+    if (scores.size()==0)
+        return;
+    
+    // save to table
+    int new_col = int(thresh95);
+    std::vector<SaveToTableEntry> new_data(new_col);
+    std::vector<std::vector<double> > vals(new_col);
+    std::vector<std::vector<bool> > undefs(new_col);
+    
+    for (unsigned int j = 0; j < new_col; ++j) {
+        vals[j].resize(row_lim);
+        undefs[j].resize(row_lim);
+        for (unsigned int i = 0; i < row_lim; ++i) {
+            vals[j][i] = double(scores[j + col_lim*i]);
+            undefs[j][i] = false;
+        }
+        new_data[j].d_val = &vals[j];
+        new_data[j].label = wxString::Format("PC%d", j+1);
+        new_data[j].field_default = wxString::Format("PC%d", j+1);
+        new_data[j].type = GdaConst::double_type;
+        new_data[j].undefined = &undefs[j];
+    }
+    
+    SaveToTableDlg dlg(project, this, new_data,
+                       "Save Results: PCA",
+                       wxDefaultPosition, wxSize(400,400));
+    dlg.ShowModal();
+    
+    event.Skip();
+
+}
+
+void PCASettingsDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click PCASettingsDlg::OnOK");
+  
+    wxArrayInt selections;
+    combo_var->GetSelections(selections);
+    
+    int num_var = selections.size();
+    if (num_var < 2) {
+        // show message box
+        wxString err_msg = _("Please select at least 2 variables.");
+        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    col_ids.resize(num_var);
+    var_info.resize(num_var);
+    
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString nm = name_to_nm[combo_var->GetString(idx)];
+        
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        
+        int tm = name_to_tm_id[combo_var->GetString(idx)];
+        
+        col_ids[i] = col;
+        var_info[i].time = tm;
+        
+        // Set Primary GdaVarTools::VarInfo attributes
+        var_info[i].name = nm;
+        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+        
+        // var_info[i].time already set above
+        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
+        var_info[i].fixed_scale = true;
+    }
+    
+    // Call function to set all Secondary Attributes based on Primary Attributes
+    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+
+    int rows = project->GetNumRecords();
+    int columns =  0;
+    
+    std::vector<d_array_type> data; // data[variable][time][obs]
+    data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], data[i]);
+    }
+    
+    vector<float> vec;
+    
+    for (int i=0; i<data.size(); i++ ){
+        for (int j=0; j<data[i].size(); j++) {
+            columns += 1;
+            for (int k=0; k< rows;k++) {
+                vec.push_back(data[i][j][k]);
+            }
+        }
+    }
+    
+    Pca pca;
+    
+    int init_result = pca.Calculate(vec, rows, columns);
+    if (0 != init_result) {
+        wxLogMessage(_("There is an error during PCA calculation!"));
+    }
+    vector<float> sd = pca.sd();
+    vector<float> prop_of_var = pca.prop_of_var();
+    vector<float> cum_prop = pca.cum_prop();
+    scores = pca.scores();
+    
+    vector<unsigned int> el_cols = pca.eliminated_columns();
+    
+    float kaiser = pca.kaiser();
+    thresh95 = pca.thresh95();
+    
+    unsigned int ncols = pca.ncols();
+    unsigned int nrows = pca.nrows();
+    
+    wxString method = pca.method();
+    
+    wxString pca_log;
+    pca_log << "\n\nStandard deviation:\n";
+    for (int i=0; i<sd.size();i++) pca_log << sd[i] << " ";
+    pca_log << "\n\nProportion of variance:\n";
+    for (int i=0; i<prop_of_var.size();i++) pca_log << prop_of_var[i] << " ";
+    pca_log << "\n\nCumulative proportion:\n";
+    for (int i=0; i<cum_prop.size();i++) pca_log << cum_prop[i] << " ";
+    pca_log << "\n\nKaiser criterion: " << kaiser;
+    pca_log << "\n\n95% threshold criterion: " << thresh95;
+   
+    row_lim = nrows;
+    col_lim = ncols;
+    /*
+    pca_log << "\n\nRotated data: ";
+    if (scores.size() != nrows * ncols) {
+        row_lim = (nrows < ncols)? nrows : ncols,
+        col_lim = (ncols < nrows)? ncols : nrows;
+    }
+    for (unsigned int i = 0; i < row_lim; ++i) {
+        for (unsigned int j = 0; j < col_lim; ++j) {
+            pca_log << scores[j + col_lim*i] << "\t";
+        }
+        pca_log << "\n";
+    }
+    */
+    m_textbox->SetValue(pca_log);
+   
+    combo_n->Clear();
+    for (int i=0; i<col_lim; i++){
+        combo_n->Append(wxString::Format("%d", i+1));
+    }
+    combo_n->SetSelection((int)thresh95 -1);
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+
 MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
     : wxDialog(NULL, -1, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
 {
@@ -494,62 +820,7 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
     EndDialog(wxID_OK);
-    
-    /*
-     wxString col_name = combo_var->GetStringSelection();
-    if (col_name.IsEmpty()) {
-        wxMessageDialog dlg (this,
-                             "Please select a variable first.",
-                             "Warning",
-                             wxOK | wxICON_WARNING);
-        dlg.ShowModal();
-        return;
-    }
-    
-    int time1 = combo_time1->GetSelection();
 
-    int num_var = 2;
-    
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    int col_idx = table_int->FindColId(col_name);
-    
-    col_ids[0] = col_idx;
-    col_ids[1] = col_idx;
-    
-    for (int i=0; i<num_var; i++) {
-        var_info[i].name = col_name;
-        var_info[i].is_time_variant = true;
-        
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = false;
-        var_info[i].fixed_scale = true;
-    }
-    var_info[0].time = time1;
-    var_info[1].time = time2;
-
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    bool check_group_var = true;
-    try {
-        for (int i=0; i<col_ids.size(); i++) {
-            project->GetTableInt()->GetColTypes(col_ids[i]);
-        }
-    } catch(GdaException& ex) {
-        // place holder found
-        wxString str_tmplt = _T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
-        wxString msg = wxString::Format(str_tmplt, project->GetTableInt()->GetTimeSteps());
-        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        check_group_var = false;
-    }
-    
-    if (check_group_var == true)
-        EndDialog(wxID_OK);
-    
-    */
 }
 
 boost::uuids::uuid MultiVariableSettingsDlg::GetWeightsId()

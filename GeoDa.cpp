@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <stdlib.h>
 
+
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -113,6 +114,7 @@
 #include "DialogTools/BasemapConfDlg.h"
 #include "DialogTools/AutoUpdateDlg.h"
 #include "DialogTools/ReportBugDlg.h"
+#include "DialogTools/SaveToTableDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -163,6 +165,7 @@
 #include "Project.h"
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
+#include "pca.h"
 #include "GeoDa.h"
 
 #include "version.h"
@@ -209,7 +212,7 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-    
+   
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
     
@@ -324,8 +327,6 @@ bool GdaApp::OnInit(void)
 
 	}
 
-    
-    
 	wxPoint appFramePos = wxDefaultPosition;
 	if (GeneralWxUtils::isUnix() || GeneralWxUtils::isMac()) {
 		appFramePos = wxPoint(80,60);
@@ -612,6 +613,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MSPL"), proj_open);
 	EnableTool(XRCID("IDM_GMORAN"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_GMORAN"), proj_open);
+	EnableTool(XRCID("IDM_DMORAN"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DMORAN"), proj_open);
 	EnableTool(XRCID("IDM_MORAN_EBRATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MORAN_EBRATE"), proj_open);
 	EnableTool(XRCID("IDM_UNI_LISA"), shp_proj);
@@ -1747,6 +1750,15 @@ void GdaFrame::OnKeyEvent(wxKeyEvent& event)
 		return;
 	}
 	event.Skip();
+}
+
+void GdaFrame::OnToolsDataPCA(wxCommandEvent& WXUNUSED(event) )
+{
+	Project* p = GetProject();
+	if (!p) return;
+    
+	PCASettingsDlg VS(p);
+    VS.ShowModal();
 }
 
 void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
@@ -3120,6 +3132,62 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 {
     wxLogMessage("Open LisaMapFrame (OnOpenMultiLisa).");
+    
+    Project* project = GetProject();
+    if (!project) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+        
+    }
+    
+    VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true,
+                           false);
+    if (VS.ShowModal() != wxID_OK) return;
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+   
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    if (gw == NULL) {
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    LisaWhat2OpenDlg LWO(this);
+    if (LWO.ShowModal() != wxID_OK) return;
+    if (!LWO.m_ClustMap && !LWO.m_SigMap &&!LWO.m_Moran) return;
+    
+    LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
+                                              VS.var_info,
+                                              VS.col_ids,
+                                              LisaCoordinator::bivariate,
+                                              true, LWO.m_RowStand);
+    
+    if (LWO.m_Moran) {
+        LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
+                                                            project_p, lc);
+    }
+    if (LWO.m_ClustMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
+                                            lc, true, true, false);
+    }
+    
+    if (LWO.m_SigMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, project_p,
+                                            lc, false, true, false);
+    }
+}
+
+void GdaFrame::OnOpenDiffLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open LisaMapFrame (OnOpenDiffLisa).");
     
     Project* p = GetProject();
     if (!p) return;
@@ -5908,6 +5976,9 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_COPY_LEGEND_TO_CLIPBOARD"), GdaFrame::OnCopyLegendToClipboard)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
+
+    EVT_MENU(XRCID("ID_TOOLS_DATA_PCA"), GdaFrame::OnToolsDataPCA)
+
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
     EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
@@ -6009,9 +6080,12 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-    EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_MENU(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_TOOL(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_BUTTON(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
+    EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
+    EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
+    EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
     EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
     EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
     EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
@@ -6022,6 +6096,9 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
     EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
     EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+    EVT_MENU(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
+    EVT_TOOL(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
+    EVT_BUTTON(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
     EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)

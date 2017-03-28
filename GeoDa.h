@@ -157,6 +157,8 @@ public:
 	void OnCopyImageToClipboard(wxCommandEvent& event);
 	void OnCopyLegendToClipboard(wxCommandEvent& event);
 	
+	void OnToolsDataPCA(wxCommandEvent& event);
+    
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
 	void OnConnectivityHistView(wxCommandEvent& event);
@@ -231,6 +233,7 @@ public:
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
+	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
 	void OnOpenGetisOrdStar(wxCommandEvent& event);

@@ -67,6 +67,12 @@
           <label>Create Grid</label>
         </object>
       </object>
+      <object class="wxMenu" name="ID_MENU">
+        <label>Data</label>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
+          <label>Principal Component Analysis</label>
+        </object>
+      </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
@@ -416,6 +422,9 @@
         <label>Univariate Moran's I</label>
       </object>
       <object class="wxMenuItem" name="IDM_GMORAN">
+        <label>Bivariate Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_DMORAN">
         <label>Differential Moran's I</label>
       </object>
       <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
@@ -426,6 +435,9 @@
         <label>Univariate Local Moran's I</label>
       </object>
       <object class="wxMenuItem" name="IDM_MULTI_LISA">
+        <label>Bivariate Local Moran's I</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_DIFF_LISA">
         <label>Differential Local Moran's I</label>
       </object>
       <object class="wxMenuItem" name="IDM_LISA_EBRATE">
@@ -4154,6 +4166,9 @@
       <label>Univariate Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_GMORAN">
+      <label>Bivariate Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_DMORAN">
       <label>Differential Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
@@ -4166,6 +4181,9 @@
       <label>Univariate Local Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_MULTI_LISA">
+      <label>Bivariate Local Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_DIFF_LISA">
       <label>Differential Local Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_LISA_EBRATE">

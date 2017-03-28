@@ -80,6 +80,52 @@ private:
 //
 //
 ////////////////////////////////////////////////////////////////////////////
+
+class PCASettingsDlg : public wxDialog
+{
+public:
+    PCASettingsDlg(Project* project);
+    virtual ~PCASettingsDlg();
+    
+    void CreateControls();
+    bool Init();
+   
+    void OnOK( wxCommandEvent& event );
+    void OnSave( wxCommandEvent& event );
+    void OnClose( wxCommandEvent& event );
+    
+    void InitVariableCombobox(wxListBox* var_box);
+    
+    //boost::uuids::uuid GetWeightsId();
+    
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+private:
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    //std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxListBox* combo_var;
+    wxComboBox* combo_n;
+    wxComboBox* combo_cov;
+    wxTextCtrl* m_textbox;
+    
+	std::map<wxString, wxString> name_to_nm;
+	std::map<wxString, int> name_to_tm_id;
+    
+    unsigned int row_lim;
+    unsigned int col_lim;
+    std::vector<float> scores;
+    float thresh95;
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 class MultiVariableSettingsDlg : public wxDialog
 {
 public:
