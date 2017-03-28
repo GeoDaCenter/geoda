@@ -2977,9 +2977,9 @@ void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
         return;
     }
     
-	LisaWhat2OpenDlg LWO(this);
+	LocalGearyWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
-	if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
 	
     
 	LocalGearyCoordinator* lc = new LocalGearyCoordinator(w_id, p,
@@ -3005,6 +3005,63 @@ void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
 	}
 }
 
+void GdaFrame::OnOpenMultiLocalGeary(wxCommandEvent& event)
+{
+    wxLogMessage("Open LocalGearyFrame (OnOpenMultiLocalGeary).");
+    
+    Project* p = GetProject();
+    if (!p) return;
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+	MultiVariableSettingsDlg VS(p);
+	if (VS.ShowModal() != wxID_OK) return;
+    
+	boost::uuids::uuid w_id = VS.GetWeightsId();
+	if (w_id.is_nil()) return;
+		
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+	LocalGearyWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
+	
+    
+	LocalGearyCoordinator* lc = new LocalGearyCoordinator(w_id, p,
+											  VS.var_info,
+											  VS.col_ids,
+											  LocalGearyCoordinator::multivariate,
+											  true, LWO.m_RowStand);
+
+    /*
+	if (LWO.m_Moran) {
+		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
+															p, lc);
+	}
+     */
+	if (LWO.m_ClustMap) {
+		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
+												  lc, true, false, false);
+	}
+	if (LWO.m_SigMap) {
+		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
+												  lc, false, false, false,
+												  wxDefaultPosition);
+	}
+}
 void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 {
     wxLogMessage("Open LisaMapFrame (OnOpenUniLisa).");
@@ -4471,10 +4528,11 @@ void GdaFrame::OnRan99Per(wxCommandEvent& event)
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
 		f->OnRan99Per(event);
-	} else if (LisaScatterPlotFrame* f
-			  = dynamic_cast<LisaScatterPlotFrame*>(t)) {
+	} else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
 		f->OnRan99Per(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
+		f->OnRan99Per(event);
+	} else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
 		f->OnRan99Per(event);
 	}
 }
@@ -4491,7 +4549,9 @@ void GdaFrame::OnRan199Per(wxCommandEvent& event)
 		f->OnRan199Per(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan199Per(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan199Per(event);
+    }
 }
 
 void GdaFrame::OnRan499Per(wxCommandEvent& event)
@@ -4506,7 +4566,9 @@ void GdaFrame::OnRan499Per(wxCommandEvent& event)
 		f->OnRan499Per(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan499Per(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan499Per(event);
+    }
 }
 
 void GdaFrame::OnRan999Per(wxCommandEvent& event)
@@ -4521,7 +4583,9 @@ void GdaFrame::OnRan999Per(wxCommandEvent& event)
 		f->OnRan999Per(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan999Per(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan999Per(event);
+    }
 }
 
 void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
@@ -4536,7 +4600,9 @@ void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
 		f->OnRanOtherPer(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRanOtherPer(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRanOtherPer(event);
+    }
 }
 
 void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
@@ -4550,7 +4616,9 @@ void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 		f->OnUseSpecifiedSeed(event);
     } else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
         f->OnUseSpecifiedSeed(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnUseSpecifiedSeed(event);
+    }
 }
 
 void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
@@ -4564,6 +4632,8 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 		f->OnSpecifySeedDlg(event);
 	} else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
 		f->OnSpecifySeedDlg(event);
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSpecifySeedDlg(event);
     }
 }
 
@@ -4586,7 +4656,9 @@ void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 		f->OnSigFilter05(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter05(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter05(event);
+    }
 }
 
 void GdaFrame::OnSigFilter01(wxCommandEvent& event)
@@ -4598,7 +4670,9 @@ void GdaFrame::OnSigFilter01(wxCommandEvent& event)
 		f->OnSigFilter01(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter01(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter01(event);
+    }
 }
 
 void GdaFrame::OnSigFilter001(wxCommandEvent& event)
@@ -4610,7 +4684,9 @@ void GdaFrame::OnSigFilter001(wxCommandEvent& event)
 		f->OnSigFilter001(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter001(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter001(event);
+    }
 }
 
 void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
@@ -4622,7 +4698,9 @@ void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
 		f->OnSigFilter0001(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter0001(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter0001(event);
+    }
 }
 
 void GdaFrame::OnAddMeanCenters(wxCommandEvent& event)
@@ -4732,7 +4810,9 @@ void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
 		f->OnSaveLisa(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSaveLocalGeary(event);
+    }
 }
 
 void GdaFrame::OnSelectCores(wxCommandEvent& event)
@@ -4744,7 +4824,9 @@ void GdaFrame::OnSelectCores(wxCommandEvent& event)
 		f->OnSelectCores(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSelectCores(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSelectCores(event);
+    }
 }
 
 void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
@@ -4756,7 +4838,9 @@ void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 		f->OnSelectNeighborsOfCores(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSelectNeighborsOfCores(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSelectNeighborsOfCores(event);
+    }
 }
 
 void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
@@ -4768,7 +4852,10 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 		f->OnSelectCoresAndNeighbors(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSelectCoresAndNeighbors(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSelectCoresAndNeighbors(event);
+    }
+    
 }
 
 void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
@@ -4780,7 +4867,9 @@ void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 		f->OnAddNeighborToSelection(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnAddNeighborToSelection(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnAddNeighborToSelection(event);
+    }
 }
 
 void GdaFrame::OnShowAsConditionalMap(wxCommandEvent& event)
@@ -4792,7 +4881,9 @@ void GdaFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 		f->OnShowAsConditionalMap(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnShowAsConditionalMap(event);
-	}
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnShowAsConditionalMap(event);
+    }
 }
 
 void GdaFrame::OnViewStandardizedData(wxCommandEvent& event)
@@ -5935,6 +6026,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_TOOL(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
+    EVT_TOOL(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
 
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
     EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)

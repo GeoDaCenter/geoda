@@ -72,7 +72,7 @@ public:
 
 };
 
-/*
+
 class LocalGearyWhat2OpenDlg: public wxDialog
 {    
     DECLARE_CLASS( LocalGearyWhat2OpenDlg )
@@ -90,13 +90,10 @@ public:
     wxCheckBox* m_check1;
     wxCheckBox* m_check2;
     wxCheckBox* m_check3;
-    wxCheckBox* m_check4;
 
 	bool m_SigMap;
 	bool m_ClustMap;
-	bool m_Moran;
     bool m_RowStand;
 };
- */
 
 #endif

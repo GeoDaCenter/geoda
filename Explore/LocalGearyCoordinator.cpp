@@ -133,8 +133,8 @@ row_standardize(row_standardize_s)
         var_info[i].is_moran = true;
 	}
     
-    undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
-	
+    num_vars = var_info.size();
+    
 	weight_name = w_man_int->GetLongDispName(w_id);
 	SetSignificanceFilter(1);
     
@@ -175,11 +175,31 @@ void LocalGearyCoordinator::DeallocateVectors()
 	for (int i=0; i<data1_vecs.size(); i++) {
 		if (data1_vecs[i]) delete [] data1_vecs[i];
 	}
+    
 	data1_vecs.clear();
+	for (int i=0; i<data1_square_vecs.size(); i++) {
+		if (data1_square_vecs[i]) delete [] data1_square_vecs[i];
+	}
+	data1_square_vecs.clear();
 	for (int i=0; i<data2_vecs.size(); i++) {
 		if (data2_vecs[i]) delete [] data2_vecs[i];
 	}
 	data2_vecs.clear();
+    
+    for (int i=0; i<data_vecs.size(); i++) {
+        for (int j=0; j<data_vecs[i].size(); j++) {
+            if (data_vecs[i][j]) delete [] data_vecs[i][j];
+        }
+        data_vecs[i].clear();
+    }
+    data_vecs.clear();
+    for (int i=0; i<data_square_vecs.size(); i++) {
+        for (int j=0; j<data_square_vecs[i].size(); j++) {
+            if (data_square_vecs[i][j]) delete [] data_square_vecs[i][j];
+        }
+        data_square_vecs[i].clear();
+    }
+    data_square_vecs.clear();
     
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
@@ -201,13 +221,33 @@ void LocalGearyCoordinator::AllocateVectors()
 	sig_local_geary_vecs.resize(tms);
 	sig_cat_vecs.resize(tms);
 	cluster_vecs.resize(tms);
-	data1_vecs.resize(tms);
+    undef_tms.resize(tms);
+   
+    if (local_geary_type == multivariate) {
+        data_vecs.resize(num_vars);
+        data_square_vecs.resize(num_vars);
+        for (int i=0; i<num_vars; i++) {
+            int tms_at_var = data[i].size();
+            data_vecs[i].resize(tms_at_var);
+            data_square_vecs[i].resize(tms_at_var);
+            for (int j=0; j<tms_at_var; j++) {
+                data_vecs[i][j] = new double[num_obs];
+                data_square_vecs[i][j] = new double[num_obs];
+            }
+        }
+    
+    } else {
+    	data1_vecs.resize(tms);
+    	data1_square_vecs.resize(tms);
+    }
+    
 	map_valid.resize(tms);
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
     
 	for (int i=0; i<tms; i++) {
+        undef_tms[i].resize(num_obs, false);
 		lags_vecs[i] = new double[num_obs];
 		local_geary_vecs[i] = new double[num_obs];
 		if (calc_significances) {
@@ -215,16 +255,14 @@ void LocalGearyCoordinator::AllocateVectors()
 			sig_cat_vecs[i] = new int[num_obs];
 		}
 		cluster_vecs[i] = new int[num_obs];
-		data1_vecs[i] = new double[num_obs];
+        
+        if (local_geary_type != multivariate) {
+    		data1_vecs[i] = new double[num_obs];
+    		data1_square_vecs[i] = new double[num_obs];
+        }
+        
 		map_valid[i] = true;
 		map_error_message[i] = wxEmptyString;
-	}
-	
-	if (local_geary_type == bivariate) {
-		data2_vecs.resize((var_info[1].time_max - var_info[1].time_min) + 1);
-		for (int i=0; i<data2_vecs.size(); i++) {
-			data2_vecs[i] = new double[num_obs];
-		}
 	}
 }
 
@@ -260,6 +298,7 @@ void LocalGearyCoordinator::InitFromVarInfo()
 	AllocateVectors();
 	
     if (local_geary_type == differential) {
+        
         int t=0;
         for (int i=0; i<num_obs; i++) {
             int t0 = var_info[0].time;
@@ -282,6 +321,20 @@ void LocalGearyCoordinator::InitFromVarInfo()
 				}
 			}
 		}
+        
+    } else if (local_geary_type == multivariate) {
+        int num_var = data.size();
+        for (int i=0; i<num_var; i++) {
+            int tms_at_var = data[i].size();
+            for (int j=0; j<tms_at_var; j++) {
+                for (int k=0; k<num_obs; k++) {
+                    data_vecs[i][j][k] = data[i][j][k];
+                    // x2 = z * z (after standardization)
+                    //data_square_vecs[i][j][k] = data[i][j][k] * data[i][j][k];
+                }
+            }
+        }
+            
 	} else { // local_geary_type == eb_rate_standardized
 		std::vector<bool> undef_res(num_obs, false);
 		double* smoothed_results = new double[num_obs];
@@ -321,14 +374,29 @@ void LocalGearyCoordinator::InitFromVarInfo()
 	}
 	
 	StandardizeData();
-	
-    CalcLocalGeary();
+
+    if (local_geary_type == multivariate) {
+        for (int v=0; v<data_vecs.size(); v++) {
+            for (int t=0; t<data_vecs[v].size(); t++) {
+                for (int i=0; i<num_obs; i++) {
+                    data_square_vecs[v][t][i] = data_vecs[v][t][i] * data_vecs[v][t][i];
+                }
+            }
+        }
+        CalcMultiLocalGeary();
+        
+    } else {
+        for (int t=0; t<num_time_vals; t++) {
+            for (int i=0; i<num_obs; i++) {
+                data1_square_vecs[t][i] = data1_vecs[t][i] * data1_vecs[t][i];
+            }
+        }
+        CalcLocalGeary();
+    }
     
     if (calc_significances) {
         CalcPseudoP();
     }
-    
-    
 }
 
 void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
@@ -405,25 +473,123 @@ void LocalGearyCoordinator::VarInfoAttributeChange()
 
 void LocalGearyCoordinator::StandardizeData()
 {
-	for (int t=0; t<data1_vecs.size(); t++) {
-        undef_tms[t].resize(num_obs);
+    if (local_geary_type == multivariate) {
+        // get undef_tms across multi-variables
+    	for (int v=0; v<data_vecs.size(); v++) {
+            for (int t=0; t<data_vecs[v].size(); t++) {
+                for (int i=0; i<num_obs; i++) {
+                    undef_tms[t][i] = undef_tms[t][i] || undef_data[v][t][i];
+                }
+            }
+        }
+        
+    	for (int v=0; v<data_vecs.size(); v++) {
+        	for (int t=0; t<data_vecs[v].size(); t++) {
+        		GenUtils::StandardizeData(num_obs, data_vecs[v][t], undef_tms[t]);
+        	}
+        }
+    } else {
+    	for (int t=0; t<data1_vecs.size(); t++) {
+            for (int i=0; i<num_obs; i++) {
+                undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
+            }
+            if (isBivariate) {
+                for (int i=0; i<num_obs; i++) {
+                    undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                }
+            }
+        }
+        
+    	for (int t=0; t<data1_vecs.size(); t++) {
+    		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
+            if (isBivariate) {
+                GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
+            }
+    	}
+    }
+}
+
+void LocalGearyCoordinator::CalcMultiLocalGeary()
+{
+    for (int t=0; t<num_time_vals; t++) {
+        
+        // get undefs of objects/values at this time step
+        std::vector<bool> undefs;
+        bool has_undef = false;
+        for (int i=0; i<num_obs; i++){
+            bool is_undef = false;
+            for (int v=0; v<undef_data.size(); v++) {
+                is_undef = is_undef || undef_data[v][t][i];
+                if (is_undef && !has_undef) {
+                    has_undef = true;
+                }
+            }
+            undefs.push_back(is_undef);
+        }
+        has_undefined[t] = has_undef;
+       
+        // local weights copy
+        GalWeight* gw = NULL;
+        if ( has_undef ) {
+            gw = new GalWeight(*w_man_int->GetGal(w_id));
+            gw->Update(undefs);
+        } else {
+            gw = w_man_int->GetGal(w_id);
+        }
+        GalElement* W = gw->gal;
+        Gal_vecs.push_back(gw);
+        Gal_vecs_orig.push_back(w_man_int->GetGal(w_id));
+      
+        
+        // local geary
+        lags = lags_vecs[t];
+        localGeary = local_geary_vecs[t];
+        cluster = cluster_vecs[t];
+        has_isolates[t] = false;
+        
+        std::vector<int> local_t;
+        for (int v=0; v<num_vars; v++) {
+            if (data_vecs[v].size()==1) {
+                local_t.push_back(0);
+            } else {
+                local_t.push_back(t);
+            }
+        }
         
         for (int i=0; i<num_obs; i++) {
-            undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
-        }
-        if (isBivariate) {
-            for (int i=0; i<num_obs; i++) {
-                undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+            localGeary[i] = 0;
+            lags[i] = 0;
+            
+            if (undefs[i] == true) {
+                cluster[i] = 6; // undefined value
+                continue;
+            }
+            
+            for (int v=0; v<num_vars; v++) {
+                int _t = local_t[v];
+                double wx = W[i].SpatialLag(data_vecs[v][_t]);
+                double wx2 = W[i].SpatialLag(data_square_vecs[v][_t]);
+               
+                lags[i] += wx;
+                localGeary[i] += data_square_vecs[v][_t][i] - 2.0 * data_vecs[v][_t][i] * wx +  wx2;
+            }
+            
+            lags[i] /= num_vars;
+            localGeary[i] /= num_vars;
+            
+            // assign the cluster
+            if (W[i].Size() > 0) {
+                cluster[i] = 0; // don't assign cluster in multi-var settings
+                //if (data1[i] > 0 && lags[i] > 0) cluster[i] = 1;
+                //else if (data1[i] < 0 && lags[i] > 0) cluster[i] = 3;
+                //else if (data1[i] < 0 && lags[i] < 0) cluster[i] = 2;
+                //else cluster[i] = 4; //data1[i] > 0 && lags[i] < 0
+            } else {
+                has_isolates[t] = true;
+                cluster[i] = 5; // neighborless
             }
         }
     }
-    
-	for (int t=0; t<data1_vecs.size(); t++) {
-		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
-        if (isBivariate) {
-            GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
-        }
-	}
 }
 
 /** assumes StandardizeData already called on data1 and data2 */
@@ -431,11 +597,7 @@ void LocalGearyCoordinator::CalcLocalGeary()
 {
 	for (int t=0; t<num_time_vals; t++) {
 		data1 = data1_vecs[t];
-        
-        double data1_square[num_obs];
-        for (int i=0; i<num_obs; i++) {
-            data1_square[i] = data1[i] * data1[i];
-        }
+        data1_square = data1_square_vecs[t];
         
 		if (isBivariate) {
 			data2 = data2_vecs[0];
@@ -499,10 +661,10 @@ void LocalGearyCoordinator::CalcLocalGeary()
 				
 			// assign the cluster
 			if (W[i].Size() > 0) {
-				if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
+				if (data1[i] > 0 && Wdata > 0) cluster[i] = 1;
 				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
 				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-				else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+				else cluster[i] = 4; //data1[i] > 0 && Wdata < 0
 			} else {
 				has_isolates[t] = true;
 				cluster[i] = 5; // neighborless
@@ -523,17 +685,31 @@ void LocalGearyCoordinator::CalcPseudoP()
 	// 2. Perform multi-threaded computation
 	// 3. copy results into results array
 	
+    if (local_geary_type == multivariate) {
+        current_data.resize(num_vars);
+        current_data_square.resize(num_vars);
+    }
 	
 	for (int t=0; t<num_time_vals; t++) {
-	
+        
         std::vector<bool>& undefs = undef_tms[t];
-		data1 = data1_vecs[t];
-		if (isBivariate) {
-			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time)
-                data2 = data2_vecs[t];
-		}
+        
+        if (local_geary_type == multivariate) {
+            for (int v=0; v<num_vars; v++) {
+                int _t = data_vecs[v].size() == 1 ? 0 : t;
+                current_data[v] = data_vecs[v][_t];
+                current_data_square[v] = data_square_vecs[v][_t];
+            }
+        } else {
+    		data1 = data1_vecs[t];
+    		if (isBivariate) {
+    			data2 = data2_vecs[0];
+    			if (var_info[1].is_time_variant &&
+    				var_info[1].sync_with_global_time)
+                    data2 = data2_vecs[t];
+    		}
+        }
+        
 		lags = lags_vecs[t];
 		localGeary = local_geary_vecs[t];
 		siglocalGeary = sig_local_geary_vecs[t];
@@ -544,8 +720,7 @@ void LocalGearyCoordinator::CalcPseudoP()
             if (!reuse_last_seed) {
                 last_seed_used = time(0);
             }
-			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
-                              0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
 		} else {
 			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
@@ -603,7 +778,7 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W,
 			a = remainder*(quotient+1) + (i-remainder)*quotient;
 			b = a+quotient-1;
 		}
-		uint64_t seed_start = last_seed_used+a;
+		uint64_t seed_start = last_seed_used + a;
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
 		int thread_id = i+1;
 		wxString msg;
@@ -655,10 +830,11 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
         
 		uint64_t countLarger = 0;
 		const int numNeighbors = W[cnt].Size();
+        
         double gci[permutations];
         double gci_sum = 0.0;
-        double xx = data1[cnt];
-        double xx2 = xx * xx;
+       
+        uint64_t o_seed = seed_start;
         
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
@@ -678,61 +854,100 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 				}
 			}
 			double permutedLag=0;
-            double wwx =0;
-            double wwx2 = 0;
 			// use permutation to compute the lag
 			// compute the lag for binary weights
-			if (isBivariate) {
-				for (int cp=0; cp<numNeighbors; cp++) {
-					permutedLag += data2[workPermutation.Pop()];
-				}
-			} else {
-				for (int cp=0; cp<numNeighbors; cp++) {
+            if (local_geary_type == multivariate) {
+                double m_wwx[num_vars];
+                double m_wwx2[num_vars];
+                for (int v=0; v<num_vars; v++) {
+                    m_wwx[v] = 0;
+                    m_wwx2[v] = 0;
+                }
+                
+                for (int cp=0; cp<numNeighbors; cp++) {
                     // xx2 - 2.0 * xx * wwx + wwx2
                     int perm_idx = workPermutation.Pop();
-					wwx += data1[perm_idx];
-                    wwx2 += data1[perm_idx] * data1[perm_idx];
-				}
-			}
-			
-			//NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
-            if (numNeighbors && row_standardize) {
-                gci[perm] = xx2 - 2.0*xx*wwx/numNeighbors + wwx2/numNeighbors;
+                    for (int v=0; v<num_vars; v++) {
+                        m_wwx[v] += current_data[v][perm_idx];
+                        m_wwx2[v] += current_data_square[v][perm_idx];
+                    }
+                }
+                
+                if (numNeighbors && row_standardize) {
+                    double var_gci = 0;
+                    for (int v=0; v<num_vars; v++) {
+                        var_gci += current_data_square[v][cnt] - 2.0* current_data[v][cnt]*m_wwx[v]/numNeighbors + m_wwx2[v]/numNeighbors;
+                    }
+                    var_gci /= num_vars;
+                    gci[perm] = var_gci;
+                }
+                
+            } else {
+                double wwx =0;
+                double wwx2 = 0;
+    			if (isBivariate) {
+    				for (int cp=0; cp<numNeighbors; cp++) {
+    					permutedLag += data2[workPermutation.Pop()];
+    				}
+    			} else {
+    				for (int cp=0; cp<numNeighbors; cp++) {
+                        // xx2 - 2.0 * xx * wwx + wwx2
+                        int perm_idx = workPermutation.Pop();
+    					wwx += data1[perm_idx];
+                        wwx2 += data1_square[perm_idx];
+    				}
+    			}
+    			//NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
+                if (numNeighbors && row_standardize) {
+                    gci[perm] = data1_square[cnt] - 2.0*data1[cnt]*wwx/numNeighbors + wwx2/numNeighbors;
+                }
             }
-            
             gci_sum += gci[perm];
 		}
         
         // calc mean of gci
         double gci_mean = gci_sum / permutations;
-       
         if (localGeary[cnt] <= gci_mean) {
-            //lisasign[cnt] = 1
+            // positive lisasign[cnt] = 1
             for (int perm=0; perm<permutations; perm++) {
                 if (gci[perm] <= localGeary[cnt]) {
                     countLarger++;
                 }
             }
+            if (local_geary_type == multivariate) {
+                if (cluster[cnt] <=4) {
+                    cluster[cnt] = 1;
+                }
+            } else {
+                // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
+                // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
+                // positive && but in outlier qudrant: other pos
+                if (cluster[cnt] > 2)
+                    cluster[cnt] = 3;
+            }
         } else {
-            //lisasign[cnt] = -1
+            // negative lisasign[cnt] = -1
             for (int perm=0; perm<permutations; perm++) {
                 if (gci[perm] > localGeary[cnt]) {
                     countLarger++;
                 }
             }
+            if (local_geary_type == multivariate) {
+                cluster[cnt] = 0; // for multivar, only show significant positive (similar)
+            } else {
+                // negative
+                cluster[cnt] = 4;
+            }
         }
-        
-		// pick the smallest
-		//if (permutations-countLarger <= countLarger) {
-		//	countLarger = permutations-countLarger;
-		//}
-		
+       
+        int kp = local_geary_type == multivariate ? num_vars : 1;
 		siglocalGeary[cnt] = (countLarger+1.0)/(permutations+1);
+        
 		// 'significance' of local Moran
-		if (siglocalGeary[cnt] <= 0.0001) sigCat[cnt] = 4;
-		else if (siglocalGeary[cnt] <= 0.001) sigCat[cnt] = 3;
-		else if (siglocalGeary[cnt] <= 0.01) sigCat[cnt] = 2;
-		else if (siglocalGeary[cnt] <= 0.05) sigCat[cnt]= 1;
+		if (siglocalGeary[cnt] <= 0.0001 / kp) sigCat[cnt] = 4;
+		else if (siglocalGeary[cnt] <= 0.001 / kp) sigCat[cnt] = 3;
+		else if (siglocalGeary[cnt] <= 0.01 / kp) sigCat[cnt] = 2;
+		else if (siglocalGeary[cnt] <= 0.05 / kp) sigCat[cnt]= 1;
 		else sigCat[cnt]= 0;
 		
 		// observations with no neighbors get marked as isolates
@@ -748,10 +963,13 @@ void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
 	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 	if (filter_id < 1 || filter_id > 4) return;
 	significance_filter = filter_id;
-	if (filter_id == 1) significance_cutoff = 0.05;
-	if (filter_id == 2) significance_cutoff = 0.01;
-	if (filter_id == 3) significance_cutoff = 0.001;
-	if (filter_id == 4) significance_cutoff = 0.0001;
+    
+    int kp = local_geary_type == multivariate ? num_vars : 1;
+    
+	if (filter_id == 1) significance_cutoff = 0.05 / kp;
+	if (filter_id == 2) significance_cutoff = 0.01 / kp;
+	if (filter_id == 3) significance_cutoff = 0.001 / kp;
+	if (filter_id == 4) significance_cutoff = 0.0001 / kp;
 }
 
 void LocalGearyCoordinator::update(WeightsManState* o)

@@ -68,7 +68,7 @@ class LocalGearyCoordinator : public WeightsManStateObserver
 {
 public:
     // #9
-	enum LocalGearyType { univariate, bivariate, eb_rate_standardized, differential };
+	enum LocalGearyType { univariate, bivariate, eb_rate_standardized, differential, multivariate };
 	
 	LocalGearyCoordinator(boost::uuids::uuid weights_id,
                     Project* project,
@@ -124,7 +124,11 @@ protected:
 	// saving results to the Table and indirectly in the map legend
 	int* cluster;
 	double* data1;
+	double* data1_square;
 	double* data2;
+    
+    std::vector<double*> current_data;
+    std::vector<double*> current_data_square;
 	
 public:
 	std::vector<double*> lags_vecs;
@@ -132,7 +136,9 @@ public:
 	std::vector<double*> sig_local_geary_vecs;
 	std::vector<int*> sig_cat_vecs;
 	std::vector<int*> cluster_vecs;
+    
 	std::vector<double*> data1_vecs;
+	std::vector<double*> data1_square_vecs;
 	std::vector<double*> data2_vecs;
 	
 	boost::uuids::uuid w_id;
@@ -143,15 +149,21 @@ public:
 	wxString weight_name;
 	bool isBivariate;
 	LocalGearyType local_geary_type;
-	
+
+    int num_vars;
 	int num_obs; // total # obs including neighborless obs
 	int num_time_vals; // number of valid time periods based on var_info
 	
 	// These two variables should be empty for LocalGearyMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	std::vector<b_array_type> undef_data; // undef_data[variable][time][obs]
+    
     std::vector<std::vector<bool> > undef_tms;
-	
+
+    // These are for multi variable LocalGeary
+    std::vector<std::vector<double*> > data_vecs;
+    std::vector<std::vector<double*> > data_square_vecs;
+    
 	// All LocalGearyMapCanvas objects synchronize themselves
 	// from the following 6 variables.
 	int ref_var_index;
@@ -185,6 +197,7 @@ protected:
 	
 	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
 	void CalcLocalGeary();
+	void CalcMultiLocalGeary();
 	void StandardizeData();
 	std::vector<bool> has_undefined;
 	std::vector<bool> has_isolates;

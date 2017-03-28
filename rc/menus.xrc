@@ -4182,7 +4182,10 @@
     <object class="separator"/>
     <label>Local Geary Maps</label>
     <object class="wxMenuItem" name="IDM_UNI_LOCAL_GEARY">
-        <label>Local Geary Cluster Map</label>
+        <label>Univariate Local Geary Cluster Map</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_MUL_LOCAL_GEARY">
+        <label>Multivariate Local Geary Cluster Map</label>
     </object>
     
   </object>

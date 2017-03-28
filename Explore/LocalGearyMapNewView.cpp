@@ -116,8 +116,15 @@ wxString LocalGearyMapCanvas::GetCanvasTitle()
 		field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
     } else if (is_diff) {
         field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
-    }else {
-		field_t << "I_" << GetNameWithTime(0);
+    } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+        for (int i=0; i<local_geary_coord->num_vars; i++) {
+            field_t << GetNameWithTime(i);
+            if (i < local_geary_coord->num_vars -1 )
+                field_t << "/";
+        }
+    
+    } else {
+		field_t << "C_" << GetNameWithTime(0);
 	}
 	if (is_rate) {
 		field_t << "EB Rate: " << GetNameWithTime(0);
@@ -216,7 +223,13 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
 		if (local_geary_coord->GetHasUndefined(t))
             num_cats++;
 		if (is_clust) {
-			num_cats += 5;
+            if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+                num_cats += 2;
+            } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
+                num_cats += 3;
+            } else {
+                num_cats += 5;
+            }
 		} else {
             // significance map
 			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
@@ -250,14 +263,24 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
-			cat_data.SetCategoryLabel(t, 1, "High-High");
-			cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
-			cat_data.SetCategoryLabel(t, 2, "Low-Low");
-			cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
-			cat_data.SetCategoryLabel(t, 3, "Other Pos");
-			cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
-			cat_data.SetCategoryLabel(t, 4, "Negative");
-			cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
+            if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+    			cat_data.SetCategoryLabel(t, 1, "Positive");
+    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
+            } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
+    			cat_data.SetCategoryLabel(t, 1, "Positive");
+    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
+    			cat_data.SetCategoryLabel(t, 2, "Negative");
+    			cat_data.SetCategoryColor(t, 2, wxColour(113,250,142));
+            } else {
+    			cat_data.SetCategoryLabel(t, 1, "High-High");
+    			cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
+    			cat_data.SetCategoryLabel(t, 2, "Low-Low");
+    			cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
+    			cat_data.SetCategoryLabel(t, 3, "Other Pos");
+    			cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
+    			cat_data.SetCategoryLabel(t, 4, "Negative");
+    			cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
+            }
 			if (local_geary_coord->GetHasIsolates(t) &&
 				local_geary_coord->GetHasUndefined(t)) {
 				isolates_cat = 5;

@@ -35,11 +35,12 @@
 #include "../Project.h"
 #include "VariableSettingsDlg.h"
 
-/**
- * Belows are codes for DiffVarSettingDlg
- *
- */
-
+////////////////////////////////////////////////////////////////////////////
+//
+//
+// Belows are codes for DiffVarSettingDlg
+//
+////////////////////////////////////////////////////////////////////////////
 DiffMoranVarSettingDlg::DiffMoranVarSettingDlg(Project* project_s)
     : wxDialog(NULL, -1, _("Differential Moran Variable Settings"), wxDefaultPosition, wxSize(590, 230))
 {
@@ -278,6 +279,295 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
     return weights_ids[sel];
 }
 
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+
+MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
+    : wxDialog(NULL, -1, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
+{
+    wxLogMessage("Open MultiVariableSettingsDlg.");
+    
+    project = project_s;
+    
+    bool init_success = Init();
+    
+    if (init_success == false) {
+        EndDialog(wxID_CANCEL);
+    } else {
+        CreateControls();
+    }
+}
+
+MultiVariableSettingsDlg::~MultiVariableSettingsDlg()
+{
+}
+
+bool MultiVariableSettingsDlg::Init()
+{
+    if (project == NULL)
+        return false;
+    
+    table_int = project->GetTableInt();
+    if (table_int == NULL)
+        return false;
+    
+    
+    table_int->GetTimeStrings(tm_strs);
+    
+    return true;
+}
+
+void MultiVariableSettingsDlg::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+    // label & listbox
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (Multi-Selection)"),
+                                          wxDefaultPosition, wxDefaultSize);
+    
+    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(320,200), 0, NULL,
+                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    /*
+    // time
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Time:"),
+                                          wxDefaultPosition, wxSize(40,-1));
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
+    hbox->Add(box1, 1, wxEXPAND);
+    */
+    
+    // weights
+    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, wxT("Weights:"),
+                                           wxDefaultPosition, wxSize(60,-1));
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
+
+    // buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    
+    //
+    vbox->Add(st, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    //vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
+    
+
+    panel->SetSizer(vbox);
+    
+    Centre();
+    
+    // Content
+    InitVariableCombobox(box);
+    //InitTimeComboboxes(box1);
+    InitWeightsCombobox(box3);
+    
+    combo_var = box;
+    //combo_time1 = box1;
+    combo_weights = box3;
+    
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnClose, this);
+}
+
+void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
+{
+    wxArrayString items;
+    
+	std::vector<int> col_id_map;
+	table_int->FillNumericColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                name_to_nm[nm] = name;
+                name_to_tm_id[nm] = t;
+                items.Add(nm);
+            }
+        } else {
+            name_to_nm[name] = name;
+            name_to_tm_id[name] = 0;
+            items.Add(name);
+        }
+    }
+    
+    var_box->InsertItems(items,0);
+}
+
+void MultiVariableSettingsDlg::InitTimeComboboxes(wxComboBox* time1)
+{
+    for (size_t i=0, n=tm_strs.size(); i < n; i++ ) {
+        time1->Append(tm_strs[i]);
+    }
+    time1->SetSelection(0);
+}
+
+void MultiVariableSettingsDlg::InitWeightsCombobox(wxComboBox* weights_ch)
+{
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+
+    size_t sel_pos=0;
+    for (size_t i=0; i<weights_ids.size(); ++i) {
+        weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
+        if (w_man_int->GetDefault() == weights_ids[i])
+            sel_pos = i;
+    }
+    if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
+}
+
+void MultiVariableSettingsDlg::OnClose(wxCommandEvent& event )
+{
+    wxLogMessage("Close MultiVariableSettingsDlg.");
+    
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+}
+
+void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click MultiVariableSettingsDlg::OnOK");
+  
+    wxArrayInt selections;
+    combo_var->GetSelections(selections);
+    
+    int num_var = selections.size();
+    if (num_var < 2) {
+        // show message box
+        wxString err_msg = _("Please select at least 2 variables.");
+        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    col_ids.resize(num_var);
+    var_info.resize(num_var);
+    
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString nm = name_to_nm[combo_var->GetString(idx)];
+        
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        
+        int tm = name_to_tm_id[combo_var->GetString(idx)];
+        
+        col_ids[i] = col;
+        var_info[i].time = tm;
+        
+        // Set Primary GdaVarTools::VarInfo attributes
+        var_info[i].name = nm;
+        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+        
+        // var_info[i].time already set above
+        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
+        var_info[i].fixed_scale = true;
+    }
+    
+    // Call function to set all Secondary Attributes based on Primary Attributes
+    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+    
+    EndDialog(wxID_OK);
+    
+    /*
+     wxString col_name = combo_var->GetStringSelection();
+    if (col_name.IsEmpty()) {
+        wxMessageDialog dlg (this,
+                             "Please select a variable first.",
+                             "Warning",
+                             wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    int time1 = combo_time1->GetSelection();
+
+    int num_var = 2;
+    
+    col_ids.resize(num_var);
+    var_info.resize(num_var);
+    
+    int col_idx = table_int->FindColId(col_name);
+    
+    col_ids[0] = col_idx;
+    col_ids[1] = col_idx;
+    
+    for (int i=0; i<num_var; i++) {
+        var_info[i].name = col_name;
+        var_info[i].is_time_variant = true;
+        
+        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = false;
+        var_info[i].fixed_scale = true;
+    }
+    var_info[0].time = time1;
+    var_info[1].time = time2;
+
+    // Call function to set all Secondary Attributes based on Primary Attributes
+    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+    
+    bool check_group_var = true;
+    try {
+        for (int i=0; i<col_ids.size(); i++) {
+            project->GetTableInt()->GetColTypes(col_ids[i]);
+        }
+    } catch(GdaException& ex) {
+        // place holder found
+        wxString str_tmplt = _T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
+        wxString msg = wxString::Format(str_tmplt, project->GetTableInt()->GetTimeSteps());
+        wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        check_group_var = false;
+    }
+    
+    if (check_group_var == true)
+        EndDialog(wxID_OK);
+    
+    */
+}
+
+boost::uuids::uuid MultiVariableSettingsDlg::GetWeightsId()
+{
+   
+    int sel = combo_weights->GetSelection();
+    if (sel < 0) sel = 0;
+    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+
+    return weights_ids[sel];
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 /**
  * Belows are codes for VariableSettingsDlg
  *

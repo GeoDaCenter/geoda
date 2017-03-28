@@ -21,6 +21,8 @@
 #define __GEODA_CENTER_VARIABLE_SETTINGS_DLG_H___
 
 #include <vector>
+#include <map>
+
 #include <boost/uuid/uuid.hpp>
 #include <wx/choice.h>
 #include <wx/checkbox.h>
@@ -35,6 +37,11 @@
 class Project;
 class TableInterface;
 
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 class DiffMoranVarSettingDlg : public wxDialog
 {
 public:
@@ -68,6 +75,51 @@ private:
     wxComboBox* combo_weights;
 };
 
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+class MultiVariableSettingsDlg : public wxDialog
+{
+public:
+    MultiVariableSettingsDlg(Project* project);
+    virtual ~MultiVariableSettingsDlg();
+    
+    void CreateControls();
+    bool Init();
+   
+    void OnOK( wxCommandEvent& event );
+    void OnClose( wxCommandEvent& event );
+    
+    void InitVariableCombobox(wxListBox* var_box);
+    void InitTimeComboboxes(wxComboBox* time1);
+    void InitWeightsCombobox(wxComboBox* weights_ch);
+    
+    boost::uuids::uuid GetWeightsId();
+    
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+private:
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxListBox* combo_var;
+    wxComboBox* combo_time1;
+    wxComboBox* combo_weights;
+    
+	std::map<wxString, wxString> name_to_nm;
+	std::map<wxString, int> name_to_tm_id;
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 
 class VariableSettingsDlg: public wxDialog
 {
