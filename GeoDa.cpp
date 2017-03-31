@@ -627,7 +627,12 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
-	
+
+    
+    EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
+    EnableTool(XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
 	
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
