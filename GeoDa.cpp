@@ -413,8 +413,9 @@ bool GdaApp::OnInit(void)
     }
     wxLog::EnableLogging(true);
     wxLog::DisableTimestamp();
+    wxLog::SetComponentLevel("wx", wxLOG_FatalError);
 #ifdef __DEBUG__
-    wxLog::SetLogLevel(wxLOG_User);
+    wxLog::SetLogLevel(wxLOG_Message);
 #endif
     wxLogMessage(GeneralWxUtils::LogOsId());
     wxString versionlog = wxString::Format("vs: %d-%d-%d-%d",
