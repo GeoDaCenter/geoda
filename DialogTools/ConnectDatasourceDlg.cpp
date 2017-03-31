@@ -74,8 +74,9 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     {
         wxFileName fn = wxFileName::FileName(filenames[0]);
         m_pOwner->ds_file_path = fn;
-        wxCommandEvent ev;
-        m_pOwner->OnOkClick(ev);
+        //wxCommandEvent ev;
+        //m_pOwner->OnOkClick(ev);
+        m_pOwner->TriggerOKClick();
     }
     
     return true;
@@ -701,6 +702,12 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
     }
 }
 
+
+void ConnectDatasourceDlg::TriggerOKClick()
+{
+    wxCommandEvent evt = wxCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK );
+    ProcessEvent(evt);
+}
 
 /**
  * This function handles the event of user click OK button.
