@@ -22,6 +22,7 @@
     <ProjectGuid>{B3CB134F-61C6-48C7-B6E4-353AC473A467}</ProjectGuid>
     <RootNamespace>GeoDa</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -38,7 +39,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -106,7 +107,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -232,6 +233,8 @@
     <ClCompile Include="..\..\Explore\LineChartCanvas.cpp" />
     <ClCompile Include="..\..\Explore\LineChartStats.cpp" />
     <ClCompile Include="..\..\Explore\LineChartView.cpp" />
+    <ClCompile Include="..\..\Explore\LocalGearyCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
     <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp" />
@@ -246,6 +249,7 @@
     <ClCompile Include="..\..\GdaShape.cpp" />
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
+    <ClCompile Include="..\..\pca.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp" />
@@ -311,6 +315,9 @@
     <ClInclude Include="..\..\Explore\LineChartCanvas.h" />
     <ClInclude Include="..\..\Explore\LineChartStats.h" />
     <ClInclude Include="..\..\Explore\LineChartView.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinator.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinatorObserver.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h" />
     <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
@@ -333,6 +340,7 @@
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
+    <ClInclude Include="..\..\pca.h" />
     <ClInclude Include="..\..\PointSetAlgs.h" />
     <ClInclude Include="..\..\ProjectConf.h" />
     <ClInclude Include="..\..\resource.h" />

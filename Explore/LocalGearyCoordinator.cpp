@@ -831,7 +831,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 		uint64_t countLarger = 0;
 		const int numNeighbors = W[cnt].Size();
         
-        double gci[permutations];
+        double *gci = new double[permutations];
         double gci_sum = 0.0;
        
         uint64_t o_seed = seed_start;
@@ -857,8 +857,8 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 			// use permutation to compute the lag
 			// compute the lag for binary weights
             if (local_geary_type == multivariate) {
-                double m_wwx[num_vars];
-                double m_wwx2[num_vars];
+                double* m_wwx = new double[num_vars];
+                double* m_wwx2 = new double[num_vars];
                 for (int v=0; v<num_vars; v++) {
                     m_wwx[v] = 0;
                     m_wwx2[v] = 0;
@@ -881,6 +881,8 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
                     var_gci /= num_vars;
                     gci[perm] = var_gci;
                 }
+				delete[] m_wwx;
+				delete[] m_wwx2;
                 
             } else {
                 double wwx =0;
@@ -904,6 +906,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
             }
             gci_sum += gci[perm];
 		}
+		delete[] gci;
         
         // calc mean of gci
         double gci_mean = gci_sum / permutations;

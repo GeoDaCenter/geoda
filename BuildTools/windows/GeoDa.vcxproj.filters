@@ -631,6 +631,16 @@
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\pca.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinatorObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1150,6 +1160,13 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\pca.cpp" />
+    <ClCompile Include="..\..\Explore\LocalGearyCoordinator.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>

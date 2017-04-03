@@ -937,6 +937,34 @@ IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 :SKIP_JSON_SPIRIT_BUILD
 
 
+:TO_EIGEN3_BUILD
+echo.
+echo #####################################################
+echo #   build  Eigen3
+echo #####################################################
+echo.
+set LIB_NAME=eigen3
+set LIB_URL="https://bitbucket.org/eigen/eigen/get/3.3.3.zip"
+
+set ALL_EXIST=true
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME% set ALL_EXIST=false
+if %ALL_EXIST% == true (
+  echo All %LIB_NAME% library targets exist, skipping build
+  goto SKIP_EIGEN3_BUILD
+)
+cd %DOWNLOAD_HOME%
+IF NOT EXIST %LIB_NAME% (
+    IF NOT EXIST %LIB_NAME%.zip %CURL_EXE% -# %LIB_URL% > %LIB_NAME%.zip
+    %UNZIP_EXE% %LIB_NAME%.zip
+    move -y eigen-eigen-* eigen3
+)
+
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Eigen
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Debug\json_spirit_lib.lib
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+:SKIP_EIGEN3_BUILD
+
 :TO_VISUAL_STUDIO_SETUP_BUILD
 echo.
 echo #####################################################
