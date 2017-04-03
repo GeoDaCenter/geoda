@@ -1148,6 +1148,7 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 
 void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
 {
+	wxLogMessage(" GdaFrame::ShowOpenDatasourceDlg()");
 	// check if dialog has already been opened
 	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
     while (node) {
@@ -1211,6 +1212,7 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
  */
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
+	wxLogMessage("GdaFrame::OpenProject()");
     wxString msg;
     wxFileName fn(full_proj_path);
     if (fn.GetExt().CmpNoCase("gda") != 0) {
@@ -1297,7 +1299,7 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
 
 void GdaFrame::InitWithProject()
 {
-    
+	wxLogMessage("Click GdaFrame::InitWithProject()");
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
     

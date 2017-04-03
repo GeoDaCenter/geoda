@@ -485,7 +485,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
    
 #ifdef __WIN32__
     int pad_remove_btn = 10;
-	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(30,18), wxBORDER_NONE|wxBU_EXACTFIT);
+	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
 	remove->SetFont(*GdaConst::extra_small_font); 
 #else
     int pad_remove_btn = 0;
@@ -717,7 +717,7 @@ void ConnectDatasourceDlg::TriggerOKClick()
  */
 void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering ConnectDatasourceDlg::OnOkClick");
+	wxLogMessage("Entering ConnectDatasourceDlg::OnOkClick");
 	try {
         // Open GeoDa project file direclty
         if (ds_file_path.GetExt().Lower() == "gda") {
@@ -805,7 +805,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
-	LOG_MSG("Exiting ConnectDatasourceDlg::OnOkClick");
+	wxLogMessage("Exiting ConnectDatasourceDlg::OnOkClick");
 }
 
 /**
@@ -815,6 +815,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
  */
 IDataSource* ConnectDatasourceDlg::CreateDataSource()
 {
+	wxLogMessage("ConnectDatasourceDlg::CreateDataSource()");
 	if (datasource) {
 		delete datasource;
 		datasource = NULL;
@@ -974,18 +975,19 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds,
                                                 const wxString& layer_name)
 {
-    LOG_MSG("Entering ConnectDatasourceDlg::SaveRecentDataSource");
+    wxLogMessage("Entering ConnectDatasourceDlg::SaveRecentDataSource");
     try {
         RecentDatasource recent_ds;
         recent_ds.Add(ds, layer_name);
     } catch( GdaException ex) {
         LOG_MSG(ex.what());
     }
-    LOG_MSG("Exiting ConnectDatasourceDlg::SaveRecentDataSource");
+	wxLogMessage("Exiting ConnectDatasourceDlg::SaveRecentDataSource");
 }
 
 void ConnectDatasourceDlg::InitSamplePanel()
 {
+	wxLogMessage("ConnectDatasourceDlg::InitSamplePanel()");
     wxBoxSizer* sizer;
     sizer = new wxBoxSizer( wxVERTICAL );
     
@@ -1028,6 +1030,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
                                          wxString ds_layername,
                                          wxString ds_thumb, int id)
 {
+	wxLogMessage("ConnectDatasourceDlg::AddSampleItem()");
     wxBoxSizer* text_sizer;
     text_sizer = new wxBoxSizer( wxVERTICAL );
     
@@ -1088,6 +1091,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
 
 void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
 {
+	wxLogMessage("ConnectDatasourceDlg::OnSample()");
     int xrcid = event.GetId();
     int sample_idx = xrcid - base_xrcid_sample_thumb;
    

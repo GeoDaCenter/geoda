@@ -13,6 +13,7 @@ BuildTools/ubuntu/build/
 
 BuildTools/windows/.vs/
 BuildTools/windows/temp/
+BuildTools/windows/enc_temp_folder/
 BuildTools/windows/Debug/
 BuildTools/windows/Release/
 BuildTools/windows/ipch/

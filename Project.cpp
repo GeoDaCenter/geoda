@@ -24,6 +24,7 @@
 #include <boost/property_tree/exceptions.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/filefn.h>
 #include <wx/filename.h>
@@ -90,8 +91,9 @@ min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
 sourceSR(NULL)
 {
     
-	LOG_MSG("Entering Project::Project (existing project)");
-	
+	wxLogMessage("Entering Project::Project (existing project)");
+	wxLogMessage(proj_fname);
+
 	SetProjectFullPath(proj_fname);
 	bool wd_success = SetWorkingDir(proj_fname);
 	if (!wd_success) {
@@ -116,7 +118,7 @@ sourceSR(NULL)
 		GetCatClassifManager()->VerifyAgainstTable();
 	}
 	
-	LOG_MSG("Exiting Project::Project");
+	wxLogMessage("Exiting Project::Project");
 }
 
 /** Constructor for a newly connected datasource */
@@ -138,7 +140,7 @@ min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
 sourceSR(NULL)
 {
-	LOG_MSG("Entering Project::Project (new project)");
+	wxLogMessage("Entering Project::Project (new project)");
 	
 	datasource    = p_datasource->Clone();
 	project_title = proj_title;
@@ -150,14 +152,14 @@ sourceSR(NULL)
 		wxString fp = fds->GetFilePath();
 		wd_success = SetWorkingDir(fp);
 		if (!wd_success) {
-			//LOG_MSG("Warning: could not set Working Dir from " + fp);
+			wxLogMessage("Warning: could not set Working Dir from " + fp);
 		}
 	}
 	if (!wd_success) {
 		// attempt to set working dir according to standard location
 		wd_success = SetWorkingDir(wxGetHomeDir());
 		if (!wd_success) {
-			//LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
+			wxLogMessage("Warning: could not set Working Dir to wxGetHomeDir()");
 		}
 	}
 	
@@ -176,12 +178,12 @@ sourceSR(NULL)
 		save_manager->SetMetaDataSaveNeeded(true);
 	}
 	
-	LOG_MSG("Exiting Project::Project");
+	wxLogMessage("Exiting Project::Project");
 }
 
 Project::~Project()
 {
-	LOG_MSG("Entering Project::~Project");
+	wxLogMessage("Entering Project::~Project");
 	
     if (project_conf) delete project_conf; project_conf=0;
     // datasource* has been deleted in project_conf* layer*
@@ -217,11 +219,12 @@ Project::~Project()
 	// table_int when it closes.
 	//if (table_int) delete table_int; table_int = 0;
 	
-	LOG_MSG("Exiting Project::~Project");
+	wxLogMessage("Exiting Project::~Project");
 }
 
 void Project::UpdateProjectConf(ProjectConfiguration* conf)
 {
+	wxLogMessage("Project::UpdateProjectConf()");
     LayerConfiguration* layer_conf = conf->GetLayerConfiguration();
     wxString _layername = layer_conf->GetName();
     IDataSource* _ds = layer_conf->GetDataSource();
@@ -250,6 +253,7 @@ GdaConst::DataSourceType Project::GetDatasourceType()
 
 wxString Project::GetProjectFullPath()
 {
+	wxLogMessage("Project::GetProjectFullPath()");
 	wxString fp;
 	if (!GetWorkingDir().GetPath().IsEmpty() && !proj_file_no_ext.IsEmpty()) {
 		fp << GetWorkingDir().GetPathWithSep();
@@ -260,6 +264,7 @@ wxString Project::GetProjectFullPath()
 
 void Project::SetProjectFullPath(const wxString& proj_full_path)
 {
+	wxLogMessage("Project::SetProjectFullPath()");
 	wxFileName temp(proj_full_path);
 	SetWorkingDir(proj_full_path);
 	proj_file_no_ext = temp.GetName();
@@ -292,6 +297,7 @@ bool Project::SetWorkingDir(const wxString& path)
 
 Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 {
+	wxLogMessage("Project::GetGdaGeometries()");
 	Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
 	int num_geometries = main_data.records.size();
 	if ( main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -316,6 +322,7 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 
 void Project::CalcEucPlaneRtreeStats()
 {
+	wxLogMessage("Project::CalcEucPlaneRtreeStats()");
 	using namespace std;
 	
 	GetCentroids();
@@ -338,6 +345,7 @@ void Project::CalcEucPlaneRtreeStats()
 
 void Project::CalcUnitSphereRtreeStats()
 {
+	wxLogMessage("Project::CalcUnitSphereRtreeStats()");
 	using namespace std;
 	GetCentroids();
 	size_t num_obs = centroids.size();
@@ -361,6 +369,7 @@ void Project::CalcUnitSphereRtreeStats()
 
 OGRSpatialReference* Project::GetSpatialReference()
 {
+	wxLogMessage("Project::GetSpatialReference()");
 	OGRSpatialReference* spatial_ref = NULL;
 	OGRTable* ogr_table = dynamic_cast<OGRTable*>(table_int);
 	if (ogr_table != NULL) {
@@ -388,6 +397,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 
 void Project::SaveOGRDataSource()
 {
+	wxLogMessage("Project::SaveOGRDataSource()");
 	// This function will only be called to save file or directory (OGR)
 	wxString tmp_prefix = "GdaTmp_";
 	wxArrayString all_tmp_files;
@@ -442,8 +452,8 @@ void Project::SaveOGRDataSource()
 
 void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 {
-	LOG_MSG("Entering Project::SaveDataSourceAs");
-    LOG_MSG("New Datasource Name:" + new_ds_name);
+	wxLogMessage("Entering Project::SaveDataSourceAs");
+	wxLogMessage("New Datasource Name:" + new_ds_name);
    
     
 	vector<GdaShape*> geometries;
@@ -548,6 +558,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 
 void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 {
+	wxLogMessage("Project::SpecifyProjectConfFile()");
 	if (proj_fname.IsEmpty()) {
 		throw GdaException("Project filename not specified.");
 	}
@@ -557,6 +568,7 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 
 bool Project::HasUnsavedChange()
 {
+	wxLogMessage("Project::HasUnsavedChange()");
     if (GetTableInt()->ChangedSinceLastSave())
         return true;
     
@@ -569,7 +581,7 @@ bool Project::HasUnsavedChange()
 
 void Project::SaveProjectConf()
 {
-	LOG_MSG("Entering Project::SaveProjectConf");
+	wxLogMessage("Entering Project::SaveProjectConf");
 	if (project_conf->GetFilePath().IsEmpty() &&
         (GetTableInt()->IsTimeVariant() ||
          (w_man_int && w_man_int->GetIds().size()>0)) ) {
@@ -591,10 +603,11 @@ void Project::SaveProjectConf()
         UpdateProjectConf();
         project_conf->Save(project_conf->GetFilePath());
     }
-	LOG_MSG("Exiting Project::SaveProjectConf");
+	wxLogMessage("Exiting Project::SaveProjectConf");
 }
 
-bool Project::IsFileDataSource() {
+bool Project::IsFileDataSource() 
+{
     
     if (datasource) return datasource->IsFileDataSource();
     return false;
@@ -602,7 +615,7 @@ bool Project::IsFileDataSource() {
 
 void Project::SaveDataSourceData()
 {
-	LOG_MSG("Entering Project::SaveDataSourceData");
+	wxLogMessage("Entering Project::SaveDataSourceData");
 	
 	// for some read-only datasources, suggest Export dialog
 	GdaConst::DataSourceType ds_type = datasource->GetType();
@@ -653,12 +666,12 @@ void Project::SaveDataSourceData()
 		layer_proxy->AddGeometries(main_data);
 	}	
 	
-	LOG_MSG("Exiting Project::SaveDataSourceData");
+	wxLogMessage("Exiting Project::SaveDataSourceData");
 }
 
 void Project::UpdateProjectConf()
 {
-	LOG_MSG("In Project::UpdateProjectConf");
+	wxLogMessage("In Project::UpdateProjectConf");
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	datasource = layer_conf->GetDataSource();
 	VarOrderPtree* var_order = layer_conf->GetVarOrderPtree();
@@ -698,6 +711,7 @@ wxString Project::GetProjectTitle()
 
 void Project::ExportVoronoi()
 {
+	wxLogMessage("Project::ExportVoronoi()");
 	GetVoronoiPolygons();
 	// generate a list of list of duplicates.  Or, better yet, have a map of
 	// lists where the key is the id, and the value is a list of all ids
@@ -716,6 +730,7 @@ void Project::ExportVoronoi()
  */
 void Project::ExportCenters(bool is_mean_centers)
 {	
+	wxLogMessage("Project::ExportCenters()");
 	if (is_mean_centers) {
 		GetMeanCenters();
 		ExportDataDlg dlg(NULL, mean_centers, Shapefile::NULL_SHAPE, "COORD", this);
@@ -729,6 +744,8 @@ void Project::ExportCenters(bool is_mean_centers)
 
 bool Project::IsPointDuplicates()
 {
+	wxLogMessage("Project::IsPointDuplicates()");
+
 	if (!point_duplicates_initialized) {
 		std::vector<double> x;
 		std::vector<double> y;
@@ -740,6 +757,8 @@ bool Project::IsPointDuplicates()
 
 void Project::DisplayPointDupsWarning()
 {
+	wxLogMessage("Project::DisplayPointDupsWarning()");
+
 	if (point_dups_warn_prev_displayed) return;
 	wxString msg("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
 	wxMessageDialog dlg(NULL, msg, "Duplicate Thiessen Polygons Found", wxOK | wxCANCEL | wxICON_INFORMATION);
@@ -749,6 +768,8 @@ void Project::DisplayPointDupsWarning()
 
 void Project::GetVoronoiRookNeighborMap(std::vector<std::set<int> >& nbr_map)
 {
+	wxLogMessage("Project::GetVoronoiRookNeighborMap()");
+
 	IsPointDuplicates();
 	std::vector<double> x;
 	std::vector<double> y;
@@ -758,7 +779,8 @@ void Project::GetVoronoiRookNeighborMap(std::vector<std::set<int> >& nbr_map)
 
 void Project::GetVoronoiQueenNeighborMap(std::vector<std::set<int> >& nbr_map)
 {
-	IsPointDuplicates();
+	wxLogMessage("Project::GetVoronoiQueenNeighborMap()");
+
 	std::vector<double> x;
 	std::vector<double> y;
 	GetCentroids(x, y);
@@ -767,6 +789,8 @@ void Project::GetVoronoiQueenNeighborMap(std::vector<std::set<int> >& nbr_map)
 
 GalElement* Project::GetVoronoiRookNeighborGal()
 {
+	wxLogMessage("Project::GetVoronoiRookNeighborGal()");
+
 	if (!voronoi_rook_nbr_gal) {
 		std::vector<std::set<int> > nbr_map;
 		GetVoronoiRookNeighborMap(nbr_map);
@@ -777,6 +801,8 @@ GalElement* Project::GetVoronoiRookNeighborGal()
 
 void Project::SaveVoronoiDupsToTable()
 {
+	wxLogMessage("Project::SaveVoronoiDupsToTable()");
+
 	if (!IsPointDuplicates()) return;
 	std::vector<SaveToTableEntry> data(1);
 	std::vector<wxInt64> dup_ids(num_records, -1);
@@ -842,11 +868,11 @@ wxGrid* Project::FindTableGrid()
 
 void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 {
-	LOG_MSG("Entering Project::AddNeighborsToSelection");
+	wxLogMessage("Entering Project::AddNeighborsToSelection");
 	if (!GetWManInt()) return;
 	GalWeight* gal_weights = GetWManInt()->GetGal(weights_id);
 	if (!gal_weights || !gal_weights->gal) {
-		LOG_MSG("Warning: no current weight matrix found");
+		wxLogMessage("Warning: no current weight matrix found");
 		return;
 	}
 	
@@ -883,12 +909,12 @@ void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 		hs.SetEventType(HLStateInt::delta);
 		hs.notifyObservers();
 	}
-	LOG_MSG("Exiting Project::AddNeighborsToSelection");
+	wxLogMessage("Exiting Project::AddNeighborsToSelection");
 }
 
 void Project::AddMeanCenters()
 {
-	LOG_MSG("In Project::AddMeanCenters");
+	wxLogMessage("In Project::AddMeanCenters");
 	
 	if (!table_int || main_data.records.size() == 0) return;
 	GetMeanCenters();
@@ -927,7 +953,7 @@ void Project::AddMeanCenters()
 
 void Project::AddCentroids()
 {
-	LOG_MSG("In Project::AddCentroids");
+	wxLogMessage("In Project::AddCentroids");
 	
 	if (!table_int || main_data.records.size() == 0) return;	
 	GetCentroids();
@@ -966,6 +992,7 @@ void Project::AddCentroids()
 
 const std::vector<GdaPoint*>& Project::GetMeanCenters()
 {
+	wxLogMessage("Project::GetMeanCenters()");
 	int num_obs = main_data.records.size();
 	if (mean_centers.size() == 0 && num_obs > 0) {
 		if (main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -1001,6 +1028,7 @@ const std::vector<GdaPoint*>& Project::GetMeanCenters()
 
 void Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)
 {
+	wxLogMessage("Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)");
 	GetMeanCenters();
 	int num_obs = mean_centers.size();
 	if (x.size() < num_obs) x.resize(num_obs);
@@ -1013,6 +1041,7 @@ void Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)
 
 const std::vector<GdaPoint*>& Project::GetCentroids()
 {
+	wxLogMessage("Project::GetCentroids()");
 	int num_obs = main_data.records.size();
 	if (centroids.size() == 0 && num_obs > 0) {
 		if (main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -1048,6 +1077,7 @@ const std::vector<GdaPoint*>& Project::GetCentroids()
 
 void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 {
+	wxLogMessage("Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)");
 	GetCentroids();
 	int num_obs = centroids.size();
 	if (x.size() < num_obs) x.resize(num_obs);
@@ -1060,6 +1090,7 @@ void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 
 void Project::GetCentroids(std::vector<wxRealPoint>& pts)
 {
+	wxLogMessage("Project::GetCentroids(std::vector<wxRealPoint>& pts)");
 	GetCentroids();
 	int num_obs = centroids.size();
 	if (pts.size() < num_obs) pts.resize(num_obs);
@@ -1072,6 +1103,7 @@ void Project::GetCentroids(std::vector<wxRealPoint>& pts)
 
 const std::vector<GdaShape*>& Project::GetVoronoiPolygons()
 {
+	wxLogMessage("std::vector<GdaShape*>& Project::GetVoronoiPolygons()");
 	if (voronoi_polygons.size() == num_records) {
 		return voronoi_polygons;
 	} else {
@@ -1227,6 +1259,7 @@ void Project::FillDistances(std::vector<double>& D,
                             WeightsMetaInfo::DistanceMetricEnum dm,
                             WeightsMetaInfo::DistanceUnitsEnum du)
 {
+	wxLogMessage("Project::FillDistances()");
 	const std::vector<GdaPoint*>& c = GetCentroids();
 	const pairs_bimap_type& pbm = GetSharedPairsBimap();
 	typedef pairs_bimap_type::const_iterator pbt_ci;
@@ -1283,6 +1316,7 @@ void Project::FillDistances(std::vector<double>& D,
 
 const pairs_bimap_type& Project::GetSharedPairsBimap()
 {
+	wxLogMessage("Project::GetSharedPairsBimap()");
 	if (pairs_bimap.size() == 0) {
 		// generate bimap int <--> coord pair
 		int n_obs = highlight_state->GetHighlight().size();
@@ -1299,6 +1333,7 @@ const pairs_bimap_type& Project::GetSharedPairsBimap()
 
 void Project::CleanupPairsHLState()
 {
+	wxLogMessage("Project::CleanupPairsHLState()");
 	if (pairs_hl_state) pairs_hl_state->closeAndDeleteWhenEmpty();
 }
 
@@ -1307,6 +1342,7 @@ void Project::CleanupPairsHLState()
  initialized differently. */
 bool Project::CommonProjectInit()
 {	
+	wxLogMessage("Project::CommonProjectInit()");
 	if (!InitFromOgrLayer())
         return false;
 	
@@ -1402,9 +1438,9 @@ bool Project::IsDataTypeChanged()
 /** Initialize the Table and Shape Layer from OGR source */
 bool Project::InitFromOgrLayer()
 {
-	LOG_MSG("Entering Project::InitFromOgrLayer");
+	wxLogMessage("Entering Project::InitFromOgrLayer");
 	wxString datasource_name = datasource->GetOGRConnectStr();
-    LOG_MSG("Datasource name:" + datasource_name);
+	wxLogMessage("Datasource name:" + datasource_name);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
@@ -1524,6 +1560,9 @@ bool Project::InitFromOgrLayer()
 
 void Project::SetupEncoding(wxString encode_str)
 {
+	wxLogMessage("Project::SetupEncoding()");
+	wxLogMessage(encode_str);
+
     if (table_int == NULL || encode_str.IsEmpty() )
         return;
     
