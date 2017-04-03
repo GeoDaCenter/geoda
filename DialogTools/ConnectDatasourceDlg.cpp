@@ -706,7 +706,7 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
 void ConnectDatasourceDlg::TriggerOKClick()
 {
     wxCommandEvent evt = wxCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK );
-    ProcessEvent(evt);
+	AddPendingEvent(evt);
 }
 
 /**

@@ -222,6 +222,7 @@ CsvFieldConfDlg::~CsvFieldConfDlg()
 
 void CsvFieldConfDlg::PrereadCSV(int HEADERS)
 {
+	wxLogMessage("CsvFieldConfDlg::PrereadCSV()");
     const char* pszDsPath = GET_ENCODED_FILENAME(filepath);
     
     GDALDataset* poDS;
@@ -322,6 +323,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
 
 void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
 {
+	wxLogMessage("CsvFieldConfDlg::OnFieldSelected()");
     fieldGrid->SaveEditControlValue();
     fieldGrid->EnableCellEditControl(false);
     
@@ -342,6 +344,7 @@ void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
 
 void CsvFieldConfDlg::UpdateFieldGrid( )
 {
+	wxLogMessage("CsvFieldConfDlg::UpdateFieldGrid()");
     fieldGrid->BeginBatch();
     fieldGrid->ClearGrid();
     
@@ -371,6 +374,7 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
 
 void CsvFieldConfDlg::UpdateXYcombox( )
 {
+	wxLogMessage("CsvFieldConfDlg::UpdateXYcombox()");
     lat_box->Clear();
     lng_box->Clear();
   
@@ -419,6 +423,7 @@ void CsvFieldConfDlg::UpdateXYcombox( )
 
 void CsvFieldConfDlg::UpdatePreviewGrid( )
 {
+	wxLogMessage("CsvFieldConfDlg::UpdatePreviewGrid()");
     previewGrid->BeginBatch();
     previewGrid->ClearGrid();
     
@@ -470,6 +475,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
 
 void CsvFieldConfDlg::ReadCSVT()
 {
+	wxLogMessage("CsvFieldConfDlg::ReadCSVT()");
     wxString csvt_path = filepath + "t";
     
     if (wxFileExists(csvt_path)) {
@@ -501,6 +507,7 @@ void CsvFieldConfDlg::ReadCSVT()
 
 void CsvFieldConfDlg::WriteCSVT()
 {
+	wxLogMessage("CsvFieldConfDlg::WriteCSVT()");
     wxString lat_col_name = lat_box->GetValue();
     wxString lng_col_name = lng_box->GetValue();
     
@@ -535,6 +542,7 @@ void CsvFieldConfDlg::WriteCSVT()
 
 void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 {
+	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
     WriteCSVT();
     GdaConst::gda_ogr_csv_header = HEADERS;
@@ -543,11 +551,13 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 
 void CsvFieldConfDlg::OnCancelClick( wxCommandEvent& event )
 {
+	wxLogMessage("CsvFieldConfDlg::OnCancelClick()");
     EndDialog(wxID_CANCEL);
 }
 
 void CsvFieldConfDlg::OnSetupLocale( wxCommandEvent& event )
 {
+	wxLogMessage("CsvFieldConfDlg::OnSetupLocale()");
     bool need_reopen = false;
     LocaleSetupDlg localeDlg(this, need_reopen);
     localeDlg.ShowModal();
@@ -558,6 +568,7 @@ void CsvFieldConfDlg::OnSetupLocale( wxCommandEvent& event )
 
 void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
 {
+	wxLogMessage("CsvFieldConfDlg::OnHeaderCmbClick()");
     HEADERS = (int)(event.GetSelection());
     
     PrereadCSV(HEADERS);
@@ -570,6 +581,7 @@ void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
 
 void CsvFieldConfDlg::OnSampleSpinClick( wxCommandEvent& event )
 {
+	wxLogMessage("CsvFieldConfDlg::OnSampleSpinClick()");
     n_max_rows = prev_spin->GetValue();
     UpdatePreviewGrid();
 }
