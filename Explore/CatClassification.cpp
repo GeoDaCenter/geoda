@@ -128,6 +128,7 @@ double calc_gvf(const std::vector<int>& b, const std::vector<double>& v,
 
 void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 											std::vector<wxString>& cat_labels,
+											const CatClassifType theme,
                                             bool useScientificNotation)
 {
     stringstream s;
@@ -150,7 +151,10 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 			s << "> " << breaks[ival-1];
 			//s << "(" << breaks[ival-1] << ", inf)";
 		} else if (ival == cur_intervals-1 && cur_intervals == 2) {
-			s << ">= " << breaks[ival-1];
+			if (theme == CatClassification::unique_values)
+				s << "=" << breaks[ival - 1];
+			else
+				s << ">= " << breaks[ival-1];
 			//s << "[" << breaks[ival-1] << ", inf)";
 		} else {
 			int num_breaks = cur_intervals-1;
@@ -232,7 +236,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 					Gda::percentile(((i+1.0)*100.0)/((double) num_cats), var);
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
         
 	} else if (theme == percentile) {
 		breaks[0] = Gda::percentile(1, var);
@@ -258,7 +262,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		breaks[3] = stats.mean + 1.0 * stats.sd_with_bessel;
 		breaks[4] = stats.mean + 2.0 * stats.sd_with_bessel;
 		
-		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
         
 	} else if (theme == unique_values) {
 		std::vector<double> v(num_obs);
@@ -272,25 +276,32 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		create_unique_val_mapping(uv_mapping, v, v_undef);
         
 		int num_unique_vals = uv_mapping.size();
+		num_cats = num_unique_vals;
 		if (num_unique_vals > 10) {
 			num_cats = 10;
-			FindNaturalBreaks(num_cats, var, var_undef, breaks);
-		} else {
-			num_cats = num_unique_vals;
-			breaks.resize(num_cats-1);
-			for (int i=0; i<num_cats-1; i++) {
-				breaks[i] = (uv_mapping[i].val+uv_mapping[i+1].val)/2.0;
-			}
-			for (int i=0; i<num_cats; ++i) {
-				cat_labels[i] = "";
-				cat_labels[i] << uv_mapping[i].val;
-			}
+			//FindNaturalBreaks(num_cats, var, var_undef, breaks);
+		} 
+		breaks.resize(num_cats - 1);
+		for (int i = 0; i<num_cats - 1; i++) {
+			breaks[i] = (uv_mapping[i].val + uv_mapping[i + 1].val) / 2.0;
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+
+		cat_labels.resize(num_cats);
+
+		for (int i=0; i<num_cats; ++i) {
+			cat_labels[i] = "";
+			cat_labels[i] << uv_mapping[i].val;
+		}
+		if (num_unique_vals > 10) {
+			cat_labels[9] = "Others";
+		}
+
+		// don't need to correct for
+		//CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
         
 	} else if (theme == natural_breaks) {
 		FindNaturalBreaks(num_cats, var, var_undef, breaks);
-		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
         
 	} else if (theme == equal_intervals) {
 		double min_val = var[0].first;
@@ -314,7 +325,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 				breaks[i] = min_val + (((double) i) + 1.0)*delta;
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
 	}
 }
 

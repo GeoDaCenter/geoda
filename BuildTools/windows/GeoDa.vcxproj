@@ -209,6 +209,7 @@
     <ResourceCompile Include="..\..\GeoDa.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\cluster.c" />
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
@@ -266,6 +267,7 @@
     <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
+    <ClInclude Include="..\..\cluster.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
     <ClInclude Include="..\..\DataViewer\DataChangeType.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />

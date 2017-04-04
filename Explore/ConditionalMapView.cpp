@@ -602,16 +602,42 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double b;
-		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
-			if (!vert_cat_data.HasBreakVal(vt, row)) continue;
-			b = vert_cat_data.GetBreakVal(vt, row);
-		} else {
-			b = cat_classif_def_vert.breaks[row];
+
+	int vnn = vert_num_cats - 1;
+	if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
+		vnn = vert_num_cats;
+	}
+
+	for (int row=0; row<vnn; row++) {
+		double hh = bin_extents[row][0].lower_left.y - bin_extents[row][0].upper_right.y;
+		wxRealPoint pt; 
+		wxString t;
+
+		if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
+			if (row <= vert_num_cats - 2)
+				pt = v_brk_ref[row];
+			else if (row <= vert_num_cats - 1) {
+				pt = v_brk_ref[row-1];
+				pt.y = pt.y + 2 * hh;
+			}
+			t = vert_cat_data.GetCategoryLabel(vt, row);
+			pt.y = pt.y - hh;
 		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+		else {
+			pt = v_brk_ref[row];
+			double b;
+			if (cat_classif_def_vert.cat_classif_type != CatClassification::custom) {
+				if (!vert_cat_data.HasBreakVal(vt, row))
+					continue;
+				b = vert_cat_data.GetBreakVal(vt, row);
+			}
+			else {
+				b = cat_classif_def_vert.breaks[row];
+			}
+			t = GenUtils::DblToStr(b);
+		}
+
+		s = new GdaShapeText(t, *GdaConst::small_font, pt, 90,
 					   GdaShapeText::h_center, GdaShapeText::bottom, -7, 0);
 		foreground_shps.push_back(s);
 	}
@@ -627,19 +653,48 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	}
 	
 	int ht = var_info[HOR_VAR].time;
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double b;
-		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
-			b = horiz_cat_data.GetBreakVal(ht, col);
-		} else {
-			b = cat_classif_def_horiz.breaks[col];
+
+	int hnn = horiz_num_cats - 1;
+	if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
+		hnn = horiz_num_cats;
+	}
+
+	for (int col = 0; col < hnn; col++) {
+		wxString t;
+		wxRealPoint pt;
+
+		if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
+			double ww = bin_extents[col][0].upper_right.x - bin_extents[col][0].lower_left.x;
+			t = horiz_cat_data.GetCategoryLabel(vt, col);
+
+			if (col <= horiz_num_cats - 2)
+				pt = h_brk_ref[col];
+			else if (col <= horiz_num_cats - 1) {
+				pt = h_brk_ref[col-1];
+				pt.x = pt.x + ww;
+			}
+
+			pt.x = pt.x - ww/2.0;
 		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+		else {
+			double b;
+			if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
+				if (!horiz_cat_data.HasBreakVal(ht, col))
+					continue;
+				b = horiz_cat_data.GetBreakVal(ht, col);
+			}
+			else {
+				b = cat_classif_def_horiz.breaks[col];
+			}
+			t  = GenUtils::DblToStr(b);
+			pt = h_brk_ref[col];
+		}
+
+		s = new GdaShapeText(t, *GdaConst::small_font, pt, 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, 7);
 		foreground_shps.push_back(s);
 	}
+
 	if (ConditionalNewCanvas::GetCatType(HOR_VAR)
 		!= CatClassification::no_theme) {
         wxString ttl = ConditionalNewCanvas::GetCategoriesTitle(HOR_VAR);

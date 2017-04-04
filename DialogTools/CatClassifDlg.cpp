@@ -817,7 +817,7 @@ useScientificNotation(_useScientificNotation)
     	ResetValuesToDefault();
     	EnableControls(false);
     }
-	
+	SetBackgroundColour(*wxWHITE);
 	table_state->registerObserver(this);
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
@@ -2210,9 +2210,10 @@ void CatClassifPanel::SetBrkTxtFromVec(const std::vector<double>& brks)
 	for (int i=0, sz=brks.size(); i<sz && i<max_intervals; ++i) {
 		brk_txt[i]->ChangeValue(GenUtils::DblToStr(brks[i]));
 	}
-	if (IsAutomaticLabels()) {
+	if (IsAutomaticLabels() && 
+		GetBreakValsTypeChoice() != CatClassification::unique_values_break_vals) {
 		std::vector<wxString> new_labels;
-		CatClassification::CatLabelsFromBreaks(brks, new_labels, useScientificNotation);
+		CatClassification::CatLabelsFromBreaks(brks, new_labels, cc_data.cat_classif_type, useScientificNotation);
 		int sz = new_labels.size();
 		cc_data.names.resize(sz);
 		for (int i=0; i<sz; ++i) {

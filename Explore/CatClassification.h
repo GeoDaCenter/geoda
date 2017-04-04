@@ -57,6 +57,7 @@ namespace CatClassification {
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
                              std::vector<wxString>& cat_labels,
+							 const CatClassifType theme,
                              bool useScientifcNotation=false);
 	
 	void SetBreakPoints(std::vector<double>& breaks,

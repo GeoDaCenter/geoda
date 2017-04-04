@@ -641,6 +641,7 @@
     <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\cluster.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1169,5 +1170,6 @@
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\cluster.c" />
   </ItemGroup>
 </Project>
