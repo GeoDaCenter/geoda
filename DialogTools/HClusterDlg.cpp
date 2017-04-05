@@ -35,17 +35,18 @@
 #include "../cluster.h"
 #include "../GeneralWxUtils.h"
 #include "SaveToTableDlg.h"
-#include "KMeansDlg.h"
+#include "HClusterDlg.h"
 
-BEGIN_EVENT_TABLE( KMeansDlg, wxDialog )
-EVT_CLOSE( KMeansDlg::OnClose )
+BEGIN_EVENT_TABLE( HClusterDlg, wxDialog )
+EVT_CLOSE( HClusterDlg::OnClose )
 END_EVENT_TABLE()
 
-KMeansDlg::KMeansDlg(wxFrame* parent_s, Project* project_s)
+
+HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
 : frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 640), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxSize(360, 640), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-    wxLogMessage("Open KMeanDlg.");
+    wxLogMessage("Open HClusterDlg.");
     
     parent = parent_s;
     project = project_s;
@@ -57,15 +58,16 @@ wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 640), w
     } else {
         CreateControls();
     }
+    
     frames_manager->registerObserver(this);
 }
 
-KMeansDlg::~KMeansDlg()
+HClusterDlg::~HClusterDlg()
 {
     frames_manager->removeObserver(this);
 }
 
-bool KMeansDlg::Init()
+bool HClusterDlg::Init()
 {
     if (project == NULL)
         return false;
@@ -80,11 +82,7 @@ bool KMeansDlg::Init()
     return true;
 }
 
-void KMeansDlg::update(FramesManager* o)
-{
-}
-
-void KMeansDlg::CreateControls()
+void HClusterDlg::CreateControls()
 {
     wxPanel *panel = new wxPanel(this);
     
@@ -106,25 +104,26 @@ void KMeansDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,0,0);
 
-    wxString choices[] = {"2","3","4","5","6","7","8","9","10"};
+    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxSize(122,-1));
     wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                      wxSize(200,-1), 9, choices, wxCB_READONLY);
+                                      wxSize(200,-1), 19, choices, wxCB_READONLY);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
     
+    /*
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# of Iterations (EM):"),
                                          wxDefaultPosition, wxSize(122,-1));
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("5"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
-    
+    */
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(122,-1));
-    wxString choices12[] = {"Arithmetic Mean","Arithmetic Median"};
+    wxString choices12[] = {"single-linkage","complete-linkage"," average-linkage","centroid-linkage"};
     wxComboBox* box12 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                       wxSize(200,-1), 2, choices12, wxCB_READONLY);
+                                       wxSize(200,-1), 4, choices12, wxCB_READONLY);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
     
@@ -132,7 +131,7 @@ void KMeansDlg::CreateControls()
                                           wxDefaultPosition, wxSize(122,-1));
     wxString choices13[] = {"Euclidean distance", "Pearson correlation","Absolute Pearson correlation","Uncentered correlation","Absolute uncentered correlation","Spearman rank correlation","Tao","City-block distance"};
     wxComboBox* box13 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                      wxSize(2000,-1), 8, choices13, wxCB_READONLY);
+                                      wxSize(200,-1), 8, choices13, wxCB_READONLY);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
 
@@ -197,18 +196,18 @@ void KMeansDlg::CreateControls()
     m_textbox = box3;
     combo_var = box;
     m_use_centroids = cbox;
-    m_iterations = box11;
+    //m_iterations = box11;
     m_method = box12;
     m_distance = box13;
     
     
     // Events
-    okButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnOK, this);
-    //saveButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnSave, this);
-    closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
+    okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOK, this);
+    //saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
+    closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
 }
 
-void KMeansDlg::InitVariableCombobox(wxListBox* var_box)
+void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
 {
     wxArrayString items;
     
@@ -235,15 +234,19 @@ void KMeansDlg::InitVariableCombobox(wxListBox* var_box)
     var_box->InsertItems(items,0);
 }
 
-void KMeansDlg::OnClickClose(wxCommandEvent& event )
+void HClusterDlg::update(FramesManager* o)
 {
-    wxLogMessage("OnClickClose KMeansDlg.");
+}
+
+void HClusterDlg::OnClickClose(wxCommandEvent& event )
+{
+    wxLogMessage("OnClickClose HClusterDlg.");
     
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
-void KMeansDlg::OnClose(wxCloseEvent& ev)
+void HClusterDlg::OnClose(wxCloseEvent& ev)
 {
     wxLogMessage("Close HClusterDlg");
     // Note: it seems that if we don't explictly capture the close event
@@ -251,9 +254,9 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
-void KMeansDlg::OnSave(wxCommandEvent& event )
+void HClusterDlg::OnSave(wxCommandEvent& event )
 {
-    wxLogMessage("OnSave KMeansDlg.");
+    wxLogMessage("OnSave HClusterDlg.");
     
     if (scores.size()==0)
         return;
@@ -291,9 +294,9 @@ void KMeansDlg::OnSave(wxCommandEvent& event )
     
 }
 
-void KMeansDlg::OnOK(wxCommandEvent& event )
+void HClusterDlg::OnOK(wxCommandEvent& event )
 {
-    wxLogMessage("Click KMeansDlg::OnOK");
+    wxLogMessage("Click HClusterDlg::OnOK");
     
     int ncluster = combo_n->GetSelection() + 2;
     
@@ -371,22 +374,20 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         columns += 2;
     }
     
-    char method = 'a'; // mean, 'm' median
-    char dist = 'e'; // euclidean
-    int npass = 10;
+    char method = 's';
+    char dist = 'e';
+    
     int transpose = 0; // row wise
     int* clusterid = new int[rows];
     double* weight = new double[columns];
     for (int j=0; j<columns; j++){ weight[j] = 1;}
     
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        npass = value;
-    }
+    
     
     int method_sel = m_method->GetSelection();
-    if (method_sel == 1) method = 'm';
+    char method_choices[] = {'s','m','a','c'};
+    method = method_choices[method_sel];
+
     
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','c','a','u','x','s','k','b'};
@@ -424,7 +425,9 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     
     double* error = new double[rows];
     int* ifound = new int[rows];
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, method, dist, clusterid, error, ifound);
+    Node* htree = treecluster(rows, columns, input_data, mask, weight, transpose, dist, method, NULL);
+    
+    cuttree (rows, htree, ncluster, clusterid);
     
     vector<wxInt64> clusters;
     vector<bool> clusters_undef;
@@ -433,8 +436,8 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<rows; i++) {
         delete[] input_data[i];
         delete[] mask[i];
-        clusters.push_back(clusterid[i] + 1);
-        clusters_undef.push_back(ifound[i] == -1);
+        clusters.push_back(clusterid[i]+1);
+        clusters_undef.push_back(ifound[i] == 0);
     }
     delete[] input_data;
     delete[] weight;

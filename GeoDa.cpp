@@ -116,6 +116,7 @@
 #include "DialogTools/ReportBugDlg.h"
 #include "DialogTools/SaveToTableDlg.h"
 #include "DialogTools/KMeansDlg.h"
+#include "DialogTools/HClusterDlg.h"
 
 
 #include "Explore/CatClassification.h"
@@ -1776,8 +1777,41 @@ void GdaFrame::OnToolsDataKMeans(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-    KMeansDlg VS(this, p);
-    VS.ShowModal();
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (KMeansDlg* w = dynamic_cast<KMeansDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    KMeansDlg* dlg = new KMeansDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnToolsDataHCluster(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (HClusterDlg* w = dynamic_cast<HClusterDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    HClusterDlg* dlg = new HClusterDlg(this, p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
@@ -5998,6 +6032,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
 
     EVT_MENU(XRCID("ID_TOOLS_DATA_PCA"), GdaFrame::OnToolsDataPCA)
     EVT_MENU(XRCID("ID_TOOLS_DATA_KMEANS"), GdaFrame::OnToolsDataKMeans)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_HCLUSTER"), GdaFrame::OnToolsDataHCluster)
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)

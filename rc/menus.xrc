@@ -75,6 +75,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
             <label>K-Means Clustering</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
+            <label>Hierarchical Clustering</label>
+        </object>
       </object>
     </object>
     <object class="wxMenu" name="ID_MENU">

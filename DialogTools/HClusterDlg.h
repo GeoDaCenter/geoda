@@ -17,23 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_CENTER_KMEAN_DLG_H___
-#define __GEODA_CENTER_KMEAN_DLG_H___
+#ifndef __GEODA_CENTER_HCLUSTER_DLG_H___
+#define __GEODA_CENTER_HCLUSTER_DLG_H___
 
 #include <vector>
 #include <map>
+
 #include "../FramesManager.h"
 
 #include "../VarTools.h"
 
 class Project;
 class TableInterface;
-	
-class KMeansDlg : public wxDialog, public FramesManagerObserver
+
+class HClusterDlg : public wxDialog, public FramesManagerObserver
 {
 public:
-    KMeansDlg(wxFrame *parent, Project* project);
-    virtual ~KMeansDlg();
+    HClusterDlg(wxFrame *parent, Project* project);
+    virtual ~HClusterDlg();
     
     void CreateControls();
     bool Init();
@@ -64,7 +65,7 @@ private:
     wxComboBox* combo_cov;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
-    wxTextCtrl* m_iterations;
+    //wxTextCtrl* m_iterations;
     wxComboBox* m_method;
     wxComboBox* m_distance;
     
