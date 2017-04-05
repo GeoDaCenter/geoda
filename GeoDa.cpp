@@ -115,6 +115,8 @@
 #include "DialogTools/AutoUpdateDlg.h"
 #include "DialogTools/ReportBugDlg.h"
 #include "DialogTools/SaveToTableDlg.h"
+#include "DialogTools/KMeansDlg.h"
+
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -1766,6 +1768,15 @@ void GdaFrame::OnToolsDataPCA(wxCommandEvent& WXUNUSED(event) )
 	if (!p) return;
     
 	PCASettingsDlg VS(p);
+    VS.ShowModal();
+}
+
+void GdaFrame::OnToolsDataKMeans(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    KMeansDlg VS(this, p);
     VS.ShowModal();
 }
 
@@ -5986,6 +5997,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
 
     EVT_MENU(XRCID("ID_TOOLS_DATA_PCA"), GdaFrame::OnToolsDataPCA)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_KMEANS"), GdaFrame::OnToolsDataKMeans)
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)

@@ -56,8 +56,10 @@
 		A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C01E6A440A008F87DD /* SIDSNC.png */; };
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
+		A49F56DA1E944463000309CE /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56D91E944463000309CE /* cluster.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4E4E67A1E8A18F800A64DCA /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E4E6781E8A18F800A64DCA /* pca.cpp */; };
+		A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F875751E94123F0079734E /* KMeansDlg.cpp */; };
 		DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */; };
 		DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */; };
 		DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0FC7E61A9EC17500A6715B /* CorrelogramAlgs.cpp */; };
@@ -324,9 +326,13 @@
 		A496C9C01E6A440A008F87DD /* SIDSNC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SIDSNC.png; path = BuildTools/CommonDistFiles/web_plugins/SIDSNC.png; sourceTree = "<group>"; };
 		A496C9C21E6A4417008F87DD /* USHomicides.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = USHomicides.png; path = BuildTools/CommonDistFiles/web_plugins/USHomicides.png; sourceTree = "<group>"; };
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
+		A49F56D91E944463000309CE /* cluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cluster.cpp; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		A4E4E6781E8A18F800A64DCA /* pca.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pca.cpp; sourceTree = "<group>"; };
 		A4E4E6791E8A18F800A64DCA /* pca.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pca.h; sourceTree = "<group>"; };
+		A4F875701E940F890079734E /* cluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cluster.h; sourceTree = "<group>"; };
+		A4F875751E94123F0079734E /* KMeansDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KMeansDlg.cpp; sourceTree = "<group>"; };
+		A4F875761E94123F0079734E /* KMeansDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMeansDlg.h; sourceTree = "<group>"; };
 		DD00ADE611138A2C008FE572 /* TemplateFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateFrame.h; sourceTree = "<group>"; };
 		DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemplateFrame.cpp; sourceTree = "<group>"; };
 		DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RangeSelectionDlg.cpp; sourceTree = "<group>"; };
@@ -714,6 +720,8 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A49F56D91E944463000309CE /* cluster.cpp */,
+				A4F875701E940F890079734E /* cluster.h */,
 				A4E4E6781E8A18F800A64DCA /* pca.cpp */,
 				A4E4E6791E8A18F800A64DCA /* pca.h */,
 				A496C9C41E6A441D008F87DD /* watermark-20.png */,
@@ -821,6 +829,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4F875751E94123F0079734E /* KMeansDlg.cpp */,
+				A4F875761E94123F0079734E /* KMeansDlg.h */,
 				A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */,
 				A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */,
 				A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */,
@@ -1331,6 +1341,7 @@
 				DD7975670F1D296F00496A84 /* 3DControlPan.cpp in Sources */,
 				DD79756C0F1D296F00496A84 /* ASC2SHPDlg.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
+				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
@@ -1442,6 +1453,7 @@
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
 				DD49747A176F59670007BB9F /* DbfTable.cpp in Sources */,
 				DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */,
+				A49F56DA1E944463000309CE /* cluster.cpp in Sources */,
 				DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */,
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,

@@ -72,6 +72,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
           <label>Principal Component Analysis</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
+            <label>K-Means Clustering</label>
+        </object>
       </object>
     </object>
     <object class="wxMenu" name="ID_MENU">

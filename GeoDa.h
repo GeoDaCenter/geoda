@@ -158,6 +158,7 @@ public:
 	void OnCopyLegendToClipboard(wxCommandEvent& event);
 	
 	void OnToolsDataPCA(wxCommandEvent& event);
+    void OnToolsDataKMeans(wxCommandEvent& event);
     
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
