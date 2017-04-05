@@ -457,7 +457,7 @@ void PCASettingsDlg::OnSave(wxCommandEvent& event )
     int new_col = int(thresh95);
     int user_sel = combo_n->GetSelection();
     if (user_sel >=0 && user_sel < new_col){
-        new_col = user_sel;
+        new_col = user_sel + 1;
     }
     std::vector<SaveToTableEntry> new_data(new_col);
     std::vector<std::vector<double> > vals(new_col);
