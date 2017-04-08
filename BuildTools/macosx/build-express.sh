@@ -57,7 +57,7 @@ fi
 # copy library/*
 #########################################################################
 if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libraries.zip
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libraries.zip
     curl -O $LIB_URL
     unzip libraries.zip
     rm libraries.zip
@@ -126,7 +126,7 @@ fi
 # install wxWidgets library
 #########################################################################
 LIB_NAME=wxWidgets-3.1.0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
 LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
@@ -160,7 +160,7 @@ fi
 # install boost library
 #########################################################################
 LIB_NAME=boost_1_57_0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
 LIB_FILENAME=$LIB_NAME.tar.gz
 LIB_CHECKER=libboost_thread.a
 echo $LIB_FILENAME
@@ -200,7 +200,7 @@ fi
 # install CLAPACK
 #########################################################################
 LIB_NAME="CLAPACK-3.2.1"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz"
 LIB_CHECKER="lapack.a"
 LIB_FILENAME=clapack.tgz
 echo $LIB_FILENAME
