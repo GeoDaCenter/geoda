@@ -209,13 +209,15 @@
     <ResourceCompile Include="..\..\GeoDa.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\cluster.c" />
+    <ClCompile Include="..\..\cluster.cpp" />
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
@@ -292,6 +294,8 @@
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
+    <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />

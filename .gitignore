@@ -89,3 +89,4 @@ BuildTools/macosx/temp1/boost_1_57_0/b2
 *.xcworkspacedata
 
 *.plist
+.vs/slnx.sqlite

@@ -3849,7 +3849,7 @@ void somworker (int nrows, int ncolumns, double** data, int** mask,
   int* index;
   int iter;
   /* Maximum radius in which nodes are adjusted */
-  double maxradius = sqrt(nxgrid*nxgrid+nygrid*nygrid);
+  double maxradius = sqrt((double)(nxgrid*nxgrid+nygrid*nygrid));
 
   /* Set the metric function as indicated by dist */
   double (*metric)
@@ -3953,7 +3953,7 @@ void somworker (int nrows, int ncolumns, double** data, int** mask,
       }
       for (ix = 0; ix < nxgrid; ix++)
       { for (iy = 0; iy < nygrid; iy++)
-        { if (sqrt((ix-ixbest)*(ix-ixbest)+(iy-iybest)*(iy-iybest))<radius)
+        { if (sqrt((double)((ix-ixbest)*(ix-ixbest)+(iy-iybest)*(iy-iybest)))<radius)
           { double sum = 0.;
             for (i = 0; i < ndata; i++)
             { if (mask[iobject][i]==0) continue;
@@ -4001,7 +4001,7 @@ void somworker (int nrows, int ncolumns, double** data, int** mask,
       free(celldatavector);
       for (ix = 0; ix < nxgrid; ix++)
       { for (iy = 0; iy < nygrid; iy++)
-        { if (sqrt((ix-ixbest)*(ix-ixbest)+(iy-iybest)*(iy-iybest))<radius)
+        { if (sqrt((double)((ix-ixbest)*(ix-ixbest)+(iy-iybest)*(iy-iybest)))<radius)
           { double sum = 0.;
             for (i = 0; i < ndata; i++)
             { if (mask[i][iobject]==0) continue;

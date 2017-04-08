@@ -642,6 +642,12 @@
       <Filter>Explore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cluster.h" />
+    <ClInclude Include="..\..\DialogTools\HClusterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\KMeansDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1170,6 +1176,12 @@
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cluster.c" />
+    <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cluster.cpp" />
+    <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
