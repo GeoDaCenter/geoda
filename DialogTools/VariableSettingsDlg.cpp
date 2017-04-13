@@ -672,13 +672,13 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     pca_log << "\n\nKaiser criterion: " << kaiser;
     pca_log << "\n\n95% threshold criterion: " << thresh95;
     
-    pca_log << "\n\nEigen values:\n";
+    pca_log << "\n\nEigenvalues:\n";
     std::stringstream ss;
     ss << pca.eigen_values;
     pca_log << ss.str();
     
     //pca_log << pca.eigen_values;
-    pca_log << "\n\nEigen vectors:\n";
+    pca_log << "\n\nEigenvectors:\n";
     
     std::stringstream ss1;
     ss1 << pca.eigen_vectors;
