@@ -161,6 +161,7 @@ regReportDlg(0)
 
 RegressionDlg::~RegressionDlg()
 {
+    wxLogMessage("RegressionDlg::~RegressionDlg()");
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
@@ -758,6 +759,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 
 void RegressionDlg::DisplayRegression(wxString dump)
 {
+    wxLogMessage("RegressionDlg::DisplayRegression()");
     wxDateTime now = wxDateTime::Now();
     dump = ">>" + now.FormatDate() + " " + now.FormatTime() + _("\nREGRESSION\n----------\n") + dump;
     if (regReportDlg == 0) {
@@ -772,6 +774,7 @@ void RegressionDlg::DisplayRegression(wxString dump)
 
 void RegressionDlg::SetupXNames(bool m_constant_term)
 {
+    wxLogMessage("RegressionDlg::SetupXNames()");
 
 }
 void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
@@ -841,6 +844,7 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCListVarinDoubleClicked()");
 	if (lastSelection == 1) {
 		OnCButton1Click(event);
 	} else {
@@ -850,11 +854,13 @@ void RegressionDlg::OnCListVarinDoubleClicked( wxCommandEvent& event )
 
 void RegressionDlg::OnCListVaroutDoubleClicked( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCListVaroutDoubleClicked()");
 	OnCButton3Click(event);
 }
 
 void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCButton1Click()");
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			wxString temp = m_dependent->GetValue();
@@ -874,6 +880,7 @@ void RegressionDlg::OnCButton1Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCButton2Click()");
 	if (m_varlist->GetCount() > 0) {
 		if (m_varlist->GetSelection() >= 0) {
 			int cur_sel = m_varlist->GetSelection();
@@ -916,6 +923,7 @@ void RegressionDlg::OnCResetClick( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCButton3Click()");
 	if (m_independentlist->GetCount() > 0) {
 		if(m_independentlist->GetSelection() >= 0) {
 			int cur_sel = m_independentlist->GetSelection();
@@ -936,6 +944,7 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCButton4Click()");
 	for (unsigned int i=0; i<m_varlist->GetCount(); i++) {
 		m_independentlist->Append(m_varlist->GetString(i));
 	}
@@ -949,6 +958,7 @@ void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 
 void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 {
+    wxLogMessage("RegressionDlg::OnCButton5Click()");
 	for (unsigned int i=0; i<m_independentlist->GetCount(); i++) {
 		m_varlist->Append(m_independentlist->GetString(i));
 	}
@@ -1056,6 +1066,7 @@ void RegressionDlg::OnCOpenWeightClick( wxCommandEvent& event )
 
 void RegressionDlg::InitVariableList()
 {
+    wxLogMessage("RegressionDlg::InitVariableList()");
 	UpdateMessageBox(wxEmptyString);
 
 	m_varlist->Clear();

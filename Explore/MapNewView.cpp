@@ -174,6 +174,7 @@ isDrawBasemap(false),
 basemap_bm(0),
 map_type(0)
 {
+    wxLogMessage("MapCanvas::MapCanvas()");
 	using namespace Shapefile;
 	
 	cat_classif_def.cat_classif_type = theme_type;
@@ -223,6 +224,7 @@ map_type(0)
 
 MapCanvas::~MapCanvas()
 {
+    wxLogMessage("MapCanvas::~MapCanvas()");
 	if (highlight_state)
         highlight_state->removeObserver(this);
     
@@ -793,6 +795,7 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
+    wxLogMessage("MapCanvas::AddTimeVariantOptionsToMenu()");
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
@@ -961,6 +964,7 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 
 wxString MapCanvas::GetCanvasTitle()
 {
+    wxLogMessage("MapCanvas::GetCanvasTitle()");
 	wxString v;
 	if (GetNumVars() == 1) v << GetNameWithTime(0);
 	if (GetNumVars() == 2) {
@@ -1001,6 +1005,7 @@ wxString MapCanvas::GetCanvasTitle()
 
 wxString MapCanvas::GetNameWithTime(int var)
 {
+    wxLogMessage("MapCanvas::GetNameWithTime()");
 	if (var < 0 || var >= GetNumVars()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
@@ -1012,6 +1017,7 @@ wxString MapCanvas::GetNameWithTime(int var)
 
 void MapCanvas::OnSaveCategories()
 {
+    wxLogMessage("MapCanvas::OnSaveCategories()");
 	wxString t_name;
 	if (GetCcType() == CatClassification::custom) {
 		t_name = cat_classif_def.title;
@@ -1036,6 +1042,7 @@ void MapCanvas::OnSaveCategories()
 
 void MapCanvas::NewCustomCatClassif()
 {
+    wxLogMessage("MapCanvas::NewCustomCatClassif()");
 	// Begin by asking for a variable if none yet chosen
     std::vector<std::vector<bool> > var_undefs(num_time_vals);
     
@@ -1137,6 +1144,7 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                          const std::vector<int>& new_col_ids,
                          const wxString& custom_classif_title)
 {
+    wxLogMessage("MapCanvas::ChangeMapType()");
 	// We only ask for variables when changing from no_theme or
 	// smoothed (with theme).
 	num_categories = num_categories_s;
@@ -1362,6 +1370,7 @@ void MapCanvas::PopulateCanvas()
 
 void MapCanvas::TimeChange()
 {
+    wxLogMessage("MapCanvas::TimeChange()");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -1393,6 +1402,7 @@ void MapCanvas::TimeChange()
 
 void MapCanvas::VarInfoAttributeChange()
 {
+    wxLogMessage("MapCanvas::VarInfoAttributeChange()");
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
@@ -1423,6 +1433,7 @@ void MapCanvas::VarInfoAttributeChange()
  smoothing as needed, setting smoothing_valid vector as appropriate. */
 void MapCanvas::CreateAndUpdateCategories()
 {
+    wxLogMessage("MapCanvas::CreateAndUpdateCategories()");
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
 
@@ -1609,7 +1620,7 @@ void MapCanvas::CreateAndUpdateCategories()
 
 void MapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In MapCanvas::TimeSyncVariableToggle");
+    wxLogMessage("MapCanvas::TimeSyncVariableToggle()");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	
@@ -1623,6 +1634,7 @@ void MapCanvas::TimeSyncVariableToggle(int var_index)
 
 void MapCanvas::DisplayMeanCenters()
 {
+    wxLogMessage("MapCanvas::DisplayMeanCenters()");
 	full_map_redraw_needed = true;
 	display_mean_centers = !display_mean_centers;
 	PopulateCanvas();
@@ -1630,6 +1642,7 @@ void MapCanvas::DisplayMeanCenters()
 
 void MapCanvas::DisplayCentroids()
 {
+    wxLogMessage("MapCanvas::DisplayCentroids()");
 	full_map_redraw_needed = true;
 	display_centroids = !display_centroids;
 	PopulateCanvas();
@@ -1637,6 +1650,7 @@ void MapCanvas::DisplayCentroids()
 
 void MapCanvas::DisplayVoronoiDiagram()
 {
+    wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
 	full_map_redraw_needed = true;
 	display_voronoi_diagram = !display_voronoi_diagram;
 	PopulateCanvas();
@@ -1661,6 +1675,7 @@ CatClassification::CatClassifType MapCanvas::GetCcType()
  smoothing_type != no_smoothing */
 void MapCanvas::SaveRates()
 {
+    wxLogMessage("MapCanvas::SaveRates()");
 	if (smoothing_type == no_smoothing) {
 		wxString msg;
 		msg << "No rates currently calculated to save.";
@@ -2236,6 +2251,7 @@ void MapFrame::OnEmpiricalBayes()
 
 void MapFrame::OnSpatialRate()
 {
+    
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, true,
 													false,
 							"Spatial Rate Smoothed Variable Settings",

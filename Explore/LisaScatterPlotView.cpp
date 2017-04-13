@@ -689,9 +689,9 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
     
     lisa_coord->GetRawData(t, data1, data2);
     
-    GenUtils::StandardizeData(num_obs, data1, undefs);
+    GenUtils::StandardizeData(num_obs, data1);
     if (lisa_coord->isBivariate) {
-        GenUtils::StandardizeData(num_obs, data2, undefs);
+        GenUtils::StandardizeData(num_obs, data2);
     }
     
     std::vector<bool> XY_undefs;

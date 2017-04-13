@@ -344,7 +344,7 @@ void PCASettingsDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
     // input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("PCA Input: Select Variables"),
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
                                           wxDefaultPosition, wxDefaultSize);
     
     wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
