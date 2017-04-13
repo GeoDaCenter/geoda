@@ -116,6 +116,10 @@ public:
     \result Vector of scores
   */
   std::vector<float> scores(void);
+    
+  Eigen::MatrixXf eigen_vectors;
+  Eigen::VectorXf eigen_values;
+    
   //! Class constructor
   Pca(void);
   //! Class destructor

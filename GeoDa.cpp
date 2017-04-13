@@ -1767,9 +1767,21 @@ void GdaFrame::OnToolsDataPCA(wxCommandEvent& WXUNUSED(event) )
 {
 	Project* p = GetProject();
 	if (!p) return;
+   
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (PCASettingsDlg* w = dynamic_cast<PCASettingsDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
     
-	PCASettingsDlg VS(p);
-    VS.ShowModal();
+    PCASettingsDlg* dlg = new PCASettingsDlg(p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnToolsDataKMeans(wxCommandEvent& WXUNUSED(event) )

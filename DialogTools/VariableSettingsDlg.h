@@ -33,9 +33,11 @@
 #include "../VarTools.h"
 #include "../Explore/CatClassification.h"
 #include "../VarCalc/WeightsMetaInfo.h"
+#include "../FramesManagerObserver.h"
 
 class Project;
 class TableInterface;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -81,7 +83,7 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////
 
-class PCASettingsDlg : public wxDialog
+class PCASettingsDlg : public wxDialog, public FramesManagerObserver
 {
 public:
     PCASettingsDlg(Project* project);
@@ -92,16 +94,22 @@ public:
    
     void OnOK( wxCommandEvent& event );
     void OnSave( wxCommandEvent& event );
-    void OnClose( wxCommandEvent& event );
+    void OnCloseClick( wxCommandEvent& event );
+    void OnClose(wxCloseEvent& ev);
     
     void InitVariableCombobox(wxListBox* var_box);
     
     //boost::uuids::uuid GetWeightsId();
     
+    /** Implementation of FramesManagerObserver interface */
+    virtual void update(FramesManager* o);
+    
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 private:
+    FramesManager* frames_manager;
+    
     Project* project;
     TableInterface* table_int;
     std::vector<wxString> tm_strs;
@@ -109,8 +117,13 @@ private:
     
     wxListBox* combo_var;
     wxComboBox* combo_n;
-    wxComboBox* combo_cov;
+
     wxTextCtrl* m_textbox;
+    wxButton *saveButton;
+   
+    wxCheckBox* cbox_svd;
+    wxCheckBox* cbox_shift;
+    wxCheckBox* cbox_scale;
     
 	std::map<wxString, wxString> name_to_nm;
 	std::map<wxString, int> name_to_tm_id;
@@ -119,6 +132,8 @@ private:
     unsigned int col_lim;
     std::vector<float> scores;
     float thresh95;
+    
+    DECLARE_EVENT_TABLE()
 };
 
 ////////////////////////////////////////////////////////////////////////////

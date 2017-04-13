@@ -326,11 +326,13 @@ void CsvFieldConfDlg::OnFieldSelected(wxCommandEvent& event)
 	wxLogMessage("CsvFieldConfDlg::OnFieldSelected()");
     fieldGrid->SaveEditControlValue();
     fieldGrid->EnableCellEditControl(false);
-    
+   
+    int n_types = types.size();
     int n_cols = col_names.size();
     for (int r=0; r < n_cols; r++ ) {
         wxString type = fieldGrid->GetCellValue(r, 1);
-        types[r] = type;
+        if (r < n_types)
+            types[r] = type;
     }
    
     WriteCSVT();
@@ -486,9 +488,10 @@ void CsvFieldConfDlg::ReadCSVT()
         // read the first line
         wxString str = csvt_file.GetFirstLine();
         wxStringTokenizer tokenizer(str, ",");
-        
+       
+        int max_n_types = types.size();
         int idx = 0;
-        while ( tokenizer.HasMoreTokens() )
+        while ( tokenizer.HasMoreTokens() && idx < max_n_types)
         {
             wxString token = tokenizer.GetNextToken().Upper();
             if (token.Contains("INTEGER64")) {
@@ -497,9 +500,9 @@ void CsvFieldConfDlg::ReadCSVT()
                 types[idx] = "Integer";
             } else if (token.Contains("REAL")) {
                 types[idx] = "Real";
-            } else if (token.Contains("STRING")) {
+            } else {
                 types[idx] = "String";
-            }
+            } 
             idx += 1;
         }
     }

@@ -1023,16 +1023,17 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	body.Replace("\n", "\\n");
 	// get log file to body
 	wxString logger_path;
-	logger_path << GenUtils::GetBasemapCacheDir() << "web_plugins" << wxFileName::GetPathSeparator() << "logger.txt";
-	wxTextFile tfile;
-	tfile.Open(logger_path);
-
+	logger_path << GenUtils::GetSamplesDir() << "logger.txt";
+    
 	body << "\\n";
-
-	while (!tfile.Eof())
-	{
-		body << tfile.GetNextLine() << "\\n";
-	}
+    
+	wxTextFile tfile;
+    if (tfile.Open(logger_path)) {
+    	while (!tfile.Eof())
+    	{
+    		body << tfile.GetNextLine() << "\\n";
+    	}
+    }
 
 	body.Replace("\"", "'");
 	body.Replace("\t", "");

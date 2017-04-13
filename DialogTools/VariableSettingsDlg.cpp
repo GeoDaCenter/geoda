@@ -28,7 +28,7 @@
 #include <wx/button.h>
 #include <wx/combobox.h>
 #include <wx/panel.h>
-
+#include <wx/tokenzr.h>
 
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -36,6 +36,8 @@
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../pca.h"
+#include "../FramesManager.h"
+#include "../FramesManagerObserver.h"
 #include "SaveToTableDlg.h"
 #include "VariableSettingsDlg.h"
 
@@ -289,8 +291,13 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
 //
 ////////////////////////////////////////////////////////////////////////////
 
+BEGIN_EVENT_TABLE( PCASettingsDlg, wxDialog )
+EVT_CLOSE( PCASettingsDlg::OnClose )
+END_EVENT_TABLE()
+
 PCASettingsDlg::PCASettingsDlg(Project* project_s)
-    : wxDialog(NULL, -1, _("PCA Settings"), wxDefaultPosition, wxSize(620, 430), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+    : wxDialog(NULL, -1, _("PCA Settings"), wxDefaultPosition, wxSize(860, 600), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+frames_manager(project_s->GetFramesManager())
 {
     wxLogMessage("Open PCASettingsDlg.");
     
@@ -303,9 +310,15 @@ PCASettingsDlg::PCASettingsDlg(Project* project_s)
     } else {
         CreateControls();
     }
+    frames_manager->registerObserver(this);
 }
 
 PCASettingsDlg::~PCASettingsDlg()
+{
+    frames_manager->removeObserver(this);
+}
+
+void PCASettingsDlg::update(FramesManager* o)
 {
 }
 
@@ -330,37 +343,59 @@ void PCASettingsDlg::CreateControls()
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-    // label & listbox
+    // input
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("PCA Input: Select Variables"),
                                           wxDefaultPosition, wxDefaultSize);
     
     wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(250,250), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    // Component Selections
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Max Components:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
-    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-    hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
-    hbox->Add(box1, 1, wxEXPAND);
+    
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
+    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
    
-    /*
-    // Variance Coverage
-    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, wxT("Variance Coverage:"),
-                                           wxDefaultPosition, wxSize(120,-1));
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
-    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
-     */
+    // parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
+    
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Use Singular Value Decomposition:"),
+                                          wxDefaultPosition, wxSize(220,-1));
+    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _(""));
+    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(cbox, 1, wxEXPAND);
+    
+    
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Shift Variables to Zero:"),
+                                          wxDefaultPosition, wxSize(220,-1));
+    wxCheckBox* cbox14 = new wxCheckBox(panel, wxID_ANY, _(""));
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(cbox14, 1, wxEXPAND);
+    
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Scale Variables to Unit Variance:"),
+                                          wxDefaultPosition, wxSize(220,-1));
+    wxCheckBox* cbox15 = new wxCheckBox(panel, wxID_ANY, _(""));
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(cbox15, 1, wxEXPAND);
+    
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    hbox->Add(gbox, 1, wxEXPAND);
+    
+    // Output
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Max Components:"),
+                                          wxDefaultPosition, wxSize(140,-1));
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      wxSize(120,-1), 0, NULL, wxCB_READONLY);
+    
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(box1, 1, wxALIGN_CENTER_VERTICAL);
+
+
 
     // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition,
+    saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition,
                                       wxSize(70, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
@@ -369,11 +404,10 @@ void PCASettingsDlg::CreateControls()
     hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
-    //
-    vbox->Add(st, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
-    //vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    // Container
+    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
     
     
@@ -400,15 +434,23 @@ void PCASettingsDlg::CreateControls()
     
     // Content
     InitVariableCombobox(box);
-    
+   
+    saveButton->Enable(false);
     combo_var = box;
     combo_n = box1;
-    //combo_cov = box3;
+    
+    cbox_svd = cbox;
+    cbox_shift = cbox14;
+    cbox_scale = cbox15;
+   
+    cbox_svd->SetValue(true);
+    cbox_shift->SetValue(true);
+    cbox_scale->SetValue(true);
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnOK, this);
     saveButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnSave, this);
-    closeButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnClose, this);
+    closeButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnCloseClick, this);
 }
 
 void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
@@ -438,7 +480,15 @@ void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
     var_box->InsertItems(items,0);
 }
 
-void PCASettingsDlg::OnClose(wxCommandEvent& event )
+void PCASettingsDlg::OnClose(wxCloseEvent& ev)
+{
+    wxLogMessage("Close HClusterDlg");
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    Destroy();
+}
+
+void PCASettingsDlg::OnCloseClick(wxCommandEvent& event )
 {
     wxLogMessage("Close PCASettingsDlg.");
     
@@ -454,11 +504,8 @@ void PCASettingsDlg::OnSave(wxCommandEvent& event )
         return;
     
     // save to table
-    int new_col = int(thresh95);
-    int user_sel = combo_n->GetSelection();
-    if (user_sel >=0 && user_sel < new_col){
-        new_col = user_sel + 1;
-    }
+    int new_col = combo_n->GetSelection() + 1;
+
     std::vector<SaveToTableEntry> new_data(new_col);
     std::vector<std::vector<double> > vals(new_col);
     std::vector<std::vector<bool> > undefs(new_col);
@@ -489,7 +536,10 @@ void PCASettingsDlg::OnSave(wxCommandEvent& event )
 void PCASettingsDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click PCASettingsDlg::OnOK");
-  
+ 
+    wxArrayString sel_names;
+    int max_sel_name_len = 0;
+    
     wxArrayInt selections;
     combo_var->GetSelections(selections);
     
@@ -515,9 +565,27 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
-        
+       
         int tm = name_to_tm_id[combo_var->GetString(idx)];
         
+        if (tm > 1) {
+            for (int j=0; j<tm;j++) {
+                wxString nm_new;
+                nm_new << nm;
+                nm_new << " (t";
+                nm_new << j;
+                nm_new << ")";
+                if (nm_new.length() > max_sel_name_len) {
+                    max_sel_name_len = nm_new.length();
+                }
+                sel_names.Add(nm_new);
+            }
+        } else {
+            sel_names.Add(nm);
+            if (nm.length() > max_sel_name_len) {
+                max_sel_name_len = nm.length();
+            }
+        }
         col_ids[i] = col;
         var_info[i].time = tm;
         
@@ -543,20 +611,34 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         table_int->GetColData(col_ids[i], data[i]);
     }
     
-    vector<float> vec;
-    
     for (int i=0; i<data.size(); i++ ){
         for (int j=0; j<data[i].size(); j++) {
             columns += 1;
-            for (int k=0; k< rows;k++) {
+        }
+    }
+    vector<float> vec;
+    
+    for (int k=0; k< rows;k++) {
+        for (int i=0; i<data.size(); i++ ){
+            for (int j=0; j<data[i].size(); j++) {
                 vec.push_back(data[i][j][k]);
             }
         }
     }
     
     Pca pca;
-    
-    int init_result = pca.Calculate(vec, rows, columns);
+   
+    bool is_corr = !cbox_svd->GetValue();
+    bool is_center = cbox_shift->GetValue();
+    bool is_scale = cbox_scale->GetValue();
+   
+    if (rows < columns && is_corr == true) {
+        wxString msg = _("SVD will be automatically used for PCA since the number of rows is less than the number of columns.");
+        wxMessageDialog dlg(NULL, msg, "Information", wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        cbox_svd->SetValue(true);
+    }
+    int init_result = pca.Calculate(vec, rows, columns, is_corr, is_center, is_scale);
     if (0 != init_result) {
         wxLogMessage(_("There is an error during PCA calculation!"));
     }
@@ -576,15 +658,72 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     wxString method = pca.method();
     
     wxString pca_log;
+    //pca_log << "\n\nPCA method: " << method;
+    
     pca_log << "\n\nStandard deviation:\n";
     for (int i=0; i<sd.size();i++) pca_log << sd[i] << " ";
+
     pca_log << "\n\nProportion of variance:\n";
     for (int i=0; i<prop_of_var.size();i++) pca_log << prop_of_var[i] << " ";
+    
     pca_log << "\n\nCumulative proportion:\n";
     for (int i=0; i<cum_prop.size();i++) pca_log << cum_prop[i] << " ";
+    
     pca_log << "\n\nKaiser criterion: " << kaiser;
     pca_log << "\n\n95% threshold criterion: " << thresh95;
-   
+    
+    pca_log << "\n\nEigen values:\n";
+    std::stringstream ss;
+    ss << pca.eigen_values;
+    pca_log << ss.str();
+    
+    //pca_log << pca.eigen_values;
+    pca_log << "\n\nEigen vectors:\n";
+    
+    std::stringstream ss1;
+    ss1 << pca.eigen_vectors;
+    wxString loadings =  ss1.str();
+    wxStringTokenizer tokenizer(loadings, "\n");
+    wxArrayString items;
+    bool header = false;
+    while ( tokenizer.HasMoreTokens() )
+    {
+        wxString token = tokenizer.GetNextToken();
+        // process token here
+        items.Add(token);
+  
+        if (header == false) {
+            pca_log << wxString::Format("%-*s", max_sel_name_len+4, "");
+            int n_len = token.length();
+            int pos = 0;
+            bool start = false;
+            int  sub_len = 0;
+            int pc_idx = 1;
+            
+            while (pos < n_len){
+                if ( start && sub_len > 0 && (token[pos] == ' ' || pos == n_len-1) ) {
+                    // end of a number
+                    pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    sub_len = 1;
+                    start = false;
+                } else {
+                    if (!start && token[pos] != ' ') {
+                        start = true;
+                    }
+                    sub_len += 1;
+                }
+                pos += 1;
+            }
+            header = true;
+            pca_log << "\n";
+        }
+    }
+    
+    for (int k=0; k<items.size();k++) {
+        pca_log << wxString::Format("%-*s", max_sel_name_len+4, sel_names[k]) << items[k] << "\n";
+    }
+    
+    
     row_lim = nrows;
     col_lim = ncols;
     /*
@@ -607,6 +746,8 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         combo_n->Append(wxString::Format("%d", i+1));
     }
     combo_n->SetSelection((int)thresh95 -1);
+    
+    saveButton->Enable(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -823,6 +964,7 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
+
     EndDialog(wxID_OK);
 
 }
