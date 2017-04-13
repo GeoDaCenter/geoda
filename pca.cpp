@@ -142,9 +142,9 @@ int Pca::Calculate(vector<float> &x,
     #ifdef DEBUG
       cout << "\n\nRotated values (scores):\n" << eigen_scores;
     #endif
-    _scores.reserve(lim*lim);
-    for (unsigned int i = 0; i < lim; ++i) {
-      for (unsigned int j = 0; j < lim; ++j) {
+    _scores.reserve(_nrows*_ncols);
+    for (unsigned int i = 0; i < _nrows; ++i) {
+      for (unsigned int j = 0; j < _ncols; ++j) {
         _scores.push_back(eigen_scores(i, j));
       }
     }
