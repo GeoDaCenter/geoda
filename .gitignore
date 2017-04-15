@@ -1,6 +1,12 @@
 *~
 
 *.deb
+*.gwt
+*.gal
+*.pyc
+
+swig/*.gwt
+swig/_geoda.so
 
 BuildTools/centos/libraries/
 BuildTools/centos/temp/

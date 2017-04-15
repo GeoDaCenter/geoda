@@ -425,7 +425,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%"
         #chmod +x tools/build/v2/engine/build.sh
         ./bootstrap.sh
         chmod +x b2
-        ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
+        ./b2 --with-thread --with-date_time --with-chrono --with-system link=static,shared threading=multi stage
     fi
 
     if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/stage/lib/$LIB_CHECKER" ] ; then
@@ -446,6 +446,7 @@ LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
+
 
 cd $DOWNLOAD_HOME
 
@@ -625,7 +626,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=3 --enable-ascii --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        ./configure --with-gtk=3 --enable-ascii --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
         #make clean
         $MAKER
         make install
