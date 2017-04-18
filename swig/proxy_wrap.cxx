@@ -3052,7 +3052,10 @@ namespace swig {
 
 
 #include "proxy.h"
-#include <wx/wx.h>
+#include <wx/wxprec.h>
+#ifndef WX_PRECOMP
+    #include <wx/wx.h>
+#endif
 
 
 SWIGINTERN swig_type_info*

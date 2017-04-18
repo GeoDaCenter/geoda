@@ -2,7 +2,11 @@
 #include <vector>
 #include <set>
 #include <stdio.h>
-#include <wx/wx.h>
+
+#include <wx/wxprec.h>
+#ifndef WX_PRECOMP
+    #include <wx/wx.h>
+#endif
 
 #include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
