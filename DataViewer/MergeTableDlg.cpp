@@ -478,7 +478,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
     if ( ftype == GdaConst::string_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
         vector<wxString> data(n_rows);
-        vector<bool> undefs(n_rows);
+        vector<bool> undefs(n_rows, false);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i; // default merge by row
             
@@ -488,8 +488,13 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             }
             
             if (import_rid >=0) {
-                data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
-                undefs[i] = false;
+                if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
+                    data[i] = wxEmptyString;
+                    undefs[i] = true;
+                } else {
+                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
+                    undefs[i] = false;
+                }
             } else {
                 data[i] = wxEmptyString;
                 undefs[i] = true;
@@ -508,9 +513,14 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                 import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
             }
             if (import_rid >=0 ) {
-                OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-                data[i] = feat->GetFieldAsInteger64(fid);
-                undefs[i] = false;
+                if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
+                    data[i] = 0;
+                    undefs[i] = true;
+                } else {
+                    OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+                    data[i] = feat->GetFieldAsInteger64(fid);
+                    undefs[i] = false;
+                }
             } else {
                 data[i] = 0;
                 undefs[i] = true;
@@ -529,9 +539,14 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                 import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
             }
             if (import_rid >=0 ) {
-                OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
-                data[i] = feat->GetFieldAsDouble(fid);
-                undefs[i] = false;
+                if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
+                    data[i] = 0.0;
+                    undefs[i] = true;
+                } else {
+                    OGRFeature* feat = merge_layer_proxy->GetFeatureAt(import_rid);
+                    data[i] = feat->GetFieldAsDouble(fid);
+                    undefs[i] = false;
+                }
             } else {
                 data[i] = 0.0;
                 undefs[i] = true;
