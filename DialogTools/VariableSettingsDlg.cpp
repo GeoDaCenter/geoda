@@ -1009,7 +1009,7 @@ BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
 	EVT_LISTBOX(XRCID("ID_VARIABLE4"), VariableSettingsDlg::OnVar4Change)
 	EVT_SPINCTRL(XRCID("ID_NUM_CATEGORIES_SPIN"),
 				 VariableSettingsDlg::OnSpinCtrl)
-	EVT_BUTTON(XRCID("wxID_OK"), VariableSettingsDlg::OnOkClick)
+	EVT_BUTTON(XRCID("wxID_OKBUTTON"), VariableSettingsDlg::OnOkClick)
 	EVT_BUTTON(XRCID("wxID_CANCEL"), VariableSettingsDlg::OnCancelClick)
 END_EVENT_TABLE()
 

@@ -1128,7 +1128,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1181,7 +1181,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1261,7 +1261,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1341,7 +1341,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1431,7 +1431,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1541,7 +1541,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -1939,7 +1939,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2075,7 +2075,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2161,7 +2161,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2267,7 +2267,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2373,7 +2373,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2504,7 +2504,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -2658,7 +2658,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -3196,7 +3196,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
@@ -3410,7 +3410,7 @@
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
             <flag>wxALIGN_RIGHT|wxALL</flag>
