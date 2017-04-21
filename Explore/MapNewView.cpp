@@ -2257,6 +2257,7 @@ void MapFrame::OnSpatialRate()
 							"Spatial Rate Smoothed Variable Settings",
 							"Event Variable", "Base Variable");
 	if (dlg.ShowModal() != wxID_OK) return;
+
 	ChangeMapType(dlg.GetCatClassifType(),
 				  MapCanvas::spatial_rate, dlg.GetNumCategories(),
 				  dlg.GetWeightsId(),

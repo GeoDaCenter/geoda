@@ -23,10 +23,11 @@
 #include <wx/gdicmn.h>
 #include <wx/brush.h>
 #include <wx/pen.h>
-#include <wx/region.h>
-#include <wx/string.h>
 #include <wx/dc.h>
 #include <wx/graphics.h>
+
+#include <wx/region.h>
+#include <wx/string.h>
 #include <cmath>
 
 #include "Explore/Basemap.h"

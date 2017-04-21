@@ -244,6 +244,11 @@ public:
 	 */
     OGRFeature* GetFeatureAt(int rid) { return data[rid];}
     
+    bool IsUndefined(int rid, int cid)
+    {
+        return !data[rid]->IsFieldSet(cid);
+    }
+    
 	wxString GetValueAt(int rid, int cid)
     {
         wxString rst(data[rid]->GetFieldAsString(cid));

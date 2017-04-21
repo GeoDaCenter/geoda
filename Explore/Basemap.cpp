@@ -34,6 +34,7 @@
 #include <wx/bitmap.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
+#include <wx/graphics.h>
 
 #include <ogr_spatialref.h>
 

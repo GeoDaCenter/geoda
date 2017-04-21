@@ -2,6 +2,9 @@
 #define PCA_H_
 
 #include <vector>
+#ifdef Success
+#undef Success
+#endif
 #include <Eigen/Dense>
 
 class Pca {

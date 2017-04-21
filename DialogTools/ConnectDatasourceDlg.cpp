@@ -417,7 +417,6 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
        
         InitSamplePanel();
     } else {
-        recent_nb->Hide();
     }
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
@@ -604,8 +603,16 @@ void ConnectDatasourceDlg::InitRecentPanel()
 
 void ConnectDatasourceDlg::CreateControls()
 {
+    if (showRecentPanel) {
+        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
+    	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
+        recent_nb->SetSelection(1);
+        recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
+        smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
+    } else {
+        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+    }
     
-    bool test = wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
     m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
@@ -617,14 +624,10 @@ void ConnectDatasourceDlg::CreateControls()
     m_database_table->Hide(); // don't need this
     
     XRCCTRL(*this, "IDC_STATIC_DB_TABLE", wxStaticText)->Hide();
-	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
-  
-    recent_nb->SetSelection(1);
-    recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
-    smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
-    noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
+    
     m_web_choice =  XRCCTRL(*this, "ID_CDS_WEB_CHOICE", wxChoice);
     
+    noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
     noshow_recent->Bind(wxEVT_CHECKBOX, &ConnectDatasourceDlg::OnNoShowRecent, this);
     if (!showRecentPanel) {
         noshow_recent->Hide();
@@ -640,9 +643,9 @@ void ConnectDatasourceDlg::CreateControls()
 
 void ConnectDatasourceDlg::OnNoShowRecent( wxCommandEvent& event)
 {
-    recent_nb->Hide();
-    noshow_recent->Hide();
-    GetSizer()->Fit(this);
+    //recent_nb->Hide();
+    //noshow_recent->Hide();
+    //GetSizer()->Fit(this);
     
     showRecentPanel = false;
     GdaConst::show_recent_sample_connect_ds_dialog = false;
@@ -786,7 +789,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (layer_name.IsEmpty())
             layer_name = layername;
       
-        wxLogMessage(_("Open Datasource:") + datasource->GetOGRConnectStr());
+        wxLogMessage(_("Open Datasource:") + datasource->ToString());
         wxLogMessage(_("Open Layer:") + layername);
         
         SaveRecentDataSource(datasource, layer_name);

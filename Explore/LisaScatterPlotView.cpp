@@ -62,6 +62,7 @@ lisa_coord(lisa_coordinator),
 is_bi(lisa_coordinator->lisa_type == LisaCoordinator::bivariate),
 is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized),
 is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential),
+is_show_regimes_regression(false),
 rand_dlg(0)
 {
 	show_reg_selected = false;
@@ -229,6 +230,10 @@ void LisaScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
     
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
 								  lisa_coord->IsReuseLastSeed());
+    
+    
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
+                                  is_show_regimes_regression);
 }
 
 void LisaScatterPlotCanvas::TimeChange()
@@ -458,7 +463,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
     // for regressionXYselected and regressionXYexcluded
     // UpdateRegSelectedLine
     // UpdateRegExcludedLine
-    if (n_hl > 0) {
+    if (n_hl > 0 && is_show_regimes_regression) {
         const std::vector<bool>& hl = highlight_state->GetHighlight();
         int t = project->GetTimeState()->GetCurrTime();
         int num_obs = lisa_coord->num_obs;
@@ -920,6 +925,13 @@ LisaScatterPlotFrame::~LisaScatterPlotFrame()
 	}
 }
 
+void LisaScatterPlotFrame::OnViewRegimesRegression( wxCommandEvent& event)
+{
+    ((LisaScatterPlotCanvas*) template_canvas)->is_show_regimes_regression = event.IsChecked();
+    
+    UpdateOptionMenuItems();
+}
+
 void LisaScatterPlotFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
 	lisa_coord->SetReuseLastSeed(!lisa_coord->IsReuseLastSeed());
@@ -946,7 +958,7 @@ void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	if (dlg_val.IsEmpty()) return;
 	if (dlg_val.ToULongLong(&val)) {
 		if (!lisa_coord->IsReuseLastSeed())
-            lisa_coord->SetLastUsedSeed(true);
+            lisa_coord->SetReuseLastSeed(true);
 		uint64_t new_seed_val = val;
 		lisa_coord->SetLastUsedSeed(new_seed_val);
 	} else {
