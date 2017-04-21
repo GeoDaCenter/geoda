@@ -408,6 +408,12 @@ wxString FileDataSource::GetOGRConnectStr()
     error_msg << _("Data source (") << file_repository_path << _(") doesn't exist. Please check the project configuration file.");
     throw GdaException(error_msg.mb_str());
 }
+
+wxString FileDataSource::ToString()
+{
+    return GetOGRConnectStr();
+}
+
 //------------------------------------------------------------------------------
 // WebServiceDataSource member functions
 //------------------------------------------------------------------------------
@@ -475,6 +481,11 @@ wxString WebServiceDataSource::GetJsonStr()
     return wxString(json_str);
 }
 
+
+wxString WebServiceDataSource::ToString()
+{
+    return GetOGRConnectStr();
+}
 //------------------------------------------------------------------------------
 // DBDataSource member functions
 //------------------------------------------------------------------------------
@@ -555,6 +566,37 @@ wxString DBDataSource::GetOGRConnectStr()
     }
     */
     return ogr_conn_str;
+}
+
+wxString DBDataSource::ToString()
+{
+    wxString str_temp;
+    
+    
+    if (ds_type == GdaConst::ds_oci) {
+        // Oracle examples
+        //ds_str = "OCI:oracle/abcd1234@ORA11";
+        //ds_str = "OCI:oracle/abcd1234@129.219.93.200:1521/xe";
+        //ds_str = "OCI:oracle/oracle@192.168.56.101:1521/xe:table1,table2";
+        str_temp << GdaConst::datasrc_type_to_prefix[ds_type];
+        str_temp << db_name;
+        
+    } else if (ds_type == GdaConst::ds_postgresql) {
+        // postgis: PG:"dbname='databasename' host='addr' port='5432'
+        //   user='x' password='y'
+        str_temp << GdaConst::datasrc_type_to_prefix[ds_type];
+        str_temp << "dbname='" << db_name << "' ";
+        
+    } else if (ds_type == GdaConst::ds_esri_arc_sde) {
+        // ArcSDE: SDE:server,instance,database,username,password[,layer]
+        str_temp << GdaConst::datasrc_type_to_prefix[ds_type];
+        
+    } else if (ds_type == GdaConst::ds_mysql) {
+        // MYSQL:dbname,host=server,user=root,password=pwd,port=3306,table=test
+        str_temp << GdaConst::datasrc_type_to_prefix[ds_type];
+    }
+    
+    return str_temp;
 }
 
 void DBDataSource::ReadPtree(const ptree& pt,

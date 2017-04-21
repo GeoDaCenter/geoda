@@ -786,7 +786,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (layer_name.IsEmpty())
             layer_name = layername;
       
-        wxLogMessage(_("Open Datasource:") + datasource->GetOGRConnectStr());
+        wxLogMessage(_("Open Datasource:") + datasource->ToString());
         wxLogMessage(_("Open Layer:") + layername);
         
         SaveRecentDataSource(datasource, layer_name);

@@ -5126,13 +5126,15 @@ void GdaFrame::OnViewRegimesRegression(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnViewRegimesRegression()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+    if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
+		f->OnViewRegimesRegression(event);
+    } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
 		f->OnViewRegimesRegression(event);
 	} else if (ScatterPlotMatFrame* f = dynamic_cast<ScatterPlotMatFrame*>(t)) {
 		f->OnViewRegimesRegression(event);
 	} else if (CovSpFrame* f = dynamic_cast<CovSpFrame*>(t)) {
 		f->OnViewRegimesRegression(event);
-	}
+	} 
 }
 
 void GdaFrame::OnViewRegressionSelectedExcluded(wxCommandEvent& event)

@@ -58,6 +58,8 @@ public:
     void UpdateRegSelectedLine();
     void UpdateRegExcludedLine();
 	
+    bool is_show_regimes_regression;
+    
 protected:
     void RegimeMoran(std::vector<bool>& undefs,
                      SimpleLinearRegression& regime_lreg,
@@ -97,6 +99,7 @@ public:
 	
     void OnUseSpecifiedSeed(wxCommandEvent& event);
 	void OnSpecifySeedDlg(wxCommandEvent& event);
+    void OnViewRegimesRegression(wxCommandEvent& event);
     
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
