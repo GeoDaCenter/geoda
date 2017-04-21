@@ -958,7 +958,7 @@ void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	if (dlg_val.IsEmpty()) return;
 	if (dlg_val.ToULongLong(&val)) {
 		if (!lisa_coord->IsReuseLastSeed())
-            lisa_coord->SetLastUsedSeed(true);
+            lisa_coord->SetReuseLastSeed(true);
 		uint64_t new_seed_val = val;
 		lisa_coord->SetLastUsedSeed(new_seed_val);
 	} else {
