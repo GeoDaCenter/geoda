@@ -74,7 +74,16 @@ public:
                     Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
-					LisaType lisa_type, bool calc_significances = true,
+					LisaType lisa_type,
+                    bool calc_significances = true,
+                    bool row_standardize_s = true);
+    
+    LisaCoordinator(wxString weights_path,
+                    int n,
+                    std::vector<double> vals_1,
+                    std::vector<double> vals_2,
+                    int lisa_type_s = 0,
+                    bool calc_significances_s = true,
                     bool row_standardize_s = true);
     
 	virtual ~LisaCoordinator();
@@ -195,6 +204,8 @@ protected:
 	
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
+    
+    GalWeight* weights;
 };
 
 #endif

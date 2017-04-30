@@ -159,7 +159,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		}
 	}
 	
-	if (num_obs != table_int->GetNumberRows()) {
+	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
 		wxString msg = "The number of observations specified in chosen ";
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
@@ -224,8 +224,10 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		}
 		for (int i=0; i<num_obs; i++)
             id_map[ wxString::Format("%i", i+min_val) ] = i;
-	} else {
+        
+	} else if ( table_int != NULL) {
 		int col=0, tm=0;
+        
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
 			wxString msg = "Specified key value field \"";
@@ -421,7 +423,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		}
 	}
 	
-	if (num_obs != table_int->GetNumberRows()) {
+	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
 		wxString msg = "The number of observations specified in chosen ";
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
@@ -472,7 +474,8 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		}
 		for (int i=0; i<num_obs; i++)
             id_map[ wxString::Format("%i", i+min_val) ] = i;
-	} else {
+        
+	} else if (table_int != NULL) {
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {

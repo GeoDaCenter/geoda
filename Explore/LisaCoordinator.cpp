@@ -25,6 +25,7 @@
 #include "../ShapeOperations/RateSmoothing.h"
 #include "../ShapeOperations/Randik.h"
 #include "../ShapeOperations/WeightsManState.h"
+#include "../ShapeOperations/WeightUtils.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -136,6 +137,9 @@ row_standardize(row_standardize_s)
     undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
 	
 	weight_name = w_man_int->GetLongDispName(w_id);
+    
+    weights = w_man_int->GetGal(w_id);
+    
 	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
@@ -143,9 +147,93 @@ row_standardize(row_standardize_s)
 }
 
 
+LisaCoordinator::
+LisaCoordinator(wxString weights_path,
+                int n,
+                std::vector<double> vals_1,
+                std::vector<double> vals_2,
+                int lisa_type_s,
+                bool calc_significances_s,
+                bool row_standardize_s)
+{
+    num_obs = n;
+    num_time_vals = 1;
+    
+    // std::vector<GdaVarTools::VarInfo> var_info;
+    int num_vars = 1;
+    
+    if (lisa_type_s == 0) {
+        lisa_type = univariate;
+        
+    } else if (lisa_type_s == 1) {
+        lisa_type = bivariate;
+        isBivariate = true;
+        num_vars = 2;
+        
+    } else if (lisa_type_s == 2) {
+        lisa_type = eb_rate_standardized;
+        num_vars = 2;
+        
+    } else if (lisa_type_s == 3) {
+        lisa_type = differential;
+        num_vars = 2;
+    }
+    
+    undef_tms.resize(num_time_vals);
+    data.resize(num_vars);
+    undef_data.resize(num_vars);
+    var_info.resize(num_vars);
+    
+    // don't handle time variable for now
+    for (int i=0; i<var_info.size(); i++) {
+        data[i].resize(boost::extents[num_time_vals][num_obs]);
+        undef_data[i].resize(boost::extents[num_time_vals][num_obs]);
+        var_info[i].is_moran = true;
+        var_info[i].is_time_variant = false;
+        var_info[i].fixed_scale = true;
+        var_info[i].sync_with_global_time  = false;
+        var_info[i].time_max = 0;
+        var_info[i].time_min = 0;
+    }
+    
+    for (int i=0; i<num_obs; i++) {
+        data[0][0][i] = vals_1[i];
+        undef_data[0][0][i] = false;
+    }
+    if (num_vars == 1) {
+        for (int i=0; i<num_obs; i++) {
+            data[1][0][i] = vals_1[i];
+            undef_data[1][0][i] = false;
+        }
+    }
+    
+    // create weights
+    w_man_state = NULL;
+    w_man_int = NULL;
+    
+    wxString ext = GenUtils::GetFileExt(weights_path).Lower();
+    GalElement* tempGal = 0;
+    if (ext == "gal") {
+        tempGal = WeightUtils::ReadGal(weights_path, NULL);
+    } else {
+        tempGal = WeightUtils::ReadGwtAsGal(weights_path, NULL);
+    }
+    
+    weights = new GalWeight();
+    weights->num_obs = num_obs;
+    weights->wflnm = weights_path;
+    weights->id_field = "ogc_fid";
+    weights->gal = tempGal;
+    
+    SetSignificanceFilter(1);
+    InitFromVarInfo();
+}
+
 LisaCoordinator::~LisaCoordinator()
 {
-	w_man_state->removeObserver(this);
+    if (w_man_state) {
+        w_man_state->removeObserver(this);
+    }
 	DeallocateVectors();
 }
 
@@ -460,14 +548,14 @@ void LisaCoordinator::CalcLisa()
         // local weights copy
         GalWeight* gw = NULL;
         if ( has_undef ) {
-            gw = new GalWeight(*w_man_int->GetGal(w_id));
+            gw = new GalWeight(*weights);
             gw->Update(undefs);
         } else {
-            gw = w_man_int->GetGal(w_id);
+            gw = weights;
         }
         GalElement* W = gw->gal;
         Gal_vecs.push_back(gw);
-        Gal_vecs_orig.push_back(w_man_int->GetGal(w_id));
+        Gal_vecs_orig.push_back(weights);
 	
 		for (int i=0; i<num_obs; i++) {
             
@@ -719,7 +807,9 @@ void LisaCoordinator::SetSignificanceFilter(int filter_id)
 
 void LisaCoordinator::update(WeightsManState* o)
 {
-	weight_name = w_man_int->GetLongDispName(w_id);
+    if (w_man_int) {
+        weight_name = w_man_int->GetLongDispName(w_id);
+    }
 }
 
 int LisaCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
