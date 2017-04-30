@@ -158,6 +158,8 @@ LisaCoordinator(wxString weights_path,
 {
     num_obs = n;
     num_time_vals = 1;
+    calc_significances = calc_significances_s;
+    row_standardize = row_standardize_s;
     
     // std::vector<GdaVarTools::VarInfo> var_info;
     int num_vars = 1;
@@ -200,7 +202,7 @@ LisaCoordinator(wxString weights_path,
         data[0][0][i] = vals_1[i];
         undef_data[0][0][i] = false;
     }
-    if (num_vars == 1) {
+    if (num_vars == 2) {
         for (int i=0; i<num_obs; i++) {
             data[1][0][i] = vals_1[i];
             undef_data[1][0][i] = false;
