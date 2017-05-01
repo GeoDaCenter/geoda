@@ -20296,6 +20296,283 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_LocalGeary__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string arg1 ;
+  std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > *arg2 = 0 ;
+  std::vector< double,std::allocator< double > > *arg3 = 0 ;
+  std::vector< double,std::allocator< double > > *arg4 = 0 ;
+  std::vector< int,std::allocator< int > > *arg5 = 0 ;
+  std::vector< int,std::allocator< int > > *arg6 = 0 ;
+  int arg7 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  void *argp5 = 0 ;
+  int res5 = 0 ;
+  void *argp6 = 0 ;
+  int res6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:LocalGeary",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "LocalGeary" "', argument " "1"" of type '" "std::string""'"); 
+    }
+    arg1 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__vectorT_double_std__allocatorT_double_t_t_std__allocatorT_std__vectorT_double_std__allocatorT_double_t_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "LocalGeary" "', argument " "2"" of type '" "std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "2"" of type '" "std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t,  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "LocalGeary" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  arg3 = reinterpret_cast< std::vector< double,std::allocator< double > > * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "LocalGeary" "', argument " "4"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "4"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  arg4 = reinterpret_cast< std::vector< double,std::allocator< double > > * >(argp4);
+  res5 = SWIG_ConvertPtr(obj4, &argp5, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t,  0 );
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "LocalGeary" "', argument " "5"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  if (!argp5) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "5"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  arg5 = reinterpret_cast< std::vector< int,std::allocator< int > > * >(argp5);
+  res6 = SWIG_ConvertPtr(obj5, &argp6, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t,  0 );
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "LocalGeary" "', argument " "6"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  if (!argp6) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "6"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  arg6 = reinterpret_cast< std::vector< int,std::allocator< int > > * >(argp6);
+  ecode7 = SWIG_AsVal_int(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "LocalGeary" "', argument " "7"" of type '" "int""'");
+  } 
+  arg7 = static_cast< int >(val7);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (bool)LocalGeary(arg1,*arg2,*arg3,*arg4,*arg5,*arg6,arg7);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_LocalGeary__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string arg1 ;
+  std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > *arg2 = 0 ;
+  std::vector< double,std::allocator< double > > *arg3 = 0 ;
+  std::vector< double,std::allocator< double > > *arg4 = 0 ;
+  std::vector< int,std::allocator< int > > *arg5 = 0 ;
+  std::vector< int,std::allocator< int > > *arg6 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  void *argp5 = 0 ;
+  int res5 = 0 ;
+  void *argp6 = 0 ;
+  int res6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:LocalGeary",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "LocalGeary" "', argument " "1"" of type '" "std::string""'"); 
+    }
+    arg1 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_std__vectorT_std__vectorT_double_std__allocatorT_double_t_t_std__allocatorT_std__vectorT_double_std__allocatorT_double_t_t_t_t,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "LocalGeary" "', argument " "2"" of type '" "std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "2"" of type '" "std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &""'"); 
+  }
+  arg2 = reinterpret_cast< std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t,  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "LocalGeary" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "3"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  arg3 = reinterpret_cast< std::vector< double,std::allocator< double > > * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "LocalGeary" "', argument " "4"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "4"" of type '" "std::vector< double,std::allocator< double > > &""'"); 
+  }
+  arg4 = reinterpret_cast< std::vector< double,std::allocator< double > > * >(argp4);
+  res5 = SWIG_ConvertPtr(obj4, &argp5, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t,  0 );
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "LocalGeary" "', argument " "5"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  if (!argp5) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "5"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  arg5 = reinterpret_cast< std::vector< int,std::allocator< int > > * >(argp5);
+  res6 = SWIG_ConvertPtr(obj5, &argp6, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t,  0 );
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "LocalGeary" "', argument " "6"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  if (!argp6) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "LocalGeary" "', argument " "6"" of type '" "std::vector< int,std::allocator< int > > &""'"); 
+  }
+  arg6 = reinterpret_cast< std::vector< int,std::allocator< int > > * >(argp6);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (bool)LocalGeary(arg1,*arg2,*arg3,*arg4,*arg5,*arg6);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_LocalGeary(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[8];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 7) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__vectorT_std__vectorT_double_std__allocatorT_double_t_t_std__allocatorT_std__vectorT_double_std__allocatorT_double_t_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            void *vptr = 0;
+            int res = SWIG_ConvertPtr(argv[4], &vptr, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t, 0);
+            _v = SWIG_CheckState(res);
+            if (_v) {
+              void *vptr = 0;
+              int res = SWIG_ConvertPtr(argv[5], &vptr, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t, 0);
+              _v = SWIG_CheckState(res);
+              if (_v) {
+                return _wrap_LocalGeary__SWIG_1(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_std__vectorT_std__vectorT_double_std__allocatorT_double_t_t_std__allocatorT_std__vectorT_double_std__allocatorT_double_t_t_t_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            void *vptr = 0;
+            int res = SWIG_ConvertPtr(argv[4], &vptr, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t, 0);
+            _v = SWIG_CheckState(res);
+            if (_v) {
+              void *vptr = 0;
+              int res = SWIG_ConvertPtr(argv[5], &vptr, SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t, 0);
+              _v = SWIG_CheckState(res);
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_int(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_LocalGeary__SWIG_0(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'LocalGeary'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    LocalGeary(std::string,std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &,std::vector< double,std::allocator< double > > &,std::vector< double,std::allocator< double > > &,std::vector< int,std::allocator< int > > &,std::vector< int,std::allocator< int > > &,int)\n"
+    "    LocalGeary(std::string,std::vector< std::vector< double,std::allocator< double > >,std::allocator< std::vector< double,std::allocator< double > > > > &,std::vector< double,std::allocator< double > > &,std::vector< double,std::allocator< double > > &,std::vector< int,std::allocator< int > > &,std::vector< int,std::allocator< int > > &)\n");
+  return 0;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"delete_SwigPyIterator", _wrap_delete_SwigPyIterator, METH_VARARGS, NULL},
@@ -20525,6 +20802,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CreateKNNWeights", _wrap_CreateKNNWeights, METH_VARARGS, NULL},
 	 { (char *)"CreateDistanceWeights", _wrap_CreateDistanceWeights, METH_VARARGS, NULL},
 	 { (char *)"LISA", _wrap_LISA, METH_VARARGS, NULL},
+	 { (char *)"LocalGeary", _wrap_LocalGeary, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

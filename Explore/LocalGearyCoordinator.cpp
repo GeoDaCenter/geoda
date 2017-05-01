@@ -155,6 +155,7 @@ LocalGearyCoordinator(wxString weights_path,
                 bool calc_significances_s,
                 bool row_standardize_s)
 {
+    isBivariate = false;
     num_obs = n;
     num_time_vals = 1;
     permutations = permutations_s;
@@ -175,7 +176,7 @@ LocalGearyCoordinator(wxString weights_path,
     data.resize(num_vars);
     undef_data.resize(num_vars);
     var_info.resize(num_vars);
-    
+   
     // don't handle time variable for now
     for (int i=0; i<var_info.size(); i++) {
         data[i].resize(boost::extents[num_time_vals][num_obs]);

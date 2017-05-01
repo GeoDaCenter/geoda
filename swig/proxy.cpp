@@ -13,6 +13,7 @@
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../Explore/LisaCoordinator.h"
+#include "../Explore/LocalGearyCoordinator.h"
 #include "../SpatialIndAlgs.h"
 
 #include "proxy.h"
@@ -379,6 +380,21 @@ bool LISA(std::string in_w_file, std::vector<double> var_1, std::vector<double> 
         clusterFlag[i] = lc->cluster_vecs[0][i];
     }
     delete lc;
-    return false;
+    return true;
+}
+
+bool LocalGeary(std::string in_w_file, std::vector<std::vector<double> >& data, std::vector<double>& localGeary, std::vector<double>& sigLocalGeary, std::vector<int>& sigFlag, std::vector<int>& clusterFlag, int numPermutations)
+{
+    wxString w_path(in_w_file);
+    int num_obs = data[0].size();
+
+    LocalGearyCoordinator* lc = new LocalGearyCoordinator(w_path, num_obs, data, numPermutations);
+    for (int i=0; i<num_obs; i++) {
+        localGeary[i] = lc->local_geary_vecs[0][i];
+        sigLocalGeary[i] = lc->sig_local_geary_vecs[0][i];
+        sigFlag[i] = lc->sig_cat_vecs[0][i];
+        clusterFlag[i] = lc->cluster_vecs[0][i];
+    }
+    delete lc;
 }
 

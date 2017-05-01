@@ -398,6 +398,10 @@ CreateDistanceWeights = _geoda.CreateDistanceWeights
 def LISA(*args):
   return _geoda.LISA(*args)
 LISA = _geoda.LISA
+
+def LocalGeary(*args):
+  return _geoda.LocalGeary(*args)
+LocalGeary = _geoda.LocalGeary
 # This file is compatible with both classic and new-style classes.
 
 
