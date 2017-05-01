@@ -77,6 +77,13 @@ public:
 					LocalGearyType local_geary_type, bool calc_significances = true,
                     bool row_standardize_s = true);
     
+    LocalGearyCoordinator(wxString weights_path,
+                    int n,
+                    std::vector<std::vector<double> >& vars,
+                    int permutations_s = 599,
+                    bool calc_significances_s = true,
+                    bool row_standardize_s = true);
+    
 	virtual ~LocalGearyCoordinator();
 	
 	bool IsOk() { return true; }
@@ -208,6 +215,8 @@ protected:
 	
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
+    
+    GalWeight* weights;
 };
 
 #endif
