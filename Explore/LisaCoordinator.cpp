@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <time.h>
 #include <math.h>
 #include <wx/filename.h>
@@ -654,7 +657,8 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
     wxMutex worker_list_mutex;
 	// signals that worker_list is empty
 	wxCondition worker_list_empty_cond(worker_list_mutex);
-	worker_list_mutex.Lock(); // mutex should be initially locked
+    // mutex should be initially locked
+	worker_list_mutex.Lock();
 	
     // List of all the threads currently alive.  As soon as the thread
 	// terminates, it removes itself from the list.
@@ -676,6 +680,8 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
 	
+    boost::thread_group threadPool;
+    
 	if (!reuse_last_seed) last_seed_used = time(0);
 	for (int i=0; i<tot_threads && !is_thread_error; i++) {
 		int a=0;
@@ -694,6 +700,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		msg << "thread " << thread_id << ": " << a << "->" << b;
 		msg << ", seed: " << seed_start << "->" << seed_end;
 		
+        /*
 		LisaWorkerThread* thread =
 			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
 								 &worker_list_mutex,
@@ -705,7 +712,12 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		} else {
 			worker_list.push_front(thread);
 		}
+         */
+        boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
+        threadPool.add_thread(worker);
 	}
+    threadPool.join_all();
+    /*
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
 		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
@@ -722,6 +734,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 			// alarm (sprious signal), the loop will exit.
 		}
 	}
+     */
 }
 
 void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
