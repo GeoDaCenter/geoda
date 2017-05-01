@@ -4,19 +4,17 @@ from distutils.core import setup, Extension
 
 GEODA_HOME = '/home/django/downloads/geoda/BuildTools/centos'
 
-DEP_HOME = '/home/django/deps'
-
 PYTHON_HEADER = '-I/usr/include/python2.7'
 
-INCLUDE_DIRS = [DEP_HOME + '/lib/wx/include/gtk3-unicode-3.1', 
-                DEP_HOME + '/include/wx-3.1',
-                DEP_HOME + '/include/boost',
-                DEP_HOME + '/include/eigen3',
-                DEP_HOME + '/include',
+INCLUDE_DIRS = [GEODA_HOME + '/libraries/lib/wx/include/gtk3-unicode-3.1', 
+                GEODA_HOME + '/libraries/include/wx-3.1',
+                GEODA_HOME + '/libraries/include/boost',
+                GEODA_HOME + '/libraries/include/eigen3',
+                GEODA_HOME + '/libraries/include',
                 '/usr/include/X11',
                 ]
 
-LIBRARY_DIRS = [DEP_HOME + '/lib']
+LIBRARY_DIRS = [GEODA_HOME + '/libraries/lib',GEODA_HOME + '/temp/boost_1_57_0/stage/lib']
 
 """
 'GL', 'GLU', 'gthread-2.0', 'X11', 'Xxf86vm', 'gdk-3', 'atk-1.0',

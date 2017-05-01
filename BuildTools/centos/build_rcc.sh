@@ -42,7 +42,7 @@ fi
 
 unset ORACLE_HOME
 export GEODA_HOME=$PWD
-PREFIX=$GEODA_HOME/libraries
+PREFIX=/home/django/deps
 DOWNLOAD_HOME=$GEODA_HOME/temp
 echo $PREFIX
 
@@ -488,50 +488,6 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
     #fi
 }
 
-#########################################################################
-# install GDAL/OGR
-#########################################################################
-echo ""
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Building: Custom GDAL/OGR 1.9.2 %"
-echo "% dep: libidn-1.32.tar.gz https://ftp.gnu.org/gnu/libidn/libidn-1.32.tar.gz %"
-echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-{
-    LIB_NAME=gdal
-    LIB_URL=https://codeload.github.com/lixun910/gdal/zip/GeoDa17Merge
-    LIB_FILENAME=GeoDa17Merge
-    LIB_CHECKER=libgdal.a
-    echo $LIB_FILENAME
-
-    cd $DOWNLOAD_HOME
-    if ! [ -d "$LIB_NAME" ] ; then
-        #curl -k -O $LIB_URL
-        #unzip $LIB_FILENAME
-        git clone https://github.com/lixun910/gdal.git gdal-GeoDa17Merge
-        mv gdal-GeoDa17Merge/gdal gdal
-    fi
-
-    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        cd $LIB_NAME
-        chmod +x configure
-        chmod +x install-sh
-        ./configure
-        cp -rf $GEODA_HOME/dep/gdal-1.9.2/* .
-        cp GDALmake64.opt GDALmake.opt
-        #make clean
-        $MAKER
-        touch .libs/libgdal.lai
-        make install
-        #cd ogr/ogrsf_frmts/oci
-        #make plugin
-        #mv ogr_OCI.so ogr_OCI.dylib
-        #install_name_tool -change "/scratch/plebld/208/network/lib/libnnz10.dylib" "/Users/xun/Downloads/Oracle_10204Client_MAC_X86/ohome/lib/libnnz10.dylib" ogr_OCI.so
-    fi
-    if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-        echo "Error! Exit"
-        exit
-    fi
-}
 
 #########################################################################
 # install wxWidgets library
