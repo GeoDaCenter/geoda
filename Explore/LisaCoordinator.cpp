@@ -162,6 +162,8 @@ LisaCoordinator(wxString weights_path,
     permutations = permutations_s;
     calc_significances = calc_significances_s;
     row_standardize = row_standardize_s;
+    last_seed_used = 0;
+    reuse_last_seed = false;
     
     // std::vector<GdaVarTools::VarInfo> var_info;
     int num_vars = 1;
