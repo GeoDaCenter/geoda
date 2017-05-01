@@ -372,14 +372,12 @@ bool LISA(std::string in_w_file, std::vector<double> var_1, std::vector<double> 
     int num_obs = var_1.size();
 
     LisaCoordinator* lc = new LisaCoordinator(w_path, num_obs, var_1, var_2, lisa_type, numPermutations);
-#ifdef DEBUG
-    printf("LISA result(): \n");
     for (int i=0; i<num_obs; i++) {
-        double a = lc->cluster_vecs[0][i];
-        //double b = lc->sig_local_moran_vecs[0][i];
-        //printf("%f,%f\n", a, b);
+        localMoran[i] = lc->local_moran_vecs[0][i];
+        sigLocalMoran[i] = lc->sig_local_moran_vecs[0][i];
+        sigFlag[i] = lc->sig_cat_vecs[0][i];
+        clusterFlag[i] = lc->cluster_vecs[0][i];
     }
-#endif
     delete lc;
     return false;
 }

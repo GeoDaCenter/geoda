@@ -1,8 +1,11 @@
 from geoda import VecDouble, VecInt
 import geoda
 
+import pysal
+dbf = pysal.open('../SampleData/nat.dbf','r')
+x = dbf.by_col('HR60')
 n = 3085
-var_1 = VecDouble([i for i in range(n)])
+var_1 = VecDouble(x)
 var_2 = VecDouble([0 for i in range(n)])
 localMoran = VecDouble([0 for i in range(n)])
 sigLocalMoran = VecDouble([0 for i in range(n)])
@@ -12,6 +15,9 @@ lisa_type = 0
 numPermutation = 599
 
 geoda.LISA("/home/xun/downloads/geoda/swig/nat.gal", var_1, var_2, localMoran, sigLocalMoran, sigFlag, clusterFlag, lisa_type, numPermutation)
+
+for i in range(10):
+    print localMoran[i], clusterFlag[i], sigLocalMoran[i], sigFlag[i]
 
 geoda.CreateQueenWeights("nat.shp","nat.gal",1,False)
 
