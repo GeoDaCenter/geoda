@@ -43,6 +43,7 @@ GEODA_SOURCES = [
         '../DataViewer/DataSource.cpp',
         '../DialogTools/FieldNameCorrectionDlg.cpp',
         '../Explore/Basemap.cpp',
+        '../Explore/LisaCoordinator.cpp',
         '../ShapeOperations/AbstractShape.cpp', 
         '../ShapeOperations/BasePoint.cpp', 
         '../ShapeOperations/Box.cpp', 
@@ -55,7 +56,10 @@ GEODA_SOURCES = [
         '../ShapeOperations/OGRLayerProxy.cpp', 
         '../ShapeOperations/OGRFieldProxy.cpp', 
         '../ShapeOperations/PolysToContigWeights.cpp', 
+        '../ShapeOperations/RateSmoothing.cpp', 
         '../ShapeOperations/VoronoiUtils.cpp',
+        '../ShapeOperations/WeightsManState.cpp',
+        '../ShapeOperations/WeightUtils.cpp',
         '../VarCalc/NumericTests.cpp',
         '../GenGeomAlgs.cpp', 
         '../GdaConst.cpp', 
@@ -66,6 +70,7 @@ GEODA_SOURCES = [
         '../GeneralWxUtils.cpp', 
         '../ShpFile.cpp', 
         '../SpatialIndAlgs.cpp', 
+        '../VarTools.cpp', 
         '../logger.cpp', 
     ]
 

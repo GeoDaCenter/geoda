@@ -83,6 +83,7 @@ public:
                     std::vector<double> vals_1,
                     std::vector<double> vals_2,
                     int lisa_type_s = 0,
+                    int permutations_s = 599,
                     bool calc_significances_s = true,
                     bool row_standardize_s = true);
     

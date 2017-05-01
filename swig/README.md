@@ -55,6 +55,7 @@ python -c 'import geoda;geoda.CreateKNNWeights("nat.shp","nat_knn.gal", 4);'
 
 python -c 'import geoda;geoda.CreateKNNWeights("nat.shp","nat_knn.gal", 4, True, False);'
 
+python -c 'import geoda;geoda.CreateDistanceWeights("nat.shp","nat_dist.gal", 1.465776);'
 ```
  
 

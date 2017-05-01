@@ -12,6 +12,7 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/VoronoiUtils.h"
+#include "../Explore/LisaCoordinator.h"
 #include "../SpatialIndAlgs.h"
 
 #include "proxy.h"
@@ -360,3 +361,26 @@ bool CreateDistanceWeights(std::string in_file, std::string out_file, double thr
 
     return flag;
 }
+
+    // 0 univariate lisa
+    // 1 bivariate lisa
+    // 2 EB lisa
+    // 3 diff lisa
+bool LISA(std::string in_w_file, std::vector<double> var_1, std::vector<double> var_2, std::vector<double>& localMoran, std::vector<double>& sigLocalMoran, std::vector<int>& sigFlag, std::vector<int>& clusterFlag, int lisa_type, int numPermutations)
+{
+    wxString w_path(in_w_file);
+    int num_obs = var_1.size();
+
+    LisaCoordinator* lc = new LisaCoordinator(w_path, num_obs, var_1, var_2, lisa_type, numPermutations);
+#ifdef DEBUG
+    printf("LISA result(): \n");
+    for (int i=0; i<num_obs; i++) {
+        double a = lc->cluster_vecs[0][i];
+        //double b = lc->sig_local_moran_vecs[0][i];
+        //printf("%f,%f\n", a, b);
+    }
+#endif
+    delete lc;
+    return false;
+}
+

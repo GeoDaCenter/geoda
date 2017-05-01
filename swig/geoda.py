@@ -67,6 +67,317 @@ except AttributeError:
     _newclass = 0
 
 
+class SwigPyIterator(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, SwigPyIterator, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, SwigPyIterator, name)
+    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+    __swig_destroy__ = _geoda.delete_SwigPyIterator
+    __del__ = lambda self : None;
+    def value(self): return _geoda.SwigPyIterator_value(self)
+    def incr(self, n=1): return _geoda.SwigPyIterator_incr(self, n)
+    def decr(self, n=1): return _geoda.SwigPyIterator_decr(self, n)
+    def distance(self, *args): return _geoda.SwigPyIterator_distance(self, *args)
+    def equal(self, *args): return _geoda.SwigPyIterator_equal(self, *args)
+    def copy(self): return _geoda.SwigPyIterator_copy(self)
+    def next(self): return _geoda.SwigPyIterator_next(self)
+    def __next__(self): return _geoda.SwigPyIterator___next__(self)
+    def previous(self): return _geoda.SwigPyIterator_previous(self)
+    def advance(self, *args): return _geoda.SwigPyIterator_advance(self, *args)
+    def __eq__(self, *args): return _geoda.SwigPyIterator___eq__(self, *args)
+    def __ne__(self, *args): return _geoda.SwigPyIterator___ne__(self, *args)
+    def __iadd__(self, *args): return _geoda.SwigPyIterator___iadd__(self, *args)
+    def __isub__(self, *args): return _geoda.SwigPyIterator___isub__(self, *args)
+    def __add__(self, *args): return _geoda.SwigPyIterator___add__(self, *args)
+    def __sub__(self, *args): return _geoda.SwigPyIterator___sub__(self, *args)
+    def __iter__(self): return self
+SwigPyIterator_swigregister = _geoda.SwigPyIterator_swigregister
+SwigPyIterator_swigregister(SwigPyIterator)
+
+class VecDouble(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecDouble, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecDouble, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecDouble_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecDouble___nonzero__(self)
+    def __bool__(self): return _geoda.VecDouble___bool__(self)
+    def __len__(self): return _geoda.VecDouble___len__(self)
+    def pop(self): return _geoda.VecDouble_pop(self)
+    def __getslice__(self, *args): return _geoda.VecDouble___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecDouble___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecDouble___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecDouble___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecDouble___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecDouble___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecDouble_append(self, *args)
+    def empty(self): return _geoda.VecDouble_empty(self)
+    def size(self): return _geoda.VecDouble_size(self)
+    def clear(self): return _geoda.VecDouble_clear(self)
+    def swap(self, *args): return _geoda.VecDouble_swap(self, *args)
+    def get_allocator(self): return _geoda.VecDouble_get_allocator(self)
+    def begin(self): return _geoda.VecDouble_begin(self)
+    def end(self): return _geoda.VecDouble_end(self)
+    def rbegin(self): return _geoda.VecDouble_rbegin(self)
+    def rend(self): return _geoda.VecDouble_rend(self)
+    def pop_back(self): return _geoda.VecDouble_pop_back(self)
+    def erase(self, *args): return _geoda.VecDouble_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecDouble(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecDouble_push_back(self, *args)
+    def front(self): return _geoda.VecDouble_front(self)
+    def back(self): return _geoda.VecDouble_back(self)
+    def assign(self, *args): return _geoda.VecDouble_assign(self, *args)
+    def resize(self, *args): return _geoda.VecDouble_resize(self, *args)
+    def insert(self, *args): return _geoda.VecDouble_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecDouble_reserve(self, *args)
+    def capacity(self): return _geoda.VecDouble_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecDouble
+    __del__ = lambda self : None;
+VecDouble_swigregister = _geoda.VecDouble_swigregister
+VecDouble_swigregister(VecDouble)
+
+class VecVecDouble(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecVecDouble, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecVecDouble, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecVecDouble_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecVecDouble___nonzero__(self)
+    def __bool__(self): return _geoda.VecVecDouble___bool__(self)
+    def __len__(self): return _geoda.VecVecDouble___len__(self)
+    def pop(self): return _geoda.VecVecDouble_pop(self)
+    def __getslice__(self, *args): return _geoda.VecVecDouble___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecVecDouble___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecVecDouble___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecVecDouble___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecVecDouble___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecVecDouble___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecVecDouble_append(self, *args)
+    def empty(self): return _geoda.VecVecDouble_empty(self)
+    def size(self): return _geoda.VecVecDouble_size(self)
+    def clear(self): return _geoda.VecVecDouble_clear(self)
+    def swap(self, *args): return _geoda.VecVecDouble_swap(self, *args)
+    def get_allocator(self): return _geoda.VecVecDouble_get_allocator(self)
+    def begin(self): return _geoda.VecVecDouble_begin(self)
+    def end(self): return _geoda.VecVecDouble_end(self)
+    def rbegin(self): return _geoda.VecVecDouble_rbegin(self)
+    def rend(self): return _geoda.VecVecDouble_rend(self)
+    def pop_back(self): return _geoda.VecVecDouble_pop_back(self)
+    def erase(self, *args): return _geoda.VecVecDouble_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecVecDouble(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecVecDouble_push_back(self, *args)
+    def front(self): return _geoda.VecVecDouble_front(self)
+    def back(self): return _geoda.VecVecDouble_back(self)
+    def assign(self, *args): return _geoda.VecVecDouble_assign(self, *args)
+    def resize(self, *args): return _geoda.VecVecDouble_resize(self, *args)
+    def insert(self, *args): return _geoda.VecVecDouble_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecVecDouble_reserve(self, *args)
+    def capacity(self): return _geoda.VecVecDouble_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecVecDouble
+    __del__ = lambda self : None;
+VecVecDouble_swigregister = _geoda.VecVecDouble_swigregister
+VecVecDouble_swigregister(VecVecDouble)
+
+class VecInt(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecInt, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecInt, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecInt_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecInt___nonzero__(self)
+    def __bool__(self): return _geoda.VecInt___bool__(self)
+    def __len__(self): return _geoda.VecInt___len__(self)
+    def pop(self): return _geoda.VecInt_pop(self)
+    def __getslice__(self, *args): return _geoda.VecInt___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecInt___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecInt___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecInt___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecInt___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecInt___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecInt_append(self, *args)
+    def empty(self): return _geoda.VecInt_empty(self)
+    def size(self): return _geoda.VecInt_size(self)
+    def clear(self): return _geoda.VecInt_clear(self)
+    def swap(self, *args): return _geoda.VecInt_swap(self, *args)
+    def get_allocator(self): return _geoda.VecInt_get_allocator(self)
+    def begin(self): return _geoda.VecInt_begin(self)
+    def end(self): return _geoda.VecInt_end(self)
+    def rbegin(self): return _geoda.VecInt_rbegin(self)
+    def rend(self): return _geoda.VecInt_rend(self)
+    def pop_back(self): return _geoda.VecInt_pop_back(self)
+    def erase(self, *args): return _geoda.VecInt_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecInt(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecInt_push_back(self, *args)
+    def front(self): return _geoda.VecInt_front(self)
+    def back(self): return _geoda.VecInt_back(self)
+    def assign(self, *args): return _geoda.VecInt_assign(self, *args)
+    def resize(self, *args): return _geoda.VecInt_resize(self, *args)
+    def insert(self, *args): return _geoda.VecInt_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecInt_reserve(self, *args)
+    def capacity(self): return _geoda.VecInt_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecInt
+    __del__ = lambda self : None;
+VecInt_swigregister = _geoda.VecInt_swigregister
+VecInt_swigregister(VecInt)
+
+class VecVecInt(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecVecInt, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecVecInt, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecVecInt_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecVecInt___nonzero__(self)
+    def __bool__(self): return _geoda.VecVecInt___bool__(self)
+    def __len__(self): return _geoda.VecVecInt___len__(self)
+    def pop(self): return _geoda.VecVecInt_pop(self)
+    def __getslice__(self, *args): return _geoda.VecVecInt___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecVecInt___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecVecInt___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecVecInt___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecVecInt___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecVecInt___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecVecInt_append(self, *args)
+    def empty(self): return _geoda.VecVecInt_empty(self)
+    def size(self): return _geoda.VecVecInt_size(self)
+    def clear(self): return _geoda.VecVecInt_clear(self)
+    def swap(self, *args): return _geoda.VecVecInt_swap(self, *args)
+    def get_allocator(self): return _geoda.VecVecInt_get_allocator(self)
+    def begin(self): return _geoda.VecVecInt_begin(self)
+    def end(self): return _geoda.VecVecInt_end(self)
+    def rbegin(self): return _geoda.VecVecInt_rbegin(self)
+    def rend(self): return _geoda.VecVecInt_rend(self)
+    def pop_back(self): return _geoda.VecVecInt_pop_back(self)
+    def erase(self, *args): return _geoda.VecVecInt_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecVecInt(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecVecInt_push_back(self, *args)
+    def front(self): return _geoda.VecVecInt_front(self)
+    def back(self): return _geoda.VecVecInt_back(self)
+    def assign(self, *args): return _geoda.VecVecInt_assign(self, *args)
+    def resize(self, *args): return _geoda.VecVecInt_resize(self, *args)
+    def insert(self, *args): return _geoda.VecVecInt_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecVecInt_reserve(self, *args)
+    def capacity(self): return _geoda.VecVecInt_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecVecInt
+    __del__ = lambda self : None;
+VecVecInt_swigregister = _geoda.VecVecInt_swigregister
+VecVecInt_swigregister(VecVecInt)
+
+class VecUINT8(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecUINT8, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecUINT8, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecUINT8_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecUINT8___nonzero__(self)
+    def __bool__(self): return _geoda.VecUINT8___bool__(self)
+    def __len__(self): return _geoda.VecUINT8___len__(self)
+    def pop(self): return _geoda.VecUINT8_pop(self)
+    def __getslice__(self, *args): return _geoda.VecUINT8___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecUINT8___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecUINT8___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecUINT8___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecUINT8___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecUINT8___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecUINT8_append(self, *args)
+    def empty(self): return _geoda.VecUINT8_empty(self)
+    def size(self): return _geoda.VecUINT8_size(self)
+    def clear(self): return _geoda.VecUINT8_clear(self)
+    def swap(self, *args): return _geoda.VecUINT8_swap(self, *args)
+    def get_allocator(self): return _geoda.VecUINT8_get_allocator(self)
+    def begin(self): return _geoda.VecUINT8_begin(self)
+    def end(self): return _geoda.VecUINT8_end(self)
+    def rbegin(self): return _geoda.VecUINT8_rbegin(self)
+    def rend(self): return _geoda.VecUINT8_rend(self)
+    def pop_back(self): return _geoda.VecUINT8_pop_back(self)
+    def erase(self, *args): return _geoda.VecUINT8_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecUINT8(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecUINT8_push_back(self, *args)
+    def front(self): return _geoda.VecUINT8_front(self)
+    def back(self): return _geoda.VecUINT8_back(self)
+    def assign(self, *args): return _geoda.VecUINT8_assign(self, *args)
+    def resize(self, *args): return _geoda.VecUINT8_resize(self, *args)
+    def insert(self, *args): return _geoda.VecUINT8_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecUINT8_reserve(self, *args)
+    def capacity(self): return _geoda.VecUINT8_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecUINT8
+    __del__ = lambda self : None;
+VecUINT8_swigregister = _geoda.VecUINT8_swigregister
+VecUINT8_swigregister(VecUINT8)
+
+class VecVecUINT8(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecVecUINT8, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecVecUINT8, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecVecUINT8_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecVecUINT8___nonzero__(self)
+    def __bool__(self): return _geoda.VecVecUINT8___bool__(self)
+    def __len__(self): return _geoda.VecVecUINT8___len__(self)
+    def pop(self): return _geoda.VecVecUINT8_pop(self)
+    def __getslice__(self, *args): return _geoda.VecVecUINT8___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecVecUINT8___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecVecUINT8___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecVecUINT8___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecVecUINT8___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecVecUINT8___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecVecUINT8_append(self, *args)
+    def empty(self): return _geoda.VecVecUINT8_empty(self)
+    def size(self): return _geoda.VecVecUINT8_size(self)
+    def clear(self): return _geoda.VecVecUINT8_clear(self)
+    def swap(self, *args): return _geoda.VecVecUINT8_swap(self, *args)
+    def get_allocator(self): return _geoda.VecVecUINT8_get_allocator(self)
+    def begin(self): return _geoda.VecVecUINT8_begin(self)
+    def end(self): return _geoda.VecVecUINT8_end(self)
+    def rbegin(self): return _geoda.VecVecUINT8_rbegin(self)
+    def rend(self): return _geoda.VecVecUINT8_rend(self)
+    def pop_back(self): return _geoda.VecVecUINT8_pop_back(self)
+    def erase(self, *args): return _geoda.VecVecUINT8_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecVecUINT8(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecVecUINT8_push_back(self, *args)
+    def front(self): return _geoda.VecVecUINT8_front(self)
+    def back(self): return _geoda.VecVecUINT8_back(self)
+    def assign(self, *args): return _geoda.VecVecUINT8_assign(self, *args)
+    def resize(self, *args): return _geoda.VecVecUINT8_resize(self, *args)
+    def insert(self, *args): return _geoda.VecVecUINT8_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecVecUINT8_reserve(self, *args)
+    def capacity(self): return _geoda.VecVecUINT8_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecVecUINT8
+    __del__ = lambda self : None;
+VecVecUINT8_swigregister = _geoda.VecVecUINT8_swigregister
+VecVecUINT8_swigregister(VecVecUINT8)
+
 
 def CreateRookWeights(*args):
   return _geoda.CreateRookWeights(*args)
@@ -83,6 +394,10 @@ CreateKNNWeights = _geoda.CreateKNNWeights
 def CreateDistanceWeights(*args):
   return _geoda.CreateDistanceWeights(*args)
 CreateDistanceWeights = _geoda.CreateDistanceWeights
+
+def LISA(*args):
+  return _geoda.LISA(*args)
+LISA = _geoda.LISA
 # This file is compatible with both classic and new-style classes.
 
 

@@ -153,11 +153,13 @@ LisaCoordinator(wxString weights_path,
                 std::vector<double> vals_1,
                 std::vector<double> vals_2,
                 int lisa_type_s,
+                int permutations_s,
                 bool calc_significances_s,
                 bool row_standardize_s)
 {
     num_obs = n;
     num_time_vals = 1;
+    permutations = permutations_s;
     calc_significances = calc_significances_s;
     row_standardize = row_standardize_s;
     
