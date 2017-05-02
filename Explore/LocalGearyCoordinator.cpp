@@ -165,7 +165,7 @@ LocalGearyCoordinator(wxString weights_path,
     reuse_last_seed = false;
     
     // std::vector<GdaVarTools::VarInfo> var_info;
-    int num_vars = vars.size();
+    num_vars = vars.size();
     
     if (num_vars == 1) {
         local_geary_type = univariate;

@@ -46,6 +46,7 @@ GEODA_SOURCES = [
         '../DialogTools/FieldNameCorrectionDlg.cpp',
         '../Explore/Basemap.cpp',
         '../Explore/LisaCoordinator.cpp',
+        '../Explore/LocalGearyCoordinator.cpp',
         '../ShapeOperations/AbstractShape.cpp', 
         '../ShapeOperations/BasePoint.cpp', 
         '../ShapeOperations/Box.cpp', 
