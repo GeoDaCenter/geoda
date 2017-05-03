@@ -56,6 +56,33 @@ python -c 'import geoda;geoda.CreateKNNWeights("nat.shp","nat_knn.gal", 4);'
 python -c 'import geoda;geoda.CreateKNNWeights("nat.shp","nat_knn.gal", 4, True, False);'
 
 python -c 'import geoda;geoda.CreateDistanceWeights("nat.shp","nat_dist.gal", 1.465776);'
+
+python -c 'import geoda;geoda.LISA("nat.gal", n, var1, var2, 0, 999);'
+
+python -c 'import geoda;geoda.LocalGeary("nat.gal", n, var_list, 999);'
+```
+
+C++ Test code
+```
+    int n = 3085;
+    std::vector<std::vector<double> > vars;
+    for (int i=0; i<3; i++) {
+        std::vector<double> var;
+        for (int j=0; j<n; j++) {
+            var.push_back(j);
+        }
+        vars.push_back(var);
+    }
+    std::vector<double> var_1;
+    std::vector<double> var_2;
+
+    for (int i=0; i<n; i++) {
+        var_1.push_back(i);
+        var_2.push_back(0);
+    }
+    LisaCoordinator* lc;
+    lc = new LisaCoordinator("nat.gal", n, var_1, var_2);
+    delete lc;
 ```
  
 
