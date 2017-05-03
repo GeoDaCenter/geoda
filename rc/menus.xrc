@@ -67,18 +67,6 @@
           <label>Create Grid</label>
         </object>
       </object>
-      <object class="wxMenu" name="ID_MENU">
-        <label>Data</label>
-        <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
-          <label>Principal Component Analysis</label>
-        </object>
-        <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
-            <label>K-Means Clustering</label>
-        </object>
-        <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
-            <label>Hierarchical Clustering</label>
-        </object>
-      </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
@@ -419,6 +407,18 @@
         <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_SCATTER_VIEW">
           <label>Scatter Plot</label>
         </object>
+      </object>
+      <object class="wxMenu" name="ID_CLUSTERING_MENU">
+          <label>Clustering</label>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
+              <label>PCA</label>
+          </object>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
+              <label>K Means</label>
+          </object>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
+              <label>Hierarchical</label>
+          </object>
       </object>
       <label>E&amp;xplore</label>
     </object>

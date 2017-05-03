@@ -1033,7 +1033,6 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
                                          wxString ds_layername,
                                          wxString ds_thumb, int id)
 {
-	wxLogMessage("ConnectDatasourceDlg::AddSampleItem()");
     wxBoxSizer* text_sizer;
     text_sizer = new wxBoxSizer( wxVERTICAL );
     
