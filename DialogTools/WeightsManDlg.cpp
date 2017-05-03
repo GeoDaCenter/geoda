@@ -639,5 +639,8 @@ void WeightsManFrame::UpdateButtons()
 	if (remove_btn) remove_btn->Enable(any_sel);
 	if (histogram_btn) histogram_btn->Enable(any_sel);
 	if (connectivity_map_btn) connectivity_map_btn->Enable(any_sel);
+    if (project_p->isTableOnly) {
+        connectivity_map_btn->Disable();
+    }
 }
 

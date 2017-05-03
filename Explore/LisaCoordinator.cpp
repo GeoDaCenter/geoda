@@ -171,6 +171,7 @@ LisaCoordinator(wxString weights_path,
  
     // std::vector<GdaVarTools::VarInfo> var_info;
     int num_vars = 1;
+    isBivariate = false;
     
     if (lisa_type_s == 0) {
         lisa_type = univariate;
