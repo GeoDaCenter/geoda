@@ -216,6 +216,26 @@ bool GdaApp::OnInit(void)
 	if (!wxApp::OnInit())
         return false;
     
+    int n = 3085;
+    std::vector<std::vector<double> > vars;
+    for (int i=0; i<3; i++) {
+        std::vector<double> var;
+        for (int j=0; j<n; j++) {
+            var.push_back(j);
+        }
+        vars.push_back(var);
+    }
+    std::vector<double> var_1;
+    std::vector<double> var_2;
+
+    for (int i=0; i<n; i++) {
+        var_1.push_back(i);
+        var_2.push_back(0);
+    }
+    LisaCoordinator* lc;
+    lc = new LisaCoordinator("/Users/xun/Desktop/nat.gal",
+                            n, var_1, var_2);
+    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
     
@@ -1878,7 +1898,8 @@ void GdaFrame::OnConnectivityMapView(wxCommandEvent& event )
 {
 	boost::uuids::uuid id = GetWeightsId("Choose Weights for Connectivity Map");
 	if (id.is_nil()) return;
-	ConnectivityMapFrame* f =
+    if (project_p->isTableOnly) return;
+    ConnectivityMapFrame* f =
 		new ConnectivityMapFrame(this, project_p, id,
 								 wxDefaultPosition,
 								 GdaConst::conn_map_default_size);

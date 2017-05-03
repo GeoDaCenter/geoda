@@ -167,9 +167,11 @@ LisaCoordinator(wxString weights_path,
     row_standardize = row_standardize_s;
     last_seed_used = 0;
     reuse_last_seed = false;
-    
+    isBivariate = false;
+ 
     // std::vector<GdaVarTools::VarInfo> var_info;
     int num_vars = 1;
+    isBivariate = false;
     
     if (lisa_type_s == 0) {
         lisa_type = univariate;
@@ -634,9 +636,9 @@ void LisaCoordinator::CalcPseudoP()
 			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
                               0, num_obs-1, last_seed_used);
 		} else {
-			//CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
-			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
-                              0, num_obs-1, last_seed_used);
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
+			//CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
+                        //      0, num_obs-1, last_seed_used);
 		}
 	}
     
@@ -654,7 +656,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
                                            const std::vector<bool>& undefs)
 {
 	int nCPUs = wxThread::GetCPUCount();
-/*	
+
 	// mutext protects access to the worker_list
     wxMutex worker_list_mutex;
 	// signals that worker_list is empty
@@ -665,7 +667,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
     // List of all the threads currently alive.  As soon as the thread
 	// terminates, it removes itself from the list.
 	std::list<wxThread*> worker_list;
-*/	
+
 	// divide up work according to number of observations
 	// and number of CPUs
 	int work_chunk = num_obs / nCPUs;

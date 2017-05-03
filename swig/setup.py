@@ -2,11 +2,11 @@
 
 from distutils.core import setup, Extension
 
-GEODA_HOME = '/home/xun/geoda/BuildTools/centos'
+GEODA_HOME = '/Users/xun/geoda_trunk/BuildTools/macosx'
 
 PYTHON_HEADER = '-I/usr/include/python2.7'
 
-INCLUDE_DIRS = [GEODA_HOME + '/libraries/lib/wx/include/gtk3-unicode-static-3.1', 
+INCLUDE_DIRS = [GEODA_HOME + '/libraries/lib/wx/include/osx_cocoa-unicode-static-3.1', 
                 GEODA_HOME + '/libraries/include/wx-3.1',
                 GEODA_HOME + '/libraries/include/boost',
                 GEODA_HOME + '/libraries/include/eigen3',
