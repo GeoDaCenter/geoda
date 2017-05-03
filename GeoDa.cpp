@@ -580,9 +580,16 @@ void GdaFrame::UpdateToolbarAndMenus()
 
 	EnableTool(XRCID("ID_COND_PLOT_CHOICES"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COND_MENU"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), proj_open);
+    
+    EnableTool(XRCID("ID_CLUSTERING_CHOICES"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CLUSTERING_MENU"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_PCA"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_KMEANS"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HCLUSTER"), proj_open);
+	
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_3DP"), proj_open);
@@ -2472,6 +2479,31 @@ void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 									proj_open);
 		PopupMenu(popupMenu, wxDefaultPosition);
 	}
+}
+
+void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_CLUSTERING_MENU");
+    
+    if (popupMenu) {
+        Project* p = GetProject();
+        bool proj_open = (p != 0);
+        bool shp_proj = proj_open;
+        
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_PCA"),
+                                       shp_proj);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_KMEANS"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_HCLUSTER"),
+                                       proj_open);
+        PopupMenu(popupMenu, wxDefaultPosition);
+    }
 }
 
 void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
@@ -6092,6 +6124,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)
     EVT_TOOL(XRCID("ID_COND_PLOT_CHOICES"), GdaFrame::OnCondPlotChoices)
+    EVT_TOOL(XRCID("ID_CLUSTERING_CHOICES"), GdaFrame::OnClusteringChoices)
     // The following duplicate entries are needed as a workaround to
     // make menu enable/disable work for the menu bar when the same menu
     // item appears twice.

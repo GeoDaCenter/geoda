@@ -4181,6 +4181,18 @@
       <label>Scatter Plot</label>
     </object>
   </object>
+  <object class="wxMenu" name="ID_CLUSTERING_MENU">
+      <label>Clustering</label>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
+          <label>PCA</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
+          <label>K Means</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
+          <label>Hierarchical</label>
+      </object>
+  </object>
   <object class="wxMenu" name="ID_MORAN_MENU">
     <label>Moran Scatter Plot</label>
     <object class="wxMenuItem" name="IDM_MSPL">

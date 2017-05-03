@@ -201,6 +201,8 @@ public:
 	void OnPublish(wxCommandEvent& event);
 
 	void OnCondPlotChoices(wxCommandEvent& event);
+    void OnClusteringChoices(wxCommandEvent& event);
+
 	void OnShowConditionalMapView(wxCommandEvent& event);
 	void OnShowConditionalScatterView(wxCommandEvent& event);
 	void OnShowConditionalHistView(wxCommandEvent& event);
