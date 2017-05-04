@@ -682,6 +682,8 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     
     if (combo_transform->GetSelection() == 1) {
         is_center = true;
+        is_scale = false;
+        
     } else if (combo_transform->GetSelection() == 2) {
         is_center = true;
         is_scale = true;
@@ -784,14 +786,14 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     
     
-    row_lim = nrows;
-    col_lim = ncols;
-    /*
-    pca_log << "\n\nRotated data: ";
+    
     if (scores.size() != nrows * ncols) {
         row_lim = (nrows < ncols)? nrows : ncols,
         col_lim = (ncols < nrows)? ncols : nrows;
     }
+    
+    /*
+    pca_log << "\n\nRotated data: \n";
     for (unsigned int i = 0; i < row_lim; ++i) {
         for (unsigned int j = 0; j < col_lim; ++j) {
             pca_log << scores[j + col_lim*i] << "\t";
@@ -799,6 +801,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         pca_log << "\n";
     }
     */
+    
     m_textbox->SetValue(pca_log);
    
     combo_n->Clear();

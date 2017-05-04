@@ -78,7 +78,8 @@ int Pca::Calculate(vector<float> &x,
     }
   }
   // Scale to unit variance
-  if ( (false == _is_corr) || (true == _is_scale)) {
+  //if ( (false == _is_corr) || (true == _is_scale)) {
+  if (true == _is_scale) {
     for (unsigned int i = 0; i < _ncols; ++i) {
      _xXf.col(i) /= sqrt(_xXf.col(i).array().square().sum()/denom);
     }
@@ -89,8 +90,6 @@ int Pca::Calculate(vector<float> &x,
     cout << "\nMean before scaling:\n" << mean_vector.transpose();
     cout << "\nStandard deviation before scaling:\n" << sd_vector.transpose();
   #endif
-    
-    
   // When _nrows < _ncols then svd will be used.
   // If corr is true and _nrows > _ncols then will be used correlation matrix
   // (TODO): What about covariance?
@@ -132,19 +131,17 @@ int Pca::Calculate(vector<float> &x,
       copy(_cum_prop.begin(), _cum_prop.end(),std::ostream_iterator<float>(std::cout," "));  
       cout << "\n\nThresh95 criterion: PC #" << _thresh95 << endl;
     #endif
-      
-      
-      eigen_values = eigen_singular_values;
-      eigen_vectors = svd.matrixV();
-      
     // Scores
-    MatrixXf eigen_scores = _xXf * svd.matrixV();
+    eigen_values = eigen_singular_values;
+    eigen_vectors = svd.matrixV();
+    MatrixXf eigen_scores = _xXf * eigen_vectors;
+    //MatrixXf eigen_scores = _xXf * svd.matrixV();
     #ifdef DEBUG
       cout << "\n\nRotated values (scores):\n" << eigen_scores;
     #endif
-    _scores.reserve(_nrows*_ncols);
-    for (unsigned int i = 0; i < _nrows; ++i) {
-      for (unsigned int j = 0; j < _ncols; ++j) {
+    _scores.reserve(lim*lim);
+    for (unsigned int i = 0; i < lim; ++i) {
+      for (unsigned int j = 0; j < lim; ++j) {
         _scores.push_back(eigen_scores(i, j));
       }
     }
@@ -154,8 +151,6 @@ int Pca::Calculate(vector<float> &x,
       copy(_scores.begin(), _scores.end(),std::ostream_iterator<float>(std::cout," "));  
       cout << "\n";  
     #endif
-      
-      
   } else { // COR OR COV MATRICES ARE HERE
     _method = "cor";
     // Calculate covariance matrix
@@ -197,10 +192,10 @@ int Pca::Calculate(vector<float> &x,
       eigen_eigenvalues_sorted(colnum) = ep[i].first;
       eigen_eigenvectors_sorted.col(colnum++) += eigen_eigenvectors.col(ep[i].second);
     }
-     
-    eigen_values = eigen_eigenvalues_sorted;
-    eigen_vectors = eigen_eigenvectors_sorted;
-      
+    #ifdef DEBUG
+      cout << endl << eigen_eigenvalues_sorted.transpose() << endl;
+      cout << endl << eigen_eigenvectors_sorted << endl;
+    #endif  
     // We don't need not sorted arrays anymore
     eigen_eigenvalues.resize(0);
     eigen_eigenvectors.resize(0, 0);
@@ -235,6 +230,8 @@ int Pca::Calculate(vector<float> &x,
       copy(_cum_prop.begin(), _cum_prop.end(), std::ostream_iterator<float>(std::cout," "));  
       cout << "\n\n95% threshold: PC #" << _thresh95 << endl;
     #endif
+    eigen_values = eigen_eigenvalues_sorted;
+    eigen_vectors = eigen_eigenvectors_sorted;
     // Scores for PCA with correlation matrix
     // Scale before calculating new values
     for (unsigned int i = 0; i < _ncols; ++i) {
