@@ -83,6 +83,20 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////
 
+class SimpleReportTextCtrl : public wxTextCtrl
+{
+public:
+    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
+               const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
+               long style = 0, const wxValidator& validator = wxDefaultValidator,
+               const wxString& name = wxTextCtrlNameStr)
+    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
+protected:
+    void OnContextMenu(wxContextMenuEvent& event);
+    void OnSaveClick( wxCommandEvent& event );
+    DECLARE_EVENT_TABLE()
+};
+
 class PCASettingsDlg : public wxDialog, public FramesManagerObserver
 {
 public:
@@ -118,7 +132,7 @@ private:
     wxListBox* combo_var;
     wxComboBox* combo_n;
 
-    wxTextCtrl* m_textbox;
+    SimpleReportTextCtrl* m_textbox;
     wxButton *saveButton;
    
     wxComboBox* combo_method;
