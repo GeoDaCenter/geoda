@@ -121,9 +121,9 @@ private:
     wxTextCtrl* m_textbox;
     wxButton *saveButton;
    
-    wxCheckBox* cbox_svd;
-    wxCheckBox* cbox_shift;
-    wxCheckBox* cbox_scale;
+    wxComboBox* combo_method;
+    wxComboBox* combo_transform;
+
     
 	std::map<wxString, wxString> name_to_nm;
 	std::map<wxString, int> name_to_tm_id;

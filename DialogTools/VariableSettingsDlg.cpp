@@ -358,30 +358,30 @@ void PCASettingsDlg::CreateControls()
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
     
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Use Singular Value Decomposition:"),
-                                          wxDefaultPosition, wxSize(220,-1));
-    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _(""));
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
+                                          wxDefaultPosition, wxSize(120,-1));
+    const wxString _methods[2] = {"SVD", "Eigen"};
+    wxComboBox* box0 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      wxSize(120,-1), 2, _methods, wxCB_READONLY);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(cbox, 1, wxEXPAND);
+    gbox->Add(box0, 1, wxEXPAND);
     
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Shift Variables to Zero:"),
-                                          wxDefaultPosition, wxSize(220,-1));
-    wxCheckBox* cbox14 = new wxCheckBox(panel, wxID_ANY, _(""));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
+                                          wxDefaultPosition, wxSize(120,-1));
+    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
+    wxComboBox* box01 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+                                      wxSize(120,-1), 3, _transform, wxCB_READONLY);
+    
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(cbox14, 1, wxEXPAND);
+    gbox->Add(box01, 1, wxEXPAND);
     
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Scale Variables to Unit Variance:"),
-                                          wxDefaultPosition, wxSize(220,-1));
-    wxCheckBox* cbox15 = new wxCheckBox(panel, wxID_ANY, _(""));
-    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(cbox15, 1, wxEXPAND);
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Max Components:"),
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"),
                                           wxDefaultPosition, wxSize(140,-1));
     wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
                                       wxSize(120,-1), 0, NULL, wxCB_READONLY);
@@ -439,13 +439,11 @@ void PCASettingsDlg::CreateControls()
     combo_var = box;
     combo_n = box1;
     
-    cbox_svd = cbox;
-    cbox_shift = cbox14;
-    cbox_scale = cbox15;
+    combo_method = box0;
+    combo_transform = box01;
    
-    cbox_svd->SetValue(true);
-    cbox_shift->SetValue(true);
-    cbox_scale->SetValue(true);
+    combo_method->SetSelection(0);
+    combo_transform->SetSelection(2);
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnOK, this);
@@ -628,19 +626,32 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     
     Pca pca;
    
-    bool is_corr = !cbox_svd->GetValue();
-    bool is_center = cbox_shift->GetValue();
-    bool is_scale = cbox_scale->GetValue();
+    bool is_corr = combo_method->GetSelection() == 1;
+    
+    bool is_center = false;
+    bool is_scale = false;
+    
+    if (combo_transform->GetSelection() == 1) {
+        is_center = true;
+    } else if (combo_transform->GetSelection() == 2) {
+        is_center = true;
+        is_scale = true;
+    }
    
     if (rows < columns && is_corr == true) {
         wxString msg = _("SVD will be automatically used for PCA since the number of rows is less than the number of columns.");
         wxMessageDialog dlg(NULL, msg, "Information", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
-        cbox_svd->SetValue(true);
+        combo_method->SetSelection(0);
+        is_corr = false;
     }
+    
     int init_result = pca.Calculate(vec, rows, columns, is_corr, is_center, is_scale);
     if (0 != init_result) {
-        wxLogMessage(_("There is an error during PCA calculation!"));
+        wxString msg = _("There is an error during PCA calculation. Please check if the data is valid.");
+        wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
     }
     vector<float> sd = pca.sd();
     vector<float> prop_of_var = pca.prop_of_var();
