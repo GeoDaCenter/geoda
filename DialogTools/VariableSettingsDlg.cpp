@@ -508,12 +508,14 @@ void PCASettingsDlg::CreateControls()
 
 void PCASettingsDlg::OnMethodChoice(wxCommandEvent& event)
 {
-    if (combo_method->GetSelection() == 0) {
+    /*
+     if (combo_method->GetSelection() == 0) {
         combo_transform->Enable();
     } else if (combo_method->GetSelection() == 1) {
         combo_transform->SetSelection(2);
         combo_transform->Disable();
     }
+     */
 }
 
 void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
