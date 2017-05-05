@@ -72,14 +72,14 @@ int Pca::Calculate(vector<float> &x,
   mean_vector = tmp_mean_vector;
   tmp.resize(0, 0); tmp_mean_vector.resize(0);
   // Shift to zero
-  if (true == _is_center) {
+  if (true == _is_center || true == _is_corr ) {
     for (unsigned int i = 0; i < _ncols; ++i) {
       _xXf.col(i) -= VectorXf::Constant(_nrows, mean_vector(i));
     }
   }
   // Scale to unit variance
   //if ( (false == _is_corr) || (true == _is_scale)) {
-  if (true == _is_scale) {
+  if (true == _is_scale || true == _is_corr) {
     for (unsigned int i = 0; i < _ncols; ++i) {
      _xXf.col(i) /= sqrt(_xXf.col(i).array().square().sum()/denom);
     }
@@ -104,8 +104,10 @@ int Pca::Calculate(vector<float> &x,
     // PC's proportion of variance
     _kaiser = 0;
     unsigned int lim = (_nrows < _ncols)? _nrows : _ncols;
+    eigen_values.resize(lim);
     for (unsigned int i = 0; i < lim; ++i) {
       _sd.push_back(eigen_singular_values(i)/sqrt(denom));
+      eigen_values[i] = _sd[i] * _sd[i];
       if (_sd[i] >= 1) {
         _kaiser = i + 1;
       }
@@ -132,8 +134,8 @@ int Pca::Calculate(vector<float> &x,
       cout << "\n\nThresh95 criterion: PC #" << _thresh95 << endl;
     #endif
     // Scores
-    eigen_values = eigen_singular_values;
     eigen_vectors = svd.matrixV();
+      
     MatrixXf eigen_scores = _xXf * eigen_vectors;
     //MatrixXf eigen_scores = _xXf * svd.matrixV();
     #ifdef DEBUG
@@ -160,6 +162,12 @@ int Pca::Calculate(vector<float> &x,
     eigen_cov = (1.0 /(_nrows/*-1*/)) * _xXf.transpose() * _xXf;
     sds = eigen_cov.diagonal().array().sqrt();
     MatrixXf outer_sds = sds * sds.transpose();
+#ifdef DEBUG
+      cout << _xXf << endl;
+      cout << eigen_cov << endl;
+      cout << sds << endl;
+      cout << outer_sds << endl;
+#endif
     eigen_cov = eigen_cov.array() / outer_sds.array();
     outer_sds.resize(0, 0);
     // ?If data matrix is scaled, covariance matrix is equal to correlation matrix

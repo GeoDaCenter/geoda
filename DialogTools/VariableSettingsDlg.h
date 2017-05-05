@@ -26,6 +26,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <wx/choice.h>
 #include <wx/checkbox.h>
+#include <wx/choice.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/spinctrl.h>
@@ -110,6 +111,7 @@ public:
     void OnSave( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
+    void OnMethodChoice( wxCommandEvent& event );
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -130,13 +132,13 @@ private:
     //std::vector<boost::uuids::uuid> weights_ids;
     
     wxListBox* combo_var;
-    wxComboBox* combo_n;
+    wxChoice* combo_n;
 
     SimpleReportTextCtrl* m_textbox;
     wxButton *saveButton;
    
-    wxComboBox* combo_method;
-    wxComboBox* combo_transform;
+    wxChoice* combo_method;
+    wxChoice* combo_transform;
 
     
 	std::map<wxString, wxString> name_to_nm;

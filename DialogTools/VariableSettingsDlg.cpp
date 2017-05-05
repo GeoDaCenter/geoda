@@ -1,3 +1,4 @@
+
 /**
  * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
@@ -31,7 +32,7 @@
 #include <wx/txtstrm.h>
 #include <wx/panel.h>
 #include <wx/tokenzr.h>
-
+#include <wx/choice.h>
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
@@ -410,7 +411,7 @@ void PCASettingsDlg::CreateControls()
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _methods[2] = {"SVD", "Eigen"};
-    wxComboBox* box0 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxChoice* box0 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(120,-1), 2, _methods, wxCB_READONLY);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box0, 1, wxEXPAND);
@@ -419,7 +420,7 @@ void PCASettingsDlg::CreateControls()
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    wxComboBox* box01 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(120,-1), 3, _transform, wxCB_READONLY);
     
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -432,7 +433,7 @@ void PCASettingsDlg::CreateControls()
     // Output
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"),
                                           wxDefaultPosition, wxSize(140,-1));
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(120,-1), 0, NULL, wxCB_READONLY);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
@@ -498,6 +499,21 @@ void PCASettingsDlg::CreateControls()
     okButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnOK, this);
     saveButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnCloseClick, this);
+    
+    combo_method->Connect(wxEVT_CHOICE,
+                          wxCommandEventHandler(PCASettingsDlg::OnMethodChoice),
+                          NULL, this);
+    
+}
+
+void PCASettingsDlg::OnMethodChoice(wxCommandEvent& event)
+{
+    if (combo_method->GetSelection() == 0) {
+        combo_transform->Enable();
+    } else if (combo_method->GetSelection() == 1) {
+        combo_transform->SetSelection(2);
+        combo_transform->Disable();
+    }
 }
 
 void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
@@ -790,6 +806,9 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     if (scores.size() != nrows * ncols) {
         row_lim = (nrows < ncols)? nrows : ncols,
         col_lim = (ncols < nrows)? ncols : nrows;
+    } else {
+        row_lim = nrows;
+        col_lim = ncols;
     }
     
     /*
