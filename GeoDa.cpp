@@ -312,15 +312,15 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1012;
+		frameWidth = 1052;
 		frameHeight = 80;
 	}
 	if (GeneralWxUtils::isWindows()) {
-		frameWidth = 1090;
+		frameWidth = 1130;
 		frameHeight = 120;
 	}
 	if (GeneralWxUtils::isUnix()) {  // assumes GTK
-		frameWidth = 1020;
+		frameWidth = 1060;
  		frameHeight = 120;
 #ifdef __linux__
         wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
