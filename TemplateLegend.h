@@ -23,9 +23,50 @@
 #include <wx/menu.h>
 #include <wx/scrolwin.h>
 #include <wx/dc.h>
+#include <wx/colour.h>
+#include <wx/gdicmn.h>
+
+#include <vector>
 
 class TemplateCanvas;
 class TemplateFrame;
+
+class GdaLegendLabel
+{
+public:
+    GdaLegendLabel(wxString text, wxPoint pos, wxSize sz);
+    
+    virtual ~GdaLegendLabel();
+    
+    void move(const wxPoint& new_pos);
+    
+    void reset();
+    
+    bool intersect( GdaLegendLabel& another_lbl);
+    
+    bool contains(const wxPoint& cur_pos);
+    
+    void draw(wxDC& dc);
+    
+    void drawMove(wxDC& dc);
+    
+    const wxRect& getBBox();
+    
+    
+    
+protected:
+    bool isMoving;
+    
+    wxPoint position;
+    
+    wxPoint tmp_position;
+    
+    wxString text;
+    
+    wxSize size;
+    
+    wxRect bbox;
+};
 
 class TemplateLegend: public wxScrolledWindow
 {
@@ -44,7 +85,7 @@ public:
 	
 protected:
 	void SelectAllInCategory(int category, bool add_to_selection = false);
-	int GetCategoryClick(wxMouseEvent& event);
+	int  GetCategoryClick(wxMouseEvent& event);
 	void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
 	
 	int px, py, m_w, m_l; 
@@ -53,6 +94,11 @@ protected:
 	int opt_menu_cat; // last category added to Legend menu
 	
 	static const int ID_CATEGORY_COLOR;
+    
+    std::vector<GdaLegendLabel*> labels;
+    GdaLegendLabel* select_label;
+    bool isLeftDown;
+    bool isLeftMove;
 	
 	DECLARE_ABSTRACT_CLASS(TemplateLegend)
 	DECLARE_EVENT_TABLE()

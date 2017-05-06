@@ -154,6 +154,8 @@ int Pca::Calculate(vector<float> &x,
       cout << "\n";  
     #endif
   } else { // COR OR COV MATRICES ARE HERE
+      /* Straight and simple: if the scales are similar use cov-PCA, if not, use corr-PCA; otherwise, you better have a defense for not. If in doubt, use an F-test for the equality of the variances (ANOVA). If it fails the F-test, use corr; otherwise, use cov.
+       */
     _method = "cor";
     // Calculate covariance matrix
     MatrixXf eigen_cov; // = MatrixXf::Zero(_ncols, _ncols);

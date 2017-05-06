@@ -28,6 +28,67 @@
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+GdaLegendLabel::GdaLegendLabel(wxString _text, wxPoint _pos, wxSize _sz)
+: bbox(_pos, _sz)
+{
+    text = _text;
+    position = _pos;
+    size = _sz;
+    isMoving = false;
+}
+
+GdaLegendLabel::~GdaLegendLabel()
+{
+    
+}
+
+const wxRect& GdaLegendLabel::getBBox()
+{
+    return bbox;
+}
+
+void GdaLegendLabel::move(const wxPoint& new_pos)
+{
+    tmp_position = new_pos;
+}
+
+void GdaLegendLabel::reset()
+{
+    
+}
+
+bool GdaLegendLabel::intersect( GdaLegendLabel& another_lbl)
+{
+    
+    
+    return bbox.Intersects(another_lbl.getBBox());
+}
+
+bool  GdaLegendLabel::contains(const wxPoint& cur_pos)
+{
+    return bbox.Contains(cur_pos);
+}
+
+void GdaLegendLabel::draw(wxDC& dc)
+{
+    dc.DrawText(text, position.x, position.y);
+    //dc.DrawRectangle(bbox);
+}
+
+void GdaLegendLabel::drawMove(wxDC& dc)
+{
+    dc.DrawText(text, tmp_position.x, tmp_position.y);
+    dc.DrawRectangle(tmp_position, size);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
 const int TemplateLegend::ID_CATEGORY_COLOR = wxID_HIGHEST + 1;
 
 IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
@@ -43,7 +104,9 @@ TemplateLegend::TemplateLegend(wxWindow *parent,
 : wxScrolledWindow(parent, wxID_ANY, pos, size,
 				   wxBORDER_SUNKEN | wxVSCROLL | wxHSCROLL),
 legend_background_color(GdaConst::legend_background_color),
-template_canvas(template_canvas_s)
+template_canvas(template_canvas_s),
+isLeftDown(false),
+select_label(NULL)
 {
 	SetBackgroundColour(GdaConst::legend_background_color);
     d_rect = 20;
@@ -59,6 +122,10 @@ template_canvas(template_canvas_s)
 
 TemplateLegend::~TemplateLegend()
 {
+    for (int i=0; i<labels.size(); i++) {
+        delete labels[i];
+    }
+    labels.clear();
 }
 
 void TemplateLegend::OnEvent(wxMouseEvent& event)
@@ -68,9 +135,7 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
 	int cat_clicked = GetCategoryClick(event);
 	
     if (event.RightUp()) {
-        LOG_MSG("MapNewLegend::OnEvent, event.RightUp() == true");
-        wxMenu* optMenu =
-			wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
+        wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
 		AddCategoryColorToMenu(optMenu, cat_clicked);
     	wxMenuItem* mi = optMenu->FindItem(XRCID("ID_LEGEND_USE_SCI_NOTATION"));
     	if (mi && mi->IsCheckable()) {
@@ -81,10 +146,42 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
     }
 	
     if (event.LeftDown()) {
-        LOG_MSG("TemplateLegend::OnEvent, event.LeftDown() == true");
-		if (cat_clicked != -1) {
-			SelectAllInCategory(cat_clicked, event.ShiftDown());
-		}
+        isLeftDown = true;
+        for (int i=0;i<labels.size();i++) {
+            if (labels[i]->contains(event.GetPosition())){
+                select_label = labels[i];
+                break;
+            }
+        }
+    } else if (event.Moving()) {
+        if (isLeftDown) {
+            isLeftMove = true;
+            // moving
+            if (select_label) {
+                select_label->move(event.GetPosition());
+            }
+        }
+    } else if (event.LeftUp()) {
+        if (isLeftMove) {
+            isLeftMove = false;
+            // stop move
+            if (select_label) {
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            // exchange
+                        }
+                    }
+                }
+            }
+            select_label = NULL;
+        } else {
+            // only left click
+            if (cat_clicked != -1) {
+                SelectAllInCategory(cat_clicked, event.ShiftDown());
+            }
+        }
+        isLeftDown = false;
     }
 }
 
@@ -118,7 +215,7 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
 	if (cat_clicked < 0 || cat_clicked >= num_cats) return;
 	wxString s;
-	s << "Color for Category";
+	s << _("Color for Category");
 	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
 	if (!cat_label.IsEmpty())
         s << ": " << cat_label;
@@ -144,7 +241,7 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 	}
 	
 	wxColourDialog dialog(this, &data);
-	dialog.SetTitle("Choose Cateogry Color");
+	dialog.SetTitle(_("Choose Cateogry Color"));
 	if (dialog.ShowModal() == wxID_OK) {
 		wxColourData retData = dialog.GetColourData();
 		for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
@@ -172,18 +269,37 @@ void TemplateLegend::OnDraw(wxDC& dc)
 	int numRect = template_canvas->cat_data.GetNumCategories(time);
 	
     dc.SetPen(*wxBLACK_PEN);
+    
+    if (labels.size() != numRect) {
+        for (int i=0; i<labels.size(); i++){
+            delete labels[i];
+        }
+        labels.clear();
+        
+        int init_y = py;
+        for (int i=0; i<numRect; i++) {
+            wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
+            wxPoint pt( px + m_l + 10, init_y - (m_w / 2));
+            wxSize sz = dc.GetTextExtent(lbl);
+            labels.push_back(new GdaLegendLabel(lbl, pt, sz));
+            init_y += d_rect;
+        }
+    }
+    
 	for (int i=0; i<numRect; i++) {
         wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
         if (clr.IsOk())
             dc.SetBrush(clr);
         else
             dc.SetBrush(*wxBLACK_BRUSH);
-        
-		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
-					(px + m_l + 10), cur_y - (m_w / 2));
 		dc.DrawRectangle(px, cur_y - 8, m_l, m_w);
 		cur_y += d_rect;
+        labels[i]->draw(dc);
 	}
+    
+    if ( select_label ) {
+        select_label->drawMove(dc);
+    }
 }
 
 void TemplateLegend::RenderToDC(wxDC& dc, double scale)
