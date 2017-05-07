@@ -412,7 +412,7 @@ void PCASettingsDlg::CreateControls()
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _methods[2] = {"SVD", "Eigen"};
     wxChoice* box0 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(120,-1), 2, _methods, wxCB_READONLY);
+                                      wxSize(120,-1), 2, _methods);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box0, 1, wxEXPAND);
     
@@ -421,7 +421,7 @@ void PCASettingsDlg::CreateControls()
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
     wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(120,-1), 3, _transform, wxCB_READONLY);
+                                      wxSize(120,-1), 3, _transform);
     
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box01, 1, wxEXPAND);
@@ -434,7 +434,7 @@ void PCASettingsDlg::CreateControls()
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"),
                                           wxDefaultPosition, wxSize(140,-1));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(120,-1), 0, NULL, wxCB_READONLY);
+                                      wxSize(120,-1), 0, NULL);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);

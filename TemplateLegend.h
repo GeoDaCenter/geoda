@@ -27,6 +27,7 @@
 #include <wx/gdicmn.h>
 
 #include <vector>
+#include <map>
 
 class TemplateCanvas;
 class TemplateFrame;
@@ -34,7 +35,7 @@ class TemplateFrame;
 class GdaLegendLabel
 {
 public:
-    GdaLegendLabel(wxString text, wxPoint pos, wxSize sz);
+    GdaLegendLabel(int idx, wxString text, wxPoint pos, wxSize sz);
     
     virtual ~GdaLegendLabel();
     
@@ -46,15 +47,18 @@ public:
     
     bool contains(const wxPoint& cur_pos);
     
-    void draw(wxDC& dc);
+    void draw(wxDC& dc, int cur_idx);
     
     void drawMove(wxDC& dc);
     
     const wxRect& getBBox();
     
     
+    int idx;
     
 protected:
+    
+    
     bool isMoving;
     
     wxPoint position;
@@ -66,6 +70,8 @@ protected:
     wxSize size;
     
     wxRect bbox;
+    
+    int d_rect;
 };
 
 class TemplateLegend: public wxScrolledWindow
@@ -95,6 +101,8 @@ protected:
 	
 	static const int ID_CATEGORY_COLOR;
     
+    bool recreate_labels;
+    std::vector<int> new_order;
     std::vector<GdaLegendLabel*> labels;
     GdaLegendLabel* select_label;
     bool isLeftDown;

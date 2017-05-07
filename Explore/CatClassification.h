@@ -216,6 +216,8 @@ struct CatClassifData {
 	int GetCurrentCanvasTmStep();
 	void SetCurrentCanvasTmStep(int canvas_tm);
 	int GetCanvasTmSteps();
+    
+    void ExchangeLabels(int from, int to);
 };
 
 #endif

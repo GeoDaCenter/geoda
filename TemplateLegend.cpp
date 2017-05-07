@@ -27,18 +27,23 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
+#include "MapNewView.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-GdaLegendLabel::GdaLegendLabel(wxString _text, wxPoint _pos, wxSize _sz)
-: bbox(_pos, _sz)
+GdaLegendLabel::GdaLegendLabel(int _idx, wxString _text, wxPoint _pos, wxSize _sz)
+: d_rect(20)
 {
+    idx = _idx;
     text = _text;
     position = _pos;
     size = _sz;
     isMoving = false;
+    tmp_position = position;
+    bbox = wxRect(_pos.x, _pos.y + idx * d_rect, _sz.GetWidth(), _sz.GetHeight());
 }
 
 GdaLegendLabel::~GdaLegendLabel()
@@ -58,14 +63,13 @@ void GdaLegendLabel::move(const wxPoint& new_pos)
 
 void GdaLegendLabel::reset()
 {
-    
+    tmp_position = position;
 }
 
 bool GdaLegendLabel::intersect( GdaLegendLabel& another_lbl)
 {
-    
-    
-    return bbox.Intersects(another_lbl.getBBox());
+    wxRect tmp_bbox(tmp_position.x, tmp_position.y, size.GetWidth(), size.GetHeight());
+    return tmp_bbox.Intersects(another_lbl.getBBox());
 }
 
 bool  GdaLegendLabel::contains(const wxPoint& cur_pos)
@@ -73,16 +77,21 @@ bool  GdaLegendLabel::contains(const wxPoint& cur_pos)
     return bbox.Contains(cur_pos);
 }
 
-void GdaLegendLabel::draw(wxDC& dc)
+void GdaLegendLabel::draw(wxDC& dc, int cur_idx)
 {
-    dc.DrawText(text, position.x, position.y);
+    dc.DrawText(text, position.x, position.y + d_rect * cur_idx);
     //dc.DrawRectangle(bbox);
+    //bbox = wxRect(position.x, position.y + d_rect * cur_idx, size.GetWidth(), size.GetHeight());
 }
 
 void GdaLegendLabel::drawMove(wxDC& dc)
 {
-    dc.DrawText(text, tmp_position.x, tmp_position.y);
-    dc.DrawRectangle(tmp_position, size);
+    //wxPen pen(*wxBLACK, 1, wxDOT);
+    //dc.SetPen(pen);
+    //dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    //dc.DrawRectangle(position.x, tmp_position.y, size.GetWidth(), size.GetHeight());
+    //dc.SetPen(*wxBLACK_PEN);
+    dc.DrawText(text, position.x, tmp_position.y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +115,8 @@ TemplateLegend::TemplateLegend(wxWindow *parent,
 legend_background_color(GdaConst::legend_background_color),
 template_canvas(template_canvas_s),
 isLeftDown(false),
-select_label(NULL)
+select_label(NULL),
+recreate_labels(false)
 {
 	SetBackgroundColour(GdaConst::legend_background_color);
     d_rect = 20;
@@ -153,13 +163,35 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
                 break;
             }
         }
-    } else if (event.Moving()) {
+    } else if (event.Dragging()) {
         if (isLeftDown) {
             isLeftMove = true;
             // moving
             if (select_label) {
                 select_label->move(event.GetPosition());
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            LOG_MSG("intersect");
+                            // exchange labels only
+                            new_order.clear();
+                            for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            // get new order
+                            new_order[from] = to;
+                            new_order[to] = from;
+                            break;
+                        }
+                    } else {
+                        LOG_MSG("other");
+                        new_order.clear();
+                        for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                        
+                    }
+                }
             }
+            Refresh();
         }
     } else if (event.LeftUp()) {
         if (isLeftMove) {
@@ -169,12 +201,19 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
                 for (int i=0; i<labels.size(); i++) {
                     if (labels[i] != select_label) {
                         if (select_label->intersect(*labels[i])){
-                            // exchange
+                            // exchange labels applying o map
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            template_canvas->cat_data.ExchangeLabels(from, to);
+                            template_canvas->ResetShapes();
+                            recreate_labels = true;
+                            break;
                         }
                     }
                 }
             }
             select_label = NULL;
+            Refresh();
         } else {
             // only left click
             if (cat_clicked != -1) {
@@ -270,20 +309,27 @@ void TemplateLegend::OnDraw(wxDC& dc)
 	
     dc.SetPen(*wxBLACK_PEN);
     
-    if (labels.size() != numRect) {
+    // init labels
+    if (recreate_labels || labels.size() != numRect) {
         for (int i=0; i<labels.size(); i++){
             delete labels[i];
         }
         labels.clear();
+        
+        new_order.clear();
         
         int init_y = py;
         for (int i=0; i<numRect; i++) {
             wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
             wxPoint pt( px + m_l + 10, init_y - (m_w / 2));
             wxSize sz = dc.GetTextExtent(lbl);
-            labels.push_back(new GdaLegendLabel(lbl, pt, sz));
-            init_y += d_rect;
+            labels.push_back(new GdaLegendLabel(i, lbl, pt, sz));
+            //init_y += d_rect;
+            
+            new_order.push_back(i);
         }
+        
+        recreate_labels = false;
     }
     
 	for (int i=0; i<numRect; i++) {
@@ -294,8 +340,14 @@ void TemplateLegend::OnDraw(wxDC& dc)
             dc.SetBrush(*wxBLACK_BRUSH);
 		dc.DrawRectangle(px, cur_y - 8, m_l, m_w);
 		cur_y += d_rect;
-        labels[i]->draw(dc);
 	}
+    
+    for (int i=0; i<new_order.size(); i++) {
+        GdaLegendLabel* lbl = labels[new_order[i]];
+        if (lbl != select_label) {
+            lbl->draw(dc, i);
+        }
+    }
     
     if ( select_label ) {
         select_label->drawMove(dc);

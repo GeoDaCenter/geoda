@@ -2207,6 +2207,36 @@ void CatClassifData::CreateEmptyCategories(int num_canvas_tms, int num_obs)
 	curr_canvas_tm_step = 0;
 }
 
+void CatClassifData::ExchangeLabels(int from, int to)
+{
+    
+    if (from < 0 || to < 0 || from == to)
+        return;
+    
+    int tms = categories.size();
+    
+    for (int t = 0; t < tms; t++) {
+        int sz = categories[t].cat_vec.size();
+        if( from > sz || to > sz) {
+            return;
+        }
+        wxBrush from_brush = categories[t].cat_vec[from].brush;
+        wxBrush to_brush = categories[t].cat_vec[to].brush;
+        wxPen from_pen = categories[t].cat_vec[from].pen;
+        wxPen to_pen = categories[t].cat_vec[to].pen;
+    
+        Category tmp = categories[t].cat_vec[from];
+        categories[t].cat_vec[from] = categories[t].cat_vec[to];
+        categories[t].cat_vec[to] = tmp;
+    
+        categories[t].cat_vec[from].brush = from_brush;
+        categories[t].cat_vec[to].brush = to_brush;
+        categories[t].cat_vec[from].pen = from_pen;
+        categories[t].cat_vec[to].pen = to_pen;
+
+    }
+}
+
 void CatClassifData::AppendUndefCategory(int t, int count)
 {
     Category c_undef;
