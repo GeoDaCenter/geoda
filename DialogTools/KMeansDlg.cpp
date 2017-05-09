@@ -17,6 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <vector>
+#include <map>
+#include <algorithm>
+
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
@@ -279,6 +283,10 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
+bool less_vectors(const std::vector<int>& a,const std::vector<int>& b) {
+    return a.size() > b.size();
+}
+
 void KMeansDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KMeansDlg::OnOK");
@@ -467,8 +475,24 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     //delete[] ifound;
     delete[] clusterid;
     
-    // save to table
+    // sort result
+    std::vector<std::vector<int> > cluster_ids(ncluster);
+    
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
 
+    std::sort(cluster_ids.begin(), cluster_ids.end(), less_vectors);
+    
+    for (int i=0; i < ncluster; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+    
+    // save to table
     int time=0;
     int col = table_int->FindColId(field_name);
     if ( col == wxNOT_FOUND) {
