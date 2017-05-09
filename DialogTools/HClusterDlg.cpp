@@ -244,6 +244,7 @@ void HClusterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
+    Destroy();
 }
 
 void HClusterDlg::OnClose(wxCloseEvent& ev)

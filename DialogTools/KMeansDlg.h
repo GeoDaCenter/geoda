@@ -40,9 +40,10 @@ public:
     bool Init();
     
     void OnOK( wxCommandEvent& event );
-    void OnSave( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
+    
+    void OnDistanceChoice(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -61,12 +62,15 @@ private:
     FramesManager* frames_manager;
     
     wxListBox* combo_var;
-    wxComboBox* combo_n;
-    wxComboBox* combo_cov;
+    wxChoice* combo_tranform;
+    wxChoice* combo_n;
+    wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
     wxTextCtrl* m_iterations;
-    wxComboBox* m_method;
+    wxTextCtrl* m_pass;
+
+    wxChoice* m_method;
     wxChoice* m_distance;
     
     std::map<wxString, wxString> name_to_nm;

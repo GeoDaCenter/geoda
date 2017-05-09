@@ -2352,7 +2352,7 @@ centroid.
 
 static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
-  double weight[], int transpose, int npass, char dist,
+  double weight[], int transpose, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
   int tclusterid[], int counts[], int mapping[])
 { int i, j, k;
@@ -2383,8 +2383,10 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
 
     /* Start the loop */
-    while(1)
-    { double previous = total;
+    int iter = 0;
+    while(iter < n_maxiter)
+    { iter++;
+      double previous = total;
       total = 0.0;
 
       if (counter % period == 0) /* Save the current cluster assignments */
@@ -2457,7 +2459,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
 
 static int
 kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
-  double weight[], int transpose, int npass, char dist,
+  double weight[], int transpose, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
   int tclusterid[], int counts[], int mapping[], double cache[])
 { int i, j, k;
@@ -2488,8 +2490,10 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
 
     /* Start the loop */
-    while(1)
-    { double previous = total;
+    int iter = 0;
+    while(iter <  n_maxiter)
+    { iter ++ ;
+      double previous = total;
       total = 0.0;
 
       if (counter % period == 0) /* Save the current cluster assignments */
@@ -2562,7 +2566,7 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
 
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
-  int npass, char method, char dist,
+  int npass, int n_maxiter, char method, char dist,
   int clusterid[], double* error, int* ifound)
 /*
 Purpose
@@ -2609,6 +2613,9 @@ of distances is chosen.
 If npass==0, then the clustering algorithm will be run once, where the initial
 assignment of elements to clusters is taken from the clusterid array.
 
+n_maxiter   (input) int
+Maximum number of iterations of the k-means algorithm to run (using by EM).
+ 
 method     (input) char
 Defines whether the arithmetic mean (method=='a') or the median
 (method=='m') is used to calculate the cluster center.
@@ -2702,14 +2709,14 @@ number of clusters is larger than the number of elements being clustered,
   { double* cache = (double*)malloc(nelements*sizeof(double));
     if(cache)
     { *ifound = kmedians(nclusters, nrows, ncolumns, data, mask, weight,
-                         transpose, npass, dist, cdata, cmask, clusterid, error,
+                         transpose, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
                          tclusterid, counts, mapping, cache);
       free(cache);
     }
   }
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
-                     transpose, npass, dist, cdata, cmask, clusterid, error,
+                     transpose, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
                      tclusterid, counts, mapping);
 
   /* Deallocate temporarily used space */

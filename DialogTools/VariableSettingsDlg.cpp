@@ -559,6 +559,7 @@ void PCASettingsDlg::OnCloseClick(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
+    Destroy();
 }
 
 void PCASettingsDlg::OnSave(wxCommandEvent& event )

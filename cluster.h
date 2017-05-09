@@ -54,7 +54,7 @@ int getclustercentroids(int nclusters, int nrows, int ncolumns,
 void getclustermedoids(int nclusters, int nelements, double** distance,
   int clusterid[], int centroids[], double errors[]);
 void kcluster (int nclusters, int ngenes, int ndata, double** data,
-  int** mask, double weight[], int transpose, int npass, char method, char dist,
+  int** mask, double weight[], int transpose, int npass, int n_maxiter, char method, char dist,
   int clusterid[], double* error, int* ifound);
 void kmedoids (int nclusters, int nelements, double** distance,
   int npass, int clusterid[], double* error, int* ifound);
