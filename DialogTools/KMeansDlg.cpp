@@ -29,13 +29,17 @@
 #include <wx/combobox.h>
 #include <wx/panel.h>
 #include <wx/checkbox.h>
+#include <wx/choice.h>
+
 
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../cluster.h"
 #include "../GeneralWxUtils.h"
+#include "../GenUtils.h"
 #include "SaveToTableDlg.h"
 #include "KMeansDlg.h"
+
 
 BEGIN_EVENT_TABLE( KMeansDlg, wxDialog )
 EVT_CLOSE( KMeansDlg::OnClose )
@@ -130,9 +134,9 @@ void KMeansDlg::CreateControls()
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(122,-1));
-    wxString choices13[] = {"Euclidean distance", "Pearson correlation","Absolute Pearson correlation","Uncentered correlation","Absolute uncentered correlation","Spearman rank correlation","Tao","City-block distance"};
-    wxComboBox* box13 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                      wxSize(2000,-1), 8, choices13, wxCB_READONLY);
+    wxString choices13[] = {"Euclidean distance", "Pearson correlation","Absolute Pearson correlation","Uncentered correlation","Absolute uncentered correlation","Spearman rank correlation","Tau","City-block distance"};
+    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                      wxSize(2000,-1), 8, choices13);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
 
@@ -371,9 +375,12 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         columns += 2;
     }
     
+    bool standardize = true;
+    int n_init = 20;
+    
     char method = 'a'; // mean, 'm' median
     char dist = 'e'; // euclidean
-    int npass = 10;
+    int npass = 300;
     int transpose = 0; // row wise
     int* clusterid = new int[rows];
     double* weight = new double[columns];
@@ -408,6 +415,11 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<data.size(); i++ ){ // col
         
         for (int j=0; j<data[i].size(); j++) { // time
+            
+            if (standardize) {
+                //GenUtils::StandardizeData(rows, data[i][j]);
+            }
+            
             for (int k=0; k< rows;k++) { // row
                 input_data[k][col_ii] = data[i][j][k];
             }
@@ -422,28 +434,51 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         }
     }
     
-    double* error = new double[rows];
-    int* ifound = new int[rows];
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, method, dist, clusterid, error, ifound);
+    // standardize
     
-    vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
     
-    // clean memory
+    // get init centroids using n_init
+    double* errors = new double[n_init];
+    vector<wxInt64> best_clusters;
+    
+    double error;
+    double best_error;
+    
+    for (int r=0; r<n_init; r++) {
+        // run kmeans with init centroids
+        for (int i=0; i<rows; i++) {   clusterid[i] = -1; }
+        int ifound;
+        kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, method, dist, clusterid, &error, &ifound);
+        
+        vector<wxInt64> clusters;
+        vector<bool> clusters_undef;
+        
+        for (int i=0; i<rows; i++) {
+            clusters.push_back(clusterid[i] + 1);
+            clusters_undef.push_back(ifound == -1);
+        }
+        
+        if (r == 0) {
+            best_error = error;
+            best_clusters = clusters;
+        } else {
+            if (error < best_error) {
+                best_clusters = clusters;
+            }
+        }
+    }
+    
     for (int i=0; i<rows; i++) {
+        // clean memory
         delete[] input_data[i];
         delete[] mask[i];
-        clusters.push_back(clusterid[i] + 1);
-        clusters_undef.push_back(ifound[i] == -1);
     }
     delete[] input_data;
     delete[] weight;
-    delete[] error;
-    delete[] ifound;
     delete[] clusterid;
+
     
     // save to table
-
     int time=0;
     int col = table_int->FindColId(field_name);
     if ( col == wxNOT_FOUND) {
@@ -456,7 +491,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        table_int->SetColData(col, time, clusters);
+        table_int->SetColData(col, time, best_clusters);
         //table_int->SetColUndefined(col, time, clusters_undef);
     }
     

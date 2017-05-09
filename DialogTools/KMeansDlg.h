@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <map>
+#include <wx/choice.h>
 #include "../FramesManager.h"
 
 #include "../VarTools.h"
@@ -66,7 +67,7 @@ private:
     wxCheckBox* m_use_centroids;
     wxTextCtrl* m_iterations;
     wxComboBox* m_method;
-    wxComboBox* m_distance;
+    wxChoice* m_distance;
     
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
