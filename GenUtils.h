@@ -364,6 +364,7 @@ namespace GenUtils {
 	std::string GetResourceDir();
     std::string GetSamplesDir();
     
+    bool less_vectors(const std::vector<int>& a,const std::vector<int>& b);
 }
 
 /** Old code used by LISA functions */

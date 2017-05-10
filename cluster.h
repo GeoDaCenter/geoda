@@ -27,6 +27,10 @@
  * 
  */
 
+#ifndef __GEODA_CENTER_CLUSTERS_H___
+#define __GEODA_CENTER_CLUSTERS_H___
+
+
 #ifndef min
 #define min(x, y)	((x) < (y) ? (x) : (y))
 #endif
@@ -60,7 +64,7 @@ void kmedoids (int nclusters, int nelements, double** distance,
   int npass, int clusterid[], double* error, int* ifound);
 
 /* Chapter 4 */
-typedef struct {int left; int right; double distance;} Node;
+struct GdaNode{int left; int right; double distance;};
 /*
  * A Node struct describes a single node in a tree created by hierarchical
  * clustering. The tree can be represented by an array of n Node structs,
@@ -71,9 +75,9 @@ typedef struct {int left; int right; double distance;} Node;
  * between the two subnodes that were joined.
  */
 
-Node* treecluster (int nrows, int ncolumns, double** data, int** mask,
+GdaNode* treecluster (int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, char dist, char method, double** distmatrix);
-void cuttree (int nelements, Node* tree, int nclusters, int clusterid[]);
+void cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[]);
 
 /* Chapter 5 */
 void somcluster (int nrows, int ncolumns, double** data, int** mask,
@@ -91,3 +95,5 @@ double median (int n, double x[]);
 
 double* calculate_weights(int nrows, int ncolumns, double** data, int** mask,
   double weights[], int transpose, char dist, double cutoff, double exponent);
+
+#endif

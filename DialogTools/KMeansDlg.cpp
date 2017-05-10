@@ -158,7 +158,7 @@ void KMeansDlg::CreateControls()
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices13[] = {"Distance", "--Euclidean", "--City-block", "Correlation", "--Pearson","--Absolute Pearson", "Cosine", "--Signed", "--Un-signed", "Rank", "--Spearman", "--Kendal"};
-    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(2000,-1), 12, choices13);
+    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 12, choices13);
     box13->SetSelection(1);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
@@ -281,10 +281,6 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();
-}
-
-bool less_vectors(const std::vector<int>& a,const std::vector<int>& b) {
-    return a.size() > b.size();
 }
 
 void KMeansDlg::OnOK(wxCommandEvent& event )
@@ -471,8 +467,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     delete[] input_data;
     delete[] weight;
-    //delete[] error;
-    //delete[] ifound;
     delete[] clusterid;
     
     // sort result
@@ -482,7 +476,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
 
-    std::sort(cluster_ids.begin(), cluster_ids.end(), less_vectors);
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
     for (int i=0; i < ncluster; i++) {
         int c = i + 1;
@@ -506,7 +500,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     
     if (col > 0) {
         table_int->SetColData(col, time, clusters);
-        //table_int->SetColUndefined(col, time, clusters_undef);
+        table_int->SetColUndefined(col, time, clusters_undef);
     }
     
     // show a cluster map

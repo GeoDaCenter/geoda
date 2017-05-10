@@ -49,7 +49,7 @@ public:
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
-    
+        
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     

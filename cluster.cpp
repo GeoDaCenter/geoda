@@ -3112,7 +3112,7 @@ weights array, the function returns NULL.
 
 /* ******************************************************************** */
 
-void cuttree (int nelements, Node* tree, int nclusters, int clusterid[]) 
+void cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[])
 
 /*
 Purpose
@@ -3128,7 +3128,7 @@ Arguments
 nelements      (input) int
 The number of elements that were clustered.
 
-tree           (input) Node[nelements-1]
+tree           (input) GdaNode[nelements-1]
 The clustering solution. Each node in the array describes one linking event,
 with tree[i].left and tree[i].right representig the elements that were joined.
 The original elements are numbered 0..nelements-1, nodes are numbered
@@ -3185,7 +3185,7 @@ error occured, all elements in clusterid are set to -1.
 /* ******************************************************************** */
 
 static
-Node* pclcluster (int nrows, int ncolumns, double** data, int** mask,
+GdaNode* pclcluster (int nrows, int ncolumns, double** data, int** mask,
   double weight[], double** distmatrix, char dist, int transpose)
 
 /*
@@ -3244,10 +3244,10 @@ does not deallocate it.
 Return value
 ============
 
-A pointer to a newly allocated array of Node structs, describing the
+A pointer to a newly allocated array of GdaNode structs, describing the
 hierarchical clustering solution consisting of nelements-1 nodes. Depending on
 whether genes (rows) or microarrays (columns) were clustered, nelements is
-equal to nrows or ncolumns. See src/cluster.h for a description of the Node
+equal to nrows or ncolumns. See src/cluster.h for a description of the GdaNode
 structure.
 If a memory error occurs, pclcluster returns NULL.
 ========================================================================
@@ -3263,12 +3263,12 @@ If a memory error occurs, pclcluster returns NULL.
     (int, double**, double**, int**, int**, const double[], int, int, int) =
        setmetric(dist);
 
-  Node* result;
+  GdaNode* result;
   double** newdata;
   int** newmask;
   int* distid = (int*)malloc(nelements*sizeof(int));
   if(!distid) return NULL;
-  result = (Node*)malloc(nnodes*sizeof(Node));
+  result = (GdaNode*)malloc(nnodes*sizeof(GdaNode));
   if(!result)
   { free(distid);
     return NULL;
@@ -3350,8 +3350,8 @@ If a memory error occurs, pclcluster returns NULL.
 static
 int nodecompare(const void* a, const void* b)
 /* Helper function for qsort. */
-{ const Node* node1 = (const Node*)a;
-  const Node* node2 = (const Node*)b;
+{ const GdaNode* node1 = (const GdaNode*)a;
+  const GdaNode* node2 = (const GdaNode*)b;
   const double term1 = node1->distance;
   const double term2 = node2->distance;
   if (term1 < term2) return -1;
@@ -3362,7 +3362,7 @@ int nodecompare(const void* a, const void* b)
 /* ---------------------------------------------------------------------- */
 
 static
-Node* pslcluster (int nrows, int ncolumns, double** data, int** mask,
+GdaNode* pslcluster (int nrows, int ncolumns, double** data, int** mask,
   double weight[], double** distmatrix, char dist, int transpose)
 
 /*
@@ -3435,10 +3435,10 @@ and are therefore ignored.
 Return value
 ============
 
-A pointer to a newly allocated array of Node structs, describing the
+A pointer to a newly allocated array of GdaNode structs, describing the
 hierarchical clustering solution consisting of nelements-1 nodes. Depending on
 whether genes (rows) or microarrays (columns) were clustered, nelements is
-equal to nrows or ncolumns. See src/cluster.h for a description of the Node
+equal to nrows or ncolumns. See src/cluster.h for a description of the GdaNode
 structure.
 If a memory error occurs, pslcluster returns NULL.
 
@@ -3450,7 +3450,7 @@ If a memory error occurs, pslcluster returns NULL.
   int* vector;
   double* temp;
   int* index;
-  Node* result;
+  GdaNode* result;
   temp = (double*)malloc(nnodes*sizeof(double));
   if(!temp) return NULL;
   index = (int*)malloc(nelements*sizeof(int));
@@ -3464,7 +3464,7 @@ If a memory error occurs, pslcluster returns NULL.
     free(temp);
     return NULL;
   }
-  result = (Node*)malloc(nelements*sizeof(Node));
+  result = (GdaNode*)malloc(nelements*sizeof(GdaNode));
   if(!result)
   { free(vector);
     free(index);
@@ -3520,7 +3520,7 @@ If a memory error occurs, pslcluster returns NULL.
   free(temp);
 
   for (i = 0; i < nnodes; i++) result[i].left = i;
-  qsort(result, nnodes, sizeof(Node), nodecompare);
+  qsort(result, nnodes, sizeof(GdaNode), nodecompare);
 
   for (i = 0; i < nelements; i++) index[i] = i;
   for (i = 0; i < nnodes; i++)
@@ -3533,13 +3533,13 @@ If a memory error occurs, pslcluster returns NULL.
   free(vector);
   free(index);
 
-  result = (Node*)realloc(result, nnodes*sizeof(Node));
+  result = (GdaNode*)realloc(result, nnodes*sizeof(GdaNode));
 
   return result;
 }
 /* ******************************************************************** */
 
-static Node* pmlcluster (int nelements, double** distmatrix)
+static GdaNode* pmlcluster (int nelements, double** distmatrix)
 /*
 
 Purpose
@@ -3562,10 +3562,10 @@ zero. The distance matrix will be modified by this routine.
 Return value
 ============
 
-A pointer to a newly allocated array of Node structs, describing the
+A pointer to a newly allocated array of GdaNode structs, describing the
 hierarchical clustering solution consisting of nelements-1 nodes. Depending on
 whether genes (rows) or microarrays (columns) were clustered, nelements is
-equal to nrows or ncolumns. See src/cluster.h for a description of the Node
+equal to nrows or ncolumns. See src/cluster.h for a description of the GdaNode
 structure.
 If a memory error occurs, pmlcluster returns NULL.
 ========================================================================
@@ -3573,11 +3573,11 @@ If a memory error occurs, pmlcluster returns NULL.
 { int j;
   int n;
   int* clusterid;
-  Node* result;
+  GdaNode* result;
 
   clusterid = (int*)malloc(nelements*sizeof(int));
   if(!clusterid) return NULL;
-  result = (Node*)malloc((nelements-1)*sizeof(Node));
+  result = (GdaNode*)malloc((nelements-1)*sizeof(GdaNode));
   if (!result)
   { free(clusterid);
     return NULL;
@@ -3615,7 +3615,7 @@ If a memory error occurs, pmlcluster returns NULL.
 
 /* ******************************************************************* */
 
-static Node* palcluster (int nelements, double** distmatrix)
+static GdaNode* palcluster (int nelements, double** distmatrix)
 /*
 Purpose
 =======
@@ -3637,10 +3637,10 @@ zero. The distance matrix will be modified by this routine.
 Return value
 ============
 
-A pointer to a newly allocated array of Node structs, describing the
+A pointer to a newly allocated array of GdaNode structs, describing the
 hierarchical clustering solution consisting of nelements-1 nodes. Depending on
 whether genes (rows) or microarrays (columns) were clustered, nelements is
-equal to nrows or ncolumns. See src/cluster.h for a description of the Node
+equal to nrows or ncolumns. See src/cluster.h for a description of the GdaNode
 structure.
 If a memory error occurs, palcluster returns NULL.
 ========================================================================
@@ -3649,7 +3649,7 @@ If a memory error occurs, palcluster returns NULL.
   int n;
   int* clusterid;
   int* number;
-  Node* result;
+  GdaNode* result;
 
   clusterid = (int*)malloc(nelements*sizeof(int));
   if(!clusterid) return NULL;
@@ -3658,7 +3658,7 @@ If a memory error occurs, palcluster returns NULL.
   { free(clusterid);
     return NULL;
   }
-  result = (Node*)malloc((nelements-1)*sizeof(Node));
+  result = (GdaNode*)malloc((nelements-1)*sizeof(GdaNode));
   if (!result)
   { free(clusterid);
     free(number);
@@ -3720,7 +3720,7 @@ If a memory error occurs, palcluster returns NULL.
 
 /* ******************************************************************* */
 
-Node* treecluster (int nrows, int ncolumns, double** data, int** mask,
+GdaNode* treecluster (int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, char dist, char method, double** distmatrix)
 /*
 Purpose
@@ -3791,16 +3791,16 @@ routine should deallocate the distance matrix after the return from treecluster.
 Return value
 ============
 
-A pointer to a newly allocated array of Node structs, describing the
+A pointer to a newly allocated array of GdaNode structs, describing the
 hierarchical clustering solution consisting of nelements-1 nodes. Depending on
 whether genes (rows) or microarrays (columns) were clustered, nelements is
-equal to nrows or ncolumns. See src/cluster.h for a description of the Node
+equal to nrows or ncolumns. See src/cluster.h for a description of the GdaNode
 structure.
 If a memory error occurs, treecluster returns NULL.
 
 ========================================================================
 */
-{ Node* result = NULL;
+{ GdaNode* result = NULL;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ldistmatrix = (distmatrix==NULL && method!='s') ? 1 : 0;
 

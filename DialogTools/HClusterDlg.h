@@ -24,11 +24,49 @@
 #include <map>
 
 #include "../FramesManager.h"
-
 #include "../VarTools.h"
 
+class GdaNode;
 class Project;
 class TableInterface;
+
+class DendrogramPanel : public wxPanel
+{
+public:
+    //DendrogramPanel();
+    DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize);
+    
+    void OnMouse( wxMouseEvent& event );
+    void OnSize(  wxSizeEvent& event);
+    void OnPaint( wxPaintEvent& event );
+    void Paint(wxDC *dc);
+    void Draw(wxDC* dc);
+    void Setup(GdaNode* _root, int _nelements);
+    
+    
+private:
+    int leaves;
+    int levels;
+    int nelements;
+    
+    double margin;
+    double currentY;
+    double heightPerLeaf;
+    double widthPerLevel;
+    
+    wxBitmap* layer_bm;
+    
+    GdaNode* root;
+    
+    int countLeaves(GdaNode* node);
+    
+    int countLevels(GdaNode* node);
+    
+    int countLeaves(int node_idx);
+    int countLevels(int node_idx);
+    
+    wxPoint doDraw(wxMemoryDC &dc, int node_idx, int y);
+};
 
 class HClusterDlg : public wxDialog, public FramesManagerObserver
 {
@@ -40,9 +78,9 @@ public:
     bool Init();
     
     void OnOK( wxCommandEvent& event );
-    void OnSave( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
+    void OnDistanceChoice(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -61,13 +99,14 @@ private:
     FramesManager* frames_manager;
     
     wxListBox* combo_var;
-    wxComboBox* combo_n;
-    wxComboBox* combo_cov;
+    wxChoice* combo_n;
+    wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
-    //wxTextCtrl* m_iterations;
-    wxComboBox* m_method;
-    wxComboBox* m_distance;
+    wxChoice* m_method;
+    wxChoice* m_distance;
+    DendrogramPanel* m_panel;
+    wxChoice* combo_tranform;
     
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
