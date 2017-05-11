@@ -127,7 +127,7 @@ void KMeansDlg::CreateControls()
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Data Transformation:"),
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
     wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
