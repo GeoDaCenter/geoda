@@ -47,7 +47,7 @@ public:
     
     void OnDistanceChoice(wxCommandEvent& event);
     
-    void InitVariableCombobox(wxCheckListBox* var_box);
+    void InitVariableCombobox(wxListBox* var_box);
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
@@ -63,7 +63,7 @@ private:
     
     FramesManager* frames_manager;
     
-    wxCheckListBox* combo_var;
+    wxListBox* combo_var;
     wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;

@@ -66,8 +66,9 @@ public:
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
     }
     
-private:
     int idx;
+private:
+    
     int x;
     int y;
     int w;
@@ -169,7 +170,8 @@ public:
     void OnSize(  wxSizeEvent& event);
     virtual void OnPaint( wxPaintEvent& event );
     void Setup(GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff);
-    void UpdateCluster(int _nclusters);
+    void UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters);
+    void OnSplitLineChange(int x);
     
 private:
     int leaves;
@@ -216,7 +218,7 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-class HClusterDlg : public wxDialog, public FramesManagerObserver
+class HClusterDlg : public wxDialog, public FramesManagerObserver, public HighlightStateObserver
 {
 public:
     HClusterDlg(wxFrame *parent, Project* project);
@@ -225,15 +227,24 @@ public:
     void CreateControls();
     bool Init();
     
+    void OnSave(wxCommandEvent& event );
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice(wxCommandEvent& event);
+    void OnClusterChoice(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
+    
+    virtual void update(HLStateInt* o);
+    
+    HLStateInt*           highlight_state;
+    
+    void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
+    void Highlight(int id);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
@@ -246,6 +257,11 @@ private:
     
     FramesManager* frames_manager;
     
+    double cutoffDistance;
+    vector<wxInt64> clusters;
+    vector<bool> clusters_undef;
+    
+    wxButton *saveButton;
     wxListBox* combo_var;
     wxChoice* combo_n;
     wxChoice* combo_cov;

@@ -103,7 +103,7 @@ void KMeansDlg::CreateControls()
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
                                          wxDefaultPosition, wxDefaultSize);
     
-    wxCheckListBox* box = new wxCheckListBox(panel, wxID_ANY, wxDefaultPosition,
+    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(250,250), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
@@ -123,6 +123,7 @@ void KMeansDlg::CreateControls()
                                          wxDefaultPosition, wxSize(128,-1));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(200,-1), 9, choices);
+    box1->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
     
@@ -239,7 +240,7 @@ void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
      }
 }
 
-void KMeansDlg::InitVariableCombobox(wxCheckListBox* var_box)
+void KMeansDlg::InitVariableCombobox(wxListBox* var_box)
 {
     wxArrayString items;
     

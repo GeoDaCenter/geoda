@@ -59,6 +59,8 @@ wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxS
     parent = parent_s;
     project = project_s;
     
+    highlight_state = project->GetHighlightState();
+                    
     bool init_success = Init();
     
     if (init_success == false) {
@@ -68,11 +70,24 @@ wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxS
     }
     
     frames_manager->registerObserver(this);
+    highlight_state->registerObserver(this);
 }
 
 HClusterDlg::~HClusterDlg()
 {
     frames_manager->removeObserver(this);
+    highlight_state->removeObserver(this);
+}
+
+void HClusterDlg::Highlight(int id)
+{
+    vector<bool>& hs = highlight_state->GetHighlight();
+    
+    for (int i=0; i<hs.size(); i++) hs[i] = false;
+    hs[id] = true;
+    
+    highlight_state->SetEventType(HLStateInt::delta);
+    highlight_state->notifyObservers(this);
 }
 
 bool HClusterDlg::Init()
@@ -112,15 +127,6 @@ void HClusterDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
 
-    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxSize(120,-1));
-    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(120,-1), 19, choices, wxCB_READONLY);
-    box1->SetSelection(3);
-    gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box1, 1, wxEXPAND);
-    
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Data Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
@@ -134,6 +140,7 @@ void HClusterDlg::CreateControls()
     wxString choices12[] = {"Single-linkage","Complete-linkage","Average-linkage","Centroid-linkage"};
     wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                        wxSize(120,-1), 4, choices12, wxCB_READONLY);
+    box12->SetSelection(1);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
     
@@ -150,25 +157,37 @@ void HClusterDlg::CreateControls()
     
     
     // Output
+    wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
+
+    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
+                                         wxDefaultPosition, wxDefaultSize);
+    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(120,-1), 19, choices, wxCB_READONLY);
+    box1->SetSelection(3);
+    gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox1->Add(box1, 1, wxEXPAND);
+
+    
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(120,-1));
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
-    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
+    gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox1->Add(box3, 1, wxEXPAND);
     
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    hbox1->Add(gbox1, 1, wxEXPAND);
     
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
+    saveButton = new wxButton(panel, wxID_SAVE, wxT("Save/Show Map"), wxDefaultPosition, wxDefaultSize);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
@@ -202,10 +221,71 @@ void HClusterDlg::CreateControls()
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOK, this);
+    saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
+
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(HClusterDlg::OnDistanceChoice),
                         NULL, this);
+    combo_n->Connect(wxEVT_CHOICE,
+                     wxCommandEventHandler(HClusterDlg::OnClusterChoice),
+                     NULL, this);
+    
+    saveButton->Disable();
+    combo_n->Disable();
+}
+
+void HClusterDlg::OnSave(wxCommandEvent& event )
+{
+    wxString field_name = m_textbox->GetValue();
+    if (field_name.IsEmpty()) {
+        wxString err_msg = _("Please enter a field name for saving clustering results.");
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    
+    // save to table
+    int time=0;
+    int col = table_int->FindColId(field_name);
+    if ( col == wxNOT_FOUND) {
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_long_len;
+        int m_decimals_val = 0;
+        
+        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    }
+    
+    if (col > 0) {
+        table_int->SetColData(col, time, clusters);
+        table_int->SetColUndefined(col, time, clusters_undef);
+    }
+    
+    // show a cluster map
+    std::vector<GdaVarTools::VarInfo> new_var_info;
+    std::vector<int> new_col_ids;
+    new_col_ids.resize(1);
+    new_var_info.resize(1);
+    new_col_ids[0] = col;
+    new_var_info[0].time = 0;
+    // Set Primary GdaVarTools::VarInfo attributes
+    new_var_info[0].name = field_name;
+    new_var_info[0].is_time_variant = table_int->IsColTimeVariant(col);
+    table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
+    new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
+    new_var_info[0].fixed_scale = true;
+    
+    
+    MapFrame* nf = new MapFrame(parent, project,
+                                new_var_info, new_col_ids,
+                                CatClassification::unique_values,
+                                MapCanvas::no_smoothing, 4,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
+    
 }
 
 void HClusterDlg::OnDistanceChoice(wxCommandEvent& event)
@@ -219,6 +299,23 @@ void HClusterDlg::OnDistanceChoice(wxCommandEvent& event)
         m_distance->SetSelection(7);
     } else if (m_distance->GetSelection() == 9) {
         m_distance->SetSelection(10);
+    }
+}
+
+void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
+{
+    int sel_ncluster = combo_n->GetSelection() + 2;
+    
+    // update dendrogram
+    m_panel->UpdateCluster(sel_ncluster, clusters);
+}
+
+void HClusterDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
+{
+    int sel = n - 2;
+    combo_n->SetSelection(sel);
+    for (int i=0; i<clusters.size(); i++){
+        clusters[i] = _clusters[i];
     }
 }
 
@@ -252,6 +349,10 @@ void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
 }
 
 void HClusterDlg::update(FramesManager* o)
+{
+}
+
+void HClusterDlg::update(HLStateInt* o)
 {
 }
 
@@ -289,14 +390,6 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
         // show message box
         wxString err_msg = _("Please select at least 2 variables.");
         wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
-    wxString field_name = m_textbox->GetValue();
-    if (field_name.IsEmpty()) {
-        wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -436,8 +529,8 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
     
     double cutoffDistance = cuttree (rows, htree, ncluster, clusterid);
     
-    vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
+    clusters.clear();
+    clusters_undef.clear();
     
     // clean memory
     for (int i=0; i<rows; i++) {
@@ -471,49 +564,11 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
     
     // draw dendrogram
     m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);
-    
     // free(htree); should be freed in m_panel since drawing still needs it's instance
     
-    // save to table
 
-    int time=0;
-    int col = table_int->FindColId(field_name);
-    if ( col == wxNOT_FOUND) {
-        int col_insert_pos = table_int->GetNumberCols();
-        int time_steps = 1;
-        int m_length_val = GdaConst::default_dbf_long_len;
-        int m_decimals_val = 0;
-        
-        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
-    }
-    
-    if (col > 0) {
-        table_int->SetColData(col, time, clusters);
-        table_int->SetColUndefined(col, time, clusters_undef);
-    }
-    
-    // show a cluster map
-    std::vector<GdaVarTools::VarInfo> new_var_info;
-    std::vector<int> new_col_ids;
-    new_col_ids.resize(1);
-    new_var_info.resize(1);
-    new_col_ids[0] = col;
-    new_var_info[0].time = 0;
-    // Set Primary GdaVarTools::VarInfo attributes
-    new_var_info[0].name = field_name;
-    new_var_info[0].is_time_variant = table_int->IsColTimeVariant(col);
-    table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
-    new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
-    new_var_info[0].fixed_scale = true;
-
-    
-    MapFrame* nf = new MapFrame(parent, project,
-                                new_var_info, new_col_ids,
-                                CatClassification::unique_values,
-                                MapCanvas::no_smoothing, 4,
-                                boost::uuids::nil_uuid(),
-                                wxDefaultPosition,
-                                GdaConst::map_default_size);
+    saveButton->Enable();
+    combo_n->Enable();
 }
 
 
@@ -574,12 +629,17 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                 isMovingSplitLine = true;
             }
         }
+        if (!isMovingSplitLine) {
         // test end_nodes
         for (int i=0;i<end_nodes.size();i++) {
             if (end_nodes[i]->contains(startPos)){
                 // highlight i selected
+                wxWindow* parent = GetParent()->GetParent();
+                HClusterDlg* dlg = static_cast<HClusterDlg*>(parent);
+                dlg->Highlight(end_nodes[i]->idx);
                 break;
             }
+        }
         }
     } else if (event.Dragging()) {
         if (isLeftDown) {
@@ -589,7 +649,7 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                 split_line->move(event.GetPosition(), startPos);
                 int x = split_line->getX();
                 Refresh();
-                UpdateCluster(x);
+                OnSplitLineChange(x);
             }
             startPos = event.GetPosition();
         }
@@ -686,7 +746,7 @@ void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters, std:
     init();
 }
 
-void DendrogramPanel::UpdateCluster(int x)
+void DendrogramPanel::OnSplitLineChange(int x)
 {
     wxSize sz = this->GetClientSize();
     double hh = sz.y;
@@ -694,7 +754,6 @@ void DendrogramPanel::UpdateCluster(int x)
     
     cutoffDistance = maxDistance * (ww - margin - 30 - x) / (double) (ww - margin*2 - 30);
     
-
     for (int i = nelements-2; i >= 0; i--)
     {
         if (cutoffDistance >=  root[i].distance) {
@@ -713,7 +772,6 @@ void DendrogramPanel::UpdateCluster(int x)
     }
     delete[] clusterid;
     
-    /*
     // sort result
     std::vector<std::vector<int> > cluster_ids(nclusters);
     
@@ -730,8 +788,49 @@ void DendrogramPanel::UpdateCluster(int x)
             clusters[idx] = c;
         }
     }
-     */
+     
+    wxWindow* parent = GetParent()->GetParent();
+    HClusterDlg* dlg = static_cast<HClusterDlg*>(parent);
+    dlg->UpdateClusterChoice(nclusters, clusters);
     
+    color_vec.clear();
+    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
+    
+    init();
+}
+
+void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters)
+{
+    nclusters = _nclusters;
+    
+    int* clusterid = new int[nelements];
+    cutoffDistance = cuttree (nelements, root, nclusters, clusterid);
+    
+    for (int i=0; i<nelements; i++) {
+        clusters[i] = clusterid[i]+1;
+    }
+    delete[] clusterid;
+    
+    // sort result
+    std::vector<std::vector<int> > cluster_ids(nclusters);
+    
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
+    
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    for (int i=0; i < nclusters; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+    
+    for (int i=0; i<nelements; i++) {
+        _clusters[i] = clusters[i];
+    }
     
     color_vec.clear();
     CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
