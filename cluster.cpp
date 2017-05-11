@@ -3112,7 +3112,7 @@ weights array, the function returns NULL.
 
 /* ******************************************************************** */
 
-void cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[])
+double cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[])
 
 /*
 Purpose
@@ -3163,7 +3163,7 @@ error occured, all elements in clusterid are set to -1.
   nodeid = (int*)malloc(n*sizeof(int));
   if(!nodeid)
   { for (i = 0; i < nelements; i++) clusterid[i] = -1;
-    return;
+    return 0;
   }
   for (i = 0; i < n; i++) nodeid[i] = -1;
   for (i = n-1; i >= 0; i--)
@@ -3179,7 +3179,7 @@ error occured, all elements in clusterid are set to -1.
     if (k<0) nodeid[-k-1] = j; else clusterid[k] = j;
   }
   free(nodeid);
-  return;
+  return tree[n-1].distance;
 }
 
 /* ******************************************************************** */

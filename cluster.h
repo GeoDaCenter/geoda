@@ -77,7 +77,7 @@ struct GdaNode{int left; int right; double distance;};
 
 GdaNode* treecluster (int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, char dist, char method, double** distmatrix);
-void cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[]);
+double cuttree (int nelements, GdaNode* tree, int nclusters, int clusterid[]);
 
 /* Chapter 5 */
 void somcluster (int nrows, int ncolumns, double** data, int** mask,

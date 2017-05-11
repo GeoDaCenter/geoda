@@ -23,8 +23,10 @@
 #include <vector>
 #include <map>
 #include <wx/choice.h>
-#include "../FramesManager.h"
+#include <wx/checklst.h>
 
+
+#include "../FramesManager.h"
 #include "../VarTools.h"
 
 class Project;
@@ -45,7 +47,7 @@ public:
     
     void OnDistanceChoice(wxCommandEvent& event);
     
-    void InitVariableCombobox(wxListBox* var_box);
+    void InitVariableCombobox(wxCheckListBox* var_box);
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
@@ -61,7 +63,7 @@ private:
     
     FramesManager* frames_manager;
     
-    wxListBox* combo_var;
+    wxCheckListBox* combo_var;
     wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;

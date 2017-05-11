@@ -117,6 +117,7 @@ void HClusterDlg::CreateControls()
                                          wxDefaultPosition, wxSize(120,-1));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(120,-1), 19, choices, wxCB_READONLY);
+    box1->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
     
@@ -155,7 +156,7 @@ void HClusterDlg::CreateControls()
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxEXPAND);
+    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
     
     
     // Buttons
@@ -172,7 +173,7 @@ void HClusterDlg::CreateControls()
     // Container
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
     
     
@@ -433,7 +434,7 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
     
     GdaNode* htree = treecluster(rows, columns, input_data, mask, weight, transpose, dist, method, NULL);
     
-    cuttree (rows, htree, ncluster, clusterid);
+    double cutoffDistance = cuttree (rows, htree, ncluster, clusterid);
     
     vector<wxInt64> clusters;
     vector<bool> clusters_undef;
@@ -449,7 +450,7 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
     delete[] weight;
     delete[] clusterid;
     
-    
+    /*
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
     
@@ -466,19 +467,12 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+    */
     
     // draw dendrogram
-    int margin = 10;
-    int leaves = 0;
-    int levels = 0;
-    //double height_per_leaf = (m_panel->GetHeight() - margin - margin) / (double) leaves;
-    //double width_per_level = (m_panel->GetWidth() - margin - margin) / (double) levels;
+    m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);
     
-    double current_y = 0;
-    
-    m_panel->Setup(htree, rows);
-    
-    free(htree);
+    // free(htree); should be freed in m_panel since drawing still needs it's instance
     
     // save to table
 
@@ -524,6 +518,13 @@ void HClusterDlg::OnOK(wxCommandEvent& event )
 
 
 
+IMPLEMENT_ABSTRACT_CLASS(DendrogramPanel, wxPanel)
+
+BEGIN_EVENT_TABLE(DendrogramPanel, wxPanel)
+EVT_MOUSE_EVENTS(DendrogramPanel::OnEvent)
+EVT_IDLE(DendrogramPanel::OnIdle)
+END_EVENT_TABLE()
+
 DendrogramPanel::DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
 : wxPanel(parent, id, pos, size)
 {
@@ -531,119 +532,357 @@ DendrogramPanel::DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint 
     SetBackgroundColour(*wxWHITE);
     Connect(wxEVT_PAINT, wxPaintEventHandler(DendrogramPanel::OnPaint));
     Connect(wxEVT_SIZE, wxSizeEventHandler(DendrogramPanel::OnSize));
-    Connect(wxEVT_RIGHT_UP, wxMouseEventHandler(DendrogramPanel::OnMouse));
-
     layer_bm = NULL;
+    root = NULL;
+    isResize = false;
+    isLeftDown = false;
+    isLeftMove = false;
+    split_line = NULL;
+    isMovingSplitLine= false;
+    isLayerValid = false;
+    maxDistance = 0.0;
 }
 
-
-void DendrogramPanel::OnMouse( wxMouseEvent& event )
+DendrogramPanel::~DendrogramPanel()
 {
-    
+    for (int i=0; i<end_nodes.size(); i++) {
+        delete end_nodes[i];
+    }
+    end_nodes.clear();
+    if (root) free(root); root = NULL;
+    if (layer_bm) {
+        delete layer_bm;
+        layer_bm= NULL;
+    }
+
+    if (split_line) {
+        delete split_line;
+        split_line = NULL;
+        
+    }
+}
+
+void DendrogramPanel::OnEvent( wxMouseEvent& event )
+{
+    if (event.LeftDown()) {
+        isLeftDown = true;
+        
+        startPos = event.GetPosition();
+        // test SplitLine
+        if (split_line) {
+            if (split_line->contains(startPos)) {
+                isMovingSplitLine = true;
+            }
+        }
+        // test end_nodes
+        for (int i=0;i<end_nodes.size();i++) {
+            if (end_nodes[i]->contains(startPos)){
+                // highlight i selected
+                break;
+            }
+        }
+    } else if (event.Dragging()) {
+        if (isLeftDown) {
+            isLeftMove = true;
+            // moving
+            if (isMovingSplitLine && split_line) {
+                split_line->move(event.GetPosition(), startPos);
+                int x = split_line->getX();
+                Refresh();
+                UpdateCluster(x);
+            }
+            startPos = event.GetPosition();
+        }
+    } else if (event.LeftUp()) {
+        if (isLeftMove) {
+            isLeftMove = false;
+            // stop move
+            isMovingSplitLine = false;
+        } else {
+            // only left click
+        }
+        isLeftDown = false;
+    }
 }
 
 void DendrogramPanel::OnSize(  wxSizeEvent& event)
 {
-    Refresh();
+    isResize = true;
+    event.Skip();
 }
 
-
-
-void DendrogramPanel::OnPaint( wxPaintEvent& event )
+void DendrogramPanel::OnIdle(wxIdleEvent& event)
 {
-    /*
-    wxAutoBufferedPaintDC dc(this);
-    dc.Clear();
-    wxSize sz = this->GetClientSize();
-    wxBrush Brush;
-    Brush.SetColour(GdaConst::canvas_background_color);
-    dc.SetBrush(Brush);
-    dc.DrawRectangle(wxRect(0, 0, sz.x, sz.y));
-    */
-    if (layer_bm) {
-        wxSize sz = GetClientSize();
-        wxMemoryDC dc(*layer_bm);
+    if (isResize) {
+        isResize = false;
         
-        wxPaintDC paint_dc(this);
-        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        wxSize sz = GetClientSize();
+        if (layer_bm)  {
+            delete layer_bm;
+            layer_bm = 0;
+        }
+        
+        double scale_factor = GetContentScaleFactor();
+        layer_bm = new wxBitmap;
+        layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
+
+        if (root) {
+            init();
+        }
     }
     event.Skip();
 }
 
-void DendrogramPanel::Setup(GdaNode* _root, int _nelements) {
+void DendrogramPanel::OnPaint( wxPaintEvent& event )
+{
+
+    wxSize sz = GetClientSize();
+    if (layer_bm && isLayerValid) {
+        wxMemoryDC dc;
+        dc.SelectObject(*layer_bm);
+
+        wxPaintDC paint_dc(this);
+        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        if (split_line) {
+            split_line->draw(paint_dc);
+        }
+        dc.SelectObject(wxNullBitmap);
+    } else {
+        
+        wxAutoBufferedPaintDC dc(this);
+        dc.Clear();
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        wxBrush Brush;
+        Brush.SetColour(GdaConst::canvas_background_color);
+        dc.SetBrush(Brush);
+        dc.DrawRectangle(wxRect(0, 0, sz.x, sz.y));
+    }
+    event.Skip();
+}
+
+void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff) {
+    if (root && root != _root) {
+        // free previous tree in memory
+        free(root);
+        root = NULL;
+    }
     root = _root;
     nelements = _nelements;
+    clusters = _clusters;
+    nclusters = _nclusters;
+    cutoffDistance = _cutoff;
+    
+    color_vec.clear();
+    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
     
     // top Node will be nelements - 2
+    accessed_node.clear();
     leaves = countLeaves(-(nelements-2) - 1);
-    levels = countLevels(-(nelements-2) - 1);
+    level_node.clear();
+    levels = countLevels(-(nelements-2) - 1, 0);
+    
+    maxDistance = root[nelements-2].distance;
+    
+    init();
+}
+
+void DendrogramPanel::UpdateCluster(int x)
+{
+    wxSize sz = this->GetClientSize();
+    double hh = sz.y;
+    double ww = sz.x;
+    
+    cutoffDistance = maxDistance * (ww - margin - 30 - x) / (double) (ww - margin*2 - 30);
+    
+
+    for (int i = nelements-2; i >= 0; i--)
+    {
+        if (cutoffDistance >=  root[i].distance) {
+            nclusters = nelements - i - 1;
+            break;
+        }
+    }
+
+    if (nclusters > 20) nclusters = 20;
+    
+    int* clusterid = new int[nelements];
+    cuttree (nelements, root, nclusters, clusterid);
+    
+    for (int i=0; i<nelements; i++) {
+        clusters[i] = clusterid[i]+1;
+    }
+    delete[] clusterid;
+    
+    /*
+    // sort result
+    std::vector<std::vector<int> > cluster_ids(nclusters);
+    
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
+    
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    for (int i=0; i < nclusters; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+     */
+    
+    
+    color_vec.clear();
+    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
+    
+    init();
+}
+
+void DendrogramPanel::init() {
+    
+    isLayerValid = false;
     
     wxSize sz = this->GetClientSize();
     double hh = sz.y;
     double ww = sz.x;
     
-    layer_bm = new wxBitmap(ww, hh, 32);
+    for (int i=0; i<end_nodes.size(); i++) {
+        delete end_nodes[i];
+    }
+    end_nodes.clear();
+    
+    
+    if (layer_bm == NULL) {
+        double scale_factor = GetContentScaleFactor();
+        layer_bm = new wxBitmap;
+        layer_bm->CreateScaled(ww, hh, 32, scale_factor);
+    }
     
     margin = 10.0;
     
     heightPerLeaf = (hh - margin - margin) / (double)leaves;
     widthPerLevel = (ww - margin - margin)/ (double)levels;
     
-    currentY = 0;
+    currentY = 10;
     
-    wxMemoryDC dc(*layer_bm);
+    wxMemoryDC dc;
+    dc.SelectObject(*layer_bm);
     dc.Clear();
+    dc.SetFont(*GdaConst::extra_small_font);
     
-    doDraw(dc, -(nelements-2) - 1, 0);
+    int start_y = 0;
+    accessed_node.clear();
+    doDraw(dc, -(nelements-2) - 1, start_y);
 
+    // draw verticle line
+    if (!isMovingSplitLine) {
+        int v_start =  ww - margin - 30 - (ww - 2*margin - 30) * cutoffDistance / maxDistance;
+        wxPoint v_p0(v_start, 0);
+        wxPoint v_p1(v_start, hh);
+        if (split_line == NULL) {
+            split_line = new DendroSplitLine(v_p0, v_p1);
+        } else {
+            split_line->update(v_p0, v_p1);
+        }
+    }
+    
+    
+    dc.SelectObject(wxNullBitmap);
+    
+    isLayerValid = true;
     Refresh();
 }
 
-wxPoint DendrogramPanel::doDraw(wxMemoryDC &dc, int node_idx, int y)
+DendroColorPoint DendrogramPanel::doDraw(wxDC &dc, int node_idx, int y)
 {
+    
     wxSize sz = this->GetClientSize();
     double hh = sz.y;
     double ww = sz.x;
     
     if (node_idx >= 0) {
-        int x = ww - widthPerLevel - 2 * margin;
-        wxString text;
-        text << node_idx;
-        
-        dc.DrawText(text, x + 8, currentY + 8);
+        int x = ww - margin - 30;
+
+        wxColour clr =  color_vec[clusters[node_idx] -1];
+        RectNode* end = new RectNode(node_idx, x, currentY, clr);
+        end->draw(dc);
+        end_nodes.push_back(end);
         
         int resultX = x;
         int resultY = currentY;
         
         currentY += heightPerLeaf;
         
-        return wxPoint(resultX, resultY);
+        wxPoint pt(resultX, resultY);
+        return DendroColorPoint(pt, clr);
     }
     
-    wxPoint p0 = doDraw(dc, root[-node_idx -1].left, y);
-    wxPoint p1 = doDraw(dc, root[-node_idx -1].right, y+heightPerLeaf);
+    if (accessed_node.find(node_idx) != accessed_node.end()) {
+        // loop!!!
+        return DendroColorPoint();
+    }
+    accessed_node[node_idx] = 1;
     
-    dc.DrawRectangle(wxRect(p0.x-2, p0.y-2, 4, 4));
-    dc.DrawRectangle(wxRect(p1.x-2, p1.y-2, 4, 4));
+    DendroColorPoint cp0 = doDraw(dc, root[-node_idx -1].left, y);
+    DendroColorPoint cp1 = doDraw(dc, root[-node_idx -1].right, y+heightPerLeaf);
     
-    int dx = widthPerLevel;
-    int vx = min(p0.x-dx, p1.x-dx);
+    wxPoint p0 = cp0.pt;
+    wxColour c0 = cp0.color;
     
+    wxPoint p1 = cp1.pt;
+    wxColour c1 = cp1.color;
+    
+    //dc.DrawRectangle(wxRect(p0.x-2, p0.y-2, 4, 4));
+    //dc.DrawRectangle(wxRect(p1.x-2, p1.y-2, 4, 4));
+    
+    double dist = level_node[node_idx];
+    int vx = ww - margin - 30 - (ww - 2*margin - 30) * dist / maxDistance ;
+    
+    wxPen pen0(c0);
+    dc.SetPen(pen0);
     dc.DrawLine(vx, p0.y, p0.x, p0.y);
-    dc.DrawLine(vx, p1.y, p1.x, p1.y);
-    dc.DrawLine(vx, p0.y, vx, p1.y);
-    wxPoint p(vx, p0.y+(p1.y - p0.y)/2);
-    return p;
     
+    wxPen pen1(c1);
+    dc.SetPen(pen1);
+    dc.DrawLine(vx, p1.y, p1.x, p1.y);
+    
+    if (c0 == c1) {
+        dc.DrawLine(vx, p0.y, vx, p1.y);
+    } else {
+        dc.SetPen(*wxBLACK_PEN);
+        dc.DrawLine(vx, p0.y, vx, p1.y);
+    }
+    dc.SetPen(*wxBLACK_PEN);
+    
+    wxPoint p(vx, p0.y+(p1.y - p0.y)/2);
+    
+    if (c0 == c1) {
+        return DendroColorPoint(p, c0);
+    } else {
+        return DendroColorPoint(p, *wxBLACK);
+    }
 }
 
-int DendrogramPanel::countLevels(int node_idx)
+int DendrogramPanel::countLevels(int node_idx, int cur_lvl)
 {
     if (node_idx >= 0) {
         return 1;
     }
     
-    return 1 + max(countLevels(root[-node_idx-1].left), countLevels(root[-node_idx-1].right));
+    if (level_node.find(node_idx) != level_node.end()) {
+        // loop!!!
+        return 1;
+    }
+    
+    level_node[node_idx] = root[-node_idx-1].distance;
+    
+    int left = countLevels(root[-node_idx-1].left, cur_lvl+1);
+    int right = countLevels(root[-node_idx-1].right, cur_lvl+1);
+    
+    int lvl =  1 + max(left, right);
+    
+    return lvl;
 }
 
 int DendrogramPanel::countLeaves(int node_idx)
@@ -651,6 +890,11 @@ int DendrogramPanel::countLeaves(int node_idx)
     if (node_idx >= 0) {
         return 1;
     }
+    if (accessed_node.find(node_idx) != accessed_node.end()) {
+        // loop!!!
+        return 0;
+    }
+    accessed_node[node_idx] = 1;
     
     return countLeaves(root[-node_idx-1].left) + countLeaves(root[-node_idx-1].right);
 }
