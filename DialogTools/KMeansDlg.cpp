@@ -112,6 +112,9 @@ void KMeansDlg::CreateControls()
     hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(cbox, 0, wxLEFT | wxRIGHT, 10);
     
+    if (project->IsTableOnlyProject()) {
+        cbox->Disable();
+    }
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(8,2,5,0);
 

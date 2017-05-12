@@ -27,7 +27,7 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
-#include "MapNewView.h"
+#include "Explore/MapNewView.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

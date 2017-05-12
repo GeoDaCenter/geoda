@@ -2,35 +2,36 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 
 TARGET      = GeoDa
 
-CC	=   gcc	
-CXX     =	g++ 
-LD	=	g++ 
+CC	=	gcc -O2
+CXX     =	g++ -O2 -arch x86_64
+LD	=	g++ -arch x86_64
 RM	=	/bin/rm -f
 
-WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,webview,qa,adv,core,xml,net,base)
+WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,webview,xml,net,base)
 WX_HEADER = $(shell $(GEODA_HOME)/libraries/bin/wx-config --cppflags)
 
-LIBS = $(WXLIBS) \
-        $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
-        $(GEODA_HOME)/temp/CLAPACK-3.2.1/libf2c.a \
-        $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
-        $(GEODA_HOME)/temp/CLAPACK-3.2.1/tmglib.a \
-        $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
-        $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
-        $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
-        -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl -lcares \
-        -L/lib64 -lGL -lGLU -lidn -lrt -lssl -lidn -lwebkitgtk-3.0
+LIBS	=	$(WXLIBS) \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
+            $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
+            -L/usr/lib -liconv \
+            -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
+            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
+            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
+	    $(GEODA_HOME)/libraries/lib/libjson_spirit.a
+
 
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
 
-GDAL_HEADER = -I$(GEODA_HOME)/libraries/include -I/usr/include
-
 EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3
 
-CPPFLAGS	=  -I$(GeoDa_ROOT)
-CFLAGS		=  -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
-CXXFLAGS	=  -O2 $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
-LDFLAGS     = 
+GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
+EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3
+
+CPPFLAGS	=  -I$(GeoDa_ROOT) $(USER_LOG)
+CFLAGS		=  -O2 -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -O2 -arch x86_64  -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+LDFLAGS     = -arch x86_64
 
 OBJ_EXT     = o
 
