@@ -505,6 +505,9 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     
     // show a cluster map
+    if (project->IsTableOnlyProject()) {
+        return;
+    }
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
     new_col_ids.resize(1);
