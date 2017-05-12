@@ -142,7 +142,7 @@ void HClusterDlg::CreateControls()
                                           wxDefaultPosition, wxSize(120,-1));
     wxString choices12[] = {"Single-linkage","Complete-linkage","Average-linkage","Centroid-linkage"};
     wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                       wxSize(120,-1), 4, choices12, wxCB_READONLY);
+                                       wxSize(120,-1), 4, choices12);
     box12->SetSelection(1);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
@@ -167,7 +167,7 @@ void HClusterDlg::CreateControls()
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxDefaultSize);
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 19, choices, wxCB_READONLY);
+                                  wxSize(120,-1), 19, choices);
     box1->SetSelection(3);
     gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box1, 1, wxEXPAND);

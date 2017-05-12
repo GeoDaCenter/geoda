@@ -51,7 +51,7 @@ END_EVENT_TABLE()
 
 KMeansDlg::KMeansDlg(wxFrame* parent_s, Project* project_s)
 : frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 680), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 720), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open KMeanDlg.");
     
@@ -156,6 +156,7 @@ void KMeansDlg::CreateControls()
     wxString choices12[] = {"Arithmetic Mean", "Arithmetic Median"};
     wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                        wxSize(200,-1), 2, choices12);
+	box12->SetSelection(0);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
     

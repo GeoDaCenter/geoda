@@ -27,6 +27,7 @@
 #ifndef __GEODA_CENTER_GDA_CONST_H__
 #define __GEODA_CENTER_GDA_CONST_H__
 
+#include <stdint.h> 
 #include <map>
 #include <set>
 #include <string>
