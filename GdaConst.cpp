@@ -302,6 +302,9 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+uint64_t GdaConst::gda_user_seed = 0;
+bool GdaConst::use_gda_user_seed = false;
+
 int GdaConst::gdal_http_timeout = 5;
 bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::show_csv_configure_in_merge = false;

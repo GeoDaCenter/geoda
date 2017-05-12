@@ -581,7 +581,7 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxString cur_val;
 	cur_val << last_seed;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, "\nEnter a seed value", cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
 	dlg_val.Trim(true);

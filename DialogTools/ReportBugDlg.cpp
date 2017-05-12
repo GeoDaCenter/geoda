@@ -581,6 +581,27 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gdal_http_timeout = sel_l;
 		}
 	}
+    
+    // following are not in this UI, but still global variable
+    vector<string> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
+    if (!gda_user_seed.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_user_seed[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_user_seed = sel_l;
+        }
+    }
+    vector<string> use_gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("use_gda_user_seed");
+    if (!use_gda_user_seed.empty()) {
+        long sel_l = 0;
+        wxString sel = use_gda_user_seed[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::use_gda_user_seed = true;
+            else if (sel_l == 0)
+                GdaConst::use_gda_user_seed = false;
+        }
+    }
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)

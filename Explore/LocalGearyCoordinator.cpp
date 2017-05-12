@@ -127,6 +127,10 @@ undef_data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
+    reuse_last_seed = GdaConst::use_gda_user_seed;
+    if ( GdaConst::use_gda_user_seed) {
+        last_seed_used = GdaConst::gda_user_seed;
+    }
     
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
@@ -155,6 +159,11 @@ LocalGearyCoordinator(wxString weights_path,
                 bool calc_significances_s,
                 bool row_standardize_s)
 {
+    reuse_last_seed = GdaConst::use_gda_user_seed;
+    if ( GdaConst::use_gda_user_seed) {
+        last_seed_used = GdaConst::gda_user_seed;
+    }
+    
     isBivariate = false;
     num_obs = n;
     num_time_vals = 1;
