@@ -562,7 +562,7 @@ void LocalGearyCoordinator::StandardizeData()
     if (local_geary_type == multivariate) {
         // get undef_tms across multi-variables
     	for (int v=0; v<data_vecs.size(); v++) {
-            for (int t=0; t<data_vecs[v].size(); t++) {
+            for (int t=0; t<num_time_vals; t++) {
                 for (int i=0; i<num_obs; i++) {
                     undef_tms[t][i] = undef_tms[t][i] || undef_data[v][t][i];
                 }
@@ -570,7 +570,7 @@ void LocalGearyCoordinator::StandardizeData()
         }
         
     	for (int v=0; v<data_vecs.size(); v++) {
-        	for (int t=0; t<data_vecs[v].size(); t++) {
+        	for (int t=0; t<num_time_vals; t++) {
         		GenUtils::StandardizeData(num_obs, data_vecs[v][t], undef_tms[t]);
         	}
         }
