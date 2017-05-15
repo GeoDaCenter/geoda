@@ -562,7 +562,7 @@ void LocalGearyCoordinator::StandardizeData()
     if (local_geary_type == multivariate) {
         // get undef_tms across multi-variables
     	for (int v=0; v<data_vecs.size(); v++) {
-            for (int t=0; t<num_time_vals; t++) {
+            for (int t=0; t<data_vecs[v].size(); t++) {
                 for (int i=0; i<num_obs; i++) {
                     undef_tms[t][i] = undef_tms[t][i] || undef_data[v][t][i];
                 }
@@ -570,7 +570,7 @@ void LocalGearyCoordinator::StandardizeData()
         }
         
     	for (int v=0; v<data_vecs.size(); v++) {
-        	for (int t=0; t<num_time_vals; t++) {
+        	for (int t=0; t<data_vecs[v].size(); t++) {
         		GenUtils::StandardizeData(num_obs, data_vecs[v][t], undef_tms[t]);
         	}
         }
@@ -605,9 +605,11 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
         for (int i=0; i<num_obs; i++){
             bool is_undef = false;
             for (int v=0; v<undef_data.size(); v++) {
-                is_undef = is_undef || undef_data[v][t][i];
-                if (is_undef && !has_undef) {
-                    has_undef = true;
+                for (int var_t=0; var_t<undef_data[v].size(); var_t++){
+                    is_undef = is_undef || undef_data[v][var_t][i];
+                    if (is_undef && !has_undef) {
+                        has_undef = true;
+                    }
                 }
             }
             undefs.push_back(is_undef);
@@ -647,7 +649,7 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             lags[i] = 0;
             
             if (undefs[i] == true) {
-                cluster[i] = 6; // undefined value
+                cluster[i] = 3; // undefined value
                 continue;
             }
             
@@ -672,7 +674,7 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
                 //else cluster[i] = 4; //data1[i] > 0 && lags[i] < 0
             } else {
                 has_isolates[t] = true;
-                cluster[i] = 5; // neighborless
+                cluster[i] = 2; // neighborless
             }
         }
     }
@@ -1013,14 +1015,14 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
                 }
             }
             if (local_geary_type == multivariate) {
-                if (cluster[cnt] <=4) {
+                if (cluster[cnt] < 2 ) { // ignore neighborless & undefined
                     cluster[cnt] = 1;
                 }
             } else {
                 // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
                 // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
                 // positive && but in outlier qudrant: other pos
-                if (cluster[cnt] > 2)
+                if (cluster[cnt] > 2 && cluster[cnt] < 5) // ignore neighborless & undefined
                     cluster[cnt] = 3;
             }
         } else {
@@ -1031,10 +1033,12 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
                 }
             }
             if (local_geary_type == multivariate) {
-                cluster[cnt] = 0; // for multivar, only show significant positive (similar)
+                if (cluster[cnt] < 2) // ignore neighborless & undefined
+                    cluster[cnt] = 0; // for multivar, only show significant positive (similar)
             } else {
                 // negative
-                cluster[cnt] = 4;
+                if (cluster[cnt] < 5) // ignore neighborless & undefined
+                    cluster[cnt] = 4;
             }
         }
        
@@ -1051,8 +1055,8 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 		// observations with no neighbors get marked as isolates
         // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
 		if (numNeighbors == 0) {
-			sigCat[cnt] = 5;
-		}
+            sigCat[cnt] = 5;
+        }
 	}
 }
 

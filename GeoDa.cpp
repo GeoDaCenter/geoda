@@ -3098,12 +3098,7 @@ void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
 											  LocalGearyCoordinator::univariate,
 											  true, LWO.m_RowStand);
 
-    /*
-	if (LWO.m_Moran) {
-		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
-															p, lc);
-	}
-     */
+
 	if (LWO.m_ClustMap) {
 		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
 												  lc, true, false, false);

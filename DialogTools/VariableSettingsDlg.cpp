@@ -39,6 +39,7 @@
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../pca.h"
+#include "../logger.h"
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
 #include "SaveToTableDlg.h"
@@ -846,7 +847,11 @@ MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
 {
     wxLogMessage("Open MultiVariableSettingsDlg.");
     
+    combo_time1 = NULL;
+    
     project = project_s;
+    
+    has_time = project->GetTimeState()->GetTimeSteps() > 1 ;
     
     bool init_success = Init();
     
@@ -889,22 +894,12 @@ void MultiVariableSettingsDlg::CreateControls()
     wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(320,200), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    /*
-    // time
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Time:"),
-                                          wxDefaultPosition, wxSize(40,-1));
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
-    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-    hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
-    hbox->Add(box1, 1, wxEXPAND);
-    */
     
     // weights
     wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, wxT("Weights:"),
                                            wxDefaultPosition, wxSize(60,-1));
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL, wxCB_READONLY);
+    wxChoice* box3 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL);
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
@@ -918,10 +913,22 @@ void MultiVariableSettingsDlg::CreateControls()
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
-    //
     vbox->Add(st, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    //vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
+    
+    // time
+    if (has_time) {
+        wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Time:"),
+                                             wxDefaultPosition, wxSize(40,-1));
+        wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                      wxSize(160,-1), 0, NULL);
+        wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+        hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
+        hbox->Add(box1, 1, wxEXPAND);
+        combo_time1 = box1;
+        combo_time1->SetSelection(0);
+        vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
+    }
     vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
     
@@ -932,20 +939,35 @@ void MultiVariableSettingsDlg::CreateControls()
     
     // Content
     InitVariableCombobox(box);
-    //InitTimeComboboxes(box1);
+    if (has_time) {
+        InitTimeComboboxes(combo_time1);
+    }
     InitWeightsCombobox(box3);
     
     combo_var = box;
-    //combo_time1 = box1;
+    
     combo_weights = box3;
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnClose, this);
+    if (combo_time1) {
+        combo_time1->Bind(wxEVT_CHOICE, &MultiVariableSettingsDlg::OnTimeSelect, this);
+    }
+}
+
+void MultiVariableSettingsDlg::OnTimeSelect( wxCommandEvent& event )
+{
+    wxLogMessage("MultiVariableSettingsDlg::OnTimeSelect");
+    combo_var->Clear();
+    
+    InitVariableCombobox(combo_var);
 }
 
 void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
 {
+    var_box->Clear();
+    
     wxArrayString items;
     
 	std::vector<int> col_id_map;
@@ -954,13 +976,14 @@ void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
         if (table_int->IsColTimeVariant(id)) {
-            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
-                wxString nm = name;
-                nm << " (" << table_int->GetTimeString(t) << ")";
-                name_to_nm[nm] = name;
-                name_to_tm_id[nm] = t;
-                items.Add(nm);
-            }
+            int t = combo_time1->GetSelection();
+            if (t< 0) t = 0;
+            
+            wxString nm = name;
+            nm << " (" << project->GetTimeState()->GetTimeString(t) << ")";
+            name_to_nm[nm] = name;
+            name_to_tm_id[nm] = t;
+            items.Add(nm);
         } else {
             name_to_nm[name] = name;
             name_to_tm_id[name] = 0;
@@ -971,7 +994,7 @@ void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
     var_box->InsertItems(items,0);
 }
 
-void MultiVariableSettingsDlg::InitTimeComboboxes(wxComboBox* time1)
+void MultiVariableSettingsDlg::InitTimeComboboxes(wxChoice* time1)
 {
     for (size_t i=0, n=tm_strs.size(); i < n; i++ ) {
         time1->Append(tm_strs[i]);
@@ -979,7 +1002,7 @@ void MultiVariableSettingsDlg::InitTimeComboboxes(wxComboBox* time1)
     time1->SetSelection(0);
 }
 
-void MultiVariableSettingsDlg::InitWeightsCombobox(wxComboBox* weights_ch)
+void MultiVariableSettingsDlg::InitWeightsCombobox(wxChoice* weights_ch)
 {
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
@@ -1022,8 +1045,10 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     
     for (int i=0; i<num_var; i++) {
         int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
-        
+        wxString list_item = combo_var->GetString(idx);
+        LOG_MSG(list_item);
+        wxString nm = name_to_nm[list_item];
+        LOG_MSG(nm);
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
@@ -1038,7 +1063,7 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
         
         // Set Primary GdaVarTools::VarInfo attributes
         var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+        var_info[i].is_time_variant = table_int->IsColTimeVariant(col);
         
         // var_info[i].time already set above
         table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);

@@ -168,10 +168,11 @@ public:
    
     void OnOK( wxCommandEvent& event );
     void OnClose( wxCommandEvent& event );
+    void OnTimeSelect( wxCommandEvent& event );
     
     void InitVariableCombobox(wxListBox* var_box);
-    void InitTimeComboboxes(wxComboBox* time1);
-    void InitWeightsCombobox(wxComboBox* weights_ch);
+    void InitTimeComboboxes(wxChoice* time1);
+    void InitWeightsCombobox(wxChoice* weights_ch);
     
     boost::uuids::uuid GetWeightsId();
     
@@ -179,14 +180,15 @@ public:
     std::vector<int> col_ids;
     
 private:
+    bool has_time;
     Project* project;
     TableInterface* table_int;
     std::vector<wxString> tm_strs;
     std::vector<boost::uuids::uuid> weights_ids;
     
     wxListBox* combo_var;
-    wxComboBox* combo_time1;
-    wxComboBox* combo_weights;
+    wxChoice* combo_time1;
+    wxChoice* combo_weights;
     
 	std::map<wxString, wxString> name_to_nm;
 	std::map<wxString, int> name_to_tm_id;
