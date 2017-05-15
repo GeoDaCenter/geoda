@@ -1674,7 +1674,7 @@
           <object class="sizeritem">
             <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
             <border>5</border>
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
           </object>
@@ -1828,7 +1828,7 @@
           <object class="sizeritem">
             <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
             <border>5</border>
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_OKBUTTON">
               <label>OK</label>
             </object>
           </object>
