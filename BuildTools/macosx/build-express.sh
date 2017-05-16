@@ -39,10 +39,10 @@ echo $PREFIX
 
 MAKER="make -j $CPUS"
 GDA_CC="gcc"
-GDA_CFLAGS="-Os -arch x86_64"
+GDA_CFLAGS="-Os -arch x86_64 -arch i386"
 GDA_CXX="g++"
-GDA_CXXFLAGS="-Os -arch x86_64"
-GDA_LDFLAGS="-arch x86_64"
+GDA_CXXFLAGS="-Os -arch x86_64 -arch i386"
+GDA_LDFLAGS="-arch x86_64 -arch i386"
 GDA_WITH_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/"
 
 if ! [ -d $DOWNLOAD_HOME ]; then
@@ -120,6 +120,39 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     install_name_tool -change "$MC_HOME/libraries/lib/libcares.2.dylib" "$GEODA_HOME/libraries/lib/libcares.2.dylib" libcurl.4.dylib
     cd ../..
 fi
+
+#########################################################################
+# install cURL
+#########################################################################
+LIB_NAME=curl-7.46.0
+LIB_CHECKER=libcurl.a
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
+LIB_FILENAME=curl-7.46.0.zip
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+    unzip $LIB_FILENAME
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+export PATH=$PREFIX/bin:$PATH
 
 
 #########################################################################

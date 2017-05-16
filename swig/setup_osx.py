@@ -10,6 +10,7 @@ INCLUDE_DIRS = [GEODA_HOME + '/libraries/lib/wx/include/osx_cocoa-unicode-static
                 GEODA_HOME + '/libraries/include/wx-3.1',
                 GEODA_HOME + '/libraries/include/boost',
                 GEODA_HOME + '/libraries/include/eigen3',
+                GEODA_HOME + '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include',
                 GEODA_HOME + '/libraries/include',
                 ]
 
@@ -20,7 +21,7 @@ LIBRARIES = ['boost_thread', 'boost_system', 'gdal', 'curl', 'cares',
 
 SWIG_OPTS = ['-c++']
 
-EXTRA_COMPILE_ARGS =  [ '-D_FILE_OFFSET_BITS=64', '-DwxDEBUG_LEVEL=0', '-D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__']
+EXTRA_COMPILE_ARGS =  [ '-D_FILE_OFFSET_BITS=64', '-D__WXMAC__', '-D__WXOSX__', '-D__WXOSX_COCOA__']
 
 EXTRA_OBJECTS = [GEODA_HOME + '/libraries/lib/libjson_spirit.a',
                  GEODA_HOME + '/libraries/lib/libwx_osx_cocoau_xrc-3.1.a', 
@@ -32,6 +33,7 @@ EXTRA_OBJECTS = [GEODA_HOME + '/libraries/lib/libjson_spirit.a',
                  GEODA_HOME + '/libraries/lib/libwx_osx_cocoau_core-3.1.a',
                  GEODA_HOME + '/libraries/lib/libwx_baseu_xml-3.1.a',
                  GEODA_HOME + '/libraries/lib/libwx_baseu-3.1.a',
+                 GEODA_HOME + '/libraries/lib/libcurl.a',
                  GEODA_HOME + '/temp/CLAPACK-3.2.1/lapack.a',
                  GEODA_HOME + '/temp/CLAPACK-3.2.1/libf2c.a',
                  GEODA_HOME + '/temp/CLAPACK-3.2.1/blas.a',
