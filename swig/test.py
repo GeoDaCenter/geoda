@@ -8,6 +8,21 @@ x1 = dbf.by_col('HR70')
 n = 3085
 
 print "====================="
+print "hinge15"
+var_1 = VecDouble(x)
+
+breaks = VecDouble([0 for i in range(6)])
+geoda.Hinge15( n, var_1, 6, False, breaks)
+for i in range(6):
+    print breaks[i]
+
+breaks = VecDouble([0 for i in range(6)])
+geoda.Hinge30( n, var_1, 6, False, breaks)
+
+for i in range(6):
+    print breaks[i]
+
+print "====================="
 print "local geary"
 localMoran = VecDouble([0 for i in range(n)])
 sigLocalMoran = VecDouble([0 for i in range(n)])

@@ -4,6 +4,7 @@
 
 %include "std_vector.i"
 namespace std {
+  %template(VecString) vector<string>;
   %template(VecDouble) vector<double>;
   %template(VecVecDouble) vector< vector<double> >;
   %template(VecInt) vector<int>;
@@ -38,3 +39,22 @@ bool CreateDistanceWeights(std::string in_file, std::string out_file, double thr
 bool LISA(std::string in_w_file, std::vector<double> var_1, std::vector<double> var_2, std::vector<double>& localMoran, std::vector<double>& sigLocalMoran, std::vector<int>& sigFlag, std::vector<int>& clusterFlag, int lisa_type=0, int numPermutations=599);
 
 bool LocalGeary(std::string in_w_file, std::vector<std::vector<double> >& data, std::vector<double>& localGeary, std::vector<double>& sigLocalGeary, std::vector<int>& sigFlag, std::vector<int>& clusterFlag, int numPermutations=599);
+
+bool 
+Hinge15(
+    int num_obs,
+    const std::vector<double>& data, 
+    int num_categories, 
+    bool useScientificNotation,
+    std::vector<double>& breaks // return results
+);
+
+bool 
+Hinge30(
+    int num_obs,
+    const std::vector<double>& data, 
+    int num_categories, 
+    bool useScientificNotation,
+    std::vector<double>& breaks // return results
+);
+

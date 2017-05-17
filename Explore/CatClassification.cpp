@@ -520,24 +520,35 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             }
             labels_ext[0] = ss.str();
             ss.str("");
+            cat_data.SetCategoryMinMax(t, 0, p_min, extreme_lower);
+                                       
             ss << " [" << extreme_lower << " : " << hinge_stats[t].Q1 << "]";
             labels_ext[1] = ss.str();
             ss.str("");
+            cat_data.SetCategoryMinMax(t, 1, extreme_lower, hinge_stats[t].Q1);
+            
             ss << " [" << hinge_stats[t].Q1 << " : " << hinge_stats[t].Q2 << "]";
             labels_ext[2] = ss.str();
             ss.str("");
+            cat_data.SetCategoryMinMax(t, 2, hinge_stats[t].Q1, hinge_stats[t].Q2);
+            
             ss << " [" << hinge_stats[t].Q2 << " : " << hinge_stats[t].Q3 << "]";
             labels_ext[3] = ss.str();
             ss.str("");
+            cat_data.SetCategoryMinMax(t, 3, hinge_stats[t].Q2, hinge_stats[t].Q3);
+            
             ss << " [" << hinge_stats[t].Q3 << " : " << extreme_upper << "]";
             labels_ext[4] = ss.str();
             ss.str("");
+            cat_data.SetCategoryMinMax(t, 4, hinge_stats[t].Q3, extreme_upper);
+            
             if (cat_data.GetNumObsInCategory(t, num_cats-1) == 0 &&
                 p_max > extreme_upper)
                 ss << " [" << extreme_upper << " : " << p_max << "]";
             else
                 ss << " [" << extreme_upper << " : inf]";
             labels_ext[5] = ss.str();
+            cat_data.SetCategoryMinMax(t, 5, extreme_upper, p_max);
        
             
 			for (int cat=0; cat<num_cats; cat++) {
@@ -545,6 +556,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				cat_data.SetCategoryLabelExt(t, cat, labels_ext[cat]);
 				cat_data.SetCategoryCount(t, cat,
 										  cat_data.GetNumObsInCategory(t, cat));
+                
 			}
 		}
 	} else if (theme == custom) {

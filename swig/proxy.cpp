@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <utility>
+#include <algorithm>
 #include <stdio.h>
 
 #include <wx/wxprec.h>
@@ -14,7 +16,9 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../Explore/LisaCoordinator.h"
 #include "../Explore/LocalGearyCoordinator.h"
+#include "../Explore/CatClassification.h"
 #include "../SpatialIndAlgs.h"
+#include "../GenUtils.h"
 
 #include "proxy.h"
 
@@ -363,6 +367,10 @@ bool CreateDistanceWeights(std::string in_file, std::string out_file, double thr
     return flag;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////
     // 0 univariate lisa
     // 1 bivariate lisa
     // 2 EB lisa
@@ -383,6 +391,10 @@ bool LISA(std::string in_w_file, std::vector<double> var_1, std::vector<double> 
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////
 bool LocalGeary(std::string in_w_file, std::vector<std::vector<double> >& data, std::vector<double>& localGeary, std::vector<double>& sigLocalGeary, std::vector<int>& sigFlag, std::vector<int>& clusterFlag, int numPermutations)
 {
     wxString w_path(in_w_file);
@@ -398,3 +410,106 @@ bool LocalGeary(std::string in_w_file, std::vector<std::vector<double> >& data, 
     delete lc;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// std::vector<int> clusters
+///////////////////////////////////////////////////////////////////////////////
+bool 
+Hinge1530(
+    int type,
+    int num_obs,
+    const std::vector<double>& data, 
+    int num_categories, 
+    bool useScientificNotation,
+    std::vector<double>& breaks // return results
+) {
+        
+    CatClassification::CatClassifType cat_type = CatClassification::hinge_15;
+
+    if (type == 1) {
+        cat_type = CatClassification::hinge_30;
+    }
+
+    int n_tms = 1; // we don't support time-grouped variable for now
+
+    CatClassifData cat_data;
+
+    CatClassifDef cat_classif_def;
+
+    std::vector<bool> map_valid(n_tms, true);
+
+    std::vector<wxString> map_error_message(n_tms);
+
+    std::vector<std::vector<std::pair<double, int> > > cat_var_sorted(n_tms);
+
+    std::vector<std::vector<bool> > cat_var_undef(n_tms);
+
+    for (int t=0; t<n_tms; t++) {
+        for (int i=0; i<num_obs; i++) {
+            double val = data[i];
+            cat_var_sorted[t].push_back(std::make_pair(val, i));
+            cat_var_undef[t].push_back(false);
+        }
+
+        std::sort( cat_var_sorted[t].begin(), 
+            cat_var_sorted[t].end(), 
+            Gda::dbl_int_pair_cmp_less);
+    }
+
+    CatClassification::ChangeNumCats(num_categories, cat_classif_def);
+
+    cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_type);
+
+    cat_classif_def.cat_classif_type = cat_type;
+
+    cat_data.CreateCategoriesAllCanvasTms(num_categories, n_tms, num_obs);
+
+    // Update Categories based on num_cats
+    CatClassification::PopulateCatClassifData(cat_classif_def,
+                                              cat_var_sorted,
+                                              cat_var_undef,
+                                              cat_data,
+                                              map_valid,
+                                              map_error_message,
+                                              useScientificNotation);    
+
+    //int cnc = cat_data.GetNumCategories(cat_data.GetCurrentCanvasTmStep());
+    //CatClassification::ChangeNumCats(cnc, cat_classif_def);
+    
+    // get results
+    const std::vector<Category>& cat_vec = cat_data.categories[0].cat_vec;
+
+    breaks.resize(cat_vec.size());
+
+    for (int i=0; i<cat_vec.size(); i++) {
+        //breaks[i] = cat_vec[i].max_val;        
+        breaks[i] = cat_data.categories[0].cat_vec[i].max_val;
+#ifdef DEBUG
+    printf("breaks[%d]: %f\n", i, breaks[i]);
+#endif
+    }
+
+    return true;
+}
+bool 
+Hinge15(
+    int num_obs,
+    const std::vector<double>& data, 
+    int num_categories, 
+    bool useScientificNotation,
+    std::vector<double>& breaks // return results
+) {
+    return Hinge1530(0, num_obs, data, num_categories, useScientificNotation, breaks);
+}
+
+
+bool 
+Hinge30(
+    int num_obs,
+    const std::vector<double>& data, 
+    int num_categories, 
+    bool useScientificNotation,
+    std::vector<double>& breaks // return results
+) {
+    return Hinge1530(1, num_obs, data, num_categories, useScientificNotation, breaks);
+}

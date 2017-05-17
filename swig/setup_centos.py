@@ -2,7 +2,7 @@
 
 from distutils.core import setup, Extension
 
-GEODA_HOME = '/home/django/downloads/geoda/BuildTools/centos'
+GEODA_HOME = '/home/xun/downloads/geoda/BuildTools/centos'
 
 PYTHON_HEADER = '-I/usr/include/python2.7'
 
@@ -43,7 +43,9 @@ GEODA_SOURCES = [
         '../DataViewer/DataSource.cpp',
         '../DialogTools/FieldNameCorrectionDlg.cpp',
         '../Explore/Basemap.cpp',
+        '../Explore/CatClassification.cpp',
         '../Explore/LisaCoordinator.cpp',
+        '../Explore/LocalGearyCoordinator.cpp',
         '../ShapeOperations/AbstractShape.cpp', 
         '../ShapeOperations/BasePoint.cpp', 
         '../ShapeOperations/Box.cpp', 
