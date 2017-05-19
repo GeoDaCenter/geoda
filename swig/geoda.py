@@ -96,6 +96,53 @@ class SwigPyIterator(_object):
 SwigPyIterator_swigregister = _geoda.SwigPyIterator_swigregister
 SwigPyIterator_swigregister(SwigPyIterator)
 
+class VecFloat(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VecFloat, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VecFloat, name)
+    __repr__ = _swig_repr
+    def iterator(self): return _geoda.VecFloat_iterator(self)
+    def __iter__(self): return self.iterator()
+    def __nonzero__(self): return _geoda.VecFloat___nonzero__(self)
+    def __bool__(self): return _geoda.VecFloat___bool__(self)
+    def __len__(self): return _geoda.VecFloat___len__(self)
+    def pop(self): return _geoda.VecFloat_pop(self)
+    def __getslice__(self, *args): return _geoda.VecFloat___getslice__(self, *args)
+    def __setslice__(self, *args): return _geoda.VecFloat___setslice__(self, *args)
+    def __delslice__(self, *args): return _geoda.VecFloat___delslice__(self, *args)
+    def __delitem__(self, *args): return _geoda.VecFloat___delitem__(self, *args)
+    def __getitem__(self, *args): return _geoda.VecFloat___getitem__(self, *args)
+    def __setitem__(self, *args): return _geoda.VecFloat___setitem__(self, *args)
+    def append(self, *args): return _geoda.VecFloat_append(self, *args)
+    def empty(self): return _geoda.VecFloat_empty(self)
+    def size(self): return _geoda.VecFloat_size(self)
+    def clear(self): return _geoda.VecFloat_clear(self)
+    def swap(self, *args): return _geoda.VecFloat_swap(self, *args)
+    def get_allocator(self): return _geoda.VecFloat_get_allocator(self)
+    def begin(self): return _geoda.VecFloat_begin(self)
+    def end(self): return _geoda.VecFloat_end(self)
+    def rbegin(self): return _geoda.VecFloat_rbegin(self)
+    def rend(self): return _geoda.VecFloat_rend(self)
+    def pop_back(self): return _geoda.VecFloat_pop_back(self)
+    def erase(self, *args): return _geoda.VecFloat_erase(self, *args)
+    def __init__(self, *args): 
+        this = _geoda.new_VecFloat(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def push_back(self, *args): return _geoda.VecFloat_push_back(self, *args)
+    def front(self): return _geoda.VecFloat_front(self)
+    def back(self): return _geoda.VecFloat_back(self)
+    def assign(self, *args): return _geoda.VecFloat_assign(self, *args)
+    def resize(self, *args): return _geoda.VecFloat_resize(self, *args)
+    def insert(self, *args): return _geoda.VecFloat_insert(self, *args)
+    def reserve(self, *args): return _geoda.VecFloat_reserve(self, *args)
+    def capacity(self): return _geoda.VecFloat_capacity(self)
+    __swig_destroy__ = _geoda.delete_VecFloat
+    __del__ = lambda self : None;
+VecFloat_swigregister = _geoda.VecFloat_swigregister
+VecFloat_swigregister(VecFloat)
+
 class VecString(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, VecString, name, value)
@@ -457,6 +504,10 @@ Hinge15 = _geoda.Hinge15
 def Hinge30(*args):
   return _geoda.Hinge30(*args)
 Hinge30 = _geoda.Hinge30
+
+def PCA(*args):
+  return _geoda.PCA(*args)
+PCA = _geoda.PCA
 # This file is compatible with both classic and new-style classes.
 
 

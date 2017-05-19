@@ -4,6 +4,7 @@
 
 %include "std_vector.i"
 namespace std {
+  %template(VecFloat) vector<float>;
   %template(VecString) vector<string>;
   %template(VecDouble) vector<double>;
   %template(VecVecDouble) vector< vector<double> >;
@@ -58,3 +59,13 @@ Hinge30(
     std::vector<double>& breaks // return results
 );
 
+std::string 
+PCA(
+    std::vector<float>& x,
+    std::vector<std::string>& x_names,
+    int nrows,
+    int ncols,
+    int is_corr,
+    int is_center,
+    int is_scale
+);
