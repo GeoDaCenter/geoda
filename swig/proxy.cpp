@@ -3,12 +3,15 @@
 #include <set>
 #include <utility>
 #include <algorithm>
+#include <sstream>
 #include <stdio.h>
 
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
 #endif
+
+#include <wx/tokenzr.h>
 
 #include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -19,6 +22,7 @@
 #include "../Explore/CatClassification.h"
 #include "../SpatialIndAlgs.h"
 #include "../GenUtils.h"
+#include "../pca.h"
 
 #include "proxy.h"
 
@@ -513,3 +517,130 @@ Hinge30(
 ) {
     return Hinge1530(1, num_obs, data, num_categories, useScientificNotation, breaks);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// std::vector<int> clusters
+///////////////////////////////////////////////////////////////////////////////
+std::string 
+PCA(
+    std::vector<float>& x,
+    std::vector<std::string>& x_names,
+    int _nrows,
+    int _ncols,
+    int _is_corr,
+    int _is_center,
+    int _is_scale
+) {
+    Pca pca;
+
+    bool is_corr = _is_corr == 0 ? false : true;
+    bool is_center = _is_center == 0 ? false : true;
+    bool is_scale = _is_scale == 0 ? false : true;
+    
+    int rtn = pca.Calculate(x, _nrows, _ncols, is_corr, is_center, is_scale);
+
+    if ( 0 != rtn ) {
+        // error of PCA
+        return "";
+    }
+
+    vector<float> sd = pca.sd();
+    vector<float> prop_of_var = pca.prop_of_var();
+    vector<float> cum_prop = pca.cum_prop();
+    vector<float> scores = pca.scores();
+    
+    vector<unsigned int> el_cols = pca.eliminated_columns();
+    
+    float kaiser = pca.kaiser();
+    float thresh95 = pca.thresh95();
+    
+    unsigned int ncols = pca.ncols();
+    unsigned int nrows = pca.nrows();
+   
+    int max_sel_name_len = 0;
+ 
+    wxString method = pca.method();
+    
+    wxString pca_log;
+    //pca_log << "\n\nPCA method: " << method;
+    
+    pca_log << "\n\nStandard deviation:\n";
+    for (int i=0; i<sd.size();i++) pca_log << sd[i] << " ";
+
+    pca_log << "\n\nProportion of variance:\n";
+    for (int i=0; i<prop_of_var.size();i++) pca_log << prop_of_var[i] << " ";
+    
+    pca_log << "\n\nCumulative proportion:\n";
+    for (int i=0; i<cum_prop.size();i++) pca_log << cum_prop[i] << " ";
+    
+    pca_log << "\n\nKaiser criterion: " << kaiser;
+    pca_log << "\n\n95% threshold criterion: " << thresh95;
+    
+    pca_log << "\n\nEigenvalues:\n";
+    std::stringstream ss;
+    ss << pca.eigen_values;
+    pca_log << ss.str();
+    
+    //pca_log << pca.eigen_values;
+    pca_log << "\n\nEigenvectors:\n";
+    
+    std::stringstream ss1;
+    ss1 << pca.eigen_vectors;
+    wxString loadings =  ss1.str();
+    wxStringTokenizer tokenizer(loadings, "\n");
+    wxArrayString items;
+    bool header = false;
+    while ( tokenizer.HasMoreTokens() )
+    {
+        wxString token = tokenizer.GetNextToken();
+        // process token here
+        items.Add(token);
+  
+        if (header == false) {
+            pca_log << wxString::Format("%-*s", max_sel_name_len+4, "");
+            int n_len = token.length();
+            int pos = 0;
+            bool start = false;
+            int  sub_len = 0;
+            int pc_idx = 1;
+            
+            while (pos < n_len){
+                if ( start && sub_len > 0 && (token[pos] == ' ' || pos == n_len-1) ) {
+                    // end of a number
+                    pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    sub_len = 1;
+                    start = false;
+                } else {
+                    if (!start && token[pos] != ' ') {
+                        start = true;
+                    }
+                    sub_len += 1;
+                }
+                pos += 1;
+            }
+            header = true;
+            pca_log << "\n";
+        }
+    }
+    
+    for (int k=0; k<items.size();k++) {
+        pca_log << wxString::Format("%-*s", max_sel_name_len+4, wxString(x_names[k])) << items[k] << "\n";
+    }
+    
+    unsigned int row_lim;
+    unsigned int col_lim; 
+    
+    if (scores.size() != nrows * ncols) {
+        row_lim = (nrows < ncols)? nrows : ncols,
+        col_lim = (ncols < nrows)? ncols : nrows;
+    } else {
+        row_lim = nrows;
+        col_lim = ncols;
+    }
+    
+    return string(pca_log.mb_str());
+}
+
+

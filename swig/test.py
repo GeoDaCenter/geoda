@@ -1,4 +1,4 @@
-from geoda import VecDouble, VecInt, VecVecDouble
+from geoda import VecDouble, VecInt, VecVecDouble, VecFloat, VecString
 import geoda
 
 import pysal
@@ -6,6 +6,18 @@ dbf = pysal.open('../SampleData/nat.dbf','r')
 x = dbf.by_col('HR60')
 x1 = dbf.by_col('HR70')
 n = 3085
+
+print "====================="
+print "PCA"
+xx = []
+x_names = ['HR60', 'HR70']
+for i in range(n):
+    xx.append(x[i])
+    xx.append(x1[i])
+var_1 = VecFloat(xx)
+rtn = geoda.PCA(var_1, VecString(x_names), n, 2, 0, 1, 1);
+
+print rtn
 
 print "====================="
 print "hinge15"

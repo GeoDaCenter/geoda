@@ -74,6 +74,7 @@ GEODA_SOURCES = [
         '../SpatialIndAlgs.cpp', 
         '../VarTools.cpp', 
         '../logger.cpp', 
+        '../pca.cpp', 
     ]
 
 SOURCE_FILES  = ['proxy_wrap.cxx', 'proxy.cpp'] + GEODA_SOURCES
