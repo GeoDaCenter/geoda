@@ -156,8 +156,12 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
         return;
     }
 	
-    if (isDragDropAllowed == false)
+    if (isDragDropAllowed == false) {
+        if (cat_clicked != -1 && event.LeftUp()) {
+            SelectAllInCategory(cat_clicked, event.ShiftDown());
+        }
         return;
+    }
     
     if (event.LeftDown()) {
         isLeftDown = true;
