@@ -89,6 +89,8 @@ public:
 	wxColour legend_background_color;
 	TemplateCanvas* template_canvas;
 	
+    bool isDragDropAllowed;
+    
 protected:
 	void SelectAllInCategory(int category, bool add_to_selection = false);
 	int  GetCategoryClick(wxMouseEvent& event);
@@ -107,6 +109,7 @@ protected:
     GdaLegendLabel* select_label;
     bool isLeftDown;
     bool isLeftMove;
+    
 	
 	DECLARE_ABSTRACT_CLASS(TemplateLegend)
 	DECLARE_EVENT_TABLE()

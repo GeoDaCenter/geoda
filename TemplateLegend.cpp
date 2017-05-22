@@ -116,7 +116,8 @@ legend_background_color(GdaConst::legend_background_color),
 template_canvas(template_canvas_s),
 isLeftDown(false),
 select_label(NULL),
-recreate_labels(false)
+recreate_labels(false),
+isDragDropAllowed(false)
 {
 	SetBackgroundColour(GdaConst::legend_background_color);
     d_rect = 20;
@@ -155,6 +156,9 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
         return;
     }
 	
+    if (isDragDropAllowed == false)
+        return;
+    
     if (event.LeftDown()) {
         isLeftDown = true;
         for (int i=0;i<labels.size();i++) {

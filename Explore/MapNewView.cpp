@@ -1278,7 +1278,12 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 	VarInfoAttributeChange();	
 	CreateAndUpdateCategories();
 	PopulateCanvas();
-	return true;
+    
+    TemplateLegend* legend = template_frame->GetTemplateLegend();
+    if (legend != NULL ) {
+        legend->isDragDropAllowed = new_map_theme == CatClassification::unique_values;
+    }
+    return true;
 }
 
 void MapCanvas::update(CatClassifState* o)
@@ -1792,6 +1797,8 @@ w_man_state(project->GetWManState())
 {
 	wxLogMessage("Open MapFrame.");
 
+    template_legend = NULL;
+    template_canvas = NULL;
     
 	int width, height;
 	GetClientSize(&width, &height);
@@ -1816,6 +1823,11 @@ w_man_state(project->GetWManState())
 
     wxPanel* lpanel = new wxPanel(splitter_win);
     template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+    
+    if (theme_type == CatClassification::unique_values) {
+        template_legend->isDragDropAllowed = true;
+    }
+    
     wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
     template_legend->GetContainingSizer()->Detach(template_legend);
     lbox->Add(template_legend, 1, wxEXPAND | wxALL);
