@@ -27,7 +27,7 @@
 #include "../VarTools.h"
 #include "../logger.h"
 
-class GdaNode;
+struct GdaNode;
 class Project;
 class TableInterface;
 

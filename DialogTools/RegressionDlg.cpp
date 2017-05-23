@@ -932,8 +932,10 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 			if (cur_sel == m_independentlist->GetCount()) {
 				cur_sel = m_independentlist->GetCount()-1;
 			}
-			m_independentlist->SetSelection(cur_sel);
-			m_independentlist->SetFirstItem(m_independentlist->GetSelection());
+			if (cur_sel >= 0) {
+				m_independentlist->SetSelection(cur_sel);
+				m_independentlist->SetFirstItem(m_independentlist->GetSelection());
+			}
 			m_nCount = 0;
 			b_done1 = b_done2 = b_done3 = false;
 		}

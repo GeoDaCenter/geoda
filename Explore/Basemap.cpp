@@ -20,10 +20,13 @@
 #include <iostream>
 #include <sstream>
 
+/*
 #ifdef __WIN32__
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #endif
+*/
+#include <wx/math.h>
 
 #include <algorithm>
 #include "stdio.h"

@@ -288,7 +288,7 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 {
 	sel_cores.clear();
 	std::vector<bool>& sc_hs = shared_core_hs->GetHighlight();
-	for (size_t i=0, sz=sc_hs.size(); i<sz; ++i) {
+	for (int i=0, sz=sc_hs.size(); i<sz; ++i) {
 		if (sc_hs[i]) sel_cores.insert(i);
 	}
 	

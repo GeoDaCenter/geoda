@@ -175,7 +175,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 	if (vs_w <= 0 && vs_h <= 0) GetVirtualSize(&vs_w, &vs_h);
 	
-	double image_width, image_height;
+	//double image_width, image_height;
 	bool ftwm = GetFitToWindowMode();
 	
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
