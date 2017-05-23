@@ -131,11 +131,11 @@ if %GDA_BUILD% == BUILD_32 (
 
 ) else (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib MACHINE=x64
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
 
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib MACHINE=x64
   
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\bin\libcurl.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -877,7 +877,19 @@ echo %DOWNLOAD_HOME%\%LIB_NAME%
 set BOOST_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
 echo BOOST_HOME: %BOOST_HOME%
 cd %BOOST_HOME%
+
 call bootstrap.bat
+
+echo ###############################################
+echo # for visual studio 2017
+echo edit project-config.jam
+echo (content)
+echo   import option;
+echo   using msvc : 14.0 "c:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Tools\MSVC\14.10.25017\bin\HostX64\x64\cl.exe";
+echo   option.set keep-going : false ; 
+echo 
+echo Then, run b2 with --toolset=msvc-14.0
+echo ###############################################
 if %GDA_BUILD% == BUILD_32 (
   call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete stage
   call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete --debug-symbols=on stage
