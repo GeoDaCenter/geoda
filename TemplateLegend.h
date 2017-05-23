@@ -53,6 +53,7 @@ public:
     
     const wxRect& getBBox();
     
+    int getWidth();
     
     int idx;
     
@@ -81,6 +82,7 @@ public:
 				   const wxPoint& pos, const wxSize& size);
 	virtual ~TemplateLegend();
 
+    int GetDrawingWidth();
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
@@ -91,11 +93,14 @@ public:
 	
     bool isDragDropAllowed;
     
+    wxSize maxSize;
+    
 protected:
 	void SelectAllInCategory(int category, bool add_to_selection = false);
 	int  GetCategoryClick(wxMouseEvent& event);
 	void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
 	
+    int title_width;
 	int px, py, m_w, m_l; 
 	int d_rect; 
 	bool all_init;
