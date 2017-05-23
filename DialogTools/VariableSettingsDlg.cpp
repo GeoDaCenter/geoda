@@ -352,6 +352,8 @@ frames_manager(project_s->GetFramesManager())
 {
     wxLogMessage("Open PCASettingsDlg.");
     
+	SetMinSize(wxSize(860,600));
+
     project = project_s;
     
     bool init_success = Init();

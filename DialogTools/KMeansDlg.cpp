@@ -55,6 +55,8 @@ wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 720), w
 {
     wxLogMessage("Open KMeanDlg.");
     
+	SetMinSize(wxSize(360,720));
+
     parent = parent_s;
     project = project_s;
     

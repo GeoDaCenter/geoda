@@ -56,6 +56,8 @@ wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxS
 {
     wxLogMessage("Open HClusterDlg.");
     
+	SetMinSize(wxSize(860,640));
+
     parent = parent_s;
     project = project_s;
     
