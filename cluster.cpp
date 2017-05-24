@@ -1931,6 +1931,72 @@ An integer drawn from a binomial distribution with parameters (p, n).
 }
 
 /* ************************************************************************ */
+inline int
+nearest(int d_idx, int n_cluster, double *d2,
+        int ndata, int clusterid[], double** data,  double** cdata, int** mask, int** cmask,
+        double weight[], int transpose, char dist)
+{
+    /* Set the metric function as indicated by dist */
+    double (*metric)
+    (int, double**, double**, int**, int**, const double[], int, int, int) =
+    setmetric(dist);
+    
+    int k, min_k;
+    double d, min_d;
+    
+    min_d = HUGE_VAL;
+    min_k = clusterid[d_idx];
+    
+    for (k = 0; k < n_cluster; k++)
+    {
+        double distance = metric(ndata, data, cdata, mask, cmask, weight, d_idx, k, transpose);
+        if (min_d > distance) {
+            min_d = distance;
+            min_k = k;
+        }
+        
+    }
+    if (d2) *d2 = min_d;
+    return min_k;
+}
+
+static void kplusplusassign (int nclusters, int ndata, int nelements, int clusterid[], double** data,  double** cdata, int** mask, int** cmask,
+                             double weight[], int transpose, char dist)
+{
+    int j;
+    int n_cluster;
+    double sum, *d = (double*)malloc(sizeof(double) * nelements);
+    
+    // random pick first center
+    int idx = (int) (uniform() * nelements);
+    for ( j=0; j<ndata; j++) cdata[0][j] = data[idx][j];
+    
+    
+    for (n_cluster = 1; n_cluster < nclusters; n_cluster++) {
+        sum = 0;
+        for (j = 0; j < nelements; j++) {
+            nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist); // for each pt find nearest center
+            sum += d[j];
+        }
+        sum = uniform() * sum;
+        for (j = 0; j < nelements; j++) {
+            if ((sum -= d[j]) > 0) continue;
+            for ( int m=0; m<ndata; m++) cdata[n_cluster][m] = data[j][m];
+            break;
+        }
+    }
+    
+    for (j = 0; j < nelements; j++) {
+        clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
+    }
+    
+    free(d);
+    /* Find the center */
+    //getclustermeans(nclusters, nrows, ncolumns, data, mask, tclusterid,cdata, cmask, transpose);
+}
+
+
+/* ************************************************************************ */
 
 static void randomassign (int nclusters, int nelements, int clusterid[])
 /*
@@ -2378,6 +2444,8 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
 
     /* Perform the EM algorithm. First, randomly assign elements to clusters. */
     if (npass!=0) randomassign (nclusters, nelements, tclusterid);
+      
+    //kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist);
 
     for (i = 0; i < nclusters; i++) counts[i] = 0;
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
