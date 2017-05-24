@@ -141,6 +141,17 @@ void KMeansDlg::CreateControls()
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box01, 1, wxEXPAND);
     
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxString choices16[] = {"KMeans++", "Random"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(200,-1), 2, choices16);
+    combo_method->SetSelection(0);
+
+    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_method, 1, wxEXPAND);
+
+    
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("50"), wxDefaultPosition, wxSize(200,-1));
@@ -327,7 +338,8 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -385,6 +397,8 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     if(iterations.ToLong(&value)) {
         n_maxiter = value;
     }
+    
+    if (combo_method->GetSelection() == 0) method = 'b'; // mean with kmeans++
     
     wxString str_pass = m_pass->GetValue();
     long value_pass;

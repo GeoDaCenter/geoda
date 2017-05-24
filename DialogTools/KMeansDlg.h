@@ -64,6 +64,7 @@ private:
     FramesManager* frames_manager;
     
     wxListBox* combo_var;
+    wxChoice* combo_method;
     wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;

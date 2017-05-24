@@ -1957,6 +1957,7 @@ nearest(int d_idx, int n_cluster, double *d2,
         
     }
     if (d2) *d2 = min_d;
+    clusterid[d_idx] = min_k;
     return min_k;
 }
 
@@ -1969,7 +1970,10 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     
     // random pick first center
     int idx = (int) (uniform() * nelements);
-    for ( j=0; j<ndata; j++) cdata[0][j] = data[idx][j];
+    for ( j=0; j<ndata; j++) {
+        cdata[0][j] = data[idx][j];
+        cmask[0][j] = 1;
+    }
     
     
     for (n_cluster = 1; n_cluster < nclusters; n_cluster++) {
@@ -1979,20 +1983,23 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
             sum += d[j];
         }
         sum = uniform() * sum;
+        // pick next center using distrubtion of shortest distance to center: sum[]
         for (j = 0; j < nelements; j++) {
-            if ((sum -= d[j]) > 0) continue;
-            for ( int m=0; m<ndata; m++) cdata[n_cluster][m] = data[j][m];
+            sum -= d[j];
+            if (sum > 0) continue;
+            for ( int m=0; m<ndata; m++) {
+                cdata[n_cluster][m] = data[j][m];
+                cmask[n_cluster][m] = 1;
+            }
             break;
         }
     }
     
-    for (j = 0; j < nelements; j++) {
-        clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
-    }
+    //for (j = 0; j < nelements; j++) {
+    //    clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
+    //}
     
     free(d);
-    /* Find the center */
-    //getclustermeans(nclusters, nrows, ncolumns, data, mask, tclusterid,cdata, cmask, transpose);
 }
 
 
@@ -2418,7 +2425,7 @@ centroid.
 
 static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
-  double weight[], int transpose, int npass, int n_maxiter, char dist,
+  double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
   int tclusterid[], int counts[], int mapping[])
 { int i, j, k;
@@ -2442,10 +2449,14 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     int counter = 0;
     int period = 10;
 
-    /* Perform the EM algorithm. First, randomly assign elements to clusters. */
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid);
-      
-    //kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist);
+    if (method == 0) {
+        /* Perform the EM algorithm. First, randomly assign elements to clusters. */
+        //if (npass!=0)
+        randomassign (nclusters, nelements, tclusterid);
+    } else {
+        /* Perform the kmeans++ algorithm: finding init centers */
+        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist);
+    }
 
     for (i = 0; i < nclusters; i++) counts[i] = 0;
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
@@ -2782,11 +2793,16 @@ number of clusters is larger than the number of elements being clustered,
       free(cache);
     }
   }
+  else if (method == 'b')
+    /* kmeans but with KMeans++ algorithm*/
+    *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
+                     transpose, 1, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
+                     tclusterid, counts, mapping);
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
-                     transpose, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                     tclusterid, counts, mapping);
-
+                    transpose, 0, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
+                    tclusterid, counts, mapping);
+    
   /* Deallocate temporarily used space */
   if (npass > 1)
   { free(mapping);

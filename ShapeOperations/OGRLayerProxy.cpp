@@ -875,7 +875,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
             }
 			p_main.records[feature_counter++].contents_p = pc;
 			
-		} else if (eType == wkbPolygon ) {
+		} else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
 			Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
 			pc->shape_type = Shapefile::POLYGON;
             if (geometry) {
