@@ -1004,7 +1004,9 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
+  // squared  
   result /= tweight;
+  
   return result;
 }
 
@@ -1978,8 +1980,12 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     int n_cluster;
     double sum, *d = (double*)malloc(sizeof(double) * nelements);
     
+    // set the number of local seeding trails
+    int n_local_trials = 2 + int(log(nclusters));
+
     // random pick first center
     int idx = (int) (uniform() * nelements);
+    //idx = 2732;
     for ( j=0; j<ndata; j++) {
         cdata[0][j] = data[idx][j];
         cmask[0][j] = 1;
@@ -1987,10 +1993,15 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     
     
     for (n_cluster = 1; n_cluster < nclusters; n_cluster++) {
+        // Choose center candidates by sampling with probability proportional
+        // to the squared distance to the closest existing center
+        
+        
+        // Compute distances to center candidates
         sum = 0;
         for (j = 0; j < nelements; j++) {
             nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist); // for each pt find nearest center
-            sum += d[j] * d[j];
+            sum += d[j];
         }
         sum = uniform() * sum;
         // pick next center using distrubtion of shortest distance to center: sum[]

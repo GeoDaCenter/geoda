@@ -45,7 +45,7 @@
 #define CLUSTERVERSION "1.52a"
 
 /* If an integer is given, it fixes the seed. Defaults to the global numpy random number generator. */
-static int random_state = 11;
+static int random_state = -1;
 void setrandomstate(int seed);
 
 /* Chapter 2 */

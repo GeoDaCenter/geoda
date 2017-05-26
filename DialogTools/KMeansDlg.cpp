@@ -36,7 +36,7 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
-
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../cluster.h"
@@ -170,6 +170,7 @@ void KMeansDlg::CreateControls()
     gbox->Add(hbox17, 1, wxEXPAND);
     
     if (GdaConst::use_gda_user_seed) {
+        setrandomstate(GdaConst::gda_user_seed);
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
@@ -272,6 +273,10 @@ void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
             return;
         }
         GdaConst::use_gda_user_seed = true;
+        setrandomstate(GdaConst::gda_user_seed);
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
         seedButton->Disable();
     }
@@ -298,12 +303,21 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
         uint64_t new_seed_val = val;
         GdaConst::gda_user_seed = new_seed_val;
         GdaConst::use_gda_user_seed = true;
+        setrandomstate(GdaConst::gda_user_seed);
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        wxString str_gda_user_seed;
+        str_gda_user_seed << GdaConst::gda_user_seed;
+        ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
         wxString m;
         m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
         wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "0");
     }
 }
 
