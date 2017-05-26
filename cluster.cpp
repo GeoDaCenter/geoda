@@ -1982,18 +1982,18 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     (int, double**, double**, int**, int**, const double[], int, int, int) =
     setmetric(dist);
     
-    int i, j, m;
-    int n_cluster;
-    double sum, *d = (double*)malloc(sizeof(double) * nelements);
-    double* best_center = (double*)malloc(sizeof(double) * ndata);
+    int i, j, m, c;
+    double sum;
     
-    // assign d with zeros
-    memset (d, 0, sizeof (double) * nelements);
+    double *d = (double*)malloc(sizeof(double) * nelements);
+    double *new_dist_sq = (double*)malloc(sizeof(double) * nelements);
+    double *best_dist_sq = (double*)malloc(sizeof(double) * nelements);
+    double* best_center = (double*)malloc(sizeof(double) * ndata);
     
     // set the number of local seeding trails:
     // see: sciki-learn  sklearn/cluster/k_means_.py line45
-    // def _k_init(X, n_clusters, x_squared_norms, random_state, n_local_trials=None):
     int n_local_trials = 2 + int(log(nclusters));
+    int* cand_center_index = (int*)malloc(sizeof(int) * n_local_trials);
 
     // random pick first center
     int idx = (int) (uniform() * nelements);
@@ -2012,58 +2012,59 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
         current_pot += distance;
     }
     
-    for (n_cluster = 1; n_cluster < nclusters; n_cluster++) {
-        
+    for (c = 1; c < nclusters; c++) {
         // Choose center candidates by sampling with probability proportional
         // to the squared distance to the closest existing center
-        /*sum = 0;
-        for (j = 0; j < nelements; j++) {
-            nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist); // for each pt find nearest center
-            sum += d[j];
-        }
-        */
-        
-        double best_pot = DBL_MAX;
         for (i = 0; i<n_local_trials; i++) {
-            
             sum = uniform() * current_pot;
-            // pick next center using distrubtion of shortest distance to center: sum[]
+            // pick next center using distrubtion of distance to center
             for (j = 0; j < nelements; j++) {
                 sum -= d[j];
                 if (sum > 0) continue;
-                for (m=0; m<ndata; m++) {
-                    cdata[n_cluster][m] = data[j][m];
-                    cmask[n_cluster][m] = 1;
-                }
+                cand_center_index[i] = j;
                 break;
-            }
-            
-            double dist_to_cand = 0;
-            for (j = 0; j < nelements; j++) {
-                distance = metric(ndata, data, cdata, mask, cmask, weight, j, n_cluster, transpose);
-                dist_to_cand += distance;
-            }
-            
-            if (dist_to_cand < best_pot) {
-                best_pot = dist_to_cand;
-                for (m=0; m<ndata; m++) {
-                    best_center[m] = cdata[n_cluster][m];
-                }
             }
         }
         
-        for (m=0; m<ndata; m++) {
-            cdata[n_cluster][m] = best_center[m];
+        double best_pot = DBL_MAX;
+        // tested on each candidate center
+        for (i = 0; i<n_local_trials; i++) {
+            int cand_center = cand_center_index[i];
+            for (m=0; m<ndata; m++) {
+                cdata[c][m] = data[cand_center][m];
+                cmask[c][m] = 1;
+            }
+            // Compute potential when including center candidate
+            double new_pot = 0;
+            for (j = 0; j < nelements; j++) {
+                distance = metric(ndata, data, cdata, mask, cmask, weight, j, c, transpose);
+                if (distance < d[j]) new_dist_sq[j] = distance;
+                else new_dist_sq[j] = d[j];
+                new_pot += new_dist_sq[j];
+            }
+            
+            if (new_pot < best_pot) {
+                best_pot = new_pot;
+                for (m=0; m<ndata; m++) best_center[m] = cdata[c][m];
+                for (j=0; j<nelements; j++) best_dist_sq[j] = new_dist_sq[j];
+            }
         }
+        
+        for (m=0; m<ndata; m++) cdata[c][m] = best_center[m];
         current_pot = best_pot;
+        for (j=0; j<nelements; j++) d[j] = best_dist_sq[j];
     }
     
     
     for (j = 0; j < nelements; j++) {
-        clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
+        clusterid[j] = nearest(j, nclusters, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
     }
+    
+    free(cand_center_index);
     free(best_center);
     free(d);
+    free(new_dist_sq);
+    free(best_dist_sq);
 }
 
 
