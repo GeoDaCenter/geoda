@@ -1992,7 +1992,7 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     
     // set the number of local seeding trails:
     // see: sciki-learn  sklearn/cluster/k_means_.py line45
-    int n_local_trials = 2 + int(log(nclusters));
+    int n_local_trials = 2 + int(log((double)nclusters));
     int* cand_center_index = (int*)malloc(sizeof(int) * n_local_trials);
 
     // random pick first center

@@ -582,6 +582,7 @@ void TemplateCanvas::UpdateSelectableOutlineColors()
  that its state has changed. */
 void TemplateCanvas::update(HLStateInt* o)
 {
+	if (layer2_bm) {
     ResetBrushing();
     
 	if (draw_sel_shps_by_z_val) {
@@ -600,6 +601,7 @@ void TemplateCanvas::update(HLStateInt* o)
     Refresh();
     
     UpdateStatusBar();
+	}
 }
 
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
