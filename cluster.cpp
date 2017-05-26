@@ -1004,9 +1004,9 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-  // squared  
-  result /= tweight;
-  
+    
+  //result /= tweight;
+  // squared
   return result;
 }
 
@@ -1970,56 +1970,99 @@ nearest(int d_idx, int n_cluster, double *d2,
     }
     if (d2) *d2 = min_d;
     clusterid[d_idx] = min_k;
+    
     return min_k;
 }
 
 static void kplusplusassign (int nclusters, int ndata, int nelements, int clusterid[], double** data,  double** cdata, int** mask, int** cmask,
                              double weight[], int transpose, char dist)
 {
-    int j;
+    /* Set the metric function as indicated by dist */
+    double (*metric)
+    (int, double**, double**, int**, int**, const double[], int, int, int) =
+    setmetric(dist);
+    
+    int i, j, m;
     int n_cluster;
     double sum, *d = (double*)malloc(sizeof(double) * nelements);
+    double* best_center = (double*)malloc(sizeof(double) * ndata);
     
-    // set the number of local seeding trails
+    // assign d with zeros
+    memset (d, 0, sizeof (double) * nelements);
+    
+    // set the number of local seeding trails:
+    // see: sciki-learn  sklearn/cluster/k_means_.py line45
+    // def _k_init(X, n_clusters, x_squared_norms, random_state, n_local_trials=None):
     int n_local_trials = 2 + int(log(nclusters));
 
     // random pick first center
     int idx = (int) (uniform() * nelements);
-    //idx = 2732;
     for ( j=0; j<ndata; j++) {
         cdata[0][j] = data[idx][j];
         cmask[0][j] = 1;
     }
+    double current_pot;
+    double distance;
+    double best_pot = DBL_MAX;
     
+    current_pot = 0;
+    for (j = 0; j < nelements; j++) {
+        distance = metric(ndata, data, cdata, mask, cmask, weight, j, 0, transpose);
+        d[j] = distance;
+        current_pot += distance;
+    }
     
     for (n_cluster = 1; n_cluster < nclusters; n_cluster++) {
+        
         // Choose center candidates by sampling with probability proportional
         // to the squared distance to the closest existing center
-        
-        
-        // Compute distances to center candidates
-        sum = 0;
+        /*sum = 0;
         for (j = 0; j < nelements; j++) {
             nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist); // for each pt find nearest center
             sum += d[j];
         }
-        sum = uniform() * sum;
-        // pick next center using distrubtion of shortest distance to center: sum[]
-        for (j = 0; j < nelements; j++) {
-            sum -= d[j];
-            if (sum > 0) continue;
-            for ( int m=0; m<ndata; m++) {
-                cdata[n_cluster][m] = data[j][m];
-                cmask[n_cluster][m] = 1;
+        */
+        
+        double best_pot = DBL_MAX;
+        for (i = 0; i<n_local_trials; i++) {
+            
+            sum = uniform() * current_pot;
+            // pick next center using distrubtion of shortest distance to center: sum[]
+            for (j = 0; j < nelements; j++) {
+                sum -= d[j];
+                if (sum > 0) continue;
+                for (m=0; m<ndata; m++) {
+                    cdata[n_cluster][m] = data[j][m];
+                    cmask[n_cluster][m] = 1;
+                }
+                break;
             }
-            break;
+            
+            double dist_to_cand = 0;
+            for (j = 0; j < nelements; j++) {
+                distance = metric(ndata, data, cdata, mask, cmask, weight, j, n_cluster, transpose);
+                dist_to_cand += distance;
+            }
+            
+            if (dist_to_cand < best_pot) {
+                best_pot = dist_to_cand;
+                for (m=0; m<ndata; m++) {
+                    best_center[m] = cdata[n_cluster][m];
+                }
+            }
         }
+        
+        for (m=0; m<ndata; m++) {
+            cdata[n_cluster][m] = best_center[m];
+        }
+        current_pot = best_pot;
     }
     
-    //for (j = 0; j < nelements; j++) {
-    //    clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
-    //}
     
+    for (j = 0; j < nelements; j++) {
+        clusterid[j] = nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist);
+    }
+    free(best_center);
     free(d);
 }
 
