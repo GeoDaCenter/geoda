@@ -516,7 +516,9 @@ void LisaCoordinator::StandardizeData()
         }
         if (isBivariate) {
             for (int i=0; i<num_obs; i++) {
-                undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                if ( undef_data[1].size() > t ) {
+                    undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                }
             }
         }
     }
@@ -524,7 +526,8 @@ void LisaCoordinator::StandardizeData()
 	for (int t=0; t<data1_vecs.size(); t++) {
 		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
         if (isBivariate) {
-            GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
+            if (data2_vecs.size() > t)
+                GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
         }
 	}
 }
@@ -551,7 +554,8 @@ void LisaCoordinator::CalcLisa()
         for (int i=0; i<undef_data[0][t].size(); i++){
             bool is_undef = undef_data[0][t][i];
             if (isBivariate) {
-                is_undef = is_undef || undef_data[1][t][i];
+                if (undef_data[1].size() > t)
+                    is_undef = is_undef || undef_data[1][t][i];
             }
             if (is_undef && !has_undef) {
                 has_undef = true;

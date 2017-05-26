@@ -1496,7 +1496,9 @@ void MapCanvas::CreateAndUpdateCategories()
         std::vector<bool> undef_res(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             for (int j=0; j< data_undef.size(); j++) {
-                undef_res[i] =  undef_res[i] || data_undef[j][t][i];
+                if ( data_undef[j].size() > t ) {
+                    undef_res[i] =  undef_res[i] || data_undef[j][t][i];
+                }
             }
         }
 		
