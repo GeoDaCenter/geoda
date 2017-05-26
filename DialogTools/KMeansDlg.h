@@ -45,6 +45,8 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
+    void OnSeedCheck(wxCommandEvent& event);
+    void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
@@ -63,6 +65,7 @@ private:
     
     FramesManager* frames_manager;
     
+    wxCheckBox* chk_seed;
     wxListBox* combo_var;
     wxChoice* combo_method;
     wxChoice* combo_tranform;
@@ -75,6 +78,8 @@ private:
 
     wxChoice* m_method;
     wxChoice* m_distance;
+    
+    wxButton* seedButton;
     
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;

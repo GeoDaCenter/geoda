@@ -38,6 +38,12 @@
 #endif
 
 /* ************************************************************************ */
+void setrandomstate(int seed)
+{
+    random_state = seed;
+}
+
+/* ************************************************************************ */
 
 #ifdef WINDOWS
 /* Then we make a Windows DLL */
@@ -1766,8 +1772,12 @@ A double-precison number between 0.0 and 1.0.
   static int s2 = 0;
 
   if (s1==0 || s2==0) /* initialize */
-  { unsigned int initseed = (unsigned int) time(0);
-    srand(initseed);
+  { if (random_state<0) {
+      unsigned int initseed = (unsigned int) time(0);
+      srand(initseed);
+    } else {
+      srand(random_state);
+    }
     s1 = rand();
     s2 = rand();
   }
@@ -1980,7 +1990,7 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
         sum = 0;
         for (j = 0; j < nelements; j++) {
             nearest(j, n_cluster, d + j, ndata, clusterid, data, cdata, mask, cmask, weight, transpose, dist); // for each pt find nearest center
-            sum += d[j];
+            sum += d[j] * d[j];
         }
         sum = uniform() * sum;
         // pick next center using distrubtion of shortest distance to center: sum[]

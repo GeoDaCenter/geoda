@@ -20,6 +20,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <limits>
 
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
@@ -51,11 +52,11 @@ END_EVENT_TABLE()
 
 KMeansDlg::KMeansDlg(wxFrame* parent_s, Project* project_s)
 : frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 720), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 750), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open KMeanDlg.");
     
-	SetMinSize(wxSize(360,720));
+	SetMinSize(wxSize(360,750));
 
     parent = parent_s;
     project = project_s;
@@ -118,10 +119,8 @@ void KMeansDlg::CreateControls()
         cbox->Disable();
     }
     // Parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(8,2,5,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
-    
-    
     
     wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
@@ -157,6 +156,23 @@ void KMeansDlg::CreateControls()
     wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("50"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
+    
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+    chk_seed = new wxCheckBox(panel, wxID_ANY, "");
+    seedButton = new wxButton(panel, wxID_OK, wxT("Change Seed"));
+    
+    hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
+    hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
+    seedButton->Disable();
+    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox17, 1, wxEXPAND);
+    
+    if (GdaConst::use_gda_user_seed) {
+        chk_seed->SetValue(true);
+        seedButton->Enable();
+    }
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
@@ -237,10 +253,58 @@ void KMeansDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
+    chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
+    seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
     
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(KMeansDlg::OnDistanceChoice),
                         NULL, this);
+}
+
+void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
+{
+    bool use_user_seed = chk_seed->GetValue();
+    
+    if (use_user_seed) {
+        seedButton->Enable();
+        if (GdaConst::use_gda_user_seed == false && GdaConst::gda_user_seed == 0) {
+            OnChangeSeed(event);
+            return;
+        }
+        GdaConst::use_gda_user_seed = true;
+    } else {
+        seedButton->Disable();
+    }
+}
+
+void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
+{
+    // prompt user to enter user seed (used globally)
+    wxString m;
+    m << "Enter a seed value for random number generator:";
+    
+    long long unsigned int val;
+    wxString dlg_val;
+    wxString cur_val;
+    cur_val << GdaConst::gda_user_seed;
+    
+    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    if (dlg.ShowModal() != wxID_OK) return;
+    dlg_val = dlg.GetValue();
+    dlg_val.Trim(true);
+    dlg_val.Trim(false);
+    if (dlg_val.IsEmpty()) return;
+    if (dlg_val.ToULongLong(&val)) {
+        uint64_t new_seed_val = val;
+        GdaConst::gda_user_seed = new_seed_val;
+        GdaConst::use_gda_user_seed = true;
+    } else {
+        wxString m;
+        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        GdaConst::use_gda_user_seed = false;
+    }
 }
 
 void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
