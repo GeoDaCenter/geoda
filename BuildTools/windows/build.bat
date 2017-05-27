@@ -25,7 +25,9 @@ if %PROCESSOR_ARCHITECTURE% == x86 (
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_major" ..\..\version.h') do set VER_MAJOR=%%P
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_minor" ..\..\version.h') do set VER_MINOR=%%P
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_build" ..\..\version.h') do set VER_BUILD=%%P
-set GDA_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_BUILD%
+for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_subbuild" ..\..\version.h') do set VER_SUBBUILD=%%P
+
+set GDA_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_BUILD%.%VER_SUBBUILD%
 
 echo.
 echo #####################################################
