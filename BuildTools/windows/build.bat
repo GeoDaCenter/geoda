@@ -1117,8 +1117,10 @@ set CHK_LIB=%BUILD_HOME%\geoda_setup.exe
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 if %GDA_BUILD% == BUILD_32 (
 	move /Y %BUILD_HOME%\geoda_setup.exe %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-32bit.exe
+        move %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-32bit.exe \\Mac\Dropbox
 ) else (
 	move /Y %BUILD_HOME%\geoda_setup.exe %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-64bit.exe	
+        move %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-64bit.exe \\Mac\Dropbox
 )
 :SKIP_PACKAGE_BUILD
 
