@@ -69,9 +69,11 @@ full_map_redraw_needed(true),
 show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 {
 	int hist_var_tms = data[HIST_VAR].shape()[0];
+    
 	data_stats.resize(hist_var_tms);
 	data_sorted.resize(hist_var_tms);
     
+    // create bins for histogram
 	for (int t=0; t<hist_var_tms; t++) {
 		data_sorted[t].resize(num_obs);
         
@@ -91,6 +93,15 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
         undef_tms.push_back(undefs);
 	}
 	
+    if ( undef_tms.size() < num_time_vals) {
+        // case that histogram is non time variable, but horizontal / vertical may be time variable
+        for (int i=1; i<num_time_vals; i++) {
+            std::vector<bool> undefs(num_obs, false);
+            for (int j=0; j<num_obs; j++) undefs[j] = undef_tms[0][j];
+            undef_tms.push_back(undefs);
+        }
+    }
+    
 	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
 	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
 	if (num_obs > 49) {

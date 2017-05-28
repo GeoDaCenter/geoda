@@ -543,6 +543,8 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	}
 	
 	if (bin_bm_redraw_needed) {
+        if (bin_w <= 0) bin_w = 1;
+        if (bin_h <= 0) bin_h = 1;
 		bin_bm = new wxBitmap(bin_w, bin_h);
 		wxMemoryDC dc(*bin_bm);
 		dc.SetPen(*wxWHITE_PEN);
