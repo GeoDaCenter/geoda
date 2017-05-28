@@ -534,7 +534,7 @@ void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
             for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
                 wxString nm = name;
                 nm << " (" << table_int->GetTimeString(t) << ")";
-                name_to_nm[nm] = name;
+                name_to_nm[nm] = name;// table_int->GetColName(id, t);
                 name_to_tm_id[nm] = t;
                 items.Add(nm);
             }
@@ -621,12 +621,25 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
+    int rows = project->GetNumRecords();
+    int columns =  num_var;
+    
     col_ids.resize(num_var);
+    std::vector<std::vector<double> > data;
+    data.resize(num_var);
+    
     var_info.resize(num_var);
     
     for (int i=0; i<num_var; i++) {
         int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
+        wxString sel_name = combo_var->GetString(idx);
+        
+        sel_names.Add(sel_name);
+        if (sel_name.length() > max_sel_name_len) {
+            max_sel_name_len = sel_name.length();
+        }
+        
+        wxString nm = name_to_nm[sel_name];
         
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
@@ -635,63 +648,22 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
             return;
         }
        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
+        int tm = name_to_tm_id[sel_name];
         
-        if (tm > 1) {
-            for (int j=0; j<tm;j++) {
-                wxString nm_new;
-                nm_new << nm;
-                nm_new << " (t";
-                nm_new << j;
-                nm_new << ")";
-                if (nm_new.length() > max_sel_name_len) {
-                    max_sel_name_len = nm_new.length();
-                }
-                sel_names.Add(nm_new);
-            }
-        } else {
-            sel_names.Add(nm);
-            if (nm.length() > max_sel_name_len) {
-                max_sel_name_len = nm.length();
-            }
-        }
-        col_ids[i] = col;
-        var_info[i].time = tm;
+        data[i].resize(rows);
         
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
+        table_int->GetColData(col, tm, data[i]);
     }
     
     // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+    //GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 
-    int rows = project->GetNumRecords();
-    int columns =  0;
     
-    std::vector<d_array_type> data; // data[variable][time][obs]
-    data.resize(col_ids.size());
-    for (int i=0; i<var_info.size(); i++) {
-        table_int->GetColData(col_ids[i], data[i]);
-    }
-    
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
     vector<float> vec;
     
     for (int k=0; k< rows;k++) {
         for (int i=0; i<data.size(); i++ ){
-            for (int j=0; j<data[i].size(); j++) {
-                vec.push_back(data[i][j][k]);
-            }
+            vec.push_back(data[i][k]);
         }
     }
     
