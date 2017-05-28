@@ -173,6 +173,9 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
     int vs_w, vs_h;
     GetClientSize(&vs_w, &vs_h);
     
+    if (vs_w <= 0) vs_w = 1;
+    if (vs_h <=0 ) vs_h = 1;
+    
     if (enable_high_dpi_support) {
         double scale_factor = GetContentScaleFactor();
 
@@ -183,9 +186,9 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
         layer1_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
         layer2_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
     } else {
-    	layer0_bm = new wxBitmap(width, height, 32);
-    	layer1_bm = new wxBitmap(width, height, 32);
-    	layer2_bm = new wxBitmap(width, height, 32);
+    	layer0_bm = new wxBitmap(vs_w, vs_h, 32);
+    	layer1_bm = new wxBitmap(vs_w, vs_h, 32);
+    	layer2_bm = new wxBitmap(vs_w, vs_h, 32);
     }
 
 	layer0_valid = false;
