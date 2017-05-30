@@ -4183,7 +4183,12 @@
                     </object>
                   </object>
                   <object class="spacer">
-                    <size>50,5d</size>
+                    <size>10,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxStaticText">
+                          <label>(Leave empty as undefined values)</label>
+                      </object>
                   </object>
                   <orient>wxHORIZONTAL</orient>
                 </object>
