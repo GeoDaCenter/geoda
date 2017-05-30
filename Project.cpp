@@ -1343,8 +1343,10 @@ void Project::CleanupPairsHLState()
 bool Project::CommonProjectInit()
 {	
 	wxLogMessage("Project::CommonProjectInit()");
-	if (!InitFromOgrLayer())
+    if (!InitFromOgrLayer()) {
+        OGRDataAdapter::GetInstance().Close();
         return false;
+    }
 	
 	num_records = table_int->GetNumberRows();
    
@@ -1480,7 +1482,7 @@ bool Project::InitFromOgrLayer()
 				cont = prog_dlg.Update(layer_proxy->load_progress);
 			}
 		}
-		if (!cont)  {
+		if (!cont || !prog_dlg.Update(-1))  { // or if cancel clicked
 			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
 			return false;
 		}
