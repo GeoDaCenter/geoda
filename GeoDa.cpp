@@ -2972,7 +2972,7 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
     
     bool show_weights = true;
     bool show_distance = false;
-    wxString title = _("Differential Moran Variable Settings");
+    wxString title = _("Bivariate Moran Variable Settings");
 	VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, show_weights, show_distance, title);
 	if (VS.ShowModal() != wxID_OK)
         return;
@@ -2991,7 +2991,7 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
     
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
-                                              LisaCoordinator::differential,
+                                              LisaCoordinator::bivariate,
 											  false);
 	
 	LisaScatterPlotFrame *f = new LisaScatterPlotFrame(GdaFrame::gda_frame,
