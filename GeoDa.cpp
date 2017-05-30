@@ -852,12 +852,12 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
                     if (unsaved_ds_data) {
                         project_p->SaveDataSourceData();
                     }
+                    // always try to save a project file for user, if time or weights
+                    project_p->SaveProjectConf();
                 }
             }
 		}
         
-        // always try to save a project file for user, if time or weights
-        project_p->SaveProjectConf();
         
         if (project_p->IsDataTypeChanged()) {
             wxString msg = _("Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?");
@@ -1363,8 +1363,7 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
             project_p->SaveProjectConf();
         } catch( GdaException& e) {
             // do nothing
-        }
-
+        }        
 	} catch (GdaException& e) {
 		wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();

@@ -602,6 +602,7 @@ void Project::SaveProjectConf()
     if (!project_conf->GetFilePath().IsEmpty()) {
         UpdateProjectConf();
         project_conf->Save(project_conf->GetFilePath());
+        GetTableInt()->SetProjectChangedSinceLastSave(false);
     }
 	wxLogMessage("Exiting Project::SaveProjectConf");
 }
