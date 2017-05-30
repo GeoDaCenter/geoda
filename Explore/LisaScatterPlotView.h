@@ -58,7 +58,8 @@ public:
     void UpdateRegSelectedLine();
     void UpdateRegExcludedLine();
 	
-    bool is_show_regimes_regression;
+    void ShowRegimesRegression(bool flag);
+    
     
 protected:
     void RegimeMoran(std::vector<bool>& undefs,
@@ -66,6 +67,7 @@ protected:
                      std::vector<double>& X,
                      std::vector<double>& Y);
     void OnRandDlgClose( wxWindowDestroyEvent& event);
+
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
 	LisaCoordinator* lisa_coord;
@@ -76,6 +78,7 @@ protected:
 	std::vector<GdaVarTools::VarInfo> var_info_orig;
     RandomizationDlg* rand_dlg;
     GdaShapeText* morans_i_text;
+    bool is_show_regimes_regression;
 	
 	DECLARE_EVENT_TABLE()
 };

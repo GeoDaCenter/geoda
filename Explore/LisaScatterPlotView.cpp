@@ -99,6 +99,12 @@ LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
     }
 }
 
+void LisaScatterPlotCanvas::ShowRegimesRegression(bool flag)
+{
+    is_show_regimes_regression = flag;
+    PopulateCanvas();
+}
+
 void LisaScatterPlotCanvas::OnRandDlgClose( wxWindowDestroyEvent& event)
 {
     rand_dlg = 0;
@@ -927,7 +933,7 @@ LisaScatterPlotFrame::~LisaScatterPlotFrame()
 
 void LisaScatterPlotFrame::OnViewRegimesRegression( wxCommandEvent& event)
 {
-    ((LisaScatterPlotCanvas*) template_canvas)->is_show_regimes_regression = event.IsChecked();
+    ((LisaScatterPlotCanvas*) template_canvas)->ShowRegimesRegression(event.IsChecked());
     
     UpdateOptionMenuItems();
 }
