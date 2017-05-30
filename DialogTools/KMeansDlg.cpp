@@ -39,7 +39,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
-#include "../cluster.h"
+#include "../Algorithms/cluster.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"

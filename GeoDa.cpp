@@ -168,7 +168,6 @@
 #include "Project.h"
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
-#include "pca.h"
 #include "GeoDa.h"
 
 #include "version.h"

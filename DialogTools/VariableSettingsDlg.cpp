@@ -38,7 +38,7 @@
 #include "../VarCalc/WeightsManInterface.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
-#include "../pca.h"
+#include "../Algorithms/pca.h"
 #include "../logger.h"
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"

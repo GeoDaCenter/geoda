@@ -66,7 +66,7 @@ BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
 END_EVENT_TABLE()
 
 SliderDialog::SliderDialog(wxWindow * parent,
-                           TemplateCanvas* _canvas,
+                           MapCanvas* _canvas,
                            wxWindowID id,
                            const wxString & caption,
                            const wxPoint & position,
@@ -87,7 +87,7 @@ SliderDialog::SliderDialog(wxWindow * parent,
     
     // A text control for the user’s name
     ID_SLIDER = wxID_ANY;
-    double trasp = (double)GdaConst::transparency_unhighlighted / 255.0;
+    double trasp = (double)canvas->tran_unhighlighted / 255.0;
     int trasp_scale = 100 * trasp;
 
 	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -124,7 +124,8 @@ void SliderDialog::OnSliderChange( wxScrollEvent & event )
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
     slider_text->SetLabel(wxString::Format("Current Transparency: %.1f", trasp));
-    GdaConst::transparency_unhighlighted = (1-trasp) * 255;
+    //GdaConst::transparency_unhighlighted = (1-trasp) * 255;
+    canvas->tran_unhighlighted = (1-trasp) * 255;
     canvas->ReDraw();
 }
 
@@ -172,7 +173,8 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_type(0)
+map_type(0),
+tran_unhighlighted(GdaConst::transparency_unhighlighted)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
 	using namespace Shapefile;
@@ -555,7 +557,7 @@ void MapCanvas::DrawLayer1()
         dc.DrawRectangle(wxPoint(0,0), sz);
     }
     
-    bool revert = GdaConst::transparency_highlighted < GdaConst::transparency_unhighlighted;
+    bool revert = GdaConst::transparency_highlighted < tran_unhighlighted;
     int  alpha_value = 255;
 	bool mask_needed = false;
 	bool draw_highlight = highlight_state->GetTotalHighlighted() > 0;
@@ -563,13 +565,13 @@ void MapCanvas::DrawLayer1()
     
 	if (isDrawBasemap) {
 		mask_needed = true;
-        alpha_value = GdaConst::transparency_unhighlighted;
+        alpha_value = tran_unhighlighted;
 	}
 
     if (draw_highlight && GdaConst::use_cross_hatching == false)
     {
 		mask_needed = true;
-        alpha_value = revert ? GdaConst::transparency_highlighted : GdaConst::transparency_unhighlighted;
+        alpha_value = revert ? GdaConst::transparency_highlighted : tran_unhighlighted;
 	}
     
 	if (mask_needed)
@@ -602,7 +604,7 @@ void MapCanvas::DrawLayer1()
         }
         dc.DrawBitmap(*faded_layer_bm,0,0);
 
-		int hl_alpha_value = revert ? GdaConst::transparency_unhighlighted : GdaConst::transparency_highlighted;
+		int hl_alpha_value = revert ? tran_unhighlighted : GdaConst::transparency_highlighted;
 
 		if ( draw_highlight ) {
             if ( hl_alpha_value == 255 || GdaConst::use_cross_hatching) {
@@ -1735,7 +1737,27 @@ void MapCanvas::SaveRates()
 
 void MapCanvas::update(HLStateInt* o)
 {
-    TemplateCanvas::update(o);
+    if (layer2_bm) {
+        ResetBrushing();
+        
+        if (draw_sel_shps_by_z_val) {
+            // force a full redraw
+            layer0_valid = false;
+            return;
+        }
+        
+        HLStateInt::EventType type = o->GetEventType();
+        if (type == HLStateInt::transparency) {
+            tran_unhighlighted = GdaConst::transparency_unhighlighted;
+            ResetFadedLayer();
+        }
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        DrawLayers();
+        Refresh();
+        
+        UpdateStatusBar();
+    }
 }
 
 void MapCanvas::UpdateStatusBar()
@@ -1909,6 +1931,10 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
 
     bool drawSuccess = ((MapCanvas*)template_canvas)->DrawBasemap(flag, map_type);
     
+    if (flag == false) {
+        ((MapCanvas*)template_canvas)->tran_unhighlighted = GdaConst::transparency_unhighlighted;
+    }
+    
     if (drawSuccess==false) {
         wxMessageBox(_("GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."));
     }
@@ -1969,7 +1995,7 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
         popupMenu->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
         popupMenu->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
         
-        popupMenu->FindItem(XRCID("ID_CHANGE_TRANSPARENCY"))->Enable(idx!=0);
+        //popupMenu->FindItem(XRCID("ID_CHANGE_TRANSPARENCY"))->Enable(idx!=0);
         
         PopupMenu(popupMenu, wxDefaultPosition);
     }
@@ -2370,7 +2396,7 @@ void MapFrame::OnChangeMapTransparency()
     //show slider dialog
     MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
     if (map_canvs_ref->isDrawBasemap) {
-        SliderDialog sliderDlg(this, template_canvas);
+        SliderDialog sliderDlg(this, map_canvs_ref);
         sliderDlg.ShowModal();
     }
 
