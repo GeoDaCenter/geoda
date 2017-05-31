@@ -4187,7 +4187,7 @@
                   </object>
                   <object class="sizeritem">
                       <object class="wxStaticText">
-                          <label>(Leave empty as undefined values)</label>
+                          <label>(Leave empty for undefined values)</label>
                       </object>
                   </object>
                   <orient>wxHORIZONTAL</orient>
