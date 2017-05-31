@@ -101,7 +101,7 @@ SliderDialog::SliderDialog(wxWindow * parent,
                   wxALIGN_CENTER_VERTICAL|wxALL);
 
 	boxSizer->Add(subSizer);
-    wxString txt_transparency = wxString::Format(_("Current Transparency: %.1f"), 1.0 - trasp);
+    wxString txt_transparency = wxString::Format(_("Current Transparency: %.2f"), 1.0 - trasp);
     
     slider_text = new wxStaticText(this,
                                    wxID_ANY,
@@ -123,7 +123,7 @@ void SliderDialog::OnSliderChange( wxScrollEvent & event )
 {
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
-    slider_text->SetLabel(wxString::Format("Current Transparency: %.1f", trasp));
+    slider_text->SetLabel(wxString::Format("Current Transparency: %.2f", trasp));
     //GdaConst::transparency_unhighlighted = (1-trasp) * 255;
     canvas->tran_unhighlighted = (1-trasp) * 255;
     canvas->ReDraw();

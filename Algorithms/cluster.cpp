@@ -1734,7 +1734,7 @@ static double(*setmetric(char dist))
 
 /* *********************************************************************  */
 
-static double uniform(void)
+double uniform(void)
 /*
 Purpose
 =======

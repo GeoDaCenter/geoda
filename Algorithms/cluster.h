@@ -47,6 +47,7 @@
 /* If an integer is given, it fixes the seed. Defaults to the global numpy random number generator. */
 static int random_state = -1;
 void setrandomstate(int seed);
+double uniform(void);
 
 /* Chapter 2 */
 double clusterdistance (int nrows, int ncolumns, double** data, int** mask,

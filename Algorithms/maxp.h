@@ -44,7 +44,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, vector<double> z, int floor, vector<int> floor_variable, int initial, vector<int> seed);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<int> floor_variable, int initial, vector<int> seed);
     
     
     //! A Deconstructor
@@ -60,6 +60,10 @@ protected:
      Details.
      */
     const GalElement* w;
+    
+    
+    
+    bool feasible;
     
     //! A integer number of regions.
     /*!
@@ -83,7 +87,7 @@ protected:
     /*!
      Details. This is used to calculate intra-regional
      */
-    vector<vector<double> > z;
+    const vector<vector<double> > z;
     
     //! A map variable mapping of areas to region.
     /*!
@@ -145,6 +149,8 @@ protected:
      \return boolean true if meet floor else return false
      */
     bool check_floor(const vector<int>& region);
+    
+    double objective_function();
 
 };
 
