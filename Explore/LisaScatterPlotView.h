@@ -93,7 +93,7 @@ public:
     LisaScatterPlotFrame(wxFrame *parent, Project* project,
 					LisaCoordinator* lisa_coordinator,
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = wxSize(860, 530),
+					const wxSize& size = wxSize(600, 360),
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
 	

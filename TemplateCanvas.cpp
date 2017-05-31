@@ -169,7 +169,6 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 
-
     int vs_w, vs_h;
     GetClientSize(&vs_w, &vs_h);
     
@@ -586,24 +585,24 @@ void TemplateCanvas::UpdateSelectableOutlineColors()
 void TemplateCanvas::update(HLStateInt* o)
 {
 	if (layer2_bm) {
-    ResetBrushing();
+        ResetBrushing();
     
-	if (draw_sel_shps_by_z_val) {
-		// force a full redraw
-		layer0_valid = false;
-		return;
-	}
+        if (draw_sel_shps_by_z_val) {
+            // force a full redraw
+            layer0_valid = false;
+            return;
+        }
 
-    HLStateInt::EventType type = o->GetEventType();
-    if (type == HLStateInt::transparency) {
-        ResetFadedLayer();
-    }
-    // re-paint highlight layer (layer1_bm)
-	layer1_valid = false;
-    DrawLayers();
-    Refresh();
+        HLStateInt::EventType type = o->GetEventType();
+        if (type == HLStateInt::transparency) {
+            ResetFadedLayer();
+        }
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        DrawLayers();
+        Refresh();
     
-    UpdateStatusBar();
+        UpdateStatusBar();
 	}
 }
 
@@ -646,13 +645,16 @@ void TemplateCanvas::DrawLayers()
         DrawLayer0();
     }
 
-    if (!layer1_valid)
+    if (!layer1_valid) {
         DrawLayer1();
+    }
     
     if (!layer2_valid) {
         DrawLayer2();
     }
    
+    //wxWakeUpIdle();
+    
     Refresh();
 }
 
@@ -1278,8 +1280,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					selectstate = dragging;
 					remember_shiftdown = event.ShiftDown();
 					UpdateSelection(remember_shiftdown);
-					UpdateStatusBar();
-					Refresh(false);
+					//UpdateStatusBar();
+					//Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				wxPoint act_pos = GetActualPos(event);
@@ -1299,8 +1301,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				sel2 = GetActualPos(event);
 
 				UpdateSelection(remember_shiftdown);
-				UpdateStatusBar();
-				Refresh(false);
+				//UpdateStatusBar();
+				//Refresh(false);
                 
 			} else if (event.LeftUp()) {
 				sel2 = GetActualPos(event);
@@ -1308,7 +1310,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-                Refresh(false);
+                //Refresh(false);
                 
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
@@ -1329,10 +1331,10 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				wxPoint diff = cur - prev;
 				sel1 += diff;
 				sel2 += diff;
-				UpdateStatusBar();
+				//UpdateStatusBar();
 
 				UpdateSelection();
-				Refresh(false); // keep painting the select rect
+				//Refresh(false); // keep painting the select rect
                 prev = cur;
 			}
 		}
@@ -1600,7 +1602,6 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     // re-paint highlight layer (layer1_bm)
     layer1_valid = false;
     DrawLayers();
-    Refresh();
     
     UpdateStatusBar();
 }

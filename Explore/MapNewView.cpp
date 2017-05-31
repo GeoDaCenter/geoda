@@ -474,8 +474,6 @@ void MapCanvas::resizeLayerBms(int width, int height)
 
 void MapCanvas::DrawLayers()
 {
-    wxSize sz = GetClientSize();
-    
     if (!layerbase_valid && isDrawBasemap)
         DrawLayerBase();
     

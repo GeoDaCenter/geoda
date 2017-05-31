@@ -365,7 +365,7 @@ const wxColour GdaConst::map_movie_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_movie_default_highlight_colour(224, 113, 182);
 
 // Histogram
-const wxSize GdaConst::hist_default_size(600, 500);
+const wxSize GdaConst::hist_default_size(580, 300);
 
 // Table
 const wxString GdaConst::placeholder_str("<placeholder>");
@@ -378,7 +378,7 @@ const wxColour GdaConst::table_col_sel_color(181, 213, 251); // light blue
 const wxColour GdaConst::table_row_and_col_sel_color(206, 217, 146);
 
 // Scatterplot
-const wxSize GdaConst::scatterplot_default_size(530, 530);
+const wxSize GdaConst::scatterplot_default_size(500, 500);
 const wxColour GdaConst::scatterplot_scale_color(0, 0, 0);
 //const wxColour GdaConst::scatterplot_regression_color(0, 79, 241); 
 //const wxColour GdaConst::scatterplot_regression_selected_color(204, 41, 44); 
