@@ -63,7 +63,7 @@ is_bi(lisa_coordinator->lisa_type == LisaCoordinator::bivariate),
 is_rate(lisa_coordinator->lisa_type == LisaCoordinator::eb_rate_standardized),
 is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential),
 is_show_regimes_regression(false),
-rand_dlg(0)
+rand_dlg(0), morans_sel_text(NULL), morans_unsel_text(NULL)
 {
 	show_reg_selected = false;
 	show_reg_excluded = false;
@@ -457,19 +457,17 @@ void LisaScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
 void LisaScatterPlotCanvas::PopulateCanvas()
 {
-    int n_hl = highlight_state->GetTotalHighlighted();
     
-	// need to modify var_info temporarily for PopulateCanvas since
-	var_info_orig = var_info;
-	var_info = sp_var_info;
+    // need to modify var_info temporarily for PopulateCanvas since
+    var_info_orig = var_info;
+    var_info = sp_var_info;
+
     
 	ScatterNewPlotCanvas::PopulateCanvas();
     
-    // sel vs unsel moran calculation
-    // for regressionXYselected and regressionXYexcluded
-    // UpdateRegSelectedLine
-    // UpdateRegExcludedLine
-    if (n_hl > 0 && is_show_regimes_regression) {
+    int n_hl = highlight_state->GetTotalHighlighted();
+    
+    if (is_show_regimes_regression) {
         const std::vector<bool>& hl = highlight_state->GetHighlight();
         int t = project->GetTimeState()->GetCurrTime();
         int num_obs = lisa_coord->num_obs;
@@ -493,8 +491,6 @@ void LisaScatterPlotCanvas::PopulateCanvas()
                                         (Y[i] - axis_scale_y.scale_min) * scaleY);
             pt->setPen(wxPen(wxColour(245,140,140)));
             pt->setBrush(*wxTRANSPARENT_BRUSH);
-            //ApplyLastResizeToShp(pt);
-            
             pt->applyScaleTrans(sub_scale);
             
             foreground_shps.insert(foreground_shps.begin(), pt);
@@ -516,7 +512,6 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         ex_scale.calcAffineParams();
         
         for (int i=0; i<X_ex.size(); i++){
-            //foreground_shps.push_back(new GdaPoint(X_ex[i], Y_ex[i]));
             GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
                                         (Y_ex[i] - axis_scale_y.scale_min) * scaleY
                                         );
@@ -595,7 +590,8 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         
         wxString str = wxString::Format("selected: %.4f",
                                         regressionXYselected.beta);
-        GdaShapeText* morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
+
+        morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
                                                          wxRealPoint(50, 100), 0,
                                                          GdaShapeText::h_center,
                                                          GdaShapeText::v_center,
@@ -606,7 +602,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         
         wxString str1 = wxString::Format("unselected: %.4f",
                                          regressionXYexcluded.beta);
-        GdaShapeText* morans_unsel_text = new GdaShapeText(str1,
+        morans_unsel_text = new GdaShapeText(str1,
                                                            *GdaConst::small_font,
                                                            wxRealPoint(50, 100), 0,
                                                            GdaShapeText::h_center,
@@ -735,19 +731,86 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
 }
 
 void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
-{
+{    
+    int n_hl = highlight_state->GetTotalHighlighted();
     
+    if (n_hl > 0 && is_show_regimes_regression) {
+        const std::vector<bool>& hl = highlight_state->GetHighlight();
+
+        int t = project->GetTimeState()->GetCurrTime();
+        int num_obs = lisa_coord->num_obs;
+        
+        std::vector<bool> undefs(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            undefs[i] = lisa_coord->undef_tms[t][i] || !hl[i];
+            foreground_shps.pop_front();
+        }
+        std::vector<double> X;
+        std::vector<double> Y;
+        RegimeMoran(undefs, regressionXYselected, X, Y);
+        
+        GdaScaleTrans sub_scale;
+        sub_scale = last_scale_trans;
+        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
+        sub_scale.left_margin = 40;
+        sub_scale.calcAffineParams();
+        
+        for (int i=0; i<X.size(); i++){
+            GdaPoint* pt = new GdaPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                        (Y[i] - axis_scale_y.scale_min) * scaleY);
+            pt->setPen(wxPen(wxColour(245,140,140)));
+            pt->setBrush(*wxTRANSPARENT_BRUSH);
+            pt->applyScaleTrans(sub_scale);
+            
+            foreground_shps.insert(foreground_shps.begin(), pt);
+        }
+        
+        
+        
+        undefs.clear();
+        undefs.resize(num_obs, false);
+        for (int i=0; i<num_obs; i++) {
+            undefs[i] = lisa_coord->undef_tms[t][i] || hl[i];
+        }
+        std::vector<double> X_ex;
+        std::vector<double> Y_ex;
+        RegimeMoran(undefs, regressionXYexcluded, X_ex, Y_ex);
+        
+        GdaScaleTrans ex_scale;
+        ex_scale = last_scale_trans;
+        ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
+        ex_scale.right_margin = 5;
+        ex_scale.calcAffineParams();
+        
+        for (int i=0; i<X_ex.size(); i++){
+            GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
+                                        (Y_ex[i] - axis_scale_y.scale_min) * scaleY
+                                        );
+            pt->setPen(wxPen(wxColour(100,100,100)));
+            pt->setBrush(*wxTRANSPARENT_BRUSH);
+            pt->applyScaleTrans(ex_scale);
+            foreground_shps.insert(foreground_shps.begin(),pt);
+        }
+        
+        
+        UpdateRegSelectedLine();
+        UpdateRegExcludedLine();
+        
+        if (morans_sel_text) {
+            wxString str = wxString::Format("selected: %.4f", regressionXYselected.beta);
+            morans_sel_text->setText(str);
+        }
+        if (morans_unsel_text) {
+            wxString str1 = wxString::Format("unselected: %.4f", regressionXYexcluded.beta);
+            morans_unsel_text->setText(str1);
+        }
+        
+        //Refresh();
+    }
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
-  
-    invalidateBms();
-    PopulateCanvas();
-    
-    // Call TemplateCanvas::update to redraw objects as needed.
-    //TemplateCanvas::update(highlight_stateo);
-    
-    Refresh();
 
 }
+
 void LisaScatterPlotCanvas::update(HLStateInt* o)
 {
     invalidateBms();

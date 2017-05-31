@@ -71,13 +71,17 @@ double Maxp::objective_function()
     vector<vector<double> > selected_z;
     
     //for (int n=0; n<)
-    for (int i=0; i<regions.size(); i++ ) {
-        for (int j=0; j<regions[i].size(); j++) {
-            regions[i][j] ;
+    for (int n=0; n<z.size(); n++) {
+        vector<double> val;
+        for (int i=0; i<regions.size(); i++ ) {
+            for (int j=0; j<regions[i].size(); j++) {
+                val.push_back( z[n][ regions[i][j] ]);
+            }
         }
     }
-    for (int i=0; i<selected_z.size(); i++) {
-        double var = GenUtils::StandardizeData(selected_z[i]);
+    
+    for (int n=0; n<z.size(); n++) {
+        double var = GenUtils::StandardizeData(selected_z[n]);
         
     }
     return 0;
@@ -109,8 +113,10 @@ void Maxp::init_solution()
         list<int> enclaves;
         list<int> candidates;
         if (seed.empty()) {
-            for (int i=0; i<num_obs;i++) candidates.push_back(i);
-            //random_shuffle (candidates.begin(), candidates.end());
+            vector<int> _candidates;
+            for (int i=0; i<num_obs;i++) _candidates.push_back(i);
+            random_shuffle (_candidates.begin(), _candidates.end());
+            for (int i=0; i<num_obs;i++) candidates.push_back(_candidates[i]);
         } else {
             // candidates.extend(nonseeds)
         }

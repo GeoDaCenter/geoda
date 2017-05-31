@@ -221,6 +221,8 @@ public:
     
 	double GetX();
 	double GetY();
+    void SetX(double x);
+    void SetY(double y);
 };
 
 

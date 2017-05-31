@@ -79,6 +79,8 @@ protected:
     RandomizationDlg* rand_dlg;
     GdaShapeText* morans_i_text;
     bool is_show_regimes_regression;
+    GdaShapeText* morans_sel_text;
+    GdaShapeText* morans_unsel_text;
 	
 	DECLARE_EVENT_TABLE()
 };

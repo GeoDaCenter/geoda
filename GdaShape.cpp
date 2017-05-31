@@ -780,6 +780,17 @@ double GdaPoint::GetY()
     return center_o.y;
 }
 
+void GdaPoint::SetX(double x)
+{
+    center.x = (int) x;
+    center_o.x = x;
+}
+
+void GdaPoint::SetY(double y)
+{
+    center.y = (int) y;
+    center_o.y = y;
+}
 bool GdaPoint::pointWithin(const wxPoint& pt)
 {
 	if (null_shape) return false;
