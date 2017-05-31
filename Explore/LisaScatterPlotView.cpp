@@ -735,6 +735,7 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     int n_hl = highlight_state->GetTotalHighlighted();
     
     if (n_hl > 0 && is_show_regimes_regression) {
+        /*
         const std::vector<bool>& hl = highlight_state->GetHighlight();
 
         int t = project->GetTimeState()->GetCurrTime();
@@ -764,8 +765,6 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
             
             foreground_shps.insert(foreground_shps.begin(), pt);
         }
-        
-        
         
         undefs.clear();
         undefs.resize(num_obs, false);
@@ -804,8 +803,9 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
             wxString str1 = wxString::Format("unselected: %.4f", regressionXYexcluded.beta);
             morans_unsel_text->setText(str1);
         }
-        
         //Refresh();
+         */
+        PopulateCanvas();
     }
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 
