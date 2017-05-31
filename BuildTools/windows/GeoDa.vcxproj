@@ -299,13 +299,14 @@
     </None>
     <None Include="..\..\rc\release-notes.txt" />
     <None Include="..\..\rc\toolbar.xrc" />
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\cluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\cluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\maxp.cpp" />
+    <ClCompile Include="..\..\Algorithms\pca.cpp" />
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
@@ -348,7 +349,6 @@
     <ClCompile Include="..\..\GdaShape.cpp" />
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
-    <ClCompile Include="..\..\pca.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp" />
@@ -365,7 +365,9 @@
     <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
-    <ClInclude Include="..\..\cluster.h" />
+    <ClInclude Include="..\..\Algorithms\cluster.h" />
+    <ClInclude Include="..\..\Algorithms\maxp.h" />
+    <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
     <ClInclude Include="..\..\DataViewer\DataChangeType.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />
@@ -442,7 +444,6 @@
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
-    <ClInclude Include="..\..\pca.h" />
     <ClInclude Include="..\..\PointSetAlgs.h" />
     <ClInclude Include="..\..\ProjectConf.h" />
     <ClInclude Include="..\..\resource.h" />
