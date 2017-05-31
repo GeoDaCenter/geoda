@@ -729,10 +729,14 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
                 wxLogMessage(_("Open project file:") + ds_file_path.GetFullPath());
                 try {
+                    Project* project = gda_frame->GetProject();
+                    wxString layer_name;
+                    if (project) layer_name = project->layername;
+                    
                     RecentDatasource recent_ds;
-                    recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), "");
+                    recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), layer_name);
                 } catch( GdaException ex) {
-                    LOG_MSG(ex.what());
+                    wxLogMessage(ex.what());
                 }
                 EndDialog();
             }
