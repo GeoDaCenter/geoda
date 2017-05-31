@@ -1377,6 +1377,6 @@ void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
                                                     custom_classif_title);
     UpdateTitle();
     UpdateOptionMenuItems();
-    if (template_legend) template_legend->Refresh();
+    if (template_legend) template_legend->Recreate();
 }
 

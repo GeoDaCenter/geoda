@@ -876,7 +876,7 @@ void LisaMapFrame::update(LisaCoordinator* o)
 	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
 }

@@ -2048,7 +2048,7 @@ void  MapFrame::update(TimeState* o)
 {
 	template_canvas->TimeChange();
 	UpdateTitle();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 }
 
 /** Implementation of WeightsManStateObserver interface */
@@ -2342,7 +2342,7 @@ bool MapFrame::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					  custom_classif_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 	return r;
 }
 

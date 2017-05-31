@@ -880,7 +880,7 @@ void GetisOrdMapFrame::update(GStatCoordinator* o)
 	GetisOrdMapCanvas* lc = (GetisOrdMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
 }

@@ -1111,7 +1111,7 @@ void  ConditionalMapFrame::update(TimeState* o)
 {
 	template_canvas->TimeChange();
 	UpdateTitle();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 }
 
 void ConditionalMapFrame::OnNewCustomCatClassifA()

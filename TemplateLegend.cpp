@@ -370,6 +370,11 @@ void TemplateLegend::OnDraw(wxDC& dc)
     }
 }
 
+void TemplateLegend::Recreate()
+{
+    recreate_labels = true;
+    Refresh();
+}
 
 int TemplateLegend::GetDrawingWidth()
 {

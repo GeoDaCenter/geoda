@@ -82,6 +82,7 @@ public:
 				   const wxPoint& pos, const wxSize& size);
 	virtual ~TemplateLegend();
 
+    void Recreate();
     int GetDrawingWidth();
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
