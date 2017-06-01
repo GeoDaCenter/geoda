@@ -272,7 +272,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(cbox9, 0, wxALIGN_RIGHT);
 	cbox9->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowCsvInMerge, this);
 
-	wxString lbl10 = _("Enable High DPI/Retina support:");
+	wxString lbl10 = _("Enable High DPI/Retina support (Mac only):");
 	wxStaticText* lbl_txt10 = new wxStaticText(vis_page, wxID_ANY, lbl10);
 	cbox10 = new wxCheckBox(vis_page, XRCID("PREF_ENABLE_HDPI"), "", wxDefaultPosition);
 	grid_sizer1->Add(lbl_txt10, 1, wxEXPAND);
