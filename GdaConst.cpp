@@ -365,7 +365,7 @@ const wxColour GdaConst::map_movie_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_movie_default_highlight_colour(224, 113, 182);
 
 // Histogram
-const wxSize GdaConst::hist_default_size(580, 300);
+const wxSize GdaConst::hist_default_size(600, 500);
 
 // Table
 const wxString GdaConst::placeholder_str("<placeholder>");
