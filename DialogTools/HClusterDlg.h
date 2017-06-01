@@ -61,8 +61,8 @@ public:
         dc.SetPen(pen);
         dc.DrawRectangle(wxRect(x, y-2, 4, 4));
         
-        dc.SetPen(*wxBLACK_PEN);
         dc.DrawRectangle(rec);
+        dc.SetPen(*wxBLACK_PEN);
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
     }
     

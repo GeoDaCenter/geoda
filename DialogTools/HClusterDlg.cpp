@@ -262,6 +262,14 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
         int m_decimals_val = 0;
         
         col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    } else {
+        // detect if column is integer field, if not raise a warning
+        if (table_int->GetColType(col) != GdaConst::long64_type ) {
+            wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
+            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            dlg.ShowModal();
+            return;
+        }
     }
     
     if (col > 0) {
