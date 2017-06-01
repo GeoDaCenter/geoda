@@ -387,6 +387,36 @@ echo "%%%%%%%%%%%%%%%%%%%"
 }
 
 #########################################################################
+# Eigen3
+#########################################################################
+LIB_NAME=eigen3
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/eigen3.zip
+LIB_CHECKER=Dense
+LIB_FILENAME=$LIB_NAME.zip
+echo $LIB_FILENAME
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    unzip $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+if ! [ -f "$PREFIX/include/eigen3/Eigen/$LIB_CHECKER" ] ; then
+    mkdir bld
+    cd bld
+    cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX  
+    make install
+fi
+
+if ! [ -f "$PREFIX/include/eigen3/Eigen/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+#########################################################################
 # install boost library
 #########################################################################
 echo ""
