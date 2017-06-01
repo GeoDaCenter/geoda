@@ -750,6 +750,10 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
         
         wxPaintDC paint_dc(this);
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        
+        // Draw optional control objects if needed
+        PaintControls(paint_dc);
+        
         helper_PaintSelectionOutline(paint_dc);
         
         //wxBufferedPaintDC paint_dc(this, *layer2_bm);

@@ -87,7 +87,7 @@ public:
 	enum PCPSelectState { pcp_start, pcp_leftdown_on_circ,
 		pcp_leftdown_on_label, pcp_dragging };
 	/** The function handles all mouse events. */
-	//void OnMouseEvent(wxMouseEvent& event);
+	void OnMouseEvent(wxMouseEvent& event);
 	void VarLabelClicked();
 	/** Override PaintControls from TemplateCanvas */
 	virtual void PaintControls(wxDC& dc);
@@ -102,6 +102,10 @@ protected:
 
 	CatClassifState* custom_classif_state;
 	
+    wxPoint pcp_prev;
+    wxPoint pcp_sel1;
+    wxPoint pcp_sel2;
+    
 	int num_obs;
 	int num_vars;
 	int num_time_vals;

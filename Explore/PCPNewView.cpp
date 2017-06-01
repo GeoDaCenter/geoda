@@ -901,7 +901,7 @@ void PCPCanvas::StandardizeData(bool standardize)
 //   button. Can also specify wxMOUSE_BTN_LEFT / RIGHT / MIDDLE.  Or
 //   LeftDCLick(), etc.
 // LeftUp(): returns true at the moment the button changed to up.
-/*
+
 void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	// Capture the mouse when left mouse button is down.
@@ -929,10 +929,10 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			// proceed, otherwise call TemplateCanvas::OnMouseEvent(event)
 
 			int label_match = -1;
-			prev = GetActualPos(event);
-			sel1 = prev;
+			pcp_prev = GetActualPos(event);
+			pcp_sel1 = pcp_prev;
 			for (int v=0; v<num_vars; v++) {
-				if (control_labels[v]->pointWithin(sel1)) {
+				if (control_labels[v]->pointWithin(pcp_sel1)) {
 					label_match = v;
 					break;
 				}
@@ -943,7 +943,7 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 				wxPoint cpt = control_circs[v]->center;
 				cpt.x += control_circs[v]->getXNudge();
 				cpt.y += control_circs[v]->getYNudge();
-				if (GenUtils::distance(sel1, cpt) <=
+				if (GenUtils::distance(pcp_sel1, cpt) <=
 					((double) control_circs[v]->radius)+1.5) {
 					circ_match = v;
 					break;
@@ -953,9 +953,11 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			if (label_match != -1) {
 				control_label_sel = label_match;
 				pcp_selectstate = pcp_leftdown_on_label;
+                is_showing_brush = false;
 			} else if (circ_match != -1) {
 				control_line_sel = circ_match;
 				pcp_selectstate = pcp_leftdown_on_circ;
+                is_showing_brush = false;
 			} else {
 				show_pcp_control = false;
 				TemplateCanvas::OnMouseEvent(event);
@@ -967,20 +969,14 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			return;
 		}
 	} else if (pcp_selectstate == pcp_leftdown_on_label) {
-		if (event.LeftUp() || event.RightUp()) {
-			sel2 = GetActualPos(event);
-			VarLabelClicked();
-			show_pcp_control = false;
-			pcp_selectstate = pcp_start;
-			Refresh();
-		}
+
 	} else if (pcp_selectstate == pcp_leftdown_on_circ) {
 		if (event.Moving() || event.Dragging()) {
 			wxPoint act_pos = GetActualPos(event);
-			if (fabs((double) (prev.x - act_pos.x)) +
-				fabs((double) (prev.y - act_pos.y)) > 2) {
-				sel1 = prev;
-				sel2 = GetActualPos(event);
+			if (fabs((double) (pcp_prev.x - act_pos.x)) +
+				fabs((double) (pcp_prev.y - act_pos.y)) > 2) {
+				pcp_sel1 = pcp_prev;
+				pcp_sel2 = GetActualPos(event);
 				pcp_selectstate = pcp_dragging;
 				
 				show_pcp_control = true;
@@ -993,15 +989,16 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	} else if (pcp_selectstate == pcp_dragging) {
 		if (event.Dragging()) { // mouse moved while buttons still down
-			sel2 = GetActualPos(event);
+			pcp_sel2 = GetActualPos(event);
 			
 			show_pcp_control = true;
 			Refresh();
 		} else if (event.LeftUp()) {
-			sel2 = GetActualPos(event);
-			MoveControlLine(sel2.y); // will invalidate layer1 if needed
+			pcp_sel2 = GetActualPos(event);
+			MoveControlLine(pcp_sel2.y); // will invalidate layer1 if needed
 			show_pcp_control = false;
 			pcp_selectstate = pcp_start;
+            ResetBrushing();
 			Refresh();
 		}  else if (event.RightDown()) {
 			show_pcp_control = false;
@@ -1010,7 +1007,7 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 		}			
 	}
 }
- */
+
 
 void PCPCanvas::VarLabelClicked()
 {
@@ -1035,7 +1032,7 @@ void PCPCanvas::PaintControls(wxDC& dc)
 	dc.SetBrush(*wxWHITE_BRUSH);
 	wxPoint cpt = control_circs[control_line_sel]->center;
 	cpt.x += control_circs[control_line_sel]->getXNudge();
-	cpt.y = sel2.y;
+	cpt.y = pcp_sel2.y;
 	int x_end = control_lines[control_line_sel]->points[1].x;
 	
 	dc.DrawLine(cpt.x, cpt.y, x_end, cpt.y);
@@ -1048,17 +1045,26 @@ void PCPCanvas::PaintControls(wxDC& dc)
  */
 void PCPCanvas::MoveControlLine(int final_y)
 {
+	LOG_MSG("Entering PCPCanvas::MoveControlLine");
+	LOG(control_line_sel);
+	
+	LOG_MSG("original var_order");
+	for (int i=0; i<num_vars; i++) LOG(var_order[i]);
+	
 	std::vector<int> new_order(num_vars);
 	// starting line is control_line_sel
 	// determine which control lines final_y is between
 	if (final_y < control_lines[0]->points[0].y) {
 		if (control_line_sel == 0) return;
+		LOG_MSG("Final control line pos is above control line 0");
 		// move control line into first position
 		new_order[0] = control_line_sel;
 		for (int i=1; i<=control_line_sel; i++) new_order[i] = i-1;
 		for (int i=control_line_sel+1; i<num_vars; i++) new_order[i] = i;
+		//for (int i=0; i<num_vars; i++) LOG(new_order[i]);
 	} else if (final_y > control_lines[num_vars-1]->points[0].y) {
 		if (control_line_sel == num_vars - 1) return;
+		LOG_MSG("Final control line pos is below last control line");
 		// move control line into last position
 		for (int i=0; i<control_line_sel; i++) new_order[i] = i;
 		for (int i=control_line_sel; i<num_vars-1; i++) new_order[i] = i+1;
@@ -1067,6 +1073,8 @@ void PCPCanvas::MoveControlLine(int final_y)
 		for (int v=1; v<num_vars; v++) {
 			if (final_y < control_lines[v]->points[0].y) {
 				if (control_line_sel == v || control_line_sel == v-1) return;
+				LOG_MSG(wxString::Format("Final control line pos is just "
+										 "above control line %d", v));
 				
 				if (control_line_sel > v) {
 					for (int i=0; i<v; i++) new_order[i] = i;
@@ -1088,10 +1096,14 @@ void PCPCanvas::MoveControlLine(int final_y)
 	std::vector<int> old_var_order(num_vars);
 	for (int i=0; i<num_vars; i++) old_var_order[i] = var_order[i];
 	
+	LOG_MSG("control lines reorder: ");
+	for (int i=0; i<num_vars; i++) LOG(new_order[i]);
 	
 	for (int i=0; i<num_vars; i++) {
 		var_order[i] = old_var_order[new_order[i]];
 	}
+	LOG_MSG("final var_order:");
+	for (int i=0; i<num_vars; i++) LOG(var_order[i]);
 	
 	invalidateBms();
 	PopulateCanvas();
