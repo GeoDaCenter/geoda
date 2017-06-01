@@ -1549,7 +1549,10 @@ bool Project::InitFromOgrLayer()
     }
     
 	isTableOnly = layer_proxy->IsTableOnly();
-	if (!isTableOnly) {
+    
+    if (ds_type == GdaConst::ds_dbf) isTableOnly = true;
+    
+    if (!isTableOnly) {
 		layer_proxy->ReadGeometries(main_data);
     } else {
         // prompt user to select X/Y columns to create a geometry layer
