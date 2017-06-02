@@ -145,7 +145,7 @@ wxString AutoUpdate::CheckUpdate()
     }
     wxString version = tokenizer.GetNextToken();
     
-    wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+(\\.[0-9]+)?$";
+    wxString version_regex = "^[0-9]\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$";
     wxRegEx regex;
     regex.Compile(version_regex);
     if (!regex.Matches(version)) {
