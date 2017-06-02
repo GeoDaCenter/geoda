@@ -210,8 +210,6 @@ void HClusterDlg::CreateControls()
     container->Add(vbox);
     container->Add(vbox1,1, wxEXPAND | wxALL);
     
-    //vbox1->Fit(m_panel);
-    //container->Fit(panel);
     
     panel->SetSizerAndFit(container);
     
