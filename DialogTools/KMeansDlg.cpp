@@ -52,7 +52,8 @@ END_EVENT_TABLE()
 
 KMeansDlg::KMeansDlg(wxFrame* parent_s, Project* project_s)
 : frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxSize(360, 750), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxDefaultSize,
+         wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open KMeanDlg.");
     
@@ -227,8 +228,8 @@ void KMeansDlg::CreateControls()
     // Container
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -236,7 +237,15 @@ void KMeansDlg::CreateControls()
     
     panel->SetSizer(container);
     
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+
+    
     Centre();
+
     
     // Content
     InitVariableCombobox(box);

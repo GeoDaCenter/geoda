@@ -52,7 +52,7 @@ END_EVENT_TABLE()
 
 HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
 : frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxSize(860, 640), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open HClusterDlg.");
     
@@ -199,18 +199,28 @@ void HClusterDlg::CreateControls()
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_panel = new DendrogramPanel(panel, wxID_ANY, wxDefaultPosition, wxSize(320,830));
+    m_panel = new DendrogramPanel(panel, wxID_ANY, wxDefaultPosition, wxSize(500,630));
     //m_panel->SetBackgroundColour(*wxWHITE);
     vbox1->Add(m_panel, 1, wxEXPAND|wxALL,20);
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
     container->Add(vbox1,1, wxEXPAND | wxALL);
     
-    panel->SetSizer(container);
+    //vbox1->Fit(m_panel);
+    //container->Fit(panel);
+    
+    panel->SetSizerAndFit(container);
+    
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
     
     Centre();
     
