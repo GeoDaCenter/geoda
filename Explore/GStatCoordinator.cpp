@@ -142,6 +142,10 @@ data(var_info_s.size()),
 data_undef(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false)
 {
+    reuse_last_seed = GdaConst::use_gda_user_seed;
+    if ( GdaConst::use_gda_user_seed) {
+        last_seed_used = GdaConst::gda_user_seed;
+    }
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);

@@ -272,7 +272,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(cbox9, 0, wxALIGN_RIGHT);
 	cbox9->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowCsvInMerge, this);
 
-	wxString lbl10 = _("Enable High DPI/Retina support:");
+	wxString lbl10 = _("Enable High DPI/Retina support (Mac only):");
 	wxStaticText* lbl_txt10 = new wxStaticText(vis_page, wxID_ANY, lbl10);
 	cbox10 = new wxCheckBox(vis_page, XRCID("PREF_ENABLE_HDPI"), "", wxDefaultPosition);
 	grid_sizer1->Add(lbl_txt10, 1, wxEXPAND);
@@ -581,6 +581,27 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gdal_http_timeout = sel_l;
 		}
 	}
+    
+    // following are not in this UI, but still global variable
+    vector<string> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
+    if (!gda_user_seed.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_user_seed[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_user_seed = sel_l;
+        }
+    }
+    vector<string> use_gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("use_gda_user_seed");
+    if (!use_gda_user_seed.empty()) {
+        long sel_l = 0;
+        wxString sel = use_gda_user_seed[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::use_gda_user_seed = true;
+            else if (sel_l == 0)
+                GdaConst::use_gda_user_seed = false;
+        }
+    }
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)
@@ -1023,16 +1044,17 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	body.Replace("\n", "\\n");
 	// get log file to body
 	wxString logger_path;
-	logger_path << GenUtils::GetBasemapCacheDir() << "web_plugins" << wxFileName::GetPathSeparator() << "logger.txt";
-	wxTextFile tfile;
-	tfile.Open(logger_path);
-
+	logger_path << GenUtils::GetSamplesDir() << "logger.txt";
+    
 	body << "\\n";
-
-	while (!tfile.Eof())
-	{
-		body << tfile.GetNextLine() << "\\n";
-	}
+    
+	wxTextFile tfile;
+    if (tfile.Open(logger_path)) {
+    	while (!tfile.Eof())
+    	{
+    		body << tfile.GetNextLine() << "\\n";
+    	}
+    }
 
 	body.Replace("\"", "'");
 	body.Replace("\t", "");

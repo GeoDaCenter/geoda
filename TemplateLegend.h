@@ -23,9 +23,57 @@
 #include <wx/menu.h>
 #include <wx/scrolwin.h>
 #include <wx/dc.h>
+#include <wx/colour.h>
+#include <wx/gdicmn.h>
+
+#include <vector>
+#include <map>
 
 class TemplateCanvas;
 class TemplateFrame;
+
+class GdaLegendLabel
+{
+public:
+    GdaLegendLabel(int idx, wxString text, wxPoint pos, wxSize sz);
+    
+    virtual ~GdaLegendLabel();
+    
+    void move(const wxPoint& new_pos);
+    
+    void reset();
+    
+    bool intersect( GdaLegendLabel& another_lbl);
+    
+    bool contains(const wxPoint& cur_pos);
+    
+    void draw(wxDC& dc, int cur_idx);
+    
+    void drawMove(wxDC& dc);
+    
+    const wxRect& getBBox();
+    
+    int getWidth();
+    
+    int idx;
+    
+protected:
+    
+    
+    bool isMoving;
+    
+    wxPoint position;
+    
+    wxPoint tmp_position;
+    
+    wxString text;
+    
+    wxSize size;
+    
+    wxRect bbox;
+    
+    int d_rect;
+};
 
 class TemplateLegend: public wxScrolledWindow
 {
@@ -34,6 +82,8 @@ public:
 				   const wxPoint& pos, const wxSize& size);
 	virtual ~TemplateLegend();
 
+    void Recreate();
+    int GetDrawingWidth();
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
@@ -42,17 +92,30 @@ public:
 	wxColour legend_background_color;
 	TemplateCanvas* template_canvas;
 	
+    bool isDragDropAllowed;
+    
+    wxSize maxSize;
+    
 protected:
 	void SelectAllInCategory(int category, bool add_to_selection = false);
-	int GetCategoryClick(wxMouseEvent& event);
+	int  GetCategoryClick(wxMouseEvent& event);
 	void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
 	
+    int title_width;
 	int px, py, m_w, m_l; 
 	int d_rect; 
 	bool all_init;
 	int opt_menu_cat; // last category added to Legend menu
 	
 	static const int ID_CATEGORY_COLOR;
+    
+    bool recreate_labels;
+    std::vector<int> new_order;
+    std::vector<GdaLegendLabel*> labels;
+    GdaLegendLabel* select_label;
+    bool isLeftDown;
+    bool isLeftMove;
+    
 	
 	DECLARE_ABSTRACT_CLASS(TemplateLegend)
 	DECLARE_EVENT_TABLE()

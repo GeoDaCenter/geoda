@@ -154,12 +154,12 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		num_obs = num1;
 	} else {
 		num_obs = num2;
-		if (key_field.IsEmpty()) {
+		if (key_field.IsEmpty() || key_field == "ogc_fid") {
 			use_rec_order = true;
 		}
 	}
 	
-	if (num_obs != table_int->GetNumberRows()) {
+	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
 		wxString msg = "The number of observations specified in chosen ";
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
@@ -222,10 +222,15 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 			dlg.ShowModal();
 			return 0;
 		}
-		for (int i=0; i<num_obs; i++)
-            id_map[ wxString::Format("%i", i+min_val) ] = i;
-	} else {
+        for (int i=0; i<num_obs; i++) {
+            wxString iid;
+            iid << i+min_val;
+            id_map[ iid ] = i;
+        }
+        
+	} else if ( table_int != NULL) {
 		int col=0, tm=0;
+        
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
 			wxString msg = "Specified key value field \"";
@@ -416,12 +421,12 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		num_obs = num1;
 	} else {
 		num_obs = num2;
-		if (key_field.IsEmpty()) {
+		if (key_field.IsEmpty() || key_field == "ogc_fid") {
 			use_rec_order = true;
 		}
 	}
 	
-	if (num_obs != table_int->GetNumberRows()) {
+	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
 		wxString msg = "The number of observations specified in chosen ";
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
@@ -470,9 +475,13 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			dlg.ShowModal();
 			return 0;
 		}
-		for (int i=0; i<num_obs; i++)
-            id_map[ wxString::Format("%i", i+min_val) ] = i;
-	} else {
+		for (int i=0; i<num_obs; i++) {
+                    wxString iid;
+                    iid << i+min_val;
+                    id_map[ iid ] = i;
+                }
+        
+	} else if (table_int != NULL) {
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {

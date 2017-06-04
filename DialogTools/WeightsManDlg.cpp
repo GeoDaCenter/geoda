@@ -56,7 +56,7 @@ w_man_int(project->GetWManInt()), w_man_state(project->GetWManState()),
 table_int(project->GetTableInt()), suspend_w_man_state_updates(false),
 create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 {
-	LOG_MSG("Entering WeightsManFrame::WeightsManFrame");
+	wxLogMessage("Entering WeightsManFrame::WeightsManFrame");
 	
 	panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
@@ -156,7 +156,7 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 
 	w_man_state->registerObserver(this);
 	Show(true);
-	LOG_MSG("Exiting WeightsManFrame::WeightsManFrame");
+	wxLogMessage("Exiting WeightsManFrame::WeightsManFrame");
 }
 
 WeightsManFrame::~WeightsManFrame()
@@ -168,6 +168,7 @@ WeightsManFrame::~WeightsManFrame()
 
 void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
 {
+    wxLogMessage("WeightsManFrame::OnHistogramBtn()");
     boost::uuids::uuid id = GetHighlightId();
     if (id.is_nil()) return;
     ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
@@ -175,6 +176,7 @@ void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
 
 void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
 {
+    wxLogMessage("WeightsManFrame::OnConnectMapBtn()");
     boost::uuids::uuid id = GetHighlightId();
     if (id.is_nil()) return;
     ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
@@ -182,7 +184,7 @@ void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
 
 void WeightsManFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnActivate");
+	wxLogMessage("In WeightsManFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("WeightsManFrame", GetTitle());
 	}
@@ -191,7 +193,7 @@ void WeightsManFrame::OnActivate(wxActivateEvent& event)
 
 void WeightsManFrame::OnWListItemSelect(wxListEvent& ev)
 {
-	LOG_MSG("In WeightsManFrame::OnWListItemSelect");
+	wxLogMessage("In WeightsManFrame::OnWListItemSelect");
 	long item = ev.GetIndex();
 	SelectId(ids[item]);
 	UpdateButtons();
@@ -210,12 +212,13 @@ void WeightsManFrame::OnWListItemDeselect(wxListEvent& ev)
 
 void WeightsManFrame::OnCreateBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In WeightsManFrame::OnCreateBtn");
+	wxLogMessage("In WeightsManFrame::OnCreateBtn");
 	GdaFrame::GetGdaFrame()->OnToolsWeightsCreate(ev);
 }
 
 void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 {
+	wxLogMessage("In WeightsManFrame::OnLoadBtn");
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
 	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
@@ -302,7 +305,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 
 void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("Entering WeightsManFrame::OnRemoveBtn");
+	wxLogMessage("Entering WeightsManFrame::OnRemoveBtn");
 	boost::uuids::uuid id = GetHighlightId();
 	if (id.is_nil()) return;
 	int nb = w_man_state->NumBlockingRemoveId(id);
@@ -341,7 +344,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 /** Implementation of WeightsManStateObserver interface */
 void WeightsManFrame::update(WeightsManState* o)
 {
-	LOG_MSG("In WeightsManFrame::update(WeightsManState* o)");
+	wxLogMessage("In WeightsManFrame::update(WeightsManState* o)");
 	if (suspend_w_man_state_updates) {
 		return;
 	}
@@ -383,7 +386,7 @@ void WeightsManFrame::update(WeightsManState* o)
 
 void WeightsManFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnShowAxes");
+	wxLogMessage("In WeightsManFrame::OnShowAxes");
 	if (conn_hist_canvas) {
 		conn_hist_canvas->ShowAxes(!conn_hist_canvas->IsShowAxes());
 		UpdateOptionMenuItems();
@@ -392,7 +395,7 @@ void WeightsManFrame::OnShowAxes(wxCommandEvent& event)
 
 void WeightsManFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnDisplayStatistics");
+	wxLogMessage("In WeightsManFrame::OnDisplayStatistics");
 	if (conn_hist_canvas) {
 		conn_hist_canvas->DisplayStatistics(
 				!conn_hist_canvas->IsDisplayStats());
@@ -402,7 +405,7 @@ void WeightsManFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void WeightsManFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnDisplayStatistics");
+	wxLogMessage("In WeightsManFrame::OnDisplayStatistics");
 	if (conn_hist_canvas) {
 		conn_hist_canvas->HistogramIntervals();
 	}
@@ -410,7 +413,7 @@ void WeightsManFrame::OnHistogramIntervals(wxCommandEvent& event)
 
 void WeightsManFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnSaveConnectivityToTable");
+	wxLogMessage("In WeightsManFrame::OnSaveConnectivityToTable");
 	if (conn_hist_canvas) {
 		conn_hist_canvas->SaveConnectivityToTable();
 	}
@@ -418,7 +421,7 @@ void WeightsManFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 
 void WeightsManFrame::OnSelectIsolates(wxCommandEvent& event)
 {
-	LOG_MSG("In WeightsManFrame::OnSelectIsolates");
+	wxLogMessage("In WeightsManFrame::OnSelectIsolates");
 	if (conn_hist_canvas) {
 		conn_hist_canvas->SelectIsolates();
 	}
@@ -446,7 +449,7 @@ void WeightsManFrame::InitWeightsList()
 
 void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 {
-	LOG_MSG("In WeightsManFrame::SetDetailsForItem");
+	wxLogMessage("In WeightsManFrame::SetDetailsForItem");
 	if (id.is_nil()) {
 		SetDetailsWin(std::vector<wxString>(0), std::vector<wxString>(0));
 		return;
@@ -636,5 +639,8 @@ void WeightsManFrame::UpdateButtons()
 	if (remove_btn) remove_btn->Enable(any_sel);
 	if (histogram_btn) histogram_btn->Enable(any_sel);
 	if (connectivity_map_btn) connectivity_map_btn->Enable(any_sel);
+    if (project_p->isTableOnly) {
+        connectivity_map_btn->Disable();
+    }
 }
 

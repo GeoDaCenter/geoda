@@ -250,6 +250,7 @@ int OGRLayerProxy::AddField(const wxString& field_name,
 
 void OGRLayerProxy::DeleteField(int pos)
 {
+    /*
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
@@ -264,7 +265,9 @@ void OGRLayerProxy::DeleteField(int pos)
 	}	
 	n_cols--;
 	// remove this field from OGRFieldProxy
-	this->fields.erase( fields.begin() + pos );
+	this->fields.erase( fields.begin() + pos ); 
+    */
+	this->fields.erase( fields.begin() + pos ); 
 }
 
 void OGRLayerProxy::DeleteField(const wxString& field_name)
@@ -872,7 +875,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
             }
 			p_main.records[feature_counter++].contents_p = pc;
 			
-		} else if (eType == wkbPolygon ) {
+		} else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
 			Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
 			pc->shape_type = Shapefile::POLYGON;
             if (geometry) {

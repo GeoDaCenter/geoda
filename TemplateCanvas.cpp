@@ -169,9 +169,11 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
 {
 	deleteLayerBms();
 
-
     int vs_w, vs_h;
     GetClientSize(&vs_w, &vs_h);
+    
+    if (vs_w <= 0) vs_w = 1;
+    if (vs_h <=0 ) vs_h = 1;
     
     if (enable_high_dpi_support) {
         double scale_factor = GetContentScaleFactor();
@@ -183,9 +185,9 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
         layer1_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
         layer2_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
     } else {
-    	layer0_bm = new wxBitmap(width, height, 32);
-    	layer1_bm = new wxBitmap(width, height, 32);
-    	layer2_bm = new wxBitmap(width, height, 32);
+    	layer0_bm = new wxBitmap(vs_w, vs_h, 32);
+    	layer1_bm = new wxBitmap(vs_w, vs_h, 32);
+    	layer2_bm = new wxBitmap(vs_w, vs_h, 32);
     }
 
 	layer0_valid = false;
@@ -582,24 +584,26 @@ void TemplateCanvas::UpdateSelectableOutlineColors()
  that its state has changed. */
 void TemplateCanvas::update(HLStateInt* o)
 {
-    ResetBrushing();
+	if (layer2_bm) {
+        ResetBrushing();
     
-	if (draw_sel_shps_by_z_val) {
-		// force a full redraw
-		layer0_valid = false;
-		return;
-	}
+        if (draw_sel_shps_by_z_val) {
+            // force a full redraw
+            layer0_valid = false;
+            return;
+        }
 
-    HLStateInt::EventType type = o->GetEventType();
-    if (type == HLStateInt::transparency) {
-        ResetFadedLayer();
-    }
-    // re-paint highlight layer (layer1_bm)
-	layer1_valid = false;
-    DrawLayers();
-    Refresh();
+        HLStateInt::EventType type = o->GetEventType();
+        if (type == HLStateInt::transparency) {
+            ResetFadedLayer();
+        }
+        // re-paint highlight layer (layer1_bm)
+        layer1_valid = false;
+        DrawLayers();
+        Refresh();
     
-    UpdateStatusBar();
+        UpdateStatusBar();
+	}
 }
 
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
@@ -641,13 +645,16 @@ void TemplateCanvas::DrawLayers()
         DrawLayer0();
     }
 
-    if (!layer1_valid)
+    if (!layer1_valid) {
         DrawLayer1();
+    }
     
     if (!layer2_valid) {
         DrawLayer2();
     }
    
+    //wxWakeUpIdle();
+    
     Refresh();
 }
 
@@ -743,6 +750,10 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
         
         wxPaintDC paint_dc(this);
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        
+        // Draw optional control objects if needed
+        PaintControls(paint_dc);
+        
         helper_PaintSelectionOutline(paint_dc);
         
         //wxBufferedPaintDC paint_dc(this, *layer2_bm);
@@ -1273,8 +1284,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					selectstate = dragging;
 					remember_shiftdown = event.ShiftDown();
 					UpdateSelection(remember_shiftdown);
-					UpdateStatusBar();
-					Refresh(false);
+					//UpdateStatusBar();
+					//Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				wxPoint act_pos = GetActualPos(event);
@@ -1294,8 +1305,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				sel2 = GetActualPos(event);
 
 				UpdateSelection(remember_shiftdown);
-				UpdateStatusBar();
-				Refresh(false);
+				//UpdateStatusBar();
+				//Refresh(false);
                 
 			} else if (event.LeftUp()) {
 				sel2 = GetActualPos(event);
@@ -1303,7 +1314,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-                Refresh(false);
+                //Refresh(false);
                 
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
@@ -1324,10 +1335,10 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				wxPoint diff = cur - prev;
 				sel1 += diff;
 				sel2 += diff;
-				UpdateStatusBar();
+				//UpdateStatusBar();
 
 				UpdateSelection();
-				Refresh(false); // keep painting the select rect
+				//Refresh(false); // keep painting the select rect
                 prev = cur;
 			}
 		}
@@ -1595,7 +1606,6 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     // re-paint highlight layer (layer1_bm)
     layer1_valid = false;
     DrawLayers();
-    Refresh();
     
     UpdateStatusBar();
 }

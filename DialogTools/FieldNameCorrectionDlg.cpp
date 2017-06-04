@@ -384,7 +384,7 @@ wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 		return old_name;
 	}
 	wxString illegal_regex = GdaConst::datasrc_field_illegal_regex[ds_type];
-	if (illegal_regex.empty()) return wxEmptyString;
+	if (illegal_regex.empty()) return old_name;
 	
 	wxString new_name = old_name;
 	wxRegEx regex;
@@ -440,7 +440,8 @@ bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 	}
 	
 	int field_len = GdaConst::datasrc_field_lens[ds_type];
-	if ( field_len < col_name.length() ) return false;
+	if ( field_len == 0 || field_len < col_name.length() )
+        return false;
 	
 	if (GdaConst::datasrc_field_regex.find(ds_type) ==
 			GdaConst::datasrc_field_regex.end() )

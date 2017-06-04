@@ -82,8 +82,7 @@ public:
 	 circle. */
 	enum ScrollBarMode { none, horiz_only, vert_only, horiz_and_vert };
 	
-	enum SelectableShpType { mixed, circles, points, rectangles, polygons,
-		polylines };
+	enum SelectableShpType { mixed, circles, points, rectangles, polygons, polylines };
 
 	/** Colors */
 	bool selectable_outline_visible;
@@ -255,6 +254,14 @@ public:
     
 	virtual void PopulateCanvas() = 0;
     
+    int GetMarginLeft() { return last_scale_trans.slack_x;}
+    int GetMarginTop() { return last_scale_trans.slack_y;}
+    
+    wxSize GetDrawingSize() {
+        wxSize sz(last_scale_trans.screen_width -  last_scale_trans.slack_x * 2,
+                  last_scale_trans.screen_height -  last_scale_trans.slack_y * 2);
+        return sz;
+    }
     
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
@@ -281,7 +288,7 @@ public:
                     std::vector<wxString>& clrs,
                     std::vector<double>& bins);
 	
-    int           axis_display_precision;
+    int  axis_display_precision;
     
 protected:
     

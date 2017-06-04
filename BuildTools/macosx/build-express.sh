@@ -39,10 +39,10 @@ echo $PREFIX
 
 MAKER="make -j $CPUS"
 GDA_CC="gcc"
-GDA_CFLAGS="-Os -arch x86_64"
+GDA_CFLAGS="-Os -arch x86_64 -arch i386"
 GDA_CXX="g++"
-GDA_CXXFLAGS="-Os -arch x86_64"
-GDA_LDFLAGS="-arch x86_64"
+GDA_CXXFLAGS="-Os -arch x86_64 -arch i386"
+GDA_LDFLAGS="-arch x86_64 -arch i386"
 GDA_WITH_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/"
 
 if ! [ -d $DOWNLOAD_HOME ]; then
@@ -57,7 +57,7 @@ fi
 # copy library/*
 #########################################################################
 if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libraries.zip
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libraries.zip
     curl -O $LIB_URL
     unzip libraries.zip
     rm libraries.zip
@@ -121,12 +121,45 @@ if ! [ -f "$PREFIX/lib/libjson_spirit.a" ] ; then
     cd ../..
 fi
 
+#########################################################################
+# install cURL
+#########################################################################
+LIB_NAME=curl-7.46.0
+LIB_CHECKER=libcurl.a
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
+LIB_FILENAME=curl-7.46.0.zip
+echo $LIB_NAME
+
+cd $DOWNLOAD_HOME
+
+if ! [ -d "$LIB_NAME" ] ; then
+    curl -O $LIB_URL
+    unzip $LIB_FILENAME
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+export PATH=$PREFIX/bin:$PATH
+
 
 #########################################################################
 # install wxWidgets library
 #########################################################################
 LIB_NAME=wxWidgets-3.1.0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
 LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME
@@ -160,7 +193,7 @@ fi
 # install boost library
 #########################################################################
 LIB_NAME=boost_1_57_0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
 LIB_FILENAME=$LIB_NAME.tar.gz
 LIB_CHECKER=libboost_thread.a
 echo $LIB_FILENAME
@@ -200,7 +233,7 @@ fi
 # install CLAPACK
 #########################################################################
 LIB_NAME="CLAPACK-3.2.1"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz"
 LIB_CHECKER="lapack.a"
 LIB_FILENAME=clapack.tgz
 echo $LIB_FILENAME

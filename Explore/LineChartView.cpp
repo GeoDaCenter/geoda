@@ -620,7 +620,7 @@ void LineChartFrame::OnGroup1Choice(wxCommandEvent& event)
                 if (time2_selection == time1_selection) {
                     if (time1_selection -1 >=0)
                         choice_time1->SetSelection(time1_selection-1);
-                    else if (time1_selection + 1 < choice_time1->GetCount()) {
+                    else if (time1_selection + 1 < (int)choice_time1->GetCount()) {
                         choice_time2->SetSelection(time1_selection+1);
                     } else {
                         choice_time1->SetSelection(-1);
@@ -660,7 +660,7 @@ void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
                 if (time2_selection == time1_selection) {
                     if (time2_selection -1 >=0)
                         choice_time1->SetSelection(time2_selection-1);
-                    else if (time2_selection + 1 < choice_time2->GetCount()) {
+                    else if (time2_selection + 1 < (int)choice_time2->GetCount()) {
                         choice_time2->SetSelection(time2_selection+1);
                     } else {
                         choice_time2->SetSelection(-1);

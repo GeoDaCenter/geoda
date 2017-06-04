@@ -117,7 +117,7 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 
 LIB_NAME=curl-7.46.0
 LIB_CHECKER=libcurl.a
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
 LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
 
@@ -153,7 +153,7 @@ echo "% Building: Xerces %"
 echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="xerces-c-3.1.1"
-    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
+    LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/xerces-c-3.1.1.tar.gz"
     LIB_CHECKER="libxerces-c.a"
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     echo $LIB_FILENAME
@@ -182,34 +182,34 @@ echo "%%%%%%%%%%%%%%%%%%%%"
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2  libgeos.a
+install_library geos-3.3.8 https://s3.us-east-2.amazonaws.com/geodabuild/geos-3.3.8.tar.bz2  libgeos.a
 
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
+install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
 
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://s3.us-east-2.amazonaws.com/geodabuild/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
 # libreadline, zlib
 echo "install libreadline, zlib"
-install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://s3.us-east-2.amazonaws.com/geodabuild/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install libkml requires 1.3
@@ -223,7 +223,7 @@ echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="libkml"
     LIB_CHECKER="libkmlbase.a"
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libkml-r680.tar.gz
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libkml-r680.tar.gz
     LIB_FILENAME=libkml-r680.tar.gz
     echo $LIB_NAME
 
@@ -290,7 +290,7 @@ echo "% Building: Spatialite %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libspatialite-4.0.0.tar.gz
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=libspatialite.a
     echo $LIB_FILENAME
@@ -324,7 +324,7 @@ echo "% Building: MySQL %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=mysql-5.6.14
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14.tar.gz
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/mysql-5.6.14.tar.gz
     LIB_CHECKER=libmysqlclient.a
 
     echo $LIB_NAME
@@ -362,7 +362,7 @@ echo "% Building: Boost 1.57 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=boost_1_57_0
-    LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
     LIB_FILENAME=boost_1_57_0.tar.gz
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
@@ -409,7 +409,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Building: JSON Spirit %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 LIB_NAME="json_spirit_v4.08"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
@@ -417,7 +417,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip
+    curl -O https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip
     unzip $LIB_FILENAME
 fi
 
@@ -457,7 +457,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$CLAPACK_NAME" ]; then
-        curl -O https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz
+        curl -O https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz
         tar -xvf clapack.tgz
     fi
 
@@ -570,7 +570,7 @@ echo "% Building wxWidgets 3.0.2 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=wxWidgets-3.0.2
-    LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2"
+    LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.0.2.tar.bz2"
 
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=wx-config

@@ -2093,7 +2093,7 @@ void ScatterNewPlotFrame::update(TimeState* o)
 {
 	template_canvas->TimeChange();
 	UpdateTitle();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 }
 
 void ScatterNewPlotFrame::OnViewStandardizedData(wxCommandEvent& event)
@@ -2261,7 +2261,7 @@ void ScatterNewPlotFrame::ChangeThemeType(
 		ChangeThemeType(new_theme, num_categories, custom_classif_title);
 	UpdateTitle();
 	UpdateOptionMenuItems();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 }
 
 void ScatterNewPlotFrame::AdjustBubbleSize(wxCommandEvent& evt)

@@ -465,15 +465,15 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
 	
-	double sel_c = 1;
-	if (sel_checked) {
-		wxString sel_c_str = m_sel_val_text->GetValue();
+	double sel_c = 0;
+    wxString sel_c_str = m_sel_val_text->GetValue();
+	if (sel_checked && !sel_c_str.IsEmpty()) {
 		sel_c_str.Trim(false); sel_c_str.Trim(true);
 		sel_c_str.ToDouble(&sel_c);
 	}
 	double unsel_c = 0;
-	if (unsel_checked) {
-		wxString unsel_c_str = m_unsel_val_text->GetValue();
+    wxString unsel_c_str = m_unsel_val_text->GetValue();
+	if (unsel_checked && !unsel_c_str.IsEmpty()) {
 		unsel_c_str.Trim(false); unsel_c_str.Trim(true);
 		unsel_c_str.ToDouble(&unsel_c);
 	}
@@ -492,18 +492,20 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->GetColData(write_col, sf_tm, t);
 		table_int->GetColUndefined(write_col, sf_tm, undefined);
 		if (sel_checked) {
+            bool flag = sel_c_str.IsEmpty();
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
 					t[i] = sel_c_i;
-					undefined[i] = false;
+					undefined[i] = flag;
 				}
 			}
 		}
 		if (unsel_checked) {
+            bool flag = unsel_c_str.IsEmpty();
 			for (int i=0; i<obs; i++) {
 				if (!h[i]) {
 					t[i] = unsel_c_i;
-					undefined[i] = false;
+					undefined[i] = flag;
 				}
 			}
 		}
@@ -514,18 +516,20 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->GetColData(write_col, sf_tm, t);
 		table_int->GetColUndefined(write_col, sf_tm, undefined);
 		if (sel_checked) {
+            bool flag = sel_c_str.IsEmpty();
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
 					t[i] = sel_c;
-					undefined[i] = false;
+					undefined[i] = flag;
 				}
 			}
 		}
 		if (unsel_checked) {
+            bool flag = unsel_c_str.IsEmpty();
 			for (int i=0; i<obs; i++) {
 				if (!h[i]) {
 					t[i] = unsel_c;
-					undefined[i] = false;
+					undefined[i] = flag;
 				}
 			}
 		}
@@ -546,6 +550,7 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 
 void RangeSelectionDlg::OnCloseClick( wxCommandEvent& event )
 {
+    wxLogMessage("In RangeSelectionDlg::OnCloseClick()");
 	event.Skip();
 	EndDialog(wxID_CLOSE);
 }
@@ -732,14 +737,14 @@ void RangeSelectionDlg::CheckApplySaveSettings()
 	// If not valid, set text color to red.
 	double val;
 	wxString sel_text = m_sel_val_text->GetValue();
-	bool sel_valid = sel_text.ToDouble(&val);
+	bool sel_valid = sel_text.ToDouble(&val) || sel_text.IsEmpty();
 	{
 		wxTextAttr style(m_sel_val_text->GetDefaultStyle());
 		style.SetTextColour(*(sel_valid ? wxBLACK : wxRED));
 		m_sel_val_text->SetStyle(0, sel_text.length(), style);
 	}
 	wxString unsel_text = m_unsel_val_text->GetValue();
-	bool unsel_valid = unsel_text.ToDouble(&val);
+	bool unsel_valid = unsel_text.ToDouble(&val) || unsel_text.IsEmpty();
 	{
 		wxTextAttr style(m_unsel_val_text->GetDefaultStyle());
 		style.SetTextColour(*(unsel_valid ? wxBLACK : wxRED));
