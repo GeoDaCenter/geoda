@@ -27,6 +27,7 @@
 #ifndef __GEODA_CENTER_GDA_CONST_H__
 #define __GEODA_CENTER_GDA_CONST_H__
 
+#include <stdint.h> 
 #include <map>
 #include <set>
 #include <string>
@@ -295,6 +296,8 @@ public:
 	static const wxColour legend_background_color; // white
 	
 	// Preferences
+    static uint64_t gda_user_seed;
+    static bool use_gda_user_seed;
     static int gdal_http_timeout;
     static bool enable_high_dpi_support;
     static bool show_csv_configure_in_merge;

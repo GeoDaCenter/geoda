@@ -186,7 +186,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         GetVirtualSize(&vs_w, &vs_h);
     }
 	
-	double image_width, image_height;
+	//double image_width, image_height;
 	
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
 	// which are made in ScaterNewPlotView

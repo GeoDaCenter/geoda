@@ -74,8 +74,9 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     {
         wxFileName fn = wxFileName::FileName(filenames[0]);
         m_pOwner->ds_file_path = fn;
-        wxCommandEvent ev;
-        m_pOwner->OnOkClick(ev);
+        //wxCommandEvent ev;
+        //m_pOwner->OnOkClick(ev);
+        m_pOwner->TriggerOKClick();
     }
     
     return true;
@@ -416,7 +417,6 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
        
         InitSamplePanel();
     } else {
-        recent_nb->Hide();
     }
     
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
@@ -484,7 +484,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
    
 #ifdef __WIN32__
     int pad_remove_btn = 10;
-	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(30,18), wxBORDER_NONE|wxBU_EXACTFIT);
+	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
 	remove->SetFont(*GdaConst::extra_small_font); 
 #else
     int pad_remove_btn = 0;
@@ -603,8 +603,16 @@ void ConnectDatasourceDlg::InitRecentPanel()
 
 void ConnectDatasourceDlg::CreateControls()
 {
+    if (showRecentPanel) {
+        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
+    	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
+        recent_nb->SetSelection(1);
+        recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
+        smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
+    } else {
+        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+    }
     
-    bool test = wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     // init db_table control that is unique in this class
     m_drag_drop_box = XRCCTRL(*this, "IDC_DRAG_DROP_BOX",wxStaticBitmap);
@@ -616,14 +624,10 @@ void ConnectDatasourceDlg::CreateControls()
     m_database_table->Hide(); // don't need this
     
     XRCCTRL(*this, "IDC_STATIC_DB_TABLE", wxStaticText)->Hide();
-	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
-  
-    recent_nb->SetSelection(1);
-    recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
-    smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
-    noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
+    
     m_web_choice =  XRCCTRL(*this, "ID_CDS_WEB_CHOICE", wxChoice);
     
+    noshow_recent = XRCCTRL(*this, "IDC_NOSHOW_RECENT_SAMPLES", wxCheckBox);
     noshow_recent->Bind(wxEVT_CHECKBOX, &ConnectDatasourceDlg::OnNoShowRecent, this);
     if (!showRecentPanel) {
         noshow_recent->Hide();
@@ -639,9 +643,9 @@ void ConnectDatasourceDlg::CreateControls()
 
 void ConnectDatasourceDlg::OnNoShowRecent( wxCommandEvent& event)
 {
-    recent_nb->Hide();
-    noshow_recent->Hide();
-    GetSizer()->Fit(this);
+    //recent_nb->Hide();
+    //noshow_recent->Hide();
+    //GetSizer()->Fit(this);
     
     showRecentPanel = false;
     GdaConst::show_recent_sample_connect_ds_dialog = false;
@@ -702,6 +706,12 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
 }
 
 
+void ConnectDatasourceDlg::TriggerOKClick()
+{
+    wxCommandEvent evt = wxCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK );
+	AddPendingEvent(evt);
+}
+
 /**
  * This function handles the event of user click OK button.
  * When user chooses a data source, validate it first,
@@ -710,7 +720,7 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
  */
 void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 {
-	LOG_MSG("Entering ConnectDatasourceDlg::OnOkClick");
+	wxLogMessage("Entering ConnectDatasourceDlg::OnOkClick");
 	try {
         // Open GeoDa project file direclty
         if (ds_file_path.GetExt().Lower() == "gda") {
@@ -719,10 +729,14 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
                 wxLogMessage(_("Open project file:") + ds_file_path.GetFullPath());
                 try {
+                    Project* project = gda_frame->GetProject();
+                    wxString layer_name;
+                    if (project) layer_name = project->layername;
+                    
                     RecentDatasource recent_ds;
-                    recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), "");
+                    recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), layer_name);
                 } catch( GdaException ex) {
-                    LOG_MSG(ex.what());
+                    wxLogMessage(ex.what());
                 }
                 EndDialog();
             }
@@ -779,7 +793,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (layer_name.IsEmpty())
             layer_name = layername;
       
-        wxLogMessage(_("Open Datasource:") + datasource->GetOGRConnectStr());
+        wxLogMessage(_("Open Datasource:") + datasource->ToString());
         wxLogMessage(_("Open Layer:") + layername);
         
         SaveRecentDataSource(datasource, layer_name);
@@ -798,7 +812,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
-	LOG_MSG("Exiting ConnectDatasourceDlg::OnOkClick");
+	wxLogMessage("Exiting ConnectDatasourceDlg::OnOkClick");
 }
 
 /**
@@ -808,6 +822,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
  */
 IDataSource* ConnectDatasourceDlg::CreateDataSource()
 {
+	wxLogMessage("ConnectDatasourceDlg::CreateDataSource()");
 	if (datasource) {
 		delete datasource;
 		datasource = NULL;
@@ -967,18 +982,19 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
 void ConnectDatasourceDlg::SaveRecentDataSource(IDataSource* ds,
                                                 const wxString& layer_name)
 {
-    LOG_MSG("Entering ConnectDatasourceDlg::SaveRecentDataSource");
+    wxLogMessage("Entering ConnectDatasourceDlg::SaveRecentDataSource");
     try {
         RecentDatasource recent_ds;
         recent_ds.Add(ds, layer_name);
     } catch( GdaException ex) {
         LOG_MSG(ex.what());
     }
-    LOG_MSG("Exiting ConnectDatasourceDlg::SaveRecentDataSource");
+	wxLogMessage("Exiting ConnectDatasourceDlg::SaveRecentDataSource");
 }
 
 void ConnectDatasourceDlg::InitSamplePanel()
 {
+	wxLogMessage("ConnectDatasourceDlg::InitSamplePanel()");
     wxBoxSizer* sizer;
     sizer = new wxBoxSizer( wxVERTICAL );
     
@@ -1081,6 +1097,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
 
 void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
 {
+	wxLogMessage("ConnectDatasourceDlg::OnSample()");
     int xrcid = event.GetId();
     int sample_idx = xrcid - base_xrcid_sample_thumb;
    

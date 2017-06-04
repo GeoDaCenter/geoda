@@ -40,7 +40,8 @@ namespace CatClassification {
 	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, natural_breaks,
 		equal_intervals, lisa_categories, lisa_significance,
-		getis_ord_categories, getis_ord_significance, custom };
+		getis_ord_categories, getis_ord_significance,
+        local_geary_categories, local_geary_significance,custom };
 	
 	/** When CatClassifType != custom, BreakValsType is assumed to
 	  be by_cat_classif_type.  Otherwise, if CatClassifType == custom,
@@ -56,6 +57,7 @@ namespace CatClassification {
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
                              std::vector<wxString>& cat_labels,
+							 const CatClassifType theme,
                              bool useScientifcNotation=false);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
@@ -214,6 +216,8 @@ struct CatClassifData {
 	int GetCurrentCanvasTmStep();
 	void SetCurrentCanvasTmStep(int canvas_tm);
 	int GetCanvasTmSteps();
+    
+    void ExchangeLabels(int from, int to);
 };
 
 #endif

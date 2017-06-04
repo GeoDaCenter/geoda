@@ -97,6 +97,7 @@ string ReadUrlContent(const char* url)
 
 bool DownloadUrl(const char* url, const char* filepath)
 {
+	wxLogMessage("AutoUpdate::DownloadUrl()");
     FILE* fp;
     CURL* curl = curl_easy_init();
     CURLcode res;
@@ -125,6 +126,7 @@ bool DownloadUrl(const char* url, const char* filepath)
 // return Version or empty string
 wxString AutoUpdate::CheckUpdate()
 {
+	wxLogMessage("AutoUpdate::CheckUpdate()");
     bool isTestMode = false;
     std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
     if (!test_mode.empty() && test_mode[0] == "yes") {
@@ -143,7 +145,7 @@ wxString AutoUpdate::CheckUpdate()
     }
     wxString version = tokenizer.GetNextToken();
     
-    wxString version_regex = "^[0-9]\\.[0-9]\\.[0-9]+(\\.[0-9]+)?$";
+    wxString version_regex = "^[0-9]\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$";
     wxRegEx regex;
     regex.Compile(version_regex);
     if (!regex.Matches(version)) {
@@ -199,6 +201,7 @@ wxString AutoUpdate::CheckUpdate()
 
 wxString AutoUpdate::GetVersion(wxString checklist)
 {
+	wxLogMessage("AutoUpdate::GetVersion()");
     wxStringTokenizer tokenizer;
     
     tokenizer.SetString(checklist, "\r\n");
@@ -215,6 +218,7 @@ wxString AutoUpdate::GetVersion(wxString checklist)
 
 wxString AutoUpdate::GetUpdateUrl(wxString checklist)
 {
+	wxLogMessage("AutoUpdate::GetUpdateUrl()");
     wxStringTokenizer tokenizer;
     
     tokenizer.SetString(checklist, "\r\n");
@@ -236,6 +240,7 @@ wxString AutoUpdate::GetUpdateUrl(wxString checklist)
 
 wxString AutoUpdate::GetUpdateMsg(wxString checklist)
 {
+	wxLogMessage("AutoUpdate::GetUpdateMsg()");
     wxStringTokenizer tokenizer;
     
     tokenizer.SetString(checklist, "\r\n");
@@ -260,6 +265,7 @@ wxString AutoUpdate::GetUpdateMsg(wxString checklist)
 
 wxString AutoUpdate::GetCheckList()
 {
+	wxLogMessage("AutoUpdate::GetCheckList()");
     bool isTestMode = false;
     std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
     if (!test_mode.empty() && test_mode[0] == "yes") {
@@ -370,6 +376,7 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
 
 void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
 {
+	wxLogMessage("AutoUpdate::OnOkClick()");
     bool success = false;
     
     try {
@@ -436,7 +443,7 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     
                     // should skip unless some criticle file
                     if (filelen == size &&
-                        file_name.EndsWith("cache.sqlite") )
+                        !file_name.EndsWith("cache.sqlite") )
                     {
                         success = true;
                         
@@ -508,5 +515,6 @@ void AutoUpdateDlg::OnSkipClick( wxCommandEvent& event )
 }
 wxString AutoUpdateDlg::GetVersion()
 {
+	wxLogMessage("AutoUpdate::GetVersion()");
     return version;
 }

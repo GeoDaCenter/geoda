@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <time.h>
 #include <math.h>
 #include <wx/filename.h>
@@ -25,6 +28,7 @@
 #include "../ShapeOperations/RateSmoothing.h"
 #include "../ShapeOperations/Randik.h"
 #include "../ShapeOperations/WeightsManState.h"
+#include "../ShapeOperations/WeightUtils.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -125,6 +129,10 @@ undef_data(var_info_s.size()),
 last_seed_used(0), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
+    reuse_last_seed = GdaConst::use_gda_user_seed;
+    if ( GdaConst::use_gda_user_seed) {
+        last_seed_used = GdaConst::gda_user_seed;
+    }
     
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
@@ -136,6 +144,9 @@ row_standardize(row_standardize_s)
     undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
 	
 	weight_name = w_man_int->GetLongDispName(w_id);
+    
+    weights = w_man_int->GetGal(w_id);
+    
 	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
@@ -143,9 +154,101 @@ row_standardize(row_standardize_s)
 }
 
 
+LisaCoordinator::
+LisaCoordinator(wxString weights_path,
+                int n,
+                std::vector<double> vals_1,
+                std::vector<double> vals_2,
+                int lisa_type_s,
+                int permutations_s,
+                bool calc_significances_s,
+                bool row_standardize_s)
+{
+    num_obs = n;
+    num_time_vals = 1;
+    permutations = permutations_s;
+    calc_significances = calc_significances_s;
+    row_standardize = row_standardize_s;
+    last_seed_used = 0;
+    reuse_last_seed = false;
+    isBivariate = false;
+ 
+    // std::vector<GdaVarTools::VarInfo> var_info;
+    int num_vars = 1;
+    isBivariate = false;
+    
+    if (lisa_type_s == 0) {
+        lisa_type = univariate;
+        
+    } else if (lisa_type_s == 1) {
+        lisa_type = bivariate;
+        isBivariate = true;
+        num_vars = 2;
+        
+    } else if (lisa_type_s == 2) {
+        lisa_type = eb_rate_standardized;
+        num_vars = 2;
+        
+    } else if (lisa_type_s == 3) {
+        lisa_type = differential;
+        num_vars = 2;
+    }
+    
+    undef_tms.resize(num_time_vals);
+    data.resize(num_vars);
+    undef_data.resize(num_vars);
+    var_info.resize(num_vars);
+    
+    // don't handle time variable for now
+    for (int i=0; i<var_info.size(); i++) {
+        data[i].resize(boost::extents[num_time_vals][num_obs]);
+        undef_data[i].resize(boost::extents[num_time_vals][num_obs]);
+        var_info[i].is_moran = true;
+        var_info[i].is_time_variant = false;
+        var_info[i].fixed_scale = true;
+        var_info[i].sync_with_global_time  = false;
+        var_info[i].time_max = 0;
+        var_info[i].time_min = 0;
+    }
+    
+    for (int i=0; i<num_obs; i++) {
+        data[0][0][i] = vals_1[i];
+        undef_data[0][0][i] = false;
+    }
+    if (num_vars == 2) {
+        for (int i=0; i<num_obs; i++) {
+            data[1][0][i] = vals_1[i];
+            undef_data[1][0][i] = false;
+        }
+    }
+    
+    // create weights
+    w_man_state = NULL;
+    w_man_int = NULL;
+    
+    wxString ext = GenUtils::GetFileExt(weights_path).Lower();
+    GalElement* tempGal = 0;
+    if (ext == "gal") {
+        tempGal = WeightUtils::ReadGal(weights_path, NULL);
+    } else {
+        tempGal = WeightUtils::ReadGwtAsGal(weights_path, NULL);
+    }
+    
+    weights = new GalWeight();
+    weights->num_obs = num_obs;
+    weights->wflnm = weights_path;
+    weights->id_field = "ogc_fid";
+    weights->gal = tempGal;
+    
+    SetSignificanceFilter(1);
+    InitFromVarInfo();
+}
+
 LisaCoordinator::~LisaCoordinator()
 {
-	w_man_state->removeObserver(this);
+    if (w_man_state) {
+        w_man_state->removeObserver(this);
+    }
 	DeallocateVectors();
 }
 
@@ -413,7 +516,9 @@ void LisaCoordinator::StandardizeData()
         }
         if (isBivariate) {
             for (int i=0; i<num_obs; i++) {
-                undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                if ( undef_data[1].size() > t ) {
+                    undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                }
             }
         }
     }
@@ -421,7 +526,8 @@ void LisaCoordinator::StandardizeData()
 	for (int t=0; t<data1_vecs.size(); t++) {
 		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
         if (isBivariate) {
-            GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
+            if (data2_vecs.size() > t)
+                GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
         }
 	}
 }
@@ -448,7 +554,8 @@ void LisaCoordinator::CalcLisa()
         for (int i=0; i<undef_data[0][t].size(); i++){
             bool is_undef = undef_data[0][t][i];
             if (isBivariate) {
-                is_undef = is_undef || undef_data[1][t][i];
+                if (undef_data[1].size() > t)
+                    is_undef = is_undef || undef_data[1][t][i];
             }
             if (is_undef && !has_undef) {
                 has_undef = true;
@@ -460,14 +567,14 @@ void LisaCoordinator::CalcLisa()
         // local weights copy
         GalWeight* gw = NULL;
         if ( has_undef ) {
-            gw = new GalWeight(*w_man_int->GetGal(w_id));
+            gw = new GalWeight(*weights);
             gw->Update(undefs);
         } else {
-            gw = w_man_int->GetGal(w_id);
+            gw = weights;
         }
         GalElement* W = gw->gal;
         Gal_vecs.push_back(gw);
-        Gal_vecs_orig.push_back(w_man_int->GetGal(w_id));
+        Gal_vecs_orig.push_back(weights);
 	
 		for (int i=0; i<num_obs; i++) {
             
@@ -538,6 +645,8 @@ void LisaCoordinator::CalcPseudoP()
                               0, num_obs-1, last_seed_used);
 		} else {
 			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
+			//CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
+                        //      0, num_obs-1, last_seed_used);
 		}
 	}
     
@@ -555,17 +664,18 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
                                            const std::vector<bool>& undefs)
 {
 	int nCPUs = wxThread::GetCPUCount();
-	
+
 	// mutext protects access to the worker_list
     wxMutex worker_list_mutex;
 	// signals that worker_list is empty
 	wxCondition worker_list_empty_cond(worker_list_mutex);
-	worker_list_mutex.Lock(); // mutex should be initially locked
+    // mutex should be initially locked
+	worker_list_mutex.Lock();
 	
     // List of all the threads currently alive.  As soon as the thread
 	// terminates, it removes itself from the list.
 	std::list<wxThread*> worker_list;
-	
+
 	// divide up work according to number of observations
 	// and number of CPUs
 	int work_chunk = num_obs / nCPUs;
@@ -582,7 +692,10 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
 	
-	if (!reuse_last_seed) last_seed_used = time(0);
+    boost::thread_group threadPool;
+    
+	if (!reuse_last_seed)
+        last_seed_used = time(0);
 	for (int i=0; i<tot_threads && !is_thread_error; i++) {
 		int a=0;
 		int b=0;
@@ -600,6 +713,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		msg << "thread " << thread_id << ": " << a << "->" << b;
 		msg << ", seed: " << seed_start << "->" << seed_end;
 		
+        /*
 		LisaWorkerThread* thread =
 			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
 								 &worker_list_mutex,
@@ -611,7 +725,12 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		} else {
 			worker_list.push_front(thread);
 		}
+         */
+        boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
+        threadPool.add_thread(worker);
 	}
+    threadPool.join_all();
+    /*
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
 		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
@@ -628,6 +747,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 			// alarm (sprious signal), the loop will exit.
 		}
 	}
+     */
 }
 
 void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
@@ -719,7 +839,9 @@ void LisaCoordinator::SetSignificanceFilter(int filter_id)
 
 void LisaCoordinator::update(WeightsManState* o)
 {
-	weight_name = w_man_int->GetLongDispName(w_id);
+    if (w_man_int) {
+        weight_name = w_man_int->GetLongDispName(w_id);
+    }
 }
 
 int LisaCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const

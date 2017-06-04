@@ -70,6 +70,8 @@ public:
     
     virtual wxString GetJsonStr() = 0;
     
+	virtual wxString ToString() = 0;
+    
     /**
      * Read subtree starting from passed in node pt. 
      * @param const ptree& pt: a subtree of "datasource" node
@@ -161,6 +163,9 @@ public:
      * Return file path.
      */
     wxString GetFilePath() { return file_repository_path;}
+    
+    
+	virtual wxString ToString();
 };
 
 /**
@@ -199,6 +204,8 @@ public:
     
     virtual wxString GetJsonStr();
     wxString GetURL() { return webservice_url; }
+    
+	virtual wxString ToString();
 };
 
 
@@ -240,6 +247,8 @@ public:
     virtual bool IsFileDataSource() {return false;}
     
     virtual wxString GetJsonStr();
+    
+	virtual wxString ToString();
     
     wxString GetDBName() { return db_name; }
     wxString GetDBHost() { return db_host; }

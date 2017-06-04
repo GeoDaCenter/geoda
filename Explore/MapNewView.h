@@ -60,7 +60,7 @@ class SliderDialog: public wxDialog
 public:
     SliderDialog ();
     SliderDialog (wxWindow * parent,
-                  TemplateCanvas* _canvas,
+                  MapCanvas* _canvas,
                   wxWindowID id=wxID_ANY,
                   const wxString & caption="Slider Dialog",
                   const wxPoint & pos = wxDefaultPosition,
@@ -69,7 +69,7 @@ public:
     virtual ~SliderDialog ();
     
 private:
-    TemplateCanvas* canvas;
+    MapCanvas* canvas;
     wxSlider* slider;
     wxStaticText* slider_text;
 	void OnSliderChange(wxScrollEvent& event );
@@ -166,7 +166,7 @@ public:
 	virtual int GetNumCats();
 	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
 	virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
-	
+    	
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	SmoothingType smoothing_type;
@@ -179,7 +179,8 @@ public:
 	std::vector<GdaVarTools::VarInfo> var_info;
     
 	bool isDrawBasemap;
-
+    int tran_unhighlighted;
+    
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
 private:
     IDataSource* p_datasource;
@@ -215,6 +216,8 @@ protected:
     // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
+    
+
     
 	virtual void UpdateStatusBar();
 		

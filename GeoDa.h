@@ -157,6 +157,10 @@ public:
 	void OnCopyImageToClipboard(wxCommandEvent& event);
 	void OnCopyLegendToClipboard(wxCommandEvent& event);
 	
+	void OnToolsDataPCA(wxCommandEvent& event);
+    void OnToolsDataKMeans(wxCommandEvent& event);
+    void OnToolsDataHCluster(wxCommandEvent& event);
+    
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
 	void OnConnectivityHistView(wxCommandEvent& event);
@@ -197,6 +201,8 @@ public:
 	void OnPublish(wxCommandEvent& event);
 
 	void OnCondPlotChoices(wxCommandEvent& event);
+    void OnClusteringChoices(wxCommandEvent& event);
+
 	void OnShowConditionalMapView(wxCommandEvent& event);
 	void OnShowConditionalScatterView(wxCommandEvent& event);
 	void OnShowConditionalHistView(wxCommandEvent& event);
@@ -231,9 +237,12 @@ public:
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
+	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
 	void OnOpenGetisOrdStar(wxCommandEvent& event);
+	void OnOpenUniLocalGeary(wxCommandEvent& event);
+	void OnOpenMultiLocalGeary(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);

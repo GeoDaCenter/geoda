@@ -29,6 +29,8 @@
 #include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
+
 
 class LisaCoordinatorObserver;
 class LisaCoordinator;
@@ -74,7 +76,17 @@ public:
                     Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
-					LisaType lisa_type, bool calc_significances = true,
+					LisaType lisa_type,
+                    bool calc_significances = true,
+                    bool row_standardize_s = true);
+    
+    LisaCoordinator(wxString weights_path,
+                    int n,
+                    std::vector<double> vals_1,
+                    std::vector<double> vals_2,
+                    int lisa_type_s = 0,
+                    int permutations_s = 599,
+                    bool calc_significances_s = true,
                     bool row_standardize_s = true);
     
 	virtual ~LisaCoordinator();
@@ -94,11 +106,31 @@ public:
 	
 	uint64_t GetLastUsedSeed() { return last_seed_used; }
     
-	void SetLastUsedSeed(uint64_t seed) { last_seed_used = seed; }
+    void SetLastUsedSeed(uint64_t seed) {
+        reuse_last_seed = true;
+        last_seed_used = seed;
+        // update global one
+        GdaConst::use_gda_user_seed = true;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        GdaConst::gda_user_seed =  last_seed_used;
+        wxString val;
+        val << last_seed_used;
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+    }
     
 	bool IsReuseLastSeed() { return reuse_last_seed; }
     
-	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
+    void SetReuseLastSeed(bool reuse) {
+        reuse_last_seed = reuse;
+        // update global one
+        GdaConst::use_gda_user_seed = reuse;
+        if (reuse) {
+            last_seed_used = GdaConst::gda_user_seed;
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        } else {
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
+        }
+    }
 
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -195,6 +227,8 @@ protected:
 	
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
+    
+    GalWeight* weights;
 };
 
 #endif

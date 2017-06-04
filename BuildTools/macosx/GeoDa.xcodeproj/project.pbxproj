@@ -37,6 +37,11 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
+		A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */; };
+		A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */; };
+		A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */; };
+		A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */; };
+		A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
 		A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A496C99D1E6A184C008F87DD /* samples.sqlite */; };
 		A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */; };
@@ -54,7 +59,9 @@
 		A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C01E6A440A008F87DD /* SIDSNC.png */; };
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
+		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
+		A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F875751E94123F0079734E /* KMeansDlg.cpp */; };
 		DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */; };
 		DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */; };
 		DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0FC7E61A9EC17500A6715B /* CorrelogramAlgs.cpp */; };
@@ -297,6 +304,17 @@
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
+		A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyCoordinator.cpp; sourceTree = "<group>"; };
+		A43D31531E845985007488D9 /* LocalGearyCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinator.h; sourceTree = "<group>"; };
+		A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinatorObserver.h; sourceTree = "<group>"; };
+		A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyMapNewView.cpp; sourceTree = "<group>"; };
+		A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyMapNewView.h; sourceTree = "<group>"; };
+		A45DBDF01EDDEDAD00C2AA8A /* pca.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pca.h; path = Algorithms/pca.h; sourceTree = "<group>"; };
+		A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pca.cpp; path = Algorithms/pca.cpp; sourceTree = "<group>"; };
+		A45DBDF21EDDEDAD00C2AA8A /* cluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cluster.h; path = Algorithms/cluster.h; sourceTree = "<group>"; };
+		A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cluster.cpp; path = Algorithms/cluster.cpp; sourceTree = "<group>"; };
+		A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxp.cpp; path = Algorithms/maxp.cpp; sourceTree = "<group>"; };
+		A45DBDF91EDDEE4D00C2AA8A /* maxp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = maxp.h; path = Algorithms/maxp.h; sourceTree = "<group>"; };
 		A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
 		A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
 		A496C99D1E6A184C008F87DD /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
@@ -316,7 +334,11 @@
 		A496C9C01E6A440A008F87DD /* SIDSNC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SIDSNC.png; path = BuildTools/CommonDistFiles/web_plugins/SIDSNC.png; sourceTree = "<group>"; };
 		A496C9C21E6A4417008F87DD /* USHomicides.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = USHomicides.png; path = BuildTools/CommonDistFiles/web_plugins/USHomicides.png; sourceTree = "<group>"; };
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
+		A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
+		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
+		A4F875751E94123F0079734E /* KMeansDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KMeansDlg.cpp; sourceTree = "<group>"; };
+		A4F875761E94123F0079734E /* KMeansDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMeansDlg.h; sourceTree = "<group>"; };
 		DD00ADE611138A2C008FE572 /* TemplateFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateFrame.h; sourceTree = "<group>"; };
 		DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemplateFrame.cpp; sourceTree = "<group>"; };
 		DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RangeSelectionDlg.cpp; sourceTree = "<group>"; };
@@ -692,16 +714,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
+		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
-				DD7686D51A9FF47B009EFC6D /* gdiam.cpp */,
-				DD7686D61A9FF47B009EFC6D /* gdiam.hpp */,
+				A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */,
+				A45DBDF91EDDEE4D00C2AA8A /* maxp.h */,
+				A45DBDF01EDDEDAD00C2AA8A /* pca.h */,
+				A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */,
+				A45DBDF21EDDEDAD00C2AA8A /* cluster.h */,
+				A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */,
 			);
-			name = libgdiam;
+			name = Algorithms;
 			sourceTree = "<group>";
 		};
-		DD7974650F1D1B0700496A84 /* ../../ */ = {
+		A45DBDF61EDDEDC400C2AA8A /* _SampleImages */ = {
 			isa = PBXGroup;
 			children = (
 				A496C9C41E6A441D008F87DD /* watermark-20.png */,
@@ -720,7 +746,36 @@
 				A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */,
 				A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */,
 				A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */,
+			);
+			name = _SampleImages;
+			sourceTree = "<group>";
+		};
+		A45DBDF71EDDEDDA00C2AA8A /* _InternalData */ = {
+			isa = PBXGroup;
+			children = (
 				A496C99D1E6A184C008F87DD /* samples.sqlite */,
+				A1F1BA98178D46B8005A46E5 /* cache.sqlite */,
+				DD2EB10019E6EFC50073E36F /* geoda_prefs.json */,
+				DD45117019E5F65E006C5DAA /* geoda_prefs.sqlite */,
+			);
+			name = _InternalData;
+			sourceTree = "<group>";
+		};
+		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
+			isa = PBXGroup;
+			children = (
+				DD7686D51A9FF47B009EFC6D /* gdiam.cpp */,
+				DD7686D61A9FF47B009EFC6D /* gdiam.hpp */,
+			);
+			name = libgdiam;
+			sourceTree = "<group>";
+		};
+		DD7974650F1D1B0700496A84 /* ../../ */ = {
+			isa = PBXGroup;
+			children = (
+				A45DBDEF1EDDDD2600C2AA8A /* Algorithms */,
+				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,
+				A45DBDF71EDDEDDA00C2AA8A /* _InternalData */,
 				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
@@ -734,9 +789,6 @@
 				DD7976950F1D2CA800496A84 /* Regression */,
 				DD7976E10F1D2D3100496A84 /* ShapeOperations */,
 				DDEA3CB6193CEE250028B746 /* VarCalc */,
-				A1F1BA98178D46B8005A46E5 /* cache.sqlite */,
-				DD2EB10019E6EFC50073E36F /* geoda_prefs.json */,
-				DD45117019E5F65E006C5DAA /* geoda_prefs.sqlite */,
 				DDBDFE6119E73E07004CCEDA /* web_plugins */,
 				A19F514D1756A11E006E31B4 /* plugins */,
 				DDCFA9941A96790100747EB7 /* DbfFile.cpp */,
@@ -809,6 +861,10 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */,
+				A49F56DC1E956FCC000309CE /* HClusterDlg.h */,
+				A4F875751E94123F0079734E /* KMeansDlg.cpp */,
+				A4F875761E94123F0079734E /* KMeansDlg.h */,
 				A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */,
 				A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */,
 				A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */,
@@ -920,6 +976,11 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */,
+				A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */,
+				A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */,
+				A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */,
+				A43D31531E845985007488D9 /* LocalGearyCoordinator.h */,
 				A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */,
 				A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */,
 				DD7975B80F1D2A9000496A84 /* 3DPlotView.cpp */,
@@ -1314,6 +1375,7 @@
 				DD7975670F1D296F00496A84 /* 3DControlPan.cpp in Sources */,
 				DD79756C0F1D296F00496A84 /* ASC2SHPDlg.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
+				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
@@ -1324,6 +1386,7 @@
 				DD7975890F1D296F00496A84 /* RegressionDlg.cpp in Sources */,
 				DD79758B0F1D296F00496A84 /* RegressionReportDlg.cpp in Sources */,
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
+				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,
 				DD7975920F1D296F00496A84 /* SaveSelectionDlg.cpp in Sources */,
 				DD7975940F1D296F00496A84 /* SHP2ASCDlg.cpp in Sources */,
 				DD7975980F1D296F00496A84 /* VariableSettingsDlg.cpp in Sources */,
@@ -1374,11 +1437,13 @@
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
 				DD209598139F129900B9E648 /* GetisOrdChoiceDlg.cpp in Sources */,
 				DD181BC813A90445004B0EC2 /* SaveToTableDlg.cpp in Sources */,
+				A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */,
 				DDF85D1813B257B6006C1B08 /* DataViewerEditFieldPropertiesDlg.cpp in Sources */,
 				DDB252B513BBFD6700A7CE26 /* MergeTableDlg.cpp in Sources */,
 				DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */,
 				DD89C87413D86BC7006C068D /* FieldNewCalcBinDlg.cpp in Sources */,
 				DD89C87513D86BC7006C068D /* FieldNewCalcLagDlg.cpp in Sources */,
+				A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */,
 				DD89C87613D86BC7006C068D /* FieldNewCalcRateDlg.cpp in Sources */,
 				DD89C87713D86BC7006C068D /* FieldNewCalcSheetDlg.cpp in Sources */,
 				DD89C87813D86BC7006C068D /* FieldNewCalcUniDlg.cpp in Sources */,
@@ -1416,6 +1481,7 @@
 				DDF53FF3167A39520042B453 /* CatClassifState.cpp in Sources */,
 				DDF5400B167A39CA0042B453 /* CatClassifDlg.cpp in Sources */,
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
+				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
 				DD64925C16DFF63400B3B0AB /* GeoDa.cpp in Sources */,
 				A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */,
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,
@@ -1486,11 +1552,13 @@
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
 				DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */,
 				DDE4DFE91A96411A005B9158 /* ShpFile.cpp in Sources */,
+				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
 				DD7686D71A9FF47B009EFC6D /* gdiam.cpp in Sources */,
 				DDEFAAA71AA4F07200F6AAFA /* PointSetAlgs.cpp in Sources */,
 				DD72C19A1AAE95480000420B /* SpatialIndAlgs.cpp in Sources */,
 				DDD2392D1AB86D8F00E4E1BF /* NumericTests.cpp in Sources */,
+				A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */,
 				DDFFC7CC1AC0E58B00F7DD6D /* CorrelogramView.cpp in Sources */,
 				DDFFC7CD1AC0E58B00F7DD6D /* CorrelParamsObservable.cpp in Sources */,
 				DDFFC7D51AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp in Sources */,
@@ -1563,6 +1631,7 @@
 					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
+					"-I./libraries/include/eigen3",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
@@ -1652,6 +1721,7 @@
 					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
+					"-I./libraries/include/eigen3",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",

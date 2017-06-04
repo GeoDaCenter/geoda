@@ -28,6 +28,8 @@ using namespace std;
 
 class LisaCoordinator;
 class GStatCoordinator;
+class LocalGearyCoordinator;
+
 class ConditionalClusterMapFrame;
 class ConditionalClusterMapCanvas;
 class ConditionalClusterMapLegend;
@@ -134,6 +136,14 @@ public:
                                const wxPoint& pos = wxDefaultPosition,
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
+    ConditionalClusterMapFrame(wxFrame *parent, Project* project,
+                               const vector<GdaVarTools::VarInfo>& var_info,
+                               const vector<int>& col_ids,
+                               LocalGearyCoordinator* local_geary_coord,
+                               const wxString& title = _("Conditional Local Geary Map"),
+                               const wxPoint& pos = wxDefaultPosition,
+                               const wxSize& size = wxDefaultSize,
+                               const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~ConditionalClusterMapFrame();
 
     void OnActivate(wxActivateEvent& event);
@@ -226,4 +236,31 @@ protected:
     virtual void UpdateStatusBar();
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// LocalGeary Cluster Conditional map
+//
+////////////////////////////////////////////////////////////////////////////////
+class ConditionalLocalGearyClusterMapCanvas : public ConditionalClusterMapCanvas {
+    //DECLARE_CLASS(ConditionalLocalGearyClusterMapCanvas)
+public:
+    
+    ConditionalLocalGearyClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                Project* project,
+                                const vector<GdaVarTools::VarInfo>& var_info,
+                                const vector<int>& col_ids,
+                                LocalGearyCoordinator* local_geary_coordinator,
+                                    const wxString& title,
+                                const wxPoint& pos = wxDefaultPosition,
+                                const wxSize& size = wxDefaultSize);
+    
+    virtual ~ConditionalLocalGearyClusterMapCanvas();
+    
+	virtual void CreateAndUpdateCategories();
+	virtual void TimeSyncVariableToggle(int var_index);
+    
+protected:
+    LocalGearyCoordinator* local_geary_coord;
+    virtual void UpdateStatusBar();
+};
 #endif
