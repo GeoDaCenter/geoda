@@ -438,13 +438,12 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
       TemplateCanvas chidren classes. */
 void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
-	LOG_MSG("Entering TemplateFrame::ExportImage");
+	wxLogMessage("Entering TemplateFrame::ExportImage");
 	
 	wxString default_fname(project->GetProjectTitle() + type);
     wxString filter = "BMP|*.bmp|PNG|*.png";
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
         filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
-        
     }
 	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
@@ -462,14 +461,17 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	
     if (dialog.ShowModal() != wxID_OK) return;
 	
-	wxSize sz =  canvas->GetVirtualSize();
+    wxSize sz =  canvas->GetDrawingSize();
+    int offset_x = -canvas->GetMarginLeft();
+    int offset_y = -canvas->GetMarginTop();
+    
     int new_bmp_w = sz.x;
     int new_bmp_h = sz.y;
-    int offset_x = 0;
+    
     if (template_legend) {
-        wxSize sz_legend = template_legend->GetVirtualSize();
-        offset_x = sz_legend.x * 2;
-        new_bmp_w += offset_x;
+        int legend_width = template_legend->GetDrawingWidth();
+        new_bmp_w += legend_width;
+        offset_x += legend_width;
     }
 	
 	wxFileName fname = wxFileName(dialog.GetPath());
@@ -478,13 +480,13 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	switch (dialog.GetFilterIndex()) {
 		case 0:
 		{
-			LOG_MSG("BMP selected");
+			wxLogMessage("BMP selected");
 			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
@@ -500,13 +502,13 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			
 		case 1:
 		{
-			LOG_MSG("PNG selected");
+			wxLogMessage("PNG selected");
 			wxBitmap bitmap(new_bmp_w, new_bmp_h);
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
             if (template_legend) {
                 template_legend->RenderToDC(dc, 1.0);
             }
@@ -522,12 +524,22 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			break;
 		case 2:
 		{
-			LOG_MSG("SVG selected");
-			wxSVGFileDC dc(str_fname + ".svg", sz.x, sz.y);
+			wxLogMessage("SVG selected");
             
-			template_canvas->RenderToDC(dc, sz.x, sz.y);
+            wxSize canvas_sz = canvas->GetDrawingSize();
+            int picW = canvas_sz.GetWidth() + 20;
+            int picH = canvas_sz.GetHeight() + 20;
+            int legend_w = 0;
+            double scale = 2.0;
             if (template_legend) {
-                template_legend->RenderToDC(dc, 2.5);
+                legend_w = template_legend->GetDrawingWidth() + 20;
+            }
+
+			wxSVGFileDC dc(str_fname + ".svg", picW + legend_w + 20, picH);
+
+			template_canvas->RenderToDC(dc, picW + legend_w + 20, picH);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, scale);
             }
 		}
 			break;
@@ -538,37 +550,65 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			printData.SetPrintMode(wxPRINT_MODE_FILE);
 			wxPostScriptDC dc(printData);
             
-			//dc.SetBrush(*wxTRANSPARENT_BRUSH);
-			//dc.SetPen(*wxTRANSPARENT_PEN);
-			//dc.SetPen(*wxBLACK_PEN);
 			int w, h;
-			dc.GetSize(&w, &h);
-			LOG_MSG(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
+			dc.GetSize(&w, &h);  // A4 paper like?
+			wxLogMessage(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
 			
 			if (dc.IsOk()) {
 				dc.StartDoc("printing...");
 				int paperW, paperH;
 				dc.GetSize(&paperW, &paperH);
+                
 				double marginFactor = 0.03;
 				int marginW = (int) (paperW*marginFactor/2.0);
 				int marginH = (int) (paperH*marginFactor);
+                
                 int workingW = paperW - 2*marginW;
 				int workingH = paperH - 2*marginH;
+                
 				int originX = marginW+1; // experimentally obtained tweak
-				int originY = marginH+150; // experimentally obtained tweak
-				dc.SetDeviceOrigin(originX, originY);
-				int pictW = sz.GetWidth();
-				int pictH = sz.GetHeight();
-				double scale = 1.5 / wxMin((double) workingH/pictH,
-									 (double) workingW/pictW);
+				int originY = marginH+300; // experimentally obtained tweak
+                
+                // 1/5 use for legend;  4/5 use for map
+                int legend_w = 0;
+                double scale = 1.0;
+                
                 if (template_legend) {
+                    legend_w = workingW * 0.2;
+                    int legend_orig_w = template_legend->GetDrawingWidth();
+                    scale = legend_orig_w / (double) legend_w;
+                    
+                    dc.SetDeviceOrigin(originX, originY);
+                    
                     template_legend->RenderToDC(dc, scale);
                 }
-                template_canvas->RenderToDC(dc,w, h);
+                
+                wxSize canvas_sz = canvas->GetDrawingSize();
+                int picW = canvas_sz.GetWidth();
+                int picH = canvas_sz.GetHeight();
+                
+                int map_w = 0;
+                int map_h = 0;
+                
+                // landscape
+                map_w = workingW - legend_w;
+                map_h = map_w * picH / picW;
+                
+                if (picW < picH) {
+                    // portrait
+                    map_w = map_w * (map_w / (double) map_h);
+                    map_h = map_w * picH / picW;
+                }
+                
+                dc.SetDeviceOrigin( originX + legend_w + 100, originY);
+                
+                template_canvas->RenderToDC(dc, map_w, map_h);
+                
+                
 				dc.EndDoc();
+                
 			} else {
-				wxString msg("There was a problem generating the ");
-				msg << "PostScript file.  Failed.";
+				wxString msg = _("There was a problem generating the PostScript file.");
 				wxMessageBox(msg);
 			}
 		}

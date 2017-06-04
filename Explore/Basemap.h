@@ -20,10 +20,13 @@
 #ifndef GeoDa_Basemap_h
 #define GeoDa_Basemap_h
 
+/*
 #ifdef __WIN32__
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #endif
+*/
+#include <wx/math.h>
 
 #include <utility>
 #include <boost/thread/thread.hpp>

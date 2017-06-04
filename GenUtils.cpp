@@ -1308,6 +1308,10 @@ wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 }
 
 
+bool GenUtils::less_vectors(const std::vector<int>& a,const std::vector<int>& b) {
+    return a.size() > b.size();
+}
+
 wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 {
 	class HardBreakWrapper : public wxTextWrapper

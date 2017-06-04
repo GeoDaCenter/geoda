@@ -97,9 +97,10 @@ public:
                          bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog,
                          int dialogType = 0);
     virtual ~ConnectDatasourceDlg();
-    
-    void CreateControls();
+
+    void TriggerOKClick();
     virtual void OnOkClick( wxCommandEvent& event );
+    void CreateControls();
 	void OnLookupWSLayerBtn( wxCommandEvent& event );
 	void OnLookupDSTableBtn( wxCommandEvent& event );
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );

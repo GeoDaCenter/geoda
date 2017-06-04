@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
+
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_01.hpp>
@@ -668,7 +670,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
 	Wp->gwt = new GwtElement[num_obs];
 	
 	int cnt=0;
-  
+	bool ignore_too_large_compute = false;
     rtree_pt_2d_t::const_query_iterator it;
 	for (it = rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
@@ -690,12 +692,19 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
 				++lcnt;
 			}
 		}
-        if (lcnt > 200) {
-            // clean up memory
-            delete Wp;
+        if (lcnt > 200 && ignore_too_large_compute == false) {
             
             wxString msg = _("The current threshold distance value is too large to compute. Please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN).");
-            throw GdaException(msg.mb_str());
+			wxMessageDialog dlg(NULL, msg, "Do you want to continue?", wxYES_NO | wxYES_DEFAULT);
+			if (dlg.ShowModal() != wxID_YES) {
+				// clean up memory
+				delete Wp;
+				throw GdaException(msg.mb_str());
+			}
+			else {
+				ignore_too_large_compute = true;
+			}
+            
         }
 		GwtElement& e = Wp->gwt[obs];
 		e.alloc(lcnt);

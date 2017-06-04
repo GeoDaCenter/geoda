@@ -21,9 +21,12 @@
 #define __GEODA_CENTER_VARIABLE_SETTINGS_DLG_H___
 
 #include <vector>
+#include <map>
+
 #include <boost/uuid/uuid.hpp>
 #include <wx/choice.h>
 #include <wx/checkbox.h>
+#include <wx/choice.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/spinctrl.h>
@@ -31,10 +34,17 @@
 #include "../VarTools.h"
 #include "../Explore/CatClassification.h"
 #include "../VarCalc/WeightsMetaInfo.h"
+#include "../FramesManagerObserver.h"
 
 class Project;
 class TableInterface;
 
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 class DiffMoranVarSettingDlg : public wxDialog
 {
 public:
@@ -68,6 +78,127 @@ private:
     wxComboBox* combo_weights;
 };
 
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+
+class SimpleReportTextCtrl : public wxTextCtrl
+{
+public:
+    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
+               const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
+               long style = 0, const wxValidator& validator = wxDefaultValidator,
+               const wxString& name = wxTextCtrlNameStr)
+    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
+protected:
+    void OnContextMenu(wxContextMenuEvent& event);
+    void OnSaveClick( wxCommandEvent& event );
+    DECLARE_EVENT_TABLE()
+};
+
+class PCASettingsDlg : public wxDialog, public FramesManagerObserver
+{
+public:
+    PCASettingsDlg(Project* project);
+    virtual ~PCASettingsDlg();
+    
+    void CreateControls();
+    bool Init();
+   
+    void OnOK( wxCommandEvent& event );
+    void OnSave( wxCommandEvent& event );
+    void OnCloseClick( wxCommandEvent& event );
+    void OnClose(wxCloseEvent& ev);
+    void OnMethodChoice( wxCommandEvent& event );
+    
+    void InitVariableCombobox(wxListBox* var_box);
+    
+    //boost::uuids::uuid GetWeightsId();
+    
+    /** Implementation of FramesManagerObserver interface */
+    virtual void update(FramesManager* o);
+    
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+private:
+    FramesManager* frames_manager;
+    
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    //std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxListBox* combo_var;
+    wxChoice* combo_n;
+
+    SimpleReportTextCtrl* m_textbox;
+    wxButton *saveButton;
+   
+    wxChoice* combo_method;
+    wxChoice* combo_transform;
+
+    
+	std::map<wxString, wxString> name_to_nm;
+	std::map<wxString, int> name_to_tm_id;
+    
+    unsigned int row_lim;
+    unsigned int col_lim;
+    std::vector<float> scores;
+    float thresh95;
+    
+    DECLARE_EVENT_TABLE()
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+class MultiVariableSettingsDlg : public wxDialog
+{
+public:
+    MultiVariableSettingsDlg(Project* project);
+    virtual ~MultiVariableSettingsDlg();
+    
+    void CreateControls();
+    bool Init();
+   
+    void OnOK( wxCommandEvent& event );
+    void OnClose( wxCommandEvent& event );
+    void OnTimeSelect( wxCommandEvent& event );
+    
+    void InitVariableCombobox(wxListBox* var_box);
+    void InitTimeComboboxes(wxChoice* time1);
+    void InitWeightsCombobox(wxChoice* weights_ch);
+    
+    boost::uuids::uuid GetWeightsId();
+    
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+private:
+    bool has_time;
+    Project* project;
+    TableInterface* table_int;
+    std::vector<wxString> tm_strs;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxListBox* combo_var;
+    wxChoice* combo_time1;
+    wxChoice* combo_weights;
+    
+	std::map<wxString, wxString> name_to_nm;
+	std::map<wxString, int> name_to_tm_id;
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
 
 class VariableSettingsDlg: public wxDialog
 {

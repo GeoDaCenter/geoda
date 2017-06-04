@@ -27,7 +27,82 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
+#include "Explore/MapNewView.h"
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+GdaLegendLabel::GdaLegendLabel(int _idx, wxString _text, wxPoint _pos, wxSize _sz)
+: d_rect(20)
+{
+    idx = _idx;
+    text = _text;
+    position = _pos;
+    size = _sz;
+    isMoving = false;
+    tmp_position = position;
+    bbox = wxRect(_pos.x, _pos.y + idx * d_rect, _sz.GetWidth(), _sz.GetHeight());
+}
+
+GdaLegendLabel::~GdaLegendLabel()
+{
+    
+}
+
+int GdaLegendLabel::getWidth()
+{
+    return position.x + size.GetWidth();
+}
+
+const wxRect& GdaLegendLabel::getBBox()
+{
+    return bbox;
+}
+
+void GdaLegendLabel::move(const wxPoint& new_pos)
+{
+    tmp_position = new_pos;
+}
+
+void GdaLegendLabel::reset()
+{
+    tmp_position = position;
+}
+
+bool GdaLegendLabel::intersect( GdaLegendLabel& another_lbl)
+{
+    wxRect tmp_bbox(tmp_position.x, tmp_position.y, size.GetWidth(), size.GetHeight());
+    return tmp_bbox.Intersects(another_lbl.getBBox());
+}
+
+bool  GdaLegendLabel::contains(const wxPoint& cur_pos)
+{
+    return bbox.Contains(cur_pos);
+}
+
+void GdaLegendLabel::draw(wxDC& dc, int cur_idx)
+{
+    dc.DrawText(text, position.x, position.y + d_rect * cur_idx);
+    //dc.DrawRectangle(bbox);
+    //bbox = wxRect(position.x, position.y + d_rect * cur_idx, size.GetWidth(), size.GetHeight());
+}
+
+void GdaLegendLabel::drawMove(wxDC& dc)
+{
+    //wxPen pen(*wxBLACK, 1, wxDOT);
+    //dc.SetPen(pen);
+    //dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    //dc.DrawRectangle(position.x, tmp_position.y, size.GetWidth(), size.GetHeight());
+    //dc.SetPen(*wxBLACK_PEN);
+    dc.DrawText(text, position.x, tmp_position.y);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
 const int TemplateLegend::ID_CATEGORY_COLOR = wxID_HIGHEST + 1;
 
 IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
@@ -43,7 +118,11 @@ TemplateLegend::TemplateLegend(wxWindow *parent,
 : wxScrolledWindow(parent, wxID_ANY, pos, size,
 				   wxBORDER_SUNKEN | wxVSCROLL | wxHSCROLL),
 legend_background_color(GdaConst::legend_background_color),
-template_canvas(template_canvas_s)
+template_canvas(template_canvas_s),
+isLeftDown(false),
+select_label(NULL),
+recreate_labels(false),
+isDragDropAllowed(false)
 {
 	SetBackgroundColour(GdaConst::legend_background_color);
     d_rect = 20;
@@ -59,6 +138,10 @@ template_canvas(template_canvas_s)
 
 TemplateLegend::~TemplateLegend()
 {
+    for (int i=0; i<labels.size(); i++) {
+        delete labels[i];
+    }
+    labels.clear();
 }
 
 void TemplateLegend::OnEvent(wxMouseEvent& event)
@@ -68,9 +151,7 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
 	int cat_clicked = GetCategoryClick(event);
 	
     if (event.RightUp()) {
-        LOG_MSG("MapNewLegend::OnEvent, event.RightUp() == true");
-        wxMenu* optMenu =
-			wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
+        wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
 		AddCategoryColorToMenu(optMenu, cat_clicked);
     	wxMenuItem* mi = optMenu->FindItem(XRCID("ID_LEGEND_USE_SCI_NOTATION"));
     	if (mi && mi->IsCheckable()) {
@@ -80,11 +161,79 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
         return;
     }
 	
+    if (isDragDropAllowed == false) {
+        if (cat_clicked != -1 && event.LeftUp()) {
+            SelectAllInCategory(cat_clicked, event.ShiftDown());
+        }
+        return;
+    }
+    
     if (event.LeftDown()) {
-        LOG_MSG("TemplateLegend::OnEvent, event.LeftDown() == true");
-		if (cat_clicked != -1) {
-			SelectAllInCategory(cat_clicked, event.ShiftDown());
-		}
+        isLeftDown = true;
+        for (int i=0;i<labels.size();i++) {
+            if (labels[i]->contains(event.GetPosition())){
+                select_label = labels[i];
+                break;
+            }
+        }
+    } else if (event.Dragging()) {
+        if (isLeftDown) {
+            isLeftMove = true;
+            // moving
+            if (select_label) {
+                select_label->move(event.GetPosition());
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            LOG_MSG("intersect");
+                            // exchange labels only
+                            new_order.clear();
+                            for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            // get new order
+                            new_order[from] = to;
+                            new_order[to] = from;
+                            break;
+                        }
+                    } else {
+                        LOG_MSG("other");
+                        new_order.clear();
+                        for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                        
+                    }
+                }
+            }
+            Refresh();
+        }
+    } else if (event.LeftUp()) {
+        if (isLeftMove) {
+            isLeftMove = false;
+            // stop move
+            if (select_label) {
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            // exchange labels applying o map
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            template_canvas->cat_data.ExchangeLabels(from, to);
+                            template_canvas->ResetShapes();
+                            recreate_labels = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            select_label = NULL;
+            Refresh();
+        } else {
+            // only left click
+            if (cat_clicked != -1) {
+                SelectAllInCategory(cat_clicked, event.ShiftDown());
+            }
+        }
+        isLeftDown = false;
     }
 }
 
@@ -118,7 +267,7 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
 	if (cat_clicked < 0 || cat_clicked >= num_cats) return;
 	wxString s;
-	s << "Color for Category";
+	s << _("Color for Category");
 	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
 	if (!cat_label.IsEmpty())
         s << ": " << cat_label;
@@ -144,7 +293,7 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 	}
 	
 	wxColourDialog dialog(this, &data);
-	dialog.SetTitle("Choose Cateogry Color");
+	dialog.SetTitle(_("Choose Cateogry Color"));
 	if (dialog.ShowModal() == wxID_OK) {
 		wxColourData retData = dialog.GetColourData();
 		for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
@@ -165,25 +314,78 @@ void TemplateLegend::OnDraw(wxDC& dc)
         return;
     
     dc.SetFont(*GdaConst::small_font);
-    dc.DrawText(template_canvas->GetCategoriesTitle(), px, 13);
+    wxString title = template_canvas->GetCategoriesTitle();
+    dc.DrawText(title, px, 13);
+    wxSize title_sz = dc.GetTextExtent(title);
+    title_width = title_sz.GetWidth();
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int cur_y = py;
 	int numRect = template_canvas->cat_data.GetNumCategories(time);
 	
     dc.SetPen(*wxBLACK_PEN);
+    
+    // init labels
+    if (recreate_labels || labels.size() != numRect) {
+        for (int i=0; i<labels.size(); i++){
+            delete labels[i];
+        }
+        labels.clear();
+        
+        new_order.clear();
+        
+        int init_y = py;
+        for (int i=0; i<numRect; i++) {
+            wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
+            wxPoint pt( px + m_l + 10, init_y - (m_w / 2));
+            wxSize sz = dc.GetTextExtent(lbl);
+            labels.push_back(new GdaLegendLabel(i, lbl, pt, sz));
+            //init_y += d_rect;
+            
+            new_order.push_back(i);
+        }
+        
+        recreate_labels = false;
+    }
+    
 	for (int i=0; i<numRect; i++) {
         wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
         if (clr.IsOk())
             dc.SetBrush(clr);
         else
             dc.SetBrush(*wxBLACK_BRUSH);
-        
-		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
-					(px + m_l + 10), cur_y - (m_w / 2));
 		dc.DrawRectangle(px, cur_y - 8, m_l, m_w);
 		cur_y += d_rect;
 	}
+    
+    for (int i=0; i<new_order.size(); i++) {
+        GdaLegendLabel* lbl = labels[new_order[i]];
+        if (lbl != select_label) {
+            lbl->draw(dc, i);
+        }
+    }
+    
+    if ( select_label ) {
+        select_label->drawMove(dc);
+    }
+}
+
+void TemplateLegend::Recreate()
+{
+    recreate_labels = true;
+    Refresh();
+}
+
+int TemplateLegend::GetDrawingWidth()
+{
+    int max_width = title_width;
+    for (int i=0; i<new_order.size(); i++) {
+        GdaLegendLabel* lbl = labels[new_order[i]];
+        if (lbl->getWidth() > max_width) {
+            max_width = lbl->getWidth();
+        }
+    }
+    return max_width;
 }
 
 void TemplateLegend::RenderToDC(wxDC& dc, double scale)
@@ -214,8 +416,10 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
         
 		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
 					(px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
+        
 		dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
                          m_l / scale, m_w / scale);
+        
 		cur_y += d_rect;
 	}
 }

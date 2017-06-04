@@ -25,7 +25,9 @@ if %PROCESSOR_ARCHITECTURE% == x86 (
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_major" ..\..\version.h') do set VER_MAJOR=%%P
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_minor" ..\..\version.h') do set VER_MINOR=%%P
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_build" ..\..\version.h') do set VER_BUILD=%%P
-set GDA_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_BUILD%
+for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_subbuild" ..\..\version.h') do set VER_SUBBUILD=%%P
+
+set GDA_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_BUILD%.%VER_SUBBUILD%
 
 echo.
 echo #####################################################
@@ -97,7 +99,7 @@ echo #   build cURL (by default /MD)
 echo #####################################################
 echo.
 set LIB_NAME=curl-7.46.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll set ALL_EXIST=false
@@ -131,11 +133,11 @@ if %GDA_BUILD% == BUILD_32 (
 
 ) else (
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=static CONFIG_NAME_LIB=curlib MACHINE=x64
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl_a.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl_a.lib
 
   rmdir %DOWNLOAD_HOME%\%LIB_NAME%\builds /s /q
-  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib
+  nmake -f Makefile.vc mode=dll CONFIG_NAME_LIB=curlib MACHINE=x64
   
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\bin\libcurl.dll %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.dll
   copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\builds\curlib\lib\libcurl.lib %LIBRARY_HOME%\%LIB_HM_LIB%\libcurl.lib
@@ -158,7 +160,7 @@ echo #   build libiconv
 echo #####################################################
 echo.
 set LIB_NAME=libiconv-1.14
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libiconv-1.14.tar.gz"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/libiconv-1.14.tar.gz"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\iconv.lib set ALL_EXIST=false
@@ -210,7 +212,7 @@ echo #   build Xerces
 echo #####################################################
 echo.
 set LIB_NAME=xerces-c-3.1.1
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/xerces-c-3.1.1.zip"
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\xerces-c_static_3.lib set ALL_EXIST=false
 if %ALL_EXIST% == true (
@@ -264,7 +266,7 @@ echo #   build GEOS
 echo #####################################################
 echo.
 set LIB_NAME=geos-3.3.8
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/geos-3.3.8.tar.bz2"
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\geos.dll set ALL_EXIST=false
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\geos.lib set ALL_EXIST=false
@@ -323,7 +325,7 @@ echo #   build PROJ4 (todo , MD,MT nmake.opt)
 echo #####################################################
 echo.
 set LIB_NAME=proj-4.8.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.8.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\proj.dll set ALL_EXIST=false
@@ -365,7 +367,7 @@ echo #   build freeXL
 echo #####################################################
 echo.
 set LIB_NAME=freexl-1.0.0e
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0e.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0e.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\freexl.dll set ALL_EXIST=false
@@ -408,7 +410,7 @@ echo #   build SQLite3
 echo #####################################################
 echo.
 set LIB_NAME=sqlite-amalgamation-3071700
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-amalgamation-3071700.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/sqlite-amalgamation-3071700.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\sqlite.dll set ALL_EXIST=false
@@ -477,7 +479,7 @@ echo #   build SpatiaLite
 echo #####################################################
 echo.
 set LIB_NAME=libspatialite-4.0.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/libspatialite-4.0.0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\spatialite.dll set ALL_EXIST=false
@@ -528,9 +530,9 @@ echo #####################################################
 echo.
 set LIB_NAME=postgresql-9.2.4
 if %GDA_BUILD% == BUILD_32 (
-  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4-1-windows-binaries.zip"
+  set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4-1-windows-binaries.zip"
 ) else (
-  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4-1-windows-x64-binaries.zip"
+  set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4-1-windows-x64-binaries.zip"
 )
 
 set ALL_EXIST=true
@@ -579,10 +581,10 @@ echo #####################################################
 echo.
 if %GDA_BUILD% == BUILD_32 (
   set LIB_NAME=mysql-5.6.16-win32
-  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14-win32.zip"
+  set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/mysql-5.6.14-win32.zip"
 ) else (
   set LIB_NAME=mysql-5.6.16-winx64
-  set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14-winx64.zip"
+  set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/mysql-5.6.14-winx64.zip"
 )
 
 REM "The downloaded DLLs are /MT builds, which can't be used. I think build "
@@ -630,7 +632,7 @@ echo #   build CLAPACK
 echo #####################################################
 echo.
 set LIB_NAME=CLAPACK-3.1.1-VisualStudio
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/CLAPACK-3.1.1-VisualStudio.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/CLAPACK-3.1.1-VisualStudio.zip"
 
 REM # We only test for a small subset of all the CLPACK generated libraries
 set ALL_EXIST=true
@@ -692,7 +694,7 @@ echo #   build wxWidgets
 echo #####################################################
 echo.
 set LIB_NAME=wxWidgets-3.1.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.7z"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
@@ -755,7 +757,7 @@ echo #   build EXPAT
 echo #####################################################
 echo.
 set LIB_NAME=expat-2.1.0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/expat-2.1.0.tar.gz"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/expat-2.1.0.tar.gz"
 
 set ALL_EXIST=true
 if NOT EXIST %LIBRARY_HOME%\%LIB_HM_LIB%\expat.lib set ALL_EXIST=false
@@ -855,7 +857,7 @@ echo #   build Boost 1.57
 echo #####################################################
 echo.
 set LIB_NAME=boost_1_57_0
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib set ALL_EXIST=false
@@ -877,7 +879,19 @@ echo %DOWNLOAD_HOME%\%LIB_NAME%
 set BOOST_HOME=%DOWNLOAD_HOME%\%LIB_NAME%
 echo BOOST_HOME: %BOOST_HOME%
 cd %BOOST_HOME%
+
 call bootstrap.bat
+
+echo ###############################################
+echo # for visual studio 2017
+echo edit project-config.jam
+echo (content)
+echo   import option;
+echo   using msvc : 14.0 "c:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Tools\MSVC\14.10.25017\bin\HostX64\x64\cl.exe";
+echo   option.set keep-going : false ; 
+echo 
+echo Then, run b2 with --toolset=msvc-14.0
+echo ###############################################
 if %GDA_BUILD% == BUILD_32 (
   call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete stage
   call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete --debug-symbols=on stage
@@ -907,7 +921,7 @@ echo #   build JSON Spirit
 echo #####################################################
 echo.
 set LIB_NAME=json_spirit_v4.08
-set LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
 
 set ALL_EXIST=true
 if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\Release\json_spirit_lib.lib set ALL_EXIST=false
@@ -936,6 +950,32 @@ set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Debug\json_spirit_lib.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 :SKIP_JSON_SPIRIT_BUILD
 
+
+:TO_EIGEN3_BUILD
+echo.
+echo #####################################################
+echo #   build  Eigen3
+echo #####################################################
+echo.
+set LIB_NAME=eigen3
+set LIB_URL="https://bitbucket.org/eigen/eigen/get/3.3.3.zip"
+
+set ALL_EXIST=true
+if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME% set ALL_EXIST=false
+if %ALL_EXIST% == true (
+  echo All %LIB_NAME% library targets exist, skipping build
+  goto SKIP_EIGEN3_BUILD
+)
+cd %DOWNLOAD_HOME%
+IF NOT EXIST %LIB_NAME% (
+    IF NOT EXIST %LIB_NAME%.zip %CURL_EXE% -# %LIB_URL% > %LIB_NAME%.zip
+    %UNZIP_EXE% %LIB_NAME%.zip
+    move eigen-eigen-* eigen3
+)
+
+set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\Eigen
+IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
+:SKIP_EIGEN3_BUILD
 
 :TO_VISUAL_STUDIO_SETUP_BUILD
 echo.
@@ -1079,8 +1119,10 @@ set CHK_LIB=%BUILD_HOME%\geoda_setup.exe
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 if %GDA_BUILD% == BUILD_32 (
 	move /Y %BUILD_HOME%\geoda_setup.exe %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-32bit.exe
+        move %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-32bit.exe \\Mac\Dropbox
 ) else (
 	move /Y %BUILD_HOME%\geoda_setup.exe %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-64bit.exe	
+        move %BUILD_HOME%\GeoDa-%GDA_VERSION%-Windows-64bit.exe \\Mac\Dropbox
 )
 :SKIP_PACKAGE_BUILD
 

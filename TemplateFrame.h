@@ -95,7 +95,8 @@ public:
 	virtual void OnPlotsPerViewAll();
 	virtual bool IsStatusBarVisible() { return is_status_bar_visible; }
 	virtual void OnDisplayStatusBar(wxCommandEvent& event) {
-		DisplayStatusBar(!IsStatusBarVisible()); }
+		DisplayStatusBar(!IsStatusBarVisible());
+    }
 	virtual void DisplayStatusBar(bool show);
 	/** Called by TemplateCanvas to determine if TemplateFrame will
 	 generate the Status Bar String. */

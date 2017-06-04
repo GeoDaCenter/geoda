@@ -29,6 +29,9 @@
     <Filter Include="libgdiam">
       <UniqueIdentifier>{efd46cf7-a968-4f71-9280-fd130105566c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Algorithms">
+      <UniqueIdentifier>{26d19d80-b064-41d9-80e5-37e967c05d8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -49,7 +52,6 @@
     <None Include="..\..\rc\release-notes.txt">
       <Filter>rc</Filter>
     </None>
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc">
@@ -631,6 +633,30 @@
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinatorObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\HClusterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\KMeansDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\cluster.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\maxp.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\pca.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1151,6 +1177,27 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LocalGearyCoordinator.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\cluster.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\maxp.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\pca.cpp">
+      <Filter>Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

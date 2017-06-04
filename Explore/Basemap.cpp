@@ -20,10 +20,13 @@
 #include <iostream>
 #include <sstream>
 
+/*
 #ifdef __WIN32__
 #define _USE_MATH_DEFINES 
 #include <math.h>
 #endif
+*/
+#include <wx/math.h>
 
 #include <algorithm>
 #include "stdio.h"
@@ -34,6 +37,7 @@
 #include <wx/bitmap.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
+#include <wx/graphics.h>
 
 #include <ogr_spatialref.h>
 

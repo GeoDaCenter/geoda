@@ -8,11 +8,11 @@ NODEBUG=$3
 cd ~/geoda_trunk/
 git checkout rc/GdaAppResources.cpp
 git pull
-cd ~/geoda_trunk/o
-rm *
+rm ~/geoda_trunk/o/*
 cd ~/geoda_trunk/BuildTools/macosx
+cp dep/3D* ~/geoda_trunk/Explore/
 ./build.sh $CPU $NODEBUG
 cd ~/geoda_trunk/BuildTools/macosx/create-dmg
 ./geoda.sh $VERSION
-mv GeoDa$VERSION-Installer.dmg ~/Dropbox
+mv GeoDa$VERSION-Installer.dmg /Volumes/xun/Dropbox
 cd ..

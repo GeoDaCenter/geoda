@@ -576,7 +576,7 @@ void LisaMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxString m;
 	m << "The last seed used by the pseudo random\nnumber ";
 	m << "generator was " << last_seed << ".\n";
-	m << "Enter a seed value to use between\n0 and ";
+	m << "\nEnter a seed value to use between\n0 and ";
 	m << std::numeric_limits<uint64_t>::max() << ".";
 	long long unsigned int val;
 	wxString dlg_val;
@@ -876,7 +876,7 @@ void LisaMapFrame::update(LisaCoordinator* o)
 	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
-	if (template_legend) template_legend->Refresh();
+	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
 }

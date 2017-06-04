@@ -137,14 +137,14 @@ cmake_install_library()
 #########################################################################
 # install zlib (libkml)
 #########################################################################
-cmake_install_library zlib-1.2.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/zlib-1.2.8.tar.gz libz.dylib
+cmake_install_library zlib-1.2.8 https://s3.us-east-2.amazonaws.com/geodabuild/zlib-1.2.8.tar.gz libz.dylib
 
 #########################################################################
 # install minzip (libkml)
 #########################################################################
 LIB_NAME=minizip
 LIB_CHECKER=libminizip.dylib
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/minizip.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/minizip.tar.gz
 LIB_FILENAME=minizip.tar.gz
 echo $LIB_NAME
 
@@ -174,15 +174,15 @@ fi
 #########################################################################
 # install expat  (libkml)
 #########################################################################
-install_library expat-2.1.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/expat-2.1.0.tar.gz libexpat.dylib
+install_library expat-2.1.0 https://s3.us-east-2.amazonaws.com/geodabuild/expat-2.1.0.tar.gz libexpat.dylib
 
 #########################################################################
 # install uriparser(libkml)
 #########################################################################
-#install_library uriparser-0.7.5 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/uriparser-0.7.5.tar.bz2 liburiparser.dylib
+#install_library uriparser-0.7.5 https://s3.us-east-2.amazonaws.com/geodabuild/uriparser-0.7.5.tar.bz2 liburiparser.dylib
 LIB_NAME=uriparser-0.7.5
 LIB_CHECKER=liburiparser.dylib
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/uriparser-0.7.5.tar.bz2
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/uriparser-0.7.5.tar.bz2
 LIB_FILENAME=uriparser-0.7.5.tar.bz2
 echo $LIB_NAME
 
@@ -220,7 +220,7 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 #########################################################################
 LIB_NAME=curl-7.46.0
 LIB_CHECKER=libcurl.a
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
 LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
 
@@ -252,44 +252,44 @@ export PATH=$PREFIX/bin:$PATH
 # install Xerces
 #########################################################################
 XERCES_NAME="xerces-c-3.1.1"
-XERCES_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
+XERCES_URL="https://s3.us-east-2.amazonaws.com/geodabuild/xerces-c-3.1.1.tar.gz"
 install_library $XERCES_NAME $XERCES_URL libxerces-c.a
 
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2 libgeos.a
+install_library geos-3.3.8 https://s3.us-east-2.amazonaws.com/geodabuild/geos-3.3.8.tar.bz2 libgeos.a
 
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
+install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
 
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://s3.us-east-2.amazonaws.com/geodabuild/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
-install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://s3.us-east-2.amazonaws.com/geodabuild/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install boost library
 #########################################################################
 LIB_NAME=boost_1_57_0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
 LIB_FILENAME=$LIB_NAME.tar.gz
 LIB_CHECKER=libboost_system.a
 echo $LIB_FILENAME
@@ -428,7 +428,7 @@ fi
 # install JSON Spirit
 #########################################################################
 LIB_NAME="json_spirit_v4.08"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
@@ -468,7 +468,7 @@ fi
 # install CLAPACK
 #########################################################################
 LIB_NAME="CLAPACK-3.2.1"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz"
 LIB_CHECKER="lapack.a"
 LIB_FILENAME=clapack.tgz
 echo $LIB_FILENAME
@@ -550,7 +550,7 @@ fi
 # install wxWidgets library
 #########################################################################
 LIB_NAME=wxWidgets-3.1.0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.1.0.tar.bz2
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
 LIB_CHECKER=libwx_baseu-3.1.a
 echo $LIB_FILENAME

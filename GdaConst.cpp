@@ -302,8 +302,11 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+uint64_t GdaConst::gda_user_seed = 0;
+bool GdaConst::use_gda_user_seed = false;
+
 int GdaConst::gdal_http_timeout = 5;
-bool GdaConst::enable_high_dpi_support = true;
+bool GdaConst::enable_high_dpi_support = false;
 bool GdaConst::show_csv_configure_in_merge = false;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
@@ -375,7 +378,7 @@ const wxColour GdaConst::table_col_sel_color(181, 213, 251); // light blue
 const wxColour GdaConst::table_row_and_col_sel_color(206, 217, 146);
 
 // Scatterplot
-const wxSize GdaConst::scatterplot_default_size(530, 530);
+const wxSize GdaConst::scatterplot_default_size(500, 500);
 const wxColour GdaConst::scatterplot_scale_color(0, 0, 0);
 //const wxColour GdaConst::scatterplot_regression_color(0, 79, 241); 
 //const wxColour GdaConst::scatterplot_regression_selected_color(204, 41, 44); 
