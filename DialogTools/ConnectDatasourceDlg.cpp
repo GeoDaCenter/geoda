@@ -1115,9 +1115,11 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     if (ds_name == "samples.sqlite") {
         ds_name = GenUtils::GetSamplesDir() + ds_name;
 		ds_name.Replace("\\", "\\\\");
-        ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
+        //ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
+        ds_json = "{\"ds_type\":\"SQLite\", \"ds_path\": \""+ds_name+"\"}";
     } else {
-        ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
+        //ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
+        ds_json = "{\"ds_type\":\"GeoJSON\", \"ds_path\": \""+ds_name+"\"}";
     }
     
     IDataSource* ds = IDataSource::CreateDataSource(ds_json);
