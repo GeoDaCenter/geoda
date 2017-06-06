@@ -359,10 +359,10 @@ namespace GenUtils {
 
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 
-	std::string GetBasemapCacheDir();
-	std::string GetWebPluginsDir();
-	std::string GetResourceDir();
-    std::string GetSamplesDir();
+	wxString GetBasemapCacheDir();
+	wxString GetWebPluginsDir();
+	wxString GetResourceDir();
+    wxString GetSamplesDir();
     
     bool less_vectors(const std::vector<int>& a,const std::vector<int>& b);
 }

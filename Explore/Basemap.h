@@ -230,7 +230,7 @@ public:
     Basemap(Screen *_screen,
             MapLayer *_map,
             int map_type,
-            std::string _cachePath,
+            wxString _cachePath,
             OGRCoordinateTransformation *_poCT );
     ~Basemap();
     
@@ -263,7 +263,7 @@ public:
     Screen* screen;
     MapLayer* map;
     MapLayer* origMap;
-    std::string cachePath;
+    wxString cachePath;
     
     double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
     double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
@@ -272,7 +272,7 @@ public:
 	void LatLngToXY(double lng, double lat, int &x, int &y);
     
 	std::string GetTileUrl(int x, int y);
-    std::string GetTilePath(int x, int y);
+    wxString GetTilePath(int x, int y);
 
 	bool Draw(wxBitmap* buffer);
 	

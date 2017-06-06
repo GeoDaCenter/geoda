@@ -296,7 +296,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		throw GdaException(msg.mb_str());
 	}
     
-	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString(), ds_type);
+	vector<wxString> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type);
     
     int n_tables = table_names.size();
     

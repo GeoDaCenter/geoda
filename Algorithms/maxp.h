@@ -30,6 +30,23 @@
 
 using namespace std;
 
+class qvector
+{
+public:
+    qvector();
+    ~qvector();
+    
+    bool find(int val);
+    void remove(int val);
+    void add(int val);
+    
+protected:
+    vector<int> vdata;
+    map<int, int> mdict;
+    vector<int>::iterator v_iter;
+    map<int, int>::iterator m_iter;
+};
+
 /*! A Max-p class */
 
 class Maxp
@@ -44,7 +61,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<int> floor_variable, int initial, vector<int> seed);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<vector<int> > floor_variable, int initial, vector<int> seed);
     
     
     //! A Deconstructor
@@ -152,6 +169,9 @@ protected:
     
     double objective_function();
 
+    void swap();
+    
+    bool is_component(const GalElement* w, const vector<int>& ids);
 };
 
 #endif
