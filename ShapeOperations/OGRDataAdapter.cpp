@@ -119,7 +119,7 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-vector<string> OGRDataAdapter::GetLayerNames(string ds_name, GdaConst::DataSourceType ds_type)
+vector<wxString> OGRDataAdapter::GetLayerNames(wxString ds_name, GdaConst::DataSourceType ds_type)
 {	
 	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
 	return ds_proxy->GetLayerNames();
@@ -308,7 +308,7 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 OGRLayerProxy*
 OGRDataAdapter::ExportDataSource(string o_ds_format, 
 								 wxString o_ds_name,
-                                 string o_layer_name,
+                                 wxString o_layer_name,
                                  OGRwkbGeometryType geom_type,
                                  vector<OGRGeometry*> ogr_geometries,
                                  TableInterface* table,

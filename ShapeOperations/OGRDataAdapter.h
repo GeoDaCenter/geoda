@@ -130,7 +130,7 @@ public:
 	 * @param ds_name OGR data source name
 	 * @param layer_names a reference to a string vector that stores layer names
 	 */
-	vector<string> GetLayerNames(string ds_name, GdaConst::DataSourceType ds_type);
+	vector<wxString> GetLayerNames(wxString ds_name, GdaConst::DataSourceType ds_type);
 
 	/**
 	 * cacher existing layer (memory) to local spatialite
@@ -163,7 +163,7 @@ public:
      */
     OGRLayerProxy* ExportDataSource(string o_ds_format, 
                                     wxString o_ds_name,
-                                    string o_layer_name,
+                                    wxString o_layer_name,
                                     OGRwkbGeometryType geom_type,
                                     vector<OGRGeometry*> ogr_geometries,
                                     TableInterface* table,

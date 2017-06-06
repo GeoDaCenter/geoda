@@ -72,9 +72,9 @@ public:
     
     size_t layer_count;	//!< number of layer in this data source
     
-	map<string, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
+	map<wxString, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
     
-	vector<string> layer_names;
+	vector<wxString> layer_names;
     
 public:
 	/**
@@ -99,7 +99,7 @@ public:
 	 * Return the number of layers, in case there is no layer in datasource.
 	 * (e.g. an empty spatialite file db).
 	 */
-	vector<string> GetLayerNames();
+	vector<wxString> GetLayerNames();
 	
 	/**
 	 * Return layer proxy according to the layer_name
@@ -115,7 +115,7 @@ public:
 	
 	OGRLayerProxy* ExecuteSQL(string sql);
 
-    OGRLayerProxy* CreateLayer(string layer_name,
+    OGRLayerProxy* CreateLayer(wxString layer_name,
                                OGRwkbGeometryType eGType,
                                vector<OGRGeometry*>& geometries,
                                TableInterface* table,

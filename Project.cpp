@@ -516,7 +516,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
         OGRLayerProxy* new_layer;
         new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(),
-                                                                   new_ds_name.ToStdString(),
+                                                                   new_ds_name,
                                                                    layername.ToStdString(),
                                                                    geom_type,
                                                                    ogr_geometries,
