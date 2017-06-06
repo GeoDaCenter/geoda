@@ -337,4 +337,5 @@ bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
     {
         int node = ids[i];
     }
+    return false;
 }
