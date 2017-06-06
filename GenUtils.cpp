@@ -1340,7 +1340,7 @@ std::string GenUtils::GetBasemapCacheDir()
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
 	wxString exeDir = exeFile.GetPathWithSep();
-	return std::string(exeDir.mb_str());
+	return std::string(GET_ENCODED_FILENAME(exeDir));
 }
 
 std::string GenUtils::GetWebPluginsDir()
@@ -1350,7 +1350,7 @@ std::string GenUtils::GetWebPluginsDir()
 	wxString exeDir = exeFile.GetPathWithSep();
     exeDir << "web_plugins" << wxFileName::GetPathSeparator();
     
-	return std::string(exeDir.mb_str());
+	return std::string(GET_ENCODED_FILENAME(exeDir));
 }
 
 std::string GenUtils::GetResourceDir()
@@ -1360,7 +1360,7 @@ std::string GenUtils::GetResourceDir()
 	wxString exeDir = exeFile.GetPathWithSep();
     exeDir << "../Resources" << wxFileName::GetPathSeparator();
     
-	return std::string(exeDir.mb_str());
+	return std::string(GET_ENCODED_FILENAME(exeDir));
 }
 
 std::string GenUtils::GetSamplesDir()

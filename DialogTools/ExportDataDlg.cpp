@@ -581,7 +581,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
     OGRLayerProxy* new_layer =
     ogr_adapter.ExportDataSource(ds_format.ToStdString(),
-                                 ds_name.ToStdString(),
+                                 ds_name,
                                  layer_name.ToStdString(),
                                  geom_type,
                                  ogr_geometries,

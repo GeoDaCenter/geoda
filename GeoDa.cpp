@@ -1926,8 +1926,11 @@ void GdaFrame::OnShapePointsFromASCII(wxCommandEvent& WXUNUSED(event) )
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open CreateGridDlg");
-	CreateGridDlg dlg(this);
-	dlg.ShowModal();
+    //Project* p = GetProject();
+    //if (!p || !p->GetTableInt()) return 0;
+    
+    CreateGridDlg* dlg =  new CreateGridDlg(this);
+    dlg->Show(true);
 }
 
 #include "DialogTools/Bnd2ShpDlg.h"

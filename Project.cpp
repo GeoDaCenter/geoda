@@ -1500,7 +1500,7 @@ bool Project::InitFromOgrLayer()
 		
 	}
     
-	OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name.ToStdString(), ds_type);
+    OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
     
 	datasource->UpdateWritable(ds_proxy->is_writable);
     

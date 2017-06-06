@@ -454,7 +454,13 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     }
     file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
     
-    wxImage img(file_path_str);
+    wxImage img;
+    if (wxFileExists(file_path_str)) {
+        ds_thumb = "no_map.png";
+        file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
+        
+    }
+    img.LoadFile(file_path_str);
     if (!img.IsOk()) {
         ds_thumb = "no_map.png";
         file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
