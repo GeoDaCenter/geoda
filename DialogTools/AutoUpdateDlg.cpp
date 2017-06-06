@@ -76,7 +76,7 @@ size_t write_to_file(void *ptr, size_t size, size_t nmemb, void* userdata)
 
 string ReadUrlContent(const char* url)
 {
-    
+    wxLogMessage("AutoUpdate::ReadUrlContent()");
     string response;
     
     CURL* curl = curl_easy_init();

@@ -146,7 +146,7 @@ void RecentDatasource::Init(wxString json_str_)
                 }
                 else if (i->name_ == "ds_thumb") {
                     val = i->value_;
-                    ds_thumb = val.get_str();
+                    ds_thumb = wxString(val.get_str());
                 }
             }
             ds_names.push_back(ds_name);
@@ -173,7 +173,8 @@ void RecentDatasource::Save()
         json_spirit::Object ds_obj;
         std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
         std::string layer_name( GET_ENCODED_FILENAME(ds_layernames[i]));
-        std::string ds_conf( ds_confs[i].mb_str() );
+        //std::string ds_conf( ds_confs[i].mb_str() );
+		std::string ds_conf( GET_ENCODED_FILENAME(ds_confs[i]) );
         std::string ds_thumb( GET_ENCODED_FILENAME(ds_thumbnails[i]) );
         ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
         ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
@@ -344,7 +345,7 @@ IDataSource* RecentDatasource::GetDatasource(wxString ds_name)
         if (ds_names[i] == ds_name) {
             wxString ds_conf = ds_confs[i];
             try {
-                return IDataSource::CreateDataSource(ds_conf);
+                return IDataSource::CreateDataSource(ds_confs[i]);
             } catch(GdaException& ex){
                 return NULL;
             }
@@ -454,7 +455,13 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     }
     file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
     
-    wxImage img(file_path_str);
+    wxImage img;
+    if (!wxFileExists(file_path_str)) {
+        ds_thumb = "no_map.png";
+        file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
+        
+    }
+    img.LoadFile(file_path_str);
     if (!img.IsOk()) {
         ds_thumb = "no_map.png";
         file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
@@ -1108,9 +1115,11 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     if (ds_name == "samples.sqlite") {
         ds_name = GenUtils::GetSamplesDir() + ds_name;
 		ds_name.Replace("\\", "\\\\");
-        ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
+        //ds_json = wxString::Format("{\"ds_type\":\"SQLite\", \"ds_path\": \"%s\"}", ds_name);
+        ds_json = "{\"ds_type\":\"SQLite\", \"ds_path\": \""+ds_name+"\"}";
     } else {
-        ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
+        //ds_json =  wxString::Format("{\"ds_type\":\"GeoJSON\", \"ds_path\": \"%s\"}", ds_name);
+        ds_json = "{\"ds_type\":\"GeoJSON\", \"ds_path\": \""+ds_name+"\"}";
     }
     
     IDataSource* ds = IDataSource::CreateDataSource(ds_json);

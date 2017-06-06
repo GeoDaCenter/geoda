@@ -31,11 +31,9 @@
 #include "cluster.h"
 #include "maxp.h"
 
-
-
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int floor, vector<int> floor_variable, int initial, vector<int> seed)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int floor, vector<vector<int> > floor_variable, int initial, vector<int> seed)
 : w(_w), z(_z), LARGE(1000000), MAX_ATTEMPTS(100)
 {
     num_obs = floor_variable.size();
@@ -54,9 +52,41 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int floor, 
         feasible = false;
     else {
         feasible = true;
+        double best_val = objective_function();
+        // deep copy
+        vector<vector<int> > current_regions = regions;
+        map<int, int> current_area2region = area2region;
+        vector<double> initial_wss;
+        int attemps = 0;
         
+        for (int i=0; i<initial; i++) {
+            init_solution();
+            if (p > 0) {
+                double val = objective_function();
+                initial_wss.push_back(val);
+                
+                wxString str;
+                str << "initial solution";
+                str << i;
+                str << val;
+                str << best_val;
+                LOG_MSG(str.ToStdString());
+                
+                if (val < best_val) {
+                    current_regions = regions;
+                    current_area2region = area2region;
+                    best_val = val;
+                }
+                attemps += 1;
+            }
+        }
+        
+        regions = current_regions;
+        p = regions.size();
+        area2region = current_area2region;
+        
+        swap();
     }
-    
 }
 
 Maxp::~Maxp()
@@ -242,4 +272,70 @@ void Maxp::init_solution()
         }
 
     }
+}
+
+void Maxp::swap()
+{
+    bool swapping = true;
+    int swap_iteration = 0;
+    int total_moves = 0;
+    int k = regions.size();
+    
+    vector<int>::iterator iter;
+    vector<int> changed_regions(k, 1);
+    while (swapping) {
+        int moves_made = 0;
+        vector<int> regionIds;
+        for (int r=0; r<k; r++) {
+            if (changed_regions[r] >0) {
+                regionIds.push_back(r);
+            }
+        }
+        random_shuffle(regionIds.begin(), regionIds.end());
+        for (int r=0; r<k; r++) changed_regions[r] = 0;
+        swap_iteration += 1;
+        for (int i=0; i<regionIds.size(); i++) {
+            int seed = regionIds[i];
+            bool local_swapping = true;
+            int local_attempts = 0;
+            while (local_swapping) {
+                int local_moves = 0;
+                // get neighbors
+                vector<int> neighbors;
+                vector<int>& members = regions[seed];
+                for (int j=0; j<members.size(); j++) {
+                    int member = members[j];
+                    for (int k=0; k<w[member].Size(); k++) {
+                        int candidate = w[member][k];
+                        iter = find(members.begin(), members.end(), candidate);
+                        if (iter != members.end()) continue;// not in members
+                        iter = find(neighbors.begin(), neighbors.end(), candidate);
+                        if (iter != neighbors.end()) continue; // not in neighbors
+                        neighbors.push_back(candidate);
+                    }
+                }
+                for (int j=0; j<neighbors.size(); j++) {
+                    int nbr = neighbors[j];
+                    vector<int> block = regions[ area2region[ nbr ] ]; // deep copy
+                    //if (check_contiguity(block, neighbor)) {
+                    //    block.erase(neighbor);
+                    //}
+                }
+            }
+        }
+    }
+}
+
+bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
+{
+    int components = 0;
+    map<int, int> masks;
+    for (int i=0; i<ids.size(); i++) masks[ids[i]] = 0;
+    
+    vector<int> q;
+    for (int i=0; i<ids.size(); i++)
+    {
+        int node = ids[i];
+    }
+    return false;
 }

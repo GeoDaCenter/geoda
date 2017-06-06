@@ -238,6 +238,20 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCReferencefile2Click()");
     
     try{
+        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+        while (node) {
+            wxWindow* win = node->GetData();
+            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+                if (w->GetType() == 0) {
+                    w->Show(true);
+                    w->Maximize(false);
+                    w->Raise();
+                    return;
+                }
+            }
+            node = node->GetNext();
+        }
+        
         ConnectDatasourceDlg dlg(this);
         if (dlg.ShowModal() != wxID_OK)
             return;
@@ -374,11 +388,12 @@ void CreateGridDlg::CreateGrid()
             
             grids.push_back(new GdaPolygon(n_pts,pts));
 
-            delete pts;
+            delete[] pts;
         }
     }
    
-    ExportDataDlg dlg(this, grids, Shapefile::POLYGON);
+    ExportDataDlg dlg(NULL, grids, Shapefile::POLYGON);
+    dlg.Raise();
     dlg.ShowModal();
     
 	m_nCount = nMaxCount;

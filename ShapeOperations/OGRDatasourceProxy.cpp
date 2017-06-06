@@ -145,7 +145,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
 OGRDatasourceProxy::~OGRDatasourceProxy()
 {
 	// clean map of layer_pool
-	map<string, OGRLayerProxy*>::iterator it;
+	map<wxString, OGRLayerProxy*>::iterator it;
 	for (it=layer_pool.begin(); it!=layer_pool.end(); it++) {
 		if (it->second)
             delete it->second;
@@ -177,7 +177,7 @@ OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
 	}
 }
 
-vector<string> OGRDatasourceProxy::GetLayerNames()
+vector<wxString> OGRDatasourceProxy::GetLayerNames()
 {
 	// GetLayerNames can happen before actually read data from layer
 	// , so this provide us a chance to store all OGRLayer instance
@@ -197,9 +197,9 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
 		OGRLayerProxy* layer_proxy = NULL;
         OGRLayer* layer = ds->GetLayer(0);
         if (layer) {
-            string layer_name(layer->GetName());
+            wxString layer_name(layer->GetName());
             this->layer_names.push_back(layer_name);
-            layer_pool[layer_name] = new OGRLayerProxy(layer_name,layer,ds_type);
+            layer_pool[layer_name] = new OGRLayerProxy(std::string(GET_ENCODED_FILENAME(layer_name)),layer,ds_type);
         }
         
 	} else {
@@ -209,8 +209,8 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
 		for (int i=0; i<layer_count; i++)
 		{
 			layer = ds->GetLayer(i);
-			string layer_name(layer->GetName());
-            // don't show some system tables in postgres
+			wxString layer_name(layer->GetName());
+            // don't \show some system tables in postgres
             if ( layer_name == "raster_columns" ||
                  layer_name == "raster_overviews" ||
                  layer_name == "topology.topology"  ||
@@ -220,7 +220,7 @@ vector<string> OGRDatasourceProxy::GetLayerNames()
                 continue;
             }
 			this->layer_names.push_back(layer_name);
-			layer_pool[layer_name] = new OGRLayerProxy(layer_name,layer,ds_type);
+            layer_pool[layer_name] = new OGRLayerProxy(std::string(GET_ENCODED_FILENAME(layer_name)),layer,ds_type);
 		}
         layer_count = layer_count - system_layers;
         
@@ -254,7 +254,7 @@ bool OGRDatasourceProxy::DeleteLayer(string layer_name)
 		string tmp_layer_name(layer->GetName());
         if ( tmp_layer_name.compare(layer_name) == 0) {
             if ( ds->DeleteLayer(i) == OGRERR_NONE ) {
-                map<string, OGRLayerProxy*>::iterator it =
+                map<wxString, OGRLayerProxy*>::iterator it =
                     layer_pool.find(layer_name);
                 if ( it != layer_pool.end()) {
                     layer_pool.erase(it);
@@ -333,7 +333,7 @@ void OGRDatasourceProxy::CreateDataSource(string format,
 
 // Create a geom only layer, the table will added ID column automatically
 OGRLayerProxy*
-OGRDatasourceProxy::CreateLayer(string layer_name,
+OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                 OGRwkbGeometryType eGType,
                                 vector<OGRGeometry*>& geometries,
                                 TableInterface* table,
@@ -355,11 +355,11 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
     // LAUNDER is for database: rename desired field name
     char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
     
-    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.c_str(),
+    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(),
                                            poOutputSRS, eGType, papszLCO);
     
     if( poDstLayer == NULL ) {
-        error_message << "Can't write/create layer \"" << layer_name << "\". \n\nDetails: Attemp to write a readonly database, or "
+        error_message << "Can't write/create layer \"" << layer_name.mb_str() << "\". \n\nDetails: Attemp to write a readonly database, or "
                       << CPLGetLastErrorMsg();
 		throw GdaException(error_message.str().c_str());
     }
@@ -381,7 +381,7 @@ OGRDatasourceProxy::CreateLayer(string layer_name,
                 
                 wxString fname = table->GetColName(col_id_map[id], t);
                 if (fname.empty()) {
-                    error_message << "Can't create layer \"" << layer_name
+                    error_message << "Can't create layer \"" << layer_name.mb_str()
                     << "\" with empty field name.";
                     throw GdaException(error_message.str().c_str());
                 }

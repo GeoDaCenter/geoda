@@ -55,7 +55,7 @@ public:
 private:
     std::string cache_filename;
 	OGRDatasourceProxy* cach_ds_proxy;
-	std::vector<std::string> layer_names; //<! layer name in cache is composed
+	std::vector<wxString> layer_names; //<! layer name in cache is composed
 										  //<! by orginal ds_name and layer_name
 	static const std::string HIST_TABLE_NAME;
 	static const std::string DB_HOST_HIST;

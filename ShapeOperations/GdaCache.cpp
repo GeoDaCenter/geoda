@@ -144,11 +144,11 @@ bool GdaCache::IsLayerUpdated(std::string ext_ds_name,
 bool GdaCache::IsLayerCached(std::string ext_ds_name, 
 							 std::string ext_layer_name)
 {
+    bool caseSensitive = false;
 	for (size_t i=0; i<layer_names.size(); i++) {
-		std::string query_layer_name = ext_ds_name + "_" + ext_layer_name;
-		std::transform(query_layer_name.begin(), query_layer_name.end(), 
-					   query_layer_name.begin(), ::tolower);
-		if (layer_names[i] == query_layer_name) return true;
+		wxString query_layer_name = ext_ds_name + "_" + ext_layer_name;
+		if (layer_names[i].IsSameAs(query_layer_name, caseSensitive))
+            return true;
 	}
 	return false;
 }
