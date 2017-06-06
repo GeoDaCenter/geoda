@@ -217,8 +217,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
 IDataSource* IDataSource::CreateDataSource(wxString ds_json)
 {
     // '{"ds_type":"ds_shapefile", "ds_path": "/test.shp", "db_name":"test"..}'
-    std::string ds_json_str(ds_json.mb_str());
-    
+	std::string ds_json_str(GET_ENCODED_FILENAME(ds_json));
     json_spirit::Value v;
     
     try {
@@ -369,15 +368,20 @@ void FileDataSource::ReadPtree(const ptree& pt,
 
 wxString FileDataSource::GetJsonStr()
 {
-    std::string ds_type_str(GetDataTypeNameByGdaDSType(ds_type).mb_str());
-    std::string ds_path_str(GET_ENCODED_FILENAME(file_repository_path));
+    //std::string ds_type_str(GetDataTypeNameByGdaDSType(ds_type).mb_str());
+    //std::string ds_path_str(GET_ENCODED_FILENAME(file_repository_path)); // utf-8 coded
     
-    json_spirit::Object ret_obj;
-    ret_obj.push_back(json_spirit::Pair("ds_type", ds_type_str));
-    ret_obj.push_back(json_spirit::Pair("ds_path", ds_path_str));
+    //json_spirit::Object ret_obj;
+    //ret_obj.push_back(json_spirit::Pair("ds_type", ds_type_str));
+    //ret_obj.push_back(json_spirit::Pair("ds_path", ds_path_str));
     
-    std::string json_str = json_spirit::write(ret_obj);
-    return wxString(json_str);
+    //std::string json_str1 = json_spirit::write(ret_obj);
+
+	wxString json_tmp = "{\"ds_type\":\"%s\", \"ds_path\":\"%s\"}";
+	wxString json_path = file_repository_path;
+	json_path.Replace("\\", "\\\\");
+	wxString json_str = wxString::Format(json_tmp, GetDataTypeNameByGdaDSType(ds_type), json_path);
+    return json_str;
 }
 
 void FileDataSource::WritePtree(ptree& pt,
