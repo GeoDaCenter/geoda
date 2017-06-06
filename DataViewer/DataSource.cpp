@@ -380,7 +380,10 @@ wxString FileDataSource::GetJsonStr()
 	wxString json_tmp = "{\"ds_type\":\"%s\", \"ds_path\":\"%s\"}";
 	wxString json_path = file_repository_path;
 	json_path.Replace("\\", "\\\\");
-	wxString json_str = wxString::Format(json_tmp, GetDataTypeNameByGdaDSType(ds_type), json_path);
+    
+	//wxString json_str = wxString::Format(json_tmp, GetDataTypeNameByGdaDSType(ds_type), json_path);
+    wxString json_str = "{\"ds_type\":\""+GetDataTypeNameByGdaDSType(ds_type)+"\", \"ds_path\":\""+json_path+"\"}";
+
     return json_str;
 }
 

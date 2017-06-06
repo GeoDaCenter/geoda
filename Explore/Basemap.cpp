@@ -60,7 +60,7 @@ XY::XY(double _x, double _y)
 Basemap::Basemap(Screen* _screen,
                  MapLayer *_map,
                  int map_type,
-                 string _cachePath,
+                 wxString _cachePath,
                  OGRCoordinateTransformation *_poCT )
 {
     poCT = _poCT;
@@ -119,9 +119,8 @@ Basemap::~Basemap() {
 
 void Basemap::CleanCache()
 {
-    std::ostringstream filepathBuf;
-    filepathBuf << cachePath << "basemap_cache"<< separator();
-    wxString filename = filepathBuf.str();
+    wxString filename;
+    filename << cachePath << "basemap_cache"<< separator();
     wxDir dir(filename);
     if (dir.IsOpened() ) {
         wxString file;
@@ -528,11 +527,10 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 void Basemap::DownloadTile(int x, int y)
 {
     // detect if file exists in temp/ directory
-    std::string filepathStr = GetTilePath(x, y);
-    char* filepath = new char[filepathStr.length() + 1];
-    std::strcpy(filepath, filepathStr.c_str());
+    wxString filepathStr = GetTilePath(x, y);
+    std::string filepath = GET_ENCODED_FILENAME(filepathStr);
 
-    if (!is_file_exist(filepath)) {
+    if (!wxFileExists(filepathStr)) {
         // otherwise, download the image
         std::string urlStr = GetTileUrl(x, y);
         char* url = new char[urlStr.length() + 1];
@@ -544,7 +542,7 @@ void Basemap::DownloadTile(int x, int y)
 
         image = curl_easy_init();
         if (image) {
-            fp = fopen(filepath, "wb");
+            fp = fopen(filepath.c_str(), "wb");
             if (fp)
             {
                 curl_easy_setopt(image, CURLOPT_URL, url); 
@@ -557,19 +555,6 @@ void Basemap::DownloadTile(int x, int y)
                 // Grab image 
                 imgResult = curl_easy_perform(image); 
            
-		/* 
-		if( imgResult ){ 
-                  cout << "Cannot grab the image!\n"; 
-                } 
-            
-            	int res_code = 0;
-            	curl_easy_getinfo(image, CURLINFO_RESPONSE_CODE, &res_code);
-            	if (!((res_code == 200 || res_code == 201) && imgResult != CURLE_ABORTED_BY_CALLBACK))
-            	{
-                	printf("!!! Response code: %d\n", res_code);
-            	}
-		*/
-		// Clean up the resources 
                 curl_easy_cleanup(image);
                 fclose(fp);
             }
@@ -580,7 +565,6 @@ void Basemap::DownloadTile(int x, int y)
     }
     isTileReady = false; // notice template_canvas to draw
     //canvas->Refresh(true);
-    delete[] filepath;
 }
 
 
@@ -646,23 +630,24 @@ std::string Basemap::GetTileUrl(int x, int y)
 	return urlStr;
 }
 
-std::string Basemap::GetTilePath(int x, int y)
+wxString Basemap::GetTilePath(int x, int y)
 {
-    std::ostringstream filepathBuf;
+    //std::ostringstream filepathBuf;
+    wxString filepathBuf;
     filepathBuf << cachePath << "basemap_cache"<< separator();
     filepathBuf << mapType << "-";
-    filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix; 
-    std::string filepathStr = filepathBuf.str();
-	std::string newpath;  
-	for (int i = 0; i < filepathStr.length() ;i++)
+    filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
+    
+	wxString newpath;
+	for (int i = 0; i < filepathBuf.length() ;i++)
 	{
-		if(filepathStr[i] == '\\')
+		if(filepathBuf[i] == '\\')
 		{
-			newpath += filepathStr[i];
-			newpath += filepathStr[i];
+			newpath += filepathBuf[i];
+			newpath += filepathBuf[i];
 		}
 		else
-			newpath += filepathStr[i];
+			newpath += filepathBuf[i];
 	}
     return newpath;
 }
@@ -690,8 +675,7 @@ bool Basemap::Draw(wxBitmap* buffer)
                 idx_x = nn + i;
             
             int idx_y = j < 0 ? nn + j : j;
-            std::string filepathStr = GetTilePath(idx_x, idx_y);
-            wxString wxFilePath(filepathStr);
+            wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;
             if (imageSuffix == ".png") {

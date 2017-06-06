@@ -1335,35 +1335,35 @@ wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 	return wrapper.GetWrapped();
 }
 
-std::string GenUtils::GetBasemapCacheDir()
+wxString GenUtils::GetBasemapCacheDir()
 {
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
 	wxString exeDir = exeFile.GetPathWithSep();
-	return std::string(GET_ENCODED_FILENAME(exeDir));
+	return exeDir;
 }
 
-std::string GenUtils::GetWebPluginsDir()
+wxString GenUtils::GetWebPluginsDir()
 {
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
 	wxString exeDir = exeFile.GetPathWithSep();
     exeDir << "web_plugins" << wxFileName::GetPathSeparator();
     
-	return std::string(GET_ENCODED_FILENAME(exeDir));
+	return exeDir;
 }
 
-std::string GenUtils::GetResourceDir()
+wxString GenUtils::GetResourceDir()
 {
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
 	wxString exeDir = exeFile.GetPathWithSep();
     exeDir << "../Resources" << wxFileName::GetPathSeparator();
     
-	return std::string(GET_ENCODED_FILENAME(exeDir));
+	return exeDir;
 }
 
-std::string GenUtils::GetSamplesDir()
+wxString GenUtils::GetSamplesDir()
 {
 #ifdef __WXOSX__
     return GetResourceDir();
