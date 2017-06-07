@@ -24,7 +24,7 @@
 
 // 10 local + 29 http
 const char* GdaConst::sample_names[] = {
-    "Moral Statistics of France",
+    "Moral Statistics of France (1833)",
     "US County Homicides",
     "House Prices Baltimore",
     "House Prices Boston",
