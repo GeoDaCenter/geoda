@@ -24,6 +24,7 @@
 
 // 10 local + 29 http
 const char* GdaConst::sample_names[] = {
+    "Moral Statistics of France",
     "US County Homicides",
     "House Prices Baltimore",
     "House Prices Boston",
@@ -37,6 +38,7 @@ const char* GdaConst::sample_names[] = {
 };
 
 const char* GdaConst::sample_layer_names[] = {
+    "Guerry",
     "US Homicides",
     "Baltimore Home Sales",
     "Boston Home Sales",
@@ -50,6 +52,7 @@ const char* GdaConst::sample_layer_names[] = {
 };
 
 const char* GdaConst::sample_datasources[] = {
+    "samples.sqlite",
     "samples.sqlite",
     "samples.sqlite",
     "samples.sqlite",
