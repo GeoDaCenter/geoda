@@ -400,9 +400,11 @@ bool GdaApp::OnInit(void)
 #ifdef __WIN32__
 	wxString gal_data_dir = exeDir + "data";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #else
 	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #endif
     
 
