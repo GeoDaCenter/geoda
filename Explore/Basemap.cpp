@@ -542,7 +542,11 @@ void Basemap::DownloadTile(int x, int y)
 
         image = curl_easy_init();
         if (image) {
-            fp = fopen(filepath.c_str(), "wb");
+#ifdef __WIN32__
+			fp = _wfopen(filepathStr.wc_str(), L"wb");
+#else
+            fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
+#endif
             if (fp)
             {
                 curl_easy_setopt(image, CURLOPT_URL, url); 
