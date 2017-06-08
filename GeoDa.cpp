@@ -400,9 +400,11 @@ bool GdaApp::OnInit(void)
 #ifdef __WIN32__
 	wxString gal_data_dir = exeDir + "data";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #else
 	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #endif
     
 
@@ -410,7 +412,11 @@ bool GdaApp::OnInit(void)
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
     
     if (m_pLogFile == NULL) {
+#ifdef __WIN32__
+		m_pLogFile = _wfopen( loggerFile.wc_str(), L"w+" );
+#else
         m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
+#endif
         wxLog::SetActiveTarget(new wxLogStderr(m_pLogFile));
     }
     wxLog::EnableLogging(true);
