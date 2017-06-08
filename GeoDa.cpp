@@ -412,7 +412,11 @@ bool GdaApp::OnInit(void)
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
     
     if (m_pLogFile == NULL) {
+#ifdef __WIN32__
+		m_pLogFile = _wfopen( loggerFile.wc_str(), L"w+" );
+#else
         m_pLogFile = fopen( GET_ENCODED_FILENAME(loggerFile), "w+" );
+#endif
         wxLog::SetActiveTarget(new wxLogStderr(m_pLogFile));
     }
     wxLog::EnableLogging(true);
