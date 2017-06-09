@@ -401,6 +401,10 @@ bool GdaApp::OnInit(void)
 	wxString gal_data_dir = exeDir + "data";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
     CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+#elif defined __linux__
+	wxString gal_data_dir = exeDir + "gdaldata";
+	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #else
 	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
@@ -432,6 +436,7 @@ bool GdaApp::OnInit(void)
                                            Gda::version_build,
                                            Gda::version_subbuild);
     wxLogMessage(versionlog);
+    wxLogMessage(loggerFile);
     
     // check update in a new thread
     if (GdaConst::disable_auto_upgrade == false) {
