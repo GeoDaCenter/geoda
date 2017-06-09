@@ -136,7 +136,7 @@ private:
 	bool is_writable;
     
 public:
-    /// implementation of IDataSource interfaces
+    /// implementation of IDataSource interfaces    
 	virtual wxString GetOGRConnectStr();
     
     virtual bool IsWritable(){return is_writable;}

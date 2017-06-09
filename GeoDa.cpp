@@ -378,15 +378,15 @@ bool GdaApp::OnInit(void)
             std::string no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?");
+                wxString msg = _("It looks like GeoDa has been terminated abnormally.     \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
                 wxString ttl = _("Send Crash Report");
-                wxMessageDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl,
-                                       wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-                if (msgDlg.ShowModal() == wxID_YES) {
-                    //wxCommandEvent ev;
-                    //GdaFrame::GetGdaFrame()->OnReportBug(ev);
+                wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, "",
+                                         wxOK | wxCANCEL | wxCENTRE );
+                if (msgDlg.ShowModal() == wxID_OK) {
                     wxString ttl = "Crash Report";
-                    ReportBugDlg::CreateIssue(ttl, "Details:");
+                    wxString body;
+                    body << "From: " << msgDlg.GetValue() << "\n Details:";
+                    ReportBugDlg::CreateIssue(ttl, body);
                 }
             }
         }
