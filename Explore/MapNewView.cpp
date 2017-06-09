@@ -967,7 +967,7 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 
 wxString MapCanvas::GetCanvasTitle()
 {
-    wxLogMessage("MapCanvas::GetCanvasTitle()");
+    //wxLogMessage("MapCanvas::GetCanvasTitle()");
 	wxString v;
 	if (GetNumVars() == 1) v << GetNameWithTime(0);
 	if (GetNumVars() == 2) {
