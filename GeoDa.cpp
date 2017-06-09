@@ -380,12 +380,18 @@ bool GdaApp::OnInit(void)
                 // ask user to send crash data
                 wxString msg = _("It looks like GeoDa has been terminated abnormally.     \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
                 wxString ttl = _("Send Crash Report");
-                wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, "",
+                wxString user_email = GdaConst::gda_user_email;
+                wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
                                          wxOK | wxCANCEL | wxCENTRE );
                 if (msgDlg.ShowModal() == wxID_OK) {
+                    user_email = msgDlg.GetValue();
+                    if (user_email != GdaConst::gda_user_email) {
+                        OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
+                        GdaConst::gda_user_email = user_email;
+                    }
                     wxString ttl = "Crash Report";
                     wxString body;
-                    body << "From: " << msgDlg.GetValue() << "\n Details:";
+                    body << "From: " << user_email << "\n Details:";
                     ReportBugDlg::CreateIssue(ttl, body);
                 }
             }
@@ -393,6 +399,7 @@ bool GdaApp::OnInit(void)
         OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     }
     
+    // setup gdaldata directory for libprj
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();

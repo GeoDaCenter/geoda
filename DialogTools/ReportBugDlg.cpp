@@ -602,6 +602,12 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::use_gda_user_seed = false;
         }
     }
+    
+    vector<string> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
+    if (!gda_user_email.empty()) {
+        wxString email = gda_user_email[0];
+        GdaConst::gda_user_email = email;
+    }
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)

@@ -305,6 +305,7 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+wxString GdaConst::gda_user_email = "";
 uint64_t GdaConst::gda_user_seed = 0;
 bool GdaConst::use_gda_user_seed = false;
 
