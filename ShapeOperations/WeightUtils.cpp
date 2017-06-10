@@ -38,8 +38,12 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 	wxString ext = GenUtils::GetFileExt(fname).Lower();
 	if (ext != "gal" && ext != "gwt") return "";
 	
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
 	if (!(file.is_open() && file.good())) return "";
 	
 	// Header line is identical for GWT and GAL
@@ -100,8 +104,13 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 								 TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+	
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -369,8 +378,13 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 									  TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+ 
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -616,8 +630,13 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 								 TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}

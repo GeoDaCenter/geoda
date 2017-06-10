@@ -1020,8 +1020,13 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     wxFileName gwtfn(ofname);
     gwtfn.SetExt("gwt");
     wxString gwt_ofn(gwtfn.GetFullPath());
-    std::ofstream out;
+
+#ifdef __WIN32__
+	std:ofstream out(gwt_ofn.wc_str());
+#else
+	std:ofstream out;
 	out.open(GET_ENCODED_FILENAME(gwt_ofn));
+#endif
     
     if (!(out.is_open() && out.good())) {
         return false;

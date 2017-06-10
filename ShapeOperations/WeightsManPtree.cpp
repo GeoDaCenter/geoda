@@ -87,7 +87,7 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
 					if (key == "title") {
-						wxString s = v.second.data();
+						wxString s(v.second.data().c_str(), wxConvUTF8);
 						e.title = s;
 					} else if (key == "default") {
 						e.is_default = true;
@@ -108,7 +108,7 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.weights_type = WeightsMetaInfo::WT_custom;
 								}
 							} else if (key == "path") {
-								wxString s = v.second.data();
+								wxString s(v.second.data().c_str(), wxConvUTF8);
 								e.wmi.filename = GenUtils::RestorePath(proj_path, s);
                                 if (!wxFileExists(e.wmi.filename)) {
                                     wxString msg;
@@ -117,11 +117,11 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
                                     msg << "Details: Weights file (" << e.wmi.filename << ") is missing";
                                     msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the weights file(s) (.gwt or .gal extension) associated with your project.";
                                     
-                                    throw GdaException(msg.mb_str());
+                                    throw GdaException(GET_ENCODED_FILENAME(msg));
                                 }
                                 
 							} else if (key == "id_variable") {
-								wxString s = v.second.data();
+								wxString s(v.second.data().c_str(), wxConvUTF8);
 								e.wmi.id_var = s;
 							} else if (key == "symmetry") {
 								wxString s = v.second.data();

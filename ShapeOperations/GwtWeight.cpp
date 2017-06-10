@@ -97,8 +97,13 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     
     int n = newids.size();
     
-    ofstream out;
-    out.open(GET_ENCODED_FILENAME(ofname));
+#ifdef __WIN32__
+	ofstream out(ofname.wc_str());
+#else
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(ofname));
+#endif
+
     if (!(out.is_open() && out.good())) return false;
     
     // if layer_name contains an empty space, the layer name should be
@@ -166,8 +171,13 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
         }
     }
     
-    ofstream out;
-    out.open(GET_ENCODED_FILENAME(ofname));
+#ifdef __WIN32__
+	ofstream out(ofname.wc_str());
+#else
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(ofname));
+#endif
+
     if (!(out.is_open() && out.good())) return false;
     
     // if layer_name contains an empty space, the layer name should be
@@ -214,8 +224,14 @@ bool Gda::SaveGwt(const GwtElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_ofn.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
+#endif
+
 	if (!(out.is_open() && out.good())) return false;
 
     wxString layer_name(_layer_name);
@@ -254,8 +270,14 @@ bool Gda::SaveGwt(const GwtElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_ofn.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
+#endif
+
 	if (!(out.is_open() && out.good())) return false;
 	
     wxString layer_name(_layer_name);

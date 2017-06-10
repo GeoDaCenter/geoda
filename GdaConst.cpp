@@ -52,6 +52,20 @@ const char* GdaConst::sample_layer_names[] = {
 };
 
 const char* GdaConst::sample_datasources[] = {
+    "samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite"
+};
+
+const char* GdaConst::sample_meta_urls[] = {
     "https://spatial.uchicago.edu/sample-data",
     "https://spatial.uchicago.edu/sample-data",
     "https://spatial.uchicago.edu/sample-data",

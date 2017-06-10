@@ -436,8 +436,13 @@ bool Gda::SaveGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+	
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
+#endif
 	if (!(out.is_open() && out.good())) return false;
 
     wxString layer_name(_layer_name);
@@ -477,8 +482,13 @@ bool Gda::SaveGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
+#endif
 	if (!(out.is_open() && out.good()))
         return false;
 
@@ -520,8 +530,12 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
+#endif
 	if (!(out.is_open() && out.good())) return false;
 	
 	size_t num_obs = id_vec.size();

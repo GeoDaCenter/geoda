@@ -434,6 +434,7 @@ public:
 	static const char* sample_names[255];
 	static const char* sample_layer_names[255];
 	static const char* sample_datasources[255];
+	static const char* sample_meta_urls[255];
 };
 
 #endif

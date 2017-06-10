@@ -87,14 +87,16 @@ void LayerConfiguration::UpdateDataSource(IDataSource* new_datasource)
 void LayerConfiguration::ReadPtree(const ptree& pt,
 								   const wxString& proj_path)
 {
-    layer_title = pt.get("title", "");
+	wxString tmp(pt.get("title", "").c_str(), wxConvUTF8);
+    layer_title = tmp;
 	
 	// create DataSource instance from <datasource>...
 	const ptree& subtree = pt.get_child("datasource");
 	string type_str = subtree.get<string>("type");
 	datasource = IDataSource::CreateDataSource(type_str, subtree, proj_path);
 
-	layer_name = pt.get("layername", "");
+	wxString tmp1(pt.get("layername", "").c_str(), wxConvUTF8);
+	layer_name = tmp1;
 
 	// create VarOrderPtree instance from <variable_order>...
 	if (!variable_order) variable_order = new VarOrderPtree(pt, proj_path);
@@ -198,9 +200,8 @@ ProjectConfiguration::ProjectConfiguration(const wxString& proj_path)
     project_fpath = proj_path;
 	ptree xml_tree;
 #ifdef __WIN32__
-	std::wstring ws(project_fpath.fn_str());
-	std::string s(ws.begin(), ws.end());
-	read_xml(s, xml_tree);
+	std::ifstream in_file(project_fpath.wc_str());
+	read_xml(in_file, xml_tree);
 #else
 	read_xml(std::string(GET_ENCODED_FILENAME(project_fpath)), xml_tree);
 #endif
@@ -217,7 +218,8 @@ ProjectConfiguration::ProjectConfiguration(wxString prj_title,
 void ProjectConfiguration::ReadPtree(const ptree& pt,
 									 const wxString& proj_path)
 {
-	project_title = pt.get("project.title", "");
+	wxString tmp(pt.get("project.title", "").c_str(), wxConvUTF8);
+	project_title = tmp;
 	
 	const ptree& subtree = pt.get_child("project.layers.layer");
 	LayerConfiguration* layer_conf = new LayerConfiguration(subtree,
@@ -234,9 +236,9 @@ void ProjectConfiguration::Save(wxString saveFileName)
     boost::property_tree::xml_writer_settings<std::string> settings(' ', 4);
 	try {
 #ifdef __WIN32__
-		std::wstring ws(saveFileName.fn_str());
-		std::string s(ws.begin(), ws.end());
-		write_xml(s, pt, std::locale(), settings);
+		std::ofstream out_file(saveFileName.wc_str());
+		write_xml(out_file, pt, settings);
+		out_file.close();
 #else
 		write_xml(std::string(GET_ENCODED_FILENAME(saveFileName)), pt,
 			      std::locale(), settings);

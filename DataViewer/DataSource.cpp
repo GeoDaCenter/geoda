@@ -349,7 +349,8 @@ void FileDataSource::ReadPtree(const ptree& pt,
 			throw GdaException(ss.str().c_str());
 		}
 		
-        file_repository_path = pt.get<string>("path");
+		wxString tmp(pt.get<string>("path").c_str(), wxConvUTF8);
+        file_repository_path = tmp;
 		file_repository_path = GenUtils::RestorePath(proj_path,
 													 file_repository_path);
         
@@ -359,7 +360,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
             msg << _("Details: GeoDa is looking for: ") << file_repository_path;
             msg << _("\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
             
-            throw GdaException(msg.mb_str());
+            throw GdaException(GET_ENCODED_FILENAME(msg));
         }
 	} catch (std::exception &e) {
 		throw GdaException(e.what());

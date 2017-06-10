@@ -104,10 +104,14 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 	}
 
     wxLogMessage(_("csv file:") + new_csv);
+#ifdef __WIN32__
+	std::ofstream out_file(new_csv.wc_str(),std::ios::out | std::ios::binary);
+#else
 	std::ofstream out_file;	
-	out_file.open(GET_ENCODED_FILENAME(new_csv),
-				  std::ios::out | std::ios::binary);
+	out_file.open(GET_ENCODED_FILENAME(new_csv),std::ios::out | std::ios::binary);
+#endif
 
+	
 	if (!(out_file.is_open() && out_file.good())) {
 		wxString msg;
 		msg << "Unable to create CSV file.";

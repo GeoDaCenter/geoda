@@ -184,8 +184,14 @@ void ASC2SHPDlg::OnOkAddClick( wxCommandEvent& event )
 	wxString m_oSHP = m_outputfile->GetValue();
     int idx_x = m_X->GetSelection();
 	int idx_y = m_Y->GetSelection();
-	std::ifstream ias;
+
+#ifdef __WIN32__
+	std:ifstream ias(m_iASC.wc_str());
+#else
+	std:ifstream ias;
 	ias.open(GET_ENCODED_FILENAME(m_iASC));
+#endif
+
 	int n_recs;
 	int n_fields;
 		

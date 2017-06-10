@@ -1020,10 +1020,10 @@ void ConnectDatasourceDlg::InitSamplePanel()
         int n = 11; // number of sample dataset
         for (int i=0; i<n; i++) {
             wxString sample_name = GdaConst::sample_names[i];
-            wxString sample_ds_name = GdaConst::sample_datasources[i];
+            wxString sample_meta_url = GdaConst::sample_meta_urls[i];
             wxString ds_layername = GdaConst::sample_layer_names[i];
             wxString ds_thumb = GdaConst::sample_layer_names[i];
-            AddSampleItem(sizer, sample_scrl, sample_name, sample_ds_name,
+            AddSampleItem(sizer, sample_scrl, sample_name, sample_meta_url,
                           ds_layername, ds_thumb, base_xrcid_sample_thumb+i);
         }
         sample_scrl->SetSizer( sizer );
@@ -1041,7 +1041,7 @@ void ConnectDatasourceDlg::InitSamplePanel()
 void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
                                          wxScrolledWindow* scrl,
                                          wxString name,
-                                         wxString ds_name,
+                                         wxString ds_url,
                                          wxString ds_layername,
                                          wxString ds_thumb, int id)
 {
@@ -1068,13 +1068,13 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     obs_txt->SetToolTip(name);
     text_sizer->Add(obs_txt, 0, wxALIGN_LEFT | wxALL, 5);
     
-    wxString lbl_ds_name = ds_name;
+    wxString lbl_ds_name = ds_url;
     lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
     wxHyperlinkCtrl* filepath;
-    filepath = new wxHyperlinkCtrl(scrl, wxID_ANY, lbl_ds_name, ds_name);
+    filepath = new wxHyperlinkCtrl(scrl, wxID_ANY, ds_url, ds_url);
     filepath->SetFont(*GdaConst::extra_small_font);
     filepath->SetForegroundColour(wxColour(70,70,70));
-    filepath->SetToolTip(ds_name);
+    filepath->SetToolTip(ds_url);
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
     
     wxString file_path_str;

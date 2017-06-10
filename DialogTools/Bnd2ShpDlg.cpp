@@ -75,8 +75,13 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
     
 	wxString m_iASC = m_inputfile->GetValue();
 
-    fstream ias;
+#ifdef __WIN32__
+	std:ifstream ias(m_iASC.wc_str());
+#else
+	std:ifstream ias;
 	ias.open(GET_ENCODED_FILENAME(m_iASC));
+#endif
+
 	int nRows;
 	char name[1000];
 	ias.getline(name,100);
