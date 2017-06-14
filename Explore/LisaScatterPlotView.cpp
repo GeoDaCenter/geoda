@@ -1110,16 +1110,20 @@ void LisaScatterPlotFrame::OnRan999Per(wxCommandEvent& event)
 
 void LisaScatterPlotFrame::OnRanOtherPer(wxCommandEvent& event)
 {
+    wxLogMessage("LisaScatterPlotFrame::OnRanOtherPer");
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
-		dlg.m_number->GetValue().ToLong(&num);
+        wxString input = dlg.m_number->GetValue();
+        wxLogMessage(input);
+        input.ToLong(&num);
 		RanXPer(num);
 	}
 }
 
 void LisaScatterPlotFrame::OnSaveMoranI(wxCommandEvent& event)
 {
+    wxLogMessage("LisaScatterPlotFrame::OnSaveMoranI");
 	LisaScatterPlotCanvas* lc = (LisaScatterPlotCanvas*) template_canvas;
 	lc->SaveMoranI();
 }

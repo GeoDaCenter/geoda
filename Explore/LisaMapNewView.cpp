@@ -560,7 +560,11 @@ void LisaMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
-		dlg.m_number->GetValue().ToLong(&num);
+		wxString input = dlg.m_number->GetValue();
+        
+        wxLogMessage(input);
+        
+        input.ToLong(&num);
 		RanXPer(num);
 	}
 }

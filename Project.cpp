@@ -1442,8 +1442,12 @@ bool Project::IsDataTypeChanged()
 bool Project::InitFromOgrLayer()
 {
 	wxLogMessage("Entering Project::InitFromOgrLayer");
+    
 	wxString datasource_name = datasource->GetOGRConnectStr();
-	wxLogMessage("Datasource name:" + datasource->ToString());
+    
+    wxLogMessage("Datasource name:");
+    wxString ds_str = datasource->ToString();
+    wxLogMessage(ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
     

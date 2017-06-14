@@ -21,6 +21,7 @@
 #include <vector>
 #include <ogrsf_frmts.h>
 
+#include "../GenUtils.h"
 #include "OGRFieldProxy.h"
 
 OGRFieldProxy::OGRFieldProxy(const wxString& _name,
@@ -54,7 +55,7 @@ OGRFieldProxy::OGRFieldProxy(const wxString& _name,
 	}
 	
 	// create a OGRFieldDefn instance
-	ogr_fieldDefn = new OGRFieldDefn( name.c_str(), ogr_type );
+	ogr_fieldDefn = new OGRFieldDefn( GET_ENCODED_FILENAME(name), ogr_type );
 	ogr_fieldDefn->SetWidth(length);
 	ogr_fieldDefn->SetPrecision(decimals);
 }
@@ -64,7 +65,7 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
     is_field_changed = false;
 	ogr_fieldDefn = field_defn;
 	
-	name = field_defn->GetNameRef();
+	name = wxString(field_defn->GetNameRef(), wxConvUTF8);
 	OGRFieldType ogr_type  = field_defn->GetType();
 	length = field_defn->GetWidth();
     decimals = field_defn->GetPrecision();

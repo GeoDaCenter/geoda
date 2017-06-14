@@ -798,7 +798,7 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
-    wxLogMessage("MapCanvas::AddTimeVariantOptionsToMenu()");
+    //wxLogMessage("MapCanvas::AddTimeVariantOptionsToMenu()");
 	if (!is_any_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
@@ -1008,7 +1008,7 @@ wxString MapCanvas::GetCanvasTitle()
 
 wxString MapCanvas::GetNameWithTime(int var)
 {
-    wxLogMessage("MapCanvas::GetNameWithTime()");
+    //wxLogMessage("MapCanvas::GetNameWithTime()");
 	if (var < 0 || var >= GetNumVars()) return wxEmptyString;
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {

@@ -298,6 +298,8 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
     
 	vector<wxString> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type);
     
+    datasource->UpdateDataSource(ds_type);
+    
     int n_tables = table_names.size();
     
 	if ( n_tables > 0 ) {

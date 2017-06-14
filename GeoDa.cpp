@@ -287,6 +287,8 @@ bool GdaApp::OnInit(void)
     if (GdaConst::gdal_http_timeout >= 0 ) {
         CPLSetConfigOption("GDAL_HTTP_TIMEOUT", wxString::Format("%d", GdaConst::gdal_http_timeout));
     }
+    CPLSetConfigOption("OGR_XLS_HEADERS", "FORCE");
+    CPLSetConfigOption("OGR_XLSX_HEADERS", "FORCE");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
@@ -1240,6 +1242,8 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
 	wxLogMessage("GdaFrame::OpenProject()");
+    wxLogMessage(full_proj_path);
+    
     wxString msg;
     wxFileName fn(full_proj_path);
     if (fn.GetExt().CmpNoCase("gda") != 0) {

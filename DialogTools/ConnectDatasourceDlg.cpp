@@ -73,7 +73,12 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     
     if (m_pOwner != NULL && nFiles > 0)
     {
-        wxFileName fn = wxFileName::FileName(filenames[0]);
+        wxString fpath = filenames[0];
+        //wxString msg = "Seems you drag-n-drop a directory. Please drag-n- drop a file.";
+        //wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+        //dlg.ShowModal();
+        
+        wxFileName fn = wxFileName::FileName(fpath);
         m_pOwner->ds_file_path = fn;
         //wxCommandEvent ev;
         //m_pOwner->OnOkClick(ev);
@@ -543,9 +548,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
     
     RecentDatasource recent_ds;
     wxString ds_name = recent_ds.GetDSName(recent_idx); // UTF-8 decoded
-    
-    wxLogMessage(ds_name);
-    
+        
     if (ds_name.EndsWith(".gda")) {
         GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
         gda_frame->OpenProject(ds_name);
@@ -765,13 +768,20 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		int datasource_type = m_ds_notebook->GetSelection();
 		if (datasource_type == 0) {
             // File table is selected
-			if (layer_name.IsEmpty()) {
-				layername = ds_file_path.GetName();
-			} else {
-                // user may select a layer name from Popup dialog that displays
-                // all layer names, see PromptDSLayers()
-				layername = layer_name;
-			}
+            
+            if ( wxDirExists(ds_file_path.GetFullPath()) ) {
+                // dra-n-drop a directory
+                PromptDSLayers(datasource);
+                layername = layer_name;
+            } else {
+                if (layer_name.IsEmpty()) {
+                    layername = ds_file_path.GetName();
+                } else {
+                    // user may select a layer name from Popup dialog that displays
+                    // all layer names, see PromptDSLayers()
+                    layername = layer_name;
+                }
+            }
             
 		} else if (datasource_type == 1) {
             // Database tab is selected

@@ -558,7 +558,11 @@ void GetisOrdMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
-		dlg.m_number->GetValue().ToLong(&num);
+        wxString input = dlg.m_number->GetValue();
+        
+        wxLogMessage(input);
+        
+        input.ToLong(&num);
 		RanXPer(num);
 	}
 }
@@ -584,6 +588,9 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxTextEntryDialog dlg(NULL, m, "\nEnter a seed value", cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
+    
+    wxLogMessage(dlg_val);
+    
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;

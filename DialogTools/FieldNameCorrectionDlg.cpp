@@ -352,6 +352,8 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(const wxString& old_name)
 wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
                                                    int max_len)
 {
+    wxLogMessage("ScrolledWidgetsPane::TruncateFieldName");
+    wxLogMessage(old_name);
 	if (GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end())
 	{
@@ -373,11 +375,14 @@ wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
 	new_name << old_name.substr(0, front_chars) << separator
 	<< old_name.substr(str_len - back_chars);
 	
+    wxLogMessage(new_name);
 	return new_name;
 }
 
 wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::RemoveIllegalChars");
+    wxLogMessage(old_name);
 	if (GdaConst::datasrc_field_illegal_regex.find(ds_type) ==
 			GdaConst::datasrc_field_illegal_regex.end())
 	{
@@ -392,12 +397,17 @@ wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 	regex.ReplaceAll(&new_name, "");
 	
 	if (new_name.size()==0) new_name = "NONAME";
+    
+    wxLogMessage(new_name);
 	return new_name;
 }
 
 
 wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::RenameDupFieldName");
+    wxLogMessage(old_name);
+    
 	wxString new_name(old_name);
     while (field_dict.find(new_name) != field_dict.end() ||
            field_dict.find(new_name.Upper()) != field_dict.end() ||
@@ -426,11 +436,14 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
     		new_name = first_part + "_" + last_part;
     	}
     }
+    wxLogMessage(new_name);
     return new_name;
 }
 
 bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::IsFieldNameValid");
+    wxLogMessage(col_name);
     
 	if ( GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end() )
@@ -534,15 +547,17 @@ FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        vector<wxString>& all_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300))
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300), wxRESIZE_BORDER)
 {
 
 
     
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    
 	fieldPane = new ScrolledWidgetsPane(this, wxID_ANY, ds_type, all_fname);
 	need_correction = fieldPane->need_correction;
-    sizer->Add(fieldPane, 1, wxEXPAND);
+    
+    sizer->Add(fieldPane, 1, wxALL| wxEXPAND, 20);
 	//sizer->Fit(this);
     this->SetSizer(sizer);
 	// this part makes the scrollbars show up
@@ -557,7 +572,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        set<wxString>& dup_fname,
                        set<wxString>& bad_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(600,300))
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300))
 {
     wxLogMessage("Open FieldNameCorrectionDlg:");
     
@@ -568,7 +583,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                                         merged_field_names,
                                         dup_fname,
                                         bad_fname);
-	sizer->Add(fieldPane, 1, wxEXPAND, 120);
+	sizer->Add(fieldPane, 1, wxALL | wxEXPAND, 20);
 	SetSizer(sizer);
 	//sizer->Fit(this);
 	//sizer->SetSizeHints(this);
@@ -576,6 +591,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
 
 FieldNameCorrectionDlg::~FieldNameCorrectionDlg()
 {
+    wxLogMessage("Exit FieldNameCorrectionDlg");
     if (fieldPane) {
         delete fieldPane;
         fieldPane = 0;

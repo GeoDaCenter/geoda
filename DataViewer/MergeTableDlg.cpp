@@ -185,7 +185,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
-        wxLogMessage(_("ds:") + datasource_name + _(" layer") + layer_name);
+        wxLogMessage(_("ds:") + datasource_name + _(" layer: ") + layer_name);
         
         merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
         merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());

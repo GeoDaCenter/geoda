@@ -75,23 +75,29 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 			//if (drv_name == "OpenFileGDB") {
             // raise open fialed
             // we don't use OpenFileGDB since it has some bugs
-            string error_detail = CPLGetLastErrorMsg();
-            ostringstream msg;
-			msg << "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html";
+            wxString error_detail(CPLGetLastErrorMsg(), wxConvUTF8);
+            wxString msg;
+			msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
             
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
             } else {
-                msg << "\n\nDetails: " << error_detail;
+                msg << _("\n\nDetails: ") << error_detail;
             }
 
-            throw GdaException(msg.str().c_str());
+            throw GdaException(GET_ENCODED_FILENAME(msg));
 			//}
         }
         is_writable = false;
 	}
 
+    std::string driver_name = ds->GetDriverName();
     
-	// deprecated by above logic
+    if (ds_type == GdaConst::ds_unknown &&
+        GdaConst::datasrc_str_to_type.find(driver_name) != GdaConst::datasrc_str_to_type.end())
+    {
+        ds_type = GdaConst::datasrc_str_to_type[driver_name];
+    }
+    
     //is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
 }
