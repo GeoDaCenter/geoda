@@ -1,11 +1,11 @@
 [Setup]
 AppName=GeoDa                                                      
 AppPublisher=GeoDa Center
-AppPublisherURL=https://geodacenter.asu.edu/
-AppSupportURL=https://geodacenter.asu.edu/
-AppUpdatesURL=https://geodacenter.asu.edu/
+AppPublisherURL=https://spatial.uchiago.edu/
+AppSupportURL=https://spatial.uchiago.edu/
+AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.8
+AppVersion=1.10
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
