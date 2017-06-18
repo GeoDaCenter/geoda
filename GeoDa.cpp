@@ -117,6 +117,7 @@
 #include "DialogTools/SaveToTableDlg.h"
 #include "DialogTools/KMeansDlg.h"
 #include "DialogTools/HClusterDlg.h"
+#include "DialogTools/CreateGridDlg.h"
 
 
 #include "Explore/CatClassification.h"
@@ -939,6 +940,9 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
             w->EndDialog();
             w->Close();
 		}
+        if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
+            w->Close(true);
+        }
         node = node->GetNext();
     }
 
@@ -998,6 +1002,9 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
 			w->Close(true);
 		}
+        if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
+            w->Close(true);
+        }
         if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
             w->EndDialog();
             w->Close(true);
@@ -1948,8 +1955,18 @@ void GdaFrame::OnShapePointsFromASCII(wxCommandEvent& WXUNUSED(event) )
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open CreateGridDlg");
-    //Project* p = GetProject();
-    //if (!p || !p->GetTableInt()) return 0;
+    // check if dialog has already been opened
+    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+        node = node->GetNext();
+    }
     
     CreateGridDlg* dlg =  new CreateGridDlg(this);
     dlg->Show(true);
