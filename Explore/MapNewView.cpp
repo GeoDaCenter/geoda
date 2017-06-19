@@ -1899,8 +1899,7 @@ MapFrame::~MapFrame()
 	DeregisterAsActive();
     
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Destroy();
         delete export_dlg;
         export_dlg = NULL;
     }
@@ -2376,8 +2375,7 @@ void MapFrame::OnDisplayVoronoiDiagram()
 void MapFrame::OnClose(wxCloseEvent& event)
 {
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Close();
     }
     event.Skip();
 }
@@ -2386,7 +2384,6 @@ void MapFrame::OnExportVoronoi()
 {
     if (project->ExportVoronoi()) {
         if (export_dlg != NULL) {
-            export_dlg->EndDialog();
             export_dlg->Destroy();
             delete export_dlg;
         }
@@ -2401,7 +2398,6 @@ void MapFrame::OnExportMeanCntrs()
 {
     project->ExportCenters(true);
     if (export_dlg != NULL) {
-        export_dlg->EndDialog();
         export_dlg->Destroy();
         delete export_dlg;
     }
@@ -2414,7 +2410,6 @@ void MapFrame::OnExportCentroids()
 {
 	project->ExportCenters(false);
     if (export_dlg != NULL) {
-        export_dlg->EndDialog();
         export_dlg->Destroy();
         delete export_dlg;
     }
@@ -2438,7 +2433,6 @@ void MapFrame::OnChangeMapTransparency()
         SliderDialog sliderDlg(this, map_canvs_ref);
         sliderDlg.ShowModal();
     }
-
 }
 
 void MapFrame::GetVizInfo(std::map<wxString, std::vector<int> >& colors)

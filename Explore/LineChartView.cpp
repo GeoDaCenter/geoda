@@ -268,10 +268,8 @@ LineChartFrame::~LineChartFrame()
 	DeregisterAsActive();
     
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Destroy();
         delete export_dlg;
-        export_dlg = NULL;
     }
     
     if (mem_table_int) {
@@ -283,8 +281,7 @@ LineChartFrame::~LineChartFrame()
 void LineChartFrame::OnClose(wxCloseEvent& event)
 {
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Close();
     }
     event.Skip();
 }
@@ -1207,7 +1204,6 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
     
     // export
     if (export_dlg != NULL) {
-        export_dlg->EndDialog();
         export_dlg->Destroy();
         delete export_dlg;
     }

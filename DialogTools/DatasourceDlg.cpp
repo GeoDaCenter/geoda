@@ -91,10 +91,9 @@ void DatasourceDlg::EndDialog()
     if (eventLoop->IsRunning()) {
         eventLoop->Exit();
         Show(false);
-        //Destroy();
     } else {
-        if (eventLoop)
-            eventLoop->ScheduleExit();
+        //if (eventLoop && eventLoop->IsInsideRun())
+        //    eventLoop->ScheduleExit();
         Show(false);
     }
 }

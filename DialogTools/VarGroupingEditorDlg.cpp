@@ -139,10 +139,8 @@ VarGroupingEditorDlg::~VarGroupingEditorDlg()
 	table_state->removeObserver(this);
     
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Destroy();
         delete export_dlg;
-        export_dlg = NULL;
     }
     
     if (mem_table_int) {
@@ -293,8 +291,7 @@ void VarGroupingEditorDlg::OnClose(wxCloseEvent& event)
     wxLogMessage("In VarGroupingEditorDlg::OnClose");
     
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Close();
     }
     
 	event.Skip();
@@ -445,7 +442,6 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     
     // export
     if (export_dlg != NULL) {
-        export_dlg->EndDialog();
         export_dlg->Destroy();
         delete export_dlg;
     }

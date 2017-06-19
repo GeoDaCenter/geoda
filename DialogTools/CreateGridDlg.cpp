@@ -58,28 +58,22 @@ END_EVENT_TABLE()
 CreateGridDlg::~CreateGridDlg( )
 {
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Destroy();
         delete export_dlg;
-        export_dlg = NULL;
     }
     if (connect_dlg) {
-        connect_dlg->EndDialog();
-        connect_dlg->Close(true);
+        connect_dlg->Destroy();
         delete connect_dlg;
-        connect_dlg = NULL;
     }
 }
 
 void CreateGridDlg::OnClose(wxCloseEvent& event)
 {
     if (export_dlg) {
-        export_dlg->EndDialog();
-        export_dlg->Close(true);
+        export_dlg->Close();
     }
     if (connect_dlg) {
-        connect_dlg->EndDialog();
-        connect_dlg->Close(true);
+        connect_dlg->Close();
     }
     event.Skip();
 }
@@ -414,7 +408,6 @@ bool CreateGridDlg::CreateGrid()
     }
     
     if (export_dlg != NULL) {
-        export_dlg->EndDialog();
         export_dlg->Destroy();
         delete export_dlg;
     }
