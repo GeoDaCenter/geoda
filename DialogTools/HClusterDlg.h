@@ -228,7 +228,7 @@ public:
     bool Init();
     
     void OnSave(wxCommandEvent& event );
-    void OnOK( wxCommandEvent& event );
+    void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice(wxCommandEvent& event);

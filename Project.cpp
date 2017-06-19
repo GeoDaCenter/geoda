@@ -427,14 +427,24 @@ void Project::SaveOGRDataSource()
 		// replace old file with tmp files, then delete tmp files
 		if (tmp_ds_name!=ds_name && wxFileExists(tmp_ds_name)) {
 			wxString tmp_name = fn.GetName();
-			wxDir wdir(fn.GetPath());
-			wxArrayString tmp_files;
-			wdir.GetAllFiles(fn.GetPath(), &tmp_files);
-			for (size_t i=0; i < tmp_files.size(); i++) {
-				if (tmp_files[i].Contains(tmp_prefix)) {
-					all_tmp_files.push_back(tmp_files[i]);
-				}
-			}
+            wxString dirname = fn.GetPath();
+            wxString filename;
+            
+            wxDir wdir;
+			
+            if ( wdir.Open( dirname ) )
+            {
+                bool cont = wdir.GetFirst(&filename);
+                while ( cont )
+                {
+                    if (filename.Contains(tmp_prefix)) {
+                        wxString path = dirname + wxFileName::GetPathSeparator() + filename;
+                        all_tmp_files.push_back(path);
+                    }
+                    cont = wdir.GetNext(&filename);
+                }
+            }
+            
 			for (size_t i=0; i< all_tmp_files.size(); i++) {
 				wxString orig_fname = all_tmp_files[i];
 				orig_fname.Replace(tmp_prefix, "");
@@ -710,7 +720,7 @@ wxString Project::GetProjectTitle()
 	return "";
 }
 
-void Project::ExportVoronoi()
+bool Project::ExportVoronoi()
 {
 	wxLogMessage("Project::ExportVoronoi()");
 	GetVoronoiPolygons();
@@ -719,10 +729,9 @@ void Project::ExportVoronoi()
 	// in the same set.
 	// If duplicates exist, then give option to save duplicate sets to Table
 	if (IsPointDuplicates()) DisplayPointDupsWarning();
-	if (voronoi_polygons.size() != GetNumRecords()) return;
+	if (voronoi_polygons.size() != GetNumRecords()) return false;
 	
-	ExportDataDlg dlg(NULL, voronoi_polygons, Shapefile::POLYGON, this);
-	dlg.ShowModal();
+    return true;
 }
 
 /**
@@ -734,12 +743,8 @@ void Project::ExportCenters(bool is_mean_centers)
 	wxLogMessage("Project::ExportCenters()");
 	if (is_mean_centers) {
 		GetMeanCenters();
-		ExportDataDlg dlg(NULL, mean_centers, Shapefile::NULL_SHAPE, "COORD", this);
-		dlg.ShowModal();
 	} else {
 		GetCentroids();
-		ExportDataDlg dlg(NULL, centroids, Shapefile::NULL_SHAPE, "COORD", this);
-		dlg.ShowModal();
 	}
 }
 

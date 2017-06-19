@@ -48,6 +48,8 @@ class MapCanvas;
 class MapNewLegend;
 class TableInterface;
 class WeightsManState;
+class ExportDataDlg;
+
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
 
@@ -298,6 +300,8 @@ public:
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
     
+     void OnClose(wxCloseEvent& event);
+    
     void CleanBasemap();
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
@@ -331,6 +335,7 @@ protected:
 					   const wxString& custom_classif_title = wxEmptyString);
 	
 	WeightsManState* w_man_state;
+    ExportDataDlg*   export_dlg;
 	
     DECLARE_EVENT_TABLE()
 };

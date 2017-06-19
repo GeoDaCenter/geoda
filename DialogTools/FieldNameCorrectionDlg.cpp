@@ -547,7 +547,7 @@ FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        vector<wxString>& all_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300), wxRESIZE_BORDER)
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300))
 {
 
 

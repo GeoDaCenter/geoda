@@ -53,6 +53,7 @@ bool classicalRegression(GalElement *g, int num_obs, double * Y,
 						 bool do_white_test);
 
 BEGIN_EVENT_TABLE(LineChartFrame, TemplateFrame)
+EVT_CLOSE(LineChartFrame::OnClose )
 	EVT_ACTIVATE(LineChartFrame::OnActivate)
 END_EVENT_TABLE()
 
@@ -84,7 +85,9 @@ regReportDlg(0),
 def_y_precision(1),
 use_def_y_range(false),
 has_selection(1),
-has_excluded(1)
+has_excluded(1),
+export_dlg(NULL),
+mem_table_int(NULL)
 {
 	wxLogMessage("Open LineChartFrame(Average Charts).");
     
@@ -263,6 +266,27 @@ LineChartFrame::~LineChartFrame()
 	if (HasCapture())
         ReleaseMouse();
 	DeregisterAsActive();
+    
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+        delete export_dlg;
+        export_dlg = NULL;
+    }
+    
+    if (mem_table_int) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
+}
+
+void LineChartFrame::OnClose(wxCloseEvent& event)
+{
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+    }
+    event.Skip();
 }
 
 void LineChartFrame::InitVariableChoiceCtrl()
@@ -1016,7 +1040,6 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             return;
         }
         
-        
         int idx = 0;
         for (int t=0; t<n_ts; t++) {
             if (tms_subset0[t] || tms_subset1[t]) {
@@ -1045,7 +1068,11 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
     } // end if (compare_r_and_t)
     
     // create in-memory table
-    OGRTable* mem_table_int = NULL;
+    if (mem_table_int != NULL) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
+    
     int n = 0;
     
     if (!newids.empty()) {
@@ -1157,7 +1184,6 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
         mem_table_int->AddOGRColumn(interact_col);
     }
 
-    
     if (save_did) {
         if (m_yhat1 != 0 && m_resid1 != 0) {
             std::vector<double> yhat;
@@ -1180,10 +1206,16 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
     }
     
     // export
-    ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
-    if (dlg.ShowModal() == wxID_OK) {
+    if (export_dlg != NULL) {
+        export_dlg->EndDialog();
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    export_dlg = new ExportDataDlg(this, (TableInterface*)mem_table_int);
+    
+    if (export_dlg->ShowModal() == wxID_OK) {
         if (save_weights) {
-            wxString ds_name = dlg.GetDatasourceName();
+            wxString ds_name = export_dlg->GetDatasourceName();
             wxFileName wx_fn(ds_name);
             
             // save weights
@@ -1206,11 +1238,8 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
             }
         }
     }
-    
-    // clean memory
-    delete mem_table_int;
-
 }
+
 void LineChartFrame::OnSaveDummyTable(wxCommandEvent& event)
 {
     wxLogMessage("Start LineChartFrame::OnSaveDummyTable");

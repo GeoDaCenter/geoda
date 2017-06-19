@@ -4961,8 +4961,6 @@ void GdaFrame::OnExportVoronoi(wxCommandEvent& event)
 	if (!t) return;
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
 		f->OnExportVoronoi();
-	} else {
-		if (project_p) project_p->ExportVoronoi();
 	}
 }
 
@@ -4971,7 +4969,9 @@ void GdaFrame::OnExportMeanCntrs(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnExportMeanCntrs()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	if (project_p) project_p->ExportCenters(true);
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnExportMeanCntrs();
+    }
 }
 
 void GdaFrame::OnExportCentroids(wxCommandEvent& event)
@@ -4979,7 +4979,9 @@ void GdaFrame::OnExportCentroids(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnExportCentroids()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	if (project_p) project_p->ExportCenters(false);
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnExportCentroids();
+    }
 }
 
 void GdaFrame::OnSaveVoronoiDupsToTable(wxCommandEvent& event)

@@ -38,6 +38,7 @@
 IMPLEMENT_CLASS( CreateGridDlg, wxDialog )
 
 BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
+    EVT_CLOSE(CreateGridDlg::OnClose )
     EVT_BUTTON( XRCID("IDCANCEL"), CreateGridDlg::OnCancelClick )
     EVT_BUTTON( XRCID("IDC_REFERENCEFILE"),
 			   CreateGridDlg::OnCReferencefileClick )
@@ -54,14 +55,41 @@ BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO3"), CreateGridDlg::OnCRadio3Selected )
 END_EVENT_TABLE()
 
-CreateGridDlg::CreateGridDlg( )
+CreateGridDlg::~CreateGridDlg( )
 {
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+        delete export_dlg;
+        export_dlg = NULL;
+    }
+    if (connect_dlg) {
+        connect_dlg->EndDialog();
+        connect_dlg->Close(true);
+        delete connect_dlg;
+        connect_dlg = NULL;
+    }
+}
+
+void CreateGridDlg::OnClose(wxCloseEvent& event)
+{
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+    }
+    if (connect_dlg) {
+        connect_dlg->EndDialog();
+        connect_dlg->Close(true);
+    }
+    event.Skip();
 }
 
 CreateGridDlg::CreateGridDlg( wxWindow* parent, wxWindowID id,
 							   const wxString& caption, const wxPoint& pos,
 							   const wxSize& size, long style )
 {
+    connect_dlg = NULL;
+    export_dlg = NULL;
 	isCreated = false;
 
     Create(parent, id, caption, pos, size, style);
@@ -238,27 +266,19 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCReferencefile2Click()");
     
     try{
-        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-        while (node) {
-            wxWindow* win = node->GetData();
-            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-                if (w->GetType() == 0) {
-                    w->Show(true);
-                    w->Maximize(false);
-                    w->Raise();
-                    return;
-                }
-            }
-            node = node->GetNext();
+        if (connect_dlg != NULL) {
+            connect_dlg->EndDialog();
+            connect_dlg->Destroy();
+            delete connect_dlg;
         }
         
-        ConnectDatasourceDlg dlg(this);
-        if (dlg.ShowModal() != wxID_OK)
+        connect_dlg = new ConnectDatasourceDlg(this);
+        if (connect_dlg->ShowModal() != wxID_OK)
             return;
         
-        wxString proj_title = dlg.GetProjectTitle();
-        wxString layer_name = dlg.GetLayerName();
-        IDataSource* datasource = dlg.GetDataSource();
+        wxString proj_title = connect_dlg->GetProjectTitle();
+        wxString layer_name = connect_dlg->GetLayerName();
+        IDataSource* datasource = connect_dlg->GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
         
@@ -285,14 +305,15 @@ void CreateGridDlg::OnCreateClick( wxCommandEvent& event )
 {
     wxLogMessage("In CreateGridDlg::OnCreateClick()");
 	if (CheckBBox()) {
-		CreateGrid();
+		if (CreateGrid() == false)
+            return;
 		hasCreated = true;
 	} else {
-		wxMessageBox(_("Please fix the grid bounding box!"));
+		wxMessageBox(_("Please fix the grid bounding box."));
 		return;
 	}
+    wxMessageBox(_("Grid file was successfully created."));
 	event.Skip();
-	EndDialog(wxID_OK);
 }
 
 void CreateGridDlg::OnCRadio1Selected( wxCommandEvent& event )
@@ -348,7 +369,7 @@ bool CreateGridDlg::CheckBBox()
 	return true;
 }
 
-void CreateGridDlg::CreateGrid()
+bool CreateGridDlg::CreateGrid()
 {
 	FindWindow(XRCID("ID_CREATE"))->Enable(false);
 	FindWindow(XRCID("IDCANCEL"))->Enable(false);
@@ -391,10 +412,16 @@ void CreateGridDlg::CreateGrid()
             delete[] pts;
         }
     }
-   
-    ExportDataDlg dlg(NULL, grids, Shapefile::POLYGON);
-    dlg.Raise();
-    dlg.ShowModal();
+    
+    if (export_dlg != NULL) {
+        export_dlg->EndDialog();
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    
+    export_dlg = new ExportDataDlg(NULL, grids, Shapefile::POLYGON);
+    
+    bool result = export_dlg->ShowModal() == wxID_OK;
     
 	m_nCount = nMaxCount;
 
@@ -408,6 +435,8 @@ void CreateGridDlg::CreateGrid()
 	x = NULL;
 	delete [] y;
 	y = NULL;
+    
+    return result;
 }
 
 void CreateGridDlg::OnCEdit1Updated( wxCommandEvent& event )

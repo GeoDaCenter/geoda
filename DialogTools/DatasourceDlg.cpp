@@ -88,9 +88,15 @@ int DatasourceDlg::ShowModal()
 
 void DatasourceDlg::EndDialog()
 {
-    eventLoop->Exit();
-    Show(false);
-    //Destroy();
+    if (eventLoop->IsRunning()) {
+        eventLoop->Exit();
+        Show(false);
+        //Destroy();
+    } else {
+        if (eventLoop)
+            eventLoop->ScheduleExit();
+        Show(false);
+    }
 }
 
 void DatasourceDlg::OnCancelClick( wxCommandEvent& event )

@@ -118,7 +118,8 @@ frames_manager(project_p->GetFramesManager()),
 table_state(project_p->GetTableState()),
 highlight_state(project_p->GetHighlightState()),
 wmi(project_p->GetWManInt()),
-common_empty(true), all_init(false), pos_ungrouped_list(0),is_editing(false)
+common_empty(true), all_init(false), pos_ungrouped_list(0),is_editing(false),
+export_dlg(NULL), mem_table_int(NULL)
 {
     wxLogMessage("Open VarGroupingEditorDlg.");
 	CreateControls();
@@ -136,6 +137,18 @@ VarGroupingEditorDlg::~VarGroupingEditorDlg()
 
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
+    
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+        delete export_dlg;
+        export_dlg = NULL;
+    }
+    
+    if (mem_table_int) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
 }
 
 void VarGroupingEditorDlg::CreateControls()
@@ -278,9 +291,13 @@ void VarGroupingEditorDlg::InitGroupedList()
 void VarGroupingEditorDlg::OnClose(wxCloseEvent& event)
 {
     wxLogMessage("In VarGroupingEditorDlg::OnClose");
-	// Note: it seems that if we don't explictly capture the close event
-	//       and call Destory, then the destructor is not called.
-	Destroy();
+    
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+    }
+    
+	event.Skip();
 }
 
 void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
@@ -319,7 +336,11 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     }
     
     // create in-memory table
-    OGRTable* mem_table_int = new OGRTable(n);
+    if (mem_table_int != NULL) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
+    mem_table_int = new OGRTable(n);
     
     OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
     id_col->UpdateData(new_ids, undefs);
@@ -423,9 +444,15 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     }
     
     // export
-    ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
-    if (dlg.ShowModal() == wxID_OK) {
-        wxString ds_name = dlg.GetDatasourceName();
+    if (export_dlg != NULL) {
+        export_dlg->EndDialog();
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    export_dlg = new ExportDataDlg(this, (TableInterface*)mem_table_int);
+    
+    if (export_dlg->ShowModal() == wxID_OK) {
+        wxString ds_name = export_dlg->GetDatasourceName();
         wxFileName wx_fn(ds_name);
         
         // save weights
@@ -443,9 +470,6 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
             }
         }
     }
-    
-    // clean memory
-    delete mem_table_int;
 }
 
 void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )

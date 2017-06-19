@@ -1805,7 +1805,8 @@ MapNewLegend::~MapNewLegend()
 
 IMPLEMENT_CLASS(MapFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(MapFrame, TemplateFrame)
-	EVT_ACTIVATE(MapFrame::OnActivate)	
+	EVT_ACTIVATE(MapFrame::OnActivate)
+    EVT_CLOSE(MapFrame::OnClose )
 END_EVENT_TABLE()
 
 MapFrame::MapFrame(wxFrame *parent, Project* project,
@@ -1818,7 +1819,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
 : TemplateFrame(parent, project, "Map", pos, size, style),
-w_man_state(project->GetWManState())
+w_man_state(project->GetWManState()), export_dlg(NULL)
 {
 	wxLogMessage("Open MapFrame.");
 
@@ -1883,7 +1884,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
 : TemplateFrame(parent, project, "Map", pos, size, style),
-w_man_state(project->GetWManState())
+w_man_state(project->GetWManState()), export_dlg(NULL)
 {
 	w_man_state->registerObserver(this);
 }
@@ -1896,6 +1897,14 @@ MapFrame::~MapFrame()
 	}
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
+    
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+        delete export_dlg;
+        export_dlg = NULL;
+    }
+
 }
 
 void MapFrame::CleanBasemap()
@@ -2364,22 +2373,54 @@ void MapFrame::OnDisplayVoronoiDiagram()
 	UpdateOptionMenuItems();
 }
 
+void MapFrame::OnClose(wxCloseEvent& event)
+{
+    if (export_dlg) {
+        export_dlg->EndDialog();
+        export_dlg->Close(true);
+    }
+    event.Skip();
+}
+
 void MapFrame::OnExportVoronoi()
 {
-	project->ExportVoronoi();
-	((MapCanvas*) template_canvas)->voronoi_diagram_duplicates_exist =
-		project->IsPointDuplicates();
-	UpdateOptionMenuItems();
+    if (project->ExportVoronoi()) {
+        if (export_dlg != NULL) {
+            export_dlg->EndDialog();
+            export_dlg->Destroy();
+            delete export_dlg;
+        }
+        export_dlg = new ExportDataDlg(this, project->voronoi_polygons, Shapefile::POLYGON, project);
+        export_dlg->ShowModal();
+        ((MapCanvas*) template_canvas)->voronoi_diagram_duplicates_exist = project->IsPointDuplicates();
+        UpdateOptionMenuItems();
+    }
 }
 
 void MapFrame::OnExportMeanCntrs()
 {
-	project->ExportCenters(true);
+    project->ExportCenters(true);
+    if (export_dlg != NULL) {
+        export_dlg->EndDialog();
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    export_dlg = new ExportDataDlg(this, project->mean_centers, Shapefile::NULL_SHAPE, "COORD", project);
+    
+    export_dlg->ShowModal();
 }
 
 void MapFrame::OnExportCentroids()
 {
 	project->ExportCenters(false);
+    if (export_dlg != NULL) {
+        export_dlg->EndDialog();
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    export_dlg = new ExportDataDlg(this, project->centroids, Shapefile::NULL_SHAPE, "COORD", project);
+    
+    export_dlg->ShowModal();
 }
 
 void MapFrame::OnSaveVoronoiDupsToTable()

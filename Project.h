@@ -66,6 +66,7 @@ class GdaShape;
 class wxGrid;
 class DataSource;
 class CovSpHLStateProxy;
+class ExportDataDlg;
 
 class Project {
 public:
@@ -137,7 +138,7 @@ public:
 	OGRSpatialReference*  GetSpatialReference();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
-	void ExportVoronoi();
+	bool ExportVoronoi();
 	void ExportCenters(bool is_mean_centers);
 	void SaveVoronoiDupsToTable();
 	bool IsPointDuplicates();
@@ -209,7 +210,13 @@ public:
 	// project file.
 	wxString	proj_file_no_ext;
 	wxFileName	working_dir;
-	    
+    
+    
+    // Voronoi Diagram related
+    std::vector<GdaPoint*> mean_centers;
+    std::vector<GdaPoint*> centroids;
+    std::vector<GdaShape*> voronoi_polygons;
+    
 private:
 	bool CommonProjectInit();
 	bool InitFromOgrLayer();
@@ -253,11 +260,6 @@ private:
 	TableState*         table_state;
 	TimeState*          time_state;
 	TimeChooserDlg*     time_chooser;
-	
-	// Voronoi Diagram related
-	std::vector<GdaPoint*> mean_centers;
-	std::vector<GdaPoint*> centroids;
-	std::vector<GdaShape*> voronoi_polygons;
 
 	bool point_duplicates_initialized;
 	bool point_dups_warn_prev_displayed;

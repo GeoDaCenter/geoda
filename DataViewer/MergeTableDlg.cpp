@@ -41,6 +41,7 @@
 #include "../logger.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
+
 	EVT_RADIOBUTTON( XRCID("ID_KEY_VAL_RB"), MergeTableDlg::OnKeyValRB )
 	EVT_RADIOBUTTON( XRCID("ID_REC_ORDER_RB"), MergeTableDlg::OnRecOrderRB )
 	EVT_BUTTON( XRCID("ID_OPEN_BUTTON"), MergeTableDlg::OnOpenClick )
@@ -85,6 +86,13 @@ MergeTableDlg::~MergeTableDlg()
     //delete merge_datasource_proxy;
     //merge_datasource_proxy = NULL;
 	frames_manager->removeObserver(this);
+    
+    if (connect_dlg) {
+        connect_dlg->EndDialog();
+        connect_dlg->Close(true);
+        delete connect_dlg;
+        connect_dlg = NULL;
+    }
 }
 
 void MergeTableDlg::update(FramesManager* o)
@@ -159,29 +167,22 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         pos.x += sz.GetWidth();
        
         int dialog_type = 1;
-        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-        while (node) {
-            wxWindow* win = node->GetData();
-            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-                if (w->GetType() == dialog_type) {
-                    w->Show(true);
-                    w->Maximize(false);
-                    w->Raise();
-                    return;
-                }
-            }
-            node = node->GetNext();
+
+        if (connect_dlg != NULL) {
+            connect_dlg->EndDialog();
+            connect_dlg->Destroy();
+            delete connect_dlg;
         }
+
+        connect_dlg = new ConnectDatasourceDlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
         
-        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
-        
-        if (connect_dlg.ShowModal() != wxID_OK) {
+        if (connect_dlg->ShowModal() != wxID_OK) {
             return;
         }
         
-        wxString proj_title = connect_dlg.GetProjectTitle();
-        wxString layer_name = connect_dlg.GetLayerName();
-        IDataSource* datasource = connect_dlg.GetDataSource();
+        wxString proj_title = connect_dlg->GetProjectTitle();
+        wxString layer_name = connect_dlg->GetLayerName();
+        IDataSource* datasource = connect_dlg->GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
@@ -196,6 +197,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         map<wxString, int> dbf_fn_freq;
         dups.clear();
         dedup_to_id.clear();
+        
+        m_exclude_list->Clear();
+        m_import_key->Clear();
+        
         for (int i=0, iend=merge_layer_proxy->GetNumFields(); i<iend; i++) {
             GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
             wxString name = merge_layer_proxy->GetFieldName(i);
@@ -560,25 +565,16 @@ void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
 	//ev.Skip();
-    int dialog_type = 1;
-    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            if (w->GetType() == dialog_type) {
-                w->EndDialog();
-                w->Close(true);
-                break;
-            }
-        }
-        node = node->GetNext();
-    }
-
+    
 	EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnClose( wxCloseEvent& ev)
 {
+    if (connect_dlg) {
+        connect_dlg->EndDialog();
+        connect_dlg->Close(true);
+    }
     Destroy();
 }
 

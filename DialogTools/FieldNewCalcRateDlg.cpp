@@ -29,7 +29,6 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "ExportDataDlg.h"
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcUniDlg.h"
 #include "FieldNewCalcBinDlg.h"

@@ -22,13 +22,16 @@
 
 #include "../ShapeOperations/Box.h"
 
+class ExportDataDlg;
+class ConnectDatasourceDlg;
+
 class CreateGridDlg: public wxDialog
 {    
     DECLARE_CLASS( CreateGridDlg )
     DECLARE_EVENT_TABLE()
 
 public:
-    CreateGridDlg( );
+    ~CreateGridDlg( );
     CreateGridDlg( wxWindow* parent, wxWindowID id = -1,
 				   const wxString& caption = _("Creating Grid"),
 				   const wxPoint& pos = wxDefaultPosition,
@@ -43,6 +46,7 @@ public:
 
     void CreateControls();
 
+    void OnClose(wxCloseEvent& event);
     void OnCancelClick( wxCommandEvent& event );
     void OnCReferencefileClick( wxCommandEvent& event );
     void OnCBrowseOfileClick( wxCommandEvent& event );
@@ -65,10 +69,13 @@ public:
     wxTextCtrl* m_inputfileshp;
     wxTextCtrl* m_rows;
     wxTextCtrl* m_cols;
+    
+    ConnectDatasourceDlg* connect_dlg;
+    ExportDataDlg* export_dlg;
 
 	void EnableItems();
 	bool CheckBBox();
-	void CreateGrid();  
+	bool CreateGrid();
 
 	int m_check;
 

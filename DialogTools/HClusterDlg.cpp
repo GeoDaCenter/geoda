@@ -234,7 +234,7 @@ void HClusterDlg::CreateControls()
     
     
     // Events
-    okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOK, this);
+    okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
 
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
@@ -399,7 +399,7 @@ void HClusterDlg::OnClose(wxCloseEvent& ev)
 
 
 
-void HClusterDlg::OnOK(wxCommandEvent& event )
+void HClusterDlg::OnOKClick(wxCommandEvent& event )
 {
     wxLogMessage("Click HClusterDlg::OnOK");
     
