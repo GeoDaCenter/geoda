@@ -2302,6 +2302,7 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
     for (it=observers.begin(); it != observers.end(); ++it) {
         if (MergeTableDlg* w = dynamic_cast<MergeTableDlg*>(*it))
         {
+            w->Init();
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2319,6 +2320,7 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->GetTableInt()) return;
+    
     vector<int> selected_rows;
     project_p->GetSelectedRows(selected_rows);
     if ( selected_rows.empty() ) {

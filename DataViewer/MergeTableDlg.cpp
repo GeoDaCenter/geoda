@@ -66,7 +66,7 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent,
                              TableInterface* _table_int,
                              FramesManager* frames_manager_,
                              const wxPoint& pos)
-: table_int(_table_int), connect_dlg(NULL), frames_manager(frames_manager_)
+: table_int(_table_int), connect_dlg(NULL), frames_manager(frames_manager_), merge_datasource_proxy(NULL)
 {
     wxLogMessage("Open MergeTableDlg.");
 	SetParent(parent);
@@ -83,9 +83,12 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent,
 
 MergeTableDlg::~MergeTableDlg()
 {
-    //delete merge_datasource_proxy;
-    //merge_datasource_proxy = NULL;
-	frames_manager->removeObserver(this);
+    if (merge_datasource_proxy) {
+        delete merge_datasource_proxy;
+        merge_datasource_proxy = NULL;
+    }
+	
+    frames_manager->removeObserver(this);
     
     if (connect_dlg) {
         connect_dlg->EndDialog();
@@ -120,6 +123,13 @@ void MergeTableDlg::CreateControls()
 
 void MergeTableDlg::Init()
 {
+    m_input_file_name->SetValue(wxEmptyString);
+    m_import_key->Clear();
+    m_current_key->Clear();
+    m_include_list->Clear();
+    m_exclude_list->Clear();
+    
+    
 	vector<wxString> col_names;
 	table_fnames.clear();
 	// get the field names from table interface
@@ -168,12 +178,6 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
        
         int dialog_type = 1;
 
-        if (connect_dlg != NULL) {
-            connect_dlg->EndDialog();
-            connect_dlg->Destroy();
-            delete connect_dlg;
-        }
-
         connect_dlg = new ConnectDatasourceDlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
         
         if (connect_dlg->ShowModal() != wxID_OK) {
@@ -188,6 +192,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
        
         wxLogMessage(_("ds:") + datasource_name + _(" layer: ") + layer_name);
         
+        if (merge_datasource_proxy != NULL) {
+            delete merge_datasource_proxy;
+            merge_datasource_proxy = NULL;
+        }
         merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
         merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
         merge_layer_proxy->ReadData();
@@ -198,8 +206,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         dups.clear();
         dedup_to_id.clear();
         
-        m_exclude_list->Clear();
+        m_input_file_name->SetValue(wxEmptyString);
         m_import_key->Clear();
+        m_include_list->Clear();
+        m_exclude_list->Clear();
         
         for (int i=0, iend=merge_layer_proxy->GetNumFields(); i<iend; i++) {
             GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
@@ -219,6 +229,11 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
             }
             m_exclude_list->Append(dedup_name);
         }
+        
+        connect_dlg->EndDialog();
+        connect_dlg->Destroy();
+        delete connect_dlg;
+        connect_dlg = NULL;
         
     }catch(GdaException& e) {
         wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
@@ -574,6 +589,7 @@ void MergeTableDlg::OnClose( wxCloseEvent& ev)
     if (connect_dlg) {
         connect_dlg->EndDialog();
         connect_dlg->Close(true);
+        connect_dlg = NULL;
     }
     Destroy();
 }
