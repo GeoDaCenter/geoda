@@ -525,6 +525,29 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         }
         z_t.push_back(vals);
     }
+    if (use_centroids) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> cent_xs;
+        std::vector<double> cent_ys;
+        
+        for (int i=0; i< rows; i++) {
+            cent_xs.push_back(cents[i]->GetX());
+            cent_ys.push_back(cents[i]->GetY());
+        }
+        
+        if (transform == 2) {
+            GenUtils::StandardizeData(cent_xs );
+            GenUtils::StandardizeData(cent_ys );
+        } else if (transform == 1 ) {
+            GenUtils::DeviationFromMean(cent_xs );
+            GenUtils::DeviationFromMean(cent_ys );
+        }
+        
+        for (int i=0; i< rows; i++) {
+            z_t[i].push_back(cent_xs[i]);
+            z_t[i].push_back(cent_ys[i]);
+        }
+    }
     
     int floor = 1;
     long value_floor;
@@ -562,7 +585,10 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         GenUtils::sort(_data, _data, seeds);
     }
     
-    Maxp maxp(gw->gal, z_t, floor, floor_variable, initial, seeds);
+    int rnd_seed = -1;
+    if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
+    
+    Maxp maxp(gw->gal, z_t, floor, floor_variable, initial, seeds, rnd_seed);
     
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

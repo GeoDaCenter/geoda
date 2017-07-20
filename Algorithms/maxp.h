@@ -61,7 +61,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<vector<int> > floor_variable, int initial, vector<size_t> seeds, bool test=false);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<vector<int> > floor_variable, int initial, vector<size_t> seeds, int rnd_seed=-1, bool test=false);
     
     
     //! A Deconstructor
@@ -86,7 +86,7 @@ protected:
      */
     const GalElement* w;
     
-    
+    int rnd_seed;
     
     bool feasible;
     
@@ -126,17 +126,23 @@ protected:
      */
     map<int, int> area2region;
     
+    vector<map<int, int> > area2region_group;
+    
     //! A vector of vector<int> list of lists of regions.
     /*!
      Details. each list has the ids of areas in that region.
      */
     vector<vector<int> > regions;
     
+    vector<vector<vector<int> > > regions_group;
+    
     //! A integer number of regions.
     /*!
      Details.
      */
     int p;
+    
+    vector<int> p_group;
     
     //! A integer number of initializations.
     /*!
@@ -174,13 +180,15 @@ protected:
      */
     const int MAX_ATTEMPTS;
     
+    vector<double> initial_wss;
+    
     //! A protected member function: init_solution(void).
     /*!
      Details.
      */
-    void init_solution();
+    void init_solution(int solution_idx=-1, uint64_t seed_start = 0);
     
-    void run();
+    void run(int a, int b, uint64_t seed_start = 0);
     
     void run_threaded();
     

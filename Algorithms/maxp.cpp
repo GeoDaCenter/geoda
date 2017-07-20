@@ -36,8 +36,8 @@
 
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor, vector<vector<int> > _floor_variable, int _initial, vector<size_t> _seeds, bool _test)
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), test(_test)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor, vector<vector<int> > _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, bool _test)
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -48,11 +48,11 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor,
         init_test();
     }
     
-    if (random_state<0) {
+    if (rnd_seed<0) {
         unsigned int initseed = (unsigned int) time(0);
         srand(initseed);
     } else {
-        srand(random_state);
+        srand(rnd_seed);
     }
     
     // init solution
@@ -62,20 +62,23 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor,
         feasible = false;
     else {
         feasible = true;
-        double best_val = objective_function();
         
-        // deep copy
-        vector<vector<int> > current_regions = regions;
-        map<int, int> current_area2region = area2region;
-        vector<double> initial_wss;
+        double best_val = objective_function();
+        vector<vector<int> > best_regions;
+        map<int, int> best_area2region;
+
         int attemps = 0;
         
         // parallize following block, comparing the objective_function() return values
+        //for (int i=0; i<initial; i++)  init_solution(i);
+        run_threaded();
+        
         for (int i=0; i<initial; i++) {
-            init_solution();
-            if (p > 0) {
-                double val = objective_function();
-                initial_wss.push_back(val);
+            vector<vector<int> >& current_regions = regions_group[i];
+            map<int, int>& current_area2region = area2region_group[i];
+            
+            if (p_group[i] > 0) {
+                double val = initial_wss[i];
                 
                 wxString str;
                 str << "initial solution";
@@ -85,17 +88,17 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor,
                 LOG_MSG(str.ToStdString());
                 
                 if (val < best_val) {
-                    current_regions = regions;
-                    current_area2region = area2region;
+                    best_regions = current_regions;
+                    best_area2region = current_area2region;
                     best_val = val;
                 }
                 attemps += 1;
             }
         }
         
-        regions = current_regions;
+        regions = best_regions;
         p = regions.size();
-        area2region = current_area2region;
+        area2region = best_area2region;
         
         swap();
     }
@@ -106,9 +109,11 @@ Maxp::~Maxp()
     
 }
 
-void Maxp::run()
+void Maxp::run(int a, int b, uint64_t seed_start)
 {
-    
+    for (int i=a; i<b; i++) {
+        init_solution(i, seed_start);
+    }
 }
 
 void Maxp::run_threaded()
@@ -119,7 +124,7 @@ void Maxp::run_threaded()
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     boost::thread_group threadPool;
-    
+    uint64_t seed_start = rnd_seed;
     for (int i=0; i<tot_threads; i++) {
         int a=0;
         int b=0;
@@ -130,11 +135,13 @@ void Maxp::run_threaded()
             a = remainder*(quotient+1) + (i-remainder)*quotient;
             b = a+quotient-1;
         }
-        //boost::thread* worker = new boost::thread(boost::bind(&Maxp::run, this, a, b, seed_start));
-        //threadPool.add_thread(worker);
+        
+        seed_start = seed_start + MAX_ATTEMPTS * (num_obs *3);
+        boost::thread* worker = new boost::thread(boost::bind(&Maxp::run, this, a, b, seed_start));
+        threadPool.add_thread(worker);
     }
     
-    //threadPool.join_all();
+    threadPool.join_all();
 }
 
 vector<vector<int> >& Maxp::GetRegions()
@@ -142,11 +149,17 @@ vector<vector<int> >& Maxp::GetRegions()
     return regions;
 }
 
-void Maxp::init_solution()
+void Maxp::init_solution(int solution_idx, uint64_t seed_start)
 {
-    p = 0;
+    int p = 0;
     bool solving = true;
     int attempts = 0;
+    double objective_val = 0;
+    
+    vector<vector<int> > _regions;
+    map<int, int> _area2region;
+    
+    if (seed_start > 0) srand(seed_start);
     
     while (solving && attempts <= MAX_ATTEMPTS) {
         vector<vector<int> > regions;
@@ -300,9 +313,10 @@ void Maxp::init_solution()
         
         if (feasible) {
             solving = false;
-            this->regions = regions;
-            this->area2region = a2r;
             p = regions.size();
+            _regions = regions;
+            _area2region = a2r;
+            objective_val = objective_function(_regions);
         } else {
             if (attempts == MAX_ATTEMPTS) {
                 LOG_MSG("No initial solution found");
@@ -310,7 +324,17 @@ void Maxp::init_solution()
             }
             attempts += 1;
         }
-
+    }
+    
+    if (solution_idx >=0 ) {
+        regions_group[solution_idx] = _regions;
+        area2region_group[solution_idx] = _area2region;
+        p_group[solution_idx] = p;
+        initial_wss[solution_idx] = objective_val;
+    } else {
+        this->regions = _regions;
+        this->area2region = _area2region;
+        this->p = p;
     }
 }
 
