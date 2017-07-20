@@ -425,7 +425,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
             wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;

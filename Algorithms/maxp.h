@@ -61,7 +61,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<vector<int> > floor_variable, int initial, vector<int> seed);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, int floor, vector<vector<int> > floor_variable, int initial, vector<size_t> seeds, bool test=false);
     
     
     //! A Deconstructor
@@ -70,6 +70,14 @@ public:
      */
     ~Maxp();
     
+    
+    //! xxx
+    /* !
+     \param block
+     \param neighbor
+     \return boolean
+     */
+    vector<vector<int> >& GetRegions();
     
 protected:
     //! A const spatial weights reference.
@@ -88,11 +96,17 @@ protected:
      */
     int num_obs;
     
+    //! A integer number of variables.
+    /*!
+     Details.
+     */
+    int num_vars;
+    
     //! A vector of vector<int> list of ids to form initial seeds.
     /*!
      Details. seed list ids of observations to form initial seeds.
      */
-    vector<vector<int> > seed;
+    vector<size_t> seeds;
     
     //! A n*1 vector of observations on variable for the floor
     /*!
@@ -123,6 +137,12 @@ protected:
      Details.
      */
     int p;
+    
+    //! A integer number of initializations.
+    /*!
+     Details.
+     */
+    int initial;
     
     //! A integer number of swap iterations.
     /*!
@@ -160,6 +180,16 @@ protected:
      */
     void init_solution();
     
+    void run();
+    
+    void run_threaded();
+    
+    //! A protected member function: init_solution(void).
+    /*!
+     Details.
+     */
+    void swap();
+    
     //! A protected member function: init_solution(void). return
     /*!
      \param region a const vector of unsigned int.
@@ -168,10 +198,29 @@ protected:
     bool check_floor(const vector<int>& region);
     
     double objective_function();
-
-    void swap();
+    
+    double objective_function(const vector<vector<int> >& solution);
+    
+    double objective_function(const vector<int>& current_internal, const vector<int>& current_outter);
+    
+    double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
+    
+    //! xxx
+    /* !
+     \param block
+     \param neighbor
+     \return boolean
+     */
+    bool check_contiguity(const GalElement* w, vector<int>& block, int neighbor);
     
     bool is_component(const GalElement* w, const vector<int>& ids);
+    
+    bool test;
+    list<int> test_random_numbers;
+    list<int> enclave_random_number;
+    list<vector<int> > test_random_cand;
+    vector<int> test_get_random();
+    void init_test();
 };
 
 #endif

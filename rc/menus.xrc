@@ -419,6 +419,9 @@
           <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
               <label>Hierarchical</label>
           </object>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
+              <label>Max-p</label>
+          </object>
       </object>
       <label>E&amp;xplore</label>
     </object>
@@ -4191,6 +4194,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
           <label>Hierarchical</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
+          <label>Max-p</label>
       </object>
   </object>
   <object class="wxMenu" name="ID_MORAN_MENU">

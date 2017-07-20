@@ -160,6 +160,7 @@ public:
 	void OnToolsDataPCA(wxCommandEvent& event);
     void OnToolsDataKMeans(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
+    void OnToolsDataMaxP(wxCommandEvent& event);
     
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
