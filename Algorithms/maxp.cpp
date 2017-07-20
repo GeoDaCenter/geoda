@@ -111,6 +111,9 @@ Maxp::~Maxp()
 
 void Maxp::run(int a, int b, uint64_t seed_start)
 {
+    //wxString msg = wxString::Format("Maxp:run(%d, %d)", a, b);
+    //LOG_MSG(msg.mb_str());
+    
     for (int i=a; i<b; i++) {
         init_solution(i, seed_start);
     }
@@ -118,7 +121,7 @@ void Maxp::run(int a, int b, uint64_t seed_start)
 
 void Maxp::run_threaded()
 {
-    int nCPUs = wxThread::GetCPUCount();
+    int nCPUs = wxThread::GetCPUCount() / 2;
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;

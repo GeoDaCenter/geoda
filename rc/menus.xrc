@@ -419,6 +419,9 @@
           <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
               <label>Hierarchical</label>
           </object>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_SPECTRAL">
+              <label>Spectral Clustering</label>
+          </object>
           <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
               <label>Max-p</label>
           </object>
@@ -4194,6 +4197,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
           <label>Hierarchical</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_SPECTRAL">
+          <label>Spectral Clustering</label>
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
           <label>Max-p</label>
