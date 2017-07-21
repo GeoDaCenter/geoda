@@ -396,9 +396,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     combo_var->GetSelections(selections);
     
     int num_var = selections.size();
-    if (num_var < 2 && !use_centroids) {
+    if (num_var < 1 && !use_centroids) {
         // show message box
-        wxString err_msg = _("Please select at least 2 variables.");
+        wxString err_msg = _("Please select at least 1 variables.");
         wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;

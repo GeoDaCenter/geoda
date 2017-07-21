@@ -121,7 +121,7 @@ void Maxp::run(int a, int b, uint64_t seed_start)
 
 void Maxp::run_threaded()
 {
-    int nCPUs = wxThread::GetCPUCount() / 2;
+    int nCPUs = wxThread::GetCPUCount();
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
