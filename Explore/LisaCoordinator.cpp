@@ -126,7 +126,7 @@ isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
-last_seed_used(0), reuse_last_seed(false),
+last_seed_used(123456789), reuse_last_seed(false),
 row_standardize(row_standardize_s)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
@@ -645,8 +645,6 @@ void LisaCoordinator::CalcPseudoP()
                               0, num_obs-1, last_seed_used);
 		} else {
 			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
-			//CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
-                        //      0, num_obs-1, last_seed_used);
 		}
 	}
     
@@ -692,10 +690,9 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
 	
-    boost::thread_group threadPool;
+    //boost::thread_group threadPool;
     
-	if (!reuse_last_seed)
-        last_seed_used = time(0);
+	if (!reuse_last_seed) last_seed_used = time(0);
 	for (int i=0; i<tot_threads && !is_thread_error; i++) {
 		int a=0;
 		int b=0;
@@ -714,6 +711,9 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		msg << ", seed: " << seed_start << "->" << seed_end;
 		
         /*
+         boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
+         threadPool.add_thread(worker);
+         */
 		LisaWorkerThread* thread =
 			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
 								 &worker_list_mutex,
@@ -725,12 +725,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		} else {
 			worker_list.push_front(thread);
 		}
-         */
-        boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
-        threadPool.add_thread(worker);
 	}
-    threadPool.join_all();
-    /*
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
 		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
@@ -747,7 +742,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 			// alarm (sprious signal), the loop will exit.
 		}
 	}
-     */
+    //threadPool.join_all();
 }
 
 void LisaCoordinator::CalcPseudoP_range(const GalElement* W,

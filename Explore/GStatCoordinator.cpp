@@ -140,7 +140,7 @@ permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
-last_seed_used(0), reuse_last_seed(false)
+last_seed_used(123456789), reuse_last_seed(false)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {

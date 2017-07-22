@@ -653,6 +653,8 @@ void LocalGearyMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 
 void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
+    wxLogMessage("LocalGearyMapFrame::OnSpecifySeedDlg()");
+    
 	uint64_t last_seed = local_geary_coord->GetLastUsedSeed();
 	wxString m;
 	m << "The last seed used by the pseudo random\nnumber ";

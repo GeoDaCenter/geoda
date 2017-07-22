@@ -320,7 +320,7 @@ wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
 wxString GdaConst::gda_user_email = "";
-uint64_t GdaConst::gda_user_seed = 0;
+uint64_t GdaConst::gda_user_seed = 123456789;
 bool GdaConst::use_gda_user_seed = false;
 
 int GdaConst::gdal_http_timeout = 5;
