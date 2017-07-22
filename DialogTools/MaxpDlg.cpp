@@ -110,7 +110,7 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"),
                                          wxDefaultPosition, wxDefaultSize);
     
     wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
@@ -142,14 +142,21 @@ void MaxpDlg::CreateControls()
     wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
-
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Initialization #:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("99"), wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_iterations, 1, wxEXPAND);
     
-    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Use initial seeds:"),
+    wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Set floor variable:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxBoxSizer *hbox19 = new wxBoxSizer(wxHORIZONTAL);
+    chk_floor = new wxCheckBox(panel, wxID_ANY, "");
+    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    
+    hbox19->Add(chk_floor,0, wxALIGN_CENTER_VERTICAL);
+    hbox19->Add(combo_floor,0,wxALIGN_CENTER_VERTICAL);
+    combo_floor->Disable();
+    gbox->Add(st19, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox19, 1, wxEXPAND);
+
+
+    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Set initial groups:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_lisa = new wxCheckBox(panel, wxID_ANY, "");
@@ -160,6 +167,14 @@ void MaxpDlg::CreateControls()
     combo_lisa->Disable();
     gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox18, 1, wxEXPAND);
+    
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Initialization #:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("99"), wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_iterations, 1, wxEXPAND);
+    
+    
 
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
@@ -262,6 +277,20 @@ void MaxpDlg::CreateControls()
     chk_seed->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &MaxpDlg::OnChangeSeed, this);
     chk_lisa->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnLISACheck, this);
+    chk_floor->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnFloorCheck, this);
+
+}
+
+void MaxpDlg::OnFloorCheck(wxCommandEvent& event)
+{
+    wxLogMessage("On MaxpDlg::OnLISACheck");
+    bool use_floor = chk_floor->GetValue();
+    
+    if (use_floor) {
+        combo_floor->Enable();
+    } else {
+        combo_floor->Disable();
+    }
 }
 
 void MaxpDlg::OnLISACheck(wxCommandEvent& event)
@@ -366,6 +395,7 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
     
     for (int i=0; i<items.size(); i++) {
         combo_lisa->Insert(items[i],i);
+        combo_floor->Insert(items[i],i);
     }
 }
 
@@ -555,11 +585,23 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         floor = value_floor;
     }
     
-    vector<vector<int> > floor_variable;
-    for (int i=0; i<rows; i++) {
-        vector<int> val(1,1);
-        floor_variable.push_back(val);
+    vector<double> floor_variable(rows, 1);
+    bool use_floor = chk_floor->GetValue();
+    if (use_floor) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_lisa->GetString(idx)];
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        int tm = name_to_tm_id[combo_floor->GetString(idx)];
+        
+        table_int->GetColData(col, tm, floor_variable);
     }
+    
     int initial = 99;
     long value_initial;
     if(str_initial.ToLong(&value_initial)) {
@@ -578,7 +620,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
+        int tm = name_to_tm_id[combo_lisa->GetString(idx)];
         
         std::vector<wxInt64> _data;
         table_int->GetColData(col, tm, _data);

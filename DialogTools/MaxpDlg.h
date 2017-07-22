@@ -48,6 +48,7 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
+    void OnFloorCheck(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -67,11 +68,13 @@ private:
     
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
+    wxCheckBox* chk_floor;
     wxListBox* combo_var;
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     wxChoice* combo_lisa;
     wxChoice* combo_cov;
+    wxChoice* combo_floor;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
     wxTextCtrl* m_iterations;

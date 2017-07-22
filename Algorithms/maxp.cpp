@@ -36,7 +36,7 @@
 
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor, vector<vector<int> > _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, bool _test)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor, vector<double> _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, bool _test)
 : w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial)
 {
     num_obs = z.size();
@@ -457,10 +457,8 @@ bool Maxp::check_floor(const vector<int>& region)
     double cv = 0;
     for (size_t i=0; i<region.size(); i++) {
         int selectionID = region[i];
-        vector<int>& f_v = floor_variable[ selectionID ];
-        for (size_t j=0; j<f_v.size(); j++) {
-            cv += f_v[j];
-        }
+        double f_v = floor_variable[ selectionID ];
+        cv += f_v;
     }
     if (cv >= floor)
         return true;
