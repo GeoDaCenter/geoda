@@ -2524,12 +2524,26 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 
 void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 {
-    
+    wxLogMessage("In GdaFrame::OnRegressionClassic()");
     Project* p = GetProject();
-    if (p) {
-        RegressionDlg* dlg = new RegressionDlg(project_p, this);
-        dlg->Show(true);
+    if (p == NULL)
+        return;
+    
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (RegressionDlg* w = dynamic_cast<RegressionDlg*>(*it))
+        {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
     }
+    
+    RegressionDlg* dlg = new RegressionDlg(project_p, this);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnPublish(wxCommandEvent& event)
@@ -2539,12 +2553,12 @@ void GdaFrame::OnPublish(wxCommandEvent& event)
     if (p) {
         PublishDlg dlg(this,p);
         dlg.ShowModal();
-        
     }
 }
 
 void GdaFrame::DisplayRegression(const wxString dump)
 {
+    wxLogMessage("In GdaFrame::DisplayRegression()");
     Project* p = GetProject();
     if (!p) return;
     
@@ -2555,6 +2569,7 @@ void GdaFrame::DisplayRegression(const wxString dump)
 
 void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 {
+    wxLogMessage("In GdaFrame::OnCondPlotChoices()");
     Project* p = GetProject();
     if (!p) return;
     

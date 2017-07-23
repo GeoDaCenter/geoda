@@ -1105,6 +1105,13 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
 
 void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
 {
+    int col_idx = GetColIndex();
+    if (value.IsEmpty()) {
+        undef_markers[row_idx] = true;
+        ogr_layer->data[row_idx]->UnsetField(col_idx);
+        return;
+    }
+    
     wxRegEx regex;
     
     wxString date_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})";
@@ -1130,7 +1137,6 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
     if (is_new) {
         new_data[row_idx] = val;
     } else {
-        int col_idx = GetColIndex();
         ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
     }
 }
@@ -1265,6 +1271,12 @@ wxString OGRColumnTime::GetValueAt(int row_idx, int disp_decimals,
 
 void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
 {
+    int col_idx = GetColIndex();
+    if (value.IsEmpty()) {
+        undef_markers[row_idx] = true;
+        ogr_layer->data[row_idx]->UnsetField(col_idx);
+        return;
+    }
     wxRegEx regex;
     
     wxString time_regex_str = "([0-9]{2}):([0-9]{2}):([0-9]{2})";
@@ -1430,6 +1442,13 @@ wxString OGRColumnDateTime::GetValueAt(int row_idx, int disp_decimals,
 
 void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
 {
+    int col_idx = GetColIndex();
+    if (value.IsEmpty()) {
+        undef_markers[row_idx] = true;
+        ogr_layer->data[row_idx]->UnsetField(col_idx);
+        return;
+    }
+    
     wxRegEx regex;
     
     wxString time_regex_str = "([0-9]{2}):([0-9]{2}):([0-9]{2})";
