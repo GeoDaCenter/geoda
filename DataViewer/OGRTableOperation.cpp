@@ -288,7 +288,7 @@ void OGRTableOpUpdateColumn::Rollback()
 ////////////////////////////////////////////////////////////////////////////////
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                            double new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this if for adding new Double column
     this->row_idx = row_idx;
@@ -300,7 +300,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
 
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                            wxInt64 new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this if for adding new Integer column
     this->row_idx = row_idx;
@@ -312,7 +312,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
 
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                              wxString new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this is for user editing cell value and save to table, so the
     // wxString(new_val) could be any data type. Here converts new_val
@@ -320,13 +320,15 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
     this->row_idx = row_idx;
     wxString col_name = ogr_col->GetName();
     GdaConst::FieldType type = ogr_col->GetType();
+    
     if ( type == GdaConst::long64_type) {
-        new_val.ToLongLong(&l_new_value);
+        undef_new_value = !new_val.ToLongLong(&l_new_value);
     } else if (type == GdaConst::double_type) {
-        new_val.ToDouble(&d_new_value);
+        undef_new_value = !new_val.ToDouble(&d_new_value);
     } else if (type == GdaConst::string_type) {
         s_new_value = new_val;
     }
+    
     GetOriginalCellValue();
 }
 
@@ -349,9 +351,9 @@ void OGRTableOpUpdateCell::GetOriginalCellValue()
         if (col_idx < 0)
             s_old_value = wxEmptyString;
         else
-            s_old_value =
-                wxString(ogr_layer->data[row_idx]->GetFieldAsString(col_idx));
+            s_old_value = wxString(ogr_layer->data[row_idx]->GetFieldAsString(col_idx));
     }
+    undef_old_value = !ogr_layer->data[row_idx]->IsFieldSet(col_idx);
 }
 
 void OGRTableOpUpdateCell::Commit()
@@ -370,15 +372,16 @@ void OGRTableOpUpdateCell::Commit()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
+            // undef = s_new_value.IsEmpty()
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value, undef_new_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value, undef_new_value);
         }
     } else if (type == GdaConst::string_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (s_new_value != s_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value, undef_new_value);
         }
     }
 }
@@ -397,15 +400,15 @@ void OGRTableOpUpdateCell::Rollback()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value, undef_old_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value, undef_old_value);
         }
     } else if (type == GdaConst::string_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (s_new_value != s_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value, undef_old_value);
         }
     }
 }

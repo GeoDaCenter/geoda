@@ -255,41 +255,46 @@ public:
         return rst;
     }
     
-    void SetValueAt(int rid, int cid, GIntBig val)
+    void SetValueAt(int rid, int cid, GIntBig val, bool undef=false)
     {
-        data[rid]->SetField( cid, val);
+        if (undef) data[rid]->UnsetField(cid);
+        else data[rid]->SetField( cid, val);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
             throw GdaException(wxString("Set value to cell failed.").mb_str());
         }
     }
     
-    void SetValueAt(int rid, int cid, double val)
+    void SetValueAt(int rid, int cid, double val, bool undef=false)
     {
-        data[rid]->SetField( cid, val);
+        if (undef) data[rid]->UnsetField(cid);
+        else data[rid]->SetField( cid, val);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
             throw GdaException(wxString("Set value to cell failed.").mb_str());
         }
     }
     
-    void SetValueAt(int rid, int cid, int year, int month, int day)
+    void SetValueAt(int rid, int cid, int year, int month, int day, bool undef=false)
     {
-        data[rid]->SetField( cid, year, month, day);
+        if (undef) data[rid]->UnsetField(cid);
+        else data[rid]->SetField( cid, year, month, day);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
             throw GdaException(wxString("Set value to cell failed.").mb_str());
         }
     }
     
-    void SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second)
+    void SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second, bool undef=false)
     {
-        data[rid]->SetField( cid, year, month, day, hour, minute, second);
+        if (undef) data[rid]->UnsetField(cid);
+        else data[rid]->SetField( cid, year, month, day, hour, minute, second);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
             throw GdaException(wxString("Set value to cell failed.").mb_str());
         }
     }
     
-    void SetValueAt(int rid, int cid, const char* val, bool is_new=true)
+    void SetValueAt(int rid, int cid, const char* val, bool is_new=true, bool undef=false)
     {
-        data[rid]->SetField( cid, val);
+        if (undef) data[rid]->UnsetField(cid);
+        else data[rid]->SetField( cid, val);
         if (layer->SetFeature(data[rid]) != OGRERR_NONE){
             throw GdaException(wxString("Set value to cell failed.").mb_str());
         }

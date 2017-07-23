@@ -144,6 +144,7 @@ private:
     double d_old_value, d_new_value;
     wxInt64 l_old_value, l_new_value;
     wxString s_old_value, s_new_value;
+    bool undef_old_value, undef_new_value;
     void GetOriginalCellValue();
     
 public:

@@ -645,7 +645,8 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
             new_data[row_idx] = 0.0;
         } else {
             // set undefined/null
-            ogr_layer->data[row_idx]->UnsetField(row_idx);
+            int col_idx = GetColIndex();
+            ogr_layer->data[row_idx]->UnsetField(col_idx);
         }
         return;
     }

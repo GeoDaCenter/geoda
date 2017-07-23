@@ -93,6 +93,7 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 
 void DataViewerAddColDlg::CreateControls()
 {
+    wxLogMessage("DataViewerAddColDlg::CreateControls()");
     SetBackgroundColour(*wxWHITE);
 	if (time_variant && fixed_lengths) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");
@@ -222,6 +223,7 @@ void DataViewerAddColDlg::OnChoiceType( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 {
+    wxLogMessage("In DataViewerAddColDlg::SetDefaultsByType()");
 	// set some defaults first
 	m_displayed_decimals->SetSelection(0);
 	m_displayed_decimals->Disable();
@@ -296,7 +298,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 
 void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 {
-	wxLogMessage("Entering DataViewerAddColDlg::OnOkClick");
+	wxLogMessage("DataViewerAddColDlg::OnOkClick()");
     wxString colname = m_name->GetValue();
 	colname.Trim(true);  // trim white-space from right of string
 	colname.Trim(false); // trim white-space from left of string
@@ -417,6 +419,7 @@ void DataViewerAddColDlg::OnEditName( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::CheckName()
 {
+    wxLogMessage("DataViewerAddColDlg::CheckName()");
 	wxString s = m_name->GetValue();
     m_name_valid = table_int->IsValidDBColName(s);
     if ( m_name_valid ) {
@@ -474,7 +477,7 @@ void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
     
 	if (!fixed_lengths)
         return;
-	if (!cur_type == GdaConst::double_type) {
+	if (cur_type != GdaConst::double_type) {
 		m_decimals_valid = true;
 		UpdateApplyButton();
 		return;
@@ -512,6 +515,8 @@ void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::UpdateMinMaxValues()
 {
+    wxLogMessage("DataViewerAddColDlg::UpdateMinMaxValues()");
+    
 	if (!fixed_lengths) return;
 
     m_max_val->SetLabelText("");
@@ -543,6 +548,8 @@ void DataViewerAddColDlg::UpdateMinMaxValues()
 
 void DataViewerAddColDlg::UpdateApplyButton()
 {
+    wxLogMessage("DataViewerAddColDlg::UpdateApplyButton()");
+    
 	if (fixed_lengths) {
 		bool enable = false;
 		if (cur_type == GdaConst::double_type) {
