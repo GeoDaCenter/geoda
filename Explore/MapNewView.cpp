@@ -1903,7 +1903,6 @@ MapFrame::~MapFrame()
         delete export_dlg;
         export_dlg = NULL;
     }
-
 }
 
 void MapFrame::CleanBasemap()
@@ -2263,8 +2262,7 @@ void MapFrame::OnSaveCategories()
 
 void MapFrame::OnRawrate()
 {
-	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false,
-													false,
+	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false, false,
 							"Raw Rate Smoothed Variable Settings",
 							"Event Variable", "Base Variable");
 	if (dlg.ShowModal() != wxID_OK) return;
@@ -2287,8 +2285,7 @@ void MapFrame::OnExcessRisk()
 
 void MapFrame::OnEmpiricalBayes()
 {
-	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false,
-													false,
+	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false, false,
 							"Empirical Bayes Smoothed Variable Settings",
 							"Event Variable", "Base Variable");
 	if (dlg.ShowModal() != wxID_OK) return;

@@ -42,7 +42,7 @@ public:
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	void UpdateFromSharedCore();
-	//virtual void PaintSelectionOutline(wxDC& dc);
+	virtual void PaintSelectionOutline(wxMemoryDC& dc);
 	
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
