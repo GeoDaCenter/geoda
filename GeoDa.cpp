@@ -919,6 +919,7 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
                     wxString msg="Calling Close(true) for wxTopLevelWindow: ";
 					msg << w->GetTitle();
                     w->Close(true);
+                    w->Destroy();
                 }
             }
         }
