@@ -97,6 +97,7 @@ LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
     if (rand_dlg) {
         rand_dlg->Destroy();
     }
+    pre_foreground_shps.clear();
 }
 
 void LisaScatterPlotCanvas::ShowRegimesRegression(bool flag)
@@ -272,7 +273,6 @@ void LisaScatterPlotCanvas::TimeChange()
 	//SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
 	PopulateCanvas();
-	Refresh();
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -462,8 +462,26 @@ void LisaScatterPlotCanvas::PopulateCanvas()
     var_info_orig = var_info;
     var_info = sp_var_info;
 
-    
-	ScatterNewPlotCanvas::PopulateCanvas();
+    if (selectable_shps.empty() || isResize) {
+        
+        ScatterNewPlotCanvas::PopulateCanvas();
+        pre_foreground_shps.clear();
+        BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+            pre_foreground_shps[shp] = true;
+        }
+    } else {
+        // popup previous foreground_shps
+        std::list<GdaShape*> tmp_shps;
+        BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+            if ( pre_foreground_shps.find(shp) == pre_foreground_shps.end()) {
+                delete shp;
+            } else {
+                tmp_shps.push_back(shp);
+            }
+        }
+        foreground_shps.clear();
+        foreground_shps = tmp_shps;
+    }
     
     int n_hl = highlight_state->GetTotalHighlighted();
     
@@ -803,7 +821,6 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
             wxString str1 = wxString::Format("unselected: %.4f", regressionXYexcluded.beta);
             morans_unsel_text->setText(str1);
         }
-        //Refresh();
          */
         PopulateCanvas();
     }
@@ -817,9 +834,7 @@ void LisaScatterPlotCanvas::update(HLStateInt* o)
     PopulateCanvas();
     
     // Call TemplateCanvas::update to redraw objects as needed.
-    TemplateCanvas::update(o);
-    
-    Refresh();
+    TemplateCanvas::update(o);    
 }
 void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 {

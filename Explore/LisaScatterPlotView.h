@@ -82,6 +82,7 @@ protected:
     GdaShapeText* morans_sel_text;
     GdaShapeText* morans_unsel_text;
 	
+    std::map<GdaShape*, bool> pre_foreground_shps;
 	DECLARE_EVENT_TABLE()
 };
 

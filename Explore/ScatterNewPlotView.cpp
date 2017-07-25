@@ -554,7 +554,7 @@ void ScatterNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     if (IsRegressionSelected() || IsRegressionExcluded()) {
         // we only need to redraw everything if the optional
         // regression lines have changed.
-        Refresh();
+        //Refresh();
     }
     
 }
@@ -597,7 +597,7 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
 		// we only need to redraw everything if the optional
 		// regression lines have changed.
-		Refresh();
+		//Refresh();
 	}
 }
 
@@ -1168,8 +1168,6 @@ void ScatterNewPlotCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
     UpdateStatusBar();
-    
-	Refresh();
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -1464,7 +1462,6 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	}
-	Refresh();
 }
 
 void ScatterNewPlotCanvas::UpdateRegSelectedLine()
@@ -1532,7 +1529,6 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	}
-	Refresh();
 }
 
 void ScatterNewPlotCanvas::UpdateRegExcludedLine()

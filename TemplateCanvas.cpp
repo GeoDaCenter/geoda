@@ -57,6 +57,7 @@
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "GdaConst.h"
+#include "logger.h"
 
 
 using namespace std;
@@ -78,6 +79,7 @@ BEGIN_EVENT_TABLE(TemplateCanvas, wxScrolledWindow)
 	EVT_KEY_DOWN(TemplateCanvas::OnKeyEvent)
 	EVT_KEY_UP(TemplateCanvas::OnKeyEvent)
 	EVT_SCROLLWIN(TemplateCanvas::OnScrollChanged)
+    EVT_TIMER(-1, TemplateCanvas::OnHighlightTimerEvent)
 #ifdef __WIN32__
 	EVT_SCROLLWIN_LINEUP(TemplateCanvas::OnScrollUp)
 	EVT_SCROLLWIN_LINEDOWN(TemplateCanvas::OnScrollDown)
@@ -114,6 +116,8 @@ useScientificNotation(false), is_showing_brush(false),
 axis_display_precision(2), enable_high_dpi_support(enable_high_dpi_support_),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
+    highlight_timer = new wxTimer(this);
+    
     // default is one time slice
 	cat_data.CreateEmptyCategories(1, highlight_state->GetHighlightSize());
     
@@ -140,6 +144,13 @@ TemplateCanvas::~TemplateCanvas()
         ReleaseMouse();
     }
     deleteLayerBms();
+}
+
+void TemplateCanvas::OnHighlightTimerEvent(wxTimerEvent &event)
+{
+    highlight_state->SetEventType(HLStateInt::delta);
+    highlight_state->notifyObservers(this);
+    highlight_timer->Stop();
 }
 
 // We will handle drawing our background in a paint event
@@ -600,7 +611,6 @@ void TemplateCanvas::update(HLStateInt* o)
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
-        Refresh();
     
         UpdateStatusBar();
 	}
@@ -655,7 +665,7 @@ void TemplateCanvas::DrawLayers()
    
     //wxWakeUpIdle();
     
-    Refresh();
+    Refresh(false);
 }
 
 
@@ -1254,6 +1264,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         ResetBrushing();
                         sel1 = prev;
                         selectstate = leftdown;
+                        UpdateSelection();
                     }
                     delete brush_shape;
                     
@@ -1423,28 +1434,21 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					sel1 = prev;
 					sel2 = GetActualPos(event);
 					selectstate = dragging;
-
-					Refresh(false);
 				}
 			} else if (event.LeftUp()) {
-
 				selectstate = start;
-				Refresh(false);
 			} else if (event.RightDown()) {
 				selectstate = start;
 			}
 		} else if (selectstate == dragging) {
 			if (event.Dragging()) { // mouse moved while buttons still down
 				sel2 = GetActualPos(event);
-
-				Refresh(false);
 			} else if (event.LeftUp() ) {
 				sel2 = GetActualPos(event);
 
 				remember_shiftdown = false;
 				selectstate = start;
 				PanShapes();
-				Refresh(false);
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}			
@@ -1470,7 +1474,6 @@ void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 
 void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 {
-
 	if (is_showing_brush && (mousemode == select || mousemode == zoom || mousemode == zoomout))
     {
         if (sel1 != sel2 ) {
@@ -1749,10 +1752,11 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 			}
 		}
 	}
-	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
-	}
+    if (selection_changed) {
+        int total_highlighted = 1; // used for MapCanvas::Drawlayer1
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(20);
+    }
 }
 
 // The following function assumes that the set of selectable objects
@@ -1896,11 +1900,11 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 			}
 		}
 	}
-
-	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
-	}
+    if (selection_changed) {
+        int total_highlighted = 1; // used for MapCanvas::Drawlayer1
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(20);
+    }
 }
 
 // The following function assumes that the set of selectable objects
@@ -2085,10 +2089,11 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 			}
 		}
 	}
-	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
-	}
+    if (selection_changed) {
+        int total_highlighted = 1; // used for MapCanvas::Drawlayer1
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(20);
+    }
 }
 
 void TemplateCanvas::SelectAllInCategory(int category,

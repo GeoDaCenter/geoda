@@ -1404,7 +1404,6 @@ void MapCanvas::TimeChange()
 	cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
 	PopulateCanvas();
-	Refresh();
 	LOG_MSG("Exiting MapCanvas::TimeChange");
 }
 
@@ -1752,7 +1751,6 @@ void MapCanvas::update(HLStateInt* o)
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
-        Refresh();
         
         UpdateStatusBar();
     }

@@ -27,6 +27,7 @@
 #include <boost/multi_array.hpp>
 #include <wx/dc.h>
 #include <wx/event.h>
+#include <wx/timer.h>
 #include <wx/overlay.h>
 #include <wx/scrolwin.h>
 #include <wx/string.h>
@@ -370,6 +371,9 @@ protected:
 	TemplateFrame* template_frame;
 
     bool isResize;
+    wxTimer* highlight_timer;
+    
+    void OnHighlightTimerEvent(wxTimerEvent &event);
     
 	virtual void UpdateSelectableOutlineColors();
 	// The following five methods enable the use of a custom
