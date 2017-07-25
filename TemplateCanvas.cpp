@@ -1264,7 +1264,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         ResetBrushing();
                         sel1 = prev;
                         selectstate = leftdown;
-                        UpdateSelection();
+                        //UpdateSelection();
                     }
                     delete brush_shape;
                     
@@ -1753,9 +1753,10 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 		}
 	}
     if (selection_changed) {
-        int total_highlighted = 1; // used for MapCanvas::Drawlayer1
+        int total_highlighted = 0; // used for MapCanvas::Drawlayer1
+        for (int i=0; i<hl_size; i++) if (hs[i]) total_highlighted += 1;
         highlight_state->SetTotalHighlighted(total_highlighted);
-        highlight_timer->Start(20);
+        highlight_timer->Start(25);
     }
 }
 
