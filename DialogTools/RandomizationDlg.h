@@ -110,6 +110,7 @@ public:
 					 const GalWeight* W,
                      const std::vector<bool>& undef,
                      const std::vector<bool>& hl,
+                     bool is_regime,
                      int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,                    
@@ -123,6 +124,7 @@ public:
 					 const GalWeight* W,
                      const std::vector<bool>& undef,
                      const std::vector<bool>& hl,
+                     bool is_regime,
                      int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,
@@ -145,6 +147,7 @@ public:
     RandomizationPanel* panel_sel;
     RandomizationPanel* panel_unsel;
     
+    bool is_regime;
     GalWeight* copy_w;
     GalWeight* copy_w_sel;
     GalWeight* copy_w_unsel;

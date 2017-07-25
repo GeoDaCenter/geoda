@@ -430,6 +430,7 @@ RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const GalWeight* W_s,
                                    const std::vector<bool>& _undef,
                                    const std::vector<bool>& hl,
+                                   bool _is_regime,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -438,7 +439,7 @@ RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
-copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL), is_regime(_is_regime)
 {
 	wxLogMessage("Open RandomizationDlg (bivariate).");
 	
@@ -471,7 +472,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
     panel = new RandomizationPanel(raw_data1_s, raw_data2_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
     
     
-    if ( has_hl) {
+    if ( has_hl && is_regime) {
         std::vector<bool> sel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             sel_undefs[i] = _undef[i] || !hl[i];
@@ -499,6 +500,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const GalWeight* W_s,
                                    const std::vector<bool>& _undef,
                                    const std::vector<bool>& hl,
+                                   bool _is_regime,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -507,7 +509,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
-copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL), is_regime(_is_regime)
 {
 	wxLogMessage("Open RandomizationDlg (univariate).");
 	
@@ -537,7 +539,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
     panel = new RandomizationPanel(raw_data1_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
    
    
-    if ( has_hl) {
+    if ( has_hl && is_regime ) {
         std::vector<bool> sel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             sel_undefs[i] = _undef[i] || !hl[i];

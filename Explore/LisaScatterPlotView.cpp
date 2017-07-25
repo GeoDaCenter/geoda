@@ -872,6 +872,7 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
                                         lisa_coord->Gal_vecs[cts],
                                         lisa_coord->undef_tms[cts],
                                         highlight_state->GetHighlight(),
+                                        is_show_regimes_regression,
                                         permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
@@ -889,6 +890,7 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
         rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->Gal_vecs[cts],
                                         lisa_coord->undef_tms[cts],
                                         highlight_state->GetHighlight(),
+                                        is_show_regimes_regression,
                                         permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
