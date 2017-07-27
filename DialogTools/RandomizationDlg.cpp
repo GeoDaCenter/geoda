@@ -171,7 +171,15 @@ void InferenceSettingsDlg::Init(double* p_vals, int n, double current_p)
         p_start = i_0 * current_p / (double)n ;
     }
     
-    wxString fdr_str = wxString::Format("%g", p_start);
+    wxString fdr_str;
+    
+    if (i_0 >0)
+        fdr_str = wxString::Format("%g", p_start);
+    else {
+        fdr_str = "nan";
+        p_start = 0.0;
+    }
+    
     m_txt_fdr->SetLabel(fdr_str);
     
     bo = bonferroni_bound;

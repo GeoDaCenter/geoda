@@ -442,8 +442,11 @@ void GetisOrdMapCanvas::UpdateStatusBar()
             s << ", ...";
         }
     }
-    if (!is_clust && gs_coord && gs_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g  False Discovery Rate: %g", bo, fdr);
+    if (gs_coord && gs_coord->GetSignificanceFilter() < 0) {
+        wxString inf_str = wxString::Format(" Bonferroni bound: %g", bo);
+        if (fdr >0 ) {
+            inf_str << wxString::Format(" False Discovery Rate: %g", fdr);
+        }
         s << inf_str;
     }
     sb->SetStatusText(s);
