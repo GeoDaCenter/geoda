@@ -49,7 +49,11 @@ public:
 	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
-	
+    virtual void UpdateStatusBar();
+    
+    double bo;
+    double fdr;
+
     bool is_diff;
     
 protected:
@@ -94,7 +98,8 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
-	
+	void OnSigFilterSetup(wxCommandEvent& event);
+    
 	void OnSaveLocalGeary(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);

@@ -2452,6 +2452,11 @@
         <label>0.0001</label>
         <checkable>1</checkable>
       </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_SETUP">
+          <label>Custom Inference</label>
+          <checkable>1</checkable>
+      </object>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_GETIS_ORD">
       <label>Save Results</label>
@@ -2572,6 +2577,11 @@
       <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_0001">
         <label>0.0001</label>
         <checkable>1</checkable>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_SETUP">
+          <label>Custom Inference</label>
+          <checkable>1</checkable>
       </object>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_LISA">

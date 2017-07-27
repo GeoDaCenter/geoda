@@ -33,6 +33,180 @@
 #include "RandomizationDlg.h"
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+//  --------------------------------------
+//  |          Inference Settings         |
+//  |-------------------------------------|
+//  |                                     |
+//  |  Bonferroni Bounds:  __0.43__       |
+//  |                                     |
+//  |  False  Discovery Rate: __0.____    |
+//  |                                     |
+//  |  Use specified p-value: _______     |
+//  |                                     |
+//  |                                     |
+//  |                                     |
+//  |   [ O K ]       [ Cancel ]          |
+//  --------------------------------------
+/////////////////////////////////////////////////////////////////////////////
+
+BEGIN_EVENT_TABLE( InferenceSettingsDlg, wxDialog )
+EVT_BUTTON( wxID_OK, InferenceSettingsDlg::OnOkClick )
+END_EVENT_TABLE()
+
+InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
+                                           double _p_cutoff,
+                                           double* _p_vals,
+                                           int _n,
+                                           Project* _p,
+                                           wxWindowID id,
+                                           const wxString& title,
+                                           const wxPoint& pos,
+                                           const wxSize& size )
+: wxDialog(parent, id, title, pos, size), p_cutoff(_p_cutoff), p_vals(_p_vals), n(_n), fdr(0), bo(0)
+{
+    wxLogMessage("Open InferenceSettingsDlg.");
+    
+    wxString p_str = wxString::Format("%g", p_cutoff);
+    wxPanel *panel = new wxPanel(this);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    
+    // Parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Bonferroni bound:"),
+                                          wxDefaultPosition, wxSize(180,-1));
+    m_txt_bo = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
+    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_bo, 1, wxEXPAND);
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("False Discovery Rate:"),
+                                          wxDefaultPosition, wxSize(180,-1));
+    m_txt_fdr = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
+    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_fdr, 1, wxEXPAND);
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Use specified significance:"),
+                                          wxDefaultPosition, wxSize(180,-1));
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    chk_pval = new wxCheckBox(panel, wxID_ANY, "");
+    m_txt_pval = new wxTextCtrl(panel, XRCID("ID_INFERENCE_TCTRL"), p_str, wxDefaultPosition, wxSize(100,-1),wxTE_PROCESS_ENTER);
+    m_txt_pval->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    //Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(InferenceSettingsDlg::OnAlphaTextCtrl));
+    Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT,
+            wxCommandEventHandler(InferenceSettingsDlg::OnAlphaTextCtrl));
+    chk_pval->SetValue(true);
+    
+    hbox1->Add(chk_pval,0, wxALIGN_CENTER_VERTICAL | wxTOP, 12);
+    hbox1->Add(m_txt_pval,0,wxALIGN_CENTER_VERTICAL | wxTOP, 10);
+    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox1, 1, wxEXPAND);
+
+    // Buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"),
+                                      wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_CANCEL, wxT("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    
+    // Container
+    vbox->Add(gbox, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    Centre();
+    
+    Init(p_vals, n, p_cutoff);
+}
+
+int compare (const void * a, const void * b)
+{
+    if (*(double*)a > *(double*)b) return 1;
+    else if (*(double*)a < *(double*)b) return -1;
+    else return 0;
+}
+
+void InferenceSettingsDlg::Init(double* p_vals, int n, double current_p)
+{
+    double bonferroni_bound = current_p / (double)n;
+    wxString bo_str = wxString::Format("%g", bonferroni_bound);;
+    m_txt_bo->SetLabel(bo_str);
+    
+    std::vector<double> pvals;
+    for (int i=0; i<n; i++) pvals.push_back(p_vals[i]);
+    
+    // FDR
+    // sort all p-values from smallest to largets
+    std::sort(pvals.begin(), pvals.end());
+
+    int i_0 = -1;
+    bool stop = false;
+    double p_start = current_p;
+    
+    while (!stop) {
+        // find the i_0 that corresponds to p = alpha
+        for (int i=1; i<=n; i++) {
+            if (pvals[i] >= p_start) {
+                if (i_0 == i) {
+                    stop = true;
+                }
+                i_0 = i;
+                break;
+            }
+        }
+        if (i_0 < 0)
+            stop = true;
+        
+        // compute p* = i_0 x alpha / N
+        p_start = i_0 * current_p / (double)n ;
+    }
+    
+    wxString fdr_str = wxString::Format("%g", p_start);
+    m_txt_fdr->SetLabel(fdr_str);
+    
+    bo = bonferroni_bound;
+    fdr = p_start;
+}
+
+void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
+{
+    wxString val = m_txt_pval->GetValue();
+    val.Trim(false);
+    val.Trim(true);
+    double pval;
+    bool is_valid = val.ToDouble(&pval);
+    if (is_valid) {
+        Init(p_vals, n, pval);
+    }
+    ev.Skip();
+}
+
+void InferenceSettingsDlg::OnOkClick( wxCommandEvent& event )
+{
+    wxLogMessage("In InferenceSettingsDlg::OnOkClick()");
+    
+    if (chk_pval->GetValue()) {
+        wxString p_val = m_txt_pval->GetValue();
+        p_val.ToDouble(&p_cutoff);
+    
+        EndDialog(wxID_OK);
+    } else {
+        EndDialog(wxID_CANCEL);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
                                        const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,

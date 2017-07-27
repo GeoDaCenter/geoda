@@ -1044,10 +1044,10 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 		siglocalGeary[cnt] = (countLarger+1.0)/(permutations+1);
         
 		// 'significance' of local Moran
-		if (siglocalGeary[cnt] <= 0.0001 / kp) sigCat[cnt] = 4;
-		else if (siglocalGeary[cnt] <= 0.001 / kp) sigCat[cnt] = 3;
-		else if (siglocalGeary[cnt] <= 0.01 / kp) sigCat[cnt] = 2;
-		else if (siglocalGeary[cnt] <= 0.05 / kp) sigCat[cnt]= 1;
+		if (siglocalGeary[cnt] <= 0.0001) sigCat[cnt] = 4;
+		else if (siglocalGeary[cnt] <= 0.001) sigCat[cnt] = 3;
+		else if (siglocalGeary[cnt] <= 0.01) sigCat[cnt] = 2;
+		else if (siglocalGeary[cnt] <= 0.05) sigCat[cnt]= 1;
 		else sigCat[cnt]= 0;
 		
 		// observations with no neighbors get marked as isolates
@@ -1060,16 +1060,21 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
 
 void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
 {
+    if (filter_id == -1) {
+        // user input cutoff
+        significance_filter = filter_id;
+        return;
+    }
 	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 	if (filter_id < 1 || filter_id > 4) return;
 	significance_filter = filter_id;
     
-    int kp = local_geary_type == multivariate ? num_vars : 1;
+    //int kp = local_geary_type == multivariate ? num_vars : 1;
     
-	if (filter_id == 1) significance_cutoff = 0.05 / kp;
-	if (filter_id == 2) significance_cutoff = 0.01 / kp;
-	if (filter_id == 3) significance_cutoff = 0.001 / kp;
-	if (filter_id == 4) significance_cutoff = 0.0001 / kp;
+	if (filter_id == 1) significance_cutoff = 0.05;
+	if (filter_id == 2) significance_cutoff = 0.01;
+	if (filter_id == 3) significance_cutoff = 0.001;
+	if (filter_id == 4) significance_cutoff = 0.0001;
 }
 
 void LocalGearyCoordinator::update(WeightsManState* o)

@@ -4984,6 +4984,20 @@ void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnSigFilterSetup(wxCommandEvent& event)
+{
+    wxLogMessage("In OnSigFilterSetup()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
+        f->OnSigFilterSetup(event);
+    } else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
+        f->OnSigFilterSetup(event);
+    } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilterSetup(event);
+    }
+}
+
 void GdaFrame::OnAddMeanCenters(wxCommandEvent& event)
 {
     wxLogMessage("In OnAddMeanCenters()");
@@ -6347,6 +6361,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_01"), GdaFrame::OnSigFilter01)
     EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_001"), GdaFrame::OnSigFilter001)
     EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_0001"), GdaFrame::OnSigFilter0001)
+    EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_SETUP"), GdaFrame::OnSigFilterSetup)
     EVT_MENU(XRCID("ID_SAVE_GETIS_ORD"), GdaFrame::OnSaveGetisOrd)
     EVT_MENU(XRCID("ID_SAVE_LISA"), GdaFrame::OnSaveLisa)
     EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)

@@ -776,6 +776,11 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
 
 void GStatCoordinator::SetSignificanceFilter(int filter_id)
 {
+    if (filter_id == -1) {
+        // user input cutoff
+        significance_filter = filter_id;
+        return;
+    }
 	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 	if (filter_id < 1 || filter_id > 4) return;
 	significance_filter = filter_id;

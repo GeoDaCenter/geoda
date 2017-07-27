@@ -21,12 +21,52 @@
 #define __GEODA_CENTER_RANDOMIZATION_DLG_H__
 
 #include <vector>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
+
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/Randik.h"
 
 
 
 class GalElement;
+
+class InferenceSettingsDlg : public wxDialog
+{
+public:
+    InferenceSettingsDlg(wxWindow* parent,
+                         double p_cutoff,
+                         double* p_vals,
+                         int n,
+                         Project* p = NULL,
+                         wxWindowID id = wxID_ANY,
+                         const wxString& title = _("Inference Settings"),
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize );
+    
+    void OnAlphaTextCtrl(wxCommandEvent& ev);
+    double GetAlphaLevel() { return p_cutoff;}
+    double GetBO() {return bo;}
+    double GetFDR() { return fdr; }
+    
+protected:
+    double bo;
+    double fdr;
+    double p_cutoff;
+    double* p_vals;
+    int n;
+    
+    wxStaticText* m_txt_bo;
+    wxStaticText* m_txt_fdr;
+    wxTextCtrl* m_txt_pval;
+    wxCheckBox* chk_pval;
+    
+    void Init(double* p_vals, int n, double current_p);
+
+    void OnOkClick( wxCommandEvent& event );
+    
+    DECLARE_EVENT_TABLE()
+};
 
 class RandomizationPanel: public wxPanel
 {

@@ -47,6 +47,10 @@ public:
 	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
+    virtual void UpdateStatusBar();
+
+    double bo;
+    double fdr;
 	
 protected:
 	GStatCoordinator* gs_coord;
@@ -55,8 +59,10 @@ protected:
 	bool is_perm; // true = pseudo-p-val, false = normal distribution p-val
 	bool row_standardize; // true = row standardize, false = binary
 	
+    
 	DECLARE_EVENT_TABLE()
 };
+
 
 class GetisOrdMapFrame : public MapFrame
 {
@@ -102,6 +108,7 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
+    void OnSigFilterSetup(wxCommandEvent& event);
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	

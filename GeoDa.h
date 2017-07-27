@@ -558,6 +558,7 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
+    void OnSigFilterSetup(wxCommandEvent& event);
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	void OnSaveLisa(wxCommandEvent& event);
