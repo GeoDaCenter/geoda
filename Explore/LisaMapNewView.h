@@ -50,9 +50,6 @@ public:
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
-    
-    double bo;
-    double fdr;
 	
     bool is_diff;
     

@@ -93,7 +93,9 @@ public:
 	void SetSignificanceFilter(int filter_id);
 	int GetSignificanceFilter() { return significance_filter; }
 	int permutations; // any number from 9 to 99999, 99 will be default
-	
+    double bo; //Bonferroni bound
+    double fdr; //False Discovery Rate
+
 	uint64_t GetLastUsedSeed() {
         return last_seed_used;
     }

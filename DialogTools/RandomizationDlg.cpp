@@ -59,9 +59,8 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
                                            double _p_cutoff,
                                            double* _p_vals,
                                            int _n,
-                                           Project* _p,
-                                           wxWindowID id,
                                            const wxString& title,
+                                           wxWindowID id,
                                            const wxPoint& pos,
                                            const wxSize& size )
 : wxDialog(parent, id, title, pos, size), p_cutoff(_p_cutoff), p_vals(_p_vals), n(_n), fdr(0), bo(0)
@@ -73,33 +72,27 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Bonferroni bound:"),
-                                          wxDefaultPosition, wxSize(180,-1));
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,10,0);
+    
+    m_rdo_1 = new wxRadioButton(panel, -1, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
     m_txt_bo = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
-    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_rdo_1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_bo, 1, wxEXPAND);
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("False Discovery Rate:"),
-                                          wxDefaultPosition, wxSize(180,-1));
+    
+    m_rdo_2 = new wxRadioButton(panel, -1, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
     m_txt_fdr = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
-    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_rdo_2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_fdr, 1, wxEXPAND);
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Use specified significance:"),
-                                          wxDefaultPosition, wxSize(180,-1));
-    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    chk_pval = new wxCheckBox(panel, wxID_ANY, "");
+    
+    m_rdo_3 = new wxRadioButton(panel, -1, _("Input significance:"), wxDefaultPosition, wxDefaultSize);
     m_txt_pval = new wxTextCtrl(panel, XRCID("ID_INFERENCE_TCTRL"), p_str, wxDefaultPosition, wxSize(100,-1),wxTE_PROCESS_ENTER);
     m_txt_pval->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-    //Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(InferenceSettingsDlg::OnAlphaTextCtrl));
     Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT,
             wxCommandEventHandler(InferenceSettingsDlg::OnAlphaTextCtrl));
-    chk_pval->SetValue(true);
+    gbox->Add(m_rdo_3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_pval, 1, wxEXPAND);
+    m_rdo_3->SetValue(true);
     
-    hbox1->Add(chk_pval,0, wxALIGN_CENTER_VERTICAL | wxTOP, 12);
-    hbox1->Add(m_txt_pval,0,wxALIGN_CENTER_VERTICAL | wxTOP, 10);
-    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(hbox1, 1, wxEXPAND);
-
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"),
                                       wxDefaultPosition, wxSize(70, 30));
@@ -110,7 +103,12 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    //wxStaticText* m_txt_title = new wxStaticText(panel, wxID_ANY, wxT("99999 perm / "), wxDefaultPosition, wxSize(150,-1));
+    chk_pval = new wxCheckBox(panel, wxID_ANY, _("Use selected as specified alpha level"));
+    chk_pval->SetValue(true);
+    //vbox->Add(m_txt_title, 0,  wxALIGN_CENTER, 10);
     vbox->Add(gbox, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(chk_pval, 0,   wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -173,7 +171,7 @@ void InferenceSettingsDlg::Init(double* p_vals, int n, double current_p)
     
     wxString fdr_str;
     
-    if (i_0 >0)
+    if (i_0 >= 0)
         fdr_str = wxString::Format("%g", p_start);
     else {
         fdr_str = "nan";
@@ -204,8 +202,14 @@ void InferenceSettingsDlg::OnOkClick( wxCommandEvent& event )
     wxLogMessage("In InferenceSettingsDlg::OnOkClick()");
     
     if (chk_pval->GetValue()) {
-        wxString p_val = m_txt_pval->GetValue();
-        p_val.ToDouble(&p_cutoff);
+        if (m_rdo_3->GetValue()) {
+            wxString p_val = m_txt_pval->GetValue();
+            p_val.ToDouble(&p_cutoff);
+        } else if (m_rdo_1->GetValue()) {
+            p_cutoff = bo;
+        } else if (m_rdo_2->GetValue()) {
+            p_cutoff = fdr;
+        }
     
         EndDialog(wxID_OK);
     } else {

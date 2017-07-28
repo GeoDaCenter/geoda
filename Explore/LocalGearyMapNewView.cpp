@@ -567,9 +567,9 @@ void LocalGearyMapCanvas::UpdateStatusBar()
         }
     }
     if (local_geary_coord && local_geary_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g", bo);
-        if (fdr >0 ) {
-            inf_str << wxString::Format(" False Discovery Rate: %g", fdr);
+        wxString inf_str = wxString::Format(" Bonferroni bound: %g", local_geary_coord->bo);
+        if (local_geary_coord->fdr >= 0 ) {
+            inf_str << wxString::Format(" False Discovery Rate: %g", local_geary_coord->fdr);
         }
         s << inf_str;
     }
@@ -824,13 +824,15 @@ void LocalGearyMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     double* p = local_geary_coord->sig_local_geary_vecs[t];
     int n = local_geary_coord->num_obs;
     
-    InferenceSettingsDlg dlg(this, local_geary_coord->significance_cutoff, p, n);
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << local_geary_coord->permutations << " perm)";
+    InferenceSettingsDlg dlg(this, local_geary_coord->significance_cutoff, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         local_geary_coord->SetSignificanceFilter(-1);
         local_geary_coord->significance_cutoff = dlg.GetAlphaLevel();
         local_geary_coord->notifyObservers();
-        lc->bo = dlg.GetBO();
-        lc->fdr = dlg.GetFDR();
+        local_geary_coord->bo = dlg.GetBO();
+        local_geary_coord->fdr = dlg.GetFDR();
         UpdateOptionMenuItems();
     }
 }

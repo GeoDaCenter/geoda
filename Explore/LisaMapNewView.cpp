@@ -478,9 +478,9 @@ void LisaMapCanvas::UpdateStatusBar()
         }
     }
     if (lisa_coord && lisa_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g", bo);
-        if (fdr >0 ) {
-            inf_str << wxString::Format(" False Discovery Rate: %g", fdr);
+        wxString inf_str = wxString::Format(" Bonferroni bound: %g", lisa_coord->bo);
+        if (lisa_coord->fdr >=0 ) {
+            inf_str << wxString::Format(" False Discovery Rate: %g", lisa_coord->fdr);
         }
         s << inf_str;
     }
@@ -727,14 +727,15 @@ void LisaMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
     double* p = lisa_coord->sig_local_moran_vecs[t];
     int n = lisa_coord->num_obs;
-    
-    InferenceSettingsDlg dlg(this, lisa_coord->significance_cutoff, p, n);
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << lisa_coord->permutations << " perm)";
+    InferenceSettingsDlg dlg(this, lisa_coord->significance_cutoff, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         lisa_coord->SetSignificanceFilter(-1);
         lisa_coord->significance_cutoff = dlg.GetAlphaLevel();
         lisa_coord->notifyObservers();
-        lc->bo = dlg.GetBO();
-        lc->fdr = dlg.GetFDR();
+        lisa_coord->bo = dlg.GetBO();
+        lisa_coord->fdr = dlg.GetFDR();
         UpdateOptionMenuItems();
     }
 }

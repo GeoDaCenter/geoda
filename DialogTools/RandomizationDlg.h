@@ -23,6 +23,7 @@
 #include <vector>
 #include <wx/checkbox.h>
 #include <wx/textctrl.h>
+#include <wx/radiobut.h>
 
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/Randik.h"
@@ -38,9 +39,8 @@ public:
                          double p_cutoff,
                          double* p_vals,
                          int n,
-                         Project* p = NULL,
-                         wxWindowID id = wxID_ANY,
                          const wxString& title = _("Inference Settings"),
+                         wxWindowID id = wxID_ANY,
                          const wxPoint& pos = wxDefaultPosition,
                          const wxSize& size = wxDefaultSize );
     
@@ -56,6 +56,9 @@ protected:
     double* p_vals;
     int n;
     
+    wxRadioButton* m_rdo_1;
+    wxRadioButton* m_rdo_2;
+    wxRadioButton* m_rdo_3;
     wxStaticText* m_txt_bo;
     wxStaticText* m_txt_fdr;
     wxTextCtrl* m_txt_pval;

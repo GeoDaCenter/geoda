@@ -443,9 +443,9 @@ void GetisOrdMapCanvas::UpdateStatusBar()
         }
     }
     if (gs_coord && gs_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g", bo);
-        if (fdr >0 ) {
-            inf_str << wxString::Format(" False Discovery Rate: %g", fdr);
+        wxString inf_str = wxString::Format(" Bonferroni bound: %g", gs_coord->bo);
+        if (gs_coord->fdr >= 0 ) {
+            inf_str << wxString::Format(" False Discovery Rate: %g", gs_coord->fdr);
         }
         s << inf_str;
     }
@@ -745,13 +745,15 @@ void GetisOrdMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     }
     int n = gs_coord->num_obs;
     
-    InferenceSettingsDlg dlg(this, gs_coord->significance_cutoff, p_val_t, n);
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << gs_coord->permutations << " perm)";
+    InferenceSettingsDlg dlg(this, gs_coord->significance_cutoff, p_val_t, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         gs_coord->SetSignificanceFilter(-1);
         gs_coord->significance_cutoff = dlg.GetAlphaLevel();
         gs_coord->notifyObservers();
-        lc->bo = dlg.GetBO();
-        lc->fdr = dlg.GetFDR();
+        gs_coord->bo = dlg.GetBO();
+        gs_coord->fdr = dlg.GetFDR();
         UpdateOptionMenuItems();
     }
 }
