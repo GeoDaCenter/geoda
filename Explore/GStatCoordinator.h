@@ -95,6 +95,7 @@ public:
 	int permutations; // any number from 9 to 99999, 99 will be default
     double bo; //Bonferroni bound
     double fdr; //False Discovery Rate
+    double user_sig_cutoff; // user defined cutoff
 
 	uint64_t GetLastUsedSeed() {
         return last_seed_used;

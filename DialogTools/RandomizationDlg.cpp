@@ -63,7 +63,7 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
                                            wxWindowID id,
                                            const wxPoint& pos,
                                            const wxSize& size )
-: wxDialog(parent, id, title, pos, size), p_cutoff(_p_cutoff), p_vals(_p_vals), n(_n), fdr(0), bo(0)
+: wxDialog(parent, id, title, pos, size), p_cutoff(_p_cutoff), p_vals(_p_vals), n(_n), fdr(0), bo(0), user_input(0)
 {
     wxLogMessage("Open InferenceSettingsDlg.");
     
@@ -192,6 +192,7 @@ void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
     double pval;
     bool is_valid = val.ToDouble(&pval);
     if (is_valid) {
+        user_input = pval;
         Init(p_vals, n, pval);
     }
     ev.Skip();
@@ -202,15 +203,17 @@ void InferenceSettingsDlg::OnOkClick( wxCommandEvent& event )
     wxLogMessage("In InferenceSettingsDlg::OnOkClick()");
     
     if (chk_pval->GetValue()) {
+        wxString p_val = m_txt_pval->GetValue();
+        p_val.ToDouble(&user_input);
+        
         if (m_rdo_3->GetValue()) {
-            wxString p_val = m_txt_pval->GetValue();
-            p_val.ToDouble(&p_cutoff);
+            p_cutoff = user_input;
         } else if (m_rdo_1->GetValue()) {
             p_cutoff = bo;
         } else if (m_rdo_2->GetValue()) {
             p_cutoff = fdr;
         }
-    
+        
         EndDialog(wxID_OK);
     } else {
         EndDialog(wxID_CANCEL);

@@ -75,7 +75,7 @@ is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
 	CreateAndUpdateCategories();
-	
+    UpdateStatusBar();
 	LOG_MSG("Exiting LisaMapCanvas::LisaMapCanvas");
 }
 
@@ -306,6 +306,22 @@ void LisaMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else {
+                int set_perm = lisa_coord->permutations;
+                stop_sig = 1.0 / (1.0 + set_perm);
+                
+                wxString def_cats[4] = {"p = 0.05", "p = 0.01", "p = 0.001", "p = 0.0001"};
+                wxColour def_colors[4] = {wxColour(75, 255, 80), wxColour(6, 196, 11), wxColour(3, 116, 6),wxColour(1, 70, 3)};
+                double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+                
+                int cat_idx = 1;
+                for (int j=s_f-1; j < 4; j++) {
+                    if (def_cutoffs[j] >= stop_sig) {
+                        cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                        cat_data.SetCategoryColor(t, cat_idx++, def_colors[j]);
+                    }
+                }
+                
+                /*
                 int skip_cat = 0;
                 if (s_f <=4 && stop_sig <= 0.0001) {
                     cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
@@ -325,17 +341,17 @@ void LisaMapCanvas::CreateAndUpdateCategories()
                 if (s_f <= 1) {
                     cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
                     cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-                }
+                }*/
                 if (lisa_coord->GetHasIsolates(t) &&
                     lisa_coord->GetHasUndefined(t)) {
-                    isolates_cat = 6 - s_f - skip_cat;
-                    undefined_cat = 7 - s_f - skip_cat;
+                    isolates_cat = cat_idx++;
+                    undefined_cat = cat_idx++;
                     
                 } else if (lisa_coord->GetHasUndefined(t)) {
-                    undefined_cat = 6 -s_f - skip_cat;
+                    undefined_cat = cat_idx++;
                     
                 } else if (lisa_coord->GetHasIsolates(t)) {
-                    isolates_cat = 6 - s_f -skip_cat;
+                    isolates_cat = cat_idx++;
                     
                 }
             }
@@ -381,7 +397,6 @@ void LisaMapCanvas::CreateAndUpdateCategories()
                     } else {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
                     }
-
                 }
 
             } else {
@@ -477,11 +492,9 @@ void LisaMapCanvas::UpdateStatusBar()
             s << ", ...";
         }
     }
-    if (lisa_coord && lisa_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g", lisa_coord->bo);
-        if (lisa_coord->fdr >=0 ) {
-            inf_str << wxString::Format(" False Discovery Rate: %g", lisa_coord->fdr);
-        }
+    if (is_clust && lisa_coord) {
+        double p_val = lisa_coord->significance_cutoff;
+        wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
     sb->SetStatusText(s);
@@ -512,6 +525,8 @@ lisa_coord(lisa_coordinator)
 	splitter_win->SetMinimumPaneSize(10);
 	
     CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::lisa_categories : CatClassification::lisa_significance;
+    
+    DisplayStatusBar(true);
     
     wxPanel* rpanel = new wxPanel(splitter_win);
     template_canvas = new LisaMapCanvas(rpanel, this, project,
@@ -550,7 +565,7 @@ lisa_coord(lisa_coordinator)
     //splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
     
-	DisplayStatusBar(true);
+	
 	SetTitle(template_canvas->GetCanvasTitle());
     
     
@@ -729,10 +744,15 @@ void LisaMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     int n = lisa_coord->num_obs;
     wxString ttl = _("Inference Settings");
     ttl << "  (" << lisa_coord->permutations << " perm)";
-    InferenceSettingsDlg dlg(this, lisa_coord->significance_cutoff, p, n, ttl);
+    
+    double user_sig = lisa_coord->significance_cutoff;
+    if (lisa_coord->GetSignificanceFilter()<0) user_sig = lisa_coord->user_sig_cutoff;
+    
+    InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         lisa_coord->SetSignificanceFilter(-1);
         lisa_coord->significance_cutoff = dlg.GetAlphaLevel();
+        lisa_coord->user_sig_cutoff = dlg.GetUserInput();
         lisa_coord->notifyObservers();
         lisa_coord->bo = dlg.GetBO();
         lisa_coord->fdr = dlg.GetFDR();
@@ -991,6 +1011,7 @@ void LisaMapFrame::update(LisaCoordinator* o)
 	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
+    lc->UpdateStatusBar();
 }
 
 void LisaMapFrame::closeObserver(LisaCoordinator* o)

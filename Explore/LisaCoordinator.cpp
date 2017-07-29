@@ -127,7 +127,8 @@ var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
 last_seed_used(123456789), reuse_last_seed(false),
-row_standardize(row_standardize_s)
+row_standardize(row_standardize_s),
+user_sig_cutoff(0)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {

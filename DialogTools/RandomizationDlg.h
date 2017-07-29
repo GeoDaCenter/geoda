@@ -48,11 +48,13 @@ public:
     double GetAlphaLevel() { return p_cutoff;}
     double GetBO() {return bo;}
     double GetFDR() { return fdr; }
+    double GetUserInput() { return user_input;}
     
 protected:
     double bo;
     double fdr;
     double p_cutoff;
+    double user_input;
     double* p_vals;
     int n;
     

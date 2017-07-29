@@ -83,7 +83,7 @@ row_standardize(row_standardize_s)
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
 	CreateAndUpdateCategories();
-	
+	UpdateStatusBar();
 	LOG_MSG("Exiting GetisOrdMapCanvas::GetisOrdMapCanvas");
 }
 
@@ -293,6 +293,33 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else {
+                int s_f = gs_coord->GetSignificanceFilter();
+                int set_perm = gs_coord->permutations;
+                stop_sig = 1.0 / (1.0 + set_perm);
+                
+                wxString def_cats[4] = {"p = 0.05", "p = 0.01", "p = 0.001", "p = 0.0001"};
+                wxColour def_colors[4] = {wxColour(75, 255, 80), wxColour(6, 196, 11), wxColour(3, 116, 6),wxColour(1, 70, 3)};
+                double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+                
+                int cat_idx = 1;
+                for (int j=s_f-1; j < 4; j++) {
+                    if (def_cutoffs[j] >= stop_sig) {
+                        cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                        cat_data.SetCategoryColor(t, cat_idx++, def_colors[j]);
+                    }
+                }
+                if (gs_coord->GetHasIsolates(t) &&
+                    gs_coord->GetHasUndefined(t)) {
+                    isolates_cat = cat_idx++;
+                    undefined_cat = cat_idx++;
+                    
+                } else if (gs_coord->GetHasUndefined(t)) {
+                    undefined_cat = cat_idx++;
+                    
+                } else if (gs_coord->GetHasIsolates(t)) {
+                    isolates_cat = cat_idx++;
+                }
+                /*
                 // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
                 int s_f = gs_coord->GetSignificanceFilter();
                 int skip_cat = 0;
@@ -324,6 +351,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                 } else if (gs_coord->GetHasIsolates(t)) {
                     isolates_cat = 6-s_f - skip_cat;
                 }
+                 */
             }
 		}
         
@@ -442,11 +470,9 @@ void GetisOrdMapCanvas::UpdateStatusBar()
             s << ", ...";
         }
     }
-    if (gs_coord && gs_coord->GetSignificanceFilter() < 0) {
-        wxString inf_str = wxString::Format(" Bonferroni bound: %g", gs_coord->bo);
-        if (gs_coord->fdr >= 0 ) {
-            inf_str << wxString::Format(" False Discovery Rate: %g", gs_coord->fdr);
-        }
+    if (is_clust && gs_coord) {
+        double p_val = gs_coord->significance_cutoff;
+        wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
     sb->SetStatusText(s);
@@ -505,9 +531,9 @@ row_standardize(row_standardize_s)
 	
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
-	
+
+	DisplayStatusBar(true);
+    
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
@@ -556,7 +582,7 @@ row_standardize(row_standardize_s)
     SetAutoLayout(true);
    
 	gs_coord->registerObserver(this);
-	DisplayStatusBar(true);
+	
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
 	LOG_MSG("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
@@ -747,10 +773,15 @@ void GetisOrdMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     
     wxString ttl = _("Inference Settings");
     ttl << "  (" << gs_coord->permutations << " perm)";
-    InferenceSettingsDlg dlg(this, gs_coord->significance_cutoff, p_val_t, n, ttl);
+    
+    double user_sig = gs_coord->significance_cutoff;
+    if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
+    
+    InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         gs_coord->SetSignificanceFilter(-1);
         gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+        gs_coord->user_sig_cutoff = dlg.GetUserInput();
         gs_coord->notifyObservers();
         gs_coord->bo = dlg.GetBO();
         gs_coord->fdr = dlg.GetFDR();
