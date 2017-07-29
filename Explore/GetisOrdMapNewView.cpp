@@ -1046,6 +1046,7 @@ void GetisOrdMapFrame::update(GStatCoordinator* o)
 	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
+    lc->UpdateStatusBar();
 }
 
 void GetisOrdMapFrame::closeObserver(GStatCoordinator* o)
