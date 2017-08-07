@@ -126,7 +126,7 @@ isBivariate(lisa_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(false),
+last_seed_used(123456789), reuse_last_seed(true),
 row_standardize(row_standardize_s),
 user_sig_cutoff(0)
 {
