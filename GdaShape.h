@@ -538,13 +538,18 @@ class GdaAxis: public GdaShape {
 public:
 	GdaAxis();
 	GdaAxis(const GdaAxis& s);
-	GdaAxis(const wxString& caption_s, const AxisScale& s,
-			const wxRealPoint& a_s, const wxRealPoint& b_s,
-			int x_nudge = 0, int y_nudge = 0);
+	GdaAxis(const wxString& caption_s,
+            const AxisScale& s,
+			const wxRealPoint& a_s,
+            const wxRealPoint& b_s,
+			int x_nudge = 0,
+            int y_nudge = 0);
 	GdaAxis(const wxString& caption_s,
 			const std::vector<wxString>& tic_labels_s,
-			const wxRealPoint& a_s, const wxRealPoint& b_s,
-			int x_nudge = 0, int y_nudge = 0);
+			const wxRealPoint& a_s,
+            const wxRealPoint& b_s,
+			int x_nudge = 0,
+            int y_nudge = 0);
 	virtual ~GdaAxis() {}
 	virtual GdaAxis* clone() { return new GdaAxis(*this); }
 	

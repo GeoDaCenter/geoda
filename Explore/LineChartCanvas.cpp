@@ -382,7 +382,6 @@ void LineChartCanvas::PopulateCanvas()
 
 	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
 	
-	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
 	scaleY = 100.0 / (axis_scale_y.scale_range);
 	
 	TableInterface* table_int = project->GetTableInt();

@@ -666,7 +666,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		wxRealPoint pt;
 
 		if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
-			double ww = bin_extents[col][0].upper_right.x - bin_extents[col][0].lower_left.x;
+			double ww = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
 			t = horiz_cat_data.GetCategoryLabel(vt, col);
 
 			if (col <= horiz_num_cats - 2)
