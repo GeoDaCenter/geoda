@@ -917,13 +917,30 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
         }
     }
     
+    std::set<wxString> dup_ids;
 	std::set<wxString> id_set;
 	for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
-		id_set.insert(str_id_vec[i]);
+        wxString str_id = str_id_vec[i];
+        if (id_set.find(str_id) == id_set.end()) {
+            id_set.insert(str_id);
+        } else {
+            dup_ids.insert(str_id);
+        }
 	}
-	if (str_id_vec.size() != id_set.size()) {
-		wxString msg = id + _(" has duplicate values.  Please choose a different ID Variable.");
-		wxMessageBox(msg);
+	if (dup_ids.size() >0) {
+		wxString msg = id + _(" has duplicate values. Please choose a different ID Variable.\n\nDetails:");
+        
+        wxString details = "row, value\n";
+        for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
+            wxString str_id = str_id_vec[i];
+            if (dup_ids.find(str_id) != dup_ids.end()) {
+                details <<i+1 << ", " << str_id << "\n";
+            }
+        }
+        
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, details);
+        dlg->Show(true);
+        
 		return false;
 	}
 	return true;

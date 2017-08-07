@@ -22,6 +22,9 @@
 
 #include <wx/menu.h>
 #include <wx/string.h>
+#include <wx/wx.h>
+#include <wx/xrc/xmlres.h>
+
 
 class GeneralWxUtils	{
 public:
@@ -51,6 +54,13 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
+};
+
+class ScrolledDetailMsgDialog : public wxDialog
+{
+public:
+    ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size = wxSize(500, 280), const wxArtID & art_id =  wxART_WARNING);
+    
 };
 
 #endif

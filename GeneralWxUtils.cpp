@@ -23,6 +23,45 @@
 #include <wx/platinfo.h>
 #include <wx/log.h>
 #include <wx/window.h>
+#include <wx/xrc/xmlres.h>
+
+
+ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size, const wxArtID & art_id)
+: wxDialog(NULL, -1, title, wxDefaultPosition, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+{
+    
+    wxPanel *panel = new wxPanel(this, -1);
+    
+
+    wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
+    wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
+    wxTextCtrl *tc = new wxTextCtrl(panel, -1, details, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+    vbox0->Add(st, 0, wxEXPAND|wxBOTTOM, 10);
+    vbox0->Add(tc, 1, wxEXPAND);
+    
+    wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
+    wxBitmap save = wxArtProvider::GetBitmap(wxART_WARNING);
+    wxStaticBitmap *warn = new wxStaticBitmap(panel, -1, save);
+    hbox0->Add(warn, 0, wxRIGHT, 5);
+    hbox0->Add(vbox0, 1, wxEXPAND);
+    
+    panel->SetSizer(hbox0);
+    
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"), wxDefaultPosition, wxSize(70, 30));
+    hbox1->Add(okButton, 1);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    vbox->Add(panel, 1, wxEXPAND | wxALL, 20);
+    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    SetSizer(vbox);
+    
+    Centre();
+    ShowModal();
+    
+    Destroy(); 
+}
 
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {
