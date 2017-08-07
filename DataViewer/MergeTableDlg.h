@@ -100,7 +100,7 @@ private:
 	//std::vector<int> col_id_map;
     
 private:
-    void CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+    bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<wxString, int>& key_map);
     
     vector<wxString>

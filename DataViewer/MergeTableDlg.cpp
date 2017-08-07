@@ -39,6 +39,7 @@
 #include "../DialogTools/ConnectDatasourceDlg.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
 #include "../logger.h"
+#include "../GeneralWxUtils.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 
@@ -297,7 +298,7 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 }
 
 
-void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
+bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
 	map<wxString, int>::iterator it;
@@ -317,17 +318,20 @@ void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
 	
     if (key_vec.size() != key_map.size()) {
         wxString msg = wxString::Format(_("Your table cannot be merged because the key field %s is not unique. \nIt contains undefined or duplicate values with these IDs:\n"), key_name);
-        int count = 0;
-        for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
-            msg << it->first << "\n";
-            count++;
-            if (count > 5)
-                break;
+        
+        wxString details = "row, value\n";
+        for (int i=0, iend=key_vec.size(); i<iend; i++) {
+            wxString tmpK = key_vec[i];
+            if (dupKeys.find(tmpK) != dupKeys.end()) {
+                details <<i+1 << ", " << tmpK << "\n";
+            }
         }
-        if (count > 5)
-            msg << "...";
-        throw GdaException(msg.mb_str());
+        
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, details);
+        dlg->Show(true);
+        return false;
     }
+    return true;
 }
 
 vector<wxString> MergeTableDlg::
@@ -422,7 +426,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
                     key1_vec.push_back(tmp);
                 }
             }
-            CheckKeys(key1_name, key1_vec, key1_map);
+            if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+                return;
             
             // get and check keys from import table
             int key2_id = m_import_key->GetSelection();
@@ -434,7 +439,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             for (int i=0; i < n_merge_rows; i++) {
                 key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id));
             }
-            CheckKeys(key2_name, key2_vec, key2_map);
+            if (CheckKeys(key2_name, key2_vec, key2_map) == false)
+                return;
             
             // make sure key1 <= key2, and store their mappings
             int n_matches = 0;
