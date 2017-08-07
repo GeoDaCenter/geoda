@@ -58,6 +58,8 @@ class LineChartCanvas : public TemplateCanvas
     double GetYAxisMinVal() {return axis_scale_y.scale_min;}
     double GetYAxisMaxVal() {return axis_scale_y.scale_max;}
     
+    bool fixed_scale_over_change;
+    
 protected:
     void OnDblClick(wxMouseEvent& event);
     
@@ -73,6 +75,9 @@ protected:
 	AxisScale axis_scale_y;
 	double scaleY;
     int y_axis_precision;
+    
+    double prev_y_axis_min;
+    double prev_y_axis_max;
     
     double y_axis_min;
     double y_axis_max;

@@ -82,12 +82,13 @@ tms_subset1(project->GetTableInt()->GetTimeSteps(), false),
 tms_subset0_tm_inv(1, true), 
 tms_subset1_tm_inv(1, false),
 regReportDlg(0),
-def_y_precision(1),
+def_y_precision(2),
 use_def_y_range(false),
 has_selection(1),
 has_excluded(1),
 export_dlg(NULL),
-mem_table_int(NULL)
+mem_table_int(NULL),
+fixed_scale_over_change(true)
 {
 	wxLogMessage("Open LineChartFrame(Average Charts).");
     
@@ -258,10 +259,14 @@ mem_table_int(NULL)
     Connect(XRCID("ID_ADJUST_Y_AXIS_PRECISION"),
             wxEVT_MENU,
             wxCommandEventHandler(LineChartFrame::OnAdjustYAxisPrecision));
+    Connect(XRCID("ID_LINE_CHART_FIXED_SCALE_OVER_TIME"),
+            wxEVT_MENU,
+            wxCommandEventHandler(LineChartFrame::OnFixedScaleOverChange));
 }
 
 LineChartFrame::~LineChartFrame()
 {
+    wxLogMessage("Exit LineChartFrame(Average Charts).");
 	highlight_state->removeObserver(this);
 	if (HasCapture())
         ReleaseMouse();
@@ -280,6 +285,7 @@ LineChartFrame::~LineChartFrame()
 
 void LineChartFrame::OnClose(wxCloseEvent& event)
 {
+    wxLogMessage("LineChartFrame::OnClose()");
     if (export_dlg) {
         export_dlg->Close();
     }
@@ -288,6 +294,7 @@ void LineChartFrame::OnClose(wxCloseEvent& event)
 
 void LineChartFrame::InitVariableChoiceCtrl()
 {
+    wxLogMessage("LineChartFrame::InitVariableChoiceCtrl()");
     TableInterface* table_int = project->GetTableInt();
     if (table_int == NULL) {
         wxLogMessage("ERROR: Table interface NULL.");
@@ -321,6 +328,8 @@ void LineChartFrame::InitVariableChoiceCtrl()
 
 void LineChartFrame::InitGroupsChoiceCtrl()
 {
+    wxLogMessage("LineChartFrame::InitGroupsChoiceCtrl()");
+    
     choice_groups->Append(_("Selected vs. Unselected"));
     choice_groups->Append(_("All"));
     choice_groups->SetSelection(0);
@@ -338,6 +347,8 @@ void LineChartFrame::InitGroupsChoiceCtrl()
 
 void LineChartFrame::InitTimeChoiceCtrl()
 {
+    wxLogMessage("LineChartFrame::InitTimeChoiceCtrl()");
+    
     std::vector<wxString> tm_strs;
     project->GetTableInt()->GetTimeStrings(tm_strs);
 
@@ -801,11 +812,24 @@ void LineChartFrame::UpdateContextMenuItems(wxMenu* menu)
                                   use_def_y_range);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_ADJUST_Y_AXIS"), use_def_y_range);
     
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_LINE_CHART_FIXED_SCALE_OVER_TIME"),
+                                  fixed_scale_over_change);
+    
     if (var_man.IsAnyTimeVariant() == false) {
         GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COMPARE_TIME_PERIODS"), false);
         GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COMPARE_REG_AND_TM_PER"), false);
     }
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
+}
+
+void LineChartFrame::OnFixedScaleOverChange(wxCommandEvent& event)
+{
+    wxLogMessage("In LineChartFrame:OnFixedScaleOverChange()");
+    fixed_scale_over_change = !fixed_scale_over_change;
+    
+    for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
+        line_charts[i]->fixed_scale_over_change = fixed_scale_over_change;
+    }
 }
 
 void LineChartFrame::OnUseAdjustYAxis(wxCommandEvent& event)
@@ -863,6 +887,9 @@ void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
         line_charts[i]->UpdateAll();
     }
     
+    for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
+        UpdateStatsWinContent(i);
+    }
     Refresh();
 }
 
@@ -1617,10 +1644,12 @@ void LineChartFrame::update(HLStateInt* o)
 		lc_stats[i]->UpdateOtherStats();
 	}
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-        if (use_def_y_range)
+        if (use_def_y_range) {
+            
             line_charts[i]->UpdateYAxis(def_y_min, def_y_max);
-        else
+        } else {
             line_charts[i]->UpdateYAxis();
+        }
 		line_charts[i]->UpdateAll();
 	}
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
@@ -1895,7 +1924,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
                 canvas->UpdateYAxis(def_y_min, def_y_max);
                 canvas->UpdateAll();
             }
-            if (def_y_precision !=1) {
+            if (def_y_precision !=2) {
                 canvas->UpdateYAxisPrecision(def_y_precision);
                 canvas->UpdateAll();
             }
@@ -2091,7 +2120,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 	}
 	
     stringstream _s;
-    _s << std::fixed << std::setprecision(2);
+    _s << std::fixed << std::setprecision(def_y_precision);
 	wxString td_s0_mean;
     
 	if (lcs.s0.mean_v) {

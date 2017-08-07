@@ -122,7 +122,8 @@ public:
     void OnUseAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxisPrecision(wxCommandEvent& event);
-
+    void OnFixedScaleOverChange(wxCommandEvent& event);
+    
     void OnSaveDummyTable(wxCommandEvent& event);
 	void OnReportClose(wxWindowDestroyEvent& event);
     
@@ -226,7 +227,7 @@ protected:
     bool use_def_y_range;
     wxString def_y_min;
     wxString def_y_max;
-
+    bool fixed_scale_over_change;
 	
 	//bool show_regimes;
 	bool display_stats;

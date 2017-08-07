@@ -3287,8 +3287,13 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_LINE_CHART_MENU_OPTIONS">
+      <object class="wxMenuItem" name="ID_LINE_CHART_FIXED_SCALE_OVER_TIME">
+          <label>Fixed scale over time</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+      </object>
       <object class="wxMenu" name="ID_MENU">
-          <label>Axis</label>
+          <label>Axis Option</label>
           <object class="wxMenuItem" name="ID_USE_ADJUST_Y_AXIS">
               <label>Enable User Defined Value Range of Y-Axis</label>
               <checkable>1</checkable>
