@@ -2429,6 +2429,7 @@
       <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
         <label>Use Specified Seed</label>
         <checkable>1</checkable>
+        <checked>1</checked>
       </object>
       <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
         <label>Specify Seed...</label>
@@ -2555,6 +2556,7 @@
       <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
         <label>Use Specified Seed</label>
         <checkable>1</checkable>
+        <checked>1</checked>
       </object>
       <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
         <label>Specify Seed...</label>
@@ -2723,6 +2725,7 @@
         <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
             <label>Use Specified Seed</label>
             <checkable>1</checkable>
+            <checked>1</checked>
         </object>
         <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
             <label>Specify Seed...</label>

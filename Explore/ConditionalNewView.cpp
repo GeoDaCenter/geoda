@@ -60,7 +60,8 @@ ConditionalNewCanvas(wxWindow *parent,
                      const std::vector<int>& col_ids,
                      bool fixed_aspect_ratio_mode,
                      bool fit_to_window_mode,
-                     const wxPoint& pos, const wxSize& size)
+                     const wxPoint& pos,
+                     const wxSize& size)
 :TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
                 pos, size, fixed_aspect_ratio_mode, fit_to_window_mode),
 num_obs(project_s->GetNumRecords()), num_time_vals(1),
@@ -71,8 +72,11 @@ data(v_info.size()),
 data_undef(v_info.size()),
 var_info(v_info),
 table_int(project_s->GetTableInt()),
-is_any_time_variant(false), is_any_sync_with_global_time(false),
-cc_state_vert(0), cc_state_horiz(0), all_init(false)
+is_any_time_variant(false),
+is_any_sync_with_global_time(false),
+cc_state_vert(0),
+cc_state_horiz(0),
+all_init(false)
 {
     axis_display_precision = 1;
 	SetCatType(VERT_VAR, CatClassification::quantile, 3);
@@ -794,7 +798,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
         
         bool useUndefinedCategory = false;
 		CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
-												  horiz_var_sorted,
+												  horiz_var_sorted, // could be double/wxString
                                                   horiz_undef_tms,
 												  horiz_cat_data,
 												  horiz_cats_valid,

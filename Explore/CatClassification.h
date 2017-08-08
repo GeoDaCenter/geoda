@@ -74,6 +74,14 @@ namespace CatClassification {
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
                                 bool useUndefinedCategory=true);
+    
+    void PopulateCatClassifData(const CatClassifDef& cat_def,
+                                const std::vector<Gda::str_int_pair_vec_type>& var,
+                                const std::vector<std::vector<bool> >& var_undef,
+                                CatClassifData& cat_data, std::vector<bool>& cats_valid,
+                                std::vector<wxString>& cats_error_message,
+                                bool useSciNotation=false,
+                                bool useUndefinedCategory=true);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int);

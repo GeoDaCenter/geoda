@@ -92,6 +92,8 @@ namespace Gda {
 									  const dbl_int_pair_type& ind2);
 	bool dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 										 const dbl_int_pair_type& ind2);
+    typedef std::pair<wxString, int> str_int_pair_type;
+    typedef std::vector<str_int_pair_type> str_int_pair_vec_type;
 }
 
 // Note: In "Exploratory Data Analysis", pp 32-34, 1977, Tukey only defines

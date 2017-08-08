@@ -329,6 +329,128 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 	}
 }
 
+void
+CatClassification::
+PopulateCatClassifData(const CatClassifDef& cat_def,
+                       const std::vector<Gda::str_int_pair_vec_type>& var,
+                       const std::vector<std::vector<bool> >& var_undef,
+                       CatClassifData& cat_data,
+                       std::vector<bool>& cats_valid,
+                       std::vector<wxString>& cats_error_message,
+                       bool useSciNotation,
+                       bool useUndefinedCategory)
+{
+    // this function is only for string type unique values (categorical classification)
+    // theme == unique_values)
+    // The Unique Values theme is somewhat different from the other themes
+    // in that we calculate the number from the data itself.  We support
+    // at most 20 unique values.
+    
+    CatClassifType theme = cat_def.cat_classif_type;
+    
+    if (theme != CatClassification::unique_values)
+        return;
+    
+    // number of categories based on number of unique values in data
+    int num_time_vals = var.size();
+    int num_obs = var[0].size();
+    cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    
+    // detect if undefined category
+    std::vector<int> undef_cnts_tms(num_time_vals, 0);
+    for (int t=0; t<num_time_vals; t++) {
+        for (int i=0; i<var_undef[t].size(); i++) {
+            if (var_undef[t][i]) {
+                undef_cnts_tms[t] += 1;
+            }
+        }
+    }
+    int num_cats = cat_def.num_cats;
+    if (num_cats > num_obs) {
+        for (int t=0; t<num_time_vals; t++) {
+            cats_valid[t] = false;
+            cats_error_message[t] << "Error: Chosen theme requires more ";
+            cats_error_message[t] << "cateogries than observations.";
+        }
+        return;
+    }
+    std::vector<std::vector<wxString> > u_vals_map(num_time_vals);
+    for (int t=0; t<num_time_vals; t++) {
+        if (!cats_valid[t])
+            continue;
+        for (int i=0; i<num_obs; i++) {
+            wxString val = var[t][i].first;
+            int ind = var[t][i].second;
+            if (var_undef[t][ind])
+                continue;
+            if (u_vals_map[t].empty() ||
+                u_vals_map[t][u_vals_map[t].size()-1] != val)
+            {
+                u_vals_map[t].push_back(val);
+            }
+        }
+    }
+    for (int t=0; t<num_time_vals; t++) {
+        if (!cats_valid[t])
+            continue;
+        int n_cat = u_vals_map[t].size();
+        if (n_cat > max_num_categories)
+            n_cat = max_num_categories;
+        bool reversed = false;
+        cat_data.SetCategoryBrushesAtCanvasTm(CatClassification::unique_color_scheme,
+                                              n_cat, reversed, t);
+    }
+    cat_data.ResetAllCategoryMinMax();
+    for (int t=0; t<num_time_vals; t++) {
+        if (!cats_valid[t])
+            continue;
+        if (undef_cnts_tms[t]>0 && useUndefinedCategory)
+            cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
+        int cur_cat = 0;
+        for (int i=0; i<num_obs; i++) {
+            wxString val = var[t][i].first;
+            int ind = var[t][i].second;
+            if (var_undef[t][ind])
+                continue;
+            if (u_vals_map[t][cur_cat]  != val &&
+                cur_cat < max_num_categories-1)
+            {
+                cur_cat++;
+            }
+            cat_data.AppendIdToCategory(t, cur_cat, var[t][i].second);
+            //cat_data.UpdateCategoryMinMax(t, cur_cat, var[t][i].first);
+        }
+        // for undefined category
+        for (int i=0; i<num_obs; i++) {
+            wxString val = var[t][i].first;
+            int ind = var[t][i].second;
+            if (var_undef[t][ind] && useUndefinedCategory) {
+                cat_data.AppendIdToCategory(t, cur_cat+1, var[t][i].second);
+            }
+        }
+        // for labels
+        int n_cat = u_vals_map[t].size();
+        if (n_cat > max_num_categories)
+            n_cat = max_num_categories;
+        wxString ss;
+        std::vector<wxString> labels(n_cat);
+        for (int cat=0; cat<n_cat; cat++) {
+            int n_obs_in_cat = cat_data.GetNumObsInCategory(t, cat);
+            if (cat < max_num_categories - 1) {
+                ss << u_vals_map[t][cat];
+            } else {
+                if (n_obs_in_cat == 1) {
+                    ss << u_vals_map[t][cat];
+                } else {
+                    ss << "Others";
+                }
+            }
+            labels[cat] = ss;
+            cat_data.SetCategoryLabel(t, cat, labels[cat]);
+            cat_data.SetCategoryCount(t, cat, n_obs_in_cat);
+        }
+    }
+}
 /** Update Categories based on num_cats and number time periods
 
  var is assumed to be sorted.
