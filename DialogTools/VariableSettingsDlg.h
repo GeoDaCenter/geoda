@@ -258,7 +258,10 @@ private:
     bool var2_str;
     bool var3_str;
     bool var4_str;
-    std::map<int, int> sel_idx_map;
+    std::map<int, int> sel1_idx_map;
+    std::map<int, int> sel2_idx_map;
+    std::map<int, int> sel3_idx_map;
+    std::map<int, int> sel4_idx_map;
     
     bool hide_time;
 	wxString v1_name;

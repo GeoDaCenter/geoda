@@ -2655,8 +2655,11 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
     
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
 							_("Conditional Histogram Variables"),
-							_("Horizontal Cells"), _("Vertical Cells"),
-							_("Histogram Variable"));
+							_("Horizontal Cells"),
+                            _("Vertical Cells"),
+							_("Histogram Variable"),
+                            "", false, false, false,
+                            true, true, false, false);
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalHistogramFrame* subframe =
@@ -2674,9 +2677,12 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
 							false, false,
 							_("Conditional Scatter Plot Variables"),
-							_("Horizontal Cells"), _("Vertical Cells"),
+							_("Horizontal Cells"),
+                            _("Vertical Cells"),
 							_("Independent Var (x-axis)"),
-							_("Dependent Var (y-axis)"));
+							_("Dependent Var (y-axis)"),
+                            false, false, false,
+                            true, true, false, false);
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalScatterPlotFrame* subframe =

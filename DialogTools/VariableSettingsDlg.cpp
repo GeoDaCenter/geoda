@@ -1815,8 +1815,16 @@ void VariableSettingsDlg::InitFieldChoices()
 	if (num_var >= 3) lb3->Clear();
 	if (num_var >= 4) lb4->Clear();
 
-    sel_idx_map.clear();
-    int sel_idx = 0;
+    sel1_idx_map.clear();
+    sel2_idx_map.clear();
+    sel3_idx_map.clear();
+    sel4_idx_map.clear();
+    
+    int sel1_idx = 0;
+    int sel2_idx = 0;
+    int sel3_idx = 0;
+    int sel4_idx = 0;
+    
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         GdaConst::FieldType ftype = table_int->GetColType(col_id_map[i]);
 		wxString name = table_int->GetColName(col_id_map[i]);
@@ -1828,6 +1836,8 @@ void VariableSettingsDlg::InitFieldChoices()
             (!var1_str && ftype == GdaConst::long64_type))
         {
             lb1->Append(name);
+            sel1_idx_map[sel1_idx] = i;
+            sel1_idx += 1;
         }
         
 		if (num_var >= 2) {
@@ -1839,6 +1849,8 @@ void VariableSettingsDlg::InitFieldChoices()
                 (!var2_str && ftype == GdaConst::long64_type))
             {
                 lb2->Append(name);
+                sel2_idx_map[sel2_idx] = i;
+                sel2_idx += 1;
             }
 		}
 		if (num_var >= 3) {
@@ -1850,6 +1862,8 @@ void VariableSettingsDlg::InitFieldChoices()
                 (!var3_str && ftype == GdaConst::long64_type))
             {
                 lb3->Append(name);
+                sel3_idx_map[sel3_idx] = i;
+                sel3_idx += 1;
             }
 		}
 		if (num_var >= 4) {
@@ -1861,10 +1875,11 @@ void VariableSettingsDlg::InitFieldChoices()
                 (!var4_str && ftype == GdaConst::long64_type))
             {
                 lb4->Append(name);
+                sel4_idx_map[sel4_idx] = i;
+                sel4_idx += 1;
             }
 		}
-        sel_idx_map[sel_idx] = i;
-        sel_idx += 1;
+        
 	}
     
 	int pos = lb1->GetScrollPos(wxVERTICAL);
@@ -1890,7 +1905,7 @@ void VariableSettingsDlg::FillData()
 	var_info.resize(num_var);
 	if (num_var >= 1) {
         int sel_idx = lb1->GetSelection();
-        int col_idx = sel_idx_map[sel_idx];
+        int col_idx = sel1_idx_map[sel_idx];
 		v1_col_id = col_id_map[col_idx];
 		v1_name = table_int->GetColName(v1_col_id);
 		col_ids[0] = v1_col_id;
@@ -1899,7 +1914,7 @@ void VariableSettingsDlg::FillData()
 	if (num_var >= 2) {
 		//v2_col_id = col_id_map[lb2->GetSelection()];
         int sel_idx = lb2->GetSelection();
-        int col_idx = sel_idx_map[sel_idx];
+        int col_idx = sel2_idx_map[sel_idx];
         v2_col_id = col_id_map[col_idx];
 		v2_name = table_int->GetColName(v2_col_id);
 		col_ids[1] = v2_col_id;
@@ -1908,7 +1923,7 @@ void VariableSettingsDlg::FillData()
 	if (num_var >= 3) {
 		//v3_col_id = col_id_map[lb3->GetSelection()];
         int sel_idx = lb3->GetSelection();
-        int col_idx = sel_idx_map[sel_idx];
+        int col_idx = sel3_idx_map[sel_idx];
         v3_col_id = col_id_map[col_idx];
 		v3_name = table_int->GetColName(v3_col_id);
 		col_ids[2] = v3_col_id;
@@ -1917,7 +1932,7 @@ void VariableSettingsDlg::FillData()
 	if (num_var >= 4) {
 		//v4_col_id = col_id_map[lb4->GetSelection()];
         int sel_idx = lb4->GetSelection();
-        int col_idx = sel_idx_map[sel_idx];
+        int col_idx = sel4_idx_map[sel_idx];
         v4_col_id = col_id_map[col_idx];
 		v4_name = table_int->GetColName(v4_col_id);
 		col_ids[3] = v4_col_id;

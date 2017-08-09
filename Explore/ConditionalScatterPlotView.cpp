@@ -290,18 +290,23 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 	for (int row=0; row<vert_num_cats-1; row++) {
-		double b;
-		if (cat_classif_def_vert.cat_classif_type !=
-            CatClassification::custom)
-        {
-			if (!vert_cat_data.HasBreakVal(vt, row))
-                continue;
-			b = vert_cat_data.GetBreakVal(vt, row);
-		} else {
-			b = cat_classif_def_vert.breaks[row];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+        wxString tmp_lbl;
+        if (VERT_VAR_NUM) {
+            double b;
+            if (cat_classif_def_vert.cat_classif_type !=
+                CatClassification::custom)
+            {
+                if (!vert_cat_data.HasBreakVal(vt, row))
+                    continue;
+                b = vert_cat_data.GetBreakVal(vt, row);
+            } else {
+                b = cat_classif_def_vert.breaks[row];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(vt, row);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
                              GdaShapeText::h_center, GdaShapeText::bottom,
                              -label_offset, 0);
 		foreground_shps.push_back(s);
@@ -327,16 +332,21 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	int ht = var_info[HOR_VAR].time;
 	for (int col=0; col<horiz_num_cats-1; col++) {
-		double b;
-		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col))
-                continue;
-			b = horiz_cat_data.GetBreakVal(ht, col);
-		} else {
-			b = cat_classif_def_horiz.breaks[col];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+        wxString tmp_lbl;
+        if (HOR_VAR_NUM) {
+            double b;
+            if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
+                if (!horiz_cat_data.HasBreakVal(ht, col))
+                    continue;
+                b = horiz_cat_data.GetBreakVal(ht, col);
+            } else {
+                b = cat_classif_def_horiz.breaks[col];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, label_offset);
 		foreground_shps.push_back(s);
 	}

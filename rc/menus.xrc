@@ -260,7 +260,7 @@
       <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
         <label>Percentile Map</label>
       </object>
-      <object class="wxMenu" name="ID_OPEN_MENU">
+      <object class="wxMenu" name="ID_OPEN_MAPANALYSIS_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
           <label>Hinge=1.5</label>
         </object>
@@ -699,7 +699,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -849,7 +849,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1001,7 +1001,8 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      
+      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1012,6 +1013,7 @@
         </object>
         <label>Box Map</label>
       </object>
+      
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
         <checkable>1</checkable>
@@ -1202,7 +1204,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1354,7 +1356,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1583,7 +1585,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1735,7 +1737,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -1924,7 +1926,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>
@@ -2830,7 +2832,7 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MENU">
+      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
         <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
           <label>Hinge=1.5</label>
           <checkable>1</checkable>

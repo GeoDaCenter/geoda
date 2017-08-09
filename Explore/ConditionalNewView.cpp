@@ -96,7 +96,7 @@ all_init(false)
     else table_int->GetColData(col_ids[VERT_VAR], s_data[VERT_VAR]);
     
 	for (size_t i=0; i<var_info.size(); i++) {
-        if (i != HOR_VAR_NUM && i != VERT_VAR_NUM)
+        if (i != HOR_VAR && i != VERT_VAR)
             table_int->GetColData(col_ids[i], data[i]);
         table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
@@ -150,8 +150,8 @@ all_init(false)
         else vert_str_var_sorted[t].resize(num_obs);
         
         for (int i=0; i<num_obs; i++) {
-            if (VERT_VAR_NUM) vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR_NUM][t][i], i);
-            else vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR_NUM][t][i], i);
+            if (VERT_VAR_NUM) vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR][t][i], i);
+            else vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR][t][i], i);
             vert_undef_tms[t][i] = vert_undef_tms[t][i] ||data_undef[VERT_VAR][t][i];
 		}
         if (VERT_VAR_NUM)
@@ -213,10 +213,40 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	
+    CatClassifManager* ccm = project->GetCatClassifManager();
+    vector<wxString> titles;
+    ccm->GetTitles(titles);
+    
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"),
 					GetCatType(VERT_VAR) == CatClassification::no_theme);
 	
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_QUANT_SUBMENU"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_BOX_SUBMENU"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), VERT_VAR_NUM);
+    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_SUBMENU"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_SUBMENU"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"), VERT_VAR_NUM);
+    for (size_t j=0; j<titles.size(); j++) {
+       GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 +j, VERT_VAR_NUM);
+    }
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_THEMELESS"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_SUBMENU"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_BOX_SUBMENU"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), HOR_VAR_NUM);
+    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_SUBMENU"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_SUBMENU"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"), HOR_VAR_NUM);
+    for (size_t j=0; j<titles.size(); j++) {
+        GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 +j, HOR_VAR_NUM);
+    }
+    
+        
 	// since XRCID is a macro, we can't make this into a loop
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_QUANT_1"),
 								  (GetCatType(VERT_VAR) ==
@@ -836,7 +866,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
         bool useUndefinedCategory = false;
         if (HOR_VAR_NUM)
             CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
-												  horiz_var_sorted, // could be double/wxString
+												  horiz_var_sorted,
                                                   horiz_undef_tms,
 												  horiz_cat_data,
 												  horiz_cats_valid,
@@ -845,7 +875,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                                   useUndefinedCategory);
         else
             CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
-                                                      horiz_str_var_sorted, // could be double/wxString
+                                                      horiz_str_var_sorted, // could be wxString
                                                       horiz_undef_tms,
                                                       horiz_cat_data,
                                                       horiz_cats_valid,
