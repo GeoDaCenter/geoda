@@ -69,6 +69,7 @@ vert_num_time_vals(1), horiz_num_time_vals(1),
 horiz_num_cats(3), vert_num_cats(3),
 bin_extents(boost::extents[3][3]), bin_w(0), bin_h(0),
 data(v_info.size()),
+s_data(v_info.size()),
 data_undef(v_info.size()),
 var_info(v_info),
 table_int(project_s->GetTableInt()),
@@ -79,54 +80,82 @@ cc_state_horiz(0),
 all_init(false)
 {
     axis_display_precision = 1;
-	SetCatType(VERT_VAR, CatClassification::quantile, 3);
-	SetCatType(HOR_VAR, CatClassification::quantile, 3);
 	
 	template_frame->ClearAllGroupDependencies();
+    
+    GdaConst::FieldType hor_ftype = table_int->GetColType(col_ids[HOR_VAR]);
+    GdaConst::FieldType vert_ftype = table_int->GetColType(col_ids[VERT_VAR]);
+    
+    HOR_VAR_NUM = hor_ftype != GdaConst::string_type;
+    VERT_VAR_NUM = vert_ftype != GdaConst::string_type;
+    
+    if (HOR_VAR_NUM) table_int->GetColData(col_ids[HOR_VAR], data[HOR_VAR]);
+    else table_int->GetColData(col_ids[HOR_VAR], s_data[HOR_VAR]);
+    
+    if (VERT_VAR_NUM) table_int->GetColData(col_ids[VERT_VAR], data[VERT_VAR]);
+    else table_int->GetColData(col_ids[VERT_VAR], s_data[VERT_VAR]);
+    
 	for (size_t i=0; i<var_info.size(); i++) {
-		table_int->GetColData(col_ids[i], data[i]);
+        if (i != HOR_VAR_NUM && i != VERT_VAR_NUM)
+            table_int->GetColData(col_ids[i], data[i]);
         table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}
     
-	horiz_num_time_vals = data[HOR_VAR].size();
-	vert_num_time_vals  = data[VERT_VAR].size();
-    
+    //setup horizontal data
+    horiz_num_time_vals = HOR_VAR_NUM ? data[HOR_VAR].size() : s_data[HOR_VAR].size();
     horiz_undef_tms.resize(horiz_num_time_vals);
-    vert_undef_tms.resize(vert_num_time_vals);
+    horiz_cats_valid.resize(horiz_num_time_vals);
+    horiz_cats_error_message.resize(horiz_num_time_vals);
     
-	horiz_var_sorted.resize(horiz_num_time_vals);
-	horiz_cats_valid.resize(horiz_num_time_vals);
-	horiz_cats_error_message.resize(horiz_num_time_vals);
+    if (HOR_VAR_NUM) {
+        SetCatType(HOR_VAR, CatClassification::quantile, 3);
+        horiz_var_sorted.resize(horiz_num_time_vals);
+    } else {
+        SetCatType(HOR_VAR, CatClassification::unique_values, 3);
+        horiz_str_var_sorted.resize(horiz_num_time_vals);
+    }
     
 	for (int t=0; t<horiz_num_time_vals; t++) {
-		horiz_var_sorted[t].resize(num_obs);
         horiz_undef_tms[t].resize(num_obs);
+        if (HOR_VAR_NUM) horiz_var_sorted[t].resize(num_obs);
+        else horiz_str_var_sorted[t].resize(num_obs);
+        
 		for (int i=0; i<num_obs; i++) {
-			horiz_var_sorted[t][i].first = data[HOR_VAR][t][i];
-			horiz_var_sorted[t][i].second = i;
-            horiz_undef_tms[t][i] = horiz_undef_tms[t][i] ||
-                                    data_undef[HOR_VAR][t][i];
+            if (HOR_VAR_NUM) horiz_var_sorted[t][i] = std::make_pair(data[HOR_VAR][t][i], i);
+            else horiz_str_var_sorted[t][i] = std::make_pair(s_data[HOR_VAR][t][i], i);
+            horiz_undef_tms[t][i] = horiz_undef_tms[t][i] || data_undef[HOR_VAR][t][i];
 		}
-		std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(),
-				  Gda::dbl_int_pair_cmp_less);
+        if (HOR_VAR_NUM)
+            std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
 	}
     
-	vert_var_sorted.resize(vert_num_time_vals);
+    //setup verticle data
+    vert_num_time_vals = VERT_VAR_NUM ? data[VERT_VAR].size() : s_data[VERT_VAR].size();
+    vert_undef_tms.resize(vert_num_time_vals);
 	vert_cats_valid.resize(vert_num_time_vals);
 	vert_cats_error_message.resize(vert_num_time_vals);
     
+    if (VERT_VAR_NUM) {
+        SetCatType(VERT_VAR, CatClassification::quantile, 3);
+        vert_var_sorted.resize(vert_num_time_vals);
+    } else {
+        SetCatType(VERT_VAR, CatClassification::unique_values, 3);
+        vert_str_var_sorted.resize(vert_num_time_vals);
+    }
+
 	for (int t=0; t<vert_num_time_vals; t++) {
-		vert_var_sorted[t].resize(num_obs);
         vert_undef_tms[t].resize(num_obs);
-		for (int i=0; i<num_obs; i++) {
-			vert_var_sorted[t][i].first = data[VERT_VAR][t][i];
-			vert_var_sorted[t][i].second = i;
-            vert_undef_tms[t][i] = vert_undef_tms[t][i] ||
-                                    data_undef[VERT_VAR][t][i];
+        if (VERT_VAR_NUM) vert_var_sorted[t].resize(num_obs);
+        else vert_str_var_sorted[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            if (VERT_VAR_NUM) vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR_NUM][t][i], i);
+            else vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR_NUM][t][i], i);
+            vert_undef_tms[t][i] = vert_undef_tms[t][i] ||data_undef[VERT_VAR][t][i];
 		}
-		std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(),
-				  Gda::dbl_int_pair_cmp_less);
+        if (VERT_VAR_NUM)
+            std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
 	}
 	
     VarInfoAttributeChange();
@@ -134,10 +163,8 @@ all_init(false)
 	if (num_obs < 3) {
 		horiz_num_cats = num_obs;
 		vert_num_cats = num_obs;
-		SetCatType(VERT_VAR, CatClassification::unique_values,
-                   vert_num_cats);
-		SetCatType(HOR_VAR, CatClassification::unique_values,
-                   horiz_num_cats);
+		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
+		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
 	}
 	CreateAndUpdateCategories(VERT_VAR);
 	CreateAndUpdateCategories(HOR_VAR);
@@ -170,8 +197,7 @@ void ConditionalNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << "Synchronize " << var_info[i].name << " with Time Control";
-			wxMenuItem* mi =
-				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -768,7 +794,8 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
         
         
         bool useUndefinedCategory = false;
-		CatClassification::PopulateCatClassifData(cat_classif_def_vert,
+        if (VERT_VAR_NUM)
+            CatClassification::PopulateCatClassifData(cat_classif_def_vert,
 												  vert_var_sorted,
                                                   vert_undef_tms,
 												  vert_cat_data,
@@ -776,9 +803,19 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 												  vert_cats_error_message,
                                                   this->useScientificNotation,
                                                   useUndefinedCategory);
+        else
+            CatClassification::PopulateCatClassifData(cat_classif_def_vert,
+                                                      vert_str_var_sorted,
+                                                      vert_undef_tms,
+                                                      vert_cat_data,
+                                                      vert_cats_valid,
+                                                      vert_cats_error_message,
+                                                      this->useScientificNotation,
+                                                      useUndefinedCategory);
 		int vt = var_info[var_id].time;
 		vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
 		CatClassification::ChangeNumCats(vert_num_cats, cat_classif_def_vert);
+        
 	} else {
 		for (int t=0; t<horiz_num_time_vals; t++)
             horiz_cats_valid[t] = true;
@@ -797,7 +834,8 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 									cat_classif_def_horiz.cat_classif_type);
         
         bool useUndefinedCategory = false;
-		CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
+        if (HOR_VAR_NUM)
+            CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
 												  horiz_var_sorted, // could be double/wxString
                                                   horiz_undef_tms,
 												  horiz_cat_data,
@@ -805,6 +843,15 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 												  horiz_cats_error_message,
                                                   this->useScientificNotation,
                                                   useUndefinedCategory);
+        else
+            CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
+                                                      horiz_str_var_sorted, // could be double/wxString
+                                                      horiz_undef_tms,
+                                                      horiz_cat_data,
+                                                      horiz_cats_valid,
+                                                      horiz_cats_error_message,
+                                                      this->useScientificNotation,
+                                                      useUndefinedCategory);
 		int ht = var_info[var_id].time;
 		horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();
 		CatClassification::ChangeNumCats(horiz_num_cats, cat_classif_def_horiz);

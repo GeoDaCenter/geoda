@@ -378,15 +378,16 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
     for (int t=0; t<num_time_vals; t++) {
         if (!cats_valid[t])
             continue;
+        std::map<wxString, int> dup_dict;
         for (int i=0; i<num_obs; i++) {
             wxString val = var[t][i].first;
             int ind = var[t][i].second;
             if (var_undef[t][ind])
                 continue;
-            if (u_vals_map[t].empty() ||
-                u_vals_map[t][u_vals_map[t].size()-1] != val)
+            if (dup_dict.find(val) == dup_dict.end())
             {
                 u_vals_map[t].push_back(val);
+                dup_dict[val] = 0;
             }
         }
     }
@@ -406,35 +407,38 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             continue;
         if (undef_cnts_tms[t]>0 && useUndefinedCategory)
             cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
-        int cur_cat = 0;
-        for (int i=0; i<num_obs; i++) {
-            wxString val = var[t][i].first;
-            int ind = var[t][i].second;
-            if (var_undef[t][ind])
-                continue;
-            if (u_vals_map[t][cur_cat]  != val &&
-                cur_cat < max_num_categories-1)
-            {
-                cur_cat++;
+        
+        for (int cat=0; cat < u_vals_map[t].size(); cat++) {
+            wxString unique_val = u_vals_map[t][cat];
+            for (int i=0; i<num_obs; i++) {
+                wxString val = var[t][i].first;
+                int ind = var[t][i].second;
+                if (var_undef[t][ind])
+                    continue;
+                if (val ==  unique_val)
+                    if (cat < max_num_categories-1)
+                        cat_data.AppendIdToCategory(t, cat, var[t][i].second);
+                    else
+                        cat_data.AppendIdToCategory(t, max_num_categories-1, var[t][i].second);
             }
-            cat_data.AppendIdToCategory(t, cur_cat, var[t][i].second);
-            //cat_data.UpdateCategoryMinMax(t, cur_cat, var[t][i].first);
         }
+        int cur_cat = u_vals_map[t].size();
         // for undefined category
         for (int i=0; i<num_obs; i++) {
             wxString val = var[t][i].first;
             int ind = var[t][i].second;
             if (var_undef[t][ind] && useUndefinedCategory) {
-                cat_data.AppendIdToCategory(t, cur_cat+1, var[t][i].second);
+                cat_data.AppendIdToCategory(t, cur_cat, var[t][i].second);
             }
         }
         // for labels
         int n_cat = u_vals_map[t].size();
         if (n_cat > max_num_categories)
             n_cat = max_num_categories;
-        wxString ss;
+        
         std::vector<wxString> labels(n_cat);
         for (int cat=0; cat<n_cat; cat++) {
+            wxString ss;
             int n_obs_in_cat = cat_data.GetNumObsInCategory(t, cat);
             if (cat < max_num_categories - 1) {
                 ss << u_vals_map[t][cat];
@@ -451,6 +455,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
         }
     }
 }
+
 /** Update Categories based on num_cats and number time periods
 
  var is assumed to be sorted.

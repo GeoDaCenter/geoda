@@ -217,7 +217,11 @@ public:
 						const wxString& var4_title=_("Fourth Variable"),
 						bool set_second_from_first_mode = false,
 						bool set_fourth_from_third_mode = false,
-                        bool hide_time = false);
+                        bool hide_time = false,
+                        bool var1_str = false, // if show string fields
+                        bool var2_str = false,
+                        bool var3_str = false,
+                        bool var4_str = false);
 	virtual ~VariableSettingsDlg();
 	void CreateControls();
 	void Init(VarType var_type);
@@ -250,6 +254,12 @@ public:
 private:
 	int m_theme; // for rate_smoothed
 
+    bool var1_str;
+    bool var2_str;
+    bool var3_str;
+    bool var4_str;
+    std::map<int, int> sel_idx_map;
+    
     bool hide_time;
 	wxString v1_name;
 	wxString v2_name;

@@ -107,6 +107,9 @@ protected:
 	int horiz_num_time_vals;
 	int ref_var_index;
     
+    bool HOR_VAR_NUM;
+    bool VERT_VAR_NUM;
+    
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
     std::vector<s_array_type> s_data;

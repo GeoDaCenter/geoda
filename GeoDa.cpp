@@ -2633,8 +2633,11 @@ void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
     
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
                             _("Conditional Map Variables"),
-                            _("Horizontal Cells"), _("Vertical Cells"),
-                            _("Map Theme"));
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"),
+                            _("Map Theme"),
+                            "", false, false, false,
+                            true, true, false, false);
     
 	if (dlg.ShowModal() != wxID_OK) return;
 	

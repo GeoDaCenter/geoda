@@ -1109,7 +1109,11 @@ VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
 										 const wxString& var4_title_s,
 										 bool _set_second_from_first_mode,
 										 bool _set_fourth_from_third_mode,
-                                         bool hide_time)
+                                         bool hide_time,
+                                         bool _var1_str,
+                                         bool _var2_str,
+                                         bool _var3_str,
+                                         bool _var4_str)
 : project(project_s),
 table_int(project_s->GetTableInt()),
 show_weights(show_weights_s),
@@ -1127,7 +1131,11 @@ set_fourth_from_third_mode(_set_fourth_from_third_mode),
 num_cats_spin(0),
 num_categories(4),
 hide_time(hide_time),
-all_init(false)
+all_init(false),
+var1_str(_var1_str),
+var2_str(_var2_str),
+var3_str(_var3_str),
+var4_str(_var4_str)
 {
     wxLogMessage("Open VariableSettingsDlg");
     
@@ -1162,6 +1170,7 @@ void VariableSettingsDlg::Init(VarType var_type)
 	} else { // (var_type == quadvariate)
 		num_var = 4;
 	}
+    
 	if (num_var > 2) show_weights = false;
 	
 	int num_obs = project->GetNumRecords();
@@ -1187,7 +1196,9 @@ void VariableSettingsDlg::Init(VarType var_type)
 	lb2_cur_sel = 0;
 	lb3_cur_sel = 0;
 	lb4_cur_sel = 0;
-	table_int->FillNumericColIdMap(col_id_map);
+    
+	table_int->FillColIdMap(col_id_map);
+    
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
 			lb1_cur_sel = i;
@@ -1311,7 +1322,6 @@ void VariableSettingsDlg::CreateControls()
     }
     wxXmlResource::Get()->LoadDialog(this, GetParent(), ctrl_xrcid);
     
-	
 	if (is_time) {
         if (hide_time) {
             wxStaticText* time_txt = XRCCTRL(*this, "ID_VARSEL_TIME", wxStaticText);
@@ -1339,9 +1349,11 @@ void VariableSettingsDlg::CreateControls()
 		size_t sel_pos=0;
 		for (size_t i=0; i<weights_ids.size(); ++i) {
 			weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
-			if (w_man_int->GetDefault() == weights_ids[i]) sel_pos = i;
+			if (w_man_int->GetDefault() == weights_ids[i])
+                sel_pos = i;
 		}
-		if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
+		if (weights_ids.size() > 0)
+            weights_ch->SetSelection(sel_pos);
 	}
 	if (show_distance && v_type == univariate) {
 		distance_ch = XRCCTRL(*this, "ID_DISTANCE_METRIC", wxChoice);
@@ -1391,7 +1403,6 @@ void VariableSettingsDlg::CreateControls()
         num_cats_spin = XRCCTRL(*this, "ID_NUM_CATEGORIES_SPIN", wxSpinCtrl);
 		num_categories = num_cats_spin->GetValue();
 	}
-	
 }
 
 void VariableSettingsDlg::OnMapThemeChange(wxCommandEvent& event)
@@ -1804,30 +1815,56 @@ void VariableSettingsDlg::InitFieldChoices()
 	if (num_var >= 3) lb3->Clear();
 	if (num_var >= 4) lb4->Clear();
 
+    sel_idx_map.clear();
+    int sel_idx = 0;
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        GdaConst::FieldType ftype = table_int->GetColType(col_id_map[i]);
 		wxString name = table_int->GetColName(col_id_map[i]);
+        
 		if (table_int->IsColTimeVariant(col_id_map[i]))
             name << t1;
-		lb1->Append(name);
+        if ((var1_str) ||
+            (!var1_str && ftype == GdaConst::double_type) ||
+            (!var1_str && ftype == GdaConst::long64_type))
+        {
+            lb1->Append(name);
+        }
         
 		if (num_var >= 2) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
                 name << t2;
-			lb2->Append(name);
-		} 
+            if ((var2_str) ||
+                (!var2_str && ftype == GdaConst::double_type) ||
+                (!var2_str && ftype == GdaConst::long64_type))
+            {
+                lb2->Append(name);
+            }
+		}
 		if (num_var >= 3) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
                 name << t3;
-			lb3->Append(name);
+            if ((var3_str) ||
+                (!var3_str && ftype == GdaConst::double_type) ||
+                (!var3_str && ftype == GdaConst::long64_type))
+            {
+                lb3->Append(name);
+            }
 		}
 		if (num_var >= 4) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
                 name << t4;
-			lb4->Append(name);
+            if ((var4_str) ||
+                (!var4_str && ftype == GdaConst::double_type) ||
+                (!var4_str && ftype == GdaConst::long64_type))
+            {
+                lb4->Append(name);
+            }
 		}
+        sel_idx_map[sel_idx] = i;
+        sel_idx += 1;
 	}
     
 	int pos = lb1->GetScrollPos(wxVERTICAL);
@@ -1852,29 +1889,41 @@ void VariableSettingsDlg::FillData()
 	col_ids.resize(num_var);
 	var_info.resize(num_var);
 	if (num_var >= 1) {
-		v1_col_id = col_id_map[lb1->GetSelection()];
+        int sel_idx = lb1->GetSelection();
+        int col_idx = sel_idx_map[sel_idx];
+		v1_col_id = col_id_map[col_idx];
 		v1_name = table_int->GetColName(v1_col_id);
 		col_ids[0] = v1_col_id;
 		var_info[0].time = v1_time;
 	}
 	if (num_var >= 2) {
-		v2_col_id = col_id_map[lb2->GetSelection()];
+		//v2_col_id = col_id_map[lb2->GetSelection()];
+        int sel_idx = lb2->GetSelection();
+        int col_idx = sel_idx_map[sel_idx];
+        v2_col_id = col_id_map[col_idx];
 		v2_name = table_int->GetColName(v2_col_id);
 		col_ids[1] = v2_col_id;
 		var_info[1].time = v2_time;
 	}
 	if (num_var >= 3) {
-		v3_col_id = col_id_map[lb3->GetSelection()];
+		//v3_col_id = col_id_map[lb3->GetSelection()];
+        int sel_idx = lb3->GetSelection();
+        int col_idx = sel_idx_map[sel_idx];
+        v3_col_id = col_id_map[col_idx];
 		v3_name = table_int->GetColName(v3_col_id);
 		col_ids[2] = v3_col_id;
 		var_info[2].time = v3_time;
 	}
 	if (num_var >= 4) {
-		v4_col_id = col_id_map[lb4->GetSelection()];
+		//v4_col_id = col_id_map[lb4->GetSelection()];
+        int sel_idx = lb4->GetSelection();
+        int col_idx = sel_idx_map[sel_idx];
+        v4_col_id = col_id_map[col_idx];
 		v4_name = table_int->GetColName(v4_col_id);
 		col_ids[3] = v4_col_id;
 		var_info[3].time = v4_time;
 	}
+    
 	
 	for (int i=0; i<num_var; i++) {
 		// Set Primary GdaVarTools::VarInfo attributes
