@@ -982,8 +982,9 @@ void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
                             false, false,
                             _("Conditional LISA Map Variables"),
-                            _("Horizontal Cells"),
-                            _("Vertical Cells"));
+                            _("Horizontal Cells"), _("Vertical Cells"),
+                            "", "", false, false, false, // default
+                            true, true, false, false);
     
     if (dlg.ShowModal() != wxID_OK) {
         return;

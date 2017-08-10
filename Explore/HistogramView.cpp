@@ -966,7 +966,6 @@ void HistogramCanvas::InitIntervals()
                         ival_to_obs_ids[t][cur_ival].push_front(idx);
                         obs_id_to_ival[t][idx] = cur_ival;
                         ival_obs_cnt[t][cur_ival]++;
-                        ival_obs_sel_cnt[t][cur_ival]++;
                         if (hs[idx]) {
                             ival_obs_sel_cnt[t][cur_ival]++;
                         }

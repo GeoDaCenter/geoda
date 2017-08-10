@@ -518,37 +518,47 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_xmax = scn_w-marg_right;
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
-		
-	vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
-	vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
-	
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double y = (bin_extents[row][0].lower_left.y +
-					bin_extents[row+1][0].upper_right.y)/2.0;
+    int n_rows = VERT_VAR_NUM ? vert_num_cats-1 : vert_num_cats;
+    int n_cols = HOR_VAR_NUM ? horiz_num_cats-1 : horiz_num_cats;
+    vector<wxRealPoint> v_brk_ref(n_rows);
+    vector<wxRealPoint> h_brk_ref(n_cols);
+
+	for (int row=0; row<n_rows; row++) {
+        double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
+        double y = 0;
+        if (VERT_VAR_NUM) y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
+        else y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
 		v_brk_ref[row].x = bg_xmin;
 		v_brk_ref[row].y = scn_h-y;
 	}
 
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double x = (bin_extents[0][col].upper_right.x +
-					bin_extents[0][col+1].lower_left.x)/2.0;
+	for (int col=0; col<n_cols; col++) {
+        double bin_width = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
+        double x = 0;
+        if (HOR_VAR_NUM) x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
+        else x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
 		h_brk_ref[col].x = x;
 		h_brk_ref[col].y = bg_ymin;
 	}
 	
 	GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double b;
-		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
-			if (!vert_cat_data.HasBreakVal(vt, row))
-                continue;
-			b = vert_cat_data.GetBreakVal(vt, row);
-		} else {
-			b = cat_classif_def_vert.breaks[row];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+	for (int row=0; row<n_rows; row++) {
+        wxString tmp_lbl;
+        if (VERT_VAR_NUM) {
+            double b;
+            if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
+                if (!vert_cat_data.HasBreakVal(vt, row))
+                    continue;
+                b = vert_cat_data.GetBreakVal(vt, row);
+            } else {
+                b = cat_classif_def_vert.breaks[row];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl = vert_cat_data.GetCategoryLabel(vt, row);
+        }
+        s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
                              GdaShapeText::h_center,
                              GdaShapeText::bottom, -7, 0);
 		foreground_shps.push_back(s);
@@ -565,16 +575,23 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	}
 	
 	int ht = var_info[HOR_VAR].time;
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double b;
-		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
-			b = horiz_cat_data.GetBreakVal(ht, col);
-		} else {
-			b = cat_classif_def_horiz.breaks[col];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+    
+	for (int col=0; col<n_cols; col++) {
+        wxString tmp_lbl;
+        if (HOR_VAR_NUM) {
+            double b;
+            if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
+                if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
+                b = horiz_cat_data.GetBreakVal(ht, col);
+            } else {
+                b = cat_classif_def_horiz.breaks[col];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl = horiz_cat_data.GetCategoryLabel(ht, col);
+        }
+		
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, 7);
 		foreground_shps.push_back(s);
 	}

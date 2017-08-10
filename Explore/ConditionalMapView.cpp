@@ -584,49 +584,35 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_xmax = scn_w-marg_right;
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
-		
-	vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
-	vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
+    int n_rows = VERT_VAR_NUM ? vert_num_cats-1 : vert_num_cats;
+    int n_cols = HOR_VAR_NUM ? horiz_num_cats-1 : horiz_num_cats;
+    vector<wxRealPoint> v_brk_ref(n_rows);
+    vector<wxRealPoint> h_brk_ref(n_cols);
 	
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double y = (bin_extents[row][0].lower_left.y +
-					bin_extents[row+1][0].upper_right.y)/2.0;
-		v_brk_ref[row].x = bg_xmin;
-		v_brk_ref[row].y = scn_h-y;
+	for (int row=0; row<n_rows; row++) {
+        double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
+        double y = 0;
+        if (VERT_VAR_NUM) y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
+        else y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
+        v_brk_ref[row].x = bg_xmin;
+        v_brk_ref[row].y = scn_h-y;
 	}
 
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double x = (bin_extents[0][col].upper_right.x +
-					bin_extents[0][col+1].lower_left.x)/2.0;
-		h_brk_ref[col].x = x;
-		h_brk_ref[col].y = bg_ymin;
+	for (int col=0; col<n_cols; col++) {
+        double bin_width = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
+        double x = 0;
+        if (HOR_VAR_NUM) x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
+        else x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
+        h_brk_ref[col].x = x;
+        h_brk_ref[col].y = bg_ymin;
 	}
 	
 	GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 
-	int vnn = vert_num_cats - 1;
-	if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
-		vnn = vert_num_cats;
-	}
-
-	for (int row=0; row<vnn; row++) {
-		double hh = bin_extents[row][0].lower_left.y - bin_extents[row][0].upper_right.y;
-		wxRealPoint pt; 
-		wxString t;
-
-		if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
-			if (row <= vert_num_cats - 2)
-				pt = v_brk_ref[row];
-			else if (row <= vert_num_cats - 1) {
-				pt = v_brk_ref[row-1];
-				pt.y = pt.y + 2 * hh;
-			}
-			t = vert_cat_data.GetCategoryLabel(vt, row);
-			pt.y = pt.y - hh;
-		}
-		else {
-			pt = v_brk_ref[row];
+	for (int row=0; row<n_rows; row++) {
+        wxString tmp_lbl;
+		if (VERT_VAR_NUM){
 			double b;
 			if (cat_classif_def_vert.cat_classif_type != CatClassification::custom) {
 				if (!vert_cat_data.HasBreakVal(vt, row))
@@ -636,16 +622,17 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_vert.breaks[row];
 			}
-			t = GenUtils::DblToStr(b);
-		}
+			tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
+        }
 
-		s = new GdaShapeText(t, *GdaConst::small_font, pt, 90,
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
 					   GdaShapeText::h_center, GdaShapeText::bottom, -7, 0);
 		foreground_shps.push_back(s);
 	}
     
-	if (ConditionalNewCanvas::GetCatType(VERT_VAR)
-		!= CatClassification::no_theme) {
+	if (ConditionalNewCanvas::GetCatType(VERT_VAR) != CatClassification::no_theme) {
         wxString ttl = ConditionalNewCanvas::GetCategoriesTitle(VERT_VAR);
         wxRealPoint pos(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0);
         s = new GdaShapeText(ttl, *GdaConst::small_font, pos, 90,
@@ -656,29 +643,10 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	int ht = var_info[HOR_VAR].time;
 
-	int hnn = horiz_num_cats - 1;
-	if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
-		hnn = horiz_num_cats;
-	}
-
-	for (int col = 0; col < hnn; col++) {
-		wxString t;
+	for (int col = 0; col < n_cols; col++) {
+		wxString tmp_lbl;
 		wxRealPoint pt;
-
-		if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
-			double ww = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
-			t = horiz_cat_data.GetCategoryLabel(vt, col);
-
-			if (col <= horiz_num_cats - 2)
-				pt = h_brk_ref[col];
-			else if (col <= horiz_num_cats - 1) {
-				pt = h_brk_ref[col-1];
-				pt.x = pt.x + ww;
-			}
-
-			pt.x = pt.x - ww/2.0;
-		}
-		else {
+        if (HOR_VAR_NUM) {
 			double b;
 			if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
 				if (!horiz_cat_data.HasBreakVal(ht, col))
@@ -688,11 +656,12 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_horiz.breaks[col];
 			}
-			t  = GenUtils::DblToStr(b);
-			pt = h_brk_ref[col];
-		}
+			tmp_lbl  = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
+        }
 
-		s = new GdaShapeText(t, *GdaConst::small_font, pt, 0,
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, 7);
 		foreground_shps.push_back(s);
 	}
