@@ -4242,7 +4242,11 @@ void GdaFrame::ChangeToEqualIntervals(int num_cats)
 void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
+    bool show_str_var = true;
+	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate,
+                            // default values
+                            false, false, _("Variable Settings"), "", "","","",false, false, false,
+                            show_str_var);
 	if (dlg.ShowModal() != wxID_OK) return;
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                 dlg.var_info, dlg.col_ids,
@@ -6222,7 +6226,6 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HCLUSTER"), GdaFrame::OnToolsDataHCluster)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
-
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)

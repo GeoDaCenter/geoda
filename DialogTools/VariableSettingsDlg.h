@@ -206,7 +206,7 @@ public:
 	enum VarType {
 		univariate, bivariate, trivariate, quadvariate, rate_smoothed
 	};
-
+    
 	VariableSettingsDlg( Project* project, VarType v_type,
 						bool show_weights = false,
 						bool show_distance = false,

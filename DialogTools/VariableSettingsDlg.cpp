@@ -1097,7 +1097,6 @@ BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
 	EVT_BUTTON(XRCID("wxID_CANCEL"), VariableSettingsDlg::OnCancelClick)
 END_EVENT_TABLE()
 
-/** All new code should use this constructor. */
 VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
 										 VarType v_type_s,
 										 bool show_weights_s,

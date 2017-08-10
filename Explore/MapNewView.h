@@ -50,9 +50,9 @@ class TableInterface;
 class WeightsManState;
 class ExportDataDlg;
 
-typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
-
+typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<wxString, 2> s_array_type;
 
 // Transparency SliderBar dialog for Basemap
 class SliderDialog: public wxDialog
@@ -184,6 +184,7 @@ public:
     int tran_unhighlighted;
     
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
+    
 private:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -200,11 +201,14 @@ protected:
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
 	
+    bool IS_VAR_STRING;
 	int num_obs;
 	int num_time_vals;
 	std::vector<d_array_type> data;
+    std::vector<s_array_type> s_data;
 	std::vector<b_array_type> data_undef;
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    std::vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
@@ -218,8 +222,6 @@ protected:
     // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
-    
-
     
 	virtual void UpdateStatusBar();
 		
