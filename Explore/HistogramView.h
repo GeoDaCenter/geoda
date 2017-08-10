@@ -34,6 +34,7 @@
 
 class HistogramCanvas;
 class HistogramFrame;
+typedef boost::multi_array<wxString, 2> s_array_type;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
@@ -107,6 +108,9 @@ protected:
 	int num_time_vals;
 	int ref_var_index;
 	
+    std::vector<bool> IS_VAR_STRING;
+    std::vector<std::vector<wxString> > VAR_STRING;
+    std::vector<Gda::str_int_pair_vec_type> s_data_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	std::vector<HingeStats> hinge_stats;
@@ -123,6 +127,7 @@ protected:
 	bool show_axes;
 	bool display_stats;
 	
+    s_array_type s_ival_breaks;
 	double data_min_over_time;
 	double data_max_over_time;
 	d_array_type ival_breaks; // size = time_steps * cur_num_intervals-1

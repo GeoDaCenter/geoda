@@ -2795,7 +2795,11 @@ void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
     
-	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate);
+    bool show_str_var = true;
+	VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate,
+                           // default values
+                           false,false,_("Variable Settings"),"","","","",false,false,false,
+                           show_str_var);
 	if (VS.ShowModal() != wxID_OK)
         return;
 	
