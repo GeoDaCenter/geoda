@@ -240,6 +240,10 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 
 int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifManager* ccm)
 {
+    if (!IS_VAR_STRING.empty()) {
+        if(IS_VAR_STRING[0])
+            return 0;
+    }
     std::vector<wxString> titles;
     ccm->GetTitles(titles);
     
@@ -314,6 +318,10 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 								  IsDisplayStats());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES"),
 								  IsShowAxes());
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), IS_VAR_STRING.empty());
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"), IS_VAR_STRING.empty());
+    
 	
 	if (var_info[0].is_time_variant) {
 		GeneralWxUtils::CheckMenuItem(menu,
@@ -959,6 +967,9 @@ void HistogramCanvas::InitIntervals()
                         obs_id_to_ival[t][idx] = cur_ival;
                         ival_obs_cnt[t][cur_ival]++;
                         ival_obs_sel_cnt[t][cur_ival]++;
+                        if (hs[idx]) {
+                            ival_obs_sel_cnt[t][cur_ival]++;
+                        }
                     }
                 }
                 cur_ival += 1;
