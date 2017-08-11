@@ -88,6 +88,9 @@ private:
     unsigned int col_lim;
     std::vector<float> scores;
     double thresh95;
+   
+    int num_obs;
+    int max_n_clusters;
     
     DECLARE_EVENT_TABLE()
 };

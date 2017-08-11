@@ -101,7 +101,7 @@ bool HClusterDlg::Init()
     if (table_int == NULL)
         return false;
     
-    
+    num_obs = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -165,11 +165,13 @@ void HClusterDlg::CreateControls()
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
 
-    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
+    wxString choices[] = {};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxDefaultSize);
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 19, choices);
+                                  wxSize(120,-1), 0, NULL);
+    max_n_clusters = num_obs < 60 ? num_obs : 60;
+    for (int i=2; i<max_n_clusters+1; i++) box1->Append(wxString::Format("%d", i));
     box1->SetSelection(3);
     gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box1, 1, wxEXPAND);
@@ -203,7 +205,7 @@ void HClusterDlg::CreateControls()
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_panel = new DendrogramPanel(panel, wxID_ANY, wxDefaultPosition, wxSize(500,630));
+    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(500,630));
     //m_panel->SetBackgroundColour(*wxWHITE);
     vbox1->Add(m_panel, 1, wxEXPAND|wxALL,20);
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -605,8 +607,8 @@ EVT_MOUSE_EVENTS(DendrogramPanel::OnEvent)
 EVT_IDLE(DendrogramPanel::OnIdle)
 END_EVENT_TABLE()
 
-DendrogramPanel::DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
-: wxPanel(parent, id, pos, size)
+DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
+: wxPanel(parent, id, pos, size), max_n_clusters(_max_n_clusters)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
@@ -758,7 +760,7 @@ void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters, std:
     cutoffDistance = _cutoff;
     
     color_vec.clear();
-    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
+    CatClassification::PickColorSet(color_vec, nclusters);
     
     // top Node will be nelements - 2
     accessed_node.clear();
@@ -787,7 +789,7 @@ void DendrogramPanel::OnSplitLineChange(int x)
         }
     }
 
-    if (nclusters > 20) nclusters = 20;
+    if (nclusters > max_n_clusters) nclusters = max_n_clusters;
     
     int* clusterid = new int[nelements];
     cuttree (nelements, root, nclusters, clusterid);
@@ -819,7 +821,7 @@ void DendrogramPanel::OnSplitLineChange(int x)
     dlg->UpdateClusterChoice(nclusters, clusters);
     
     color_vec.clear();
-    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
+    CatClassification::PickColorSet(color_vec, nclusters);
     
     init();
 }
@@ -858,7 +860,7 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
     }
     
     color_vec.clear();
-    CatClassification::PickColorSet(color_vec, CatClassification::unique_color_scheme, nclusters);
+    CatClassification::PickColorSet(color_vec, nclusters);
     
     init();
 }
@@ -897,7 +899,15 @@ void DendrogramPanel::init() {
     
     int start_y = 0;
     accessed_node.clear();
-    doDraw(dc, -(nelements-2) - 1, start_y);
+    
+    
+    bool draw_node = nelements < 1000;
+    if (draw_node) {
+        doDraw(dc, -(nelements-2) - 1, start_y);
+    } else {
+        wxString nodraw_msg = _("(Dendrogram is too complex to draw. Please view clustering results in map.)");
+        dc.DrawText(nodraw_msg, 20, 20);
+    }
 
     // draw verticle line
     if (!isMovingSplitLine) {

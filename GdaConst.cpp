@@ -455,13 +455,11 @@ const wxSize GdaConst::cond_view_default_size(700, 500);
 
 // Category Classification
 const wxSize GdaConst::cat_classif_default_size(780, 520);
-
 const wxSize GdaConst::weights_man_dlg_default_size(700, 500);
-
 const wxSize GdaConst::data_change_type_frame_default_size(600, 400);
 
 std::vector<wxColour> GdaConst::qualitative_colors(10);
-
+std::vector<wxColour> GdaConst::unique_colors_60(60);
 const wxString GdaConst::html_submenu_title("Web Plugins");
 
 
@@ -559,6 +557,71 @@ void GdaConst::init()
 	qualitative_colors[7] = wxColour(255, 127, 0);
 	qualitative_colors[8] = wxColour(202, 178, 214);
 	qualitative_colors[9] = wxColour(106, 61, 154);
+    
+    // From http://phrogz.net/css/distinct-colors.html
+   
+    unique_colors_60[0] = wxColour(166,206,227),
+    unique_colors_60[1] = wxColour(31,120,180),
+    unique_colors_60[2] = wxColour(178,223,138),
+    unique_colors_60[3] = wxColour(51,160,44),
+    unique_colors_60[4] = wxColour(251,154,153),
+    unique_colors_60[5] = wxColour(227,26,28),
+    unique_colors_60[6] = wxColour(253,191,111),
+    unique_colors_60[7] = wxColour(255,127,0),
+    unique_colors_60[8] = wxColour(106,61,154),
+    unique_colors_60[9] = wxColour(255,255,153),
+    unique_colors_60[10] = wxColour(177,89,40),
+    unique_colors_60[11] = wxColour(255,255,179),
+    unique_colors_60[12] = wxColour(190,186,218),
+    unique_colors_60[13] = wxColour(251,128,114),
+    unique_colors_60[14] = wxColour(128,177,211),
+    unique_colors_60[15] = wxColour(179,222,105),
+    unique_colors_60[16] = wxColour(252,205,229),
+    unique_colors_60[17] = wxColour(217,217,217),
+    unique_colors_60[18] = wxColour(188,128,189),
+    unique_colors_60[19] = wxColour(204,235,197),
+    unique_colors_60[20] = wxColour(140,70,70);
+    unique_colors_60[21] = wxColour(229,126,57);
+    unique_colors_60[22] = wxColour(242,162,0);
+    unique_colors_60[23] = wxColour(166,160,83);
+    unique_colors_60[24] = wxColour(0,77,41);
+    unique_colors_60[25] = wxColour(0,48,51);
+    unique_colors_60[26] = wxColour(0,61,115);
+    unique_colors_60[27] = wxColour(198,182,242);
+    unique_colors_60[28] = wxColour(87,26,102);
+    unique_colors_60[29] = wxColour(255,191,217);
+    unique_colors_60[30] = wxColour(229,130,115);
+    unique_colors_60[31] = wxColour(140,98,70);
+    unique_colors_60[32] = wxColour(76,51,0);
+    unique_colors_60[33] = wxColour(52,115,29);
+    unique_colors_60[34] = wxColour(96,128,113);
+    unique_colors_60[35] = wxColour(64,217,255);
+    unique_colors_60[36] = wxColour(153,173,204);
+    unique_colors_60[37] = wxColour(31,0,77);
+    unique_colors_60[38] = wxColour(166,0,111);
+    unique_colors_60[39] = wxColour(255,64,115);
+    unique_colors_60[40] = wxColour(166,44,0);
+    unique_colors_60[41] = wxColour(217,184,163);
+    unique_colors_60[42] = wxColour(89,85,67);
+    unique_colors_60[43] = wxColour(170,217,163);
+    unique_colors_60[44] = wxColour(0,191,128);
+    unique_colors_60[45] = wxColour(57,103,115);
+    unique_colors_60[46] = wxColour(0,58,217);
+    unique_colors_60[47] = wxColour(98,86,115);
+    unique_colors_60[48] = wxColour(242,121,186);
+    unique_colors_60[49] = wxColour(242,0,32);
+    unique_colors_60[50] = wxColour(76,20,0);
+    unique_colors_60[51] = wxColour(51,39,26);
+    unique_colors_60[52] = wxColour(229,218,57);
+    unique_colors_60[53] = wxColour(61,242,61);
+    unique_colors_60[54] = wxColour(102,204,197);
+    unique_colors_60[55] = wxColour(0,162,242);
+    unique_colors_60[56] = wxColour(89,101,179);
+    unique_colors_60[57] = wxColour(184,54,217);
+    unique_colors_60[58] = wxColour(89,0,36);
+    unique_colors_60[59] = wxColour(0,0,36);
+
+
 	
     
 	// Filenames or field names start with a letter, and they can contain any

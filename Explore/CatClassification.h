@@ -100,7 +100,8 @@ namespace CatClassification {
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	
 	wxString CatClassifTypeToString(CatClassifType theme_type);
-	
+
+    void PickColorSet(std::vector<wxColour>& color_vec, int num_color);
 	void PickColorSet(std::vector<wxColour>& color_vec,
 					  ColorScheme coltype, int num_color, bool reversed=false);
 	

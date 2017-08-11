@@ -86,7 +86,7 @@ bool KMeansDlg::Init()
     if (table_int == NULL)
         return false;
     
-    
+    num_obs = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -127,7 +127,9 @@ void KMeansDlg::CreateControls()
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxSize(128,-1));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(200,-1), 9, choices);
+                                      wxSize(200,-1), 0, NULL);
+    max_n_clusters = num_obs < 60 ? num_obs : 60;
+    for (int i=2; i<max_n_clusters+1; i++) box1->Append(wxString::Format("%d", i));
     box1->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);

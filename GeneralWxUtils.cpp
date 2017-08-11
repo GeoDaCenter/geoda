@@ -24,7 +24,15 @@
 #include <wx/log.h>
 #include <wx/window.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/wfstream.h>
+#include <wx/txtstrm.h>
 
+#include "DialogTools/VariableSettingsDlg.h"
+
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
 
 ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size, const wxArtID & art_id)
 : wxDialog(NULL, -1, title, wxDefaultPosition, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -32,10 +40,9 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     
     wxPanel *panel = new wxPanel(this, -1);
     
-
     wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
     wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
-    wxTextCtrl *tc = new wxTextCtrl(panel, -1, details, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300), wxTE_MULTILINE | wxTE_READONLY);
     vbox0->Add(st, 0, wxEXPAND|wxBOTTOM, 10);
     vbox0->Add(tc, 1, wxEXPAND);
     
@@ -43,13 +50,17 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     wxBitmap save = wxArtProvider::GetBitmap(wxART_WARNING);
     wxStaticBitmap *warn = new wxStaticBitmap(panel, -1, save);
     hbox0->Add(warn, 0, wxRIGHT, 5);
-    hbox0->Add(vbox0, 1, wxEXPAND);
+    hbox0->Add(vbox0, 1);
     
     panel->SetSizer(hbox0);
     
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *saveButton = new wxButton(this, XRCID("SAVE_DETAILS"), wxT("Save Details"), wxDefaultPosition, wxSize(130, -1));
+    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"), wxDefaultPosition, wxSize(110, -1));
+    hbox1->Add(saveButton, 1, wxRIGHT, 30);
     hbox1->Add(okButton, 1);
+    
+    Connect(XRCID("SAVE_DETAILS"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ScrolledDetailMsgDialog::OnSaveClick));
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     vbox->Add(panel, 1, wxEXPAND | wxALL, 20);
@@ -63,6 +74,30 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     Destroy(); 
 }
 
+void ScrolledDetailMsgDialog::OnSaveClick( wxCommandEvent& event )
+{
+    wxLogMessage("In ScrolledDetailMsgDialog::OnSaveClick()");
+    wxFileDialog dlg( this, "Save results", wxEmptyString,
+                     wxEmptyString,
+                     "TXT files (*.txt)|*.txt",
+                     wxFD_SAVE );
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxFileName new_txt_fname(dlg.GetPath());
+    wxString new_txt = new_txt_fname.GetFullPath();
+    wxFFileOutputStream output(new_txt);
+    if (output.IsOk()) {
+        wxTextOutputStream txt_out( output );
+        txt_out << tc->GetValue();
+        txt_out.Flush();
+        output.Close();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {
 	static wxOperatingSystemId osId =

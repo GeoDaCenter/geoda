@@ -162,7 +162,7 @@ class DendrogramPanel : public wxPanel
 {
 public:
     //DendrogramPanel();
-    DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize);
+    DendrogramPanel(int max_n_clusters, wxWindow* parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize);
     virtual ~DendrogramPanel();
     
     void OnIdle(wxIdleEvent& event);
@@ -178,6 +178,8 @@ private:
     int levels;
     int nelements;
     int nclusters;
+   
+    int max_n_clusters;
     
     double margin;
     double currentY;
@@ -256,6 +258,9 @@ private:
     std::vector<wxString> tm_strs;
     
     FramesManager* frames_manager;
+    
+    int num_obs;
+    int max_n_clusters;
     
     double cutoffDistance;
     vector<wxInt64> clusters;

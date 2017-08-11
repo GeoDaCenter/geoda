@@ -301,29 +301,32 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
-	map<wxString, int>::iterator it;
-	map<wxString, int> dupKeys;
+    std::map<wxString, std::vector<int> > dup_dict; // value:[]
 	
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
         wxString tmpK = key_vec[i];
         tmpK.Trim(false);
         tmpK.Trim(true);
-        if (key_map.find(tmpK) == key_map.end())
+        if (key_map.find(tmpK) == key_map.end()) {
             key_map[tmpK] = i;
-        else {
-            // duplicate key
-            dupKeys[tmpK] = i;
+            std::vector<int> ids;
+            dup_dict[tmpK] = ids;
         }
+        dup_dict[tmpK].push_back(i);
     }
 	
-    if (key_vec.size() != key_map.size()) {
-        wxString msg = wxString::Format(_("Your table cannot be merged because the key field %s is not unique. \nIt contains undefined or duplicate values with these IDs:\n"), key_name);
+    if (key_vec.size() != dup_dict.size()) {
+        wxString msg = wxString::Format(_("Your table cannot be merged because the key field \"%s\" is not unique. \nIt contains undefined or duplicate values.\n\nDetails:"), key_name);
         
-        wxString details = "row, value\n";
-        for (int i=0, iend=key_vec.size(); i<iend; i++) {
-            wxString tmpK = key_vec[i];
-            if (dupKeys.find(tmpK) != dupKeys.end()) {
-                details <<i+1 << ", " << tmpK << "\n";
+        wxString details = "value, row\n";
+        std::map<wxString, std::vector<int> >::iterator it;
+        for (it=dup_dict.begin(); it!=dup_dict.end(); it++) {
+            wxString val = it->first;
+            std::vector<int>& ids = it->second;
+            if (ids.size() > 1) {
+                for (int i=0; i<ids.size(); i++) {
+                    details << val << ", " << ids[i]+1 << "\n";
+                }
             }
         }
         

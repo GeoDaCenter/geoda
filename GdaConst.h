@@ -266,6 +266,8 @@ public:
 	
 	// Shared Colours
 	static std::vector<wxColour> qualitative_colors;
+    
+    static std::vector<wxColour> unique_colors_60;
 	
 	//background color -- this is light gray
 	static const wxColour backColor;

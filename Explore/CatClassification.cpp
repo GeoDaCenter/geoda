@@ -1810,6 +1810,13 @@ wxString CatClassification::CatClassifTypeToString(CatClassifType theme_type)
 	return wxEmptyString;
 }
 
+void CatClassification::PickColorSet(std::vector<wxColour>& color_vec, int num_color)
+{
+    for (int i=0; i<num_color; i++) {
+        color_vec.push_back(GdaConst::unique_colors_60[i]);
+    }
+}
+
 /** The following color schemes come from Color Brewer 2.0 web application:
  http://colorbrewer2.org/ */
 void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,

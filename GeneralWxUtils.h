@@ -25,6 +25,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
+#include "DialogTools/VariableSettingsDlg.h"
 
 class GeneralWxUtils	{
 public:
@@ -59,8 +60,12 @@ public:
 class ScrolledDetailMsgDialog : public wxDialog
 {
 public:
-    ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size = wxSize(500, 280), const wxArtID & art_id =  wxART_WARNING);
+    ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size = wxSize(540, 280), const wxArtID & art_id =  wxART_WARNING);
+   
+    SimpleReportTextCtrl *tc;
     
+    void OnSaveClick( wxCommandEvent& event );
 };
+
 
 #endif

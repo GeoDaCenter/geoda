@@ -919,22 +919,29 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
     
     std::set<wxString> dup_ids;
 	std::set<wxString> id_set;
+    std::map<wxString, std::vector<int> > dup_dict; // value:[]
+    
 	for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
         wxString str_id = str_id_vec[i];
         if (id_set.find(str_id) == id_set.end()) {
             id_set.insert(str_id);
-        } else {
-            dup_ids.insert(str_id);
+            std::vector<int> ids;
+            dup_dict[str_id] = ids;
         }
+        dup_dict[str_id].push_back(i);
 	}
-	if (dup_ids.size() >0) {
+	if (id_set.size() != m_num_obs) {
 		wxString msg = id + _(" has duplicate values. Please choose a different ID Variable.\n\nDetails:");
+        wxString details = "value, row\n";
         
-        wxString details = "row, value\n";
-        for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
-            wxString str_id = str_id_vec[i];
-            if (dup_ids.find(str_id) != dup_ids.end()) {
-                details <<i+1 << ", " << str_id << "\n";
+        std::map<wxString, std::vector<int> >::iterator it;
+        for (it=dup_dict.begin(); it!=dup_dict.end(); it++) {
+            wxString val = it->first;
+            std::vector<int>& ids = it->second;
+            if (ids.size() > 1) {
+                for (int i=0; i<ids.size(); i++) {
+                    details << val << ", " << ids[i]+1 << "\n";
+                }
             }
         }
         
