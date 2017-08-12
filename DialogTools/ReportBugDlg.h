@@ -153,7 +153,7 @@ public:
                     wxWindowID id = wxID_ANY,
                     const wxString& title = _("Check Bug Report on Github"),
                     const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize);
+                    const wxSize& size = wxSize(680,200));
     ~ReportResultDlg();
 };
 
