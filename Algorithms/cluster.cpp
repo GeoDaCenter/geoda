@@ -25,6 +25,8 @@
  * OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 #include <time.h>
 #include <stdlib.h>
@@ -2706,6 +2708,10 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   return ifound;
 }
 
+void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, double weight[], int transpose, int npass, int n_maxiter, char a)
+{
+    
+}
 /* ********************************************************************* */
 
 void kcluster (int nclusters, int nrows, int ncolumns,

@@ -22,6 +22,9 @@
 #include <algorithm>
 #include <limits>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
@@ -390,6 +393,33 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
+void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, int** mask, double weight[], int npass, int n_maxiter)
+{
+    char method = 'a'; // mean, 'm' median
+    char dist = 'e'; // euclidean
+    int transpose = 0; // row wise
+    if (combo_method->GetSelection() == 0) method = 'b'; // mean with kmeans++
+    int method_sel = m_method->GetSelection();
+    if (method_sel == 1) method = 'm';
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
+    dist = dist_choices[dist_sel];
+    
+    
+    double error;
+    int ifound;
+    int* clusterid = new int[rows];
+    
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound);
+    
+    vector<wxInt64> clusters;
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i] + 1);
+    }
+    sub_clusters[error] = clusters;
+    delete[] clusterid;
+}
+
 void KMeansDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KMeansDlg::OnOK");
@@ -470,38 +500,25 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     if (use_centroids) {
         columns += 2;
     }
-    
-    int transform = combo_tranform->GetSelection();
-    char method = 'a'; // mean, 'm' median
-    char dist = 'e'; // euclidean
-    int npass = 10;
-    int n_maxiter = 300; // max iteration of EM
-    int transpose = 0; // row wise
-    int* clusterid = new int[rows];
     double* weight = new double[columns];
     for (int j=0; j<columns; j++){ weight[j] = 1;}
     
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        n_maxiter = value;
-    }
-    
-    if (combo_method->GetSelection() == 0) method = 'b'; // mean with kmeans++
-    
+    int transform = combo_tranform->GetSelection();
+    int npass = 10;
     wxString str_pass = m_pass->GetValue();
     long value_pass;
     if(str_pass.ToLong(&value_pass)) {
         npass = value_pass;
     }
     
-    int method_sel = m_method->GetSelection();
-    if (method_sel == 1) method = 'm';
+    int n_maxiter = 300; // max iteration of EM
+    wxString iterations = m_iterations->GetValue();
+    long value;
+    if(iterations.ToLong(&value)) {
+        n_maxiter = value;
+    }
     
-    int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
-    dist = dist_choices[dist_sel];
-    
+    int* clusterid = new int[rows];
     // init input_data[rows][cols]
     double** input_data = new double*[rows];
     int** mask = new int*[rows];
@@ -516,21 +533,16 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     // assign value
     int col_ii = 0;
     for (int i=0; i<data.size(); i++ ){ // col
-        
         for (int j=0; j<data[i].size(); j++) { // time
-            
             std::vector<double> vals;
-            
             for (int k=0; k< rows;k++) { // row
                 vals.push_back(data[i][j][k]);
             }
-
             if (transform == 2) {
                 GenUtils::StandardizeData(vals);
             } else if (transform == 1 ) {
                 GenUtils::DeviationFromMean(vals);
             }
-            
             for (int k=0; k< rows;k++) { // row
                 input_data[k][col_ii] = vals[k];
             }
@@ -541,12 +553,10 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         std::vector<GdaPoint*> cents = project->GetCentroids();
         std::vector<double> cent_xs;
         std::vector<double> cent_ys;
-        
         for (int i=0; i< rows; i++) {
             cent_xs.push_back(cents[i]->GetX());
             cent_ys.push_back(cents[i]->GetY());
         }
-        
         if (transform == 2) {
             GenUtils::StandardizeData(cent_xs );
             GenUtils::StandardizeData(cent_ys );
@@ -554,30 +564,68 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             GenUtils::DeviationFromMean(cent_xs );
             GenUtils::DeviationFromMean(cent_ys );
         }
-        
         for (int i=0; i< rows; i++) {
             input_data[i][col_ii + 0] = cent_xs[i];
             input_data[i][col_ii + 1] = cent_ys[i];
         }
     }
+   
+    int n_threads = boost::thread::hardware_concurrency();
+    if (n_threads > npass) n_threads = 1;
     
-    double error;
-    int ifound;
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound);
+    int n_lines = npass / (double)n_threads; // 10/8 = 1, 1,3,5,7,9,11,12,
+    int* dividers  = (int*)malloc((n_threads+1) *sizeof(int));
     
+    int tot = 1;
+    int idx = 0;
+    while (tot < npass || npass == 1) {
+        dividers[idx++] = tot;
+        tot += n_lines;
+    }
+    dividers[n_threads] = npass;
+    
+    boost::thread_group threadPool;
+    for (int i=0; i<n_threads; i++) {
+        int a = dividers[i];
+        int b = dividers[i+1];
+        printf("a=%d,b=%d\n", a, b);
+        //boost::thread* worker = new boost::thread(boost::bind(&kcluster, ncluster, rows, columns, input_data, mask, weight, transpose, b-a, n_maxiter, method, dist, clusterid, &error, &ifound));
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, rows, columns, input_data, mask, weight, b-a, n_maxiter));
+        
+        threadPool.add_thread(worker);
+    }
+    threadPool.join_all();
+    free(dividers);
+   
+    bool start = false;
+    double min_error = 0;
     vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
+    vector<bool> clusters_undef(num_obs, false);
+    map<double, vector<wxInt64> >::iterator it;
+    for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
+        double error = it->first;
+        vector<wxInt64>& clst = it->second;
+        if (start == false ) {
+            min_error = error;
+            clusters = clst;
+            start = true;
+        } else {
+            if (error < min_error) {
+                min_error = error;
+                clusters = clst;
+            }
+        }
+    }
     
     // clean memory
     for (int i=0; i<rows; i++) {
         delete[] input_data[i];
         delete[] mask[i];
-        clusters.push_back(clusterid[i] + 1);
-        clusters_undef.push_back(ifound == -1);
+        //clusters.push_back(clusterid[i] + 1);
+        //clusters_undef.push_back(ifound == -1);
     }
     delete[] input_data;
     delete[] weight;
-    delete[] clusterid;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);

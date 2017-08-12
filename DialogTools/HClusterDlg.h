@@ -276,6 +276,7 @@ private:
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxChoice* combo_tranform;
+    wxTextCtrl* m_cluster;
     
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;

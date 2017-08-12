@@ -168,13 +168,21 @@ void HClusterDlg::CreateControls()
     wxString choices[] = {};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxDefaultSize);
-    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 0, NULL);
+    //wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     max_n_clusters = num_obs < 60 ? num_obs : 60;
-    for (int i=2; i<max_n_clusters+1; i++) box1->Append(wxString::Format("%d", i));
-    box1->SetSelection(3);
+    //for (int i=2; i<max_n_clusters+1; i++) box1->Append(wxString::Format("%d", i));
+    //box1->SetSelection(3);
+    wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
+    wxArrayString list;
+    wxString valid_chars(wxT("0123456789"));
+    size_t len = valid_chars.Length();
+    for (size_t i=0; i<len; i++)
+        list.Add(wxString(valid_chars.GetChar(i)));
+    validator.SetIncludes(list); 
+    m_cluster = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
+    
     gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox1->Add(box1, 1, wxEXPAND);
+    gbox1->Add(m_cluster, 1, wxEXPAND);
 
     
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
@@ -226,7 +234,7 @@ void HClusterDlg::CreateControls()
     
     // Content
     InitVariableCombobox(box);
-    combo_n = box1;
+    //combo_n = box1;
     m_textbox = box3;
     combo_var = box;
     m_use_centroids = cbox;
@@ -243,12 +251,12 @@ void HClusterDlg::CreateControls()
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(HClusterDlg::OnDistanceChoice),
                         NULL, this);
-    combo_n->Connect(wxEVT_CHOICE,
-                     wxCommandEventHandler(HClusterDlg::OnClusterChoice),
-                     NULL, this);
+    //combo_n->Connect(wxEVT_CHOICE, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     
     saveButton->Disable();
-    combo_n->Disable();
+    //combo_n->Disable();
+    m_cluster->Disable();
 }
 
 void HClusterDlg::OnSave(wxCommandEvent& event )
@@ -331,16 +339,24 @@ void HClusterDlg::OnDistanceChoice(wxCommandEvent& event)
 
 void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
 {
-    int sel_ncluster = combo_n->GetSelection() + 2;
-    
-    // update dendrogram
-    m_panel->UpdateCluster(sel_ncluster, clusters);
+    //int sel_ncluster = combo_n->GetSelection() + 2;
+    wxString tmp_val = m_cluster->GetValue();
+    tmp_val.Trim(false);
+    tmp_val.Trim(true);
+    long sel_ncluster;
+    bool is_valid = tmp_val.ToLong(&sel_ncluster);
+    if (is_valid) {
+        //sel_ncluster += 2;
+        // update dendrogram
+        m_panel->UpdateCluster(sel_ncluster, clusters);
+    }
 }
 
 void HClusterDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
 {
-    int sel = n - 2;
-    combo_n->SetSelection(sel);
+    //int sel = n - 2;
+    //combo_n->SetSelection(sel);
+    m_cluster->SetValue(wxString::Format("%d", n));
     for (int i=0; i<clusters.size(); i++){
         clusters[i] = _clusters[i];
     }
@@ -405,7 +421,9 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
 {
     wxLogMessage("Click HClusterDlg::OnOK");
     
-    int ncluster = combo_n->GetSelection() + 2;
+    //int ncluster = combo_n->GetSelection() + 2;
+    long ncluster;
+    m_cluster->GetValue().ToLong(&ncluster);
     
     bool use_centroids = m_use_centroids->GetValue();
     
@@ -595,7 +613,8 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
 
     saveButton->Enable();
-    combo_n->Enable();
+    //combo_n->Enable();
+    m_cluster->Enable();
 }
 
 
@@ -828,10 +847,8 @@ void DendrogramPanel::OnSplitLineChange(int x)
 
 void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters)
 {
-    nclusters = _nclusters;
-    
     int* clusterid = new int[nelements];
-    cutoffDistance = cuttree (nelements, root, nclusters, clusterid);
+    cutoffDistance = cuttree (nelements, root, _nclusters, clusterid);
     
     for (int i=0; i<nelements; i++) {
         clusters[i] = clusterid[i]+1;
@@ -839,7 +856,7 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
     delete[] clusterid;
     
     // sort result
-    std::vector<std::vector<int> > cluster_ids(nclusters);
+    std::vector<std::vector<int> > cluster_ids(_nclusters);
     
     for (int i=0; i < clusters.size(); i++) {
         cluster_ids[ clusters[i] - 1 ].push_back(i);
@@ -847,7 +864,7 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
     
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
-    for (int i=0; i < nclusters; i++) {
+    for (int i=0; i < _nclusters; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
@@ -859,10 +876,13 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
         _clusters[i] = clusters[i];
     }
     
-    color_vec.clear();
-    CatClassification::PickColorSet(color_vec, nclusters);
+    if (_nclusters < max_n_clusters) {
+        nclusters = _nclusters;
+        color_vec.clear();
+        CatClassification::PickColorSet(color_vec, nclusters);
     
-    init();
+        init();
+    }
 }
 
 void DendrogramPanel::init() {
@@ -901,7 +921,7 @@ void DendrogramPanel::init() {
     accessed_node.clear();
     
     
-    bool draw_node = nelements < 1000;
+    bool draw_node = nelements < 10000;
     if (draw_node) {
         doDraw(dc, -(nelements-2) - 1, start_y);
     } else {

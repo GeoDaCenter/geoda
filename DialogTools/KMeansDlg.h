@@ -29,6 +29,8 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 
+using namespace std;
+
 class Project;
 class TableInterface;
 	
@@ -53,7 +55,9 @@ public:
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
-        
+    
+    void doRun(int ncluster, int rows, int columns, double** input_data, int** mask, double weight[], int npass, int n_maxiter);
+    
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
@@ -91,6 +95,8 @@ private:
    
     int num_obs;
     int max_n_clusters;
+    
+    map<double, vector<wxInt64> > sub_clusters;
     
     DECLARE_EVENT_TABLE()
 };

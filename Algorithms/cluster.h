@@ -68,6 +68,8 @@ void kcluster (int nclusters, int ngenes, int ndata, double** data,
 void kmedoids (int nclusters, int nelements, double** distance,
   int npass, int clusterid[], double* error, int* ifound);
 
+void test (int nclusters, int nrows, int ncolumns, double** data, int** mask, double weight[], int transpose, int npass, int n_maxiter, char a);
+
 /* Chapter 4 */
 struct GdaNode{int left; int right; double distance;};
 /*
