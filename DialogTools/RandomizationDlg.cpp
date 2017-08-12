@@ -106,9 +106,10 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     //wxStaticText* m_txt_title = new wxStaticText(panel, wxID_ANY, wxT("99999 perm / "), wxDefaultPosition, wxSize(150,-1));
     chk_pval = new wxCheckBox(panel, wxID_ANY, _("Use selected as specified alpha level"));
     chk_pval->SetValue(true);
+    chk_pval->Hide();
     //vbox->Add(m_txt_title, 0,  wxALIGN_CENTER, 10);
     vbox->Add(gbox, 1,  wxEXPAND | wxALL, 10);
-    vbox->Add(chk_pval, 0,   wxALIGN_CENTER | wxALL, 10);
+    //vbox->Add(chk_pval, 0,   wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
