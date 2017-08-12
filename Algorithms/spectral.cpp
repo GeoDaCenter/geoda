@@ -132,7 +132,11 @@ void Spectral::set_data(double** input_data, int nrows, int  ncols)
 }
 
 double Spectral::kernel(const VectorXd& a, const VectorXd& b){
-    
+   
+    //http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html
+    //  gamma : float, default=1.0 (Radial basis function kernel)
+    // Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels. Ignored for
+    // affinity='nearest_neighbors
     switch(kernel_type){
         case 1  :
             return(pow(a.dot(b)+constant,order));

@@ -126,13 +126,13 @@ void SpectralClusteringDlg::CreateControls()
 
     wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Gamma:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_gamma = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
+    m_gamma = new wxTextCtrl(panel, wxID_ANY, wxT("1.0"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_gamma, 1, wxEXPAND);
     
     wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Kernel:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices19[] = {"Guassian", "Polynomial"};
+    wxString choices19[] = {"Gaussian", "Polynomial"};
     combo_kernel = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(200,-1), 2, choices19);
     combo_kernel->SetSelection(0);
