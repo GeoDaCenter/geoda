@@ -262,6 +262,10 @@ private:
     std::map<int, int> sel2_idx_map;
     std::map<int, int> sel3_idx_map;
     std::map<int, int> sel4_idx_map;
+    std::map<int, int> idx_sel1_map;
+    std::map<int, int> idx_sel2_map;
+    std::map<int, int> idx_sel3_map;
+    std::map<int, int> idx_sel4_map;
     
     bool hide_time;
 	wxString v1_name;

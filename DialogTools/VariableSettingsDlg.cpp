@@ -1197,37 +1197,6 @@ void VariableSettingsDlg::Init(VarType var_type)
 	lb4_cur_sel = 0;
     
 	table_int->FillColIdMap(col_id_map);
-    
-	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-		if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
-			lb1_cur_sel = i;
-			if (set_second_from_first_mode && num_var >= 2) {
-				lb2_cur_sel = i;
-			}
-		}
-		if (num_var >= 2 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
-        {
-			if (!set_second_from_first_mode) {
-				lb2_cur_sel = i;
-			}
-		}
-		if (num_var >= 3 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
-        {
-			lb3_cur_sel = i;
-			if (set_fourth_from_third_mode && num_var >= 4) {
-				lb4_cur_sel = i;
-			}
-		}
-		if (num_var >= 4 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
-        {
-			if (!set_fourth_from_third_mode) {
-				lb4_cur_sel = i;
-			}
-		}
-	}
 	
 	if (col_id_map.size() == 0) {
 		wxString msg("No numeric variables found.");
@@ -1593,7 +1562,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	v1_col_id = col_id_map[lb1->GetSelection()];
+	v1_col_id = col_id_map[sel1_idx_map[lb1->GetSelection()]];
+    
 	v1_name = table_int->GetColName(v1_col_id);
 	project->SetDefaultVarName(0, v1_name);
 	if (is_time) {
@@ -1818,6 +1788,10 @@ void VariableSettingsDlg::InitFieldChoices()
     sel2_idx_map.clear();
     sel3_idx_map.clear();
     sel4_idx_map.clear();
+    idx_sel1_map.clear();
+    idx_sel2_map.clear();
+    idx_sel3_map.clear();
+    idx_sel4_map.clear();
     
     int sel1_idx = 0;
     int sel2_idx = 0;
@@ -1836,6 +1810,7 @@ void VariableSettingsDlg::InitFieldChoices()
         {
             lb1->Append(name);
             sel1_idx_map[sel1_idx] = i;
+            idx_sel1_map[i] = sel1_idx;
             sel1_idx += 1;
         }
         
@@ -1849,6 +1824,7 @@ void VariableSettingsDlg::InitFieldChoices()
             {
                 lb2->Append(name);
                 sel2_idx_map[sel2_idx] = i;
+                idx_sel2_map[i] = sel2_idx;
                 sel2_idx += 1;
             }
 		}
@@ -1862,6 +1838,7 @@ void VariableSettingsDlg::InitFieldChoices()
             {
                 lb3->Append(name);
                 sel3_idx_map[sel3_idx] = i;
+                idx_sel3_map[i] = sel3_idx;
                 sel3_idx += 1;
             }
 		}
@@ -1875,12 +1852,45 @@ void VariableSettingsDlg::InitFieldChoices()
             {
                 lb4->Append(name);
                 sel4_idx_map[sel4_idx] = i;
+                idx_sel4_map[i] = sel4_idx;
                 sel4_idx += 1;
             }
 		}
         
 	}
     
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
+            LOG_MSG(project->GetDefaultVarName(0));
+            lb1_cur_sel = idx_sel1_map[i];
+            if (set_second_from_first_mode && num_var >= 2) {
+                lb2_cur_sel = idx_sel1_map[i];
+            }
+        }
+        if (num_var >= 2 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
+        {
+            if (!set_second_from_first_mode) {
+                lb2_cur_sel = idx_sel2_map[i];
+            }
+        }
+        if (num_var >= 3 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
+        {
+            lb3_cur_sel = idx_sel3_map[i];
+            if (set_fourth_from_third_mode && num_var >= 4) {
+                lb4_cur_sel = idx_sel3_map[i];
+            }
+        }
+        if (num_var >= 4 &&
+            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
+        {
+            if (!set_fourth_from_third_mode) {
+                lb4_cur_sel = idx_sel4_map[i];
+            }
+        }
+    }
+   
 	int pos = lb1->GetScrollPos(wxVERTICAL);
 	lb1->SetSelection(lb1_cur_sel);
 	lb1->SetFirstItem(lb1->GetSelection());
