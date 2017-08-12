@@ -590,7 +590,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         int b = dividers[i+1];
         printf("a=%d,b=%d\n", a, b);
         //boost::thread* worker = new boost::thread(boost::bind(&kcluster, ncluster, rows, columns, input_data, mask, weight, transpose, b-a, n_maxiter, method, dist, clusterid, &error, &ifound));
-        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, rows, columns, input_data, mask, weight, b-a, n_maxiter));
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, rows, columns, input_data, mask, weight, b-a+1, n_maxiter));
         
         threadPool.add_thread(worker);
     }

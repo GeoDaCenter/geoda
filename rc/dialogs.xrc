@@ -4611,7 +4611,7 @@
             <object class="wxCheckBox" name="IDC_CHECK1">
               <style>wxCHK_2STATE</style>
               <label>Significance Map</label>
-              <checked>1</checked>
+              <checked>0</checked>
             </object>
           </object>
           <object class="sizeritem">
@@ -4629,7 +4629,7 @@
             <object class="wxCheckBox" name="IDC_CHECK3">
               <style>wxCHK_2STATE</style>
               <label>Moran Scatter Plot</label>
-              <checked>1</checked>
+              <checked>0</checked>
             </object>
           </object>
           <!--
@@ -4692,7 +4692,7 @@
             <object class="wxCheckBox" name="IDC_CHECK1">
               <style>wxCHK_2STATE</style>
               <label>Significance Map</label>
-              <checked>1</checked>
+              <checked>0</checked>
             </object>
           </object>
           <object class="sizeritem">
