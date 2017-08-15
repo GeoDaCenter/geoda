@@ -133,7 +133,10 @@ void GetisOrdMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString GetisOrdMapCanvas::GetCanvasTitle()
 {
 	wxString new_title;
-	new_title << (is_gi ? "Gi " : "Gi* ");
+	
+    if (gs_coord->is_local_joint_count) new_title = "Local Joint Count";
+    else new_title = (is_gi ? "Gi " : "Gi* ");
+    
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
 	new_title << "(" << gs_coord->weight_name << "): ";
 	new_title << GetNameWithTime(0);
@@ -278,7 +281,10 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			cat_data.SetCategoryLabel(t, 1, str_high);
 			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
 			cat_data.SetCategoryLabel(t, 2, str_low);
-			cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
+            if (gs_coord->is_local_joint_count)
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_sig]);
+            else 
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
             
 			if (gs_coord->GetHasIsolates(t) &&
 				gs_coord->GetHasUndefined(t))
@@ -513,7 +519,7 @@ GetisOrdMapFrame::GetisOrdMapFrame(wxFrame *parent, Project* project,
 gs_coord(gs_coordinator), map_type(map_type_s),
 row_standardize(row_standardize_s)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::GetisOrdMapFrame");
+	wxLogMessage("Entering GetisOrdMapFrame::GetisOrdMapFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -571,12 +577,12 @@ row_standardize(row_standardize_s)
 	
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
-	LOG_MSG("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
+	wxLogMessage("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
 }
 
 GetisOrdMapFrame::~GetisOrdMapFrame()
 {
-	LOG_MSG("In GetisOrdMapFrame::~GetisOrdMapFrame");
+	wxLogMessage("In GetisOrdMapFrame::~GetisOrdMapFrame");
 	if (gs_coord) {
 		gs_coord->removeObserver(this);
 		gs_coord = 0;
@@ -892,7 +898,7 @@ void GetisOrdMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 
 void GetisOrdMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCores");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectCores");
 		
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -905,12 +911,12 @@ void GetisOrdMapFrame::OnSelectCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCores");
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectCores");
 }
 
 void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -935,12 +941,12 @@ void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);	
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectNeighborsOfCores");
 }
 
 void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -959,7 +965,7 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 }
 
 void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
@@ -1037,7 +1043,7 @@ void GetisOrdMapFrame::update(GStatCoordinator* o)
 
 void GetisOrdMapFrame::closeObserver(GStatCoordinator* o)
 {
-	LOG_MSG("In GetisOrdMapFrame::closeObserver(GStatCoordinator*)");
+	wxLogMessage("In GetisOrdMapFrame::closeObserver(GStatCoordinator*)");
 	if (gs_coord) {
 		gs_coord->removeObserver(this);
 		gs_coord = 0;

@@ -584,6 +584,12 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     dividers[n_threads] = npass;
     
+    map<double, vector<wxInt64> >::iterator it;
+    for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
+        it->second.clear();
+    }
+    sub_clusters.clear();
+    
     boost::thread_group threadPool;
     for (int i=0; i<n_threads; i++) {
         int a = dividers[i];
@@ -601,7 +607,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     double min_error = 0;
     vector<wxInt64> clusters;
     vector<bool> clusters_undef(num_obs, false);
-    map<double, vector<wxInt64> >::iterator it;
     for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
         double error = it->first;
         vector<wxInt64>& clst = it->second;
