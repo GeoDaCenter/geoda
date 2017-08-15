@@ -62,6 +62,19 @@ protected:
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
 	
+    wxString str_not_sig;
+    wxString str_highhigh;
+    wxString str_lowlow;
+    wxString str_negative;
+    wxString str_positive;
+    wxString str_otherpos;
+    wxString str_undefined;
+    wxString str_neighborless;
+    wxString str_p005;
+    wxString str_p001;
+    wxString str_p0001;
+    wxString str_p00001;
+    
 	DECLARE_EVENT_TABLE()
 };
 

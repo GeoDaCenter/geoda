@@ -67,7 +67,27 @@ is_gi(is_gi_s), is_clust(is_clust_s), is_perm(is_perm_s),
 row_standardize(row_standardize_s)
 {
 	LOG_MSG("Entering GetisOrdMapCanvas::GetisOrdMapCanvas");
-	
+
+    str_sig = _("Not Significant");
+    str_high = _("High");
+    str_low = _("Low");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = _("p = 0.05");
+    str_p001 = _("p = 0.01");
+    str_p0001 = _("p = 0.001");
+    str_p00001 = _("p = 0.00001");
+    
+    SetPredefinedColor(str_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_high, wxColour(255, 0, 0));
+    SetPredefinedColor(str_low, wxColour(0, 0, 255));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+
 	if (is_clust) {
 		cat_classif_def.cat_classif_type
 			= CatClassification::getis_ord_categories;
@@ -251,14 +271,14 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             }
 		}
 		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-		
+	
 		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-			cat_data.SetCategoryLabel(t, 1, "High");
-			cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
-			cat_data.SetCategoryLabel(t, 2, "Low");
-			cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
+			cat_data.SetCategoryLabel(t, 0, str_sig);
+			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
+			cat_data.SetCategoryLabel(t, 1, str_high);
+			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
+			cat_data.SetCategoryLabel(t, 2, str_low);
+			cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
             
 			if (gs_coord->GetHasIsolates(t) &&
 				gs_coord->GetHasUndefined(t))
@@ -272,8 +292,8 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			}
             
 		} else {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+			cat_data.SetCategoryLabel(t, 0, str_sig);
+			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
 	
             if (gs_coord->GetSignificanceFilter() < 0) {
                 // user specified cutoff
@@ -297,15 +317,14 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                 int set_perm = gs_coord->permutations;
                 stop_sig = 1.0 / (1.0 + set_perm);
                 
-                wxString def_cats[4] = {"p = 0.05", "p = 0.01", "p = 0.001", "p = 0.0001"};
-                wxColour def_colors[4] = {wxColour(75, 255, 80), wxColour(6, 196, 11), wxColour(3, 116, 6),wxColour(1, 70, 3)};
+                wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
                 double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
                 
                 int cat_idx = 1;
                 for (int j=s_f-1; j < 4; j++) {
                     if (def_cutoffs[j] >= stop_sig) {
                         cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                        cat_data.SetCategoryColor(t, cat_idx++, def_colors[j]);
+                        cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
                     }
                 }
                 if (gs_coord->GetHasIsolates(t) &&
@@ -319,49 +338,16 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                 } else if (gs_coord->GetHasIsolates(t)) {
                     isolates_cat = cat_idx++;
                 }
-                /*
-                // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-                int s_f = gs_coord->GetSignificanceFilter();
-                int skip_cat = 0;
-                if (s_f <=4 && stop_sig <= 0.0001) {
-                    cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-                    cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-                } else skip_cat++;
-                if (s_f <= 3 && stop_sig <= 0.001) {
-                    cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-                    cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
-                } else skip_cat++;
-                if (s_f <= 2 && stop_sig <= 0.01) {
-                    cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
-                    cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));
-                } else skip_cat++;
-                
-                if (s_f <= 1) {
-                    cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
-                    cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-                }
-                
-                if (gs_coord->GetHasIsolates(t) &&
-                    gs_coord->GetHasUndefined(t))
-                {
-                    isolates_cat = 6-s_f - skip_cat;
-                    undefined_cat = 7-s_f - skip_cat;
-                } else if (gs_coord->GetHasUndefined(t)) {
-                    undefined_cat = 6-s_f - skip_cat;
-                } else if (gs_coord->GetHasIsolates(t)) {
-                    isolates_cat = 6-s_f - skip_cat;
-                }
-                 */
             }
 		}
         
 		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-			cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+			cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+            cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
 		}
 		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-			cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+			cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
 		}
 		
 		gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);

@@ -239,7 +239,28 @@ MapCanvas::~MapCanvas()
         delete basemap;
         basemap = NULL;
     }
+}
+
+void MapCanvas::SetupColor()
+{
     
+}
+
+void MapCanvas::SetPredefinedColor(const wxString& lbl, const wxColor& new_color)
+{
+    lbl_color_dict[lbl] = new_color;
+}
+
+void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color)
+{
+    // update predefined color, if user change the color on legend pane
+    std::map<wxString, wxColour>::iterator it;
+    for (it =lbl_color_dict.begin(); it!=lbl_color_dict.end(); it++) {
+        wxString predefined_lbl = it->first;
+        if ( lbl.StartsWith(predefined_lbl)) {
+            lbl_color_dict[predefined_lbl] = new_color;
+        }
+    }
 }
 
 void MapCanvas::deleteLayerBms()
@@ -1842,11 +1863,50 @@ MapNewLegend::MapNewLegend(wxWindow *parent, TemplateCanvas* t_canvas,
 						   const wxPoint& pos, const wxSize& size)
 : TemplateLegend(parent, t_canvas, pos, size)
 {
+    Connect(TemplateLegend::ID_CATEGORY_COLOR, wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapNewLegend::OnCategoryColor));
 }
 
 MapNewLegend::~MapNewLegend()
 {
     LOG_MSG("In MapNewLegend::~MapNewLegend");
+}
+
+void MapNewLegend::OnCategoryColor(wxCommandEvent& event)
+{
+    int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
+    if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
+    
+    wxColour col = template_canvas->cat_data.GetCategoryColor(c_ts, opt_menu_cat);
+    wxColourData data;
+    data.SetColour(col);
+    data.SetChooseFull(true);
+    int ki;
+    for (ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        data.SetCustomColour(ki, colour);
+    }
+    
+    wxColourDialog dialog(this, &data);
+    dialog.SetTitle(_("Choose Cateogry Color"));
+    if (dialog.ShowModal() == wxID_OK) {
+        wxColourData retData = dialog.GetColourData();
+        for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
+            if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
+                wxColor new_color = retData.GetColour();
+                template_canvas->cat_data.SetCategoryColor(ts, opt_menu_cat, new_color);
+                wxString lbl = template_canvas->cat_data.GetCategoryLabel(ts, opt_menu_cat);
+                MapCanvas* w = dynamic_cast<MapCanvas*>(template_canvas);
+                if (w) {
+                    w->UpdatePredefinedColor(lbl, new_color);
+                }
+            }
+        }
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+        Refresh();
+    }
 }
 
 IMPLEMENT_CLASS(MapFrame, TemplateFrame)

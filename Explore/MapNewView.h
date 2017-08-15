@@ -168,6 +168,10 @@ public:
 	virtual int GetNumCats();
 	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
 	virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
+    
+    void SetupColor();
+    void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
+    void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
     	
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
@@ -218,6 +222,8 @@ protected:
 	std::vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
+    
+    std::map<wxString, wxColour> lbl_color_dict;
 
     // basemap
 	wxBitmap* basemap_bm;
@@ -233,6 +239,9 @@ public:
 	MapNewLegend(wxWindow *parent, TemplateCanvas* template_canvas,
 				 const wxPoint& pos, const wxSize& size);
 	virtual ~MapNewLegend();
+    
+    // override
+    void OnCategoryColor(wxCommandEvent& event);
 };
 
 class MapFrame : public TemplateFrame, public WeightsManStateObserver

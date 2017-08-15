@@ -68,6 +68,32 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
 {
 	LOG_MSG("Entering LocalGearyMapCanvas::LocalGearyMapCanvas");
 
+    str_not_sig = _("Not Significant");
+    str_highhigh = _("High-High");
+    str_lowlow = _("Low-Low");
+    str_otherpos = _("Other Positive");
+    str_negative = _("Negative");
+    str_positive = _("Positive");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = _("p = 0.05");
+    str_p001 = _("p = 0.01");
+    str_p0001 = _("p = 0.001");
+    str_p00001 = _("p = 0.00001");
+    
+    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_highhigh, wxColour(178,24,43));
+    SetPredefinedColor(str_lowlow, wxColour(239,138,98));
+    SetPredefinedColor(str_otherpos, wxColour(253,219,199));
+    SetPredefinedColor(str_negative, wxColour(103,173,199));
+    SetPredefinedColor(str_positive, wxColour(51,110,161));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from LocalGearyCoordinator initially
 	var_info = local_geary_coordinator->var_info;
@@ -267,7 +293,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
         Shapefile::Header& hdr = project->main_data.header;
         
 		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
+			cat_data.SetCategoryLabel(t, 0, str_not_sig);
             
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -275,8 +301,8 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-    			cat_data.SetCategoryLabel(t, 1, "Positive");
-    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
+    			cat_data.SetCategoryLabel(t, 1, str_positive);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -289,10 +315,10 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
-    			cat_data.SetCategoryLabel(t, 1, "Positive");
-    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
-    			cat_data.SetCategoryLabel(t, 2, "Negative");
-    			cat_data.SetCategoryColor(t, 2, wxColour(113,250,142));
+                cat_data.SetCategoryLabel(t, 1, str_positive);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
+                cat_data.SetCategoryLabel(t, 2, str_negative);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_negative]);//wxColour(113,250,142));
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -305,14 +331,14 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else {
-    			cat_data.SetCategoryLabel(t, 1, "High-High");
-    			cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
-    			cat_data.SetCategoryLabel(t, 2, "Low-Low");
-    			cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
-    			cat_data.SetCategoryLabel(t, 3, "Other Pos");
-    			cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
-    			cat_data.SetCategoryLabel(t, 4, "Negative");
-    			cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
+                cat_data.SetCategoryLabel(t, 1, str_highhigh);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
+                cat_data.SetCategoryLabel(t, 2, str_lowlow);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]);
+                cat_data.SetCategoryLabel(t, 3, str_otherpos);
+                cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_otherpos]);
+                cat_data.SetCategoryLabel(t, 4, str_negative);
+                cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_negative]);//wxColour(103,173,199));
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -329,7 +355,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
 		} else {
 			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 			int s_f = local_geary_coord->GetSignificanceFilter();
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
 
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -358,15 +384,14 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 int set_perm = local_geary_coord->permutations;
                 stop_sig = 1.0 / (1.0 + set_perm);
                 
-                wxString def_cats[4] = {"p = 0.05", "p = 0.01", "p = 0.001", "p = 0.0001"};
-                wxColour def_colors[4] = {wxColour(75, 255, 80), wxColour(6, 196, 11), wxColour(3, 116, 6),wxColour(1, 70, 3)};
+                wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
                 double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
                 
                 int cat_idx = 1;
                 for (int j=s_f-1; j < 4; j++) {
                     if (def_cutoffs[j] >= stop_sig) {
                         cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                        cat_data.SetCategoryColor(t, cat_idx++, def_colors[j]);
+                        cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
                     }
                 }
                 if (local_geary_coord->GetHasIsolates(t) &&
@@ -380,48 +405,15 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 } else if (local_geary_coord->GetHasIsolates(t)) {
                     isolates_cat = cat_idx++;
                 }
-                /*
-                int skip_cat = 0;
-                if (s_f <=4 && stop_sig <= 0.0001) {
-                    cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-                    cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-                } else skip_cat++;
-                
-                if (s_f <= 3 && stop_sig <= 0.001) {
-                    cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-                    cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
-                } else skip_cat++;
-                
-                if (s_f <= 2 && stop_sig <= 0.01) {
-                    cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
-                    cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));
-                } else skip_cat++;
-                
-                if (s_f <= 1) {
-                    cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
-                    cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-                }
-                if (local_geary_coord->GetHasIsolates(t) &&
-                    local_geary_coord->GetHasUndefined(t)) {
-                    isolates_cat = 6 - s_f - skip_cat;
-                    undefined_cat = 7 - s_f - skip_cat;
-                    
-                } else if (local_geary_coord->GetHasUndefined(t)) {
-                    undefined_cat = 6 -s_f - skip_cat;
-                    
-                } else if (local_geary_coord->GetHasIsolates(t)) {
-                    isolates_cat = 6 - s_f -skip_cat;
-                    
-                }*/
             }
 		}
 		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-			cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+			cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+			cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
 		}
 		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-			cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+			cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
 		}
 		
 		double cuttoff = local_geary_coord->significance_cutoff;

@@ -267,9 +267,6 @@ bool GdaApp::OnInit(void)
 		}
 	}
 
-    ReportResultDlg dlg(NULL, "http://google.com");
-    dlg.ShowModal();
-    
     // By defaut, GDAL will use user's system locale to read any input datasource
     // However, user can change the Separators in GeoDa, after re-open the
     // datasource, CSV reader will use the Separators

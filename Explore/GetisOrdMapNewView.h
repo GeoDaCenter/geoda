@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_GETIS_ORD_MAP_NEW_VIEW_H__
 #define __GEODA_CENTER_GETIS_ORD_MAP_NEW_VIEW_H__
 
+#include <map>
 #include "../GdaConst.h"
 #include "MapNewView.h"
 
@@ -59,10 +60,18 @@ protected:
 	bool is_perm; // true = pseudo-p-val, false = normal distribution p-val
 	bool row_standardize; // true = row standardize, false = binary
 	
+    wxString str_sig;
+    wxString str_high;
+    wxString str_low;
+    wxString str_undefined;
+    wxString str_neighborless;
+    wxString str_p005;
+    wxString str_p001;
+    wxString str_p0001;
+    wxString str_p00001;
     
 	DECLARE_EVENT_TABLE()
 };
-
 
 class GetisOrdMapFrame : public MapFrame
 {

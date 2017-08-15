@@ -67,6 +67,30 @@ is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
 {
 	LOG_MSG("Entering LisaMapCanvas::LisaMapCanvas");
 
+    str_not_sig = _("Not Significant");
+    str_highhigh = _("High-High");
+    str_highlow = _("High-Low");
+    str_lowlow = _("Low-Low");
+    str_lowhigh= _("Low-High");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = _("p = 0.05");
+    str_p001 = _("p = 0.01");
+    str_p0001 = _("p = 0.001");
+    str_p00001 = _("p = 0.00001");
+    
+    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_highhigh, wxColour(255, 0, 0));
+    SetPredefinedColor(str_highlow, wxColour(255, 150, 150));
+    SetPredefinedColor(str_lowlow, wxColour(0, 0, 255));
+    SetPredefinedColor(str_lowhigh, wxColour(150, 150, 255));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from LisaCoordinator initially
 	var_info = lisa_coordinator->var_info;
@@ -253,23 +277,22 @@ void LisaMapCanvas::CreateAndUpdateCategories()
         Shapefile::Header& hdr = project->main_data.header;
         
 		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
+			cat_data.SetCategoryLabel(t, 0, str_not_sig);
             
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
-			cat_data.SetCategoryLabel(t, 1, "High-High");
-			cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
-			cat_data.SetCategoryLabel(t, 2, "Low-Low");
-			cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
-			cat_data.SetCategoryLabel(t, 3, "Low-High");
-			cat_data.SetCategoryColor(t, 3, wxColour(150, 150, 255));
-			cat_data.SetCategoryLabel(t, 4, "High-Low");
-			cat_data.SetCategoryColor(t, 4, wxColour(255, 150, 150));
-			if (lisa_coord->GetHasIsolates(t) &&
-				lisa_coord->GetHasUndefined(t)) {
+			cat_data.SetCategoryLabel(t, 1, str_highhigh);
+            cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
+            cat_data.SetCategoryLabel(t, 2, str_lowlow);
+            cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]); //wxColour(0, 0, 255));
+            cat_data.SetCategoryLabel(t, 3, str_lowhigh); //"Low-High");
+            cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_lowhigh]);//wxColour(150, 150, 255));
+            cat_data.SetCategoryLabel(t, 4, str_highlow); //"High-Low");
+            cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_highlow]);//wxColour(255, 150, 150));
+			if (lisa_coord->GetHasIsolates(t) && lisa_coord->GetHasUndefined(t)) {
 				isolates_cat = 5;
 				undefined_cat = 6;
 			} else if (lisa_coord->GetHasUndefined(t)) {
@@ -280,7 +303,7 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		} else {
 			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
 			int s_f = lisa_coord->GetSignificanceFilter();
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
+			cat_data.SetCategoryLabel(t, 0, str_not_sig);
 
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -309,39 +332,16 @@ void LisaMapCanvas::CreateAndUpdateCategories()
                 int set_perm = lisa_coord->permutations;
                 stop_sig = 1.0 / (1.0 + set_perm);
                 
-                wxString def_cats[4] = {"p = 0.05", "p = 0.01", "p = 0.001", "p = 0.0001"};
-                wxColour def_colors[4] = {wxColour(75, 255, 80), wxColour(6, 196, 11), wxColour(3, 116, 6),wxColour(1, 70, 3)};
+                wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
                 double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
                 
                 int cat_idx = 1;
                 for (int j=s_f-1; j < 4; j++) {
                     if (def_cutoffs[j] >= stop_sig) {
                         cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                        cat_data.SetCategoryColor(t, cat_idx++, def_colors[j]);
+                        cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
                     }
                 }
-                
-                /*
-                int skip_cat = 0;
-                if (s_f <=4 && stop_sig <= 0.0001) {
-                    cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-                    cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-                } else skip_cat++;
-                
-                if (s_f <= 3 && stop_sig <= 0.001) {
-                    cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-                    cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
-                } else skip_cat++;
-                
-                if (s_f <= 2 && stop_sig <= 0.01) {
-                    cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
-                    cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));
-                } else skip_cat++;
-                
-                if (s_f <= 1) {
-                    cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
-                    cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-                }*/
                 if (lisa_coord->GetHasIsolates(t) &&
                     lisa_coord->GetHasUndefined(t)) {
                     isolates_cat = cat_idx++;
@@ -357,12 +357,12 @@ void LisaMapCanvas::CreateAndUpdateCategories()
             }
 		}
 		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-			cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
+			cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+			cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
 		}
 		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-			cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
+			cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
 		}
 		
 		double cuttoff = lisa_coord->significance_cutoff;
