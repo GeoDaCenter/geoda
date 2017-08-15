@@ -130,7 +130,8 @@ GStatCoordinator(boost::uuids::uuid weights_id,
                  Project* project,
                  const std::vector<GdaVarTools::VarInfo>& var_info_s,
                  const std::vector<int>& col_ids,
-                 bool row_standardize_weights)
+                 bool row_standardize_weights,
+                 bool _is_local_joint_count)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -140,7 +141,8 @@ permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true)
+last_seed_used(123456789), reuse_last_seed(true),
+is_local_joint_count(_is_local_joint_count)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
@@ -322,9 +324,15 @@ void GStatCoordinator::InitFromVarInfo()
         if (Gal_vecs.empty() || Gal_vecs[t] == NULL) {
             // local weights copy
             GalWeight* gw = NULL;
-            if ( has_undefined[t] ) {
+            if ( has_undefined[t] || is_local_joint_count) {
+                vector<bool> tmp_undefs = x_undefs[t];
+                if (is_local_joint_count) {
+                    for (int i=0; i<num_obs; i++) {
+                        tmp_undefs[i] = tmp_undefs[i] || x_vecs[t][i] == 0;
+                    }
+                }
                 gw = new GalWeight(*w_man_int->GetGal(w_id));
-                gw->Update(x_undefs[t]);
+                gw->Update(tmp_undefs);
             } else {
                 gw = w_man_int->GetGal(w_id);
             }
@@ -399,16 +407,40 @@ void GStatCoordinator::FillClusterCats(int canvas_time,
 	if (!is_gi && !is_perm) p_val = p_star_vecs[t];
 	double* z_val = is_gi ? z_vecs[t] : z_star_vecs[t];
 	
-    const GalElement* W = Gal_vecs[t]->gal;
+    
+    GalWeight* gw;
+    if (has_undefined[t]) {
+        gw = new GalWeight(*w_man_int->GetGal(w_id));
+        gw->Update(x_undefs[t]);
+    } else {
+        gw = w_man_int->GetGal(w_id);
+    }
+    if (  is_local_joint_count) {
+        vector<bool> tmp_undefs = x_undefs[t];
+        if (is_local_joint_count) {
+            for (int i=0; i<num_obs; i++) {
+                tmp_undefs[i] = tmp_undefs[i];
+            }
+        }
+        gw = new GalWeight(*w_man_int->GetGal(w_id));
+        gw->Update(tmp_undefs);
+    }
+    const GalElement* W = gw->gal;
+    
+    const GalElement* W1 = Gal_vecs[t]->gal;
+
     
 	c_val.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
         if (!G_defined_vecs[t][i]) {
             c_val[i] = 4; // undefined
             
-        } else if (W[i].Size() == 0) {
+        } else if (W1[i].Size() == 0) {
 			c_val[i] = 3; // isolate
-            
+            if (is_local_joint_count) {
+                if (W[i].Size() != 0)
+                    c_val[i] = 0;
+            }
 		} else if (p_val[i] <= significance_cutoff) {
 			c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
             
@@ -416,6 +448,10 @@ void GStatCoordinator::FillClusterCats(int canvas_time,
 			c_val[i] = 0; // not significant
 		}
 	}
+    
+    if (has_undefined[t]) {
+        delete gw;
+    }
 }
 
 

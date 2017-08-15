@@ -242,6 +242,7 @@ public:
 	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
+	void OnOpenLocalJoinCount(wxCommandEvent& event);
 	void OnOpenGetisOrdStar(wxCommandEvent& event);
 	void OnOpenUniLocalGeary(wxCommandEvent& event);
 	void OnOpenMultiLocalGeary(wxCommandEvent& event);

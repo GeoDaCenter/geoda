@@ -462,6 +462,9 @@
       <object class="wxMenuItem" name="IDM_LOCAL_G_STAR">
         <label>Local G* Cluster Map</label>
       </object>
+      <object class="wxMenuItem" name="IDM_LOCAL_JOINT_COUNT">
+        <label>Local Joint Count</label>
+      </object>
       <object class="separator"/>
       <label>Local Geary Maps</label>
       <object class="wxMenuItem" name="IDM_UNI_LOCAL_GEARY">
@@ -4262,6 +4265,9 @@
     <object class="wxMenuItem" name="IDM_LOCAL_G_STAR">
         <label>Local G* Cluster Map</label>
     </object>
+    <object class="wxMenuItem" name="IDM_LOCAL_JOINT_COUNT">
+        <label>Local Joint Count</label>
+    </object>
     <object class="separator"/>
     <label>Local Geary Maps</label>
     <object class="wxMenuItem" name="IDM_UNI_LOCAL_GEARY">
@@ -4279,6 +4285,9 @@
     </object>
     <object class="wxMenuItem" name="IDM_LOCAL_G_STAR">
       <label>Local G* Cluster Map</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_LOCAL_JOINT_COUNT">
+      <label>Local Joint Count</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_MAP_CHOICES">

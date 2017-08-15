@@ -4732,8 +4732,8 @@
         </object>
       </object>
       <object class="sizeritem">
-        <flag>wxALIGN_TOP|wxALL</flag>
-        <border>5</border>
+        <flag>wxALIGN_TOP|wxTOP</flag>
+        <border>25</border>
         <object class="wxBoxSizer">
           <orient>wxVERTICAL</orient>
           <object class="sizeritem">

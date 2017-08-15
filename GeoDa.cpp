@@ -662,6 +662,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
+	EnableTool(XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
 
     
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
@@ -3547,6 +3549,78 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	}	
 }
 
+void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenLocalJoinCount().");
+    Project* p = GetProject();
+    if (!p) return;
+
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    VariableSettingsDlg VS(project_p, VariableSettingsDlg::univariate, true, false, "Binary Variable Settings");
+    if (VS.ShowModal() != wxID_OK) return;
+    
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+    
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    // check if binary data
+    std::vector<double> data;
+    TableInterface* table_int = p->GetTableInt();
+    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
+    for (int i=0; i<data.size(); i++) {
+        if (data[i] !=0 && data[i] != 1) {
+            wxString msg = _T("Please select a binary variable for Local Joint Count.");
+            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
+    bool show_row_stand = false; // use binary weights only
+    GetisWhat2OpenDlg LWO(this, show_row_stand);
+    if (LWO.ShowModal() != wxID_OK) return;
+    if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
+   
+    bool is_rowstand = false; // use binary weights
+    bool is_local_joint_count = true;
+    GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand, is_local_joint_count);
+    if (!gc || !gc->IsOk()) {
+        // print error message
+        delete gc;
+        return;
+    }
+    
+    if (LWO.m_NormMap && LWO.m_ClustMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_norm, LWO.m_RowStand);
+    }
+    if (LWO.m_NormMap && LWO.m_SigMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
+    }
+    if (!LWO.m_NormMap && LWO.m_ClustMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_perm, LWO.m_RowStand);
+    }
+    if (!LWO.m_NormMap && LWO.m_SigMap) {
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::GiStar_sig_perm, LWO.m_RowStand);
+    }
+}
+
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 {
     wxLogMessage("Open GetisOrdMapFrame (OnOpenGetisOrdStar).");
@@ -6362,6 +6436,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
     EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
     EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
+    EVT_MENU(XRCID("IDM_LOCAL_JOINT_COUNT"), GdaFrame::OnOpenLocalJoinCount)
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
     EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"), GdaFrame::OnSaveConnectivityToTable)
     EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)

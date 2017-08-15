@@ -51,7 +51,9 @@ class GetisWhat2OpenDlg: public wxDialog
     DECLARE_EVENT_TABLE()
 
 public:
-    GetisWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
+    GetisWhat2OpenDlg( wxWindow* parent,
+                      bool show_row_stand = true,
+                      wxWindowID id = -1,
 					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
@@ -65,6 +67,7 @@ public:
     wxCheckBox* m_check4;
 
 
+    bool show_row_stand;
 	bool m_SigMap;
 	bool m_ClustMap;
     bool m_RowStand;
