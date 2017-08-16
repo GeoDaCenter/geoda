@@ -3608,16 +3608,16 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     }
     
     if (LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
     }
     if (LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_sig_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::GiStar_clus_perm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::GiStar_sig_perm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
     }
 }
 
