@@ -793,6 +793,7 @@ void GetisOrdMapFrame::OnSigFilterSetup(wxCommandEvent& event)
             gs_coord->fdr = dlg.GetFDR();
             UpdateOptionMenuItems();
         }
+        delete[] p_val;
     } else {
         InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
         if (dlg.ShowModal() == wxID_OK) {

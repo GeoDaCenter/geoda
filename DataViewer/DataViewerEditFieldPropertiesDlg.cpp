@@ -407,8 +407,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 	}
 	
-	long min_v;
-	long max_v;
+	int min_v;
+	int max_v;
     if (col == COL_T) {
         if (combo_selection >=0) {
             
