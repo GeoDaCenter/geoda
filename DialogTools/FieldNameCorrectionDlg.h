@@ -49,14 +49,13 @@ public:
 	std::vector<wxStaticText*> txt_fname; // ID_FNAME_STAT_TXT_BASE
 	std::vector<wxTextCtrl*> txt_input; // ID_INPUT_TXT_CTRL_BASE
 	std::vector<wxStaticText*> txt_info; // ID_INFO_STAT_TXT_BASE
+	std::vector<wxStaticText*> input_info; // ID_INPUT_INFO_STAT_TXT_BASE
 	
 	wxButton* ok_btn; // wxID_OK
 	wxButton* exit_btn; // wxID_CANCEL
 	
     bool need_correction;
 
-    
-public:
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id);
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 											GdaConst::DataSourceType ds_type,
@@ -68,7 +67,8 @@ public:
 											set<wxString>& dup_fname,
 											set<wxString>& bad_fname);		
 	virtual ~ScrolledWidgetsPane();
-	
+
+    void OnUserInput(wxCommandEvent& ev);
 	wxString GetSuggestFieldName(const wxString& old_name);
 	wxString GetSuggestFieldName(int field_idx);
 	wxString RenameDupFieldName(const wxString& old_name);
