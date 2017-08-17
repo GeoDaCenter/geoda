@@ -160,6 +160,7 @@
 #include "ShapeOperations/OGRDataAdapter.h"
 
 #include "VarCalc/CalcHelp.h"
+#include "Algorithms/redcap.h"
 
 #include "ShpFile.h"
 #include "GdaException.h"
@@ -3651,7 +3652,15 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
-    
+  
+    /*
+    std::vector<double> data;
+    TableInterface* table_int = p->GetTableInt();
+    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
+    std::vector<bool> undefs(data.size(), false);
+    AbstractRedcap* redcap = new FirstOrderSLKRedCap(data, undefs, gw->gal);
+    redcap->Partitioning(5);
+   */ 
 	GetisWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;

@@ -63,6 +63,7 @@
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
 		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
+		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
 		A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F875751E94123F0079734E /* KMeansDlg.cpp */; };
@@ -346,6 +347,8 @@
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
 		A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
 		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
+		A4D5423B1F45037B00572878 /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
+		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Guerry.png; path = BuildTools/CommonDistFiles/web_plugins/Guerry.png; sourceTree = "<group>"; };
 		A4F875751E94123F0079734E /* KMeansDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KMeansDlg.cpp; sourceTree = "<group>"; };
@@ -728,6 +731,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4D5423B1F45037B00572878 /* redcap.cpp */,
+				A4D5423C1F45037B00572878 /* redcap.h */,
 				A43D124D1F2088D50073D408 /* spectral.h */,
 				A43D124E1F2088D50073D408 /* spectral.cpp */,
 				A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */,
@@ -1400,6 +1405,7 @@
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,
+				A4D5423D1F45037B00572878 /* redcap.cpp in Sources */,
 				DD7975820F1D296F00496A84 /* PCPDlg.cpp in Sources */,
 				DD7975830F1D296F00496A84 /* PermutationCounterDlg.cpp in Sources */,
 				DD7975850F1D296F00496A84 /* RandomizationDlg.cpp in Sources */,
