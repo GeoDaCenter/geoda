@@ -3587,7 +3587,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
-            wxString msg = _T("Please select a binary variable for Local Joint Count.");
+            wxString msg = _T("Please select a binary variable for Local Join Count.");
             wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
@@ -3612,13 +3612,13 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
         GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
     }
     if (LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_sig_norm, LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
     }
 }
 

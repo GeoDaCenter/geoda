@@ -134,7 +134,7 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
 {
 	wxString new_title;
 	
-    if (gs_coord->is_local_joint_count) new_title = "Local Joint Count ";
+    if (gs_coord->is_local_joint_count) new_title = "Local Join Count ";
     else new_title = (is_gi ? "Gi " : "Gi* ");
     
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
