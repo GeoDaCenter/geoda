@@ -307,6 +307,7 @@
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
+    <ClCompile Include="..\..\Algorithms\spectral.cpp" />
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
@@ -315,9 +316,11 @@
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
@@ -368,6 +371,7 @@
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
+    <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
     <ClInclude Include="..\..\DataViewer\DataChangeType.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />
@@ -395,12 +399,14 @@
     <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
     <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
     <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h" />
