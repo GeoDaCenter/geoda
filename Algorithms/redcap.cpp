@@ -48,6 +48,17 @@ RedCapNode::RedCapNode(int _id, double _val)
     value = _val;
 }
 
+RedCapNode::RedCapNode(RedCapNode* node)
+{
+    id = node->id;
+    value = node->value;
+    
+    std::set<RedCapNode*>::iterator it;
+    for( it=node->neighbors.begin(); it!=node->neighbors.end(); it++) {
+        neighbors.insert(*it);
+    }
+}
+
 RedCapNode::~RedCapNode()
 {
     
@@ -56,6 +67,11 @@ RedCapNode::~RedCapNode()
 void RedCapNode::AddNeighbor(RedCapNode* node)
 {
     neighbors.insert(node);
+}
+
+void RedCapNode::RemoveNeighbor(RedCapNode* node)
+{
+    neighbors.erase(neighbors.find(node));
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -86,6 +102,7 @@ SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_node
 {
     left_child = NULL;
     right_child = NULL;
+    root = NULL;
     
     data = _data;
     undefs = _undefs;
@@ -98,31 +115,47 @@ SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_node
     heterogeneity = calc_heterogeneity();
 }
 
-SpatialContiguousTree::SpatialContiguousTree(RedCapCluster* cluster, vector<RedCapEdge*> _edges, const vector<double>& _data, const vector<bool>& _undefs)
+
+SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, map<int, RedCapNode*> parent_ids_dict, const vector<double>& _data, const vector<bool>& _undefs)
 {
     left_child = NULL;
     right_child = NULL;
+    root = NULL;
     
     data = _data;
     undefs = _undefs;
    
-    map<RedCapNode*, bool>::iterator it;
-    for (it=cluster->node_dict.begin(); it!=cluster->node_dict.end(); it++) {
-        RedCapNode* node = it->first;
-        all_nodes_dict[node] = false; // false means not adding into tree yet
-    }
+    list<RedCapNode*> stack;
+    stack.push_back(graph);
+    int num_nodes = 1;
     
-    // create edges
-    for (int i=0; i<_edges.size(); i++) {
-        RedCapEdge* e = _edges[i];
-        if (cluster->Has(e->a) && cluster->Has(e->b)) {
-            AddEdge(e);
+    while(!stack.empty()){
+        RedCapNode* tmp = stack.front();
+        stack.pop_front();
+        
+        std::set<RedCapNode*> nbrs = tmp->neighbors;
+        std::set<RedCapNode*>::iterator it;
+        
+        for (it=nbrs.begin(); it!=nbrs.end(); it++) {
+            RedCapNode* nn = *it;
+            if (nn->id != exclude_node->id &&
+                ids_dict.find(nn->id) == ids_dict.end() &&
+                parent_ids_dict.find(nn->id) != parent_ids_dict.end())
+            {
+                stack.push_back(nn);
+                AddEdgeDirectly(tmp, nn);
+                num_nodes +=1;
+            }
         }
     }
-    
+    if (num_nodes == 1) {
+        // take care of one node case
+        all_nodes_dict[graph] = true;
+        root = graph;
+        ids_dict[graph->id] = graph;
+    }
     heterogeneity = calc_heterogeneity();
 }
-
 
 SpatialContiguousTree::~SpatialContiguousTree()
 {
@@ -130,6 +163,9 @@ SpatialContiguousTree::~SpatialContiguousTree()
         delete left_child;
     if (right_child)
         delete right_child;
+    for (int i=0; i<new_nodes.size();i++) {
+        delete new_nodes[i];
+    }
 }
 
 bool SpatialContiguousTree::AddEdge(RedCapEdge *edge)
@@ -154,14 +190,57 @@ bool SpatialContiguousTree::AddEdge(RedCapEdge *edge)
         
         a->AddNeighbor(b);
         b->AddNeighbor(a);
+        
+        ids_dict[a->id] = a;
+        ids_dict[b->id] = b;
+        
+        if (root == NULL)
+            root = a;
     }
     return all_covered;
 }
 
+void SpatialContiguousTree::AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b)
+{
+    int aid = _a->id;
+    int bid = _b->id;
+    
+    RedCapNode* a;
+    if (ids_dict.find(aid) == ids_dict.end()) {
+        a = new RedCapNode(_a);
+        new_nodes.push_back(a);
+    } else {
+        a = ids_dict[aid];
+    }
+    
+    RedCapNode* b;
+    if (ids_dict.find(bid) == ids_dict.end()) {
+        b = new RedCapNode(_b);
+        new_nodes.push_back(b);
+    } else {
+        b = ids_dict[bid];
+    }
+    
+    all_nodes_dict[a] = true;
+    all_nodes_dict[b] = true;
+    
+    ids_dict[a->id] = a;
+    ids_dict[b->id] = b;
+    
+    edges.push_back(new RedCapEdge(a, b));
+    
+    a->AddNeighbor(b);
+    b->AddNeighbor(a);
+    
+    if (root == NULL)
+        root = a;
+}
+
+
 void SpatialContiguousTree::Split()
 {
     // search best cut
-    int hg = 0;
+    double hg = 0;
     RedCapEdge* e = NULL;
     
     for (int i=0; i<edges.size(); i++) {
@@ -172,7 +251,7 @@ void SpatialContiguousTree::Split()
         SpatialContiguousTree* left = findSubTree(a, b);
         SpatialContiguousTree* right = findSubTree(b, a);
    
-        int hg_sub = heterogeneity - left->heterogeneity - right->heterogeneity;
+        double hg_sub = heterogeneity - left->heterogeneity - right->heterogeneity;
         
         if (hg_sub > hg) {
             if (left_child) delete left_child;
@@ -188,6 +267,12 @@ void SpatialContiguousTree::Split()
     }
 }
 
+SpatialContiguousTree* SpatialContiguousTree::findSubTree(RedCapNode* node, RedCapNode* exclude_node)
+{
+    SpatialContiguousTree* sub_tree = new SpatialContiguousTree(node, exclude_node, ids_dict, data, undefs);
+    return sub_tree;
+}
+
 SpatialContiguousTree* SpatialContiguousTree::GetLeftChild()
 {
     return left_child;
@@ -196,36 +281,6 @@ SpatialContiguousTree* SpatialContiguousTree::GetLeftChild()
 SpatialContiguousTree* SpatialContiguousTree::GetRightChild()
 {
     return right_child;
-}
-
-
-SpatialContiguousTree* SpatialContiguousTree::findSubTree(RedCapNode* node, RedCapNode* exclude_node)
-{
-    RedCapCluster cluster;
-    list<RedCapNode*> container;
-    container.push_back(node);
-   
-    
-    while (!container.empty()) {
-        RedCapNode* tmp = container.front();
-        container.pop_front();
-        
-        if (tmp->id != exclude_node->id) {
-            if (cluster.Has(tmp))
-                continue;
-            cluster.AddNode(tmp);
-        }
-        
-        set<RedCapNode*>::iterator it;
-        for (it=tmp->neighbors.begin(); it!=tmp->neighbors.end(); it++) {
-            if ((*it)->id != exclude_node->id) {
-                container.push_back(*it);
-            }
-        }
-    }
-    
-    SpatialContiguousTree* sub_tree = new SpatialContiguousTree(&cluster, edges, data, undefs);
-    return sub_tree;
 }
 
 double SpatialContiguousTree::calc_heterogeneity()
@@ -319,6 +374,11 @@ bool AbstractRedcap::checkFirstOrderEdges()
     return true;
 }
 
+vector<vector<int> >& AbstractRedcap::GetRegions()
+{
+    return cluster_ids;
+}
+
 void AbstractRedcap::Partitioning(int k)
 {
     list<SpatialContiguousTree*> sub_trees;
@@ -328,23 +388,34 @@ void AbstractRedcap::Partitioning(int k)
         SpatialContiguousTree* tmp_tree = sub_trees.front();
         sub_trees.pop_front();
         tmp_tree->Split();
-        sub_trees.push_back(tmp_tree->GetLeftChild());
-        sub_trees.push_back(tmp_tree->GetRightChild());
+       
+        SpatialContiguousTree* left_tree = tmp_tree->GetLeftChild();
+        SpatialContiguousTree* right_tree = tmp_tree->GetRightChild();
+       
+        if (left_tree)
+            sub_trees.push_back(left_tree);
+        if (right_tree)
+            sub_trees.push_back(right_tree);
+        
+        if (left_tree== NULL && right_tree ==NULL) {
+            // only one item, push it back
+            sub_trees.push_back(tmp_tree);
+        }
     }
    
-    int cid = 1;
     list<SpatialContiguousTree*>::iterator it;
     map<RedCapNode*, bool>::iterator node_it;
     
     for (it=sub_trees.begin(); it!=sub_trees.end(); it++) {
         SpatialContiguousTree* _tree = *it;
+        vector<int> cluster;
         for (node_it=_tree->all_nodes_dict.begin();
              node_it!=_tree->all_nodes_dict.end(); node_it++)
         {
             RedCapNode* node = node_it->first;
-            cluster_ids[node->id] = cid;
+            cluster.push_back(node->id);
         }
-        cid += 1;
+        cluster_ids.push_back(cluster);
     }
 }
 

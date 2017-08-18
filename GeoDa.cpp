@@ -120,7 +120,7 @@
 #include "DialogTools/SpectralClusteringDlg.h"
 #include "DialogTools/HClusterDlg.h"
 #include "DialogTools/CreateGridDlg.h"
-
+#include "DialogTools/RedcapDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -614,6 +614,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HCLUSTER"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
 	
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
@@ -1877,6 +1878,36 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MaxpDlg* w = dynamic_cast<MaxpDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    RedcapDlg* dlg = new RedcapDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSpectral(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2623,6 +2654,9 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
                                        proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,
                                        XRCID("ID_TOOLS_DATA_MAXP"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_REDCAP"),
                                        proj_open);
         
         PopupMenu(popupMenu, wxDefaultPosition);
@@ -3653,14 +3687,8 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
         return;
     }
   
-    /*
-    std::vector<double> data;
-    TableInterface* table_int = p->GetTableInt();
-    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
-    std::vector<bool> undefs(data.size(), false);
-    AbstractRedcap* redcap = new FirstOrderSLKRedCap(data, undefs, gw->gal);
-    redcap->Partitioning(5);
-   */ 
+    
+    
 	GetisWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
@@ -6313,6 +6341,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HCLUSTER"), GdaFrame::OnToolsDataHCluster)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)

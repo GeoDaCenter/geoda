@@ -40,9 +40,12 @@ class RedCapNode
 {
 public:
     RedCapNode(int id, double val);
+    RedCapNode(RedCapNode* node);
     ~RedCapNode();
     
     void AddNeighbor(RedCapNode* node);
+    
+    void RemoveNeighbor(RedCapNode* node);
     
     int id; // mapping to record id
     double value; // value of node itself
@@ -122,21 +125,23 @@ protected:
 class SpatialContiguousTree
 {
 public:
-    SpatialContiguousTree(const vector<double>& _data, const vector<bool>& _undefs);
-    
     SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<double>& _data, const vector<bool>& _undefs);
     
-    SpatialContiguousTree(RedCapCluster* cluster, vector<RedCapEdge*> _edges, const vector<double>& _data, const vector<bool>& _undefs);
+    SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, map<int, RedCapNode*> ids_dict, const vector<double>& _data, const vector<bool>& _undefs);
     
     ~SpatialContiguousTree();
     
     // all nodes info
     map<RedCapNode*, bool> all_nodes_dict;
     
+    map<int, RedCapNode*> ids_dict;
+    
     // should be a set of edges
     vector<RedCapEdge*> edges;
     
     bool AddEdge(RedCapEdge* edge);
+   
+    void AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b);
     
     void Split();
     
@@ -147,6 +152,8 @@ public:
     double heterogeneity;
    
 protected:
+    
+    RedCapNode* root;
     
     vector<double> data;
     
@@ -160,6 +167,8 @@ protected:
     
     // check if all odes are included in the graph
     SpatialContiguousTree* findSubTree(RedCapNode* node, RedCapNode* exclude_node);
+    
+    vector<RedCapNode*> new_nodes;
     
 };
 
@@ -191,7 +200,7 @@ public:
     
     virtual void Clustering()=0;
     
-    vector<int> cluster_ids;
+    vector<vector<int> >& GetRegions();
     
 protected:
     
@@ -200,6 +209,8 @@ protected:
     vector<double> data;
     
     vector<bool> undefs;
+    
+    vector<vector<int> > cluster_ids;
     
     vector<RedCapNode*> all_nodes;
     
