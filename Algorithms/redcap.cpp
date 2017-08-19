@@ -39,6 +39,8 @@ using namespace std;
 using namespace boost;
 
 
+typedef map<pair<SpatialContiguousTree*, SpatialContiguousTree*>, double> SubTrees;
+
 /////////////////////////////////////////////////////////////////////////
 //
 // RedCapNode
@@ -54,11 +56,6 @@ RedCapNode::RedCapNode(RedCapNode* node)
 : value(node->value)
 {
     id = node->id;
-    
-    std::set<RedCapNode*>::iterator it;
-    for( it=node->neighbors.begin(); it!=node->neighbors.end(); it++) {
-        neighbors.insert(*it);
-    }
 }
 
 RedCapNode::~RedCapNode()
@@ -105,8 +102,8 @@ RedCapEdge::~RedCapEdge()
 // SpatialContiguousTree
 //
 /////////////////////////////////////////////////////////////////////////
-SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<vector<double> >& _data, const vector<bool>& _undefs)
-: data(_data), undefs(_undefs)
+SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<vector<double> >& _data, const vector<bool>& _undefs, double* _controls, double _control_thres)
+: data(_data), undefs(_undefs),controls(_controls), control_thres(_control_thres)
 {
     left_child = NULL;
     right_child = NULL;
@@ -119,8 +116,8 @@ SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_node
     heterogeneity = calcHeterogeneity();
 }
 
-SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, unordered_map<int, RedCapNode*> parent_ids_dict, const vector<vector<double> >& _data, const vector<bool>& _undefs)
-: data(_data), undefs(_undefs)
+SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, unordered_map<int, RedCapNode*> parent_ids_dict, const vector<vector<double> >& _data, const vector<bool>& _undefs, double* _controls, double _control_thres)
+: data(_data), undefs(_undefs), controls(_controls), control_thres(_control_thres)
 {
     // create a tree when remove an edge from its parent
     // from a given node, dont go to branch = exclue_node
@@ -135,6 +132,12 @@ SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* excl
     std::set<RedCapNode*>::iterator it;
     RedCapNode* nn = NULL;
     
+    // this is wrong:
+    // all nodes in this tree should be the same, except the "root" and the "exclude_node"
+    // so, let's make a copy of "root" and "exclude_node",
+    // then make a tree starts from "root"
+    // NOTE: what you need is a DEEP-copy when create sub-tree
+    
     while(!stack.empty()){
         RedCapNode* tmp = stack.front();
         stack.pop_front();
@@ -144,8 +147,8 @@ SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* excl
         for (it=nbrs.begin(); it!=nbrs.end(); it++) {
             nn = *it;
             if (nn->id != exclude_node->id &&
-                ids_dict.find(nn->id) == ids_dict.end() && // not add yet
-                parent_ids_dict.find(nn->id) != parent_ids_dict.end()) // in parent
+                ids_dict.find(nn->id) == ids_dict.end())// && // not add yet
+               // parent_ids_dict.find(nn->id) != parent_ids_dict.end()) // in parent
             {
                 stack.push_back(nn);
                 AddEdgeDirectly(tmp, nn); // create a copy of nodes
@@ -245,25 +248,43 @@ void SpatialContiguousTree::AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b)
 
 void SpatialContiguousTree::Split()
 {
-    // search best cut
-    double hg = 0;
-    RedCapEdge* e = NULL;
+    int n_tasks = edges.size();
+    int n_threads = boost::thread::hardware_concurrency();
+    int n_sub_tasks = n_tasks / n_threads;
+    if (n_sub_tasks<1) n_sub_tasks = 1;
     
-    for (int i=0; i<edges.size(); i++) {
-        RedCapEdge* out_edge = edges[i];
-        RedCapNode* a = out_edge->a;
-        RedCapNode* b = out_edge->b;
-       
-        SpatialContiguousTree* left = new SpatialContiguousTree(a, b, ids_dict, data, undefs);
-        SpatialContiguousTree* right = new SpatialContiguousTree(b, a, ids_dict, data, undefs);
-   
-        double hg_sub = heterogeneity - left->heterogeneity - right->heterogeneity;
+    int start = 0;
+    cand_trees.clear();
+    boost::thread_group threadPool;
+    for (int i=0; i<n_threads; i++) {
+        int a = start;
+        int b = a + n_sub_tasks;
+        if (i==n_threads-1) {
+            b = n_tasks;
+        }
+        printf("a=%d,b=%d\n", a, b);
+        boost::thread* worker = new boost::thread(boost::bind(&SpatialContiguousTree::subSplit, this, a, b));
+        threadPool.add_thread(worker);
+        start = b;
+    }
+    threadPool.join_all();
+    
+    // merge results
+    bool is_first = true;
+    double best_hg;
+    
+    SubTrees::iterator it;
+    for (it=cand_trees.begin(); it!=cand_trees.end(); it++) {
+        pair<SpatialContiguousTree*, SpatialContiguousTree*> left_right = it->first;
+        SpatialContiguousTree* left = left_right.first;
+        SpatialContiguousTree* right = left_right.second;
+        double hg = it->second;
         
-        if (hg_sub > hg) {
+        if (is_first || hg < best_hg) {
+            best_hg = hg;
+            is_first = false;
             if (left_child) delete left_child;
             if (right_child) delete right_child;
-            hg = hg_sub;
-            e = out_edge;
             left_child = left;
             right_child = right;
         } else {
@@ -271,6 +292,107 @@ void SpatialContiguousTree::Split()
             if (right) delete right;
         }
     }
+}
+
+bool SpatialContiguousTree::quickCheck(RedCapNode* node, RedCapNode* exclude_node)
+{
+    double check_val = 0;
+    unordered_map<int, bool> visited;
+    
+    list<RedCapNode*> stack;
+    stack.push_back(node);
+    while(!stack.empty()){
+        RedCapNode* tmp = stack.front();
+        stack.pop_front();
+        visited[tmp->id] = true;
+        check_val += controls[tmp->id];
+        
+        std::set<RedCapNode*>& nbrs = tmp->neighbors;
+        std::set<RedCapNode*>::iterator it;
+        for (it=nbrs.begin(); it!=nbrs.end(); it++) {
+            RedCapNode* nn = *it;
+            if (nn->id != exclude_node->id &&
+                visited.find(nn->id) == visited.end())// && // not add yet
+                // parent_ids_dict.find(nn->id) != parent_ids_dict.end()) // in parent
+            {
+                stack.push_back(nn);
+                visited[nn->id] = true;
+            }
+        }
+    }
+    
+    return check_val >  control_thres;
+}
+
+void SpatialContiguousTree::subSplit(int start, int end)
+{
+    // search best cut
+    double hg = 0;
+    RedCapEdge* e = NULL;
+    SpatialContiguousTree* left_best=NULL;
+    SpatialContiguousTree* right_best=NULL;
+    
+    bool is_first = true;
+    //for (int i=0; i<edges.size(); i++) {
+    for (int i=start; i<end; i++) {
+        RedCapEdge* out_edge = edges[i];
+        RedCapNode* a = out_edge->a;
+        RedCapNode* b = out_edge->b;
+      
+        // do a quick check, if not satisfy control, then continue
+        if (!quickCheck(a, b) || !quickCheck(b,a)) {
+            continue;
+        }
+        
+        SpatialContiguousTree* left = new SpatialContiguousTree(a, b, ids_dict, data, undefs, controls, control_thres);
+        SpatialContiguousTree* right = new SpatialContiguousTree(b, a, ids_dict, data, undefs, controls, control_thres);
+ 
+        if (left == NULL && right == NULL) {
+            // can't be split-ted
+            continue;
+        }
+        
+        if (controls) {
+            bool good = (left && left->checkControl()) &&  (right && right->checkControl());
+            //printf("left->count:%d, right->count:%d, good:%d\n", left->all_nodes_dict.size(), right->all_nodes_dict.size(), good);
+            if (!good) {
+                if (left)  { delete left; left = NULL; }
+                if (right) { delete right; right = NULL;}
+                continue;
+            }
+        }
+        
+        double hg_sub = left->heterogeneity + right->heterogeneity;
+        
+        if (is_first || hg_sub < hg) {
+            is_first = false;
+            if (left_best) delete left_best;
+            if (right_best) delete right_best;
+            hg = hg_sub;
+            e = out_edge;
+            left_best = left;
+            right_best = right;
+        } else {
+            if (left) delete left;
+            if (right) delete right;
+        }
+    }
+    if (left_best != NULL && right_best != NULL)
+        cand_trees[make_pair(left_best, right_best)] = hg;
+}
+
+bool SpatialContiguousTree::checkControl()
+{
+    if (controls == NULL) return true;
+   
+    double val = 0;
+    unordered_map<int, RedCapNode*>::iterator it;
+    for (it=ids_dict.begin(); it!=ids_dict.end(); it++) {
+        int idx = it->first;
+        val += controls[idx];
+    }
+    
+    return val > control_thres;
 }
 
 SpatialContiguousTree* SpatialContiguousTree::GetLeftChild()
@@ -287,7 +409,7 @@ double SpatialContiguousTree::calcHeterogeneity()
 {
     // sum of squared deviations
     double sum_ssd = 0;
-    int n_vars = data.size();
+    int n_vars = data[0].size();
     for (int i=0; i<n_vars; i++) {
         vector<double> tmp_data;
         unordered_map<RedCapNode*, bool>::iterator it;
@@ -295,7 +417,7 @@ double SpatialContiguousTree::calcHeterogeneity()
             RedCapNode* node = it->first;
             int id = node->id;
             if (undefs[id]) continue;
-            tmp_data.push_back(data[i][id]);
+            tmp_data.push_back(data[id][i]);
         }
         double ssd = GenUtils::GetVariance(tmp_data);
         sum_ssd += ssd;
@@ -365,7 +487,7 @@ void AbstractRedcap::init( GalElement * w)
     }
     
     // init spatialContiguousTree
-    tree = new SpatialContiguousTree(all_nodes, data, undefs);
+    tree = new SpatialContiguousTree(all_nodes, data, undefs, controls, control_thres);
     
     Clustering();
 }
@@ -380,14 +502,19 @@ vector<vector<int> >& AbstractRedcap::GetRegions()
     return cluster_ids;
 }
 
+bool RedCapTreeLess(SpatialContiguousTree* a, SpatialContiguousTree* b)
+{
+    return a->all_nodes_dict.size() < b->all_nodes_dict.size();
+}
+
 void AbstractRedcap::Partitioning(int k)
 {
-    list<SpatialContiguousTree*> sub_trees;
+    vector<SpatialContiguousTree*> sub_trees;
     sub_trees.push_back(tree);
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
-        SpatialContiguousTree* tmp_tree = sub_trees.front();
-        sub_trees.pop_front();
+        SpatialContiguousTree* tmp_tree = sub_trees.back();
+        sub_trees.pop_back();
         tmp_tree->Split();
        
         SpatialContiguousTree* left_tree = tmp_tree->GetLeftChild();
@@ -399,12 +526,16 @@ void AbstractRedcap::Partitioning(int k)
             sub_trees.push_back(right_tree);
         
         if (left_tree== NULL && right_tree ==NULL) {
-            // only one item, push it back
-            sub_trees.push_back(tmp_tree);
+            if (tmp_tree->all_nodes_dict.size()== 1)
+                // only one item, push it back
+                sub_trees.push_back(tmp_tree);
         }
+        
+        // sort by number of items
+        std::sort(sub_trees.begin(), sub_trees.end(), RedCapTreeLess);
     }
    
-    list<SpatialContiguousTree*>::iterator it;
+    vector<SpatialContiguousTree*>::iterator it;
     unordered_map<RedCapNode*, bool>::iterator node_it;
     
     for (it=sub_trees.begin(); it!=sub_trees.end(); it++) {
@@ -536,9 +667,11 @@ void RedCapClusterManager::mergeClusters(RedCapCluster* cluster1, RedCapCluster*
 // 1 FirstOrderSLKRedCap
 //
 //////////////////////////////////////////////////////////////////////////////////
-FirstOrderSLKRedCap::FirstOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w)
+FirstOrderSLKRedCap::FirstOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
 : AbstractRedcap(_data, _undefs)
 {
+    controls = _controls;
+    control_thres = _control_thres;
     init(w);
 }
 

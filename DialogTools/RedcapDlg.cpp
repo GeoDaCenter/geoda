@@ -163,7 +163,7 @@ void RedcapDlg::CreateControls()
     
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Min value per region:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_min_val_region = new wxTextCtrl(panel, wxID_ANY, wxT(""),
+    m_min_val_region = new wxTextCtrl(panel, wxID_ANY, wxT("0"),
                                       wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_min_val_region, 1, wxEXPAND);
@@ -203,7 +203,7 @@ void RedcapDlg::CreateControls()
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL |wxLEFT, 10);
     
     
     // Buttons
@@ -534,11 +534,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
    
     // minimum value per region
-    int min_val_per_region = 0;
-    long value_min_val_region;
-    if(str_minval_region.ToLong(&value_min_val_region)) {
-        min_val_per_region = value_min_val_region;
-    }
+    double min_val_per_region = 0;
+    str_minval_region.ToDouble(&min_val_per_region);
     
     // get control variables
     vector<double> control_variable(rows, 1);
@@ -555,6 +552,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         return;
     }
     table_int->GetColData(col, tm, control_variable);
+    double* controls = new double[rows];
+    for (int i=0; i<rows; i++) controls[i] = control_variable[i];
    
     // get number of regions
     int n_regions = 0;
@@ -569,7 +568,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
    
     // run RedCap
     std::vector<bool> undefs(rows, false);
-    AbstractRedcap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal);
+    AbstractRedcap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
     redcap->Partitioning(n_regions);
     
     vector<vector<int> > cluster_ids = redcap->GetRegions();
@@ -615,6 +614,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         table_int->SetColUndefined(col, time, clusters_undef);
     }
     
+    // free memory
+    delete[] controls;
     delete redcap;
     
     // show a cluster map
