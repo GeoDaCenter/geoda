@@ -24,12 +24,14 @@
 
 #include <vector>
 #include <set>
-#include <map>
+
+#include <boost/unordered_map.hpp>
 
 #include "../ShapeOperations/GalWeight.h"
 
 
 using namespace std;
+using namespace boost;
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -39,8 +41,10 @@ using namespace std;
 class RedCapNode
 {
 public:
-    RedCapNode(int id, double val);
+    RedCapNode(int id, const vector<double>& value);
+    
     RedCapNode(RedCapNode* node);
+    
     ~RedCapNode();
     
     void AddNeighbor(RedCapNode* node);
@@ -48,7 +52,8 @@ public:
     void RemoveNeighbor(RedCapNode* node);
     
     int id; // mapping to record id
-    double value; // value of node itself
+    
+    const vector<double>& value;
     
     std::set<RedCapNode*> neighbors;
 };
@@ -70,6 +75,7 @@ public:
     
 protected:
     double weight;
+    
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +95,7 @@ public:
     
     void Merge(RedCapCluster* cluster);
     
-    map<RedCapNode*, bool> node_dict;
+    unordered_map<RedCapNode*, bool> node_dict;
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -125,16 +131,24 @@ protected:
 class SpatialContiguousTree
 {
 public:
-    SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<double>& _data, const vector<bool>& _undefs);
+    SpatialContiguousTree(const vector<RedCapNode*>& all_nodes,
+                          const vector<vector<double> >& _data,
+                          const vector<bool>& _undefs);
     
-    SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, map<int, RedCapNode*> ids_dict, const vector<double>& _data, const vector<bool>& _undefs);
+    SpatialContiguousTree(RedCapNode* graph,
+                          RedCapNode* exclude_node,
+                          unordered_map<int, RedCapNode*> ids_dict,
+                          const vector<vector<double> >& _data,
+                          const vector<bool>& _undefs);
     
     ~SpatialContiguousTree();
     
     // all nodes info
-    map<RedCapNode*, bool> all_nodes_dict;
+    unordered_map<RedCapNode*, bool> all_nodes_dict;
     
-    map<int, RedCapNode*> ids_dict;
+    unordered_map<int, RedCapNode*> ids_dict;
+    
+    double heterogeneity;
     
     // should be a set of edges
     vector<RedCapEdge*> edges;
@@ -142,39 +156,36 @@ public:
     bool AddEdge(RedCapEdge* edge);
    
     void AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b);
-    
+   
     void Split();
     
     SpatialContiguousTree* GetLeftChild();
     
     SpatialContiguousTree* GetRightChild();
     
-    double heterogeneity;
    
 protected:
     
     RedCapNode* root;
     
-    vector<double> data;
+    const vector<vector<double> >& data;
     
-    vector<bool> undefs;
+    const vector<bool>& undefs;
     
     SpatialContiguousTree* left_child;
     
     SpatialContiguousTree* right_child;
     
-    double calc_heterogeneity();
-    
-    // check if all odes are included in the graph
-    SpatialContiguousTree* findSubTree(RedCapNode* node, RedCapNode* exclude_node);
-    
     vector<RedCapNode*> new_nodes;
     
+    double calcHeterogeneity();
+    
+    // check if all odes are included in the graph
 };
 
 //////////////////////////////////////////////////////////////////////////////////
 //
-// 1 FirstOrderSLKRedCap
+// AbstractRedcap
 //
 //////////////////////////////////////////////////////////////////////////////////
 /*! A REDCAP class */
@@ -183,7 +194,7 @@ class AbstractRedcap
 {
 public:
     
-    AbstractRedcap();
+    AbstractRedcap(const vector<vector<double> >& data, const vector<bool>& undefs);
     
     //! A Deconstructor
     /*!
@@ -191,7 +202,7 @@ public:
      */
     virtual ~AbstractRedcap();
 
-    void init(vector<double> data, vector<bool> undefs, GalElement* w);
+    void init(GalElement* w);
     
     // check if complete graph, no islands
     bool checkFirstOrderEdges();
@@ -206,12 +217,12 @@ protected:
     
     int num_obs;
     
-    vector<double> data;
+    int num_vars;
     
-    vector<bool> undefs;
+    const vector<vector<double> >& data;
     
-    vector<vector<int> > cluster_ids;
-    
+    const vector<bool>& undefs; // any one item is undef will cause whole row undef
+
     vector<RedCapNode*> all_nodes;
     
     vector<RedCapEdge*> first_order_edges;
@@ -222,23 +233,34 @@ protected:
     
     vector<SpatialContiguousTree*> regions;
     
-    
+    vector<vector<int> > cluster_ids;
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//
+// FirstOrderSLKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
 class FirstOrderSLKRedCap : public AbstractRedcap
 {
 public:
     FirstOrderSLKRedCap();
-    FirstOrderSLKRedCap(vector<double> data, vector<bool> undefs, GalElement * w);
+    FirstOrderSLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w);
     virtual ~FirstOrderSLKRedCap();
     
     virtual void Clustering();
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//
+// 2 FirstOrderALKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
 class FirstOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderALKRedCap();
+    FirstOrderALKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs);
+    
     virtual ~FirstOrderALKRedCap();
     
     virtual void Clustering();

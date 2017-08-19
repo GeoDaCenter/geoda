@@ -27,6 +27,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "../ShapeOperations/GalWeight.h"
 #include "../logger.h"
@@ -35,6 +36,7 @@
 #include "redcap.h"
 
 using namespace std;
+using namespace boost;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -42,16 +44,16 @@ using namespace std;
 // RedCapNode
 //
 /////////////////////////////////////////////////////////////////////////
-RedCapNode::RedCapNode(int _id, double _val)
+RedCapNode::RedCapNode(int _id, const vector<double>& _value)
+: value(_value)
 {
     id = _id;
-    value = _val;
 }
 
 RedCapNode::RedCapNode(RedCapNode* node)
+: value(node->value)
 {
     id = node->id;
-    value = node->value;
     
     std::set<RedCapNode*>::iterator it;
     for( it=node->neighbors.begin(); it!=node->neighbors.end(); it++) {
@@ -61,7 +63,6 @@ RedCapNode::RedCapNode(RedCapNode* node)
 
 RedCapNode::~RedCapNode()
 {
-    
 }
 
 void RedCapNode::AddNeighbor(RedCapNode* node)
@@ -84,9 +85,15 @@ RedCapEdge::RedCapEdge(RedCapNode* _a, RedCapNode* _b, double _w)
     a = _a;
     b = _b;
     weight = _w;
+    length = 0;
     
     // no smooth
-    length = abs(a->value - b->value);
+    int n_vars = a->value.size();
+    
+    for (int i=0; i<n_vars; i++) {
+        double diff = a->value[i] - b->value[i];
+        length += diff * diff;
+    }
 }
 
 RedCapEdge::~RedCapEdge()
@@ -98,52 +105,50 @@ RedCapEdge::~RedCapEdge()
 // SpatialContiguousTree
 //
 /////////////////////////////////////////////////////////////////////////
-SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<double>& _data, const vector<bool>& _undefs)
+SpatialContiguousTree::SpatialContiguousTree(const vector<RedCapNode*>& all_nodes, const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: data(_data), undefs(_undefs)
 {
     left_child = NULL;
     right_child = NULL;
     root = NULL;
-    
-    data = _data;
-    undefs = _undefs;
     
     for (int i=0; i<all_nodes.size(); i++) {
         RedCapNode* node = all_nodes[i];
         all_nodes_dict[node] = false; // false means not adding into tree yet
     }
-    
-    heterogeneity = calc_heterogeneity();
+    heterogeneity = calcHeterogeneity();
 }
 
-
-SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, map<int, RedCapNode*> parent_ids_dict, const vector<double>& _data, const vector<bool>& _undefs)
+SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* exclude_node, unordered_map<int, RedCapNode*> parent_ids_dict, const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: data(_data), undefs(_undefs)
 {
+    // create a tree when remove an edge from its parent
+    // from a given node, dont go to branch = exclue_node
+    // also make sure all nodes are valid (within parent_ids)
     left_child = NULL;
     right_child = NULL;
     root = NULL;
-    
-    data = _data;
-    undefs = _undefs;
    
     list<RedCapNode*> stack;
     stack.push_back(graph);
     int num_nodes = 1;
+    std::set<RedCapNode*>::iterator it;
+    RedCapNode* nn = NULL;
     
     while(!stack.empty()){
         RedCapNode* tmp = stack.front();
         stack.pop_front();
         
-        std::set<RedCapNode*> nbrs = tmp->neighbors;
-        std::set<RedCapNode*>::iterator it;
+        std::set<RedCapNode*>& nbrs = tmp->neighbors;
         
         for (it=nbrs.begin(); it!=nbrs.end(); it++) {
-            RedCapNode* nn = *it;
+            nn = *it;
             if (nn->id != exclude_node->id &&
-                ids_dict.find(nn->id) == ids_dict.end() &&
-                parent_ids_dict.find(nn->id) != parent_ids_dict.end())
+                ids_dict.find(nn->id) == ids_dict.end() && // not add yet
+                parent_ids_dict.find(nn->id) != parent_ids_dict.end()) // in parent
             {
                 stack.push_back(nn);
-                AddEdgeDirectly(tmp, nn);
+                AddEdgeDirectly(tmp, nn); // create a copy of nodes
                 num_nodes +=1;
             }
         }
@@ -154,7 +159,7 @@ SpatialContiguousTree::SpatialContiguousTree(RedCapNode* graph, RedCapNode* excl
         root = graph;
         ids_dict[graph->id] = graph;
     }
-    heterogeneity = calc_heterogeneity();
+    heterogeneity = calcHeterogeneity();
 }
 
 SpatialContiguousTree::~SpatialContiguousTree()
@@ -172,7 +177,7 @@ bool SpatialContiguousTree::AddEdge(RedCapEdge *edge)
 {
     bool all_covered = true;
     // check if all nodes are covered by this tree
-    map<RedCapNode*, bool>::iterator it;
+    unordered_map<RedCapNode*, bool>::iterator it;
     for (it=all_nodes_dict.begin(); it!=all_nodes_dict.end(); it++) {
         bool is_node_covered = it->second;
         if (is_node_covered == false) {
@@ -202,6 +207,8 @@ bool SpatialContiguousTree::AddEdge(RedCapEdge *edge)
 
 void SpatialContiguousTree::AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b)
 {
+    // if Node not exists, create a new one, store it
+    
     int aid = _a->id;
     int bid = _b->id;
     
@@ -236,7 +243,6 @@ void SpatialContiguousTree::AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b)
         root = a;
 }
 
-
 void SpatialContiguousTree::Split()
 {
     // search best cut
@@ -248,8 +254,8 @@ void SpatialContiguousTree::Split()
         RedCapNode* a = out_edge->a;
         RedCapNode* b = out_edge->b;
        
-        SpatialContiguousTree* left = findSubTree(a, b);
-        SpatialContiguousTree* right = findSubTree(b, a);
+        SpatialContiguousTree* left = new SpatialContiguousTree(a, b, ids_dict, data, undefs);
+        SpatialContiguousTree* right = new SpatialContiguousTree(b, a, ids_dict, data, undefs);
    
         double hg_sub = heterogeneity - left->heterogeneity - right->heterogeneity;
         
@@ -267,12 +273,6 @@ void SpatialContiguousTree::Split()
     }
 }
 
-SpatialContiguousTree* SpatialContiguousTree::findSubTree(RedCapNode* node, RedCapNode* exclude_node)
-{
-    SpatialContiguousTree* sub_tree = new SpatialContiguousTree(node, exclude_node, ids_dict, data, undefs);
-    return sub_tree;
-}
-
 SpatialContiguousTree* SpatialContiguousTree::GetLeftChild()
 {
     return left_child;
@@ -283,35 +283,33 @@ SpatialContiguousTree* SpatialContiguousTree::GetRightChild()
     return right_child;
 }
 
-double SpatialContiguousTree::calc_heterogeneity()
+double SpatialContiguousTree::calcHeterogeneity()
 {
     // sum of squared deviations
-    vector<double> tmp_data;
-   
-    map<RedCapNode*, bool>::iterator it;
-    for (it=all_nodes_dict.begin(); it!=all_nodes_dict.end(); it++) {
-        RedCapNode* node = it->first;
-        int i = node->id;
-        if (undefs[i]) continue;
-        tmp_data.push_back(data[i]);
+    double sum_ssd = 0;
+    int n_vars = data.size();
+    for (int i=0; i<n_vars; i++) {
+        vector<double> tmp_data;
+        unordered_map<RedCapNode*, bool>::iterator it;
+        for (it=all_nodes_dict.begin(); it!=all_nodes_dict.end(); it++) {
+            RedCapNode* node = it->first;
+            int id = node->id;
+            if (undefs[id]) continue;
+            tmp_data.push_back(data[i][id]);
+        }
+        double ssd = GenUtils::GetVariance(tmp_data);
+        sum_ssd += ssd;
     }
-    double ssd = GenUtils::GetVariance(tmp_data);
-    return ssd;
+    return sum_ssd;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////
 //
-// 1 FirstOrderSLKRedCap
+// AbstractRedcap
 //
 //////////////////////////////////////////////////////////////////////////////////
-
-bool RedCapEdgeLess(RedCapEdge* a, RedCapEdge* b)
-{
-    return a->length < b->length;
-}
-
-AbstractRedcap::AbstractRedcap()
+AbstractRedcap::AbstractRedcap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: data(_data), undefs(_undefs)
 {
     
 }
@@ -327,12 +325,15 @@ AbstractRedcap::~AbstractRedcap()
     }
 }
 
-void AbstractRedcap::init(vector<double> _data, vector<bool> _undefs, GalElement * w)
+bool RedCapEdgeLess(RedCapEdge* a, RedCapEdge* b)
 {
-    data = _data;
-    undefs = _undefs;
-    
+    return a->length < b->length;
+}
+
+void AbstractRedcap::init( GalElement * w)
+{
     num_obs = data.size();
+    num_vars = data[0].size();
     cluster_ids.resize(num_obs);
     
     for (int i=0; i<num_obs; i++) {
@@ -342,7 +343,7 @@ void AbstractRedcap::init(vector<double> _data, vector<bool> _undefs, GalElement
     }
   
     // create first_order_edges
-    map<pair<int, int>, bool> pair_dict;
+    unordered_map<pair<int, int>, bool> pair_dict;
     
     for (int i=0; i<num_obs; i++) {
         if (undefs[i]) continue;
@@ -404,7 +405,7 @@ void AbstractRedcap::Partitioning(int k)
     }
    
     list<SpatialContiguousTree*>::iterator it;
-    map<RedCapNode*, bool>::iterator node_it;
+    unordered_map<RedCapNode*, bool>::iterator node_it;
     
     for (it=sub_trees.begin(); it!=sub_trees.end(); it++) {
         SpatialContiguousTree* _tree = *it;
@@ -450,7 +451,7 @@ void RedCapCluster::AddNode(RedCapNode* node)
 
 void RedCapCluster::Merge(RedCapCluster* cluster)
 {
-    map<RedCapNode*, bool>::iterator it;
+    unordered_map<RedCapNode*, bool>::iterator it;
     for (it=cluster->node_dict.begin(); it!=cluster->node_dict.end(); it++) {
         node_dict[it->first] = true;
     }
@@ -535,9 +536,10 @@ void RedCapClusterManager::mergeClusters(RedCapCluster* cluster1, RedCapCluster*
 // 1 FirstOrderSLKRedCap
 //
 //////////////////////////////////////////////////////////////////////////////////
-FirstOrderSLKRedCap::FirstOrderSLKRedCap(vector<double> data, vector<bool> undefs, GalElement * w)
+FirstOrderSLKRedCap::FirstOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w)
+: AbstractRedcap(_data, _undefs)
 {
-    init(data, undefs, w);
+    init(w);
 }
 
 FirstOrderSLKRedCap::~FirstOrderSLKRedCap()
@@ -570,7 +572,8 @@ void FirstOrderSLKRedCap::Clustering()
 // 2 FirstOrderALKRedCap
 //
 //////////////////////////////////////////////////////////////////////////////////
-FirstOrderALKRedCap::FirstOrderALKRedCap()
+FirstOrderALKRedCap::FirstOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: AbstractRedcap(_data, _undefs)
 {
     
 }

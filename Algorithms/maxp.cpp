@@ -24,7 +24,7 @@
 #include <map>
 #include <list>
 #include <cstdlib>
-
+#include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -34,6 +34,7 @@
 #include "cluster.h"
 #include "maxp.h"
 
+using namespace boost;
 using namespace std;
 
 Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor, vector<double> _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, bool _test)
@@ -65,7 +66,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor,
         
         double best_val = objective_function();
         vector<vector<int> > best_regions;
-        map<int, int> best_area2region;
+        unordered_map<int, int> best_area2region;
 
         int attemps = 0;
         
@@ -75,7 +76,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, int _floor,
         
         for (int i=0; i<initial; i++) {
             vector<vector<int> >& current_regions = regions_group[i];
-            map<int, int>& current_area2region = area2region_group[i];
+            unordered_map<int, int>& current_area2region = area2region_group[i];
             
             if (p_group[i] > 0) {
                 double val = initial_wss[i];
@@ -160,7 +161,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
     double objective_val = 0;
     
     vector<vector<int> > _regions;
-    map<int, int> _area2region;
+    unordered_map<int, int> _area2region;
     
     if (seed_start > 0) srand(seed_start);
     
@@ -179,8 +180,8 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         } else {
             //nonseeds = [i for i in self.w.id_order if i not in seeds]
             // candidates.extend(nonseeds)
-            map<int, bool> cand_dict;
-            map<int, bool>::iterator it;
+            unordered_map<int, bool> cand_dict;
+            unordered_map<int, bool>::iterator it;
             for (int i=0; i<seeds.size(); i++) {
                 cand_dict[ seeds[i] ] = true;
             }
@@ -259,7 +260,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
             break;
         }
         // self.enclaves = enclaves[:]
-        map<int, int> a2r;
+        unordered_map<int, int> a2r;
         for (int i=0; i<regions.size(); i++) {
             for (int j=0; j<regions[i].size(); j++) {
                 a2r[ regions[i][j] ] = i;
@@ -527,7 +528,7 @@ bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
 {
     //Check if the set of ids form a single connected component
     int components = 0;
-    map<int, int> marks;
+    unordered_map<int, int> marks;
     for (int i=0; i<ids.size(); i++) marks[ids[i]] = 0;
     
     list<int> q;

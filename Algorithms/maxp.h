@@ -24,11 +24,12 @@
 
 #include <vector>
 #include <map>
+#include <boost/unordered_map.hpp>
 
 #include "../ShapeOperations/GalWeight.h"
 
-
 using namespace std;
+using namespace boost;
 
 class qvector
 {
@@ -42,9 +43,9 @@ public:
     
 protected:
     vector<int> vdata;
-    map<int, int> mdict;
+    unordered_map<int, int> mdict;
     vector<int>::iterator v_iter;
-    map<int, int>::iterator m_iter;
+    unordered_map<int, int>::iterator m_iter;
 };
 
 /*! A Max-p class */
@@ -124,9 +125,9 @@ protected:
     /*!
      Details. key is area id, value is region id.
      */
-    map<int, int> area2region;
+    unordered_map<int, int> area2region;
     
-    vector<map<int, int> > area2region_group;
+    vector<unordered_map<int, int> > area2region_group;
     
     //! A vector of vector<int> list of lists of regions.
     /*!

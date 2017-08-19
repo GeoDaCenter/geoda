@@ -568,8 +568,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
    
     // run RedCap
-    std::vector<bool> undefs(num_var, false);
-    AbstractRedcap* redcap = new FirstOrderSLKRedCap(z[0], undefs, gw->gal);
+    std::vector<bool> undefs(rows, false);
+    AbstractRedcap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal);
     redcap->Partitioning(n_regions);
     
     vector<vector<int> > cluster_ids = redcap->GetRegions();
