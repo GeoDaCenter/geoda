@@ -128,7 +128,6 @@ public:
    
     bool Update(RedCapEdge* edge);
     
-protected:
     vector<RedCapCluster*> clusters;
     
     RedCapCluster* getCluster(RedCapNode* node);

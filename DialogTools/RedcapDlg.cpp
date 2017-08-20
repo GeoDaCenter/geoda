@@ -348,9 +348,11 @@ void RedcapDlg::InitVariableCombobox(wxListBox* var_box)
     }
     var_box->InsertItems(items,0);
     
+    combo_control_var->Insert("",0);
     for (int i=0; i<items.size(); i++) {
-        combo_control_var->Insert(items[i],i);
+        combo_control_var->Insert(items[i],i+1);
     }
+    combo_control_var->SetSelection(0);
 }
 
 void RedcapDlg::OnClickClose(wxCommandEvent& event )
@@ -539,21 +541,23 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     // get control variables
     vector<double> control_variable(rows, 1);
-    
+    double* controls = NULL;
     int idx = combo_control_var->GetSelection();
-    wxString str_ctrl_var = combo_control_var->GetString(idx);
-    wxString nm = name_to_nm[str_ctrl_var];
-    int col = table_int->FindColId(nm);
-    int tm = name_to_tm_id[str_ctrl_var];
-    if (col == wxNOT_FOUND) {
-        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+    if ( idx > 0) {
+        wxString str_ctrl_var = combo_control_var->GetString(idx);
+        wxString nm = name_to_nm[str_ctrl_var];
+        int col = table_int->FindColId(nm);
+        int tm = name_to_tm_id[str_ctrl_var];
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        table_int->GetColData(col, tm, control_variable);
+        controls = new double[rows];
+        for (int i=0; i<rows; i++) controls[i] = control_variable[i];
     }
-    table_int->GetColData(col, tm, control_variable);
-    double* controls = new double[rows];
-    for (int i=0; i<rows; i++) controls[i] = control_variable[i];
    
     // get number of regions
     int n_regions = 0;
@@ -575,6 +579,13 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     int ncluster = cluster_ids.size();
     
+    if (ncluster < n_regions) {
+        // show message dialog to user
+        wxString warn_str = _("The number of identified clusters is less than ");
+        warn_str << n_regions;
+        wxMessageDialog dlg(NULL, "Warning", warn_str, wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
     vector<wxInt64> clusters(rows, 0);
     vector<bool> clusters_undef(rows, false);
 
@@ -591,7 +602,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     // save to table
     int time=0;
-    col = table_int->FindColId(field_name);
+    int col = table_int->FindColId(field_name);
     if ( col == wxNOT_FOUND) {
         int col_insert_pos = table_int->GetNumberCols();
         int time_steps = 1;
