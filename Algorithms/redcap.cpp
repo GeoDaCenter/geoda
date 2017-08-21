@@ -38,7 +38,6 @@
 using namespace std;
 using namespace boost;
 
-
 typedef map<pair<SpatialContiguousTree*, SpatialContiguousTree*>, double> SubTrees;
 
 /////////////////////////////////////////////////////////////////////////
@@ -452,6 +451,11 @@ bool RedCapEdgeLess(RedCapEdge* a, RedCapEdge* b)
     return a->length < b->length;
 }
 
+bool RedCapEdgeLarger(RedCapEdge* a, RedCapEdge* b)
+{
+    return a->length > b->length;
+}
+
 void AbstractRedcap::init( GalElement * w)
 {
     num_obs = data.size();
@@ -464,8 +468,6 @@ void AbstractRedcap::init( GalElement * w)
     }
   
     // create first_order_edges
-    unordered_map<pair<int, int>, bool> pair_dict;
-    
     for (int i=0; i<num_obs; i++) {
         if (undefs[i]) continue;
         const vector<long>& nbrs = w[i].GetNbrs();
@@ -473,14 +475,14 @@ void AbstractRedcap::init( GalElement * w)
         for (int j=0; j<nbrs.size(); j++) {
             int nbr = nbrs[j];
             if (undefs[nbr] || i == nbr) continue;
-            if (pair_dict.find(make_pair(i,nbr)) == pair_dict.end()) {
+            if (fo_edge_dict.find(make_pair(i,nbr)) == fo_edge_dict.end()) {
                 double w = nbrs_w[nbr];
                 RedCapNode* a = all_nodes[i];
                 RedCapNode* b = all_nodes[nbr];
                 RedCapEdge* e = new RedCapEdge(a, b, w);
                 first_order_edges.push_back(e);
-                pair_dict[make_pair(i,nbr)] = true;
-                pair_dict[make_pair(nbr,i)] = true;
+                fo_edge_dict[make_pair(i,nbr)] = e->length;
+                fo_edge_dict[make_pair(nbr,i)] = e->length;
             }
         }
     }
@@ -519,17 +521,17 @@ void AbstractRedcap::Partitioning(int k)
         SpatialContiguousTree* left_tree = tmp_tree->GetLeftChild();
         SpatialContiguousTree* right_tree = tmp_tree->GetRightChild();
        
-        if (left_tree)
-            sub_trees.push_back(left_tree);
-        if (right_tree)
-            sub_trees.push_back(right_tree);
-        
         if (left_tree== NULL && right_tree ==NULL) {
             break;
             //if (tmp_tree->all_nodes_dict.size()== 1)
                 // only one item, push it back
                 //sub_trees.push_back(tmp_tree);
         }
+        
+        if (left_tree)
+            sub_trees.push_back(left_tree);
+        if (right_tree)
+            sub_trees.push_back(right_tree);
         
         // sort by number of items
         std::sort(sub_trees.begin(), sub_trees.end(), RedCapTreeLess);
@@ -563,8 +565,10 @@ RedCapCluster::RedCapCluster(RedCapEdge* edge)
     node_dict[edge->b] = true;
 }
 
-RedCapCluster::RedCapCluster()
+RedCapCluster::RedCapCluster(RedCapNode* node)
 {
+    // single node cluster
+    node_dict[node] = true;
 }
 
 RedCapCluster::~RedCapCluster()
@@ -579,6 +583,11 @@ bool RedCapCluster::Has(RedCapNode* node)
 void RedCapCluster::AddNode(RedCapNode* node)
 {
     node_dict[node] = true;
+}
+
+void RedCapCluster::AddEdge(RedCapEdge* e)
+{
+    edge_dict[e] = true;
 }
 
 void RedCapCluster::Merge(RedCapCluster* cluster)
@@ -599,36 +608,80 @@ RedCapClusterManager::RedCapClusterManager()
 
 RedCapClusterManager::~RedCapClusterManager()
 {
-    for (int i=0; i<clusters.size(); i++) {
-        delete clusters[i];
+    for (it=clusters.begin(); it!=clusters.end(); it++) {
+        delete it->first;
     }
 }
 
-bool RedCapClusterManager::Update(RedCapEdge* edge)
+RedCapCluster* RedCapClusterManager::Update(RedCapEdge* edge)
 {
+    // updte clusters by adding edge
     bool b_connect_clusters = true;
     RedCapCluster* c1 = getCluster(edge->a);
     RedCapCluster* c2 = getCluster(edge->b);
     
+    RedCapCluster* ret_cluster = NULL;
+    
     if (c1 == NULL && c2 == NULL) {
-        createCluster(edge);
+        ret_cluster = createCluster(edge);
     } else if (c1 == NULL && c2) {
-        mergeToCluster(edge->a, c2);
+        ret_cluster = mergeToCluster(edge->a, c2);
     } else if (c1 && c2 == NULL) {
-        mergeToCluster(edge->b, c1);
+        ret_cluster = mergeToCluster(edge->b, c1);
     } else {
         if (c1 != c2)
-            mergeClusters(c1, c2);
+            ret_cluster = mergeClusters(c1, c2);
         else
             b_connect_clusters = false;
     }
+    return ret_cluster;
+}
+
+bool RedCapClusterManager::HasCluster(RedCapCluster* c)
+{
+    return clusters.find(c) != clusters.end();
+}
+
+bool RedCapClusterManager::CheckConnectivity(RedCapEdge* edge, vector<RedCapCluster*>& l_m)
+{
+    // check if edge connects two clusters l and m, return <l,m>
+    bool b_connect_clusters = true;
+   
+    RedCapCluster* c1 = getCluster(edge->a);
+    RedCapCluster* c2 = getCluster(edge->b);
+  
+    if (c1 != c2) {
+        //  NULL,xxx | xxx, NULL | xxx,yyy
+        b_connect_clusters = false;
+    }
+    
+    l_m.push_back(c1);
+    l_m.push_back(c2);
+    
+    return b_connect_clusters;
+}
+
+bool RedCapClusterManager::CheckConnectivity(RedCapEdge* edge, RedCapCluster* l, RedCapCluster* m)
+{
+    // check if edge connects two clusters l and m
+    bool b_connect_clusters = true;
+    
+    RedCapCluster* c1 = getCluster(edge->a);
+    RedCapCluster* c2 = getCluster(edge->b);
+    
+    if (c1 != c2) {
+        b_connect_clusters = false;
+    } else {
+        b_connect_clusters = (l == c1 && m == c2) || (l ==c2 && m==c1);
+    }
+    
     return b_connect_clusters;
 }
 
 RedCapCluster* RedCapClusterManager::getCluster(RedCapNode* node)
 {
-    for (int i=0; i<clusters.size(); i++) {
-        RedCapCluster* cluster = clusters[i];
+    for (it=clusters.begin(); it!=clusters.end(); it++) {
+        RedCapCluster* cluster = it->first;
         if (cluster->Has(node)) {
             return cluster;
         }
@@ -636,30 +689,60 @@ RedCapCluster* RedCapClusterManager::getCluster(RedCapNode* node)
     return NULL;
 }
 
-void RedCapClusterManager::createCluster(RedCapEdge *edge)
+RedCapCluster* RedCapClusterManager::createCluster(RedCapEdge *edge)
 {
     RedCapCluster* new_cluster = new RedCapCluster(edge);
-    clusters.push_back(new_cluster);
+    clusters[new_cluster] = true;
+    //new_cluster->AddEdge(edge);
+    return new_cluster;
 }
 
-void RedCapClusterManager::mergeToCluster(RedCapNode* node, RedCapCluster* cluster)
+RedCapCluster* RedCapClusterManager::mergeToCluster(RedCapNode* node, RedCapCluster* cluster)
 {
     cluster->AddNode(node);
+    return cluster;
 }
 
-void RedCapClusterManager::mergeClusters(RedCapCluster* cluster1, RedCapCluster* cluster2)
+RedCapCluster* RedCapClusterManager::mergeClusters(RedCapCluster* cluster1, RedCapCluster* cluster2)
 {
     cluster1->Merge(cluster2);
   
-    int idx_to_remove = -1;
-    for (int i=0; i<clusters.size(); i++) {
-        if (clusters[i] == cluster2) {
-            idx_to_remove = i;
+    clusters.erase(clusters.find(cluster2));
+    delete cluster2;
+    
+    return cluster1;
+}
+
+bool RedCapClusterManager::GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length, unordered_map<pair<int, int>, double>& e_dict)
+{
+    double nn = 0;
+    double e_length = 0;
+    unordered_map<RedCapNode*, bool>::iterator it1;
+    unordered_map<RedCapNode*, bool>::iterator it2;
+    for (it1=c1->node_dict.begin(); it1!=c1->node_dict.end(); it1++) {
+        for (it2=c2->node_dict.begin(); it2!=c2->node_dict.end(); it2++) {
+            pair<int, int> p = make_pair((it1->first)->id, (it2->first)->id);
+            if (e_dict.find(p) != e_dict.end()) {
+                nn += 1;
+                e_length += e_dict[p];
+            }
         }
     }
-    delete cluster2;
-    if (idx_to_remove>=0) {
-        clusters.erase(clusters.begin() + idx_to_remove);
+    if (nn > 0) {
+        *length = e_length / nn;
+        return true;
+    }
+    return false;
+}
+
+void RedCapClusterManager::UpdateEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double new_length, vector<RedCapEdge*>& edges)
+{
+    for (int i=0; i<edges.size(); i++) {
+        RedCapNode* a = edges[i]->a;
+        RedCapNode* b = edges[i]->b;
+        if ( (c1->Has(a) && c2->Has(b)) || (c2->Has(a) && c1->Has(b)) ) {
+            edges[i]->length = new_length;
+        }
     }
 }
 
@@ -692,8 +775,8 @@ void FirstOrderSLKRedCap::Clustering()
         RedCapEdge* edge = first_order_edges[i];
         // if an edge connects two different clusters, it is added to T,
         // and the two clusters are merged;
-        bool b_connect_clusters = cm.Update(edge);
-        if (!b_connect_clusters)
+        RedCapCluster* ret_cluster = cm.Update(edge);
+        if (ret_cluster == NULL) // b_connect_clusters = false
             continue;
         bool b_all_node_covered = tree->AddEdge(edge);
         if (b_all_node_covered)
@@ -707,10 +790,12 @@ void FirstOrderSLKRedCap::Clustering()
 // 2 FirstOrderALKRedCap
 //
 //////////////////////////////////////////////////////////////////////////////////
-FirstOrderALKRedCap::FirstOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+FirstOrderALKRedCap::FirstOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
 : AbstractRedcap(_data, _undefs)
 {
-    
+    controls = _controls;
+    control_thres = _control_thres;
+    init(w);
 }
 
 FirstOrderALKRedCap::~FirstOrderALKRedCap()
@@ -718,46 +803,169 @@ FirstOrderALKRedCap::~FirstOrderALKRedCap()
     
 }
 
+/**
+ * The First-Order-ALK method also starts with the spatially contiguous graph G*. However, after each merge, the distance between the new cluster and every other cluster is recalculated. Therefore, edges that connect the new cluster and every other cluster are updated with new length values. Edges in G* are then re-sorted and re-evaluated from the beginning. The procedure stops when all objects are in one cluster. The algorithm is shown in figure 3. The complexity is O(n2log n) due to the sorting after each merge.
+ */
 void FirstOrderALKRedCap::Clustering()
 {
-    int n = first_order_edges.size();
+    // make a copy of first_order_edges
+    vector<RedCapEdge*> E = first_order_edges;
+    
+    int n = E.size();
     
     RedCapClusterManager cm;
     
     unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> avgDist;
     
     // step 1. sort edges based on length
-    std::sort(first_order_edges.begin(), first_order_edges.end(), RedCapEdgeLess);
+    std::sort(E.begin(), E.end(), RedCapEdgeLarger);
     
     // step 2. construct an nxn matrix avgDist to store distances between clusters
     
     // step 3
-    for (int i=0; i<first_order_edges.size(); i++) {
-        RedCapEdge* edge = first_order_edges[i];
+    unordered_map<RedCapCluster*, bool>::iterator it;
+    while (!E.empty()) {
+        // get shortest edge first
+        RedCapEdge* edge = E.back();
+        E.pop_back();
+        
         // if e connects two different clusters l, m, and e.length >= avgDist(l,m)
-        RedCapCluster* l = NULL;
-        RedCapCluster* m = NULL;
-        bool b_connect_clusters = cm.Update(edge, l, m);
-        if (!b_connect_clusters)
+        vector<RedCapCluster*> ret_clusters;
+        cm.CheckConnectivity(edge, ret_clusters);
+        RedCapCluster* l = ret_clusters[0];
+        RedCapCluster* m = ret_clusters[1];
+        RedCapEdge* e = NULL;
+        if (l==NULL || m==NULL) {
+            // always the case of be connecting&mergine, and with at least one new cluster,
+            // so it is always true that e.length >= avgDist(l,m)
+            e = edge;
+            cm.Update(e);
+        } else if (l == m) {
+            // e does NOT connect two diff clusters l, m, but belongs to them
+            // do NOTHING
             continue;
-        if (edge->length < avgDist[make_pair<l,m>])
-            continue;
-        // find shortest edge e' in E that connnect cluster l and m
-        RedCapEdge* e = cm.FindShortestEdge(l,m);
-        // add e'to T ane merge m to l (l is now th new cluster)
-        cm.MergeClusters(m, l);
-        // for each cluster c that is not l
-        for (int j=0; j<cm.clusters.size(); j++) {
-            // avgDist(c, l) = average length of edges in E that connects c and l
-            RedCapCluster* c = cm.clusters[j];
-            avgDist[make_pair<c,l>] = cm.GetAvgEdgeLength(c, l);
-            // update the legnth of edge(c,l) in E with avgDist(c, l)
-            cm.UpdateEdgeLength(c, l) = avgDist[make_pair<c,l>];
+        } else {
+            // case of merge two existing clusters l and m
+            pair<RedCapCluster*, RedCapCluster*> l_m = make_pair(l, m);
+            //if (edge->length < avgDist[l_m]) // if no key, return 0?   why ???
+            //    continue;
+            // find shortest edge e' in E that connnect cluster l and m
+            e = edge; // just in case no e' can be found
+            for (int j=0; j<E.size(); j++) {
+                RedCapEdge* tmp_e = E[j];
+                if (cm.CheckConnectivity(tmp_e, l, m)) {
+                    if (tmp_e->length < e->length)
+                        e = tmp_e;
+                }
+            }
+            // add e'to T ane merge m to l (l is now th new cluster)
+            l = cm.Update(e);
+            
+             // for each cluster c that is not l
+             bool dist_changed = false;
+             for (it=cm.clusters.begin(); it!=cm.clusters.end(); it++) {
+             RedCapCluster* c = it->first;
+             if (c == l)
+             continue;
+             // avgDist(c, l) = average length of edges in E that connects c and l
+             double avg_length=0;
+             bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, fo_edge_dict);
+             if (is_connect == false)
+             continue;
+             avgDist[make_pair(c, l)] = avg_length;
+             // update the legnth of edge(c,l) in E with avgDist(c, l)
+             cm.UpdateEdgeLength(c, l, avg_length, E);
+             dist_changed = true;
+             }
+             
+             // sort all edges in E and set e = shortest one in the list
+             if (dist_changed)
+             sort(E.begin(), E.end(), RedCapEdgeLarger);
         }
-        // sort all edges in E and set e = shortest one in the list
-        // stop when all nodes are covered by this tree
         bool b_all_node_covered = tree->AddEdge(e);
+        // stop when all nodes are covered by this tree
         if (b_all_node_covered)
             break;
     }
+    tree->edges.size();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+// 3 FirstOrderCLKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
+FirstOrderCLKRedCap::FirstOrderCLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: AbstractRedcap(_data, _undefs)
+{
+    
+}
+
+FirstOrderCLKRedCap::~FirstOrderCLKRedCap()
+{
+    
+}
+
+void FirstOrderCLKRedCap::Clustering()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+// 4 FullOrderSLKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
+FullOrderSLKRedCap::FullOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* controls, double control_thres)
+: AbstractRedcap(_data, _undefs)
+{
+    
+}
+
+FullOrderSLKRedCap::~FullOrderSLKRedCap()
+{
+    
+}
+
+void FullOrderSLKRedCap::Clustering()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+// 5 FullOrderALKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
+FullOrderALKRedCap::FullOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: AbstractRedcap(_data, _undefs)
+{
+    
+}
+
+FullOrderALKRedCap::~FullOrderALKRedCap()
+{
+    
+}
+
+void FullOrderALKRedCap::Clustering()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+// 6 FullOrderCLKRedCap
+//
+//////////////////////////////////////////////////////////////////////////////////
+FullOrderCLKRedCap::FullOrderCLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs)
+: AbstractRedcap(_data, _undefs)
+{
+    
+}
+
+FullOrderCLKRedCap::~FullOrderCLKRedCap()
+{
+    
+}
+
+void FullOrderCLKRedCap::Clustering()
+{
 }

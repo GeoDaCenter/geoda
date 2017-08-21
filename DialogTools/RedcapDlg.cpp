@@ -572,7 +572,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
    
     // run RedCap
     std::vector<bool> undefs(rows, false);
-    AbstractRedcap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
+    //AbstractRedcap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
+    AbstractRedcap* redcap = new FirstOrderALKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
     redcap->Partitioning(n_regions);
     
     vector<vector<int> > cluster_ids = redcap->GetRegions();
