@@ -250,6 +250,9 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
         
 		if (is_clust) {
 			num_cats += 3;
+            // in Local Join Count, don't display Low category
+            if (gs_coord->is_local_joint_count)
+                num_cats -= 1;
             
 		} else {
             int set_perm = gs_coord->permutations;
@@ -280,21 +283,19 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
 			cat_data.SetCategoryLabel(t, 1, str_high);
 			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
-			cat_data.SetCategoryLabel(t, 2, str_low);
-            if (gs_coord->is_local_joint_count)
-                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_sig]);
-            else 
-                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
             
-			if (gs_coord->GetHasIsolates(t) &&
-				gs_coord->GetHasUndefined(t))
-            {
-				isolates_cat = 3;
-				undefined_cat = 4;
+            if (!gs_coord->is_local_joint_count) {
+                cat_data.SetCategoryLabel(t, 2, str_low);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_sig]);
+            }
+        
+			if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
+				isolates_cat = 3 - gs_coord->is_local_joint_count;
+				undefined_cat = 4 - gs_coord->is_local_joint_count;
 			} else if (gs_coord->GetHasUndefined(t)) {
-				undefined_cat = 3;
+				undefined_cat = 3 - gs_coord->is_local_joint_count;
 			} else if (gs_coord->GetHasIsolates(t)) {
-				isolates_cat = 3;
+				isolates_cat = 3 - gs_coord->is_local_joint_count;
 			}
             
 		} else {
@@ -833,6 +834,12 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     
 	wxString g_label = is_gi ? "G" : "G*";
 	wxString g_field_default = is_gi ? "G" : "G_STR";
+    
+    if (gs_coord->is_local_joint_count) {
+        title = "Save Results: Local Join Count-stats";
+        g_label = "JC";
+        g_field_default = "JC";
+    }
 	
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, is_gi, is_perm, c_val);
@@ -860,7 +867,10 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	}
 	for (int i=0; i<gs_coord->num_obs; i++) p_val[i] = p_val_t[i];
 	
-	std::vector<SaveToTableEntry> data(is_perm ? 3 : 4);
+    int num_data = is_perm ? 3: 4;
+     // drop C_ID for local JC, add NN and NN_1
+    if (gs_coord->is_local_joint_count) num_data += 1;
+	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs(gs_coord->num_obs, false);
     
     for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
@@ -876,12 +886,14 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	data[data_i].type = GdaConst::double_type;
     data[data_i].undefined = &undefs;
 	data_i++;
-	data[data_i].l_val = &c_val;
-	data[data_i].label = c_label;
-	data[data_i].field_default = c_field_default;
-	data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
+    if (gs_coord->is_local_joint_count == false) {
+    	data[data_i].l_val = &c_val;
+    	data[data_i].label = c_label;
+    	data[data_i].field_default = c_field_default;
+    	data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
+    }
 	if (!is_perm) {
 		data[data_i].d_val = &z_val;
 		data[data_i].label = "z-score";
@@ -890,12 +902,39 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
 		data_i++;
 	}
-	data[data_i].d_val = &p_val;
-	data[data_i].label = p_label;
-	data[data_i].field_default = p_field_default;
-	data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
+    if (gs_coord->is_local_joint_count == false) {
+    	data[data_i].d_val = &p_val;
+    	data[data_i].label = p_label;
+    	data[data_i].field_default = p_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
+    } else {
+        vector<bool> c_undefs(gs_coord->num_obs, true);
+        for (size_t i=0; i<gs_coord->num_obs; i++) {
+            if (c_val[i] == 1) c_undefs[i] = false;
+        }
+    	data[data_i].d_val = &p_val;
+    	data[data_i].label = p_label;
+    	data[data_i].field_default = p_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &c_undefs;
+    	data_i++;
+        
+        data[data_i].l_val = &gs_coord->num_neighbors;
+        data[data_i].label = "Number of Neighbors";
+        data[data_i].field_default = "NN";
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+        
+        data[data_i].l_val = &gs_coord->num_neighbors_1[t];
+        data[data_i].label = "Number of Neighbors with Value 1";
+        data[data_i].field_default = "NN_1";
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+    }
 	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));

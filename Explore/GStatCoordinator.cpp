@@ -216,7 +216,7 @@ void GStatCoordinator::DeallocateVectors()
 	
 	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
 	x_vecs.clear();
-   
+    
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
         if (has_undefined[i]) {
@@ -262,7 +262,11 @@ void GStatCoordinator::AllocateVectors()
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
     
+    num_neighbors.resize(num_obs);
+    num_neighbors_1.resize(tms);
+    
 	for (int i=0; i<tms; i++) {
+        num_neighbors_1[i].resize(num_obs);
 		G_vecs[i] = new double[num_obs];
 		G_defined_vecs[i] = new bool[num_obs];
 		for (int j=0; j<num_obs; j++) G_defined_vecs[i][j] = true;
@@ -336,6 +340,20 @@ void GStatCoordinator::InitFromVarInfo()
         }
         
 		x = x_vecs[t];
+        
+        if (is_local_joint_count) {
+            // count neighbors and neighors with 1
+            for (int i=0; i<num_obs; i++) {
+                num_neighbors[i] = W[i].Size();
+                num_neighbors_1[t][i] = 0;
+                for (int j=0; j< W[i].Size(); j++) {
+                    if (x[W[i][j]] == 1) {
+                        num_neighbors_1[t][i] += 1;
+                    }
+                }
+            }
+        }
+        
 		for (int i=0; i<num_obs; i++) {
 			if ( W[i].Size() > 0 ) {
 				n[t]++;
@@ -412,11 +430,12 @@ void GStatCoordinator::FillClusterCats(int canvas_time,
 			c_val[i] = 3; // isolate
 		} else if (p_val[i] <= significance_cutoff) {
 			c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
+            
             if (is_local_joint_count) {
                 if (c_val[i] == 1 && x_vecs[t][i] != 1)
-                    c_val[i] = 0; // 0 surround 1
-                else if (c_val[i] == 2 && x_vecs[t][i] != 0)
-                    c_val[i] = 0; // 1 surround 0
+                    c_val[i] = 0; // 0 was surrounded by 1
+                else if (c_val[i] == 2)
+                    c_val[i] = 0; // ignore all LOW clusters
             }
 		} else {
 			c_val[i] = 0; // not significant

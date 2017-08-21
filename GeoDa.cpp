@@ -3652,7 +3652,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
         GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
     }
     if (!LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
+        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, LWO.m_RowStand);
     }
 }
 

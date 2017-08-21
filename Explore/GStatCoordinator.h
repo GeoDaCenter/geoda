@@ -133,8 +133,10 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 	std::vector<double> n; // # non-neighborless observations
-	
+
+    // a special case Local Join Count
     bool is_local_joint_count;
+    
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded
 	std::vector<double> x_sstar; // sum of all (x_i)^2
@@ -148,7 +150,11 @@ public:
 	std::vector<double> VarGstar;
 	// since W is row-standardized, sdGstar same for all i
 	std::vector<double> sdGstar;
-	
+    // number of neighbors
+    vector<wxInt64> num_neighbors;
+    // number of neighbors with 1
+    std::vector<std::vector<wxInt64> > num_neighbors_1;
+    
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below

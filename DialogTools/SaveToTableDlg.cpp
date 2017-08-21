@@ -135,7 +135,7 @@ void SaveToTableDlg::CreateControls()
 		//if (is_space_time) {
 		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//}
-        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 2);
+        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_LEFT, 2);
         fg_sizer->Add(m_txt_field[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
 	
