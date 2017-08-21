@@ -154,6 +154,9 @@ public:
     bool GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length,
                             unordered_map<pair<int, int>, double>& fo_edge_dict);
     
+    bool GetMaxEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length,
+                            unordered_map<pair<int, int>, double>& fo_edge_dict);
+    
     void UpdateEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double length,
                           vector<RedCapEdge*>& edges);
 };
@@ -337,7 +340,7 @@ public:
 class FirstOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs);
+    FirstOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
     
     virtual ~FirstOrderCLKRedCap();
     
@@ -370,7 +373,7 @@ public:
 class FullOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderALKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs);
+    FullOrderALKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
     
     virtual ~FullOrderALKRedCap();
     
@@ -387,7 +390,7 @@ public:
 class FullOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs);
+    FullOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
     
     virtual ~FullOrderCLKRedCap();
     
