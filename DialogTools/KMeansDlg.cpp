@@ -113,15 +113,18 @@ void KMeansDlg::CreateControls()
     wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(250,250), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
+    m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
+    m_weight_centroids = new wxCheckBox(panel, wxID_ANY, _("Use select variables weights centroids"));
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(cbox, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(m_weight_centroids, 0, wxLEFT | wxRIGHT, 10);
     
     if (project->IsTableOnlyProject()) {
-        cbox->Disable();
+        m_use_centroids->Disable();
     }
+    m_weight_centroids->Disable();
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
@@ -216,12 +219,10 @@ void KMeansDlg::CreateControls()
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
-    
+    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
-                                      wxSize(70, 30));
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition, wxSize(70, 30));
     //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
@@ -233,9 +234,8 @@ void KMeansDlg::CreateControls()
     // Container
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
-    
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
@@ -248,16 +248,13 @@ void KMeansDlg::CreateControls()
     SetAutoLayout(true);
     sizerAll->Fit(this);
 
-    
     Centre();
-
     
     // Content
     InitVariableCombobox(box);
     combo_n = box1;
     m_textbox = box3;
     combo_var = box;
-    m_use_centroids = cbox;
     m_iterations = box11;
     m_pass = box10;
     m_method = box12;
@@ -270,10 +267,21 @@ void KMeansDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
+    m_use_centroids->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnUseCentroids, this);
     
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(KMeansDlg::OnDistanceChoice),
                         NULL, this);
+}
+
+void KMeansDlg::OnUseCentroids(wxCommandEvent& event)
+{
+    if (m_use_centroids->IsChecked()) {
+        m_weight_centroids->Enable();
+    } else {
+        m_weight_centroids->SetValue(false);
+        m_weight_centroids->Disable();
+    }
 }
 
 void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
@@ -489,36 +497,28 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<var_info.size(); i++) {
         table_int->GetColData(col_ids[i], data[i]);
     }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
     
     // if use centroids
     if (use_centroids) {
         columns += 2;
     }
+   
+    if (!m_weight_centroids->IsChecked()) {
+        // get columns (if time variables show)
+        for (int i=0; i<data.size(); i++ ){
+            for (int j=0; j<data[i].size(); j++) {
+                columns += 1;
+            }
+        }
+    }
+    
     double* weight = new double[columns];
-    for (int j=0; j<columns; j++){ weight[j] = 1;}
+    for (int j=0; j<columns; j++){
+        weight[j] = 1;
+    }
     
     int transform = combo_tranform->GetSelection();
-    int npass = 10;
-    wxString str_pass = m_pass->GetValue();
-    long value_pass;
-    if(str_pass.ToLong(&value_pass)) {
-        npass = value_pass;
-    }
     
-    int n_maxiter = 300; // max iteration of EM
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        n_maxiter = value;
-    }
-    
-    int* clusterid = new int[rows];
     // init input_data[rows][cols]
     double** input_data = new double*[rows];
     int** mask = new int*[rows];
@@ -532,23 +532,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     
     // assign value
     int col_ii = 0;
-    for (int i=0; i<data.size(); i++ ){ // col
-        for (int j=0; j<data[i].size(); j++) { // time
-            std::vector<double> vals;
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
-            }
-            for (int k=0; k< rows;k++) { // row
-                input_data[k][col_ii] = vals[k];
-            }
-            col_ii += 1;
-        }
-    }
+    
     if (use_centroids) {
         std::vector<GdaPoint*> cents = project->GetCentroids();
         std::vector<double> cent_xs;
@@ -569,7 +553,68 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             input_data[i][col_ii + 1] = cent_ys[i];
         }
     }
-   
+    if (!m_weight_centroids->IsChecked()) {
+        for (int i=0; i<data.size(); i++ ){ // col
+            for (int j=0; j<data[i].size(); j++) { // time
+                std::vector<double> vals;
+                for (int k=0; k< rows;k++) { // row
+                    vals.push_back(data[i][j][k]);
+                }
+                if (transform == 2) {
+                    GenUtils::StandardizeData(vals);
+                } else if (transform == 1 ) {
+                    GenUtils::DeviationFromMean(vals);
+                }
+                for (int k=0; k< rows;k++) { // row
+                    input_data[k][col_ii] = vals[k];
+                }
+                col_ii += 1;
+            }
+        }
+    } else if (use_centroids){
+        // all selected variable will be used to weight centroids
+        vector<double> cw(rows);
+        for (int i=0; i<data.size(); i++ ){ // col
+            for (int j=0; j<data[i].size(); j++) { // time
+                std::vector<double> vals;
+                for (int k=0; k< rows;k++) { // row
+                    vals.push_back(data[i][j][k]);
+                }
+                if (transform == 2) {
+                    GenUtils::StandardizeData(vals);
+                } else if (transform == 1 ) {
+                    GenUtils::DeviationFromMean(vals);
+                }
+                for (int k=0; k< rows;k++) { // row
+                    cw[k] += vals[k];
+                }
+                col_ii += 1;
+            }
+        }
+        for (int i=0; i<rows;i++){
+            for (int j=0; j<columns; j++) {
+                input_data[i][j] *= cw[i];
+            }
+        }
+    }
+    
+    int npass = 10;
+    wxString str_pass = m_pass->GetValue();
+    long value_pass;
+    if(str_pass.ToLong(&value_pass)) {
+        npass = value_pass;
+    }
+    
+    int n_maxiter = 300; // max iteration of EM
+    wxString iterations = m_iterations->GetValue();
+    long value;
+    if(iterations.ToLong(&value)) {
+        n_maxiter = value;
+    }
+    
+    int* clusterid = new int[rows];
+    
+    // start working
     int n_threads = boost::thread::hardware_concurrency();
     if (n_threads > npass) n_threads = 1;
     
@@ -589,7 +634,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         it->second.clear();
     }
     sub_clusters.clear();
-    
+   
     boost::thread_group threadPool;
     for (int i=0; i<n_threads; i++) {
         int a = dividers[i];

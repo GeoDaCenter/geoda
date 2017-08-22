@@ -50,6 +50,7 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
+    void OnUseCentroids(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -77,6 +78,7 @@ private:
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
+    wxCheckBox* m_weight_centroids;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
 
