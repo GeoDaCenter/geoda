@@ -80,6 +80,10 @@ public:
     wxChoice* m_var;
 	wxChoice* m_var_tm;
     wxTextCtrl* m_text;
+    wxCheckBox* m_row_stand;
+    wxCheckBox* m_self_neighbor;
+    
+    
 	Project* project;
 	WeightsManInterface* w_man_int;
 	TableInterface* table_int;

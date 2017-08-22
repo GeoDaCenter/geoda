@@ -84,6 +84,11 @@ void FieldNewCalcLagDlg::CreateControls()
     InitTime(m_var_tm);
 	m_text = XRCCTRL(*this, "IDC_EDIT6", wxTextCtrl);
 	m_text->SetMaxLength(0);
+    
+    // ID_LAG_USE_ROWSTAND_W  ID_LAG_INCLUDE_DIAGNOAL_W
+    m_row_stand = XRCCTRL(*this, "ID_LAG_USE_ROWSTAND_W", wxCheckBox);
+    m_self_neighbor = XRCCTRL(*this, "ID_LAG_INCLUDE_DIAGNOAL_W", wxCheckBox);
+    
 }
 
 void FieldNewCalcLagDlg::Apply()
@@ -183,7 +188,19 @@ void FieldNewCalcLagDlg::Apply()
 					lag += data[elm_i[j]];
 				}
 			}
-			r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();
+            r_data[i] =  0;
+            if (r_undefined[i]==false) {
+                if (m_self_neighbor->IsChecked() ) {
+                    lag += data[i];
+                }
+                int nn = W[i].Size();
+                if (m_self_neighbor)
+                    nn += 1;
+                if (m_row_stand->IsChecked())
+                    lag = nn > 0 ? lag / nn : 0;
+                r_data[i] = lag;
+            }
+			//r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();
 		}
 		table_int->SetColData(result_col, time_list[t], r_data);
 		table_int->SetColUndefined(result_col, time_list[t], r_undefined);

@@ -5330,8 +5330,8 @@
         <border>5</border>
       </object>
       <object class="sizeritem">
-        <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-        <border>5</border>
+        <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxADJUST_MINSIZE</flag>
+        <border>25</border>
         <object class="wxStaticText" name="ID_STATICTEXT2">
           <label>=</label>
         </object>
@@ -5368,14 +5368,14 @@
                   <orient>wxHORIZONTAL</orient>
                 </object>
                 <flag>wxALL|wxALIGN_CENTER</flag>
-                <border>3</border>
+                <border>0</border>
               </object>
               <object class="sizeritem">
                 <object class="wxChoice" name="IDC_CURRENTUSED_W">
                   <size>220,-1d</size>
                 </object>
                 <flag>wxALL|wxGROW|wxALIGN_CENTER</flag>
-                <border>3</border>
+                <border>0</border>
               </object>
               <orient>wxVERTICAL</orient>
             </object>
@@ -5388,13 +5388,13 @@
                   <label>Variable</label>
                 </object>
                 <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
-                <border>3</border>
+                <border>0</border>
               </object>
               <object class="sizeritem">
                 <object class="wxChoice" name="IDC_LAG_OPERAND">
                   <size>80,-1d</size>
                 </object>
-                <flag>wxALL|wxALIGN_CENTER</flag>
+                <flag>wxBOTTOM|wxALIGN_CENTER</flag>
                 <border>3</border>
               </object>
               <object class="sizeritem">
@@ -5415,7 +5415,28 @@
               <style>wxTE_READONLY</style>
             </object>
             <flag>wxALL|wxGROW|wxALIGN_LEFT</flag>
-            <border>5</border>
+            <border>0</border>
+          </object>
+          <object class="sizeritem">
+              <object class="wxBoxSizer">
+                  <object class="sizeritem">
+                      <object class="wxCheckBox" name="ID_LAG_USE_ROWSTAND_W">
+                          <checked>1</checked>
+                          <label>Use row-standardized weights</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxCheckBox" name="ID_LAG_INCLUDE_DIAGNOAL_W">
+                          <checked>0</checked>
+                          <label>Include diagnoal of weights matrix</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
+                  <orient>wxVERTICAL</orient>
+              </object>
+            <flag>wxTOP|wxALIGN_CENTER</flag>
+            <border>25</border>
           </object>
         </object>
       </object>
