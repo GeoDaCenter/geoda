@@ -418,7 +418,7 @@ void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, 
     int ifound;
     int* clusterid = new int[rows];
     
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound);
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound,5);
     
     vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
@@ -552,6 +552,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             input_data[i][col_ii + 0] = cent_xs[i];
             input_data[i][col_ii + 1] = cent_ys[i];
         }
+        col_ii = 2;
     }
     if (!m_weight_centroids->IsChecked()) {
         for (int i=0; i<data.size(); i++ ){ // col
@@ -571,9 +572,9 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
                 col_ii += 1;
             }
         }
-    } else if (use_centroids){
+    } else if (m_weight_centroids->IsChecked() && use_centroids){
         // all selected variable will be used to weight centroids
-        vector<double> cw(rows);
+        vector<double> cw(rows, 1);
         for (int i=0; i<data.size(); i++ ){ // col
             for (int j=0; j<data[i].size(); j++) { // time
                 std::vector<double> vals;

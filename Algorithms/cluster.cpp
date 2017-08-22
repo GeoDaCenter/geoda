@@ -2494,7 +2494,7 @@ static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[])
+  int tclusterid[], int counts[], int mapping[], int min_k)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2549,7 +2549,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       /* Calculate the distances */
       { double distance;
         k = tclusterid[i];
-        if (counts[k]==1) continue;
+        if (counts[k]==min_k) continue;
         /* No reassignment if that would lead to an empty cluster */
         /* Treat the present cluster as a special case */
         distance = metric(ndata,data,cdata,mask,cmask,weight,i,k,transpose);
@@ -2717,7 +2717,7 @@ void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, dou
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
   int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound)
+  int clusterid[], double* error, int* ifound, int min_k)
 /*
 Purpose
 =======
@@ -2868,11 +2868,11 @@ number of clusters is larger than the number of elements being clustered,
     /* kmeans but with KMeans++ algorithm*/
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                      transpose, 1, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                     tclusterid, counts, mapping);
+                     tclusterid, counts, mapping, min_k);
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                     transpose, 0, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                    tclusterid, counts, mapping);
+                    tclusterid, counts, mapping, min_k);
     
   /* Deallocate temporarily used space */
   if (npass > 1)
