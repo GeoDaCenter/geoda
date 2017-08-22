@@ -418,7 +418,7 @@ void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, 
     int ifound;
     int* clusterid = new int[rows];
     
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound,5);
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound,1);
     
     vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {

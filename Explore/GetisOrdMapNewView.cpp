@@ -912,7 +912,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     	data_i++;
     } else {
         for (size_t i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1)
+            if (c_val[i] == 1)
                 c_undefs[i] = false;
         }
     	data[data_i].d_val = &p_val;
