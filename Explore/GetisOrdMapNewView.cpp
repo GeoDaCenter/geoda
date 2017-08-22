@@ -872,6 +872,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     if (gs_coord->is_local_joint_count) num_data += 1;
 	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs(gs_coord->num_obs, false);
+    std::vector<bool> c_undefs(gs_coord->num_obs, true);
     
     for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
         for (size_t j=0; j<gs_coord->x_undefs[i].size(); j++) {
@@ -910,9 +911,9 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
     	data_i++;
     } else {
-        vector<bool> c_undefs(gs_coord->num_obs, true);
         for (size_t i=0; i<gs_coord->num_obs; i++) {
-            if (c_val[i] == 1) c_undefs[i] = false;
+            if (gs_coord->x_vecs[t][i] == 1)
+                c_undefs[i] = false;
         }
     	data[data_i].d_val = &p_val;
     	data[data_i].label = p_label;

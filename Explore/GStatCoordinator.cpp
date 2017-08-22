@@ -428,14 +428,16 @@ void GStatCoordinator::FillClusterCats(int canvas_time,
             
         } else if (W[i].Size() == 0) {
 			c_val[i] = 3; // isolate
-		} else if (p_val[i] <= significance_cutoff) {
-			c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
             
-            if (is_local_joint_count) {
-                if (c_val[i] == 1 && x_vecs[t][i] != 1)
-                    c_val[i] = 0; // 0 was surrounded by 1
-                else if (c_val[i] == 2)
-                    c_val[i] = 0; // ignore all LOW clusters
+		} else if (p_val[i] <= significance_cutoff) {
+            if (is_local_joint_count == false) {
+                c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
+                
+            } else {
+                if (x_vecs[t][i] == 1 && z_val[i] > 0)
+                    c_val[i] = 1;
+                else
+                    c_val[i] = 0;
             }
 		} else {
 			c_val[i] = 0; // not significant
