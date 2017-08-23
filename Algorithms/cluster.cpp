@@ -2569,6 +2569,16 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       if (total>=previous) break;
       /* total>=previous is FALSE on some machines even if total and previous
        * are bitwise identical. */
+        bool not_good = false;
+     for (j = 0; j < nclusters; j++)
+     {
+         if (counts[j] < min_k) {
+             not_good = true;
+             break;
+         }
+     }
+        if (not_good)
+            break;
       for (i = 0; i < nelements; i++)
         if (saved[i]!=tclusterid[i]) break;
       if (i==nelements)

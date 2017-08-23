@@ -64,6 +64,7 @@ wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxDefaultSize,
 
     parent = parent_s;
     project = project_s;
+    min_k = 1;
     
     bool init_success = Init();
     
@@ -102,6 +103,14 @@ void KMeansDlg::update(FramesManager* o)
 
 void KMeansDlg::CreateControls()
 {
+    wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
+    wxArrayString list;
+    wxString valid_chars(wxT("0123456789"));
+    size_t len = valid_chars.Length();
+    for (size_t i=0; i<len; i++)
+        list.Add(wxString(valid_chars.GetChar(i)));
+    validator.SetIncludes(list);
+    
     wxPanel *panel = new wxPanel(this);
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
@@ -129,7 +138,6 @@ void KMeansDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
     
-    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxSize(128,-1));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
@@ -139,6 +147,12 @@ void KMeansDlg::CreateControls()
     box1->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
+    
+    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Min # per Cluster:"),
+                                         wxDefaultPosition, wxSize(128,-1));
+    m_min_k = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(200,-1), 0, validator);
+    gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_min_k, 1, wxEXPAND);
     
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
@@ -186,7 +200,7 @@ void KMeansDlg::CreateControls()
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("300"), wxDefaultPosition, wxSize(200,-1));
+    wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("1000"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
     
@@ -268,10 +282,32 @@ void KMeansDlg::CreateControls()
     chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
     m_use_centroids->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnUseCentroids, this);
+   
+    m_min_k->Connect(wxEVT_TEXT, wxCommandEventHandler(KMeansDlg::OnSetMinK), NULL, this);
+    //m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    
     
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(KMeansDlg::OnDistanceChoice),
                         NULL, this);
+}
+
+void KMeansDlg::OnSetMinK(wxCommandEvent& event)
+{
+    wxString tmp_val = m_min_k->GetValue();
+    tmp_val.Trim(false);
+    tmp_val.Trim(true);
+    long input_min_k;
+    bool is_valid = tmp_val.ToLong(&input_min_k);
+    if (is_valid) {
+        int ncluster = combo_n->GetSelection() + 2;
+        int good_val = num_obs / (double)ncluster;
+        if (input_min_k <= good_val) {
+            m_min_k->SetForegroundColour(*wxBLACK);
+        } else {
+            m_min_k->SetForegroundColour(*wxRED);
+        }
+    }
 }
 
 void KMeansDlg::OnUseCentroids(wxCommandEvent& event)
@@ -418,7 +454,7 @@ void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, 
     int ifound;
     int* clusterid = new int[rows];
     
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound,1);
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, min_k);
     
     vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
@@ -433,7 +469,19 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     wxLogMessage("Click KMeansDlg::OnOK");
     
     int ncluster = combo_n->GetSelection() + 2;
-    
+    wxString tmp_val = m_min_k->GetValue();
+    long _min_k = 1;
+    if (tmp_val.ToLong(&_min_k)) {
+        int good_val = num_obs / (double)ncluster;
+        if (_min_k > good_val) {
+            wxString err_msg = wxString::Format(_("The value for minimum number per cluster should be less than %d."), good_val);
+            wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        min_k = _min_k;
+    }
+ 
     bool use_centroids = m_use_centroids->GetValue();
     
     wxArrayInt selections;
@@ -640,8 +688,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<n_threads; i++) {
         int a = dividers[i];
         int b = dividers[i+1];
-        printf("a=%d,b=%d\n", a, b);
-        //boost::thread* worker = new boost::thread(boost::bind(&kcluster, ncluster, rows, columns, input_data, mask, weight, transpose, b-a, n_maxiter, method, dist, clusterid, &error, &ifound));
         boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, rows, columns, input_data, mask, weight, b-a+1, n_maxiter));
         
         threadPool.add_thread(worker);

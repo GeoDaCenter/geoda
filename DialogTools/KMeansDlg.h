@@ -51,6 +51,7 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnUseCentroids(wxCommandEvent& event);
+    void OnSetMinK(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -81,6 +82,7 @@ private:
     wxCheckBox* m_weight_centroids;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
+    wxTextCtrl* m_min_k;
 
     wxChoice* m_method;
     wxChoice* m_distance;
@@ -90,6 +92,7 @@ private:
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
     
+    int min_k;
     unsigned int row_lim;
     unsigned int col_lim;
     std::vector<float> scores;
