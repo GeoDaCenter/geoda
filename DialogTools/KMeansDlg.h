@@ -52,6 +52,7 @@ public:
     void OnDistanceChoice(wxCommandEvent& event);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSetMinK(wxCommandEvent& event);
+    void OnSlider(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -79,10 +80,11 @@ private:
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxCheckBox* m_use_centroids;
-    wxCheckBox* m_weight_centroids;
+    wxSlider* m_weight_centroids;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     wxTextCtrl* m_min_k;
+    wxTextCtrl* m_wc_txt;
 
     wxChoice* m_method;
     wxChoice* m_distance;

@@ -123,12 +123,27 @@ void KMeansDlg::CreateControls()
                                    wxSize(250,250), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
-    m_weight_centroids = new wxCheckBox(panel, wxID_ANY, _("Use select variables weights centroids"));
+    
+    wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"),
+                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, _("0"));
+    wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, _("1"));
+    m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    m_wc_txt = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(40,-1), 0, validator);
+    m_wc_txt->Disable();
+    wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
+    hbox_w->Add(st_wc, 0, wxRIGHT, 5);
+    hbox_w->Add(st_w0, 0);
+    hbox_w->Add(m_weight_centroids, 0, wxEXPAND);
+    hbox_w->Add(st_w1, 0);
+    hbox_w->Add(m_wc_txt, 0, wxALIGN_TOP|wxLEFT, 5);
+                                            
+                                            
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
-    hbox0->Add(m_weight_centroids, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
     
     if (project->IsTableOnlyProject()) {
         m_use_centroids->Disable();
@@ -148,7 +163,7 @@ void KMeansDlg::CreateControls()
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box1, 1, wxEXPAND);
     
-    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Min # per Cluster:"),
+    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Minimum Size:"),
                                          wxDefaultPosition, wxSize(128,-1));
     m_min_k = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(200,-1), 0, validator);
     gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -284,12 +299,20 @@ void KMeansDlg::CreateControls()
     m_use_centroids->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnUseCentroids, this);
    
     m_min_k->Connect(wxEVT_TEXT, wxCommandEventHandler(KMeansDlg::OnSetMinK), NULL, this);
+	m_weight_centroids->Bind(wxEVT_SLIDER, &KMeansDlg::OnSlider, this);
     //m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     
     
     m_distance->Connect(wxEVT_CHOICE,
                         wxCommandEventHandler(KMeansDlg::OnDistanceChoice),
                         NULL, this);
+}
+
+void KMeansDlg::OnSlider(wxCommandEvent& ev)
+{
+    int val = m_weight_centroids->GetValue();
+    wxString t_val = wxString::Format("%.2f", val/100.0);
+    m_wc_txt->SetValue(t_val);
 }
 
 void KMeansDlg::OnSetMinK(wxCommandEvent& event)
@@ -483,6 +506,10 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
  
     bool use_centroids = m_use_centroids->GetValue();
+  
+    if (use_centroids && m_weight_centroids->GetValue() == 0) {
+        use_centroids = false;
+    }
     
     wxArrayInt selections;
     combo_var->GetSelections(selections);
@@ -545,24 +572,44 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<var_info.size(); i++) {
         table_int->GetColData(col_ids[i], data[i]);
     }
-    
+  
     // if use centroids
     if (use_centroids) {
         columns += 2;
     }
    
-    if (!m_weight_centroids->IsChecked()) {
-        // get columns (if time variables show)
-        for (int i=0; i<data.size(); i++ ){
-            for (int j=0; j<data[i].size(); j++) {
-                columns += 1;
-            }
+    // get columns (if time variables show)
+    for (int i=0; i<data.size(); i++ ){
+        for (int j=0; j<data[i].size(); j++) {
+            columns += 1;
         }
     }
     
+    double wc = 1;
+    if (use_centroids && m_use_centroids->IsChecked()) {
+        int sel_wc = m_weight_centroids->GetValue();
+        wc = sel_wc / 100.0;
+    }
+    
     double* weight = new double[columns];
-    for (int j=0; j<columns; j++){
-        weight[j] = 1;
+    if (use_centroids && m_use_centroids->IsChecked() ) {
+        if (wc == 0.5) {
+            for (int j=0; j<columns; j++){
+                    weight[j] = 1;
+            }
+        } else {
+            for (int j=0; j<columns; j++){
+                if (j==0 || j==1)
+                    weight[j] = wc;
+                else
+                    weight[j] = 1 - wc;
+            }
+        }
+        
+    } else {
+        for (int j=0; j<columns; j++){
+            weight[j] = 1;
+        }
     }
     
     int transform = combo_tranform->GetSelection();
@@ -602,48 +649,21 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         }
         col_ii = 2;
     }
-    if (!m_weight_centroids->IsChecked()) {
-        for (int i=0; i<data.size(); i++ ){ // col
-            for (int j=0; j<data[i].size(); j++) { // time
-                std::vector<double> vals;
-                for (int k=0; k< rows;k++) { // row
-                    vals.push_back(data[i][j][k]);
-                }
-                if (transform == 2) {
-                    GenUtils::StandardizeData(vals);
-                } else if (transform == 1 ) {
-                    GenUtils::DeviationFromMean(vals);
-                }
-                for (int k=0; k< rows;k++) { // row
-                    input_data[k][col_ii] = vals[k];
-                }
-                col_ii += 1;
+    for (int i=0; i<data.size(); i++ ){ // col
+        for (int j=0; j<data[i].size(); j++) { // time
+            std::vector<double> vals;
+            for (int k=0; k< rows;k++) { // row
+                vals.push_back(data[i][j][k]);
             }
-        }
-    } else if (m_weight_centroids->IsChecked() && use_centroids){
-        // all selected variable will be used to weight centroids
-        vector<double> cw(rows, 1);
-        for (int i=0; i<data.size(); i++ ){ // col
-            for (int j=0; j<data[i].size(); j++) { // time
-                std::vector<double> vals;
-                for (int k=0; k< rows;k++) { // row
-                    vals.push_back(data[i][j][k]);
-                }
-                if (transform == 2) {
-                    GenUtils::StandardizeData(vals);
-                } else if (transform == 1 ) {
-                    GenUtils::DeviationFromMean(vals);
-                }
-                for (int k=0; k< rows;k++) { // row
-                    cw[k] += vals[k];
-                }
-                col_ii += 1;
+            if (transform == 2) {
+                GenUtils::StandardizeData(vals);
+            } else if (transform == 1 ) {
+                GenUtils::DeviationFromMean(vals);
             }
-        }
-        for (int i=0; i<rows;i++){
-            for (int j=0; j<columns; j++) {
-                input_data[i][j] *= cw[i];
+            for (int k=0; k< rows;k++) { // row
+                input_data[k][col_ii] = vals[k];
             }
+            col_ii += 1;
         }
     }
     
