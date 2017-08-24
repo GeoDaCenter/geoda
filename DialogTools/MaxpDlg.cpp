@@ -589,7 +589,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     bool use_floor = chk_floor->GetValue();
     if (use_floor) {
         int idx = combo_floor->GetSelection();
-        wxString nm = name_to_nm[combo_lisa->GetString(idx)];
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);

@@ -67,6 +67,7 @@
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
+		A4F5D61F1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F5D61D1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp */; };
 		A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F875751E94123F0079734E /* KMeansDlg.cpp */; };
 		DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD00ADE711138A2C008FE572 /* TemplateFrame.cpp */; };
 		DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD0DC4B813CBA7B10022B65A /* RangeSelectionDlg.cpp */; };
@@ -354,6 +355,8 @@
 		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Guerry.png; path = BuildTools/CommonDistFiles/web_plugins/Guerry.png; sourceTree = "<group>"; };
+		A4F5D61D1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractClusterDlg.cpp; sourceTree = "<group>"; };
+		A4F5D61E1F4EA0D2007ADF25 /* AbstractClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterDlg.h; sourceTree = "<group>"; };
 		A4F875751E94123F0079734E /* KMeansDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KMeansDlg.cpp; sourceTree = "<group>"; };
 		A4F875761E94123F0079734E /* KMeansDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMeansDlg.h; sourceTree = "<group>"; };
 		DD00ADE611138A2C008FE572 /* TemplateFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemplateFrame.h; sourceTree = "<group>"; };
@@ -883,6 +886,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4F5D61D1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp */,
+				A4F5D61E1F4EA0D2007ADF25 /* AbstractClusterDlg.h */,
 				A4320FC61F4735020007BE0D /* RedcapDlg.cpp */,
 				A4320FC71F4735020007BE0D /* RedcapDlg.h */,
 				A43D12501F20AE450073D408 /* SpectralClusteringDlg.h */,
@@ -1506,6 +1511,7 @@
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
 				DDDBF2AE163AD3AB0070610C /* ConditionalHistogramView.cpp in Sources */,
 				DD4E8B86164818A70014F1E7 /* ConnectivityHistView.cpp in Sources */,
+				A4F5D61F1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp in Sources */,
 				DD8FACE11649595D007598CE /* DataMovieDlg.cpp in Sources */,
 				DDA462FF164D785500EBBD8F /* TableState.cpp in Sources */,
 				DDE3F5081677C46500D13A2C /* CatClassification.cpp in Sources */,

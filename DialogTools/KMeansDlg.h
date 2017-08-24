@@ -28,20 +28,20 @@
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "AbstractClusterDlg.h"
 
 using namespace std;
 
 class Project;
 class TableInterface;
 	
-class KMeansDlg : public wxDialog, public FramesManagerObserver
+class KMeansDlg : public AbstractClusterDlg
 {
 public:
     KMeansDlg(wxFrame *parent, Project* project);
     virtual ~KMeansDlg();
     
     void CreateControls();
-    bool Init();
     
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
@@ -50,57 +50,33 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
-    void OnUseCentroids(wxCommandEvent& event);
-    void OnSetMinK(wxCommandEvent& event);
-    void OnSlider(wxCommandEvent& event);
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
     
     void doRun(int ncluster, int rows, int columns, double** input_data, int** mask, double weight[], int npass, int n_maxiter);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
-    
+
 private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
-    
     wxCheckBox* chk_seed;
-    wxListBox* combo_var;
     wxChoice* combo_method;
     wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
-    wxSlider* m_weight_centroids;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
-    wxTextCtrl* m_min_k;
-    wxTextCtrl* m_wc_txt;
-
+    
     wxChoice* m_method;
     wxChoice* m_distance;
     
     wxButton* seedButton;
     
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
     
-    int min_k;
     unsigned int row_lim;
     unsigned int col_lim;
     std::vector<float> scores;
     double thresh95;
    
-    int num_obs;
     int max_n_clusters;
     
     map<double, vector<wxInt64> > sub_clusters;

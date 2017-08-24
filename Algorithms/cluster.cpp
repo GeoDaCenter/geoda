@@ -2494,7 +2494,7 @@ static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[], int min_k)
+  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2510,7 +2510,9 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   if (saved==NULL) return -1;
 
   *error = DBL_MAX;
-
+   
+  double* bounds = (double*)malloc(nclusters*sizeof(double));
+    
   do
   { double total = DBL_MAX;
     int counter = 0;
@@ -2549,7 +2551,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       /* Calculate the distances */
       { double distance;
         k = tclusterid[i];
-        if (counts[k]==min_k) continue;
+        if (counts[k]==1) continue;
         /* No reassignment if that would lead to an empty cluster */
         /* Treat the present cluster as a special case */
         distance = metric(ndata,data,cdata,mask,cmask,weight,i,k,transpose);
@@ -2566,19 +2568,11 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
         }
         total += distance;
       }
+
       if (total>=previous) break;
       /* total>=previous is FALSE on some machines even if total and previous
        * are bitwise identical. */
-        bool not_good = false;
-     for (j = 0; j < nclusters; j++)
-     {
-         if (counts[j] < min_k) {
-             not_good = true;
-             break;
-         }
-     }
-        if (not_good)
-            break;
+        
       for (i = 0; i < nelements; i++)
         if (saved[i]!=tclusterid[i]) break;
       if (i==nelements)
@@ -2589,7 +2583,22 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     { *error = total;
       break;
     }
-
+////////////////////////////////////////////
+        if (min_bound > 0) {
+        for (j = 0; j < nclusters; j++) bounds[j] = 0;
+        for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+        bool not_good = false;
+        for (j = 0; j < nclusters; j++)
+        {
+         if (bounds[j] < min_bound) {
+             not_good = true;
+             break;
+         }
+        }
+        if (not_good)
+            continue;
+        }
+////////////////////////////////////////////
     for (i = 0; i < nclusters; i++) mapping[i] = -1;
     for (i = 0; i < nelements; i++)
     { j = tclusterid[i];
@@ -2607,6 +2616,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     if (i==nelements) ifound++; /* break statement not encountered */
   } while (++ipass < npass);
 
+  free(bounds);
   free(saved);
   return ifound;
 }
@@ -2727,7 +2737,7 @@ void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, dou
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
   int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound, int min_k)
+  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound)
 /*
 Purpose
 =======
@@ -2878,11 +2888,11 @@ number of clusters is larger than the number of elements being clustered,
     /* kmeans but with KMeans++ algorithm*/
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                      transpose, 1, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                     tclusterid, counts, mapping, min_k);
+                     tclusterid, counts, mapping, bound_vals, min_bound);
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                     transpose, 0, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                    tclusterid, counts, mapping, min_k);
+                    tclusterid, counts, mapping, bound_vals, min_bound);
     
   /* Deallocate temporarily used space */
   if (npass > 1)
