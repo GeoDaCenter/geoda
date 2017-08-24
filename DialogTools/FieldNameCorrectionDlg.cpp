@@ -592,17 +592,38 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        wxString title)
 : wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxPanel *panel = new wxPanel(this);
     
-	fieldPane = new ScrolledWidgetsPane(this, wxID_ANY, ds_type, all_fname);
-	need_correction = fieldPane->need_correction;
+    // panel
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    fieldPane = new ScrolledWidgetsPane(panel, wxID_ANY,
+                                        ds_type,
+                                        all_fname);
+    need_correction = fieldPane->need_correction;
     
-    sizer->Add(fieldPane, 1, wxALL| wxEXPAND, 20);
-	//sizer->Fit(this);
-    this->SetSizer(sizer);
-	// this part makes the scrollbars show up
-	//this->FitInside(); 
-	//sizer->SetSizeHints(this);
+    // buttons
+    wxButton* ok_btn = new wxButton(panel, wxID_OK, _("OK"));
+    wxButton* exit_btn = new wxButton(panel, wxID_CANCEL, _("Cancel"));
+    wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+    btnSizer->Add(ok_btn, 1, wxALIGN_CENTER|wxALL,15);
+    btnSizer->Add(exit_btn, 1, wxALIGN_CENTER|wxALL,15);
+    
+    vbox->Add(fieldPane, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(btnSizer, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox,1, wxEXPAND|wxALL, 0);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    
+    Centre();
 }
 
 FieldNameCorrectionDlg::
