@@ -1006,9 +1006,7 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-    
-  //result /= tweight;
-  // squared
+  result /= tweight;
   return result;
 }
 
@@ -4777,4 +4775,155 @@ when microarrays are being clustered.
   }
   /* Never get here */
   return -2.0;
+}
+
+/* ******************************************************************** */
+
+double** mds(int nrows, int ncolumns, double** data, int** mask,
+         double weight[], int transpose, char dist, char method, double** distmatrix, int low_dim)
+
+/*
+ Purpose
+ =======
+ 
+ Multidimensional Scaling - Given a matrix of interpoint distances,
+ find a set of low dimensional points that have similar interpoint
+ distances.
+ 
+ The routine returns the distance in double precision.
+ If the parameter transpose is set to a nonzero value, the clusters are
+ interpreted as clusters of microarrays, otherwise as clusters of gene.
+ 
+ Arguments
+ =========
+ */
+{
+    //https://github.com/stober/mds/blob/master/src/mds.py
+    
+    int n = (transpose==0) ? ncolumns : nrows;
+    const int ldistmatrix = (distmatrix==NULL && method!='s') ? 1 : 0;
+    
+    /* Calculate the distance matrix if the user didn't give it */
+    if(ldistmatrix)
+    { distmatrix =
+        distancematrix(nrows, ncolumns, data, mask, weight, dist, transpose);
+        if (!distmatrix) return NULL; /* Insufficient memory */
+    }
+
+    int i, j;
+    double** E;
+    
+    /* Set up the ragged array */
+    E = (double**)malloc(n*sizeof(double*));
+    if(E==NULL) return NULL; /* Not enough memory available */
+    E[0] = NULL;
+    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
+    for (i = 1; i < n; i++)
+    { E[i] = (double*)malloc(i*sizeof(double));
+        if (E[i]==NULL) break; /* Not enough memory available */
+    }
+    if (i < n) /* break condition encountered */
+    { j = i;
+        for (i = 1; i < j; i++) free(E[i]);
+            return NULL;
+    }
+    
+    double sum_E = 0, avg_E = 0;
+    /* Calculate the distances and save them in the ragged array */
+    /*  E = (-0.5 * d**2) */
+    for (i = 0; i < n; i++) {
+        for (j = i; j < n; j++) {
+            E[i][j]= -0.5 * distmatrix[i][j] *  distmatrix[i][j];
+            E[j][i] = E[i][j];
+        }
+    }
+    for (i = 0; i < n; i++)
+        for (j = 0; j < n; j++)  sum_E += E[i][j];
+    avg_E = sum_E / (double)n;
+    
+    
+    /* Er = mat(mean(E,1)) */
+    double* Er = (double*)malloc(n*sizeof(double));
+    for (i=0; i<n; i++) {
+        double row_sum;
+        for (j=0;j<n;j++) {
+            row_sum += E[i][j];
+        }
+        Er[i] = row_sum / (double) n;
+    }
+    
+    /* Es = mat(mean(E,0)) */
+    double* Es = (double*)malloc(n*sizeof(double));
+    for (i=0; i<n; i++) {
+        double col_sum;
+        for (j=0;j<n;j++) {
+            col_sum += E[j][i];
+        }
+        Es[i] = col_sum / (double) n;
+    }
+
+    /* # From Principles of Multivariate Analysis: A User's Perspective (page 107). */
+    /* F = array(E - transpose(Er) - Es + mean(E)) */
+    double** F;
+    F = (double**)malloc(n*sizeof(double*));
+    if(F==NULL) return NULL; /* Not enough memory available */
+    F[0] = NULL;
+    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
+    for (i = 1; i < n; i++)
+    { F[i] = (double*)malloc(i*sizeof(double));
+        if (F[i]==NULL) break; /* Not enough memory available */
+    }
+    if (i < n) /* break condition encountered */
+    { j = i;
+        for (i = 1; i < j; i++) free(F[i]);
+        return NULL;
+    }
+    
+    for (i=0; i<n; i++) {
+        for (j=0; j<n; j++) {
+            F[i][j] = E[i][j] - Er[j] - Es[j] + avg_E;
+        }
+    }
+    
+    /* [U, S, V] = svd(F) */
+    double** V;
+    double* S;
+    
+    V = (double**)malloc(n*sizeof(double*));
+    if(V==NULL) return NULL; /* Not enough memory available */
+    V[0] = NULL;
+    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
+    for (i = 1; i < n; i++)
+    { V[i] = (double*)malloc(i*sizeof(double));
+        if (V[i]==NULL) break; /* Not enough memory available */
+    }
+    if (i < n) /* break condition encountered */
+    { j = i;
+        for (i = 1; i < j; i++) free(V[i]);
+        return NULL;
+    }
+    
+    S = (double*)malloc(n*sizeof(double));
+    
+    int error = svd(nrows, ncolumns, F, S, V);
+    if (error==0)
+    {
+        for (i=0;i<n;i++) S[i] = sqrt(S[i]);
+        /*  U = F */
+        /*  Y = U * sqrt(S) */
+        for (i=0;i<n;i++)
+            for (j=0;j<n;j++)
+                F[i][j] = F[i][j] * S[j];
+        
+        /* return (Y[:,0:dimensions], S) */
+    }
+    for (i = 0; i < n; i++) free(E[i]);
+    for (i = 0; i < n; i++) free(F[i]);
+    for (i = 0; i < n; i++) free(V[i]);
+    free(E);
+    free(F);
+    free(V);
+    free(Er);
+    free(Es);
+    free(S);
 }

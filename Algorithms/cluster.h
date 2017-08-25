@@ -103,4 +103,7 @@ double median (int n, double x[]);
 double* calculate_weights(int nrows, int ncolumns, double** data, int** mask,
   double weights[], int transpose, char dist, double cutoff, double exponent);
 
+/* Xun */
+double** mds(int nrows, int ncolumns, double** data, int** mask,
+         double weight[], int transpose, char dist, char method, double** distmatrix, int low_dim);
 #endif
