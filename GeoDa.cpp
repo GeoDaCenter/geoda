@@ -121,6 +121,7 @@
 #include "DialogTools/HClusterDlg.h"
 #include "DialogTools/CreateGridDlg.h"
 #include "DialogTools/RedcapDlg.h"
+#include "DialogTools/MDSDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -615,7 +616,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
-	
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_3DP"), proj_open);
@@ -1896,7 +1897,7 @@ void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
     for (it=observers.begin(); it != observers.end(); ++it) {
-        if (MaxpDlg* w = dynamic_cast<MaxpDlg*>(*it)) {
+        if (RedcapDlg* w = dynamic_cast<RedcapDlg*>(*it)) {
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -1905,6 +1906,27 @@ void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
     }
     
     RedcapDlg* dlg = new RedcapDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnToolsDataMDS(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MDSDlg* w = dynamic_cast<MDSDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    MDSDlg* dlg = new MDSDlg(this, p);
     dlg->Show(true);
 }
 
@@ -2657,6 +2679,9 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
                                        proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,
                                        XRCID("ID_TOOLS_DATA_REDCAP"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_MDS"),
                                        proj_open);
         
         PopupMenu(popupMenu, wxDefaultPosition);
@@ -6342,6 +6367,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
     EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_MDS"), GdaFrame::OnToolsDataMDS)
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)

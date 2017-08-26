@@ -428,6 +428,9 @@
           <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
               <label>REDCAP</label>
           </object>
+          <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
+              <label>MDS</label>
+          </object>
       </object>
       <label>E&amp;xplore</label>
     </object>
@@ -4232,6 +4235,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
           <label>REDCAP</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
+          <label>MDS</label>
       </object>
   </object>
   <object class="wxMenu" name="ID_MORAN_MENU">

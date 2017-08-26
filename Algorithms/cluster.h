@@ -105,5 +105,5 @@ double* calculate_weights(int nrows, int ncolumns, double** data, int** mask,
 
 /* Xun */
 double** mds(int nrows, int ncolumns, double** data, int** mask,
-         double weight[], int transpose, char dist, char method, double** distmatrix, int low_dim);
+             double weight[], int transpose, char dist, double** distmatrix, int low_dim);
 #endif

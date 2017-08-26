@@ -4780,7 +4780,7 @@ when microarrays are being clustered.
 /* ******************************************************************** */
 
 double** mds(int nrows, int ncolumns, double** data, int** mask,
-         double weight[], int transpose, char dist, char method, double** distmatrix, int low_dim)
+         double weight[], int transpose, char dist, double** distmatrix, int low_dim)
 
 /*
  Purpose
@@ -4800,8 +4800,8 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
 {
     //https://github.com/stober/mds/blob/master/src/mds.py
     
-    int n = (transpose==0) ? ncolumns : nrows;
-    const int ldistmatrix = (distmatrix==NULL && method!='s') ? 1 : 0;
+    int n = (transpose==0) ? nrows : ncolumns;
+    const int ldistmatrix = distmatrix==NULL ? 1 : 0;
     
     /* Calculate the distance matrix if the user didn't give it */
     if(ldistmatrix)
@@ -4818,21 +4818,23 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     if(E==NULL) return NULL; /* Not enough memory available */
     E[0] = NULL;
     /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
-    for (i = 1; i < n; i++)
+    for (i = 0; i < n; i++)
     { E[i] = (double*)malloc(i*sizeof(double));
         if (E[i]==NULL) break; /* Not enough memory available */
     }
     if (i < n) /* break condition encountered */
     { j = i;
-        for (i = 1; i < j; i++) free(E[i]);
+        for (i = 0; i < j; i++) free(E[i]);
             return NULL;
     }
     
     double sum_E = 0, avg_E = 0;
     /* Calculate the distances and save them in the ragged array */
     /*  E = (-0.5 * d**2) */
-    for (i = 0; i < n; i++) {
-        for (j = i; j < n; j++) {
+    for (i = 0; i < n; i++) 
+        for (j = 0; j < i; j++) E[i][j] = 0;
+    for (i = 1; i < n; i++) {
+        for (j = 0; j < i; j++) {
             E[i][j]= -0.5 * distmatrix[i][j] *  distmatrix[i][j];
             E[j][i] = E[i][j];
         }
@@ -4844,6 +4846,7 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     
     /* Er = mat(mean(E,1)) */
     double* Er = (double*)malloc(n*sizeof(double));
+    if(Er==NULL) return NULL; /* Not enough memory available */
     for (i=0; i<n; i++) {
         double row_sum;
         for (j=0;j<n;j++) {
@@ -4854,6 +4857,7 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     
     /* Es = mat(mean(E,0)) */
     double* Es = (double*)malloc(n*sizeof(double));
+    if(Es==NULL) return NULL; /* Not enough memory available */
     for (i=0; i<n; i++) {
         double col_sum;
         for (j=0;j<n;j++) {
@@ -4869,13 +4873,13 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     if(F==NULL) return NULL; /* Not enough memory available */
     F[0] = NULL;
     /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
-    for (i = 1; i < n; i++)
+    for (i = 0; i < n; i++)
     { F[i] = (double*)malloc(i*sizeof(double));
         if (F[i]==NULL) break; /* Not enough memory available */
     }
     if (i < n) /* break condition encountered */
     { j = i;
-        for (i = 1; i < j; i++) free(F[i]);
+        for (i = 0; i < j; i++) free(F[i]);
         return NULL;
     }
     
@@ -4888,22 +4892,36 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     /* [U, S, V] = svd(F) */
     double** V;
     double* S;
+    double** Y;
     
     V = (double**)malloc(n*sizeof(double*));
     if(V==NULL) return NULL; /* Not enough memory available */
     V[0] = NULL;
-    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
-    for (i = 1; i < n; i++)
+    for (i = 0; i < n; i++)
     { V[i] = (double*)malloc(i*sizeof(double));
         if (V[i]==NULL) break; /* Not enough memory available */
     }
     if (i < n) /* break condition encountered */
     { j = i;
-        for (i = 1; i < j; i++) free(V[i]);
+        for (i = 0; i < j; i++) free(V[i]);
         return NULL;
     }
     
     S = (double*)malloc(n*sizeof(double));
+    if(S==NULL) return NULL; /* Not enough memory available */
+    
+    Y = (double**)malloc(n*sizeof(double*));
+    if(Y==NULL) return NULL; /* Not enough memory available */
+    Y[0] = NULL;
+    for (i = 0; i < low_dim; i++)
+    { Y[i] = (double*)malloc(i*sizeof(double));
+        if (Y[i]==NULL) break; /* Not enough memory available */
+    }
+    if (i < low_dim) /* break condition encountered */
+    { j = i;
+        for (i = 0; i < j; i++) free(Y[i]);
+        return NULL;
+    }
     
     int error = svd(nrows, ncolumns, F, S, V);
     if (error==0)
@@ -4914,16 +4932,23 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         for (i=0;i<n;i++)
             for (j=0;j<n;j++)
                 F[i][j] = F[i][j] * S[j];
-        
+      
         /* return (Y[:,0:dimensions], S) */
+        for (i=0;i<n;i++)
+            for (j=0;j<low_dim;j++)
+                Y[i][j] = F[i][j];
     }
     for (i = 0; i < n; i++) free(E[i]);
     for (i = 0; i < n; i++) free(F[i]);
     for (i = 0; i < n; i++) free(V[i]);
+    for (i = 0; i < low_dim; i++) free(Y[i]);
     free(E);
     free(F);
     free(V);
+    free(Y);
     free(Er);
     free(Es);
     free(S);
+    
+    return Y;
 }
