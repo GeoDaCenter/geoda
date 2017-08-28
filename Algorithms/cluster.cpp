@@ -4813,81 +4813,71 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     int i, j;
     double** E;
     
-    /* Set up the ragged array */
     E = (double**)malloc(n*sizeof(double*));
     if(E==NULL) return NULL; /* Not enough memory available */
-    E[0] = NULL;
-    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
     for (i = 0; i < n; i++)
-    { E[i] = (double*)malloc(i*sizeof(double));
+    { E[i] = (double*)malloc(n*sizeof(double));
         if (E[i]==NULL) break; /* Not enough memory available */
-    }
-    if (i < n) /* break condition encountered */
-    { j = i;
-        for (i = 0; i < j; i++) free(E[i]);
-            return NULL;
     }
     
     double sum_E = 0, avg_E = 0;
     /* Calculate the distances and save them in the ragged array */
     /*  E = (-0.5 * d**2) */
     for (i = 0; i < n; i++) 
-        for (j = 0; j < i; j++) E[i][j] = 0;
-    for (i = 1; i < n; i++) {
+        for (j = 0; j < n; j++)
+            E[i][j] = 0;
+    for (i = 1; i < n; i++) { /* only through half of the matrix*/
         for (j = 0; j < i; j++) {
             E[i][j]= -0.5 * distmatrix[i][j] *  distmatrix[i][j];
             E[j][i] = E[i][j];
+            sum_E = sum_E + E[i][j] + E[i][j];
         }
     }
-    for (i = 0; i < n; i++)
-        for (j = 0; j < n; j++)  sum_E += E[i][j];
     avg_E = sum_E / (double)n;
-    
+    //printf("sumE:%f, avg_E:%f\n", sum_E, avg_E);
     
     /* Er = mat(mean(E,1)) */
     double* Er = (double*)malloc(n*sizeof(double));
     if(Er==NULL) return NULL; /* Not enough memory available */
     for (i=0; i<n; i++) {
-        double row_sum;
+        double row_sum = 0;;
         for (j=0;j<n;j++) {
             row_sum += E[i][j];
         }
         Er[i] = row_sum / (double) n;
+        //printf("n=%d, row_sum=%f, Er[%d]:%f\n", n, row_sum, i, Er[i]);
     }
     
     /* Es = mat(mean(E,0)) */
     double* Es = (double*)malloc(n*sizeof(double));
     if(Es==NULL) return NULL; /* Not enough memory available */
     for (i=0; i<n; i++) {
-        double col_sum;
+        double col_sum = 0;
         for (j=0;j<n;j++) {
             col_sum += E[j][i];
         }
         Es[i] = col_sum / (double) n;
+        //printf("Es[%d]:%f\n", i, Es[i]);
     }
 
     /* # From Principles of Multivariate Analysis: A User's Perspective (page 107). */
     /* F = array(E - transpose(Er) - Es + mean(E)) */
-    double** F;
-    F = (double**)malloc(n*sizeof(double*));
+    double** F = (double**)malloc(n*sizeof(double*));
     if(F==NULL) return NULL; /* Not enough memory available */
-    F[0] = NULL;
-    /* The zeroth row has zero columns. We allocate it anyway for convenience.*/
     for (i = 0; i < n; i++)
-    { F[i] = (double*)malloc(i*sizeof(double));
+    { F[i] = (double*)malloc(n*sizeof(double));
         if (F[i]==NULL) break; /* Not enough memory available */
     }
-    if (i < n) /* break condition encountered */
-    { j = i;
-        for (i = 0; i < j; i++) free(F[i]);
-        return NULL;
-    }
     
+    for (i=0; i<n; i++)
+        for (j=0; j<n; j++) F[i][j] = 0;
     for (i=0; i<n; i++) {
         for (j=0; j<n; j++) {
             F[i][j] = E[i][j] - Er[j] - Es[j] + avg_E;
         }
     }
+    //printf("E[0][0]=%f,E[0][1]=%f\n", E[0][0], E[0][1]);
+    //printf("F[0][0]=%f,F[0][1]=%f\n", F[0][0], F[0][1]);
     
     /* [U, S, V] = svd(F) */
     double** V;
@@ -4896,15 +4886,9 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     
     V = (double**)malloc(n*sizeof(double*));
     if(V==NULL) return NULL; /* Not enough memory available */
-    V[0] = NULL;
     for (i = 0; i < n; i++)
-    { V[i] = (double*)malloc(i*sizeof(double));
+    { V[i] = (double*)malloc(n*sizeof(double));
         if (V[i]==NULL) break; /* Not enough memory available */
-    }
-    if (i < n) /* break condition encountered */
-    { j = i;
-        for (i = 0; i < j; i++) free(V[i]);
-        return NULL;
     }
     
     S = (double*)malloc(n*sizeof(double));
@@ -4912,21 +4896,16 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     
     Y = (double**)malloc(n*sizeof(double*));
     if(Y==NULL) return NULL; /* Not enough memory available */
-    Y[0] = NULL;
-    for (i = 0; i < low_dim; i++)
-    { Y[i] = (double*)malloc(i*sizeof(double));
+    for (i = 0; i < n; i++)
+    { Y[i] = (double*)malloc(low_dim*sizeof(double));
         if (Y[i]==NULL) break; /* Not enough memory available */
-    }
-    if (i < low_dim) /* break condition encountered */
-    { j = i;
-        for (i = 0; i < j; i++) free(Y[i]);
-        return NULL;
     }
     
     int error = svd(nrows, ncolumns, F, S, V);
     if (error==0)
     {
-        for (i=0;i<n;i++) S[i] = sqrt(S[i]);
+        for (i=0;i<n;i++)
+            S[i] = sqrt(S[i]);
         /*  U = F */
         /*  Y = U * sqrt(S) */
         for (i=0;i<n;i++)
@@ -4938,14 +4917,13 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
             for (j=0;j<low_dim;j++)
                 Y[i][j] = F[i][j];
     }
+    //printf("Y[0][0]=%f,Y[0][1]=%f\n", Y[0][0], Y[0][1]);
     for (i = 0; i < n; i++) free(E[i]);
     for (i = 0; i < n; i++) free(F[i]);
     for (i = 0; i < n; i++) free(V[i]);
-    for (i = 0; i < low_dim; i++) free(Y[i]);
     free(E);
     free(F);
     free(V);
-    free(Y);
     free(Er);
     free(Es);
     free(S);

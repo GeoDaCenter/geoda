@@ -49,8 +49,11 @@ protected:
     Project* project;
     TableInterface* table_int;
     FramesManager* frames_manager;
-    
+   
+    int rows;
+    int columns;
     int num_obs;
+    
     std::vector<wxString> tm_strs;
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
@@ -68,6 +71,12 @@ protected:
     virtual double* GetBoundVals();
     
     // Input related
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    double* weight;
+    double** input_data;
+    int** mask;
+    
     wxListBox* combo_var;
     wxCheckBox* m_use_centroids;
     wxSlider* m_weight_centroids;
@@ -76,7 +85,7 @@ protected:
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
-    
+    bool GetInputData(int transform, int min_num_var=2);
    
     // Minimum Bound related
     wxCheckBox* chk_floor;

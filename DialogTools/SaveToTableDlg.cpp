@@ -410,6 +410,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
                     table_int->SetColUndefined(col, time, *data[i].undefined);
                 }
             }
+            new_col_ids.push_back(col);
+            new_col_names.push_back(field_name);
         }
 	}
 

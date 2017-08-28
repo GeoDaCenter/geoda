@@ -64,7 +64,10 @@ public:
 	void OnTimeChoice( wxCommandEvent& event );
     void OnOkClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
-	
+
+    std::vector<int> new_col_ids;
+    std::vector<wxString> new_col_names;
+    
 private:
 	void FillColIdMaps();
 	void InitField(int button);

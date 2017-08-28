@@ -26,45 +26,28 @@
 #include <wx/listbox.h>
 
 #include "../VarTools.h"
-#include "../FramesManager.h"
-#include "../FramesManagerObserver.h"
+#include "AbstractClusterDlg.h"
 
-class MDSDlg : public wxDialog, public FramesManagerObserver
+class MDSDlg : public AbstractClusterDlg
 {
 public:
     MDSDlg(wxFrame *parent, Project* project);
     virtual ~MDSDlg();
     
     void CreateControls();
-    bool Init();
     
     void OnOK( wxCommandEvent& event );
-    void OnSave( wxCommandEvent& event );
+
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice( wxCommandEvent& event );
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 private:
     FramesManager* frames_manager;
-    
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    //std::vector<boost::uuids::uuid> weights_ids;
-    
-    wxListBox* combo_var;
-    wxChoice* combo_n;
-    
-    wxButton *saveButton;
-    
+   
     wxChoice* m_distance;
     wxChoice* combo_transform;
     

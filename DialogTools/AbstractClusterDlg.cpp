@@ -299,6 +299,140 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box)
     var_box->InsertItems(var_items,0);
 }
 
+bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
+{
+    bool use_centroids = m_use_centroids->GetValue();
+    
+    if (use_centroids && m_weight_centroids->GetValue() == 0) {
+        use_centroids = false;
+    }
+    
+    wxArrayInt selections;
+    combo_var->GetSelections(selections);
+    
+    int num_var = selections.size();
+    if (num_var < min_num_var && !use_centroids) {
+        // show message box
+        wxString err_msg = wxString::Format(_("Please select at least %d variables."), min_num_var);
+        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+    
+    if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids->GetValue() != 1)) {
+        col_ids.resize(num_var);
+        var_info.resize(num_var);
+        
+        for (int i=0; i<num_var; i++) {
+            int idx = selections[i];
+            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            
+            int col = table_int->FindColId(nm);
+            if (col == wxNOT_FOUND) {
+                wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return false;
+            }
+            
+            int tm = name_to_tm_id[combo_var->GetString(idx)];
+            
+            col_ids[i] = col;
+            var_info[i].time = tm;
+            
+            // Set Primary GdaVarTools::VarInfo attributes
+            var_info[i].name = nm;
+            var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+            
+            // var_info[i].time already set above
+            table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+            var_info[i].sync_with_global_time = var_info[i].is_time_variant;
+            var_info[i].fixed_scale = true;
+        }
+        
+        // Call function to set all Secondary Attributes based on Primary Attributes
+        GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+        
+        rows = project->GetNumRecords();
+        columns =  0;
+        
+        std::vector<d_array_type> data; // data[variable][time][obs]
+        data.resize(col_ids.size());
+        for (int i=0; i<var_info.size(); i++) {
+            table_int->GetColData(col_ids[i], data[i]);
+        }
+        
+        // if use centroids
+        if (use_centroids) {
+            columns += 2;
+        }
+        
+        // get columns (if time variables show)
+        for (int i=0; i<data.size(); i++ ){
+            for (int j=0; j<data[i].size(); j++) {
+                columns += 1;
+            }
+        }
+        
+        weight = GetWeights(columns);
+        
+        // init input_data[rows][cols]
+        input_data = new double*[rows];
+        mask = new int*[rows];
+        for (int i=0; i<rows; i++) {
+            input_data[i] = new double[columns];
+            mask[i] = new int[columns];
+            for (int j=0; j<columns; j++){
+                mask[i][j] = 1;
+            }
+        }
+        
+        // assign value
+        int col_ii = 0;
+        
+        if (use_centroids) {
+            std::vector<GdaPoint*> cents = project->GetCentroids();
+            std::vector<double> cent_xs;
+            std::vector<double> cent_ys;
+            for (int i=0; i< rows; i++) {
+                cent_xs.push_back(cents[i]->GetX());
+                cent_ys.push_back(cents[i]->GetY());
+            }
+            if (transform == 2) {
+                GenUtils::StandardizeData(cent_xs );
+                GenUtils::StandardizeData(cent_ys );
+            } else if (transform == 1 ) {
+                GenUtils::DeviationFromMean(cent_xs );
+                GenUtils::DeviationFromMean(cent_ys );
+            }
+            for (int i=0; i< rows; i++) {
+                input_data[i][col_ii + 0] = cent_xs[i];
+                input_data[i][col_ii + 1] = cent_ys[i];
+            }
+            col_ii = 2;
+        }
+        for (int i=0; i<data.size(); i++ ){ // col
+            for (int j=0; j<data[i].size(); j++) { // time
+                std::vector<double> vals;
+                for (int k=0; k< rows;k++) { // row
+                    vals.push_back(data[i][j][k]);
+                }
+                if (transform == 2) {
+                    GenUtils::StandardizeData(vals);
+                } else if (transform == 1 ) {
+                    GenUtils::DeviationFromMean(vals);
+                }
+                for (int k=0; k< rows;k++) { // row
+                    input_data[k][col_ii] = vals[k];
+                }
+                col_ii += 1;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 double* AbstractClusterDlg::GetWeights(int columns)
 {
     double* weight = new double[columns];
