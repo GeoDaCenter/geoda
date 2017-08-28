@@ -975,7 +975,7 @@ void GdaFrame::OnClose(wxCloseEvent& event)
         
         wxString msg;
         wxString title;
-        if (unsaved_ds_data) {
+        if (unsaved_ds_data || unsaved_meta_data) {
             title = _("Exit with unsaved changes?");
             msg << "\n";
             msg << _("There are ");

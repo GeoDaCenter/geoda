@@ -582,9 +582,9 @@ bool Project::HasUnsavedChange()
     if (GetTableInt()->ChangedSinceLastSave())
         return true;
     
-    if (GetTableInt()->IsTimeVariant() ||
-         (w_man_int && w_man_int->GetIds().size()>0) )
-        return true;
+    //if (GetTableInt()->IsTimeVariant() ||
+    //     (w_man_int && w_man_int->GetIds().size()>0) )
+    //    return true;
     
     return false;
 }
