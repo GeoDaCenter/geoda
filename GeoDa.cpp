@@ -2886,7 +2886,7 @@ void GdaFrame::OnExploreScatterNewPlot(wxCommandEvent& WXUNUSED(event))
 	if (dlg.ShowModal() != wxID_OK)
         return;
 	
-	wxString title = _("Scatter Plot");
+    wxString title;
 	ScatterNewPlotFrame* subframe =
 	new ScatterNewPlotFrame(GdaFrame::gda_frame, project_p,
 							dlg.var_info, dlg.col_ids,
@@ -2908,7 +2908,7 @@ void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
 							false, true); // set fourth variable from third
 	if (dlg.ShowModal() != wxID_OK) return;
 	
-	wxString title(_("Bubble Chart"));
+    wxString title;
 	ScatterNewPlotFrame* subframe =
 	new ScatterNewPlotFrame(GdaFrame::gda_frame, project_p,
 							dlg.var_info, dlg.col_ids,

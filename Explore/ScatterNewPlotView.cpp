@@ -1996,7 +1996,10 @@ is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 	}
 	template_canvas->SetScrollRate(1,1);
 	DisplayStatusBar(true);
-	SetTitle(template_canvas->GetCanvasTitle());
+    if (title.empty())
+        SetTitle(template_canvas->GetCanvasTitle());
+    else
+        SetTitle(title);
 	
 	if (is_bubble_plot) {
         lpanel = new wxPanel(splitter_win);

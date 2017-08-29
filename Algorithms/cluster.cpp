@@ -1006,8 +1006,8 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-  result /= tweight;
-  return result;
+  //result /= tweight;
+  return sqrt(result);
 }
 
 /* ********************************************************************* */
@@ -1082,8 +1082,8 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-  result /= tweight;
-  return result;
+  //result /= tweight;
+  return sqrt(result);
 }
 
 /* ********************************************************************* */
@@ -4810,8 +4810,23 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         if (!distmatrix) return NULL; /* Insufficient memory */
     }
 
-    int i, j;
+    int i, j, r;
+    double** M;
     double** E;
+    
+    M = (double**)malloc(n*sizeof(double*));
+    if(M==NULL) return NULL; /* Not enough memory available */
+    for (i = 0; i < n; i++)
+    { M[i] = (double*)malloc(n*sizeof(double));
+        if (M[i]==NULL) break; /* Not enough memory available */
+    }
+    for (i=0; i<n; i++)
+        for (j=0; j<n; j++) M[i][j] = 0;
+    for (i=1; i<n; i++)
+        for (j=0; j<i; j++) {
+            M[i][j] = distmatrix[i][j];
+            M[j][i] = distmatrix[i][j];
+        }
     
     E = (double**)malloc(n*sizeof(double*));
     if(E==NULL) return NULL; /* Not enough memory available */
@@ -4822,62 +4837,32 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     
     double sum_E = 0, avg_E = 0;
     /* Calculate the distances and save them in the ragged array */
-    /*  E = (-0.5 * d**2) */
-    for (i = 0; i < n; i++) 
-        for (j = 0; j < n; j++)
-            E[i][j] = 0;
-    for (i = 1; i < n; i++) { /* only through half of the matrix*/
-        for (j = 0; j < i; j++) {
-            E[i][j]= -0.5 * distmatrix[i][j] *  distmatrix[i][j];
-            E[j][i] = E[i][j];
-            sum_E = sum_E + E[i][j] + E[i][j];
-        }
-    }
-    avg_E = sum_E / (double)n;
-    //printf("sumE:%f, avg_E:%f\n", sum_E, avg_E);
-    
-    /* Er = mat(mean(E,1)) */
-    double* Er = (double*)malloc(n*sizeof(double));
-    if(Er==NULL) return NULL; /* Not enough memory available */
-    for (i=0; i<n; i++) {
-        double row_sum = 0;;
-        for (j=0;j<n;j++) {
-            row_sum += E[i][j];
-        }
-        Er[i] = row_sum / (double) n;
-        //printf("n=%d, row_sum=%f, Er[%d]:%f\n", n, row_sum, i, Er[i]);
-    }
-    
-    /* Es = mat(mean(E,0)) */
-    double* Es = (double*)malloc(n*sizeof(double));
-    if(Es==NULL) return NULL; /* Not enough memory available */
-    for (i=0; i<n; i++) {
-        double col_sum = 0;
-        for (j=0;j<n;j++) {
-            col_sum += E[j][i];
-        }
-        Es[i] = col_sum / (double) n;
-        //printf("Es[%d]:%f\n", i, Es[i]);
-    }
-
-    /* # From Principles of Multivariate Analysis: A User's Perspective (page 107). */
-    /* F = array(E - transpose(Er) - Es + mean(E)) */
-    double** F = (double**)malloc(n*sizeof(double*));
-    if(F==NULL) return NULL; /* Not enough memory available */
-    for (i = 0; i < n; i++)
-    { F[i] = (double*)malloc(n*sizeof(double));
-        if (F[i]==NULL) break; /* Not enough memory available */
-    }
-    
-    for (i=0; i<n; i++)
-        for (j=0; j<n; j++) F[i][j] = 0;
+    /*  E = (-0.5 * d*d) */
     for (i=0; i<n; i++) {
         for (j=0; j<n; j++) {
-            F[i][j] = E[i][j] - Er[j] - Es[j] + avg_E;
+            E[i][j] = M[i][j] * M[i][j];
         }
     }
-    //printf("E[0][0]=%f,E[0][1]=%f\n", E[0][0], E[0][1]);
-    //printf("F[0][0]=%f,F[0][1]=%f\n", F[0][0], F[0][1]);
+    
+    
+    for(int i = 0; i < n; i++) {
+        double sum = 0;
+        for(int j = 0; j < n; j++) sum += E[j][i];
+        sum /= (double)n;
+        for(int j = 0; j < n; j++) E[j][i] -= sum;
+    }
+    for(int j = 0; j < n; j++) {
+        double sum = 0;
+        for(int i = 0; i < n; i++) sum += E[j][i];
+        sum /= (double)n;
+        for(int i = 0; i < n; i++) E[j][i] -= sum;
+    }
+    
+    for (i=0; i<n; i++) {
+        for (j=0; j<n; j++) {
+            E[i][j] = -0.5 * E[i][j];
+        }
+    }
     
     /* [U, S, V] = svd(F) */
     double** V;
@@ -4901,7 +4886,7 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         if (Y[i]==NULL) break; /* Not enough memory available */
     }
     
-    int error = svd(nrows, ncolumns, F, S, V);
+    int error = svd(nrows, nrows, E, S, V);
     if (error==0)
     {
         for (i=0;i<n;i++)
@@ -4909,24 +4894,20 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         /*  U = F */
         /*  Y = U * sqrt(S) */
         for (i=0;i<n;i++)
-            for (j=0;j<n;j++)
-                F[i][j] = F[i][j] * S[j];
-      
-        /* return (Y[:,0:dimensions], S) */
-        for (i=0;i<n;i++)
             for (j=0;j<low_dim;j++)
-                Y[i][j] = F[i][j];
+                Y[i][j] = E[i][j] * S[j];
+      
     }
-    //printf("Y[0][0]=%f,Y[0][1]=%f\n", Y[0][0], Y[0][1]);
+    printf("Y[0][0]=%f,Y[0][1]=%f\n", Y[0][0], Y[0][1]);
+    for (i = 1; i < n; i++) free(distmatrix[i]);
     for (i = 0; i < n; i++) free(E[i]);
-    for (i = 0; i < n; i++) free(F[i]);
     for (i = 0; i < n; i++) free(V[i]);
+    for (i = 0; i < n; i++) free(M[i]);
+    free(distmatrix);
     free(E);
-    free(F);
     free(V);
-    free(Er);
-    free(Es);
     free(S);
+    free(M);
     
     return Y;
 }

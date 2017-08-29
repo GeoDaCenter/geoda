@@ -218,13 +218,17 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         new_var_info[1].sync_with_global_time = new_var_info[1].is_time_variant;
         new_var_info[1].fixed_scale = true;
         
-        wxString title = _("MDS Plot");
+        wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
+        
         ScatterNewPlotFrame* subframe =
         new ScatterNewPlotFrame(parent, project,
                                 new_var_info, new_col_ids,
                                 false, title, wxDefaultPosition,
                                 GdaConst::scatterplot_default_size,
                                 wxDEFAULT_FRAME_STYLE);
+        wxCommandEvent ev;
+        subframe->OnViewLinearSmoother(ev);
+        subframe->OnDisplayStatistics(ev);
         
         for (int i=0; i<2; i++) {
             delete[] results[i];
