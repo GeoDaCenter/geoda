@@ -1007,7 +1007,8 @@ Otherwise, the distance between two columns in the matrix is calculated.
   }
   if (!tweight) return 0; /* usually due to empty clusters */
   //result /= tweight;
-  return sqrt(result);
+  //return sqrt(result);
+    return result;
 }
 
 /* ********************************************************************* */
@@ -4810,23 +4811,8 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         if (!distmatrix) return NULL; /* Insufficient memory */
     }
 
-    int i, j, r;
-    double** M;
+    int i, j;
     double** E;
-    
-    M = (double**)malloc(n*sizeof(double*));
-    if(M==NULL) return NULL; /* Not enough memory available */
-    for (i = 0; i < n; i++)
-    { M[i] = (double*)malloc(n*sizeof(double));
-        if (M[i]==NULL) break; /* Not enough memory available */
-    }
-    for (i=0; i<n; i++)
-        for (j=0; j<n; j++) M[i][j] = 0;
-    for (i=1; i<n; i++)
-        for (j=0; j<i; j++) {
-            M[i][j] = distmatrix[i][j];
-            M[j][i] = distmatrix[i][j];
-        }
     
     E = (double**)malloc(n*sizeof(double*));
     if(E==NULL) return NULL; /* Not enough memory available */
@@ -4838,13 +4824,16 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     double sum_E = 0, avg_E = 0;
     /* Calculate the distances and save them in the ragged array */
     /*  E = (-0.5 * d*d) */
-    for (i=0; i<n; i++) {
-        for (j=0; j<n; j++) {
-            E[i][j] = M[i][j] * M[i][j];
+    for (i=0; i<n; i++)
+        for (j=0; j<n; j++) E[i][j] = 0;
+    for (i=1; i<n; i++) {
+        for (j=0; j<i; j++) {
+            E[i][j] =distmatrix[i][j];
+            E[j][i] =distmatrix[i][j];
         }
     }
-    
-    
+   
+    // double centering
     for(int i = 0; i < n; i++) {
         double sum = 0;
         for(int j = 0; j < n; j++) sum += E[j][i];
@@ -4902,12 +4891,10 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
     for (i = 1; i < n; i++) free(distmatrix[i]);
     for (i = 0; i < n; i++) free(E[i]);
     for (i = 0; i < n; i++) free(V[i]);
-    for (i = 0; i < n; i++) free(M[i]);
     free(distmatrix);
     free(E);
     free(V);
     free(S);
-    free(M);
     
     return Y;
 }

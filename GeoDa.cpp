@@ -568,7 +568,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_POINTS_FROM_TABLE"), table_proj);
+	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_POINTS_FROM_TABLE"), proj_open);
 
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), false);
 
@@ -2524,59 +2524,72 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 	table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, xs);
 	table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, ys);
 
-    int n_rows = xs.size();
-    
-    // clean p->main_data
-    if (!p->main_data.records.empty()) {
-        p->main_data.records.clear();
-    }
-    p->main_data.header.shape_type = Shapefile::POINT_TYP;
-    p->main_data.records.resize(n_rows);
-    
-	double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
-    
-    for ( int i=0; i < n_rows; i++ ) {
-        if ( i==0 ) {
-            min_x = max_x = xs[i];
-            min_y = max_y = ys[i];
+    if (p->IsTableOnlyProject()) {
+        int n_rows = xs.size();
+        
+        // clean p->main_data
+        if (!p->main_data.records.empty()) {
+            p->main_data.records.clear();
         }
-        if ( xs[i] < min_x )
-            min_x = xs[i];
-        else if ( xs[i] > max_x )
-            max_x = xs[i];
+        p->main_data.header.shape_type = Shapefile::POINT_TYP;
+        p->main_data.records.resize(n_rows);
         
-        if ( ys[i] < min_y )
-            min_y = ys[i];
-        else if ( ys[i] > max_y )
-            max_y = ys[i];
+    	double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
         
-        Shapefile::PointContents* pc = new Shapefile::PointContents();
-        pc->shape_type = Shapefile::POINT_TYP;
-        pc->x = xs[i];
-        pc->y = ys[i];
-        p->main_data.records[i].contents_p = pc;
+        for ( int i=0; i < n_rows; i++ ) {
+            if ( i==0 ) {
+                min_x = max_x = xs[i];
+                min_y = max_y = ys[i];
+            }
+            if ( xs[i] < min_x )
+                min_x = xs[i];
+            else if ( xs[i] > max_x )
+                max_x = xs[i];
+            
+            if ( ys[i] < min_y )
+                min_y = ys[i];
+            else if ( ys[i] > max_y )
+                max_y = ys[i];
+            
+            Shapefile::PointContents* pc = new Shapefile::PointContents();
+            pc->shape_type = Shapefile::POINT_TYP;
+            pc->x = xs[i];
+            pc->y = ys[i];
+            p->main_data.records[i].contents_p = pc;
+        }
+       
+    	p->main_data.header.bbox_x_min = min_x;
+    	p->main_data.header.bbox_y_min = min_y;
+    	p->main_data.header.bbox_x_max = max_x;
+    	p->main_data.header.bbox_y_max = max_y;
+    	p->main_data.header.bbox_z_min = 0;
+    	p->main_data.header.bbox_z_max = 0;
+    	p->main_data.header.bbox_m_min = 0;
+    	p->main_data.header.bbox_m_max = 0;
+        
+        p->isTableOnly = false;
+    	UpdateToolbarAndMenus();
+    	std::vector<int> col_ids;
+    	std::vector<GdaVarTools::VarInfo> var_info;
+    	MapFrame* nf = new MapFrame(this, p, var_info, col_ids,
+    									  CatClassification::no_theme,
+    									  MapCanvas::no_smoothing, 1,
+    									  boost::uuids::nil_uuid(),
+    									  wxDefaultPosition,
+    									  GdaConst::map_default_size);
+    	nf->UpdateTitle();
+    } else {
+        // for other cases, just save as points with table
+        std::vector<GdaShape*> points;
+        int n_rows = xs.size();
+        for ( int i=0; i < n_rows; i++ ) {
+            GdaShape* p = new GdaPoint(xs[i], ys[i]);
+            points.push_back(p);
+        }
+        ExportDataDlg export_dlg(NULL, points, Shapefile::POINT_TYP, p,false);
+        
+        export_dlg.ShowModal();
     }
-   
-	p->main_data.header.bbox_x_min = min_x;
-	p->main_data.header.bbox_y_min = min_y;
-	p->main_data.header.bbox_x_max = max_x;
-	p->main_data.header.bbox_y_max = max_y;
-	p->main_data.header.bbox_z_min = 0;
-	p->main_data.header.bbox_z_max = 0;
-	p->main_data.header.bbox_m_min = 0;
-	p->main_data.header.bbox_m_max = 0;
-    
-    p->isTableOnly = false;
-	UpdateToolbarAndMenus();
-	std::vector<int> col_ids;
-	std::vector<GdaVarTools::VarInfo> var_info;
-	MapFrame* nf = new MapFrame(this, p, var_info, col_ids,
-									  CatClassification::no_theme,
-									  MapCanvas::no_smoothing, 1,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
-	nf->UpdateTitle();
 }
 
 void GdaFrame::OnRegressionClassic(wxCommandEvent& event)

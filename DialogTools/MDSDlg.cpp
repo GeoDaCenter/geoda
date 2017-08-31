@@ -193,42 +193,42 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         SaveToTableDlg dlg(project, this, new_data,
                            "Save Results: MDS",
                            wxDefaultPosition, wxSize(400,400));
-        dlg.ShowModal();
-       
-        // show in a scatter plot
-        std::vector<int>& new_col_ids = dlg.new_col_ids;
-        std::vector<wxString>& new_col_names = dlg.new_col_names;
-        
-        std::vector<GdaVarTools::VarInfo> new_var_info;
-        new_var_info.resize(2);
-        
-        new_var_info[0].time = 0;
-        // Set Primary GdaVarTools::VarInfo attributes
-        new_var_info[0].name = new_col_names[0];
-        new_var_info[0].is_time_variant = table_int->IsColTimeVariant(new_col_ids[0]);
-        table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
-        new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
-        new_var_info[0].fixed_scale = true;
-        
-        new_var_info[1].time = 0;
-        // Set Primary GdaVarTools::VarInfo attributes
-        new_var_info[1].name = new_col_names[1];
-        new_var_info[1].is_time_variant = table_int->IsColTimeVariant(new_col_ids[1]);
-        table_int->GetMinMaxVals(new_col_ids[1], new_var_info[1].min, new_var_info[1].max);
-        new_var_info[1].sync_with_global_time = new_var_info[1].is_time_variant;
-        new_var_info[1].fixed_scale = true;
-        
-        wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
-        
-        ScatterNewPlotFrame* subframe =
-        new ScatterNewPlotFrame(parent, project,
-                                new_var_info, new_col_ids,
-                                false, title, wxDefaultPosition,
-                                GdaConst::scatterplot_default_size,
-                                wxDEFAULT_FRAME_STYLE);
-        wxCommandEvent ev;
-        subframe->OnViewLinearSmoother(ev);
-        subframe->OnDisplayStatistics(ev);
+        if (dlg.ShowModal() == wxID_OK) {
+            // show in a scatter plot
+            std::vector<int>& new_col_ids = dlg.new_col_ids;
+            std::vector<wxString>& new_col_names = dlg.new_col_names;
+            
+            std::vector<GdaVarTools::VarInfo> new_var_info;
+            new_var_info.resize(2);
+            
+            new_var_info[0].time = 0;
+            // Set Primary GdaVarTools::VarInfo attributes
+            new_var_info[0].name = new_col_names[0];
+            new_var_info[0].is_time_variant = table_int->IsColTimeVariant(new_col_ids[0]);
+            table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
+            new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
+            new_var_info[0].fixed_scale = true;
+            
+            new_var_info[1].time = 0;
+            // Set Primary GdaVarTools::VarInfo attributes
+            new_var_info[1].name = new_col_names[1];
+            new_var_info[1].is_time_variant = table_int->IsColTimeVariant(new_col_ids[1]);
+            table_int->GetMinMaxVals(new_col_ids[1], new_var_info[1].min, new_var_info[1].max);
+            new_var_info[1].sync_with_global_time = new_var_info[1].is_time_variant;
+            new_var_info[1].fixed_scale = true;
+            
+            wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
+            
+            ScatterNewPlotFrame* subframe =
+            new ScatterNewPlotFrame(parent, project,
+                                    new_var_info, new_col_ids,
+                                    false, title, wxDefaultPosition,
+                                    GdaConst::scatterplot_default_size,
+                                    wxDEFAULT_FRAME_STYLE);
+            wxCommandEvent ev;
+            subframe->OnViewLinearSmoother(ev);
+            subframe->OnDisplayStatistics(ev);
+        }
         
         for (int i=0; i<2; i++) {
             delete[] results[i];
