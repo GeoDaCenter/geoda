@@ -218,9 +218,9 @@ void SpectralClusteringDlg::CreateControls()
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices13[] = {"Distance", "--Euclidean", "--City-block", "Correlation", "--Pearson","--Absolute Pearson", "Cosine", "--Signed", "--Un-signed", "Rank", "--Spearman", "--Kendal"};
-    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 12, choices13);
-    box13->SetSelection(1);
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    box13->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
 

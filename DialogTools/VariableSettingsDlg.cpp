@@ -727,6 +727,8 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     
     pca_log << "\n\nKaiser criterion: " << kaiser;
     pca_log << "\n\n95% threshold criterion: " << thresh95;
+   
+    // Add the correlation matrix between the original variables and the principal components
     
     pca_log << "\n\nEigenvalues:\n";
     std::stringstream ss;
@@ -734,7 +736,8 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     pca_log << ss.str();
     
     //pca_log << pca.eigen_values;
-    pca_log << "\n\nEigenvectors:\n";
+    pca_log << "\n\nEigenvectors/Variable Loadings:\n";
+    // Loadings=Eigenvectors⋅ Square root of (Absolute Eigen values)
     
     std::stringstream ss1;
     ss1 << pca.eigen_vectors;
@@ -789,7 +792,9 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         col_lim = ncols;
     }
     
-    /*
+    //https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
+    
+
     pca_log << "\n\nRotated data: \n";
     for (unsigned int i = 0; i < row_lim; ++i) {
         for (unsigned int j = 0; j < col_lim; ++j) {
@@ -797,7 +802,6 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         }
         pca_log << "\n";
     }
-    */
     
     m_textbox->SetValue(pca_log);
    

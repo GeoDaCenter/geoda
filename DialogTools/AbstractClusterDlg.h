@@ -93,7 +93,7 @@ protected:
     wxTextCtrl* txt_floor;
     wxTextCtrl* txt_floor_pct;
     wxSlider* slider_floor;
-    virtual void AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct,wxFlexGridSizer* gbox);
+    virtual void AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct,wxFlexGridSizer* gbox, bool show_checkbox=true);
     virtual void  OnCheckMinBound(wxCommandEvent& event);
     virtual void  OnSelMinBound(wxCommandEvent& event);
     virtual void  OnTypeMinBound(wxCommandEvent& event);

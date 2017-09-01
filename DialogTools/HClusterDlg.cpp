@@ -151,9 +151,9 @@ void HClusterDlg::CreateControls()
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(120,-1));
-    wxString choices13[] = {"Distance", "--Euclidean", "--City-block", "Correlation", "--Pearson","--Absolute Pearson", "Cosine", "--Signed", "--Un-signed", "Rank", "--Spearman", "--Kendal"};
-    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 12, choices13);
-    box13->SetSelection(1);
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, choices13);
+    box13->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
 
@@ -246,12 +246,7 @@ void HClusterDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
-
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
-    m_distance->Connect(wxEVT_CHOICE,
-                        wxCommandEventHandler(HClusterDlg::OnDistanceChoice),
-                        NULL, this);
-    //combo_n->Connect(wxEVT_CHOICE, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     
     saveButton->Disable();
@@ -507,7 +502,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
 
     
     int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
+    char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
     
     // init input_data[rows][cols]

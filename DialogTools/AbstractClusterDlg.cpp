@@ -155,7 +155,7 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
 }
 
 
-void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct, wxFlexGridSizer* gbox)
+void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct, wxFlexGridSizer* gbox, bool show_checkbox)
 {
     wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -167,6 +167,7 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxC
     hbox0->Add(*chk_floor);
     hbox0->Add(*combo_floor);
     hbox0->Add(*txt_floor);
+    
    
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     (*slider_floor) = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
@@ -185,8 +186,15 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxC
     (*combo_floor)->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
     (*txt_floor)->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
 	(*slider_floor)->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
-    (*combo_floor)->Disable();
-    (*txt_floor)->Disable();
+    
+    if (!show_checkbox) {
+        (*chk_floor)->SetValue(true);
+        (*chk_floor)->Hide();
+        (*combo_floor)->SetSelection(-1);
+    } else {
+        (*combo_floor)->Disable();
+        (*txt_floor)->Disable();
+    }
     (*slider_floor)->Disable();
     (*txt_floor_pct)->Disable();
     

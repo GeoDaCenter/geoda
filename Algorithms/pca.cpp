@@ -139,6 +139,7 @@ int Pca::Calculate(vector<float> &x,
     MatrixXf eigen_scores = _xXf * eigen_vectors;
     //MatrixXf eigen_scores = _xXf * svd.matrixV();
     #ifdef DEBUG
+      cout << "\n\nEigen vectors:\n" << eigen_vectors;
       cout << "\n\nRotated values (scores):\n" << eigen_scores;
     #endif
     _scores.reserve(eigen_scores.rows()*eigen_scores.cols());

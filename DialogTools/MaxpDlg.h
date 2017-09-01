@@ -28,18 +28,18 @@
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "AbstractClusterDlg.h"
 
 class Project;
 class TableInterface;
 	
-class MaxpDlg : public wxDialog, public FramesManagerObserver
+class MaxpDlg : public AbstractClusterDlg
 {
 public:
     MaxpDlg(wxFrame *parent, Project* project);
     virtual ~MaxpDlg();
     
     void CreateControls();
-    bool Init();
     
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
@@ -52,46 +52,20 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-        
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
 private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
-    
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
-    wxCheckBox* chk_floor;
+    
     wxListBox* combo_var;
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     wxChoice* combo_lisa;
-    wxChoice* combo_cov;
-    wxChoice* combo_floor;
-    wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
-    wxTextCtrl* m_iterations;
-    wxTextCtrl* m_pass;
-
-    wxChoice* m_method;
+    
     wxChoice* m_distance;
-    
+    wxTextCtrl* m_textbox;
+    wxTextCtrl* m_iterations;
+
     wxButton* seedButton;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    double thresh95;
     
     DECLARE_EVENT_TABLE()
 };

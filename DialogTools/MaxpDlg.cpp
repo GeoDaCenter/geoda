@@ -54,52 +54,18 @@ EVT_CLOSE( MaxpDlg::OnClose )
 END_EVENT_TABLE()
 
 MaxpDlg::MaxpDlg(wxFrame* parent_s, Project* project_s)
-: frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("Max-p Settings"), wxDefaultPosition, wxDefaultSize,
-         wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: AbstractClusterDlg(parent_s, project_s, _("Max-p Settings"))
 {
     wxLogMessage("Open Max-p dialog.");
     
 	SetMinSize(wxSize(360,750));
 
-    parent = parent_s;
-    project = project_s;
-    
-    bool init_success = Init();
-    
-    if (init_success == false) {
-        EndDialog(wxID_CANCEL);
-    } else {
-        CreateControls();
-    }
-    frames_manager->registerObserver(this);
+    CreateControls();
 }
 
 MaxpDlg::~MaxpDlg()
 {
     wxLogMessage("On MaxpDlg::~MaxpDlg");
-    frames_manager->removeObserver(this);
-}
-
-bool MaxpDlg::Init()
-{
-    wxLogMessage("On MaxpDlg::Init");
-    if (project == NULL)
-        return false;
-    
-    table_int = project->GetTableInt();
-    if (table_int == NULL)
-        return false;
-    
-    
-    table_int->GetTimeStrings(tm_strs);
-    
-    return true;
-}
-
-void MaxpDlg::update(FramesManager* o)
-{
-    
 }
 
 void MaxpDlg::CreateControls()
@@ -113,18 +79,13 @@ void MaxpDlg::CreateControls()
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"),
                                          wxDefaultPosition, wxDefaultSize);
     
-    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(250,250), 0, NULL,
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(cbox, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    if (project->IsTableOnlyProject()) {
-        cbox->Disable();
-    }
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
@@ -135,28 +96,10 @@ void MaxpDlg::CreateControls()
     
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
+   
+    AddMinBound(panel, &chk_floor, &combo_floor, &txt_floor, &slider_floor, &txt_floor_pct, gbox, false);
     
-    
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Minimum bound:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box10, 1, wxEXPAND);
-    
-    wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Set floor variable:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    wxBoxSizer *hbox19 = new wxBoxSizer(wxHORIZONTAL);
-    chk_floor = new wxCheckBox(panel, wxID_ANY, "");
-    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
-    
-    hbox19->Add(chk_floor,0, wxALIGN_CENTER_VERTICAL);
-    hbox19->Add(combo_floor,0,wxALIGN_CENTER_VERTICAL);
-    combo_floor->Disable();
-    gbox->Add(st19, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(hbox19, 1, wxEXPAND);
-
-
-    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Set initial groups:"),
+    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Groups:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_lisa = new wxCheckBox(panel, wxID_ANY, "");
@@ -175,15 +118,22 @@ void MaxpDlg::CreateControls()
     gbox->Add(m_iterations, 1, wxEXPAND);
     
     
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
+    gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_distance, 1, wxEXPAND);
 
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(120,-1), 3, _transform);
-    box01->SetSelection(0);
+    combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box01, 1, wxEXPAND);
+    gbox->Add(combo_tranform, 1, wxEXPAND);
     
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -210,11 +160,11 @@ void MaxpDlg::CreateControls()
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
-    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(158,-1));
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     
     
     // Buttons
@@ -250,14 +200,8 @@ void MaxpDlg::CreateControls()
     Centre();
 
     // Content
-    InitVariableCombobox(box);
-    m_textbox = box3;
-    combo_var = box;
-    m_use_centroids = cbox;
+    InitVariableCombobox(combo_var);
   
-    m_pass = box10;
-    combo_tranform = box01;
-    
     // init weights
     vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
@@ -277,7 +221,6 @@ void MaxpDlg::CreateControls()
     chk_seed->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &MaxpDlg::OnChangeSeed, this);
     chk_lisa->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnLISACheck, this);
-    chk_floor->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnFloorCheck, this);
 
 }
 
@@ -370,12 +313,15 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
 {
     wxLogMessage("On MaxpDlg::InitVariableCombobox");
     wxArrayString items;
-    
+   
+    int cnt_lisa = 0;
+    int cnt_floor = 0;
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
+        GdaConst::FieldType ftype = table_int->GetColType(id);
         if (table_int->IsColTimeVariant(id)) {
             for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
                 wxString nm = name;
@@ -383,20 +329,25 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
                 name_to_nm[nm] = name;
                 name_to_tm_id[nm] = t;
                 items.Add(nm);
+                if (ftype == GdaConst::long64_type)
+                    combo_lisa->Insert(nm, cnt_lisa++);
+                combo_floor->Insert(nm, cnt_floor++);
             }
         } else {
             name_to_nm[name] = name;
             name_to_tm_id[name] = 0;
             items.Add(name);
+            if (ftype == GdaConst::long64_type)
+                combo_lisa->Insert(name, cnt_lisa++);
+            combo_floor->Insert(name, cnt_floor++);
         }
     }
     
     var_box->InsertItems(items,0);
     
-    for (int i=0; i<items.size(); i++) {
-        combo_lisa->Insert(items[i],i);
-        combo_floor->Insert(items[i],i);
-    }
+    combo_floor->SetSelection(-1);
+    combo_lisa->SetSelection(-1);
+    txt_floor->SetValue("");
 }
 
 void MaxpDlg::OnClickClose(wxCommandEvent& event )
@@ -420,13 +371,12 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MaxpDlg::OnOK");
     
-    bool use_centroids = m_use_centroids->GetValue();
     
     wxArrayInt selections;
     combo_var->GetSelections(selections);
     
     int num_var = selections.size();
-    if (num_var < 1 && !use_centroids) {
+    if (num_var < 1) {
         // show message box
         wxString err_msg = _("Please select at least 1 variables.");
         wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
@@ -434,7 +384,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
-    wxString str_floor = m_pass->GetValue();
+    wxString str_floor = txt_floor->GetValue();
     if (str_floor.IsEmpty()) {
         wxString err_msg = _("Please enter minimum bound value");
         wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
@@ -457,6 +407,11 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+    
+    char dist = 'e'; // euclidean
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','b'};
+    dist = dist_choices[dist_sel];
     
     col_ids.resize(num_var);
     var_info.resize(num_var);
@@ -506,11 +461,6 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         }
     }
     
-    // if use centroids
-    if (use_centroids) {
-        columns += 2;
-    }
-    
     vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
@@ -555,52 +505,21 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         }
         z_t.push_back(vals);
     }
-    if (use_centroids) {
-        std::vector<GdaPoint*> cents = project->GetCentroids();
-        std::vector<double> cent_xs;
-        std::vector<double> cent_ys;
-        
-        for (int i=0; i< rows; i++) {
-            cent_xs.push_back(cents[i]->GetX());
-            cent_ys.push_back(cents[i]->GetY());
-        }
-        
-        if (transform == 2) {
-            GenUtils::StandardizeData(cent_xs );
-            GenUtils::StandardizeData(cent_ys );
-        } else if (transform == 1 ) {
-            GenUtils::DeviationFromMean(cent_xs );
-            GenUtils::DeviationFromMean(cent_ys );
-        }
-        
-        for (int i=0; i< rows; i++) {
-            z_t[i].push_back(cent_xs[i]);
-            z_t[i].push_back(cent_ys[i]);
-        }
+   
+    /*
+    int idx = combo_floor->GetSelection();
+    wxString nm = name_to_nm[combo_floor->GetString(idx)];
+    int col = table_int->FindColId(nm);
+    if (col == wxNOT_FOUND) {
+        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
     }
-    
-    int floor = 1;
-    long value_floor;
-    if(str_floor.ToLong(&value_floor)) {
-        floor = value_floor;
-    }
-    
-    vector<double> floor_variable(rows, 1);
-    bool use_floor = chk_floor->GetValue();
-    if (use_floor) {
-        int idx = combo_floor->GetSelection();
-        wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        int tm = name_to_tm_id[combo_floor->GetString(idx)];
-        
-        table_int->GetColData(col, tm, floor_variable);
-    }
+     */
+   
+    double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
     
     int initial = 99;
     long value_initial;
@@ -612,25 +531,29 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     bool use_lisa_seed = chk_lisa->GetValue();
     if (use_lisa_seed) {
         int idx = combo_lisa->GetSelection();
-        wxString nm = name_to_nm[combo_lisa->GetString(idx)];
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
+        if (idx < 0) {
+            use_lisa_seed = false;
+        } else {
+            wxString nm = name_to_nm[combo_lisa->GetString(idx)];
+            int col = table_int->FindColId(nm);
+            if (col == wxNOT_FOUND) {
+                wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
+            int tm = name_to_tm_id[combo_lisa->GetString(idx)];
+            
+            std::vector<wxInt64> _data;
+            table_int->GetColData(col, tm, _data);
+            GenUtils::sort(_data, _data, seeds);
         }
-        int tm = name_to_tm_id[combo_lisa->GetString(idx)];
-        
-        std::vector<wxInt64> _data;
-        table_int->GetColData(col, tm, _data);
-        GenUtils::sort(_data, _data, seeds);
     }
     
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
-    Maxp maxp(gw->gal, z_t, floor, floor_variable, initial, seeds, rnd_seed);
+    Maxp maxp(gw->gal, z_t, min_bound, bound_vals, initial, seeds, rnd_seed, method);
     
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

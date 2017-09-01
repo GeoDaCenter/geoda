@@ -149,9 +149,9 @@ void KMeansDlg::CreateControls()
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices13[] = {"Distance", "--Euclidean", "--City-block", "Correlation", "--Pearson","--Absolute Pearson", "Cosine", "--Signed", "--Un-signed", "Rank", "--Spearman", "--Kendal"};
-    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 12, choices13);
-    m_distance->SetSelection(1);
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
 
@@ -202,7 +202,7 @@ void KMeansDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
-    m_distance->Bind(wxEVT_CHOICE, &KMeansDlg::OnDistanceChoice, this);
+    //m_distance->Bind(wxEVT_CHOICE, &KMeansDlg::OnDistanceChoice, this);
 }
 
 void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
@@ -266,16 +266,6 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
 
 void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
 {
-    
-     if (m_distance->GetSelection() == 0) {
-         m_distance->SetSelection(1);
-     } else if (m_distance->GetSelection() == 3) {
-         m_distance->SetSelection(4);
-     } else if (m_distance->GetSelection() == 6) {
-         m_distance->SetSelection(7);
-     } else if (m_distance->GetSelection() == 9) {
-         m_distance->SetSelection(10);
-     }
 }
 
 void KMeansDlg::OnClickClose(wxCommandEvent& event )
@@ -304,7 +294,7 @@ void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, 
     int method_sel = m_method->GetSelection();
     if (method_sel == 1) method = 'm';
     int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
+    char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
     
     
