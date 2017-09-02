@@ -918,17 +918,17 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         int n_1s = 0;
         int n_0s = 0;
         
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
+            p_hg.push_back( gs_coord->ep_vals[t][i]);
+        }
+        
         data[data_i].l_val = &gs_coord->num_neighbors;
         data[data_i].label = "Number of Neighbors";
         data[data_i].field_default = "NN";
         data[data_i].type = GdaConst::long64_type;
         data[data_i].undefined = &undefs;
         data_i++;
-       
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
-            p_hg.push_back( gs_coord->ep_vals[t][i]);
-        }
         
         data[data_i].l_val = &nn_1_val;
         data[data_i].label = "Number of Neighbors with Value 1";
@@ -949,22 +949,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     	data[data_i].type = GdaConst::double_type;
         data[data_i].undefined = &c_undefs;
     	data_i++;
-    
-        int nn = gs_coord->num_obs;
-        
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1) {
-                //  C(1s, num_nbr_1) * C(0s, num_nbrs-num_nbr_1) /C(nn, num_nbrs)
-                int num_nbrs = gs_coord->num_neighbors[i];
-                int num_nbr_1s = gs_coord->num_neighbors_1[t][i];
-                int num_nbr_0s = num_nbrs - num_nbr_1s;
-                
-                double mm_all = (double)(Gda::nChoosek( nn, num_nbrs));
-                double mm_1s = (double)(Gda::nChoosek(n_1s, num_nbr_1s));
-                double mm_0s = (double)(Gda::nChoosek(n_0s, num_nbr_0s));
-                double hg = (mm_1s * mm_0s) / mm_all;
-            }
-        }
+   
         data[data_i].d_val = &p_hg;
         data[data_i].label = "Exact Probabilities";
         data[data_i].field_default = "EP_VAL";

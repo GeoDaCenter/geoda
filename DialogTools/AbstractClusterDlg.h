@@ -86,6 +86,7 @@ protected:
     void OnSlideWeight(wxCommandEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
     bool GetInputData(int transform, int min_num_var=2);
+    void OnInputWeights(wxCommandEvent& event);
    
     // Minimum Bound related
     wxCheckBox* chk_floor;

@@ -136,6 +136,15 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
     (*m_wc_txt)->Disable();
     (*m_use_centroids)->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnUseCentroids, this);
 	(*m_weight_centroids)->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideWeight, this);
+    (*m_wc_txt)->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnInputWeights, this);
+}
+void AbstractClusterDlg::OnInputWeights(wxCommandEvent& ev)
+{
+    wxString val = m_wc_txt->GetValue();
+    double w_val;
+    if (val.ToDouble(&w_val)) {
+        m_weight_centroids->SetValue(w_val * 100);
+    }
 }
 void AbstractClusterDlg::OnSlideWeight(wxCommandEvent& ev)
 {
@@ -148,9 +157,11 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     if (m_use_centroids->IsChecked()) {
         m_weight_centroids->Enable();
         m_weight_centroids->SetValue(100);
+        m_wc_txt->Enable();
     } else {
         m_weight_centroids->SetValue(false);
         m_weight_centroids->Disable();
+        m_wc_txt->Disable();
     }
 }
 
