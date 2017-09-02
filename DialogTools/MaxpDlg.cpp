@@ -553,7 +553,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
-    Maxp maxp(gw->gal, z_t, min_bound, bound_vals, initial, seeds, rnd_seed, method);
+    Maxp maxp(gw->gal, z_t, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
     
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

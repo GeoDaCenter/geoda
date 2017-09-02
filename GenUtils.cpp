@@ -70,6 +70,19 @@ double Gda::ThomasWangHashDouble(uint64_t key) {
 	return 5.42101086242752217E-20 * key;
 }
 
+unsigned int Gda::factorial(unsigned int n)
+{
+    int i;
+    for(i = n-1; i > 1; i--)
+    n *= i;
+    
+    return n;
+}
+
+unsigned int Gda::nChoosek(double nn, unsigned int n, unsigned int r) {
+    return nn/(factorial(r)*factorial(n-r));
+}
+
 /** Use with std::sort for sorting in ascending order */
 bool Gda::dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
 								  const dbl_int_pair_type& ind2)
