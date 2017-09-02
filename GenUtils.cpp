@@ -70,17 +70,26 @@ double Gda::ThomasWangHashDouble(uint64_t key) {
 	return 5.42101086242752217E-20 * key;
 }
 
-unsigned int Gda::factorial(unsigned int n)
+double Gda::factorial(unsigned int n)
 {
+    double r;
     int i;
     for(i = n-1; i > 1; i--)
-    n *= i;
+    r *= i;
     
-    return n;
+    return r;
 }
 
-unsigned int Gda::nChoosek(double nn, unsigned int n, unsigned int r) {
-    return nn/(factorial(r)*factorial(n-r));
+double Gda::nChoosek(unsigned int n, unsigned int k) {
+   
+    double r = 1;
+    double s = 1;
+    int i;
+    int kk = k > n/2 ? k : n-k;
+    
+    for(i=n; i > kk; i--) r *= i;
+    for(i=(n-kk); i>0; i--) s *= i;
+    return r/s;
 }
 
 /** Use with std::sort for sorting in ascending order */

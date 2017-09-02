@@ -76,9 +76,9 @@ namespace Gda {
 	inline bool IsNaN(double x) { return x != x; }
 	inline bool IsFinite(double x) { return x-x == 0; }
     
-    unsigned int factorial(unsigned int n);
+    double factorial(unsigned int n);
     
-    unsigned int nChoosek(double nn, unsigned int n, unsigned int r);
+    double nChoosek(unsigned int n, unsigned int r);
 }
 
 

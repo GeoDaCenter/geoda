@@ -217,6 +217,12 @@ void GStatCoordinator::DeallocateVectors()
 	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
 	x_vecs.clear();
     
+	for (int i=0; i<ep_vals.size(); i++) if (ep_vals[i]) delete [] ep_vals[i];
+	ep_vals.clear();
+    
+	for (int i=0; i<num_neighbors_1.size(); i++) if (num_neighbors_1[i]) delete [] num_neighbors_1[i];
+	num_neighbors_1.clear();
+    
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
         if (has_undefined[i]) {
@@ -264,9 +270,11 @@ void GStatCoordinator::AllocateVectors()
     
     num_neighbors.resize(num_obs);
     num_neighbors_1.resize(tms);
+    ep_vals.resize(tms);
     
 	for (int i=0; i<tms; i++) {
-        num_neighbors_1[i].resize(num_obs);
+        num_neighbors_1[i] = new wxInt64[num_obs];
+        ep_vals[i] = new double[num_obs];
 		G_vecs[i] = new double[num_obs];
 		G_defined_vecs[i] = new bool[num_obs];
 		for (int j=0; j<num_obs; j++) G_defined_vecs[i][j] = true;
@@ -340,6 +348,9 @@ void GStatCoordinator::InitFromVarInfo()
         }
         
 		x = x_vecs[t];
+       
+        num_obs_1s = 0;
+        num_obs_0s = 0;
         
         if (is_local_joint_count) {
             // count neighbors and neighors with 1
@@ -351,6 +362,8 @@ void GStatCoordinator::InitFromVarInfo()
                         num_neighbors_1[t][i] += 1;
                     }
                 }
+                if (x[i] ==1)  num_obs_1s +=1;
+                else num_obs_0s += 1;
             }
         }
         
@@ -625,6 +638,8 @@ void GStatCoordinator::CalcPseudoP()
 		pseudo_p_star = pseudo_p_star_vecs[t];
 		x = x_vecs[t];
 		x_star_t = x_star[t];
+        nn_1_t = num_neighbors_1[t];
+        e_p = ep_vals[t];
 		
 		if (nCPUs <= 1) {
 			if (!reuse_last_seed) last_seed_used = time(0);
@@ -797,6 +812,20 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
 				countGStarLarger=permutations-countGStarLarger;
 			}
 			pseudo_p_star[i] = (countGStarLarger + 1.0)/(permutations+1.0);
+            
+            // compute exact probability
+            if (is_local_joint_count) {
+                int nn = num_neighbors[i];
+                int n_1s = nn_1_t[i];
+                int n_0s = nn - n_1s;
+                
+                double mm_all = Gda::nChoosek(num_obs, nn);
+                double mm_1s = Gda::nChoosek(num_obs_1s, n_1s);
+                double mm_0s = Gda::nChoosek(num_obs_0s, n_0s);
+                                        
+                double hg = (mm_1s * mm_0s) / mm_all;
+                e_p[i] = hg;
+            }
 		}
 	}
 }

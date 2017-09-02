@@ -870,7 +870,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	
     int num_data = is_perm ? 3: 4;
      // drop C_ID for local JC, add NN and NN_1
-    if (gs_coord->is_local_joint_count) num_data += 2;
+    if (gs_coord->is_local_joint_count) num_data += 1;
 	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs(gs_coord->num_obs, false);
     std::vector<bool> c_undefs(gs_coord->num_obs, true);
@@ -881,14 +881,17 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         }
     }
     
+    vector<double> p_hg;
+    std::vector<wxInt64> nn_1_val;
 	int data_i = 0;
-	data[data_i].d_val = &g_val;
-	data[data_i].label = g_label;
-	data[data_i].field_default = g_field_default;
-	data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
+    
     if (gs_coord->is_local_joint_count == false) {
+    	data[data_i].d_val = &g_val;
+    	data[data_i].label = g_label;
+    	data[data_i].field_default = g_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
     	data[data_i].l_val = &c_val;
     	data[data_i].label = c_label;
     	data[data_i].field_default = c_field_default;
@@ -914,6 +917,26 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     } else {
         int n_1s = 0;
         int n_0s = 0;
+        
+        data[data_i].l_val = &gs_coord->num_neighbors;
+        data[data_i].label = "Number of Neighbors";
+        data[data_i].field_default = "NN";
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+       
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
+            p_hg.push_back( gs_coord->ep_vals[t][i]);
+        }
+        
+        data[data_i].l_val = &nn_1_val;
+        data[data_i].label = "Number of Neighbors with Value 1";
+        data[data_i].field_default = "NN_1";
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+        
         for (size_t i=0; i<gs_coord->num_obs; i++) {
             if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1)
                 c_undefs[i] = false;
@@ -926,42 +949,27 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     	data[data_i].type = GdaConst::double_type;
         data[data_i].undefined = &c_undefs;
     	data_i++;
-        
-        data[data_i].l_val = &gs_coord->num_neighbors;
-        data[data_i].label = "Number of Neighbors";
-        data[data_i].field_default = "NN";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
-        data[data_i].l_val = &gs_coord->num_neighbors_1[t];
-        data[data_i].label = "Number of Neighbors with Value 1";
-        data[data_i].field_default = "NN_1";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-       
+    
         int nn = gs_coord->num_obs;
-        vector<double> p_hg;
-        double fac_nn = Gda::factorial(nn);
         
         for (int i=0; i<gs_coord->num_obs; i++) {
-            //  C(1s, num_nbr_1) * C(0s, num_nbrs-num_nbr_1) /C(nn, num_nbrs)
-            int num_nbrs = gs_coord->num_neighbors[i];
-            int num_nbr_1s = gs_coord->num_neighbors_1[t][i];
-            int num_nbr_0s = num_nbrs - num_nbr_1s;
-            
-            double mm_all = (double)(Gda::nChoosek(fac_nn, nn, num_nbrs));
-            double mm_1s = (double)(Gda::nChoosek(fac_nn, n_1s, num_nbr_1s));
-            double mm_0s = (double)(Gda::nChoosek(fac_nn, n_0s, num_nbr_0s));
-            double hg = (mm_1s * mm_0s) * mm_all;
-            p_hg.push_back(hg);
+            if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1) {
+                //  C(1s, num_nbr_1) * C(0s, num_nbrs-num_nbr_1) /C(nn, num_nbrs)
+                int num_nbrs = gs_coord->num_neighbors[i];
+                int num_nbr_1s = gs_coord->num_neighbors_1[t][i];
+                int num_nbr_0s = num_nbrs - num_nbr_1s;
+                
+                double mm_all = (double)(Gda::nChoosek( nn, num_nbrs));
+                double mm_1s = (double)(Gda::nChoosek(n_1s, num_nbr_1s));
+                double mm_0s = (double)(Gda::nChoosek(n_0s, num_nbr_0s));
+                double hg = (mm_1s * mm_0s) / mm_all;
+            }
         }
-        data[data_i].l_val = &gs_coord->num_neighbors_1[t];
+        data[data_i].d_val = &p_hg;
         data[data_i].label = "Exact Probabilities";
-        data[data_i].field_default = "P_VAL";
+        data[data_i].field_default = "EP_VAL";
         data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &undefs;
+        data[data_i].undefined = &c_undefs;
         data_i++;
     }
 	

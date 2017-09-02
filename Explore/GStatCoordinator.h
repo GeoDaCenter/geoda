@@ -136,6 +136,8 @@ public:
 
     // a special case Local Join Count
     bool is_local_joint_count;
+    int num_obs_1s;
+    int num_obs_0s;
     
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded
@@ -153,7 +155,8 @@ public:
     // number of neighbors
     vector<wxInt64> num_neighbors;
     // number of neighbors with 1
-    std::vector<std::vector<wxInt64> > num_neighbors_1;
+    std::vector<wxInt64* > num_neighbors_1;
+    std::vector<double*> ep_vals;
     
 protected:
 	// The following ten are just temporary pointers into the corresponding
@@ -172,6 +175,8 @@ protected:
 	double* pseudo_p; //threaded
 	double* pseudo_p_star; //threaded
 	double* x; //threaded
+	double* e_p; //threaded
+    wxInt64* nn_1_t;
 	
 public:
 	std::vector<double*> G_vecs; //threaded
