@@ -38,8 +38,10 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
+#include "../DialogTools/ExportDataDlg.h"
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
+#include "../Project.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 
@@ -48,12 +50,10 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_BUTTON( XRCID("ID_OPEN_BUTTON"), MergeTableDlg::OnOpenClick )
 	EVT_BUTTON( XRCID("ID_INC_ALL_BUTTON"), MergeTableDlg::OnIncAllClick )
 	EVT_BUTTON( XRCID("ID_INC_ONE_BUTTON"), MergeTableDlg::OnIncOneClick )
-	EVT_LISTBOX_DCLICK( XRCID("ID_INCLUDE_LIST"),
-					   MergeTableDlg::OnIncListDClick )
+	EVT_LISTBOX_DCLICK( XRCID("ID_INCLUDE_LIST"), MergeTableDlg::OnIncListDClick )
 	EVT_BUTTON( XRCID("ID_EXCL_ALL_BUTTON"), MergeTableDlg::OnExclAllClick )
 	EVT_BUTTON( XRCID("ID_EXCL_ONE_BUTTON"), MergeTableDlg::OnExclOneClick )
-	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"),
-					   MergeTableDlg::OnExclListDClick )
+	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"), MergeTableDlg::OnExclListDClick )
 	EVT_CHOICE( XRCID("ID_CURRENT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_BUTTON( XRCID("wxID_OK"), MergeTableDlg::OnMergeClick )
@@ -63,15 +63,16 @@ END_EVENT_TABLE()
 
 using namespace std;
 
-MergeTableDlg::MergeTableDlg(wxWindow* parent,
-                             TableInterface* _table_int,
-                             FramesManager* frames_manager_,
-                             const wxPoint& pos)
-: table_int(_table_int), connect_dlg(NULL), frames_manager(frames_manager_), merge_datasource_proxy(NULL)
+MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
+: connect_dlg(NULL), merge_datasource_proxy(NULL), project_s(_project_s), export_dlg(NULL)
 {
     wxLogMessage("Open MergeTableDlg.");
 	SetParent(parent);
+    
 	//table_int->FillColIdMap(col_id_map);
+    table_int = project_s->GetTableInt(),
+    frames_manager = project_s->GetFramesManager(),
+    
 	CreateControls();
 	Init();
 	wxString nm;
@@ -106,20 +107,16 @@ void MergeTableDlg::update(FramesManager* o)
 void MergeTableDlg::CreateControls()
 {
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_MERGE_TABLE_DLG");
-	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")),
-									  wxTextCtrl);
-	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")),
-								 wxRadioButton);
-	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")),
-								   wxRadioButton);
-	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")),
-								  wxChoice);
-	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")),
-								 wxChoice);
-	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")),
-								   wxListBox);
-	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),
-								   wxListBox);
+	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")), wxTextCtrl);
+	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")), wxRadioButton);
+	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")), wxRadioButton);
+	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), wxChoice);
+	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")), wxChoice);
+	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), wxListBox);
+	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
+	m_left_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_LEFT_JOIN")), wxRadioButton);
+	m_outer_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OUTER_JOIN")), wxRadioButton);
+	m_overwrite_field = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OVERWRITE_SAME_FIELD")), wxCheckBox);
 }
 
 void MergeTableDlg::Init()
@@ -297,7 +294,6 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-
 bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
@@ -381,7 +377,129 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
 void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnMergeClick()");
+    if (m_left_join->GetValue()) {
+        LeftJoinMerge();
+    } else {
+        OuterJoinMerge();
+    }
+	ev.Skip();
+}
+
+void MergeTableDlg::OuterJoinMerge()
+{
+    try {
+        wxString error_msg;
+        // get selected field names from merging table
+        map<wxString, wxString> merged_fnames_dict;
+        for (set<wxString>::iterator it = table_fnames.begin();
+             it != table_fnames.end(); ++it ) {
+            merged_fnames_dict[ *it ] = *it;
+        }
+        vector<wxString> merged_field_names = GetSelectedFieldNames(merged_fnames_dict);
+        
+        if (merged_field_names.empty())
+            return;
+        int n_rows = table_int->GetNumberRows();
+        int n_merge_field = merged_field_names.size();
+        map<int, int> rowid_map;
+        if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
+            // get and check keys from original table
+            int key1_id = m_current_key->GetSelection();
+            wxString key1_name = m_current_key->GetString(key1_id);
+            int col1_id = table_int->FindColId(key1_name);
+            if (table_int->IsColTimeVariant(col1_id)) {
+                error_msg = wxString::Format(_("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."), key1_name);
+                throw GdaException(error_msg.mb_str());
+            }
+            
+            vector<wxString> key1_vec;
+            vector<wxInt64>  key1_l_vec;
+            map<wxString,int> key1_map;
+            
+            if ( table_int->GetColType(col1_id, 0) == GdaConst::string_type ) {
+                table_int->GetColData(col1_id, 0, key1_vec);
+            }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
+                table_int->GetColData(col1_id, 0, key1_l_vec);
+            }
+            
+            if (key1_vec.empty()) { // convert everything (key) to wxString
+                for( int i=0; i< key1_l_vec.size(); i++){
+                    wxString tmp;
+                    tmp << key1_l_vec[i];
+                    key1_vec.push_back(tmp);
+                }
+            }
+            if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+                return;
+            
+            // get and check keys from import table
+            int key2_id = m_import_key->GetSelection();
+            wxString key2_name = m_import_key->GetString(key2_id);
+            int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
+            int n_merge_rows = merge_layer_proxy->GetNumRecords();
+            vector<wxString> key2_vec;
+            map<wxString,int> key2_map;
+            for (int i=0; i < n_merge_rows; i++) {
+                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id));
+            }
+            if (CheckKeys(key2_name, key2_vec, key2_map) == false)
+                return;
+            
+            // no need: make sure key1 <= key2, and store their mappings
+            int n_matches = 0;
+            map<wxString,int>::iterator key1_it, key2_it;
+            for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
+                key2_it = key2_map.find(key1_it->first);
+                
+                if ( key2_it != key2_map.end()){
+                    rowid_map[key1_it->second] = key2_it->second;
+                    n_matches += 1;
+                }
+            }
+            
+            // Create in-memory geometries&table
+            OGRTable* mem_table = new OGRTable(n_rows);
+            
+            std::vector<wxInt64> newids(n_rows*2);
+            OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n_rows*2);
+            id_col->UpdateData(newids);
+            mem_table->AddOGRColumn(id_col);
+            
+            std::vector<GdaShape*> geoms;
+            OGRSpatialReference* spatial_ref = project_s->GetSpatialReference();
+            Shapefile::ShapeType shape_type = project_s->GetGdaGeometries(geoms);
+           
+            std::vector<GdaShape*> new_geoms;
+            Shapefile::ShapeType new_shape_type=merge_layer_proxy->GetGdaGeometries(new_geoms);
+           
+            for (int i=0; i<new_geoms.size(); i++) geoms.push_back(new_geoms[i]);
+            
+            if (export_dlg != NULL) {
+                export_dlg->Destroy();
+                delete export_dlg;
+            }
+            export_dlg = new ExportDataDlg(this, shape_type, geoms, spatial_ref, mem_table);
+            export_dlg->ShowModal();
+            
+        } else if (m_rec_order_rb->GetValue() == 1) { // merge by order sequence, just append
+            int new_rows = table_int->GetNumberRows() + merge_layer_proxy->GetNumRecords();
+            
+        }
+    } catch (GdaException& ex) {
+        if (ex.type() == GdaException::NORMAL)
+            return;
+        wxMessageDialog dlg(this, ex.what(), _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
+    wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
+    dlg.ShowModal();
+    EndDialog(wxID_OK);
+}
+
+void MergeTableDlg::LeftJoinMerge()
+{
     try {
         wxString error_msg;
         
@@ -391,8 +509,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
              it != table_fnames.end(); ++it ) {
              merged_fnames_dict[ *it ] = *it;
         }
-        vector<wxString> merged_field_names =
-            GetSelectedFieldNames(merged_fnames_dict);
+        vector<wxString> merged_field_names = GetSelectedFieldNames(merged_fnames_dict);
         
         if (merged_field_names.empty())
             return;
@@ -401,8 +518,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         int n_merge_field = merged_field_names.size();
        
         map<int, int> rowid_map;
-        // check merge by key/record order
-        if (m_key_val_rb->GetValue()==1) {
+        if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
             // get and check keys from original table
             int key1_id = m_current_key->GetSelection();
             wxString key1_name = m_current_key->GetString(key1_id);
@@ -492,8 +608,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 	wxMessageDialog dlg(this, _("File merged into Table successfully."),
 						_("Success"), wxOK );
 	dlg.ShowModal();
-	ev.Skip();
-	EndDialog(wxID_OK);	
+	EndDialog(wxID_OK);
 }
 
 void MergeTableDlg::AppendNewField(wxString field_name,
@@ -588,13 +703,12 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
-	//ev.Skip();
-    
 	EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnClose( wxCloseEvent& ev)
 {
+    wxLogMessage("In MergeTableDlg::OnClose()");
     if (connect_dlg) {
         connect_dlg->EndDialog();
         connect_dlg->Close(true);

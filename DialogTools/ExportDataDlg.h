@@ -56,6 +56,16 @@ public:
                   const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize);
     
+    // save in-memory geometries&table
+    ExportDataDlg(wxWindow* parent,
+                  Shapefile::ShapeType _shape_type,
+                  std::vector<GdaShape*>& _geometries,
+                  OGRSpatialReference* spatial_ref,
+                  OGRTable* table,
+                  const wxPoint& pos = wxDefaultPosition,
+				  const wxSize& size = wxDefaultSize);
+   
+    // Save centroids
     ExportDataDlg(wxWindow* parent,
                   std::vector<GdaPoint*>& _geometries,
                   Shapefile::ShapeType _shape_type,
@@ -75,7 +85,6 @@ public:
     void BrowseExportDataSource( wxCommandEvent& event );
     virtual void OnOkClick( wxCommandEvent& event );
 
-public:
 	bool IsTableOnly();
     wxString GetDatasourceName() { return datasource_name; }
     wxString GetDatasourceFormat() { return ds_format; }
@@ -88,6 +97,8 @@ protected:
     TableInterface* table_p;
 	vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type;
+    OGRSpatialReference* spatial_ref;
+    
     wxString project_file_name;
 	wxFileName ds_file_path;
 	wxString ds_format;
@@ -101,7 +112,6 @@ protected:
 	// so its memory will be maintained (no cleanup).
 	bool is_geometry_only;
     bool is_table_only;
-    
     bool is_save_centroids;
     
 	IDataSource* GetDatasource();

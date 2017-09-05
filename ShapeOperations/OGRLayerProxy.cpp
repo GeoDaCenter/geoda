@@ -373,6 +373,134 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
+Shapefile::ShapeType
+OGRLayerProxy::GetGdaGeometries(std::vector<GdaShape*>& geoms)
+{
+    Shapefile::ShapeType shape_type;
+    //read OGR geometry features
+    int feature_counter =0;
+    for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
+        OGRFeature* feature = data[row_idx];
+        OGRGeometry* geometry= feature->GetGeometryRef();
+        OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
+        // sometime OGR can't return correct value from GetGeomType() call
+        if (eGType == wkbUnknown)
+            eGType = eType;
+        
+        if (eType == wkbPoint) {
+            shape_type = Shapefile::POINT_TYP;
+            if (geometry) {
+                OGRPoint* p = (OGRPoint *) geometry;
+                geoms.push_back(new GdaPoint(p->getX(), p->getY()));
+            }
+        } else if (eType == wkbMultiPoint) {
+            shape_type = Shapefile::POINT_TYP;
+            if (geometry) {
+                OGRMultiPoint* mp = (OGRMultiPoint*) geometry;
+                int n_geom = mp->getNumGeometries();
+                for (size_t i = 0; i < n_geom; i++ )
+                {
+                    // only consider first point
+                    OGRGeometry* ogrGeom = mp->getGeometryRef(i);
+                    OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
+                    geoms.push_back(new GdaPoint(p->getX(), p->getY()));
+                }
+            }
+        } else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+            Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
+            shape_type = Shapefile::POLYGON;
+            if (geometry) {
+                OGRPolygon* p = (OGRPolygon *) geometry;
+                CopyEnvelope(p, pc);
+                OGRLinearRing* pLinearRing = NULL;
+                int numPoints= 0;
+                // interior rings
+                int ni_rings = p->getNumInteriorRings();
+                // resize parts memory, 1 is for exterior ring,
+                pc->num_parts = ni_rings + 1;
+                pc->parts.resize(pc->num_parts);
+                for (size_t j=0; j < pc->num_parts; j++ ) {
+                    pLinearRing = j==0 ?
+                    p->getExteriorRing() : p->getInteriorRing(j-1);
+                    pc->parts[j] = numPoints;
+                    if (pLinearRing)
+                        numPoints += pLinearRing->getNumPoints();
+                }
+                // resize points memory
+                pc->num_points = numPoints;
+                pc->points.resize(pc->num_points);
+                // read points
+                int i=0;
+                for (size_t j=0; j < pc->num_parts; j++) {
+                    pLinearRing = j==0 ?
+                    p->getExteriorRing() : p->getInteriorRing(j-1);
+                    if (pLinearRing)
+                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++){
+                            pc->points[i].x =  pLinearRing->getX(k);
+                            pc->points[i++].y =  pLinearRing->getY(k);
+                        }
+                }
+            }
+            geoms.push_back(new GdaPolygon(pc));
+        } else if (eType == wkbMultiPolygon) {
+            Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
+            shape_type = Shapefile::POLYGON;
+            if (geometry) {
+                OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
+                int n_geom = mpolygon->getNumGeometries();
+                // if there is more than one polygon, then we need to count which
+                // part is processing accumulatively
+                int part_idx = 0, numPoints = 0;
+                OGRLinearRing* pLinearRing = NULL;
+                int pidx =0;
+                for (size_t i = 0; i < n_geom; i++ )
+                {
+                    OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+                    OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
+                    if ( i == 0 ) {
+                        CopyEnvelope(p, pc);
+                    } else {
+                        OGREnvelope pBox;
+                        p->getEnvelope(&pBox);
+                        if ( pc->box[0] > pBox.MinX ) pc->box[0] = pBox.MinX;
+                        if ( pc->box[1] > pBox.MinY ) pc->box[1] = pBox.MinY;
+                        if ( pc->box[2] < pBox.MaxX ) pc->box[2] = pBox.MaxX;
+                        if ( pc->box[3] < pBox.MaxY ) pc->box[3] = pBox.MaxY;
+                    }
+                    // number of interior rings + 1 exterior ring
+                    int ni_rings = p->getNumInteriorRings()+1;
+                    pc->num_parts += ni_rings;
+                    pc->parts.resize(pc->num_parts);
+                    
+                    for (size_t j=0; j < ni_rings; j++) {
+                        pLinearRing = j==0 ?
+                        p->getExteriorRing() : p->getInteriorRing(j-1);
+                        pc->parts[part_idx++] = numPoints;
+                        numPoints += pLinearRing->getNumPoints();
+                    }
+                    // resize points memory
+                    pc->num_points = numPoints;
+                    pc->points.resize(pc->num_points);
+                    // read points
+                    for (size_t j=0; j < ni_rings; j++) {
+                        pLinearRing = j==0 ?
+                        p->getExteriorRing() : p->getInteriorRing(j-1);
+                        for (int k=0; k < pLinearRing->getNumPoints(); k++) {
+                            pc->points[pidx].x = pLinearRing->getX(k);
+                            pc->points[pidx++].y = pLinearRing->getY(k);
+                        }
+                    }
+                }
+            }
+            geoms.push_back(new GdaPolygon(pc));
+        } else {
+            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            throw GdaException(open_err_msg.c_str());
+        }
+    }
+    return shape_type;
+}
+
 void
 OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                            TableInterface* table,

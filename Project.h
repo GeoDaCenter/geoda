@@ -194,7 +194,6 @@ public:
 	static bool CanModifyGrpAndShowMsgIfNot(TableState* table_state,
                                             const wxString& grp_nm);
 	
-public:
 	/// main_data is the only public remaining attribute in Project
 	Shapefile::Main main_data;
     OGRSpatialReference* sourceSR;
@@ -217,6 +216,9 @@ public:
     std::vector<GdaPoint*> centroids;
     std::vector<GdaShape*> voronoi_polygons;
     
+	/** Save in-memory Table+Geometries to OGR DataSource */
+	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
+    
 private:
 	bool CommonProjectInit();
 	bool InitFromOgrLayer();
@@ -227,7 +229,6 @@ private:
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();
-	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
 	void CalcEucPlaneRtreeStats();
 	void CalcUnitSphereRtreeStats();
     

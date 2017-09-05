@@ -819,8 +819,8 @@ void GStatCoordinator::CalcPseudoP_range(const GalElement* W,
                 int n_1s = nn_1_t[i];
                 int n_0s = nn - n_1s;
                 
-                double mm_all = Gda::nChoosek(num_obs, nn);
-                double mm_1s = Gda::nChoosek(num_obs_1s, n_1s);
+                double mm_all = Gda::nChoosek(num_obs-1, nn);
+                double mm_1s = Gda::nChoosek(num_obs_1s-1, n_1s);
                 double mm_0s = Gda::nChoosek(num_obs_0s, n_0s);
                                         
                 double hg = (mm_1s * mm_0s) / mm_all;

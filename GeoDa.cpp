@@ -2423,8 +2423,7 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
     }
     
 	MergeTableDlg* dlg =  new MergeTableDlg(this,
-                                            project_p->GetTableInt(),
-                                            project_p->GetFramesManager(),
+                                            project_p,
                                             wxDefaultPosition);
 	dlg->Show(true);
 }

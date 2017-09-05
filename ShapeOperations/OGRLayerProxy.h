@@ -58,11 +58,6 @@ public:
     
 	~OGRLayerProxy();
 	
-private:
-    OGRFeatureDefn* featureDefn;
-    OGRSpatialReference* spatialRef;
-    
-public:
     GdaConst::DataSourceType ds_type;
 	std::ostringstream error_message;
 	// progress indicator: -1 means error, otherwise means progress
@@ -75,7 +70,6 @@ public:
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
-    
     //!< Geometry type of OGRLayer
     OGRwkbGeometryType eLayerType;
     //!< Fields and the meta data are stored in OGRFieldProxy.
@@ -89,30 +83,34 @@ public:
     //!< OGR layer GeomType
     OGRwkbGeometryType eGType;
     
-private:
-    void GetExtent(Shapefile::Main& p_main, Shapefile::PointContents* pc,
-                   int row_idx);
-    
-    void GetExtent(Shapefile::Main& p_main, Shapefile::PolygonContents* pc,
-                   int row_idx);
-    
-    void CopyEnvelope(OGRPolygon* p, Shapefile::PolygonContents* pc);
-	
-    /**
-	 * Read field information and save to OGRFieldProxy array.
-	 */
-	bool ReadFieldInfo();
-    
-public:
 	static OGRFieldType GetOGRFieldType(GdaConst::FieldType field_type);
-    OGRwkbGeometryType  GetShapeType(){ return eGType;}
-    void      SetOGRLayer(OGRLayer* new_layer);
-    OGRLayer* GetOGRLayer()  { return layer; }
-    int       GetNumRecords(){ return n_rows; }
-    int       GetNumFields() { return n_cols; }
-    bool      HasError();
-    bool      GetExtent(double& minx, double& miny, double& maxx, double& maxy);
-    OGRSpatialReference* GetSpatialReference() {return spatialRef;}
+    
+    void SetOGRLayer(OGRLayer* new_layer);
+    
+    bool HasError();
+    
+    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy);
+    
+    OGRwkbGeometryType  GetShapeType()
+    {
+        return eGType;
+    }
+    OGRLayer* GetOGRLayer()
+    {
+        return layer;
+    }
+    int GetNumRecords()
+    {
+        return n_rows;
+    }
+    int GetNumFields()
+    {
+        return n_cols;
+    }
+    OGRSpatialReference* GetSpatialReference()
+    {
+        return spatialRef;
+    }
 	/**
 	 * Save() function tries to save any changes to original data source.
 	 * It may return failure because the layer doesn't support writeback.
@@ -123,10 +121,8 @@ public:
 	 * @param format exported driver name (OGR style)
 	 * @param dest_datasource exported data source name (OGR style)
 	 */
-	void Export(string format, string dest_datasource, string new_layer_name,
-                bool is_update);
-	void T_Export(string format, string dest_datasource, string new_layer_name,
-                  bool is_update);
+	void Export(string format, string dest_datasource, string new_layer_name, bool is_update);
+	void T_Export(string format, string dest_datasource, string new_layer_name, bool is_update);
 	void T_StopExport();
 
     /**
@@ -142,6 +138,8 @@ public:
 	bool ReadGeometries(Shapefile::Main& p_main);
     bool AddGeometries(Shapefile::Main& p_main);
 
+    Shapefile::ShapeType GetGdaGeometries(std::vector<GdaShape*>& geoms);
+    
 	/**
 	 * Read table data from ogr OGRFeatures.
 	 * Note: Geometries are saved as raw "wkb" format. Developer needs to call
@@ -151,7 +149,10 @@ public:
     /**
      * Get OGRFieldProxy by an in put field position
      */
-    OGRFieldProxy* GetField(int pos) { return fields[pos]; }
+    OGRFieldProxy* GetField(int pos)
+    {
+        return fields[pos];
+    }
     /**
      * Get OGRFieldProxy by a input field name.
      */
@@ -166,8 +167,8 @@ public:
 	 * memory. If ogr data source doesn't support add field, user can "export"
 	 * the new field(s) in memory to a new file.
 	 */
-	int  AddField(const wxString& field_name, GdaConst::FieldType field_type,
-				  int field_length, int field_precision);
+	int AddField(const wxString& field_name, GdaConst::FieldType field_type,
+				 int field_length, int field_precision);
 	/**
 	 *
 	 */
@@ -215,7 +216,6 @@ public:
     bool UpdateColumn(int col_idx, vector<double> &vals);
     bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
     bool UpdateColumn(int col_idx, vector<wxString> &vals);
-    
 	/**
 	 *
 	 */
@@ -242,7 +242,10 @@ public:
 	/**
 	 *
 	 */
-    OGRFeature* GetFeatureAt(int rid) { return data[rid];}
+    OGRFeature* GetFeatureAt(int rid)
+    {
+        return data[rid];
+    }
     
     bool IsUndefined(int rid, int cid)
     {
@@ -301,6 +304,21 @@ public:
     }
     
 private:
+    OGRFeatureDefn* featureDefn;
+    
+    OGRSpatialReference* spatialRef;
+    
+    void GetExtent(Shapefile::Main& p_main, Shapefile::PointContents* pc, int row_idx);
+    
+    void GetExtent(Shapefile::Main& p_main, Shapefile::PolygonContents* pc, int row_idx);
+    
+    void CopyEnvelope(OGRPolygon* p, Shapefile::PolygonContents* pc);
+	
+    /**
+	 * Read field information and save to OGRFieldProxy array.
+	 */
+	bool ReadFieldInfo();
+    
 	bool IsFieldExisted(const wxString& field_name);
     
     bool CallCartoDBAPI(wxString url);

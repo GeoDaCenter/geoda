@@ -39,13 +39,14 @@
 
 class ConnectDatasourceDlg;
 class FramesManager;
+class Project;
+class ExportDataDlg;
 
 class MergeTableDlg: public wxDialog, public FramesManagerObserver
 {    
 public:
     MergeTableDlg(wxWindow* parent,
-                  TableInterface* _table_int,
-                  FramesManager* frames_manager,
+                  Project* project_p,
                   const wxPoint& pos = wxDefaultPosition);
 	virtual ~MergeTableDlg();
 
@@ -71,6 +72,10 @@ public:
 	void UpdateMergeButton();
 	//void RemoveDbfReader();
 	//void UpdateIncListItems();
+    
+    void LeftJoinMerge();
+    void OuterJoinMerge();
+    
 	
 	wxTextCtrl* m_input_file_name;
 	wxRadioButton* m_key_val_rb;
@@ -79,8 +84,14 @@ public:
 	wxChoice* m_import_key;
 	wxListBox* m_exclude_list;
 	wxListBox* m_include_list;
-	
+	wxRadioButton* m_left_join;
+	wxRadioButton* m_outer_join;
+	wxCheckBox* m_overwrite_field;
+
+    ExportDataDlg* export_dlg;
+    
 	//TableBase* table_base;
+    Project* project_s;
 	TableInterface* table_int;
 	OGRLayerProxy* merge_layer_proxy;
     OGRDatasourceProxy* merge_datasource_proxy;
