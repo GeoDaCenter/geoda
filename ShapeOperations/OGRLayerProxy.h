@@ -111,6 +111,7 @@ public:
     {
         return spatialRef;
     }
+    void ApplyProjection(OGRCoordinateTransformation* poCT);
 	/**
 	 * Save() function tries to save any changes to original data source.
 	 * It may return failure because the layer doesn't support writeback.
@@ -122,7 +123,9 @@ public:
 	 * @param dest_datasource exported data source name (OGR style)
 	 */
 	void Export(string format, string dest_datasource, string new_layer_name, bool is_update);
+    
 	void T_Export(string format, string dest_datasource, string new_layer_name, bool is_update);
+    
 	void T_StopExport();
 
     /**

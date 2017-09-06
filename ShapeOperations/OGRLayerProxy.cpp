@@ -286,6 +286,18 @@ bool OGRLayerProxy::IsTableOnly()
     return true;
 }
 
+void OGRLayerProxy::ApplyProjection(OGRCoordinateTransformation* poCT)
+{
+    if ( !data.empty() ) {
+        for (int i=0; i<n_rows; i++) {
+            OGRGeometry* geom = data[i]->GetGeometryRef();
+            if (geom != NULL) {
+                geom->transform(poCT);
+            }
+        }
+    }
+}
+
 bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
 {
 	if (layer->SetFeature(feature) == OGRERR_NONE)

@@ -507,8 +507,8 @@ void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
         }
     } else if (f_type == GdaConst::double_type) {
         for (int i=0; i<n_rows; i++) {
-            double val;
-            layer_proxy->GetValueAt(i, col_idx, &val);
+            OGRFeature* feat = layer_proxy->GetFeatureAt(i);
+            double val = feat->GetFieldAsDouble(col_idx);
             _col->SetValueAt(idx2_dict[i], val);
         }
     } else {
@@ -523,14 +523,8 @@ void MergeTableDlg::OuterJoinMerge()
 {
     try {
         wxString error_msg;
-        // get selected field names from merging table
-        map<wxString, wxString> merged_fnames_dict;
-        for (set<wxString>::iterator it = table_fnames.begin(); it != table_fnames.end(); ++it)
-        {
-            merged_fnames_dict[ *it ] = *it;
-        }
         
-        //vector<wxString> merged_field_names = GetSelectedFieldNames(merged_fnames_dict);
+        // get selected field names from merging table
         vector<wxString> merged_field_names;
         for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
             wxString inc_n = m_include_list->GetString(i);
@@ -610,8 +604,15 @@ void MergeTableDlg::OuterJoinMerge()
         Shapefile::ShapeType shape_type = project_s->GetGdaGeometries(geoms);
         
         std::vector<GdaShape*> in_geoms;
-        Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
+        OGRSpatialReference* in_spatial_ref = merge_layer_proxy->GetSpatialReference();
         
+        OGRCoordinateTransformation *poCT = NULL;
+        if (!spatial_ref->IsSame(in_spatial_ref) ) {
+            // convert geometry with original projection if needed
+            poCT = OGRCreateCoordinateTransformation(in_spatial_ref, spatial_ref);
+            merge_layer_proxy->ApplyProjection(poCT);
+        }
+        Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
         if (shape_type != in_shape_type) {
             error_msg = _("Merge Failed: Geometric types are not the same.");
             throw GdaException(error_msg.mb_str());
@@ -621,12 +622,13 @@ void MergeTableDlg::OuterJoinMerge()
         
         vector<wxString> new_key_vec = key1_vec;
         map<int, int> idx2_dict;
+        int idx2 = key1_vec.size();
         for (int i=0; i<key2_vec.size(); i++) {
             wxString tmp = key2_vec[i];
             if (key1_map.find(tmp) == key1_map.end()) {
                 new_key_vec.push_back(tmp);
                 new_geoms.push_back(in_geoms[i]);
-                idx2_dict[i] = new_key_vec.size();
+                idx2_dict[i] = idx2++;
             } else {
                 idx2_dict[i] = key1_map[tmp];
             }

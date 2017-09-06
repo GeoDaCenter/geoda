@@ -1645,14 +1645,14 @@ All Rights Reserved</label>
                 <object class="wxBoxSizer">
                  <object class="sizeritem">
                   <object class="wxRadioButton" name="ID_MERGE_LEFT_JOIN">
-                      <label>Left Join</label>
+                      <label>Merge</label>
                       <value>1</value>
                       <style>wxRB_GROUP</style>
                   </object>
                  </object>
                  <object class="sizeritem">
                   <object class="wxRadioButton" name="ID_MERGE_OUTER_JOIN">
-                      <label>Outer Join</label>
+                      <label>Stack</label>
                   </object>
                  </object>
                  <orient>wxHORIZONTAL</orient>
@@ -1837,7 +1837,7 @@ All Rights Reserved</label>
                   <object class="wxBoxSizer">
                       <object class="sizeritem">
                           <object class="wxCheckBox" name="ID_MERGE_OVERWRITE_SAME_FIELD">
-                              <label>Overwrite column data with same field name</label>
+                              <label>Use existing field name</label>
                               <checked>0</checked>
                           </object>
                       </object>
@@ -1846,7 +1846,7 @@ All Rights Reserved</label>
                   <flag>wxTOP</flag>
                   <border>5</border>
               </object>
-              <label>Paramters</label>
+              <label>Parameters</label>
               <orient>wxVERTICAL</orient>
             </object>
             <flag>wxEXPAND|wxALL</flag>
