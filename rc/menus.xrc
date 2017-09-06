@@ -71,7 +71,7 @@
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
       <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
-        <label>Merge Table Data</label>
+        <label>Merge</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
@@ -3937,7 +3937,7 @@
   </object>
   <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
-      <label>Merge Table Data</label>
+      <label>Merge</label>
     </object>
     <object class="separator"/>
     

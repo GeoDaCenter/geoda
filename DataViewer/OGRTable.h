@@ -61,11 +61,9 @@ private:
     queue<OGRTableOperation*> operations_queue;
     stack<OGRTableOperation*> completed_stack;
 	
-private:
 	void AddTimeIDs(int n);
 	int  FindOGRColId(int wxgrid_col_pos, int time);
     int  FindOGRColId(const wxString& name);
-	OGRColumn* FindOGRColumn(int col, int time=0);
     OGRColumn* FindOGRColumn(const wxString& name);
     
     void AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx);
@@ -81,11 +79,11 @@ public:
 	OGRLayerProxy* GetOGRLayer() { return ogr_layer; }
     //void ChangeOGRLayer(OGRLayerProxy* new_ogr_layer);
 
-public:
+	OGRColumn* FindOGRColumn(int col, int time=0);
+    
     // These functions for in-memory table
     void AddOGRColumn(OGRColumn* ogr_col);
     OGRColumn* GetOGRColumn(int idx);
-    
     
 	// Implementation of TableInterface pure virtual methods
     virtual void Update(const VarOrderPtree& var_order_ptree);

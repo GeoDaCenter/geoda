@@ -92,6 +92,23 @@ double Gda::nChoosek(unsigned int n, unsigned int k) {
     return r/s;
 }
 
+wxString Gda::CreateUUID(int nSize)
+{
+    if (nSize < 0 || nSize >= 38)
+        nSize = 8;
+
+    wxString letters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
+    srand (time(NULL));
+    
+    wxString uid;
+    while (uid.length() < nSize) {
+        int iSecret = rand() % letters.size();
+        uid += letters[iSecret];
+    }
+    return uid;
+}
+
 /** Use with std::sort for sorting in ascending order */
 bool Gda::dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
 								  const dbl_int_pair_type& ind2)

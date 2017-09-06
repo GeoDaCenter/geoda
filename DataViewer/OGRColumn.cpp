@@ -443,6 +443,20 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
     }
 }
 
+void OGRColumnInteger::SetValueAt(int row_idx, wxInt64 l_val)
+{
+    int col_idx = GetColIndex();
+    
+    if (is_new) {
+        new_data[row_idx] = l_val;
+    } else {
+        if (col_idx == -1)
+            return;
+        ogr_layer->data[row_idx]->SetField(col_idx, (GIntBig)l_val);
+    }
+    undef_markers[row_idx] = false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 OGRColumnDouble::OGRColumnDouble(wxString name, int field_length,
@@ -663,6 +677,16 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
     }
 }
 
+void OGRColumnDouble::SetValueAt(int row_idx, double d_val)
+{
+    if (is_new) {
+        new_data[row_idx] = d_val;
+    } else {
+        int col_idx = GetColIndex();
+        ogr_layer->data[row_idx]->SetField(col_idx, d_val);
+    }
+    undef_markers[row_idx] = false;
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 OGRColumnString::OGRColumnString(wxString name, int field_length,

@@ -56,11 +56,13 @@ public:
    
     // Get column index from loaded ogr_layer
     int GetColIndex();
-    
+   
+    void SetUndefinedMarkers(vector<bool>& undefs) {undef_markers = undefs;}
     vector<bool> GetUndefinedMarkers() { return undef_markers;}
     
     //  When SaveAs current datasource to a new datasource, the underneath OGRLayer will be replaced.
     void UpdateOGRLayer(OGRLayerProxy* new_ogr_layer);
+    
     OGRLayerProxy* GetOGRLayerProxy() { return ogr_layer;}
     
     bool IsNewColumn() { return is_new;}
@@ -127,6 +129,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL) = 0;
     virtual void SetValueAt(int row_idx, const wxString& value) = 0;
+    virtual void SetValueAt(int row_idx, wxInt64 value){}
+    virtual void SetValueAt(int row_idx, double value){}
 };
 
 /**
@@ -167,6 +171,7 @@ public:
                                 wxCSConv* m_wx_encoding=NULL);
     
     virtual void SetValueAt(int row_idx, const wxString& value);
+    void SetValueAt(int row_idx, wxInt64 value);
     
 };
 
@@ -208,6 +213,7 @@ public:
                                 wxCSConv* m_wx_encoding=NULL);
     
     virtual void SetValueAt(int row_idx, const wxString& value);
+    void SetValueAt(int row_idx, double value);
     
 };
 

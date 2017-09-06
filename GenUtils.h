@@ -79,6 +79,8 @@ namespace Gda {
     double factorial(unsigned int n);
     
     double nChoosek(unsigned int n, unsigned int r);
+    
+    wxString CreateUUID(int nSize);
 }
 
 

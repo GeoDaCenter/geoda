@@ -258,6 +258,16 @@ public:
         return rst;
     }
     
+	wxString GetValueAt(int rid, int cid, GIntBig* val)
+    {
+        *val = data[rid]->GetFieldAsInteger64(cid);
+    }
+    
+	wxString GetValueAt(int rid, int cid, double* val)
+    {
+        *val = data[rid]->GetFieldAsDouble(cid);
+    }
+    
     void SetValueAt(int rid, int cid, GIntBig val, bool undef=false)
     {
         if (undef) data[rid]->UnsetField(cid);
