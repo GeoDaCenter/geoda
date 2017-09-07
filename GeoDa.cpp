@@ -872,7 +872,7 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 
 			title = _("Do you want to save your data?");
 			msg << "\n";
-			msg << _("There are unsaved data source or time definition changes.");
+			msg << _("There are unsaved data source or weights/time definition changes.");
 			
 			wxMessageDialog msgDlg(this, msg, title,
 								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
@@ -968,27 +968,18 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 	wxLogMessage("Click GdaFrame::OnClose");
 
     if (IsProjectOpen()) {
-        bool is_new_project = ((project_p->GetProjectFullPath().empty() ||
-                                !wxFileExists(project_p->GetProjectFullPath())));
-        bool unsaved_meta_data = is_new_project || (project_p->GetSaveButtonManager() && project_p->GetSaveButtonManager()->IsMetaDataSaveNeeded());
-        bool unsaved_ds_data = project_p->HasUnsavedChange();
+        wxString prj_full_path = project_p->GetProjectFullPath();
+        bool is_new_project = prj_full_path.empty() || (wxFileExists(prj_full_path)==false);
+        bool unsaved_meta_data = project_p->GetTableInt()->ProjectChangedSinceLastSave();
+        bool unsaved_ds_data = project_p->GetTableInt()->ChangedSinceLastSave();
         
         wxString msg;
         wxString title;
         if (unsaved_ds_data || unsaved_meta_data) {
             title = _("Exit with unsaved changes?");
             msg << "\n";
-            msg << _("There are ");
-            if (!is_new_project) {
-                msg << _("unsaved project file changes, and ");
-            }
-            if (unsaved_ds_data) {
-                msg << _("unsaved data source (Table) changes.\n\n");
-            }
-            if (!is_new_project) {
-                msg << _("To save your project, go to File > Save Project\n\n");
-            }
-            msg << _("To save your work, go to File > Save");
+            msg << _("There are unsaved data source or weights/time definition changes.");
+            
         } else {
             title = _("Exit?");
             msg = _("OK to Exit?");

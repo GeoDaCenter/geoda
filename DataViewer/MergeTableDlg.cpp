@@ -98,6 +98,11 @@ MergeTableDlg::~MergeTableDlg()
         delete connect_dlg;
         connect_dlg = NULL;
     }
+    if (export_dlg) {
+        export_dlg->Destroy();
+        delete export_dlg;
+        export_dlg = NULL;
+    }
 }
 
 void MergeTableDlg::update(FramesManager* o)
@@ -135,11 +140,17 @@ void MergeTableDlg::CreateControls()
 void MergeTableDlg::OnLeftJoinClick(wxCommandEvent& ev)
 {
     m_overwrite_field->Disable();
+    m_overwrite_field->SetValue(false);
+    m_rec_order_rb->SetValue(false);
+    m_key_val_rb->SetValue(true);
 }
 
 void MergeTableDlg::OnOuterJoinClick(wxCommandEvent& ev)
 {
     m_overwrite_field->Enable();
+    m_overwrite_field->SetValue(true);
+    m_rec_order_rb->SetValue(true);
+    m_key_val_rb->SetValue(false);
 }
 
 void MergeTableDlg::Init()
@@ -607,14 +618,16 @@ void MergeTableDlg::OuterJoinMerge()
         OGRSpatialReference* in_spatial_ref = merge_layer_proxy->GetSpatialReference();
         
         OGRCoordinateTransformation *poCT = NULL;
-        if (!spatial_ref->IsSame(in_spatial_ref) ) {
-            // convert geometry with original projection if needed
-            poCT = OGRCreateCoordinateTransformation(in_spatial_ref, spatial_ref);
-            merge_layer_proxy->ApplyProjection(poCT);
+        if (spatial_ref !=NULL && in_spatial_ref != NULL) {
+            if (!spatial_ref->IsSame(in_spatial_ref) ) {
+                // convert geometry with original projection if needed
+                poCT = OGRCreateCoordinateTransformation(in_spatial_ref, spatial_ref);
+                merge_layer_proxy->ApplyProjection(poCT);
+            }
         }
         Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
         if (shape_type != in_shape_type) {
-            error_msg = _("Merge Failed: Geometric types are not the same.");
+            error_msg = _("Merge error: Geometric type of selected datasource has to be the same with current datasource.");
             throw GdaException(error_msg.mb_str());
         }
         
@@ -696,6 +709,7 @@ void MergeTableDlg::OuterJoinMerge()
         export_dlg->ShowModal();
         
         delete mem_table;
+        // see ExportDataDlg.cpp line:620
         //for (int i=0; i<new_geoms.size(); i++) {
         //    delete new_geoms[i];
         //}
@@ -918,6 +932,16 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
+    if (connect_dlg) {
+        connect_dlg->EndDialog();
+        connect_dlg->Close(true);
+        connect_dlg = NULL;
+    }
+    if (export_dlg) {
+        export_dlg->Destroy();
+        delete export_dlg;
+        export_dlg = NULL;
+    }
 	EndDialog(wxID_CLOSE);
 }
 
@@ -928,6 +952,11 @@ void MergeTableDlg::OnClose( wxCloseEvent& ev)
         connect_dlg->EndDialog();
         connect_dlg->Close(true);
         connect_dlg = NULL;
+    }
+    if (export_dlg) {
+        export_dlg->Destroy();
+        delete export_dlg;
+        export_dlg = NULL;
     }
     Destroy();
 }
