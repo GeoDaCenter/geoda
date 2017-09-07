@@ -2511,9 +2511,18 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
 	
 	std::vector<double> xs;
 	std::vector<double> ys;
-	table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, xs);
-	table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, ys);
+    std::vector<bool> undefs;
+    std::vector<bool> undefs_x(p->GetNumRecords());
+    std::vector<bool> undefs_y(p->GetNumRecords());
+    
+	table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, xs, undefs_x);
+	table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, ys, undefs_y);
 
+    for (int i=0; i<undefs_x.size(); i++) {
+        bool undef = undefs_x[i] || undefs_y[i];
+        undefs.push_back(undef);
+    }
+    
     if (p->IsTableOnlyProject()) {
         int n_rows = xs.size();
         
@@ -2525,11 +2534,22 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
         p->main_data.records.resize(n_rows);
         
     	double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
-        
+        bool is_first = true;
         for ( int i=0; i < n_rows; i++ ) {
-            if ( i==0 ) {
+            Shapefile::PointContents* pc = new Shapefile::PointContents();
+            pc->shape_type = Shapefile::POINT_TYP;
+            pc->x = xs[i];
+            pc->y = ys[i];
+            pc->shape_type = undefs[i] ? 0 : 1;
+            p->main_data.records[i].contents_p = pc;
+            
+            if (undefs[i])
+                continue;
+            
+            if (is_first) {
                 min_x = max_x = xs[i];
                 min_y = max_y = ys[i];
+                is_first = false;
             }
             if ( xs[i] < min_x )
                 min_x = xs[i];
@@ -2540,12 +2560,6 @@ void GdaFrame::OnGeneratePointShpFile(wxCommandEvent& event)
                 min_y = ys[i];
             else if ( ys[i] > max_y )
                 max_y = ys[i];
-            
-            Shapefile::PointContents* pc = new Shapefile::PointContents();
-            pc->shape_type = Shapefile::POINT_TYP;
-            pc->x = xs[i];
-            pc->y = ys[i];
-            p->main_data.records[i].contents_p = pc;
         }
        
     	p->main_data.header.bbox_x_min = min_x;
