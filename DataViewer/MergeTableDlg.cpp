@@ -706,7 +706,11 @@ void MergeTableDlg::OuterJoinMerge()
             delete export_dlg;
         }
         export_dlg = new ExportDataDlg(this, shape_type, new_geoms, spatial_ref, mem_table);
-        export_dlg->ShowModal();
+        if (export_dlg->ShowModal() == wxID_OK) {
+            wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
+            dlg.ShowModal();
+            EndDialog(wxID_OK);
+        }
         
         delete mem_table;
         // see ExportDataDlg.cpp line:620
@@ -721,10 +725,6 @@ void MergeTableDlg::OuterJoinMerge()
         dlg.ShowModal();
         return;
     }
-    
-    wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
-    dlg.ShowModal();
-    EndDialog(wxID_OK);
 }
 
 void MergeTableDlg::LeftJoinMerge()

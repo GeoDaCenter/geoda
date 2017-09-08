@@ -24,6 +24,7 @@
 #include <queue>
 #include <stack>
 #include <map>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <wx/filename.h>
 
 #include "OGRColumn.h"
@@ -34,6 +35,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
+using namespace boost::gregorian;
 
 class OGRTable : public TableInterface, TableStateObserver
 {
@@ -136,6 +138,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
+	virtual void GetColData(int col, int time, std::vector<date>& data);
     
 	virtual void GetDirectColData(int col, std::vector<double>& data);
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);

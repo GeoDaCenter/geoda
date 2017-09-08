@@ -25,12 +25,16 @@
 #include <utility>
 #include <vector>
 #include <boost/multi_array.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include "TableState.h"
 #include "TimeState.h"
 #include "TableStateObserver.h"
 
 #include "../GdaConst.h"
 #include "../VarCalc/GdaFlexValue.h"
+
+using namespace boost::gregorian;
 
 class TimeState;
 class VarOrderPtree;
@@ -148,12 +152,15 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
+	virtual void GetColData(int col, int time, std::vector<date>& data) = 0;
    
 	virtual void GetColData(int col, int time, std::vector<double>& data,
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data,
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data,
+                            std::vector<bool>& undefs);
+	virtual void GetColData(int col, int time, std::vector<date>& data,
                             std::vector<bool>& undefs);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;

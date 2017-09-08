@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <map>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "../GdaConst.h"
 #include "../DataViewer/VarOrderPtree.h"
@@ -29,6 +30,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
+using namespace boost::gregorian;
 
 /**
  *
@@ -117,6 +119,7 @@ public:
     virtual void FillData(vector<double>& data);
     virtual void FillData(vector<wxInt64>& data);
     virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<date>& data);
     
     virtual void FillData(vector<double>& data,
                           vector<bool>& undef_markers);
@@ -244,6 +247,8 @@ public:
     virtual void FillData(vector<wxInt64>& data);
     
     virtual void FillData(vector<wxString>& data);
+    
+    virtual void FillData(vector<date>& data);
     
     virtual void UpdateData(const vector<wxString>& data);
     

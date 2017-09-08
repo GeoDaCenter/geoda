@@ -16,6 +16,7 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
             -L/usr/lib -liconv \
             -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
+            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_date_time.a \
             $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
             $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
 	    $(GEODA_HOME)/libraries/lib/libjson_spirit.a

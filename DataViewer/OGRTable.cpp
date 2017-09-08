@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <wx/grid.h>
@@ -39,6 +40,7 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
+using namespace boost::gregorian;
 
 OGRTable::OGRTable(int n_rows)
 : TableInterface(NULL, NULL)
@@ -820,6 +822,16 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
 	OGRColumn* ogr_col = FindOGRColumn(nm);
 	if (ogr_col == NULL) return;
 	data.resize(rows);
+    ogr_col->FillData(data);
+}
+
+void OGRTable::GetColData(int col, int time, std::vector<date>& data)
+{
+    wxString nm(var_order.GetSimpleColName(col, time));
+    if (nm.IsEmpty()) return;
+    OGRColumn* ogr_col = FindOGRColumn(nm);
+    if (ogr_col == NULL) return;
+    data.resize(rows);
     ogr_col->FillData(data);
 }
 

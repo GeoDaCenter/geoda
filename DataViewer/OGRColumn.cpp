@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/foreach.hpp>
 #include <locale>
 #include <wx/regex.h>
@@ -36,6 +37,8 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
+using namespace boost::gregorian;
+
 
 OGRColumn::OGRColumn(wxString name, int field_length, int decimals, int n_rows)
 : name(name), length(field_length), decimals(decimals), is_new(true), is_deleted(false), rows(n_rows)
@@ -189,9 +192,14 @@ void OGRColumn::FillData(vector<wxString>& data)
 {
     wxString msg = "Internal error: FillData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
-    
 }
 
+void OGRColumn::FillData(vector<date>& data)
+{
+    wxString msg = "Internal error: FillData(date) not implemented.";
+    throw GdaException(msg.mb_str());
+    
+}
 
 void OGRColumn::FillData(vector<double> &data,
                          vector<bool>& undef_markers_)
@@ -868,6 +876,24 @@ void OGRColumnString::FillData(vector<wxString> &data)
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             data[i] = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+        }
+    }
+}
+
+void OGRColumnString::FillData(vector<date>& data)
+{
+    if (is_new) {
+        for (int i=0; i<rows; ++i) {
+            string s = new_data[i].ToStdString();
+            date d(from_simple_string(s));
+            data[i] = d;
+        }
+    } else {
+        int col_idx = GetColIndex();
+        for (int i=0; i<rows; ++i) {
+            const char* str = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            date d(from_simple_string(str));
+            data[i] = d;
         }
     }
 }

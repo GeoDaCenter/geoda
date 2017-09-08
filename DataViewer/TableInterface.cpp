@@ -17,10 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
 #include "../DbfFile.h"
+
+using namespace boost::gregorian;
+
 
 TableInterface::TableInterface(TableState* table_state_s,
 							   TimeState* time_state_s)
@@ -253,6 +258,13 @@ void TableInterface::GetColData(int col, int time, std::vector<wxInt64>& data,
 }
 
 void TableInterface::GetColData(int col, int time, std::vector<wxString>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<date>& data,
                                 std::vector<bool>& undefs)
 {
     GetColData(col, time, data);

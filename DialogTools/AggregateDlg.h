@@ -31,13 +31,12 @@
 #include <wx/listbox.h>
 #include <wx/grid.h>
 
-#include "DataSource.h"
+#include "../DataViewer/DataSource.h"
 #include "../FramesManagerObserver.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDatasourceProxy.h"
 #include "../DataViewer/TableInterface.h"
 
-class ConnectDatasourceDlg;
 class FramesManager;
 class Project;
 class ExportDataDlg;

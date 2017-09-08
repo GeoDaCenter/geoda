@@ -21,6 +21,8 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include "../logger.h"
 #include "../Project.h"
 #include "../GeoDa.h"
@@ -32,6 +34,8 @@
 #include "TableState.h"
 #include "DataViewerEditFieldPropertiesDlg.h"
 
+using namespace std;
+using namespace boost::gregorian;
 
 BEGIN_EVENT_TABLE( DataViewerEditFieldPropertiesDlg, wxDialog )
 	EVT_GRID_EDITOR_SHOWN( DataViewerEditFieldPropertiesDlg::OnCellEditorShown )
@@ -429,10 +433,12 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                 } else if (new_type_str == "string") {
                     new_type = GdaConst::string_type;
                     
+                } else if (new_type_str == "date") {
+                    new_type = GdaConst::date_type;
                 }
                 
                 if (new_type == GdaConst::unknown_type ||
-                    new_type_str == "date" ||
+                    //new_type_str == "date" ||
                     new_type_str == "time" ||
                     new_type_str == "datetime")
                 {
@@ -460,15 +466,20 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     from_col = from_col + 1;
                     int num_rows = table_int->GetNumberRows();
                     
-                    if (new_type == GdaConst::long64_type ||
-                        new_type == GdaConst::date_type ||
-                        new_type == GdaConst::time_type ||
-                        new_type == GdaConst::datetime_type)
+                    if (new_type == GdaConst::long64_type)
                     {
                         // get data from old
                         vector<wxInt64> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
+                        
+                    } else if (new_type == GdaConst::date_type ||
+                               new_type == GdaConst::time_type ||
+                               new_type == GdaConst::datetime_type) {
+                        // get data from old
+                        vector<date> data(num_rows);
+                        table_int->GetColData(from_col, 0, data);
+                        //table_int->SetColData(to_col, 0, data);
                         
                     } else if (new_type == GdaConst::double_type) {
                         // get data from old
