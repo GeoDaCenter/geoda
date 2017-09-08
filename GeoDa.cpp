@@ -122,6 +122,7 @@
 #include "DialogTools/CreateGridDlg.h"
 #include "DialogTools/RedcapDlg.h"
 #include "DialogTools/MDSDlg.h"
+#include "DialogTools/AggregateDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -2417,6 +2418,28 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
                                             project_p,
                                             wxDefaultPosition);
 	dlg->Show(true);
+}
+
+void GdaFrame::OnAggregateData(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (AggregationDlg* w = dynamic_cast<AggregationDlg*>(*it))
+        {
+            w->Init();
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    AggregationDlg* dlg =  new AggregationDlg(this, project_p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
@@ -6424,7 +6447,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_EDIT_FIELD_PROP"), GdaFrame::OnEditFieldProperties)
     EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
-    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile)     // not used currently
+    EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
+    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used 
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)

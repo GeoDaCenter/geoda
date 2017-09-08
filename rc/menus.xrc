@@ -70,6 +70,9 @@
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
+      <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
+        <label>Aggregation</label>
+      </object>
       <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
         <label>Merge</label>
       </object>
@@ -3936,19 +3939,19 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
+    <object class="wxMenuItem" name="ID_TABLE_AGGREGATION">
+      <label>Aggregation</label>
+    </object>
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
       <label>Merge</label>
     </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
       <label>Selection Tool</label>
     </object>
-    
-    
-      <object class="wxMenuItem" name="ID_TABLE_INVERT_SELECTION">
-        <label>Invert Selection</label>
-      </object>
+    <object class="wxMenuItem" name="ID_TABLE_INVERT_SELECTION">
+      <label>Invert Selection</label>
+    </object>
     <object class="wxMenuItem" name="ID_TABLE_CLEAR_SELECTION">
       <label>Clear Selection</label>
     </object>
