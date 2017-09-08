@@ -206,7 +206,7 @@ void AggregationDlg::OnExclListDClick( wxCommandEvent& ev)
 bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map<int, vector<int> >& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
-    int new_id = 0;
+    std::vector<wxString> uniq_fnames;
     
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
         wxString tmpK = key_vec[i];
@@ -214,19 +214,20 @@ bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map
         tmpK.Trim(true);
         if (dup_dict.find(tmpK) == dup_dict.end()) {
             dup_dict[tmpK].push_back(i);
-            key_map[new_id++].push_back(i);
+            uniq_fnames.push_back(tmpK);
         } else {
             dup_dict[tmpK].push_back(i);
-            key_map[new_id].push_back(i);
         }
     }
-	
     if (key_vec.size() == dup_dict.size()) {
         wxString msg = wxString::Format(_("Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."), key_name);
         
         wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
+    }
+    for (int i=0; i<uniq_fnames.size(); i++) {
+        key_map[i] = dup_dict[uniq_fnames[i]];
     }
     return true;
 }
@@ -274,10 +275,11 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         }
         
         vector<wxInt64>  key1_l_vec;
+        GdaConst::FieldType key_ftype = table_int->GetColType(col1_id, 0);
         
-        if (table_int->GetColType(col1_id, 0) == GdaConst::string_type) {
+        if (key_ftype == GdaConst::string_type) {
             table_int->GetColData(col1_id, 0, key1_vec);
-        }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
+        }else if (key_ftype==GdaConst::long64_type){
             table_int->GetColData(col1_id, 0, key1_l_vec);
         }
         
@@ -299,9 +301,26 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         int in_cols = aggregate_field_names.size();
         map<wxString, OGRColumn*> new_fields_dict;
         vector<wxString> new_fields;
+    
+        // create key column
+        OGRColumn* key_col;
+        if (key_ftype == GdaConst::string_type) {
+            key_col = new OGRColumnString(key1_name, 50, 0, new_rows);
+            for(int i=0; i<new_rows; i++) key_col->SetValueAt(i, key1_vec[key1_map[i][0]]);
+        }else if (key_ftype==GdaConst::long64_type){
+            key_col = new OGRColumnInteger(key1_name, 18, 0, new_rows);
+            for(int i=0; i<new_rows; i++) key_col->SetValueAt(i, key1_l_vec[key1_map[i][0]]);
+        }
+        new_fields_dict[key1_name] = key_col;
+        new_fields.push_back(key1_name);
+        
+        // create count column
+        OGRColumn* _col = new OGRColumnInteger("AGG_COUNT", 18, 0, new_rows);
+        for(int i=0; i<new_rows; i++) _col->SetValueAt(i, (wxInt64)(key1_map[i].size()));
+        new_fields_dict[_col->GetName()] = _col;
+        new_fields.push_back(_col->GetName());
         
         // get columns from table
-        int time_steps = table_int->GetTimeSteps();
         for ( int i=0; i < in_cols; i++ ) {
             wxString fname = aggregate_field_names[i];
             OGRColumn* col =  CreateNewOGRColumn(new_rows, table_int, key1_map, fname);
@@ -318,8 +337,11 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
             delete export_dlg;
         }
         export_dlg = new ExportDataDlg(this, mem_table);
-        export_dlg->ShowModal();
-        
+        if (export_dlg->ShowModal() == wxID_OK) {
+            wxMessageDialog dlg(this, _("File aggregate into Table successfully."), _("Success"), wxOK);
+            dlg.ShowModal();
+            EndDialog(wxID_OK);
+        }
         delete mem_table;
     } catch (GdaException& ex) {
         if (ex.type() == GdaException::NORMAL)
@@ -328,11 +350,6 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         dlg.ShowModal();
         return;
     }
-    
-    wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
-    dlg.ShowModal();
-    EndDialog(wxID_OK);
-    
 	ev.Skip();
 }
 
@@ -400,7 +417,7 @@ OGRColumn* AggregationDlg::CreateNewOGRColumn(int new_rows, TableInterface* tabl
             _col = new OGRColumnInteger(f_name, f_length, f_decimal, new_rows);
             is_integer = true;
         } else 
-            _col = new OGRColumnDouble(f_name, f_length, f_decimal, new_rows);
+            _col = new OGRColumnDouble(f_name, GdaConst::default_dbf_double_len, GdaConst::default_dbf_double_decimals, new_rows);
             
         vector<double> vals;
         vector<bool> undefs;
