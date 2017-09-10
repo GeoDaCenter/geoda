@@ -21,7 +21,7 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time.hpp>
 
 #include "../logger.h"
 #include "../Project.h"
@@ -35,7 +35,8 @@
 #include "DataViewerEditFieldPropertiesDlg.h"
 
 using namespace std;
-using namespace boost::gregorian;
+namespace bt = boost::posix_time;
+
 
 BEGIN_EVENT_TABLE( DataViewerEditFieldPropertiesDlg, wxDialog )
 	EVT_GRID_EDITOR_SHOWN( DataViewerEditFieldPropertiesDlg::OnCellEditorShown )
@@ -477,9 +478,9 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                                new_type == GdaConst::time_type ||
                                new_type == GdaConst::datetime_type) {
                         // get data from old
-                        vector<date> data(num_rows);
+                        vector<bt::ptime> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
-                        //table_int->SetColData(to_col, 0, data);
+                        table_int->SetColData(to_col, 0, data);
                         
                     } else if (new_type == GdaConst::double_type) {
                         // get data from old

@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 #include <boost/multi_array.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time.hpp>
 
 #include "TableState.h"
 #include "TimeState.h"
@@ -34,7 +34,7 @@
 #include "../GdaConst.h"
 #include "../VarCalc/GdaFlexValue.h"
 
-using namespace boost::gregorian;
+namespace bt = boost::posix_time;
 
 class TimeState;
 class VarOrderPtree;
@@ -152,7 +152,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
-	virtual void GetColData(int col, int time, std::vector<date>& data) = 0;
+	virtual void GetColData(int col, int time, std::vector<bt::ptime>& data) = 0;
    
 	virtual void GetColData(int col, int time, std::vector<double>& data,
                             std::vector<bool>& undefs);
@@ -160,7 +160,7 @@ public:
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data,
                             std::vector<bool>& undefs);
-	virtual void GetColData(int col, int time, std::vector<date>& data,
+	virtual void GetColData(int col, int time, std::vector<bt::ptime>& data,
                             std::vector<bool>& undefs);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;
@@ -184,6 +184,8 @@ public:
 							const std::vector<wxInt64>& data) = 0;
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data) = 0;
+	virtual void SetColData(int col, int time,
+                            const std::vector<bt::ptime>& data) = 0;
     
 	virtual void SetColData(int col, int time,
 							const std::vector<double>& data,
@@ -193,6 +195,9 @@ public:
                             const std::vector<bool>& undefs);
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data,
+                            const std::vector<bool>& undefs);
+	virtual void SetColData(int col, int time,
+                            const std::vector<bt::ptime>& data,
                             const std::vector<bool>& undefs);
     
 	virtual void SetColUndefined(int col, int time,

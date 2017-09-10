@@ -16,15 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time.hpp>
 
 #include "../GenUtils.h"
 #include "../logger.h"
-#include "TableInterface.h"
 #include "../DbfFile.h"
+#include "TableInterface.h"
 
-using namespace boost::gregorian;
+namespace bt = boost::posix_time;
 
 
 TableInterface::TableInterface(TableState* table_state_s,
@@ -243,6 +242,14 @@ void TableInterface::SetColData(int col, int time,
     SetColUndefined(col, time, undefs);
 }
 
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<bt::ptime>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
 void TableInterface::GetColData(int col, int time, std::vector<double>& data,
                                 std::vector<bool>& undefs)
 {
@@ -264,7 +271,7 @@ void TableInterface::GetColData(int col, int time, std::vector<wxString>& data,
     GetColUndefined(col, time, undefs);
 }
 
-void TableInterface::GetColData(int col, int time, std::vector<date>& data,
+void TableInterface::GetColData(int col, int time, std::vector<bt::ptime>& data,
                                 std::vector<bool>& undefs)
 {
     GetColData(col, time, data);

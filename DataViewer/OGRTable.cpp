@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <wx/grid.h>
@@ -40,7 +40,7 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
-using namespace boost::gregorian;
+namespace bt = boost::posix_time;
 
 OGRTable::OGRTable(int n_rows)
 : TableInterface(NULL, NULL)
@@ -825,7 +825,7 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
-void OGRTable::GetColData(int col, int time, std::vector<date>& data)
+void OGRTable::GetColData(int col, int time, std::vector<bt::ptime>& data)
 {
     wxString nm(var_order.GetSimpleColName(col, time));
     if (nm.IsEmpty()) return;
@@ -1027,6 +1027,21 @@ void OGRTable::SetColData(int col, int time,
 	SetChangedSinceLastSave(true);
 }
 
+void OGRTable::SetColData(int col, int time,
+                          const std::vector<bt::ptime>& data)
+{
+    if (col < 0 || col >= GetNumberCols()) return;
+    int ogr_col_id = FindOGRColId(col, time);
+    if (ogr_col_id == wxNOT_FOUND) return;
+    
+    OGRColumn* ogr_col = columns[ogr_col_id];
+    operations_queue.push(new OGRTableOpUpdateColumn(ogr_col, data));
+    ogr_col->UpdateData(data);
+    table_state->SetColDataChangeEvtTyp(ogr_col->GetName(), col);
+    table_state->notifyObservers();
+    SetChangedSinceLastSave(true);
+}
+
 void OGRTable::SetColUndefined(int col, int time,
 							   const std::vector<bool>& undefs)
 {
@@ -1208,7 +1223,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     // don't support the following column type
 	if (type == GdaConst::placeholder_type ||
         type == GdaConst::unknown_type ||
-        type == GdaConst::date_type||
+        //type == GdaConst::date_type||
         type == GdaConst::time_type||
         type == GdaConst::datetime_type)
     {
@@ -1259,6 +1274,9 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
             
         } else if (type==GdaConst::string_type){
             ogr_col = new OGRColumnString(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::date_type){
+            ogr_col = new OGRColumnDate(ogr_layer, names[t], field_len, decimals);
             
         } else {
             wxString msg = "Add OGR column error. Field type is unknown "

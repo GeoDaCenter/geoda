@@ -22,6 +22,9 @@
 
 #include <vector>
 #include "OGRColumn.h"
+#include <boost/date_time.hpp>
+
+namespace bt = boost::posix_time;
 
 using namespace std;
 
@@ -122,11 +125,13 @@ private:
     vector<double> d_old_data, d_new_data;
     vector<wxInt64> l_old_data, l_new_data;
     vector<wxString> s_old_data, s_new_data;
+    vector<bt::ptime> t_old_data, t_new_data;
     
 public:
     OGRTableOpUpdateColumn(OGRColumn* col, const vector<double>& new_data);
     OGRTableOpUpdateColumn(OGRColumn* col, const vector<wxInt64>& new_data);
     OGRTableOpUpdateColumn(OGRColumn* col, const vector<wxString>& new_data);
+    OGRTableOpUpdateColumn(OGRColumn* col, const vector<bt::ptime>& new_data);
     ~OGRTableOpUpdateColumn(){}
     
     virtual void Commit();

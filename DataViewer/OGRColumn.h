@@ -22,7 +22,8 @@
 
 #include <vector>
 #include <map>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <iostream>
+#include <boost/date_time.hpp>
 
 #include "../GdaConst.h"
 #include "../DataViewer/VarOrderPtree.h"
@@ -30,7 +31,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
-using namespace boost::gregorian;
+namespace bt = boost::posix_time;
 
 /**
  *
@@ -99,6 +100,7 @@ public:
     virtual void UpdateData(const vector<wxString>& data);
     virtual void UpdateData(const vector<wxInt64>& data);
     virtual void UpdateData(const vector<double>& data);
+    virtual void UpdateData(const vector<bt::ptime>& data);
    
     // following UpdateData will be used for any undefined/null values
     virtual void UpdateData(const vector<double>& data,
@@ -106,6 +108,8 @@ public:
     virtual void UpdateData(const vector<wxInt64>& data,
                             const vector<bool>& undef_markers);
     virtual void UpdateData(const vector<wxString>& data,
+                            const vector<bool>& undef_markers);
+    virtual void UpdateData(const vector<bt::ptime>& data,
                             const vector<bool>& undef_markers);
     
     // Should return true, unless if a undefined value is found
@@ -119,13 +123,15 @@ public:
     virtual void FillData(vector<double>& data);
     virtual void FillData(vector<wxInt64>& data);
     virtual void FillData(vector<wxString>& data);
-    virtual void FillData(vector<date>& data);
+    virtual void FillData(vector<bt::ptime>& data);
     
     virtual void FillData(vector<double>& data,
                           vector<bool>& undef_markers);
     virtual void FillData(vector<wxInt64>& data,
                           vector<bool>& undef_markers);
     virtual void FillData(vector<wxString>& datam,
+                          vector<bool>& undef_markers);
+    virtual void FillData(vector<bt::ptime>& datam,
                           vector<bool>& undef_markers);
     
     virtual wxString GetValueAt(int row_idx,
@@ -230,6 +236,8 @@ private:
     
     void InitMemoryData();
     
+    bt::ptime datetime_from_string(const std::string& s, const std::locale formats[], int formats_n);
+    
 public:
     OGRColumnString(wxString name, int field_length, int decimals, int n_rows);
     
@@ -248,7 +256,7 @@ public:
     
     virtual void FillData(vector<wxString>& data);
     
-    virtual void FillData(vector<date>& data);
+    virtual void FillData(vector<bt::ptime>& data);
     
     virtual void UpdateData(const vector<wxString>& data);
     
@@ -271,19 +279,25 @@ public:
 class OGRColumnDate: public OGRColumn
 {
 private:
-    vector<wxInt64> new_data;
+    vector<bt::ptime> new_data;
     void InitMemoryData();
     
+    wxInt64 DateToNumber(bt::ptime d);
+    bt::ptime NumberToDate(wxInt64 n);
     
 public:
-    // XXX: don't support add new date column yet
     //OGRColumnDate(int rows);
     OGRColumnDate(OGRLayerProxy* ogr_layer, int idx);
+    OGRColumnDate(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals);
     ~OGRColumnDate();
     
     virtual void FillData(vector<wxInt64>& data);
     
     virtual void FillData(vector<wxString>& data);
+    
+    virtual void FillData(vector<bt::ptime>& data);
+  
+    virtual void UpdateData(const vector<bt::ptime>& data);
     
     virtual GdaConst::FieldType GetType() {return GdaConst::date_type;}
     
@@ -326,12 +340,17 @@ class OGRColumnDateTime: public OGRColumn
 {
 private:
     vector<wxInt64> new_data;
+    
+    vector<locale> dt_formats;
+    
     void InitMemoryData();
+   
     
 public:
     // XXX: don't support add new date column yet
     //OGRColumnDateTime(int rows);
     OGRColumnDateTime(OGRLayerProxy* ogr_layer, int idx);
+    
     ~OGRColumnDateTime();
     
     virtual void FillData(vector<wxInt64>& data);

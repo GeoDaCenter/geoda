@@ -18,12 +18,13 @@
  */
 
 #include <istream>
+#include <time.h>
 #include <sstream>
 #include <algorithm>
 #include <vector>
 #include <set>
-#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/foreach.hpp>
+#include <boost/date_time.hpp>
 #include <locale>
 #include <wx/regex.h>
 #include <wx/numformatter.h>
@@ -37,8 +38,7 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
-using namespace boost::gregorian;
-
+namespace bt = boost::posix_time;
 
 OGRColumn::OGRColumn(wxString name, int field_length, int decimals, int n_rows)
 : name(name), length(field_length), decimals(decimals), is_new(true), is_deleted(false), rows(n_rows)
@@ -153,6 +153,12 @@ void OGRColumn::UpdateData(const vector<wxString> &data)
     
 }
 
+void OGRColumn::UpdateData(const vector<bt::ptime> &data)
+{
+    wxString msg = "Internal error: UpdateData(wxString) not implemented.";
+    throw GdaException(msg.mb_str());
+}
+
 void OGRColumn::UpdateData(const vector<double> &data,
                            const vector<bool>& undef_markers_)
 {
@@ -168,6 +174,13 @@ void OGRColumn::UpdateData(const vector<wxInt64> &data,
 }
 
 void OGRColumn::UpdateData(const vector<wxString> &data,
+                           const vector<bool>& undef_markers_)
+{
+    UpdateData(data);
+    undef_markers = undef_markers_;
+}
+
+void OGRColumn::UpdateData(const vector<bt::ptime> &data,
                            const vector<bool>& undef_markers_)
 {
     UpdateData(data);
@@ -194,7 +207,7 @@ void OGRColumn::FillData(vector<wxString>& data)
     throw GdaException(msg.mb_str());
 }
 
-void OGRColumn::FillData(vector<date>& data)
+void OGRColumn::FillData(vector<bt::ptime>& data)
 {
     wxString msg = "Internal error: FillData(date) not implemented.";
     throw GdaException(msg.mb_str());
@@ -222,6 +235,12 @@ void OGRColumn::FillData(vector<wxString> &data,
     undef_markers_ = undef_markers;
 }
 
+void OGRColumn::FillData(vector<bt::ptime> &data,
+                         vector<bool>& undef_markers_)
+{
+    FillData(data);
+    undef_markers_ = undef_markers;
+}
 
 bool OGRColumn::GetCellValue(int row, wxInt64& val)
 {
@@ -880,20 +899,41 @@ void OGRColumnString::FillData(vector<wxString> &data)
     }
 }
 
-void OGRColumnString::FillData(vector<date>& data)
+bt::ptime OGRColumnString::datetime_from_string(const std::string& s, const std::locale formats[], int formats_n)
 {
+    bt::ptime pt;
+    for(size_t i=0; i<formats_n; ++i)
+    {
+        std::istringstream is(s);
+        is.imbue(formats[i]);
+        is >> pt;
+        if(pt != bt::ptime())
+            break;
+    }
+    return pt;
+}
+void OGRColumnString::FillData(vector<bt::ptime>& data)
+{
+    const std::locale formats[] = {
+        std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%d %H:%M:%S")),
+        std::locale(std::locale::classic(),new bt::time_input_facet("%Y/%m/%d %H:%M:%S")),
+        std::locale(std::locale::classic(),new bt::time_input_facet("%d.%m.%Y %H:%M:%S")),
+        std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%d")),
+        std::locale(std::locale::classic(),new bt::time_input_facet("%m/%d/%Y"))};
+    const size_t formats_n = sizeof(formats)/sizeof(formats[0]);
+    
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             string s = new_data[i].ToStdString();
-            date d(from_simple_string(s));
-            data[i] = d;
+            bt::ptime pt = datetime_from_string(s, formats, formats_n);
+            data[i] = pt;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            const char* str = ogr_layer->data[i]->GetFieldAsString(col_idx);
-            date d(from_simple_string(str));
-            data[i] = d;
+            string s = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            bt::ptime pt = datetime_from_string(s, formats, formats_n);
+            data[i] = pt;
         }
     }
 }
@@ -1014,6 +1054,18 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
 ////////////////////////////////////////////////////////////////////////////////
 // XXX current GeoDa don't support adding new date column
 //
+OGRColumnDate::OGRColumnDate(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals)
+: OGRColumn(ogr_layer, name, field_length, decimals)
+{
+    // a new string column
+    is_new = true;
+    new_data.resize(rows);
+    undef_markers.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        undef_markers[i] = false;
+    }
+}
+
 OGRColumnDate::OGRColumnDate(OGRLayerProxy* ogr_layer, int idx)
 :OGRColumn(ogr_layer, idx)
 {
@@ -1032,11 +1084,29 @@ OGRColumnDate::~OGRColumnDate()
     if (new_data.size() > 0 ) new_data.clear();
 }
 
+wxInt64 OGRColumnDate::DateToNumber(bt::ptime pd)
+{
+    boost::gregorian::date d = pd.date();
+    wxInt64 val = d.year() * 10000000000 + d.month() * 100000000 + d.day() * 1000000;// + hour * 10000 + minute * 100 + second;
+    return val;
+}
+
+bt::ptime OGRColumnDate::NumberToDate(wxInt64 n)
+{
+    int year = n / 10000000000;
+    int month = (n % 10000000000) / 100000000;
+    int day = (n % 100000000) / 1000000;
+    boost::gregorian::date d(year, month, day);
+    
+    return bt::ptime(d);
+}
+
 void OGRColumnDate::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new date column.";
-        throw GdaException(msg.mb_str());
+        for (int i=0; i<rows; ++i) {
+            data[i] = DateToNumber(new_data[i]);
+        }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
@@ -1064,6 +1134,26 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
     }
 }
 
+void OGRColumnDate::FillData(vector<bt::ptime> &data)
+{
+    if (is_new) {
+        for (int i=0; i<rows; ++i) {
+            data[i] = new_data[i];
+        }
+    } else {
+        int col_idx = GetColIndex();
+        for (int i=0; i<rows; ++i) {
+            tm pt_tm;
+            int tzflag = 0;
+            
+            int col_idx = GetColIndex();
+            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &pt_tm.tm_year, &pt_tm.tm_mon, &pt_tm.tm_mday,&pt_tm.tm_hour, &pt_tm.tm_min, &pt_tm.tm_sec, &tzflag);
+            
+            data[i] = boost::posix_time::ptime_from_tm(pt_tm);
+        }
+    }
+}
+
 void OGRColumnDate::FillData(vector<wxString> &data)
 {
     if (is_new) {
@@ -1084,13 +1174,27 @@ void OGRColumnDate::FillData(vector<wxString> &data)
             int second = 0;
             int tzflag = 0;
             ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
-                                               &day,&hour,&minute,
-                                               &second, &tzflag);
+                                                   &day,&hour,&minute,
+                                                   &second, &tzflag);
             data[i] = ogr_layer->data[i]->GetFieldAsString(col_idx);
         }
     }
 }
 
+void OGRColumnDate::UpdateData(const vector<bt::ptime> &data)
+{
+    if (is_new) {
+        for (int i=0; i<rows; ++i) {
+            new_data[i] = data[i];
+        }
+    } else {
+        int col_idx = GetColIndex();
+        for (int i=0; i<rows; ++i) {
+            long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
+            ogr_layer->data[i]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
+        }
+    }
+}
 bool OGRColumnDate::GetCellValue(int row, wxInt64& val)
 {
     if (undef_markers[row] == true) {
@@ -1109,11 +1213,11 @@ bool OGRColumnDate::GetCellValue(int row, wxInt64& val)
         int second = 0;
         int tzflag = 0;
         ogr_layer->data[row]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                     &day,&hour,&minute,
-                                                     &second, &tzflag);
+                                                 &day,&hour,&minute,
+                                                 &second, &tzflag);
         val = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
     } else {
-        val = new_data[row];
+        val = DateToNumber(new_data[row]);
     }
     
     return true;
@@ -1126,9 +1230,9 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
     int month = 0;
     int day = 0;
     int hour = 0;
-    int minute = 0;
-    int second = 0;
-    int tzflag = 0;
+    int minute = -1;
+    int second = -1;
+    int tzflag = -1;
     
     if (new_data.empty()) {
         int col_idx = GetColIndex();
@@ -1136,7 +1240,14 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
                                                  &day,&hour,&minute,
                                                  &second, &tzflag);
     } else {
-        //val = new_data[row_idx];
+        bt::ptime pt = new_data[row_idx];
+        tm pt_tm = to_tm(pt);
+        year = pt_tm.tm_year + 1900;
+        month = pt_tm.tm_mon + 1;
+        day = pt_tm.tm_mday;
+        hour = pt_tm.tm_hour;
+        minute = pt_tm.tm_min;
+        second = pt_tm.tm_sec;
     }
     
     wxString sDateTime;
@@ -1145,7 +1256,7 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
         sDateTime << wxString::Format("%i-%i-%i", year, month, day);
     }
     
-    if (hour >0 || minute > 0 || second > 0) {
+    if (hour >=0 || minute >= 0 || second >= 0) {
         if (!sDateTime.IsEmpty()) sDateTime << " ";
         sDateTime << wxString::Format("%i:%i:%i", hour, minute, second);
     }
@@ -1185,7 +1296,7 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
     wxInt64 val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
     
     if (is_new) {
-        new_data[row_idx] = val;
+        new_data[row_idx] = NumberToDate(val);
     } else {
         ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
     }
