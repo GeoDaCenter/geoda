@@ -5127,6 +5127,129 @@
       </object>
     </object>
   </object>
+  
+  <object class="wxPanel" name="IDD_FIELDCALC_DT" subclass="FieldNewCalcDateTimeDlg">
+      <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              <border>5</border>
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                          <object class="sizeritem">
+                              <object class="wxStaticText" name="ID_STATICTEXT5">
+                                  <label>Result</label>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <object class="spacer">
+                              <size>5,5d</size>
+                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                              <border>2</border>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxButton" name="ID_ADD_COLUMN">
+                                  <label>Add Variable</label>
+                                  <tooltip>Add new column to table</tooltip>
+                              </object>
+                              <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                          </object>
+                          <orient>wxHORIZONTAL</orient>
+                      </object>
+                      <flag>wxALL|wxALIGN_CENTER</flag>
+                      <border>3</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxChoice" name="IDC_DT_RESULT">
+                          <size>80,-1d</size>
+                      </object>
+                      <flag>wxALL|wxALIGN_CENTER</flag>
+                      <border>3</border>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxChoice" name="IDC_DT_RESULT_TM">
+                          <size>80,-1d</size>
+                      </object>
+                      <flag>wxALL|wxALIGN_CENTER</flag>
+                      <border>3</border>
+                  </object>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+              <border>5</border>
+              <object class="wxStaticText" name="ID_STATICTEXT">
+                  <label>=</label>
+              </object>
+          </object>
+          <object class="sizeritem">
+              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              <border>5</border>
+              <object class="wxBoxSizer">
+                  <orient>wxVERTICAL</orient>
+                  <object class="sizeritem">
+                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                      <border>5</border>
+                      <object class="wxBoxSizer">
+                          <orient>wxHORIZONTAL</orient>
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxStaticText" name="ID_STATICTEXT2">
+                                          <label>Operator</label>
+                                      </object>
+                                      <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
+                                      <border>3</border>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxChoice" name="IDC_DT_OPERATOR">
+                                          <size>80,-1d</size>
+                                      </object>
+                                      <flag>wxALL|wxALIGN_CENTER</flag>
+                                      <border>3</border>
+                                  </object>
+                                  <orient>wxVERTICAL</orient>
+                              </object>
+                              <flag>wxALL</flag>
+                              <border>5</border>
+                          </object>
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxStaticText">
+                                          <label>Variable / Constant</label>
+                                      </object>
+                                      <flag>wxALL|wxALIGN_CENTER|wxADJUST_MINSIZE</flag>
+                                      <border>3</border>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxComboBox" name="IDC_DT_OPERAND">
+                                          <size>80,-1d</size>
+                                      </object>
+                                      <flag>wxALL|wxALIGN_CENTER</flag>
+                                      <border>3</border>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxChoice" name="IDC_DT_OPERAND_TM">
+                                          <size>80,-1d</size>
+                                      </object>
+                                      <flag>wxALL|wxALIGN_CENTER</flag>
+                                      <border>3</border>
+                                  </object>
+                                  <orient>wxVERTICAL</orient>
+                              </object>
+                              <flag>wxALL</flag>
+                              <border>5</border>
+                          </object>
+                      </object>
+                  </object>
+              </object>
+          </object>
+      </object>
+  </object>
+  
   <object class="wxPanel" name="IDD_FIELDCALC_BI" subclass="FieldNewCalcBinDlg">
     <object class="wxBoxSizer">
       <orient>wxHORIZONTAL</orient>

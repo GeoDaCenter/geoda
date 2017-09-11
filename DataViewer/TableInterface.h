@@ -112,6 +112,7 @@ public:
 	virtual int FindColId(const wxString& name) = 0;
 	
 	virtual void FillColIdMap(std::vector<int>& col_map) = 0;
+	virtual void FillDateTimeColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericNameList(std::vector<wxString>& num_names) = 0;
