@@ -341,8 +341,8 @@ int GdaConst::plot_transparency_highlighted = 255;
 int GdaConst::plot_transparency_unhighlighted = 50;
 int GdaConst::gda_ogr_csv_header = 2;
 wxString GdaConst::gda_display_datetime_format = "";
-std::vector<wxString> GdaConst::gda_datetime_formats(8);
-wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S";
+std::vector<wxString> GdaConst::gda_datetime_formats(9);
+wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M";
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
@@ -518,6 +518,7 @@ void GdaConst::init()
     GdaConst::gda_datetime_formats[5] = "%m/%d/%Y";
     GdaConst::gda_datetime_formats[6] = "%Y/%m/%d";
     GdaConst::gda_datetime_formats[7] = "%H:%M:%S";
+    GdaConst::gda_datetime_formats[8] = "%H:%M";
     
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;

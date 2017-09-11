@@ -1234,10 +1234,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     
     // don't support the following column type
 	if (type == GdaConst::placeholder_type ||
-        type == GdaConst::unknown_type ||
-        //type == GdaConst::date_type||
-        type == GdaConst::time_type||
-        type == GdaConst::datetime_type)
+        type == GdaConst::unknown_type)
     {
         return -1;
     }
@@ -1289,6 +1286,12 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
             
         } else if (type==GdaConst::date_type){
             ogr_col = new OGRColumnDate(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::time_type){
+            ogr_col = new OGRColumnTime(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::datetime_type){
+            ogr_col = new OGRColumnDateTime(ogr_layer, names[t], field_len, decimals);
             
         } else {
             wxString msg = "Add OGR column error. Field type is unknown "

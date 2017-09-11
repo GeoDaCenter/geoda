@@ -908,9 +908,15 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
         wxString test_s = new_data[0];
         vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
-        wxRegEx regex;
-        regex.Compile(pattern);
-        
+        if (pattern.IsEmpty()) {
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to date/time.", test_s);
+            throw GdaException(error_msg.mb_str());
+        }
+        wxRegEx regex(pattern);
+        if (!regex.IsValid()){
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to date/time.", test_s);
+            throw GdaException(error_msg.mb_str());
+        }
         for (int i=0; i<rows; ++i) {
             data[i] = Gda::DateToNumber(new_data[i], regex, date_items);
         }
@@ -1157,7 +1163,13 @@ void OGRColumnDate::FillData(vector<wxString> &data)
             hour = (new_data[i] % 1000000) / 10000;
             minute = (new_data[i] % 10000) / 100;
             second = new_data[i] % 100;
-            tmp = wxString::Format("%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+            if (year >0 && month > 0 && day > 0) {
+                tmp << wxString::Format("%i-%i-%i", year, month, day);
+            }
+            if (hour >0 || minute > 0 || second > 0) {
+                if (!tmp.IsEmpty()) tmp << " ";
+                tmp << wxString::Format("%i:%i:%i", hour, minute, second);
+            }
             data[i] = tmp;
         }
     } else {
@@ -1177,7 +1189,13 @@ void OGRColumnDate::FillData(vector<wxString> &data)
             ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
                                                    &day,&hour,&minute,
                                                    &second, &tzflag);
-            tmp = wxString::Format("%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+            if (year >0 && month > 0 && day > 0) {
+                tmp << wxString::Format("%i-%i-%i", year, month, day);
+            }
+            if (hour >0 || minute > 0 || second > 0) {
+                if (!tmp.IsEmpty()) tmp << " ";
+                tmp << wxString::Format("%i:%i:%i", hour, minute, second);
+            }
             data[i] = tmp;
         }
     }

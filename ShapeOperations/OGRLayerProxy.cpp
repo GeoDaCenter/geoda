@@ -613,16 +613,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
                    
-                    /*
-                    const bt::ptime& pt= col_data[ orig_id ];
-                    tm pt_tm = to_tm(pt);
-                    year = pt_tm.tm_year + 1900;
-                    month = pt_tm.tm_mon + 1;
-                    day = pt_tm.tm_mday;
-                    hour = pt_tm.tm_hour;
-                    minute = pt_tm.tm_min;
-                    second = pt_tm.tm_sec;
-                     */
                     year = col_data[ orig_id ] / 10000000000;
                     month = (col_data[ orig_id ] % 10000000000) / 100000000;
                     day = (col_data[ orig_id ] % 100000000) / 1000000;
