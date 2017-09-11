@@ -15,6 +15,18 @@
 		A14CB4651C866E110082B436 /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4611C866E110082B436 /* AdjustYAxisDlg.cpp */; };
 		A14CB4661C866E110082B436 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB4631C866E110082B436 /* BasemapConfDlg.cpp */; };
 		A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14CB46C1C86705B0082B436 /* PublishDlg.cpp */; };
+		A1546D241F5B52D2002FC3DF /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D181F5B52D2002FC3DF /* cluster.cpp */; };
+		A1546D251F5B52D2002FC3DF /* maxp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D1A1F5B52D2002FC3DF /* maxp.cpp */; };
+		A1546D271F5B52D2002FC3DF /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D1E1F5B52D2002FC3DF /* pca.cpp */; };
+		A1546D281F5B52D2002FC3DF /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D201F5B52D2002FC3DF /* redcap.cpp */; };
+		A1546D291F5B52D2002FC3DF /* spectral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D221F5B52D2002FC3DF /* spectral.cpp */; };
+		A1546D381F5B53A7002FC3DF /* AbstractClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D2A1F5B53A7002FC3DF /* AbstractClusterDlg.cpp */; };
+		A1546D391F5B53A7002FC3DF /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D2C1F5B53A7002FC3DF /* HClusterDlg.cpp */; };
+		A1546D3A1F5B53A7002FC3DF /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D2E1F5B53A7002FC3DF /* KMeansDlg.cpp */; };
+		A1546D3B1F5B53A7002FC3DF /* MaxpDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D301F5B53A7002FC3DF /* MaxpDlg.cpp */; };
+		A1546D3C1F5B53A7002FC3DF /* MDSDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D321F5B53A7002FC3DF /* MDSDlg.cpp */; };
+		A1546D3D1F5B53A7002FC3DF /* RedcapDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D341F5B53A7002FC3DF /* RedcapDlg.cpp */; };
+		A1546D3E1F5B53A7002FC3DF /* SpectralClusteringDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1546D361F5B53A7002FC3DF /* SpectralClusteringDlg.cpp */; };
 		A15609181E52442C009F4178 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A15609161E52442C009F4178 /* ReportBugDlg.cpp */; };
 		A156091B1E524445009F4178 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A15609191E524445009F4178 /* ConditionalClusterMapView.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
@@ -241,6 +253,30 @@
 		A14CB4641C866E110082B436 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
 		A14CB46C1C86705B0082B436 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
 		A14CB46D1C86705B0082B436 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
+		A1546D181F5B52D2002FC3DF /* cluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cluster.cpp; path = Algorithms/cluster.cpp; sourceTree = "<group>"; };
+		A1546D191F5B52D2002FC3DF /* cluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cluster.h; path = Algorithms/cluster.h; sourceTree = "<group>"; };
+		A1546D1A1F5B52D2002FC3DF /* maxp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxp.cpp; path = Algorithms/maxp.cpp; sourceTree = "<group>"; };
+		A1546D1B1F5B52D2002FC3DF /* maxp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = maxp.h; path = Algorithms/maxp.h; sourceTree = "<group>"; };
+		A1546D1E1F5B52D2002FC3DF /* pca.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pca.cpp; path = Algorithms/pca.cpp; sourceTree = "<group>"; };
+		A1546D1F1F5B52D2002FC3DF /* pca.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pca.h; path = Algorithms/pca.h; sourceTree = "<group>"; };
+		A1546D201F5B52D2002FC3DF /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
+		A1546D211F5B52D2002FC3DF /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
+		A1546D221F5B52D2002FC3DF /* spectral.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spectral.cpp; path = Algorithms/spectral.cpp; sourceTree = "<group>"; };
+		A1546D231F5B52D2002FC3DF /* spectral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spectral.h; path = Algorithms/spectral.h; sourceTree = "<group>"; };
+		A1546D2A1F5B53A7002FC3DF /* AbstractClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractClusterDlg.cpp; sourceTree = "<group>"; };
+		A1546D2B1F5B53A7002FC3DF /* AbstractClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterDlg.h; sourceTree = "<group>"; };
+		A1546D2C1F5B53A7002FC3DF /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
+		A1546D2D1F5B53A7002FC3DF /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
+		A1546D2E1F5B53A7002FC3DF /* KMeansDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KMeansDlg.cpp; sourceTree = "<group>"; };
+		A1546D2F1F5B53A7002FC3DF /* KMeansDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KMeansDlg.h; sourceTree = "<group>"; };
+		A1546D301F5B53A7002FC3DF /* MaxpDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxpDlg.cpp; sourceTree = "<group>"; };
+		A1546D311F5B53A7002FC3DF /* MaxpDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaxpDlg.h; sourceTree = "<group>"; };
+		A1546D321F5B53A7002FC3DF /* MDSDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MDSDlg.cpp; sourceTree = "<group>"; };
+		A1546D331F5B53A7002FC3DF /* MDSDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDSDlg.h; sourceTree = "<group>"; };
+		A1546D341F5B53A7002FC3DF /* RedcapDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RedcapDlg.cpp; sourceTree = "<group>"; };
+		A1546D351F5B53A7002FC3DF /* RedcapDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RedcapDlg.h; sourceTree = "<group>"; };
+		A1546D361F5B53A7002FC3DF /* SpectralClusteringDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpectralClusteringDlg.cpp; sourceTree = "<group>"; };
+		A1546D371F5B53A7002FC3DF /* SpectralClusteringDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectralClusteringDlg.h; sourceTree = "<group>"; };
 		A15609161E52442C009F4178 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
 		A15609171E52442C009F4178 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
 		A15609191E524445009F4178 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
@@ -657,6 +693,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A1546D171F5B52B0002FC3DF /* Algorithms */ = {
+			isa = PBXGroup;
+			children = (
+				A1546D181F5B52D2002FC3DF /* cluster.cpp */,
+				A1546D191F5B52D2002FC3DF /* cluster.h */,
+				A1546D1A1F5B52D2002FC3DF /* maxp.cpp */,
+				A1546D1B1F5B52D2002FC3DF /* maxp.h */,
+				A1546D1E1F5B52D2002FC3DF /* pca.cpp */,
+				A1546D1F1F5B52D2002FC3DF /* pca.h */,
+				A1546D201F5B52D2002FC3DF /* redcap.cpp */,
+				A1546D211F5B52D2002FC3DF /* redcap.h */,
+				A1546D221F5B52D2002FC3DF /* spectral.cpp */,
+				A1546D231F5B52D2002FC3DF /* spectral.h */,
+			);
+			name = Algorithms;
+			sourceTree = "<group>";
+		};
 		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
 			isa = PBXGroup;
 			children = (
@@ -669,6 +722,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A1546D171F5B52B0002FC3DF /* Algorithms */,
 				A1B04ADC1B1921710045AA6F /* basemap_cache */,
 				DD972054150A6EE4000206F4 /* CmdLineUtils */,
 				DDDFB96D134B6B73005EF636 /* DataViewer */,
@@ -755,6 +809,20 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1546D2A1F5B53A7002FC3DF /* AbstractClusterDlg.cpp */,
+				A1546D2B1F5B53A7002FC3DF /* AbstractClusterDlg.h */,
+				A1546D2C1F5B53A7002FC3DF /* HClusterDlg.cpp */,
+				A1546D2D1F5B53A7002FC3DF /* HClusterDlg.h */,
+				A1546D2E1F5B53A7002FC3DF /* KMeansDlg.cpp */,
+				A1546D2F1F5B53A7002FC3DF /* KMeansDlg.h */,
+				A1546D301F5B53A7002FC3DF /* MaxpDlg.cpp */,
+				A1546D311F5B53A7002FC3DF /* MaxpDlg.h */,
+				A1546D321F5B53A7002FC3DF /* MDSDlg.cpp */,
+				A1546D331F5B53A7002FC3DF /* MDSDlg.h */,
+				A1546D341F5B53A7002FC3DF /* RedcapDlg.cpp */,
+				A1546D351F5B53A7002FC3DF /* RedcapDlg.h */,
+				A1546D361F5B53A7002FC3DF /* SpectralClusteringDlg.cpp */,
+				A1546D371F5B53A7002FC3DF /* SpectralClusteringDlg.h */,
 				A15609161E52442C009F4178 /* ReportBugDlg.cpp */,
 				A15609171E52442C009F4178 /* ReportBugDlg.h */,
 				A16D406C1CD4233A0025C64C /* AutoUpdateDlg.cpp */,
@@ -1429,6 +1497,18 @@
 				A14CB46E1C86705B0082B436 /* PublishDlg.cpp in Sources */,
 				A16D406E1CD4233A0025C64C /* AutoUpdateDlg.cpp in Sources */,
 				A1D766D91D7A2196002365D6 /* CsvFieldConfDlg.cpp in Sources */,
+				A1546D241F5B52D2002FC3DF /* cluster.cpp in Sources */,
+				A1546D251F5B52D2002FC3DF /* maxp.cpp in Sources */,
+				A1546D271F5B52D2002FC3DF /* pca.cpp in Sources */,
+				A1546D281F5B52D2002FC3DF /* redcap.cpp in Sources */,
+				A1546D291F5B52D2002FC3DF /* spectral.cpp in Sources */,
+				A1546D381F5B53A7002FC3DF /* AbstractClusterDlg.cpp in Sources */,
+				A1546D391F5B53A7002FC3DF /* HClusterDlg.cpp in Sources */,
+				A1546D3A1F5B53A7002FC3DF /* KMeansDlg.cpp in Sources */,
+				A1546D3B1F5B53A7002FC3DF /* MaxpDlg.cpp in Sources */,
+				A1546D3C1F5B53A7002FC3DF /* MDSDlg.cpp in Sources */,
+				A1546D3D1F5B53A7002FC3DF /* RedcapDlg.cpp in Sources */,
+				A1546D3E1F5B53A7002FC3DF /* SpectralClusteringDlg.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
