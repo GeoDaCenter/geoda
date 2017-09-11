@@ -152,7 +152,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
-	virtual void GetColData(int col, int time, std::vector<bt::ptime>& data) = 0;
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data) = 0;
    
 	virtual void GetColData(int col, int time, std::vector<double>& data,
                             std::vector<bool>& undefs);
@@ -160,7 +160,7 @@ public:
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data,
                             std::vector<bool>& undefs);
-	virtual void GetColData(int col, int time, std::vector<bt::ptime>& data,
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data,
                             std::vector<bool>& undefs);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;
@@ -171,6 +171,7 @@ public:
 	virtual void GetDirectColData(int col, std::vector<double>& data) =0;
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data)=0;
 	virtual void GetDirectColData(int col, std::vector<wxString>& data)=0;
+    virtual void GetDirectColData(int col, std::vector<unsigned long long>& data)=0;
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefs)=0;
     
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
@@ -185,7 +186,7 @@ public:
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data) = 0;
 	virtual void SetColData(int col, int time,
-                            const std::vector<bt::ptime>& data) = 0;
+                            const std::vector<unsigned long long>& data) = 0;
     
 	virtual void SetColData(int col, int time,
 							const std::vector<double>& data,
@@ -197,7 +198,7 @@ public:
 							const std::vector<wxString>& data,
                             const std::vector<bool>& undefs);
 	virtual void SetColData(int col, int time,
-                            const std::vector<bt::ptime>& data,
+                            const std::vector<unsigned long long>& data,
                             const std::vector<bool>& undefs);
     
 	virtual void SetColUndefined(int col, int time,

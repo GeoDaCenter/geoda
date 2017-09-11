@@ -793,6 +793,18 @@ void OGRTable::GetDirectColData(int col, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
+void OGRTable::GetDirectColData(int col, std::vector<unsigned long long>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
 	//if (!IsColNumeric(col)) return;
@@ -825,7 +837,7 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
-void OGRTable::GetColData(int col, int time, std::vector<bt::ptime>& data)
+void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& data)
 {
     wxString nm(var_order.GetSimpleColName(col, time));
     if (nm.IsEmpty()) return;
@@ -1028,7 +1040,7 @@ void OGRTable::SetColData(int col, int time,
 }
 
 void OGRTable::SetColData(int col, int time,
-                          const std::vector<bt::ptime>& data)
+                          const std::vector<unsigned long long>& data)
 {
     if (col < 0 || col >= GetNumberCols()) return;
     int ogr_col_id = FindOGRColId(col, time);

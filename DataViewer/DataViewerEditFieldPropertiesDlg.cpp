@@ -436,13 +436,15 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     
                 } else if (new_type_str == "date") {
                     new_type = GdaConst::date_type;
+                    
+                } else if (new_type_str == "time") {
+                    new_type = GdaConst::time_type;
+                    
+                } else if (new_type_str == "datetime") {
+                    new_type = GdaConst::datetime_type;
                 }
                 
-                if (new_type == GdaConst::unknown_type ||
-                    //new_type_str == "date" ||
-                    new_type_str == "time" ||
-                    new_type_str == "datetime")
-                {
+                if (new_type == GdaConst::unknown_type) {
                     wxString m = _("GeoDa can't change the variable type to DATE/TIME. Please select another type.");
                     wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
                     dlg.ShowModal();
@@ -478,7 +480,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                                new_type == GdaConst::time_type ||
                                new_type == GdaConst::datetime_type) {
                         // get data from old
-                        vector<bt::ptime> data(num_rows);
+                        vector<unsigned long long> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         

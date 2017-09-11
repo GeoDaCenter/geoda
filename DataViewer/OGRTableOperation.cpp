@@ -206,7 +206,7 @@ void OGRTableOpRenameColumn::Rollback()
 
 ////////////////////////////////////////////////////////////////////////////////
 OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
-                                               const std::vector<bt::ptime>& new_data)
+                                               const std::vector<unsigned long long>& new_data)
 : OGRTableOperation(col)
 {
     int n_rows = ogr_col->GetNumRows();

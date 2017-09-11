@@ -243,7 +243,7 @@ void TableInterface::SetColData(int col, int time,
 }
 
 void TableInterface::SetColData(int col, int time,
-                                const std::vector<bt::ptime>& data,
+                                const std::vector<unsigned long long>& data,
                                 const std::vector<bool>& undefs)
 {
     SetColData(col, time, data);
@@ -271,7 +271,7 @@ void TableInterface::GetColData(int col, int time, std::vector<wxString>& data,
     GetColUndefined(col, time, undefs);
 }
 
-void TableInterface::GetColData(int col, int time, std::vector<bt::ptime>& data,
+void TableInterface::GetColData(int col, int time, std::vector<unsigned long long>& data,
                                 std::vector<bool>& undefs)
 {
     GetColData(col, time, data);

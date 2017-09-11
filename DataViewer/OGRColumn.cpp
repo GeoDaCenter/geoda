@@ -153,7 +153,7 @@ void OGRColumn::UpdateData(const vector<wxString> &data)
     
 }
 
-void OGRColumn::UpdateData(const vector<bt::ptime> &data)
+void OGRColumn::UpdateData(const vector<unsigned long long> &data)
 {
     wxString msg = "Internal error: UpdateData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
@@ -180,7 +180,7 @@ void OGRColumn::UpdateData(const vector<wxString> &data,
     undef_markers = undef_markers_;
 }
 
-void OGRColumn::UpdateData(const vector<bt::ptime> &data,
+void OGRColumn::UpdateData(const vector<unsigned long long> &data,
                            const vector<bool>& undef_markers_)
 {
     UpdateData(data);
@@ -207,7 +207,7 @@ void OGRColumn::FillData(vector<wxString>& data)
     throw GdaException(msg.mb_str());
 }
 
-void OGRColumn::FillData(vector<bt::ptime>& data)
+void OGRColumn::FillData(vector<unsigned long long>& data)
 {
     wxString msg = "Internal error: FillData(date) not implemented.";
     throw GdaException(msg.mb_str());
@@ -235,7 +235,7 @@ void OGRColumn::FillData(vector<wxString> &data,
     undef_markers_ = undef_markers;
 }
 
-void OGRColumn::FillData(vector<bt::ptime> &data,
+void OGRColumn::FillData(vector<unsigned long long> &data,
                          vector<bool>& undef_markers_)
 {
     FillData(data);
@@ -268,6 +268,8 @@ void OGRColumn::UpdateNullMarkers(const vector<bool>& undef_markers_)
     if (!undef_markers_.empty())
         undef_markers = undef_markers_;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -899,41 +901,40 @@ void OGRColumnString::FillData(vector<wxString> &data)
     }
 }
 
-bt::ptime OGRColumnString::datetime_from_string(const std::string& s, const std::locale formats[], int formats_n)
+// for date/time
+void OGRColumnString::FillData(vector<unsigned long long>& data)
 {
-    bt::ptime pt;
-    for(size_t i=0; i<formats_n; ++i)
-    {
-        std::istringstream is(s);
-        is.imbue(formats[i]);
-        is >> pt;
-        if(pt != bt::ptime())
-            break;
-    }
-    return pt;
-}
-void OGRColumnString::FillData(vector<bt::ptime>& data)
-{
-    const std::locale formats[] = {
-        std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%d %H:%M:%S")),
-        std::locale(std::locale::classic(),new bt::time_input_facet("%Y/%m/%d %H:%M:%S")),
-        std::locale(std::locale::classic(),new bt::time_input_facet("%d.%m.%Y %H:%M:%S")),
-        std::locale(std::locale::classic(),new bt::time_input_facet("%Y-%m-%d")),
-        std::locale(std::locale::classic(),new bt::time_input_facet("%m/%d/%Y"))};
-    const size_t formats_n = sizeof(formats)/sizeof(formats[0]);
-    
     if (is_new) {
+        wxString test_s = new_data[0];
+        vector<wxString> date_items;
+        wxString pattern = Gda::DetectDateFormat(test_s, date_items);
+        wxRegEx regex;
+        regex.Compile(pattern);
+        
         for (int i=0; i<rows; ++i) {
-            string s = new_data[i].ToStdString();
-            bt::ptime pt = datetime_from_string(s, formats, formats_n);
-            data[i] = pt;
+            data[i] = Gda::DateToNumber(new_data[i], regex, date_items);
         }
     } else {
         int col_idx = GetColIndex();
+        wxString test_s = ogr_layer->data[0]->GetFieldAsString(col_idx);
+        vector<wxString> date_items;
+        wxString pattern = Gda::DetectDateFormat(test_s, date_items);
+        
+        if (pattern.IsEmpty()) {
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to date/time.", test_s);
+            throw GdaException(error_msg.mb_str());
+        }
+      
+        wxRegEx regex(pattern);
+        if (!regex.IsValid()){
+            wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to date/time.", test_s);
+            throw GdaException(error_msg.mb_str());
+        }
+        
         for (int i=0; i<rows; ++i) {
-            string s = ogr_layer->data[i]->GetFieldAsString(col_idx);
-            bt::ptime pt = datetime_from_string(s, formats, formats_n);
-            data[i] = pt;
+            wxString s = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            unsigned long long val = Gda::DateToNumber(s, regex, date_items);
+            data[i] = val;
         }
     }
 }
@@ -1084,28 +1085,11 @@ OGRColumnDate::~OGRColumnDate()
     if (new_data.size() > 0 ) new_data.clear();
 }
 
-wxInt64 OGRColumnDate::DateToNumber(bt::ptime pd)
-{
-    boost::gregorian::date d = pd.date();
-    wxInt64 val = d.year() * 10000000000 + d.month() * 100000000 + d.day() * 1000000;// + hour * 10000 + minute * 100 + second;
-    return val;
-}
-
-bt::ptime OGRColumnDate::NumberToDate(wxInt64 n)
-{
-    int year = n / 10000000000;
-    int month = (n % 10000000000) / 100000000;
-    int day = (n % 100000000) / 1000000;
-    boost::gregorian::date d(year, month, day);
-    
-    return bt::ptime(d);
-}
-
 void OGRColumnDate::FillData(vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            data[i] = DateToNumber(new_data[i]);
+            data[i] = new_data[i];
         }
     } else {
         int col_idx = GetColIndex();
@@ -1134,38 +1118,16 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
     }
 }
 
-void OGRColumnDate::FillData(vector<bt::ptime> &data)
+void OGRColumnDate::FillData(vector<unsigned long long> &data)
 {
     if (is_new) {
+        int year, month, day, hour, minute, second, tzflag;
         for (int i=0; i<rows; ++i) {
-            data[i] = new_data[i];
+            data[i] =  new_data[i];
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            tm pt_tm;
-            int tzflag = 0;
-            
-            int col_idx = GetColIndex();
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &pt_tm.tm_year, &pt_tm.tm_mon, &pt_tm.tm_mday,&pt_tm.tm_hour, &pt_tm.tm_min, &pt_tm.tm_sec, &tzflag);
-            
-            data[i] = boost::posix_time::ptime_from_tm(pt_tm);
-        }
-    }
-}
-
-void OGRColumnDate::FillData(vector<wxString> &data)
-{
-    if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new date column.";
-        throw GdaException(msg.mb_str());
-    } else {
-        int col_idx = GetColIndex();
-        for (int i=0; i<rows; ++i) {
-            if (undef_markers[i]) {
-                data[i] = "";
-                continue;
-            }
             int year = 0;
             int month = 0;
             int day = 0;
@@ -1173,15 +1135,55 @@ void OGRColumnDate::FillData(vector<wxString> &data)
             int minute = 0;
             int second = 0;
             int tzflag = 0;
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                   &day,&hour,&minute,
-                                                   &second, &tzflag);
-            data[i] = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            
+            int col_idx = GetColIndex();
+            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month, &day,&hour, &minute, &second, &tzflag);
+           
+            unsigned long long ldatetime = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
+            data[i] = ldatetime;
         }
     }
 }
 
-void OGRColumnDate::UpdateData(const vector<bt::ptime> &data)
+void OGRColumnDate::FillData(vector<wxString> &data)
+{
+    int year, month, day, hour, minute, second, tzflag;
+    wxString tmp;
+    if (is_new) {
+        for (int i=0; i<rows; ++i) {
+            year = new_data[i] / 10000000000;
+            month = (new_data[i] % 10000000000) / 100000000;
+            day = (new_data[i] % 100000000) / 1000000;
+            hour = (new_data[i] % 1000000) / 10000;
+            minute = (new_data[i] % 10000) / 100;
+            second = new_data[i] % 100;
+            tmp = wxString::Format("%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+            data[i] = tmp;
+        }
+    } else {
+        int col_idx = GetColIndex();
+        for (int i=0; i<rows; ++i) {
+            if (undef_markers[i]) {
+                data[i] = "";
+                continue;
+            }
+            year = 0;
+            month = 0;
+            day = 0;
+            hour = 0;
+            minute = 0;
+            second = 0;
+            tzflag = 0;
+            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
+                                                   &day,&hour,&minute,
+                                                   &second, &tzflag);
+            tmp = wxString::Format("%d-%d-%d %d:%d:%d", year, month, day, hour, minute, second);
+            data[i] = tmp;
+        }
+    }
+}
+
+void OGRColumnDate::UpdateData(const vector<unsigned long long> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -1190,8 +1192,16 @@ void OGRColumnDate::UpdateData(const vector<bt::ptime> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
-            ogr_layer->data[i]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
+            long l_year =0,  l_month=0, l_day=0, l_hour=0, l_minute=0, l_second=0;
+           
+            l_year = data[i] / 10000000000;
+            l_month = (data[i] % 10000000000) / 100000000;
+            l_day = (data[i] % 100000000) / 1000000;
+            l_hour = (data[i] % 1000000) / 10000;
+            l_minute = (data[i] % 10000) / 100;
+            l_second = data[i] % 100;
+            
+            ogr_layer->data[i]->SetField(col_idx, l_year, l_month, l_day, l_hour, l_minute, l_second, 0); // last TZFlag
         }
     }
 }
@@ -1217,7 +1227,7 @@ bool OGRColumnDate::GetCellValue(int row, wxInt64& val)
                                                  &second, &tzflag);
         val = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
     } else {
-        val = DateToNumber(new_data[row]);
+        val = new_data[row];
     }
     
     return true;
@@ -1240,14 +1250,12 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
                                                  &day,&hour,&minute,
                                                  &second, &tzflag);
     } else {
-        bt::ptime pt = new_data[row_idx];
-        tm pt_tm = to_tm(pt);
-        year = pt_tm.tm_year + 1900;
-        month = pt_tm.tm_mon + 1;
-        day = pt_tm.tm_mday;
-        hour = pt_tm.tm_hour;
-        minute = pt_tm.tm_min;
-        second = pt_tm.tm_sec;
+        year = new_data[row_idx] / 10000000000;
+        month = (new_data[row_idx] % 10000000000) / 100000000;
+        day = (new_data[row_idx] % 100000000) / 1000000;
+        hour = (new_data[row_idx] % 1000000) / 10000;
+        minute = (new_data[row_idx] % 10000) / 100;
+        second = new_data[row_idx] % 100;
     }
     
     wxString sDateTime;
@@ -1256,7 +1264,7 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
         sDateTime << wxString::Format("%i-%i-%i", year, month, day);
     }
     
-    if (hour >=0 || minute >= 0 || second >= 0) {
+    if (hour >0 || minute > 0 || second > 0) {
         if (!sDateTime.IsEmpty()) sDateTime << " ";
         sDateTime << wxString::Format("%i:%i:%i", hour, minute, second);
     }
@@ -1272,396 +1280,53 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
-    
+    vector<wxString> date_items;
+    wxString pattern = Gda::DetectDateFormat(value, date_items);
     wxRegEx regex;
-    
-    wxString date_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})";
-    
-    wxString _year, _month, _day, _hour, _minute, _second;
-    
-    regex.Compile(date_regex_str);
-    if (regex.Matches(value)) {
-        //wxString _all = regex.GetMatch(value,0);
-        _year = regex.GetMatch(value,1);
-        _month = regex.GetMatch(value,2);
-        _day = regex.GetMatch(value,3);
-    }
-  
+    regex.Compile(pattern);
+    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
-    
-    _year.ToLong(&_l_year);
-    _month.ToLong(&_l_month);
-    _day.ToLong(&_l_day);
-    
-    wxInt64 val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
-    
     if (is_new) {
-        new_data[row_idx] = NumberToDate(val);
+        new_data[row_idx] = val;
     } else {
+        _l_year = val / 10000000000;
+        _l_month = (val  % 10000000000) / 100000000;
+        _l_day = (val % 100000000) / 1000000;
+        _l_hour = (val % 1000000) / 10000;
+        _l_minute = (val % 10000) / 100;
+        _l_second = val % 100;
         ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // OGRColumnTime
-
-
 OGRColumnTime::OGRColumnTime(OGRLayerProxy* ogr_layer, int idx)
-:OGRColumn(ogr_layer, idx)
+:OGRColumnDate(ogr_layer, idx)
 {
-    is_new = false;
-   
-    undef_markers.resize(rows);
-    for (int i=0; i<rows; ++i) {
-        if ( ogr_layer->data[i]->IsFieldSet(idx) )
-            undef_markers[i] = false;
-        else
-            undef_markers[i] = true;
-    }
+}
+
+OGRColumnTime::OGRColumnTime(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals)
+:OGRColumnDate(ogr_layer, name, field_length, decimals)
+{
 }
 
 OGRColumnTime::~OGRColumnTime()
 {
-    if (new_data.size() > 0 ) new_data.clear();
-}
-
-void OGRColumnTime::FillData(vector<wxInt64> &data)
-{
-    if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new date column.";
-        throw GdaException(msg.mb_str());
-    } else {
-        int col_idx = GetColIndex();
-        for (int i=0; i<rows; ++i) {
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int hour = 0;
-            int minute = 0;
-            int second = 0;
-            int tzflag = 0;
-            
-            int col_idx = GetColIndex();
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month, &day,&hour, &minute, &second, &tzflag);
-            
-            wxInt64 ldatetime = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
-            
-            data[i] = ldatetime;
-        }
-    }
-}
-
-void OGRColumnTime::FillData(vector<wxString> &data)
-{
-    if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new Time column.";
-        throw GdaException(msg.mb_str());
-    } else {
-        int col_idx = GetColIndex();
-        for (int i=0; i<rows; ++i) {
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int hour = 0;
-            int minute = 0;
-            int second = 0;
-            int tzflag = 0;
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                   &day,&hour,&minute,
-                                                   &second, &tzflag);
-            data[i] = ogr_layer->data[i]->GetFieldAsString(col_idx);
-        }
-    }
-}
-
-bool OGRColumnTime::GetCellValue(int row, wxInt64& val)
-{
-    if (undef_markers[row] == true) {
-        val = 0;
-        return false;
-    }
-    /*
-    if (new_data.empty()) {
-        int col_idx = GetColIndex();
-        int year = 0;
-        int month = 0;
-        int day = 0;
-        int hour = 0;
-        int minute = 0;
-        int second = 0;
-        int tzflag = 0;
-        ogr_layer->data[row]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                 &day,&hour,&minute,
-                                                 &second, &tzflag);
-        //val = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
-    } else {
-        //val = new_data[row];
-    }
-     */
-    return true;
-}
-
-wxString OGRColumnTime::GetValueAt(int row_idx, int disp_decimals,
-                                   wxCSConv* m_wx_encoding)
-{
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    int hour = 0;
-    int minute = 0;
-    int second = 0;
-    int tzflag = 0;
-    
-    if (new_data.empty()) {
-        int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                     &day,&hour,&minute,
-                                                     &second, &tzflag);
-    } else {
-        //val = new_data[row_idx];
-    }
-    
-    wxString sDateTime;
-    
-    if (hour >0 || minute > 0 || second > 0) {
-        sDateTime << wxString::Format("%i:%i:%i", hour, minute, second);
-    }
-    
-    return sDateTime;
-}
-
-void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
-{
-    int col_idx = GetColIndex();
-    if (value.IsEmpty()) {
-        undef_markers[row_idx] = true;
-        ogr_layer->data[row_idx]->UnsetField(col_idx);
-        return;
-    }
-    wxRegEx regex;
-    
-    wxString time_regex_str = "([0-9]{2}):([0-9]{2}):([0-9]{2})";
-    
-    wxString _hour, _minute, _second;
-    
-    regex.Compile(time_regex_str);
-    if (regex.Matches(value)) {
-        _hour = regex.GetMatch(value,1);
-        _minute = regex.GetMatch(value,2);
-        _second = regex.GetMatch(value,3);
-        
-    }
-    
-    long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
-    
-    _hour.ToLong(&_l_hour);
-    _minute.ToLong(&_l_minute);
-    _second.ToLong(&_l_second);
-    
-    wxInt64 val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
-    
-    if (is_new) {
-        new_data[row_idx] = val;
-    } else {
-        int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //OGRColumnDateTime
-
 OGRColumnDateTime::OGRColumnDateTime(OGRLayerProxy* ogr_layer, int idx)
-:OGRColumn(ogr_layer, idx)
+:OGRColumnDate(ogr_layer, idx)
 {
-    is_new = false;
-    
-    undef_markers.resize(rows);
-    for (int i=0; i<rows; ++i) {
-        if ( ogr_layer->data[i]->IsFieldSet(idx) )
-            undef_markers[i] = false;
-        else
-            undef_markers[i] = true;
-    }
+}
+
+OGRColumnDateTime::OGRColumnDateTime(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals)
+:OGRColumnDate(ogr_layer, name, field_length, decimals)
+{
 }
 
 OGRColumnDateTime::~OGRColumnDateTime()
 {
-    if (new_data.size() > 0 ) new_data.clear();
-}
-
-void OGRColumnDateTime::FillData(vector<wxInt64> &data)
-{
-    if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new date column.";
-        throw GdaException(msg.mb_str());
-    } else {
-        int col_idx = GetColIndex();
-        for (int i=0; i<rows; ++i) {
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int hour = 0;
-            int minute = 0;
-            int second = 0;
-            int tzflag = 0;
-            
-            int col_idx = GetColIndex();
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month, &day,&hour, &minute, &second, &tzflag);
-            
-            wxInt64 ldatetime = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
-            
-            data[i] = ldatetime;
-        }
-    }
-}
-
-
-void OGRColumnDateTime::FillData(vector<wxString>& data)
-{
-    if (is_new) {
-        wxString msg = "Internal error: GeoDa doesn't support new date column.";
-        throw GdaException(msg.mb_str());
-    } else {
-        int col_idx = GetColIndex();
-        for (int i=0; i<rows; ++i) {
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int hour = 0;
-            int minute = 0;
-            int second = 0;
-            int tzflag = 0;
-            ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                   &day,&hour,&minute,
-                                                   &second, &tzflag);
-            data[i] = ogr_layer->data[i]->GetFieldAsString(col_idx);
-        }
-    }
-}
-
-bool OGRColumnDateTime::GetCellValue(int row, wxInt64& val)
-{
-    if (undef_markers[row] == true) {
-        val = 0;
-        return false;
-    }
-    
-    if (new_data.empty()) {
-        int col_idx = GetColIndex();
-        int year = 0;
-        int month = 0;
-        int day = 0;
-        int hour = 0;
-        int minute = 0;
-        int second = 0;
-        int tzflag = 0;
-        ogr_layer->data[row]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                 &day,&hour,&minute,
-                                                 &second, &tzflag);
-        val = year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
-    } else {
-        val = new_data[row];
-    }
-    
-    return true;
-}
-
-wxString OGRColumnDateTime::GetValueAt(int row_idx, int disp_decimals,
-                                   wxCSConv* m_wx_encoding)
-{
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    int hour = 0;
-    int minute = 0;
-    int second = 0;
-    int tzflag = 0;
-    
-    if (new_data.empty()) {
-        int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->GetFieldAsDateTime(col_idx, &year, &month,
-                                                     &day,&hour,&minute,
-                                                     &second, &tzflag);
-    } else {
-        //val = new_data[row_idx];
-    }
-    
-    wxString sDateTime;
-    
-    if (year >0 && month > 0 && day > 0) {
-        sDateTime << wxString::Format("%i-%i-%i", year, month, day);
-    }
-    
-    if (hour >0 || minute > 0 || second > 0) {
-        if (!sDateTime.IsEmpty()) sDateTime << " ";
-        sDateTime << wxString::Format("%i:%i:%i", hour, minute, second);
-    }
-    
-    return sDateTime;
-}
-
-void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
-{
-    int col_idx = GetColIndex();
-    if (value.IsEmpty()) {
-        undef_markers[row_idx] = true;
-        ogr_layer->data[row_idx]->UnsetField(col_idx);
-        return;
-    }
-    
-    wxRegEx regex;
-    
-    wxString time_regex_str = "([0-9]{2}):([0-9]{2}):([0-9]{2})";
-    wxString date_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})";
-    wxString datetime_regex_str = "([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})";
-    
-    wxString _year, _month, _day, _hour, _minute, _second;
-    
-    regex.Compile(time_regex_str);
-    if (regex.Matches(value)) {
-        _hour = regex.GetMatch(value,1);
-        _minute = regex.GetMatch(value,2);
-        _second = regex.GetMatch(value,3);
-        
-    } else {
-        
-        regex.Compile(date_regex_str);
-        if (regex.Matches(value)) {
-            //wxString _all = regex.GetMatch(value,0);
-            _year = regex.GetMatch(value,1);
-            _month = regex.GetMatch(value,2);
-            _day = regex.GetMatch(value,3);
-            
-        } else {
-            
-            regex.Compile(datetime_regex_str);
-            if (regex.Matches(value)) {
-                _year = regex.GetMatch(value,1);
-                _month = regex.GetMatch(value,2);
-                _day = regex.GetMatch(value,3);
-                _hour = regex.GetMatch(value,4);
-                _minute = regex.GetMatch(value,5);
-                _second = regex.GetMatch(value,6);
-            }
-        }
-    }
-    
-    long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
-    
-    _year.ToLong(&_l_year);
-    _month.ToLong(&_l_month);
-    _day.ToLong(&_l_day);
-    _hour.ToLong(&_l_hour);
-    _minute.ToLong(&_l_minute);
-    _second.ToLong(&_l_second);
-    
-    wxInt64 val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
-    
-    if (is_new) {
-        new_data[row_idx] = val;
-    } else {
-        int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, _l_year, _l_month, _l_day, _l_hour, _l_minute, _l_second, 0); // last TZFlag
-    }
 }

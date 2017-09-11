@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <wx/colour.h>
 #include <wx/filename.h>
+#include <wx/regex.h>
 #include <wx/string.h>
 #include <wx/gdicmn.h> // for wxPoint / wxRealPoint
 #include <wx/textwrapper.h>
@@ -81,6 +82,10 @@ namespace Gda {
     double nChoosek(unsigned int n, unsigned int r);
     
     wxString CreateUUID(int nSize);
+    
+    wxString DetectDateFormat(wxString s, std::vector<wxString>& date_items);
+    
+    unsigned long long DateToNumber(wxString s_date, wxRegEx& regex, std::vector<wxString>& date_items);
 }
 
 
