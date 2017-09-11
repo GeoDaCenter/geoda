@@ -286,7 +286,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             
             if (!gs_coord->is_local_joint_count) {
                 cat_data.SetCategoryLabel(t, 2, str_low);
-                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_sig]);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
             }
         
 			if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
