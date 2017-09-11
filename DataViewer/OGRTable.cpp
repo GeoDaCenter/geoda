@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <boost/date_time.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <wx/grid.h>
@@ -39,6 +40,7 @@
 #include "VarOrderMapper.h"
 
 using namespace std;
+namespace bt = boost::posix_time;
 
 OGRTable::OGRTable(int n_rows)
 : TableInterface(NULL, NULL)
@@ -457,6 +459,27 @@ void OGRTable::FillNumericColIdMap(std::vector<int>& col_map)
 	}
 }
 
+void OGRTable::FillDateTimeColIdMap(std::vector<int>& col_map)
+{
+    std::vector<int> t;
+    FillColIdMap(t);
+    int numeric_cnt = 0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::date_type ||
+            GetColType(t[i]) == GdaConst::datetime_type) {
+            numeric_cnt++;
+        }
+    }
+    col_map.resize(numeric_cnt);
+    int cnt=0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::date_type ||
+            GetColType(t[i]) == GdaConst::datetime_type) {
+            col_map[cnt++] = t[i];
+        }
+    }
+}
+
 /** Similar to FillColIdMap except this is a map of long64 type columns
  only.  The size of the resulting corresponds to the number of numeric
  columns */
@@ -791,6 +814,18 @@ void OGRTable::GetDirectColData(int col, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
+void OGRTable::GetDirectColData(int col, std::vector<unsigned long long>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
 	//if (!IsColNumeric(col)) return;
@@ -820,6 +855,16 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
 	OGRColumn* ogr_col = FindOGRColumn(nm);
 	if (ogr_col == NULL) return;
 	data.resize(rows);
+    ogr_col->FillData(data);
+}
+
+void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& data)
+{
+    wxString nm(var_order.GetSimpleColName(col, time));
+    if (nm.IsEmpty()) return;
+    OGRColumn* ogr_col = FindOGRColumn(nm);
+    if (ogr_col == NULL) return;
+    data.resize(rows);
     ogr_col->FillData(data);
 }
 
@@ -1015,6 +1060,21 @@ void OGRTable::SetColData(int col, int time,
 	SetChangedSinceLastSave(true);
 }
 
+void OGRTable::SetColData(int col, int time,
+                          const std::vector<unsigned long long>& data)
+{
+    if (col < 0 || col >= GetNumberCols()) return;
+    int ogr_col_id = FindOGRColId(col, time);
+    if (ogr_col_id == wxNOT_FOUND) return;
+    
+    OGRColumn* ogr_col = columns[ogr_col_id];
+    operations_queue.push(new OGRTableOpUpdateColumn(ogr_col, data));
+    ogr_col->UpdateData(data);
+    table_state->SetColDataChangeEvtTyp(ogr_col->GetName(), col);
+    table_state->notifyObservers();
+    SetChangedSinceLastSave(true);
+}
+
 void OGRTable::SetColUndefined(int col, int time,
 							   const std::vector<bool>& undefs)
 {
@@ -1195,10 +1255,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     
     // don't support the following column type
 	if (type == GdaConst::placeholder_type ||
-        type == GdaConst::unknown_type ||
-        type == GdaConst::date_type||
-        type == GdaConst::time_type||
-        type == GdaConst::datetime_type)
+        type == GdaConst::unknown_type)
     {
         return -1;
     }
@@ -1247,6 +1304,15 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
             
         } else if (type==GdaConst::string_type){
             ogr_col = new OGRColumnString(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::date_type){
+            ogr_col = new OGRColumnDate(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::time_type){
+            ogr_col = new OGRColumnTime(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::datetime_type){
+            ogr_col = new OGRColumnDateTime(ogr_layer, names[t], field_len, decimals);
             
         } else {
             wxString msg = "Add OGR column error. Field type is unknown "

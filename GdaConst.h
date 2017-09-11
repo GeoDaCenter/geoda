@@ -317,6 +317,9 @@ public:
     static bool disable_auto_upgrade;
     static int plot_transparency_highlighted;
     static int plot_transparency_unhighlighted;
+    static std::vector<wxString> gda_datetime_formats;
+    static wxString gda_datetime_formats_str;
+    static wxString gda_display_datetime_format;
     
     static int gda_ogr_csv_header;
     

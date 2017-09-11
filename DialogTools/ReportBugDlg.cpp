@@ -333,6 +333,13 @@ void PreferenceDlg::Init()
 	grid_sizer2->Add(txt23, 0, wxALIGN_RIGHT);
 	txt23->Bind(wxEVT_TEXT, &PreferenceDlg::OnTimeoutInput, this);
    
+	wxString lbl24 = _("Date/Time formats (using comma to separate formats):");
+	wxStaticText* lbl_txt24 = new wxStaticText(gdal_page, wxID_ANY, lbl24);
+	txt24 = new wxTextCtrl(gdal_page, XRCID("ID_DATETIME_FORMATS"), "", wxDefaultPosition, wxSize(200, -1), wxTE_PROCESS_ENTER);
+	grid_sizer2->Add(lbl_txt24, 1, wxEXPAND);
+	grid_sizer2->Add(txt24, 0, wxALIGN_RIGHT);
+	txt24->Bind(wxEVT_TEXT, &PreferenceDlg::OnDateTimeInput, this);
+    
 	grid_sizer2->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
@@ -385,7 +392,17 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	GdaConst::show_csv_configure_in_merge = false;
 	GdaConst::enable_high_dpi_support = true;
     GdaConst::gdal_http_timeout = 5;
-    
+    GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S";
+    if (!GdaConst::gda_datetime_formats_str.empty()) {
+        wxString patterns = GdaConst::gda_datetime_formats_str;
+        wxStringTokenizer tokenizer(patterns, ",");
+        while ( tokenizer.HasMoreTokens() )
+        {
+            wxString token = tokenizer.GetNextToken();
+            GdaConst::gda_datetime_formats.push_back(token);
+        }
+        GdaConst::gda_datetime_formats_str = patterns;
+    }
 
 	SetupControls();
 
@@ -405,6 +422,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
 	ogr_adapt.AddEntry("enable_high_dpi_support", "1");
 	ogr_adapt.AddEntry("gdal_http_timeout", "5");
+	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S");
 }
 
 void PreferenceDlg::SetupControls()
@@ -436,6 +454,7 @@ void PreferenceDlg::SetupControls()
 	cbox10->SetValue(GdaConst::enable_high_dpi_support);
     
     txt23->SetValue(wxString::Format("%d", GdaConst::gdal_http_timeout));
+    txt24->SetValue(GdaConst::gda_datetime_formats_str);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -582,6 +601,18 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
     
+    vector<string> gda_datetime_formats_str = OGRDataAdapter::GetInstance().GetHistory("gda_datetime_formats_str");
+    if (!gda_datetime_formats_str.empty()) {
+        wxString patterns = gda_datetime_formats_str[0];
+        wxStringTokenizer tokenizer(patterns, ",");
+        while ( tokenizer.HasMoreTokens() )
+        {
+            wxString token = tokenizer.GetNextToken();
+            GdaConst::gda_datetime_formats.push_back(token);
+        }
+        GdaConst::gda_datetime_formats_str = patterns;
+    }
+    
     // following are not in this UI, but still global variable
     vector<string> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
     if (!gda_user_seed.empty()) {
@@ -608,6 +639,20 @@ void PreferenceDlg::ReadFromCache()
         wxString email = gda_user_email[0];
         GdaConst::gda_user_email = email;
     }
+    
+}
+
+void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
+{
+    GdaConst::gda_datetime_formats.clear();
+    wxString formats_str = txt24->GetValue();
+    wxStringTokenizer tokenizer(formats_str, ",");
+    while ( tokenizer.HasMoreTokens() )
+    {
+        wxString token = tokenizer.GetNextToken();
+        GdaConst::gda_datetime_formats.push_back(token);
+    }
+    GdaConst::gda_datetime_formats_str = formats_str;
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)

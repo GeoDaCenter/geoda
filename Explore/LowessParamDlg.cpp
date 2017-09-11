@@ -63,7 +63,7 @@ project(project_)
 	wxStaticText* f_stat_t = new wxStaticText(panel, wxID_ANY, "Bandwidth:");
 	f_text = new wxTextCtrl(panel, 
                             XRCID("ID_F_TEXT"),
-                            wxString::Format("%.2f", GetF()),
+                            wxString::Format("%f", GetF()),
                             wxDefaultPosition, 
                             wxSize(100, -1),
                             wxTE_PROCESS_ENTER);
@@ -182,9 +182,9 @@ void LowessParamFrame::OnResetDefaultsBtn(wxCommandEvent& ev)
 	f = Lowess::default_f;
 	iter = Lowess::default_iter;
 	delta_factor = Lowess::default_delta_factor;
-	f_text->ChangeValue(wxString::Format("%.2f", GetF()));
+	f_text->ChangeValue(wxString::Format("%f", GetF()));
 	iter_text->ChangeValue(wxString::Format("%d", GetIter()));
-	delta_factor_text->ChangeValue(wxString::Format("%.4f", GetDeltaFactor()));
+	delta_factor_text->ChangeValue(wxString::Format("%f", GetDeltaFactor()));
     
     OnApplyBtn(ev);
 }
@@ -216,7 +216,7 @@ void LowessParamFrame::UpdateParamsFromFields()
 		if (s.ToDouble(&v)) 
 			temp_l.SetF(v);
 		f = temp_l.GetF();
-		wxString sf = wxString::Format("%.2f", GetF());
+		wxString sf = wxString::Format("%f", GetF());
 		f_text->ChangeValue(sf);
 	}
 	{

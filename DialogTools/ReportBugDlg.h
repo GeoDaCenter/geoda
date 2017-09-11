@@ -112,6 +112,8 @@ protected:
     wxCheckBox* cbox22;
     // timeout
     wxTextCtrl* txt23;
+    // data/tome 
+    wxTextCtrl* txt24;
     
     void Init();
     void SetupControls();
@@ -133,6 +135,7 @@ protected:
     void OnHideTablePostGIS(wxCommandEvent& ev);
     void OnHideTableSQLITE(wxCommandEvent& ev);
     void OnTimeoutInput(wxCommandEvent& ev);
+    void OnDateTimeInput(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

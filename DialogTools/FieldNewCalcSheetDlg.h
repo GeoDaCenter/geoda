@@ -24,6 +24,7 @@
 #include <wx/panel.h>
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcBinDlg.h"
+#include "FieldNewCalcDateTimeDlg.h"
 #include "FieldNewCalcLagDlg.h"
 #include "FieldNewCalcRateDlg.h"
 #include "FieldNewCalcUniDlg.h"
@@ -84,6 +85,7 @@ private:
 	FieldNewCalcLagDlg* pLag;
 	FieldNewCalcRateDlg* pRate;
 	FieldNewCalcUniDlg* pUni;
+	FieldNewCalcDateTimeDlg* pDT;
 	
 	FramesManager* frames_manager;
 	TableState* table_state;

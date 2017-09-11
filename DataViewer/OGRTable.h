@@ -24,6 +24,7 @@
 #include <queue>
 #include <stack>
 #include <map>
+#include <boost/date_time.hpp>
 #include <wx/filename.h>
 
 #include "OGRColumn.h"
@@ -34,6 +35,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
+namespace bt = boost::posix_time;
 
 class OGRTable : public TableInterface, TableStateObserver
 {
@@ -113,6 +115,7 @@ public:
     virtual int  GetColIdx(const wxString& name, bool ignore_case=false);
 	virtual void FillColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
+	virtual void FillDateTimeColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericNameList(std::vector<wxString>& num_names);
 	virtual int  GetNumberCols();
@@ -136,10 +139,12 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data);
     
 	virtual void GetDirectColData(int col, std::vector<double>& data);
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);
 	virtual void GetDirectColData(int col, std::vector<wxString>& data);
+    virtual void GetDirectColData(int col, std::vector<unsigned long long>& data);
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefined);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined);
@@ -155,6 +160,8 @@ public:
                             const std::vector<wxInt64>& data);
 	virtual void SetColData(int col, int time,
                             const std::vector<wxString>& data);
+    virtual void SetColData(int col, int time,
+                            const std::vector<unsigned long long>& data);
 	virtual void SetColUndefined(int col, int time,
 								 const std::vector<bool>& undefined);
 	virtual bool ColChangeProperties(int col, int time,

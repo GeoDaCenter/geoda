@@ -18,11 +18,12 @@
  */
 
 #include <string>
+#include <time.h>
 #include <vector>
 #include <ogrsf_frmts.h>
 #include <climits>
 #include <boost/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time.hpp>
 
 #include "../ShpFile.h"
 #include "../GdaException.h"
@@ -35,8 +36,8 @@
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
 
-
 using namespace std;
+namespace bt = boost::posix_time;
 
 /**
  * Create a OGRLayerProxy from an existing OGRLayer
@@ -604,24 +605,20 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                        ftype == GdaConst::time_type ||
                        ftype == GdaConst::datetime_type ) {
                 
-                vector<wxInt64> col_data;
+                vector<unsigned long long> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
-                
+               
+                int year, month, day, hour, minute, second;
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
-                    
-                    wxInt64 val = col_data[ orig_id ];
-                    int year = val / 10000000000;
-                    val = val % 10000000000;
-                    int month = val / 100000000;
-                    val = val % 100000000;
-                    int day = val  / 1000000;
-                    val = val % 1000000;
-                    int hour = val / 10000;
-                    val = val % 10000;
-                    int minute = val / 100;
-                    int second = val % 100;
+                   
+                    year = col_data[ orig_id ] / 10000000000;
+                    month = (col_data[ orig_id ] % 10000000000) / 100000000;
+                    day = (col_data[ orig_id ] % 100000000) / 1000000;
+                    hour = (col_data[ orig_id ] % 1000000) / 10000;
+                    minute = (col_data[ orig_id ] % 10000) / 100;
+                    second = col_data[ orig_id ] % 100;
                     
                     if (undefs[orig_id]) {
                         data[k]->UnsetField(j);

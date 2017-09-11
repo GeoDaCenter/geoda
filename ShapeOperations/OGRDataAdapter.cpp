@@ -163,6 +163,7 @@ void OGRDataAdapter::T_StopReadLayer(OGRLayerProxy* layer_proxy)
 	layer_proxy->stop_reading = TRUE;
 	layer_thread->join();
 	delete layer_thread;
+    layer_thread = NULL;
 }
 				
 void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)

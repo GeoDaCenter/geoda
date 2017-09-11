@@ -20,6 +20,10 @@
 #include "OGRColumn.h"
 #include "OGRTableOperation.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
+#include <boost/date_time.hpp>
+
+namespace bt = boost::posix_time;
+
 
 OGRTableOperation::OGRTableOperation(OGRColumn* col)
 {
@@ -201,6 +205,17 @@ void OGRTableOpRenameColumn::Rollback()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
+                                               const std::vector<unsigned long long>& new_data)
+: OGRTableOperation(col)
+{
+    int n_rows = ogr_col->GetNumRows();
+    t_old_data.resize(n_rows);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(t_old_data, undef_old_data);
+    t_new_data = new_data;
+}
+
 OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
                                         const std::vector<double>& new_data)
 : OGRTableOperation(col)
