@@ -56,7 +56,7 @@ public:
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
 
-private:
+protected:
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
     wxChoice* combo_tranform;

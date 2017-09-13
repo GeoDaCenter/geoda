@@ -49,7 +49,7 @@
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
 : frames_manager(project_s->GetFramesManager()),
 wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-validator(wxFILTER_INCLUDE_CHAR_LIST)
+validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), weight(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -75,7 +75,112 @@ validator(wxFILTER_INCLUDE_CHAR_LIST)
 
 AbstractClusterDlg::~AbstractClusterDlg()
 {
+    if (input_data) {
+        for (int i=0; i<rows; i++) delete[] input_data[i];
+        delete[] input_data;
+        input_data = NULL;
+    }
+    if (mask) {
+        for (int i=0; i<rows; i++) delete[] mask[i];
+        delete[] mask;
+        mask = NULL;
+    }
+    if (weight) {
+        delete[] weight;
+        weight = NULL;
+    }
     frames_manager->removeObserver(this);
+}
+
+double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
+{
+    double wss = 0;
+    int count = 0;
+    double sum = 0.0;
+    
+    // for every variable, calc the variance using selected neighbors
+    for (int i=0; i<solution.size(); i++ ) {
+        sum = 0.0;
+        size_t n_items = solution[i].size();
+        const vector<int>& sel_idx = solution[i];
+        
+        for (int n=0; n<num_vars; n++) {
+            count = 0;
+            vector<double> selected_z(n_items);
+            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
+            double var = GenUtils::GetVariance(selected_z);
+            sum += var;
+        }
+        sum = sum * n_items;
+        group_distances.push_back(sum);
+        wss += sum;
+    }
+    
+    return wss;
+}
+
+void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
+{
+    project->GetCentroids();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centroids.empty())
+        for (int i=0; i<centroids.size(); i++)
+            delete centroids[i];
+    
+    centroids.clear();
+    centroids.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->centroids[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centroids[i] = new GdaPoint(mx, my);
+    }
+}
+
+void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
+{
+    project->GetMeanCenters();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centers.empty())
+        for (int i=0; i<centers.size(); i++)
+            delete centers[i];
+    
+    centers.clear();
+    centers.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->mean_centers[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centers[i] = new GdaPoint(mx, my);
+    }
 }
 
 bool AbstractClusterDlg::Init()

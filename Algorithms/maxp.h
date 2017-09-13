@@ -62,7 +62,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<size_t> seeds, int rnd_seed=-1, bool test=false, char dist='e');
+    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<size_t> seeds, int rnd_seed=-1, char dist='e', bool test=false);
     
     
     //! A Deconstructor
