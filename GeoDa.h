@@ -432,6 +432,7 @@ public:
 	void ChangeToEqualIntervals(int num_cats);
 
 	void OnOpenUniqueValues(wxCommandEvent& event);
+	void OnOpenColocationMap(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
 
 	void OnSaveCategories(wxCommandEvent& event);

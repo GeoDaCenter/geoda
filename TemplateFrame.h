@@ -132,12 +132,13 @@ public:
 	
 	virtual void SetDependsOnNonSimpleGroups(bool v) {
 		depends_on_non_simple_groups = v; }
-	
-private:
+
+    virtual int GetCurrentCanvasTimeStep();
+    
+protected:
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
-
-protected:
+    
 	Project* project;
 	TemplateCanvas* template_canvas;
 	TemplateLegend* template_legend; // optional

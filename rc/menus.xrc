@@ -735,10 +735,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_COLOCATION">
-          <label>Co-location Map</label>
-          <checkable>1</checkable>
-      </object>
       <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
@@ -1966,10 +1962,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_COLOCATION">
-          <label>Co-location Map</label>
-          <checkable>1</checkable>
-      </object>
       <object class="wxMenu" name="ID_NATURAL_BREAKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_NATURAL_BREAKS_2">
@@ -2876,7 +2868,7 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_COLOCATION">
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_COLOCATION">
           <label>Co-location Map</label>
           <checkable>1</checkable>
       </object>

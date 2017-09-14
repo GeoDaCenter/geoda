@@ -55,6 +55,8 @@
 #include "Basemap.h"
 #include "MapNewView.h"
 
+using namespace std;
+
 wxWindowID ID_SLIDER = wxID_ANY;
 
 IMPLEMENT_CLASS(SliderDialog, wxDialog)
@@ -144,8 +146,8 @@ bool MapCanvas::has_thumbnail_saved = false;
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project_s,
-                     const std::vector<GdaVarTools::VarInfo>& var_info_s,
-                     const std::vector<int>& col_ids_s,
+                     const vector<GdaVarTools::VarInfo>& var_info_s,
+                     const vector<int>& col_ids_s,
                      CatClassification::CatClassifType theme_type,
                      SmoothingType smoothing_type_s,
                      int num_categories_s,
@@ -178,21 +180,16 @@ map_type(0),
 tran_unhighlighted(GdaConst::transparency_unhighlighted)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
-	using namespace Shapefile;
-	
-	cat_classif_def.cat_classif_type = theme_type;
-	if (theme_type == CatClassification::no_theme) {
-		//cat_classif_def.color_scheme = CatClassification::custom_color_scheme;
-		//CatClassification::ChangeNumCats(1, cat_classif_def);
-		//cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
-	}
-	selectable_fill_color = GdaConst::map_default_fill_colour;
 
+    layer_name = project->layername;
+    ds_name = project->GetDataSource()->GetOGRConnectStr();
+    
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
                              project->main_data.header.bbox_y_min,
                              project->main_data.header.bbox_x_max,
                              project->main_data.header.bbox_y_max);
-                             
+    
+	selectable_fill_color = GdaConst::map_default_fill_colour;
 	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
 		selectable_shps_type = points;
 		highlight_color = *wxRED;
@@ -201,28 +198,23 @@ tran_unhighlighted(GdaConst::transparency_unhighlighted)
 		highlight_color = GdaConst::map_default_highlight_colour;
 	}
     
-    layer_name = project->layername;
-    ds_name = project->GetDataSource()->GetOGRConnectStr();
-    
 	use_category_brushes = true;
+	cat_classif_def.cat_classif_type = theme_type;
 	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories,
 					   weights_id, true, var_info_s, col_ids_s))
     {
-		// The user possibly clicked cancel.  Try again with
-		// themeless map
-		std::vector<GdaVarTools::VarInfo> vi(0);
-		std::vector<int> cids(0);
+		// The user possibly clicked cancel, try again with themeless map
+		vector<GdaVarTools::VarInfo> vi(0);
+		vector<int> cids(0);
 		ChangeMapType(CatClassification::no_theme, no_smoothing, 1,
-					  boost::uuids::nil_uuid(),
-					  true, vi, cids);
+					  boost::uuids::nil_uuid(), true, vi, cids);
 	}
+    
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     
     isDrawBasemap = GdaConst::use_basemap_by_default;
-    if (isDrawBasemap) {
-        map_type = GdaConst::default_basemap_selection;
-    }
+    if (isDrawBasemap) map_type = GdaConst::default_basemap_selection;
 }
 
 MapCanvas::~MapCanvas()
@@ -233,7 +225,6 @@ MapCanvas::~MapCanvas()
     
 	if (custom_classif_state)
         custom_classif_state->removeObserver(this);
-   
     
     if (basemap != NULL) {
         delete basemap;
@@ -243,7 +234,6 @@ MapCanvas::~MapCanvas()
 
 void MapCanvas::SetupColor()
 {
-    
 }
 
 void MapCanvas::SetPredefinedColor(const wxString& lbl, const wxColor& new_color)
@@ -254,7 +244,7 @@ void MapCanvas::SetPredefinedColor(const wxString& lbl, const wxColor& new_color
 void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color)
 {
     // update predefined color, if user change the color on legend pane
-    std::map<wxString, wxColour>::iterator it;
+    map<wxString, wxColour>::iterator it;
     for (it =lbl_color_dict.begin(); it!=lbl_color_dict.end(); it++) {
         wxString predefined_lbl = it->first;
         if ( lbl.StartsWith(predefined_lbl)) {
@@ -908,6 +898,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 					GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 					GetCcType() == CatClassification::unique_values);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_COLOCATION"),
+					GetCcType() == CatClassification::colocation);
 	
 	// since XRCID is a macro, we can't make this into a loop
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
@@ -1071,7 +1063,7 @@ void MapCanvas::OnSaveCategories()
 		label << t_name << " Categories";
 		wxString title;
 		title << "Save " << label;
-		std::vector<bool> undefs(num_obs);
+		vector<bool> undefs(num_obs);
 		for (int t=0; t<num_time_vals; t++) {
 			for (int i=0; i<num_obs; i++) {
 				undefs[i] = undefs[i] || data_undef[0][t][i];
@@ -1085,7 +1077,7 @@ void MapCanvas::NewCustomCatClassif()
 {
     wxLogMessage("MapCanvas::NewCustomCatClassif()");
 	// Begin by asking for a variable if none yet chosen
-    std::vector<std::vector<bool> > var_undefs(num_time_vals);
+    vector<vector<bool> > var_undefs(num_time_vals);
     
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
@@ -1124,7 +1116,7 @@ void MapCanvas::NewCustomCatClassif()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom)
     {
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats, cat_classif_def);
-		std::vector<wxString> temp_cat_labels; // will be ignored
+		vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[var_info[0].time],
@@ -1182,8 +1174,8 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                          int num_categories_s,
                          boost::uuids::uuid weights_id_s,
                          bool use_new_var_info_and_col_ids,
-                         const std::vector<GdaVarTools::VarInfo>& new_var_info,
-                         const std::vector<int>& new_col_ids,
+                         const vector<GdaVarTools::VarInfo>& new_var_info,
+                         const vector<int>& new_col_ids,
                          const wxString& custom_classif_title)
 {
     wxLogMessage("MapCanvas::ChangeMapType()");
@@ -1385,7 +1377,7 @@ void MapCanvas::PopulateCanvas()
 				wxPen cent_pen(wxColour(20, 20, 20));
 				wxPen cntr_pen(wxColour(55, 55, 55));
 				if (display_mean_centers) {
-					const std::vector<GdaPoint*>& c = project->GetMeanCenters();
+					const vector<GdaPoint*>& c = project->GetMeanCenters();
 					for (int i=0; i<num_obs; i++) {
 						p = new GdaPoint(*c[i]);
 						p->setPen(cntr_pen);
@@ -1394,7 +1386,7 @@ void MapCanvas::PopulateCanvas()
 					}
 				}
 				if (display_centroids) {
-					const std::vector<GdaPoint*>& c = project->GetCentroids();
+					const vector<GdaPoint*>& c = project->GetCentroids();
 					for (int i=0; i<num_obs; i++) {
 						p = new GdaPoint(*c[i]);
 						p->setPen(cent_pen);
@@ -1405,7 +1397,7 @@ void MapCanvas::PopulateCanvas()
 			}
 			if (selectable_shps_type == points && display_voronoi_diagram) {
 				GdaPolygon* p;
-				const std::vector<GdaShape*>& polys =
+				const vector<GdaShape*>& polys =
 					project->GetVoronoiPolygons();
 				for (int i=0, num_polys=polys.size(); i<num_polys; i++) {
 					p = new GdaPolygon(*(GdaPolygon*)polys[i]);
@@ -1529,7 +1521,6 @@ void MapCanvas::CreateAndUpdateCategories()
 	double* P = 0;
 	double* E = 0;
 	double* smoothed_results = 0;
-	//std::vector<bool> undef_res(smoothing_type == no_smoothing ? 0 : num_obs);
     
 	if (smoothing_type != no_smoothing) {
 		P = new double[num_obs];
@@ -1540,13 +1531,13 @@ void MapCanvas::CreateAndUpdateCategories()
 	cat_var_sorted.resize(num_time_vals);
     if (IS_VAR_STRING) cat_str_var_sorted.resize(num_time_vals);
     
-    std::vector<std::vector<bool> > cat_var_undef;
+    vector<vector<bool> > cat_var_undef;
     
 	for (int t=0; t<num_time_vals; t++) {
 		cat_var_sorted[t].clear();
         if (IS_VAR_STRING) cat_str_var_sorted[t].clear();
         
-        std::vector<bool> undef_res(num_obs, false);
+        vector<bool> undef_res(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             for (int j=0; j< data_undef.size(); j++) {
                 if ( data_undef[j].size() > t ) {
@@ -1556,7 +1547,6 @@ void MapCanvas::CreateAndUpdateCategories()
         }
 		
 		if (smoothing_type != no_smoothing) {
-            
             for (int i=0; i<num_obs; i++) {
                 E[i] = data[0][var_info[0].time][i];
             }
@@ -1582,8 +1572,8 @@ void MapCanvas::CreateAndUpdateCategories()
 			}
 			
             bool hasZeroBaseVal = false;
-            std::vector<bool>& hs = highlight_state->GetHighlight();
-            std::vector<bool> hs_backup = hs;
+            vector<bool>& hs = highlight_state->GetHighlight();
+            vector<bool> hs_backup = hs;
             
 			for (int i=0; i<num_obs; i++) {
                 if (undef_res[i])
@@ -1763,10 +1753,10 @@ void MapCanvas::SaveRates()
 		return;
 	}
 	
-	std::vector<SaveToTableEntry> data(1);
+	vector<SaveToTableEntry> data(1);
 	
-    std::vector<bool> undefs(num_obs);
-	std::vector<double> dt(num_obs);
+    vector<bool> undefs(num_obs);
+	vector<double> dt(num_obs);
     
 	int t = cat_data.GetCurrentCanvasTmStep();
     for (int i=0; i<num_obs; i++) {
@@ -1916,8 +1906,8 @@ BEGIN_EVENT_TABLE(MapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 MapFrame::MapFrame(wxFrame *parent, Project* project,
-                   const std::vector<GdaVarTools::VarInfo>& var_info,
-                   const std::vector<int>& col_ids,
+                   const vector<GdaVarTools::VarInfo>& var_info,
+                   const vector<int>& col_ids,
                    CatClassification::CatClassifType theme_type,
                    MapCanvas::SmoothingType smoothing_type,
                    int num_categories,
@@ -2210,7 +2200,7 @@ void MapFrame::OnCustomCatClassifA(const wxString& cc_title)
 	} else {
 		ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4,
 					  boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
+					  false, vector<GdaVarTools::VarInfo>(0), vector<int>(0),
 					  cc_title);
 	}
 }
@@ -2219,7 +2209,7 @@ void MapFrame::OnThemelessMap()
 {
 	ChangeMapType(CatClassification::no_theme, MapCanvas::no_smoothing, 1,
 				  boost::uuids::nil_uuid(),
-				  false, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0));
+				  false, vector<GdaVarTools::VarInfo>(0), vector<int>(0));
 }
 
 void MapFrame::OnHinge15()
@@ -2234,8 +2224,8 @@ void MapFrame::OnHinge15()
 	} else {
 		ChangeMapType(CatClassification::hinge_15, MapCanvas::no_smoothing,
 					  6, boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0),
-					  std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0),
+					  vector<int>(0));
 	}
 }
 
@@ -2251,8 +2241,8 @@ void MapFrame::OnHinge30()
 	} else {
 		ChangeMapType(CatClassification::hinge_30, MapCanvas::no_smoothing,
 					  6, boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0),
-					  std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0),
+					  vector<int>(0));
 	}
 }
 
@@ -2268,7 +2258,7 @@ void MapFrame::OnQuantile(int num_cats)
 	} else {
 		ChangeMapType(CatClassification::quantile, MapCanvas::no_smoothing,
 					  num_cats, boost::uuids::nil_uuid(), false,
-					  std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0));
+					  vector<GdaVarTools::VarInfo>(0), vector<int>(0));
 	}
 }
 
@@ -2284,8 +2274,8 @@ void MapFrame::OnPercentile()
 	} else {
 		ChangeMapType(CatClassification::percentile, MapCanvas::no_smoothing,
 					  6, boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0),
-					  std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0),
+					  vector<int>(0));
 	}
 }
 
@@ -2301,8 +2291,8 @@ void MapFrame::OnStdDevMap()
 	} else {
 		ChangeMapType(CatClassification::stddev, MapCanvas::no_smoothing,
 					  6, boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0),
-					  std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0),
+					  vector<int>(0));
 	}
 }
 
@@ -2323,8 +2313,8 @@ void MapFrame::OnUniqueValues()
 		ChangeMapType(CatClassification::unique_values,
 					  MapCanvas::no_smoothing,
 					  6, boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0),
-					  std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0),
+					  vector<int>(0));
 	}	
 }
 
@@ -2342,7 +2332,7 @@ void MapFrame::OnNaturalBreaks(int num_cats)
 		ChangeMapType(CatClassification::natural_breaks,
 					  MapCanvas::no_smoothing, num_cats,
 					  boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0), vector<int>(0));
 	}
 }
 
@@ -2360,7 +2350,7 @@ void MapFrame::OnEqualIntervals(int num_cats)
 		ChangeMapType(CatClassification::equal_intervals,
 					  MapCanvas::no_smoothing, num_cats,
 					  boost::uuids::nil_uuid(),
-					  false, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0));
+					  false, vector<GdaVarTools::VarInfo>(0), vector<int>(0));
 	}
 }
 
@@ -2442,8 +2432,8 @@ bool MapFrame::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 								int num_categories,
 								boost::uuids::uuid weights_id,
 								bool use_new_var_info_and_col_ids,
-								const std::vector<GdaVarTools::VarInfo>& new_var_info,
-								const std::vector<int>& new_col_ids,
+								const vector<GdaVarTools::VarInfo>& new_var_info,
+								const vector<int>& new_col_ids,
 								const wxString& custom_classif_title)
 {
 	bool r=((MapCanvas*) template_canvas)->
@@ -2541,14 +2531,14 @@ void MapFrame::OnChangeMapTransparency()
     }
 }
 
-void MapFrame::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
+void MapFrame::GetVizInfo(map<wxString, vector<int> >& colors)
 {
 	if (template_canvas) {
 		template_canvas->GetVizInfo(colors);
 	}
 }
 
-void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, std::vector<wxString>& clrs, std::vector<double>& bins)
+void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxString>& clrs, vector<double>& bins)
 {
 	if (template_canvas) {
         template_canvas->GetVizInfo(shape_type, clrs, bins);

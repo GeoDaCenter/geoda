@@ -152,6 +152,7 @@
 #include "Explore/3DPlotView.h"
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
+#include "Explore/ColocationMapView.h"
 
 #include "Regression/DiagnosticReport.h"
 
@@ -4438,6 +4439,14 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
     nf->UpdateTitle();
 }
 
+void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnOpenColocationMap()");
+    bool show_str_var = true;
+    ColocationSelectDlg dlg(this, project_p);
+	if (dlg.ShowModal() != wxID_OK) return;
+}
+
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnUniqueValues()");
@@ -6752,9 +6761,14 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"), GdaFrame::OnStddev)
     EVT_MENU(XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), GdaFrame::OnCondVertStddev)
     EVT_MENU(XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), GdaFrame::OnCondHorizStddev)
+
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnUniqueValues)
+
+    EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
+    EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
+
     EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
     EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)
     EVT_TOOL(XRCID("ID_OPEN_NATURAL_BREAKS_1"), GdaFrame::OnOpenNaturalBreaks1)

@@ -93,10 +93,20 @@ protected:
     wxCheckBox* m_use_centroids;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
-    virtual void AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wxCheckBox** m_use_centroids,wxSlider** m_weight_centroids, wxTextCtrl** m_wc_txt, wxBoxSizer* vbox);
+    
+    virtual void AddInputCtrls(wxPanel *panel,
+                               wxListBox** combo_var,
+                               wxCheckBox** m_use_centroids,
+                               wxSlider** m_weight_centroids,
+                               wxTextCtrl** m_wc_txt,
+                               wxBoxSizer* vbox);
+    virtual void AddSimpleInputCtrls(wxPanel *panel,
+                                     wxListBox** combo_var,
+                                     wxBoxSizer* vbox,
+                                     bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
-    virtual void InitVariableCombobox(wxListBox* var_box);
+    virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
     bool GetInputData(int transform, int min_num_var=2);
     void OnInputWeights(wxCommandEvent& event);
    

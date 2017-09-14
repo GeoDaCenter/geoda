@@ -866,3 +866,9 @@ void TemplateFrame::ClearAllGroupDependencies()
 {
 	grp_dependencies.clear();
 }
+
+int TemplateFrame::GetCurrentCanvasTimeStep()
+{
+    return template_canvas ? template_canvas->cat_data.GetCurrentCanvasTmStep() : -1;
+}
+
