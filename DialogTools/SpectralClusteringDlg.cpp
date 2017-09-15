@@ -53,9 +53,7 @@ EVT_CLOSE( SpectralClusteringDlg::OnClose )
 END_EVENT_TABLE()
 
 SpectralClusteringDlg::SpectralClusteringDlg(wxFrame* parent_s, Project* project_s)
-: frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("Spectral Clustering Settings"), wxDefaultPosition, wxDefaultSize,
-         wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: AbstractClusterDlg(parent_s, project_s, _("Spectral Clustering Settings"))
 {
     wxLogMessage("Open SpectralClusteringDlg.");
     
@@ -71,12 +69,10 @@ wxDialog(NULL, -1, _("Spectral Clustering Settings"), wxDefaultPosition, wxDefau
     } else {
         CreateControls();
     }
-    frames_manager->registerObserver(this);
 }
 
 SpectralClusteringDlg::~SpectralClusteringDlg()
 {
-    frames_manager->removeObserver(this);
 }
 
 bool SpectralClusteringDlg::Init()
@@ -88,15 +84,9 @@ bool SpectralClusteringDlg::Init()
     if (table_int == NULL)
         return false;
     
-    
     table_int->GetTimeStrings(tm_strs);
     
     return true;
-}
-
-void SpectralClusteringDlg::update(FramesManager* o)
-{
-    
 }
 
 void SpectralClusteringDlg::CreateControls()
@@ -267,11 +257,9 @@ void SpectralClusteringDlg::CreateControls()
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
-
     
     Centre();
 
-    
     // Content
     InitVariableCombobox(box);
     combo_n = box1;
@@ -283,7 +271,6 @@ void SpectralClusteringDlg::CreateControls()
     m_method = box12;
     m_distance = box13;
     combo_tranform = box01;
-    
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnOK, this);
@@ -614,6 +601,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         clusters_undef.push_back(false);
     }
     delete[] input_data;
+    input_data = NULL;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);

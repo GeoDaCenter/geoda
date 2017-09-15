@@ -432,6 +432,7 @@ public:
 	void ChangeToEqualIntervals(int num_cats);
 
 	void OnOpenUniqueValues(wxCommandEvent& event);
+	void OnOpenColocationMap(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
 
 	void OnSaveCategories(wxCommandEvent& event);
@@ -566,6 +567,7 @@ public:
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	void OnSaveLisa(wxCommandEvent& event);
+	void OnSaveColocation(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);

@@ -43,12 +43,24 @@ public:
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
     
+    double intra_group_distance(const vector<vector<int> >& solution,
+                                vector<double> group_distances);
+    
+    void get_centroids(const vector<vector<int> >& solution,
+                       vector<GdaPoint*>& centroids);
+    
+    void get_mean_centers(const vector<vector<int> >& solution,
+                          vector<GdaPoint*>& centers);
     
 protected:
     wxFrame *parent;
     Project* project;
     TableInterface* table_int;
     FramesManager* frames_manager;
+    
+    vector<vector<double> > z;
+    vector<bool> undefs;
+    int num_vars;
    
     int rows;
     int columns;
@@ -81,10 +93,20 @@ protected:
     wxCheckBox* m_use_centroids;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
-    virtual void AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wxCheckBox** m_use_centroids,wxSlider** m_weight_centroids, wxTextCtrl** m_wc_txt, wxBoxSizer* vbox);
+    
+    virtual void AddInputCtrls(wxPanel *panel,
+                               wxListBox** combo_var,
+                               wxCheckBox** m_use_centroids,
+                               wxSlider** m_weight_centroids,
+                               wxTextCtrl** m_wc_txt,
+                               wxBoxSizer* vbox);
+    virtual void AddSimpleInputCtrls(wxPanel *panel,
+                                     wxListBox** combo_var,
+                                     wxBoxSizer* vbox,
+                                     bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
-    void InitVariableCombobox(wxListBox* var_box);
+    virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
     bool GetInputData(int transform, int min_num_var=2);
     void OnInputWeights(wxCommandEvent& event);
    

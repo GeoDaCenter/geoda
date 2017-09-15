@@ -480,7 +480,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 
     int transform = combo_tranform->GetSelection();
     
-    vector<vector<double> > z;
+    vector<vector<double> > _z;
     // assign value
     int col_ii = 0;
     for (int i=0; i<data.size(); i++ ){ // col
@@ -494,16 +494,15 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             } else if (transform == 1 ) {
                 GenUtils::DeviationFromMean(vals);
             }
-            z.push_back(vals);
+            _z.push_back(vals);
         }
     }
-    vector<vector<double> > z_t;
     for (int i=0; i<rows; i++) {
         vector<double> vals;
-        for (int j=0; j<z.size(); j++) { // cols
-            vals.push_back(z[j][i]);
+        for (int j=0; j<_z.size(); j++) { // cols
+            vals.push_back(_z[j][i]);
         }
-        z_t.push_back(vals);
+        z.push_back(vals);
     }
    
     /*
@@ -553,7 +552,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
-    Maxp maxp(gw->gal, z_t, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
+    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
     
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

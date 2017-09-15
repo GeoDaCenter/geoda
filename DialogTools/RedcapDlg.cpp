@@ -54,9 +54,7 @@ EVT_CLOSE( RedcapDlg::OnClose )
 END_EVENT_TABLE()
 
 RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
-: frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("REDCAP Settings"), wxDefaultPosition, wxDefaultSize,
-         wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: AbstractClusterDlg(parent_s, project_s,  _("REDCAP Settings"))
 {
     wxLogMessage("Open REDCAP dialog.");
     
@@ -97,11 +95,6 @@ bool RedcapDlg::Init()
     return true;
 }
 
-void RedcapDlg::update(FramesManager* o)
-{
-    
-}
-
 void RedcapDlg::CreateControls()
 {
     wxLogMessage("On RedcapDlg::CreateControls");
@@ -132,7 +125,7 @@ void RedcapDlg::CreateControls()
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(120,-1), 3, _transform);
-    combo_tranform->SetSelection(0);
+    combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);
     

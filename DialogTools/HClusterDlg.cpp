@@ -51,8 +51,7 @@ END_EVENT_TABLE()
 
 
 HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
-: frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: AbstractClusterDlg(parent_s, project_s,  _("Hierarchical Clustering Settings"))
 {
     wxLogMessage("Open HClusterDlg.");
     
@@ -71,13 +70,11 @@ wxDialog(NULL, -1, _("Hierarchical Clustering Settings"), wxDefaultPosition, wxD
         CreateControls();
     }
     
-    frames_manager->registerObserver(this);
     highlight_state->registerObserver(this);
 }
 
 HClusterDlg::~HClusterDlg()
 {
-    frames_manager->removeObserver(this);
     highlight_state->removeObserver(this);
 }
 
@@ -386,10 +383,6 @@ void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
     var_box->InsertItems(items,0);
 }
 
-void HClusterDlg::update(FramesManager* o)
-{
-}
-
 void HClusterDlg::update(HLStateInt* o)
 {
 }
@@ -582,6 +575,9 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     delete[] input_data;
     delete[] weight;
     delete[] clusterid;
+    input_data = NULL;
+    weight = NULL;
+    clusterid = NULL;
     
     /*
     // sort result

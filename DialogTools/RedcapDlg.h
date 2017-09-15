@@ -28,11 +28,14 @@
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "AbstractClusterDlg.h"
+
+using namespace std;
 
 class Project;
 class TableInterface;
 	
-class RedcapDlg : public wxDialog, public FramesManagerObserver
+class RedcapDlg : public AbstractClusterDlg
 {
 public:
     RedcapDlg(wxFrame *parent, Project* project);
@@ -50,21 +53,7 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-        
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
-   
-    wxListBox* combo_var;
+protected:
     wxChoice* combo_method;
     wxChoice* combo_control_var;
     wxChoice* combo_weights;
@@ -76,19 +65,10 @@ private:
     wxCheckBox* chk_seed;
     
     wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
 
     wxChoice* m_method;
     
     wxButton* seedButton;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    double thresh95;
     
     DECLARE_EVENT_TABLE()
 };

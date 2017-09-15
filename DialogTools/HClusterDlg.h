@@ -26,6 +26,7 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../logger.h"
+#include "AbstractClusterDlg.h"
 
 struct GdaNode;
 class Project;
@@ -220,14 +221,14 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-class HClusterDlg : public wxDialog, public FramesManagerObserver, public HighlightStateObserver
+class HClusterDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
 public:
     HClusterDlg(wxFrame *parent, Project* project);
     virtual ~HClusterDlg();
     
     void CreateControls();
-    bool Init();
+    virtual bool Init();
     
     void OnSave(wxCommandEvent& event );
     void OnOKClick( wxCommandEvent& event );
@@ -238,28 +239,14 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-    
     virtual void update(HLStateInt* o);
     
-    HLStateInt*           highlight_state;
+    HLStateInt* highlight_state;
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
     
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
 private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
-    
-    int num_obs;
     int max_n_clusters;
     
     double cutoffDistance;
@@ -267,24 +254,14 @@ private:
     vector<bool> clusters_undef;
     
     wxButton *saveButton;
-    wxListBox* combo_var;
     wxChoice* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxChoice* combo_tranform;
     wxTextCtrl* m_cluster;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    double thresh95;
     
     DECLARE_EVENT_TABLE()
 };

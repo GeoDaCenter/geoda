@@ -49,7 +49,7 @@
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
 : frames_manager(project_s->GetFramesManager()),
 wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-validator(wxFILTER_INCLUDE_CHAR_LIST)
+validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -75,7 +75,112 @@ validator(wxFILTER_INCLUDE_CHAR_LIST)
 
 AbstractClusterDlg::~AbstractClusterDlg()
 {
+    if (input_data) {
+        for (int i=0; i<rows; i++) delete[] input_data[i];
+        delete[] input_data;
+        input_data = NULL;
+    }
+    if (mask) {
+        for (int i=0; i<rows; i++) delete[] mask[i];
+        delete[] mask;
+        mask = NULL;
+    }
+    if (weight) {
+        delete[] weight;
+        weight = NULL;
+    }
     frames_manager->removeObserver(this);
+}
+
+double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
+{
+    double wss = 0;
+    int count = 0;
+    double sum = 0.0;
+    
+    // for every variable, calc the variance using selected neighbors
+    for (int i=0; i<solution.size(); i++ ) {
+        sum = 0.0;
+        size_t n_items = solution[i].size();
+        const vector<int>& sel_idx = solution[i];
+        
+        for (int n=0; n<num_vars; n++) {
+            count = 0;
+            vector<double> selected_z(n_items);
+            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
+            double var = GenUtils::GetVariance(selected_z);
+            sum += var;
+        }
+        sum = sum * n_items;
+        group_distances.push_back(sum);
+        wss += sum;
+    }
+    
+    return wss;
+}
+
+void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
+{
+    project->GetCentroids();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centroids.empty())
+        for (int i=0; i<centroids.size(); i++)
+            delete centroids[i];
+    
+    centroids.clear();
+    centroids.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->centroids[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centroids[i] = new GdaPoint(mx, my);
+    }
+}
+
+void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
+{
+    project->GetMeanCenters();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centers.empty())
+        for (int i=0; i<centers.size(); i++)
+            delete centers[i];
+    
+    centers.clear();
+    centers.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->mean_centers[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centers[i] = new GdaPoint(mx, my);
+    }
 }
 
 bool AbstractClusterDlg::Init()
@@ -96,6 +201,22 @@ bool AbstractClusterDlg::Init()
 void AbstractClusterDlg::update(FramesManager* o)
 {
     
+}
+
+void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxListBox** combo_var, wxBoxSizer* vbox, bool integer_only)
+{
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
+                                         wxDefaultPosition, wxDefaultSize);
+    
+    *combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250), 0, NULL,
+                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    InitVariableCombobox(*combo_var, integer_only);
+    
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
+    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox0->Add(*combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    
+    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wxCheckBox** m_use_centroids,wxSlider** m_weight_centroids, wxTextCtrl** m_wc_txt, wxBoxSizer* vbox)
@@ -138,6 +259,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
 	(*m_weight_centroids)->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideWeight, this);
     (*m_wc_txt)->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnInputWeights, this);
 }
+
 void AbstractClusterDlg::OnInputWeights(wxCommandEvent& ev)
 {
     wxString val = m_wc_txt->GetValue();
@@ -146,12 +268,14 @@ void AbstractClusterDlg::OnInputWeights(wxCommandEvent& ev)
         m_weight_centroids->SetValue(w_val * 100);
     }
 }
+
 void AbstractClusterDlg::OnSlideWeight(wxCommandEvent& ev)
 {
     int val = m_weight_centroids->GetValue();
     wxString t_val = wxString::Format("%.2f", val/100.0);
     m_wc_txt->SetValue(t_val);
 }
+
 void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
 {
     if (m_use_centroids->IsChecked()) {
@@ -164,7 +288,6 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
         m_wc_txt->Disable();
     }
 }
-
 
 void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct, wxFlexGridSizer* gbox, bool show_checkbox)
 {
@@ -291,12 +414,13 @@ void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
     }
 }
 
-void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box)
+void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
 {
     var_items.Clear();
     
     std::vector<int> col_id_map;
-    table_int->FillNumericColIdMap(col_id_map);
+    if (integer_only) table_int->FillIntegerColIdMap(col_id_map);
+    else table_int->FillNumericColIdMap(col_id_map);
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
@@ -320,10 +444,12 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box)
 
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 {
-    bool use_centroids = m_use_centroids->GetValue();
+    bool use_centroids = false;
+   
+    if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
     
-    if (use_centroids && m_weight_centroids->GetValue() == 0) {
-        use_centroids = false;
+    if (use_centroids && m_weight_centroids) {
+        if (m_weight_centroids->GetValue() == 0) use_centroids =  false;
     }
     
     wxArrayInt selections;
@@ -331,14 +457,14 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     
     int num_var = selections.size();
     if (num_var < min_num_var && !use_centroids) {
-        // show message box
         wxString err_msg = wxString::Format(_("Please select at least %d variables."), min_num_var);
         wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
     
-    if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids->GetValue() != 1)) {
+    if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
+    {
         col_ids.resize(num_var);
         var_info.resize(num_var);
         
@@ -375,8 +501,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         rows = project->GetNumRecords();
         columns =  0;
         
-        std::vector<d_array_type> data; // data[variable][time][obs]
-        data.resize(col_ids.size());
+        std::vector<d_array_type> data;
+        data.resize(col_ids.size()); // data[variable][time][obs]
         for (int i=0; i<var_info.size(); i++) {
             table_int->GetColData(col_ids[i], data[i]);
         }
@@ -393,9 +519,15 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             }
         }
         
-        weight = GetWeights(columns);
+        if (m_weight_centroids && m_use_centroids)
+            weight = GetWeights(columns);
         
         // init input_data[rows][cols]
+        if (input_data) {
+            for (int i=0; i<rows; i++) delete[] input_data[i];
+            delete[] input_data;
+            input_data = NULL;
+        }
         input_data = new double*[rows];
         mask = new int*[rows];
         for (int i=0; i<rows; i++) {

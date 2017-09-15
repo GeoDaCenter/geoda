@@ -123,6 +123,7 @@ public:
 	virtual void TimeChange();
 	
     int  GetBasemapType();
+    
     void CleanBasemapCache();
     
 	bool DrawBasemap(bool flag, int map_type);
@@ -134,6 +135,7 @@ public:
     virtual void deleteLayerBms();
     
 	virtual void DrawLayerBase();
+    
 	virtual void DrawLayers();
     
 	// in linux, windows use old style drawing without transparency support
@@ -189,14 +191,15 @@ public:
     
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
     
-private:
+	int num_obs;
+    
+protected:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;
     wxString ds_name;
     void SaveThumbnail();
     
-protected:
     bool InitBasemap();
     
     int map_type;
@@ -206,11 +209,11 @@ protected:
 	CatClassifState* custom_classif_state;
 	
     bool IS_VAR_STRING;
-	int num_obs;
 	int num_time_vals;
 	std::vector<d_array_type> data;
     std::vector<s_array_type> s_data;
 	std::vector<b_array_type> data_undef;
+    
 	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
     std::vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
@@ -222,7 +225,10 @@ protected:
 	std::vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
-    
+   
+    // predefined/user-specified color, each label can be assigned with a color
+    // user can specified using:
+    // SetPredefinedColor(), UpdatePredifinedColor()
     std::map<wxString, wxColour> lbl_color_dict;
 
     // basemap

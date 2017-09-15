@@ -25,21 +25,21 @@
 #include <wx/choice.h>
 #include <wx/checklst.h>
 
-
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "AbstractClusterDlg.h"
 
 class Project;
 class TableInterface;
 	
-class SpectralClusteringDlg : public wxDialog, public FramesManagerObserver
+class SpectralClusteringDlg : public AbstractClusterDlg
 {
 public:
     SpectralClusteringDlg(wxFrame *parent, Project* project);
     virtual ~SpectralClusteringDlg();
     
     void CreateControls();
-    bool Init();
+    virtual bool Init();
     
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
@@ -49,30 +49,15 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     
-    void InitVariableCombobox(wxListBox* var_box);
+    virtual void InitVariableCombobox(wxListBox* var_box);
     
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-        
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
-    
+protected:
     wxCheckBox* chk_seed;
-    wxListBox* combo_var;
     wxChoice* combo_method;
     wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     
@@ -83,14 +68,6 @@ private:
     wxChoice* m_distance;
     
     wxButton* seedButton;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    double thresh95;
     
     DECLARE_EVENT_TABLE()
 };

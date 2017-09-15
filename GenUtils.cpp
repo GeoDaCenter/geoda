@@ -123,6 +123,30 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
     return val;
 }
 
+void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
+{
+    colors.push_back(wxColour(166,206,227));
+    colors.push_back(wxColour(31,120,180));
+    colors.push_back(wxColour(178,223,138));
+    colors.push_back(wxColour(51,160,44));
+    colors.push_back(wxColour(251,154,153));
+    colors.push_back(wxColour(227,26,28));
+    colors.push_back(wxColour(253,191,111));
+    colors.push_back(wxColour(255,127,0));
+    colors.push_back(wxColour(106,61,154));
+    colors.push_back(wxColour(255,255,153));
+    colors.push_back(wxColour(177,89,40));
+    colors.push_back(wxColour(255,255,179));
+    colors.push_back(wxColour(190,186,218));
+    colors.push_back(wxColour(251,128,114));
+    colors.push_back(wxColour(128,177,211));
+    colors.push_back(wxColour(179,222,105));
+    colors.push_back(wxColour(252,205,229));
+    colors.push_back(wxColour(217,217,217));
+    colors.push_back(wxColour(188,128,189));
+    colors.push_back(wxColour(204,235,197));
+};
+
 wxString GdaColorUtils::ToHexColorStr(const wxColour& c)
 {
 	return c.GetAsString(wxC2S_HTML_SYNTAX);

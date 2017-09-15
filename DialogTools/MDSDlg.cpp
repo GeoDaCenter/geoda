@@ -241,4 +241,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     }
     delete[] input_data;
     delete[] weight;
+    input_data = NULL;
+    weight = NULL;
 }

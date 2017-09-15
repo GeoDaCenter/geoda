@@ -37,8 +37,8 @@
 using namespace boost;
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, bool _test, char _dist)
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, char _dist, bool _test )
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
 {
     num_obs = z.size();
     num_vars = z[0].size();
