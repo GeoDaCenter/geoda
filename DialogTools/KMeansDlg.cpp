@@ -412,8 +412,10 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     delete[] input_data;
     delete[] weight;
+    delete[] mask;
     input_data = NULL;
     weight = NULL;
+    mask = NULL;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
