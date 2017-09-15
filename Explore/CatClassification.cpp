@@ -68,14 +68,14 @@ void create_unique_val_mapping(std::vector<UniqueValElem>& uv_mapping,
 }
 
 /** Assume that b.size() <= N-1 */
-void pick_rand_breaks(std::vector<int>& b, int N)
+void pick_rand_breaks(std::vector<int>& b, int N, boost::uniform_01<boost::mt19937>& X)
 {
 	int num_breaks = b.size();
 	if (num_breaks > N-1) return;
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
-	static boost::mt19937 rng(std::time(0));
-	static boost::uniform_01<boost::mt19937> X(rng);
+	//static boost::mt19937 rng(GdaConst::gda_user_seed);
+	//static boost::uniform_01<boost::mt19937> X(rng);
 	
 	std::set<int> s;
 	while (s.size() != num_breaks) s.insert(1 + (N-1)*X());
@@ -1615,9 +1615,12 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 	int perms = c / ((double) num_obs);
 	if (perms < 10) perms = 10;
 	if (perms > 10000) perms = 10000;
-	
+
+    boost::mt19937 rng(GdaConst::gda_user_seed);
+    boost::uniform_01<boost::mt19937> X(rng);
+    
 	for (int i=0; i<perms; i++) {
-		pick_rand_breaks(uv_rand_b, num_unique_vals);
+		pick_rand_breaks(uv_rand_b, num_unique_vals, X);
 		// translate uv_rand_b into normal breaks
 		unique_to_normal_breaks(uv_rand_b, uv_mapping, rand_b);
 		double new_gvf = calc_gvf(rand_b, v, gssd);
@@ -1713,9 +1716,12 @@ SetNaturalBreaksCats(int num_cats,
 		int perms = c / ((double) num_time_vals * (double) valid_obs);
 		if (perms < 10) perms = 10;
 		if (perms > 10000) perms = 10000;
-		
+	
+        boost::mt19937 rng(GdaConst::gda_user_seed);
+        boost::uniform_01<boost::mt19937> X(rng);
+        
 		for (int i=0; i<perms; i++) {
-			pick_rand_breaks(uv_rand_b, num_unique_vals);
+			pick_rand_breaks(uv_rand_b, num_unique_vals, X);
 			// translate uv_rand_b into normal breaks
 			unique_to_normal_breaks(uv_rand_b, uv_mapping, rand_b);
 			double new_gvf = calc_gvf(rand_b, v, gssd);
@@ -1742,11 +1748,11 @@ SetNaturalBreaksCats(int num_cats,
 			}
 			wxString l;
 			l << "[" << GenUtils::DblToStr(var[t][ss].first);
-			l << ":" << GenUtils::DblToStr(var[t][tt-1].first) << "]";
+			l << ":" << GenUtils::DblToStr(var[t][tt].first) << "]";
 			cat_data.SetCategoryLabel(t, i, l);
 			cat_data.SetCategoryCount(t, i, cat_data.GetNumObsInCategory(t, i));
 			cat_data.SetCategoryMinMax(t, i, var[t][ss].first,
-									   var[t][tt-1].first);
+									   var[t][tt].first);
 		}
 	}
 }
