@@ -601,6 +601,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         clusters_undef.push_back(false);
     }
     delete[] input_data;
+    input_data = NULL;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);

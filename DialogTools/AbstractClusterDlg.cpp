@@ -446,7 +446,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 {
     bool use_centroids = false;
    
-    if (m_use_centroids) m_use_centroids->GetValue();
+    if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
     
     if (use_centroids && m_weight_centroids) {
         if (m_weight_centroids->GetValue() == 0) use_centroids =  false;
@@ -501,8 +501,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         rows = project->GetNumRecords();
         columns =  0;
         
-        std::vector<d_array_type> data; // data[variable][time][obs]
-        data.resize(col_ids.size());
+        std::vector<d_array_type> data;
+        data.resize(col_ids.size()); // data[variable][time][obs]
         for (int i=0; i<var_info.size(); i++) {
             table_int->GetColData(col_ids[i], data[i]);
         }
@@ -523,6 +523,11 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             weight = GetWeights(columns);
         
         // init input_data[rows][cols]
+        if (input_data) {
+            for (int i=0; i<rows; i++) delete[] input_data[i];
+            delete[] input_data;
+            input_data = NULL;
+        }
         input_data = new double*[rows];
         mask = new int*[rows];
         for (int i=0; i<rows; i++) {

@@ -24,11 +24,13 @@
 #include "MapNewView.h"
 #include "../GdaConst.h"
 
+using namespace std;
+
 class ColocationSelectDlg : public AbstractClusterDlg
 {
 public:
     ColocationSelectDlg(wxFrame *parent, Project* project);
-    ~ColocationSelectDlg();
+    virtual ~ColocationSelectDlg();
    
     void CreateControls();
     
@@ -37,19 +39,40 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
+    void OnClickCoVar(wxCommandEvent& ev);
+    void OnClickColor(wxMouseEvent& ev);
+    void OnClickRemove(wxCommandEvent& ev);
+    void OnClickAdd(wxCommandEvent& ev);
+   
+    void add_colo_control(bool is_new=false);
+    wxColour get_a_color(int idx);
+    bool check_colocations();
+    int count_rows();
+    
 protected:
     wxPanel *panel;
-    wxChoice* combo_co_value;
-    wxGridSizer *gbox;
+    wxFlexGridSizer *gbox;
     wxBoxSizer *container;
+    
+    std::vector<wxChoice*> co_choices;
+    std::vector<wxStaticBitmap*> co_bitmaps;
+    std::vector<wxButton*> co_removes;
     
     wxArrayInt var_selections;
     std::vector<wxString> co_values;
+   
+    int base_remove_id;
+    int base_color_id;
+    int base_choice_id;
+    
+    std::vector<wxColour> m_colors;
+    std::vector<wxColour> m_20colors;
+    
+    std::map<wxInt64, std::vector<int> > co_val_dict;
     
     DECLARE_EVENT_TABLE()
 };
 
-/*
 class ColocationMapCanvas : public MapCanvas
 {
 	DECLARE_CLASS(ColocationMapCanvas)
@@ -57,6 +80,9 @@ public:
 	ColocationMapCanvas(wxWindow *parent,
                         TemplateFrame* t_frame,
                         Project* project,
+                        vector<wxString>& co_vals,
+                        vector<wxColour>& co_clrs,
+                        vector<vector<int> >& co_ids,
                         CatClassification::CatClassifType theme_type,
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
@@ -68,25 +94,13 @@ public:
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
-	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
-	
-    bool is_diff;
-    
-protected:
-    wxString str_not_sig;
-    wxString str_highhigh;
-    wxString str_highlow;
-    wxString str_lowlow;
-    wxString str_lowhigh;
-    wxString str_undefined;
-    wxString str_neighborless;
-    wxString str_p005;
-    wxString str_p001;
-    wxString str_p0001;
-    wxString str_p00001;
+
+    vector<wxString> co_vals;
+    vector<wxColour> co_clrs;
+    vector<vector<int> > co_ids;
     
 	DECLARE_EVENT_TABLE()
 };
@@ -98,6 +112,9 @@ class ColocationMapFrame : public MapFrame
 public:
     ColocationMapFrame(wxFrame *parent,
                        Project* project,
+                       vector<wxString>& co_vals,
+                       vector<wxColour>& co_clrs,
+                       vector<vector<int> >& co_ids,
                        const wxPoint& pos = wxDefaultPosition,
                        const wxSize& size = GdaConst::map_default_size,
                        const long style = wxDEFAULT_FRAME_STYLE);
@@ -116,6 +133,5 @@ public:
 	
     DECLARE_EVENT_TABLE()
 };
- */
 
 #endif

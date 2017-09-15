@@ -191,6 +191,8 @@ public:
     
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
     
+	int num_obs;
+    
 protected:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -207,7 +209,6 @@ protected:
 	CatClassifState* custom_classif_state;
 	
     bool IS_VAR_STRING;
-	int num_obs;
 	int num_time_vals;
 	std::vector<d_array_type> data;
     std::vector<s_array_type> s_data;

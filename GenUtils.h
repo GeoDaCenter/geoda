@@ -57,6 +57,8 @@ namespace GdaColorUtils {
 	 brightness = 75 by default, will slightly darken the input color.
 	 brightness = 0 is black, brightness = 200 is white. */
 	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
+    
+    void GetUnique20Colors(std::vector<wxColour>& colors);
 }
 
 namespace Gda {
@@ -86,6 +88,7 @@ namespace Gda {
     wxString DetectDateFormat(wxString s, std::vector<wxString>& date_items);
     
     unsigned long long DateToNumber(wxString s_date, wxRegEx& regex, std::vector<wxString>& date_items);
+    
 }
 
 

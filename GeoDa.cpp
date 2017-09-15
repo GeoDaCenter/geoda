@@ -4442,9 +4442,20 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenColocationMap()");
-    bool show_str_var = true;
-    ColocationSelectDlg dlg(this, project_p);
-	if (dlg.ShowModal() != wxID_OK) return;
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (ColocationSelectDlg* w = dynamic_cast<ColocationSelectDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
@@ -5311,6 +5322,16 @@ void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 		f->OnSaveLisa(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSaveLocalGeary(event);
+    }
+}
+
+void GdaFrame::OnSaveColocation(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnSaveColocation()");
+	TemplateFrame* t = TemplateFrame::GetActiveFrame();
+	if (!t) return;
+	if (ColocationMapFrame* f = dynamic_cast<ColocationMapFrame*>(t)) {
+		f->OnSave(event);
     }
 }
 
@@ -6569,6 +6590,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SIGNIFICANCE_FILTER_SETUP"), GdaFrame::OnSigFilterSetup)
     EVT_MENU(XRCID("ID_SAVE_GETIS_ORD"), GdaFrame::OnSaveGetisOrd)
     EVT_MENU(XRCID("ID_SAVE_LISA"), GdaFrame::OnSaveLisa)
+    EVT_MENU(XRCID("ID_SAVE_COLOCATION"), GdaFrame::OnSaveColocation)
     EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)
     EVT_MENU(XRCID("ID_SHOW_AS_COND_MAP"), GdaFrame::OnShowAsConditionalMap)
     EVT_MENU(XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"), GdaFrame::OnAddNeighborToSelection)

@@ -23,9 +23,12 @@
 #include <wx/textdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/statbmp.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../GeneralWxUtils.h"
+#include "../GenUtils.h"
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -46,9 +49,17 @@ EVT_CLOSE( ColocationSelectDlg::OnClose )
 END_EVENT_TABLE()
 
 ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s, _("Co-location Variable Settings"))
+: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings"))
 {
     wxLogMessage("Open ColocationSelectDlg.");
+    
+    base_remove_id = XRCID("COL_REMOVE_BTN");
+    base_color_id = XRCID("COL_COLOR_BTN");
+    base_choice_id = XRCID("COL_CHOICE_BTN");
+    
+    GdaColorUtils::GetUnique20Colors(m_20colors);
+    m_20colors[0] = wxColour(255,0,0);
+    m_20colors[1] = wxColour(0,0,255);
     
     CreateControls();
 }
@@ -57,32 +68,38 @@ ColocationSelectDlg::~ColocationSelectDlg()
 {
 }
 
+wxColour ColocationSelectDlg::get_a_color(int idx)
+{
+    return m_20colors[idx % 20];
+}
+
 void ColocationSelectDlg::CreateControls()
 {
     panel = new wxPanel(this);
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, &combo_var, vbox);
+    AddSimpleInputCtrls(panel, &combo_var, vbox, true);
   
     // Parameters
     //wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
-    gbox = new wxGridSizer(1,2,5,0);
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Co-location value:"),
-                                         wxDefaultPosition, wxSize(128,-1));
-    combo_co_value = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
-    gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_co_value, 1, wxEXPAND);
+    gbox = new wxFlexGridSizer(0,3,5,5);
+    add_colo_control(true);
+
+    wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
+    wxButton *addButton = new wxButton(panel, wxID_ANY, _("Add co-location"), wxDefaultPosition, wxDefaultSize);
+    addButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnClickAdd, this);
+    vvbox->Add(gbox, 1, wxEXPAND);
+    vvbox->Add(addButton, 0, wxEXPAND | wxTOP, 20);
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
-    hbox->Add(gbox, 1, wxEXPAND);
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Setup co-locations:"));
+    hbox->Add(vvbox, 1, wxEXPAND);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"), wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("OK"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
@@ -112,49 +129,259 @@ void ColocationSelectDlg::CreateControls()
 
 void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
 {
+    co_val_dict.clear();
     var_selections.Clear();
     combo_var->GetSelections(var_selections);
     int num_var = var_selections.size();
-    if (num_var > 0) {
+    if (num_var >= 2) {
         // check selected variables for any co-located values, and add them to choice box
+        col_ids.resize(num_var);
+        std::vector<wxString> col_names;
+        col_names.resize(num_var);
+        for (int i=0; i<num_var; i++) {
+            int idx = var_selections[i];
+            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            col_names.push_back(nm);
+            int col = table_int->FindColId(nm);
+            if (col == wxNOT_FOUND) {
+                wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
+            col_ids[i] = col;
+        }
+        rows = project->GetNumRecords();
+        columns =  0;
         
+        std::vector<l_array_type> data;
+        data.resize(col_ids.size()); // data[variable][time][obs]
+        for (int i=0; i<col_ids.size(); i++) {
+            table_int->GetColData(col_ids[i], data[i]);
+        }
+        
+        vector<set<wxInt64> > same_val_counts(rows);
+        
+        for (int i=0; i<data.size(); i++ ){ // col
+            for (int j=0; j<data[i].size(); j++) { // time
+                columns += 1;
+                for (int k=0; k< rows;k++) { // row
+                    same_val_counts[k].insert(data[i][j][k]);
+                }
+            }
+        }
+        
+        wxInt64 val;
+        for (int i=0; i<rows; i++) {
+            if (same_val_counts[i].size() == 1) {
+                val = *(same_val_counts[i].begin());
+                co_val_dict[val].push_back(i);
+            }
+        }
+       
+        if (check_colocations()==false)
+            return;
+        
+        std::map<wxInt64, std::vector<int> >::iterator co_it;
+        // insert to existing wxChoices
+        for (int i=0; i<co_choices.size(); i++) {
+            if (co_choices[i] ) {
+                co_choices[i]->Clear();
+                for (co_it = co_val_dict.begin(); co_it!=co_val_dict.end(); co_it++) {
+                    wxString tmp;
+                    tmp << co_it->first;
+                    co_choices[i]->Append(tmp);
+                }
+                co_choices[i]->SetSelection(-1);
+            }
+        }
     }
+    
 }
-void ColocationSelectDlg::OnOK( wxCommandEvent& event)
+
+bool ColocationSelectDlg::check_colocations()
+{
+    if (co_val_dict.empty()) {
+        wxString err_msg =_("There is no co-location found in selected variable. Please select another variables with co-locations.");
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+    return true;
+}
+
+void ColocationSelectDlg::add_colo_control(bool is_new)
 {
     int n_rows = gbox->GetRows() + 1;
     gbox->SetRows(n_rows);
-    gbox->Add(new wxTextCtrl(panel, wxID_ANY, "value"), 0, wxALL | wxEXPAND, 0);
-    gbox->Add(new wxButton(panel, wxID_ANY, "Remove"), 0, wxALL | wxEXPAND, 0);
+    
+    wxChoice* choice = new wxChoice(panel, base_choice_id+n_rows, wxDefaultPosition, wxSize(200,-1), 0, NULL);
+    
+    wxBitmap clr;
+    wxColour sel_clr = get_a_color(n_rows-1);
+    wxStaticBitmap* color_btn = new wxStaticBitmap(panel, base_color_id+n_rows, clr, wxDefaultPosition, wxSize(16,16));
+    color_btn->SetBackgroundColour(sel_clr);
+    
+    wxButton* remove_btn = new wxButton(panel, base_remove_id+n_rows, "Remove");
+    
+    choice->Bind(wxEVT_CHOICE, &ColocationSelectDlg::OnClickCoVar, this);
+    color_btn->Bind(wxEVT_LEFT_UP, &ColocationSelectDlg::OnClickColor, this);
+    remove_btn->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnClickRemove, this);
+  
+    co_choices.push_back(choice);
+    co_bitmaps.push_back(color_btn);
+    co_removes.push_back(remove_btn);
+    
+    m_colors.push_back(sel_clr);
+    
+    gbox->Add(choice, 1, wxEXPAND);
+    gbox->Add(color_btn, 0, wxALIGN_CENTER | wxRIGHT, 5);
+    gbox->Add(remove_btn, 0);
+    
+    if (!is_new)    container->Layout();
+    
+    std::map<wxInt64, std::vector<int> >::iterator co_it;
+    choice->Clear();
+    for (co_it = co_val_dict.begin(); co_it!=co_val_dict.end(); co_it++) {
+        wxString tmp;
+        tmp << co_it->first;
+        choice->Append(tmp);
+    }
+    choice->SetSelection(-1);
+}
+
+void ColocationSelectDlg::OnClickCoVar( wxCommandEvent& event)
+{
+    int obj_id = -1;
+    wxChoice* obj = (wxChoice*) event.GetEventObject();
+    for (int i=0, iend=co_choices.size(); i<iend && obj_id==-1; i++) {
+        if (co_choices[i] && obj == co_choices[i])
+            obj_id = i;
+    }
+    if (obj_id < 0) return;
+    
+    int cur_sel = obj->GetSelection();
+    
+    for (int i=0; i<co_choices.size(); i++) {
+        if (co_choices[i] && co_choices[i] != obj) {
+            if (co_choices[i]->GetSelection() == cur_sel) {
+                wxString err_msg = _("Please select another value for co-location setup.");
+                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                obj->SetSelection(-1);
+                return;
+            }
+        }
+    }
+}
+
+void ColocationSelectDlg::OnClickAdd( wxCommandEvent& event)
+{
+    //if (!co_val_dict.empty() && co_va
+    add_colo_control(false);
+}
+
+void ColocationSelectDlg::OnClickColor( wxMouseEvent& event)
+{
+    int obj_id = -1;
+    wxStaticBitmap* obj = (wxStaticBitmap*) event.GetEventObject();
+    for (int i=0, iend=co_bitmaps.size(); i<iend && obj_id==-1; i++) {
+        if (obj == co_bitmaps[i])
+            obj_id = i;
+    }
+    
+    if (obj_id < 0) return;
+    
+    wxColour col = m_colors[obj_id];
+    
+    wxColourData clr_data;
+    clr_data.SetColour(col);
+    clr_data.SetChooseFull(true);
+    for (int ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        clr_data.SetCustomColour(ki, colour);
+    }
+    
+    wxColourDialog dialog(this, &clr_data);
+    dialog.SetTitle("Choose Color");
+    if (dialog.ShowModal() != wxID_OK)
+        return;
+    
+    wxColourData retData = dialog.GetColourData();
+    wxColour sel_clr = retData.GetColour();
+    co_bitmaps[obj_id]->SetBackgroundColour(sel_clr);
+    co_bitmaps[obj_id]->Refresh();
+    m_colors[obj_id] = sel_clr;
+}
+
+int ColocationSelectDlg::count_rows()
+{
+    // check if there is only one row left
+    int existing_rows = 0;
+    for (int i=0; i<co_choices.size(); i++) {
+        if (co_choices[i] != NULL) {
+            existing_rows += 1;
+        }
+    }
+    return existing_rows;
+}
+
+void ColocationSelectDlg::OnClickRemove( wxCommandEvent& event)
+{
+    // check if there is only one row left
+    int existing_rows = count_rows();
+    if (existing_rows == 1)
+        return;
+    
+    int id = event.GetId();
+    int idx = id - base_remove_id - 1;
+    
+    co_removes[idx]->Destroy();
+    co_bitmaps[idx]->Destroy();
+    co_choices[idx]->Destroy();
+    
+    co_removes[idx] = NULL;
+    co_bitmaps[idx] = NULL;
+    co_choices[idx] = NULL;
+    
     container->Layout();
-    /*
-    // check variable selection
-    int num_var = var_selections.size();
-    if (num_var < 2) {
-        wxString m = _("Please select at least 2 varibles.");
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+}
+
+void ColocationSelectDlg::OnOK( wxCommandEvent& event)
+{
+    if (check_colocations()==false)
+        return;
+    
+    int n_co = co_choices.size();
+    
+    vector<wxString> sel_vals;
+    vector<wxColour> sel_clrs;
+    vector<vector<int> > sel_ids;
+    
+    for (int i=0; i<n_co; i++) {
+        if (co_choices[i] && co_bitmaps[i]) {
+            int idx1 = co_choices[i]->GetSelection();
+            if (idx1 >=0) {
+                wxString sel_val = co_choices[i]->GetString(idx1);
+                wxColour sel_clr = m_colors[i];
+                long l_sel_val;
+                if (sel_val.ToLong(&l_sel_val)) {
+                    sel_ids.push_back( co_val_dict[l_sel_val] );
+                    sel_vals.push_back(sel_val);
+                    sel_clrs.push_back(sel_clr);
+                }
+            }
+        }
+    }
+    
+    if (sel_vals.empty()) {
+        wxString err_msg = _("Please setup co-locations first.");
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
-    // check co-locate value selection
-    int idx = combo_co_value->GetSelection();
-    
-    if (idx <0 ) {
-        wxString m = _("Please select a co-located value.");
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    wxString str_co_val = co_values[idx];
-    long co_val;
-    if (!str_co_val.ToLong(&co_val)) {
-        wxString m = _("Please select a valid co-located value.");
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-     */
+    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_ids,wxDefaultPosition, GdaConst::map_default_size);
 }
 
 void ColocationSelectDlg::OnClose( wxCloseEvent& event)
@@ -171,7 +398,6 @@ void ColocationSelectDlg::OnClickClose( wxCommandEvent& event)
     Destroy();
 }
 
-/*
 IMPLEMENT_CLASS(ColocationMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
@@ -180,41 +406,14 @@ BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, CatClassification::CatClassifType theme_type_s, const wxPoint& pos, const wxSize& size)
+ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids)
 {
 	wxLogMessage("Entering ColocationMapCanvas::ColocationMapCanvas");
 
-    str_not_sig = _("Not Significant");
-    str_highhigh = _("High-High");
-    str_highlow = _("High-Low");
-    str_lowlow = _("Low-Low");
-    str_lowhigh= _("Low-High");
-    str_undefined = _("Undefined");
-    str_neighborless = _("Neighborless");
-    str_p005 = _("p = 0.05");
-    str_p001 = _("p = 0.01");
-    str_p0001 = _("p = 0.001");
-    str_p00001 = _("p = 0.00001");
-    
-    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
-    SetPredefinedColor(str_highhigh, wxColour(255, 0, 0));
-    SetPredefinedColor(str_highlow, wxColour(255, 150, 150));
-    SetPredefinedColor(str_lowlow, wxColour(0, 0, 255));
-    SetPredefinedColor(str_lowhigh, wxColour(150, 150, 255));
-    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
-    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
-    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
-    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
-    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
-    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
-    
 	cat_classif_def.cat_classif_type = theme_type_s;
-    
-	template_frame->ClearAllGroupDependencies();
-	for (int t=0, sz=var_info.size(); t<sz; ++t) {
-		template_frame->AddGroupDependancy(var_info[t].name);
-	}
+   
 	CreateAndUpdateCategories();
     UpdateStatusBar();
     
@@ -234,7 +433,7 @@ void ColocationMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((ColocationMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+		LoadMenu("ID_COLOCATION_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
@@ -265,59 +464,42 @@ void ColocationMapCanvas::SetCheckMarks(wxMenu* menu)
 void ColocationMapCanvas::TimeChange()
 {
 	wxLogMessage("Entering ColocationMapCanvas::TimeChange");
-	if (!is_any_sync_with_global_time) return;
-	
-	int cts = project->GetTimeState()->GetCurrTime();
-	int ref_time = var_info[ref_var_index].time;
-	int ref_time_min = var_info[ref_var_index].time_min;
-	int ref_time_max = var_info[ref_var_index].time_max; 
-	
-	if ((cts == ref_time) ||
-		(cts > ref_time_max && ref_time == ref_time_max) ||
-		(cts < ref_time_min && ref_time == ref_time_min)) return;
-	if (cts > ref_time_max) {
-		ref_time = ref_time_max;
-	} else if (cts < ref_time_min) {
-		ref_time = ref_time_min;
-	} else {
-		ref_time = cts;
-	}
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].sync_with_global_time) {
-			var_info[i].time = ref_time + var_info[i].ref_time_offset;
-		}
-	}
-	cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
-	invalidateBms();
-	PopulateCanvas();
-	Refresh();
 	wxLogMessage("Exiting ColocationMapCanvas::TimeChange");
 }
 
 void ColocationMapCanvas::CreateAndUpdateCategories()
 {
-	SyncVarInfoFromCoordinator();
-	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+	cat_data.CreateEmptyCategories(1, num_obs);
 	
+    int t = 0;
     int undefined_cat = -1;
-    int num_cats = 0;
+    int num_cats = co_vals.size() + 1;
     
     cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-    cat_data.SetCategoryLabel(t, 0, str_highhigh);
-    cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
     
-    cat_data.SetCategoryLabel(t, 1, str_highhigh);
-    cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
-    
-    cat_data.SetCategoryLabel(t, 2, str_lowlow);
-    cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]); //wxColour(0, 0, 255));
-    
-    cat_data.SetCategoryLabel(t, 3, str_lowhigh); //"Low-High");
-    cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_lowhigh]);//wxColour(150, 150, 255));
-    
+    map<int, bool> sig_dict;
     for (int i=0; i<num_obs; i++) {
-        cat_data.AppendIdToCategory(t, 0, i); // not significant
+        sig_dict[i] = false;
     }
+    for (int i=0; i<co_vals.size(); i++) {
+        cat_data.SetCategoryLabel(t, i+1, co_vals[i]);
+        cat_data.SetCategoryColor(t, i+1, co_clrs[i]);
+        for (int j=0; j<co_ids[i].size();j++) {
+            cat_data.AppendIdToCategory(t, i+1, co_ids[i][j]);
+            sig_dict[ co_ids[i][j] ] = true;
+        }
+    }
+    
+    // not significant
+    cat_data.SetCategoryLabel(t, 0, "Others");
+    cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+    for (int i=0; i<num_obs; i++) {
+        if (sig_dict[i]==false) {
+            cat_data.AppendIdToCategory(t, 0, i);
+        }
+    }
+    
+    // SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
     
     for (int cat=0; cat<num_cats; cat++) {
         cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
@@ -326,35 +508,9 @@ void ColocationMapCanvas::CreateAndUpdateCategories()
 	PopulateCanvas();
 }
 
-void ColocationMapCanvas::SyncVarInfoFromCoordinator()
-{
-	std::vector<int>my_times(var_info.size());
-	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
-	var_info = lisa_coord->var_info;
-	template_frame->ClearAllGroupDependencies();
-	for (int t=0; t<var_info.size(); t++) {
-		var_info[t].time = my_times[t];
-		template_frame->AddGroupDependancy(var_info[t].name);
-	}
-	is_any_time_variant = lisa_coord->is_any_time_variant;
-	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
-	ref_var_index = lisa_coord->ref_var_index;
-	num_time_vals = lisa_coord->num_time_vals;
-	map_valid = lisa_coord->map_valid;
-	map_error_message = lisa_coord->map_error_message;
-}
-
 void ColocationMapCanvas::TimeSyncVariableToggle(int var_index)
 {
 	wxLogMessage("In ColocationMapCanvas::TimeSyncVariableToggle");
-	lisa_coord->var_info[var_index].sync_with_global_time =
-		!lisa_coord->var_info[var_index].sync_with_global_time;
-	for (int i=0; i<var_info.size(); i++) {
-		lisa_coord->var_info[i].time = var_info[i].time;
-	}
-	lisa_coord->VarInfoAttributeChange();
-	lisa_coord->InitFromVarInfo();
-	lisa_coord->notifyObservers();
 }
 
 void ColocationMapCanvas::UpdateStatusBar()
@@ -388,11 +544,6 @@ void ColocationMapCanvas::UpdateStatusBar()
             s << ", ...";
         }
     }
-    if (is_clust && lisa_coord) {
-        double p_val = lisa_coord->significance_cutoff;
-        wxString inf_str = wxString::Format(" p <= %g", p_val);
-        s << inf_str;
-    }
     sb->SetStatusText(s);
 }
 
@@ -401,7 +552,7 @@ IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<vector<int> >& co_ids,const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");
@@ -415,7 +566,7 @@ ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, const 
     CatClassification::CatClassifType theme_type_s = CatClassification::colocation;
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new ColocationMapCanvas(rpanel, this, project, theme_type_s);
+    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_ids, theme_type_s);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
@@ -471,7 +622,7 @@ void ColocationMapFrame::MapMenus()
 	wxLogMessage("In ColocationMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COLOCATION_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
@@ -499,16 +650,28 @@ void ColocationMapFrame::UpdateContextMenuItems(wxMenu* menu)
 void ColocationMapFrame::OnSave(wxCommandEvent& event)
 {
 	int t = this->GetCurrentCanvasTimeStep();
-    
     ColocationMapCanvas* lc = (ColocationMapCanvas*)template_canvas;
+    int num_obs = lc->num_obs;
     
     std::vector<SaveToTableEntry> data(1);
-    std::vector<bool> undefs;
+    std::vector<bool> undefs(num_obs, true);
+    std::vector<wxInt64> dt(num_obs);
     
-	data[0].l_val = &tempLocalMoran;
+    for (int i=0; i<lc->co_vals.size(); i++) {
+        wxString tmp = lc->co_vals[i];
+        long l_tmp;
+        if (tmp.ToLong(&l_tmp)) {
+            for (int j=0; j<lc->co_ids[i].size(); j++) {
+                undefs[ lc->co_ids[i][j] ] = false;
+                dt[ lc->co_ids[i][j] ] = l_tmp;
+            }
+        }
+    }
+    
+	data[0].l_val = &dt;
 	data[0].label = "Coloc Indices";
 	data[0].field_default = "CO_I";
-	data[0].type = GdaConst::integer_type;
+	data[0].type = GdaConst::long64_type;
     data[0].undefined = &undefs;
     
 	SaveToTableDlg dlg(project, this, data,
@@ -540,4 +703,3 @@ void ColocationMapFrame::closeObserver(LisaCoordinator* o)
 	wxLogMessage("In ColocationMapFrame::closeObserver(LisaCoordinator*)");
 	Close(true);
 }
-*/

@@ -575,6 +575,9 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     delete[] input_data;
     delete[] weight;
     delete[] clusterid;
+    input_data = NULL;
+    weight = NULL;
+    clusterid = NULL;
     
     /*
     // sort result

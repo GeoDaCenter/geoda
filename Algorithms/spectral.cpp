@@ -118,6 +118,9 @@ void SpectralClustering::clusterKmeans(int numClusters) {
     delete[] input_data;
     delete[] weight;
     delete[] clusterid;
+    input_data = NULL;
+    weight = NULL;
+    clusterid = NULL;
 }
 
 
@@ -272,4 +275,7 @@ void Spectral::kmeans()
     delete[] weight;
     delete[] clusterid;
     
+    input_data = NULL;
+    weight = NULL;
+    clusterid = NULL;
 }

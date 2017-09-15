@@ -567,6 +567,7 @@ public:
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	void OnSaveLisa(wxCommandEvent& event);
+	void OnSaveColocation(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
