@@ -34,29 +34,29 @@ public:
    
     void CreateControls();
     
-    void OnVarSelect( wxCommandEvent& event );
+    void OnVarSelect( wxMouseEvent& event );
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    
-    void OnClickCoVar(wxCommandEvent& ev);
     void OnClickColor(wxMouseEvent& ev);
-    void OnClickRemove(wxCommandEvent& ev);
-    void OnClickAdd(wxCommandEvent& ev);
-   
+    void OnSchemeSelect( wxCommandEvent& event );
+  
+    void clear_colo_control();
     void add_colo_control(bool is_new=false);
     wxColour get_a_color(int idx);
     bool check_colocations();
-    int count_rows();
+   
+    void update_grid();
     
 protected:
     wxPanel *panel;
     wxFlexGridSizer *gbox;
     wxBoxSizer *container;
+    wxScrolledWindow* scrl;
+    wxChoice* clrscheme_choice;
     
-    std::vector<wxChoice*> co_choices;
     std::vector<wxStaticBitmap*> co_bitmaps;
-    std::vector<wxButton*> co_removes;
+    std::vector<wxCheckBox*> co_boxes;
     
     wxArrayInt var_selections;
     std::vector<wxString> co_values;
@@ -66,7 +66,7 @@ protected:
     int base_choice_id;
     
     std::vector<wxColour> m_colors;
-    std::vector<wxColour> m_20colors;
+    std::vector<wxColour> m_predef_colors;
     
     std::map<wxInt64, std::vector<int> > co_val_dict;
     
