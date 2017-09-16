@@ -29,6 +29,7 @@
 #include <wx/regex.h>
 #include "GdaConst.h"
 #include "GenUtils.h"
+#include "Explore/CatClassification.h"
 
 using namespace std;
 
@@ -125,6 +126,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
 
 void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
 {
+    colors.clear();
     colors.push_back(wxColour(166,206,227));
     colors.push_back(wxColour(31,120,180));
     colors.push_back(wxColour(178,223,138));
@@ -146,6 +148,109 @@ void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
     colors.push_back(wxColour(188,128,189));
     colors.push_back(wxColour(204,235,197));
 };
+
+void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(255, 0, 0));
+    colors.push_back(wxColour(255, 150, 150));
+    colors.push_back(wxColour(0, 0, 255));
+    colors.push_back(wxColour(150, 150, 255));
+}
+
+void GdaColorUtils::GetLocalGColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(255, 0, 0));
+    colors.push_back(wxColour(0, 0, 255));
+}
+void GdaColorUtils::GetLocalJoinCountColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(255, 0, 0));
+    colors.push_back(wxColour(0, 0, 255));
+}
+void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(178,24,43));
+    colors.push_back(wxColour(239,138,98));
+    colors.push_back(wxColour(253,219,199));
+    colors.push_back(wxColour(103,173,199));
+    
+}
+void GdaColorUtils::GetMultiLocalGearyColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(51,110,161));
+}
+void GdaColorUtils::GetPercentileColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+}
+void GdaColorUtils::GetBoxmapColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+}
+void GdaColorUtils::GetStddevColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+}
+void GdaColorUtils::GetQuantile2Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 2, false);
+}
+void GdaColorUtils::GetQuantile3Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 3, false);
+    
+}
+void GdaColorUtils::GetQuantile4Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 4, false);
+    
+}
+void GdaColorUtils::GetQuantile5Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 5, false);
+    
+}
+void GdaColorUtils::GetQuantile6Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 6, false);
+    
+}
+void GdaColorUtils::GetQuantile7Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 7, false);
+    
+}
+void GdaColorUtils::GetQuantile8Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 8, false);
+    
+}
+void GdaColorUtils::GetQuantile9Colors(std::vector<wxColour>& colors)
+{
+    
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 9, false);
+}
+void GdaColorUtils::GetQuantile10Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 10, false);
+}
 
 wxString GdaColorUtils::ToHexColorStr(const wxColour& c)
 {

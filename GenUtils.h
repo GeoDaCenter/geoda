@@ -59,6 +59,23 @@ namespace GdaColorUtils {
 	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
     
     void GetUnique20Colors(std::vector<wxColour>& colors);
+    void GetLISAColors(std::vector<wxColour>& colors);
+    void GetLocalGColors(std::vector<wxColour>& colors);
+    void GetLocalJoinCountColors(std::vector<wxColour>& colors);
+    void GetLocalGearyColors(std::vector<wxColour>& colors);
+    void GetMultiLocalGearyColors(std::vector<wxColour>& colors);
+    void GetPercentileColors(std::vector<wxColour>& colors);
+    void GetBoxmapColors(std::vector<wxColour>& colors);
+    void GetStddevColors(std::vector<wxColour>& colors);
+    void GetQuantile2Colors(std::vector<wxColour>& colors);
+    void GetQuantile3Colors(std::vector<wxColour>& colors);
+    void GetQuantile4Colors(std::vector<wxColour>& colors);
+    void GetQuantile5Colors(std::vector<wxColour>& colors);
+    void GetQuantile6Colors(std::vector<wxColour>& colors);
+    void GetQuantile7Colors(std::vector<wxColour>& colors);
+    void GetQuantile8Colors(std::vector<wxColour>& colors);
+    void GetQuantile9Colors(std::vector<wxColour>& colors);
+    void GetQuantile10Colors(std::vector<wxColour>& colors);
 }
 
 namespace Gda {
