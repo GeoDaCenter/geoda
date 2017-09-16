@@ -2376,6 +2376,8 @@ void CatClassifData::ExchangeLabels(int from, int to)
         wxBrush to_brush = categories[t].cat_vec[to].brush;
         wxPen from_pen = categories[t].cat_vec[from].pen;
         wxPen to_pen = categories[t].cat_vec[to].pen;
+        wxString from_lbl = categories[t].cat_vec[from].label;
+        wxString to_lbl = categories[t].cat_vec[to].label;
     
         Category tmp = categories[t].cat_vec[from];
         categories[t].cat_vec[from] = categories[t].cat_vec[to];
@@ -2385,6 +2387,8 @@ void CatClassifData::ExchangeLabels(int from, int to)
         categories[t].cat_vec[to].brush = to_brush;
         categories[t].cat_vec[from].pen = from_pen;
         categories[t].cat_vec[to].pen = to_pen;
+        categories[t].cat_vec[from].label = from_lbl;
+        categories[t].cat_vec[to].label = to_lbl;
 
     }
 }

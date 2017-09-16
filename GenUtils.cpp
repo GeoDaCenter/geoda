@@ -152,6 +152,7 @@ void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
 void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
     colors.push_back(wxColour(255, 150, 150));
     colors.push_back(wxColour(0, 0, 255));
@@ -161,18 +162,21 @@ void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
 void GdaColorUtils::GetLocalGColors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
     colors.push_back(wxColour(0, 0, 255));
 }
 void GdaColorUtils::GetLocalJoinCountColors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
     colors.push_back(wxColour(0, 0, 255));
 }
 void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(178,24,43));
     colors.push_back(wxColour(239,138,98));
     colors.push_back(wxColour(253,219,199));
@@ -182,6 +186,7 @@ void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
 void GdaColorUtils::GetMultiLocalGearyColors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(51,110,161));
 }
 void GdaColorUtils::GetPercentileColors(std::vector<wxColour>& colors)

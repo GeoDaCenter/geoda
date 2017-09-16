@@ -92,27 +92,28 @@ void ColocationSelectDlg::CreateControls()
     scrl_box->Add(gbox, 1, wxEXPAND);
     scrl->SetSizer(scrl_box);
  
-    const wxString _schemes[17] = {
+    const wxString _schemes[18] = {
         "Unique Values",
         "LISA Map",
         "Local G Map",
         "Loal Join Count",
         "Local Geary Map",
         "Multi-Local Geary",
-        "Quantile Map (2)",
-        "Quantile Map (3)",
-        "Quantile Map (4)",
-        "Quantile Map (5)",
-        "Quantile Map (6)",
-        "Quantile Map (7)",
-        "Quantile Map (8)",
-        "Quantile Map (9)",
-        "Quantile Map (10)",
+        "Quantile/Natural Breaks Map (2)",
+        "Quantile/Natural Breaks Map (3)",
+        "Quantile/Natural Breaks Map (4)",
+        "Quantile/Natural Breaks Map (5)",
+        "Quantile/Natural Breaks Map (6)",
+        "Quantile/Natural Breaks Map (7)",
+        "Quantile/Natural Breaks Map (8)",
+        "Quantile/Natural Breaks Map (9)",
+        "Quantile/Natural Breaks Map (10)",
         "Percentile Map",
+        "Box Map",
         "Std-dev Map"
     };
     wxStaticText* clrscheme_txt = new wxStaticText(panel, wxID_ANY, _("Select color scheme:"));
-    clrscheme_choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 17, _schemes);
+    clrscheme_choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 18, _schemes);
     wxBoxSizer *clrscheme_box = new wxBoxSizer(wxHORIZONTAL);
     clrscheme_box->Add(clrscheme_txt,0,wxALL, 5);
     clrscheme_box->Add(clrscheme_choice, 1, wxEXPAND|wxALL, 5);
