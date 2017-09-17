@@ -49,8 +49,9 @@ BEGIN_EVENT_TABLE( ColocationSelectDlg, wxDialog )
 EVT_CLOSE( ColocationSelectDlg::OnClose )
 END_EVENT_TABLE()
 
-ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings"))
+ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s, TableState* table_state_s)
+: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings")),
+table_state(table_state_s)
 {
     wxLogMessage("Open ColocationSelectDlg.");
     
@@ -61,15 +62,39 @@ ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
     GdaColorUtils::GetUnique20Colors(m_predef_colors);
     
     CreateControls();
+    
+    table_state->registerObserver(this);
 }
 
 ColocationSelectDlg::~ColocationSelectDlg()
 {
+    table_state->removeObserver(this);
 }
 
-wxColour ColocationSelectDlg::get_a_color(int idx)
+void ColocationSelectDlg::update(TableState* o)
 {
-    return m_predef_colors[idx % m_predef_colors.size()];
+    if (o->GetEventType() != TableState::time_ids_add_remove &&
+        o->GetEventType() != TableState::time_ids_rename &&
+        o->GetEventType() != TableState::time_ids_swap &&
+        o->GetEventType() != TableState::cols_delta) return;
+   
+    // update
+    co_val_dict.clear();
+    var_selections.Clear();
+    clear_colo_control();
+    
+    InitVariableCombobox(combo_var, true);
+    wxMouseEvent ev;
+    OnVarSelect(ev);
+}
+
+wxColour ColocationSelectDlg::get_a_color(wxString label)
+{
+    long idx;
+    if (label.ToLong(&idx) && idx >=0 && idx < m_predef_colors.size()) {
+        return m_predef_colors[idx];
+    }
+    return wxColour(240, 240, 240); // not significant color
 }
 
 void ColocationSelectDlg::CreateControls()
@@ -149,10 +174,37 @@ void ColocationSelectDlg::CreateControls()
     Centre();
     
     // Events
+    scrl->Bind(wxEVT_RIGHT_UP, &ColocationSelectDlg::OnRightUp, this);
 	clrscheme_choice->Bind(wxEVT_CHOICE, &ColocationSelectDlg::OnSchemeSelect, this);
     combo_var->Bind(wxEVT_LEFT_UP, &ColocationSelectDlg::OnVarSelect, this);
     okButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnClickClose, this);
+}
+
+void ColocationSelectDlg::OnRightUp( wxMouseEvent& event)
+{
+    wxMenu mnu;
+    mnu.Append(XRCID("CO_SEL_ALL"), "Select All");
+    mnu.Append(XRCID("CO_UNSEL_ALL"), "Unselect All");
+    mnu.Connect(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ColocationSelectDlg::OnPopupClick), NULL, this);
+    PopupMenu(&mnu);
+}
+
+void ColocationSelectDlg::OnPopupClick( wxCommandEvent& event)
+{
+    if (event.GetId() == XRCID("CO_SEL_ALL")) {
+        for (int i=0; i<co_boxes.size(); i++) {
+            if (co_boxes[i]) {
+                co_boxes[i]->SetValue(true);
+            }
+        }
+    } else if (event.GetId() == XRCID("CO_UNSEL_ALL")) {
+        for (int i=0; i<co_boxes.size(); i++) {
+            if (co_boxes[i]) {
+                co_boxes[i]->SetValue(false);
+            }
+        }
+    }
 }
 
 void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
@@ -197,7 +249,8 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
     m_colors.clear();
     for (int i=0; i<co_bitmaps.size(); i++) {
         if (co_bitmaps[i]) {
-            wxColour sel_clr = get_a_color(i);
+            wxString sel_val = co_boxes[i]->GetLabel();
+            wxColour sel_clr = get_a_color(sel_val);
             m_colors.push_back(sel_clr);
             co_bitmaps[i]->SetBackgroundColour(sel_clr);
             co_bitmaps[i]->Refresh();
@@ -306,8 +359,10 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
         wxString tmp;
         tmp << co_it->first;
         wxCheckBox* chk = new wxCheckBox(scrl, base_choice_id+cnt, tmp);
+        chk->SetValue(true);
+        
         wxBitmap clr;
-        wxColour sel_clr = get_a_color(cnt);
+        wxColour sel_clr = get_a_color(tmp);
         wxStaticBitmap* color_btn = new wxStaticBitmap(scrl, base_color_id+cnt, clr, wxDefaultPosition, wxSize(16,16));
         color_btn->SetBackgroundColour(sel_clr);
         

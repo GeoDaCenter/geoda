@@ -416,6 +416,7 @@ void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
 
 void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
 {
+    combo_var->Clear();
     var_items.Clear();
     
     std::vector<int> col_id_map;
