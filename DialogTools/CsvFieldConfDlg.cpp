@@ -327,7 +327,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
                 int rtn = poFeature->GetFieldAsDateTime(iField, &year, &month, &day, &hour, &minute, &second, &tzflag);
                 if (rtn == 0) {
                     if (!msg_shown) {
-                        wxString msg = _("Limited data/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized data/time type as string and covert it using Table->Edit Variable Property");
+                        wxString msg = _("Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property");
                         wxMessageDialog dlg(NULL, msg, "CSV Configuration Warning", wxOK | wxICON_ERROR);
                         dlg.ShowModal();
                         msg_shown = true;
@@ -446,8 +446,11 @@ void CsvFieldConfDlg::UpdateXYcombox( )
     lng_box->Clear();
   
     bool first_item = true;
+    int coord_x_idx = -1;
+    int coord_y_idx = -1;
+    int cnt = 1;
     for (int i=0; i<col_names.size(); i++) {
-        if (types[i] == "Real") {
+        if (types[i] == "Real" || types[i] == "CoordX" || types[i] == "CoordY") {
             if (first_item ) {
                 lat_box->Append("");
                 lng_box->Append("");
@@ -455,37 +458,13 @@ void CsvFieldConfDlg::UpdateXYcombox( )
             }
             lat_box->Append(col_names[i]);
             lng_box->Append(col_names[i]);
+            if (types[i] == "CoordX") coord_x_idx = cnt;
+            else if (types[i] == "CoordY") coord_y_idx = cnt;
+            cnt ++;
         }
     }
-    
-    wxString csvt_path = filepath + "t";
-    
-    if (wxFileExists(csvt_path)) {
-        // load data type from csvt file
-        wxTextFile csvt_file;
-        csvt_file.Open(csvt_path);
-        
-        // read the first line
-        wxString str = csvt_file.GetFirstLine();
-        wxStringTokenizer tokenizer(str, ",");
-        
-        int idx = 0;
-        while ( tokenizer.HasMoreTokens() )
-        {
-            wxString token = tokenizer.GetNextToken().Upper();
-            if (token.Contains("COORDX")) {
-                wxString col_name = col_names[idx];
-                int pos = lng_box->FindString(col_name);
-                lat_box->SetSelection(pos);
-            } else if (token.Contains("COORDY")) {
-                wxString col_name = col_names[idx];
-                int pos = lng_box->FindString(col_name);
-                lng_box->SetSelection(pos);
-            }
-            idx += 1;
-        }
-    }
-
+    lat_box->SetSelection(coord_x_idx);
+    lng_box->SetSelection(coord_y_idx);
 }
 
 void CsvFieldConfDlg::UpdatePreviewGrid( )
@@ -569,6 +548,10 @@ void CsvFieldConfDlg::ReadCSVT()
                 types[idx] = "Integer";
             } else if (token.Contains("REAL")) {
                 types[idx] = "Real";
+            } else if (token.Contains("COORDX")) {
+                types[idx] = "CoordX";
+            } else if (token.Contains("COORDY")) {
+                types[idx] = "CoordY";
             } else if (token.Contains("DATETIME")) {
                 types[idx] = "DateTime";
             } else if (token.Contains("TIME")) {
@@ -623,7 +606,6 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
     WriteCSVT();
-    GdaConst::gda_ogr_csv_header = HEADERS;
     EndDialog(wxID_OK);
 }
 
@@ -654,7 +636,8 @@ void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
     UpdateFieldGrid();
     UpdatePreviewGrid();
     UpdateXYcombox();
-
+    
+    GdaConst::gda_ogr_csv_header = HEADERS;
 }
 
 void CsvFieldConfDlg::OnSampleSpinClick( wxCommandEvent& event )

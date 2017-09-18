@@ -252,7 +252,7 @@ void FieldNewCalcDateTimeDlg::InitFieldChoices()
 		}
 	}
 
-    // data/time fields
+    // date/time fields
 	wxString r_str_sel = m_result->GetStringSelection();
 	int r_sel = m_result->GetSelection();
 	int prev_cnt = m_result->GetCount();

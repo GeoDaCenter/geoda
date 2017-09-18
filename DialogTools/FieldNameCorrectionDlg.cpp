@@ -129,6 +129,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
 	// add a series of widgets
+    SetBackgroundColour(*wxWHITE);
 	
 	txt_fname.clear(); // ID_FNAME_STAT_TXT_BASE
 	txt_input.clear(); // ID_INPUT_TXT_CTRL_BASE
@@ -534,9 +535,10 @@ bool ScrolledWidgetsPane::CheckUserInput()
         }
     }
     
-    bool success = true;
+    bool _success = true;
    
     for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
+        bool success = true;
         if (txt_input[i]) {
             wxString user_field_name = txt_input[i]->GetValue();
             user_field_name.Trim();
@@ -558,15 +560,23 @@ bool ScrolledWidgetsPane::CheckUserInput()
                     success = false;
                 }
             }
+            if (success) {
+                wxString old_name = txt_fname[i]->GetLabel();
+                if (field_names_dict.find(old_name) != field_names_dict.end()) {
+                    field_names_dict[old_name] = user_field_name;
+                    new_field_names[i] = user_field_name;
+                }
+            }
         } else {
             // input is empty
             txt_input[i]->SetForegroundColour(*wxRED);
             input_info[i]->SetLabel(str_invalid_field);
             success = false;
         }
+        if (!success) _success = success;
     }
     
-    return success;
+    return _success;
 }
 
 

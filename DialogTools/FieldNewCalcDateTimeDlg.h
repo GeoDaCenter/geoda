@@ -41,7 +41,7 @@ public:
     FieldNewCalcDateTimeDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY, 
-					   const wxString& caption = "Data/Time",
+					   const wxString& caption = "Date/Time",
 					   const wxPoint& pos = wxDefaultPosition, 
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );

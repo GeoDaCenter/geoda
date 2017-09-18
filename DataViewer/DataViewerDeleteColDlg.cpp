@@ -144,7 +144,7 @@ void DataViewerDeleteColDlg::InitFieldChoices()
 	col_id_map.clear();
 	m_field->Clear();
     wxArrayString var_items;
-    table_int->FillNumericColIdMap(col_id_map);
+    table_int->FillColIdMap(col_id_map);
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
