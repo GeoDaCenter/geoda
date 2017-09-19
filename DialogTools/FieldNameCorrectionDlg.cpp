@@ -362,6 +362,8 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(int field_idx)
 
     // put it to new field name list
     new_field_names[field_idx] = new_name;
+    
+    user_input_dict[old_name] = field_idx;
 	
     // add any new suggest name to search dict
     field_dict[new_name] = true;
@@ -564,7 +566,9 @@ bool ScrolledWidgetsPane::CheckUserInput()
                 wxString old_name = txt_fname[i]->GetLabel();
                 if (field_names_dict.find(old_name) != field_names_dict.end()) {
                     field_names_dict[old_name] = user_field_name;
-                    new_field_names[i] = user_field_name;
+                    if (user_input_dict.find(old_name) != user_input_dict.end() ) {
+                        new_field_names[user_input_dict[old_name]] = user_field_name;
+                    }
                 }
             }
         } else {

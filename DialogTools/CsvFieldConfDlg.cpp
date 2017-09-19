@@ -509,7 +509,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 wxString str = wxString::Format("%f", val);
                 previewGrid->SetCellValue(i, j, str);
                 
-            } else if (types[j] == "Date" || types[i] == "Time" || types[i] == "DateTime") {
+            } else if (types[j] == "Date" || types[j] == "Time" || types[j] == "DateTime") {
                 wxString str = poFeature->GetFieldAsString(j);
                 //wxString str = wxString::Format("%f", val);
                 previewGrid->SetCellValue(i, j, str);

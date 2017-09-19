@@ -40,6 +40,8 @@ private:
 	map<wxString, bool> field_dict;
 	vector<wxString> merged_field_names;
     
+	map<wxString, int> user_input_dict;
+    
     vector<wxString> old_field_names;
     vector<wxString> new_field_names;
 	
