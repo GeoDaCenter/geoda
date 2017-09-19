@@ -3997,7 +3997,7 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
-    <object class="wxMenuItem" name="ID_TABLE_AGGREGATION">
+    <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
       <label>Aggregation</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">

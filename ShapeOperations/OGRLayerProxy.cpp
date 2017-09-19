@@ -743,6 +743,11 @@ bool OGRLayerProxy::ReadData()
         
         return false;
     }
+    if (stop_reading) {
+        error_message << "Reading data was interrupted.";
+        return false;
+    }
+    
 	n_rows = row_idx;
     
     // check empty rows at the end of table, remove empty rows #563
@@ -982,9 +987,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
             if (geometry) {
                 if (feature_counter==0)
                     p_main.header.shape_type = Shapefile::POINT_TYP;
+                
                 OGRPoint* p = (OGRPoint *) geometry;
                 pc->x = p->getX();
                 pc->y = p->getY();
+                
                 if (noExtent)
                     GetExtent(p_main, pc, row_idx);
             }

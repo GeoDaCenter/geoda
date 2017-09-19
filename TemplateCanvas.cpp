@@ -496,7 +496,7 @@ void TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
 			pc = (PointContents*) records[i].contents_p;
 			if (pc->shape_type == 0) {
 				selectable_shps[i] = new GdaPoint();
-			} else {
+            } else {
 				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x,pc->y));
 			}
 

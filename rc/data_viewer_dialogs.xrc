@@ -1895,10 +1895,15 @@ All Rights Reserved</label>
               <object class="sizeritem">
                 <object class="wxBoxSizer">
                  <object class="sizeritem">
-                  <object class="wxRadioButton" name="ID_AGGREGATE_AVG">
-                      <label>Average</label>
+                  <object class="wxRadioButton" name="ID_AGGREGATE_COUNT">
+                      <label>Count</label>
                       <value>1</value>
                       <style>wxRB_GROUP</style>
+                  </object>
+                 </object>
+                 <object class="sizeritem">
+                  <object class="wxRadioButton" name="ID_AGGREGATE_AVG">
+                      <label>Average</label>
                   </object>
                  </object>
                  <object class="sizeritem">
@@ -2048,7 +2053,6 @@ All Rights Reserved</label>
             </object>
             <flag>wxEXPAND|wxALL</flag>
             <border>7</border>
-            
           </object>
           <orient>wxVERTICAL</orient>
         </object>

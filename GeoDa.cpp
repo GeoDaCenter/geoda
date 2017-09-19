@@ -1216,29 +1216,34 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
         // this datasource will be freed when dlg exit, so make a copy
         // in project_p
         project_p = new Project(proj_title, layer_name, datasource);
-        
+       
+        if (!project_p->IsValid()) {
+            
+        }
     } catch (GdaException& e) {
         RemoveInvalidRecentDS();
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
     wxString error_msg;
     if (!project_p) {
-        error_msg << "Error: Could not initialize new project.";
+        error_msg << _("Could not initialize new project.");
     } else if (!project_p->IsValid()) {
-        error_msg << "Error:";
+        error_msg << _("Could not initialize new project.");
         error_msg << project_p->GetOpenErrorMessage();
     }
+    
     if (!error_msg.IsEmpty()) {
-        wxMessageDialog dlg (this, error_msg, "Error", wxOK | wxICON_ERROR);
+        delete project_p;
+        project_p = NULL;
+        wxMessageDialog dlg (this, error_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
     
     InitWithProject();
-
 }
 
 /**
@@ -1295,10 +1300,14 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		msg << _(" and try again.");
 		return;
 	}
-	
-	if (project_p && project_p->GetFramesManager()->getNumberObservers() > 0) {
-		if (!OnCloseProject())
-            return;
+
+    
+    if (project_p) {
+        // close any existing windows and project
+        FramesManager* fm = project_p->GetFramesManager();
+		if (fm && fm->getNumberObservers() > 0)
+            if(!OnCloseProject())
+                return;
 	}
 
     try {
@@ -2439,7 +2448,7 @@ void GdaFrame::OnAggregateData(wxCommandEvent& event)
         }
     }
     
-    AggregationDlg* dlg =  new AggregationDlg(this, project_p);
+    AggregationDlg* dlg = new AggregationDlg(this, project_p);
     dlg->Show(true);
 }
 

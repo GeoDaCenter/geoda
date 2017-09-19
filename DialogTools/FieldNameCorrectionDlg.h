@@ -57,15 +57,16 @@ public:
     bool need_correction;
 
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id);
+	ScrolledWidgetsPane(wxWindow* parent,
+                        wxWindowID id,
+                        GdaConst::DataSourceType ds_type,
+                        vector<wxString>& all_fname);
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
-											GdaConst::DataSourceType ds_type,
-											vector<wxString>& all_fname);	
-	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
-											GdaConst::DataSourceType ds_type,
-											map<wxString, wxString>& fnames_dict,
-											vector<wxString>& merged_field_names,
-											set<wxString>& dup_fname,
-											set<wxString>& bad_fname);		
+                        GdaConst::DataSourceType ds_type,
+                        map<wxString, wxString>& fnames_dict,
+                        vector<wxString>& merged_field_names,
+                        set<wxString>& dup_fname,
+                        set<wxString>& bad_fname);
 	virtual ~ScrolledWidgetsPane();
 
     void OnUserInput(wxCommandEvent& ev);
@@ -80,7 +81,9 @@ public:
     vector<wxString> GetNewFieldNames();
 
 	void Init(vector<wxString>& merged_field_names,
-						set<wxString>& dup_fname, set<wxString>& bad_fname);
+              set<wxString>& dup_fname,
+              set<wxString>& bad_fname);
+    
 	void Init(vector<int>& dup_fname_idx_s, vector<int>& bad_fname_idx_s);
 	
 	bool CheckUserInput();

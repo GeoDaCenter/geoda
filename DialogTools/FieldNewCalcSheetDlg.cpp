@@ -69,7 +69,7 @@ w_man_state(project_s->GetWManState())
 	m_note->AddPage(pBin, "Bivariate");
 	m_note->AddPage(pLag, "Spatial Lag");
 	m_note->AddPage(pRate, "Rates");
-	m_note->AddPage(pDT, "Data/Time");
+	m_note->AddPage(pDT, "Date/Time");
 	pLag->InitWeightsList();
 	pRate->InitWeightsList();
 	this->SetSize(-1,-1,-1,-1);

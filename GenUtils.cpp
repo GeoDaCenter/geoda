@@ -99,8 +99,9 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
                 _year.ToLong(&_l_year);
             } else if (date_items[i-1] == "%y") {
                 _short_year = regex.GetMatch(s_date, i);
-                _short_year.ToLong(&_l_short_year);
-                _l_year = 1000 + _l_short_year;
+                if( _short_year.ToLong(&_l_short_year)) {
+                    _l_year = _l_short_year < 50 ? 2000 + _l_short_year : 1900 + _l_short_year;
+                }
             } else if (date_items[i-1] == "%m") {
                 _month = regex.GetMatch(s_date, i);
                 _month.ToLong(&_l_month);
@@ -127,6 +128,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
 void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(166,206,227));
     colors.push_back(wxColour(31,120,180));
     colors.push_back(wxColour(178,223,138));
@@ -154,8 +156,8 @@ void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
     colors.clear();
     colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
-    colors.push_back(wxColour(255, 150, 150));
     colors.push_back(wxColour(0, 0, 255));
+    colors.push_back(wxColour(255, 150, 150));
     colors.push_back(wxColour(150, 150, 255));
 }
 
@@ -171,7 +173,6 @@ void GdaColorUtils::GetLocalJoinCountColors(std::vector<wxColour>& colors)
     colors.clear();
     colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
-    colors.push_back(wxColour(0, 0, 255));
 }
 void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
 {
@@ -193,68 +194,79 @@ void GdaColorUtils::GetPercentileColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 void GdaColorUtils::GetBoxmapColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 void GdaColorUtils::GetStddevColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 void GdaColorUtils::GetQuantile2Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 2, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 void GdaColorUtils::GetQuantile3Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 3, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile4Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 4, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile5Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 5, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile6Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile7Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 7, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile8Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 8, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
     
 }
 void GdaColorUtils::GetQuantile9Colors(std::vector<wxColour>& colors)
 {
-    
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 9, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 void GdaColorUtils::GetQuantile10Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 10, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
 
 wxString GdaColorUtils::ToHexColorStr(const wxColour& c)
