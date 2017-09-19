@@ -743,6 +743,11 @@ bool OGRLayerProxy::ReadData()
         
         return false;
     }
+    if (stop_reading) {
+        error_message << "Reading data was interrupted.";
+        return false;
+    }
+    
 	n_rows = row_idx;
     
     // check empty rows at the end of table, remove empty rows #563

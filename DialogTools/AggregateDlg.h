@@ -73,6 +73,8 @@ public:
 	void UpdateMergeButton();
 	//void UpdateIncListItems();
     
+	void OnMethodSelect( wxCommandEvent& ev );
+    
 	
 	//wxTextCtrl* m_input_file_name;
 	//wxRadioButton* m_key_val_rb;
@@ -84,10 +86,15 @@ public:
 	//wxRadioButton* m_left_join;
 	//wxRadioButton* m_outer_join;
 	//wxCheckBox* m_overwrite_field;
+    wxRadioButton* m_count;
     wxRadioButton* m_sum;
     wxRadioButton* m_avg;
     wxRadioButton* m_max;
     wxRadioButton* m_min;
+    wxButton* m_inc_all;
+    wxButton* m_inc_one;
+    wxButton* m_exc_all;
+    wxButton* m_exc_one;
 
     ExportDataDlg* export_dlg;
     
@@ -109,8 +116,6 @@ private:
     
     bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<int, vector<int> >& key_map);
-    
-    vector<wxString> GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
     
     OGRColumn* CreateNewOGRColumn(int new_rows, TableInterface* table_int, std::map<int, vector<int> >& key_map, wxString f_name);
     

@@ -100,11 +100,22 @@ void AggregationDlg::CreateControls()
 	//m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")), wxChoice);
 	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), wxListBox);
 	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
+	m_count = wxDynamicCast(FindWindow(XRCID("ID_AGGREGATE_COUNT")), wxRadioButton);
 	m_sum = wxDynamicCast(FindWindow(XRCID("ID_AGGREGATE_SUM")), wxRadioButton);
 	m_avg = wxDynamicCast(FindWindow(XRCID("ID_AGGREGATE_AVG")), wxRadioButton);
 	m_min = wxDynamicCast(FindWindow(XRCID("ID_AGGREGATE_MIN")), wxRadioButton);
 	m_max = wxDynamicCast(FindWindow(XRCID("ID_AGGREGATE_MAX")), wxRadioButton);
 	//m_overwrite_field = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OVERWRITE_SAME_FIELD")), wxCheckBox);
+    m_inc_all = wxDynamicCast(FindWindow(XRCID("ID_INC_ALL_BUTTON")), wxButton);
+    m_inc_one = wxDynamicCast(FindWindow( XRCID("ID_INC_ONE_BUTTON")), wxButton);
+    m_exc_all = wxDynamicCast(FindWindow( XRCID("ID_EXCL_ALL_BUTTON")), wxButton);
+    m_exc_one = wxDynamicCast(FindWindow( XRCID("ID_EXCL_ONE_BUTTON")), wxButton);
+    
+    m_count->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
+    m_sum->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
+    m_avg->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
+    m_min->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
+    m_max->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
 }
 
 void AggregationDlg::Init()
@@ -112,7 +123,7 @@ void AggregationDlg::Init()
     m_current_key->Clear();
     m_include_list->Clear();
     m_exclude_list->Clear();
-   
+  
 	vector<wxString> col_names;
 	// get the field names from table interface
     set<wxString> key_name_set;
@@ -144,6 +155,11 @@ void AggregationDlg::Init()
 	UpdateMergeButton();
 }
 
+
+void AggregationDlg::OnMethodSelect( wxCommandEvent& ev)
+{
+    UpdateMergeButton();
+}
 
 void AggregationDlg::OnIncAllClick( wxCommandEvent& ev)
 {
@@ -228,17 +244,6 @@ bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map
     return true;
 }
 
-vector<wxString> AggregationDlg::GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
-{
-    vector<wxString> aggregate_field_names;
-
-    for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
-        wxString inc_n = m_include_list->GetString(i);
-        aggregate_field_names.push_back(inc_n);
-    }
-    
-    return aggregate_field_names;
-}
 
 void AggregationDlg::OnOKClick( wxCommandEvent& ev )
 {
@@ -246,16 +251,13 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
    
     try {
         wxString error_msg;
-        
+       
         // get selected field names from merging table
         vector<wxString> aggregate_field_names;
         for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
             wxString inc_n = m_include_list->GetString(i);
             aggregate_field_names.push_back(inc_n);
         }
-        if (aggregate_field_names.empty())
-            return;
-        
         int n_rows = table_int->GetNumberRows();
         
         vector<wxString> key1_vec;
@@ -312,7 +314,8 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         
         // create count column
         OGRColumn* _col = new OGRColumnInteger("AGG_COUNT", 18, 0, new_rows);
-        for(int i=0; i<new_rows; i++) _col->SetValueAt(i, (wxInt64)(key1_map[i].size()));
+        for(int i=0; i<new_rows; i++)
+            _col->SetValueAt(i, (wxInt64)(key1_map[i].size()));
         new_fields_dict[_col->GetName()] = _col;
         new_fields.push_back(_col->GetName());
         
@@ -474,7 +477,11 @@ void AggregationDlg::OnKeyChoice( wxCommandEvent& ev )
 
 void AggregationDlg::UpdateMergeButton()
 {
-	bool enable = !m_include_list->IsEmpty() &&
-                   m_current_key->GetSelection() != wxNOT_FOUND;
+	bool enable = m_count->GetValue() || (!m_include_list->IsEmpty() && m_current_key->GetSelection() != wxNOT_FOUND);
 	FindWindow(XRCID("wxID_OK"))->Enable(enable);
+   
+    m_inc_all->Enable(!m_count->GetValue());
+    m_inc_one->Enable(!m_count->GetValue());
+    m_exc_all->Enable(!m_count->GetValue());
+    m_exc_one->Enable(!m_count->GetValue());
 }

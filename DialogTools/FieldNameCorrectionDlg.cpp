@@ -212,7 +212,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     }
 	
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(sizer, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(sizer, 1, wxEXPAND|wxALL, 15);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
