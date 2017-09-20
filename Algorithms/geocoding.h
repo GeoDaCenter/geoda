@@ -26,6 +26,7 @@
 #include <wx/thread.h>
 #include <wx/gauge.h>
 
+#include <curl/curl.h>
 #include <vector>
 
 using namespace std;
@@ -67,7 +68,7 @@ public:
     
 protected:
    
-    bool doGet(const char* url, string& response);
+    bool doGet(CURL* curl, const char* url, string& response);
     
     virtual wxString create_request_url(const wxString& addr) = 0;
     

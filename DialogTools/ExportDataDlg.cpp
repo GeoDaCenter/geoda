@@ -512,7 +512,15 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
             PointContents* pc;
             for (int i=0; i<num_obs; i++) {
                 pc = (PointContents*)project_p->main_data.records[i].contents_p;
-                geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+                if (pc->x == 0 && pc->y==0 &&
+                    (pc->x < project_p->main_data.header.bbox_x_min ||
+                     pc->x > project_p->main_data.header.bbox_x_max) &&
+                    (pc->y < project_p->main_data.header.bbox_y_min ||
+                     pc->y > project_p->main_data.header.bbox_y_max))
+                {
+                    geometries.push_back(new GdaPoint());
+                } else
+                    geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
             }
             shape_type = Shapefile::POINT_TYP;
         }
