@@ -242,7 +242,8 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
     } else {
-        throw GdaException("Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource.");
+        wxString msg = _("Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource.");
+        throw GdaException(msg.c_str());
     }
 }
 

@@ -57,11 +57,10 @@ size_t dump_to_string(void *ptr, size_t size, size_t count, void *stream) {
     return size*count;
 }
 
-bool GeoCodingInterface::doGet(const char* url, string& response)
+bool GeoCodingInterface::doGet(CURL* curl, const char* url, string& response)
 {
     wxLogMessage("AutoUpdate::ReadUrlContent()");
     
-    CURL* curl = curl_easy_init();
     CURLcode res;
     int res_code = 0;
     
@@ -73,9 +72,8 @@ bool GeoCodingInterface::doGet(const char* url, string& response)
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
         
         res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
         
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &res_code);
+        //curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &res_code);
     }
     
     //if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
@@ -86,30 +84,6 @@ bool GeoCodingInterface::doGet(const char* url, string& response)
 }
 
 void GeoCodingInterface::run(){
-    int out_limit_count = 0;
-    for ( int i=0, n=addresses.size(); i<n; i++) {
-        if (*stop)
-            break;
-        if (out_limit_count>10)
-            break;
-        if (undefs[i] == false && lats[i] != 0 && lngs[i] != 0)
-            continue;
-        const wxString& addr = addresses[i];
-        wxString url = create_request_url(addr);
-        string response;
-        // send request to server
-        doGet(url.c_str(), response);
-        double lat=0;
-        double lng=0;
-        int rtn = retrive_latlng(response, &lat, &lng);
-        if (rtn==-1)
-            out_limit_count ++;
-        lats[i] = lat;
-        lngs[i] = lng;
-        undefs[i] = (rtn != 1);
-        *count += 1;
-        //Sleep(50);
-    }
 }
 
 void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>& _lats, vector<double>& _lngs, vector<bool>& _undefs, wxGauge* _prg, bool* _stop)
@@ -125,6 +99,8 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
     addresses = _addresses;
     stop = _stop;
     
+    CURL* curl = curl_easy_init();
+    
     int out_limit_count = 0;
     
     for ( int i=0, n=addresses.size(); i<n; i++) {
@@ -138,7 +114,7 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
         wxString url = create_request_url(addr);
         string response;
         // send request to server
-        doGet(url.c_str(), response);
+        doGet(curl, url.c_str(), response);
         double lat=0;
         double lng=0;
         int rtn = retrive_latlng(response, &lat, &lng);
@@ -148,8 +124,12 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
         lngs[i] = lng;
         undefs[i] = (rtn != 1);
         _prg->SetValue(i+1);
-        wxMilliSleep(50);
+        LOG_MSG(url);
+        LOG_MSG(lat);
+        //wxMilliSleep(50);
     }
+    
+    curl_easy_cleanup(curl);
 }
 
 
@@ -209,8 +189,9 @@ int GoogleGeoCoder::retrive_latlng(const string& response,  double* lat, double*
         json_spirit::Value json_status;
         if (GdaJson::findValue(v, json_status, "status")) {
             string stat = json_status.get_str();
-            if (stat.compare("OVER_QUERY_LIMIT")==0) {
-                error_msg << "OVER_QUERY_LIMIT: " << key << "\n";
+            if (stat.compare("OVER_QUERY_LIMIT")==0 ||
+                stat.compare("REQUEST_DENIED") ==0) {
+                error_msg << stat << ": " << key << "\n";
                 key = get_next_key();
                 return -1;
             }
