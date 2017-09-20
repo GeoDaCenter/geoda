@@ -516,7 +516,7 @@ OGRColumnDouble::OGRColumnDouble(OGRLayerProxy* ogr_layer, wxString name,
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0.0;
-        undef_markers[i] = false;
+        undef_markers[i] = true;
     }
 }
 
@@ -599,6 +599,7 @@ void OGRColumnDouble::UpdateData(const vector<double>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();

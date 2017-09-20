@@ -459,6 +459,23 @@ void OGRTable::FillNumericColIdMap(std::vector<int>& col_map)
 	}
 }
 
+void OGRTable::FillStringColIdMap(std::vector<int>& col_map)
+{
+    std::vector<int> t;
+    FillColIdMap(t);
+    int string_cnt = 0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::string_type)
+            string_cnt++;
+    }
+    col_map.resize(string_cnt);
+    int cnt=0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::string_type)
+            col_map[cnt++] = t[i];
+    }
+}
+
 void OGRTable::FillDateTimeColIdMap(std::vector<int>& col_map)
 {
     std::vector<int> t;
@@ -506,6 +523,18 @@ void OGRTable::FillNumericNameList(std::vector<wxString>& num_names)
 {
 	std::vector<int> t;
 	FillNumericColIdMap(t);
+	num_names.resize(t.size());
+	int cnt=0;
+	for (int i=0, iend=t.size(); i<iend; i++) {
+		num_names[i] = GetColName(t[i]);
+	}
+}
+
+//FillStringColIdMap
+void OGRTable::FillStringNameList(std::vector<wxString>& num_names)
+{
+	std::vector<int> t;
+	FillStringColIdMap(t);
 	num_names.resize(t.size());
 	int cnt=0;
 	for (int i=0, iend=t.size(); i<iend; i++) {

@@ -172,7 +172,6 @@ void CartoDBProxy::_doGet(string parameter)
         if (!((res_code == 200 || res_code == 201) && res != CURLE_ABORTED_BY_CALLBACK))
         {
             printf("!!! Response code: %d\n", res_code);
-            return;
         }
     }
     // Clean up the resources 

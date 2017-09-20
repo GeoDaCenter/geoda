@@ -114,8 +114,10 @@ public:
 	virtual void FillColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillDateTimeColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericColIdMap(std::vector<int>& col_map) = 0;
+	virtual void FillStringColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericNameList(std::vector<wxString>& num_names) = 0;
+	virtual void FillStringNameList(std::vector<wxString>& num_names) = 0;
 	
 	virtual int GetNumberCols() = 0;
 	virtual int GetNumberRows() = 0;
