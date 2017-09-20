@@ -114,9 +114,11 @@ public:
 	virtual int  FindColId(const wxString& name);
     virtual int  GetColIdx(const wxString& name, bool ignore_case=false);
 	virtual void FillColIdMap(std::vector<int>& col_map);
+	virtual void FillStringColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
 	virtual void FillDateTimeColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
+	virtual void FillStringNameList(std::vector<wxString>& num_names);
 	virtual void FillNumericNameList(std::vector<wxString>& num_names);
 	virtual int  GetNumberCols();
 	virtual int  GetNumberRows();

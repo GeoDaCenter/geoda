@@ -77,6 +77,10 @@
         <label>Merge</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
+        <label>Geocoding</label>
+      </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
         <label>Selection Tool</label>
       </object>
@@ -4003,6 +4007,10 @@
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
       <label>Merge</label>
     </object>
+    <object class="separator"/>
+      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
+        <label>Geocoding</label>
+      </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
       <label>Selection Tool</label>

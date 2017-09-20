@@ -123,6 +123,7 @@
 #include "DialogTools/RedcapDlg.h"
 #include "DialogTools/MDSDlg.h"
 #include "DialogTools/AggregateDlg.h"
+#include "DialogTools/GeocodingDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -164,6 +165,7 @@
 
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
+#include "Algorithms/geocoding.h"
 
 #include "ShpFile.h"
 #include "GdaException.h"
@@ -2428,6 +2430,28 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
                                             project_p,
                                             wxDefaultPosition);
 	dlg->Show(true);
+}
+
+void GdaFrame::OnGeocoding(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (GeocodingDlg* w = dynamic_cast<GeocodingDlg*>(*it))
+        {
+            w->Init();
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    GeocodingDlg* dlg = new GeocodingDlg(this, project_p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnAggregateData(wxCommandEvent& event)
@@ -6487,6 +6511,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
+    EVT_MENU(XRCID("ID_TABLE_GEOCODING"), GdaFrame::OnGeocoding)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used 
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
