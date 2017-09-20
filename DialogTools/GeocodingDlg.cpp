@@ -95,7 +95,9 @@ void GeocodingDlg::Init()
     m_choice_vars->SetSelection(0);
     
     m_google_input->Clear();
-    m_google_input->SetValue("AIzaSyD--lQ-WgX59Jiw7mMY2Zd9E1wUyLpBQvM");
+    m_google_input->SetValue("AIzaSyD--lQ-WgX59Jiw7mMY2Zd9E1wUyLpBQvM\nAIzaSyDYlL1vnMHN7MIKv2Y3u9TQFn1Zu3g4w_A\nAIzaSyCj41UxUI--xl84KCewVxFKYVIthvwQWEI\nAIzaSyAc0b5yAJyUmLM-3tTgPzJ3SzDQfkeee3Q");
+    
+    m_prg->SetValue(0);
 }
 
 void GeocodingDlg::CreateControls()
@@ -163,11 +165,15 @@ void GeocodingDlg::CreateControls()
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(stopButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+   
+    // progress bar
+    m_prg = new wxGauge(panel, wxID_ANY, project->GetNumRecords());
     
     // Container
     vbox->Add(hbox0, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxALL, 10);
+    vbox->Add(m_prg, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -197,10 +203,7 @@ void GeocodingDlg::OnOkClick( wxCommandEvent& event )
         delete t;
         t = NULL;
     }
-    stop = false;
     t = new boost::thread(boost::bind(&GeocodingDlg::run, this));
-    okButton->Disable();
-    stopButton->Enable();
 }
 
 void GeocodingDlg::OnStopClick( wxCommandEvent& event )
@@ -208,6 +211,7 @@ void GeocodingDlg::OnStopClick( wxCommandEvent& event )
     stop = true;
     okButton->Enable();
     stopButton->Disable();
+    closeButton->Enable();
 }
 
 void GeocodingDlg::run()
@@ -252,13 +256,7 @@ void GeocodingDlg::run()
     }
     int time=0;
     int col_lat = table_int->FindColId(lat_fname);
-    if ( col_lat == wxNOT_FOUND) {
-        int col_insert_pos = table_int->GetNumberCols();
-        int time_steps = 1;
-        int m_length_val = GdaConst::default_dbf_double_len;
-        int m_decimals_val = GdaConst::default_dbf_double_decimals;
-        col_lat = table_int->InsertCol(GdaConst::double_type, lat_fname, col_insert_pos, time_steps, m_length_val, m_decimals_val);
-    } else {
+    if ( col_lat != wxNOT_FOUND) {
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col_lat) != GdaConst::double_type ) {
             wxString msg = _("This field name already exists (non-float type). Please input a unique name.");
@@ -268,13 +266,7 @@ void GeocodingDlg::run()
         }
     }
     int col_lng = table_int->FindColId(lng_fname);
-    if ( col_lng == wxNOT_FOUND) {
-        int col_insert_pos = table_int->GetNumberCols();
-        int time_steps = 1;
-        int m_length_val = GdaConst::default_dbf_double_len;
-        int m_decimals_val = GdaConst::default_dbf_double_decimals;
-        col_lng = table_int->InsertCol(GdaConst::double_type, lng_fname, col_insert_pos, time_steps, m_length_val, m_decimals_val);
-    } else {
+    if ( col_lng != wxNOT_FOUND) {
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col_lng) != GdaConst::double_type ) {
             wxString msg = _("This field name already exists (non-float type). Please input a unique name.");
@@ -285,23 +277,43 @@ void GeocodingDlg::run()
     }
     
     // start
+    stop = false;
+    okButton->Disable();
+    stopButton->Enable();
+    closeButton->Disable();
+    m_prg->SetValue(1);
+    
     int n_rows = project->GetNumRecords();
     std::vector<wxString> addresses;
     int col_var = table_int->FindColId(sel_var);
     table_int->GetColData(col_var, time, addresses);
   
-    vector<double> lats;
-    vector<double> lngs;
-    vector<bool> undefs;
-    
-    table_int->GetColData(col_lat, time, lats, undefs);
-    table_int->GetColData(col_lng, time, lngs, undefs);
-    
-    int count = 0;
-    GoogleGeoCoder coder(keys);
-    coder.geocoding(addresses, lats, lngs, undefs, &count, &stop);
-  
+    vector<double> lats(n_rows);
+    vector<double> lngs(n_rows);
+    vector<bool> undefs(n_rows, true);
    
+    if ( col_lat != wxNOT_FOUND)
+        table_int->GetColData(col_lat, time, lats, undefs);
+    if ( col_lng != wxNOT_FOUND)
+        table_int->GetColData(col_lng, time, lngs, undefs);
+    
+    GoogleGeoCoder coder(keys);
+    coder.geocoding(addresses, lats, lngs, undefs, m_prg, &stop);
+  
+    if ( col_lat == wxNOT_FOUND) {
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_double_len;
+        int m_decimals_val = GdaConst::default_dbf_double_decimals;
+        col_lat = table_int->InsertCol(GdaConst::double_type, lat_fname, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    }
+    if ( col_lng == wxNOT_FOUND) {
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_double_len;
+        int m_decimals_val = GdaConst::default_dbf_double_decimals;
+        col_lng = table_int->InsertCol(GdaConst::double_type, lng_fname, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    }
     table_int->SetColData(col_lat, time, coder.lats, coder.undefs);
     table_int->SetColData(col_lng, time, coder.lngs, coder.undefs);
     
@@ -313,6 +325,10 @@ void GeocodingDlg::run()
     wxMessageDialog dlg(this, msg, "Info", wxOK | wxICON_INFORMATION);
     dlg.ShowModal();
     stop = false;
+    
+    okButton->Enable();
+    stopButton->Disable();
+    closeButton->Enable();
 	//EndDialog(wxID_OK);
 }
 

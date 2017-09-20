@@ -246,7 +246,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         dups.clear();
         dedup_to_id.clear();
         
-        m_input_file_name->SetValue(wxEmptyString);
+        //m_input_file_name->SetValue(wxEmptyString);
         m_import_key->Clear();
         m_include_list->Clear();
         m_exclude_list->Clear();

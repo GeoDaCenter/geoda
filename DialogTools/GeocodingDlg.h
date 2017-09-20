@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <wx/combobox.h>
+#include <wx/gauge.h>
 
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
@@ -82,6 +83,8 @@ protected:
     wxButton *okButton;
     wxButton *stopButton;
     wxButton *closeButton;
+    
+    wxGauge* m_prg;
     
 	DECLARE_EVENT_TABLE()
 };

@@ -35,6 +35,7 @@
 
 #include <curl/curl.h>
 #include <wx/string.h>
+#include <wx/gauge.h>
 
 #include "../logger.h"
 #include "../GdaJson.h"
@@ -111,7 +112,7 @@ void GeoCodingInterface::run(){
     }
 }
 
-void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>& _lats, vector<double>& _lngs, vector<bool>& _undefs, int* _count, bool* _stop)
+void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>& _lats, vector<double>& _lngs, vector<bool>& _undefs, wxGauge* _prg, bool* _stop)
 {
     lats.clear();
     lngs.clear();
@@ -122,10 +123,33 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
     lngs = _lngs;
     undefs = _undefs;
     addresses = _addresses;
-    count = _count;
     stop = _stop;
     
-    run();
+    int out_limit_count = 0;
+    
+    for ( int i=0, n=addresses.size(); i<n; i++) {
+        if (*stop)
+            break;
+        if (out_limit_count>10)
+            break;
+        if (undefs[i] == false && lats[i] != 0 && lngs[i] != 0)
+            continue;
+        const wxString& addr = addresses[i];
+        wxString url = create_request_url(addr);
+        string response;
+        // send request to server
+        doGet(url.c_str(), response);
+        double lat=0;
+        double lng=0;
+        int rtn = retrive_latlng(response, &lat, &lng);
+        if (rtn==-1)
+            out_limit_count ++;
+        lats[i] = lat;
+        lngs[i] = lng;
+        undefs[i] = (rtn != 1);
+        _prg->SetValue(i+1);
+        wxMilliSleep(50);
+    }
 }
 
 

@@ -24,6 +24,8 @@
 
 #include <wx/wx.h>
 #include <wx/thread.h>
+#include <wx/gauge.h>
+
 #include <vector>
 
 using namespace std;
@@ -47,13 +49,7 @@ public:
      *
      * @param numClusters	the number of clusters to assign
      */
-    virtual void geocoding(vector<wxString>& address, vector<double>& _lats, vector<double>& _lngs, vector<bool>& _undefs, int* count, bool* stop);
-    
-    //void SetAPIKey(const wxString& _key);
-    
-    //void SetAppId(const wxString& _id);
-    
-    //void SetAppCode(const wxString& _code);
+    virtual void geocoding(vector<wxString>& address, vector<double>& _lats, vector<double>& _lngs, vector<bool>& _undefs, wxGauge* prg, bool* stop);
     
     int* count;
     
