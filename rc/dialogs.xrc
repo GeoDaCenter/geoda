@@ -8149,7 +8149,7 @@
         <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
       </object>
     </object>
-    <title>Variable Calculation</title>
+    <title>Calculator</title>
     <centered>1</centered>
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>

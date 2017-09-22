@@ -31,6 +31,8 @@
 #include <wx/notebook.h>
 #include <wx/utils.h>
 #include <wx/tokenzr.h>
+#include <wx/hyperlink.h>
+
 #include <boost/thread/thread.hpp>
 #include <boost/thread/scoped_thread.hpp>
 
@@ -95,7 +97,7 @@ void GeocodingDlg::Init()
     m_choice_vars->SetSelection(0);
     
     m_google_input->Clear();
-    m_google_input->SetValue("AIzaSyD--lQ-WgX59Jiw7mMY2Zd9E1wUyLpBQvM\nAIzaSyDYlL1vnMHN7MIKv2Y3u9TQFn1Zu3g4w_A\nAIzaSyCj41UxUI--xl84KCewVxFKYVIthvwQWEI\nAIzaSyAc0b5yAJyUmLM-3tTgPzJ3SzDQfkeee3Q");
+    //m_google_input->SetValue("");
     
     m_prg->SetValue(0);
 }
@@ -121,17 +123,16 @@ void GeocodingDlg::CreateControls()
     wxNotebookPage* google_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 380));
     notebook->AddPage(google_page, "Google Places API");
     
-    
     //wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
     
-    wxStaticText* st11 = new wxStaticText(google_page, wxID_ANY, _("Enter your Google API key(s):"));
+    wxStaticText* st11 = new wxStaticText(google_page, wxID_ANY, _("Enter your Google API keys (one key per line)"));
     m_google_input = new wxTextCtrl(google_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    wxStaticText* st12 = new wxStaticText(google_page, wxID_ANY, _("(one key per line)"));
+    wxHyperlinkCtrl* lnk = new wxHyperlinkCtrl(google_page, wxID_ANY, _("Click here to get a Google API key"), "https://developers.google.com/maps/documentation/geocoding/start");
     
     wxBoxSizer *vbox10 = new wxBoxSizer(wxVERTICAL);
     vbox10->Add(st11, 0, wxALL, 5);
     vbox10->Add(m_google_input, 1, wxEXPAND|wxALL, 5);
-    vbox10->Add(st12, 0, wxALL, 5);
+    vbox10->Add(lnk, 0, wxALL, 5);
     vbox10->Fit(google_page);
     google_page->SetSizer(vbox10);
     
@@ -317,7 +318,7 @@ void GeocodingDlg::run()
     table_int->SetColData(col_lat, time, coder.lats, coder.undefs);
     table_int->SetColData(col_lng, time, coder.lngs, coder.undefs);
     
-    wxString msg = _("Geocoding has been executed successfully. Please check results in Table.");
+    wxString msg = _("Successful Geocode. Please check results in Table.");
     if (!coder.error_msg.empty()) {
         msg << "\n\nDetails:\n\n";
         msg << coder.error_msg;

@@ -71,14 +71,14 @@
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
       <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
-        <label>Aggregation</label>
+        <label>Aggregate</label>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
         <label>Merge</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-        <label>Geocoding</label>
+        <label>Geocode</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
@@ -99,7 +99,7 @@
       <object class="separator"/>
       
       <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
-        <label>Variable Calculation</label>
+        <label>Calculator</label>
       </object>
 	  
       <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
@@ -122,7 +122,7 @@
       <object class="separator"/>
       
       <object class="wxMenu" name="ID_TABLE_ENCODING">
-        <label>Encoding</label>
+        <label>Encode</label>
         <object class="wxMenuItem" name="ID_ENCODING_UTF8">
           <label>Unicode (UTF-8)</label>
           <checkable>1</checkable>
@@ -4002,14 +4002,14 @@
   </object>
   <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
     <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
-      <label>Aggregation</label>
+      <label>Aggregate</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
       <label>Merge</label>
     </object>
     <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-        <label>Geocoding</label>
+        <label>Geocode</label>
       </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
@@ -4029,7 +4029,7 @@
     </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
-      <label>Variable Calculation</label>
+      <label>Calculator</label>
     </object>
 	
     <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
@@ -4080,7 +4080,7 @@
     
     <object class="separator"/>
     <object class="wxMenu" name="ID_TABLE_ENCODING">
-      <label>Encoding</label>
+      <label>Encode</label>
       <object class="wxMenuItem" name="ID_ENCODING_UTF8">
         <label>Unicode (UTF-8)</label>
         <checkable>1</checkable>

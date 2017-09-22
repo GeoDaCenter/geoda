@@ -1397,8 +1397,7 @@ void MapCanvas::PopulateCanvas()
 			}
 			if (selectable_shps_type == points && display_voronoi_diagram) {
 				GdaPolygon* p;
-				const vector<GdaShape*>& polys =
-					project->GetVoronoiPolygons();
+				const vector<GdaShape*>& polys = project->GetVoronoiPolygons();
 				for (int i=0, num_polys=polys.size(); i<num_polys; i++) {
 					p = new GdaPolygon(*(GdaPolygon*)polys[i]);
 					background_shps.push_back(p);
