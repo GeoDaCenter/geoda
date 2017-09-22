@@ -337,7 +337,7 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         }
         export_dlg = new ExportDataDlg(this, mem_table);
         if (export_dlg->ShowModal() == wxID_OK) {
-            wxMessageDialog dlg(this, _("File aggregate into Table successfully."), _("Success"), wxOK);
+            wxMessageDialog dlg(this, _("Successful aggregation."), _("Success"), wxOK);
             dlg.ShowModal();
             EndDialog(wxID_OK);
         }

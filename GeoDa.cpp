@@ -2322,7 +2322,7 @@ void GdaFrame::OnFieldCalculation(wxCommandEvent& event)
 	
 	FieldNewCalcSheetDlg* dlg =
 		new FieldNewCalcSheetDlg(GetProject(), this,
-								 wxID_ANY, _("Variable Calculation"),
+								 wxID_ANY, _("Calculator"),
 								 wxDefaultPosition,
 								 wxSize(700, 500));
 	dlg->Show(true);

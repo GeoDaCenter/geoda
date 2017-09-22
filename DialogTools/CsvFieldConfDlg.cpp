@@ -143,7 +143,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     header_cmb->Append("NO");
     header_cmb->Append("YES");
     header_cmb->Append("AUTO DETECT");
-    header_cmb->SetSelection(2);
+    header_cmb->SetSelection(1);
     header_cmb->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
                        wxCommandEventHandler(CsvFieldConfDlg::OnHeaderCmbClick),
                        NULL,

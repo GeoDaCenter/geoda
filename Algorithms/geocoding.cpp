@@ -70,6 +70,7 @@ bool GeoCodingInterface::doGet(CURL* curl, const char* url, string& response)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, dump_to_string);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
         
         res = curl_easy_perform(curl);
         
@@ -118,8 +119,10 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
         double lat=0;
         double lng=0;
         int rtn = retrive_latlng(response, &lat, &lng);
-        if (rtn==-1)
+        if (rtn==-1) {
             out_limit_count ++;
+            wxSleep(2);
+        }
         lats[i] = lat;
         lngs[i] = lng;
         undefs[i] = (rtn != 1);
@@ -153,7 +156,7 @@ GoogleGeoCoder::~GoogleGeoCoder()
 wxString GoogleGeoCoder::create_request_url(const wxString &_addr)
 {
     wxString addr = _addr;
-    addr.Replace(" ", "+");
+    //addr.Replace(" ", "+");
     wxString url = wxString::Format(url_template, addr, key);
     return url;
 }
@@ -191,7 +194,7 @@ int GoogleGeoCoder::retrive_latlng(const string& response,  double* lat, double*
             string stat = json_status.get_str();
             if (stat.compare("OVER_QUERY_LIMIT")==0 ||
                 stat.compare("REQUEST_DENIED") ==0) {
-                error_msg << stat << ": " << key << "\n";
+                error_msg << stat << ": " << key << "\n\n";
                 key = get_next_key();
                 return -1;
             }

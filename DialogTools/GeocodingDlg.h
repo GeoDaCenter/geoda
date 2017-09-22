@@ -38,7 +38,7 @@ class GeocodingDlg : public wxDialog, public FramesManagerObserver, public Table
 {
 public:
     GeocodingDlg(wxWindow* parent, Project* p,
-                 const wxString& title = _("Geocoding Setting Dialog"),
+                 const wxString& title = _("Geocode Setting Dialog"),
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize );
     
