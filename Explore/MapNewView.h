@@ -193,6 +193,7 @@ public:
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
     
     static vector<int> empty_shps_ids;
+    static std::map<int, bool> empty_dict;
     static bool has_shown_empty_shps_msg;
     static int GetEmptyNumber();
     static void ResetEmptyFlag();

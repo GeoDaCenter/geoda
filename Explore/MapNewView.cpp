@@ -145,6 +145,7 @@ END_EVENT_TABLE()
 bool MapCanvas::has_thumbnail_saved = false;
 bool MapCanvas::has_shown_empty_shps_msg = false;
 std::vector<int> MapCanvas::empty_shps_ids(0);
+std::map<int, bool> MapCanvas::empty_dict;
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project_s,
@@ -1528,7 +1529,7 @@ void MapCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++)
         map_error_message[t] = wxEmptyString;
 	
-    std::map<int, bool> empty_dict;
+    empty_dict.clear();
     for (int i=0; i<empty_shps_ids.size(); i++) empty_dict[empty_shps_ids[i]] = true;
 
 	if (GetCcType() == CatClassification::no_theme) {
@@ -1879,7 +1880,19 @@ void MapCanvas::UpdateStatusBar()
     
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows
-		s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
+        if (GetCcType() == CatClassification::no_theme) {
+            int selected_cnt = 0;
+            std::vector<bool>& hl = highlight_state->GetHighlight();
+            for (int i=0; i<hl.size(); i++) {
+                if ( hl[i] && empty_dict.find(i) == empty_dict.end()) {
+                    selected_cnt += 1;
+                }
+            }
+            s << "#selected=" << selected_cnt << "  ";
+        } else {
+            s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
+        }
+        
     }
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
