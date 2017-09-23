@@ -235,6 +235,10 @@ protected:
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
     
+    static wxString empty_shps_msg;
+    static bool has_shown_empty_shps_msg;
+    void show_empty_shps_msgbox();
+    
 	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()

@@ -143,6 +143,8 @@ BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 bool MapCanvas::has_thumbnail_saved = false;
+bool MapCanvas::has_shown_empty_shps_msg = false;
+wxString MapCanvas::empty_shps_msg = "";
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project_s,
@@ -1326,7 +1328,20 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
     if (legend != NULL ) {
         legend->isDragDropAllowed = new_map_theme == CatClassification::unique_values;
     }
+   
+    CallAfter(&MapCanvas::show_empty_shps_msgbox);
+    
     return true;
+}
+
+void MapCanvas::show_empty_shps_msgbox()
+{
+    if (!has_shown_empty_shps_msg && !empty_shps_msg.empty()) {
+        wxString msg = _("These are the row numbers of the records without location information.");
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, empty_shps_msg);
+        dlg->Show(true);
+        has_shown_empty_shps_msg = true;
+    }
 }
 
 void MapCanvas::update(CatClassifState* o)
@@ -1368,7 +1383,7 @@ void MapCanvas::PopulateCanvas()
 
 	if (map_valid[canvas_ts]) {		
 		if (full_map_redraw_needed) {
-			CreateSelShpsFromProj(selectable_shps, project);
+			empty_shps_msg = CreateSelShpsFromProj(selectable_shps, project);
 			full_map_redraw_needed = false;
 			
 			if (selectable_shps_type == polygons &&
