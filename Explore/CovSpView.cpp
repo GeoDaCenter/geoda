@@ -256,8 +256,7 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
 	wxLogMessage("In CovSpFrame::OnShowVarsChooser");
 	if (too_many_obs) return;
-	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate,
-												 false, true, "Variable Choice", "Variable");
+	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, "Variable Choice", "Variable");
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
 	vector<wxString> tm_strs;

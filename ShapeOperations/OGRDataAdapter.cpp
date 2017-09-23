@@ -239,6 +239,8 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
             if (!pc->isNull()) {
                 pt->setX(pc->GetX());
                 pt->setY(pc->GetY());
+            } else {
+                pt->empty();
             }
             ogr_geometries.push_back(pt);
             

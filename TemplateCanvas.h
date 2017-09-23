@@ -221,7 +221,7 @@ public:
 	/** generic function to create and initialized the selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
 	    screen size. */
-	static wxString CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
                                Project* project);
 	
 	/** convert mouse coordiante point to original observation-coordinate

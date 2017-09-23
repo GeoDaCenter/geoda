@@ -989,11 +989,15 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     p_main.header.shape_type = Shapefile::POINT_TYP;
                 
                 OGRPoint* p = (OGRPoint *) geometry;
-                pc->x = p->getX();
-                pc->y = p->getY();
-                
-                if (noExtent)
-                    GetExtent(p_main, pc, row_idx);
+                if (p->IsEmpty()) {
+                    pc->shape_type = Shapefile::NULL_SHAPE;
+                } else {
+                    pc->x = p->getX();
+                    pc->y = p->getY();
+                    
+                    if (noExtent)
+                        GetExtent(p_main, pc, row_idx);
+                }
             } else {
                 pc->shape_type = Shapefile::NULL_SHAPE;
             }
