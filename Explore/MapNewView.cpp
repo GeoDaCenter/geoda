@@ -243,6 +243,7 @@ int MapCanvas::GetEmptyNumber()
 void MapCanvas::ResetEmptyFlag()
 {
     empty_shps_ids.clear();
+    empty_dict.clear();
     has_shown_empty_shps_msg = false;
 }
         
