@@ -994,6 +994,8 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                 
                 if (noExtent)
                     GetExtent(p_main, pc, row_idx);
+            } else {
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
 			

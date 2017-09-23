@@ -476,13 +476,14 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 	}
 }
 
-void TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
+wxString TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
                                            Project* project)
 {
 	using namespace Shapefile;
-	
+    wxString empty_shps_msg;
+    
     if (selectable_shps.size() > 0) {
-        return;
+        return wxEmptyString;
     }
 	int num_recs = project->GetNumRecords();
 	selectable_shps.resize(num_recs);
@@ -495,6 +496,7 @@ void TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
 		for (int i=0; i<num_recs; i++) {
 			pc = (PointContents*) records[i].contents_p;
 			if (pc->shape_type == 0) {
+                empty_shps_msg << i << "\n";
 				selectable_shps[i] = new GdaPoint();
             } else {
 				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x,pc->y));
@@ -506,17 +508,33 @@ void TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
 		PolygonContents* pc = 0;
 		for (int i=0; i<num_recs; i++) {
 			pc = (PolygonContents*) records[i].contents_p;
-			selectable_shps[i] = new GdaPolygon(pc);
+            if (pc->shape_type == 0) {
+                empty_shps_msg << i << "\n";
+                selectable_shps[i] = new GdaPolygon();
+            } else {
+                selectable_shps[i] = new GdaPolygon(pc);
+            }
 		}
         
 	} else if (hdr.shape_type == Shapefile::POLY_LINE) {
 		PolyLineContents* pc = 0;
-		wxPen pen(GdaConst::selectable_fill_color, 1, wxSOLID);
+		//wxPen pen(GdaConst::selectable_fill_color, 1, wxSOLID);
 		for (int i=0; i<num_recs; i++) {
 			pc = (PolyLineContents*) records[i].contents_p;
-			selectable_shps[i] = new GdaPolyLine(pc);
+            if (pc->shape_type == 0) {
+                empty_shps_msg << i << "\n";
+                selectable_shps[i] = new GdaPolyLine();
+            } else {
+                selectable_shps[i] = new GdaPolyLine(pc);
+            }
 		}
 	}
+   
+    if (!empty_shps_msg.empty() ) {
+        empty_shps_msg = _("row:\n") + empty_shps_msg;
+    }
+    
+    return empty_shps_msg;
 }
 
 wxRealPoint TemplateCanvas::MousePntToObsPnt(const wxPoint &pt)
