@@ -119,6 +119,7 @@ public:
     /** SaveAs in-memory Table+Geometries to OGR DataSource */
     void SaveDataSourceAs(const wxString& new_ds_name, bool is_update=false);
 
+    int                 GetNumRecordsNoneEmpty();
 	int                 GetNumRecords() { return num_records; }
 	HighlightState*     GetHighlightState() { return highlight_state; }
 	HighlightState*     GetConMapHlightState() { return con_map_hl_state; }

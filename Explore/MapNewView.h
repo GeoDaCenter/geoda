@@ -186,12 +186,16 @@ public:
 	
 	std::vector<GdaVarTools::VarInfo> var_info;
     
+	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
     
     static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
     
-	int num_obs;
+    static vector<int> empty_shps_ids;
+    static bool has_shown_empty_shps_msg;
+    static int GetEmptyNumber();
+    static void ResetEmptyFlag();
     
 protected:
     IDataSource* p_datasource;
@@ -235,8 +239,6 @@ protected:
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
     
-    static wxString empty_shps_msg;
-    static bool has_shown_empty_shps_msg;
     void show_empty_shps_msgbox();
     
 	virtual void UpdateStatusBar();

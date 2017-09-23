@@ -144,7 +144,7 @@ END_EVENT_TABLE()
 
 bool MapCanvas::has_thumbnail_saved = false;
 bool MapCanvas::has_shown_empty_shps_msg = false;
-wxString MapCanvas::empty_shps_msg = "";
+std::vector<int> MapCanvas::empty_shps_ids(0);
 
 MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project_s,
@@ -234,6 +234,17 @@ MapCanvas::~MapCanvas()
     }
 }
 
+int MapCanvas::GetEmptyNumber()
+{
+    return empty_shps_ids.size();
+}
+
+void MapCanvas::ResetEmptyFlag()
+{
+    empty_shps_ids.clear();
+    has_shown_empty_shps_msg = false;
+}
+        
 void MapCanvas::SetupColor()
 {
 }
@@ -1336,8 +1347,19 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 
 void MapCanvas::show_empty_shps_msgbox()
 {
-    if (!has_shown_empty_shps_msg && !empty_shps_msg.empty()) {
+    if (!has_shown_empty_shps_msg && !empty_shps_ids.empty()) {
+        CreateAndUpdateCategories();
+        if (template_frame) {
+            if (template_frame->GetTemplateLegend()) {
+                template_frame->GetTemplateLegend()->Recreate();
+            }
+        }
         wxString msg = _("These are the row numbers of the records without location information.");
+        wxString empty_shps_msg = _("row:\n");
+    
+        for (int i=0; i<empty_shps_ids.size(); i++) {
+            empty_shps_msg << empty_shps_ids[i] + 1 << "\n";
+        }
         ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, empty_shps_msg);
         dlg->Show(true);
         has_shown_empty_shps_msg = true;
@@ -1383,7 +1405,7 @@ void MapCanvas::PopulateCanvas()
 
 	if (map_valid[canvas_ts]) {		
 		if (full_map_redraw_needed) {
-			empty_shps_msg = CreateSelShpsFromProj(selectable_shps, project);
+			empty_shps_ids = CreateSelShpsFromProj(selectable_shps, project);
 			full_map_redraw_needed = false;
 			
 			if (selectable_shps_type == polygons &&
@@ -1506,6 +1528,9 @@ void MapCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++)
         map_error_message[t] = wxEmptyString;
 	
+    std::map<int, bool> empty_dict;
+    for (int i=0; i<empty_shps_ids.size(); i++) empty_dict[empty_shps_ids[i]] = true;
+
 	if (GetCcType() == CatClassification::no_theme) {
 		 // 1 = #cats
 		//CatClassification::ChangeNumCats(1, cat_classif_def);
@@ -1515,9 +1540,18 @@ void MapCanvas::CreateAndUpdateCategories()
 		for (int t=0; t<num_time_vals; t++) {
 			cat_data.SetCategoryColor(t,0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
-			cat_data.SetCategoryCount(t, 0, num_obs);
-			for (int i=0; i<num_obs; i++)
-                cat_data.AppendIdToCategory(t, 0, i);
+            int num_valid_obs = num_obs - GetEmptyNumber();
+			cat_data.SetCategoryCount(t, 0, num_valid_obs);
+           
+            if (empty_shps_ids.empty()) {
+    			for (int i=0; i<num_obs; i++)
+                    cat_data.AppendIdToCategory(t, 0, i);
+            } else {
+                for (int i=0; i<num_obs; i++) {
+                    if (empty_dict.find(i) == empty_dict.end())
+                        cat_data.AppendIdToCategory(t, 0, i);
+                }
+            }
 		}
 		
 		if (ref_var_index != -1) {
@@ -1838,7 +1872,10 @@ void MapCanvas::UpdateStatusBar()
 	if (!sb) 
         return;
 	wxString s;
-    s << "#obs=" << project->GetNumRecords() <<" ";
+    if (GetCcType() == CatClassification::no_theme)
+        s << "#obs=" << project->GetNumRecordsNoneEmpty() <<" ";
+    else
+        s << "#obs=" << project->GetNumRecords() <<" ";
     
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows

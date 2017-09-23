@@ -54,6 +54,7 @@
 #include "Explore/CatClassification.h"
 #include "Explore/CatClassifManager.h"
 #include "Explore/CovSpHLStateProxy.h"
+#include "Explore/MapNewView.h"
 #include "GdaShape.h"
 #include "GenGeomAlgs.h"
 #include "SpatialIndAlgs.h"
@@ -218,8 +219,16 @@ Project::~Project()
 	// ownership and is therefore responsible for deleting the
 	// table_int when it closes.
 	//if (table_int) delete table_int; table_int = 0;
-	
+
+    // clean up any global settings
+    MapCanvas::ResetEmptyFlag();
+    
 	wxLogMessage("Exiting Project::~Project");
+}
+
+int Project::GetNumRecordsNoneEmpty()
+{
+    return num_records - MapCanvas::GetEmptyNumber();
 }
 
 void Project::UpdateProjectConf(ProjectConfiguration* conf)
