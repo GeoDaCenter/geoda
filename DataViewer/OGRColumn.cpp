@@ -1155,21 +1155,25 @@ void OGRColumnDate::FillData(vector<unsigned long long> &data)
 void OGRColumnDate::FillData(vector<wxString> &data)
 {
     int year, month, day, hour, minute, second, tzflag;
-    wxString tmp;
     if (is_new) {
         for (int i=0; i<rows; ++i) {
+            wxString tmp;
             year = new_data[i] / 10000000000;
             month = (new_data[i] % 10000000000) / 100000000;
             day = (new_data[i] % 100000000) / 1000000;
-            hour = (new_data[i] % 1000000) / 10000;
-            minute = (new_data[i] % 10000) / 100;
-            second = new_data[i] % 100;
             if (year >0 && month > 0 && day > 0) {
                 tmp << wxString::Format("%i-%i-%i", year, month, day);
             }
-            if (hour >0 || minute > 0 || second > 0) {
-                if (!tmp.IsEmpty()) tmp << " ";
-                tmp << wxString::Format("%i:%i:%i", hour, minute, second);
+            
+            int hms = new_data[i] % 1000000;
+            if (hms > 0) {
+                hour = (new_data[i] % 1000000) / 10000;
+                minute = (new_data[i] % 10000) / 100;
+                second = new_data[i] % 100;
+                if (hour >0 || minute > 0 || second > 0) {
+                    if (!tmp.IsEmpty()) tmp << " ";
+                    tmp << wxString::Format("%i:%i:%i", hour, minute, second);
+                }
             }
             data[i] = tmp;
         }
@@ -1190,6 +1194,7 @@ void OGRColumnDate::FillData(vector<wxString> &data)
             ogr_layer->data[i]->GetFieldAsDateTime(col_idx, &year, &month,
                                                    &day,&hour,&minute,
                                                    &second, &tzflag);
+            wxString tmp;
             if (year >0 && month > 0 && day > 0) {
                 tmp << wxString::Format("%i-%i-%i", year, month, day);
             }
