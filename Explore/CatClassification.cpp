@@ -1746,13 +1746,14 @@ SetNaturalBreaksCats(int num_cats,
                 int c = var_undef[t][ind] ? t_cats : i;
 				cat_data.AppendIdToCategory(t, c, ind);
 			}
+			int end = (i == nb) ? tt -1 : tt;
 			wxString l;
 			l << "[" << GenUtils::DblToStr(var[t][ss].first);
-			l << ":" << GenUtils::DblToStr(var[t][tt].first) << "]";
+			l << ":" << GenUtils::DblToStr(var[t][end].first) << "]";
 			cat_data.SetCategoryLabel(t, i, l);
 			cat_data.SetCategoryCount(t, i, cat_data.GetNumObsInCategory(t, i));
 			cat_data.SetCategoryMinMax(t, i, var[t][ss].first,
-									   var[t][tt].first);
+									   var[t][end].first);
 		}
 	}
 }
