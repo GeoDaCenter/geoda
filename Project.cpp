@@ -1502,7 +1502,7 @@ bool Project::InitFromOgrLayer()
 				cont = prog_dlg.Update(layer_proxy->load_progress);
 			}
 		}
-		if (!cont || !prog_dlg.Update(-1))  { // or if cancel clicked
+		if (!cont)  { // or if cancel clicked
 			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
 			return false;
 		}
