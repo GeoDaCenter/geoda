@@ -51,7 +51,7 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     
-    void doRun(int ncluster, int rows, int columns, double** input_data, int** mask, double weight[], int npass, int n_maxiter);
+    void doRun(int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;

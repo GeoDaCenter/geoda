@@ -285,24 +285,20 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
-void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, int** mask, double weight[], int npass, int n_maxiter)
+void KMeansDlg::doRun(int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     char method = 'a'; // mean, 'm' median
-    char dist = 'e'; // euclidean
-    int transpose = 0; // row wise
-    if (combo_method->GetSelection() == 0) method = 'b'; // mean with kmeans++
-    int method_sel = m_method->GetSelection();
-    if (method_sel == 1) method = 'm';
-    int dist_sel = m_distance->GetSelection();
+	if (method_sel == 1) method = 'm';
+	else if (method_sel == -1) method = 'b'; // kmeans++
+
     char dist_choices[] = {'e','b'};
+	char dist = 'e'; // euclidean
     dist = dist_choices[dist_sel];
-    
-    
+
+    int transpose = 0; // row wise
     double error;
     int ifound;
     int* clusterid = new int[rows];
-    double min_bound = GetMinBound();
-    double* bound_vals = GetBoundVals();
     
     kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound);
     
@@ -311,7 +307,7 @@ void KMeansDlg::doRun(int ncluster, int rows, int columns, double** input_data, 
         clusters.push_back(clusterid[i] + 1);
     }
     sub_clusters[error] = clusters;
-    delete[] bound_vals;
+    
     delete[] clusterid;
 }
 
@@ -372,17 +368,28 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         it->second.clear();
     }
     sub_clusters.clear();
+
+	
+	int method_sel = m_method->GetSelection();
+    if (combo_method->GetSelection() == 0) method_sel = -1; // mean with kmeans++
+    
+    int dist_sel = m_distance->GetSelection();
    
+	double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
+
     boost::thread_group threadPool;
     for (int i=0; i<n_threads; i++) {
         int a = dividers[i];
         int b = dividers[i+1];
-        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, rows, columns, input_data, mask, weight, b-a+1, n_maxiter));
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, b-a+1, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
     free(dividers);
+
+	delete[] bound_vals;
    
     bool start = false;
     double min_error = 0;
