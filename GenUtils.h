@@ -59,14 +59,31 @@ namespace GdaColorUtils {
 	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
     
     void GetUnique20Colors(std::vector<wxColour>& colors);
+    
     void GetLISAColors(std::vector<wxColour>& colors);
+    void GetLISAColorLabels(std::vector<wxString>& labels);
+    
     void GetLocalGColors(std::vector<wxColour>& colors);
+    void GetLocalGColorLabels(std::vector<wxString>& labels);
+    
     void GetLocalJoinCountColors(std::vector<wxColour>& colors);
+    void GetLocalJoinCountColorLabels(std::vector<wxString>& labels);
+    
     void GetLocalGearyColors(std::vector<wxColour>& colors);
+    void GetLocalGearyColorLabels(std::vector<wxString>& labels);
+    
     void GetMultiLocalGearyColors(std::vector<wxColour>& colors);
+    void GetMultiLocalGearyColorLabels(std::vector<wxString>& labels);
+    
     void GetPercentileColors(std::vector<wxColour>& colors);
+    void GetPercentileColorLabels(std::vector<wxString>& labels);
+    
     void GetBoxmapColors(std::vector<wxColour>& colors);
+    void GetBoxmapColorLabels(std::vector<wxString>& labels);
+    
     void GetStddevColors(std::vector<wxColour>& colors);
+    void GetStddevColorLabels(std::vector<wxString>& labels);
+    
     void GetQuantile2Colors(std::vector<wxColour>& colors);
     void GetQuantile3Colors(std::vector<wxColour>& colors);
     void GetQuantile4Colors(std::vector<wxColour>& colors);

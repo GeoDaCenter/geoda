@@ -88,6 +88,14 @@ void ColocationSelectDlg::update(TableState* o)
     OnVarSelect(ev);
 }
 
+wxString ColocationSelectDlg::get_a_label(wxString label)
+{
+    long idx;
+    if (label.ToLong(&idx) && idx >=0 && idx < m_predef_labels.size()) {
+        return m_predef_labels[idx];
+    }
+    return label;
+}
 wxColour ColocationSelectDlg::get_a_color(wxString label)
 {
     long idx;
@@ -216,14 +224,19 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
         GdaColorUtils::GetUnique20Colors(m_predef_colors);
     } else if (idx == 1) {
         GdaColorUtils::GetLISAColors(m_predef_colors);
+        GdaColorUtils::GetLISAColorLabels(m_predef_labels);
     } else if (idx == 2) {
         GdaColorUtils::GetLocalGColors(m_predef_colors);
+        GdaColorUtils::GetLocalGColorLabels(m_predef_labels);
     } else if (idx == 3) {
         GdaColorUtils::GetLocalJoinCountColors(m_predef_colors);
+        GdaColorUtils::GetLocalJoinCountColorLabels(m_predef_labels);
     } else if (idx == 4) {
         GdaColorUtils::GetLocalGearyColors(m_predef_colors);
+        GdaColorUtils::GetLocalGearyColorLabels(m_predef_labels);
     } else if (idx == 5) {
         GdaColorUtils::GetMultiLocalGearyColors(m_predef_colors);
+        GdaColorUtils::GetMultiLocalGearyColorLabels(m_predef_labels);
     } else if (idx == 6) {
         GdaColorUtils::GetQuantile2Colors(m_predef_colors);
     } else if (idx == 7) {
@@ -244,6 +257,7 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
         GdaColorUtils::GetQuantile10Colors(m_predef_colors);
     } else if (idx >= 15) {
         GdaColorUtils::GetPercentileColors(m_predef_colors);
+        GdaColorUtils::GetPercentileColorLabels(m_predef_labels);
     }
    
     m_colors.clear();
@@ -323,8 +337,8 @@ void ColocationSelectDlg::OnVarSelect( wxMouseEvent& event)
 bool ColocationSelectDlg::check_colocations()
 {
     if (co_val_dict.empty()) {
-        wxString err_msg =_("There is no co-location found in selected variable. Please select another variables with co-locations.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxString err_msg =_("The categories of the selected variables do not overlap in space. Please select other variables.");
+        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
@@ -424,6 +438,7 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
     
     vector<wxString> sel_vals;
     vector<wxColour> sel_clrs;
+    vector<wxString> sel_lbls;
     vector<vector<int> > sel_ids;
     
     for (int i=0; i<n_co; i++) {
@@ -431,11 +446,14 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
             if (co_boxes[i]->IsChecked()) {
                 wxString sel_val = co_boxes[i]->GetLabel();
                 wxColour sel_clr = m_colors[i];
+                wxString sel_lbl = get_a_label(sel_val);
+                
                 long l_sel_val;
                 if (sel_val.ToLong(&l_sel_val)) {
                     sel_ids.push_back( co_val_dict[l_sel_val] );
                     sel_vals.push_back(sel_val);
                     sel_clrs.push_back(sel_clr);
+                    sel_lbls.push_back(sel_lbl);
                 }
             }
         }
@@ -448,7 +466,7 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
         return;
     }
     
-    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_ids,wxDefaultPosition, GdaConst::map_default_size);
+    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids,wxDefaultPosition, GdaConst::map_default_size);
 }
 
 void ColocationSelectDlg::OnClose( wxCloseEvent& event)
@@ -465,6 +483,12 @@ void ColocationSelectDlg::OnClickClose( wxCommandEvent& event)
     Destroy();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 IMPLEMENT_CLASS(ColocationMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
@@ -473,9 +497,9 @@ BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, const wxPoint& pos, const wxSize& size)
+ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
-co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids)
+co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
 {
 	wxLogMessage("Entering ColocationMapCanvas::ColocationMapCanvas");
 
@@ -549,7 +573,7 @@ void ColocationMapCanvas::CreateAndUpdateCategories()
         sig_dict[i] = false;
     }
     for (int i=0; i<co_vals.size(); i++) {
-        cat_data.SetCategoryLabel(t, i+1, co_vals[i]);
+        cat_data.SetCategoryLabel(t, i+1, co_lbls[i]);
         cat_data.SetCategoryColor(t, i+1, co_clrs[i]);
         for (int j=0; j<co_ids[i].size();j++) {
             cat_data.AppendIdToCategory(t, i+1, co_ids[i][j]);
@@ -565,8 +589,6 @@ void ColocationMapCanvas::CreateAndUpdateCategories()
             cat_data.AppendIdToCategory(t, 0, i);
         }
     }
-    
-    // SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
     
     for (int cat=0; cat<num_cats; cat++) {
         cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
@@ -614,12 +636,17 @@ void ColocationMapCanvas::UpdateStatusBar()
     sb->SetStatusText(s);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	BEGIN_EVENT_TABLE(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<vector<int> >& co_ids,const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids,const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");
@@ -633,7 +660,7 @@ ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector
     CatClassification::CatClassifType theme_type_s = CatClassification::colocation;
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_ids, theme_type_s);
+    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_lbls, co_ids, theme_type_s);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
