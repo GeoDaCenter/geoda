@@ -255,9 +255,8 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
         GdaColorUtils::GetQuantile9Colors(m_predef_colors);
     } else if (idx == 14) {
         GdaColorUtils::GetQuantile10Colors(m_predef_colors);
-    } else if (idx >= 15) {
+    } else if (idx == 15) {
         GdaColorUtils::GetPercentileColors(m_predef_colors);
-        GdaColorUtils::GetPercentileColorLabels(m_predef_labels);
     }
    
     m_colors.clear();

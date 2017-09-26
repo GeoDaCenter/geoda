@@ -80,6 +80,9 @@
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
         <label>Geocode</label>
       </object>
+      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+          <label>Points from Table</label>
+      </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
         <label>Selection Tool</label>
@@ -4010,6 +4013,9 @@
     <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
         <label>Geocode</label>
+      </object>
+      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+          <label>Points from Table</label>
       </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
