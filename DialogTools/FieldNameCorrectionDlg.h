@@ -101,14 +101,14 @@ private:
 public:
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            vector<wxString>& all_fname,
-                           wxString title="Field Name Correction");
+                           wxString title="Update Field Name");
     
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            map<wxString, wxString>& fnames_dict,
                            vector<wxString>& merged_field_names,
                            set<wxString>& dup_fname,
                            set<wxString>& bad_fname,
-                           wxString title="Field Name Correction");
+                           wxString title="Update Field Name");
 	virtual ~FieldNameCorrectionDlg();
 
 	bool NeedCorrection() { return need_correction;}
