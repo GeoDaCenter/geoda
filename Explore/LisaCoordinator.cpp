@@ -22,6 +22,7 @@
 
 #include <time.h>
 #include <math.h>
+#include <wx/log.h>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
 #include "../DataViewer/TableInterface.h"
@@ -130,6 +131,7 @@ last_seed_used(123456789), reuse_last_seed(true),
 row_standardize(row_standardize_s),
 user_sig_cutoff(0)
 {
+    wxLogMessage("Entering LisaCoordinator::LisaCoordinator().");
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
         last_seed_used = GdaConst::gda_user_seed;
@@ -152,6 +154,7 @@ user_sig_cutoff(0)
     
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
+    wxLogMessage("Exiting LisaCoordinator::LisaCoordinator().");
 }
 
 
@@ -165,6 +168,7 @@ LisaCoordinator(wxString weights_path,
                 bool calc_significances_s,
                 bool row_standardize_s)
 {
+    wxLogMessage("Entering LisaCoordinator::LisaCoordinator()2.");
     num_obs = n;
     num_time_vals = 1;
     permutations = permutations_s;
@@ -243,10 +247,12 @@ LisaCoordinator(wxString weights_path,
     
     SetSignificanceFilter(1);
     InitFromVarInfo();
+    wxLogMessage("Exiting LisaCoordinator::LisaCoordinator()2.");
 }
 
 LisaCoordinator::~LisaCoordinator()
 {
+    wxLogMessage("In LisaCoordinator::~LisaCoordinator().");
     if (w_man_state) {
         w_man_state->removeObserver(this);
     }
@@ -255,6 +261,7 @@ LisaCoordinator::~LisaCoordinator()
 
 void LisaCoordinator::DeallocateVectors()
 {
+    wxLogMessage("Entering LisaCoordinator::DeallocateVectors()");
 	for (int i=0; i<lags_vecs.size(); i++) {
 		if (lags_vecs[i]) delete [] lags_vecs[i];
 	}
@@ -293,11 +300,15 @@ void LisaCoordinator::DeallocateVectors()
         }
     }
     Gal_vecs.clear();
+    
+    Gal_vecs_orig.clear();
+    wxLogMessage("Exiting LisaCoordinator::DeallocateVectors()");
 }
 
 /** allocate based on var_info and num_time_vals **/
 void LisaCoordinator::AllocateVectors()
 {
+    wxLogMessage("Entering LisaCoordinator::AllocateVectors()");
 	int tms = num_time_vals;
     
 	lags_vecs.resize(tms);
@@ -310,6 +321,8 @@ void LisaCoordinator::AllocateVectors()
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
+    Gal_vecs.resize(tms);
+    Gal_vecs_orig.resize(tms);
     
 	for (int i=0; i<tms; i++) {
 		lags_vecs[i] = new double[num_obs];
@@ -330,6 +343,7 @@ void LisaCoordinator::AllocateVectors()
 			data2_vecs[i] = new double[num_obs];
 		}
 	}
+    wxLogMessage("Exiting LisaCoordinator::AllocateVectors()");
 }
 
 /** We assume only that var_info is initialized correctly.
@@ -337,6 +351,7 @@ void LisaCoordinator::AllocateVectors()
  num_time_vals are first updated based on var_info */ 
 void LisaCoordinator::InitFromVarInfo()
 {
+    wxLogMessage("Entering LisaCoordinator::InitFromVarInfo()");
 	DeallocateVectors();
 	
 	num_time_vals = 1;
@@ -432,11 +447,12 @@ void LisaCoordinator::InitFromVarInfo()
         CalcPseudoP();
     }
     
-    
+    wxLogMessage("Exiting LisaCoordinator::InitFromVarInfo()");
 }
 
 void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
 {
+    wxLogMessage("Entering LisaCoordinator::GetRawData()");
     if (lisa_type == differential) {
         int t=0;
         for (int i=0; i<num_obs; i++) {
@@ -479,12 +495,14 @@ void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
         if (E) delete [] E;
         if (P) delete [] P;
     }
+    wxLogMessage("Exiting LisaCoordinator::GetRawData()");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void LisaCoordinator::VarInfoAttributeChange()
 {
+    wxLogMessage("Entering LisaCoordinator::VarInfoAttributeChange()");
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
@@ -504,11 +522,12 @@ void LisaCoordinator::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//GdaVarTools::PrintVarInfoVector(var_info);
+    wxLogMessage("Exiting LisaCoordinator::VarInfoAttributeChange()");
 }
 
 void LisaCoordinator::StandardizeData()
 {
+    wxLogMessage("Entering LisaCoordinator::StandardizeData()");
 	for (int t=0; t<data1_vecs.size(); t++) {
         undef_tms[t].resize(num_obs);
         
@@ -531,11 +550,13 @@ void LisaCoordinator::StandardizeData()
                 GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
         }
 	}
+    wxLogMessage("Exiting LisaCoordinator::StandardizeData()");
 }
 
 /** assumes StandardizeData already called on data1 and data2 */
 void LisaCoordinator::CalcLisa()
 {
+    wxLogMessage("Entering LisaCoordinator::CalcLisa()");
 	for (int t=0; t<num_time_vals; t++) {
 		data1 = data1_vecs[t];
 		if (isBivariate) {
@@ -574,8 +595,8 @@ void LisaCoordinator::CalcLisa()
             gw = weights;
         }
         GalElement* W = gw->gal;
-        Gal_vecs.push_back(gw);
-        Gal_vecs_orig.push_back(weights);
+        Gal_vecs[t] = gw;
+        Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
             
@@ -607,10 +628,12 @@ void LisaCoordinator::CalcLisa()
 			}
 		}
 	}
+    wxLogMessage("Exiting LisaCoordinator::CalcLisa()");
 }
 
 void LisaCoordinator::CalcPseudoP()
 {
+	wxLogMessage("Entering LisaCoordinator::CalcPseudoP()");
 	if (!calc_significances) return;
 	wxStopWatch sw;
 	int nCPUs = wxThread::GetCPUCount();
@@ -656,12 +679,13 @@ void LisaCoordinator::CalcPseudoP()
 		m << " perms over " << num_time_vals << " time periods took ";
 		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
 	}
-	LOG_MSG("Exiting LisaCoordinator::CalcPseudoP");
+	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP()");
 }
 
 void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
                                            const std::vector<bool>& undefs)
 {
+	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_threaded()");
 	int nCPUs = wxThread::GetCPUCount();
 
 	// mutext protects access to the worker_list
@@ -744,6 +768,7 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		}
 	}
     //threadPool.join_all();
+	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP_threaded()");
 }
 
 void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
@@ -751,6 +776,7 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
                                         int obs_start, int obs_end,
 										uint64_t seed_start)
 {
+	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_range()");
 	GeoDaSet workPermutation(num_obs);
 	//Randik rng;
 	int max_rand = num_obs-1;
@@ -820,10 +846,12 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
 			sigCat[cnt] = 5;
 		}
 	}
+	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP_range()");
 }
 
 void LisaCoordinator::SetSignificanceFilter(int filter_id)
 {
+	wxLogMessage("Entering LisaCoordinator::SetSignificanceFilter()");
     if (filter_id == -1) {
         // user input cutoff
         significance_filter = filter_id;
@@ -836,10 +864,12 @@ void LisaCoordinator::SetSignificanceFilter(int filter_id)
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+	wxLogMessage("Exiting LisaCoordinator::SetSignificanceFilter()");
 }
 
 void LisaCoordinator::update(WeightsManState* o)
 {
+	wxLogMessage("In LisaCoordinator::update()");
     if (w_man_int) {
         weight_name = w_man_int->GetLongDispName(w_id);
     }
@@ -847,11 +877,13 @@ void LisaCoordinator::update(WeightsManState* o)
 
 int LisaCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
 {
+	wxLogMessage("In LisaCoordinator::numMustCloseToRemove()");
 	return id == w_id ? observers.size() : 0;
 }
 
 void LisaCoordinator::closeObserver(boost::uuids::uuid id)
 {
+	wxLogMessage("In LisaCoordinator::closeObserver()");
 	if (numMustCloseToRemove(id) == 0) return;
 	std::list<LisaCoordinatorObserver*> obs_cpy = observers;
 	for (std::list<LisaCoordinatorObserver*>::iterator i=obs_cpy.begin();
@@ -862,22 +894,24 @@ void LisaCoordinator::closeObserver(boost::uuids::uuid id)
 
 void LisaCoordinator::registerObserver(LisaCoordinatorObserver* o)
 {
+	wxLogMessage("In LisaCoordinator::registerObserver()");
 	observers.push_front(o);
 }
 
 void LisaCoordinator::removeObserver(LisaCoordinatorObserver* o)
 {
-	LOG_MSG("Entering LisaCoordinator::removeObserver");
+	wxLogMessage("Entering LisaCoordinator::removeObserver");
 	observers.remove(o);
 	LOG(observers.size());
 	if (observers.size() == 0) {
 		delete this;
 	}
-	LOG_MSG("Exiting LisaCoordinator::removeObserver");
+	wxLogMessage("Exiting LisaCoordinator::removeObserver");
 }
 
 void LisaCoordinator::notifyObservers()
 {
+	wxLogMessage("In LisaCoordinator::notifyObservers");
 	for (std::list<LisaCoordinatorObserver*>::iterator  it=observers.begin();
 		 it != observers.end(); ++it) {
 		(*it)->update(this);

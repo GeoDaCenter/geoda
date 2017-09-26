@@ -823,7 +823,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
 MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
     : wxDialog(NULL, -1, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
 {
-    wxLogMessage("Open MultiVariableSettingsDlg.");
+    wxLogMessage("Entering MultiVariableSettingsDlg::MultiVariableSettingsDlg().");
     
     combo_time1 = NULL;
     
@@ -838,10 +838,12 @@ MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
     } else {
         CreateControls();
     }
+    wxLogMessage("Exiting MultiVariableSettingsDlg::MultiVariableSettingsDlg().");
 }
 
 MultiVariableSettingsDlg::~MultiVariableSettingsDlg()
 {
+    wxLogMessage("In ~MultiVariableSettingsDlg.");
 }
 
 bool MultiVariableSettingsDlg::Init()
@@ -936,7 +938,7 @@ void MultiVariableSettingsDlg::CreateControls()
 
 void MultiVariableSettingsDlg::OnTimeSelect( wxCommandEvent& event )
 {
-    wxLogMessage("MultiVariableSettingsDlg::OnTimeSelect");
+    wxLogMessage("In MultiVariableSettingsDlg::OnTimeSelect()");
     combo_var->Clear();
     
     InitVariableCombobox(combo_var);
@@ -944,6 +946,7 @@ void MultiVariableSettingsDlg::OnTimeSelect( wxCommandEvent& event )
 
 void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
 {
+    wxLogMessage("In MultiVariableSettingsDlg::InitVariableCombobox().");
     var_box->Clear();
     
     wxArrayString items;
@@ -974,6 +977,7 @@ void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
 
 void MultiVariableSettingsDlg::InitTimeComboboxes(wxChoice* time1)
 {
+    wxLogMessage("In MultiVariableSettingsDlg::InitTimeComboboxes().");
     for (size_t i=0, n=tm_strs.size(); i < n; i++ ) {
         time1->Append(tm_strs[i]);
     }
@@ -982,6 +986,7 @@ void MultiVariableSettingsDlg::InitTimeComboboxes(wxChoice* time1)
 
 void MultiVariableSettingsDlg::InitWeightsCombobox(wxChoice* weights_ch)
 {
+    wxLogMessage("In MultiVariableSettingsDlg::InitWeightsCombobox().");
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
 
@@ -996,7 +1001,7 @@ void MultiVariableSettingsDlg::InitWeightsCombobox(wxChoice* weights_ch)
 
 void MultiVariableSettingsDlg::OnClose(wxCommandEvent& event )
 {
-    wxLogMessage("Close MultiVariableSettingsDlg.");
+    wxLogMessage("In MultiVariableSettingsDlg::OnClose");
     
     event.Skip();
     EndDialog(wxID_CANCEL);
@@ -1004,7 +1009,7 @@ void MultiVariableSettingsDlg::OnClose(wxCommandEvent& event )
 
 void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
 {
-    wxLogMessage("Click MultiVariableSettingsDlg::OnOK");
+    wxLogMessage("Entering MultiVariableSettingsDlg::OnOK");
   
     wxArrayInt selections;
     combo_var->GetSelections(selections);
@@ -1024,9 +1029,8 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<num_var; i++) {
         int idx = selections[i];
         wxString list_item = combo_var->GetString(idx);
-        LOG_MSG(list_item);
         wxString nm = name_to_nm[list_item];
-        LOG_MSG(nm);
+        wxLogMessage(nm);
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
@@ -1051,15 +1055,15 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
 
     EndDialog(wxID_OK);
 
+    wxLogMessage("Exiting MultiVariableSettingsDlg::OnOK");
 }
 
 boost::uuids::uuid MultiVariableSettingsDlg::GetWeightsId()
 {
-   
+    wxLogMessage("In MultiVariableSettingsDlg::GetWeightsId()");
     int sel = combo_weights->GetSelection();
     if (sel < 0) sel = 0;
     if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
