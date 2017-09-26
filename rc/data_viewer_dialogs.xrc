@@ -2066,7 +2066,7 @@ All Rights Reserved</label>
           <orient>wxHORIZONTAL</orient>
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
-              <label>&amp;Merge</label>
+              <label>Aggregate</label>
             </object>
             <flag>wxBOTTOM|wxLEFT|wxRIGHT</flag>
             <border>5</border>

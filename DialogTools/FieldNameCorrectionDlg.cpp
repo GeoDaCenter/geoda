@@ -124,7 +124,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     
 	wxString warn_msg;
 	wxString DUP_WARN = _("(Duplicate field name)");
-	wxString INV_WARN = _("(Field name is not valid)");
+	wxString INV_WARN = _("()");
 	
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
@@ -137,13 +137,13 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     input_info.clear();
 	
 	// titile
-	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, _("Field name:"));
+	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, _("Current field name:"));
 	sizer->Add(txt_oname, 0, wxALIGN_LEFT);
     
 	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, wxEmptyString);
 	sizer->Add(txt_orest, 0);
     
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY, _("Suggest field name:"));
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY, _("Suggested field name to match new table format:"));
 	sizer->Add(txt_newname, 0, wxALIGN_LEFT|wxLEFT, 10);
     
 	wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
@@ -247,7 +247,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	int ncol = 4;
 	wxString warn_msg;
 	wxString DUP_WARN = _("(Duplicate field name)");
-	wxString INV_WARN = _("(Field name is not valid)");
+	wxString INV_WARN = _("()");
 	
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
@@ -260,13 +260,13 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
     input_info.clear();
 	
 	// titile
-	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, "Field name:");
+	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, "Current field name:");
 	sizer->Add(txt_oname, 0, wxALIGN_LEFT);
     
 	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "");
 	sizer->Add(txt_orest, 0);
 
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"Suggest field name:");
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"Suggested field name to match new table format:");
 	sizer->Add(txt_newname, 0, wxALIGN_LEFT, 15);
    
     wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
