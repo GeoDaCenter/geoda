@@ -40,6 +40,33 @@ class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
 
+class LocalGearyWorkerThread : public wxThread
+{
+public:
+    LocalGearyWorkerThread(const GalElement* W,
+                           const std::vector<bool>& undefs,
+                           int obs_start, int obs_end, uint64_t seed_start,
+                           LocalGearyCoordinator* local_geary_coord,
+                           wxMutex* worker_list_mutex,
+                           wxCondition* worker_list_empty_cond,
+                           std::list<wxThread*> *worker_list,
+                           int thread_id);
+    virtual ~LocalGearyWorkerThread();
+    virtual void* Entry();  // thread execution starts here
+    
+    const GalElement* W;
+    const std::vector<bool>& undefs;
+    int obs_start;
+    int obs_end;
+    uint64_t seed_start;
+    int thread_id;
+    
+    LocalGearyCoordinator* local_geary_coord;
+    wxMutex* worker_list_mutex;
+    wxCondition* worker_list_empty_cond;
+    std::list<wxThread*> *worker_list;
+};
+
 class LocalGearyCoordinator : public WeightsManStateObserver
 {
 public:

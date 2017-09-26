@@ -36,6 +36,52 @@
 
 using namespace std;
 
+LocalGearyWorkerThread::LocalGearyWorkerThread(const GalElement* W_,
+                                               const std::vector<bool>& undefs_,
+                                               int obs_start_s, int obs_end_s,
+                                               uint64_t	seed_start_s,
+                                               LocalGearyCoordinator* local_geary_coord_s,
+                                               wxMutex* worker_list_mutex_s,
+                                               wxCondition* worker_list_empty_cond_s,
+                                               std::list<wxThread*> *worker_list_s,
+                                               int thread_id_s)
+: wxThread(),
+W(W_),
+undefs(undefs_),
+obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
+local_geary_coord(local_geary_coord_s),
+worker_list_mutex(worker_list_mutex_s),
+worker_list_empty_cond(worker_list_empty_cond_s),
+worker_list(worker_list_s),
+thread_id(thread_id_s)
+{
+}
+
+LocalGearyWorkerThread::~LocalGearyWorkerThread()
+{
+}
+
+wxThread::ExitCode LocalGearyWorkerThread::Entry()
+{
+    LOG_MSG(wxString::Format("LocalGearyWorkerThread %d started", thread_id));
+    
+    // call work for assigned range of observations
+    local_geary_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
+    
+    wxMutexLocker lock(*worker_list_mutex);
+    
+    // remove ourself from the list
+    worker_list->remove(this);
+    
+    // if empty, signal on empty condition since only main thread
+    // should be waiting on this condition
+    if (worker_list->empty()) {
+        worker_list_empty_cond->Signal();
+    }
+    
+    return NULL;
+}
+
 LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id, Project* project, const vector<GdaVarTools::VarInfo>& var_info_s, const vector<int>& col_ids, LocalGearyType local_geary_type_s, bool calc_significances_s, bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
@@ -742,15 +788,14 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vect
     
 	int obs_start = 0;
 	int obs_end = obs_start + work_chunk;
-	
+
+    bool is_thread_error = false;
 	int quotient = num_obs / nCPUs;
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
 	if (!reuse_last_seed) last_seed_used = time(0);
     
-    boost::thread_group threadPool;
-    
-	for (int i=0; i<tot_threads; i++) {
+	for (int i=0; i<tot_threads && !is_thread_error; i++) {
 		int a=0;
 		int b=0;
 		if (i < remainder) {
@@ -762,13 +807,35 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vect
 		}
 		uint64_t seed_start = last_seed_used + a;
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-		
-        boost::thread* worker = new boost::thread(boost::bind(&LocalGearyCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
-        threadPool.add_thread(worker);
+        int thread_id = i+1;
+        LocalGearyWorkerThread* thread =
+        new LocalGearyWorkerThread(W, undefs, a, b, seed_start, this,
+                                   &worker_list_mutex,
+                                   &worker_list_empty_cond,
+                                   &worker_list, thread_id);
+        if ( thread->Create() != wxTHREAD_NO_ERROR ) {
+            delete thread;
+            is_thread_error = true;
+        } else {
+            worker_list.push_front(thread);
+        }
 	}
-    
-    threadPool.join_all();
-    
+    if (is_thread_error) {
+        // fall back to single thread calculation mode
+        CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
+    } else {
+        std::list<wxThread*>::iterator it;
+        for (it = worker_list.begin(); it != worker_list.end(); it++) {
+            (*it)->Run();
+        }
+        
+        while (!worker_list.empty()) {
+            // wait until thread_list might be empty
+            worker_list_empty_cond.Wait();
+            // We have been woken up. If this was not a false
+            // alarm (sprious signal), the loop will exit.
+        }
+    }
     wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_threaded()");
 }
 
