@@ -156,8 +156,18 @@ void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
     colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
     colors.push_back(wxColour(0, 0, 255));
-    colors.push_back(wxColour(255, 150, 150));
     colors.push_back(wxColour(150, 150, 255));
+    colors.push_back(wxColour(255, 150, 150));
+}
+
+void GdaColorUtils::GetLISAColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+    labels.push_back(GdaConst::gda_lbl_lowhigh);
+    labels.push_back(GdaConst::gda_lbl_highlow);
 }
 
 void GdaColorUtils::GetLocalGColors(std::vector<wxColour>& colors)
@@ -167,12 +177,27 @@ void GdaColorUtils::GetLocalGColors(std::vector<wxColour>& colors)
     colors.push_back(wxColour(255, 0, 0));
     colors.push_back(wxColour(0, 0, 255));
 }
+void GdaColorUtils::GetLocalGColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highlow);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+}
+
 void GdaColorUtils::GetLocalJoinCountColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(255, 0, 0));
 }
+void GdaColorUtils::GetLocalJoinCountColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highlow);
+}
+
 void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
 {
     colors.clear();
@@ -181,32 +206,81 @@ void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
     colors.push_back(wxColour(239,138,98));
     colors.push_back(wxColour(253,219,199));
     colors.push_back(wxColour(103,173,199));
-    
 }
+void GdaColorUtils::GetLocalGearyColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highlow);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+    labels.push_back(GdaConst::gda_lbl_otherpos);
+    labels.push_back(GdaConst::gda_lbl_negative);
+}
+
 void GdaColorUtils::GetMultiLocalGearyColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(51,110,161));
 }
+void GdaColorUtils::GetMultiLocalGearyColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_positive);
+}
+
 void GdaColorUtils::GetPercentileColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
     colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
+void GdaColorUtils::GetPercentileColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_1p);
+    labels.push_back(GdaConst::gda_lbl_1p_10p);
+    labels.push_back(GdaConst::gda_lbl_10p_50p);
+    labels.push_back(GdaConst::gda_lbl_50p_90p);
+    labels.push_back(GdaConst::gda_lbl_90p_99p);
+    labels.push_back(GdaConst::gda_lbl_99p);
+}
+
 void GdaColorUtils::GetBoxmapColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
     colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
+void GdaColorUtils::GetBoxmapColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_loweroutlier);
+    labels.push_back(GdaConst::gda_lbl_25p);
+    labels.push_back(GdaConst::gda_lbl_25p_50p);
+    labels.push_back(GdaConst::gda_lbl_50p_75p);
+    labels.push_back(GdaConst::gda_lbl_75p);
+    labels.push_back(GdaConst::gda_lbl_upperoutlier);
+}
+
 void GdaColorUtils::GetStddevColors(std::vector<wxColour>& colors)
 {
     colors.clear();
     CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
     colors.insert(colors.begin(), wxColour(240, 240, 240));
 }
+void GdaColorUtils::GetStddevColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_n2sigma);
+    labels.push_back(GdaConst::gda_lbl_n2sigma_n1sigma);
+    labels.push_back(GdaConst::gda_lbl_n1sigma);
+    labels.push_back(GdaConst::gda_lbl_1sigma);
+    labels.push_back(GdaConst::gda_lbl_1sigma_2sigma);
+    labels.push_back(GdaConst::gda_lbl_2sigma);
+}
+
 void GdaColorUtils::GetQuantile2Colors(std::vector<wxColour>& colors)
 {
     colors.clear();

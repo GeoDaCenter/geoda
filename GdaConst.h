@@ -296,7 +296,37 @@ public:
 	static const wxColour highlight_color; // yellow
 	static const wxColour canvas_background_color; // white
 	static const wxColour legend_background_color; // white
-	
+
+    // Strings
+    static const wxString gda_lbl_not_sig;
+    static const wxString gda_lbl_undefined;
+    static const wxString gda_lbl_neighborless;
+    static const wxString gda_lbl_highhigh;
+    static const wxString gda_lbl_lowlow;
+    static const wxString gda_lbl_lowhigh;
+    static const wxString gda_lbl_highlow;
+    static const wxString gda_lbl_otherpos;
+    static const wxString gda_lbl_negative;
+    static const wxString gda_lbl_positive;
+    static const wxString gda_lbl_1p;
+    static const wxString gda_lbl_1p_10p;
+    static const wxString gda_lbl_10p_50p;
+    static const wxString gda_lbl_50p_90p;
+    static const wxString gda_lbl_90p_99p;
+    static const wxString gda_lbl_99p;
+    static const wxString gda_lbl_loweroutlier;
+    static const wxString gda_lbl_25p;
+    static const wxString gda_lbl_25p_50p;
+    static const wxString gda_lbl_50p_75p;
+    static const wxString gda_lbl_75p;
+    static const wxString gda_lbl_upperoutlier;
+    static const wxString gda_lbl_n2sigma;
+    static const wxString gda_lbl_n2sigma_n1sigma;
+    static const wxString gda_lbl_n1sigma;
+    static const wxString gda_lbl_1sigma;
+    static const wxString gda_lbl_1sigma_2sigma;
+    static const wxString gda_lbl_2sigma;
+    
 	// Preferences
     static wxString gda_user_email;
     static uint64_t gda_user_seed;

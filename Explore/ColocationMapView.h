@@ -55,6 +55,7 @@ public:
     void clear_colo_control();
     void add_colo_control(bool is_new=false);
     wxColour get_a_color(wxString label);
+    wxString get_a_label(wxString label);
     bool check_colocations();
    
     void update_grid();
@@ -79,7 +80,9 @@ protected:
     int base_choice_id;
     
     std::vector<wxColour> m_colors;
+    std::vector<wxColour> m_labels;
     std::vector<wxColour> m_predef_colors;
+    std::vector<wxString> m_predef_labels;
     
     std::map<wxInt64, std::vector<int> > co_val_dict;
     
@@ -95,6 +98,7 @@ public:
                         Project* project,
                         vector<wxString>& co_vals,
                         vector<wxColour>& co_clrs,
+                        vector<wxString>& co_lbls,
                         vector<vector<int> >& co_ids,
                         CatClassification::CatClassifType theme_type,
                         const wxPoint& pos = wxDefaultPosition,
@@ -113,6 +117,7 @@ public:
 
     vector<wxString> co_vals;
     vector<wxColour> co_clrs;
+    vector<wxString> co_lbls;
     vector<vector<int> > co_ids;
     
 	DECLARE_EVENT_TABLE()
@@ -127,6 +132,7 @@ public:
                        Project* project,
                        vector<wxString>& co_vals,
                        vector<wxColour>& co_clrs,
+                       vector<wxString>& co_lbls,
                        vector<vector<int> >& co_ids,
                        const wxPoint& pos = wxDefaultPosition,
                        const wxSize& size = GdaConst::map_default_size,
