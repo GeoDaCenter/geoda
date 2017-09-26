@@ -765,6 +765,8 @@ bool OGRLayerProxy::ReadData()
             if (my_geom == NULL) {
                 n_rows -= 1;
             }
+        } else {
+            break;
         }
     }
     // create copies of OGRFeatures

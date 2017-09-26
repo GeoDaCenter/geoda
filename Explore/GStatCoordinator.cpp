@@ -231,6 +231,7 @@ void GStatCoordinator::DeallocateVectors()
     }
     Gal_vecs.clear();
     x_undefs.clear();
+    Gal_vecs_orig.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
@@ -333,7 +334,7 @@ void GStatCoordinator::InitFromVarInfo()
     
 	for (int t=0; t<num_time_vals; t++) {
         GalElement* W  = NULL;
-        if (Gal_vecs.empty() || Gal_vecs[t] == NULL) {
+        if (!Gal_vecs.empty() && Gal_vecs[t] == NULL) {
             // local weights copy
             GalWeight* gw = NULL;
             if ( has_undefined[t] ) {

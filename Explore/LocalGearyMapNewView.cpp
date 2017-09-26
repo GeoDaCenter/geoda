@@ -66,7 +66,7 @@ is_bi(isBivariate),
 is_rate(isEBRate),
 is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::differential)
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::LocalGearyMapCanvas");
+	wxLogMessage("Entering LocalGearyMapCanvas::LocalGearyMapCanvas()");
 
     str_not_sig = _("Not Significant");
     str_highhigh = _("High-High");
@@ -104,30 +104,30 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
 	CreateAndUpdateCategories();
 	
     UpdateStatusBar();
-	LOG_MSG("Exiting LocalGearyMapCanvas::LocalGearyMapCanvas");
+    
+	wxLogMessage("Exiting LocalGearyMapCanvas::LocalGearyMapCanvas()");
 }
 
 LocalGearyMapCanvas::~LocalGearyMapCanvas()
 {
-	LOG_MSG("In LocalGearyMapCanvas::~LocalGearyMapCanvas");
+	wxLogMessage("In LocalGearyMapCanvas::~LocalGearyMapCanvas");
 }
 
 void LocalGearyMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Entering LocalGearyMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((LocalGearyMapFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting LocalGearyMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Exiting LocalGearyMapCanvas::DisplayRightClickMenu");
 }
 
 wxString LocalGearyMapCanvas::GetCanvasTitle()
@@ -174,7 +174,7 @@ bool
 LocalGearyMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                              SmoothingType new_map_smoothing)
 {
-	LOG_MSG("In LocalGearyMapCanvas::ChangeMapType");
+	wxLogMessage("In LocalGearyMapCanvas::ChangeMapType");
 	return false;
 }
 
@@ -206,7 +206,7 @@ void LocalGearyMapCanvas::SetCheckMarks(wxMenu* menu)
 
 void LocalGearyMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::TimeChange");
+	wxLogMessage("Entering LocalGearyMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -233,12 +233,13 @@ void LocalGearyMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LocalGearyMapCanvas::TimeChange");
+	wxLogMessage("Exiting LocalGearyMapCanvas::TimeChange");
 }
 
 /** Update Categories based on info in LocalGearyCoordinator */
 void LocalGearyMapCanvas::CreateAndUpdateCategories()
 {
+    wxLogMessage("Entering LocalGearyMapCanvas::CreateAndUpdateCategories()");
 	SyncVarInfoFromCoordinator();
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 	
@@ -508,16 +509,15 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             }
 		}
 		for (int cat=0; cat<num_cats; cat++) {
-			cat_data.SetCategoryCount(t, cat,
-									  cat_data.GetNumObsInCategory(t, cat));
+			cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
 		}
 	}
 	
 	if (ref_var_index != -1) {
-		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
-										- var_info[ref_var_index].time_min);
+		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time - var_info[ref_var_index].time_min);
 	}
 	PopulateCanvas();
+    wxLogMessage("Exiting LocalGearyMapCanvas::CreateAndUpdateCategories()");
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -525,6 +525,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
  ref_var_index, num_time_vales, map_valid and map_error_message */
 void LocalGearyMapCanvas::SyncVarInfoFromCoordinator()
 {
+	wxLogMessage("Entering LocalGearyMapCanvas::SyncVarInfoFromCoordinator");
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
 	var_info = local_geary_coord->var_info;
@@ -539,11 +540,13 @@ void LocalGearyMapCanvas::SyncVarInfoFromCoordinator()
 	num_time_vals = local_geary_coord->num_time_vals;
 	map_valid = local_geary_coord->map_valid;
 	map_error_message = local_geary_coord->map_error_message;
+    
+	wxLogMessage("Exiting LocalGearyMapCanvas::SyncVarInfoFromCoordinator");
 }
 
 void LocalGearyMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In LocalGearyMapCanvas::TimeSyncVariableToggle");
+	wxLogMessage("In LocalGearyMapCanvas::TimeSyncVariableToggle");
 	local_geary_coord->var_info[var_index].sync_with_global_time =
 		!local_geary_coord->var_info[var_index].sync_with_global_time;
 	for (int i=0; i<var_info.size(); i++) {
@@ -608,7 +611,7 @@ LocalGearyMapFrame::LocalGearyMapFrame(wxFrame *parent, Project* project,
 : MapFrame(parent, project, pos, size, style),
 local_geary_coord(local_geary_coordinator)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::LocalGearyMapFrame");
+	wxLogMessage("Entering LocalGearyMapFrame::LocalGearyMapFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -664,12 +667,12 @@ local_geary_coord(local_geary_coordinator)
     
 	local_geary_coord->registerObserver(this);
 	Show(true);
-	LOG_MSG("Exiting LocalGearyMapFrame::LocalGearyMapFrame");
+	wxLogMessage("Exiting LocalGearyMapFrame::LocalGearyMapFrame");
 }
 
 LocalGearyMapFrame::~LocalGearyMapFrame()
 {
-	LOG_MSG("In LocalGearyMapFrame::~LocalGearyMapFrame");
+	wxLogMessage("In LocalGearyMapFrame::~LocalGearyMapFrame");
 	if (local_geary_coord) {
 		local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
@@ -678,7 +681,7 @@ LocalGearyMapFrame::~LocalGearyMapFrame()
 
 void LocalGearyMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In LocalGearyMapFrame::OnActivate");
+	wxLogMessage("In LocalGearyMapFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("LocalGearyMapFrame", GetTitle());
 	}
@@ -687,11 +690,10 @@ void LocalGearyMapFrame::OnActivate(wxActivateEvent& event)
 
 void LocalGearyMapFrame::MapMenus()
 {
-	LOG_MSG("In LocalGearyMapFrame::MapMenus");
+	wxLogMessage("In LocalGearyMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
@@ -724,11 +726,17 @@ void LocalGearyMapFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void LocalGearyMapFrame::RanXPer(int permutation)
 {
+    wxString msg;
+    msg << "Entering LocalGearyMapFrame::RanXPer() " << permutation;
+    wxLogMessage(msg);
+    
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
 	local_geary_coord->permutations = permutation;
 	local_geary_coord->CalcPseudoP();
 	local_geary_coord->notifyObservers();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::RanXPer()");
 }
 
 void LocalGearyMapFrame::OnRan99Per(wxCommandEvent& event)
@@ -768,12 +776,14 @@ void LocalGearyMapFrame::OnRanOtherPer(wxCommandEvent& event)
 
 void LocalGearyMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnUseSpecifiedSeed()");
 	local_geary_coord->SetReuseLastSeed(!local_geary_coord->IsReuseLastSeed());
+    wxLogMessage("Exiting LocalGearyMapFrame::OnUseSpecifiedSeed()");
 }
 
 void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
-    wxLogMessage("LocalGearyMapFrame::OnSpecifySeedDlg()");
+    wxLogMessage("Entering LocalGearyMapFrame::OnSpecifySeedDlg()");
     
 	uint64_t last_seed = local_geary_coord->GetLastUsedSeed();
 	wxString m;
@@ -805,14 +815,21 @@ void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSpecifySeedDlg()");
 }
 
 void LocalGearyMapFrame::SetSigFilterX(int filter)
 {
+    wxString msg;
+    msg << "Entering LocalGearyMapFrame::SetSigFilterX() " << filter;
+    wxLogMessage(msg);
+    
 	if (filter == local_geary_coord->GetSignificanceFilter()) return;
 	local_geary_coord->SetSignificanceFilter(filter);
 	local_geary_coord->notifyObservers();
 	UpdateOptionMenuItems();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::SetSigFilterX()");
 }
 
 void LocalGearyMapFrame::OnSigFilter05(wxCommandEvent& event)
@@ -837,6 +854,8 @@ void LocalGearyMapFrame::OnSigFilter0001(wxCommandEvent& event)
 
 void LocalGearyMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnSigFilterSetup()");
+    
     LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
     double* p = local_geary_coord->sig_local_geary_vecs[t];
@@ -858,10 +877,12 @@ void LocalGearyMapFrame::OnSigFilterSetup(wxCommandEvent& event)
         local_geary_coord->fdr = dlg.GetFDR();
         UpdateOptionMenuItems();
     }
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSigFilterSetup()");
 }
 
 void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnSaveLocalGeary()");
     
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
     LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*)template_canvas;
@@ -938,10 +959,14 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 					   "Save Results: LocalGeary",
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSaveLocalGeary()");
 }
 
 void LocalGearyMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::CoreSelectHelper()");
+    
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
@@ -959,11 +984,12 @@ void LocalGearyMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
+    wxLogMessage("Exiting LocalGearyMapFrame::CoreSelectHelper()");
 }
 
 void LocalGearyMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectCores");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectCores");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -979,12 +1005,12 @@ void LocalGearyMapFrame::OnSelectCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectCores");
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectCores");
 }
 
 void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -1011,12 +1037,12 @@ void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectNeighborsOfCores");
 }
 
 void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -1037,11 +1063,13 @@ void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectCoresAndNeighbors");
 }
 
 void LocalGearyMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 {
+	wxLogMessage("Entering LocalGearyMapFrame::OnAddNeighborToSelection");
+    
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
     GalWeight* gal_weights = local_geary_coord->Gal_vecs_orig[ts];
    
@@ -1074,10 +1102,13 @@ void LocalGearyMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
         hs.SetEventType(HLStateInt::delta);
         hs.notifyObservers();
     }
+	wxLogMessage("Exiting LocalGearyMapFrame::OnAddNeighborToSelection");
 }
 
 void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
+	wxLogMessage("In LocalGearyMapFrame::OnShowAsConditionalMap");
+    
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
                             false, false,
                             _("Conditional LocalGeary Map Variables"),
@@ -1104,6 +1135,8 @@ void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
    - new randomization for p-vals and therefore categories have changed */
 void LocalGearyMapFrame::update(LocalGearyCoordinator* o)
 {
+	wxLogMessage("In LocalGearyMapFrame::update");
+    
 	LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
@@ -1115,7 +1148,7 @@ void LocalGearyMapFrame::update(LocalGearyCoordinator* o)
 
 void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 {
-	LOG_MSG("In LocalGearyMapFrame::closeObserver(LocalGearyCoordinator*)");
+	wxLogMessage("In LocalGearyMapFrame::closeObserver(LocalGearyCoordinator*)");
 	if (local_geary_coord) {
 		local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
@@ -1125,6 +1158,8 @@ void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 
 void LocalGearyMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
+	wxLogMessage("In LocalGearyMapFrame::GetVizInfo()");
+    
 	if (local_geary_coord) {
 		if(local_geary_coord->sig_cat_vecs.size()>0) {
 			for (int i=0; i<local_geary_coord->num_obs;i++) {

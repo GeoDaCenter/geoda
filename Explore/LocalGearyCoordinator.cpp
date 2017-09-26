@@ -19,6 +19,7 @@
 
 #include <time.h>
 #include <math.h>
+#include <wx/log.h>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
 #include "../DataViewer/TableInterface.h"
@@ -33,86 +34,9 @@
 #include "LocalGearyCoordinatorObserver.h"
 #include "LocalGearyCoordinator.h"
 
-LocalGearyWorkerThread::LocalGearyWorkerThread(const GalElement* W_,
-                                   const std::vector<bool>& undefs_,
-                                   int obs_start_s, int obs_end_s,
-								   uint64_t	seed_start_s,
-								   LocalGearyCoordinator* local_geary_coord_s,
-								   wxMutex* worker_list_mutex_s,
-								   wxCondition* worker_list_empty_cond_s,
-								   std::list<wxThread*> *worker_list_s,
-								   int thread_id_s)
-: wxThread(),
-W(W_),
-undefs(undefs_),
-obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
-local_geary_coord(local_geary_coord_s),
-worker_list_mutex(worker_list_mutex_s),
-worker_list_empty_cond(worker_list_empty_cond_s),
-worker_list(worker_list_s),
-thread_id(thread_id_s)
-{
-}
+using namespace std;
 
-LocalGearyWorkerThread::~LocalGearyWorkerThread()
-{
-}
-
-wxThread::ExitCode LocalGearyWorkerThread::Entry()
-{
-	LOG_MSG(wxString::Format("LocalGearyWorkerThread %d started", thread_id));
-
-	// call work for assigned range of observations
-	local_geary_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
-	
-	wxMutexLocker lock(*worker_list_mutex);
-    
-	// remove ourself from the list
-	worker_list->remove(this);
-	
-    // if empty, signal on empty condition since only main thread
-	// should be waiting on this condition
-	if (worker_list->empty()) {
-		worker_list_empty_cond->Signal();
-	}
-	
-	return NULL;
-}
-
-/** 
- Since the user has the ability to synchronise either variable over time,
- we must be able to reapply weights and recalculate local_geary values as needed.
- 
- 1. We will have original data as complete space-time data for both variables
- 
- 2. From there we will work from info in var_info for both variables.  Must
-    determine number of time_steps for canvas.
- 
- 3. Adjust data1(2)_vecs sizes and initialize from data.
- 
- 3.5. Resize localGeary, siglocalGeary, sigCat, and cluster arrays
- 
- 4. If rates, then calculate rates for working_data1
- 
- 5. Standardize working_data1 (and 2 if bivariate)
- 
- 6. Compute LocalGeary for all time-stesp and save in localGeary sp/time array
- 
- 7. Calc Pseudo P for all time periods.  Results saved in siglocalGeary,
-    sigCat and cluster arrays
- 
- 8. Notify clients that values have been updated.
-   
- */
-
-LocalGearyCoordinator::
-LocalGearyCoordinator(boost::uuids::uuid weights_id,
-                Project* project,
-                const std::vector<GdaVarTools::VarInfo>& var_info_s,
-                const std::vector<int>& col_ids,
-                LocalGearyType local_geary_type_s,
-                bool calc_significances_s,
-                bool row_standardize_s)
+LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id, Project* project, const vector<GdaVarTools::VarInfo>& var_info_s, const vector<int>& col_ids, LocalGearyType local_geary_type_s, bool calc_significances_s, bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -124,46 +48,36 @@ isBivariate(local_geary_type_s == bivariate),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true),
+last_seed_used(123456789),
+reuse_last_seed(true),
 row_standardize(row_standardize_s)
 {
+    wxLogMessage("In LocalGearyCoordinator::LocalGearyCoordinator()");
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
         last_seed_used = GdaConst::gda_user_seed;
     }
-    
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
         table_int->GetColUndefined(col_ids[i], undef_data[i]);
         var_info[i].is_moran = true;
 	}
-    
     num_vars = var_info.size();
-    
 	weight_name = w_man_int->GetLongDispName(w_id);
-    
     weights = w_man_int->GetGal(w_id);
-    
 	SetSignificanceFilter(1);
-    
 	InitFromVarInfo();
 	w_man_state->registerObserver(this);
 }
 
-LocalGearyCoordinator::
-LocalGearyCoordinator(wxString weights_path,
-                int n,
-                std::vector<std::vector<double> >& vars,
-                int permutations_s,
-                bool calc_significances_s,
-                bool row_standardize_s)
+LocalGearyCoordinator::LocalGearyCoordinator(wxString weights_path, int n, vector<vector<double> >& vars, int permutations_s, bool calc_significances_s, bool row_standardize_s)
 {
+    wxLogMessage("In LocalGearyCoordinator::LocalGearyCoordinator()2");
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
         last_seed_used = GdaConst::gda_user_seed;
     }
-    
     isBivariate = false;
     num_obs = n;
     num_time_vals = 1;
@@ -172,8 +86,6 @@ LocalGearyCoordinator(wxString weights_path,
     row_standardize = row_standardize_s;
     last_seed_used = 0;
     reuse_last_seed = false;
-    
-    // std::vector<GdaVarTools::VarInfo> var_info;
     num_vars = vars.size();
     
     if (num_vars == 1) {
@@ -197,14 +109,12 @@ LocalGearyCoordinator(wxString weights_path,
         var_info[i].time_max = 0;
         var_info[i].time_min = 0;
     }
-    
     for (int i=0; i < num_vars; i++) {
         for (int j=0; j<num_obs; j++) {
             data[i][0][j] = vars[i][j];
             undef_data[i][0][j] = false;
         }
     }
-    
     // create weights
     w_man_state = NULL;
     w_man_int = NULL;
@@ -216,7 +126,6 @@ LocalGearyCoordinator(wxString weights_path,
     } else {
         tempGal = WeightUtils::ReadGwtAsGal(weights_path, NULL);
     }
-    
     weights = new GalWeight();
     weights->num_obs = num_obs;
     weights->wflnm = weights_path;
@@ -229,6 +138,7 @@ LocalGearyCoordinator(wxString weights_path,
 
 LocalGearyCoordinator::~LocalGearyCoordinator()
 {
+    wxLogMessage("In LocalGearyCoordinator::~LocalGearyCoordinator()");
     if (w_man_state) {
         w_man_state->removeObserver(this);
     }
@@ -237,6 +147,7 @@ LocalGearyCoordinator::~LocalGearyCoordinator()
 
 void LocalGearyCoordinator::DeallocateVectors()
 {
+    wxLogMessage("In LocalGearyCoordinator::DeallocateVectors()");
 	for (int i=0; i<lags_vecs.size(); i++) {
 		if (lags_vecs[i]) delete [] lags_vecs[i];
 	}
@@ -295,11 +206,14 @@ void LocalGearyCoordinator::DeallocateVectors()
         }
     }
     Gal_vecs.clear();
+    
+    Gal_vecs_orig.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
 void LocalGearyCoordinator::AllocateVectors()
 {
+    wxLogMessage("In LocalGearyCoordinator::AllocateVectors()");
 	int tms = num_time_vals;
     
 	lags_vecs.resize(tms);
@@ -308,6 +222,8 @@ void LocalGearyCoordinator::AllocateVectors()
 	sig_cat_vecs.resize(tms);
 	cluster_vecs.resize(tms);
     undef_tms.resize(tms);
+    Gal_vecs.resize(tms);
+    Gal_vecs_orig.resize(tms);
    
     if (local_geary_type == multivariate) {
         data_vecs.resize(num_vars);
@@ -321,7 +237,6 @@ void LocalGearyCoordinator::AllocateVectors()
                 data_square_vecs[i][j] = new double[num_obs];
             }
         }
-    
     } else {
     	data1_vecs.resize(tms);
     	data1_square_vecs.resize(tms);
@@ -357,6 +272,7 @@ void LocalGearyCoordinator::AllocateVectors()
  num_time_vals are first updated based on var_info */ 
 void LocalGearyCoordinator::InitFromVarInfo()
 {
+    wxLogMessage("In LocalGearyCoordinator::InitFromVarInfo()");
 	DeallocateVectors();
 	
 	num_time_vals = 1;
@@ -380,7 +296,6 @@ void LocalGearyCoordinator::InitFromVarInfo()
             }
         }
     }
-	
 	AllocateVectors();
 	
     if (local_geary_type == differential) {
@@ -415,14 +330,12 @@ void LocalGearyCoordinator::InitFromVarInfo()
             for (int j=0; j<tms_at_var; j++) {
                 for (int k=0; k<num_obs; k++) {
                     data_vecs[i][j][k] = data[i][j][k];
-                    // x2 = z * z (after standardization)
-                    //data_square_vecs[i][j][k] = data[i][j][k] * data[i][j][k];
                 }
             }
         }
             
 	} else { // local_geary_type == eb_rate_standardized
-		std::vector<bool> undef_res(num_obs, false);
+		vector<bool> undef_res(num_obs, false);
 		double* smoothed_results = new double[num_obs];
 		double* E = new double[num_obs]; // E corresponds to var_info[0]
 		double* P = new double[num_obs]; // P corresponds to var_info[1]
@@ -487,6 +400,7 @@ void LocalGearyCoordinator::InitFromVarInfo()
 
 void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
 {
+    wxLogMessage("In LocalGearyCoordinator::GetRawData()");
     if (local_geary_type == differential) {
         int t=0;
         for (int i=0; i<num_obs; i++) {
@@ -505,7 +419,7 @@ void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
             }
         }
     } else { // local_geary_type == eb_rate_standardized
-        std::vector<bool> undef_res(num_obs, false);
+        vector<bool> undef_res(num_obs, false);
         double* smoothed_results = new double[num_obs];
         double* E = new double[num_obs]; // E corresponds to var_info[0]
         double* P = new double[num_obs]; // P corresponds to var_info[1]
@@ -517,9 +431,7 @@ void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
         for (int i=0; i<num_obs; i++) {
             P[i] = data[1][time][i];
         }
-        bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
-                                                  smoothed_results,
-                                                  undef_res);
+        bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E, smoothed_results, undef_res);
         if (success) {
             for (int i=0; i<num_obs; i++) {
                 data1[i] = smoothed_results[i];
@@ -535,6 +447,7 @@ void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void LocalGearyCoordinator::VarInfoAttributeChange()
 {
+    wxLogMessage("In LocalGearyCoordinator::VarInfoAttributeChange()");
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
@@ -554,11 +467,11 @@ void LocalGearyCoordinator::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void LocalGearyCoordinator::StandardizeData()
 {
+    wxLogMessage("In LocalGearyCoordinator::StandardizeData()");
     if (local_geary_type == multivariate) {
         // get undef_tms across multi-variables
     	for (int v=0; v<data_vecs.size(); v++) {
@@ -597,10 +510,10 @@ void LocalGearyCoordinator::StandardizeData()
 
 void LocalGearyCoordinator::CalcMultiLocalGeary()
 {
+    wxLogMessage("In LocalGearyCoordinator::CalcMultiLocalGeary()");
     for (int t=0; t<num_time_vals; t++) {
-        
         // get undefs of objects/values at this time step
-        std::vector<bool> undefs;
+        vector<bool> undefs;
         bool has_undef = false;
         for (int i=0; i<num_obs; i++){
             bool is_undef = false;
@@ -625,17 +538,17 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             gw = weights;
         }
         GalElement* W = gw->gal;
-        Gal_vecs.push_back(gw);
-        Gal_vecs_orig.push_back(weights);
+        Gal_vecs[t] = gw;
+        Gal_vecs_orig[t] = weights;
       
         
         // local geary
         lags = lags_vecs[t];
-        localGeary = local_geary_vecs[t];
-        cluster = cluster_vecs[t];
         has_isolates[t] = false;
+        cluster = cluster_vecs[t];
+        localGeary = local_geary_vecs[t];
         
-        std::vector<int> local_t;
+        vector<int> local_t;
         for (int v=0; v<num_vars; v++) {
             if (data_vecs[v].size()==1) {
                 local_t.push_back(0);
@@ -668,21 +581,19 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             // assign the cluster
             if (W[i].Size() > 0) {
                 cluster[i] = 0; // don't assign cluster in multi-var settings
-                //if (data1[i] > 0 && lags[i] > 0) cluster[i] = 1;
-                //else if (data1[i] < 0 && lags[i] > 0) cluster[i] = 3;
-                //else if (data1[i] < 0 && lags[i] < 0) cluster[i] = 2;
-                //else cluster[i] = 4; //data1[i] > 0 && lags[i] < 0
             } else {
                 has_isolates[t] = true;
                 cluster[i] = 2; // neighborless
             }
         }
     }
+    wxLogMessage("End LocalGearyCoordinator::CalcMultiLocalGeary()");
 }
 
 /** assumes StandardizeData already called on data1 and data2 */
 void LocalGearyCoordinator::CalcLocalGeary()
 {
+    wxLogMessage("In LocalGearyCoordinator::CalcLocalGeary()");
 	for (int t=0; t<num_time_vals; t++) {
 		data1 = data1_vecs[t];
         data1_square = data1_square_vecs[t];
@@ -699,7 +610,7 @@ void LocalGearyCoordinator::CalcLocalGeary()
 		has_isolates[t] = false;
     
         // get undefs of objects/values at this time step
-        std::vector<bool> undefs;
+        vector<bool> undefs;
         bool has_undef = false;
         for (int i=0; i<undef_data[0][t].size(); i++){
             bool is_undef = undef_data[0][t][i];
@@ -722,8 +633,8 @@ void LocalGearyCoordinator::CalcLocalGeary()
             gw = weights;
         }
         GalElement* W = gw->gal;
-        Gal_vecs.push_back(gw);
-        Gal_vecs_orig.push_back(weights);
+        Gal_vecs[t] = gw;
+        Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
             
@@ -759,19 +670,16 @@ void LocalGearyCoordinator::CalcLocalGeary()
 			}
 		}
 	}
+    wxLogMessage("End LocalGearyCoordinator::CalcLocalGeary()");
 }
 
 void LocalGearyCoordinator::CalcPseudoP()
 {
-	if (!calc_significances) return;
-	wxStopWatch sw;
+    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP()");
+	if (!calc_significances)
+        return;
+    
 	int nCPUs = wxThread::GetCPUCount();
-	
-	// To ensure thread safety, only work on one time slice of data
-	// at a time.  For each time period t:
-	// 1. copy data for time period t into data1 and data2 arrays
-	// 2. Perform multi-threaded computation
-	// 3. copy results into results array
 	
     if (local_geary_type == multivariate) {
         current_data.resize(num_vars);
@@ -779,9 +687,7 @@ void LocalGearyCoordinator::CalcPseudoP()
     }
 	
 	for (int t=0; t<num_time_vals; t++) {
-        
-        std::vector<bool>& undefs = undef_tms[t];
-        
+        vector<bool>& undefs = undef_tms[t];
         if (local_geary_type == multivariate) {
             for (int v=0; v<num_vars; v++) {
                 int _t = data_vecs[v].size() == 1 ? 0 : t;
@@ -805,28 +711,18 @@ void LocalGearyCoordinator::CalcPseudoP()
 		cluster = cluster_vecs[t];
 		
 		if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
-            if (!reuse_last_seed) {
-                last_seed_used = time(0);
-            }
+            if (!reuse_last_seed)  last_seed_used = time(0);
 			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
 		} else {
 			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
 		}
 	}
-    
-    
-	{
-		wxString m;
-		m << "LocalGeary on " << num_obs << " obs with " << permutations;
-		m << " perms over " << num_time_vals << " time periods took ";
-		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
-	}
-	LOG_MSG("Exiting LocalGearyCoordinator::CalcPseudoP");
+    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP()");
 }
 
-void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W,
-                                           const std::vector<bool>& undefs)
+void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vector<bool>& undefs)
 {
+    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP_threaded()");
 	int nCPUs = wxThread::GetCPUCount();
 	
 	// mutext protects access to the worker_list
@@ -837,28 +733,24 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W,
 	
     // List of all the threads currently alive.  As soon as the thread
 	// terminates, it removes itself from the list.
-	std::list<wxThread*> worker_list;
+	list<wxThread*> worker_list;
 	
 	// divide up work according to number of observations
 	// and number of CPUs
 	int work_chunk = num_obs / nCPUs;
-    
-    if (work_chunk == 0) {
-        work_chunk = 1;
-    }
+    if (work_chunk == 0) work_chunk = 1;
     
 	int obs_start = 0;
 	int obs_end = obs_start + work_chunk;
 	
-	bool is_thread_error = false;
 	int quotient = num_obs / nCPUs;
 	int remainder = num_obs % nCPUs;
 	int tot_threads = (quotient > 0) ? nCPUs : remainder;
-	
-    //boost::thread_group threadPool;
-    
 	if (!reuse_last_seed) last_seed_used = time(0);
-	for (int i=0; i<tot_threads && !is_thread_error; i++) {
+    
+    boost::thread_group threadPool;
+    
+	for (int i=0; i<tot_threads; i++) {
 		int a=0;
 		int b=0;
 		if (i < remainder) {
@@ -870,51 +762,19 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		}
 		uint64_t seed_start = last_seed_used + a;
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-		int thread_id = i+1;
-		wxString msg;
-		msg << "thread " << thread_id << ": " << a << "->" << b;
-		msg << ", seed: " << seed_start << "->" << seed_end;
 		
-        /*
-         boost::thread* worker = new boost::thread(boost::bind(&LocalGearyCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
-         threadPool.add_thread(worker);
-         */
-		LocalGearyWorkerThread* thread =
-			new LocalGearyWorkerThread(W, undefs, a, b, seed_start, this,
-								 &worker_list_mutex,
-								 &worker_list_empty_cond,
-								 &worker_list, thread_id);
-		if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-			delete thread;
-			is_thread_error = true;
-		} else {
-			worker_list.push_front(thread);
-		}
+        boost::thread* worker = new boost::thread(boost::bind(&LocalGearyCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
+        threadPool.add_thread(worker);
 	}
-	if (is_thread_error) {
-		// fall back to single thread calculation mode
-		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
-	} else {
-		std::list<wxThread*>::iterator it;
-		for (it = worker_list.begin(); it != worker_list.end(); it++) {
-			(*it)->Run();
-		}
-	
-		while (!worker_list.empty()) {
-			// wait until thread_list might be empty
-			worker_list_empty_cond.Wait();
-			// We have been woken up. If this was not a false
-			// alarm (sprious signal), the loop will exit.
-		}
-	}
-    //threadPool.join_all();
+    
+    threadPool.join_all();
+    
+    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_threaded()");
 }
 
-void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
-                                        const std::vector<bool>& undefs,
-                                        int obs_start, int obs_end,
-										uint64_t seed_start)
+void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W, const vector<bool>& undefs, int obs_start, int obs_end, uint64_t seed_start)
 {
+    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP_range()");
 	GeoDaSet workPermutation(num_obs);
 	//Randik rng;
 	int max_rand = num_obs-1;
@@ -1056,10 +916,12 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W,
             sigCat[cnt] = 5;
         }
 	}
+    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_range()");
 }
 
 void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
 {
+    wxLogMessage("In LocalGearyCoordinator::SetSignificanceFilter()");
     if (filter_id == -1) {
         // user input cutoff
         significance_filter = filter_id;
@@ -1079,6 +941,7 @@ void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
 
 void LocalGearyCoordinator::update(WeightsManState* o)
 {
+    wxLogMessage("In LocalGearyCoordinator::update(WeightsManState)");
     if (w_man_int) {
         weight_name = w_man_int->GetLongDispName(w_id);
     }
@@ -1086,14 +949,16 @@ void LocalGearyCoordinator::update(WeightsManState* o)
 
 int LocalGearyCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
 {
+    wxLogMessage("In LocalGearyCoordinator::numMustCloseToRemove()");
 	return id == w_id ? observers.size() : 0;
 }
 
 void LocalGearyCoordinator::closeObserver(boost::uuids::uuid id)
 {
+    wxLogMessage("In LocalGearyCoordinator::closeObserver()");
 	if (numMustCloseToRemove(id) == 0) return;
-	std::list<LocalGearyCoordinatorObserver*> obs_cpy = observers;
-	for (std::list<LocalGearyCoordinatorObserver*>::iterator i=obs_cpy.begin();
+	list<LocalGearyCoordinatorObserver*> obs_cpy = observers;
+	for (list<LocalGearyCoordinatorObserver*>::iterator i=obs_cpy.begin();
 		 i != obs_cpy.end(); ++i) {
 		(*i)->closeObserver(this);
 	}
@@ -1101,23 +966,24 @@ void LocalGearyCoordinator::closeObserver(boost::uuids::uuid id)
 
 void LocalGearyCoordinator::registerObserver(LocalGearyCoordinatorObserver* o)
 {
+    wxLogMessage("In LocalGearyCoordinator::registerObserver()");
+    
 	observers.push_front(o);
 }
 
 void LocalGearyCoordinator::removeObserver(LocalGearyCoordinatorObserver* o)
 {
-	LOG_MSG("Entering LocalGearyCoordinator::removeObserver");
+    wxLogMessage("In LocalGearyCoordinator::removeObserver()");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0) {
 		delete this;
 	}
-	LOG_MSG("Exiting LocalGearyCoordinator::removeObserver");
 }
 
 void LocalGearyCoordinator::notifyObservers()
 {
-	for (std::list<LocalGearyCoordinatorObserver*>::iterator  it=observers.begin();
+    wxLogMessage("In LocalGearyCoordinator::notifyObservers()");
+	for (list<LocalGearyCoordinatorObserver*>::iterator it=observers.begin();
 		 it != observers.end(); ++it) {
 		(*it)->update(this);
 	}
