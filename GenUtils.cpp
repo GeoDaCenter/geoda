@@ -128,7 +128,6 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
 void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
 {
     colors.clear();
-    colors.push_back(wxColour(240, 240, 240));
     colors.push_back(wxColour(166,206,227));
     colors.push_back(wxColour(31,120,180));
     colors.push_back(wxColour(178,223,138));
