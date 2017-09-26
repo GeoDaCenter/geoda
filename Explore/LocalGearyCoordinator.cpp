@@ -928,7 +928,6 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W, const vector<
             }
             gci_sum += gci[perm];
 		}
-		delete[] gci;
         
         // calc mean of gci
         double gci_mean = gci_sum / permutations;
@@ -966,7 +965,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W, const vector<
                     cluster[cnt] = 4;
             }
         }
-       
+        delete[] gci;
         int kp = local_geary_type == multivariate ? num_vars : 1;
 		siglocalGeary[cnt] = (countLarger+1.0)/(permutations+1);
         
