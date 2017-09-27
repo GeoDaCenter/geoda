@@ -94,6 +94,7 @@
         <bitmap2>gray/32x32/20.png</bitmap2>
       <tooltip>Conditional Plot</tooltip>
     </object>
+    <object class="separator"/>
     <object class="tool" name="ID_CLUSTERING_CHOICES">
         <bitmap>color/32x32/38.png</bitmap>
         <bitmap2>gray/32x32/38.png</bitmap2>

@@ -80,6 +80,9 @@
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
         <label>Geocode</label>
       </object>
+      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+          <label>Points from Table</label>
+      </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
         <label>Selection Tool</label>
@@ -418,33 +421,33 @@
           <label>Scatter Plot</label>
         </object>
       </object>
-      <object class="wxMenu" name="ID_CLUSTERING_MENU">
-          <label>Clusters</label>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
-              <label>PCA</label>
-          </object>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
-              <label>MDS</label>
-          </object>
-          <object class="separator"/>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
-              <label>K Means</label>
-          </object>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
-              <label>Hierarchical</label>
-          </object>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_SPECTRAL">
-              <label>Spectral Clustering</label>
-          </object>
-          <object class="separator"/>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
-              <label>REDCAP</label>
-          </object>
-          <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
-              <label>Max-p</label>
-          </object>
-      </object>
       <label>E&amp;xplore</label>
+    </object>
+    <object class="wxMenu" name="ID_CLUSTERING_MENU">
+        <label>Clusters</label>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_PCA">
+            <label>PCA</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
+            <label>MDS</label>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
+            <label>K Means</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
+            <label>Hierarchical</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_SPECTRAL">
+            <label>Spectral Clustering</label>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
+            <label>REDCAP</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_MAXP">
+            <label>Max-p</label>
+        </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>&amp;Space</label>
@@ -4010,6 +4013,9 @@
     <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
         <label>Geocode</label>
+      </object>
+      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+          <label>Points from Table</label>
       </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">

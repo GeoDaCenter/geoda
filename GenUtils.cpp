@@ -181,7 +181,7 @@ void GdaColorUtils::GetLocalGColorLabels(std::vector<wxString>& labels)
 {
     labels.clear();
     labels.push_back(GdaConst::gda_lbl_not_sig);
-    labels.push_back(GdaConst::gda_lbl_highlow);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
     labels.push_back(GdaConst::gda_lbl_lowlow);
 }
 
@@ -195,7 +195,7 @@ void GdaColorUtils::GetLocalJoinCountColorLabels(std::vector<wxString>& labels)
 {
     labels.clear();
     labels.push_back(GdaConst::gda_lbl_not_sig);
-    labels.push_back(GdaConst::gda_lbl_highlow);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
 }
 
 void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
@@ -211,7 +211,7 @@ void GdaColorUtils::GetLocalGearyColorLabels(std::vector<wxString>& labels)
 {
     labels.clear();
     labels.push_back(GdaConst::gda_lbl_not_sig);
-    labels.push_back(GdaConst::gda_lbl_highlow);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
     labels.push_back(GdaConst::gda_lbl_lowlow);
     labels.push_back(GdaConst::gda_lbl_otherpos);
     labels.push_back(GdaConst::gda_lbl_negative);

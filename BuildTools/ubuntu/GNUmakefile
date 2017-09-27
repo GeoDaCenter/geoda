@@ -83,6 +83,7 @@ build-geoda-mac:
 	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/libgeos-3.3.8.so
 	cp $(GEODA_HOME)/libraries/lib/libcurl.so.4.4.0 build/plugins/libcurl.so.4
 	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
+	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
 
 clean:

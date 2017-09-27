@@ -318,9 +318,11 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 								  IsDisplayStats());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES"),
 								  IsShowAxes());
+   
+    int t = var_info[0].time;
     
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), IS_VAR_STRING.empty());
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"), IS_VAR_STRING.empty());
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), !IS_VAR_STRING[t]);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"), !IS_VAR_STRING[t]);
     
 	
 	if (var_info[0].is_time_variant) {
