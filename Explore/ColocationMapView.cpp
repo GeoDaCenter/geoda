@@ -147,6 +147,7 @@ void ColocationSelectDlg::CreateControls()
     };
     wxStaticText* clrscheme_txt = new wxStaticText(panel, wxID_ANY, _("Select color scheme:"));
     clrscheme_choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 18, _schemes);
+    clrscheme_choice->SetSelection(0);
     wxBoxSizer *clrscheme_box = new wxBoxSizer(wxHORIZONTAL);
     clrscheme_box->Add(clrscheme_txt,0,wxALL, 5);
     clrscheme_box->Add(clrscheme_choice, 1, wxEXPAND|wxALL, 5);
