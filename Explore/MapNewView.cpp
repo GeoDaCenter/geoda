@@ -1638,7 +1638,7 @@ void MapCanvas::CreateAndUpdateCategories()
                 }
 				if (P[i] <= 0) {
 					//map_valid[t] = false;
-					map_error_message[t] = _T("Error: Base values contain non-positive numbers which will result in undefined values.");
+					map_error_message[t] = _("Error: Base values contain non-positive numbers which will result in undefined values.");
 					continue;
 				}
 			}
