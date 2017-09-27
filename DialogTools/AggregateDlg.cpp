@@ -49,7 +49,7 @@ BEGIN_EVENT_TABLE( AggregationDlg, wxDialog )
 	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"), AggregationDlg::OnExclListDClick )
 	EVT_CHOICE( XRCID("ID_CURRENT_KEY_CHOICE"), AggregationDlg::OnKeyChoice )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), AggregationDlg::OnKeyChoice )
-	EVT_BUTTON( XRCID("wxID_OK"), AggregationDlg::OnOKClick )
+	EVT_BUTTON( XRCID("wxID_AGGREGATE"), AggregationDlg::OnOKClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), AggregationDlg::OnCloseClick )
     EVT_CLOSE( AggregationDlg::OnClose )
 END_EVENT_TABLE()
@@ -339,7 +339,6 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         if (export_dlg->ShowModal() == wxID_OK) {
             wxMessageDialog dlg(this, _("Successful aggregation."), _("Success"), wxOK);
             dlg.ShowModal();
-            EndDialog(wxID_OK);
         }
         delete mem_table;
     } catch (GdaException& ex) {
@@ -478,7 +477,7 @@ void AggregationDlg::OnKeyChoice( wxCommandEvent& ev )
 void AggregationDlg::UpdateMergeButton()
 {
 	bool enable = m_count->GetValue() || (!m_include_list->IsEmpty() && m_current_key->GetSelection() != wxNOT_FOUND);
-	FindWindow(XRCID("wxID_OK"))->Enable(enable);
+	FindWindow(XRCID("wxID_AGGREGATE"))->Enable(enable);
    
     m_inc_all->Enable(!m_count->GetValue());
     m_inc_one->Enable(!m_count->GetValue());
