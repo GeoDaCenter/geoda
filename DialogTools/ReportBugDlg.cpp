@@ -148,7 +148,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, "System");
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(16, 2, 12, 15);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(17, 2, 12, 15);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -193,7 +193,6 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(box2, 0, wxALIGN_RIGHT);
 	slider2->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider2, this);
 
-
 	wxString lbl3 = _("Add basemap automatically:");
 	wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
@@ -213,11 +212,8 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
 	grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
 
-
-	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
-		wxTOP | wxBOTTOM, 20);
+	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1, wxTOP | wxBOTTOM, 20);
 	grid_sizer1->AddSpacer(10);
-
 
 	wxString lbl6 = _("Set transparency of highlighted objects in selection:");
 	wxStaticText* lbl_txt6 = new wxStaticText(vis_page, wxID_ANY, lbl6);
@@ -293,6 +289,25 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(cbox5, 0, wxALIGN_RIGHT);
 	cbox5->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableAutoUpgrade, this);
 
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Randomization:")), 1,
+                     wxTOP | wxBOTTOM, 20);
+    grid_sizer1->AddSpacer(10);
+    
+	wxString lbl16 = _("Use specified seed:");
+	wxStaticText* lbl_txt16 = new wxStaticText(vis_page, wxID_ANY, lbl16);
+	cbox6 = new wxCheckBox(vis_page, XRCID("PREF_USE_SPEC_SEED"), "", wxDefaultPosition);
+	grid_sizer1->Add(lbl_txt16, 1, wxEXPAND);
+	grid_sizer1->Add(cbox6, 0, wxALIGN_RIGHT);
+	cbox6->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnUseSpecifiedSeed, this);
+   
+	wxString lbl17 = _("Set seed for randomization:");
+	wxStaticText* lbl_txt17 = new wxStaticText(vis_page, wxID_ANY, lbl17);
+	txt_seed = new wxTextCtrl(vis_page, XRCID("PREF_SEED_VALUE"), "", wxDefaultPosition, wxSize(85, -1));
+	grid_sizer1->Add(lbl_txt17, 1, wxEXPAND);
+	grid_sizer1->Add(txt_seed, 0, wxALIGN_RIGHT);
+    txt_seed->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnSeedEnter, this);
+
+    
 	grid_sizer1->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
@@ -392,6 +407,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	GdaConst::show_csv_configure_in_merge = false;
 	GdaConst::enable_high_dpi_support = true;
     GdaConst::gdal_http_timeout = 5;
+    GdaConst::use_gda_user_seed= true;
+    GdaConst::gda_user_seed = 123456789;
     GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S";
     if (!GdaConst::gda_datetime_formats_str.empty()) {
         wxString patterns = GdaConst::gda_datetime_formats_str;
@@ -422,6 +439,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
 	ogr_adapt.AddEntry("enable_high_dpi_support", "1");
 	ogr_adapt.AddEntry("gdal_http_timeout", "5");
+	ogr_adapt.AddEntry("use_gda_user_seed", "1");
+	ogr_adapt.AddEntry("gda_user_seed", "123456789");
 	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S");
 }
 
@@ -455,6 +474,11 @@ void PreferenceDlg::SetupControls()
     
     txt23->SetValue(wxString::Format("%d", GdaConst::gdal_http_timeout));
     txt24->SetValue(GdaConst::gda_datetime_formats_str);
+    
+    cbox6->SetValue(GdaConst::use_gda_user_seed);
+    wxString t_seed;
+    t_seed << GdaConst::gda_user_seed;
+    txt_seed->SetValue(t_seed);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -613,7 +637,6 @@ void PreferenceDlg::ReadFromCache()
         GdaConst::gda_datetime_formats_str = patterns;
     }
     
-    // following are not in this UI, but still global variable
     vector<string> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
     if (!gda_user_seed.empty()) {
         long sel_l = 0;
@@ -634,6 +657,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
+    // following are not in this UI, but still global variable
     vector<string> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
         wxString email = gda_user_email[0];
@@ -859,7 +883,30 @@ void PreferenceDlg::OnEnableHDPISupport(wxCommandEvent& ev)
 		OGRDataAdapter::GetInstance().AddEntry("enable_high_dpi_support", "1");
 	}
 }
+void PreferenceDlg::OnUseSpecifiedSeed(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
+    }
+    else {
+        GdaConst::use_gda_user_seed = true;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+    }
+}
+void PreferenceDlg::OnSeedEnter(wxCommandEvent& ev)
+{
+    wxString val = txt_seed->GetValue();
+    long _val;
+    if (val.ToLong(&_val)) {
+        GdaConst::gda_user_seed = _val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
+//
+//
 ////////////////////////////////////////////////////////////////////////////////
 ReportResultDlg::ReportResultDlg(wxWindow* parent, wxString issue_url,
 	wxWindowID id,

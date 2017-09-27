@@ -100,6 +100,10 @@ protected:
     wxCheckBox* cbox4;
     // auto upgrade
     wxCheckBox* cbox5;
+    // use seed
+    wxCheckBox* cbox6;
+    // seed value
+    wxTextCtrl* txt_seed;
     // show recent
     wxCheckBox* cbox8;
     // show cvs in merge
@@ -136,6 +140,9 @@ protected:
     void OnHideTableSQLITE(wxCommandEvent& ev);
     void OnTimeoutInput(wxCommandEvent& ev);
     void OnDateTimeInput(wxCommandEvent& ev);
+    
+    void OnUseSpecifiedSeed(wxCommandEvent& ev);
+    void OnSeedEnter(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };
