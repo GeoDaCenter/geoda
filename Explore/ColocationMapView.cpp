@@ -84,7 +84,7 @@ void ColocationSelectDlg::update(TableState* o)
     clear_colo_control();
     
     InitVariableCombobox(combo_var, true);
-    wxMouseEvent ev;
+    wxCommandEvent ev;
     OnVarSelect(ev);
 }
 
@@ -185,7 +185,7 @@ void ColocationSelectDlg::CreateControls()
     // Events
     scrl->Bind(wxEVT_RIGHT_UP, &ColocationSelectDlg::OnRightUp, this);
 	clrscheme_choice->Bind(wxEVT_CHOICE, &ColocationSelectDlg::OnSchemeSelect, this);
-    combo_var->Bind(wxEVT_LEFT_UP, &ColocationSelectDlg::OnVarSelect, this);
+    combo_var->Bind(wxEVT_LISTBOX, &ColocationSelectDlg::OnVarSelect, this);
     okButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnClickClose, this);
 }
@@ -272,7 +272,7 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
     }
 }
 
-void ColocationSelectDlg::OnVarSelect( wxMouseEvent& event)
+void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
 {
     co_val_dict.clear();
     var_selections.Clear();
@@ -326,7 +326,7 @@ void ColocationSelectDlg::OnVarSelect( wxMouseEvent& event)
             }
         }
        
-        if (check_colocations()==false)
+        if (co_val_dict.empty())
             return;
         
         add_colo_control();
