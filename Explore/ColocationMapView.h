@@ -43,7 +43,7 @@ public:
     /** Does this observer allow Table/Geometry row additions and deletions. */
     virtual bool AllowObservationAddDelete(){ return true; }
     
-    void OnVarSelect( wxMouseEvent& event );
+    void OnVarSelect( wxCommandEvent& event );
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);

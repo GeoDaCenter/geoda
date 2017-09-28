@@ -712,7 +712,7 @@ void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
     } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();
     }
-    template_legend->Refresh();
+    template_legend->Recreate();
 }
 
 void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)

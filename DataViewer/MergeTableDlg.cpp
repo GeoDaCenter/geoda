@@ -56,7 +56,7 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
 	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"), MergeTableDlg::OnExclListDClick )
 	EVT_CHOICE( XRCID("ID_CURRENT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
-	EVT_BUTTON( XRCID("wxID_OK"), MergeTableDlg::OnMergeClick )
+	EVT_BUTTON( XRCID("wxID_MERGE"), MergeTableDlg::OnMergeClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), MergeTableDlg::OnCloseClick )
     EVT_CLOSE( MergeTableDlg::OnClose )
 END_EVENT_TABLE()
@@ -709,7 +709,6 @@ void MergeTableDlg::OuterJoinMerge()
         if (export_dlg->ShowModal() == wxID_OK) {
             wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
             dlg.ShowModal();
-            EndDialog(wxID_OK);
         }
         
         delete mem_table;
@@ -837,7 +836,6 @@ void MergeTableDlg::LeftJoinMerge()
 	wxMessageDialog dlg(this, _("File merged into Table successfully."),
 						_("Success"), wxOK );
 	dlg.ShowModal();
-	EndDialog(wxID_OK);
 }
 
 void MergeTableDlg::AppendNewField(wxString field_name,
@@ -974,5 +972,5 @@ void MergeTableDlg::UpdateMergeButton()
 					(m_key_val_rb->GetValue()==1 &&
 					 m_current_key->GetSelection() != wxNOT_FOUND &&
 					 m_import_key->GetSelection() != wxNOT_FOUND)));
-	FindWindow(XRCID("wxID_OK"))->Enable(enable);
+	FindWindow(XRCID("wxID_MERGE"))->Enable(enable);
 }

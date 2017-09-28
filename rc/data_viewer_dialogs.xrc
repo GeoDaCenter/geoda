@@ -1865,7 +1865,7 @@ All Rights Reserved</label>
               <object class="wxBoxSizer">
                   <orient>wxHORIZONTAL</orient>
                   <object class="sizeritem">
-                      <object class="wxButton" name="wxID_OK">
+                      <object class="wxButton" name="wxID_MERGE">
                           <label>&amp;Merge</label>
                       </object>
                       <flag>wxBOTTOM|wxLEFT|wxRIGHT</flag>
@@ -2065,7 +2065,7 @@ All Rights Reserved</label>
         <object class="wxBoxSizer">
           <orient>wxHORIZONTAL</orient>
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_OK">
+            <object class="wxButton" name="wxID_AGGREGATE">
               <label>Aggregate</label>
             </object>
             <flag>wxBOTTOM|wxLEFT|wxRIGHT</flag>
