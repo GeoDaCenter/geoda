@@ -476,6 +476,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         
+                        field_grid->SetReadOnly(row, COL_DD, true);
+                        
                     } else if (new_type == GdaConst::date_type ||
                                new_type == GdaConst::time_type ||
                                new_type == GdaConst::datetime_type) {
@@ -484,16 +486,22 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         
+                        field_grid->SetReadOnly(row, COL_DD, true);
+                        
                     } else if (new_type == GdaConst::double_type) {
                         // get data from old
                         vector<double> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         
+                        field_grid->SetReadOnly(row, COL_DD, false);
+                        
                     } else if (new_type == GdaConst::string_type) {
                         vector<wxString> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
+                        
+                        field_grid->SetReadOnly(row, COL_DD, true);
                     }
                     
                     vector<bool> undefined(num_rows, false);
