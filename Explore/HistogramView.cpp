@@ -257,7 +257,7 @@ int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifMana
         wxMenuItem* mi = menu2->Append(xrcid_hist_classification+j+1, titles[j]);
     }
     s = _("Histogram Classification");
-	menu->Prepend(wxID_ANY, s, menu2, s);
+	menu->Insert(1, wxID_ANY, s, menu2, s);
     return titles.size();
 }
 
