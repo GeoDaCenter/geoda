@@ -68,14 +68,14 @@ public:
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,640));
+                  const wxSize& size = wxSize(580,680));
     
     PreferenceDlg(wxWindow* parent,
                   HLStateInt* highlight_state,
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,640));
+                  const wxSize& size = wxSize(580,680));
  
     static void ReadFromCache();
     

@@ -124,7 +124,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     
 	wxString warn_msg;
 	wxString DUP_WARN = _("(Duplicate field name)");
-	wxString INV_WARN = _("()");
+	wxString INV_WARN = _("(Field name is not valid)");
 	
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
@@ -143,7 +143,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
 	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, wxEmptyString);
 	sizer->Add(txt_orest, 0);
     
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY, _("Suggested field name to match new table format:"));
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY, _("Suggested field name:"));
 	sizer->Add(txt_newname, 0, wxALIGN_LEFT|wxLEFT, 10);
     
 	wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
@@ -247,7 +247,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	int ncol = 4;
 	wxString warn_msg;
 	wxString DUP_WARN = _("(Duplicate field name)");
-	wxString INV_WARN = _("()");
+	wxString INV_WARN = _("(Field name is not valid)");
 	
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
@@ -266,7 +266,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "");
 	sizer->Add(txt_orest, 0);
 
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"Suggested field name to match new table format:");
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"Suggested field name:");
 	sizer->Add(txt_newname, 0, wxALIGN_LEFT, 15);
    
     wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
