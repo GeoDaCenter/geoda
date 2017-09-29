@@ -69,7 +69,7 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              OGRwkbGeometryType eGType,
                              int _n_rows)
 : layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
-eLayerType(eGType), load_progress(0), stop_reading(false)
+eLayerType(eGType), load_progress(0), stop_reading(false), export_progress(0)
 {
     if (n_rows==0) {
         n_rows = layer->GetFeatureCount();
@@ -671,7 +671,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             export_progress++;
         }
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-            wxString msg = wxString::Format(" Failed to create feature (%d/%d).", i + 1, n_data);
+            wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n", i + 1, n_data);
             error_message << msg << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;

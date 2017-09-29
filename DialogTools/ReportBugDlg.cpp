@@ -143,7 +143,7 @@ void PreferenceDlg::Init()
 	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
 	//  visualization tab
-	wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 580));
+	wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 620));
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
@@ -212,7 +212,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
 	grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
 
-	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1, wxTOP | wxBOTTOM, 20);
+	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1, wxTOP | wxBOTTOM, 10);
 	grid_sizer1->AddSpacer(10);
 
 	wxString lbl6 = _("Set transparency of highlighted objects in selection:");
@@ -250,7 +250,7 @@ void PreferenceDlg::Init()
 
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("System:")), 1,
-		wxTOP | wxBOTTOM, 20);
+		wxTOP | wxBOTTOM, 10);
 	grid_sizer1->AddSpacer(10);
 
 
@@ -290,7 +290,7 @@ void PreferenceDlg::Init()
 	cbox5->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableAutoUpgrade, this);
 
     grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Randomization:")), 1,
-                     wxTOP | wxBOTTOM, 20);
+                     wxTOP | wxBOTTOM, 10);
     grid_sizer1->AddSpacer(10);
     
 	wxString lbl16 = _("Use specified seed:");

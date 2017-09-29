@@ -546,6 +546,13 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                                                    is_update);
 		bool cont = true;
 		while ( new_layer->export_progress < prog_n_max ) {
+			if (new_layer->export_progress <0) {
+				std::ostringstream msg;
+				msg << "Save as data source (" << new_ds_name.ToStdString()
+				<< ") failed." << "\n\nDetails:"
+				<< new_layer->error_message.str();
+				throw GdaException(msg.str().c_str());
+			}
 			cont = prog_dlg.Update(new_layer->export_progress);
 			if ( !cont ) {
 				new_layer->stop_exporting = true;
