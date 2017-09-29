@@ -559,8 +559,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 	}
 	
     stringstream ss;
-    ss << std::setprecision(3);
-    if (useSciNotation) ss << std::scientific;
+    if (useSciNotation) ss << std::setprecision(3) << std::scientific;
+    else ss << std::setprecision(3) << std::fixed;
     
 	if (num_cats > num_obs) {
 		for (int t=0; t<num_time_vals; t++) {
