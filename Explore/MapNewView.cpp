@@ -1707,9 +1707,9 @@ void MapCanvas::CreateAndUpdateCategories()
 	
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
+        cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	}
     
-	cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
     
     if (IS_VAR_STRING)
         CatClassification::PopulateCatClassifData(cat_classif_def,
