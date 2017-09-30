@@ -27,6 +27,8 @@
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>
 
+#include <wx/wx.h>
+
 #include "OGRDataAdapter.h"
 #include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"
@@ -321,6 +323,7 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                                  OGRSpatialReference* spatial_ref,
 								 bool is_update)
 {
+    wxLogMessage("In OGRDataAdapter::ExportDataSource()");
     GdaConst::DataSourceType ds_type = IDataSource::FindDataSourceType(o_ds_format);
     
     // field identifier: a pair value <column pos, time step> to indicate how to
@@ -409,11 +412,13 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                                                  spatial_ref);
     }
 
+    wxLogMessage("start OGRLayerProxy::AddFreatures()");
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,
                                                   new_layer_proxy,
                                                   ogr_geometries,
                                                   table, selected_rows));
    
+    wxLogMessage("Out OGRDataAdapter::ExportDataSource()");
     return new_layer_proxy;
 }
 

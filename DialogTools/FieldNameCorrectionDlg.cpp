@@ -689,11 +689,12 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
 
 FieldNameCorrectionDlg::~FieldNameCorrectionDlg()
 {
-    wxLogMessage("Exit FieldNameCorrectionDlg");
+    wxLogMessage("In FieldNameCorrectionDlg");
     if (fieldPane) {
         delete fieldPane;
         fieldPane = 0;
     }
+    wxLogMessage("Out FieldNameCorrectionDlg");
 }
 
 
