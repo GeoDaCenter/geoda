@@ -316,6 +316,12 @@ public:
     virtual ~OGRColumnTime();
     
     virtual GdaConst::FieldType GetType() {return GdaConst::time_type;}
+    
+    virtual wxString GetValueAt(int row_idx,
+                                int disp_decimals=0,
+                                wxCSConv* m_wx_encoding=NULL);
+ 
+    virtual void SetValueAt(int row_idx, const wxString& value);
 };
 
 class OGRColumnDateTime: public OGRColumnDate
@@ -326,5 +332,11 @@ public:
     virtual ~OGRColumnDateTime();
     
     virtual GdaConst::FieldType GetType() {return GdaConst::datetime_type;}
+    
+    virtual wxString GetValueAt(int row_idx,
+                                int disp_decimals=0,
+                                wxCSConv* m_wx_encoding=NULL);
+    
+    virtual void SetValueAt(int row_idx, const wxString& value);
 };
 #endif
