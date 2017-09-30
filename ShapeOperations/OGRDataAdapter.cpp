@@ -26,6 +26,7 @@
 #include <boost/bind.hpp>
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>
+#include <wx/wx.h>
 
 #include <wx/wx.h>
 

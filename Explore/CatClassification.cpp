@@ -132,10 +132,8 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
                                             bool useScientificNotation)
 {
     stringstream s;
-    if (useScientificNotation)
-        s << std::setprecision(2) << std::scientific;
-    else
-        s << std::setprecision(3);
+    if (useScientificNotation) s << std::setprecision(3) << std::scientific;
+    else s << std::setprecision(3) << std::fixed;
     
 	int num_breaks = breaks.size();
 	int cur_intervals = num_breaks+1;
@@ -559,8 +557,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 	}
 	
     stringstream ss;
-    ss << std::setprecision(3);
-    if (useSciNotation) ss << std::scientific;
+    if (useSciNotation) ss << std::setprecision(3) << std::scientific;
+    else ss << std::setprecision(3) << std::fixed;
     
 	if (num_cats > num_obs) {
 		for (int t=0; t<num_time_vals; t++) {
@@ -773,24 +771,35 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					}
 					cat_data.AppendIdToCategory(t, cat, ind);
 				}
-				
+		
+                
 				for (int ival=0; ival<num_cats; ival++) {
+                    int start = 0;
+                    int end = 0;
+                    
                     ss.str("");
 					if (num_cats <= 1) {
                         ss << "";
 						cat_data.SetCategoryCount(t, ival, num_obs);
+                        
 					} else if (ival == 0) {
                         ss << "< " << cat_def.breaks[ival];
-						cat_data.SetCategoryCount(t, ival,
-									cat_data.GetNumObsInCategory(t, ival));
+						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        start = 0;
+                        end = cat_def.breaks[ival];
+                        
 					} else if (ival == num_cats-1 && num_cats != 2) {
                         ss << "> " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival,
-									cat_data.GetNumObsInCategory(t, ival));
+						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        start = cat_def.breaks[ival-1];
+                        end = cat_def.breaks[ival];
+                        
 					} else if (ival == num_cats-1 && num_cats == 2) {
                         ss << ">= " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival,
-												  cat_data.GetNumObsInCategory(t, ival));
+						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        start = cat_def.breaks[ival-1];
+                        end = cat_def.breaks[ival];
+                        
 					} else {
 						int num_breaks = num_cats-1;
 						int num_breaks_lower = (num_breaks+1)/2;
@@ -808,14 +817,11 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 						}
                         ss << a << cat_def.breaks[ival-1] << ", ";
                         ss << cat_def.breaks[ival] << b;
-						cat_data.SetCategoryCount(t, ival,
-									cat_data.GetNumObsInCategory(t, ival));
+						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        start = cat_def.breaks[ival-1];
+                        end = cat_def.breaks[ival];
 					}
-                    if (cat_def.names[ival].IsEmpty()) {
-                        cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
-                    } else {
-                        cat_data.SetCategoryLabel(t, ival, cat_def.names[ival]);
-                    }
+                    cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
 					cat_data.SetCategoryMinMax(t, ival,
 											   cat_min[ival], cat_max[ival]);
 				}
@@ -1208,7 +1214,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 		}
 	} else if (theme == natural_breaks) {
-		SetNaturalBreaksCats(num_cats, var, var_undef, cat_data, cats_valid);
+		SetNaturalBreaksCats(num_cats, var, var_undef, cat_data, cats_valid, CatClassification::sequential_color_scheme, useSciNotation);
         
 	} else if (theme == equal_intervals) {
 		for (int t=0; t<num_time_vals; t++) {
@@ -1641,7 +1647,8 @@ SetNaturalBreaksCats(int num_cats,
                      const std::vector<Gda::dbl_int_pair_vec_type>& var,
                      const std::vector<std::vector<bool> >& var_undef,
                      CatClassifData& cat_data, std::vector<bool>& cats_valid,
-                     CatClassification::ColorScheme coltype)
+                     CatClassification::ColorScheme coltype,
+                     bool useSciNotation)
 {
 	int num_time_vals = var.size();
 	int num_obs = var[0].size();
@@ -1734,7 +1741,8 @@ SetNaturalBreaksCats(int num_cats,
         
         if (undef_cnts_tms[t]>0)
             cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
-		
+	
+        /*
 		for (int i=0, nb=best_breaks.size(); i<=nb; i++) {
 			int ss = (i == 0) ? 0 : best_breaks[i-1];
 			int tt = (i == nb) ? v.size() : best_breaks[i];
@@ -1749,10 +1757,78 @@ SetNaturalBreaksCats(int num_cats,
 			l << "[" << GenUtils::DblToStr(var[t][ss].first);
 			l << ":" << GenUtils::DblToStr(var[t][end].first) << "]";
 			cat_data.SetCategoryLabel(t, i, l);
-			cat_data.SetCategoryCount(t, i, cat_data.GetNumObsInCategory(t, i));
-			cat_data.SetCategoryMinMax(t, i, var[t][ss].first,
-									   var[t][end].first);
+			
 		}
+       */
+        stringstream s;
+        
+        if (useSciNotation) s << std::setprecision(3) << std::scientific;
+        else s << std::setprecision(3) << std::fixed;
+        
+        int num_breaks = best_breaks.size();
+        int cur_intervals = num_breaks+1;
+        for (int ival=0; ival<cur_intervals; ++ival) {
+            int ss = 0;
+            int tt = 0;
+            int offset_ss = 0;
+            int offset_tt = 0;
+            s.str("");
+            if (cur_intervals <= 1) {
+                s << "";
+            } else if (ival == 0) {
+                ss = 0;
+                tt = best_breaks[ival];
+                s << "< " << var[t][tt].first;
+                
+            } else if (ival == cur_intervals-1 && cur_intervals != 2) {
+                ss = best_breaks[ival-1];
+                tt = v.size();
+                s << "> " << var[t][ss].first;
+                offset_ss = 1;
+                
+            } else if (ival == cur_intervals-1 && cur_intervals == 2) {
+                ss = best_breaks[ival-1];
+                tt = v.size();
+                
+                s << ">= " << var[t][ss].first;
+            } else {
+                int num_breaks = cur_intervals-1;
+                int num_breaks_lower = (num_breaks+1)/2;
+                wxString a;
+                wxString b;
+                if (ival < num_breaks_lower) {
+                    a = "[";
+                    b = ")";
+                    ss = best_breaks[ival-1];
+                    tt = best_breaks[ival];
+                } else if (ival == num_breaks_lower) {
+                    a = "[";
+                    b = "]";
+                    ss = best_breaks[ival-1];
+                    tt = best_breaks[ival];
+                    offset_tt = 1;
+                } else {
+                    a = "(";
+                    b = "]";
+                    ss = best_breaks[ival-1];
+                    tt = best_breaks[ival];
+                    offset_ss = 1;
+                    offset_tt = 1;
+                }
+                s << a << var[t][ss].first << ", ";
+                s << var[t][tt].first << b;
+            }
+            cat_data.SetCategoryLabel(t, ival, s.str());
+            for (int j=ss+offset_ss; j<tt+offset_tt; j++) {
+                double val = var[t][j].first;
+                int ind = var[t][j].second;
+                int c = var_undef[t][ind] ? t_cats : ival;
+                cat_data.AppendIdToCategory(t, c, ind);
+            }
+            int end = (ival == num_breaks) ? tt -1 : tt;
+            cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+            cat_data.SetCategoryMinMax(t, ival, var[t][ss].first, var[t][end].first);
+        }
 	}
 }
 

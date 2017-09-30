@@ -677,6 +677,7 @@ void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
         GdaConst::gda_datetime_formats.push_back(token);
     }
     GdaConst::gda_datetime_formats_str = formats_str;
+    OGRDataAdapter::GetInstance().AddEntry("gda_datetime_formats_str", formats_str.ToStdString());
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)

@@ -95,7 +95,8 @@ namespace CatClassification {
                               const std::vector<Gda::dbl_int_pair_vec_type>& var,
                               const std::vector<std::vector<bool> >& var_undef,
                               CatClassifData& cat_data, std::vector<bool>& cats_valid,
-                              ColorScheme coltype=CatClassification::sequential_color_scheme);
+                              ColorScheme coltype=CatClassification::sequential_color_scheme,
+                              bool useSciNotation=false);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	

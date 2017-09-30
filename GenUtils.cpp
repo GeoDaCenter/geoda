@@ -58,7 +58,9 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
         select_pattern.Replace("%H", hh);
         select_pattern.Replace("%M", mm);
         select_pattern.Replace("%S", ss);
-       
+      
+        select_pattern = "^" + select_pattern + "$";
+        
         wxRegEx regex(select_pattern);
         if (regex.IsValid()) {
             if (regex.Matches(s)) {
