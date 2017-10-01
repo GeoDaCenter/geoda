@@ -662,6 +662,7 @@ useScientificNotation(_useScientificNotation)
 									wxChoice);
 	breaks_choice = wxDynamicCast(FindWindow(XRCID("ID_BREAKS_CHOICE")),
 								  wxChoice);
+    breaks_choice->SetSelection(0);
 
     save_categories_button = wxDynamicCast(FindWindow(XRCID("ID_CATEGORY_EDITOR_SAVE_CAT")), wxButton);
 	change_title_button =
@@ -809,6 +810,9 @@ useScientificNotation(_useScientificNotation)
 	if (cc_state) {
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
+        
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        
 		InitFromCCData();
 		EnableControls(true);
         
@@ -878,6 +882,10 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         cc_data.title = new_title;
         CatClassification::CatClassifTypeToBreakValsType(cc_data.cat_classif_type);
         cc_data.cat_classif_type = CatClassification::custom;
+        cc_data.break_vals_type = CatClassification::quantile_break_vals;
+        
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        
         int f_sel = assoc_var_choice->FindString(field_name);
         if (f_sel != wxNOT_FOUND) {
             assoc_var_choice->SetSelection(f_sel);
@@ -2072,8 +2080,7 @@ CatClassification::BreakValsType CatClassifPanel::GetBreakValsTypeChoice()
 }
 
 /** Set breaks_choice widget classification type */
-void CatClassifPanel::SetBreakValsTypeChoice(
-									CatClassification::BreakValsType ct)
+void CatClassifPanel::SetBreakValsTypeChoice(CatClassification::BreakValsType ct)
 {
 	int brs = 0; // quantile by default
 	//if (ct == CatClassification::no_theme_break_vals) brs = 0;
