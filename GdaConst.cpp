@@ -66,17 +66,17 @@ const char* GdaConst::sample_datasources[] = {
 };
 
 const char* GdaConst::sample_meta_urls[] = {
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data",
-    "https://spatial.uchicago.edu/sample-data"
+    "https://geodacenter.github.io/data-and-lab/Guerry_documentation/",
+    "https://geodacenter.github.io/data-and-lab/ncovr/",
+    "https://geodacenter.github.io/data-and-lab/baltim/",
+    "https://geodacenter.github.io/data-and-lab/boston-housing_old/",
+    "https://geodacenter.github.io/data-and-lab/columbus/",
+    "https://geodacenter.github.io/data-and-lab/sids2/",
+    "https://geodacenter.github.io/data-and-lab/nepal/",
+    "https://geodacenter.github.io/data-and-lab/nyc/",
+    "https://geodacenter.github.io/data-and-lab/colomb_malaria/",
+    "https://geodacenter.github.io/data-and-lab/phx/",
+    "https://geodacenter.github.io/data-and-lab/SFcrimes_vars/"
 };
 
 const char* GdaConst::raw_zoom_in[] = {
