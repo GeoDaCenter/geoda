@@ -1094,6 +1094,9 @@ void MapCanvas::NewCustomCatClassif()
 	// Begin by asking for a variable if none yet chosen
     vector<vector<bool> > var_undefs(num_time_vals);
     
+	for (int t=0; t<num_time_vals; t++) {
+        var_undefs[t].resize(num_obs);
+	}
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
 		if (dlg.ShowModal() != wxID_OK)
@@ -1113,7 +1116,6 @@ void MapCanvas::NewCustomCatClassif()
         
 		for (int t=0; t<num_time_vals; t++) {
 			cat_var_sorted[t].resize(num_obs);
-            var_undefs[t].resize(num_obs);
             
 			for (int i=0; i<num_obs; i++) {
                 int ts = t+var_info[0].time_min;
