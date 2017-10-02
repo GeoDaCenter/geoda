@@ -465,7 +465,7 @@ void PCASettingsDlg::CreateControls()
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,830), wxTE_MULTILINE | wxTE_READONLY);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,830));
     
     if (GeneralWxUtils::isWindows()) {
         wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
