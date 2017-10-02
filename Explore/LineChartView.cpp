@@ -91,6 +91,8 @@ mem_table_int(NULL),
 fixed_scale_over_change(true)
 {
 	wxLogMessage("Open LineChartFrame(Average Charts).");
+   
+    SetMinSize(wxSize(680,420));
     
     // Init variables
 	supports_timeline_changes = true;
