@@ -774,8 +774,6 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 		
                 
 				for (int ival=0; ival<num_cats; ival++) {
-                    int start = 0;
-                    int end = 0;
                     
                     ss.str("");
 					if (num_cats <= 1) {
@@ -785,20 +783,14 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					} else if (ival == 0) {
                         ss << "< " << cat_def.breaks[ival];
 						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        start = 0;
-                        end = cat_def.breaks[ival];
                         
 					} else if (ival == num_cats-1 && num_cats != 2) {
                         ss << "> " << cat_def.breaks[ival-1];
 						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        start = cat_def.breaks[ival-1];
-                        end = cat_def.breaks[ival];
                         
 					} else if (ival == num_cats-1 && num_cats == 2) {
                         ss << ">= " << cat_def.breaks[ival-1];
 						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        start = cat_def.breaks[ival-1];
-                        end = cat_def.breaks[ival];
                         
 					} else {
 						int num_breaks = num_cats-1;
@@ -818,8 +810,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                         ss << a << cat_def.breaks[ival-1] << ", ";
                         ss << cat_def.breaks[ival] << b;
 						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        start = cat_def.breaks[ival-1];
-                        end = cat_def.breaks[ival];
+
 					}
                     cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
 					cat_data.SetCategoryMinMax(t, ival,
