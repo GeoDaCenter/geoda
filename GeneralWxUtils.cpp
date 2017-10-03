@@ -42,8 +42,8 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     
     wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
     wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
-    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300), wxTE_MULTILINE | wxTE_READONLY);
-    vbox0->Add(st, 0, wxEXPAND|wxBOTTOM, 10);
+    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300));
+    vbox0->Add(st, 0, wxBOTTOM, 10);
     vbox0->Add(tc, 1, wxEXPAND);
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);

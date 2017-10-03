@@ -58,8 +58,6 @@ RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
 {
     wxLogMessage("Open REDCAP dialog.");
     
-	SetMinSize(wxSize(360,750));
-
     parent = parent_s;
     project = project_s;
     
@@ -98,7 +96,11 @@ bool RedcapDlg::Init()
 void RedcapDlg::CreateControls()
 {
     wxLogMessage("On RedcapDlg::CreateControls");
-    wxPanel *panel = new wxPanel(this);
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,720), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
+
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
@@ -221,9 +223,15 @@ void RedcapDlg::CreateControls()
     container->Add(vbox);
     
     panel->SetSizer(container);
+   
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
+
     
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);

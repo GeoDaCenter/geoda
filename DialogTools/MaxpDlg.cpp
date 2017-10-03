@@ -58,8 +58,6 @@ MaxpDlg::MaxpDlg(wxFrame* parent_s, Project* project_s)
 {
     wxLogMessage("Open Max-p dialog.");
     
-	SetMinSize(wxSize(360,750));
-
     CreateControls();
 }
 
@@ -71,7 +69,10 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxPanel *panel = new wxPanel(this);
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,720), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
@@ -190,8 +191,14 @@ void MaxpDlg::CreateControls()
     
     panel->SetSizer(container);
     
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
+
+    
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
