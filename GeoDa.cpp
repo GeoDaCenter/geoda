@@ -124,6 +124,7 @@
 #include "DialogTools/MDSDlg.h"
 #include "DialogTools/AggregateDlg.h"
 #include "DialogTools/GeocodingDlg.h"
+#include "DialogTools/PCASettingsDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
