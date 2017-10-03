@@ -55,8 +55,6 @@ HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
 {
     wxLogMessage("Open HClusterDlg.");
     
-	SetMinSize(wxSize(860,640));
-
     parent = parent_s;
     project = project_s;
     
@@ -106,7 +104,11 @@ bool HClusterDlg::Init()
 
 void HClusterDlg::CreateControls()
 {
-    wxPanel *panel = new wxPanel(this);
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(860,780), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
+
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
@@ -210,7 +212,7 @@ void HClusterDlg::CreateControls()
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(500,630));
+    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(500,600));
     //m_panel->SetBackgroundColour(*wxWHITE);
     vbox1->Add(m_panel, 1, wxEXPAND|wxALL,20);
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -220,9 +222,14 @@ void HClusterDlg::CreateControls()
     
     panel->SetSizerAndFit(container);
     
+   
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
     
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);

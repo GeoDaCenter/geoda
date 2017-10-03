@@ -352,8 +352,6 @@ frames_manager(project_s->GetFramesManager())
 {
     wxLogMessage("Open PCASettingsDlg.");
     
-	SetMinSize(wxSize(860,600));
-
     project = project_s;
     
     bool init_success = Init();
@@ -392,7 +390,10 @@ bool PCASettingsDlg::Init()
 
 void PCASettingsDlg::CreateControls()
 {
-    wxPanel *panel = new wxPanel(this);
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(820,620), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -434,15 +435,13 @@ void PCASettingsDlg::CreateControls()
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"),
-                                          wxDefaultPosition, wxSize(140,-1));
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"));
     wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(120,-1), 0, NULL);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box1, 1, wxALIGN_CENTER_VERTICAL);
-
+    hbox1->Add(box1, 1, wxEXPAND);
 
 
     // buttons
@@ -460,12 +459,12 @@ void PCASettingsDlg::CreateControls()
     // Container
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxALL, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,830));
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,430));
     
     if (GeneralWxUtils::isWindows()) {
         wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -482,6 +481,17 @@ void PCASettingsDlg::CreateControls()
     container->Add(vbox1,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
+    
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
     
     Centre();
     

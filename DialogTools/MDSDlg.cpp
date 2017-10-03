@@ -50,7 +50,11 @@ MDSDlg::~MDSDlg()
 
 void MDSDlg::CreateControls()
 {
-    wxPanel *panel = new wxPanel(this);
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,540), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
+
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
    
@@ -100,9 +104,14 @@ void MDSDlg::CreateControls()
     container->Add(vbox);
     
     panel->SetSizer(container);
+   
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
     
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);

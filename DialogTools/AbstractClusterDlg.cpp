@@ -59,9 +59,7 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
     for (size_t i=0; i<len; i++)
         list.Add(wxString(valid_chars.GetChar(i)));
     validator.SetIncludes(list);
-    
-	SetMinSize(wxSize(360,750));
-
+   
     parent = parent_s;
     project = project_s;
     
