@@ -374,7 +374,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -418,7 +418,7 @@ void ConditionalMapCanvas::ChangeCatThemeType(
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -433,7 +433,7 @@ void ConditionalMapCanvas::update(CatClassifState* o)
 		if (template_frame) {
 			template_frame->UpdateTitle();
 			if (template_frame->GetTemplateLegend()) {
-				template_frame->GetTemplateLegend()->Refresh();
+				template_frame->GetTemplateLegend()->Recreate();
 			}
 		}
 	} else {
