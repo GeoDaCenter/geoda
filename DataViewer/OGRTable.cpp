@@ -1019,8 +1019,10 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
                 if ( tmp_min_val > tmp ) tmp_min_val = tmp;
                 if ( tmp_max_val < tmp ) tmp_max_val = tmp;
 			}
-            min_vals.push_back(tmp_min_val);
-            max_vals.push_back(tmp_max_val);
+            if (has_init) {
+                min_vals.push_back(tmp_min_val);
+                max_vals.push_back(tmp_max_val);
+            }
 		}
 	}
 }
