@@ -1042,7 +1042,7 @@ wxString MapCanvas::GetCanvasTitle()
 	else if (GetCcType() == CatClassification::no_theme) {
 		s << "Map - " << project->GetProjectTitle();
 	} else if (GetCcType() == CatClassification::custom) {
-		s << cat_classif_def.title << ": " << v;
+		s << cat_classif_def.title;
 	} else {
 		s << CatClassification::CatClassifTypeToString(GetCcType());
 		s << ": " << v;
@@ -1174,7 +1174,7 @@ void MapCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -1379,7 +1379,7 @@ void MapCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }

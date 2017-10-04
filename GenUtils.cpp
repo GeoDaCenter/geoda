@@ -520,6 +520,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
     }
     
     N = data_valid.size();
+    
     is_even_num_obs = (data_valid.size() % 2) == 0;
     
     Q2_ind = (N+1)/2.0 - 1;
@@ -530,6 +531,9 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
         Q1_ind = (N+3)/4.0 - 1;
         Q3_ind = (3*N+1)/4.0 - 1;
     }
+    
+    if (N == 0 || N < Q3_ind) return;
+    
     Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
     Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
     Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
@@ -577,6 +581,9 @@ double Gda::percentile(double x, const std::vector<double>& v)
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
+    
+    if (v.empty()) return 0;
+    
 	if (x <= p_0) return v[0];
 	if (x >= p_Nm1) return v[N-1];
 	

@@ -59,6 +59,20 @@ public:
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
 };
 
+class SimpleReportTextCtrl : public wxTextCtrl
+{
+public:
+    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
+                         const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
+                         long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
+                         const wxString& name = wxTextCtrlNameStr)
+    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
+protected:
+    void OnContextMenu(wxContextMenuEvent& event);
+    void OnSaveClick( wxCommandEvent& event );
+    DECLARE_EVENT_TABLE()
+};
+
 class ScrolledDetailMsgDialog : public wxDialog
 {
 public:
@@ -68,6 +82,5 @@ public:
     
     void OnSaveClick( wxCommandEvent& event );
 };
-
 
 #endif

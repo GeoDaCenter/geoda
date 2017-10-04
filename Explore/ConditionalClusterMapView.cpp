@@ -354,7 +354,7 @@ ChangeCatThemeType(CatClassification::CatClassifType new_cat_theme,
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -369,7 +369,7 @@ void ConditionalClusterMapCanvas::update(CatClassifState* o)
 		if (template_frame) {
 			template_frame->UpdateTitle();
 			if (template_frame->GetTemplateLegend()) {
-				template_frame->GetTemplateLegend()->Refresh();
+				template_frame->GetTemplateLegend()->Recreate();
 			}
 		}
 	} else {

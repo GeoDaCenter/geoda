@@ -37,6 +37,7 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
+		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */; };
 		A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4320FC61F4735020007BE0D /* RedcapDlg.cpp */; };
 		A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D124A1F1DE1D80073D408 /* MaxpDlg.cpp */; };
@@ -318,6 +319,8 @@
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
+		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
+		A416A1761F84122B001F2884 /* PCASettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCASettingsDlg.h; sourceTree = "<group>"; };
 		A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNewCalcDateTimeDlg.cpp; sourceTree = "<group>"; };
 		A42B6F771F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNewCalcDateTimeDlg.h; sourceTree = "<group>"; };
 		A4320FC61F4735020007BE0D /* RedcapDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RedcapDlg.cpp; sourceTree = "<group>"; };
@@ -910,6 +913,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */,
+				A416A1761F84122B001F2884 /* PCASettingsDlg.h */,
 				A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */,
 				A4E138BA1F71D6B800433256 /* GeocodingDlg.h */,
 				A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */,
@@ -1523,6 +1528,7 @@
 				DD89C87813D86BC7006C068D /* FieldNewCalcUniDlg.cpp in Sources */,
 				DDB77F3E140D3CEF0032C7E4 /* FieldNewCalcSpecialDlg.cpp in Sources */,
 				DD6B7289141A61400026D223 /* FramesManager.cpp in Sources */,
+				A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */,
 				DD7D5C711427F89B00DCFE5C /* LisaCoordinator.cpp in Sources */,
 				A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */,
 				A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */,

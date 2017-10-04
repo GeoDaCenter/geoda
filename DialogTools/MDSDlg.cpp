@@ -40,7 +40,7 @@ MDSDlg::MDSDlg(wxFrame *parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("MDS Settings"))
 {
     wxLogMessage("Open MDSDlg.");
-    
+   
     CreateControls();
 }
 

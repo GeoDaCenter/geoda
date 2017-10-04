@@ -558,6 +558,9 @@ void HistogramCanvas::PopulateCanvas()
                    interval_gap_const * (cur_intervals-1);
     double y_min = 0;
 	double y_max = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
+  
+    // some exceptional case: e.g. variable is not valid
+    if (y_min == 0 && y_max == 0) return;
     
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
