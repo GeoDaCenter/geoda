@@ -347,7 +347,8 @@ void RedcapDlg::InitVariableCombobox(wxListBox* var_box)
             items.Add(name);
         }
     }
-    var_box->InsertItems(items,0);
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
     
     combo_control_var->Insert("",0);
     for (int i=0; i<items.size(); i++) {
