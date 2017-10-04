@@ -442,7 +442,10 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	
 	wxString default_fname(project->GetProjectTitle() + type);
     wxString filter = "BMP|*.bmp|PNG|*.png";
-    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+    MapCanvas* canvas1 = dynamic_cast<MapCanvas*>(template_canvas);
+    CartogramNewCanvas* canvas2 = dynamic_cast<CartogramNewCanvas*>(template_canvas);
+    
+    if ( canvas1 || canvas2 ) {
         filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
     }
 	int filter_index = 1;
