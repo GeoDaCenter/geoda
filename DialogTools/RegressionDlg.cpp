@@ -135,6 +135,13 @@ regReportDlg(0)
 {
     wxLogMessage("Open RegressionDlg.");
     
+    if (project_s->GetTableInt()->GetNumberCols() == 0) {
+        wxString err_msg = _("No numeric variables found in table.");
+        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        EndDialog(wxID_CANCEL);
+    }
+    
 	Create(parent, id, caption, pos, size, style);
 	
 	RegressModel = 1;

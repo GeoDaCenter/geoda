@@ -52,7 +52,13 @@ frames_manager(project_s->GetFramesManager())
     wxLogMessage("Open PCASettingsDlg.");
     
     project = project_s;
-    
+   
+    if (project_s->GetTableInt()->GetNumberCols() == 0) {
+        wxString err_msg = _("No numeric variables found in table.");
+        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+
     bool init_success = Init();
     
     if (init_success == false) {
@@ -60,6 +66,7 @@ frames_manager(project_s->GetFramesManager())
     } else {
         CreateControls();
     }
+
     frames_manager->registerObserver(this);
 }
 
@@ -253,8 +260,8 @@ void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
             items.Add(name);
         }
     }
-    
-    var_box->InsertItems(items,0);
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
 }
 
 void PCASettingsDlg::OnClose(wxCloseEvent& ev)
