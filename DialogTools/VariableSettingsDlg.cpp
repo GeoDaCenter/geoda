@@ -448,8 +448,9 @@ void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
             items.Add(name);
         }
     }
-    
-    var_box->InsertItems(items,0);
+   
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
 }
 
 void MultiVariableSettingsDlg::InitTimeComboboxes(wxChoice* time1)
@@ -1382,22 +1383,30 @@ void VariableSettingsDlg::InitFieldChoices()
             }
         }
     }
-   
-	int pos = lb1->GetScrollPos(wxVERTICAL);
-	lb1->SetSelection(lb1_cur_sel);
-	lb1->SetFirstItem(lb1->GetSelection());
-	if (num_var >= 2) {
+  
+    if (sel1_idx > 0) {
+    	int pos = lb1->GetScrollPos(wxVERTICAL);
+    	lb1->SetSelection(lb1_cur_sel);
+    	lb1->SetFirstItem(lb1->GetSelection());
+    }
+	if (sel2_idx > 0 && num_var >= 2) {
 		lb2->SetSelection(lb2_cur_sel);
 		lb2->SetFirstItem(lb2->GetSelection());
 	}
-	if (num_var >= 3) {
+	if (sel3_idx > 0 &&  num_var >= 3) {
 		lb3->SetSelection(lb3_cur_sel);
 		lb3->SetFirstItem(lb3->GetSelection());
 	}
-	if (num_var >= 4) {
+	if (sel4_idx > 0 && num_var >= 4) {
 		lb4->SetSelection(lb4_cur_sel);
 		lb4->SetFirstItem(lb4->GetSelection());
 	}
+    
+    if (sel1_idx == 0 && sel2_idx == 0 && sel3_idx == 0 && sel4_idx == 0) {
+        wxString msg("No numeric variables found.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
 }
 
 bool VariableSettingsDlg::CheckEmptyColumn(int col_id, int time)

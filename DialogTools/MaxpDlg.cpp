@@ -350,7 +350,8 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
         }
     }
     
-    var_box->InsertItems(items,0);
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
     
     combo_floor->SetSelection(-1);
     combo_lisa->SetSelection(-1);

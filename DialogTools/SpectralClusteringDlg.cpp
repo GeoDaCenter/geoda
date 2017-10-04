@@ -385,8 +385,8 @@ void SpectralClusteringDlg::InitVariableCombobox(wxListBox* var_box)
             items.Add(name);
         }
     }
-    
-    var_box->InsertItems(items,0);
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
 }
 
 void SpectralClusteringDlg::OnClickClose(wxCommandEvent& event )
