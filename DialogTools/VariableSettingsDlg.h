@@ -254,7 +254,9 @@ private:
 
 	void InitTimeChoices();
 	void InitFieldChoices();
-	void FillData();
+	wxString FillData();
+    
+    bool CheckEmptyColumn(int col_id, int time);
 	
 	/** Automatically set the second variable to the same value as
 	 the first variable when first variable is changed. */

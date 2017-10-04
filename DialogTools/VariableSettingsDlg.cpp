@@ -1113,34 +1113,41 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         wxLogMessage(v4_name);
 	}
 	
-	FillData();
-	
-	if (show_weights)
-        project->GetWManInt()->MakeDefault(GetWeightsId());
-	
-	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
-		project->SetDefaultDistMetric(GetDistanceMetric());
-	}
-	if (GetDistanceUnits() != WeightsMetaInfo::DU_unspecified) {
-		project->SetDefaultDistUnits(GetDistanceUnits());
-	}
-	
-    
-    bool check_group_var = true;
-    try {
-        for (int i=0; i<col_ids.size(); i++) {
-            project->GetTableInt()->GetColTypes(col_ids[i]);
-        }
-    } catch(GdaException& ex) {
-        // place holder found
-        wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
-        wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
+    wxString emptyVar = FillData();
+    if (emptyVar.empty()== false) {
+        wxString msg = wxString::Format(_("The selected variable %s is not valid. Please elect another variable."), emptyVar);
+        wxMessageDialog dlg (this, msg.mb_str(), _T("Invalid Variable"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        check_group_var = false;
-    }
+        
+    } else {
+	
+    	if (show_weights)
+            project->GetWManInt()->MakeDefault(GetWeightsId());
+    	
+    	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
+    		project->SetDefaultDistMetric(GetDistanceMetric());
+    	}
+    	if (GetDistanceUnits() != WeightsMetaInfo::DU_unspecified) {
+    		project->SetDefaultDistUnits(GetDistanceUnits());
+    	}
+    	
+        
+        bool check_group_var = true;
+        try {
+            for (int i=0; i<col_ids.size(); i++) {
+                project->GetTableInt()->GetColTypes(col_ids[i]);
+            }
+        } catch(GdaException& ex) {
+            // place holder found
+            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+            wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            check_group_var = false;
+        }
 
-    if (check_group_var == true)
-        EndDialog(wxID_OK);
+        if (check_group_var == true)
+            EndDialog(wxID_OK);
+    }
     
 }
 
@@ -1393,8 +1400,21 @@ void VariableSettingsDlg::InitFieldChoices()
 	}
 }
 
-void VariableSettingsDlg::FillData()
+bool VariableSettingsDlg::CheckEmptyColumn(int col_id, int time)
 {
+    std::vector<bool> undefs;
+    table_int->GetColUndefined(col_id, time, undefs);
+    for (int i=0; i<undefs.size(); i++) {
+        if (undefs[i]==false)
+            return false;
+    }
+    return true;
+}
+
+wxString VariableSettingsDlg::FillData()
+{
+    wxString emptyVar;
+    
 	col_ids.resize(num_var);
 	var_info.resize(num_var);
 	if (num_var >= 1) {
@@ -1404,6 +1424,10 @@ void VariableSettingsDlg::FillData()
 		v1_name = table_int->GetColName(v1_col_id);
 		col_ids[0] = v1_col_id;
 		var_info[0].time = v1_time;
+        
+        if (CheckEmptyColumn(v1_col_id, v1_time)) {
+            emptyVar =  v1_name;
+        }
 	}
 	if (num_var >= 2) {
 		//v2_col_id = col_id_map[lb2->GetSelection()];
@@ -1413,6 +1437,10 @@ void VariableSettingsDlg::FillData()
 		v2_name = table_int->GetColName(v2_col_id);
 		col_ids[1] = v2_col_id;
 		var_info[1].time = v2_time;
+        
+        if (emptyVar.empty() && CheckEmptyColumn(v2_col_id, v2_time)) {
+            emptyVar =  v2_name;
+        }
 	}
 	if (num_var >= 3) {
 		//v3_col_id = col_id_map[lb3->GetSelection()];
@@ -1422,6 +1450,11 @@ void VariableSettingsDlg::FillData()
 		v3_name = table_int->GetColName(v3_col_id);
 		col_ids[2] = v3_col_id;
 		var_info[2].time = v3_time;
+       
+        if (emptyVar.empty() && CheckEmptyColumn(v3_col_id, v3_time)) {
+            emptyVar =  v3_name;
+        }
+
 	}
 	if (num_var >= 4) {
 		//v4_col_id = col_id_map[lb4->GetSelection()];
@@ -1431,6 +1464,10 @@ void VariableSettingsDlg::FillData()
 		v4_name = table_int->GetColName(v4_col_id);
 		col_ids[3] = v4_col_id;
 		var_info[3].time = v4_time;
+        
+        if (emptyVar.empty() && CheckEmptyColumn(v4_col_id, v4_time)) {
+            emptyVar =  v4_name;
+        }
 	}
     
 	
@@ -1447,5 +1484,7 @@ void VariableSettingsDlg::FillData()
 	// Call function to set all Secondary Attributes based on Primary Attributes
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	//GdaVarTools::PrintVarInfoVector(var_info);
+    
+    return emptyVar;
 }
 
