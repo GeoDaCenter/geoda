@@ -323,7 +323,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 				breaks[i] = min_val + (((double) i) + 1.0)*delta;
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+        if (theme != custom)
+            CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
 	}
 }
 
@@ -1380,7 +1381,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
  will be left as they were.
  */
 bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
-												   TableInterface* table_int)
+												   TableInterface* table_int,
+                                                   bool auto_label)
 {
 	if (!table_int)
         return false;
@@ -1388,7 +1390,9 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	int num_obs = table_int->GetNumberRows();
 	CatClassifDef cc;
 	cc = _cc;
-	
+
+    std::vector<wxString> user_def_labels = cc.names;
+    
 	std::sort(cc.breaks.begin(), cc.breaks.end());
 	if (cc.uniform_dist_min > cc.uniform_dist_max) {
 		double t = cc.uniform_dist_min;
@@ -1558,6 +1562,15 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		_cc = cc;
 		changed = true;
 	}
+    
+    if (auto_label == false) {
+        int best_n = user_def_labels.size();
+        if (cc.names.size() < best_n) best_n = cc.names.size();
+        
+        for (size_t t=0; t< best_n; t++) {
+            cc.names[t] = user_def_labels[t];
+        }
+    }
 	return changed;
 }
 

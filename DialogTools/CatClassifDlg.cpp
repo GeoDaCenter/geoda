@@ -811,7 +811,7 @@ useScientificNotation(_useScientificNotation)
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
         
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int,IsAutomaticLabels());
         
 		InitFromCCData();
 		EnableControls(true);
@@ -884,7 +884,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         cc_data.cat_classif_type = CatClassification::custom;
         cc_data.break_vals_type = CatClassification::quantile_break_vals;
         
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
         
         int f_sel = assoc_var_choice->FindString(field_name);
         if (f_sel != wxNOT_FOUND) {
@@ -926,7 +926,7 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -943,7 +943,7 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -974,7 +974,7 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1030,7 +1030,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1058,7 +1058,7 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1074,7 +1074,7 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1196,7 +1196,7 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
             
 			InitFromCCData();
 			UpdateCCState();
@@ -1248,7 +1248,7 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
             
 			InitFromCCData();
 			UpdateCCState();
@@ -1537,7 +1537,7 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
                 
             	// Verify that cc data is self-consistent and correct if not.  This
             	// will result in all breaks, colors and names being initialized.
-                CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+                CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
                 
 				InitFromCCData();
 				EnableControls(true);
