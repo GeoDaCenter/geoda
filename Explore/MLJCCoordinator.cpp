@@ -80,6 +80,11 @@
  */
 
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// JCWorkerThread
+//
+///////////////////////////////////////////////////////////////////////////////
 JCWorkerThread::JCWorkerThread(const GalElement* W_, const std::vector<bool>& undefs_, int obs_start_s, int obs_end_s, uint64_t seed_start_s, JCCoordinator* jc_coord_s, wxMutex* worker_list_mutex_s, wxCondition* worker_list_empty_cond_s, std::list<wxThread*> *worker_list_s,int thread_id_s)
 : wxThread(),
 W(W_),
@@ -116,7 +121,11 @@ wxThread::ExitCode JCWorkerThread::Entry()
 }
 
 
-
+///////////////////////////////////////////////////////////////////////////////
+//
+// JCCoordinator
+//
+///////////////////////////////////////////////////////////////////////////////
 JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids, bool row_standardize_weights, bool _is_local_joint_count)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
@@ -175,8 +184,14 @@ void JCCoordinator::DeallocateVectors()
 	}
 	pseudo_p_vecs.clear();
 	
+	for (int i=0; i<c_vecs.size(); i++) if (c_vecs[i]) delete [] c_vecs[i];
+	c_vecs.clear();
+    
 	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
 	x_vecs.clear();
+    
+	for (int i=0; i<y_vecs.size(); i++) if (y_vecs[i]) delete [] y_vecs[i];
+	y_vecs.clear();
     
 	for (int i=0; i<ep_vals.size(); i++) if (ep_vals[i]) delete [] ep_vals[i];
 	ep_vals.clear();
@@ -204,11 +219,13 @@ void JCCoordinator::AllocateVectors()
 	p_vecs.resize(tms);
 	pseudo_p_vecs.resize(tms);
 	x_vecs.resize(tms);
+	y_vecs.resize(tms);
     
     x_undefs.resize(tms);
+    y_undefs.resize(tms);
+    
     Gal_vecs.resize(tms);
     Gal_vecs_orig.resize(tms);
-    
 	
 	n.resize(tms, 0);
 	x_star.resize(tms, 0);
@@ -228,6 +245,8 @@ void JCCoordinator::AllocateVectors()
     num_neighbors.resize(num_obs);
     num_neighbors_1.resize(tms);
     ep_vals.resize(tms);
+   
+    c_vecs.resize(tms);
     
 	for (int i=0; i<tms; i++) {
         num_neighbors_1[i] = new wxInt64[num_obs];
@@ -239,6 +258,9 @@ void JCCoordinator::AllocateVectors()
 		p_vecs[i] = new double[num_obs];
 		pseudo_p_vecs[i] = new double[num_obs];
 		x_vecs[i] = new double[num_obs];
+		y_vecs[i] = new double[num_obs];
+        
+        c_vecs[i] = new int(num_obs);
 		
 		map_valid[i] = true;
 		map_error_message[i] = wxEmptyString;
@@ -274,7 +296,10 @@ void JCCoordinator::InitFromVarInfo()
         vector<bool> undefs(num_obs);
         for (int i=0; i<num_obs; i++) {
             x_vecs[d_t][i] = data[0][t][i];
-            undefs[i] = data_undef[0][t][i];
+            y_vecs[d_t][i] = data[1][t][i];
+            
+            undefs[i] = data_undef[0][t][i] || data_undef[1][t][i];
+            
             G_defined_vecs[d_t][i] = !undefs[i];
             if (undefs[i]) {
                 has_undef = true;
@@ -287,7 +312,7 @@ void JCCoordinator::InitFromVarInfo()
 	for (int t=0; t<num_time_vals; t++) {
         GalElement* W  = NULL;
         if (Gal_vecs.empty() || Gal_vecs[t] == NULL) {
-            // local weights copy: leak?
+            // local weights copy: no leak see deconstruction function
             GalWeight* gw = NULL;
             if ( has_undefined[t] ) {
                 gw = new GalWeight(*w_man_int->GetGal(w_id));
@@ -301,6 +326,7 @@ void JCCoordinator::InitFromVarInfo()
         }
         
 		x = x_vecs[t];
+		y = y_vecs[t];
        
         for (int i=0; i<num_obs; i++) {
             if ( W[i].Size() > 0 ) {
@@ -308,22 +334,6 @@ void JCCoordinator::InitFromVarInfo()
                 x_star[t] += x[i];
                 x_sstar[t] += x[i] * x[i];
             }
-        }
-        
-        num_obs_1s = 0;
-        num_obs_0s = 0;
-        
-        // count neighbors and neighors with 1
-        for (int i=0; i<num_obs; i++) {
-            num_neighbors[i] = W[i].Size();
-            num_neighbors_1[t][i] = 0;
-            for (int j=0; j< W[i].Size(); j++) {
-                if (x[W[i][j]] == 1) {
-                    num_neighbors_1[t][i] += 1;
-                }
-            }
-            if (x[i] ==1)  num_obs_1s +=1;
-            else num_obs_0s += 1;
         }
 	}
 	
@@ -359,10 +369,7 @@ void JCCoordinator::VarInfoAttributeChange()
 /** The category vector c_val will be filled based on the current
  significance filter and significance values corresponding to specified
  canvas_time.  */
-void JCCoordinator::FillClusterCats(int canvas_time,
-									   bool is_gi,
-                                       bool is_perm,
-									   std::vector<wxInt64>& c_val)
+void JCCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm, std::vector<wxInt64>& c_val)
 {
 	int t = canvas_time;
 	double* p_val = pseudo_p_vecs[t];
@@ -388,7 +395,6 @@ void JCCoordinator::FillClusterCats(int canvas_time,
 		}
 	}
 }
-
 
 void JCCoordinator::CalcGs()
 {
@@ -417,17 +423,45 @@ void JCCoordinator::CalcGs()
                 continue;
             }
             
-			const GalElement& elm_i = W[i];
+            // NOTE: the roles of x and z can be reversed
+            
+            // 1. no colocation: x_i == 1 but z_i == 0
+            // JC_i = x_i * ( 1 - z_i) * Sum (w_ij * z_j)
+            
+            // 2. has colocation: x_i == 1 && z_i == 1
+            // JC_i = x_i * z_i * Sum(w_ij * z_j)
+            
+            // 3. co-location cluster: (2) && x_j == z_j == 1 for the neighbors
+            // JC_i = x_i * z_i * Sum(w_ij * x_j * z_j)
+            
+            int jc_type_i = 0;
+            double jc_i = 0;
+            const GalElement& elm_i = W[i];
+            
+            if (x[i] == 1 && y[i] == 0) {
+                jc_type_i = 1;
+            } else if (x[i] == 1 && y[i] == 1) {
+                jc_type_i = 3;
+            }
+            
 			if ( elm_i.Size() > 0 ) {
 				double lag = 0;
 				bool self_neighbor = false;
 				for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
 					if (elm_i[j] != i) {
-						lag += x[elm_i[j]];
+                        if (jc_type_i == 3 && x[i] != y[i])
+                            jc_type_i = 2;
 					} else {
 						self_neighbor = true;
 					}
 				}
+                for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
+                    if (jc_type_i == 3 ){
+                        if (x[j] == y[j]) lag += y[j];
+                    } else {
+                        if (y[j] == 1) lag += y[j];
+                    }
+                }
 				double Wi = self_neighbor ? W[i].Size()-1 : W[i].Size();
 				double xd_i = x_star[t] - x[i];
 				if (xd_i != 0) {
@@ -439,8 +473,7 @@ void JCCoordinator::CalcGs()
 
 				double ExGi = Wi/(n[t]-1);
 				// location-specific variance
-				double ss_i = ((x_sstar[t] - x[i]*x[i])/(n[t]-1)
-							   - x_hat_i*x_hat_i);
+				double ss_i = ((x_sstar[t] - x[i]*x[i])/(n[t]-1) - x_hat_i*x_hat_i);
 				double sdG_i = sqrt(Wi*(n[t]-1-Wi)*ss_i)/(n_expr * x_hat_i);
 				
 				// compute z and one-sided p-val from standard-normal table
@@ -457,6 +490,8 @@ void JCCoordinator::CalcGs()
 			} else {
 				has_isolates[t] = true;
 			}
+            
+            c_vecs[t][i] = jc_type_i;
 		}
 	
 		if (x_star[t] == 0) {
@@ -489,6 +524,8 @@ void JCCoordinator::CalcPseudoP()
 		p = p_vecs[t];
 		pseudo_p = pseudo_p_vecs[t];
 		x = x_vecs[t];
+		y = y_vecs[t];
+        c = c_vecs[t];
 		x_star_t = x_star[t];
         nn_1_t = num_neighbors_1[t];
         e_p = ep_vals[t];
@@ -619,15 +656,20 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 					}
 				}
 				
-				double lag_i=0;
+				double perm_jc_i = 0;
 				// use permutation to compute the lags
 				for (int j=0; j<numNeighsI; j++) {
-					lag_i += x[workPermutation.Pop()];
-					//lag_j += y[workPermutation.Pop()];
+                    int perm_idx = workPermutation.Pop();
+                    if (c[i]== 1 || c[i]== 2) {
+                        perm_jc_i += y[perm_idx];
+                        
+                    } else if (c[i]== 3) {
+                        perm_jc_i  += x[perm_idx] * y[perm_idx];
+                    }
 				}
 		
                 // binary weights
-                permutedG = lag_i / xd_i;
+                permutedG = perm_jc_i / xd_i;
 				if (permutedG >= G[i]) countGLarger++;
 			}
 			// pick the smallest

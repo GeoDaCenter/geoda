@@ -341,13 +341,14 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	}
    
 	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
+        int total_highlighted = 0; // used for MapCanvas::Drawlayer1
+        for (int i=0; i<num_obs; i++) if (hs[i]) total_highlighted += 1;
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(50);
         
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
-        Refresh();
         
         UpdateStatusBar();
     }
