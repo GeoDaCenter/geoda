@@ -1190,11 +1190,16 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 int n_obs_in_cat = cat_data.GetNumObsInCategory(t, cat);
                 
                 ss.str("");
+                double val_f = u_vals_map[t][cat];
+                int val_l = (int)val_f;
+                
                 if (cat < max_num_categories - 1) {
-                    ss << u_vals_map[t][cat];
+                    if (val_f == val_l) ss << val_l;
+                    else ss << val_f;
                 } else {
                     if (n_obs_in_cat == 1) {
-                        ss << u_vals_map[t][cat];
+                        if (val_f == val_l) ss << val_l;
+                        else ss << val_f;
                     } else {
                         ss << "Others";
                     }
