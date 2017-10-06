@@ -301,7 +301,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		FindNaturalBreaks(num_cats, var, var_undef, breaks);
 		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
         
-	} else if (theme == equal_intervals) {
+	} else {
 		double min_val = var[0].first;
 		double max_val = var[0].first;
 		for (int i=0; i<num_obs; i++) {
@@ -1533,19 +1533,19 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		cc.cat_classif_type == CatClassification::equal_intervals ||
 		cc.break_vals_type == CatClassification::equal_intervals_break_vals)
 	{
-		// Calculate breaks from data
-		CatClassification::CatClassifType cct = cc.cat_classif_type;
-		if (cc.break_vals_type != CatClassification::by_cat_classif_type) {
-			cct = BreakValsTypeToCatClassifType(cc.break_vals_type);
-		}
-		CatClassification::SetBreakPoints(cc.breaks, cc.names, data, data_undef, cct, cc.num_cats);
 	}
+    
+    // Calculate breaks from data
+    CatClassification::CatClassifType cct = cc.cat_classif_type;
+    if (cc.break_vals_type != CatClassification::by_cat_classif_type) {
+        cct = BreakValsTypeToCatClassifType(cc.break_vals_type);
+    }
+    CatClassification::SetBreakPoints(cc.breaks, cc.names, data, data_undef, cct, cc.num_cats);
 	
 	if (cc.color_scheme != CatClassification::custom_color_scheme)
 	{
 		// Calculate colors
-		CatClassification::PickColorSet(cc.colors, cc.color_scheme,
-										cc.num_cats);
+		CatClassification::PickColorSet(cc.colors, cc.color_scheme, cc.num_cats);
 	}
 	
 	bool changed = false;
