@@ -74,7 +74,7 @@ private:
     MapCanvas* canvas;
     wxSlider* slider;
     wxStaticText* slider_text;
-	void OnSliderChange(wxScrollEvent& event );
+	void OnSliderChange(wxCommandEvent& event );
     
 };
 
