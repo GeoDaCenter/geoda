@@ -323,7 +323,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 				breaks[i] = min_val + (((double) i) + 1.0)*delta;
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+        if (theme != custom)
+            CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
 	}
 }
 
@@ -772,50 +773,61 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					cat_data.AppendIdToCategory(t, cat, ind);
 				}
 		
-                
-				for (int ival=0; ival<num_cats; ival++) {
-                    
-                    ss.str("");
-					if (num_cats <= 1) {
-                        ss << "";
-						cat_data.SetCategoryCount(t, ival, num_obs);
-                        
-					} else if (ival == 0) {
-                        ss << "< " << cat_def.breaks[ival];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else if (ival == num_cats-1 && num_cats != 2) {
-                        ss << "> " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else if (ival == num_cats-1 && num_cats == 2) {
-                        ss << ">= " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else {
-						int num_breaks = num_cats-1;
-						int num_breaks_lower = (num_breaks+1)/2;
-						wxString a;
-						wxString b;
-						if (ival < num_breaks_lower) {
-							a = "[";
-							b = ")";
-						} else if (ival == num_breaks_lower) {
-							a = "[";
-							b = "]";
-						} else {
-							a = "(";
-							b = "]";
-						}
-                        ss << a << cat_def.breaks[ival-1] << ", ";
-                        ss << cat_def.breaks[ival] << b;
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                if (cat_def.automatic_labels) {
+    				for (int ival=0; ival<num_cats; ival++) {
+                        ss.str("");
+    					if (num_cats <= 1) {
+                            ss << "";
+    						cat_data.SetCategoryCount(t, ival, num_obs);
+                            
+    					} else if (ival == 0) {
+                            ss << "< " << cat_def.breaks[ival];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else if (ival == num_cats-1 && num_cats != 2) {
+                            ss << "> " << cat_def.breaks[ival-1];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else if (ival == num_cats-1 && num_cats == 2) {
+                            ss << ">= " << cat_def.breaks[ival-1];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else {
+    						int num_breaks = num_cats-1;
+    						int num_breaks_lower = (num_breaks+1)/2;
+    						wxString a;
+    						wxString b;
+    						if (ival < num_breaks_lower) {
+    							a = "[";
+    							b = ")";
+    						} else if (ival == num_breaks_lower) {
+    							a = "[";
+    							b = "]";
+    						} else {
+    							a = "(";
+    							b = "]";
+    						}
+                            ss << a << cat_def.breaks[ival-1] << ", ";
+                            ss << cat_def.breaks[ival] << b;
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
 
-					}
-                    cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
-					cat_data.SetCategoryMinMax(t, ival,
-											   cat_min[ival], cat_max[ival]);
-				}
+    					}
+                        cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
+    					cat_data.SetCategoryMinMax(t, ival,
+    											   cat_min[ival], cat_max[ival]);
+    				}
+                } else {
+                    for (int ival=0; ival<num_cats; ival++) {
+                        if (num_cats <= 1) {
+                            cat_data.SetCategoryCount(t, ival, num_obs);
+                            
+                        } else {
+                            cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        }
+                        cat_data.SetCategoryLabel(t, ival, cat_def.names[ival]);
+                        cat_data.SetCategoryMinMax(t, ival, cat_min[ival], cat_max[ival]);
+                    }
+                }
 			}
 		}
 	} else if (theme == quantile) {
@@ -1380,7 +1392,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
  will be left as they were.
  */
 bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
-												   TableInterface* table_int)
+												   TableInterface* table_int,
+                                                   bool auto_label)
 {
 	if (!table_int)
         return false;
@@ -1388,7 +1401,9 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	int num_obs = table_int->GetNumberRows();
 	CatClassifDef cc;
 	cc = _cc;
-	
+
+    std::vector<wxString> user_def_labels = cc.names;
+    
 	std::sort(cc.breaks.begin(), cc.breaks.end());
 	if (cc.uniform_dist_min > cc.uniform_dist_max) {
 		double t = cc.uniform_dist_min;
@@ -1558,6 +1573,15 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		_cc = cc;
 		changed = true;
 	}
+    
+    if (auto_label == false) {
+        int best_n = user_def_labels.size();
+        if (cc.names.size() < best_n) best_n = cc.names.size();
+        
+        for (size_t t=0; t< best_n; t++) {
+            cc.names[t] = user_def_labels[t];
+        }
+    }
 	return changed;
 }
 

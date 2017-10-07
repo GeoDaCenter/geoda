@@ -61,10 +61,6 @@ wxWindowID ID_SLIDER = wxID_ANY;
 
 IMPLEMENT_CLASS(SliderDialog, wxDialog)
 BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
-    EVT_COMMAND_SCROLL_THUMBRELEASE( ID_SLIDER, SliderDialog::OnSliderChange)
-#ifdef __WIN32__
-    EVT_COMMAND_SCROLL_CHANGED(ID_SLIDER, SliderDialog::OnSliderChange)
-#endif
 END_EVENT_TABLE()
 
 SliderDialog::SliderDialog(wxWindow * parent,
@@ -114,6 +110,8 @@ SliderDialog::SliderDialog(wxWindow * parent,
     boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
     
     topSizer->Fit(this);
+    
+    slider->Bind(wxEVT_SLIDER, &SliderDialog::OnSliderChange, this);
 }
 
 SliderDialog::~SliderDialog()
@@ -121,7 +119,7 @@ SliderDialog::~SliderDialog()
     
 }
 
-void SliderDialog::OnSliderChange( wxScrollEvent & event )
+void SliderDialog::OnSliderChange( wxCommandEvent & event )
 {
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
@@ -1042,7 +1040,7 @@ wxString MapCanvas::GetCanvasTitle()
 	else if (GetCcType() == CatClassification::no_theme) {
 		s << "Map - " << project->GetProjectTitle();
 	} else if (GetCcType() == CatClassification::custom) {
-		s << cat_classif_def.title;
+		s << cat_classif_def.title << ": " << v;
 	} else {
 		s << CatClassification::CatClassifTypeToString(GetCcType());
 		s << ": " << v;

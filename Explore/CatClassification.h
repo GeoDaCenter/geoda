@@ -84,7 +84,8 @@ namespace CatClassification {
                                 bool useUndefinedCategory=true);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
-									TableInterface* table_int);
+									TableInterface* table_int,
+                                    bool auto_label=true);
 	
 	void FindNaturalBreaks(int num_cats,
 						   const Gda::dbl_int_pair_vec_type& var,

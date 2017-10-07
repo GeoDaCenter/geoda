@@ -165,6 +165,8 @@ public:
 	void OnAutomaticLabelsCb(wxCommandEvent& event);
 	void OnBrkRad(wxCommandEvent& event);
 	void OnBrkTxtEnter(wxCommandEvent& event);
+    void OnUserInput(wxCommandEvent& event);
+
 	void OnBrkSlider(wxCommandEvent& event);
 	void OnScrollThumbRelease(wxScrollEvent& event);
 	void OnKillFocusEvent(wxFocusEvent& event);

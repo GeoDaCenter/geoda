@@ -609,6 +609,8 @@ BEGIN_EVENT_TABLE(CatClassifPanel, wxPanel)
 	EVT_TEXT(XRCID("ID_CAT_TXT"), CatClassifPanel::OnCategoryTitleText)
 	EVT_RADIOBUTTON(XRCID("ID_BRK_RAD"), CatClassifPanel::OnBrkRad)	
 	EVT_TEXT_ENTER(XRCID("ID_BRK_TXT"), CatClassifPanel::OnBrkTxtEnter)
+	EVT_TEXT_ENTER(XRCID("ID_CAT_TXT"), CatClassifPanel::OnUserInput)
+
 	EVT_BUTTON(XRCID("ID_CHANGE_TITLE"), CatClassifPanel::OnButtonChangeTitle)
 	EVT_BUTTON(XRCID("wxID_NEW"), CatClassifPanel::OnButtonNew)
 	EVT_BUTTON(XRCID("wxID_DELETE"), CatClassifPanel::OnButtonDelete)
@@ -735,11 +737,9 @@ useScientificNotation(_useScientificNotation)
 	for (wxWindowList::iterator it = win_list.begin(); it != win_list.end();
 		 it++) {
 		if ((*it)->GetId() == XRCID("ID_CAT_BUT")) {
-			cat_color_button_srt_vec.push_back(make_pair((*it)->GetPosition().y,
-														 (*it)));
+			cat_color_button_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_CAT_TXT")) {
-			cat_title_txt_srt_vec.push_back(make_pair((*it)->GetPosition().y,
-													  (*it)));
+			cat_title_txt_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_BRK_RAD")) {
 			brk_rad_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_BRK_LBL")) {
@@ -755,8 +755,7 @@ useScientificNotation(_useScientificNotation)
 	for (int i=0, iend=cat_color_button_srt_vec.size(); i<iend; i++) {
 		cat_color_button[i] = 
 			(wxStaticBitmap*) cat_color_button_srt_vec[i].second;
-		cat_color_button[i]->Bind(wxEVT_LEFT_UP,
-								&CatClassifPanel::OnCategoryColorButton, this);
+		cat_color_button[i]->Bind(wxEVT_LEFT_UP, &CatClassifPanel::OnCategoryColorButton, this);
 	}
 	
 	std::sort(cat_title_txt_srt_vec.begin(), cat_title_txt_srt_vec.end(), int_win_pair_less);
@@ -764,6 +763,7 @@ useScientificNotation(_useScientificNotation)
 	for (int i=0, iend=cat_title_txt_srt_vec.size(); i<iend; i++) {
 		cat_title_txt[i] = (wxTextCtrl*) cat_title_txt_srt_vec[i].second;
         cat_title_txt[i]->SetEditable(!cc_data.automatic_labels);
+        //cat_title_txt[i]->Bind(wxEVT_TEXT_ENTER, &CatClassifPanel::OnUserInput, this);
 	}
 	for (int i=0; i<cc_data.num_cats; i++) {
         wxString ttl_txt = cat_title_txt[i]->GetValue();
@@ -811,7 +811,7 @@ useScientificNotation(_useScientificNotation)
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
         
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int,IsAutomaticLabels());
         
 		InitFromCCData();
 		EnableControls(true);
@@ -842,9 +842,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 	if (!all_init)
         return 0;
 	wxString msg = _("New Custom Categories Title:");
-	wxString new_title = (suggested_title.IsEmpty() ?
-						  GetDefaultTitle(field_name, field_tm) :
-						  suggested_title);
+	wxString new_title = (suggested_title.IsEmpty() ? GetDefaultTitle() : suggested_title);
 	bool retry = true;
 	bool success = false;
     
@@ -884,7 +882,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         cc_data.cat_classif_type = CatClassification::custom;
         cc_data.break_vals_type = CatClassification::quantile_break_vals;
         
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+        CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
         
         int f_sel = assoc_var_choice->FindString(field_name);
         if (f_sel != wxNOT_FOUND) {
@@ -926,11 +924,12 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
 	EnableControls(true);
+    
 }
 
 void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
@@ -940,13 +939,18 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 	if (!all_init) return;
 	CatClassification::BreakValsType bv_type = GetBreakValsTypeChoice();
 	cc_data.break_vals_type = bv_type;
+   
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
+    
+    if (bv_type != CatClassification::custom_break_vals) {
+        auto_labels_cb->SetValue(true);
+    }
 }
 
 void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
@@ -974,7 +978,7 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1030,7 +1034,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1058,7 +1062,7 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1074,7 +1078,7 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+    CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1196,7 +1200,7 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
             
 			InitFromCCData();
 			UpdateCCState();
@@ -1248,7 +1252,7 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+            CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
             
 			InitFromCCData();
 			UpdateCCState();
@@ -1297,6 +1301,21 @@ void CatClassifPanel::OnBrkRad(wxCommandEvent& event)
 	}
 	if (obj_id < 0) return;
 	SetSliderFromBreak(obj_id);
+}
+
+void CatClassifPanel::OnUserInput(wxCommandEvent& event)
+{
+    wxLogMessage("CatClassifPanel::OnUserInput");
+	if (!all_init) return;
+	wxTextCtrl* obj = (wxTextCtrl*) event.GetEventObject();
+    int obj_id = -1;
+    for (int i=0, iend=cat_title_txt.size(); i<iend && obj_id==-1; i++) {
+        if (obj == cat_title_txt[i]) obj_id = i;
+    }
+    if (obj_id < 0) return;
+    wxString s(cat_title_txt[obj_id]->GetValue());
+    
+    UpdateCCState();
 }
 
 void CatClassifPanel::OnBrkTxtEnter(wxCommandEvent& event)
@@ -1537,7 +1556,7 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
                 
             	// Verify that cc data is self-consistent and correct if not.  This
             	// will result in all breaks, colors and names being initialized.
-                CatClassification::CorrectCatClassifFromTable(cc_data, table_int);
+                CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
                 
 				InitFromCCData();
 				EnableControls(true);
@@ -1869,6 +1888,10 @@ void CatClassifPanel::InitFromCCData()
 	
 	SetSliderFromBreak(0);
 
+    if (GetBreakValsTypeChoice() != CatClassification::custom_break_vals) {
+        auto_labels_cb->SetValue(true);
+    }
+    
 	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
 	Refresh();
 }

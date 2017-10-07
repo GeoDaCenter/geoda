@@ -1098,6 +1098,8 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 	control->template_frame = this;
 	m_splitter->SplitVertically(control, canvas, 70);
 	UpdateTitle();
+    
+    SetMinSize(wxSize(600,400));
 
 	Show(true);
 }

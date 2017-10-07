@@ -78,7 +78,7 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
     
     topSizer->Fit(this);
     
-    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
     Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
 }
 
