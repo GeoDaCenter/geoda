@@ -773,50 +773,61 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 					cat_data.AppendIdToCategory(t, cat, ind);
 				}
 		
-                
-				for (int ival=0; ival<num_cats; ival++) {
-                    
-                    ss.str("");
-					if (num_cats <= 1) {
-                        ss << "";
-						cat_data.SetCategoryCount(t, ival, num_obs);
-                        
-					} else if (ival == 0) {
-                        ss << "< " << cat_def.breaks[ival];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else if (ival == num_cats-1 && num_cats != 2) {
-                        ss << "> " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else if (ival == num_cats-1 && num_cats == 2) {
-                        ss << ">= " << cat_def.breaks[ival-1];
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
-                        
-					} else {
-						int num_breaks = num_cats-1;
-						int num_breaks_lower = (num_breaks+1)/2;
-						wxString a;
-						wxString b;
-						if (ival < num_breaks_lower) {
-							a = "[";
-							b = ")";
-						} else if (ival == num_breaks_lower) {
-							a = "[";
-							b = "]";
-						} else {
-							a = "(";
-							b = "]";
-						}
-                        ss << a << cat_def.breaks[ival-1] << ", ";
-                        ss << cat_def.breaks[ival] << b;
-						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                if (cat_def.automatic_labels) {
+    				for (int ival=0; ival<num_cats; ival++) {
+                        ss.str("");
+    					if (num_cats <= 1) {
+                            ss << "";
+    						cat_data.SetCategoryCount(t, ival, num_obs);
+                            
+    					} else if (ival == 0) {
+                            ss << "< " << cat_def.breaks[ival];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else if (ival == num_cats-1 && num_cats != 2) {
+                            ss << "> " << cat_def.breaks[ival-1];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else if (ival == num_cats-1 && num_cats == 2) {
+                            ss << ">= " << cat_def.breaks[ival-1];
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                            
+    					} else {
+    						int num_breaks = num_cats-1;
+    						int num_breaks_lower = (num_breaks+1)/2;
+    						wxString a;
+    						wxString b;
+    						if (ival < num_breaks_lower) {
+    							a = "[";
+    							b = ")";
+    						} else if (ival == num_breaks_lower) {
+    							a = "[";
+    							b = "]";
+    						} else {
+    							a = "(";
+    							b = "]";
+    						}
+                            ss << a << cat_def.breaks[ival-1] << ", ";
+                            ss << cat_def.breaks[ival] << b;
+    						cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
 
-					}
-                    cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
-					cat_data.SetCategoryMinMax(t, ival,
-											   cat_min[ival], cat_max[ival]);
-				}
+    					}
+                        cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
+    					cat_data.SetCategoryMinMax(t, ival,
+    											   cat_min[ival], cat_max[ival]);
+    				}
+                } else {
+                    for (int ival=0; ival<num_cats; ival++) {
+                        if (num_cats <= 1) {
+                            cat_data.SetCategoryCount(t, ival, num_obs);
+                            
+                        } else {
+                            cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        }
+                        cat_data.SetCategoryLabel(t, ival, cat_def.names[ival]);
+                        cat_data.SetCategoryMinMax(t, ival, cat_min[ival], cat_max[ival]);
+                    }
+                }
 			}
 		}
 	} else if (theme == quantile) {

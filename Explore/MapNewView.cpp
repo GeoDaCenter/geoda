@@ -1042,7 +1042,7 @@ wxString MapCanvas::GetCanvasTitle()
 	else if (GetCcType() == CatClassification::no_theme) {
 		s << "Map - " << project->GetProjectTitle();
 	} else if (GetCcType() == CatClassification::custom) {
-		s << cat_classif_def.title;
+		s << cat_classif_def.title << ": " << v;
 	} else {
 		s << CatClassification::CatClassifTypeToString(GetCcType());
 		s << ": " << v;
