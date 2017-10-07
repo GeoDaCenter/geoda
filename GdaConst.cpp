@@ -66,10 +66,10 @@ const char* GdaConst::sample_datasources[] = {
 };
 
 const char* GdaConst::sample_meta_urls[] = {
-    "https://geodacenter.github.io/data-and-lab/Guerry_documentation/",
+    "https://geodacenter.github.io/data-and-lab/Guerry/",
     "https://geodacenter.github.io/data-and-lab/ncovr/",
     "https://geodacenter.github.io/data-and-lab/baltim/",
-    "https://geodacenter.github.io/data-and-lab/boston-housing_old/",
+    "https://geodacenter.github.io/data-and-lab/boston-housing/",
     "https://geodacenter.github.io/data-and-lab/columbus/",
     "https://geodacenter.github.io/data-and-lab/sids2/",
     "https://geodacenter.github.io/data-and-lab/nepal/",

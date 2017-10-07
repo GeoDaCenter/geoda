@@ -107,7 +107,10 @@ wxColour ColocationSelectDlg::get_a_color(wxString label)
 
 void ColocationSelectDlg::CreateControls()
 {
-    panel = new wxPanel(this);
+    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(470,700), wxHSCROLL|wxVSCROLL );
+    all_scrl->SetScrollRate( 5, 5 );
+    
+    panel = new wxPanel(all_scrl);
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
@@ -174,8 +177,13 @@ void ColocationSelectDlg::CreateControls()
     panel->SetAutoLayout(true);
     panel->SetSizer(container);
     
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    all_scrl->SetSizer(panelSizer);
+    
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(all_scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
@@ -258,6 +266,10 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
         GdaColorUtils::GetQuantile10Colors(m_predef_colors);
     } else if (idx == 15) {
         GdaColorUtils::GetPercentileColors(m_predef_colors);
+    } else if (idx == 16) {
+        GdaColorUtils::GetBoxmapColors(m_predef_colors);
+    } else if (idx == 17) {
+        GdaColorUtils::GetStddevColors(m_predef_colors);
     }
    
     m_colors.clear();

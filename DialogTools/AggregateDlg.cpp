@@ -111,6 +111,15 @@ void AggregationDlg::CreateControls()
     m_exc_all = wxDynamicCast(FindWindow( XRCID("ID_EXCL_ALL_BUTTON")), wxButton);
     m_exc_one = wxDynamicCast(FindWindow( XRCID("ID_EXCL_ONE_BUTTON")), wxButton);
     
+    wxScrolledWindow* win = wxDynamicCast(FindWindow( XRCID("ID_AGGREGATE_SCROLL_WIN")), wxScrolledWindow);
+   
+    win->SetAutoLayout(true);
+    win->FitInside();
+    win->SetScrollRate(5, 5);
+    
+    FitInside();
+    
+    
     m_count->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
     m_sum->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
     m_avg->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);

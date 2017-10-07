@@ -83,80 +83,6 @@ private:
 //
 //
 ////////////////////////////////////////////////////////////////////////////
-
-class SimpleReportTextCtrl : public wxTextCtrl
-{
-public:
-    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
-               const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-               long style = 0, const wxValidator& validator = wxDefaultValidator,
-               const wxString& name = wxTextCtrlNameStr)
-    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
-protected:
-    void OnContextMenu(wxContextMenuEvent& event);
-    void OnSaveClick( wxCommandEvent& event );
-    DECLARE_EVENT_TABLE()
-};
-
-class PCASettingsDlg : public wxDialog, public FramesManagerObserver
-{
-public:
-    PCASettingsDlg(Project* project);
-    virtual ~PCASettingsDlg();
-    
-    void CreateControls();
-    bool Init();
-   
-    void OnOK( wxCommandEvent& event );
-    void OnSave( wxCommandEvent& event );
-    void OnCloseClick( wxCommandEvent& event );
-    void OnClose(wxCloseEvent& ev);
-    void OnMethodChoice( wxCommandEvent& event );
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    
-    //boost::uuids::uuid GetWeightsId();
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-    
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    FramesManager* frames_manager;
-    
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    //std::vector<boost::uuids::uuid> weights_ids;
-    
-    wxListBox* combo_var;
-    wxChoice* combo_n;
-
-    SimpleReportTextCtrl* m_textbox;
-    wxButton *saveButton;
-   
-    wxChoice* combo_method;
-    wxChoice* combo_transform;
-
-    
-	std::map<wxString, wxString> name_to_nm;
-	std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    float thresh95;
-    
-    DECLARE_EVENT_TABLE()
-};
-
-////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////
 class MultiVariableSettingsDlg : public wxDialog
 {
 public:
@@ -328,7 +254,9 @@ private:
 
 	void InitTimeChoices();
 	void InitFieldChoices();
-	void FillData();
+	wxString FillData();
+    
+    bool CheckEmptyColumn(int col_id, int time);
 	
 	/** Automatically set the second variable to the same value as
 	 the first variable when first variable is changed. */

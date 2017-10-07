@@ -169,6 +169,8 @@ protected:
 	double* p;
 	double* pseudo_p; //threaded
 	double* x; //threaded
+	double* y; //threaded
+    int* c;
 	double* e_p; //threaded
     wxInt64* nn_1_t;
 	
@@ -181,8 +183,13 @@ public:
 	// p-val from z_i using standard normal table
 	std::vector<double*> p_vecs;
 	std::vector<double*> pseudo_p_vecs; //threaded
+   
+    std::vector<int* > c_vecs;
+    
 	std::vector<double*> x_vecs; //threaded
     std::vector<std::vector<bool> > x_undefs;
+	std::vector<double*> y_vecs; //threaded
+    std::vector<std::vector<bool> > y_undefs;
 
 	boost::uuids::uuid w_id;
     std::vector<GalWeight*> Gal_vecs;

@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GeneralWxUtils.h"
 #include <wx/tokenzr.h>
 #include <wx/filename.h>
 #include <wx/platinfo.h>
@@ -27,8 +26,58 @@
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 
-#include "DialogTools/VariableSettingsDlg.h"
 
+#include "GeneralWxUtils.h"
+
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
+BEGIN_EVENT_TABLE(SimpleReportTextCtrl, wxTextCtrl)
+EVT_CONTEXT_MENU(SimpleReportTextCtrl::OnContextMenu)
+END_EVENT_TABLE()
+
+void SimpleReportTextCtrl::OnContextMenu(wxContextMenuEvent& event)
+{
+    wxMenu* menu = new wxMenu;
+    // Some standard items
+    menu->Append(XRCID("SAVE_SIMPLE_REPORT"), _("&Save"));
+    menu->AppendSeparator();
+    menu->Append(wxID_UNDO, _("&Undo"));
+    menu->Append(wxID_REDO, _("&Redo"));
+    menu->AppendSeparator();
+    menu->Append(wxID_CUT, _("Cu&t"));
+    menu->Append(wxID_COPY, _("&Copy"));
+    menu->Append(wxID_PASTE, _("&Paste"));
+    menu->Append(wxID_CLEAR, _("&Delete"));
+    menu->AppendSeparator();
+    menu->Append(wxID_SELECTALL, _("Select &All"));
+    
+    // Add any custom items here
+    Connect(XRCID("SAVE_SIMPLE_REPORT"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(SimpleReportTextCtrl::OnSaveClick));
+    
+    PopupMenu(menu);
+}
+
+void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
+{
+    wxLogMessage("In SimpleReportTextCtrl::OnSaveClick()");
+    wxFileDialog dlg( this, "Save PCA results", wxEmptyString,
+                     wxEmptyString,
+                     "TXT files (*.txt)|*.txt",
+                     wxFD_SAVE );
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxFileName new_txt_fname(dlg.GetPath());
+    wxString new_txt = new_txt_fname.GetFullPath();
+    wxFFileOutputStream output(new_txt);
+    if (output.IsOk()) {
+        wxTextOutputStream txt_out( output );
+        txt_out << this->GetValue();
+        txt_out.Flush();
+        output.Close();
+    }
+}
 ////////////////////////////////////////////////////////////////////////
 //
 //
@@ -42,8 +91,8 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     
     wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
     wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
-    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300), wxTE_MULTILINE | wxTE_READONLY);
-    vbox0->Add(st, 0, wxEXPAND|wxBOTTOM, 10);
+    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300));
+    vbox0->Add(st, 0, wxBOTTOM, 10);
     vbox0->Add(tc, 1, wxEXPAND);
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);

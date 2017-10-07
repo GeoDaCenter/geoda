@@ -294,6 +294,16 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	std::vector<double> min_vals;
 	std::vector<double> max_vals;
 	table_int->GetMinMaxVals(col_id, min_vals, max_vals);
+    
+    if (min_vals.empty() && max_vals.empty()) {
+        // no min_vals and max_vals, this might be an exceptional case:
+        // e.g. selected variable is not valid
+        wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), name);
+        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
 	var_man.AppendVar(name, min_vals, max_vals, time);
 	include_list->Append(name);
 	vars_list->Delete(sel);

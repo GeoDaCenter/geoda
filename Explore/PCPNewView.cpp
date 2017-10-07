@@ -112,6 +112,12 @@ num_categories(6), all_init(false)
                 if (undef_markers[t][i] == false)
                     temp_vec.push_back(data[v][t][i]);
 			}
+            if (temp_vec.empty()) {
+                wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), var_info[v].name);
+                wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
 			data_stats[v][t].CalculateFromSample(temp_vec);
 			double min = data_stats[v][t].min;
 			double max = data_stats[v][t].max;
@@ -360,6 +366,8 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 
 wxString PCPCanvas::GetCanvasTitle()
 {
+    if (var_order.empty()) return wxEmptyString;
+    
 	wxString s = _("Parallel Coordinate Plot: ");
 	s << GetNameWithTime(var_order[0]) << ", ";
 	if (num_vars > 2) s << "..., ";
@@ -454,7 +462,7 @@ void PCPCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -493,7 +501,7 @@ PCPCanvas::ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -507,7 +515,7 @@ void PCPCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -928,6 +936,8 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			// if the mouse position is at one of the control dots, then
 			// proceed, otherwise call TemplateCanvas::OnMouseEvent(event)
 
+            if (control_labels.empty()) return;
+            
 			int label_match = -1;
 			pcp_prev = GetActualPos(event);
 			pcp_sel1 = pcp_prev;

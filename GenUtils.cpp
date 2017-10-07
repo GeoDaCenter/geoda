@@ -45,6 +45,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
     wxString hh = "([0-9]{1,2})";//"(00|[0-9]|1[0-9]|2[0-3])";
     wxString mm = "([0-9]{1,2})";//"([0-9]|[0-5][0-9])";
     wxString ss = "([0-9]{1,2})"; //"([0-9]|[0-5][0-9])";
+    wxString pp = "([AP]M)"; //"(AM | PM)";
 
     wxString pattern;
     wxString original_pattern;
@@ -58,6 +59,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
         select_pattern.Replace("%H", hh);
         select_pattern.Replace("%M", mm);
         select_pattern.Replace("%S", ss);
+        select_pattern.Replace("%p", pp);
       
         select_pattern = "^" + select_pattern + "$";
         
@@ -74,7 +76,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
    
     if (!pattern.IsEmpty()){
         wxString select_pattern = original_pattern;
-        wxRegEx regex("(%[YymdHMS])");
+        wxRegEx regex("(%[YymdHMSp])");
         while (regex.Matches(select_pattern) ) {
             size_t start, len;
             regex.GetMatch(&start, &len, 0);
@@ -93,7 +95,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
         
     if (regex.Matches(s_date)) {
         int n = regex.GetMatchCount();
-        wxString _year, _short_year, _month, _day, _hour, _minute, _second;
+        wxString _year, _short_year, _month, _day, _hour, _minute, _second, _am_pm;
         long _l_year =0,  _l_short_year=0, _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
         for (int i=1; i<n; i++) {
             if (date_items[i-1] == "%Y") {
@@ -119,6 +121,15 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
             } else if (date_items[i-1] == "%S") {
                 _second = regex.GetMatch(s_date, i);
                 _second.ToLong(&_l_second);
+            } else if (date_items[i-1] == "%p") {
+                _am_pm = regex.GetMatch(s_date, i);
+            }
+        }
+        if (!_am_pm.IsEmpty()) {
+            if (_am_pm.CmpNoCase("AM")) {
+                
+            } else if (_am_pm.CmpNoCase("PM")) {
+                _l_hour += 12;
             }
         }
         val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
@@ -520,6 +531,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
     }
     
     N = data_valid.size();
+    
     is_even_num_obs = (data_valid.size() % 2) == 0;
     
     Q2_ind = (N+1)/2.0 - 1;
@@ -530,6 +542,9 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
         Q1_ind = (N+3)/4.0 - 1;
         Q3_ind = (3*N+1)/4.0 - 1;
     }
+    
+    if (N == 0 || N < Q3_ind) return;
+    
     Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
     Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
     Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
@@ -577,6 +592,9 @@ double Gda::percentile(double x, const std::vector<double>& v)
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
+    
+    if (v.empty()) return 0;
+    
 	if (x <= p_0) return v[0];
 	if (x >= p_Nm1) return v[N-1];
 	

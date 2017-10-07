@@ -59,12 +59,16 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
     for (size_t i=0; i<len; i++)
         list.Add(wxString(valid_chars.GetChar(i)));
     validator.SetIncludes(list);
-    
-	SetMinSize(wxSize(360,750));
-
+   
     parent = parent_s;
     project = project_s;
-    
+   
+    if (project_s->GetTableInt()->GetNumberCols() == 0) {
+        wxString err_msg = _("No numeric variables found in table.");
+        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        EndDialog(wxID_CANCEL);
+    }
     bool init_success = Init();
     
     if (init_success == false) {
@@ -439,8 +443,8 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
             var_items.Add(name);
         }
     }
-    
-    var_box->InsertItems(var_items,0);
+    if (!var_items.IsEmpty())
+        var_box->InsertItems(var_items,0);
 }
 
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)

@@ -411,19 +411,18 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         }
     }
     if ( selection_changed ) {
-        highlight_state->SetEventType(HLStateInt::delta);
-        highlight_state->notifyObservers(this);
-    }
-    
-	if ( selection_changed ) {
+        int total_highlighted = 0; // used for MapCanvas::Drawlayer1
+        for (int i=0; i<num_obs; i++) if (hs[i]) total_highlighted += 1;
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(50);
+        
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         UpdateIvalSelCnts();
         DrawLayers();
-        
+        Refresh();
+        UpdateStatusBar();
 	}
-    Refresh();
-	UpdateStatusBar();
 }
 
 void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -558,6 +557,9 @@ void HistogramCanvas::PopulateCanvas()
                    interval_gap_const * (cur_intervals-1);
     double y_min = 0;
 	double y_max = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
+  
+    // some exceptional case: e.g. variable is not valid
+    if (y_min == 0 && y_max == 0) return;
     
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     

@@ -78,7 +78,7 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
     
     topSizer->Fit(this);
     
-    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
     Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
 }
 
@@ -703,7 +703,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -749,7 +749,7 @@ ChangeThemeType(CatClassification::CatClassifType new_theme,
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -764,7 +764,7 @@ void ScatterNewPlotCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }

@@ -61,10 +61,6 @@ wxWindowID ID_SLIDER = wxID_ANY;
 
 IMPLEMENT_CLASS(SliderDialog, wxDialog)
 BEGIN_EVENT_TABLE(SliderDialog, wxDialog)
-    EVT_COMMAND_SCROLL_THUMBRELEASE( ID_SLIDER, SliderDialog::OnSliderChange)
-#ifdef __WIN32__
-    EVT_COMMAND_SCROLL_CHANGED(ID_SLIDER, SliderDialog::OnSliderChange)
-#endif
 END_EVENT_TABLE()
 
 SliderDialog::SliderDialog(wxWindow * parent,
@@ -114,6 +110,8 @@ SliderDialog::SliderDialog(wxWindow * parent,
     boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
     
     topSizer->Fit(this);
+    
+    slider->Bind(wxEVT_SLIDER, &SliderDialog::OnSliderChange, this);
 }
 
 SliderDialog::~SliderDialog()
@@ -121,7 +119,7 @@ SliderDialog::~SliderDialog()
     
 }
 
-void SliderDialog::OnSliderChange( wxScrollEvent & event )
+void SliderDialog::OnSliderChange( wxCommandEvent & event )
 {
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
@@ -1094,6 +1092,9 @@ void MapCanvas::NewCustomCatClassif()
 	// Begin by asking for a variable if none yet chosen
     vector<vector<bool> > var_undefs(num_time_vals);
     
+	for (int t=0; t<num_time_vals; t++) {
+        var_undefs[t].resize(num_obs);
+	}
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
 		if (dlg.ShowModal() != wxID_OK)
@@ -1113,7 +1114,6 @@ void MapCanvas::NewCustomCatClassif()
         
 		for (int t=0; t<num_time_vals; t++) {
 			cat_var_sorted[t].resize(num_obs);
-            var_undefs[t].resize(num_obs);
             
 			for (int i=0; i<num_obs; i++) {
                 int ts = t+var_info[0].time_min;
@@ -1172,7 +1172,7 @@ void MapCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -1377,7 +1377,7 @@ void MapCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
