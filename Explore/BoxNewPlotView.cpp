@@ -350,8 +350,9 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         layer1_valid = false;
         DrawLayers();
         
-        UpdateStatusBar();
     }
+    Refresh();
+    UpdateStatusBar();
 }
 
 void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)

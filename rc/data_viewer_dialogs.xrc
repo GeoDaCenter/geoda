@@ -1636,7 +1636,7 @@ All Rights Reserved</label>
                           <orient>wxVERTICAL</orient>
                       </object>
                       <flag>wxEXPAND|wxALL</flag>
-                      <border>4</border>
+                      <border>0</border>
                   </object>
                   
                   <object class="sizeritem">
@@ -1663,7 +1663,7 @@ All Rights Reserved</label>
                           <orient>wxVERTICAL</orient>
                       </object>
                       <flag>wxEXPAND|wxALL</flag>
-                      <border>4</border>
+                      <border></border>
                   </object>
                   
                   <object class="sizeritem">
@@ -1677,7 +1677,7 @@ All Rights Reserved</label>
                                           <style>wxRB_GROUP</style>
                                       </object>
                                       <flag>wxBOTTOM</flag>
-                                      <border>5</border>
+                                      <border>2</border>
                                   </object>
                                   <object class="sizeritem">
                                       <object class="wxFlexGridSizer">
@@ -1690,7 +1690,7 @@ All Rights Reserved</label>
                                           <object class="spacer">
                                               <size>5,5d</size>
                                               <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>5</border>
+                                              <border>2</border>
                                           </object>
                                           <object class="sizeritem">
                                               <object class="wxChoice" name="ID_CURRENT_KEY_CHOICE">
@@ -1707,7 +1707,7 @@ All Rights Reserved</label>
                                           <object class="spacer">
                                               <size>5,5d</size>
                                               <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>5</border>
+                                              <border>2</border>
                                           </object>
                                           <object class="sizeritem">
                                               <object class="wxChoice" name="ID_IMPORT_KEY_CHOICE">
@@ -1717,7 +1717,7 @@ All Rights Reserved</label>
                                           </object>
                                           <cols>3</cols>
                                           <rows>2</rows>
-                                          <vgap>7</vgap>
+                                          <vgap>2</vgap>
                                       </object>
                                       <flag>wxLEFT</flag>
                                       <border>25</border>
@@ -1735,7 +1735,7 @@ All Rights Reserved</label>
                                   <orient>wxHORIZONTAL</orient>
                               </object>
                               <flag>wxTOP</flag>
-                              <border>5</border>
+                              <border>2</border>
                           </object>
                           <object class="sizeritem">
                               <object class="wxBoxSizer">
@@ -1844,19 +1844,19 @@ All Rights Reserved</label>
                                   <orient>wxHORIZONTAL</orient>
                               </object>
                               <flag>wxTOP</flag>
-                              <border>5</border>
+                              <border>2</border>
                           </object>
                           <label>Parameters</label>
                           <orient>wxVERTICAL</orient>
                       </object>
                       <flag>wxEXPAND|wxALL</flag>
-                      <border>4</border>
+                      <border>2</border>
                       
                   </object>
                   <orient>wxVERTICAL</orient>
               </object>
               <flag>wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxRIGHT|wxTOP</flag>
-              <border>8</border>
+              <border>4</border>
           </object>
           
           <object class="sizeritem">

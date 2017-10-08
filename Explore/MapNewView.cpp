@@ -1304,7 +1304,10 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 		// new_map_smoothing are assumed to be valid.
 		if (!use_new_var_info_and_col_ids)
             return false;
-		
+
+        // for rates, the variable has to be numeric
+        IS_VAR_STRING = false;
+        
 		var_info.clear();
 		data.clear();
 		var_info.resize(2);
