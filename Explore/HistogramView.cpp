@@ -420,9 +420,9 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         layer1_valid = false;
         UpdateIvalSelCnts();
         DrawLayers();
-        Refresh();
-        UpdateStatusBar();
 	}
+    Refresh();
+    UpdateStatusBar();
 }
 
 void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
