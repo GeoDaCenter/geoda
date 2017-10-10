@@ -599,6 +599,10 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_vert, "",
 										  var.name,
 										  var.time);
+    
+    if (!ccs)
+        return;
+    
 	if (cc_state_vert)
         cc_state_vert->removeObserver(this);
     
@@ -654,6 +658,10 @@ void ConditionalNewCanvas::NewCustomCatClassifHoriz()
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def_horiz, "",
 										  var.name,
 										  var.time);
+    
+    if (!ccs)
+        return;
+    
 	if (cc_state_horiz)
         cc_state_horiz->removeObserver(this);
     
