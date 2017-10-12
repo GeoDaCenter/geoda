@@ -157,8 +157,12 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
                     for (size_t	i=0, sz=hs.size(); i<sz; i++) {
                         hs[i] = false;
                     }
-                    hs[ hover_obs[0] ] = true;
-                    shared_core_hs->SetEventType(HLStateInt::delta);
+                    if (hover_obs.empty()) {
+                        shared_core_hs->SetEventType(HLStateInt::unhighlight_all);
+                    } else {
+                        hs[ hover_obs[0] ] = true;
+                        shared_core_hs->SetEventType(HLStateInt::delta);
+                    }
                     shared_core_hs->notifyObservers();
                 }
             }
@@ -335,7 +339,8 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 	sel_cores.clear();
 	std::vector<bool>& sc_hs = shared_core_hs->GetHighlight();
 	for (int i=0, sz=sc_hs.size(); i<sz; ++i) {
-		if (sc_hs[i]) sel_cores.insert(i);
+		if (sc_hs[i])
+            sel_cores.insert(i);
 	}
 	
 	std::vector<bool>& hs = highlight_state->GetHighlight();

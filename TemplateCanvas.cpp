@@ -2183,6 +2183,7 @@ void TemplateCanvas::NotifyObservables()
 void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
+    hover_obs.clear();
 	int total_obs = selectable_shps.size();
 	if (selectable_shps_type == circles) {
 		// slightly faster than GdaCircle::pointWithin
@@ -2193,7 +2194,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 			if (s==NULL || s->isNull()) continue;
 			if (GenUtils::distance_sqrd(s->center, pt) <=
 				s->radius*s->radius) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}			
 		}
 	} else if (selectable_shps_type == polygons ||
@@ -2204,7 +2206,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
             if ( !_IsShpValid(i))
                 continue;
 			if (selectable_shps[i]->pointWithin(pt)) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}
 		}
 	} else { // selectable_shps_type == points or anything without pointWithin
@@ -2214,7 +2217,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
                 continue;
 			if (GenUtils::distance_sqrd(selectable_shps[i]->center, pt)
 				<= 16.5) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}
 		}
 	}
