@@ -403,7 +403,7 @@ void LisaScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
-        isResize = false;
+        
         
         int vs_w, vs_h;
         
@@ -416,6 +416,8 @@ void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
         ResizeSelectableShps();
         
         PopulateCanvas();
+        
+        isResize = false;
         
         event.RequestMore(); // render continuously, not only once on idle
     }
