@@ -1405,6 +1405,7 @@ void ScatterNewPlotCanvas::ShowLinearSmoother(bool display)
 void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 {
 	show_lowess_smoother = display;
+    isResize = true;
 	PopulateCanvas();
 }
 
