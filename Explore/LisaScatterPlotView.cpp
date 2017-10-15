@@ -1104,4 +1104,89 @@ void LisaScatterPlotFrame::closeObserver(LisaCoordinator* o)
 	Close(true);
 }
 
+void LisaScatterPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    wxLogMessage("Entering LisaScatterPlotFrame::ExportImage");
+    
+    wxString default_fname(project->GetProjectTitle() + type);
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    int filter_index = 1;
+    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    dialog.SetFilterIndex(filter_index);
+    
+    if (dialog.ShowModal() != wxID_OK) return;
+    
+    wxSize sz =  canvas->GetDrawingSize();
+    int new_bmp_w = sz.x + canvas->GetMarginLeft() + canvas->GetMarginRight();
+    int new_bmp_h = sz.y + canvas->GetMarginTop() + canvas->GetMarginBottom();
+    
+    int offset_x = 0;
+    
+    if (template_legend) {
+        int legend_width = template_legend->GetDrawingWidth();
+        new_bmp_w += legend_width;
+        offset_x += legend_width;
+    }
+    
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+    
+    switch (dialog.GetFilterIndex()) {
+        case 0:
+        {
+            wxLogMessage("BMP selected");
+            wxBitmap bitmap(new_bmp_w, new_bmp_h);
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            image.Destroy();
+        }
+            break;
+            
+        case 1:
+        {
+            wxLogMessage("PNG selected");
+            wxBitmap bitmap(new_bmp_w, new_bmp_h);
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            
+            image.Destroy();
+        }
+            break;
+            
+        default:
+        {
+            LOG_MSG("Error: A non-recognized type selected.");
+        }
+            break;
+    }
+    return;
+    
+    LOG_MSG("Exiting LisaScatterPlotFrame::ExportImage");
+}
 
