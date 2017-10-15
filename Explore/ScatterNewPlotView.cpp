@@ -1399,6 +1399,7 @@ void ScatterNewPlotCanvas::ShowLinearSmoother(bool display)
 	show_linear_smoother = display;
 	UpdateDisplayStats();
 	UpdateDisplayLinesAndMargins();
+    isResize = true;
 	PopulateCanvas();
 }
 
@@ -1417,7 +1418,10 @@ void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
 	lowess.SetF(f);
 	lowess.SetIter(iter);
 	lowess.SetDeltaFactor(delta_factor);
-	if (IsShowLowessSmoother()) PopulateCanvas();
+    if (IsShowLowessSmoother()) {
+        isResize = true;
+        PopulateCanvas();
+    }
 }
 
 void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
