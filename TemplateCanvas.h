@@ -256,7 +256,9 @@ public:
 	virtual void PopulateCanvas() = 0;
     
     int GetMarginLeft() { return last_scale_trans.slack_x;}
+    int GetMarginRight() { return last_scale_trans.slack_x;}
     int GetMarginTop() { return last_scale_trans.slack_y;}
+    int GetMarginBottom() { return last_scale_trans.slack_y;}
     
     wxSize GetDrawingSize() {
         wxSize sz(last_scale_trans.screen_width -  last_scale_trans.slack_x * 2,

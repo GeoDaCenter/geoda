@@ -97,8 +97,10 @@ public:
 					const wxSize& size = wxSize(600, 360),
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
-	
+
     void OnActivate(wxActivateEvent& event);
+    
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
