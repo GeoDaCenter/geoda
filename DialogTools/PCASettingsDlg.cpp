@@ -498,8 +498,6 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         pca_log << wxString::Format("%-*s", max_sel_name_len+4, sel_names[k]) << items[k] << "\n";
     }
     
-    
-    
     if (scores.size() != nrows * ncols) {
         row_lim = (nrows < ncols)? nrows : ncols,
         col_lim = (ncols < nrows)? ncols : nrows;
@@ -509,12 +507,56 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     
     //https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
-    
-    
+    /*
     pca_log << "\n\nRotated data: \n";
     for (unsigned int i = 0; i < row_lim; ++i) {
         for (unsigned int j = 0; j < col_lim; ++j) {
             pca_log << scores[j + col_lim*i] << "\t";
+        }
+        pca_log << "\n";
+    }
+    */
+    // squared correlations for PCA
+    pca_log << "\n\nSquared correlations:\n";
+    
+    int num_pc = col_lim;
+    vector<vector<double> > pc_data(num_pc);
+    for (int i=0; i<col_lim; i++ ) {
+        pc_data[i].resize(row_lim);
+        for (int j=0; j<row_lim; j++ ) {
+            pc_data[i][j] = scores[i + col_lim*j];
+        }
+    }
+    
+    vector<int> col_size(num_pc, 0);
+    vector<vector<wxString> > corr_matrix(num_var);
+    double corr, corr_sqr;
+    for (int i=0; i<num_var; i++) {
+        corr_matrix[i].resize(num_pc);
+        for (int j=0; j<num_pc; j++) {
+            corr = GenUtils::Correlation(data[i], pc_data[j]);
+            corr_sqr = corr * corr;
+            wxString tmp;
+            tmp << corr_sqr;
+            if (tmp.length() > col_size[j]) {
+                col_size[j] = tmp.length();
+            }
+            corr_matrix[i][j] << corr_sqr;
+        }
+    }
+    
+    pca_log << wxString::Format("%-*s", max_sel_name_len+4, "");
+    for (int j=0; j<num_pc; j++) {
+        wxString ttl;
+        ttl << "PC" << j+1;
+        pca_log << wxString::Format("%*s", col_size[j]+4, ttl);
+    }
+    pca_log << "\n";
+    
+    for (int i=0; i<num_var; i++) {
+        pca_log << wxString::Format("%-*s", max_sel_name_len+4, sel_names[i]);
+        for (int j=0; j<num_pc; j++) {
+            pca_log <<   wxString::Format("%*s", col_size[j]+4, corr_matrix[i][j]);
         }
         pca_log << "\n";
     }
