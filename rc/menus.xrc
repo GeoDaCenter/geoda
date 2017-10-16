@@ -2493,7 +2493,7 @@
         <label>Show As Conditional Map</label>
     </object>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Cores and Neighbors of Selection</label>
+        <label>Selection and Neighbors</label>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
@@ -2672,7 +2672,7 @@
         <label>Show As Conditional Map</label>
     </object>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Cores and Neighbors of Selection</label>
+        <label>Selection and Neighbors</label>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
@@ -3041,6 +3041,10 @@
     </object>
     <object class="wxMenuItem" name="ID_MAPANALYSIS_SAVERESULTS">
       <label>Save Rates</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+        <label>Selection and Neighbors</label>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">

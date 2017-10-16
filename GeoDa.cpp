@@ -5417,7 +5417,9 @@ void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnAddNeighborToSelection()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
+	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+		f->OnAddNeighborToSelection(event);
+    } else if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
 		f->OnAddNeighborToSelection(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnAddNeighborToSelection(event);

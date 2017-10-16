@@ -335,6 +335,8 @@ public:
                     std::vector<wxString>& clrs,
                     std::vector<double>& bins);
     
+    void OnAddNeighborToSelection(wxCommandEvent& event);
+    
 protected:
     
     void OnMapSelect(wxCommandEvent& e);
@@ -347,8 +349,6 @@ protected:
     //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
     
-	
-protected:
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,

@@ -353,6 +353,7 @@ namespace GenUtils {
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, std::vector<bool>& undef);
 	bool StandardizeData(std::vector<double>& data);
+    double Correlation(std::vector<double>& x, std::vector<double>& y);
     double GetVariance(std::vector<double>& data);
 	template<class T> T abs(const T& x);
 	template<class T> const T& max(const T& x, const T& y);

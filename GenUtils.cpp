@@ -1184,6 +1184,35 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
 }
 
+double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
+{
+    int nObs = x.size();
+    double sum_x = 0;
+    double sum_y = 0;
+    for (int i=0; i<nObs; i++) {
+        sum_x += x[i];
+        sum_y += y[i];
+    }
+    double mean_x = sum_x / nObs;
+    double mean_y = sum_y / nObs;
+   
+    double ss_x = 0;
+    double ss_y = 0;
+    double ss_xy = 0;
+    double d_x = 0, d_y = 0;
+    for (int i=0; i<nObs; i++) {
+        d_x = x[i] - mean_x;
+        d_y = y[i] - mean_y;
+        ss_x += d_x * d_x;
+        ss_y += d_y * d_y;
+        ss_xy += d_x * d_y;
+    }
+    
+    double r = pow(ss_x * ss_y, 0.5);
+    r = ss_xy / r;
+    return r;
+}
+
 bool GenUtils::StandardizeData(int nObs, double* data)
 {
 	if (nObs <= 1) return false;
