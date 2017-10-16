@@ -52,6 +52,7 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "Basemap.h"
 #include "MapNewView.h"
 
@@ -2249,6 +2250,62 @@ void MapFrame::closeObserver(boost::uuids::uuid id)
 		}
 		Close(true);
 	}
+}
+
+void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+{
+    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+        
+    }
+    boost::uuids::uuid w_id = w_man_int->GetDefault();
+    
+    GalWeight* gal_weights = w_man_int->GetGal(w_id);
+    if (gal_weights== NULL) {
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+   
+    int num_obs = project->GetNumRecords();
+    
+    HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& h = hs.GetHighlight();
+    int nh_cnt = 0;
+    std::vector<bool> add_elem(gal_weights->num_obs, false);
+    
+    std::vector<int> new_highlight_ids;
+    
+    for (int i=0; i<gal_weights->num_obs; i++) {
+        if (h[i]) {
+            GalElement& e = gal_weights->gal[i];
+            for (int j=0, jend=e.Size(); j<jend; j++) {
+                int obs = e[j];
+                if (!h[obs] && !add_elem[obs]) {
+                    add_elem[obs] = true;
+                    new_highlight_ids.push_back(obs);
+                }
+            }
+        }
+    }
+    
+    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
+        h[ new_highlight_ids[i] ] = true;
+        nh_cnt ++;
+    }
+    
+    if (nh_cnt > 0) {
+        hs.SetEventType(HLStateInt::delta);
+        hs.notifyObservers();
+    }
 }
 
 void MapFrame::OnNewCustomCatClassifA()
