@@ -569,7 +569,7 @@ void PCPCanvas::PopulateCanvas()
 	}
 	
     last_scale_trans.SetData(0, 0, 100, 100);
-    last_scale_trans.SetMargin(25,virtual_screen_marg_bottom, 135, 25);
+    last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, 135, 25);
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
     
 	selectable_shps.resize(num_obs);
@@ -612,6 +612,12 @@ void PCPCanvas::PopulateCanvas()
 	}
 	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
 	control_line_pen.SetWidth(2);
+    
+    int max_label_width = 0;
+    wxClientDC dc(this);
+    int s_w =0;
+    int s_h = 0;
+    
 	for (int v=0; v<num_vars; v++) {
 		int y_del = display_stats ? -8 : 0;
 		int vv = var_order[v];
@@ -633,6 +639,9 @@ void PCPCanvas::PopulateCanvas()
         s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
                              wxRealPoint(0, y_pos), 0, GdaShapeText::right,
                              GdaShapeText::v_center, -25, 0+y_del);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
+        
 		foreground_shps.push_back(s);
 		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
@@ -660,6 +669,8 @@ void PCPCanvas::PopulateCanvas()
 			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 			int cols = 2;
 			int rows = 2;
@@ -673,6 +684,8 @@ void PCPCanvas::PopulateCanvas()
 							wxRealPoint(0, y_pos), GdaShapeText::right,
 							GdaShapeText::top, GdaShapeText::right, GdaShapeText::v_center,
 							3, 7, -25, 25+y_del);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 		}
 	}
@@ -685,6 +698,8 @@ void PCPCanvas::PopulateCanvas()
 		s = new GdaShapeText(wxString::Format("%d", 0),
 					   *GdaConst::small_font, wxRealPoint(50, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
 		foreground_shps.push_back(s);
 		int sd_abs = overall_abs_max_std;
 		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
@@ -700,6 +715,8 @@ void PCPCanvas::PopulateCanvas()
 			s = new GdaShapeText(wxString::Format("%d", i),
 						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
@@ -707,10 +724,14 @@ void PCPCanvas::PopulateCanvas()
 			s = new GdaShapeText(wxString::Format("%d", -i),
 						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 		}
 	}
-	
+    
+	last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, max_label_width + 30, 25);
+    
 	delete [] pts;
 	
 	ResizeSelectableShps();

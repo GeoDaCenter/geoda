@@ -2167,6 +2167,13 @@ void GdaShapeText::paintSelf(wxGraphicsContext* gc)
     
 }
 
+void GdaShapeText::GetSize(wxDC& dc, int& w, int& h)
+{
+    wxSize extent(dc.GetTextExtent(text));
+    w = extent.GetWidth();
+    h = extent.GetHeight();
+}
+
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)
 {
 	A.transform(ref_pt_o, &ref_pt);

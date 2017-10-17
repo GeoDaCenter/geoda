@@ -458,6 +458,8 @@ public:
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
     
+    virtual void GetSize(wxDC& dc, int& w, int& h);
+    
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
