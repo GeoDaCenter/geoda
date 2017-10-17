@@ -201,6 +201,9 @@ void GdaScaleTrans::calcAffineParams()
 			trans_y = screen_height - slack_y - bottom_margin - scale_y * data_y_min;
 		}
 	} else { // fixed_aspect_ratio == false, fit_to_window == true/false
+        slack_x = 0;
+        slack_y = 0;
+        
 		scale_x = drawing_area_width / data_width;
 		scale_y = -(drawing_area_height / data_height);
 		
@@ -2162,6 +2165,13 @@ void GdaShapeText::paintSelf(wxDC& dc)
 void GdaShapeText::paintSelf(wxGraphicsContext* gc)
 {
     
+}
+
+void GdaShapeText::GetSize(wxDC& dc, int& w, int& h)
+{
+    wxSize extent(dc.GetTextExtent(text));
+    w = extent.GetWidth();
+    h = extent.GetHeight();
 }
 
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)

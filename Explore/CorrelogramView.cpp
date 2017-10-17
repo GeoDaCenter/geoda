@@ -627,10 +627,16 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
 			stringstream ss;
 			if (h_axs.tics[i] < 10000000) {
-				ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+				else
+                    ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			} else {
-				ss << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+                else 
+                    ss << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			}
 			h_axs.tics_str_show[i] = true;

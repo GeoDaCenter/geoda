@@ -664,6 +664,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_MULTI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MULTI_LISA"), shp_proj);
+	EnableTool(XRCID("IDM_DIFF_LISA"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DIFF_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_LISA_EBRATE"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LISA_EBRATE"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_G"), shp_proj);

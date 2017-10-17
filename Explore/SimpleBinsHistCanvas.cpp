@@ -210,7 +210,10 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
 			std::ostringstream ss;
-			ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
+            if ( axis_scale_x.tics[i] == (int) axis_scale_x.tics[i])
+                ss << wxString::Format("%d", (int)axis_scale_x.tics[i]);
+            else
+                ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
 			axis_scale_x.tics_str[i] = ss.str();
 			axis_scale_x.tics_str_show[i] = false;
 		}

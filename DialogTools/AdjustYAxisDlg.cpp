@@ -145,7 +145,7 @@ void AxisLabelPrecisionDlg::CreateControls()
 {
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_AXIS_LABEL_PRECISION_DLG");
     m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")), wxSpinCtrl);
-    m_precision_spin->SetRange(1, 6);
+    m_precision_spin->SetRange(0, 6);
     m_precision_spin->SetValue(precision);
 }
 
