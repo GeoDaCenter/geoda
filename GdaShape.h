@@ -41,7 +41,7 @@ struct GdaScaleTrans {
     GdaScaleTrans();
 	GdaScaleTrans(double s_x, double s_y, double t_x, double t_y) :
 		scale_x(s_x), scale_y(s_y), max_scale(GenUtils::max<double>(s_x, s_y)),
-		trans_x(t_x), trans_y(t_y) {}
+		trans_x(t_x), trans_y(t_y), slack_x(0), slack_y(0) {}
 	virtual GdaScaleTrans& operator=(const GdaScaleTrans& s);
    
     void SetData(double x_min, double y_min, double x_max, double y_max);
