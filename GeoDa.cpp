@@ -2198,7 +2198,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 		}
 	}
 	
-	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
+	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, false, true);
 }
 
 CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)

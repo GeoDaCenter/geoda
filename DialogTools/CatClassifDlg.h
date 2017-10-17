@@ -293,6 +293,7 @@ class CatClassifFrame : public TemplateFrame
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
                     bool useScientificNotation = false,
+                    bool promptNew = false,
 					const wxString& title = _("Category Editor"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,

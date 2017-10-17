@@ -2395,6 +2395,7 @@ END_EVENT_TABLE()
 
 CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
                                  bool useScientificNotation,
+                                 bool promptNew,
 								 const wxString& title, const wxPoint& pos,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
@@ -2483,6 +2484,11 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
+    
+    if (promptNew) {
+        wxCommandEvent ev;
+        panel->OnButtonNew(ev);
+    }
 }
 
 ///MMM: Sort out in all Frames: what should be in the destructor?
