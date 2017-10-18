@@ -3498,6 +3498,11 @@
       <label>Change Parameters</label>
       <checkable>0</checkable>
     </object>
+	<object class="wxMenuItem" name="ID_CORRELOGRAM_DISPLAY_STATS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
+    </object>
 	<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
       <label>Show Status Bar</label>
       <checkable>1</checkable>

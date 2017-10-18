@@ -36,8 +36,8 @@ class Project;
 class SimpleBinsHistCanvasCbInt
 {
 public:
-	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-																	int total_hover_obs) = 0;
+	virtual void notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs) = 0;
+    virtual void OnRightClick(const wxPoint& pos) = 0;
 };
 
 

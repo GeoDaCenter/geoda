@@ -57,7 +57,7 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
-hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0)
+hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), display_statistics(false)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -137,8 +137,10 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
     if (!optMenu) return;
     
     UpdateContextMenuItems(optMenu);
+    GeneralWxUtils::CheckMenuItem(optMenu, XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), display_statistics);
     PopupMenu(optMenu, pos);
     UpdateOptionMenuItems();
+   
     
     wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_CORRELOGRAM_STATS"));
     Connect(save_menu->GetId(), wxEVT_MENU,
@@ -259,7 +261,19 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
     wxLogMessage("In CorrelogramFrame::OnDisplayStatistics()");
+    display_statistics = !display_statistics;
+    if (shs_plot) {
+        if (display_statistics) shs_plot->Show();
+        else shs_plot->Hide();
+        top_h_sizer->RecalcSizes();
+    }
+    Refresh();
 	UpdateOptionMenuItems();
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
+    if (!optMenu) return;
+    void *data = reinterpret_cast<void *>(display_statistics);
+    optMenu->SetClientData( data );
 }
 
 /** Implementation of TableStateObserver interface */
@@ -742,7 +756,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     stats.push_back(range_left);
     stats.push_back(range_right);
     stats.push_back(est_dist);
-    
+   
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
                                         lbls, vals, stats,
@@ -753,6 +767,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     //bag_szr->Add(shs_can, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1), wxEXPAND);
     
     shs_plot = shs_can;
+   
+    if (display_statistics) shs_plot->Show();
+    else shs_plot->Hide();
     
     panel_v_szr->Add(shs_can, 0, wxLEFT | wxRIGHT | wxEXPAND);
    

@@ -5681,6 +5681,8 @@ void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 		f->OnDisplayStatistics(event);
 	} else if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
 		f->OnDisplayStatistics(event);
+	} else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+		f->OnDisplayStatistics(event);
 	} else if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
 		LineChartEventDelay* l=new LineChartEventDelay(f, "ID_DISPLAY_STATISTICS");
 	}
@@ -7013,6 +7015,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_COMPARE_TIME_PERIODS"), GdaFrame::OnCompareTimePeriods)
     EVT_MENU(XRCID("ID_COMPARE_REG_AND_TM_PER"), GdaFrame::OnCompareRegAndTmPer)
     EVT_MENU(XRCID("ID_DISPLAY_STATISTICS"), GdaFrame::OnDisplayStatistics)
+    EVT_MENU(XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), GdaFrame::OnDisplayStatistics)
+
     EVT_MENU(XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"), GdaFrame::OnShowAxesThroughOrigin)
     EVT_MENU(XRCID("ID_DISPLAY_AXES_SCALE_VALUES"), GdaFrame::OnDisplayAxesScaleValues)
     EVT_MENU(XRCID("ID_DISPLAY_SLOPE_VALUES"),GdaFrame::OnDisplaySlopeValues)
