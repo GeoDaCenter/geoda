@@ -93,7 +93,9 @@ public:
 	
 protected:
 	virtual void UpdateStatusBar();
-	
+
+    Project* project;
+    
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;

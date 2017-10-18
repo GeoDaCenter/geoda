@@ -854,7 +854,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_QUANTILE_SUBMENU"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_BOX_SUBMENU"), !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_15"), !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_30"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"), !IS_VAR_STRING);
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_SUBMENU"), !IS_VAR_STRING);

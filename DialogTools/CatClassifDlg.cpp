@@ -37,6 +37,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GenGeomAlgs.h"
 #include "../Project.h"
+#include "../GeoDa.h"
 #include "../SaveButtonManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
@@ -72,6 +73,7 @@ CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
                                            const wxSize& size)
 :TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
                 pos, size, false, true),
+project(project_s),
 num_obs(project_s->GetNumRecords()),
 y_axis(0), data(0), default_data(project_s->GetNumRecords()),
 breaks(0), default_breaks(default_intervals-1),
@@ -842,7 +844,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 	if (!all_init)
         return 0;
 	wxString msg = _("New Custom Categories Title:");
-	wxString new_title = (suggested_title.IsEmpty() ? GetDefaultTitle() : suggested_title);
+	wxString new_title = (suggested_title.IsEmpty() ? GetDefaultTitle(field_name) : suggested_title);
 	bool retry = true;
 	bool success = false;
     
@@ -896,6 +898,8 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
         SetSyncVars(true);
         InitFromCCData();
+        UpdateCCState();
+        
         cc_state->SetCatClassif(cc_data);
         cur_cats_choice->Append(new_title);
         cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
@@ -2375,6 +2379,33 @@ bool CatClassifPanel::IsOkToDelete(const wxString& custom_cat_title)
  notifyObservers. */
 void CatClassifPanel::UpdateCCState()
 {
+    // try to add toolbar/menu items
+    wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
+    int mPos = mb->FindMenu("Map");
+    if (mPos > wxNOT_FOUND) {
+        wxMenu* menu = mb->GetMenu(mPos);
+        int m_id = menu->FindItem("Custom Breaks");
+        wxMenuItem* mi = menu->FindItem(m_id);
+        if (mi) {
+            wxMenu* sm = mi->GetSubMenu();
+            if (sm) {
+                // clean
+                wxMenuItemList items = sm->GetMenuItems();
+                for (int i=0; i<items.size(); i++) {
+                    sm->Delete(items[i]);
+                }
+                vector<wxString> titles;
+                CatClassifManager* ccm = project->GetCatClassifManager();
+                ccm->GetTitles(titles);
+                
+                for (size_t j=0; j<titles.size(); j++) {
+                    wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
+                }
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            }
+        }
+    }
+    
 	if (!cc_state) return;
 	cc_state->SetCatClassif(cc_data);
 	cc_state->notifyObservers();
