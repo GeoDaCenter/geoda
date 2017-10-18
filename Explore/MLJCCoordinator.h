@@ -42,7 +42,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 
 
-class GetisOrdMapFrame; // instead of JCCoordinatorObserver
+class JCCoordinatorObserver; 
 class JCCoordinator;
 class Project;
 class WeightsManState;
@@ -233,8 +233,7 @@ public:
     
 	void VarInfoAttributeChange();
 	
-	void FillClusterCats(int canvas_time, bool is_gi, bool is_perm,
-						 std::vector<wxInt64>& c_val);
+	void FillClusterCats(int canvas_time,std::vector<wxInt64>& c_val);
 protected:
 	void DeallocateVectors();
 	void AllocateVectors();
