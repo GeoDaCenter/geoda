@@ -93,7 +93,9 @@ public:
 	
 protected:
 	virtual void UpdateStatusBar();
-	
+
+    Project* project;
+    
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;
@@ -293,6 +295,7 @@ class CatClassifFrame : public TemplateFrame
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
                     bool useScientificNotation = false,
+                    bool promptNew = false,
 					const wxString& title = _("Category Editor"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,

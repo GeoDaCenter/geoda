@@ -43,8 +43,8 @@ class Project;
 class SimpleScatterPlotCanvasCbInt
 {
 public:
-	virtual void notifyNewHover(const std::vector<int>& hover_obs,
-															int total_hover_obs) = 0;
+	virtual void notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs) = 0;
+    virtual void OnRightClick(const wxPoint& pos) = 0;
 };
 
 class SimpleScatterPlotCanvas : public TemplateCanvas

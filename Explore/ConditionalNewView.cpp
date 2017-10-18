@@ -223,7 +223,8 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_QUANT_SUBMENU"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_BOX_SUBMENU"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_15"), VERT_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_30"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), VERT_VAR_NUM);
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_SUBMENU"), VERT_VAR_NUM);
@@ -236,7 +237,8 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_THEMELESS"), HOR_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_SUBMENU"), HOR_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_BOX_SUBMENU"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_15"), HOR_VAR_NUM);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_30"), HOR_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), HOR_VAR_NUM);
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), HOR_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_SUBMENU"), HOR_VAR_NUM);

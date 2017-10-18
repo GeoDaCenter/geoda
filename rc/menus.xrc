@@ -270,14 +270,11 @@
       <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_PERCENTILE">
         <label>Percentile Map</label>
       </object>
-      <object class="wxMenu" name="ID_OPEN_MAPANALYSIS_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
-          <label>Hinge=1.5</label>
-        </object>
-        <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
-          <label>Hinge=3.0</label>
-        </object>
-        <label>Box Map</label>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
+      </object>
+      <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
       </object>
       <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
         <label>Standard Deviation Map</label>
@@ -347,6 +344,9 @@
 	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
           <label>10</label>
 	    </object>
+      </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
       </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
@@ -501,7 +501,6 @@
     </object>
 	<object class="wxMenu" name="ID_MENU">
       <label>Tim&amp;e</label>
-
 	      <object class="wxMenuItem" name="ID_SHOW_TIME_CHOOSER">
         <label>Time Player</label>
       </object>
@@ -723,16 +722,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -873,16 +869,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -1026,16 +1019,13 @@
         <checkable>1</checkable>
       </object>
       
-      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
@@ -1228,16 +1218,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -1380,16 +1367,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -1609,16 +1593,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_COND_VERT_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COND_VERT_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -1761,17 +1742,15 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_COND_HORIZ_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
-          <label>Hinge=3.0</label>
-          <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
+      <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
+          <checkable>1</checkable>
+      </object>
+
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
         <checkable>1</checkable>
@@ -1950,16 +1929,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -2908,16 +2884,13 @@
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      <object class="wxMenu" name="ID_MAPANALYSIS_BOX_SUBMENU">
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
-          <label>Hinge=1.5</label>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_15">
+          <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
-        </object>
-        <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
-          <label>Hinge=3.0</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAPANALYSIS_HINGE_30">
+          <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
-        </object>
-        <label>Box Map</label>
       </object>
       <object class="wxMenuItem" name="ID_MAPANALYSIS_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
@@ -3524,6 +3497,11 @@
 	<object class="wxMenuItem" name="ID_EDIT_VARIABLES">
       <label>Change Parameters</label>
       <checkable>0</checkable>
+    </object>
+	<object class="wxMenuItem" name="ID_CORRELOGRAM_DISPLAY_STATS">
+      <label>Display Statistics</label>
+      <checkable>1</checkable>
+      <checked>0</checked>
     </object>
 	<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
       <label>Show Status Bar</label>
@@ -4423,10 +4401,10 @@
       <label>Percentile Map</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
-      <label>Box Map, Hinge=1.5</label>
+      <label>Box Map (Hinge=1.5)</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
-      <label>Box Map, Hinge=3.0</label>
+      <label>Box Map (Hinge=3.0)</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
       <label>Standard Deviation Map</label>
@@ -4498,6 +4476,10 @@
         <label>10</label>
 	  </object>
     </object>
+    <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+        <label>Custom Breaks</label>
+    </object>
+    <object class="separator"/>
     <object class="wxMenu" name="ID_MAP_SMOOTHING_CHOICES">
       <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_RAWRATE">
         <label>Raw Rate</label>
@@ -4556,10 +4538,10 @@
       <label>Percentile Map</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_15">
-      <label>Box Map, Hinge=1.5</label>
+      <label>Box Map (Hinge=1.5)</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_HINGE_30">
-      <label>Box Map, Hinge=3.0</label>
+      <label>Box Map (Hinge=3.0)</label>
     </object>
     <object class="wxMenuItem" name="ID_OPEN_MAPANALYSIS_CHOROPLETH_STDDEV">
       <label>Standard Deviation Map</label>

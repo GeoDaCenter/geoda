@@ -324,7 +324,7 @@ public:
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
     
-     void OnClose(wxCloseEvent& event);
+    void OnClose(wxCloseEvent& event);
     
     void CleanBasemap();
     
@@ -337,7 +337,6 @@ public:
     
     void OnAddNeighborToSelection(wxCommandEvent& event);
     
-protected:
     
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
@@ -358,6 +357,7 @@ protected:
 					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
 	
+protected:
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;
 	

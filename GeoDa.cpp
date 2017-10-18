@@ -1088,6 +1088,34 @@ void GdaFrame::RemoveInvalidRecentDS()
     recent_ds.DeleteLastRecord();
 }
 
+void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+       
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+        if (idx < 0 || idx >= titles.size()) return;
+            
+        wxString cc_title = titles[idx];
+        
+        VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
+        if (dlg.ShowModal() != wxID_OK) return;
+        MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                    dlg.var_info, dlg.col_ids,
+                                    CatClassification::no_theme,
+                                    MapCanvas::no_smoothing, 1,
+                                    boost::uuids::nil_uuid(),
+                                    wxDefaultPosition,
+                                    GdaConst::map_default_size);
+        nf->ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4, boost::uuids::nil_uuid(), true, dlg.var_info, dlg.col_ids, cc_title);
+        nf->UpdateTitle();
+    }
+}
+
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnRecentDSClick");
@@ -2059,7 +2087,29 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
 		popupMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_CHOICES_NO_ICONS");
 	}
 	
-	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+    if (popupMenu) {
+        int m_id = popupMenu->FindItem("Custom Breaks");
+        wxMenuItem* mi = popupMenu->FindItem(m_id);
+        if (mi) {
+            wxMenu* sm = mi->GetSubMenu();
+            if (sm) {
+                // clean
+                wxMenuItemList items = sm->GetMenuItems();
+                for (int i=0; i<items.size(); i++) {
+                    sm->Delete(items[i]);
+                }
+                vector<wxString> titles;
+                CatClassifManager* ccm = project_p->GetCatClassifManager();
+                ccm->GetTitles(titles);
+                
+                for (size_t j=0; j<titles.size(); j++) {
+                    wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
+                }
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            }
+        }
+        PopupMenu(popupMenu, wxDefaultPosition);
+    }
 }
 
 #include "DialogTools/ASC2SHPDlg.h"
@@ -2198,7 +2248,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 		}
 	}
 	
-	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
+	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, false, true);
 }
 
 CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)
@@ -5631,6 +5681,8 @@ void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 		f->OnDisplayStatistics(event);
 	} else if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
 		f->OnDisplayStatistics(event);
+	} else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+		f->OnDisplayStatistics(event);
 	} else if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
 		LineChartEventDelay* l=new LineChartEventDelay(f, "ID_DISPLAY_STATISTICS");
 	}
@@ -6963,6 +7015,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_COMPARE_TIME_PERIODS"), GdaFrame::OnCompareTimePeriods)
     EVT_MENU(XRCID("ID_COMPARE_REG_AND_TM_PER"), GdaFrame::OnCompareRegAndTmPer)
     EVT_MENU(XRCID("ID_DISPLAY_STATISTICS"), GdaFrame::OnDisplayStatistics)
+    EVT_MENU(XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), GdaFrame::OnDisplayStatistics)
+
     EVT_MENU(XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"), GdaFrame::OnShowAxesThroughOrigin)
     EVT_MENU(XRCID("ID_DISPLAY_AXES_SCALE_VALUES"), GdaFrame::OnDisplayAxesScaleValues)
     EVT_MENU(XRCID("ID_DISPLAY_SLOPE_VALUES"),GdaFrame::OnDisplaySlopeValues)

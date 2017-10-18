@@ -679,6 +679,8 @@ public:
 	void SetMenusToDefault();
    
     void RemoveInvalidRecentDS();
+   
+    void OnCustomCategoryClick(wxCommandEvent& event);
     
     void UpdateRecentDatasourceMenu();
 

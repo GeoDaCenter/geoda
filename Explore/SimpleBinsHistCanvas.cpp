@@ -37,6 +37,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
+#include "CorrelogramView.h"
 #include "SimpleBinsHistCanvas.h"
 
 IMPLEMENT_CLASS(SimpleBinsHistCanvas, TemplateCanvas)
@@ -105,17 +106,10 @@ SimpleBinsHistCanvas::~SimpleBinsHistCanvas()
 void SimpleBinsHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering SimpleBinsHistCanvas::DisplayRightClickMenu");
-	if (right_click_menu_id.IsEmpty()) return;	
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	template_frame->OnActivate(ae);
-
-	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
-
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
+	if (right_click_menu_id.IsEmpty()) return;
+    if (sbh_canv_cb) {
+        sbh_canv_cb->OnRightClick(pos+ GetPosition());
+    }
 	LOG_MSG("Exiting SimpleBinsHistCanvas::DisplayRightClickMenu");
 }
 
