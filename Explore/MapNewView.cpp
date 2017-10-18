@@ -446,10 +446,6 @@ bool MapCanvas::InitBasemap()
 bool MapCanvas::DrawBasemap(bool flag, int map_type_)
 {
     //ResetShapes();
-    if (isDrawBasemap) {
-        basemap->Reset();
-    }
-    
     ResetBrushing();
     map_type = map_type_;
     isDrawBasemap = flag;
