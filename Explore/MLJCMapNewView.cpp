@@ -78,9 +78,9 @@ gs_coord(gs_coordinator), is_clust(is_clust_p)
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
 
 	if (is_clust) {
-		cat_classif_def.cat_classif_type = CatClassification::getis_ord_categories;
+		cat_classif_def.cat_classif_type = CatClassification::local_join_count_categories;
 	} else {
-		cat_classif_def.cat_classif_type = CatClassification::getis_ord_significance;
+		cat_classif_def.cat_classif_type = CatClassification::local_join_count_significance;
 	}
 	
 	// must set var_info times from JCCoordinator initially
@@ -114,7 +114,7 @@ void MLJCMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting MapCanvas::DisplayRightClickMenu");
+	LOG_MSG("Exiting MLJCMapCanvas::DisplayRightClickMenu");
 }
 
 wxString MLJCMapCanvas::GetCanvasTitle()
@@ -132,8 +132,7 @@ wxString MLJCMapCanvas::GetCanvasTitle()
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by MLJC maps */
-bool MLJCMapCanvas::ChangeMapType(CatClassification::CatClassifType new_theme,
-                                      SmoothingType new_smoothing)
+bool MLJCMapCanvas::ChangeMapType(CatClassification::CatClassifType new_theme, SmoothingType new_smoothing)
 {
 	LOG_MSG("In MLJCMapCanvas::ChangeMapType");
 	return false;
@@ -145,7 +144,6 @@ void MLJCMapCanvas::SetCheckMarks(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	
 	MapCanvas::SetCheckMarks(menu);
 	
 	int sig_filter = ((MLJCMapFrame*) template_frame)->GetJCCoordinator()->GetSignificanceFilter();
@@ -161,11 +159,8 @@ void MLJCMapCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
                                   sig_filter == -1);
 
-	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
 								  gs_coord->IsReuseLastSeed());
-    
-    
 }
 
 void MLJCMapCanvas::TimeChange()
