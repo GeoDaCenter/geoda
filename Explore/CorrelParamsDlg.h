@@ -67,6 +67,9 @@ public:
 	void OnThreshSlider(wxCommandEvent& ev);
 	void OnMaxIterTextCtrl(wxCommandEvent& ev);
 	void OnMaxIterTctrlKillFocus(wxFocusEvent& ev);
+    
+	void OnSeedCheck(wxCommandEvent& ev);
+	void OnChangeSeed(wxCommandEvent& ev);
 	
 	/** Validates variable list against table.
 	 New variables are added, order is updated, and missing variables are removed.
@@ -93,7 +96,9 @@ private:
 	void UpdateThreshTctrlVal();
 	void UpdateEstPairs();
 	wxString GetHelpPageHtml() const;
-	
+
+    int num_bins;
+    
 	Project* project;
 
 	wxStaticText* var_txt; // ID_VAR_TXT
@@ -113,6 +118,9 @@ private:
 	wxTextCtrl* max_iter_tctrl; // ID_MAX_ITER_TCTRL
 	wxButton* help_btn; // ID_HELP_BTN
 	wxButton* apply_btn; // ID_APPLY_BTN
+    
+    wxCheckBox* chk_seed;
+    wxButton* seedButton;
 	
 	static const long sldr_tcks = 1000;
 };

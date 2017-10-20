@@ -25,10 +25,11 @@
 #include "MapNewView.h"
 #include "MLJCCoordinatorObserver.h"
 
+class MapCanvas;
+class MapFrame;
+class JCCoordinator;
 class MLJCMapFrame;
 class MLJCMapCanvas;
-class JCCoordinator;
-class JCCoordinatorObserver;
 
 class MLJCMapCanvas : public MapCanvas
 {
@@ -118,8 +119,11 @@ public:
     
     void OnShowAsConditionalMap(wxCommandEvent& event);
     
-	virtual void update(JCCoordinator* o);
-	virtual void closeObserver(JCCoordinator* o);
+    virtual void update(JCCoordinator* o);
+    /** Request for the Observer to close itself */
+    virtual void closeObserver(JCCoordinator* o);
+    
+    
 	JCCoordinator* GetJCCoordinator() { return gs_coord; }
 	
 protected:

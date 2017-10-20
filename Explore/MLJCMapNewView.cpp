@@ -224,10 +224,7 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
         }
         
 		if (is_clust) {
-			num_cats += 3;
-            // in Local Join Count, don't display Low category
-            if (gs_coord->is_local_joint_count)
-                num_cats -= 1;
+			num_cats += 4; // 0 not sig 1 no loc 2 has loc 3 loc cluster
             
 		} else {
             int set_perm = gs_coord->permutations;
@@ -258,19 +255,18 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
 			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
 			cat_data.SetCategoryLabel(t, 1, str_high);
 			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
+			cat_data.SetCategoryLabel(t, 2, str_med);
+			cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_med]);
+			cat_data.SetCategoryLabel(t, 3, str_low);
+			cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_low]);
             
-            if (!gs_coord->is_local_joint_count) {
-                cat_data.SetCategoryLabel(t, 2, str_low);
-                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
-            }
-        
 			if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
-				isolates_cat = 3 - gs_coord->is_local_joint_count;
-				undefined_cat = 4 - gs_coord->is_local_joint_count;
+                isolates_cat = 4;
+                undefined_cat = 5;
 			} else if (gs_coord->GetHasUndefined(t)) {
-				undefined_cat = 3 - gs_coord->is_local_joint_count;
+                undefined_cat = 4;
 			} else if (gs_coord->GetHasIsolates(t)) {
-				isolates_cat = 3 - gs_coord->is_local_joint_count;
+                isolates_cat = 4;
 			}
             
 		} else {
@@ -338,29 +334,25 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
 			for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
 				if (cluster[i] == 0) {
 					cat_data.AppendIdToCategory(t, 0, i); // not significant
-				} else if (cluster[i] == 3) {
-					cat_data.AppendIdToCategory(t, isolates_cat, i);
 				} else if (cluster[i] == 4) {
+					cat_data.AppendIdToCategory(t, isolates_cat, i);
+				} else if (cluster[i] == 5) {
 					cat_data.AppendIdToCategory(t, undefined_cat, i);
 				} else {
 					cat_data.AppendIdToCategory(t, cluster[i], i);
 				}
 			}
 		} else {
-            double* p_val = 0;
-            if (is_clust == false)
-                p_val = gs_coord->pseudo_p_vecs[t];
-            if (is_clust)
-                p_val = gs_coord->p_vecs[t];
+            double* p_val = gs_coord->pseudo_p_vecs[t];
             
             if (gs_coord->GetSignificanceFilter() < 0) {
                 // user specified cutoff
                 int s_f = 1;
                 double sig_cutoff = gs_coord->significance_cutoff;
                 for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                    if (cluster[i] == 3) {
+                    if (cluster[i] == 2) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 4) {
+                    } else if (cluster[i] == 3) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else if (p_val[i] <= sig_cutoff) {
                         cat_data.AppendIdToCategory(t, 1, i);
@@ -374,9 +366,9 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
                 for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
                     if (cluster[i] == 0) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 3) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 4) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 5) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else if (p_val[i] <= 0.0001) {
                         cat_data.AppendIdToCategory(t, 5-s_f, i);
@@ -391,8 +383,7 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
             }
 		}
 		for (int cat=0; cat<num_cats; cat++) {
-			cat_data.SetCategoryCount(t, cat,
-									  cat_data.GetNumObsInCategory(t, cat));
+			cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
 		}
 	}
 	
@@ -558,10 +549,8 @@ void MLJCMapFrame::MapMenus()
 	LOG_MSG("In MLJCMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
-	((MapCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
+	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
@@ -573,11 +562,9 @@ void MLJCMapFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("MLJCMapFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
+        LOG_MSG("MLJCMapFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
-		((MLJCMapCanvas*) template_canvas)->
-			SetCheckMarks(mb->GetMenu(menu));
+		((MLJCMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 

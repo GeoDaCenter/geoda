@@ -126,18 +126,16 @@ wxThread::ExitCode JCWorkerThread::Entry()
 // JCCoordinator
 //
 ///////////////////////////////////////////////////////////////////////////////
-JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids, bool row_standardize_weights, bool _is_local_joint_count)
+JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
 num_obs(project->GetNumRecords()),
-row_standardize(row_standardize_weights),
 permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true),
-is_local_joint_count(_is_local_joint_count)
+last_seed_used(123456789), reuse_last_seed(true)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
@@ -676,7 +674,6 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 			pseudo_p[i] = (countGLarger + 1.0)/(permutations+1.0);
 			
             // compute exact probability
-            if (is_local_joint_count) {
                 /*
                 int nn = num_neighbors[i];
                 int n_1s = nn_1_t[i];
@@ -690,7 +687,6 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
                 e_p[i] = hg;
                  */
                 e_p[i] = 0;
-            }
 		}
 	}
 }

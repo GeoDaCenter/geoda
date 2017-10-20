@@ -171,7 +171,8 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     lbls.push_back("Min");
     lbls.push_back("Max");
     lbls.push_back("# Pairs");
-   
+  
+    
     wxString header = "";
     int total_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
@@ -783,6 +784,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     }
 }
 
+
 double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
                                                     double& rng_right)
 {
@@ -790,6 +792,14 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
     for (size_t i=0; i<cbins.size()-1; ++i) {
         double a1 = cbins[i].corr_avg;
         double a2 = cbins[i+1].corr_avg;
+        
+        if (a1 == 0) {
+            rng_left = cbins[i].dist_min;
+            rng_right = cbins[i].dist_max;
+            rst = 0;
+            break;
+        }
+        
         bool cross_axis_down = a1 == abs(a1) && a2 != abs(a2);
         bool cross_axis_up = a1 != abs(a1) && a2 == abs(a2);
         
@@ -797,12 +807,18 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
             double d1 = (cbins[i].dist_max + cbins[i].dist_min) / 2.0;
             double d2 = (cbins[i+1].dist_max + cbins[i+1].dist_min) / 2.0;
           
-            rng_left = d1;
-            rng_right = d2;
-            
             //(d2 - d) / (a2 -0) = (d2 - d1) / (a2 - a1) ;
             double d = d2 - (d2 - d1) / (a2 - a1) * a2;
             rst = d;
+           
+            if (abs(a1) < abs(a2)) {
+                rng_left = cbins[i].dist_min;
+                rng_right = cbins[i].dist_max;
+            } else {
+                rng_left = cbins[i+1].dist_min;
+                rng_right = cbins[i+1].dist_max;
+            }
+            
             break;
         }
     }
