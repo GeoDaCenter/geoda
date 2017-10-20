@@ -68,6 +68,7 @@
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
 		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
+		A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */; };
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
@@ -368,6 +369,8 @@
 		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
 		A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColocationMapView.cpp; sourceTree = "<group>"; };
 		A4A763F31F69FB3B00EE79DD /* ColocationMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColocationMapView.h; sourceTree = "<group>"; };
+		A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCMapNewView.cpp; sourceTree = "<group>"; };
+		A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCMapNewView.h; sourceTree = "<group>"; };
 		A4D5423B1F45037B00572878 /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
 		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
@@ -1046,6 +1049,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */,
+				A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */,
 				A47FC9DC1F74E31800BEFBF2 /* MLJCCoordinatorObserver.h */,
 				A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */,
 				A47FC9DA1F74DE1600BEFBF2 /* MLJCCoordinator.h */,
@@ -1642,6 +1647,7 @@
 				DDE4DFE91A96411A005B9158 /* ShpFile.cpp in Sources */,
 				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
+				A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */,
 				DD7686D71A9FF47B009EFC6D /* gdiam.cpp in Sources */,
 				DDEFAAA71AA4F07200F6AAFA /* PointSetAlgs.cpp in Sources */,
 				DD72C19A1AAE95480000420B /* SpatialIndAlgs.cpp in Sources */,

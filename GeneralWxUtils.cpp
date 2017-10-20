@@ -448,6 +448,3 @@ wxMenu* GeneralWxUtils::FindMenu(wxMenuBar* mb,	const wxString& menuTitle)
 	if (menu == wxNOT_FOUND) return 0;
 	return mb->GetMenu(menu);
 }
-
-
-

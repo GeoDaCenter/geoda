@@ -55,7 +55,7 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
-    
+   
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
 };
 

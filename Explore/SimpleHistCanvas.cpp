@@ -179,7 +179,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     sts << ", total # pairs: " << stats[2];
     if (stats[5] >= 0) {
         sts << ", Autocorr. = 0 at " << wxString::Format("~%.3f", stats[5]);
-        sts << " in range: [" << wxString::Format("%.3f", stats[3]) << "," << wxString::Format("%.3f", stats[4]) << "]";
+        sts << " in range: [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";
     }
     
     s = new GdaShapeText(sts, *GdaConst::small_font,

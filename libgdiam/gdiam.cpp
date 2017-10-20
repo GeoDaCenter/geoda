@@ -40,6 +40,7 @@
 #include  <vector>
 #include  <algorithm>
 
+#include "../GdaConst.h"
 #include  "gdiam.hpp"
 
 /*--- Constants ---*/
@@ -99,7 +100,9 @@ public:
 
         
     GFSPTreeNode( gdiam_point   * _p_pnt_left, 
-                  gdiam_point   * _p_pnt_right ) {
+                  gdiam_point   * _p_pnt_right )
+    {
+        
         bbox.init();
         left = right = NULL;
         p_pnt_left = _p_pnt_left;
@@ -781,6 +784,10 @@ void  computeExtremePair( const gdiam_point  * arr, int  size,
 
 void  GTreeDiamAlg::compute_by_heap( double  eps ) 
 {
+    if (GdaConst::use_gda_user_seed)  {
+        srand(GdaConst::gda_user_seed);
+    }
+    
     g_heap_pairs_p  heap;
     int  heap_limit, heap_delta;
     
@@ -2486,6 +2493,9 @@ gdiam_point  * gdiam_convex_sample( gdiam_point  * start, int  size,
     
     // We dont have neough entries in our sample - lets randomly pick
     // points.
+    if (GdaConst::use_gda_user_seed)  {
+        srand(GdaConst::gda_user_seed);
+    }
     while  ( out_count < sample_size ) 
         out_arr[ out_count++ ] = start[ rand() % size ];
 

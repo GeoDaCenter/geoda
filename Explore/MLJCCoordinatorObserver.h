@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_CENTER_LOCALGEARY_COORDINATOR_OBSERVER_H__
-#define __GEODA_CENTER_LOCALGEARY_COORDINATOR_OBSERVER_H__
+#ifndef __GEODA_CENTER_MLJC_COORDINATOR_OBSERVER_H__
+#define __GEODA_CENTER_MLJC_COORDINATOR_OBSERVER_H__
 
 class JCCoordinator;  // forward declaration
 

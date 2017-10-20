@@ -28,8 +28,8 @@
  in GetisOrdMapNewView::GMapType.
  */
 
-#ifndef __GEODA_CENTER_M_LOCALJOINCOUNT_COORDINATOR_H__
-#define __GEODA_CENTER_M_LOCALJOINCOUNT_COORDINATOR_H__
+#ifndef __GEODA_CENTER_MLJC_COORDINATOR_H__
+#define __GEODA_CENTER_MLJC_COORDINATOR_H__
 
 #include <list>
 #include <vector>
@@ -42,7 +42,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 
 
-class GetisOrdMapFrame; // instead of JCCoordinatorObserver
+class JCCoordinatorObserver; 
 class JCCoordinator;
 class Project;
 class WeightsManState;
@@ -82,9 +82,7 @@ class JCCoordinator : public WeightsManStateObserver
 public:
     JCCoordinator(boost::uuids::uuid weights_id, Project* project,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
-                  const std::vector<int>& col_ids,
-                  bool row_standardize_weights,
-                  bool is_local_joint_count=false);
+                  const std::vector<int>& col_ids);
 	virtual ~JCCoordinator();
 	
 	bool IsOk() { return true; }
@@ -233,8 +231,7 @@ public:
     
 	void VarInfoAttributeChange();
 	
-	void FillClusterCats(int canvas_time, bool is_gi, bool is_perm,
-						 std::vector<wxInt64>& c_val);
+	void FillClusterCats(int canvas_time,std::vector<wxInt64>& c_val);
 protected:
 	void DeallocateVectors();
 	void AllocateVectors();

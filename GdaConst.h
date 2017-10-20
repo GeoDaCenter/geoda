@@ -350,7 +350,16 @@ public:
     static std::vector<wxString> gda_datetime_formats;
     static wxString gda_datetime_formats_str;
     static wxString gda_display_datetime_format;
-    
+    /*
+    static wxString gda_basemap_carto_light_all;
+    static wxString gda_basemap_carto_dark_all;
+    static wxString gda_basemap_carto_light_nolabels;
+    static wxString gda_basemap_carto_dark_nolabels;
+    static wxString gda_basemap_nokia_normal_day;
+    static wxString gda_basemap_nokia_normal_night;
+    static wxString gda_basemap_nokia_hybrid_day;
+    static wxString gda_basemap_nokia_satellite_day;
+    */
     static int gda_ogr_csv_header;
     
 	static const wxSize map_default_size;

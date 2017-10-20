@@ -27,6 +27,7 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../DialogTools/WebViewHelpWin.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "CorrelParamsDlg.h"
 
@@ -97,6 +98,7 @@ help_btn(0), apply_btn(0)
                                        CorrelParams::min_bins_cnst,
                                        CorrelParams::max_bins_cnst,
                                        correl_params.bins);
+        num_bins = correl_params.bins;
 		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL,
                 wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
 		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT_ENTER,
@@ -175,10 +177,30 @@ help_btn(0), apply_btn(0)
 	max_iter_h_szr->Add(max_iter_txt, 0, wxALIGN_CENTER_VERTICAL);
 	max_iter_h_szr->AddSpacer(8);
 	max_iter_h_szr->Add(max_iter_tctrl, 0, wxALIGN_CENTER_VERTICAL);
+   
+	wxBoxSizer* random_opt_h_szr = new wxBoxSizer(wxHORIZONTAL);
+    {
+        wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+                                              wxDefaultPosition, wxSize(128,-1));
+        wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+        chk_seed = new wxCheckBox(panel, wxID_ANY, "");
+        seedButton = new wxButton(panel, wxID_OK, _("Change"), wxDefaultPosition, wxSize(64, -1));
+        random_opt_h_szr->Add(st17, 0, wxALIGN_CENTER_VERTICAL);
+        random_opt_h_szr->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
+        random_opt_h_szr->Add(seedButton, 0, wxALIGN_CENTER_VERTICAL);
+        if (GdaConst::use_gda_user_seed) {
+            chk_seed->SetValue(true);
+            seedButton->Enable();
+        }
+        chk_seed->Bind(wxEVT_CHECKBOX, &CorrelParamsFrame::OnSeedCheck, this);
+        seedButton->Bind(wxEVT_BUTTON, &CorrelParamsFrame::OnChangeSeed, this);
+    }
+    
 	wxBoxSizer* rand_samp_v_szr = new wxBoxSizer(wxVERTICAL);
 	rand_samp_v_szr->Add(rand_samp_rad);
 	rand_samp_v_szr->AddSpacer(2);
-	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 18);
+	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 12);
+	rand_samp_v_szr->Add(random_opt_h_szr, 0, wxLEFT, 12);
 		
 	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
                             wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
@@ -234,6 +256,7 @@ help_btn(0), apply_btn(0)
         
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     Show(true);
+    var_choice->SetFocus();
 	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }
 
@@ -241,6 +264,64 @@ CorrelParamsFrame::~CorrelParamsFrame()
 {
 	LOG_MSG("In CorrelParamsFrame::~CorrelParamsFrame");
 	notifyObserversOfClosing();
+}
+
+void CorrelParamsFrame::OnSeedCheck(wxCommandEvent& event)
+{
+    bool use_user_seed = chk_seed->GetValue();
+    
+    if (use_user_seed) {
+        seedButton->Enable();
+        if (GdaConst::use_gda_user_seed == false && GdaConst::gda_user_seed == 0) {
+            OnChangeSeed(event);
+            return;
+        }
+        GdaConst::use_gda_user_seed = true;
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
+    } else {
+        GdaConst::use_gda_user_seed = false;
+        seedButton->Disable();
+    }
+}
+
+void CorrelParamsFrame::OnChangeSeed(wxCommandEvent& event)
+{
+    // prompt user to enter user seed (used globally)
+    wxString m;
+    m << "Enter a seed value for random number generator:";
+    
+    long long unsigned int val;
+    wxString dlg_val;
+    wxString cur_val;
+    cur_val << GdaConst::gda_user_seed;
+    
+    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    if (dlg.ShowModal() != wxID_OK) return;
+    dlg_val = dlg.GetValue();
+    dlg_val.Trim(true);
+    dlg_val.Trim(false);
+    if (dlg_val.IsEmpty()) return;
+    if (dlg_val.ToULongLong(&val)) {
+        uint64_t new_seed_val = val;
+        GdaConst::gda_user_seed = new_seed_val;
+        GdaConst::use_gda_user_seed = true;
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        wxString str_gda_user_seed;
+        str_gda_user_seed << GdaConst::gda_user_seed;
+        ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
+    } else {
+        wxString m;
+        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "0");
+    }
 }
 
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
@@ -269,6 +350,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 			new_bins = CorrelParams::max_bins_cnst;
 		}
 		correl_params.bins = new_bins;
+        num_bins = new_bins;
 	}
 	{
 		wxString s = dist_choice->GetStringSelection();
@@ -426,7 +508,11 @@ void CorrelParamsFrame::OnBinsTextCtrl(wxCommandEvent& ev)
 
 void CorrelParamsFrame::OnBinsSpinEvent(wxSpinEvent& ev)
 {
-    OnApplyBtn(ev);
+    int val = ev.GetValue();
+    if (val != num_bins) {
+        OnApplyBtn(ev);
+    }
+    val = num_bins;
     ev.Skip();
 }
 

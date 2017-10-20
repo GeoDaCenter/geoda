@@ -126,18 +126,16 @@ wxThread::ExitCode JCWorkerThread::Entry()
 // JCCoordinator
 //
 ///////////////////////////////////////////////////////////////////////////////
-JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids, bool row_standardize_weights, bool _is_local_joint_count)
+JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
 num_obs(project->GetNumRecords()),
-row_standardize(row_standardize_weights),
 permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true),
-is_local_joint_count(_is_local_joint_count)
+last_seed_used(123456789), reuse_last_seed(true)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
@@ -369,7 +367,7 @@ void JCCoordinator::VarInfoAttributeChange()
 /** The category vector c_val will be filled based on the current
  significance filter and significance values corresponding to specified
  canvas_time.  */
-void JCCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm, std::vector<wxInt64>& c_val)
+void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val)
 {
 	int t = canvas_time;
 	double* p_val = pseudo_p_vecs[t];
@@ -380,16 +378,13 @@ void JCCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm, s
 	c_val.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
         if (!G_defined_vecs[t][i]) {
-            c_val[i] = 4; // undefined
+            c_val[i] = 5; // undefined
             
         } else if (W[i].Size() == 0) {
-			c_val[i] = 3; // isolate
+			c_val[i] = 4; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
-            if (x_vecs[t][i] == 1 && z_val[i] > 0)
-                c_val[i] = 1;
-            else
-                c_val[i] = 0;
+            c_val[i] = c_vecs[t][i]; // 1,2,3
         } else {
 			c_val[i] = 0; // not significant
 		}
@@ -441,7 +436,7 @@ void JCCoordinator::CalcGs()
             if (x[i] == 1 && y[i] == 0) {
                 jc_type_i = 1;
             } else if (x[i] == 1 && y[i] == 1) {
-                jc_type_i = 3;
+                jc_type_i = 3; // 2 or 3 will determined later
             }
             
 			if ( elm_i.Size() > 0 ) {
@@ -679,7 +674,7 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 			pseudo_p[i] = (countGLarger + 1.0)/(permutations+1.0);
 			
             // compute exact probability
-            if (is_local_joint_count) {
+                /*
                 int nn = num_neighbors[i];
                 int n_1s = nn_1_t[i];
                 int n_0s = nn - n_1s;
@@ -690,7 +685,8 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
                                         
                 double hg = (mm_1s * mm_0s) / mm_all;
                 e_p[i] = hg;
-            }
+                 */
+                e_p[i] = 0;
 		}
 	}
 }
