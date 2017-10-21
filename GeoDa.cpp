@@ -1616,7 +1616,6 @@ void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(false,0);
-    SetBasemapCheckmarks(0);
 }
 void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 {
@@ -1626,7 +1625,6 @@ void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,1);
-    SetBasemapCheckmarks(1);
 }
 void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 {
@@ -1636,7 +1634,6 @@ void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,2);
-    SetBasemapCheckmarks(2);
 }
 void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 {
@@ -1646,7 +1643,6 @@ void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,3);
-    SetBasemapCheckmarks(3);
 }
 void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 {
@@ -1656,7 +1652,6 @@ void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,4);
-    SetBasemapCheckmarks(4);
 }
 void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 {
@@ -1666,7 +1661,6 @@ void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,5);
-    SetBasemapCheckmarks(5);
 }
 void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 {
@@ -1676,7 +1670,6 @@ void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,6);
-    SetBasemapCheckmarks(6);
 }
 void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 {
@@ -1686,7 +1679,6 @@ void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,7);
-    SetBasemapCheckmarks(7);
 }
 
 void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
@@ -1697,7 +1689,6 @@ void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,8);
-    SetBasemapCheckmarks(8);
 }
 
 void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
@@ -2103,6 +2094,9 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
                 vector<wxString> titles;
                 CatClassifManager* ccm = project_p->GetCatClassifManager();
                 ccm->GetTitles(titles);
+               
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->AppendSeparator();
                 
                 for (size_t j=0; j<titles.size(); j++) {
                     wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
@@ -4050,6 +4044,39 @@ void GdaFrame::OnCCClassifA(int cc_menu_num)
 	}
 }
 
+void GdaFrame::OnCustomCategoryClick_B(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+        if (idx < 0 || idx >= titles.size()) return;
+        
+        OnCCClassifB(idx);
+    }
+}
+
+void GdaFrame::OnCustomCategoryClick_C(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+        if (idx < 0 || idx >= titles.size()) return;
+        
+        OnCCClassifC(idx);
+    }
+}
 void GdaFrame::OnCCClassifB(int cc_menu_num)
 {
     wxLogMessage("In GdaFrame::OnCCClassifB()");
@@ -4083,99 +4110,6 @@ void GdaFrame::OnCCClassifC(int cc_menu_num)
 		f->OnCustomCatClassifC(titles[cc_menu_num]);
 	}	
 }
-
-void GdaFrame::OnCCClassifA0(wxCommandEvent& e) { OnCCClassifA(0); }
-void GdaFrame::OnCCClassifA1(wxCommandEvent& e) { OnCCClassifA(1); }
-void GdaFrame::OnCCClassifA2(wxCommandEvent& e) { OnCCClassifA(2); }
-void GdaFrame::OnCCClassifA3(wxCommandEvent& e) { OnCCClassifA(3); }
-void GdaFrame::OnCCClassifA4(wxCommandEvent& e) { OnCCClassifA(4); }
-void GdaFrame::OnCCClassifA5(wxCommandEvent& e) { OnCCClassifA(5); }
-void GdaFrame::OnCCClassifA6(wxCommandEvent& e) { OnCCClassifA(6); }
-void GdaFrame::OnCCClassifA7(wxCommandEvent& e) { OnCCClassifA(7); }
-void GdaFrame::OnCCClassifA8(wxCommandEvent& e) { OnCCClassifA(8); }
-void GdaFrame::OnCCClassifA9(wxCommandEvent& e) { OnCCClassifA(9); }
-void GdaFrame::OnCCClassifA10(wxCommandEvent& e) { OnCCClassifA(10); }
-void GdaFrame::OnCCClassifA11(wxCommandEvent& e) { OnCCClassifA(11); }
-void GdaFrame::OnCCClassifA12(wxCommandEvent& e) { OnCCClassifA(12); }
-void GdaFrame::OnCCClassifA13(wxCommandEvent& e) { OnCCClassifA(13); }
-void GdaFrame::OnCCClassifA14(wxCommandEvent& e) { OnCCClassifA(14); }
-void GdaFrame::OnCCClassifA15(wxCommandEvent& e) { OnCCClassifA(15); }
-void GdaFrame::OnCCClassifA16(wxCommandEvent& e) { OnCCClassifA(16); }
-void GdaFrame::OnCCClassifA17(wxCommandEvent& e) { OnCCClassifA(17); }
-void GdaFrame::OnCCClassifA18(wxCommandEvent& e) { OnCCClassifA(18); }
-void GdaFrame::OnCCClassifA19(wxCommandEvent& e) { OnCCClassifA(19); }
-void GdaFrame::OnCCClassifA20(wxCommandEvent& e) { OnCCClassifA(20); }
-void GdaFrame::OnCCClassifA21(wxCommandEvent& e) { OnCCClassifA(21); }
-void GdaFrame::OnCCClassifA22(wxCommandEvent& e) { OnCCClassifA(22); }
-void GdaFrame::OnCCClassifA23(wxCommandEvent& e) { OnCCClassifA(23); }
-void GdaFrame::OnCCClassifA24(wxCommandEvent& e) { OnCCClassifA(24); }
-void GdaFrame::OnCCClassifA25(wxCommandEvent& e) { OnCCClassifA(25); }
-void GdaFrame::OnCCClassifA26(wxCommandEvent& e) { OnCCClassifA(26); }
-void GdaFrame::OnCCClassifA27(wxCommandEvent& e) { OnCCClassifA(27); }
-void GdaFrame::OnCCClassifA28(wxCommandEvent& e) { OnCCClassifA(28); }
-void GdaFrame::OnCCClassifA29(wxCommandEvent& e) { OnCCClassifA(29); }
-
-void GdaFrame::OnCCClassifB0(wxCommandEvent& e) { OnCCClassifB(0); }
-void GdaFrame::OnCCClassifB1(wxCommandEvent& e) { OnCCClassifB(1); }
-void GdaFrame::OnCCClassifB2(wxCommandEvent& e) { OnCCClassifB(2); }
-void GdaFrame::OnCCClassifB3(wxCommandEvent& e) { OnCCClassifB(3); }
-void GdaFrame::OnCCClassifB4(wxCommandEvent& e) { OnCCClassifB(4); }
-void GdaFrame::OnCCClassifB5(wxCommandEvent& e) { OnCCClassifB(5); }
-void GdaFrame::OnCCClassifB6(wxCommandEvent& e) { OnCCClassifB(6); }
-void GdaFrame::OnCCClassifB7(wxCommandEvent& e) { OnCCClassifB(7); }
-void GdaFrame::OnCCClassifB8(wxCommandEvent& e) { OnCCClassifB(8); }
-void GdaFrame::OnCCClassifB9(wxCommandEvent& e) { OnCCClassifB(9); }
-void GdaFrame::OnCCClassifB10(wxCommandEvent& e) { OnCCClassifB(10); }
-void GdaFrame::OnCCClassifB11(wxCommandEvent& e) { OnCCClassifB(11); }
-void GdaFrame::OnCCClassifB12(wxCommandEvent& e) { OnCCClassifB(12); }
-void GdaFrame::OnCCClassifB13(wxCommandEvent& e) { OnCCClassifB(13); }
-void GdaFrame::OnCCClassifB14(wxCommandEvent& e) { OnCCClassifB(14); }
-void GdaFrame::OnCCClassifB15(wxCommandEvent& e) { OnCCClassifB(15); }
-void GdaFrame::OnCCClassifB16(wxCommandEvent& e) { OnCCClassifB(16); }
-void GdaFrame::OnCCClassifB17(wxCommandEvent& e) { OnCCClassifB(17); }
-void GdaFrame::OnCCClassifB18(wxCommandEvent& e) { OnCCClassifB(18); }
-void GdaFrame::OnCCClassifB19(wxCommandEvent& e) { OnCCClassifB(19); }
-void GdaFrame::OnCCClassifB20(wxCommandEvent& e) { OnCCClassifB(20); }
-void GdaFrame::OnCCClassifB21(wxCommandEvent& e) { OnCCClassifB(21); }
-void GdaFrame::OnCCClassifB22(wxCommandEvent& e) { OnCCClassifB(22); }
-void GdaFrame::OnCCClassifB23(wxCommandEvent& e) { OnCCClassifB(23); }
-void GdaFrame::OnCCClassifB24(wxCommandEvent& e) { OnCCClassifB(24); }
-void GdaFrame::OnCCClassifB25(wxCommandEvent& e) { OnCCClassifB(25); }
-void GdaFrame::OnCCClassifB26(wxCommandEvent& e) { OnCCClassifB(26); }
-void GdaFrame::OnCCClassifB27(wxCommandEvent& e) { OnCCClassifB(27); }
-void GdaFrame::OnCCClassifB28(wxCommandEvent& e) { OnCCClassifB(28); }
-void GdaFrame::OnCCClassifB29(wxCommandEvent& e) { OnCCClassifB(29); }
-
-void GdaFrame::OnCCClassifC0(wxCommandEvent& e) { OnCCClassifC(0); }
-void GdaFrame::OnCCClassifC1(wxCommandEvent& e) { OnCCClassifC(1); }
-void GdaFrame::OnCCClassifC2(wxCommandEvent& e) { OnCCClassifC(2); }
-void GdaFrame::OnCCClassifC3(wxCommandEvent& e) { OnCCClassifC(3); }
-void GdaFrame::OnCCClassifC4(wxCommandEvent& e) { OnCCClassifC(4); }
-void GdaFrame::OnCCClassifC5(wxCommandEvent& e) { OnCCClassifC(5); }
-void GdaFrame::OnCCClassifC6(wxCommandEvent& e) { OnCCClassifC(6); }
-void GdaFrame::OnCCClassifC7(wxCommandEvent& e) { OnCCClassifC(7); }
-void GdaFrame::OnCCClassifC8(wxCommandEvent& e) { OnCCClassifC(8); }
-void GdaFrame::OnCCClassifC9(wxCommandEvent& e) { OnCCClassifC(9); }
-void GdaFrame::OnCCClassifC10(wxCommandEvent& e) { OnCCClassifC(10); }
-void GdaFrame::OnCCClassifC11(wxCommandEvent& e) { OnCCClassifC(11); }
-void GdaFrame::OnCCClassifC12(wxCommandEvent& e) { OnCCClassifC(12); }
-void GdaFrame::OnCCClassifC13(wxCommandEvent& e) { OnCCClassifC(13); }
-void GdaFrame::OnCCClassifC14(wxCommandEvent& e) { OnCCClassifC(14); }
-void GdaFrame::OnCCClassifC15(wxCommandEvent& e) { OnCCClassifC(15); }
-void GdaFrame::OnCCClassifC16(wxCommandEvent& e) { OnCCClassifC(16); }
-void GdaFrame::OnCCClassifC17(wxCommandEvent& e) { OnCCClassifC(17); }
-void GdaFrame::OnCCClassifC18(wxCommandEvent& e) { OnCCClassifC(18); }
-void GdaFrame::OnCCClassifC19(wxCommandEvent& e) { OnCCClassifC(19); }
-void GdaFrame::OnCCClassifC20(wxCommandEvent& e) { OnCCClassifC(20); }
-void GdaFrame::OnCCClassifC21(wxCommandEvent& e) { OnCCClassifC(21); }
-void GdaFrame::OnCCClassifC22(wxCommandEvent& e) { OnCCClassifC(22); }
-void GdaFrame::OnCCClassifC23(wxCommandEvent& e) { OnCCClassifC(23); }
-void GdaFrame::OnCCClassifC24(wxCommandEvent& e) { OnCCClassifC(24); }
-void GdaFrame::OnCCClassifC25(wxCommandEvent& e) { OnCCClassifC(25); }
-void GdaFrame::OnCCClassifC26(wxCommandEvent& e) { OnCCClassifC(26); }
-void GdaFrame::OnCCClassifC27(wxCommandEvent& e) { OnCCClassifC(27); }
-void GdaFrame::OnCCClassifC28(wxCommandEvent& e) { OnCCClassifC(28); }
-void GdaFrame::OnCCClassifC29(wxCommandEvent& e) { OnCCClassifC(29); }
 
 void GdaFrame::OnOpenThemelessMap(wxCommandEvent& event)
 {
@@ -6280,22 +6214,6 @@ void GdaFrame::SetEncodingCheckmarks(wxFontEncoding e)
 	m->FindItem(XRCID("ID_ENCODING_EUC_KR"))->Check(e==wxFONTENCODING_EUC_KR);
 }
 
-void GdaFrame::SetBasemapCheckmarks(int idx)
-{
-    /*
-    wxMenuBar* m = GetMenuBar();
-    m->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
-    m->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
-    m->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
-    m->FindItem(XRCID("ID_BASEMAP_3"))->Check(idx==3);
-    m->FindItem(XRCID("ID_BASEMAP_4"))->Check(idx==4);
-    m->FindItem(XRCID("ID_BASEMAP_5"))->Check(idx==5);
-    m->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
-    m->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
-    m->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
-     */
-}
-
 bool GdaFrame::GetHtmlMenuItems()
 {
 	return GetHtmlMenuItemsJson();
@@ -6303,131 +6221,11 @@ bool GdaFrame::GetHtmlMenuItems()
 
 bool GdaFrame::GetHtmlMenuItemsJson()
 {
-    /*
-	using namespace json_spirit;
-	using namespace GdaJson;
-	
-	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFnPath(wxStandardPaths::Get().GetExecutablePath());
-	wxString prefs_fn = exeFnPath.GetPathWithSep() 
-		+ GdaConst::gda_prefs_fname_json;
-	if (!wxFileExists(prefs_fn)) {
-		return false;
-	}
-	
-	htmlMenuItems.clear();
-	std::ifstream ifs;
-	try {
-		ifs.open(GET_ENCODED_FILENAME(prefs_fn), std::ifstream::in);
-		if (!(ifs.is_open() && ifs.good())) {
-			wxString msg("Could not read JSON prefs file: ");
-			msg << prefs_fn;
-			throw std::runtime_error(prefs_fn.ToStdString());
-		}
-		//ifs.close();
-		const wxString ent_key(GdaConst::gda_prefs_html_table);
-		const wxString menu_col(GdaConst::gda_prefs_html_table_menu);
-		const wxString url_col(GdaConst::gda_prefs_html_table_url);
-		
-		Value pf_val;
-		if (!json_spirit::read(ifs, pf_val)) {
-			wxString msg("Could not parse JSON prefs file: ");
-			msg << prefs_fn;
-			throw std::runtime_error(prefs_fn.ToStdString());
-		}
-		if (pf_val.type() != json_spirit::obj_type) {
-			throw std::runtime_error("JSON pref content not a JSON Object");
-		}
-		Value html_ents;
-		if (!findValue(pf_val, html_ents, ent_key)) return true;
-		if (html_ents.type() != json_spirit::array_type) {
-			throw std::runtime_error("Html menu entries must be an array");
-		}
-		Array& html_ents_a(html_ents.get_array());
-		for (Array::const_iterator i=html_ents_a.begin(); i!=html_ents_a.end();
-			 ++i)
-		{
-			wxString title = getStrValFromObj((*i), menu_col);
-			wxString url = getStrValFromObj((*i), url_col);
-			wxString wp("web_plugins");
-			// if url begins with "web_plugins", we assume the file is a
-			// path relative to the geoda_prefs.json resource file location.
-			// In this case, we must convert to an absolute path.
-			if (url.Left(wp.length()) == wp) {
-				wxString cpy_url = url;
-				url = "file://";
-				url << exeFnPath.GetPathWithSep() << cpy_url;
-			}
-			if (!title.IsEmpty()) htmlMenuItems.push_back(MenuItem(title, url));
-		}
-	}
-	catch (std::runtime_error e) {
-		wxString msg("Error reading JSON prefs file: ");
-		msg << e.what();
-		return false;
-	}
-	
-	for (size_t i=0; i<htmlMenuItems.size(); ++i) {
-		wxString msg;
-		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
-		msg << "url: " << htmlMenuItems[i].url;
-	}
-	*/
 	return true;
 }
 
 bool GdaFrame::GetHtmlMenuItemsSqlite()
 {
-  /*
-	LOG_MSG("Entering GdaFrame::GetHtmlMenuItemsSqlite");
-	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName temp(wxStandardPaths::Get().GetExecutablePath());
-	wxString prefs_fn = temp.GetPathWithSep() +GdaConst::gda_prefs_fname_sqlite;
-	if (!wxFileExists(prefs_fn)) {
-		LOG_MSG("Could not find " + prefs_fn);
-		return false;
-	}
-	LOG_MSG("Found and opening " + prefs_fn);
-	
-	sqlite3* db;
-	int rc; // sqlite3 result code
-	char *zErrMsg = 0;
-	const char* data = "Callback function called";
-	
-	// Open DB
-	rc = sqlite3_open(prefs_fn.c_str(), &db);
-	if (rc) {
-		wxString err_msg(sqlite3_errmsg(db));
-		LOG_MSG("Can't open database: " + err_msg);
-		return false;
-	}
-	LOG_MSG("Database open success.");
-		
-	// Execute SQL statement
-	htmlMenuItems.clear();
-	rc = sqlite3_exec(db, "SELECT * from html_entries",
-					  GdaFrame::sqlite3_GetHtmlMenuItemsCB,
-					  (void*)data, &zErrMsg);
-	if ( rc != SQLITE_OK ){
-		wxString sql_err_msg(zErrMsg);
-		sqlite3_free(zErrMsg);
-		LOG_MSG("SQL error: " + sql_err_msg);
-		return false;
-	} else {
-		LOG_MSG("SQL success.");
-	}
-	LOG_MSG("html_entries:");
-	for (size_t i=0; i<htmlMenuItems.size(); ++i) {
-		wxString msg;
-		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
-		msg << "url: " << htmlMenuItems[i].url;
-		LOG_MSG(msg);
-	}
-	
-	sqlite3_close(db);
-	LOG_MSG("Exiting GdaFrame::GetHtmlMenuItemsSqlite");
-	return true;
-  */
   return false;
 }
 
@@ -6771,96 +6569,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_7, GdaFrame::OnHtmlEntry7)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_8, GdaFrame::OnHtmlEntry8)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_9, GdaFrame::OnHtmlEntry9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaFrame::OnCCClassifA0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A1, GdaFrame::OnCCClassifA1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A2, GdaFrame::OnCCClassifA2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A3, GdaFrame::OnCCClassifA3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A4, GdaFrame::OnCCClassifA4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A5, GdaFrame::OnCCClassifA5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A6, GdaFrame::OnCCClassifA6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A7, GdaFrame::OnCCClassifA7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A8, GdaFrame::OnCCClassifA8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A9, GdaFrame::OnCCClassifA9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A10, GdaFrame::OnCCClassifA10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A11, GdaFrame::OnCCClassifA11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A12, GdaFrame::OnCCClassifA12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A13, GdaFrame::OnCCClassifA13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A14, GdaFrame::OnCCClassifA14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A15, GdaFrame::OnCCClassifA15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A16, GdaFrame::OnCCClassifA16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A17, GdaFrame::OnCCClassifA17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A18, GdaFrame::OnCCClassifA18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A19, GdaFrame::OnCCClassifA19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A20, GdaFrame::OnCCClassifA20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A21, GdaFrame::OnCCClassifA21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A22, GdaFrame::OnCCClassifA22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A23, GdaFrame::OnCCClassifA23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A24, GdaFrame::OnCCClassifA24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A25, GdaFrame::OnCCClassifA25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A26, GdaFrame::OnCCClassifA26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A27, GdaFrame::OnCCClassifA27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A28, GdaFrame::OnCCClassifA28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A29, GdaFrame::OnCCClassifA29)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaFrame::OnCCClassifB0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B1, GdaFrame::OnCCClassifB1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B2, GdaFrame::OnCCClassifB2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B3, GdaFrame::OnCCClassifB3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B4, GdaFrame::OnCCClassifB4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B5, GdaFrame::OnCCClassifB5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B6, GdaFrame::OnCCClassifB6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B7, GdaFrame::OnCCClassifB7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B8, GdaFrame::OnCCClassifB8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B9, GdaFrame::OnCCClassifB9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B10, GdaFrame::OnCCClassifB10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B11, GdaFrame::OnCCClassifB11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B12, GdaFrame::OnCCClassifB12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B13, GdaFrame::OnCCClassifB13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B14, GdaFrame::OnCCClassifB14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B15, GdaFrame::OnCCClassifB15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B16, GdaFrame::OnCCClassifB16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B17, GdaFrame::OnCCClassifB17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B18, GdaFrame::OnCCClassifB18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B19, GdaFrame::OnCCClassifB19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B20, GdaFrame::OnCCClassifB20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B21, GdaFrame::OnCCClassifB21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B22, GdaFrame::OnCCClassifB22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B23, GdaFrame::OnCCClassifB23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B24, GdaFrame::OnCCClassifB24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B25, GdaFrame::OnCCClassifB25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B26, GdaFrame::OnCCClassifB26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B27, GdaFrame::OnCCClassifB27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B28, GdaFrame::OnCCClassifB28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B29, GdaFrame::OnCCClassifB29)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaFrame::OnCCClassifC0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C1, GdaFrame::OnCCClassifC1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C2, GdaFrame::OnCCClassifC2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C3, GdaFrame::OnCCClassifC3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C4, GdaFrame::OnCCClassifC4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C5, GdaFrame::OnCCClassifC5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C6, GdaFrame::OnCCClassifC6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C7, GdaFrame::OnCCClassifC7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C8, GdaFrame::OnCCClassifC8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C9, GdaFrame::OnCCClassifC9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C10, GdaFrame::OnCCClassifC10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C11, GdaFrame::OnCCClassifC11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C12, GdaFrame::OnCCClassifC12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C13, GdaFrame::OnCCClassifC13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C14, GdaFrame::OnCCClassifC14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C15, GdaFrame::OnCCClassifC15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C16, GdaFrame::OnCCClassifC16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C17, GdaFrame::OnCCClassifC17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C18, GdaFrame::OnCCClassifC18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C19, GdaFrame::OnCCClassifC19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C20, GdaFrame::OnCCClassifC20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C21, GdaFrame::OnCCClassifC21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C22, GdaFrame::OnCCClassifC22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C23, GdaFrame::OnCCClassifC23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C24, GdaFrame::OnCCClassifC24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C25, GdaFrame::OnCCClassifC25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C26, GdaFrame::OnCCClassifC26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C27, GdaFrame::OnCCClassifC27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C28, GdaFrame::OnCCClassifC28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C29, GdaFrame::OnCCClassifC29)
+
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
     EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
     EVT_MENU(XRCID("ID_MAPANALYSIS_THEMELESS"), GdaFrame::OnThemelessMap)

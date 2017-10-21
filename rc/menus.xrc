@@ -123,7 +123,6 @@
       </object>
        -->
       <object class="separator"/>
-      
       <object class="wxMenu" name="ID_TABLE_ENCODING">
         <label>Encode</label>
         <object class="wxMenuItem" name="ID_ENCODING_UTF8">
@@ -347,6 +346,10 @@
       </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
       </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
@@ -823,6 +826,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Map Color Classification</label>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_B_MENU">
@@ -870,7 +880,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_PERCENTILE">
         <label>Percentile</label>
         <checkable>1</checkable>
@@ -891,7 +900,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-      
 	  <object class="wxMenu" name="ID_COND_VERT_NAT_BRKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_2">
@@ -931,7 +939,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
 	  <object class="wxMenu" name="ID_COND_VERT_EQU_INTS_SUBMENU">
 		<label>Equal Intervals</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_2">
@@ -971,7 +978,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <label>Vertical Bins Breaks</label>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
@@ -979,7 +985,6 @@
         <label>Themeless</label>
         <checkable>1</checkable>
       </object>
-      
 	  <object class="wxMenu" name="ID_COND_HORIZ_QUANT_SUBMENU">
 		<label>Quantile</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_2">
@@ -1122,7 +1127,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <label>Horizontal Bins Breaks</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
@@ -1179,7 +1183,6 @@
         <label>Themeless</label>
         <checkable>1</checkable>
       </object>
-      
 	  <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
 		<label>Quantile</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
@@ -2029,6 +2032,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Classification Themes</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
@@ -2989,6 +2999,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Change Current Map Type</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
@@ -3280,9 +3297,12 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-
-      <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
-        <label>Save Categories</label>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
       </object>
       <label>Classification Themes</label>
     </object>
@@ -3818,8 +3838,12 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-      <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
-        <label>Save Categories</label>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
       </object>
       <label>Classification Themes</label>
     </object>
@@ -4496,6 +4520,10 @@
     </object>
     <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
         <label>Custom Breaks</label>
+        <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+            <label>Create New Custom</label>
+        </object>
+        <object class="separator"/>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MAP_SMOOTHING_CHOICES">
@@ -4629,6 +4657,13 @@
 	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
         <label>10</label>
 	  </object>
+    </object>
+    <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+        <label>Custom Breaks</label>
+        <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+            <label>Create New Custom</label>
+        </object>
+        <object class="separator"/>
     </object>
     <object class="wxMenu" name="ID_MAP_SMOOTHING_CHOICES">
       <object class="wxMenuItem" name="ID_OPEN_RATES_SMOOTH_RAWRATE">
