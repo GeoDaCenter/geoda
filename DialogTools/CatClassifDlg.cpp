@@ -2397,6 +2397,9 @@ void CatClassifPanel::UpdateCCState()
                 vector<wxString> titles;
                 CatClassifManager* ccm = project->GetCatClassifManager();
                 ccm->GetTitles(titles);
+               
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->AppendSeparator();
                 
                 for (size_t j=0; j<titles.size(); j++) {
                     wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
