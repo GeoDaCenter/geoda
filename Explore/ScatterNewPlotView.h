@@ -139,18 +139,17 @@ public:
 	
     double bubble_size_scaler;
     
-protected:
 	void ComputeChowTest();
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
 
 	void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
-
-	ScatterPlotPens pens;
 	
 	virtual void UpdateStatusBar();
 	
+protected:
+	ScatterPlotPens pens;
 	bool is_bubble_plot;
 	Project* project;
 	CatClassifState* custom_classif_state;

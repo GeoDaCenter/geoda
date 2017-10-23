@@ -74,9 +74,10 @@ public:
 	void ShowAxes(bool show_axes);
 	bool IsShowAxes() { return show_axes; }
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void UpdateStatusBar();
+    
+protected:
 	
 	std::vector<SimpleBin> hist_bins;
 	wxString Xname;

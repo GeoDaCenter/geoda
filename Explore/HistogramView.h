@@ -101,8 +101,9 @@ public:
 	int cur_intervals;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	
-protected:
 	virtual void UpdateStatusBar();
+    
+protected:
 
 	int num_obs;
 	int num_time_vals;
