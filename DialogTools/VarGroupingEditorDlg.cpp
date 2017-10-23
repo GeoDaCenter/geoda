@@ -540,7 +540,8 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 	vector<wxString> col_nms(tms);
 	for (int t=0; t<tms; ++t) {
 		wxString nm = table_int->GetColName(col, t);
-		if (nm.IsEmpty()) nm = GdaConst::placeholder_str;
+		if (nm.IsEmpty())
+            nm = GdaConst::placeholder_str;
 		col_nms[t] = nm;
 		col_nms_set.insert(nm);
 	}

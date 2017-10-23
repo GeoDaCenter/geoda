@@ -812,8 +812,12 @@ void ConditionalMapCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+    if (var_info.empty()) return;
+    if (cat_var_undef.empty()) return;
     
     int t = var_info[CAT_VAR].time;
+    
+    if (cat_var_undef.size() < t) return;
     
     const vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;

@@ -1118,8 +1118,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	
     wxString emptyVar = FillData();
     if (emptyVar.empty()== false) {
-        wxString msg = wxString::Format(_("The selected variable %s is not valid. Please elect another variable."), emptyVar);
-        wxMessageDialog dlg (this, msg.mb_str(), _T("Invalid Variable"), wxOK | wxICON_ERROR);
+        wxString msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), emptyVar);
+        wxMessageDialog dlg (this, msg.mb_str(), _("Invalid Variable"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         
     } else {
@@ -1141,7 +1141,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
             }
         } catch(GdaException& ex) {
             // place holder found
-            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
             wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             check_group_var = false;
