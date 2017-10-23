@@ -693,6 +693,18 @@
     <ClInclude Include="..\..\Explore\ColocationMapView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCMapNewView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1269,6 +1281,15 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>

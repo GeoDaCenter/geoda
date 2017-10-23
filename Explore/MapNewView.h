@@ -198,6 +198,8 @@ public:
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
     
+	virtual void UpdateStatusBar();
+    
 protected:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -242,7 +244,6 @@ protected:
     
     void show_empty_shps_msgbox();
     
-	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
 };

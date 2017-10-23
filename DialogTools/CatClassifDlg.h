@@ -70,13 +70,12 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
+	virtual void UpdateStatusBar();
     void GetBarPositions(std::vector<double>& x_center_pos,
                          std::vector<double>& x_left_pos,
                          std::vector<double>& x_right_pos);
     
-public:
 	void InitIntervals();
 	void UpdateIvalSelCnts();
 	static const int max_intervals;
@@ -92,7 +91,6 @@ public:
 								double min, double max);
 	
 protected:
-	virtual void UpdateStatusBar();
 
     Project* project;
     

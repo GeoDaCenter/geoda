@@ -96,6 +96,8 @@ public:
 	int GetHorizNumCats() { return horiz_num_cats; }
 	int GetVertNumCats() { return vert_num_cats; }
 
+	virtual void UpdateStatusBar();
+    
 protected:
 	TableInterface* table_int;
 	CatClassifState* cc_state_vert;
@@ -142,7 +144,6 @@ protected:
 	int bin_h;
 	bool all_init;
     
-	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
 };

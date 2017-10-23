@@ -53,6 +53,7 @@ public:
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     virtual void update(HLStateInt* o);
+	virtual void UpdateStatusBar();
    
 protected:
 	virtual void PopulateCanvas();
@@ -98,10 +99,10 @@ public:
 	void HistogramIntervals();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
-protected:
 	virtual void PopulateCanvas();
 	virtual void UpdateStatusBar();
 	
+protected:
 	const vector<double>& X;
 	const vector<bool>& X_undef;
 	wxString Xname;

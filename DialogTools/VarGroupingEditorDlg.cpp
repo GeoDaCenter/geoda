@@ -194,8 +194,6 @@ void VarGroupingEditorDlg::CreateControls()
 	UpdateButtons();
     
     ungrouped_list->Bind(wxEVT_LEFT_DOWN, &VarGroupingEditorDlg::OnUngroupedListLeftDown, this);
-
-    
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
     include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
@@ -823,8 +821,8 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
         for (int i=0; i<diff; ++i) {
             wxString t;
             if (item_cnt+i == 0) {
-                t = table_int->GetTimeString(0);
-                if (t.IsEmpty()) t = "time 0";
+                t = "time 0";
+                table_int->RenameTimeStep(0, t);
             } else {
                 t = GenerateTimeLabel();
                 table_int->InsertTimeStep(item_cnt+i, t);
@@ -860,7 +858,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int inc_list_cnt = GetIncListNameCnt();
 	UpdateTimeStepsTxt();
 	
-	if (new_group_name_txt_ctrl->GetValue().IsEmpty() && inc_list_cnt > 1) {
+	if (new_group_name_txt_ctrl->GetValue().IsEmpty() || inc_list_cnt > 1) {
 		vector<wxString> names(inc_list_cnt);
 		for (int i=0; i<inc_list_cnt; ++i) {
 			names[i] = include_list->GetItemText(i, 1);

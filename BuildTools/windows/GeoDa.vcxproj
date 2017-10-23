@@ -324,6 +324,7 @@
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
@@ -349,6 +350,8 @@
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
+    <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp" />
     <ClCompile Include="..\..\Explore\SimpleAxisCanvas.cpp" />
     <ClCompile Include="..\..\Explore\SimpleBinsHistCanvas.cpp" />
@@ -417,6 +420,7 @@
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
     <ClInclude Include="..\..\DialogTools\RedcapDlg.h" />
@@ -449,6 +453,9 @@
     <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
+    <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
+    <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />
+    <ClInclude Include="..\..\Explore\MLJCMapNewView.h" />
     <ClInclude Include="..\..\Explore\ScatterPlotMatView.h" />
     <ClInclude Include="..\..\Explore\SimpleAxisCanvas.h" />
     <ClInclude Include="..\..\Explore\SimpleBinsHistCanvas.h" />

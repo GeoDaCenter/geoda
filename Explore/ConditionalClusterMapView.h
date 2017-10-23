@@ -83,9 +83,10 @@ public:
 	CatClassifDef cat_classif_def_map;
 	CatClassification::CatClassifType GetCatType();
 
-protected:
     virtual void UpdateStatusBar() = 0;
     virtual void PopulateCanvas();
+    
+protected:
     
     wxString title;
 	CatClassifState* cc_state_map;

@@ -54,6 +54,8 @@ public:
 
 	void ChangeWeights(boost::uuids::uuid new_id);
 	virtual void update(HLStateInt* o);
+	virtual void UpdateStatusBar();
+    
 protected:
 	WeightsManInterface* w_man_int;
 	
@@ -64,7 +66,6 @@ protected:
 	
 	std::set<long> sel_cores; // set of cores under current selection
 	std::set<long> core_nbrs; // set of nbrs of cores, excl cores
-	virtual void UpdateStatusBar();
 	
 	DECLARE_EVENT_TABLE()
 };

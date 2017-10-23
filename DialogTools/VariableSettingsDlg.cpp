@@ -1048,6 +1048,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
+    
 	v1_col_id = col_id_map[sel1_idx_map[lb1->GetSelection()]];
     
 	v1_name = table_int->GetColName(v1_col_id);
@@ -1059,6 +1060,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
             v1_time = 0;
 	}
     wxLogMessage(v1_name);
+    
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
 			wxString msg(_T("No field chosen for second variable."));
@@ -1066,7 +1068,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v2_col_id = col_id_map[lb2->GetSelection()];
+		v2_col_id = col_id_map[sel2_idx_map[lb2->GetSelection()]];
 		v2_name = table_int->GetColName(v2_col_id);
 		project->SetDefaultVarName(1, v2_name);
 		if (is_time) {
@@ -1084,7 +1086,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v3_col_id = col_id_map[lb3->GetSelection()];
+		v3_col_id = col_id_map[sel3_idx_map[lb3->GetSelection()]];
 		v3_name = table_int->GetColName(v3_col_id);
 		project->SetDefaultVarName(2, v3_name);
 		if (is_time) {
@@ -1102,7 +1104,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v4_col_id = col_id_map[lb4->GetSelection()];
+		v4_col_id = col_id_map[sel4_idx_map[lb4->GetSelection()]];
 		v4_name = table_int->GetColName(v4_col_id);
 		project->SetDefaultVarName(3, v4_name);
 		if (is_time) {
@@ -1132,7 +1134,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
     		project->SetDefaultDistUnits(GetDistanceUnits());
     	}
     	
-        
         bool check_group_var = true;
         try {
             for (int i=0; i<col_ids.size(); i++) {
@@ -1149,7 +1150,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         if (check_group_var == true)
             EndDialog(wxID_OK);
     }
-    
 }
 
 // Theme choice for Rate Smoothed variable settings

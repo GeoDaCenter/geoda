@@ -96,9 +96,9 @@ public:
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	int GetNumCats() { return num_categories; }
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	CatClassifState* custom_classif_state;
 	

@@ -75,6 +75,8 @@ public:
 	/// Override from TemplateCanvas
 	virtual void SetSelectableOutlineColor(wxColour color);
 	
+	virtual void UpdateStatusBar();
+    
 protected:
 	bool full_map_redraw_needed;
 	std::vector<double> X;
@@ -102,7 +104,6 @@ protected:
 	void EmptyLowessCache();
 	Lowess lowess;
 	
-	virtual void UpdateStatusBar();
 	
 	DECLARE_EVENT_TABLE()
 };

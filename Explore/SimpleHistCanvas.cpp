@@ -78,6 +78,10 @@ SimpleHistStatsCanvas::~SimpleHistStatsCanvas()
 	highlight_state->removeObserver(this);
 }
 
+void SimpleHistStatsCanvas::UpdateStatusBar()
+{
+    
+}
 void SimpleHistStatsCanvas::PopulateCanvas()
 {
     BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }

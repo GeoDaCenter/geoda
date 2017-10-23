@@ -57,12 +57,10 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	virtual void PlotsPerView(int plots_per_view);
@@ -74,9 +72,9 @@ public:
 	bool IsShowAxes() { return show_axes; }
 	void Hinge15();
 	void Hinge30();
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	int num_obs;
 	int num_time_vals;
