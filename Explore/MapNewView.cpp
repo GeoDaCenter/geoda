@@ -812,9 +812,6 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
                                    GetCcType() != CatClassification::no_theme);
-    
-    
-    
 	if (template_frame) {
 		template_frame->UpdateContextMenuItems(optMenu);
 		template_frame->PopupMenu(optMenu, pos + GetPosition());

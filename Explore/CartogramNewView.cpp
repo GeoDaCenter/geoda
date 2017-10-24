@@ -648,14 +648,14 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++) {
         var_undefs[t].resize(num_obs);
 		cat_var_sorted[t].resize(num_obs);
-		int thm_t = (var_info[THM_VAR].sync_with_global_time ? 
-					 t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
+		int thm_t = (var_info[THM_VAR].sync_with_global_time ?  t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
+		int rad_t = (var_info[RAD_VAR].sync_with_global_time ?  t + var_info[RAD_VAR].time_min : var_info[RAD_VAR].time);
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[THM_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
             
             var_undefs[t][i] = var_undefs[t][i] || data_undef[THM_VAR][thm_t][i];
-            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][thm_t][i];
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][rad_t][i];
 		}
 	}
 	
