@@ -817,8 +817,6 @@ void ConditionalMapCanvas::UpdateStatusBar()
     
     int t = var_info[CAT_VAR].time;
     
-    if (cat_var_undef.size() < t) return;
-    
     const vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
@@ -827,7 +825,9 @@ void ConditionalMapCanvas::UpdateStatusBar()
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
-            if (cat_var_undef[t][i] && hl[i]) {
+            // here cat_var_undef is always size 1, since num_time_vals is hard coded = 1
+            // see in ConditionalNewView.cpp/.h, since there is only
+            if (cat_var_undef[0][i] && hl[i]) {
                 n_undefs += 1;
             }
         }

@@ -1297,6 +1297,7 @@ void VariableSettingsDlg::InitFieldChoices()
         
 		if (table_int->IsColTimeVariant(col_id_map[i]))
             name << t1;
+        
         if ((var1_str) ||
             (!var1_str && ftype == GdaConst::double_type) ||
             (!var1_str && ftype == GdaConst::long64_type))
@@ -1321,6 +1322,7 @@ void VariableSettingsDlg::InitFieldChoices()
                 sel2_idx += 1;
             }
 		}
+        
 		if (num_var >= 3) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
@@ -1335,6 +1337,7 @@ void VariableSettingsDlg::InitFieldChoices()
                 sel3_idx += 1;
             }
 		}
+        
 		if (num_var >= 4) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
@@ -1463,7 +1466,6 @@ wxString VariableSettingsDlg::FillData()
         if (emptyVar.empty() && CheckEmptyColumn(v3_col_id, v3_time)) {
             emptyVar =  v3_name;
         }
-
 	}
 	if (num_var >= 4) {
 		//v4_col_id = col_id_map[lb4->GetSelection()];
@@ -1484,6 +1486,12 @@ wxString VariableSettingsDlg::FillData()
 		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
 		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
+       
+        if (var_info[i].is_time_variant) {
+            int n_timesteps = table_int->GetColTimeSteps(col_ids[i]);
+            var_info[i].time_min = 0;
+            var_info[i].time_max = n_timesteps>0 ? n_timesteps - 1 : 0;
+        }
         
 		// var_info[i].time already set above
 		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
@@ -1492,7 +1500,7 @@ wxString VariableSettingsDlg::FillData()
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	//GdaVarTools::PrintVarInfoVector(var_info);
+	GdaVarTools::PrintVarInfoVector(var_info);
     
     return emptyVar;
 }

@@ -374,13 +374,13 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
     if (last_scale_trans.IsValid()) {
 		BOOST_FOREACH( GdaShape* ms, background_shps ) {
-			ms->applyScaleTrans(last_scale_trans);
+			if (ms) ms->applyScaleTrans(last_scale_trans);
 		}
 		BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-			ms->applyScaleTrans(last_scale_trans);
+			if (ms) ms->applyScaleTrans(last_scale_trans);
 		}
     	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-    		ms->applyScaleTrans(last_scale_trans);
+    		if (ms) ms->applyScaleTrans(last_scale_trans);
     	}
 	}
     layer0_valid = false;
