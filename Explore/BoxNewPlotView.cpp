@@ -277,10 +277,11 @@ void BoxPlotCanvas::DetermineMouseHoverObjects(wxPoint pt)
     
 	for (int t=0; t<cur_num_plots; t++) {
 		for (int i=0; i<num_obs; i++) {
-            wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
-            wxPoint& pt1 = pt;
-			sel_scratch[i] = sel_scratch[i] ||
-				GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
+            if (selectable_shps[t*num_obs + i]) {
+                wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
+                wxPoint& pt1 = pt;
+    			sel_scratch[i] = sel_scratch[i] || GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
+            }
 		}
 	}
 	for (int i=0; i<num_obs && total_hover_obs<max_hover_obs; i++) {
@@ -304,8 +305,9 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if (pointsel) { // a point selection
 		for (int t=0; t<cur_num_plots; t++) {
 			for (int i=0; i<num_obs; i++) {
-				sel_scratch[i] = sel_scratch[i] ||
-				selectable_shps[t*num_obs + i]->pointWithin(sel1);
+                if (selectable_shps[t*num_obs + i]) {
+    				sel_scratch[i] = sel_scratch[i] || selectable_shps[t*num_obs + i]->pointWithin(sel1);
+                }
 			}
 		}
 	} else {
@@ -313,9 +315,9 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		wxRegion rect(wxRect(sel1, sel2));
 		for (int t=0; t<cur_num_plots; t++) {
 			for (int i=0; i<num_obs; i++) {
-				sel_scratch[i] = sel_scratch[i] ||
-					(rect.Contains(selectable_shps[t*num_obs + i]->center) !=
-					 wxOutRegion);
+                if (selectable_shps[t*num_obs + i]) {
+    				sel_scratch[i] = sel_scratch[i] || (rect.Contains(selectable_shps[t*num_obs + i]->center) != wxOutRegion);
+                }
 			}
 		}
 	}

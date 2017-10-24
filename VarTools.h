@@ -224,6 +224,7 @@ struct VarInfo {
 	// to this variable's time.  If true, then ref_time_offset = 0
 	// Only one variable can be the reference variable for time
 	bool is_ref_variable;
+    
 	// time offset from the reference variable time
 	int ref_time_offset; // offset from ref_time
 	int time_min;

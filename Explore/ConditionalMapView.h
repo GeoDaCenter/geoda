@@ -77,6 +77,7 @@ public:
 	int GetNumCats() { return num_categories; }
 
 	virtual void UpdateStatusBar();
+    
 protected:
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories

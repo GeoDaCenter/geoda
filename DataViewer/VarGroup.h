@@ -38,7 +38,9 @@ struct VarGroup {
 	void Append(const VarGroup& e);
 	void AppendPlaceholder();
 	bool IsAllPlaceholders() const;
+	bool IsAnyPlaceholders() const;
 	int GetNumTms() const;
+    int GetNumVars() const;
 	void GetVarNames(std::vector<wxString>& var_nms) const;
 	wxString GetNameByTime(int time) const;
 	wxString GetGroupName() const;
