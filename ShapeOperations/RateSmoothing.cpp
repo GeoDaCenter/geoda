@@ -190,7 +190,7 @@ bool GdaAlgs::RateSmoother_EBS(int obs, double *P, double *E,
 	
 	if (theta2 < 0) theta2 = 0.0;
 	// MMM: we should display a warning dialog when the
-	// estimate for the variance, thata2, is negative
+	// estimate for the variance, theta2, is negative
 	for (i=0; i<obs; i++) {
 		if (!undefined[i]) {
 			q1 = (theta2 + (theta1/P[i]));
