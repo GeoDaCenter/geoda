@@ -130,6 +130,9 @@ void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
 		pRate->m_result->SetSelection(var_sel_idx);
 		pDT->m_result->SetSelection(var_sel_idx);
 	}
+    wxString msg;
+    msg << "page idx: " << var_sel_idx;
+    wxLogMessage(msg);
 }
 
 void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )

@@ -596,13 +596,9 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 bool Project::HasUnsavedChange()
 {
 	wxLogMessage("Project::HasUnsavedChange()");
-    if (GetTableInt()->ChangedSinceLastSave())
+    TableInterface* tbl = GetTableInt();
+    if (tbl && tbl->ChangedSinceLastSave())
         return true;
-    
-    //if (GetTableInt()->IsTimeVariant() ||
-    //     (w_man_int && w_man_int->GetIds().size()>0) )
-    //    return true;
-    
     return false;
 }
 
