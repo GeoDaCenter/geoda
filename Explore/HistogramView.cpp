@@ -1149,6 +1149,8 @@ void HistogramCanvas::UpdateStatusBar()
         sb->SetStatusText(s);
 		return;
 	}
+   
+    if (ival-1 >= ival_breaks[t].size()) return;
     
 	wxString s;
 	double ival_min = (ival == 0) ? min_ival_val[t] : ival_breaks[t][ival-1];

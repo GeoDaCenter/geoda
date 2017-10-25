@@ -43,6 +43,12 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 {
     ds_name = _ds_name;
     ds_type = _ds_type;
+   
+    wxString msg;
+    msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
+    if (ds_type == GdaConst::ds_unknown) {
+        throw GdaException(GET_ENCODED_FILENAME(msg));
+    }
     
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
     
@@ -76,16 +82,12 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             // raise open fialed
             // we don't use OpenFileGDB since it has some bugs
             wxString error_detail(CPLGetLastErrorMsg(), wxConvUTF8);
-            wxString msg;
-			msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
             
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
             } else {
                 msg << _("\n\nDetails: ") << error_detail;
             }
-
             throw GdaException(GET_ENCODED_FILENAME(msg));
-			//}
         }
         is_writable = false;
 	}

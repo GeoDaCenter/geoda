@@ -596,13 +596,9 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 bool Project::HasUnsavedChange()
 {
 	wxLogMessage("Project::HasUnsavedChange()");
-    if (GetTableInt()->ChangedSinceLastSave())
+    TableInterface* tbl = GetTableInt();
+    if (tbl && tbl->ChangedSinceLastSave())
         return true;
-    
-    //if (GetTableInt()->IsTimeVariant() ||
-    //     (w_man_int && w_man_int->GetIds().size()>0) )
-    //    return true;
-    
     return false;
 }
 
@@ -1472,7 +1468,7 @@ bool Project::InitFromOgrLayer()
     wxLogMessage(ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
-    
+   
 	// OK. ReadLayer() is running in a seperate thread.
 	// This gives us a chance to get its progress for a Progress window.
 	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, ds_type, layername.ToStdString());

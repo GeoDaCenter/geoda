@@ -285,9 +285,7 @@ wxString CatClassifHistCanvas::GetCanvasTitle()
 	return s;
 }
 
-void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
-                                      std::vector<double>& x_left_pos,
-                                      std::vector<double>& x_right_pos)
+void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, std::vector<double>& x_left_pos, std::vector<double>& x_right_pos)
 {
     int n = x_center_pos.size();
     
@@ -300,16 +298,23 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
     
     std::vector<double> ticks;
     ticks.push_back(val_min);
-    for(int i=0; i<breaks->size();i++)
+    for(int i=0; i<breaks->size();i++) {
         ticks.push_back((*breaks)[i]);
+    }
     ticks.push_back(val_max);
     
     int j=0;
     for (int i=0; i<ticks.size()-1; i++) {
-        x_left_pos[j] = x_max * (ticks[i] - left) / val_range;
-        x_right_pos[j] = x_max * (ticks[i+1] - left) / val_range;
-        
-        x_center_pos[j] = (x_right_pos[j] + x_left_pos[j]) / 2.0;
+        int x_left = x_max * (ticks[i] - left) / val_range;
+        int x_right = x_max * (ticks[i+1] - left) / val_range;
+       
+        if (x_left == x_right && ival_obs_cnt[i] > 0 && j>0) {
+            for (int k=j-1; k>=0; k--)
+                if (x_left_pos[k] != x_left) x_left = x_left_pos[j];
+        }
+        x_left_pos[j] = x_left;
+        x_right_pos[j] = x_right;
+        x_center_pos[j] = (x_left + x_right) / 2.0;
         j++;
     }
 }
@@ -348,12 +353,11 @@ void CatClassifHistCanvas::PopulateCanvas()
 	
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
-        double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
-        double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
+        double x0 = orig_x_pos_left[i];
+        double x1 = orig_x_pos_right[i];
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
-											 wxRealPoint(x1, y1));
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0), wxRealPoint(x1, y1));
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
@@ -421,7 +425,7 @@ void CatClassifHistCanvas::InitIntervals()
 		int ind;
         
         max_val = (*data)[0].first;
-        min_val = (*data)[0].second;
+        min_val = (*data)[num_obs].first;
         
 		for (int i=0; i<num_obs; i++) {
 			val = (*data)[i].first;
@@ -891,8 +895,9 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
             assoc_var_choice->SetSelection(f_sel);
             if (table_int->IsColTimeVariant(field_name)) {
                 assoc_var_tm_choice->SetSelection(field_tm);
+                assoc_var_tm_choice->Show();
             } else {
-                assoc_var_tm_choice->Enable(false);
+                assoc_var_tm_choice->Hide();
             }
         }
         cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
@@ -1055,7 +1060,11 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     wxLogMessage(cur_fc_str);
     
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
-	assoc_var_tm_choice->Enable(is_tm_var);
+    if (is_tm_var)
+        assoc_var_tm_choice->Show();
+    else
+        assoc_var_tm_choice->Hide();
+    
 	if (is_tm_var && assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		assoc_var_tm_choice->SetSelection(0);
 	}
@@ -1702,7 +1711,7 @@ void CatClassifPanel::ResetValuesToDefault()
 	unif_dist_mode = true;
 	assoc_var_choice->SetSelection(0);
 	assoc_var_tm_choice->SetSelection(0);
-	assoc_var_tm_choice->Enable(false);
+	assoc_var_tm_choice->Hide();
 
 	preview_var_choice->SetSelection(0);
 	preview_var_tm_choice->SetSelection(0);
@@ -1850,10 +1859,10 @@ void CatClassifPanel::InitFromCCData()
 		int sel = assoc_var_choice->FindString(table_int->GetColName(col));
 		assoc_var_choice->SetSelection(sel);
 		if (table_int->IsColTimeVariant(col)) {
-			assoc_var_tm_choice->Enable(true);
+			assoc_var_tm_choice->Show();
 			assoc_var_tm_choice->SetSelection(tm);
 		} else {
-			assoc_var_tm_choice->Enable(false);
+			assoc_var_tm_choice->Hide();
 		}
 		if (IsSyncVars()) {
 			preview_var_choice->SetSelection(sel);
@@ -1897,7 +1906,7 @@ void CatClassifPanel::InitFromCCData()
     }
     
 	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
-	Refresh();
+    Refresh();
 }
 
 /**
@@ -1930,7 +1939,12 @@ void CatClassifPanel::InitAssocVarChoices()
 	}
     
 	assoc_var_choice->SetSelection(assoc_var_choice->FindString(cur_fc_str));
-	assoc_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
+    bool is_time_var = table_int->IsColTimeVariant(cur_fc_str);
+    if (is_time_var)
+        assoc_var_tm_choice->Show();
+    else
+        assoc_var_tm_choice->Hide();
     
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
