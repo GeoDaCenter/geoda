@@ -1472,7 +1472,7 @@ bool Project::InitFromOgrLayer()
     wxLogMessage(ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
-    
+   
 	// OK. ReadLayer() is running in a seperate thread.
 	// This gives us a chance to get its progress for a Progress window.
 	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, ds_type, layername.ToStdString());
