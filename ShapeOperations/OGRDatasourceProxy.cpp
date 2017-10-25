@@ -44,13 +44,14 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     ds_name = _ds_name;
     ds_type = _ds_type;
    
+    const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
+
     wxString msg;
     msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
+    
     if (ds_type == GdaConst::ds_unknown) {
         throw GdaException(GET_ENCODED_FILENAME(msg));
     }
-    
-    const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
     
     CPLErrorReset();
     
@@ -64,7 +65,6 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         } else {
             const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-            
         }
 
     } else {
@@ -77,12 +77,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
         
         if (ds==0) {
-			//wxString drv_name(ds->GetDriverName());
-			//if (drv_name == "OpenFileGDB") {
-            // raise open fialed
-            // we don't use OpenFileGDB since it has some bugs
             wxString error_detail(CPLGetLastErrorMsg(), wxConvUTF8);
-            
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
             } else {
                 msg << _("\n\nDetails: ") << error_detail;
@@ -91,7 +86,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         }
         is_writable = false;
 	}
-
+    
     std::string driver_name = ds->GetDriverName();
     
     if (ds_type == GdaConst::ds_unknown &&
