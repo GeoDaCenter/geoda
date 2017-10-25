@@ -716,6 +716,7 @@ void MergeTableDlg::OuterJoinMerge()
         //for (int i=0; i<new_geoms.size(); i++) {
         //    delete new_geoms[i];
         //}
+        EndDialog(wxID_OK);
         
     } catch (GdaException& ex) {
         if (ex.type() == GdaException::NORMAL)
@@ -836,6 +837,7 @@ void MergeTableDlg::LeftJoinMerge()
 	wxMessageDialog dlg(this, _("File merged into Table successfully."),
 						_("Success"), wxOK );
 	dlg.ShowModal();
+    EndDialog(wxID_OK);
 }
 
 void MergeTableDlg::AppendNewField(wxString field_name,
