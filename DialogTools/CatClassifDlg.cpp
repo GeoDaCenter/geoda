@@ -305,12 +305,20 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, st
     
     int j=0;
     for (int i=0; i<ticks.size()-1; i++) {
-        int x_left = x_max * (ticks[i] - left) / val_range;
-        int x_right = x_max * (ticks[i+1] - left) / val_range;
-       
-        if (x_left == x_right && ival_obs_cnt[i] > 0 && j>0) {
-            for (int k=j-1; k>=0; k--)
-                if (x_left_pos[k] != x_left) x_left = x_left_pos[j];
+        int x_left = 0;
+        int x_right = 0;
+        
+        if (val_range == 0 && ival_obs_cnt[i] > 0) {
+            x_right = x_max;
+        } else {
+            x_left = val_range==0 ? 0 : x_max * (ticks[i] - left) / val_range;
+            x_right = val_range==0 ? 0 : x_max * (ticks[i+1] - left) / val_range;
+           
+            if (x_left == x_right && ival_obs_cnt[i] > 0 && j>0) {
+                for (int k=j-1; k>=0; k--)
+                    if (x_left_pos[k] != x_left)
+                        x_left = x_left_pos[j];
+            }
         }
         x_left_pos[j] = x_left;
         x_right_pos[j] = x_right;
@@ -348,10 +356,13 @@ void CatClassifHistCanvas::PopulateCanvas()
 						wxRealPoint(0,0), wxRealPoint(0, y_max),
 						-9, 0);
 	foreground_shps.push_back(y_axis);
-
-    last_scale_trans.SetMargin(45, 25+32, 25+35, 25);
 	
 	selectable_shps.resize(cur_intervals);
+    
+    wxClientDC dc(this);
+    
+    int max_label_height = 0;
+    
 	for (int i=0; i<cur_intervals; i++) {
         double x0 = orig_x_pos_left[i];
         double x1 = orig_x_pos_right[i];
@@ -361,6 +372,9 @@ void CatClassifHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
+        int s_w =0;
+        int s_h = 0;
+        
         if (i==0) {
             GdaShapeText* brk =
             new GdaShapeText(GenUtils::DblToStr(min_val),
@@ -368,6 +382,7 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x0, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
             foreground_shps.push_back(brk);
         }
 		if (i<cur_intervals-1) {
@@ -377,6 +392,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 wxRealPoint(x1, y0), 90,
 								 GdaShapeText::right,
 								 GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
 			foreground_shps.push_back(brk);
 		}
         if (i==cur_intervals-1) {
@@ -386,9 +402,13 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x1, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
             foreground_shps.push_back(brk);
         }
+        if (s_w > max_label_height) max_label_height = s_w;
 	}
+    
+    last_scale_trans.SetMargin(45, 15+max_label_height, 25+35, 25);
 	
     ResizeSelectableShps();
 }
