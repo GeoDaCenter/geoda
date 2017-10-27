@@ -707,43 +707,30 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     double user_sig = gs_coord->significance_cutoff;
     if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
   
-    if (gs_coord->is_local_joint_count) {
-        int new_n = 0;
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1) {
-                new_n += 1;
-            }
-        }
-        int j= 0;
-        double* p_val = new double[new_n];
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1) {
-                p_val[j++] = p_val_t[i];
-            }
-        }
-        InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
-        if (dlg.ShowModal() == wxID_OK) {
-            gs_coord->SetSignificanceFilter(-1);
-            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-            gs_coord->user_sig_cutoff = dlg.GetUserInput();
-            gs_coord->notifyObservers();
-            gs_coord->bo = dlg.GetBO();
-            gs_coord->fdr = dlg.GetFDR();
-            UpdateOptionMenuItems();
-        }
-        delete[] p_val;
-    } else {
-        InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
-        if (dlg.ShowModal() == wxID_OK) {
-            gs_coord->SetSignificanceFilter(-1);
-            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-            gs_coord->user_sig_cutoff = dlg.GetUserInput();
-            gs_coord->notifyObservers();
-            gs_coord->bo = dlg.GetBO();
-            gs_coord->fdr = dlg.GetFDR();
-            UpdateOptionMenuItems();
+    int new_n = 0;
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        if (gs_coord->x_vecs[t][i] == 1) {
+            new_n += 1;
         }
     }
+    int j= 0;
+    double* p_val = new double[new_n];
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        if (gs_coord->x_vecs[t][i] == 1) {
+            p_val[j++] = p_val_t[i];
+        }
+    }
+    InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
+    if (dlg.ShowModal() == wxID_OK) {
+        gs_coord->SetSignificanceFilter(-1);
+        gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+        gs_coord->user_sig_cutoff = dlg.GetUserInput();
+        gs_coord->notifyObservers();
+        gs_coord->bo = dlg.GetBO();
+        gs_coord->fdr = dlg.GetFDR();
+        UpdateOptionMenuItems();
+    }
+    delete[] p_val;
 }
 
 
@@ -751,106 +738,65 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 {
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	wxString title = "Save Results: ";
-	title += "Multi-variate Local Join Count";
-	title += "-stats, ";
+	wxString title = _("Save Results: Multivariate Local Join Count stats, ");
+    title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
+
+    int num_obs = gs_coord->num_obs;
     
-    title += wxString::Format("pseudo p (%d perm), ",
-                              gs_coord->permutations);
-	
     double* g_val_t = gs_coord->G_vecs[t];
-	std::vector<double> g_val(gs_coord->num_obs);
+	std::vector<double> g_val(num_obs);
+    for (int i=0; i<num_obs; i++) g_val[i] = g_val_t[i];
     
-    for (int i=0; i<gs_coord->num_obs; i++) {
-        g_val[i] = g_val_t[i];
-    }
-    
-    if (gs_coord->is_local_joint_count) {
-        title = "Save Results: Local Join Count-stats";
-    }
-	
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, c_val);
 	wxString c_label = "cluster category";
 	wxString c_field_default = "C_ID";
 	
-	double* p_val_t = 0;
-	std::vector<double> p_val(gs_coord->num_obs);
-	double* z_val_t =  gs_coord->z_vecs[t];
-	std::vector<double> z_val(gs_coord->num_obs);
-	for (int i=0; i<gs_coord->num_obs; i++)
-        z_val[i] = z_val_t[i];
-    
+	double* p_val_t = gs_coord->pseudo_p_vecs[t];
+	std::vector<double> p_val(num_obs);
+	for (int i=0; i<num_obs; i++) p_val[i] = p_val_t[i];
 	wxString p_label = "pseudo p-value";
 	wxString p_field_default =  "P_VAL";
 	
-    p_val_t = gs_coord->pseudo_p_vecs[t];
-	for (int i=0; i<gs_coord->num_obs; i++) p_val[i] = p_val_t[i];
-	
-    int num_data = 3;
-     // drop C_ID for local JC, add NN and NN_1
-    if (gs_coord->is_local_joint_count) num_data += 1;
+    int num_data = 1;
+    
 	std::vector<SaveToTableEntry> data(num_data);
-    std::vector<bool> undefs(gs_coord->num_obs, false);
-    std::vector<bool> c_undefs(gs_coord->num_obs, true);
-    
-    for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
-        for (size_t j=0; j<gs_coord->x_undefs[i].size(); j++) {
-            undefs[j] = undefs[j] || gs_coord->x_undefs[i][j];
-        }
-    }
-    
-    vector<double> p_hg;
-    std::vector<wxInt64> nn_1_val;
-	int data_i = 0;
-
-    {
-        int n_1s = 0;
-        int n_0s = 0;
-        
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
-            p_hg.push_back( gs_coord->ep_vals[t][i]);
-        }
-        
-        data[data_i].l_val = &gs_coord->num_neighbors;
-        data[data_i].label = "Number of Neighbors";
-        data[data_i].field_default = "NN";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
-        data[data_i].l_val = &nn_1_val;
-        data[data_i].label = "Number of Neighbors with Value 1";
-        data[data_i].field_default = "NN_1";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
-        for (size_t i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1)
-                c_undefs[i] = false;
-            if (gs_coord->x_vecs[t][i] == 1) n_1s++;
-            else n_0s++;
-        }
-    	data[data_i].d_val = &p_val;
-    	data[data_i].label = p_label;
-    	data[data_i].field_default = p_field_default;
-    	data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &c_undefs;
-    	data_i++;
+    std::vector<bool> undefs = gs_coord->x_undefs[t];
    
-        data[data_i].d_val = &p_hg;
-        data[data_i].label = "Exact Probabilities";
-        data[data_i].field_default = "EP_VAL";
-        data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &c_undefs;
-        data_i++;
-    }
+    int data_i = 0;
+    /*
+    data[data_i].l_val = &gs_coord->num_neighbors_w1;
+    data[data_i].label = "Number of Neighbors";
+    data[data_i].field_default = "NN";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &gs_coord->num_neighbors_w1;
+    data[data_i].label = "Number of Neighbors with Value 1";
+    data[data_i].field_default = "NN_1";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].d_val = &p_val;
+    data[data_i].label = p_label;
+    data[data_i].field_default = p_field_default;
+    data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &g_val;
+    data[data_i].label = "Exact Probabilities";
+    data[data_i].field_default = "EP_VAL";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
 	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
+     */
 }
 
 void MLJCMapFrame::CoreSelectHelper(const std::vector<bool>& elem)

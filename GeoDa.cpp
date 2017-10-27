@@ -3842,11 +3842,12 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
 	JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
 
 	if (LWO.m_ClustMap) {
-		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, true);
+		//MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, true);
 	}
 	if (LWO.m_SigMap) {
-		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
+		//MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
 	}
+    delete lc;
 }
 
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)

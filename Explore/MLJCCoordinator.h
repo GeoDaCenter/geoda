@@ -52,7 +52,8 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class JCWorkerThread : public wxThread
 {
 public:
-    JCWorkerThread(const GalElement* W,
+    JCWorkerThread(double* x, double* y, int* c,
+                   const GalElement* W,
                    const std::vector<bool>& undefs,
                    int obs_start, int obs_end, uint64_t seed_start,
                    JCCoordinator* jc_coord,
@@ -64,6 +65,9 @@ public:
 	virtual ~JCWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
+    double* x;
+    double* y;
+    int* c;
     const GalElement* W;
     const std::vector<bool>& undefs;
 	int obs_start;
@@ -131,67 +135,29 @@ public:
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
 	
-	std::vector<double> n; // # non-neighborless observations
 
-    // a special case Local Join Count
-    bool is_local_joint_count;
     int num_obs_1s;
     int num_obs_0s;
     
-	double x_star_t; // temporary x_star for use in worker threads
-	std::vector<double> x_star; // sum of all x_i // threaded
-	std::vector<double> x_sstar; // sum of all (x_i)^2
-		
-	std::vector<double> ExG; // same for all i since we row-standardize W
-	std::vector<double> ExGstar; // same for all i since we row-standardize W
-	std::vector<double> mean_x; // x hat (overall)
-	std::vector<double> var_x; // s^2 overall
-	// since W is row-standardized, VarGstar same for all i
-	// same as s^2 / (n^2 mean_x ^2)
-	std::vector<double> VarGstar;
-	// since W is row-standardized, sdGstar same for all i
-	std::vector<double> sdGstar;
-    // number of neighbors
-    vector<wxInt64> num_neighbors;
-    // number of neighbors with 1
-    std::vector<wxInt64* > num_neighbors_1;
-    std::vector<double*> ep_vals;
-    
-protected:
-	// The following ten are just temporary pointers into the corresponding
-	// space-time data arrays below
-	double* G; //threaded
-	bool* G_defined; // check for divide-by-zero //threaded
-	double* z;
-	// p-val from z_i using standard normal table
-	double* p;
-	double* pseudo_p; //threaded
-	double* x; //threaded
-	double* y; //threaded
-    int* c;
-	double* e_p; //threaded
-    wxInt64* nn_1_t;
+    std::vector<wxInt64> num_neighbors;
 	
-public:
 	std::vector<double*> G_vecs; //threaded
-	std::vector<bool*> G_defined_vecs; // check for divide-by-zero //threaded
-                                       // as well as undefined values
-	// z-val corresponding to each G_i
-	std::vector<double*> z_vecs;
-	// p-val from z_i using standard normal table
 	std::vector<double*> p_vecs;
-	std::vector<double*> pseudo_p_vecs; //threaded
-   
+	std::vector<double*> pseudo_p_vecs;
+	std::vector<double*> x_vecs;
+	std::vector<double*> y_vecs;
     std::vector<int* > c_vecs;
-    
-	std::vector<double*> x_vecs; //threaded
     std::vector<std::vector<bool> > x_undefs;
-	std::vector<double*> y_vecs; //threaded
-    std::vector<std::vector<bool> > y_undefs;
-
-	boost::uuids::uuid w_id;
     std::vector<GalWeight*> Gal_vecs;
     std::vector<GalWeight*> Gal_vecs_orig;
+    std::vector<wxInt64* > num_neighbors_w1;
+    
+	std::vector<bool> map_valid;
+	std::vector<wxString> map_error_message;
+	std::vector<bool> has_isolates;
+	std::vector<bool> has_undefined;
+
+	boost::uuids::uuid w_id;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
@@ -201,14 +167,12 @@ public:
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	std::vector<b_array_type> data_undef; // data[variable][time][obs]
 	
-	// All GetisOrdMapCanvas objects synchronize themselves
-	// from the following 6 variables.
+	// All objects synchronize themselves from the following 6 variables.
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
-	std::vector<bool> map_valid;
-	std::vector<wxString> map_error_message;
+    
 	
 	bool GetHasIsolates(int time) { return has_isolates[time]; }
 	bool GetHasUndefined(int time) { return has_undefined[time]; }
@@ -221,7 +185,8 @@ public:
     std::list<JCCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W,
+	void CalcPseudoP_range(double* x, double* y, int* c,
+                           const GalElement* W,
                            const std::vector<bool>& undefs,
                            int obs_start,
                            int obs_end,
@@ -232,20 +197,27 @@ public:
 	void VarInfoAttributeChange();
 	
 	void FillClusterCats(int canvas_time,std::vector<wxInt64>& c_val);
+    
 protected:
-	void DeallocateVectors();
-	void AllocateVectors();
-	
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
-	void CalcGs();
-	std::vector<bool> has_undefined;
-	std::vector<bool> has_isolates;
-	bool row_standardize;
+	// The following ten are just temporary pointers into the corresponding
+	// space-time data arrays below
+	double* G; //threaded
+	double* p;
+	double* pseudo_p;
+    double* x;
+	double* y;
+    int* c;
+    
 	uint64_t last_seed_used;
 	bool reuse_last_seed;
 	
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
+    
+	void DeallocateVectors();
+	void AllocateVectors();
+	void CalcPseudoP_threaded(double* x, double* y, int* c, const GalElement* W, const std::vector<bool>& undefs);
+	void CalcGs();
 };
 
 #endif
