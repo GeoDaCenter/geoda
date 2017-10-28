@@ -737,10 +737,11 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 {
     int t = 0;//template_canvas->cat_data.GetCurrentCanvasTmStep();
-	wxString title = _("Save Results: Multivariate Local Join Count stats, ");
+	wxString title = _("Save Results: Bivariate Local Join Count stats, ");
     title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
 
     int num_obs = gs_coord->num_obs;
+    std::vector<bool> p_undefs(num_obs, false);
     
     double* g_val_t = gs_coord->G_vecs[t];
 	std::vector<double> g_val(num_obs);
@@ -748,18 +749,24 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, c_val);
+    for (int i=0; i<num_obs; i++) {
+        if (c_val[i] < 1 || c_val[i] > 3)
+            p_undefs[i] = true;
+    }
 	wxString c_label = "Cluster Category";
 	wxString c_field_default = "C_ID";
 	
 	double* jc_t = gs_coord->G_vecs[t];
 	std::vector<wxInt64> jc_val(num_obs);
-	for (int i=0; i<num_obs; i++) jc_val[i] = (wxInt64)jc_t[i];
+    for (int i=0; i<num_obs; i++) jc_val[i] = (wxInt64)jc_t[i];
 	wxString jc_label = "Local Joint Count";
 	wxString jc_field_default =  "JC";
     
 	double* pp_val_t = gs_coord->pseudo_p_vecs[t];
 	std::vector<double> pp_val(num_obs);
-	for (int i=0; i<num_obs; i++) pp_val[i] = pp_val_t[i];
+    for (int i=0; i<num_obs; i++) {
+        pp_val[i] = pp_val_t[i];
+    }
 	wxString pp_label = "Pseudo p-value";
 	wxString pp_field_default =  "P_VAL";
 	
@@ -821,14 +828,14 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     data[data_i].label = pp_label;
     data[data_i].field_default = pp_field_default;
     data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
+    data[data_i].undefined = &p_undefs;
     data_i++;
     
     data[data_i].d_val = &p_val;
     data[data_i].label = p_label;
     data[data_i].field_default = p_field_default;
     data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
+    data[data_i].undefined = &p_undefs;
     data_i++;
 	
 	SaveToTableDlg dlg(project, this, data, title,
