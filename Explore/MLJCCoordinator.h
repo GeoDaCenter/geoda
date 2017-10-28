@@ -52,8 +52,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class JCWorkerThread : public wxThread
 {
 public:
-    JCWorkerThread(double* x, double* y, int* c,
-                   const GalElement* W,
+    JCWorkerThread(const GalElement* W,
                    const std::vector<bool>& undefs,
                    int obs_start, int obs_end, uint64_t seed_start,
                    JCCoordinator* jc_coord,
@@ -65,9 +64,6 @@ public:
 	virtual ~JCWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
-    double* x;
-    double* y;
-    int* c;
     const GalElement* W;
     const std::vector<bool>& undefs;
 	int obs_start;
@@ -101,9 +97,7 @@ public:
     double fdr; //False Discovery Rate
     double user_sig_cutoff; // user defined cutoff
 
-	uint64_t GetLastUsedSeed() {
-        return last_seed_used;
-    }
+	uint64_t GetLastUsedSeed() { return last_seed_used;}
     
 	void SetLastUsedSeed(uint64_t seed) {
         reuse_last_seed = true;
@@ -136,24 +130,21 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 
-    int num_obs_1s;
-    int num_obs_0s;
-    
-    std::vector<wxInt64> num_neighbors;
 	
 	std::vector<double*> G_vecs; //threaded
 	std::vector<double*> p_vecs;
 	std::vector<double*> pseudo_p_vecs;
 	std::vector<double*> x_vecs;
 	std::vector<double*> y_vecs;
-    std::vector<int* > c_vecs;
+    std::vector<int*> c_vecs;
     std::vector<std::vector<bool> > x_undefs;
     std::vector<GalWeight*> Gal_vecs;
     std::vector<GalWeight*> Gal_vecs_orig;
-    std::vector<wxInt64* > num_neighbors_w1;
+    std::vector<std::vector<wxInt64> > num_neighbors;
+    std::vector<std::vector<wxInt64> > num_neighbors_x1;
+    std::vector<std::vector<wxInt64> > num_neighbors_y1;
+    std::vector<std::vector<wxInt64> > num_neighbors_xy1;
     
-	std::vector<bool> map_valid;
-	std::vector<wxString> map_error_message;
 	std::vector<bool> has_isolates;
 	std::vector<bool> has_undefined;
 
@@ -172,6 +163,8 @@ public:
 	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
+	std::vector<bool> map_valid;
+	std::vector<wxString> map_error_message;
     
 	
 	bool GetHasIsolates(int time) { return has_isolates[time]; }
@@ -185,8 +178,7 @@ public:
     std::list<JCCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(double* x, double* y, int* c,
-                           const GalElement* W,
+	void CalcPseudoP_range(const GalElement* W,
                            const std::vector<bool>& undefs,
                            int obs_start,
                            int obs_end,
@@ -216,7 +208,7 @@ protected:
     
 	void DeallocateVectors();
 	void AllocateVectors();
-	void CalcPseudoP_threaded(double* x, double* y, int* c, const GalElement* W, const std::vector<bool>& undefs);
+	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
 	void CalcGs();
 };
 
