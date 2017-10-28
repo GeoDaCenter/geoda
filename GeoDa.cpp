@@ -676,6 +676,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
+	EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
 
     
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
@@ -3834,6 +3836,28 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         return;
     }
     
+    // check if binary data
+    std::vector<double> data;
+    TableInterface* table_int = p->GetTableInt();
+    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
+    for (int i=0; i<data.size(); i++) {
+        if (data[i] !=0 && data[i] != 1) {
+            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, data);
+    for (int i=0; i<data.size(); i++) {
+        if (data[i] !=0 && data[i] != 1) {
+            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
 	LocalGearyWhat2OpenDlg LWO(this);
 	if (LWO.ShowModal() != wxID_OK) return;
 	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
@@ -5095,6 +5119,8 @@ void GdaFrame::OnRan99Per(wxCommandEvent& event)
 		f->OnRan99Per(event);
 	} else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
 		f->OnRan99Per(event);
+	} else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+		f->OnRan99Per(event);
 	}
 }
 
@@ -5111,6 +5137,8 @@ void GdaFrame::OnRan199Per(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan199Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan199Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnRan199Per(event);
     }
 }
@@ -5129,6 +5157,8 @@ void GdaFrame::OnRan499Per(wxCommandEvent& event)
 		f->OnRan499Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnRan499Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnRan499Per(event);
     }
 }
 
@@ -5145,6 +5175,8 @@ void GdaFrame::OnRan999Per(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan999Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan999Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnRan999Per(event);
     }
 }
@@ -5163,6 +5195,8 @@ void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
 		f->OnRanOtherPer(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnRanOtherPer(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnRanOtherPer(event);
     }
 }
 
@@ -5179,6 +5213,8 @@ void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
         f->OnUseSpecifiedSeed(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnUseSpecifiedSeed(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnUseSpecifiedSeed(event);
     }
 }
 
@@ -5194,6 +5230,8 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	} else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
 		f->OnSpecifySeedDlg(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSpecifySeedDlg(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSpecifySeedDlg(event);
     }
 }
@@ -5219,6 +5257,8 @@ void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 		f->OnSigFilter05(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter05(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter05(event);
     }
 }
 
@@ -5232,6 +5272,8 @@ void GdaFrame::OnSigFilter01(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter01(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter01(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSigFilter01(event);
     }
 }
@@ -5247,6 +5289,8 @@ void GdaFrame::OnSigFilter001(wxCommandEvent& event)
 		f->OnSigFilter001(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter001(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter001(event);
     }
 }
 
@@ -5261,6 +5305,8 @@ void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
 		f->OnSigFilter0001(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter0001(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter0001(event);
     }
 }
 
@@ -5274,6 +5320,8 @@ void GdaFrame::OnSigFilterSetup(wxCommandEvent& event)
     } else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
         f->OnSigFilterSetup(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilterSetup(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSigFilterSetup(event);
     }
 }
@@ -5377,7 +5425,9 @@ void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	if (!t) return;
 	if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSaveGetisOrd(event);
-	}
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSaveMLJC(event);
+    }
 }
 
 void GdaFrame::OnSaveLisa(wxCommandEvent& event)
@@ -5413,6 +5463,8 @@ void GdaFrame::OnSelectCores(wxCommandEvent& event)
 		f->OnSelectCores(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSelectCores(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSelectCores(event);
     }
 }
 
@@ -5427,6 +5479,8 @@ void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 		f->OnSelectNeighborsOfCores(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSelectNeighborsOfCores(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSelectNeighborsOfCores(event);
     }
 }
 
@@ -5440,6 +5494,8 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSelectCoresAndNeighbors(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSelectCoresAndNeighbors(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSelectCoresAndNeighbors(event);
     }
     
@@ -5458,6 +5514,8 @@ void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 		f->OnAddNeighborToSelection(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnAddNeighborToSelection(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnAddNeighborToSelection(event);
     }
 }
 
@@ -5471,6 +5529,8 @@ void GdaFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnShowAsConditionalMap(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnShowAsConditionalMap(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnShowAsConditionalMap(event);
     }
 }

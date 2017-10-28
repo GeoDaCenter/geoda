@@ -119,7 +119,7 @@ void MLJCMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 wxString MLJCMapCanvas::GetCanvasTitle()
 {
-	wxString new_title = _("Multi Variate Local Join Count ");
+	wxString new_title = _("Bivariate Local Join Count ");
     
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
 	new_title << "(" << gs_coord->weight_name << "): ";
@@ -253,12 +253,12 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
 		if (is_clust) {
 			cat_data.SetCategoryLabel(t, 0, str_sig);
 			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
-			cat_data.SetCategoryLabel(t, 1, str_high);
-			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
+			cat_data.SetCategoryLabel(t, 1, str_low);
+			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_low]);
 			cat_data.SetCategoryLabel(t, 2, str_med);
 			cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_med]);
-			cat_data.SetCategoryLabel(t, 3, str_low);
-			cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_low]);
+			cat_data.SetCategoryLabel(t, 3, str_high);
+			cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_high]);
             
 			if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
                 isolates_cat = 4;
@@ -350,14 +350,18 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
                 int s_f = 1;
                 double sig_cutoff = gs_coord->significance_cutoff;
                 for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                    if (cluster[i] == 2) {
+                    if (cluster[i] == 4) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 3) {
+                    } else if (cluster[i] == 5) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else if (p_val[i] <= sig_cutoff) {
-                        cat_data.AppendIdToCategory(t, 1, i);
-                    } else {
+                    } else if (cluster[i] == 0) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    } else {
+                        if (p_val[i] <= sig_cutoff) {
+                            cat_data.AppendIdToCategory(t, 1, i);
+                        } else {
+                            cat_data.AppendIdToCategory(t, 0, i); // not significant
+                        }
                     }
 
                 }
@@ -693,12 +697,7 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
     MLJCMapCanvas* lc = (MLJCMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p_val_t;
-    if (is_clust == false)
-        p_val_t = gs_coord->pseudo_p_vecs[t];
-    else
-        p_val_t = gs_coord->p_vecs[t];
-
+    double* p_val_t = gs_coord->pseudo_p_vecs[t];
     int n = gs_coord->num_obs;
     
     wxString ttl = _("Inference Settings");
@@ -707,146 +706,130 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     double user_sig = gs_coord->significance_cutoff;
     if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
   
-    if (gs_coord->is_local_joint_count) {
-        int new_n = 0;
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1) {
-                new_n += 1;
-            }
-        }
-        int j= 0;
-        double* p_val = new double[new_n];
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1) {
-                p_val[j++] = p_val_t[i];
-            }
-        }
-        InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
-        if (dlg.ShowModal() == wxID_OK) {
-            gs_coord->SetSignificanceFilter(-1);
-            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-            gs_coord->user_sig_cutoff = dlg.GetUserInput();
-            gs_coord->notifyObservers();
-            gs_coord->bo = dlg.GetBO();
-            gs_coord->fdr = dlg.GetFDR();
-            UpdateOptionMenuItems();
-        }
-        delete[] p_val;
-    } else {
-        InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
-        if (dlg.ShowModal() == wxID_OK) {
-            gs_coord->SetSignificanceFilter(-1);
-            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-            gs_coord->user_sig_cutoff = dlg.GetUserInput();
-            gs_coord->notifyObservers();
-            gs_coord->bo = dlg.GetBO();
-            gs_coord->fdr = dlg.GetFDR();
-            UpdateOptionMenuItems();
+    int new_n = 0;
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        if (gs_coord->x_vecs[t][i] == 1) {
+            new_n += 1;
         }
     }
+    int j= 0;
+    double* p_val = new double[new_n];
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        if (gs_coord->x_vecs[t][i] == 1) {
+            p_val[j++] = p_val_t[i];
+        }
+    }
+    InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
+    if (dlg.ShowModal() == wxID_OK) {
+        gs_coord->SetSignificanceFilter(-1);
+        gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+        gs_coord->user_sig_cutoff = dlg.GetUserInput();
+        gs_coord->notifyObservers();
+        gs_coord->bo = dlg.GetBO();
+        gs_coord->fdr = dlg.GetFDR();
+        UpdateOptionMenuItems();
+    }
+    delete[] p_val;
 }
 
 
 
 void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 {
-	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	wxString title = "Save Results: ";
-	title += "Multi-variate Local Join Count";
-	title += "-stats, ";
+    int t = 0;//template_canvas->cat_data.GetCurrentCanvasTmStep();
+	wxString title = _("Save Results: Multivariate Local Join Count stats, ");
+    title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
+
+    int num_obs = gs_coord->num_obs;
     
-    title += wxString::Format("pseudo p (%d perm), ",
-                              gs_coord->permutations);
-	
     double* g_val_t = gs_coord->G_vecs[t];
-	std::vector<double> g_val(gs_coord->num_obs);
+	std::vector<double> g_val(num_obs);
+    for (int i=0; i<num_obs; i++) g_val[i] = g_val_t[i];
     
-    for (int i=0; i<gs_coord->num_obs; i++) {
-        g_val[i] = g_val_t[i];
-    }
-    
-    if (gs_coord->is_local_joint_count) {
-        title = "Save Results: Local Join Count-stats";
-    }
-	
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, c_val);
-	wxString c_label = "cluster category";
+	wxString c_label = "Cluster Category";
 	wxString c_field_default = "C_ID";
 	
-	double* p_val_t = 0;
-	std::vector<double> p_val(gs_coord->num_obs);
-	double* z_val_t =  gs_coord->z_vecs[t];
-	std::vector<double> z_val(gs_coord->num_obs);
-	for (int i=0; i<gs_coord->num_obs; i++)
-        z_val[i] = z_val_t[i];
+	double* jc_t = gs_coord->G_vecs[t];
+	std::vector<wxInt64> jc_val(num_obs);
+	for (int i=0; i<num_obs; i++) jc_val[i] = (wxInt64)jc_t[i];
+	wxString jc_label = "Local Joint Count";
+	wxString jc_field_default =  "JC";
     
-	wxString p_label = "pseudo p-value";
-	wxString p_field_default =  "P_VAL";
+	double* pp_val_t = gs_coord->pseudo_p_vecs[t];
+	std::vector<double> pp_val(num_obs);
+	for (int i=0; i<num_obs; i++) pp_val[i] = pp_val_t[i];
+	wxString pp_label = "Pseudo p-value";
+	wxString pp_field_default =  "P_VAL";
 	
-    p_val_t = gs_coord->pseudo_p_vecs[t];
-	for (int i=0; i<gs_coord->num_obs; i++) p_val[i] = p_val_t[i];
-	
-    int num_data = 3;
-     // drop C_ID for local JC, add NN and NN_1
-    if (gs_coord->is_local_joint_count) num_data += 1;
+	double* p_val_t = gs_coord->p_vecs[t];
+	std::vector<double> p_val(num_obs);
+	for (int i=0; i<num_obs; i++) p_val[i] = p_val_t[i];
+	wxString p_label = "Exact Inference";
+	wxString p_field_default =  "EP_VAL";
+    
+    int num_data = 8;
+    
 	std::vector<SaveToTableEntry> data(num_data);
-    std::vector<bool> undefs(gs_coord->num_obs, false);
-    std::vector<bool> c_undefs(gs_coord->num_obs, true);
-    
-    for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
-        for (size_t j=0; j<gs_coord->x_undefs[i].size(); j++) {
-            undefs[j] = undefs[j] || gs_coord->x_undefs[i][j];
-        }
-    }
-    
-    vector<double> p_hg;
-    std::vector<wxInt64> nn_1_val;
-	int data_i = 0;
-
-    {
-        int n_1s = 0;
-        int n_0s = 0;
-        
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
-            p_hg.push_back( gs_coord->ep_vals[t][i]);
-        }
-        
-        data[data_i].l_val = &gs_coord->num_neighbors;
-        data[data_i].label = "Number of Neighbors";
-        data[data_i].field_default = "NN";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
-        data[data_i].l_val = &nn_1_val;
-        data[data_i].label = "Number of Neighbors with Value 1";
-        data[data_i].field_default = "NN_1";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
-        for (size_t i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1)
-                c_undefs[i] = false;
-            if (gs_coord->x_vecs[t][i] == 1) n_1s++;
-            else n_0s++;
-        }
-    	data[data_i].d_val = &p_val;
-    	data[data_i].label = p_label;
-    	data[data_i].field_default = p_field_default;
-    	data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &c_undefs;
-    	data_i++;
+    std::vector<bool> undefs = gs_coord->x_undefs[t];
    
-        data[data_i].d_val = &p_hg;
-        data[data_i].label = "Exact Probabilities";
-        data[data_i].field_default = "EP_VAL";
-        data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &c_undefs;
-        data_i++;
-    }
+    int data_i = 0;
+    data[data_i].l_val = &c_val;
+    data[data_i].label = c_label;
+    data[data_i].field_default = c_field_default;
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &jc_val;
+    data[data_i].label = jc_label;
+    data[data_i].field_default = jc_field_default;
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &gs_coord->num_neighbors[t];
+    data[data_i].label = "Number of Neighbors";
+    data[data_i].field_default = "NN";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &gs_coord->num_neighbors_x1[t];
+    data[data_i].label = "Number of Neighbors with Value 1 (X)";
+    data[data_i].field_default = "NNX_1";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &gs_coord->num_neighbors_y1[t];
+    data[data_i].label = "Number of Neighbors with Value 1 (Z)";
+    data[data_i].field_default = "NNZ_1";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].l_val = &gs_coord->num_neighbors_xy1[t];
+    data[data_i].label = "Number of Neighbors both with Value 1";
+    data[data_i].field_default = "NN_1";
+    data[data_i].type = GdaConst::long64_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].d_val = &pp_val;
+    data[data_i].label = pp_label;
+    data[data_i].field_default = pp_field_default;
+    data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
+    
+    data[data_i].d_val = &p_val;
+    data[data_i].label = p_label;
+    data[data_i].field_default = p_field_default;
+    data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &undefs;
+    data_i++;
 	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
@@ -996,7 +979,7 @@ void MLJCMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
     
 	MLJCMapCanvas* lc = (MLJCMapCanvas*) template_canvas;
     wxString title = lc->GetCanvasTitle();
-    //ConditionalClusterMapFrame* subframe = new ConditionalClusterMapFrame(this, project, dlg.var_info, dlg.col_ids, gs_coord, is_gi, is_perm, title, wxDefaultPosition, GdaConst::cond_view_default_size);
+    //ConditionalClusterMapFrame* subframe = new ConditionalClusterMapFrame(this, project, dlg.var_info, dlg.col_ids, gs_coord);
 }
 
 /** Called by JCCoordinator to notify that state has changed.  State changes
