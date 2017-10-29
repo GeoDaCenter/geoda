@@ -736,10 +736,10 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
  and refresh the canvas. */
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
-	//wxSize size(GetVirtualSize());
-    //int screen_w = size.GetWidth();
-    //int screen_h = size.GetHeight();
-    //last_scale_trans.SetView(screen_w, screen_h);
+	wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
 
     
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
