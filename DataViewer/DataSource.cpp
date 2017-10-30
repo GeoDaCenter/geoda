@@ -357,7 +357,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
         bool file_exist_flag = false;
         if (ds_type == GdaConst::ds_esri_file_geodb)
             file_exist_flag = wxDirExists(file_repository_path);
-        else 
+        else
             file_exist_flag = wxFileExists(file_repository_path);
         
         if (file_exist_flag == false) {
