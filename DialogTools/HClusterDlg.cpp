@@ -151,13 +151,9 @@ void HClusterDlg::CreateControls()
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
 
-    //wxString choices[] = {};
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                          wxDefaultPosition, wxDefaultSize);
-    //wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     max_n_clusters = num_obs < 60 ? num_obs : 60;
-    //for (int i=2; i<max_n_clusters+1; i++) box1->Append(wxString::Format("%d", i));
-    //box1->SetSelection(3);
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
     wxString valid_chars(wxT("0123456789"));
@@ -169,10 +165,8 @@ void HClusterDlg::CreateControls()
     
     gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_cluster, 1, wxEXPAND);
-
     
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(120,-1));
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
@@ -181,8 +175,7 @@ void HClusterDlg::CreateControls()
     hbox1->Add(gbox1, 1, wxEXPAND);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
-                                      wxSize(70, 30));
+    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition, wxSize(70, 30));
     saveButton = new wxButton(panel, wxID_SAVE, wxT("Save/Show Map"), wxDefaultPosition, wxDefaultSize);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
@@ -198,7 +191,7 @@ void HClusterDlg::CreateControls()
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(500,600));
+    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(440,560));
     //m_panel->SetBackgroundColour(*wxWHITE);
     vbox1->Add(m_panel, 1, wxEXPAND|wxALL,20);
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
