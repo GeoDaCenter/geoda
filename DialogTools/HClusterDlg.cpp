@@ -355,7 +355,9 @@ void HClusterDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
 {
     //int sel = n - 2;
     //combo_n->SetSelection(sel);
-    m_cluster->SetValue(wxString::Format("%d", n));
+    wxString str_n;
+    str_n << n;
+    m_cluster->SetValue(str_n);
     for (int i=0; i<clusters.size(); i++){
         clusters[i] = _clusters[i];
     }
@@ -835,7 +837,7 @@ void DendrogramPanel::OnSplitLineChange(int x)
         }
     }
      
-    wxWindow* parent = GetParent()->GetParent();
+    wxWindow* parent = GetParent()->GetParent()->GetParent();
     HClusterDlg* dlg = static_cast<HClusterDlg*>(parent);
     dlg->UpdateClusterChoice(nclusters, clusters);
     
