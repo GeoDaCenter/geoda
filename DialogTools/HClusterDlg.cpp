@@ -113,21 +113,8 @@ void HClusterDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
-                                         wxDefaultPosition, wxDefaultSize);
+    AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
     
-    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(250,250), 0, NULL,
-                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
-    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(cbox, 0, wxLEFT | wxRIGHT, 10);
-    
-    if (project->IsTableOnlyProject()) {
-        cbox->Disable();
-    }
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
 
@@ -205,8 +192,7 @@ void HClusterDlg::CreateControls()
     hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
-    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
@@ -237,11 +223,8 @@ void HClusterDlg::CreateControls()
     Centre();
     
     // Content
-    InitVariableCombobox(box);
     //combo_n = box1;
     m_textbox = box3;
-    combo_var = box;
-    m_use_centroids = cbox;
     //m_iterations = box11;
     m_method = box12;
     m_distance = box13;
@@ -422,73 +405,12 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     long ncluster;
     m_cluster->GetValue().ToLong(&ncluster);
     
-    bool use_centroids = m_use_centroids->GetValue();
-    
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 2 && !use_centroids) {
-        // show message box
-        wxString err_msg = _("Please select at least 2 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
+    int transform = combo_tranform->GetSelection();
+    bool success = GetInputData(transform);
+    if (!success) {
         return;
     }
     
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
-        
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
-        
-        col_ids[i] = col;
-        var_info[i].time = tm;
-        
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    int rows = project->GetNumRecords();
-    int columns =  0;
-    
-    std::vector<d_array_type> data; // data[variable][time][obs]
-    data.resize(col_ids.size());
-    for (int i=0; i<var_info.size(); i++) {
-        table_int->GetColData(col_ids[i], data[i]);
-    }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
-    
-    // if use centroids
-    if (use_centroids) {
-        columns += 2;
-    }
-    
-    int transform = combo_tranform->GetSelection();
     char method = 's';
     char dist = 'e';
     
@@ -506,66 +428,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
-    
-    // init input_data[rows][cols]
-    double** input_data = new double*[rows];
-    int** mask = new int*[rows];
-    for (int i=0; i<rows; i++) {
-        input_data[i] = new double[columns];
-        mask[i] = new int[columns];
-        for (int j=0; j<columns; j++){
-            mask[i][j] = 1;
-        }
-    }
-    
-    // assign value
-    int col_ii = 0;
-    for (int i=0; i<data.size(); i++ ){ // col
-        
-        for (int j=0; j<data[i].size(); j++) { // time
-            
-            std::vector<double> vals;
-            
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
-            
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
-            }
-            
-            for (int k=0; k< rows;k++) { // row
-                input_data[k][col_ii] = vals[k];
-            }
-            col_ii += 1;
-        }
-    }
-    if (use_centroids) {
-        std::vector<GdaPoint*> cents = project->GetCentroids();
-        std::vector<double> cent_xs;
-        std::vector<double> cent_ys;
-        
-        for (int i=0; i< rows; i++) {
-            cent_xs.push_back(cents[i]->GetX());
-            cent_ys.push_back(cents[i]->GetY());
-        }
-        
-        if (transform == 2) {
-            GenUtils::StandardizeData(cent_xs );
-            GenUtils::StandardizeData(cent_ys );
-        } else if (transform == 1 ) {
-            GenUtils::DeviationFromMean(cent_xs );
-            GenUtils::DeviationFromMean(cent_ys );
-        }
-
-        
-        for (int i=0; i< rows; i++) {
-            input_data[i][col_ii + 0] = cent_xs[i];
-            input_data[i][col_ii + 1] = cent_ys[i];
-        }
-    }
     
     GdaNode* htree = treecluster(rows, columns, input_data, mask, weight, transpose, dist, method, NULL);
     
@@ -589,25 +451,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     weight = NULL;
     clusterid = NULL;
     mask = NULL;
-    
-    /*
-    // sort result
-    std::vector<std::vector<int> > cluster_ids(ncluster);
-    
-    for (int i=0; i < clusters.size(); i++) {
-        cluster_ids[ clusters[i] - 1 ].push_back(i);
-    }
-    
-    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    
-    for (int i=0; i < ncluster; i++) {
-        int c = i + 1;
-        for (int j=0; j<cluster_ids[i].size(); j++) {
-            int idx = cluster_ids[i][j];
-            clusters[idx] = c;
-        }
-    }
-    */
     
     // draw dendrogram
     m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);

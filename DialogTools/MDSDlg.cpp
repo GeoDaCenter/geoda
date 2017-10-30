@@ -54,13 +54,24 @@ void MDSDlg::CreateControls()
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
-
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
    
     // Input
-    AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
+    //AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
+                                         wxDefaultPosition, wxDefaultSize);
     
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(250,250), 0, NULL,
+                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
+    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    
+    InitVariableCombobox(combo_var);
+
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
     
@@ -97,6 +108,7 @@ void MDSDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
@@ -155,6 +167,34 @@ void MDSDlg::OnCloseClick(wxCommandEvent& event )
     Destroy();
 }
 
+void MDSDlg::InitVariableCombobox(wxListBox* var_box)
+{
+    wxLogMessage("InitVariableCombobox HClusterDlg.");
+    
+    wxArrayString items;
+    
+    std::vector<int> col_id_map;
+    table_int->FillNumericColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                name_to_nm[nm] = name;
+                name_to_tm_id[nm] = t;
+                items.Add(nm);
+            }
+        } else {
+            name_to_nm[name] = name;
+            name_to_tm_id[name] = 0;
+            items.Add(name);
+        }
+    }
+    if (!items.IsEmpty())
+        var_box->InsertItems(items,0);
+}
 
 void MDSDlg::OnOK(wxCommandEvent& event )
 {
@@ -162,9 +202,104 @@ void MDSDlg::OnOK(wxCommandEvent& event )
    
     int transform = combo_transform->GetSelection();
     
-    bool success = GetInputData(transform);
-    if (!success) {
+    wxArrayInt selections;
+    combo_var->GetSelections(selections);
+    
+    int num_var = selections.size();
+    if (num_var < 2) {
+        // show message box
+        wxString err_msg = _("Please select at least 2 variables.");
+        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
         return;
+    }
+
+    col_ids.resize(num_var);
+    var_info.resize(num_var);
+    
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString nm = name_to_nm[combo_var->GetString(idx)];
+        
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this Dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        
+        int tm = name_to_tm_id[combo_var->GetString(idx)];
+        
+        col_ids[i] = col;
+        var_info[i].time = tm;
+        
+        // Set Primary GdaVarTools::VarInfo attributes
+        var_info[i].name = nm;
+        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+        
+        // var_info[i].time already set above
+        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
+        var_info[i].fixed_scale = true;
+    }
+    
+    // Call function to set all Secondary Attributes based on Primary Attributes
+    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+    
+    int rows = project->GetNumRecords();
+    int columns =  0;
+    
+    std::vector<d_array_type> data; // data[variable][time][obs]
+    data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], data[i]);
+    }
+    // get columns (if time variables show)
+    for (int i=0; i<data.size(); i++ ){
+        for (int j=0; j<data[i].size(); j++) {
+            columns += 1;
+        }
+    }
+   
+    // init input_data[rows][cols]
+    if (input_data) {
+        for (int i=0; i<rows; i++) delete[] input_data[i];
+        delete[] input_data;
+        input_data = NULL;
+    }
+    input_data = new double*[rows];
+    mask = new int*[rows];
+    for (int i=0; i<rows; i++) {
+        input_data[i] = new double[columns];
+        mask[i] = new int[columns];
+        for (int j=0; j<columns; j++){
+            mask[i][j] = 1;
+        }
+    }
+    
+    // assign value
+    int col_ii = 0;
+    for (int i=0; i<data.size(); i++ ){ // col
+        for (int j=0; j<data[i].size(); j++) { // time
+            std::vector<double> vals;
+            for (int k=0; k< rows;k++) { // row
+                vals.push_back(data[i][j][k]);
+            }
+            if (transform == 2) {
+                GenUtils::StandardizeData(vals);
+            } else if (transform == 1 ) {
+                GenUtils::DeviationFromMean(vals);
+            }
+            for (int k=0; k< rows;k++) { // row
+                input_data[k][col_ii] = vals[k];
+            }
+            col_ii += 1;
+        }
+    }
+    
+    double* weight = new double[columns];
+    for (int j=0; j<columns; j++){
+        weight[j] = 1;
     }
     
     int transpose = 0; // row wise
