@@ -682,7 +682,7 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
         for (int i=0;i<end_nodes.size();i++) {
             if (end_nodes[i]->contains(startPos)){
                 // highlight i selected
-                wxWindow* parent = GetParent()->GetParent();
+                wxWindow* parent = GetParent()->GetParent()->GetParent();
                 HClusterDlg* dlg = static_cast<HClusterDlg*>(parent);
                 dlg->Highlight(end_nodes[i]->idx);
                 break;
