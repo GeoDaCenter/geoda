@@ -444,6 +444,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     wxString filter = "BMP|*.bmp|PNG|*.png";
     MapCanvas* canvas1 = dynamic_cast<MapCanvas*>(template_canvas);
     CartogramNewCanvas* canvas2 = dynamic_cast<CartogramNewCanvas*>(template_canvas);
+    ScatterNewPlotCanvas* canvas3 = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas);
     
     if ( canvas1 || canvas2 ) {
         filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
@@ -470,6 +471,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     
     int new_bmp_w = sz.x;
     int new_bmp_h = sz.y;
+    if (canvas3) {
+        // todo special case for scatter plot
+        new_bmp_w += abs(offset_x) * 2;
+        offset_x = 0;
+    }
     
     if (template_legend) {
         int legend_width = template_legend->GetDrawingWidth();

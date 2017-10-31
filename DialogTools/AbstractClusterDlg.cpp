@@ -285,10 +285,12 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     if (m_use_centroids->IsChecked()) {
         m_weight_centroids->Enable();
         m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.00");
         m_wc_txt->Enable();
     } else {
         m_weight_centroids->SetValue(false);
         m_weight_centroids->Disable();
+        m_wc_txt->SetValue("0.00");
         m_wc_txt->Disable();
     }
 }

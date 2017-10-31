@@ -736,10 +736,10 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
  and refresh the canvas. */
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
-	//wxSize size(GetVirtualSize());
-    //int screen_w = size.GetWidth();
-    //int screen_h = size.GetHeight();
-    //last_scale_trans.SetView(screen_w, screen_h);
+	wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
 
     
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
@@ -840,12 +840,20 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	sse_c = regressionXY.error_sum_squares;
 	
     if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
-        x_max = var_info[0].max[var_info[0].time];
-        x_min = var_info[0].min[var_info[0].time];
+        x_max = var_info[0].max[var_info[0].time - var_info[0].time_min];
+        x_min = var_info[0].min[var_info[0].time - var_info[0].time_min];
+    } else if (var_info[0].fixed_scale) {
+        // this is for fixed x-axis over time
+        x_max = var_info[0].max_over_time;
+        x_min = var_info[0].min_over_time;
     }
     if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
-        y_max = var_info[1].max[var_info[1].time];
-        y_min = var_info[1].min[var_info[1].time];
+        y_max = var_info[1].max[var_info[1].time_max - var_info[1].time];
+        y_min = var_info[1].min[var_info[1].time_min - var_info[1].time];
+    } else if (var_info[1].fixed_scale){
+        // this is for fixed y-axis over time
+        y_max = var_info[1].max_over_time;
+        y_min = var_info[1].min_over_time;
     }
 	
 	double x_pad = 0.1 * (x_max - x_min);
@@ -1258,8 +1266,7 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 
 void ScatterNewPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	var_info[var_index].sync_with_global_time =
-		!var_info[var_index].sync_with_global_time;
+	var_info[var_index].sync_with_global_time = !var_info[var_index].sync_with_global_time;
 	
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();

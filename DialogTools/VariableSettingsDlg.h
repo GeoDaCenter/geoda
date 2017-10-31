@@ -199,6 +199,10 @@ protected:
 	wxString v2_name;
 	wxString v3_name;
 	wxString v4_name;
+    wxString default_var_name1;
+    wxString default_var_name2;
+    wxString default_var_name3;
+    wxString default_var_name4;
 	int v1_time;
 	int v2_time;
 	int v3_time;

@@ -41,11 +41,13 @@ public:
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice( wxCommandEvent& event );
+   
+    void InitVariableCombobox(wxListBox* var_box);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
-private:
+protected:
     FramesManager* frames_manager;
    
     wxChoice* m_distance;

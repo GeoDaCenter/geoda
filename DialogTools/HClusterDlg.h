@@ -246,7 +246,7 @@ public:
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
     
-private:
+protected:
     int max_n_clusters;
     
     double cutoffDistance;

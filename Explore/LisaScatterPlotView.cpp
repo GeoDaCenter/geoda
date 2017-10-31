@@ -273,7 +273,9 @@ void LisaScatterPlotCanvas::TimeChange()
 	sp_var_info[1].time = var_info[ref_var_index].time;
 	//SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
-	PopulateCanvas();
+    isResize = true;
+	//PopulateCanvas();
+    Refresh();
 }
 
 /** Copy everything in var_info except for current time field for each

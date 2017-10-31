@@ -623,6 +623,11 @@ var3_str(_var3_str),
 var4_str(_var4_str)
 {
     wxLogMessage("Open VariableSettingsDlg");
+   
+    default_var_name1 = project->GetDefaultVarName(0);
+    default_var_name2 = project->GetDefaultVarName(1);
+    default_var_name3 = project->GetDefaultVarName(2);
+    default_var_name4 = project->GetDefaultVarName(3);
     
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
@@ -970,6 +975,11 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb1_cur_sel = lb1->GetSelection();
+    if (lb1_cur_sel >= 0) {
+        int x_pos = sel1_idx_map[lb1_cur_sel];
+        if (x_pos >= 0)
+            default_var_name1 = table_int->GetColName(col_id_map[x_pos]);
+    }
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
 		lb2_cur_sel = lb1_cur_sel;
@@ -985,6 +995,11 @@ void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb2_cur_sel = lb2->GetSelection();
+    if (lb2_cur_sel >= 0) {
+        int x_pos = sel2_idx_map[lb2_cur_sel];
+        if (x_pos >= 0)
+            default_var_name2 = table_int->GetColName(col_id_map[x_pos]);
+    }
 }
 
 void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
@@ -992,6 +1007,12 @@ void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb3_cur_sel = lb3->GetSelection();
+    if (lb3_cur_sel >= 0) {
+        int x_pos = sel3_idx_map[lb3_cur_sel];
+        if (x_pos >= 0)
+            default_var_name3 = table_int->GetColName(col_id_map[x_pos]);
+    }
+    
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
 		lb4_cur_sel = lb3_cur_sel;
@@ -1007,6 +1028,11 @@ void VariableSettingsDlg::OnVar4Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb4_cur_sel = lb4->GetSelection();
+    if (lb4_cur_sel >= 0) {
+        int x_pos = sel4_idx_map[lb4_cur_sel];
+        if (x_pos >= 0)
+            default_var_name4 = table_int->GetColName(col_id_map[x_pos]);
+    }
 }
 
 void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
@@ -1356,31 +1382,25 @@ void VariableSettingsDlg::InitFieldChoices()
 	}
     
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-        if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
-            LOG_MSG(project->GetDefaultVarName(0));
+        wxString item_str = table_int->GetColName(col_id_map[i]);
+        if (item_str == default_var_name1) {
             lb1_cur_sel = idx_sel1_map[i];
             if (set_second_from_first_mode && num_var >= 2) {
                 lb2_cur_sel = idx_sel1_map[i];
             }
         }
-        if (num_var >= 2 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
-        {
+        if (num_var >= 2 && item_str == default_var_name2) {
             if (!set_second_from_first_mode) {
                 lb2_cur_sel = idx_sel2_map[i];
             }
         }
-        if (num_var >= 3 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
-        {
+        if (num_var >= 3 && item_str == default_var_name3){
             lb3_cur_sel = idx_sel3_map[i];
             if (set_fourth_from_third_mode && num_var >= 4) {
                 lb4_cur_sel = idx_sel3_map[i];
             }
         }
-        if (num_var >= 4 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
-        {
+        if (num_var >= 4 && item_str == default_var_name4) {
             if (!set_fourth_from_third_mode) {
                 lb4_cur_sel = idx_sel4_map[i];
             }
