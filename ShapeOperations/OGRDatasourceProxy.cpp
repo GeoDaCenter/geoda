@@ -169,8 +169,8 @@ OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
     const char* drv_name = GDALGetDriverShortName(poDriver);
     string ogr_ds_type(drv_name);
     
-    if (ogr_ds_type.find("CartoDB") != std::string::npos) {
-       return GdaConst::datasrc_str_to_type["CartoDB"];
+    if (ogr_ds_type.find("Carto") != std::string::npos) {
+       return GdaConst::datasrc_str_to_type["Carto"];
         
     } else if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) == GdaConst::datasrc_str_to_type.end()) {
 		return GdaConst::ds_unknown;
