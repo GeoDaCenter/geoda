@@ -639,8 +639,9 @@ void AbstractClusterDlg::GetClusterSummary(const vector<wxInt64>& clusters)
     for (int i=0; i<clusters.size(); i++) {
         int c = clusters[i];
         if (c > solution.size()) solution.resize(c);
-        
-        solution[c-1].push_back(i);
+       
+        if (c-1 >= 0)
+            solution[c-1].push_back(i);
     }
     
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such

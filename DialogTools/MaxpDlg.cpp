@@ -452,8 +452,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    int rows = project->GetNumRecords();
-    int columns =  0;
+    rows = project->GetNumRecords();
+    columns =  0;
     
     std::vector<d_array_type> data; // data[variable][time][obs]
     data.resize(col_ids.size());
@@ -485,6 +485,17 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     }
 
     int transform = combo_tranform->GetSelection();
+   
+    CleanData();
+    input_data = new double*[rows];
+    mask = new int*[rows];
+    for (int i=0; i<rows; i++) {
+        input_data[i] = new double[columns];
+        mask[i] = new int[columns];
+        for (int j=0; j<columns; j++){
+            mask[i][j] = 1;
+        }
+    }
     
     vector<vector<double> > _z;
     // assign value
@@ -501,6 +512,10 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                 GenUtils::DeviationFromMean(vals);
             }
             _z.push_back(vals);
+            for (int k=0; k< rows;k++) { // row
+                input_data[k][col_ii] = vals[k];
+            }
+            col_ii += 1;
         }
     }
     for (int i=0; i<rows; i++) {
@@ -576,6 +591,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+    
+    // summary
+    GetClusterSummary(clusters);
     
     // save to table
     int time=0;

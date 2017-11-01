@@ -445,8 +445,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    int rows = project->GetNumRecords();
-    int columns =  0;
+    rows = project->GetNumRecords();
+    columns =  0;
     
     std::vector<d_array_type> data; // data[variable][time][obs]
     data.resize(col_ids.size());
@@ -481,6 +481,17 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+   
+    CleanData();
+    input_data = new double*[rows];
+    mask = new int*[rows];
+    for (int i=0; i<rows; i++) {
+        input_data[i] = new double[columns];
+        mask[i] = new int[columns];
+        for (int j=0; j<columns; j++){
+            mask[i][j] = 1;
+        }
+    }
 
     int transform = combo_tranform->GetSelection();
     
@@ -499,6 +510,10 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
                 GenUtils::DeviationFromMean(vals);
             }
             z.push_back(vals);
+            for (int k=0; k< rows;k++) { // row
+                input_data[k][col_ii] = vals[k];
+            }
+            col_ii += 1;
         }
     }
     vector<vector<double> > z_t;
@@ -530,6 +545,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         for (int i=0; i< rows; i++) {
             z_t[i].push_back(cent_xs[i]);
             z_t[i].push_back(cent_ys[i]);
+            input_data[i][col_ii + 0] = cent_xs[i];
+            input_data[i][col_ii + 1] = cent_ys[i];
         }
     }
    
@@ -582,7 +599,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         // show message dialog to user
         wxString warn_str = _("The number of identified clusters is less than ");
         warn_str << n_regions;
-        wxMessageDialog dlg(NULL, "Warning", warn_str, wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(NULL, warn_str, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
     vector<wxInt64> clusters(rows, 0);
@@ -598,6 +615,16 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+    
+    // in case c == 0
+    for (int i=0; i<clusters.size(); i++) {
+        if (clusters[i] == 0) {
+            clusters[i] = ncluster + 1;
+        }
+    }
+    
+    // summary
+    GetClusterSummary(clusters);
     
     // save to table
     int time=0;

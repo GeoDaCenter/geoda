@@ -478,8 +478,8 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    int rows = project->GetNumRecords();
-    int columns =  0;
+    rows = project->GetNumRecords();
+    columns =  0;
     
     std::vector<d_array_type> data; // data[variable][time][obs]
     data.resize(col_ids.size());
@@ -528,11 +528,22 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
     dist = dist_choices[dist_sel];
+   
+    CleanData();
     
     // init input_data[rows][cols]
-    double** input_data = new double*[rows];
+    input_data = new double*[rows];
     for (int i=0; i<rows; i++) {
         input_data[i] = new double[columns];
+    }
+    
+    mask = new int*[rows];
+    for (int i=0; i<rows; i++) {
+        input_data[i] = new double[columns];
+        mask[i] = new int[columns];
+        for (int j=0; j<columns; j++){
+            mask[i][j] = 1;
+        }
     }
     
     // assign value
@@ -622,13 +633,13 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         }
     }
     
+    // summary
+    GetClusterSummary(clusters);
+    
     // clean memory
     for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
         clusters_undef.push_back(false);
     }
-    delete[] input_data;
-    input_data = NULL;
     
     // save to table
     int time=0;
