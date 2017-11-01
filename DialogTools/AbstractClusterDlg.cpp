@@ -81,6 +81,12 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
 
 AbstractClusterDlg::~AbstractClusterDlg()
 {
+    CleanData();
+    frames_manager->removeObserver(this);
+}
+
+void AbstractClusterDlg::CleanData()
+{
     if (input_data) {
         for (int i=0; i<rows; i++) delete[] input_data[i];
         delete[] input_data;
@@ -95,9 +101,7 @@ AbstractClusterDlg::~AbstractClusterDlg()
         delete[] weight;
         weight = NULL;
     }
-    frames_manager->removeObserver(this);
 }
-
 
 bool AbstractClusterDlg::Init()
 {
@@ -557,53 +561,16 @@ double* AbstractClusterDlg::GetBoundVals()
 }
 
 
-void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_reportbox)
+void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, wxTextCtrl** m_reportbox)
 {
     wxNotebookPage* sum_page = new wxNotebookPage(myNotebook, -1);
     myNotebook->AddPage(sum_page, "Summary");
     
-    *m_reportbox = new SimpleReportTextCtrl(sum_page, wxID_ANY, "", wxDefaultPosition, wxSize(320,430));
-    
-    if (GeneralWxUtils::isWindows()) {
-        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-        (*m_reportbox)->SetFont(font);
-    } else {
-        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-        (*m_reportbox)->SetFont(font);
-        
-    }
-    
+    *m_reportbox = new wxTextCtrl(sum_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2);
     wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
     nb_box2->Add(*m_reportbox, 1, wxEXPAND | wxALL, 20);
     nb_box2->Fit(sum_page);
     sum_page->SetSizer(nb_box2);
-}
-
-double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
-{
-    double wss = 0;
-    int count = 0;
-    double sum = 0.0;
-    
-    // for every variable, calc the variance using selected neighbors
-    for (int i=0; i<solution.size(); i++ ) {
-        sum = 0.0;
-        size_t n_items = solution[i].size();
-        const vector<int>& sel_idx = solution[i];
-        
-        for (int n=0; n<num_vars; n++) {
-            count = 0;
-            vector<double> selected_z(n_items);
-            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
-            double var = GenUtils::GetVariance(selected_z);
-            sum += var;
-        }
-        sum = sum * n_items;
-        group_distances.push_back(sum);
-        wss += sum;
-    }
-    
-    return wss;
 }
 
 void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
@@ -670,25 +637,52 @@ void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions,
     }
 }
 
-void AbstractClusterDlg::GetClusterSummary(const vector<vector<int> >& solution)
+void AbstractClusterDlg::GetClusterSummary(const vector<wxInt64>& clusters)
 {
+    vector<vector<int> > solution;
+    
+    for (int i=0; i<clusters.size(); i++) {
+        int c = clusters[i];
+        if (c > solution.size()) solution.resize(c);
+        
+        solution[c-1].push_back(i);
+    }
+    
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
     // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
     // on. cluster_ids does not have to be exhaustive
-    
     vector<double> wss;
     for (int i=0; i<solution.size(); i++ ) {
         double ssd = calcHeterogeneity(solution[i]);
         wss.push_back(ssd);
     }
 
-    vector<int> ids(num_obs);
-    for (int i=0; i<num_obs; i++) ids[i] = i;
-    double total_wss = calcHeterogeneity(ids);
-    wxString summary = CreateSummary(solution, wss, total_wss);
+    wxString summary = CreateSummary(solution, wss);
     
     if (m_reportbox) {
-        m_reportbox->SetValue(summary);
+        wxString report = m_reportbox->GetValue();
+        report = summary + report;
+        m_reportbox->SetValue(report);
+    }
+}
+
+void AbstractClusterDlg::GetClusterSummary(const vector<vector<int> >& solution)
+{
+    // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
+    // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
+    // on. cluster_ids does not have to be exhaustive
+    vector<double> wss;
+    for (int i=0; i<solution.size(); i++ ) {
+        double ssd = calcHeterogeneity(solution[i]);
+        wss.push_back(ssd);
+    }
+    
+    wxString summary = CreateSummary(solution, wss);
+    
+    if (m_reportbox) {
+        wxString report = m_reportbox->GetValue();
+        report = summary + report;
+        m_reportbox->SetValue(report);
     }
 }
 
@@ -696,7 +690,6 @@ double AbstractClusterDlg::calcHeterogeneity(const vector<int>& cluster_ids)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
-   
     
     double ssd = 0;
     
@@ -713,9 +706,12 @@ double AbstractClusterDlg::calcHeterogeneity(const vector<int>& cluster_ids)
     return ssd;
 }
 
-wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss, double all_wss)
+wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss)
 {
     wxString summary;
+    wxDateTime now = wxDateTime::Now();
+    summary << ">>" << now.FormatDate() << " " << now.FormatTime() << "\n";
+    summary << "SUMMARY OF OUTPUT:\n";
     
     //                 cluster1     cluster2   cluster3  All
     // # obs           12            6           7        25
@@ -729,7 +725,7 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     t.add("");
     for (int i=0; i<solution.size(); i++) {
         ss.str("");
-        ss << "c" << i;
+        ss << "c" << i+1;
         t.add(ss.str());
     }
     t.add("All");
@@ -749,15 +745,17 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     t.add(ss.str());
     t.endOfRow();
     
-    // third row
-    t.add("Sum of Square");
+    // third ro
+    t.add("Sum of Squares");
+    double all_wss = 0;
     for (int i=0; i<wss.size(); i++) {
+        all_wss += wss[i];
         ss.str("");
-        ss << wss[i];
+        ss << wss[i] / wss.size();
         t.add(ss.str());
     }
     ss.str("");
-    ss << all_wss;
+    ss << all_wss / wss.size();
     t.add(ss.str());
     t.endOfRow();
     
@@ -777,6 +775,7 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     stringstream ss1;
     ss1 << t;
     summary << ss1.str();
+    summary << "\n\n";
     
     return summary;
 }

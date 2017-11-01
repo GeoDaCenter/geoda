@@ -105,8 +105,10 @@ bool HClusterDlg::Init()
 
 void HClusterDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(860,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
+    
+    SetMaxSize(wxSize(1024,800));
     
     wxPanel *panel = new wxPanel(scrl);
 
@@ -194,7 +196,7 @@ void HClusterDlg::CreateControls()
     
     wxNotebookPage* den_page = new wxNotebookPage(myNotebook, -1);
     myNotebook->AddPage(den_page, "Dendrogram");
-    m_panel = new DendrogramPanel(max_n_clusters, den_page, wxID_ANY, wxDefaultPosition, wxSize(440,560));
+    m_panel = new DendrogramPanel(max_n_clusters, den_page, wxID_ANY);
     wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
     nb_box1->Add(m_panel, 1, wxEXPAND | wxALL, 20);
     nb_box1->Fit(den_page);
@@ -436,22 +438,16 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
     clusters.clear();
     clusters_undef.clear();
-    
-    // clean memory
+   
     for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
         clusters.push_back(clusterid[i]+1);
         clusters_undef.push_back(false);
     }
-    delete[] input_data;
-    delete[] weight;
     delete[] clusterid;
-    delete[] mask;
-    input_data = NULL;
-    weight = NULL;
     clusterid = NULL;
-    mask = NULL;
+    
+    // summary
+    GetClusterSummary(clusters);
     
     // draw dendrogram
     m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);
@@ -459,7 +455,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
 
     saveButton->Enable();
-    //combo_n->Enable();
     m_cluster->Enable();
 }
 
@@ -470,6 +465,7 @@ IMPLEMENT_ABSTRACT_CLASS(DendrogramPanel, wxPanel)
 BEGIN_EVENT_TABLE(DendrogramPanel, wxPanel)
 EVT_MOUSE_EVENTS(DendrogramPanel::OnEvent)
 EVT_IDLE(DendrogramPanel::OnIdle)
+EVT_PAINT(DendrogramPanel::OnPaint)
 END_EVENT_TABLE()
 
 DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
@@ -477,7 +473,7 @@ DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent, wxWindow
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
-    Connect(wxEVT_PAINT, wxPaintEventHandler(DendrogramPanel::OnPaint));
+    //Connect(wxEVT_PAINT, wxPaintEventHandler(DendrogramPanel::OnPaint));
     Connect(wxEVT_SIZE, wxSizeEventHandler(DendrogramPanel::OnSize));
     layer_bm = NULL;
     root = NULL;
@@ -569,6 +565,7 @@ void DendrogramPanel::OnIdle(wxIdleEvent& event)
         isResize = false;
         
         wxSize sz = GetClientSize();
+        if (sz.x > 0 && sz.y > 0) {
         if (layer_bm)  {
             delete layer_bm;
             layer_bm = 0;
@@ -580,6 +577,7 @@ void DendrogramPanel::OnIdle(wxIdleEvent& event)
 
         if (root) {
             init();
+        }
         }
     }
     event.Skip();

@@ -40,18 +40,11 @@ class AbstractClusterDlg : public wxDialog, public FramesManagerObserver
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
     virtual ~AbstractClusterDlg();
+   
+    void CleanData();
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
-    
-    double intra_group_distance(const vector<vector<int> >& solution,
-                                vector<double> group_distances);
-    
-    void get_centroids(const vector<vector<int> >& solution,
-                       vector<GdaPoint*>& centroids);
-    
-    void get_mean_centers(const vector<vector<int> >& solution,
-                          vector<GdaPoint*>& centers);
     
 protected:
     wxFrame *parent;
@@ -103,10 +96,12 @@ protected:
        wxTextCtrl** m_wc_txt,
        wxBoxSizer* vbox);
     
-    virtual void AddSimpleInputCtrls(wxPanel *panel,
-                                     wxListBox** combo_var,
-                                     wxBoxSizer* vbox,
-                                     bool integer_only = false);
+    virtual void AddSimpleInputCtrls(
+        wxPanel *panel,
+        wxListBox** combo_var,
+        wxBoxSizer* vbox,
+        bool integer_only = false);
+    
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
@@ -136,15 +131,26 @@ protected:
     virtual void  OnSlideMinBound(wxCommandEvent& event);
     
     // Summary related
-    SimpleReportTextCtrl* m_reportbox;
+    wxTextCtrl* m_reportbox;
     
-    void AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_textbox);
+    void AddSimpleReportCtrls(wxNotebook* myNotebook, wxTextCtrl** m_textbox);
+    
+    void GetClusterSummary(const vector<wxInt64>& clusters);
     
     void GetClusterSummary(const vector<vector<int> >& solution);
     
     double calcHeterogeneity(const vector<int>& cluster_ids);
     
-    wxString CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss, double all_wss);
+    wxString CreateSummary(
+        const vector<vector<int> >& solution,
+        const vector<double>& wss);
+    
+    void get_centroids(
+        const vector<vector<int> >& solution,
+                       vector<GdaPoint*>& centroids);
+    
+    void get_mean_centers(const vector<vector<int> >& solution,
+                          vector<GdaPoint*>& centers);
 };
 
 #endif

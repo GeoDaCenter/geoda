@@ -64,17 +64,10 @@ class SimpleReportTextCtrl : public wxTextCtrl
 public:
     SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
                          const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-                         long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
+                         long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
                          const wxString& name = wxTextCtrlNameStr)
     : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
     {
-        if (GeneralWxUtils::isWindows()) {
-            wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-            SetFont(font);
-        } else {
-            wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-            SetFont(font);
-        }
     }
 protected:
     void OnContextMenu(wxContextMenuEvent& event);
