@@ -33,12 +33,24 @@ class TextTable {
     
 public:
     enum class Alignment { LEFT, RIGHT };
+    enum class MODE { ASCII, MD, LATEX };
+    
     typedef std::vector< std::string > Row;
     TextTable( char horizontal = '-', char vertical = '|', char corner = '+' ) :
     _horizontal( horizontal ),
     _vertical( vertical ),
-    _corner( corner )
+    _corner( corner ),
+    mode( MODE::MD )
     {}
+    
+    TextTable( MODE m ) : mode( m )
+    {
+        if ( m == MODE::MD ) {
+            _horizontal = '-';
+            _vertical = '|';
+            _corner = '|';
+        }
+    }
     
     void setAlignment( unsigned i, Alignment alignment )
     {
@@ -50,9 +62,17 @@ public:
     
     char vertical() const
     { return _vertical; }
+   
+    void setVertical( char c)
+    { _vertical = c;}
     
     char horizontal() const
     { return _horizontal; }
+    void setHorizontal( char c)
+    { _horizontal = c; }
+    
+    void setCorner( char c)
+    { _corner = c; }
     
     void add( std::string const & content )
     {
@@ -106,6 +126,8 @@ public:
     int width( unsigned i ) const
     { return _width[ i ]; }
     
+    MODE mode;
+    
 private:
     char _horizontal;
     char _vertical;
@@ -153,17 +175,35 @@ private:
 std::ostream & operator<<( std::ostream & stream, TextTable const & table )
 {
     table.setup();
-    stream << table.ruler() << "\n";
-    for ( auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++ rowIterator ) {
-        TextTable::Row const & row = * rowIterator;
-        stream << table.vertical();
-        for ( unsigned i = 0; i < row.size(); ++i ) {
-            auto alignment = table.alignment( i ) == TextTable::Alignment::LEFT ? std::left : std::right;
-            stream << std::setw( table.width( i ) ) << alignment << row[ i ];
-            stream << table.vertical();
-        }
-        stream << "\n";
+    if (table.mode == TextTable::MODE::ASCII) {
         stream << table.ruler() << "\n";
+        for ( auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++ rowIterator ) {
+            TextTable::Row const & row = * rowIterator;
+            stream << table.vertical();
+            for ( unsigned i = 0; i < row.size(); ++i ) {
+                auto alignment = table.alignment( i ) == TextTable::Alignment::LEFT ? std::left : std::right;
+                stream << std::setw( table.width( i ) ) << alignment << row[ i ];
+                stream << table.vertical();
+            }
+            stream << "\n";
+            stream << table.ruler() << "\n";
+        }
+        
+    } else if (table.mode == TextTable::MODE::MD ) {
+        int idx = 0;
+        for ( auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++ rowIterator ) {
+            TextTable::Row const & row = * rowIterator;
+            stream << table.vertical();
+            for ( unsigned i = 0; i < row.size(); ++i ) {
+                auto alignment = table.alignment( i ) == TextTable::Alignment::LEFT ? std::left : std::right;
+                stream << std::setw( table.width( i ) ) << alignment << row[ i ];
+                stream << table.vertical();
+            }
+            stream << "\n";
+            if (idx == 0) stream << table.ruler() << "\n";
+            idx ++;
+        }
+
     }
     
     return stream;

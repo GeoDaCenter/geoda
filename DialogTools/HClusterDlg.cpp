@@ -193,16 +193,11 @@ void HClusterDlg::CreateControls()
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxNotebook* myNotebook = new wxNotebook( this, wxID_ANY);
-    
-    wxNotebookPage* den_page = new wxNotebookPage(myNotebook, -1);
-    myNotebook->AddPage(den_page, "Dendrogram");
-    m_panel = new DendrogramPanel(max_n_clusters, den_page, wxID_ANY);
-    wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
-    nb_box1->Add(m_panel, 1, wxEXPAND | wxALL, 20);
-    nb_box1->Fit(den_page);
-    den_page->SetSizer(nb_box1);
-  
-    AddSimpleReportCtrls(myNotebook, &m_reportbox);
+    m_panel = new DendrogramPanel(max_n_clusters, myNotebook, wxID_ANY);
+    myNotebook->AddPage(m_panel, "Dendrogram");
+    m_reportbox = new SimpleReportTextCtrl(myNotebook, wxID_ANY, "");
+    myNotebook->AddPage(m_reportbox, "Summary");
+    myNotebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HClusterDlg::OnNotebookChange), NULL, this);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
@@ -244,6 +239,12 @@ void HClusterDlg::CreateControls()
     m_cluster->Disable();
 }
 
+void HClusterDlg::OnNotebookChange(wxBookCtrlEvent& event)
+{
+    int tab_idx = event.GetOldSelection();
+    m_panel->SetActive(tab_idx == 1);
+}
+
 void HClusterDlg::OnSave(wxCommandEvent& event )
 {
     wxString field_name = m_textbox->GetValue();
@@ -279,6 +280,9 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
+    
+    // summary
+    GetClusterSummary(clusters);
     
     // show a cluster map
     if (project->IsTableOnlyProject()) {
@@ -484,6 +488,7 @@ DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent, wxWindow
     isMovingSplitLine= false;
     isLayerValid = false;
     maxDistance = 0.0;
+    isWindowActive = true;
 }
 
 DendrogramPanel::~DendrogramPanel()
@@ -503,6 +508,11 @@ DendrogramPanel::~DendrogramPanel()
         split_line = NULL;
         
     }
+}
+
+void DendrogramPanel::SetActive(bool flag)
+{
+    isWindowActive = flag;
 }
 
 void DendrogramPanel::OnEvent( wxMouseEvent& event )
@@ -561,7 +571,7 @@ void DendrogramPanel::OnSize(  wxSizeEvent& event)
 
 void DendrogramPanel::OnIdle(wxIdleEvent& event)
 {
-    if (isResize) {
+    if (isResize && isWindowActive) {
         isResize = false;
         
         wxSize sz = GetClientSize();
@@ -679,7 +689,7 @@ void DendrogramPanel::OnSplitLineChange(int x)
         }
     }
      
-    wxWindow* parent = GetParent()->GetParent()->GetParent();
+    wxWindow* parent = GetParent()->GetParent();
     HClusterDlg* dlg = static_cast<HClusterDlg*>(parent);
     dlg->UpdateClusterChoice(nclusters, clusters);
     

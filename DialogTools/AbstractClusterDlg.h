@@ -131,9 +131,9 @@ protected:
     virtual void  OnSlideMinBound(wxCommandEvent& event);
     
     // Summary related
-    wxTextCtrl* m_reportbox;
+    SimpleReportTextCtrl* m_reportbox;
     
-    void AddSimpleReportCtrls(wxNotebook* myNotebook, wxTextCtrl** m_textbox);
+    void AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_textbox);
     
     void GetClusterSummary(const vector<wxInt64>& clusters);
     

@@ -561,16 +561,11 @@ double* AbstractClusterDlg::GetBoundVals()
 }
 
 
-void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, wxTextCtrl** m_reportbox)
+void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_reportbox)
 {
-    wxNotebookPage* sum_page = new wxNotebookPage(myNotebook, -1);
-    myNotebook->AddPage(sum_page, "Summary");
+    *m_reportbox = new SimpleReportTextCtrl(myNotebook, wxID_ANY, "");
+    myNotebook->AddPage(*m_reportbox, "Summary");
     
-    *m_reportbox = new wxTextCtrl(sum_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2);
-    wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
-    nb_box2->Add(*m_reportbox, 1, wxEXPAND | wxALL, 20);
-    nb_box2->Fit(sum_page);
-    sum_page->SetSizer(nb_box2);
 }
 
 void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
@@ -711,7 +706,7 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     wxString summary;
     wxDateTime now = wxDateTime::Now();
     summary << ">>" << now.FormatDate() << " " << now.FormatTime() << "\n";
-    summary << "SUMMARY OF OUTPUT:\n";
+    summary << "SUMMARY OF OUTPUT:\n\n";
     
     //                 cluster1     cluster2   cluster3  All
     // # obs           12            6           7        25
@@ -719,7 +714,7 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     // ratio
     
     stringstream ss;
-    TextTable t('-', '|', ' ' );
+    TextTable t( TextTable::MODE::MD );
     
     // first row
     t.add("");
