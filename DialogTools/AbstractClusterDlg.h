@@ -24,8 +24,9 @@
 #include <map>
 #include <wx/choice.h>
 #include <wx/checklst.h>
+#include <wx/notebook.h>
 
-
+#include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../VarTools.h"
 
@@ -94,12 +95,14 @@ protected:
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
     
-    virtual void AddInputCtrls(wxPanel *panel,
-                               wxListBox** combo_var,
-                               wxCheckBox** m_use_centroids,
-                               wxSlider** m_weight_centroids,
-                               wxTextCtrl** m_wc_txt,
-                               wxBoxSizer* vbox);
+    virtual void AddInputCtrls(
+       wxPanel *panel,
+       wxListBox** combo_var,
+       wxCheckBox** m_use_centroids,
+       wxSlider** m_weight_centroids,
+       wxTextCtrl** m_wc_txt,
+       wxBoxSizer* vbox);
+    
     virtual void AddSimpleInputCtrls(wxPanel *panel,
                                      wxListBox** combo_var,
                                      wxBoxSizer* vbox,
@@ -116,11 +119,32 @@ protected:
     wxTextCtrl* txt_floor;
     wxTextCtrl* txt_floor_pct;
     wxSlider* slider_floor;
-    virtual void AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct,wxFlexGridSizer* gbox, bool show_checkbox=true);
+    
+    virtual void AddMinBound(
+        wxPanel *panel,
+        wxCheckBox** chk_floor,
+        wxChoice** combo_floor,
+        wxTextCtrl** txt_floor,
+        wxSlider** slider_floor,
+        wxTextCtrl** txt_floor_pct,
+        wxFlexGridSizer* gbox,
+        bool show_checkbox=true);
+    
     virtual void  OnCheckMinBound(wxCommandEvent& event);
     virtual void  OnSelMinBound(wxCommandEvent& event);
     virtual void  OnTypeMinBound(wxCommandEvent& event);
     virtual void  OnSlideMinBound(wxCommandEvent& event);
+    
+    // Summary related
+    SimpleReportTextCtrl* m_reportbox;
+    
+    void AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_textbox);
+    
+    void GetClusterSummary(const vector<vector<int> >& solution);
+    
+    double calcHeterogeneity(const vector<int>& cluster_ids);
+    
+    wxString CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss, double all_wss);
 };
 
 #endif

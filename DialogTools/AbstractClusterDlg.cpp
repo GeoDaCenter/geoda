@@ -39,6 +39,8 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+
+#include "../Algorithms/texttable.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -49,7 +51,7 @@
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
 : frames_manager(project_s->GetFramesManager()),
 wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL)
+validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL), m_reportbox(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -96,96 +98,6 @@ AbstractClusterDlg::~AbstractClusterDlg()
     frames_manager->removeObserver(this);
 }
 
-double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
-{
-    double wss = 0;
-    int count = 0;
-    double sum = 0.0;
-    
-    // for every variable, calc the variance using selected neighbors
-    for (int i=0; i<solution.size(); i++ ) {
-        sum = 0.0;
-        size_t n_items = solution[i].size();
-        const vector<int>& sel_idx = solution[i];
-        
-        for (int n=0; n<num_vars; n++) {
-            count = 0;
-            vector<double> selected_z(n_items);
-            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
-            double var = GenUtils::GetVariance(selected_z);
-            sum += var;
-        }
-        sum = sum * n_items;
-        group_distances.push_back(sum);
-        wss += sum;
-    }
-    
-    return wss;
-}
-
-void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
-{
-    project->GetCentroids();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centroids.empty())
-        for (int i=0; i<centroids.size(); i++)
-            delete centroids[i];
-    
-    centroids.clear();
-    centroids.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->centroids[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centroids[i] = new GdaPoint(mx, my);
-    }
-}
-
-void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
-{
-    project->GetMeanCenters();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centers.empty())
-        for (int i=0; i<centers.size(); i++)
-            delete centers[i];
-    
-    centers.clear();
-    centers.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->mean_centers[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centers[i] = new GdaPoint(mx, my);
-    }
-}
 
 bool AbstractClusterDlg::Init()
 {
@@ -642,4 +554,229 @@ double* AbstractClusterDlg::GetBoundVals()
         }
     }
     return vals;
+}
+
+
+void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_reportbox)
+{
+    wxNotebookPage* sum_page = new wxNotebookPage(myNotebook, -1);
+    myNotebook->AddPage(sum_page, "Summary");
+    
+    *m_reportbox = new SimpleReportTextCtrl(sum_page, wxID_ANY, "", wxDefaultPosition, wxSize(320,430));
+    
+    if (GeneralWxUtils::isWindows()) {
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        (*m_reportbox)->SetFont(font);
+    } else {
+        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        (*m_reportbox)->SetFont(font);
+        
+    }
+    
+    wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
+    nb_box2->Add(*m_reportbox, 1, wxEXPAND | wxALL, 20);
+    nb_box2->Fit(sum_page);
+    sum_page->SetSizer(nb_box2);
+}
+
+double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
+{
+    double wss = 0;
+    int count = 0;
+    double sum = 0.0;
+    
+    // for every variable, calc the variance using selected neighbors
+    for (int i=0; i<solution.size(); i++ ) {
+        sum = 0.0;
+        size_t n_items = solution[i].size();
+        const vector<int>& sel_idx = solution[i];
+        
+        for (int n=0; n<num_vars; n++) {
+            count = 0;
+            vector<double> selected_z(n_items);
+            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
+            double var = GenUtils::GetVariance(selected_z);
+            sum += var;
+        }
+        sum = sum * n_items;
+        group_distances.push_back(sum);
+        wss += sum;
+    }
+    
+    return wss;
+}
+
+void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
+{
+    project->GetCentroids();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centroids.empty())
+        for (int i=0; i<centroids.size(); i++)
+            delete centroids[i];
+    
+    centroids.clear();
+    centroids.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->centroids[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centroids[i] = new GdaPoint(mx, my);
+    }
+}
+
+void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
+{
+    project->GetMeanCenters();
+    
+    int n_clusters = solutions.size();
+    
+    if (!centers.empty())
+        for (int i=0; i<centers.size(); i++)
+            delete centers[i];
+    
+    centers.clear();
+    centers.resize(n_clusters);
+    
+    for (int i=0; i<n_clusters; i++ ) {
+        double mx = 0;
+        double my = 0;
+        const vector<int>& sol = solutions[i];
+        int nn = sol.size();
+        for (int j=0; j<nn; j++) {
+            int idx = sol[j];
+            GdaPoint* pt = project->mean_centers[idx];
+            double x = pt->GetX();
+            double y = pt->GetY();
+            mx += x;
+            my += y;
+        }
+        mx /= nn;
+        my /= nn;
+        centers[i] = new GdaPoint(mx, my);
+    }
+}
+
+void AbstractClusterDlg::GetClusterSummary(const vector<vector<int> >& solution)
+{
+    // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
+    // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
+    // on. cluster_ids does not have to be exhaustive
+    
+    vector<double> wss;
+    for (int i=0; i<solution.size(); i++ ) {
+        double ssd = calcHeterogeneity(solution[i]);
+        wss.push_back(ssd);
+    }
+
+    vector<int> ids(num_obs);
+    for (int i=0; i<num_obs; i++) ids[i] = i;
+    double total_wss = calcHeterogeneity(ids);
+    wxString summary = CreateSummary(solution, wss, total_wss);
+    
+    if (m_reportbox) {
+        m_reportbox->SetValue(summary);
+    }
+}
+
+double AbstractClusterDlg::calcHeterogeneity(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+   
+    
+    double ssd = 0;
+    
+    for (int i=0; i<columns; i++) {
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int c = cluster_ids[j];
+            if (mask[c][i] == 1) vals.push_back(input_data[c][i]);
+        }
+        double var = GenUtils::GetVariance(vals);
+        ssd += var;
+    }
+    
+    return ssd;
+}
+
+wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss, double all_wss)
+{
+    wxString summary;
+    
+    //                 cluster1     cluster2   cluster3  All
+    // # obs           12            6           7        25
+    // Sum of Square   1.23          3.4         5.3     9.8
+    // ratio
+    
+    stringstream ss;
+    TextTable t('-', '|', ' ' );
+    
+    // first row
+    t.add("");
+    for (int i=0; i<solution.size(); i++) {
+        ss.str("");
+        ss << "c" << i;
+        t.add(ss.str());
+    }
+    t.add("All");
+    t.endOfRow();
+   
+    // second row
+    int num_obs = 0;
+    t.add("# obs");
+    for (int i=0; i<solution.size(); i++) {
+        ss.str("");
+        ss << solution[i].size();
+        t.add(ss.str());
+        num_obs += solution[i].size();
+    }
+    ss.str("");
+    ss << num_obs;
+    t.add(ss.str());
+    t.endOfRow();
+    
+    // third row
+    t.add("Sum of Square");
+    for (int i=0; i<wss.size(); i++) {
+        ss.str("");
+        ss << wss[i];
+        t.add(ss.str());
+    }
+    ss.str("");
+    ss << all_wss;
+    t.add(ss.str());
+    t.endOfRow();
+    
+    // fourth row
+    t.add("Ratio of S.S.");
+    for (int i=0; i<wss.size(); i++) {
+        ss.str("");
+        ss << wss[i] / all_wss;
+        t.add(ss.str());
+    }
+    t.add("");
+    t.endOfRow();
+    
+    //t.setAlignment( 4, TextTable::Alignment::RIGHT );
+    std::cout << t;
+    
+    stringstream ss1;
+    ss1 << t;
+    summary << ss1.str();
+    
+    return summary;
 }

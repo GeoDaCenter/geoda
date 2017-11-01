@@ -26,6 +26,7 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/statbox.h>
+#include <wx/notebook.h>
 #include <wx/textctrl.h>
 #include <wx/radiobut.h>
 #include <wx/button.h>
@@ -189,14 +190,21 @@ void HClusterDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
+    wxNotebook* myNotebook = new wxNotebook( this, wxID_ANY);
     
-    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_panel = new DendrogramPanel(max_n_clusters, panel, wxID_ANY, wxDefaultPosition, wxSize(440,560));
-    //m_panel->SetBackgroundColour(*wxWHITE);
-    vbox1->Add(m_panel, 1, wxEXPAND|wxALL,20);
+    wxNotebookPage* den_page = new wxNotebookPage(myNotebook, -1);
+    myNotebook->AddPage(den_page, "Dendrogram");
+    m_panel = new DendrogramPanel(max_n_clusters, den_page, wxID_ANY, wxDefaultPosition, wxSize(440,560));
+    wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
+    nb_box1->Add(m_panel, 1, wxEXPAND | wxALL, 20);
+    nb_box1->Fit(den_page);
+    den_page->SetSizer(nb_box1);
+  
+    AddSimpleReportCtrls(myNotebook, &m_reportbox);
+    
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
-    container->Add(vbox1,1, wxEXPAND | wxALL);
+    container->Add(myNotebook,1, wxEXPAND | wxALL);
     
     
     panel->SetSizerAndFit(container);

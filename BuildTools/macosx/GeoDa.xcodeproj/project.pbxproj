@@ -343,6 +343,7 @@
 		A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cluster.cpp; path = Algorithms/cluster.cpp; sourceTree = "<group>"; };
 		A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxp.cpp; path = Algorithms/maxp.cpp; sourceTree = "<group>"; };
 		A45DBDF91EDDEE4D00C2AA8A /* maxp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = maxp.h; path = Algorithms/maxp.h; sourceTree = "<group>"; };
+		A46DFA8F1FA92145007F5923 /* texttable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = texttable.h; path = Algorithms/texttable.h; sourceTree = "<group>"; };
 		A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCCoordinator.cpp; sourceTree = "<group>"; };
 		A47FC9DA1F74DE1600BEFBF2 /* MLJCCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCCoordinator.h; sourceTree = "<group>"; };
 		A47FC9DC1F74E31800BEFBF2 /* MLJCCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCCoordinatorObserver.h; sourceTree = "<group>"; };
@@ -765,6 +766,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A46DFA8F1FA92145007F5923 /* texttable.h */,
 				A4E138B61F71A29100433256 /* geocoding.cpp */,
 				A4E138B71F71A29100433256 /* geocoding.h */,
 				A4D5423B1F45037B00572878 /* redcap.cpp */,

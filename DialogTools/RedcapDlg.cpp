@@ -96,28 +96,21 @@ bool RedcapDlg::Init()
 void RedcapDlg::CreateControls()
 {
     wxLogMessage("On RedcapDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,720), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(820,720), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
-
-    
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"),
-                                         wxDefaultPosition, wxDefaultSize);
-    
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250),
-                              0, NULL, wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"), wxDefaultPosition, wxDefaultSize);
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250), 0, NULL, wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
-    if (project->IsTableOnlyProject()) {
-        m_use_centroids->Disable();
-    }
+    if (project->IsTableOnlyProject())  m_use_centroids->Disable();
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
@@ -218,9 +211,12 @@ void RedcapDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
+    wxNotebook* notebook = new wxNotebook( this, wxID_ANY);
+    AddSimpleReportCtrls(notebook, &m_reportbox);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(notebook,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    

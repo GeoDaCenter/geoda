@@ -89,7 +89,7 @@ bool SpectralClusteringDlg::Init()
 
 void SpectralClusteringDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(780,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -247,9 +247,12 @@ void SpectralClusteringDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
+    wxNotebook* notebook = new wxNotebook( this, wxID_ANY);
+    AddSimpleReportCtrls(notebook, &m_reportbox);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(notebook,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    
