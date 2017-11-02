@@ -215,6 +215,11 @@ void TableFrame::OnClose(wxCloseEvent& event)
 	}
 }
 
+std::vector<int> TableFrame::GetRowOrder()
+{
+    return table_base->GetRowOrder();
+}
+
 void TableFrame::OnMenuClose(wxCommandEvent& event)
 {
 	Hide();

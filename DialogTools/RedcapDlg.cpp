@@ -340,6 +340,8 @@ void RedcapDlg::InitVariableCombobox(wxListBox* var_box)
     }
     if (!items.IsEmpty())
         var_box->InsertItems(items,0);
+    
+    combo_floor->SetSelection(-1);
 }
 
 void RedcapDlg::OnClickClose(wxCommandEvent& event )

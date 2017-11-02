@@ -89,6 +89,8 @@ public:
 	
     void UpdateStatusBar();
     
+    std::vector<int> GetRowOrder();
+    
 private:
 	HighlightState* highlight_state;
 	std::vector<bool>& hs; //shortcut to HighlightState::highlight, read only!
