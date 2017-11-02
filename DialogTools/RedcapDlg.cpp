@@ -378,7 +378,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         return;
     }
     wxString str_floor = txt_floor->GetValue();
-    if (str_floor.IsEmpty()) {
+    if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
         wxString err_msg = _("Please enter minimum bound value");
         wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();

@@ -107,15 +107,11 @@ void HClusterDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
-    
-    SetMaxSize(wxSize(1024,800));
-    
+   
     wxPanel *panel = new wxPanel(scrl);
-
-    
-    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
+	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
     
     // Parameters

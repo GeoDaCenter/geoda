@@ -483,6 +483,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 	}
     Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
     
+	delete[] bound_vals;
+
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();
     
