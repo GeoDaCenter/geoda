@@ -84,7 +84,8 @@ public:
         _rows.push_back( _current );
         _current.assign( 0, "" );
     }
-    
+   
+/* 
     template <typename Iterator>
     void addRow( Iterator begin, Iterator end )
     {
@@ -99,7 +100,7 @@ public:
     {
         addRow( container.begin(), container.end() );
     }
-    
+ */   
     std::vector< Row > const & rows() const
     {
         return _rows;
@@ -115,7 +116,8 @@ public:
     {
         std::string result;
         result += _corner;
-        for( auto width = _width.begin(); width != _width.end(); ++ width ) {
+        std::vector<unsigned>::iterator width;
+        for( width = _width.begin(); width != _width.end(); ++ width ) {
             result += repeat( * width, _horizontal );
             result += _corner;
         }
@@ -154,8 +156,8 @@ private:
     void determineWidths() const
     {
         _width.assign( columns(), 0 );
-        for ( auto rowIterator = _rows.begin(); rowIterator != _rows.end(); ++ rowIterator ) {
-            Row const & row = * rowIterator;
+        for ( int r=0; r < _rows.size(); r++) {
+            Row const & row = _rows[r];
             for ( unsigned i = 0; i < row.size(); ++i ) {
                 _width[ i ] = _width[ i ] > row[ i ].size() ? _width[ i ] : row[ i ].size();
             }
@@ -177,12 +179,15 @@ std::ostream & operator<<( std::ostream & stream, TextTable const & table )
     table.setup();
     if (table.mode == TextTable::ASCII) {
         stream << table.ruler() << "\n";
-        for ( auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++ rowIterator ) {
-            TextTable::Row const & row = * rowIterator;
+        std::vector< TextTable::Row > const & rows = table.rows();
+	for (int r=0; r<rows.size(); r++) {
+            TextTable::Row const & row = rows[r];
             stream << table.vertical();
             for ( unsigned i = 0; i < row.size(); ++i ) {
-                auto alignment = table.alignment( i ) == TextTable::LEFT ? std::left : std::right;
-                stream << std::setw( table.width( i ) ) << alignment << row[ i ];
+                if( table.alignment( i ) == TextTable::LEFT) 
+                stream << std::setw( table.width( i ) ) << std::left << row[ i ];
+                else
+                stream << std::setw( table.width( i ) ) << std::right << row[ i ];
                 stream << table.vertical();
             }
             stream << "\n";
@@ -191,12 +196,15 @@ std::ostream & operator<<( std::ostream & stream, TextTable const & table )
         
     } else if (table.mode == TextTable::MD ) {
         int idx = 0;
-        for ( auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++ rowIterator ) {
-            TextTable::Row const & row = * rowIterator;
+        std::vector< TextTable::Row > const & rows = table.rows();
+	for (int r=0; r<rows.size(); r++) {
+            TextTable::Row const & row = rows[r];
             stream << table.vertical();
             for ( unsigned i = 0; i < row.size(); ++i ) {
-                auto alignment = table.alignment( i ) == TextTable::LEFT ? std::left : std::right;
-                stream << std::setw( table.width( i ) ) << alignment << row[ i ];
+                if( table.alignment( i ) == TextTable::LEFT) 
+                stream << std::setw( table.width( i ) ) << std::left << row[ i ];
+                else
+                stream << std::setw( table.width( i ) ) << std::right << row[ i ];
                 stream << table.vertical();
             }
             stream << "\n";
