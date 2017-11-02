@@ -67,7 +67,7 @@ KMeansDlg::~KMeansDlg()
 
 void KMeansDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,820), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -79,20 +79,19 @@ void KMeansDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
     
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxSize(128,-1));
-    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(200,-1), 0, NULL);
+	// NumberOfCluster Control
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"), wxDefaultPosition, wxSize(128,-1));
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
     max_n_clusters = num_obs < 60 ? num_obs : 60;
     for (int i=2; i<max_n_clusters+1; i++) combo_n->Append(wxString::Format("%d", i));
     combo_n->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_n, 1, wxEXPAND);
     
-    AddMinBound(panel, &chk_floor, &combo_floor, &txt_floor, &slider_floor, &txt_floor_pct, gbox);
+	// Minimum Bound Control
+    AddMinBound(panel, gbox);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(120,-1), 3, _transform);
@@ -174,21 +173,25 @@ void KMeansDlg::CreateControls()
     
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition, wxSize(70, 30));
-    //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
-                                         wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"), wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+  
     
+	// Summary control 
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+	wxNotebook* notebook = AddSimpleReportCtrls(panel);
+	vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
     
@@ -418,20 +421,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         }
     }
     
-    // clean memory
-    for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
-        //clusters.push_back(clusterid[i] + 1);
-        //clusters_undef.push_back(ifound == -1);
-    }
-    delete[] input_data;
-    delete[] weight;
-    delete[] mask;
-    input_data = NULL;
-    weight = NULL;
-    mask = NULL;
-    
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
     
@@ -448,6 +437,23 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+
+    // summary
+    GetClusterSummary(cluster_ids);
+    
+    // clean memory
+    for (int i=0; i<rows; i++) {
+        delete[] input_data[i];
+        delete[] mask[i];
+        //clusters.push_back(clusterid[i] + 1);
+        //clusters_undef.push_back(ifound == -1);
+    }
+    delete[] input_data;
+    delete[] weight;
+    delete[] mask;
+    input_data = NULL;
+    weight = NULL;
+    mask = NULL;
     
     // save to table
     int time=0;
@@ -478,6 +484,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     if (project->IsTableOnlyProject()) {
         return;
     }
+    
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
     new_col_ids.resize(1);

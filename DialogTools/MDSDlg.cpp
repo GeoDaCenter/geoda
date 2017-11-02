@@ -319,10 +319,10 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         std::vector<std::vector<double> > vals(new_col);
         std::vector<std::vector<bool> > undefs(new_col);
         
-        for (unsigned int j = 0; j < new_col; ++j) {
+        for (int j = 0; j < new_col; ++j) {
             vals[j].resize(rows);
             undefs[j].resize(rows);
-            for (unsigned int i = 0; i < rows; ++i) {
+            for (int i = 0; i < rows; ++i) {
                 vals[j][i] = double(results[i][j]);
                 undefs[j][i] = false;
             }

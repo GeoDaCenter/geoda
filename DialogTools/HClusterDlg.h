@@ -174,7 +174,11 @@ public:
     void UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters);
     void OnSplitLineChange(int x);
     
+    void SetActive(bool flag);
+    
 private:
+    bool isWindowActive;
+    
     int leaves;
     int levels;
     int nelements;
@@ -236,7 +240,7 @@ public:
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnClusterChoice(wxCommandEvent& event);
-    
+    void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
     
     virtual void update(HLStateInt* o);

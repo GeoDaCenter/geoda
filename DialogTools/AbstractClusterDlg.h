@@ -24,8 +24,9 @@
 #include <map>
 #include <wx/choice.h>
 #include <wx/checklst.h>
+#include <wx/notebook.h>
 
-
+#include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../VarTools.h"
 
@@ -39,18 +40,11 @@ class AbstractClusterDlg : public wxDialog, public FramesManagerObserver
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
     virtual ~AbstractClusterDlg();
+   
+    void CleanData();
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
-    
-    double intra_group_distance(const vector<vector<int> >& solution,
-                                vector<double> group_distances);
-    
-    void get_centroids(const vector<vector<int> >& solution,
-                       vector<GdaPoint*>& centroids);
-    
-    void get_mean_centers(const vector<vector<int> >& solution,
-                          vector<GdaPoint*>& centers);
     
 protected:
     wxFrame *parent;
@@ -88,22 +82,24 @@ protected:
     double* weight;
     double** input_data;
     int** mask;
-    
+    // -- controls
     wxListBox* combo_var;
     wxCheckBox* m_use_centroids;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
-    
-    virtual void AddInputCtrls(wxPanel *panel,
-                               wxListBox** combo_var,
-                               wxCheckBox** m_use_centroids,
-                               wxSlider** m_weight_centroids,
-                               wxTextCtrl** m_wc_txt,
-                               wxBoxSizer* vbox);
-    virtual void AddSimpleInputCtrls(wxPanel *panel,
-                                     wxListBox** combo_var,
-                                     wxBoxSizer* vbox,
-                                     bool integer_only = false);
+    // -- functions
+    virtual void AddInputCtrls(
+       wxPanel *panel,
+       wxListBox** combo_var,
+       wxCheckBox** m_use_centroids,
+       wxSlider** m_weight_centroids,
+       wxTextCtrl** m_wc_txt,
+       wxBoxSizer* vbox);
+    virtual void AddSimpleInputCtrls(
+        wxPanel *panel,
+        wxListBox** combo_var,
+        wxBoxSizer* vbox,
+        bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
@@ -111,16 +107,39 @@ protected:
     void OnInputWeights(wxCommandEvent& event);
    
     // Minimum Bound related
+	// -- variables
     wxCheckBox* chk_floor;
     wxChoice* combo_floor;
     wxTextCtrl* txt_floor;
     wxTextCtrl* txt_floor_pct;
     wxSlider* slider_floor;
-    virtual void AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct,wxFlexGridSizer* gbox, bool show_checkbox=true);
+	// -- functions
+    virtual void AddMinBound(
+        wxPanel *panel,
+        wxFlexGridSizer* gbox,
+        bool show_checkbox=true);
     virtual void  OnCheckMinBound(wxCommandEvent& event);
     virtual void  OnSelMinBound(wxCommandEvent& event);
     virtual void  OnTypeMinBound(wxCommandEvent& event);
     virtual void  OnSlideMinBound(wxCommandEvent& event);
+    
+    // Summary related
+	// -- variables
+    SimpleReportTextCtrl* m_reportbox;
+	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
+	// -- functions
+    void GetClusterSummary(const vector<wxInt64>& clusters);
+    void GetClusterSummary(const vector<vector<int> >& solution);
+    double calcHeterogeneity(const vector<int>& cluster_ids);
+    wxString CreateSummary(
+        const vector<vector<int> >& solution,
+        const vector<double>& wss);
+    void get_centroids(
+        const vector<vector<int> >& solution,
+        vector<GdaPoint*>& centroids);
+    void get_mean_centers(
+		const vector<vector<int> >& solution,
+		vector<GdaPoint*>& centers);
 };
 
 #endif

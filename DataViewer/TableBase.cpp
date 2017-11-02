@@ -265,6 +265,11 @@ public:
 	}
 };
 
+std::vector<int> TableBase::GetRowOrder()
+{
+    return row_order;
+}
+
 void TableBase::SortByCol(int col, bool ascending)
 {
 	if (col == -1) {

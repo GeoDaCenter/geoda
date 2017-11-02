@@ -728,7 +728,7 @@ IDataSource* ExportDataDlg::GetDatasource()
         CartoDBProxy::GetInstance().SetKey(key);
         CartoDBProxy::GetInstance().SetUserName(user);
         
-        wxString url = "CartoDB:" + user;
+        wxString url = "Carto:" + user;
         
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
         

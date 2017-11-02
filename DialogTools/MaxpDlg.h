@@ -56,7 +56,6 @@ private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
     
-    wxListBox* combo_var;
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     wxChoice* combo_lisa;

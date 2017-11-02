@@ -170,16 +170,7 @@ void PCASettingsDlg::CreateControls()
     
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(320,430));
-    
-    if (GeneralWxUtils::isWindows()) {
-        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-        m_textbox->SetFont(font);
-    } else {
-        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-        m_textbox->SetFont(font);
-        
-    }
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
     vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
