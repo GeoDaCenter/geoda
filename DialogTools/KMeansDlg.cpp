@@ -79,20 +79,19 @@ void KMeansDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
     
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxSize(128,-1));
-    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(200,-1), 0, NULL);
+	// NumberOfCluster Control
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"), wxDefaultPosition, wxSize(128,-1));
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
     max_n_clusters = num_obs < 60 ? num_obs : 60;
     for (int i=2; i<max_n_clusters+1; i++) combo_n->Append(wxString::Format("%d", i));
     combo_n->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_n, 1, wxEXPAND);
     
-    AddMinBound(panel, &chk_floor, &combo_floor, &txt_floor, &slider_floor, &txt_floor_pct, gbox);
+	// Minimum Bound Control
+    AddMinBound(panel, gbox);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
     const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(120,-1), 3, _transform);
@@ -185,13 +184,14 @@ void KMeansDlg::CreateControls()
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
   
     
-    wxNotebook* notebook = new wxNotebook( this, wxID_ANY);
-    AddSimpleReportCtrls(notebook, &m_reportbox);
-    
+	// Summary control 
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+	wxNotebook* notebook = AddSimpleReportCtrls(panel);
+	vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
-    container->Add(notebook, 1, wxEXPAND | wxALL);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
     

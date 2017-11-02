@@ -211,25 +211,23 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     }
 }
 
-void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct, wxFlexGridSizer* gbox, bool show_checkbox)
+void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox)
 {
-    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"), wxDefaultPosition, wxSize(128,-1));
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
-    *chk_floor = new wxCheckBox(panel, wxID_ANY, "");
-    *combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
-    *txt_floor = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(70,-1), 0, validator);
-    hbox0->Add(*chk_floor);
-    hbox0->Add(*combo_floor);
-    hbox0->Add(*txt_floor);
+    chk_floor = new wxCheckBox(panel, wxID_ANY, "");
+    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
+    txt_floor = new wxTextCtrl(panel, wxID_ANY, _("1"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    hbox0->Add(chk_floor);
+    hbox0->Add(combo_floor);
+    hbox0->Add(txt_floor);
     
-   
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    (*slider_floor) = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-    (*txt_floor_pct) = new wxTextCtrl(panel, wxID_ANY, wxT("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
-    hbox1->Add(*slider_floor);
-    hbox1->Add(*txt_floor_pct);
+    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, _("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    hbox1->Add(slider_floor);
+    hbox1->Add(txt_floor_pct);
     
     wxBoxSizer *hbox = new wxBoxSizer(wxVERTICAL);
     hbox->Add(hbox0);
@@ -238,21 +236,21 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxC
     gbox->Add(st, 0, wxALIGN_TOP| wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox, 1, wxEXPAND);
     
-    (*chk_floor)->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnCheckMinBound, this);
-    (*combo_floor)->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
-    (*txt_floor)->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
-	(*slider_floor)->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
+    chk_floor->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnCheckMinBound, this);
+    combo_floor->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
+    txt_floor->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
+	slider_floor->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
     
     if (!show_checkbox) {
-        (*chk_floor)->SetValue(true);
-        (*chk_floor)->Hide();
-        (*combo_floor)->SetSelection(-1);
+        chk_floor->SetValue(true);
+        chk_floor->Hide();
+        combo_floor->SetSelection(-1);
     } else {
-        (*combo_floor)->Disable();
-        (*txt_floor)->Disable();
+        combo_floor->Disable();
+        txt_floor->Disable();
     }
-    (*slider_floor)->Disable();
-    (*txt_floor_pct)->Disable();
+    slider_floor->Disable();
+    txt_floor_pct->Disable();
     
 }
 void AbstractClusterDlg::OnSlideMinBound(wxCommandEvent& event)
@@ -561,11 +559,12 @@ double* AbstractClusterDlg::GetBoundVals()
 }
 
 
-void AbstractClusterDlg::AddSimpleReportCtrls(wxNotebook* myNotebook, SimpleReportTextCtrl** m_reportbox)
+wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 {
-    *m_reportbox = new SimpleReportTextCtrl(myNotebook, wxID_ANY, "");
-    myNotebook->AddPage(*m_reportbox, "Summary");
-    
+	wxNotebook* notebook = new wxNotebook( panel, wxID_ANY, wxDefaultPosition);
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
+    notebook->AddPage(m_reportbox, "Summary");
+	return notebook;
 }
 
 void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
@@ -715,7 +714,7 @@ wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     // ratio
     
     stringstream ss;
-    TextTable t( TextTable::MODE::MD );
+    TextTable t( TextTable::MD );
     
     // first row
     t.add("");
