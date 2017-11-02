@@ -465,7 +465,7 @@ bool GdaApp::OnInit(void)
     }
     
     // show open file dialog
-    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
+    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos, true);
 
 	return true;
 }
@@ -1222,9 +1222,12 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
     ShowOpenDatasourceDlg(wxPoint(80, 220));
 }
 
-void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
+void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 {
 	wxLogMessage(" GdaFrame::ShowOpenDatasourceDlg()");
+
+	if (init && project_p) return;
+
 	// check if dialog has already been opened
 	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
     while (node) {
