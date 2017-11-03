@@ -40,6 +40,7 @@
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */; };
 		A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4320FC61F4735020007BE0D /* RedcapDlg.cpp */; };
+		A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4368CDA1FABBBC60099FA9B /* mds.cpp */; };
 		A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D124A1F1DE1D80073D408 /* MaxpDlg.cpp */; };
 		A43D124F1F2088D50073D408 /* spectral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D124E1F2088D50073D408 /* spectral.cpp */; };
 		A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D12511F20AE450073D408 /* SpectralClusteringDlg.cpp */; };
@@ -326,6 +327,9 @@
 		A42B6F771F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNewCalcDateTimeDlg.h; sourceTree = "<group>"; };
 		A4320FC61F4735020007BE0D /* RedcapDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RedcapDlg.cpp; sourceTree = "<group>"; };
 		A4320FC71F4735020007BE0D /* RedcapDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RedcapDlg.h; sourceTree = "<group>"; };
+		A4368CD91FABB5260099FA9B /* DataUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DataUtils.h; path = Algorithms/DataUtils.h; sourceTree = "<group>"; };
+		A4368CDA1FABBBC60099FA9B /* mds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mds.cpp; path = Algorithms/mds.cpp; sourceTree = "<group>"; };
+		A4368CDB1FABBBC60099FA9B /* mds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mds.h; path = Algorithms/mds.h; sourceTree = "<group>"; };
 		A43D124A1F1DE1D80073D408 /* MaxpDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxpDlg.cpp; sourceTree = "<group>"; };
 		A43D124B1F1DE1D80073D408 /* MaxpDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaxpDlg.h; sourceTree = "<group>"; };
 		A43D124D1F2088D50073D408 /* spectral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spectral.h; path = Algorithms/spectral.h; sourceTree = "<group>"; };
@@ -766,6 +770,9 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4368CDA1FABBBC60099FA9B /* mds.cpp */,
+				A4368CDB1FABBBC60099FA9B /* mds.h */,
+				A4368CD91FABB5260099FA9B /* DataUtils.h */,
 				A46DFA8F1FA92145007F5923 /* texttable.h */,
 				A4E138B61F71A29100433256 /* geocoding.cpp */,
 				A4E138B71F71A29100433256 /* geocoding.h */,
@@ -1573,6 +1580,7 @@
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
 				A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */,
 				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
+				A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */,
 				DD64925C16DFF63400B3B0AB /* GeoDa.cpp in Sources */,
 				A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */,
 				A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */,

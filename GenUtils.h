@@ -259,6 +259,7 @@ struct SampleStatistics {
 						   double& max);
 	static double CalcMean(const std::vector<double>& data);
 	static double CalcMean(const std::vector<Gda::dbl_int_pair_type>& data);
+    
 };
 
 struct SimpleLinearRegression {

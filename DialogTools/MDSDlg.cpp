@@ -27,7 +27,9 @@
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../Project.h"
+#include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
+#include "../Algorithms/mds.h"
 #include "../Explore/ScatterNewPlotView.h"
 #include "SaveToTableDlg.h"
 #include "MDSDlg.h"
@@ -246,8 +248,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     // Call function to set all Secondary Attributes based on Primary Attributes
     GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
     
-    int rows = project->GetNumRecords();
-    int columns =  0;
+    rows = project->GetNumRecords();
+    columns =  0;
     
     std::vector<d_array_type> data; // data[variable][time][obs]
     data.resize(col_ids.size());
@@ -308,7 +310,13 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
   
-    double** results = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, 2);
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    
+    double** distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
+    FastMDS mds(distances, rows, rows, 2);
+    double** results = mds.GetResult();
    
     if (results) {
         // save to table
@@ -323,7 +331,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             vals[j].resize(rows);
             undefs[j].resize(rows);
             for (int i = 0; i < rows; ++i) {
-                vals[j][i] = double(results[i][j]);
+                vals[j][i] = double(results[j][i]);
                 undefs[j][i] = false;
             }
             new_data[j].d_val = &vals[j];
@@ -372,11 +380,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             subframe->OnViewLinearSmoother(ev);
             subframe->OnDisplayStatistics(ev);
         }
-        
-        for (int i=0; i<2; i++) {
-            delete[] results[i];
-        }
-        delete[] results;
     }
     
     for (int i=0; i<rows; i++) {

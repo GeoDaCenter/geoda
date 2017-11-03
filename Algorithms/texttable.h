@@ -180,7 +180,7 @@ std::ostream & operator<<( std::ostream & stream, TextTable const & table )
     if (table.mode == TextTable::ASCII) {
         stream << table.ruler() << "\n";
         std::vector< TextTable::Row > const & rows = table.rows();
-	for (int r=0; r<rows.size(); r++) {
+        for (int r=0; r<rows.size(); r++) {
             TextTable::Row const & row = rows[r];
             stream << table.vertical();
             for ( unsigned i = 0; i < row.size(); ++i ) {
@@ -197,7 +197,7 @@ std::ostream & operator<<( std::ostream & stream, TextTable const & table )
     } else if (table.mode == TextTable::MD ) {
         int idx = 0;
         std::vector< TextTable::Row > const & rows = table.rows();
-	for (int r=0; r<rows.size(); r++) {
+        for (int r=0; r<rows.size(); r++) {
             TextTable::Row const & row = rows[r];
             stream << table.vertical();
             for ( unsigned i = 0; i < row.size(); ++i ) {
