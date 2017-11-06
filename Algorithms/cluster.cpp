@@ -45,6 +45,11 @@ void setrandomstate(int seed)
     random_state = seed;
 }
 
+void resetrandom()
+{
+    reset_random = 1;
+}
+
 /* ************************************************************************ */
 
 #ifdef WINDOWS
@@ -1774,7 +1779,7 @@ A double-precison number between 0.0 and 1.0.
   static int s1 = 0;
   static int s2 = 0;
 
-  if (s1==0 || s2==0) /* initialize */
+  if (s1==0 || s2==0 || reset_random==1) /* initialize */
   { if (random_state<0) {
       unsigned int initseed = (unsigned int) time(0);
       srand(initseed);
@@ -1783,6 +1788,7 @@ A double-precison number between 0.0 and 1.0.
     }
     s1 = rand();
     s2 = rand();
+      reset_random = 0;
   }
 
   do

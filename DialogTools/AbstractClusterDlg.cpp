@@ -383,6 +383,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         dlg.ShowModal();
         return false;
     }
+   
+    col_names.clear();
     
     if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
     {
@@ -402,6 +404,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             }
             
             int tm = name_to_tm_id[combo_var->GetString(idx)];
+            col_names.push_back(nm);
             
             col_ids[i] = col;
             var_info[i].time = tm;
@@ -431,6 +434,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         // if use centroids
         if (use_centroids) {
             columns += 2;
+            col_names.insert(col_names.begin(), "CENTY");
+            col_names.insert(col_names.begin(), "CENTX");
         }
         
         // get columns (if time variables show)
@@ -567,92 +572,51 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 	return notebook;
 }
 
-void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
-{
-    project->GetCentroids();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centroids.empty())
-        for (int i=0; i<centroids.size(); i++)
-            delete centroids[i];
-    
-    centroids.clear();
-    centroids.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->centroids[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centroids[i] = new GdaPoint(mx, my);
-    }
-}
 
-void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
-{
-    project->GetMeanCenters();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centers.empty())
-        for (int i=0; i<centers.size(); i++)
-            delete centers[i];
-    
-    centers.clear();
-    centers.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->mean_centers[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centers[i] = new GdaPoint(mx, my);
-    }
-}
+////////////////////////////////////////////////////////////////
+//
+// Clustering Stats
+//
+////////////////////////////////////////////////////////////////
 
-void AbstractClusterDlg::GetClusterSummary(const vector<wxInt64>& clusters)
+void AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters)
 {
     vector<vector<int> > solution;
     
     for (int i=0; i<clusters.size(); i++) {
         int c = clusters[i];
         if (c > solution.size()) solution.resize(c);
-       
+        
         if (c-1 >= 0)
             solution[c-1].push_back(i);
     }
-    
-    // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
-    // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
-    // on. cluster_ids does not have to be exhaustive
-    vector<double> wss;
-    for (int i=0; i<solution.size(); i++ ) {
-        double ssd = calcHeterogeneity(solution[i]);
-        wss.push_back(ssd);
-    }
+    CreateSummary(solution);
+}
 
-    wxString summary = CreateSummary(solution, wss);
+void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
+{
+    // mean centers
+    vector<vector<double> > mean_centers = _getMeanCenters(solution);
+    // totss
+    double totss = _getTotalSumOfSquares();
+    // withinss
+    vector<double> withinss = _getWithinSumOfSquares(solution);
+    // tot.withiness
+    double totwithiness = GenUtils::Sum(withinss);
+    // betweenss
+    double betweenss = totss - totwithiness;
+    // ratio
+    double ratio = betweenss / totss;
+    
+    wxString summary;
+    summary << ">>>>\n";
+    summary << _printConfiguration();
+    summary << _printMeanCenters(mean_centers);
+    summary << "The total sum of squares:\t" << totss << "\n";
+    summary << _printWithinSS(withinss);
+    summary << "The total within-cluster sum of squares:\t" << totwithiness << "\n";
+    summary << "The between-cluster sum of squares:\t" << betweenss << "\n";
+    summary << "The ratio of between to total sum of squares:\t" << ratio << "\n\n";
     
     if (m_reportbox) {
         wxString report = m_reportbox->GetValue();
@@ -661,116 +625,161 @@ void AbstractClusterDlg::GetClusterSummary(const vector<wxInt64>& clusters)
     }
 }
 
-void AbstractClusterDlg::GetClusterSummary(const vector<vector<int> >& solution)
+vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters, 0);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> means;
+        for (int c=0; c<columns; c++) {
+            double sum = 0;
+            double n = 0;
+            for (int j=0; j<solutions[i].size(); j++) {
+                int r = solutions[i][j];
+                if (mask[r][c] == 1) {
+                    sum += input_data[r][c] ;
+                    n += 1;
+                }
+            }
+            double mean = n > 0 ? sum / n : 0;
+            mean = mean * weight[c];
+            means.push_back(mean);
+        }
+        result[i] = means;
+    }
+    
+    return result;
+}
+
+double AbstractClusterDlg::_getTotalSumOfSquares()
+{
+    if (columns <= 0 || rows <= 0) return 0;
+   
+    double ssq = 0.0;
+    for (int i=0; i<columns; i++) {
+        vector<double> vals;
+        for (int j=0; j<rows; j++) {
+            if (mask[j][i] == 1) vals.push_back(input_data[j][i] * weight[i]);
+        }
+        double ss = GenUtils::SumOfSquares(vals);
+        ssq += ss;
+    }
+    return ssq;
+}
+
+vector<double> AbstractClusterDlg::_getWithinSumOfSquares(const vector<vector<int> >& solution)
 {
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
     // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
     // on. cluster_ids does not have to be exhaustive
     vector<double> wss;
     for (int i=0; i<solution.size(); i++ ) {
-        double ssd = calcHeterogeneity(solution[i]);
-        wss.push_back(ssd);
+        double ss = _calcSumOfSquares(solution[i]);
+        wss.push_back(ss);
     }
-    
-    wxString summary = CreateSummary(solution, wss);
-    
-    if (m_reportbox) {
-        wxString report = m_reportbox->GetValue();
-        report = summary + report;
-        m_reportbox->SetValue(report);
-    }
+    return wss;
 }
 
-double AbstractClusterDlg::calcHeterogeneity(const vector<int>& cluster_ids)
+
+double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
     
-    double ssd = 0;
+    double ssq = 0;
     
     for (int i=0; i<columns; i++) {
         vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
-            int c = cluster_ids[j];
-            if (mask[c][i] == 1) vals.push_back(input_data[c][i]);
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1) vals.push_back(input_data[r][i]*weight[i]);
         }
-        double var = GenUtils::GetVariance(vals);
-        ssd += var;
+        double ss = GenUtils::SumOfSquares(vals);
+        ssq += ss;
     }
     
-    return ssd;
+    return ssq;
 }
 
-wxString AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<double>& wss)
+
+wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
+{
+    wxString txt;
+    txt << "Cluster centers:\n";
+    
+    stringstream ss;
+    TextTable t( TextTable::MD );
+   
+    //       v1     v2    v3
+    //  c1   1      2      3
+    //  c2   1      2      3
+    
+    // first row
+    t.add("");
+    for (int i=0; i<columns; i++) t.add(col_names[i].ToStdString());
+    t.endOfRow();
+    
+    // second row
+    for (int i=0; i<mean_centers.size(); i++) {
+        ss.str("");
+        ss << "C" << i+1;
+        t.add(ss.str());
+        
+        const vector<double>& vals = mean_centers[i];
+        for (int j=0; j<vals.size(); j++) {
+            ss.str("");
+            ss << vals[j];
+            t.add(ss.str());
+        }
+        t.endOfRow();
+    }
+    
+    stringstream ss1;
+    ss1 << t;
+    txt << ss1.str();
+    txt << "\n";
+    return txt;
+}
+
+wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss)
 {
     wxString summary;
-    wxDateTime now = wxDateTime::Now();
-    summary << ">>" << now.FormatDate() << " " << now.FormatTime() << "\n";
-    summary << "SUMMARY OF OUTPUT:\n\n";
+    summary << "Within-cluster sum of squares:\n";
     
-    //                 cluster1     cluster2   cluster3  All
-    // # obs           12            6           7        25
-    // Sum of Square   1.23          3.4         5.3     9.8
-    // ratio
+    //            # obs  Within cluster SS
+    // C1          12            62.1
+    // C2          3             42.3
+    // C3
     
     stringstream ss;
     TextTable t( TextTable::MD );
     
     // first row
     t.add("");
-    for (int i=0; i<solution.size(); i++) {
-        ss.str("");
-        ss << "c" << i+1;
-        t.add(ss.str());
-    }
-    t.add("All");
+    //t.add("#obs");
+    t.add("Within cluster S.S.");
     t.endOfRow();
    
     // second row
-    int num_obs = 0;
-    t.add("# obs");
-    for (int i=0; i<solution.size(); i++) {
+    for (int i=0; i<within_ss.size(); i++) {
         ss.str("");
-        ss << solution[i].size();
+        ss << "C" << i+1;
         t.add(ss.str());
-        num_obs += solution[i].size();
-    }
-    ss.str("");
-    ss << num_obs;
-    t.add(ss.str());
-    t.endOfRow();
-    
-    // third ro
-    t.add("Sum of Squares");
-    double all_wss = 0;
-    for (int i=0; i<wss.size(); i++) {
-        all_wss += wss[i];
+        
         ss.str("");
-        ss << wss[i] / wss.size();
+        ss << within_ss[i];
         t.add(ss.str());
+        t.endOfRow();
     }
-    ss.str("");
-    ss << all_wss / wss.size();
-    t.add(ss.str());
-    t.endOfRow();
-    
-    // fourth row
-    t.add("Ratio of S.S.");
-    for (int i=0; i<wss.size(); i++) {
-        ss.str("");
-        ss << wss[i] / all_wss;
-        t.add(ss.str());
-    }
-    t.add("");
-    t.endOfRow();
-    
     //t.setAlignment( 4, TextTable::Alignment::RIGHT );
-    std::cout << t;
     
     stringstream ss1;
     ss1 << t;
     summary << ss1.str();
-    summary << "\n\n";
+    summary << "\n";
     
     return summary;
 }

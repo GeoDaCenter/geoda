@@ -44,6 +44,8 @@ public:
    
     void InitVariableCombobox(wxListBox* var_box);
     
+    virtual wxString _printConfiguration();
+    
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     

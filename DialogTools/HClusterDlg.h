@@ -245,6 +245,8 @@ public:
     
     virtual void update(HLStateInt* o);
     
+    virtual wxString _printConfiguration();
+    
     HLStateInt* highlight_state;
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);

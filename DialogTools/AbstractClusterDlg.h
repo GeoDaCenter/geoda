@@ -59,7 +59,8 @@ protected:
     int rows;
     int columns;
     int num_obs;
-    
+   
+    vector<wxString> col_names;
     std::vector<wxString> tm_strs;
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
@@ -124,22 +125,25 @@ protected:
     virtual void  OnSlideMinBound(wxCommandEvent& event);
     
     // Summary related
+    // The main statistics should be:
+    // - mean centers or centroids of each cluster in terms of the variables involved
+    // - the total sum of squares
+    // - the within sum of squares
+    // - the between sum of squares
+    // - the ratio of between to total sum of squares
 	// -- variables
     SimpleReportTextCtrl* m_reportbox;
 	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
 	// -- functions
-    void GetClusterSummary(const vector<wxInt64>& clusters);
-    void GetClusterSummary(const vector<vector<int> >& solution);
-    double calcHeterogeneity(const vector<int>& cluster_ids);
-    wxString CreateSummary(
-        const vector<vector<int> >& solution,
-        const vector<double>& wss);
-    void get_centroids(
-        const vector<vector<int> >& solution,
-        vector<GdaPoint*>& centroids);
-    void get_mean_centers(
-		const vector<vector<int> >& solution,
-		vector<GdaPoint*>& centers);
+    double _getTotalSumOfSquares();
+    double _calcSumOfSquares(const vector<int>& cluster_ids);
+    vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);
+    wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
+    wxString _printWithinSS(const vector<double>& within_ss);
+    virtual wxString _printConfiguration()=0;
+    void CreateSummary(const vector<wxInt64>& clusters);
+    void CreateSummary(const vector<vector<int> >& solution);
 };
 
 #endif

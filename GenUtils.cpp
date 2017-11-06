@@ -1216,6 +1216,24 @@ double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
     return r;
 }
 
+double GenUtils::Sum(std::vector<double>& data)
+{
+    double sum = 0;
+    int nObs = data.size();
+    for (int i=0; i<nObs; i++) sum += data[i];
+    return sum;
+}
+
+double GenUtils::SumOfSquares(std::vector<double>& data)
+{
+    int nObs = data.size();
+    if (nObs <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
+    return ssum;
+}
+
 bool GenUtils::StandardizeData(int nObs, double* data)
 {
 	if (nObs <= 1) return false;

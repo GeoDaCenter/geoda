@@ -9,21 +9,22 @@
 
 class AbstractMDS {
 public:
-    AbstractMDS(int dim);
+    AbstractMDS(int n, int dim);
     ~AbstractMDS();
     
-    virtual double** fullmds(double** d, int n, int k, int dim);
-    virtual double* pivotmds(double** input, double** result);
-    virtual double** GetResult();
+    virtual void fullmds(vector<vector<double> >& d, int dim);
+    virtual vector<double> pivotmds(vector<vector<double> >& input, vector<vector<double> >& result);
+    virtual vector<vector<double> >& GetResult();
     
 protected:
+    int n;
     int dim;
-    double** result;
+    vector<vector<double> > result;
 };
 
 class FastMDS : public AbstractMDS {
 public:
-    FastMDS(double** distances, int n, int k, int dim);
+    FastMDS(vector<vector<double> >& distances, int dim);
     virtual ~FastMDS();
     
 protected:

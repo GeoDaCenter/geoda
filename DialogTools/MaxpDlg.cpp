@@ -147,7 +147,6 @@ void MaxpDlg::CreateControls()
     gbox->Add(hbox17, 1, wxEXPAND);
     
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
@@ -266,7 +265,6 @@ void MaxpDlg::OnSeedCheck(wxCommandEvent& event)
             return;
         }
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
@@ -297,7 +295,6 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
         uint64_t new_seed_val = val;
         GdaConst::gda_user_seed = new_seed_val;
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         wxString str_gda_user_seed;
@@ -374,9 +371,41 @@ void MaxpDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
+wxString MaxpDlg::_printConfiguration()
+{
+    wxString txt;
+    /*
+     txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
+     
+     if (chk_floor && chk_floor->IsChecked()) {
+     int idx = combo_floor->GetSelection();
+     wxString nm = name_to_nm[combo_floor->GetString(idx)];
+     txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+     }
+     
+     txt << "Transformation:\t";
+     int transform = combo_tranform->GetSelection();
+     if (transform == 0) txt << "Raw\n";
+     else if (transform == 1) txt << "Demean\n";
+     else if (transform == 2) txt << "Standardize\n";
+     
+     txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
+     txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";
+     txt << "Maximal iterations:\t" << m_iterations->GetValue() << "\n";
+     txt << "Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
+     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+     */
+    return txt;
+}
+
 void MaxpDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MaxpDlg::OnOK");
+   
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate(GdaConst::gda_user_seed);
+        resetrandom();
+    }
     
     // Get input data
     int transform = combo_tranform->GetSelection();
@@ -503,7 +532,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     }
     
     // summary
-    GetClusterSummary(clusters);
+    CreateSummary(clusters);
     
     // save to table
     int time=0;
@@ -555,4 +584,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
+    wxString ttl;
+    ttl << "Max-p Cluster Map";
+    nf->SetTitle(ttl);
 }

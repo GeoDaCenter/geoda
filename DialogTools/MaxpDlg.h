@@ -52,6 +52,8 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
+    virtual wxString _printConfiguration();
+    
 private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;

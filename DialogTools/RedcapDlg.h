@@ -53,6 +53,8 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
+    virtual wxString _printConfiguration();
+    
 protected:
     wxChoice* combo_method;
     wxChoice* combo_weights;

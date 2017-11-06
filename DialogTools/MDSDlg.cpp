@@ -198,6 +198,11 @@ void MDSDlg::InitVariableCombobox(wxListBox* var_box)
         var_box->InsertItems(items,0);
 }
 
+wxString MDSDlg::_printConfiguration()
+{
+    return "";
+}
+
 void MDSDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MDSDlg::OnOK");
@@ -310,14 +315,19 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
   
+    /*
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     
-    double** distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
-    FastMDS mds(distances, rows, rows, 2);
-    double** results = mds.GetResult();
+    FastMDS mds(distances, 2);
+    vector<vector<double> > results = mds.GetResult();
    
+    if (!results.empty()) {
+    */
+    double** results = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, 2);
+    
     if (results) {
         // save to table
         //int new_col = combo_n->GetSelection() + 1;
@@ -331,7 +341,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             vals[j].resize(rows);
             undefs[j].resize(rows);
             for (int i = 0; i < rows; ++i) {
-                vals[j][i] = double(results[j][i]);
+                vals[j][i] = double(results[i][j]);
                 undefs[j][i] = false;
             }
             new_data[j].d_val = &vals[j];
@@ -380,6 +390,11 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             subframe->OnViewLinearSmoother(ev);
             subframe->OnDisplayStatistics(ev);
         }
+        
+        for (int i=0; i<2; i++) {
+            delete[] results[i];
+        }
+        delete[] results;
     }
     
     for (int i=0; i<rows; i++) {

@@ -277,7 +277,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     }
     
     // summary
-    GetClusterSummary(clusters);
+    CreateSummary(clusters);
     
     // show a cluster map
     if (project->IsTableOnlyProject()) {
@@ -305,6 +305,9 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     
+    wxString ttl;
+    ttl << "Hierachical Cluster Map";
+    nf->SetTitle(ttl);
 }
 
 void HClusterDlg::OnDistanceChoice(wxCommandEvent& event)
@@ -397,7 +400,32 @@ void HClusterDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
-
+wxString HClusterDlg::_printConfiguration()
+{
+    wxString txt;
+    /*
+    txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked()) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+    }
+    
+    txt << "Transformation:\t";
+    int transform = combo_tranform->GetSelection();
+    if (transform == 0) txt << "Raw\n";
+    else if (transform == 1) txt << "Demean\n";
+    else if (transform == 2) txt << "Standardize\n";
+    
+    txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";
+    txt << "Maximal iterations:\t" << m_iterations->GetValue() << "\n";
+    txt << "Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    */
+    return txt;
+}
 
 void HClusterDlg::OnOKClick(wxCommandEvent& event )
 {
@@ -446,7 +474,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     clusterid = NULL;
     
     // summary
-    GetClusterSummary(clusters);
+    //CreateSummary(clusters);
     
     // draw dendrogram
     m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);

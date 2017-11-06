@@ -93,8 +93,7 @@ public:
             double r = 0.0;
             
             for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
-                double* q = new double[k];
-            for (int i = 0; i < n; i++) q[i] = 0;
+                vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
                     for (int j = 0; j < k; j++)
                         q[i] += matrix[i][j] * evecs[m][j];
@@ -102,74 +101,68 @@ public:
                 evals[m] = prod(evecs[m], q);
                 normalize(q);
                 r = abs(prod(evecs[m], q));
-                delete[] evecs[m];
                 evecs[m] = q;
             }
         }
     }
   
-    static double largestEigenvalue(vector<vector<double> >& matrix, int n)
+    static double largestEigenvalue(vector<vector<double> >& matrix)
     {
+        int n = matrix.size();
         double eps = 1.0E-6;
         int maxiter = 100;
         double lambda = 0.0;
-        double* x = new double[n];
-        for (int i = 0; i < n; i++) {
-            x[i] = 1.0;
-        }
+        vector<double> x(n,1.0);
         double r = 0.0;
         
         for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
-            double* q = new double[n];
-            for (int i = 0; i < n; i++) q[i] = 0;
+            vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++)
                     q[i] += matrix[i][j] * x[j];
             }
-            lambda = prod(x, q, k);
-            normalize(q, k);
-            r = fabs(prod(x, q, k));
-            delete[] x;
+            lambda = prod(x, q);
+            normalize(q);
+            r = fabs(prod(x, q));
             x = q;
         }
-        delete[] x;
         return lambda;
     }
     
-    static double smallestEigenvalue(vector<vector<double> >& matrix, int n)
+    static double smallestEigenvalue(vector<vector<double> >& matrix)
     {
-        double rho = largestEigenvalue(matrix, n);
+        int n = matrix.size();
+        double rho = largestEigenvalue(matrix);
         double eps = 1.0E-6;
         int maxiter = 100;
         double lambda = 0.0;
-        double* x = new double[n];
+        vector<double> x(n);
         for (int i = 0; i < n; i++)
             x[i] = (0.5 - (double) rand() / RAND_MAX);
-        normalize(x, n);
+        normalize(x);
         
         double r = 0.0;
         
         for (int iter = 0; (abs(1.0 - r) > eps) && (iter < 100); iter++) {
-            double* q = new double[n];
-            for (int i = 0; i < n; i++) q[i] = 0;
+            vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
                 q[i] -= rho * x[i];
                 for (int j = 0; j < n; j++)
                     q[i] += matrix[i][j] * x[j];
             }
-            lambda = prod(x, q, n);
-            normalize(q, n);
-            r = fabs(prod(x, q, n));
-            delete[] x;
+            lambda = prod(x, q);
+            normalize(q);
+            r = fabs(prod(x, q));
             x = q;
         }
-        delete[] x;
         return lambda + rho;
     }
     
-    static void randomize(vector<vector<double> >& matrix, int n, int k) {
+    static void randomize(vector<vector<double> >& matrix) {
+        int n = matrix.size();
+        int k = matrix[0].size();
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
                 matrix[i][j] = (double) rand() / RAND_MAX;
@@ -177,10 +170,10 @@ public:
         }
     }
     
-    static int* landmarkIndices(vector<vector<double> >& matrix, int n, int k) {
-        //int k = matrix.length;
-        //int n = matrix[0].length;
-        int* result = new int[k];
+    static vector<int> landmarkIndices(vector<vector<double> >& matrix) {
+        int k = matrix.size();
+        int n = matrix[0].size();
+        vector<int> result(k);
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
                 if (matrix[i][j] == 0.0) {
@@ -191,11 +184,13 @@ public:
         return result;
     }
     
-    static double** copyMatrix(vector<vector<double> >& matrix, int n, int k) {
-        double** copy = new double*[k];
-        for (int i=0; i<k; i++) copy[i] = new double[n];
+    static vector<vector<double> > copyMatrix(vector<vector<double> >& matrix) {
+        int k = matrix.size();
+        int n = matrix[0].size();
+        vector<vector<double> > copy(k);
         
         for (int i = 0; i < k; i++) {
+            copy[i].resize(n);
             for (int j = 0; j < n; j++) {
                 copy[i][j] = matrix[i][j];
             }
@@ -203,28 +198,29 @@ public:
         return copy;
     }
     
-    static double** copyRaggedMatrix(vector<vector<double> >& matrix, int n, int k) {
-        double** copy = new double*[k];
-        for (int i=0; i<k; i++) copy[i] = new double[n];
-       
+    static vector<vector<double> > copyRaggedMatrix(double** matrix, int n, int k) {
+        vector<vector<double> > copy(k);
         
-        for (int i = 1; i < k; i++)
+        for (int i = 0; i < k; i++) {
+            copy[i].resize(n);
             for (int j = 0; j < n; j++)
                 copy[i][j] = 0;
-            
-        for (int i = 1; i < k; i++)
+        }
+        
+        for (int i = 1; i < k; i++) {
             for (int j = 0; j < i; j++) {
                 copy[i][j] = matrix[i][j];
                 copy[j][i] = matrix[i][j];
             }
-            
+        }
+        
         return copy;
     }
    
-    static void selfprod(double** d, int n, int k, double** result)
+    static void selfprod(vector<vector<double> >& d, vector<vector<double> >& result)
     {
-        //int k = d.length;
-        //int n = d[0].length;
+        int k = d.size();
+        int n = d[0].size();
         for (int i = 0; i < k; i++) {
             for (int j = 0; j <= i; j++) {
                 double sum = 0.0;
@@ -242,11 +238,12 @@ public:
         int d = svecs.size();
         
         for (int m = 0; m < d; m++) svals[m] = normalize(svecs[m]);
-        double[][] K = new double[k][k];
+        vector<vector<double> > K(k);
+        for (int i=0; i<k; i++) K[i].resize(k);
         
-        Data.selfprod(matrix, K);
-        double[][] temp = new double[d][k];
-        
+        selfprod(matrix, K);
+        vector<vector<double> > temp(d);
+        for (int i=0; i<d; i++) temp[i].resize(k);
         
         for (int m = 0; m < d; m++) {
             for (int i = 0; i < k; i++) {
@@ -255,28 +252,138 @@ public:
                 }
             }
         }
-        for (int m = 0; m < d; m++) svals[m] = Data.normalize(svecs[m]);
+        for (int m = 0; m < d; m++) svals[m] = normalize(svecs[m]);
         eigen(K, temp, svals);
-        double[][] tempOld = new double[d][k];
+        
+        vector<vector<double> > tempOld(d);
+        for (int i=0; i<d; i++) tempOld[i].resize(k);
+        
         for (int m = 0; m < d; m++)
             for (int i = 0; i < k; i++)
                 for (int j = 0; j < k; j++)
                     tempOld[m][j] += K[i][j] * temp[m][i];
-        for (int m = 0; m < d; m++) { svals[m] = Data.normalize(tempOld[m]);
+        for (int m = 0; m < d; m++) {
+            svals[m] = normalize(tempOld[m]);
         }
         
         for (int m = 0; m < d; m++) {
-            svals[m] = Math.sqrt(svals[m]);
+            svals[m] = sqrt(svals[m]);
             for (int i = 0; i < n; i++) {
-                svecs[m][i] = 0.0D;
+                svecs[m][i] = 0.0;
                 for (int j = 0; j < k; j++) {
                     svecs[m][i] += matrix[j][i] * temp[m][j];
                 }
             }
         }
-        for (int m = 0; m < d; m++) { Data.normalize(svecs[m]);
+        for (int m = 0; m < d; m++) {
+            normalize(svecs[m]);
         }
     }
+    
+    /*
+    
+    public static double[][] landmarkMatrix(double[][] matrix)
+    {
+        int k = matrix.length;
+        int n = matrix[0].length;
+        double[][] result = new double[k][k];
+        int[] index = landmarkIndices(matrix);
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < k; j++) {
+                result[i][j] = matrix[i][index[j]];
+            }
+        }
+        return result;
+    }
+    
+    public static double[][] pivotRows(double[][] matrix, int k)
+    {
+        int K = matrix.length;
+        if (k >= K) {
+            return matrix;
+        }
+        int n = matrix[0].length;
+        System.out.println(n + " " + k + " " + K);
+        double[][] result = new double[k][n];
+        int pivot = 0;
+        double[] min = new double[n];
+        for (int i = 0; i < n; i++)
+            min[i] = Double.MAX_VALUE;
+        for (int i = 0; i < k; i++) {
+            int argmax = 0;
+            for (int j = 0; j < n; j++) {
+                result[i][j] = matrix[i][pivot];
+                min[j] = Math.min(min[j], result[i][j]);
+                if (min[j] > min[argmax]) {
+                    argmax = j;
+                }
+            }
+            pivot = argmax;
+        }
+        return result;
+    }
+    
+    public static void scale(double[][] x, double[][] D)
+    {
+        int n = x[0].length;
+        int d = x.length;
+        double xysum = 0.0D;
+        double dsum = 0.0D;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                double dxy = 0.0D;
+                for (int k = 0; k < d; k++) dxy += Math.pow(x[k][i] - x[k][j], 2.0D);
+                xysum += Math.sqrt(dxy);
+                dsum += D[i][j];
+            }
+        }
+        dsum /= xysum;
+        for (int i = 0; i < n; i++) {
+            for (int k = 0; k < d; k++) { x[k][i] *= dsum;
+            }
+        }
+    }
+    
+    public static double[][] maxminPivotMatrix(double[][] matrix, int k)
+    {
+        int n = matrix[0].length;
+        double[][] result = new double[k][n];
+        int pivot = 0;
+        double[] min = new double[n];
+        for (int i = 0; i < n; i++) min[i] = Double.MAX_VALUE;
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < n; j++) {
+                result[i][j] = distance(matrix, pivot, j);
+            }
+            pivot = 0;
+            for (int j = 0; j < n; j++) {
+                min[j] = Math.min(min[j], result[i][j]);
+                if (min[j] > min[pivot]) pivot = j;
+            }
+        }
+        return result;
+    }
+  
+    public static double[][] randomPivotMatrix(double[][] matrix, int k)
+    {
+        int n = matrix[0].length;
+        double[][] result = new double[k][n];
+        boolean[] isPivot = new boolean[n];
+        int pivot = 0;
+        for (int i = 0; i < k; i++) {
+            do {
+                pivot = (int)(Math.random() * n);
+            } while (
+                     
+                     isPivot[pivot] != 0);
+            isPivot[pivot] = true;
+            for (int j = 0; j < n; j++) {
+                result[i][j] = distance(matrix, pivot, j);
+            }
+        }
+        return result;
+    }
+    */
 };
 
 #endif

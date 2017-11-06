@@ -46,7 +46,9 @@
 
 /* If an integer is given, it fixes the seed. Defaults to the global numpy random number generator. */
 static int random_state = -1;
+static int reset_random = 0;
 void setrandomstate(int seed);
+void resetrandom();
 double uniform(void);
 
 /* Chapter 2 */

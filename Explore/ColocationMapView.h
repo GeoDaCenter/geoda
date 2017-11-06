@@ -51,7 +51,8 @@ public:
     void OnRightUp(wxMouseEvent& ev);
     void OnPopupClick( wxCommandEvent& event );
     void OnSchemeSelect( wxCommandEvent& event );
-  
+ 
+    virtual wxString _printConfiguration();
     void clear_colo_control();
     void add_colo_control(bool is_new=false);
     wxColour get_a_color(wxString label);

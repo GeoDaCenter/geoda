@@ -50,7 +50,8 @@ public:
     void OnDistanceChoice(wxCommandEvent& event);
     
     virtual void InitVariableCombobox(wxListBox* var_box);
-    
+   
+    virtual wxString _printConfiguration();
 protected:
     wxCheckBox* chk_seed;
     wxChoice* combo_method;

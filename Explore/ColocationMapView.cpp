@@ -406,6 +406,10 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
     container->Layout();
 }
 
+wxString ColocationSelectDlg::_printConfiguration()
+{
+    return "";
+}
 
 void ColocationSelectDlg::OnClickColor( wxMouseEvent& event)
 {
