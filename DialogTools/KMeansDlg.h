@@ -53,7 +53,7 @@ public:
     
     virtual wxString _printConfiguration();
     
-    void doRun(int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals);
+    void doRun(int s1, int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals);
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;

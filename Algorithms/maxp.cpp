@@ -49,15 +49,16 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         init_test();
     }
     
+    // init solution
     if (rnd_seed<0) {
         unsigned int initseed = (unsigned int) time(0);
         srand(initseed);
     } else {
         srand(rnd_seed);
     }
+    int s1 = rand();
+    init_solution(-1, s1);
     
-    // init solution
-    init_solution();
     
     if (p == 0)
         feasible = false;

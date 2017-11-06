@@ -230,6 +230,10 @@ void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
+        GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "0");
+        
         seedButton->Disable();
     }
 }
@@ -293,7 +297,7 @@ void KMeansDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
-void KMeansDlg::doRun(int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals)
+void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     char method = 'a'; // mean, 'm' median
 	if (method_sel == 1) method = 'm';
@@ -307,8 +311,9 @@ void KMeansDlg::doRun(int ncluster, int npass, int n_maxiter, int method_sel, in
     double error;
     int ifound;
     int* clusterid = new int[rows];
-    
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound);
+   
+    int s2 = s1==0 ? 0 : s1 + npass;
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
     
     vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
@@ -351,6 +356,9 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
    
     if (GdaConst::use_gda_user_seed) {
         setrandomstate(GdaConst::gda_user_seed);
+        resetrandom();
+    } else {
+        setrandomstate(-1);
         resetrandom();
     }
     
@@ -421,7 +429,12 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<n_threads; i++) {
         int a = dividers[i];
         int b = dividers[i+1];
-        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, ncluster, b-a+1, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
+        int s1 = 0;
+        if (GdaConst::use_gda_user_seed) {
+            srand(GdaConst::gda_user_seed + a);
+            s1 = rand();
+        }
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, s1, ncluster, b-a+1, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }

@@ -405,6 +405,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     if (GdaConst::use_gda_user_seed) {
         setrandomstate(GdaConst::gda_user_seed);
         resetrandom();
+    } else {
+        setrandomstate(-1);
+        resetrandom();
     }
     
     // Get input data

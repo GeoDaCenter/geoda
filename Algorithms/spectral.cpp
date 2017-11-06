@@ -103,8 +103,10 @@ void SpectralClustering::clusterKmeans(int numClusters) {
     
     double error;
     int ifound;
-    
-    kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0);
+   
+    int s1 =0;
+    int s2 =0;
+    kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
     
@@ -261,8 +263,9 @@ void Spectral::kmeans()
     
     double error;
     int ifound;
-    
-    kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0);
+    int s1=0;
+    int s2 =0;
+    kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
     

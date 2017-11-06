@@ -48,6 +48,7 @@ void setrandomstate(int seed)
 void resetrandom()
 {
     reset_random = 1;
+    uniform();
 }
 
 /* ************************************************************************ */
@@ -1806,6 +1807,30 @@ A double-precison number between 0.0 and 1.0.
   return z*scale;
 }
 
+double uniform(int& s1, int& s2)
+{
+    if (s1 == 0 || s2 == 0) return uniform();
+    
+    int z;
+    static const int m1 = 2147483563;
+    static const int m2 = 2147483399;
+    const double scale = 1.0/m1;
+    
+    do
+    { int k;
+        k = s1/53668;
+        s1 = 40014*(s1-k*53668)-k*12211;
+        if (s1 < 0) s1+=m1;
+        k = s2/52774;
+        s2 = 40692*(s2-k*52774)-k*3791;
+        if(s2 < 0) s2+=m2;
+        z = s1-s2;
+        if(z < 1) z+=(m1-1);
+    } while (z==m1); /* To avoid returning 1.0 */
+    
+    return z*scale;
+}
+
 /* ************************************************************************ */
 
 static int binomial(int n, double p)
@@ -1982,7 +2007,7 @@ nearest(int d_idx, int n_cluster, double *d2,
 }
 
 static void kplusplusassign (int nclusters, int ndata, int nelements, int clusterid[], double** data,  double** cdata, int** mask, int** cmask,
-                             double weight[], int transpose, char dist)
+                             double weight[], int transpose, char dist, int& s1, int& s2)
 {
     /* Set the metric function as indicated by dist */
     double (*metric)
@@ -2003,7 +2028,9 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     int* cand_center_index = (int*)malloc(sizeof(int) * n_local_trials);
 
     // random pick first center
-    int idx = (int) (uniform() * nelements);
+    int idx;
+    if (s1==0 || s2==0) idx = (int) (uniform() * nelements);
+    else idx = (int) (uniform(s1, s2) * nelements);
     for ( j=0; j<ndata; j++) {
         cdata[0][j] = data[idx][j];
         cmask[0][j] = 1;
@@ -2023,7 +2050,8 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
         // Choose center candidates by sampling with probability proportional
         // to the squared distance to the closest existing center
         for (i = 0; i<n_local_trials; i++) {
-            sum = uniform() * current_pot;
+            if (s1 ==0 || s2==0) sum = uniform() * current_pot;
+            else sum = uniform(s1, s2) * current_pot;
             // pick next center using distrubtion of distance to center
             for (j = 0; j < nelements; j++) {
                 sum -= d[j];
@@ -2499,7 +2527,7 @@ static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound)
+  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound, int& s1, int& s2)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2529,7 +2557,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
         randomassign (nclusters, nelements, tclusterid);
     } else {
         /* Perform the kmeans++ algorithm: finding init centers */
-        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist);
+        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist, s1, s2);
     }
 
     for (i = 0; i < nclusters; i++) counts[i] = 0;
@@ -2742,7 +2770,7 @@ void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, dou
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
   int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound)
+  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int& s1, int& s2)
 /*
 Purpose
 =======
@@ -2893,11 +2921,11 @@ number of clusters is larger than the number of elements being clustered,
     /* kmeans but with KMeans++ algorithm*/
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                      transpose, 1, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                     tclusterid, counts, mapping, bound_vals, min_bound);
+                     tclusterid, counts, mapping, bound_vals, min_bound, s1, s2);
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                     transpose, 0, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                    tclusterid, counts, mapping, bound_vals, min_bound);
+                    tclusterid, counts, mapping, bound_vals, min_bound, s1, s2);
     
   /* Deallocate temporarily used space */
   if (npass > 1)
