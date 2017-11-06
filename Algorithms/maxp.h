@@ -193,7 +193,7 @@ protected:
     
     void run(int a, int b, uint64_t seed_start = 0);
     
-    void run_threaded();
+    void run_threaded(uint64_t seed);
     
     //! A protected member function: init_solution(void).
     /*!

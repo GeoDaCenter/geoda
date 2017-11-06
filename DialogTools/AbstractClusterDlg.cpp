@@ -645,7 +645,7 @@ vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<
                 }
             }
             double mean = n > 0 ? sum / n : 0;
-            mean = mean * weight[c];
+            if (weight) mean = mean * weight[c];
             means.push_back(mean);
         }
         result[i] = means;

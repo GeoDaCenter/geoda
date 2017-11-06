@@ -31,7 +31,6 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../logger.h"
 #include "../GenUtils.h"
-#include "cluster.h"
 #include "maxp.h"
 
 using namespace boost;
@@ -56,7 +55,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
     } else {
         srand(rnd_seed);
     }
-    int s1 = rand();
+    uint64_t s1 = rand();
     init_solution(-1, s1);
     
     
@@ -73,7 +72,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         
         // parallize following block, comparing the objective_function() return values
         //for (int i=0; i<initial; i++)  init_solution(i);
-        run_threaded();
+        run_threaded(s1);
         
         for (int i=0; i<initial; i++) {
             vector<vector<int> >& current_regions = regions_group[i];
@@ -83,9 +82,11 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
                 double val = initial_wss[i];
                 
                 wxString str;
-                str << "initial solution";
+                str << "initial solution:";
                 str << i;
+                str << ",";
                 str << val;
+                str << ",";
                 str << best_val;
                 LOG_MSG(str.ToStdString());
                 
@@ -113,15 +114,16 @@ Maxp::~Maxp()
 
 void Maxp::run(int a, int b, uint64_t seed_start)
 {
-    //wxString msg = wxString::Format("Maxp:run(%d, %d)", a, b);
-    //LOG_MSG(msg.mb_str());
-    
+    wxString msg = wxString::Format("Maxp:run(%d, %d, %lld)", a, b, seed_start);
+    LOG_MSG(msg.mb_str());
+    uint64_t seed = seed_start;
     for (int i=a; i<b; i++) {
-        init_solution(i, seed_start);
+        init_solution(i, seed);
+        seed =  seed + MAX_ATTEMPTS * (num_obs *3);
     }
 }
 
-void Maxp::run_threaded()
+void Maxp::run_threaded(uint64_t seed)
 {
     int nCPUs = wxThread::GetCPUCount();
     int quotient = initial / nCPUs;
@@ -129,7 +131,7 @@ void Maxp::run_threaded()
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     boost::thread_group threadPool;
-    uint64_t seed_start = rnd_seed;
+    uint64_t seed_start = seed;
     for (int i=0; i<tot_threads; i++) {
         int a=0;
         int b=0;
@@ -141,7 +143,7 @@ void Maxp::run_threaded()
             b = a+quotient-1;
         }
         
-        seed_start = seed_start + MAX_ATTEMPTS * (num_obs *3);
+        seed_start = seed_start + MAX_ATTEMPTS * (num_obs *3) * (b-a+1);
         boost::thread* worker = new boost::thread(boost::bind(&Maxp::run, this, a, b, seed_start));
         threadPool.add_thread(worker);
     }
@@ -164,20 +166,25 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
     vector<vector<int> > _regions;
     unordered_map<int, int> _area2region;
     
-    if (seed_start > 0) srand(seed_start);
+    //if (seed_start > 0) srand(seed_start);
     
     while (solving && attempts <= MAX_ATTEMPTS) {
-        vector<vector<int> > regions;
+        vector<vector<int> > regn;
         list<int> enclaves;
         list<int> candidates;
         if (seeds.empty()) {
-            vector<int> _candidates;
-            for (int i=0; i<num_obs;i++) _candidates.push_back(i);
-            random_shuffle (_candidates.begin(), _candidates.end());
-    
+            vector<int> _candidates(num_obs);
+            for (int i=0; i<num_obs;i++) _candidates[i] = i;
+            //random_shuffle (_candidates.begin(), _candidates.end());
+           
+            for (int i=num_obs-1; i>=1; --i) {
+                int k = Gda::ThomasWangHashDouble(seed_start++) * (i+1);
+                if (k != i) std::iter_swap(_candidates.begin() + k, _candidates.begin()+i);
+            }
+            
             if (test) _candidates = test_get_random();
             
-            for (int i=0; i<num_obs;i++) candidates.push_back(_candidates[i]);
+            for (int i=0; i<num_obs;i++) candidates.push_back( _candidates[i] );
         } else {
             //nonseeds = [i for i in self.w.id_order if i not in seeds]
             // candidates.extend(nonseeds)
@@ -209,7 +216,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
             while (building_region) {
                 // check if floor is satisfied
                 if (check_floor(region)) {
-                    regions.push_back(region);
+                    regn.push_back(region);
                     building_region = false;
                 } else {
                     vector<int> potential;
@@ -232,7 +239,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
                     }
                     if (!potential.empty()) {
                         // add a random neighbor
-                        int neigID = rand() % potential.size();//(int) (uniform() * potential.size()); //0
+                        int neigID = Gda::ThomasWangHashDouble(seed_start++) * potential.size();
                         if (test ) {
                             neigID = test_random_numbers.front();
                             test_random_numbers.pop_front();
@@ -254,7 +261,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         }
         // check to see if any regions were made before going to enclave stage
         bool feasible =false;
-        if (!regions.empty())
+        if (!regn.empty())
             feasible = true;
         else {
             attempts += 1;
@@ -262,9 +269,9 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         }
         // self.enclaves = enclaves[:]
         unordered_map<int, int> a2r;
-        for (int i=0; i<regions.size(); i++) {
-            for (int j=0; j<regions[i].size(); j++) {
-                a2r[ regions[i][j] ] = i;
+        for (int i=0; i<regn.size(); i++) {
+            for (int j=0; j<regn[i].size(); j++) {
+                a2r[ regn[i][j] ] = i;
             }
         }
         int encCount = enclaves.size();
@@ -292,7 +299,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
             
             if (!candidates.empty()) {
                 // add enclave to random region
-                int regID = (int) (uniform() * candidates.size());
+                int regID = Gda::ThomasWangHashDouble(seed_start++) * candidates.size();
                 if (test)   {
                     regID = enclave_random_number.front();
                     enclave_random_number.pop_front();
@@ -300,7 +307,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
                 
                 int rid = candidates[regID];
                 
-                regions[rid].push_back(enclave);
+                regn[rid].push_back(enclave);
                 a2r[enclave] = rid;
                 
                 // structure to loop over enclaves until no more joining is possible
@@ -318,8 +325,8 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         
         if (feasible) {
             solving = false;
-            p = regions.size();
-            _regions = regions;
+            p = regn.size();
+            _regions = regn;
             _area2region = a2r;
             objective_val = objective_function(_regions);
         } else {
