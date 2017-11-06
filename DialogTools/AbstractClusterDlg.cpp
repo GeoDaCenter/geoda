@@ -662,7 +662,7 @@ double AbstractClusterDlg::_getTotalSumOfSquares()
     for (int i=0; i<columns; i++) {
         vector<double> vals;
         for (int j=0; j<rows; j++) {
-            if (mask[j][i] == 1) vals.push_back(input_data[j][i] * weight[i]);
+            if (mask[j][i] == 1) vals.push_back(input_data[j][i]);
         }
         double ss = GenUtils::SumOfSquares(vals);
         ssq += ss;
@@ -695,7 +695,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
         vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
-            if (mask[r][i] == 1) vals.push_back(input_data[r][i]*weight[i]);
+            if (mask[r][i] == 1) vals.push_back(input_data[r][i]);
         }
         double ss = GenUtils::SumOfSquares(vals);
         ssq += ss;
