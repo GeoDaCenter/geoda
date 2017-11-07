@@ -96,7 +96,14 @@ void MaxpDlg::CreateControls()
     gbox->Add(combo_weights, 1, wxEXPAND);
    
 	// Minimum Bound Control
-    AddMinBound(panel, gbox, false);
+    AddMinBound(panel, gbox);
+
+    // Min regions
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"), wxDefaultPosition, wxSize(128,-1));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
+    txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_minregions, 1, wxEXPAND);
     
     wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Groups:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -229,15 +236,17 @@ void MaxpDlg::CreateControls()
 
 }
 
-void MaxpDlg::OnFloorCheck(wxCommandEvent& event)
+void MaxpDlg::OnCheckMinBound(wxCommandEvent& event)
 {
     wxLogMessage("On MaxpDlg::OnLISACheck");
-    bool use_floor = chk_floor->GetValue();
-    
-    if (use_floor) {
-        combo_floor->Enable();
+    AbstractClusterDlg::OnCheckMinBound(event);
+   
+    if (chk_floor->IsChecked()) {
+        st_minregions->Disable();
+        txt_minregions->Disable();
     } else {
-        combo_floor->Disable();
+        st_minregions->Enable();
+        txt_minregions->Enable();
     }
 }
 
@@ -417,14 +426,6 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
-    wxString str_floor = txt_floor->GetValue();
-    if (str_floor.IsEmpty()) {
-        wxString err_msg = _("Please enter minimum bound value");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
     wxString str_initial = m_iterations->GetValue();
     if (str_initial.IsEmpty()) {
         wxString err_msg = _("Please enter iteration number");
@@ -467,8 +468,34 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     
 	// Get Bounds
     double min_bound = GetMinBound();
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    } else {
+        wxString str_floor = txt_minregions->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
     double* bound_vals = GetBoundVals();
-    
+    if (bound_vals == NULL) {
+        wxString str_min_regions = txt_minregions->GetValue();
+        long val_min_regions;
+        if (str_min_regions.ToLong(&val_min_regions)) {
+            min_bound = val_min_regions;
+        }
+        bound_vals = new double[rows];
+        for (int i=0; i<rows; i++) bound_vals[i] = 1;
+    }
+        
 	// Get iteration numbers
     int initial = 99;
     long value_initial;
