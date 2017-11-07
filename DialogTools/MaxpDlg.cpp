@@ -69,7 +69,7 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(780,720), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -383,27 +383,27 @@ void MaxpDlg::OnClose(wxCloseEvent& ev)
 wxString MaxpDlg::_printConfiguration()
 {
     wxString txt;
-    /*
-     txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
-     
-     if (chk_floor && chk_floor->IsChecked()) {
-     int idx = combo_floor->GetSelection();
-     wxString nm = name_to_nm[combo_floor->GetString(idx)];
-     txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
-     }
-     
-     txt << "Transformation:\t";
-     int transform = combo_tranform->GetSelection();
-     if (transform == 0) txt << "Raw\n";
-     else if (transform == 1) txt << "Demean\n";
-     else if (transform == 2) txt << "Standardize\n";
-     
-     txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
-     txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";
-     txt << "Maximal iterations:\t" << m_iterations->GetValue() << "\n";
-     txt << "Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
-     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
-     */
+    
+    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked()) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+    } else {
+        txt << "Minimum # of observations per region:\t" << txt_minregions->GetValue() << "\n";
+    }
+   
+    if (chk_lisa->IsChecked()) {
+        txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection());
+    }
+    
+    txt << "# iterations:\t" << m_iterations->GetValue() << "\n";
+    
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    
     return txt;
 }
 

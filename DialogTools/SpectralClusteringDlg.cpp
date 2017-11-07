@@ -394,27 +394,20 @@ void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 wxString SpectralClusteringDlg::_printConfiguration()
 {
     wxString txt;
-    /*
-     txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
-     
-     if (chk_floor && chk_floor->IsChecked()) {
-     int idx = combo_floor->GetSelection();
-     wxString nm = name_to_nm[combo_floor->GetString(idx)];
-     txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
-     }
-     
-     txt << "Transformation:\t";
-     int transform = combo_tranform->GetSelection();
-     if (transform == 0) txt << "Raw\n";
-     else if (transform == 1) txt << "Demean\n";
-     else if (transform == 2) txt << "Standardize\n";
-     
-     txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
-     txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";
-     txt << "Maximal iterations:\t" << m_iterations->GetValue() << "\n";
-     txt << "Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
-     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
-     */
+    txt << "Number of cluster:\t" << combo_n->GetString(combo_n->GetSelection()) << "\n";
+    
+    txt << "Gamm:\t" << m_gamma->GetValue();
+    
+    txt << "Kernel:\t" << combo_kernel->GetString(combo_kernel->GetSelection()) << "\n";
+    
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    
+    txt << "(K-Means) Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << "(K-Means) Initialization re-runs:\t" << m_pass->GetValue() << "\n";
+    txt << "(K-Means) Maximal iterations:\t" << m_iterations->GetValue() << "\n";
+    txt << "(K-Means) Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
     return txt;
 }
 
