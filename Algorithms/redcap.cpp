@@ -295,6 +295,8 @@ void SpatialContiguousTree::Split()
 
 bool SpatialContiguousTree::quickCheck(RedCapNode* node, RedCapNode* exclude_node)
 {
+    if (controls == NULL) return false;
+    
     double check_val = 0;
     unordered_map<int, bool> visited;
     

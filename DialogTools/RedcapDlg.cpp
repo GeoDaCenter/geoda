@@ -121,16 +121,16 @@ void RedcapDlg::CreateControls()
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices20[] = {"First-Order-SLK", "First-Order-ALK", "First-Order-CLK","Full-Order-SLK", "Full-Order-ALK", "Full-Order-CLK"};
-    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                wxSize(200,-1), 6, choices20);
+    //wxString choices20[] = {"First-Order-SLK", "First-Order-ALK", "First-Order-CLK","Full-Order-SLK", "Full-Order-ALK", "Full-Order-CLK"};
+    wxString choices20[] = {"First-Order-SLK", "First-Order-ALK"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices20);
     combo_method->SetSelection(0);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
     
     // Minimum Bound Control
-    AddMinBound(panel, gbox, false);
+    AddMinBound(panel, gbox);
 
 	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -408,12 +408,14 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    wxString str_floor = txt_floor->GetValue();
-    if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
-        wxString err_msg = _("Please enter minimum bound value");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
     }
 
     wxString field_name = m_textbox->GetValue();
@@ -473,8 +475,20 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
 		z.push_back(vals);
 	}
     std::vector<bool> undefs(rows, false);
-    FirstOrderSLKRedCap* redcap = new FirstOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
-    //AbstractRedcap* redcap = new FirstOrderALKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
+    
+    AbstractRedcap* redcap = NULL;
+    int method_idx = combo_method->GetSelection();
+    if (method_idx == 0) 
+        redcap = new FirstOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 1)
+        redcap = new FirstOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+   
+    if (redcap==NULL) {
+        delete[] bound_vals;
+        bound_vals = NULL;
+        return;
+    }
+    
     redcap->Partitioning(n_regions);
     
     vector<vector<int> > cluster_ids = redcap->GetRegions();
