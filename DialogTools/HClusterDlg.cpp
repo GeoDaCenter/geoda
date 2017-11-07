@@ -433,9 +433,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
     int transpose = 0; // row wise
     int* clusterid = new int[rows];
-    double* weight = new double[columns];
-    for (int j=0; j<columns; j++){ weight[j] = 1;}
-    
     
     int method_sel = m_method->GetSelection();
     char method_choices[] = {'s','m','a','c'};
@@ -459,9 +456,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     }
     delete[] clusterid;
     clusterid = NULL;
-    
-    // summary
-    //CreateSummary(clusters);
     
     // draw dendrogram
     m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);

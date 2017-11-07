@@ -365,6 +365,8 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
 
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 {
+    CleanData();
+    
     bool use_centroids = false;
    
     if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
@@ -449,11 +451,6 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             weight = GetWeights(columns);
         
         // init input_data[rows][cols]
-        if (input_data) {
-            for (int i=0; i<rows; i++) delete[] input_data[i];
-            delete[] input_data;
-            input_data = NULL;
-        }
         input_data = new double*[rows];
         mask = new int*[rows];
         for (int i=0; i<rows; i++) {

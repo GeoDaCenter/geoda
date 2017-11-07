@@ -393,8 +393,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         n_maxiter = value;
     }
     
-    int* clusterid = new int[rows];
-    
     // start working
     int n_threads = boost::thread::hardware_concurrency();
     if (n_threads > npass) n_threads = 1;
@@ -481,20 +479,6 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
 
     // summary
     CreateSummary(cluster_ids);
-    
-    // clean memory
-    for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
-        //clusters.push_back(clusterid[i] + 1);
-        //clusters_undef.push_back(ifound == -1);
-    }
-    delete[] input_data;
-    delete[] weight;
-    delete[] mask;
-    input_data = NULL;
-    weight = NULL;
-    mask = NULL;
     
     // save to table
     int time=0;
