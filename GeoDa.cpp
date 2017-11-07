@@ -1392,6 +1392,19 @@ void GdaFrame::InitWithProject()
 	wxLogMessage("Click GdaFrame::InitWithProject()");
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
+   
+    // close existing OpenDatasourceDialog
+    wxWindowList::compatibility_iterator node_ds = wxTopLevelWindows.GetFirst();
+    while (node_ds) {
+        wxWindow* win = node_ds->GetData();
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+            if (w->GetType() == 0) {
+                w->Hide();
+                break;
+            }
+        }
+        node_ds = node_ds->GetNext();
+    }
     
     // This call is very improtant because we need the wxGrid to
     // take ownership of the TableBase instance (due to bug in wxWidgets)
