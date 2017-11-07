@@ -375,7 +375,7 @@ wxString RedcapDlg::_printConfiguration()
     
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
-    txt << "Distance function:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     return txt;
 }
 
