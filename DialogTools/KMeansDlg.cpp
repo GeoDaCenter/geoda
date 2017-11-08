@@ -332,14 +332,10 @@ wxString KMeansDlg::_printConfiguration()
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     }
     
-    txt << "Transformation:\t";
-    int transform = combo_tranform->GetSelection();
-    if (transform == 0) txt << "Raw\n";
-    else if (transform == 1) txt << "Demean\n";
-    else if (transform == 2) txt << "Standardize\n";
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
    
     txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
     txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";

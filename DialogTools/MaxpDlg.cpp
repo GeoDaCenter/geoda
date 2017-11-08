@@ -389,13 +389,13 @@ wxString MaxpDlg::_printConfiguration()
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     } else {
         txt << "Minimum # of observations per region:\t" << txt_minregions->GetValue() << "\n";
     }
    
     if (chk_lisa->IsChecked()) {
-        txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection());
+        txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
     }
     
     txt << "# iterations:\t" << m_iterations->GetValue() << "\n";

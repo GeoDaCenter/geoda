@@ -368,10 +368,10 @@ wxString RedcapDlg::_printConfiguration()
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")";
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     }
     
-    txt << "Maximum # of regions:\t" << m_textbox->GetValue();
+    txt << "Maximum # of regions:\t" << m_textbox->GetValue() << "\n";
     
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
