@@ -10,6 +10,7 @@
 #include <cmath>
 #include <algorithm>    // std::max
 
+#include "../GdaConst.h"
 using namespace std;
 
 
@@ -77,11 +78,15 @@ public:
         for (int i = 0; i < x.size(); i++) normalize(x[i]);
     }
     
-    static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals) {
+    static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
+        
+        if ( GdaConst::use_gda_user_seed) {
+            srand(GdaConst::gda_user_seed);
+        }
+        
         int d = evals.size();
         int k = matrix.size();
         double eps = 1.0E-6;
-        int maxiter = 100;
         for (int m = 0; m < d; m++) {
             if (m > 0)
                 for (int i = 0; i < k; i++)
@@ -93,7 +98,7 @@ public:
             
             double r = 0.0;
             
-            for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
+            for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
                 vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
                     for (int j = 0; j < k; j++)
@@ -162,6 +167,9 @@ public:
     }
     
     static void randomize(vector<vector<double> >& matrix) {
+        if ( GdaConst::use_gda_user_seed) {
+            srand(GdaConst::gda_user_seed);
+        }
         int k = matrix.size();
         int n = matrix[0].size();
         for (int i = 0; i < k; i++) {
@@ -232,7 +240,7 @@ public:
         }
     }
     
-    static void svd(vector<vector<double> >& matrix, vector<vector<double> >& svecs, vector<double>& svals)
+    static void svd(vector<vector<double> >& matrix, vector<vector<double> >& svecs, vector<double>& svals, int maxiter=100)
     {
         int k = matrix.size();
         int n = matrix[0].size();
@@ -254,7 +262,7 @@ public:
             }
         }
         for (int m = 0; m < d; m++) svals[m] = normalize(svecs[m]);
-        eigen(K, temp, svals);
+        eigen(K, temp, svals, maxiter);
         
         vector<vector<double> > tempOld(d);
         for (int i=0; i<d; i++) tempOld[i].resize(k);
@@ -298,7 +306,8 @@ public:
         }
         return result;
     }
-    
+   
+    /*
     static vector<vector<double> > pivotRows(vector<vector<double> >& matrix, int k)
     {
         int K = matrix.size();
@@ -311,22 +320,22 @@ public:
         for (int i=0; i<n; i++) result[i].resize(n);
         
         int pivot = 0;
-        vector<double> min(n);
+        vector<double> _min(n);
         for (int i = 0; i < n; i++)
-            min[i] = DBL_MAX;
+            _min[i] = DBL_MAX;
         for (int i = 0; i < k; i++) {
             int argmax = 0;
             for (int j = 0; j < n; j++) {
                 result[i][j] = matrix[i][pivot];
-                min[j] = std::min(min[j], result[i][j]);
-                if (min[j] > min[argmax]) {
+                _min[j] = std::min(_min[j], result[i][j]);
+                if (_min[j] > _min[argmax]) {
                     argmax = j;
                 }
             }
             pivot = argmax;
         }
         return result;
-    }
+    }*/
     
     static void scale(vector<vector<double> >& x, vector<vector<double> >& D)
     {

@@ -22,7 +22,7 @@ vector<vector<double> >& AbstractMDS::GetResult()
     return result;
 }
 
-void AbstractMDS::fullmds(vector<vector<double> >& d, int dim)
+void AbstractMDS::fullmds(vector<vector<double> >& d, int dim, int maxiter)
 {
     int k = d.size();
     int n = d[0].size();
@@ -34,7 +34,7 @@ void AbstractMDS::fullmds(vector<vector<double> >& d, int dim)
     DataUtils::randomize(result);
     vector<double> evals(dim);
     
-    DataUtils::eigen(d, result, evals);
+    DataUtils::eigen(d, result, evals, maxiter);
     for (int i = 0; i < dim; i++) {
         evals[i] = sqrt(evals[i]);
         for (int j = 0; j < k; j++) {
@@ -64,21 +64,21 @@ vector<double> AbstractMDS::pivotmds(vector<vector<double> >& input, vector<vect
     return evals;
 }
 
-FastMDS::FastMDS(vector<vector<double> >& distances, int dim)
+FastMDS::FastMDS(vector<vector<double> >& distances, int dim, int maxiter)
 : AbstractMDS(distances.size(), dim)
 {
     int k = distances.size();
     result.resize(dim);
     for (int i=0; i<dim; i++) result[i].resize(k);
     
-    result = classicalScaling(distances, dim);
+    result = classicalScaling(distances, dim, maxiter);
 }
 
 FastMDS::~FastMDS()
 {
 }
 
-vector<vector<double> > FastMDS::classicalScaling(vector<vector<double> >& d, int dim)
+vector<vector<double> > FastMDS::classicalScaling(vector<vector<double> >& d, int dim, int maxiter)
 {
     vector<vector<double> > dist = d; // deep copy
     int n = d[0].size();
@@ -95,11 +95,11 @@ vector<vector<double> > FastMDS::classicalScaling(vector<vector<double> >& d, in
     for (int i=0; i<dim; i++) result[i].resize(n);
     DataUtils::randomize(result);
     
-    vector<double> lambds = lmds(dist, result);
+    vector<double> lambds = lmds(dist, result, maxiter);
     return result;
 }
 
-vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >& result)
+vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >& result, int maxiter)
 {
     
     vector<vector<double> > distances = P; // deep copy
@@ -135,7 +135,7 @@ vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >
     
     vector<vector<double> > E = K;
     
-    DataUtils::eigen(K, temp, lambda);
+    DataUtils::eigen(K, temp, lambda, maxiter);
     for (int i = 0; i < temp.size(); i++) {
         for (int j = 0; j < temp[0].size(); j++) {
             temp[i][j] *= sqrt(lambda[i]);

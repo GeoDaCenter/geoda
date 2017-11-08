@@ -57,6 +57,7 @@ public:
     Spectral() : centers(2), kernel_type(1), normalise(1), max_iters(1000), gamma(0.001), constant(1.0), order(2.0), method('a'), dist('e'), npass(10), n_maxiter(300) {}
     explicit Spectral(MatrixXd& d) : centers(2), kernel_type(1), normalise(1), max_iters(1000), gamma(0.001), constant(1.0), order(2.0), method('a'), dist('e'), npass(10), n_maxiter(300) {X = d;}
     
+    void set_data(vector<vector<double> >& distances);
     void set_data(double** input_data, int nrows, int  ncols);
     void set_centers(const unsigned int i){centers = i;};
     void set_kernel(const unsigned int i){kernel_type = i;};
@@ -65,13 +66,15 @@ public:
     void set_constant(const double i){constant = i;};
     void set_order(const double i){order = i;};
     void set_max_iters(const unsigned int i){max_iters = i;};
-    void cluster();
+    void cluster(int maxiter=0);
     const std::vector<wxInt64> &get_assignments() const {return assignments;};
     
 private:
+    void affinity_matrix();
     void generate_kernel_matrix();
     double kernel(const VectorXd& a, const VectorXd& b);
     void eigendecomposition();
+    void fast_eigendecomposition();
     void kmeans();
     MatrixXd X, K, eigenvectors;
     VectorXd eigenvalues, cumulative;

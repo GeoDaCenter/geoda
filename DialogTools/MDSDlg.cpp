@@ -351,8 +351,12 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
         for (int i = 1; i < rows; i++) free(ragged_distances[i]);
         free(ragged_distances);
-        
-        FastMDS mds(distances, 2);
+       
+        wxString str_iterations;
+        str_iterations = txt_poweriteration->GetValue();
+        long l_iterations = 0;
+        str_iterations.ToLong(&l_iterations);
+        FastMDS mds(distances, 2, (int)l_iterations);
         results = mds.GetResult();
         
     } else {
