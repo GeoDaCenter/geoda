@@ -4,6 +4,7 @@
 #define __GEODA_CENTER_DATAUTILS_H
 
 #include <vector>
+#include <cfloat>
 #include <stdlib.h>
 #include <math.h> 
 #include <cmath>
@@ -65,7 +66,7 @@ public:
         return val;
     }
     
-    static double normalize(vector<double> x) {
+    static double normalize(vector<double>& x) {
         double norm = sqrt(prod(x, x));
         for (int i = 0; i < x.size(); i++) x[i] /= norm;
         return norm;
@@ -161,8 +162,8 @@ public:
     }
     
     static void randomize(vector<vector<double> >& matrix) {
-        int n = matrix.size();
-        int k = matrix[0].size();
+        int k = matrix.size();
+        int n = matrix[0].size();
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
                 matrix[i][j] = (double) rand() / RAND_MAX;
@@ -280,14 +281,16 @@ public:
         }
     }
     
-    /*
     
-    public static double[][] landmarkMatrix(double[][] matrix)
+    static vector<vector<double> > landmarkMatrix(vector<vector<double> >& matrix)
     {
-        int k = matrix.length;
-        int n = matrix[0].length;
-        double[][] result = new double[k][k];
-        int[] index = landmarkIndices(matrix);
+        int k = matrix.size();
+        int n = matrix[0].size();
+        
+        vector<vector<double> > result(k);
+        for (int i=0; i<k; i++) result[i].resize(k);
+        
+        vector<int> index = landmarkIndices(matrix);
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < k; j++) {
                 result[i][j] = matrix[i][index[j]];
@@ -296,24 +299,26 @@ public:
         return result;
     }
     
-    public static double[][] pivotRows(double[][] matrix, int k)
+    static vector<vector<double> > pivotRows(vector<vector<double> >& matrix, int k)
     {
-        int K = matrix.length;
+        int K = matrix.size();
         if (k >= K) {
             return matrix;
         }
-        int n = matrix[0].length;
-        System.out.println(n + " " + k + " " + K);
-        double[][] result = new double[k][n];
+        int n = matrix[0].size();
+        //System.out.println(n + " " + k + " " + K);
+        vector<vector<double> > result(k);
+        for (int i=0; i<n; i++) result[i].resize(n);
+        
         int pivot = 0;
-        double[] min = new double[n];
+        vector<double> min(n);
         for (int i = 0; i < n; i++)
-            min[i] = Double.MAX_VALUE;
+            min[i] = DBL_MAX;
         for (int i = 0; i < k; i++) {
             int argmax = 0;
             for (int j = 0; j < n; j++) {
                 result[i][j] = matrix[i][pivot];
-                min[j] = Math.min(min[j], result[i][j]);
+                min[j] = std::min(min[j], result[i][j]);
                 if (min[j] > min[argmax]) {
                     argmax = j;
                 }
@@ -323,51 +328,54 @@ public:
         return result;
     }
     
-    public static void scale(double[][] x, double[][] D)
+    static void scale(vector<vector<double> >& x, vector<vector<double> >& D)
     {
-        int n = x[0].length;
-        int d = x.length;
-        double xysum = 0.0D;
-        double dsum = 0.0D;
+        int n = x[0].size();
+        int d = x.size();
+        double xysum = 0.0;
+        double dsum = 0.0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < i; j++) {
-                double dxy = 0.0D;
-                for (int k = 0; k < d; k++) dxy += Math.pow(x[k][i] - x[k][j], 2.0D);
-                xysum += Math.sqrt(dxy);
+                double dxy = 0.0;
+                for (int k = 0; k < d; k++) dxy += pow(x[k][i]-x[k][j], 2.0);
+                xysum += sqrt(dxy);
                 dsum += D[i][j];
             }
         }
         dsum /= xysum;
         for (int i = 0; i < n; i++) {
-            for (int k = 0; k < d; k++) { x[k][i] *= dsum;
-            }
+            for (int k = 0; k < d; k++) x[k][i] *= dsum;
         }
     }
     
-    public static double[][] maxminPivotMatrix(double[][] matrix, int k)
+    /*
+    static vector<vector<double> > maxminPivotMatrix(vector<vector<double> >& matrix, int k)
     {
-        int n = matrix[0].length;
-        double[][] result = new double[k][n];
+        int n = matrix[0].size();
+        vector<vector<double> > result(k);
+        for (int i=0; i<n; i++) result[i].resize(n);
         int pivot = 0;
-        double[] min = new double[n];
-        for (int i = 0; i < n; i++) min[i] = Double.MAX_VALUE;
+        vector<double> min(n);
+        for (int i = 0; i < n; i++) min[i] = DBL_MAX;
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
                 result[i][j] = distance(matrix, pivot, j);
             }
             pivot = 0;
             for (int j = 0; j < n; j++) {
-                min[j] = Math.min(min[j], result[i][j]);
+                min[j] = std::min(min[j], result[i][j]);
                 if (min[j] > min[pivot]) pivot = j;
             }
         }
         return result;
     }
   
-    public static double[][] randomPivotMatrix(double[][] matrix, int k)
+    static vector<vector<double> > randomPivotMatrix(vector<vector<double> >& matrix, int k)
     {
-        int n = matrix[0].length;
-        double[][] result = new double[k][n];
+        int n = matrix[0].size();
+        vector<vector<double> > result(k);
+        for (int i=0; i<n; i++) result[i].resize(n);
+     
         boolean[] isPivot = new boolean[n];
         int pivot = 0;
         for (int i = 0; i < k; i++) {

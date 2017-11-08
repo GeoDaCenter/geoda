@@ -26,8 +26,11 @@ class FastMDS : public AbstractMDS {
 public:
     FastMDS(vector<vector<double> >& distances, int dim);
     virtual ~FastMDS();
+   
     
 protected:
+    vector<vector<double> > classicalScaling(vector<vector<double> >& d, int dim);
+    vector<double> lmds(vector<vector<double> >& P, vector<vector<double> >& result);
 };
 
 /*

@@ -76,9 +76,26 @@ void MDSDlg::CreateControls()
 
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
+   
+    // power iteration option approximation
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"), wxDefaultPosition, wxSize(134,-1));
+    wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
+    chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
+    lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
+    txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "100",wxDefaultPosition, wxSize(70,-1));
+    txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
+    lbl_poweriteration->Disable();
+    txt_poweriteration->Disable();
+    chk_poweriteration->Bind(wxEVT_CHECKBOX, &MDSDlg::OnCheckPowerIteration, this);
+    hbox15->Add(chk_poweriteration);
+    hbox15->Add(lbl_poweriteration);
+    hbox15->Add(txt_poweriteration);
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox15, 1, wxEXPAND);
+    
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+                                          wxDefaultPosition, wxSize(134,-1));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -150,6 +167,17 @@ void MDSDlg::OnDistanceChoice(wxCommandEvent& event)
         m_distance->SetSelection(10);
     }
     
+}
+
+void MDSDlg::OnCheckPowerIteration(wxCommandEvent& event)
+{
+    if (chk_poweriteration->IsChecked()) {
+        txt_poweriteration->Enable();
+        lbl_poweriteration->Enable();
+    } else {
+        txt_poweriteration->Disable();
+        lbl_poweriteration->Disable();
+    }
 }
 
 void MDSDlg::OnClose(wxCloseEvent& ev)
@@ -269,11 +297,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     }
    
     // init input_data[rows][cols]
-    if (input_data) {
-        for (int i=0; i<rows; i++) delete[] input_data[i];
-        delete[] input_data;
-        input_data = NULL;
-    }
     input_data = new double*[rows];
     mask = new int*[rows];
     for (int i=0; i<rows; i++) {
@@ -315,23 +338,34 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
   
-    /*
-    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    int new_col = 2;
+    vector<vector<double> > results;
     
-    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
-    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-    free(ragged_distances);
-    FastMDS mds(distances, 2);
-    vector<vector<double> > results = mds.GetResult();
+    if (chk_poweriteration->IsChecked()) {
+        double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+        
+        vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+        for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+        free(ragged_distances);
+        
+        FastMDS mds(distances, 2);
+        results = mds.GetResult();
+        
+    } else {
+        results.resize(new_col);
+        for (int i=0; i<new_col; i++) results[i].resize(rows);
+        double** rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, 2);
+        for (int i=0; i<new_col; i++) {
+            for (int j = 0; j < rows; ++j) {
+                results[i][j] = rst[j][i];
+            }
+
+        }
+        for (int j = 0; j < rows; ++j) delete[] rst[j];
+        delete[] rst;
+    }
    
     if (!results.empty()) {
-    */
-    double** results = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, 2);
-    
-    if (results) {
-        // save to table
-        //int new_col = combo_n->GetSelection() + 1;
-        int new_col = 2;
         
         std::vector<SaveToTableEntry> new_data(new_col);
         std::vector<std::vector<double> > vals(new_col);
@@ -341,7 +375,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             vals[j].resize(rows);
             undefs[j].resize(rows);
             for (int i = 0; i < rows; ++i) {
-                vals[j][i] = double(results[i][j]);
+                vals[j][i] = double(results[j][i]);
                 undefs[j][i] = false;
             }
             new_data[j].d_val = &vals[j];
@@ -390,11 +424,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             subframe->OnViewLinearSmoother(ev);
             subframe->OnDisplayStatistics(ev);
         }
-        
-        for (int i=0; i<2; i++) {
-            delete[] results[i];
-        }
-        delete[] results;
+
     }
     
     for (int i=0; i<rows; i++) {

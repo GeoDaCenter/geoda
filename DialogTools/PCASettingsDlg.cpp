@@ -374,6 +374,8 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         }
     }
     
+    
+    
     Pca pca;
     
     bool is_corr = combo_method->GetSelection() == 1;
