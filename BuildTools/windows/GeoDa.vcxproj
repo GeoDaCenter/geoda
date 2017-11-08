@@ -307,6 +307,7 @@
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
     <ClCompile Include="..\..\Algorithms\geocoding.cpp" />
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
+    <ClCompile Include="..\..\Algorithms\mds.cpp" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
@@ -381,11 +382,14 @@
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
+    <ClInclude Include="..\..\Algorithms\DataUtils.h" />
     <ClInclude Include="..\..\Algorithms\geocoding.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
+    <ClInclude Include="..\..\Algorithms\mds.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\Algorithms\redcap.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
+    <ClInclude Include="..\..\Algorithms\texttable.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
     <ClInclude Include="..\..\DataViewer\DataChangeType.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />

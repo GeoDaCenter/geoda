@@ -705,6 +705,15 @@
     <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\DataUtils.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\texttable.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\mds.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1291,6 +1300,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\mds.cpp">
+      <Filter>Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
