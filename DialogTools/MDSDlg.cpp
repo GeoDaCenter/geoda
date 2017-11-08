@@ -84,9 +84,13 @@ void MDSDlg::CreateControls()
     lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
     txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "100",wxDefaultPosition, wxSize(70,-1));
     txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
-    lbl_poweriteration->Disable();
-    txt_poweriteration->Disable();
     chk_poweriteration->Bind(wxEVT_CHECKBOX, &MDSDlg::OnCheckPowerIteration, this);
+    if (project->GetNumRecords() < 150) {
+        lbl_poweriteration->Disable();
+        txt_poweriteration->Disable();
+    } else {
+        chk_poweriteration->SetValue(true);
+    }
     hbox15->Add(chk_poweriteration);
     hbox15->Add(lbl_poweriteration);
     hbox15->Add(txt_poweriteration);
