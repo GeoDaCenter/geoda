@@ -161,6 +161,7 @@ public:
     void OnToolsDataKMeans(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
+    void OnToolsDataSkater(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);

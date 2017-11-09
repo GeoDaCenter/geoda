@@ -57,7 +57,6 @@ MaxpDlg::MaxpDlg(wxFrame* parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("Max-p Settings"))
 {
     wxLogMessage("Open Max-p dialog.");
-    
     CreateControls();
 }
 

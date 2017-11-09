@@ -38,6 +38,8 @@
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
+		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
+		A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018051FB4CF980029709C /* SkaterDlg.cpp */; };
 		A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */; };
 		A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4320FC61F4735020007BE0D /* RedcapDlg.cpp */; };
 		A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4368CDA1FABBBC60099FA9B /* mds.cpp */; };
@@ -323,6 +325,10 @@
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
 		A416A1761F84122B001F2884 /* PCASettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCASettingsDlg.h; sourceTree = "<group>"; };
+		A42018011FB3C0AC0029709C /* skater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skater.cpp; path = Algorithms/skater.cpp; sourceTree = "<group>"; };
+		A42018021FB3C0AC0029709C /* skater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skater.h; path = Algorithms/skater.h; sourceTree = "<group>"; };
+		A42018041FB4CF980029709C /* SkaterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkaterDlg.h; sourceTree = "<group>"; };
+		A42018051FB4CF980029709C /* SkaterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkaterDlg.cpp; sourceTree = "<group>"; };
 		A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNewCalcDateTimeDlg.cpp; sourceTree = "<group>"; };
 		A42B6F771F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNewCalcDateTimeDlg.h; sourceTree = "<group>"; };
 		A4320FC61F4735020007BE0D /* RedcapDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RedcapDlg.cpp; sourceTree = "<group>"; };
@@ -770,6 +776,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A42018011FB3C0AC0029709C /* skater.cpp */,
+				A42018021FB3C0AC0029709C /* skater.h */,
 				A4368CDA1FABBBC60099FA9B /* mds.cpp */,
 				A4368CDB1FABBBC60099FA9B /* mds.h */,
 				A4368CD91FABB5260099FA9B /* DataUtils.h */,
@@ -925,6 +933,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A42018041FB4CF980029709C /* SkaterDlg.h */,
+				A42018051FB4CF980029709C /* SkaterDlg.cpp */,
 				A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */,
 				A416A1761F84122B001F2884 /* PCASettingsDlg.h */,
 				A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */,
@@ -1483,6 +1493,7 @@
 				DD7975940F1D296F00496A84 /* SHP2ASCDlg.cpp in Sources */,
 				DD7975980F1D296F00496A84 /* VariableSettingsDlg.cpp in Sources */,
 				DD7975D20F1D2A9000496A84 /* 3DPlotView.cpp in Sources */,
+				A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */,
 				DD7975D60F1D2A9000496A84 /* Geom3D.cpp in Sources */,
 				DD7976B80F1D2CA800496A84 /* DenseMatrix.cpp in Sources */,
 				DD7976B90F1D2CA800496A84 /* DenseVector.cpp in Sources */,
@@ -1505,6 +1516,7 @@
 				DD27EF050F2F6CBE009C5C42 /* ShapeFile.cpp in Sources */,
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				DDD13F6F0F2FC802009F7F13 /* ShapeFileTriplet.cpp in Sources */,
+				A42018031FB3C0AC0029709C /* skater.cpp in Sources */,
 				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
 				DDD13F930F2FD641009F7F13 /* BasePoint.cpp in Sources */,
 				DDD13FAB0F30B2E4009F7F13 /* Box.cpp in Sources */,

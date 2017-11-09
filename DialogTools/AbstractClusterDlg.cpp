@@ -449,6 +449,12 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         if (m_weight_centroids && m_use_centroids)
             weight = GetWeights(columns);
+        else {
+            weight = new double[columns];
+            for (int j=0; j<columns; j++){
+                weight[j] = 1;
+            }
+        }
         
         // init input_data[rows][cols]
         input_data = new double*[rows];
