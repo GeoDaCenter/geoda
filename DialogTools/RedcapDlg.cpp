@@ -371,7 +371,7 @@ wxString RedcapDlg::_printConfiguration()
         txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     }
     
-    txt << "Maximum # of regions:\t" << m_textbox->GetValue() << "\n";
+    txt << "Minimum region size:\t" << m_textbox->GetValue() << "\n";
     
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     

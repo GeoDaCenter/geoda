@@ -352,6 +352,8 @@ wxString SkaterDlg::_printConfiguration()
 {
     wxString txt;
     
+    txt << "Number of clusters:\t" << m_max_region->GetValue() << "\n";
+    
     txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
@@ -359,9 +361,8 @@ wxString SkaterDlg::_printConfiguration()
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     } else {
-        txt << "Minimum # of observations per region:\t" << txt_minregions->GetValue() << "\n";
+        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
-   
     
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     

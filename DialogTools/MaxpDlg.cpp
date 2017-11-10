@@ -390,7 +390,7 @@ wxString MaxpDlg::_printConfiguration()
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     } else {
-        txt << "Minimum # of observations per region:\t" << txt_minregions->GetValue() << "\n";
+        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
    
     if (chk_lisa->IsChecked()) {
