@@ -89,6 +89,12 @@ void SkaterDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    m_max_region = new wxTextCtrl(panel, wxID_ANY, wxT("5"), wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_max_region, 1, wxEXPAND);
+    
 	// Weights Control
     wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"), wxDefaultPosition, wxSize(128,-1));
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
@@ -99,18 +105,11 @@ void SkaterDlg::CreateControls()
     AddMinBound(panel, gbox);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"), wxDefaultPosition, wxSize(128,-1));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"), wxDefaultPosition, wxSize(128,-1));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);
-    
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    m_max_region = new wxTextCtrl(panel, wxID_ANY, wxT("5"), wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_max_region, 1, wxEXPAND);
-    
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -430,6 +429,8 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+   
+    bool check_floor = false;
     
 	// Get Bounds
     double min_bound = GetMinBound();
@@ -441,26 +442,21 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
-    } else {
-        wxString str_floor = txt_minregions->GetValue();
-        if (str_floor.IsEmpty()) {
-            wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
+        check_floor = true;
     }
+    
     double* bound_vals = GetBoundVals();
     if (bound_vals == NULL) {
         wxString str_min_regions = txt_minregions->GetValue();
         long val_min_regions;
         if (str_min_regions.ToLong(&val_min_regions)) {
             min_bound = val_min_regions;
+            check_floor = true;
         }
         bound_vals = new double[rows];
         for (int i=0; i<rows; i++) bound_vals[i] = 1;
     }
-        
+    
 	// Get region numbers
     int initial = 0;
     long value_initial;
@@ -500,7 +496,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     
     
 	// Run Skater
-    Skater skater(rows, columns, initial, input_data, distances, false, min_bound, bound_vals);
+    Skater skater(rows, columns, initial, input_data, distances, check_floor, min_bound, bound_vals);
     
 	delete[] bound_vals;
 
