@@ -77,11 +77,11 @@ void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<ClusterP
 vector<vector<int> > Skater::GetRegions()
 {
     vector<vector<int> > regions;
-    typename PriorityQueue::iterator begin = solution.begin();
-    typename PriorityQueue::iterator end = solution.end();
+    PriorityQueue::iterator begin = solution.begin();
+    PriorityQueue::iterator end = solution.end();
    
     set<int>::iterator set_it;
-    for (typename PriorityQueue::iterator it = begin; it != end; ++it) {
+    for (PriorityQueue::iterator it = begin; it != end; ++it) {
         const vector<E>& c = (*it).second;
         set<int> ids;
         for (int i=0; i< c.size(); i++) {
