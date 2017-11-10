@@ -727,7 +727,11 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
     
     // first row
     t.add("");
-    for (int i=0; i<columns; i++) t.add(col_names[i].ToStdString());
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+            continue;
+        t.add(col_names[i].ToStdString());
+    }
     t.endOfRow();
     
     // second row
@@ -738,6 +742,8 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
         
         const vector<double>& vals = mean_centers[i];
         for (int j=0; j<vals.size(); j++) {
+            if (col_names[j] == "CENTX" || col_names[j] == "CENTY")
+                continue;
             ss.str("");
             ss << vals[j];
             t.add(ss.str());

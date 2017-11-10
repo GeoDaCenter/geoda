@@ -125,18 +125,44 @@ void Skater::run()
                 best_pair = candidates[i];
             }
         }
-        //double score_p1 = ssw(best_pair[0]);
-        //double score_p2 = ssw(best_pair[1]);
-       
+        
         if (best_pair.empty())
             break;
+        
+        // tree 1
+        int t1_size = best_pair[0].size();
+        vector<double> scores1(t1_size);
+        vector<ClusterPair> cand1(t1_size);
+        run_threads(best_pair[0], scores1, cand1);
+        
+        double best_score_1 = DBL_MAX;
+        for (int i=0; i<scores1.size(); i++) {
+            if (scores1[i] > 0 && scores1[i] < best_score_1 && !cand1[i][0].empty() && !cand1[i][1].empty()) {
+                best_score_1 = scores1[i];
+            }
+        }
+        best_score_1 = ssw(best_pair[0]) - best_score_1;
+        
+        // tree 2
+        int t2_size = best_pair[1].size();
+        vector<double> scores2(t2_size);
+        vector<ClusterPair> cand2(t2_size);
+        run_threads(best_pair[1], scores2, cand2);
+        
+        double best_score_2 = DBL_MAX;
+        for (int i=0; i<scores2.size(); i++) {
+            if (scores2[i] > 0 && scores2[i] < best_score_2 && !cand2[i][0].empty() && !cand2[i][1].empty()) {
+                best_score_2 = scores2[i];
+            }
+        }
+        best_score_2 = ssw(best_pair[1]) - best_score_2;
         
         solution.pop();
         
         if (!best_pair[0].empty())
-            solution.push( ClusterEl(best_pair[0].size(), best_pair[0]));
+            solution.push( ClusterEl(best_score_1, best_pair[0]));
         if (!best_pair[1].empty())
-            solution.push( ClusterEl(best_pair[1].size(), best_pair[1]));
+            solution.push( ClusterEl(best_score_2, best_pair[1]));
     }
 }
 
@@ -206,8 +232,12 @@ double Skater::ssw(vector<E>& cluster)
         ids.insert(cluster[i].first);
         ids.insert(cluster[i].second);
     }
-    //return ssw(ids);
-    return 0;
+    set<int>::iterator it;
+    vector<int> tmp_ids;
+    for (it=ids.begin(); it!=ids.end(); it++) {
+        tmp_ids.push_back(*it);
+    }
+    return ssw(tmp_ids);
 }
 
 double Skater::ssw(vector<int>& ids)

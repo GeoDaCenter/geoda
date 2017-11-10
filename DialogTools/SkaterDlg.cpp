@@ -91,7 +91,7 @@ void SkaterDlg::CreateControls()
 
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_max_region = new wxTextCtrl(panel, wxID_ANY, wxT("5"), wxDefaultPosition, wxSize(200,-1));
+    m_max_region = new wxTextCtrl(panel, wxID_ANY, wxT("4"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
     
