@@ -649,7 +649,7 @@ vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<
                 }
             }
             double mean = n > 0 ? sum / n : 0;
-            if (weight) mean = mean * weight[c];
+            //if (weight) mean = mean * weight[c];
             means.push_back(mean);
         }
         result[i] = means;
@@ -668,7 +668,8 @@ double AbstractClusterDlg::_getTotalSumOfSquares()
             continue;
         vector<double> vals;
         for (int j=0; j<rows; j++) {
-            if (mask[j][i] == 1) vals.push_back(input_data[j][i]);
+            if (mask[j][i] == 1)
+                vals.push_back(input_data[j][i]);
         }
         double ss = GenUtils::SumOfSquares(vals);
         ssq += ss;
@@ -703,7 +704,8 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
         vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
-            if (mask[r][i] == 1) vals.push_back(input_data[r][i]);
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
         }
         double ss = GenUtils::SumOfSquares(vals);
         ssq += ss;

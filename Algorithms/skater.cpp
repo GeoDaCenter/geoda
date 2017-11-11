@@ -41,12 +41,6 @@ Skater::~Skater()
 
 void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
 {
-    // There are num_obs - 1 edges in the MST
-    // To create K clusters, you need to remove K-1 edges from MST
-    // There are C(K-1, numobs-1) ways to remove K-1 edges.
-    //
-    // each thread will prun the original MST by removing
-    // num_clusters - 1 edges
     int n_jobs = tree.size();
     
     int nCPUs = boost::thread::hardware_concurrency();;
