@@ -476,19 +476,19 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     for (int i = 0; i < rows; i++) {
         distances[i].resize(rows);
         for (int j = 0; j < rows; j++)
-            distances[i][j] = 0;
+            distances[i][j] = -1;
     }
     for (int i=0; i< rows; i++) {
         for (int j=0; j< gw->gal[i].Size(); j++) {
             int k = gw->gal[i][j];
-            distances[i][k] = 1;
+            distances[i][k] = 0;
         }
     }
     for (int i = 1; i < rows; i++) {
         for (int j = 0; j < i; j++) {
-            if (distances[i][j] == 1)
+            if (distances[i][j] == 0)
                 distances[i][j] = sqrt(ragged_distances[i][j]);
-            if (distances[j][i] == 1)
+            if (distances[j][i] == 0)
                 distances[j][i] = sqrt(ragged_distances[i][j]);
         }
     }

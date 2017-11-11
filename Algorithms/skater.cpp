@@ -23,7 +23,7 @@ Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, v
     for (int i=0; i<num_obs; i++) {
         for (int j=i; j<num_obs; j++) {
             // note: this distance matrix is created using weights
-            if (dist_matrix[i][j] > 0) {
+            if (dist_matrix[i][j] >= 0) {
                 boost::add_edge(i, j, dist_matrix[i][j], g);
             }
         }
@@ -39,7 +39,7 @@ Skater::~Skater()
     
 }
 
-void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<ClusterPair>& candidates)
+void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
 {
     // There are num_obs - 1 edges in the MST
     // To create K clusters, you need to remove K-1 edges from MST
@@ -67,7 +67,7 @@ void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<ClusterP
         }
        
         //prunecost(tree, a, b, scores, candidates);
-        boost::thread* worker = new boost::thread(boost::bind(&Skater::prunecost, this, tree, a, b, boost::ref(scores), boost::ref(candidates)));
+        boost::thread* worker = new boost::thread(boost::bind(&Skater::prunecost, this, tree, a, b, boost::ref(scores), boost::ref(cids), boost::ref(candidates)));
         threadPool.add_thread(worker);
     }
     
@@ -106,22 +106,28 @@ void Skater::run()
     while (solution.size() < num_clusters) {
         const ClusterEl& cluster = solution.top();
         vector<E> tree = cluster.second;
-        
+       
+        double sswt = ssw(tree);
         // check where to split
         int tree_size = tree.size();
         vector<double> scores(tree_size);
+        vector<vector<set<int> > > cids(tree_size);
         vector<ClusterPair> candidates(tree_size);
         
-        //prunecost(tree, 0, tree_size, scores, candidates);
-        run_threads(tree, scores, candidates);
+        //prunecost(tree, 0, tree_size-1, scores, cids, candidates);
+        run_threads(tree, scores, cids, candidates);
+       
+        for (int i=0; i<scores.size(); i++) scores[i] = sswt - scores[i];
         
         // check where to split
-        double best_score = DBL_MAX;
-        ClusterPair best_pair;
+        double best_score = scores[0];
+        vector<set<int> > best_cids = cids[0];
+        ClusterPair best_pair = candidates[0];
         
-        for (int i=0; i<scores.size(); i++) {
-            if (scores[i] > 0 && scores[i] < best_score && !candidates[i][0].empty() && !candidates[i][1].empty()) {
+        for (int i=1; i<scores.size(); i++) {
+            if (scores[i] > best_score && !candidates[i].empty()) {
                 best_score = scores[i];
+                best_cids = cids[i];
                 best_pair = candidates[i];
             }
         }
@@ -129,44 +135,53 @@ void Skater::run()
         if (best_pair.empty())
             break;
         
-        // tree 1
+        solution.pop();
+        
+        // subtree 1
         int t1_size = best_pair[0].size();
         vector<double> scores1(t1_size);
+        vector<vector<set<int> > > cids1(t1_size);
         vector<ClusterPair> cand1(t1_size);
-        run_threads(best_pair[0], scores1, cand1);
-        
+        run_threads(best_pair[0], scores1, cids1, cand1);
         double best_score_1 = DBL_MAX;
         for (int i=0; i<scores1.size(); i++) {
-            if (scores1[i] > 0 && scores1[i] < best_score_1 && !cand1[i][0].empty() && !cand1[i][1].empty()) {
+            if (scores1[i] < best_score_1 && !cand1[i].empty()) {
                 best_score_1 = scores1[i];
             }
         }
         best_score_1 = ssw(best_pair[0]) - best_score_1;
+        if (t1_size == 0) {
+            set<int>& tmp_set = best_cids[0];
+            int tmp_id = *tmp_set.begin();
+            E tmp_e(tmp_id, tmp_id);
+            best_pair[0].push_back(tmp_e);
+        }
+        solution.push( ClusterEl(best_score_1, best_pair[0]));
         
-        // tree 2
+        // subtree 2
         int t2_size = best_pair[1].size();
         vector<double> scores2(t2_size);
+        vector<vector<set<int> > > cids2(t2_size);
         vector<ClusterPair> cand2(t2_size);
-        run_threads(best_pair[1], scores2, cand2);
-        
+        run_threads(best_pair[1], scores2, cids2, cand2);
         double best_score_2 = DBL_MAX;
         for (int i=0; i<scores2.size(); i++) {
-            if (scores2[i] > 0 && scores2[i] < best_score_2 && !cand2[i][0].empty() && !cand2[i][1].empty()) {
+            if (scores2[i] < best_score_2 && !cand2[i].empty()) {
                 best_score_2 = scores2[i];
             }
         }
         best_score_2 = ssw(best_pair[1]) - best_score_2;
-        
-        solution.pop();
-        
-        if (!best_pair[0].empty())
-            solution.push( ClusterEl(best_score_1, best_pair[0]));
-        if (!best_pair[1].empty())
-            solution.push( ClusterEl(best_score_2, best_pair[1]));
+        if (t2_size == 0) {
+            set<int>& tmp_set = best_cids[1];
+            int tmp_id = *tmp_set.begin();
+            E tmp_e(tmp_id, tmp_id);
+            best_pair[1].push_back(tmp_e);
+        }
+        solution.push( ClusterEl(best_score_2, best_pair[1]));
     }
 }
 
-void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<ClusterPair>& candidates)
+void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
 {
     //prune mst by removing one edge and get the best cut
     
@@ -177,26 +192,29 @@ void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& score
         tree.insert(tree.begin(), e_i);
         
         // prune tree to get two groups
-        vector<int> vex1, vex2;
+        set<int> vex1, vex2;
         vector<E> part1, part2;
         prunemst(tree, vex1, vex2, part1, part2);
         
+        // compute objective function
+        double ssw1 = ssw(vex1);
+        double ssw2 = ssw(vex2);
+        scores[i] = ssw1 + ssw2;
+        
         // check by bound
         bool valid = true;
-        if (check_floor) {
+        if (check_floor && valid) {
             if (bound_check(vex1) == false || bound_check(vex2) == false) {
-                scores[i] = -1;
                 valid = false;
             }
         }
        
         if (valid) {
-            // compute objective function
-            double ssw_sum = 0;
-            ssw_sum += ssw(vex1);
-            ssw_sum += ssw(vex2);
-        
-            scores[i] = ssw_sum;
+            vector<set<int> > pts;
+            pts.push_back(vex1);
+            pts.push_back(vex2);
+            cids[i] = pts;
+            
             ClusterPair c;
             c.push_back(part1);
             c.push_back(part2);
@@ -232,46 +250,47 @@ double Skater::ssw(vector<E>& cluster)
         ids.insert(cluster[i].first);
         ids.insert(cluster[i].second);
     }
-    set<int>::iterator it;
-    vector<int> tmp_ids;
-    for (it=ids.begin(); it!=ids.end(); it++) {
-        tmp_ids.push_back(*it);
-    }
-    return ssw(tmp_ids);
+    return ssw(ids);
 }
 
-double Skater::ssw(vector<int>& ids)
+double Skater::ssw(set<int>& ids)
 {
     // This function computes the sum of dissimilarity between each
     // observation and the mean (scalar of vector) of the observations.
     // sum((x_i - x_min)^2)
-   
-    vector<int>::iterator it;
-    double ssw_val = 0;
+  
+    double n = ids.size();
+    vector<double> means(num_vars);
+    set<int>::iterator it;
+    
     for (int c=0; c<num_vars; c++) {
         double sum = 0;
-        double n = ids.size();
         for (it=ids.begin(); it!=ids.end(); it++) {
             int i = *it;
             sum += data[i][c];
         }
         double mean = n > 0 ? sum / n : 0;
-       
-        sum = 0;
-        for (it=ids.begin(); it!=ids.end(); it++) {
-            int i = *it;
-            double tmp = data[i][c] - mean;
+        means[c] = mean;
+    }
+
+    double ssw_val = 0;
+    
+    for (it=ids.begin(); it!=ids.end(); it++) {
+        double sum = 0;
+        int i = *it;
+        for (int c=0; c<num_vars; c++) {
+            double tmp = data[i][c] - means[c];
             sum += tmp * tmp;
         }
         
-        ssw_val += sum;
+        ssw_val += sqrt(sum);
     }
     return ssw_val;
 }
 
-bool Skater::bound_check(vector<int>& cluster)
+bool Skater::bound_check(set<int>& cluster)
 {
-    vector<int>::iterator it;
+    set<int>::iterator it;
     double sum=0;
     for (it=cluster.begin(); it!=cluster.end(); it++) {
         int i = *it;
@@ -282,7 +301,7 @@ bool Skater::bound_check(vector<int>& cluster)
 
 // This function deletes a first edge and makes two subsets of edges. Each
 // subset is a Minimun Spanning Treee.
-void Skater::prunemst(vector<E>& edges, vector<int>& vex1, vector<int>& vex2, vector<E>& part1, vector<E>& part2)
+void Skater::prunemst(vector<E>& edges, set<int>& set1, set<int>& set2, vector<E>& part1, vector<E>& part2)
 {
     // first edge is going to be removed
     int num_edges = edges.size();
@@ -316,13 +335,24 @@ void Skater::prunemst(vector<E>& edges, vector<int>& vex1, vector<int>& vex2, ve
     } while(li < ls);
   
     // first edge will be removed
-    vex1.push_back(edges[0].first);
-    for (int i=0; i<num_edges; i++) {
-        if (gr[i] == 1) vex1.push_back(edges[i].first);
-        else vex2.push_back(edges[i].first);
+    set1.insert(edges[0].first);
+    for (int i=0; i<gr.size(); i++) {
+        if (gr[i] == 1) {
+            set1.insert(edges[i].first);
+            set1.insert(edges[i].second);
+        }
     }
+    for (int i=0; i<gr.size(); i++) {
+        if (set1.find(edges[i].first) == set1.end()) {
+            set2.insert(edges[i].first);
+        }
+        if (set1.find(edges[i].second) == set1.end()) {
+            set2.insert(edges[i].second);
+        }
+    }
+    
     for (int i=1; i<num_edges; i++) {
-        if (gr[i] == 0) part1.push_back(edges[i]);
+        if (gr[i] == 1) part1.push_back(edges[i]);
         else part2.push_back(edges[i]);
     }
 }
