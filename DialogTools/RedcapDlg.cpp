@@ -576,6 +576,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "REDCAP Cluster Map";
+    ttl << "REDCAP Cluster Map (";
+    ttl << n_regions;
+    ttl << " clusters)";
     nf->SetTitle(ttl);
 }

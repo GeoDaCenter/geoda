@@ -614,6 +614,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "Max-p Cluster Map";
+    ttl << "Max-p Cluster Map (";
+    ttl << ncluster;
+    ttl << " clusters)";
     nf->SetTitle(ttl);
 }

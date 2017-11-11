@@ -682,6 +682,8 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
                                 GdaConst::map_default_size);
     
     wxString ttl;
-    ttl << "Spectraul Clustering Map";
+    ttl << "Spectraul Clustering Map (";
+    ttl << ncluster;
+    ttl << " clusters)";
     nf->SetTitle(ttl);
 }
