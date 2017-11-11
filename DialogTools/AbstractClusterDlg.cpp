@@ -613,7 +613,7 @@ void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
     double ratio = betweenss / totss;
     
     wxString summary;
-    summary << ">>>>\n";
+    summary << "------\n";
     summary << _printConfiguration();
     summary << _printMeanCenters(mean_centers);
     summary << "The total sum of squares:\t" << totss << "\n";
