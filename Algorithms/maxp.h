@@ -181,7 +181,7 @@ protected:
     /*!
      Details.
      */
-    const int MAX_ATTEMPTS;
+    int MAX_ATTEMPTS;
     
     vector<double> initial_wss;
     

@@ -1234,6 +1234,16 @@ double GenUtils::SumOfSquares(std::vector<double>& data)
     return ssum;
 }
 
+
+double GenUtils::GetVariance(std::vector<double>& data)
+{
+    if (data.size() <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
+    return ssum / data.size();
+}
+
 bool GenUtils::StandardizeData(int nObs, double* data)
 {
 	if (nObs <= 1) return false;
@@ -1272,14 +1282,6 @@ bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
 	return true;
 }
 
-double GenUtils::GetVariance(std::vector<double>& data)
-{
-    if (data.size() <= 1) return 0;
-    GenUtils::DeviationFromMean(data);
-    double ssum = 0.0;
-    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
-    return ssum / data.size();
-}
 
 bool GenUtils::StandardizeData(std::vector<double>& data)
 {

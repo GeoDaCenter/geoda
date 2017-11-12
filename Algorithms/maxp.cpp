@@ -37,7 +37,7 @@ using namespace boost;
 using namespace std;
 
 Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, char _dist, bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(10000), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -84,9 +84,9 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
                 wxString str;
                 str << "initial solution:";
                 str << i;
-                str << ",";
+                str << " ,";
                 str << val;
-                str << ",";
+                str << " ,";
                 str << best_val;
                 LOG_MSG(str.ToStdString());
                 
@@ -103,7 +103,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         p = regions.size();
         area2region = best_area2region;
         
-        swap();
+        //swap();
     }
 }
 
@@ -179,6 +179,8 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
            
             for (int i=num_obs-1; i>=1; --i) {
                 int k = Gda::ThomasWangHashDouble(seed_start++) * (i+1);
+                while (k>=i) k = Gda::ThomasWangHashDouble(seed_start++) * (i+1);
+                
                 if (k != i) std::iter_swap(_candidates.begin() + k, _candidates.begin()+i);
             }
             
@@ -364,6 +366,7 @@ void Maxp::swap()
     vector<int> changed_regions(k, 1);
     
     // nr = range(k)
+    uint64_t seed_start = rand();
     
     while (swapping) {
         int moves_made = 0;
@@ -375,6 +378,13 @@ void Maxp::swap()
             }
         }
         //random_shuffle(regionIds.begin(), regionIds.end());
+        for (int i=regionIds.size()-1; i>=1; --i) {
+            int k = Gda::ThomasWangHashDouble(seed_start++) * (i+1);
+            while (k>=i) k = Gda::ThomasWangHashDouble(seed_start++) * (i+1);
+            
+            if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
+        }
+
         
         for (int r=0; r<k; r++) changed_regions[r] = 0;
         swap_iteration += 1;
@@ -501,10 +511,10 @@ double Maxp::objective_function(const vector<vector<int> >& solution)
         }
         double sum = 0.0;
         for (int n=0; n<num_vars; n++) {
-            double var = GenUtils::GetVariance(selected_z[n]);
+            double var = GenUtils::SumOfSquares(selected_z[n]);
             sum += var;
         }
-        wss += sum * solution[i].size();
+        wss += sum ;
     }
     
     return wss;
