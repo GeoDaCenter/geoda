@@ -714,6 +714,12 @@
     <ClInclude Include="..\..\Algorithms\mds.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\skater.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SkaterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1303,6 +1309,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Algorithms\mds.cpp">
       <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\skater.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

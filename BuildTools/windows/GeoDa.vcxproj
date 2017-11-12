@@ -310,6 +310,7 @@
     <ClCompile Include="..\..\Algorithms\mds.cpp" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
+    <ClCompile Include="..\..\Algorithms\skater.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
     <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
     <ClCompile Include="..\..\DbfFile.cpp" />
@@ -330,6 +331,7 @@
     <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
@@ -388,6 +390,7 @@
     <ClInclude Include="..\..\Algorithms\mds.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\Algorithms\redcap.h" />
+    <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
@@ -431,6 +434,7 @@
     <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SkaterDlg.h" />
     <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />

@@ -445,7 +445,7 @@ void CatClassifHistCanvas::InitIntervals()
 		int ind;
         
         max_val = (*data)[0].first;
-        min_val = (*data)[num_obs].first;
+        min_val = (*data)[num_obs-1].first;
         
 		for (int i=0; i<num_obs; i++) {
 			val = (*data)[i].first;
