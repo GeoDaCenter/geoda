@@ -4596,7 +4596,7 @@ void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
         }
     }
     
-    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p, project_p->GetTableState());
+    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
     dlg->Show(true);
 }
 

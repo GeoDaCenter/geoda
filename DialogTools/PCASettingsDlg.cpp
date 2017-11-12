@@ -47,7 +47,7 @@ END_EVENT_TABLE()
 
 PCASettingsDlg::PCASettingsDlg(Project* project_s)
 : wxDialog(NULL, -1, _("PCA Settings"), wxDefaultPosition, wxSize(860, 600), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-frames_manager(project_s->GetFramesManager())
+frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState())
 {
     wxLogMessage("Open PCASettingsDlg.");
     
@@ -68,15 +68,21 @@ frames_manager(project_s->GetFramesManager())
     }
 
     frames_manager->registerObserver(this);
+    table_state->registerObserver(this);
 }
 
 PCASettingsDlg::~PCASettingsDlg()
 {
     frames_manager->removeObserver(this);
+    table_state->removeObserver(this);
 }
 
 void PCASettingsDlg::update(FramesManager* o)
 {
+}
+void PCASettingsDlg::update(TableState* o)
+{
+    InitVariableCombobox(combo_var);
 }
 
 bool PCASettingsDlg::Init()

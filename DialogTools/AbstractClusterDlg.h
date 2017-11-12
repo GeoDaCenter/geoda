@@ -29,13 +29,14 @@
 #include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "../DataViewer/TableStateObserver.h"
 
 using namespace std;
 
 class Project;
 class TableInterface;
-	
-class AbstractClusterDlg : public wxDialog, public FramesManagerObserver
+
+class AbstractClusterDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
@@ -46,11 +47,19 @@ public:
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
     
+    /** Implementation of TableStateObserver interface */
+    virtual void update(TableState* o);
+    virtual bool AllowTimelineChanges() { return true; }
+    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+    virtual bool AllowObservationAddDelete() { return false; }
+    
+    
 protected:
     wxFrame *parent;
     Project* project;
     TableInterface* table_int;
     FramesManager* frames_manager;
+    TableState* table_state;
     
     vector<vector<double> > z;
     vector<bool> undefs;

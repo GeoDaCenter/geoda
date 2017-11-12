@@ -49,9 +49,8 @@ BEGIN_EVENT_TABLE( ColocationSelectDlg, wxDialog )
 EVT_CLOSE( ColocationSelectDlg::OnClose )
 END_EVENT_TABLE()
 
-ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s, TableState* table_state_s)
-: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings")),
-table_state(table_state_s)
+ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
+: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings"))
 {
     wxLogMessage("Open ColocationSelectDlg.");
     
@@ -63,12 +62,12 @@ table_state(table_state_s)
     
     CreateControls();
     
-    table_state->registerObserver(this);
+    
 }
 
 ColocationSelectDlg::~ColocationSelectDlg()
 {
-    table_state->removeObserver(this);
+    
 }
 
 void ColocationSelectDlg::update(TableState* o)

@@ -30,8 +30,9 @@
 #include "../FramesManagerObserver.h"
 #include "../Project.h"
 #include "../VarTools.h"
+#include "../DataViewer/TableStateObserver.h"
 
-class PCASettingsDlg : public wxDialog, public FramesManagerObserver
+class PCASettingsDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
 {
 public:
     PCASettingsDlg(Project* project);
@@ -53,11 +54,18 @@ public:
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
     
+    /** Implementation of TableStateObserver interface */
+    virtual void update(TableState* o);
+    virtual bool AllowTimelineChanges() { return true; }
+    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+    virtual bool AllowObservationAddDelete() { return false; }
+    
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 private:
     FramesManager* frames_manager;
+    TableState* table_state;
     
     Project* project;
     TableInterface* table_int;
