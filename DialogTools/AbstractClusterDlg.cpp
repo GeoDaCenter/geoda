@@ -368,6 +368,10 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
     }
     if (!var_items.IsEmpty())
         var_box->InsertItems(var_items,0);
+    
+    for (int i=0; i<select_vars.size(); i++) {
+        var_box->SetStringSelection(select_vars[i], true);
+    }
 }
 
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
@@ -394,6 +398,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     }
    
     col_names.clear();
+    select_vars.clear();
     
     if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
     {
@@ -402,7 +407,10 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         for (int i=0; i<num_var; i++) {
             int idx = selections[i];
-            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            wxString sel_str = combo_var->GetString(idx);
+            select_vars.push_back(sel_str);
+            
+            wxString nm = name_to_nm[sel_str];
             
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {

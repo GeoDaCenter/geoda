@@ -380,6 +380,10 @@ void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
     }
     if (!items.IsEmpty())
         var_box->InsertItems(items,0);
+    
+    for (int i=0; i<select_vars.size(); i++) {
+        var_box->SetStringSelection(select_vars[i], true);
+    }
 }
 
 void HClusterDlg::update(HLStateInt* o)

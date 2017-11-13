@@ -89,6 +89,7 @@ protected:
     // Input related
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
+    std::vector<wxString> select_vars;
     double* weight;
     double** input_data;
     int** mask;

@@ -287,6 +287,8 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
 {
     co_val_dict.clear();
     var_selections.Clear();
+    select_vars.clear();
+    
     clear_colo_control();
     
     combo_var->GetSelections(var_selections);
@@ -298,7 +300,10 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         col_names.resize(num_var);
         for (int i=0; i<num_var; i++) {
             int idx = var_selections[i];
-            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            wxString sel_str = combo_var->GetString(idx);
+            select_vars.push_back(sel_str);
+            
+            wxString nm = name_to_nm[sel_str];
             col_names.push_back(nm);
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
