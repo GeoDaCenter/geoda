@@ -514,7 +514,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     }
     
 	// Get initial seed e.g LISA clusters
-    vector<size_t> seeds;
+    vector<wxInt64> seeds;
     bool use_lisa_seed = chk_lisa->GetValue();
     if (use_lisa_seed) {
         int idx = combo_lisa->GetSelection();
@@ -532,9 +532,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             }
             int tm = name_to_tm_id[combo_lisa->GetString(idx)];
             
-            std::vector<wxInt64> _data;
-            table_int->GetColData(col, tm, _data);
-            GenUtils::sort(_data, _data, seeds);
+            table_int->GetColData(col, tm, seeds);
         }
     }
     

@@ -36,19 +36,20 @@
 using namespace boost;
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, char _dist, bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _rnd_seed, char _dist, bool _test )
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
 {
     num_obs = z.size();
     num_vars = z[0].size();
+
     
     if (test) {
         initial = 2;
         floor = 5;
         init_test();
     }
-    
-    // init solution
+
+    // setup random number
     if (rnd_seed<0) {
         unsigned int initseed = (unsigned int) time(0);
         srand(initseed);
@@ -56,7 +57,31 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         srand(rnd_seed);
     }
     uint64_t s1 = rand();
-    init_solution(-1, s1, false);
+    
+    // init solution
+    if (_seeds.empty()) {
+        init_solution(-1, s1, false);
+    } else {
+        map<int, vector<int> > region_dict;
+        for (int i=0; i< _seeds.size(); i++) {
+            int rgn = _seeds[i];
+            this->area2region[i] = rgn;
+            if (region_dict.find(rgn) == region_dict.end()) {
+                vector<int> ids;
+                ids.push_back(i);
+                region_dict[rgn] = ids;
+            } else {
+                region_dict[rgn].push_back(i);
+            }
+        }
+        map<int, vector<int> >::iterator it;
+        for (it = region_dict.begin(); it!= region_dict.end(); it++) {
+            this->regions.push_back(it->second);
+        }
+        this->p = this->regions.size();
+        
+        GenUtils::sort(_seeds, _seeds, seeds);
+    }
     
     
     if (p == 0)
@@ -90,9 +115,11 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
             }
         }
         
-        regions = best_regions;
-        p = regions.size();
-        area2region = best_area2region;
+        if (!best_regions.empty()) {
+            regions = best_regions;
+            p = regions.size();
+            area2region = best_area2region;
+        }
     }
 }
 
