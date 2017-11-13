@@ -138,6 +138,8 @@ protected:
     vector<vector<int> > regions;
     
     vector<vector<vector<int> > > regions_group;
+   
+    double best_ss;
     
     //! A integer number of regions.
     /*!
@@ -189,7 +191,7 @@ protected:
     /*!
      Details.
      */
-    void init_solution(int solution_idx=-1, uint64_t seed_start = 0);
+    void init_solution(int solution_idx=-1, uint64_t seed_start = 0, bool blocalsearch=true);
     
     void run(int a, int b, uint64_t seed_start = 0);
     
@@ -199,7 +201,7 @@ protected:
     /*!
      Details.
      */
-    void swap();
+    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region);
     
     //! A protected member function: init_solution(void). return
     /*!
@@ -215,7 +217,8 @@ protected:
     double objective_function(const vector<int>& current_internal, const vector<int>& current_outter);
     
     double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
-    
+   
+    wxString print_regions();
     //! xxx
     /* !
      \param block
