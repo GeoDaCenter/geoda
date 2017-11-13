@@ -50,7 +50,7 @@ public:
     void OnLISACheck(wxCommandEvent& event);
     virtual void OnCheckMinBound(wxCommandEvent& event);
     
-    void InitVariableCombobox(wxListBox* var_box);
+    virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only);
     
     virtual wxString _printConfiguration();
     
@@ -70,6 +70,9 @@ private:
     wxTextCtrl* txt_minregions;
 
     wxButton* seedButton;
+    
+    wxString select_floor;
+    wxString select_lisa;
     
     DECLARE_EVENT_TABLE()
 };

@@ -211,7 +211,7 @@ void MaxpDlg::CreateControls()
     Centre();
 
     // Content
-    InitVariableCombobox(combo_var);
+    InitVariableCombobox(combo_var, false);
   
     // init weights
     vector<boost::uuids::uuid> weights_ids;
@@ -320,11 +320,15 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
+void MaxpDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
 {
     wxLogMessage("On MaxpDlg::InitVariableCombobox");
     wxArrayString items;
-   
+ 
+    var_box->Clear();
+    combo_floor->Clear();
+    combo_lisa->Clear();
+    
     int cnt_lisa = 0;
     int cnt_floor = 0;
     std::vector<int> col_id_map;
@@ -359,7 +363,13 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
     
     combo_floor->SetSelection(-1);
     combo_lisa->SetSelection(-1);
-    txt_floor->SetValue("");
+    
+    for (int i=0; i<select_vars.size(); i++) {
+        var_box->SetStringSelection(select_vars[i], true);
+    }
+
+    combo_floor->SetStringSelection(select_floor);
+    combo_lisa->SetStringSelection(select_lisa);
 }
 
 void MaxpDlg::OnClickClose(wxCommandEvent& event )
@@ -385,7 +395,7 @@ wxString MaxpDlg::_printConfiguration()
     
     txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
     
-    if (chk_floor && chk_floor->IsChecked()) {
+    if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
@@ -393,7 +403,7 @@ wxString MaxpDlg::_printConfiguration()
         txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
    
-    if (chk_lisa->IsChecked()) {
+    if (chk_lisa->IsChecked() && combo_lisa->GetSelection() >=0) {
         txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
     }
     
@@ -469,12 +479,13 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     double min_bound = GetMinBound();
     if (chk_floor->IsChecked()) {
         wxString str_floor = txt_floor->GetValue();
-        if (str_floor.IsEmpty()) {
+        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
             wxString err_msg = _("Please enter minimum bound value");
             wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
+        select_floor = combo_floor->GetString(combo_floor->GetSelection());
     } else {
         wxString str_floor = txt_minregions->GetValue();
         if (str_floor.IsEmpty()) {
@@ -510,7 +521,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         if (idx < 0) {
             use_lisa_seed = false;
         } else {
-            wxString nm = name_to_nm[combo_lisa->GetString(idx)];
+            select_lisa = combo_lisa->GetString(idx);
+            wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
