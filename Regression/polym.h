@@ -833,7 +833,8 @@ VALUE OnePoly(Iterator<WVector> Poly, const VALUE Val, const INDEX Prec, INDEX P
          };
          S= 1.0e-16;
      };
-     LogJ += log(S);
+      double _s = log(S);
+      if (_s == _s) LogJ += log(S);
   };
   return LogJ;
 }
