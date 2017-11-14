@@ -184,6 +184,10 @@ protected:
      Details.
      */
     int MAX_ATTEMPTS;
+   
+    uint64_t seed_start;
+    
+    uint64_t seed_increment;
     
     vector<double> initial_wss;
     
@@ -191,11 +195,11 @@ protected:
     /*!
      Details.
      */
-    void init_solution(int solution_idx=-1, uint64_t seed_start = 0, bool blocalsearch=true);
+    void init_solution(int solution_idx=-1);
     
-    void run(int a, int b, uint64_t seed_start = 0);
+    void run(int a, int b);
     
-    void run_threaded(uint64_t seed);
+    void run_threaded();
     
     //! A protected member function: init_solution(void).
     /*!
@@ -218,7 +222,7 @@ protected:
     
     double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
    
-    wxString print_regions();
+    wxString print_regions(vector<vector<int> >& _regions);
     //! xxx
     /* !
      \param block
