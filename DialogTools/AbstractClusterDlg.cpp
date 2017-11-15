@@ -647,7 +647,7 @@ void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
 vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<int> >& solutions)
 {
     int n_clusters = solutions.size();
-    vector<vector<double> > result(n_clusters, 0);
+    vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
     
